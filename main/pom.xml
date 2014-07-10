@@ -1,0 +1,198 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.9</version>
+   <packaging>jar</packaging>
+   <prerequisites>
+      <maven>3.0.4</maven>
+      <!-- Must run on JDK 1.7 -->
+   </prerequisites>
+
+   <name>Main</name>
+   <description>
+      JMockit is a Java toolkit for developer (unit/integration) testing.
+      It contains mocking APIs and other tools, supporting both JUnit and TestNG.
+      The mocking APIs allow all kinds of Java code, without testability restrictions, to be tested
+      in isolation from selected dependencies.
+   </description>
+   <url>http://www.jmockit.org</url>
+   <licenses>
+      <license>
+         <name>MIT LICENSE</name>
+         <url>http://www.opensource.org/licenses/mit-license.php</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+   <scm>
+      <url>http://jmockit.org/source/browse/trunk</url>
+      <connection>scm:http://jmockit.googlecode.com/svn/trunk/ jmockit-read-only</connection>
+   </scm>
+   <developers>
+      <developer><name>Rogério Liesenfeld</name></developer>
+   </developers>
+   <inceptionYear>2006</inceptionYear>
+   <issueManagement><url>http://jmockit.org/issues/list</url></issueManagement>
+   <mailingLists>
+      <mailingList>
+         <name>JMockit Users</name>
+         <archive>http://groups.google.com/group/jmockit-users</archive>
+         <post>jmockit-users@googlegroups.com</post>
+      </mailingList>
+   </mailingLists>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
+   <build>
+      <sourceDirectory>src</sourceDirectory>
+      <testSourceDirectory>test</testSourceDirectory>
+      <outputDirectory>classes</outputDirectory>
+      <testOutputDirectory>test-classes</testOutputDirectory>
+      <resources>
+         <resource>
+            <directory>.</directory>
+            <includes><include>META-INF/services/org.testng.ITestNGListener</include></includes>
+         </resource>
+         <resource>
+            <directory>src</directory>
+            <includes><include>mockit/*.java</include></includes>
+         </resource>
+         <resource>
+            <directory>..</directory>
+            <includes>
+               <include>LICENSE.txt</include>
+               <include>NOTICE.txt</include>
+            </includes>
+         </resource>
+      </resources>
+      <testResources>
+         <testResource>
+            <directory>test</directory>
+            <includes><include>**/*.zip</include></includes>
+         </testResource>
+      </testResources>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
+            <configuration><source>1.6</source><target>1.6</target></configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-jar-plugin</artifactId><version>2.4</version>
+            <configuration>
+               <archive>
+                  <addMavenDescriptor>false</addMavenDescriptor>
+                  <manifestEntries>
+                     <Premain-Class>mockit.internal.startup.Startup</Premain-Class>
+                     <Agent-Class>mockit.internal.startup.Startup</Agent-Class>
+                     <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                     <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                  </manifestEntries>
+               </archive>
+            </configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-source-plugin</artifactId><version>2.2.1</version>
+            <executions>
+               <execution>
+                  <id>attach-sources</id>
+                  <goals><goal>jar</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId><version>2.9.1</version>
+            <configuration>
+               <encoding>UTF-8</encoding>
+               <nodeprecated>false</nodeprecated>
+               <noindex>true</noindex>
+               <notree>true</notree>
+               <nohelp>true</nohelp>
+               <breakiterator>true</breakiterator>
+               <use>false</use>
+               <source>1.7</source>
+               <windowtitle>JMockit Toolkit API</windowtitle>
+               <doctitle>JMockit Toolkit API Documentation</doctitle>
+               <stylesheetfile>${basedir}/../www/javadoc/stylesheet.css</stylesheetfile>
+               <overview>${basedir}/../www/javadoc/overview.html</overview>
+               <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
+               <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
+               <notimestamp>true</notimestamp>
+               <quiet>true</quiet>
+               <sourcepath>${basedir}/src</sourcepath>
+               <subpackages>none</subpackages>
+               <additionalparam>mockit mockit.integration.junit4 mockit.integration.testng</additionalparam>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>attach-javadocs</id>
+                  <goals><goal>jar</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <configuration>
+               <disableXmlReport>true</disableXmlReport>
+               <testNGArtifactName>none:none</testNGArtifactName>
+               <runOrder>alphabetical</runOrder>
+               <excludes>
+                  <exclude>**/*$*</exclude>
+                  <exclude>**/Base*Test.class</exclude>
+                  <exclude>**/JUnit4DecoratorTest.class</exclude>
+                  <exclude>**/testng/*Test.class</exclude>
+                  <exclude>**/MockStateBetweenTestMethodsNGTest.class</exclude>
+                  <exclude>**/mockit/integration/TestedClass.class</exclude>
+               </excludes>
+            </configuration>
+         </plugin>
+<!--
+         <plugin>
+            <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
+            <configuration>
+               <executable>/gnupg/pub/gpg.exe</executable>
+               <homedir>/gnupg/mykey</homedir>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>sign-artifacts</id>
+                  <goals><goal>sign</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+-->
+      </plugins>
+   </build>
+
+   <distributionManagement>
+      <repository>
+         <id>sonatype-nexus-staging</id>
+         <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      </repository>
+   </distributionManagement>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.11</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.8</version>
+         <optional>true</optional>
+         <exclusions>
+            <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
+            <exclusion><groupId>com.beust</groupId><artifactId>jcommander</artifactId></exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>javax.inject</groupId><artifactId>javax.inject</artifactId><version>1</version>
+         <optional>true</optional>
+      </dependency>
+   </dependencies>
+</project>

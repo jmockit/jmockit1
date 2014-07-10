@@ -1,0 +1,57 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <artifactId>fakingXmocking</artifactId>
+   <name>Faking x Mocking Sample</name>
+
+   <profiles>
+      <profile>
+         <id>integration-tests</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <jmockit-mocks>
+                           fakingXmocking.original.CurrencyConversionHttpClientFake
+                           fakingXmocking.simplified.CurrencyConversionURLFake
+                        </jmockit-mocks>
+                     </systemPropertyVariables>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration><source>1.8</source><target>1.8</target></configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.mockito</groupId><artifactId>mockito-all</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId><artifactId>httpclient</artifactId><version>4.2.1</version>
+         <exclusions>
+            <exclusion><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId></exclusion>
+         </exclusions>
+      </dependency>
+   </dependencies>
+</project>

@@ -1,0 +1,34 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <artifactId>tutorial</artifactId>
+   <name>Tutorial Sample</name>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>javax.persistence</groupId><artifactId>persistence-api</artifactId><version>1.0</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.mail</groupId><artifactId>mail</artifactId><version>1.4</version>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion><groupId>javax.activation</groupId><artifactId>activation</artifactId></exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.commons</groupId><artifactId>commons-email</artifactId><version>1.3.1</version>
+         <exclusions>
+            <exclusion><groupId>javax.activation</groupId><artifactId>activation</artifactId></exclusion>
+         </exclusions>
+      </dependency>
+   </dependencies>
+</project>

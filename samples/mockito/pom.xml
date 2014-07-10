@@ -1,0 +1,25 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <artifactId>mockito</artifactId>
+   <name>Mockito Comparison Sample</name>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.mockito</groupId><artifactId>mockito-all</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.hamcrest</groupId><artifactId>hamcrest-library</artifactId><version>1.3</version>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
+</project>

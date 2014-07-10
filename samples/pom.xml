@@ -1,0 +1,166 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version>
+   <packaging>pom</packaging>
+
+   <modules>
+      <module>tutorial</module>
+      <module>easymock</module>
+      <module>jmock</module>
+      <module>mockito</module>
+      <module>unitils</module>
+      <module>powermock</module>
+      <module>TimingFramework</module>
+      <module>AnimatedTransitions</module>
+      <module>orderMngmntWebapp</module>
+      <module>tourdemock</module>
+      <module>LoginService</module>
+   </modules>
+
+   <name>The JMockit Testing Toolkit Samples</name>
+   <description>Sample test suites for the toolkit</description>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <jmockit.version>1.9</jmockit.version>
+   </properties>
+
+   <profiles>
+      <profile>
+         <id>unit-tests</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+                  <configuration>
+                     <includes><include>**/*Test.java</include></includes>
+                     <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                        <exclude>**/end2end/**/*Test.java</exclude>
+                     </excludes>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>integration-tests</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+                  <configuration>
+                     <includes>
+                        <include>**/*IntegrationTest.java</include>
+                        <include>**/end2end/**/*Test.java</include>
+                     </includes>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
+
+   <build>
+      <sourceDirectory>src</sourceDirectory>
+      <testSourceDirectory>test</testSourceDirectory>
+      <outputDirectory>classes</outputDirectory>
+      <testOutputDirectory>test-classes</testOutputDirectory>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
+            <configuration><source>1.7</source><target>1.7</target></configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <configuration>
+               <disableXmlReport>true</disableXmlReport>
+               <systemPropertyVariables>
+                  <coverage-outputDir>${project.build.directory}/coverage-report</coverage-outputDir>
+               </systemPropertyVariables>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencyManagement><dependencies>
+      <!-- Basic testing tools -->
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.11</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.8</version>
+         <exclusions>
+            <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
+         </exclusions>
+         <scope>test</scope>
+      </dependency>
+
+      <!-- Mocking tools -->
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+         <version>${jmockit.version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.easymock</groupId><artifactId>easymock</artifactId><version>3.2</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock</artifactId><version>2.6.0</version>
+         <exclusions>
+            <exclusion><groupId>org.hamcrest</groupId><artifactId>hamcrest-core</artifactId></exclusion>
+            <exclusion><groupId>org.hamcrest</groupId><artifactId>hamcrest-library</artifactId></exclusion>
+         </exclusions>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock-junit4</artifactId><version>2.6.0</version>
+         <exclusions><exclusion><groupId>junit</groupId><artifactId>junit-dep</artifactId></exclusion></exclusions>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock-legacy</artifactId><version>2.6.0</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.mockito</groupId><artifactId>mockito-all</artifactId><version>1.9.5</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.unitils</groupId><artifactId>unitils-mock</artifactId><version>3.4</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-logging</groupId><artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.unitils</groupId><artifactId>unitils-inject</artifactId><version>3.4</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-logging</groupId><artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
+      <!-- Code coverage tool -->
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>
+         <version>${jmockit.version}</version>
+         <scope>runtime</scope>
+         <optional>true</optional>
+      </dependency>
+   </dependencies></dependencyManagement>
+</project>

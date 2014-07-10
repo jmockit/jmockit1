@@ -1,0 +1,36 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <artifactId>jmock</artifactId>
+   <name>jMock 2 Comparison Sample</name>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration><source>1.6</source><target>1.6</target></configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock-junit4</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jmock</groupId><artifactId>jmock-legacy</artifactId>
+      </dependency>
+   </dependencies>
+</project>

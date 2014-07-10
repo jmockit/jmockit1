@@ -1,0 +1,30 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <artifactId>powermock</artifactId>
+   <name>PowerMock Comparison Sample</name>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.10</version>
+            <configuration>
+               <!-- Just for testing JMockit re-initialization under the Maven IsolatedClassLoader. -->
+               <useSystemClassLoader>false</useSystemClassLoader>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId>
+      </dependency>
+   </dependencies>
+</project>

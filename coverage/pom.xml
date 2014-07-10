@@ -1,0 +1,183 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.9</version>
+   <name>JMockit Coverage</name>
+
+   <description>
+      JMockit Coverage is a code coverage tool with several metrics (line, path, data) capable of generating HTML
+      reports. It is designed with ease of use in mind, avoiding the need for complex configuration.
+      Instead, smart (but overridable) defaults are employed, such as the selection of which classes to consider for
+      coverage, and where to find sources files for report generation.
+   </description>
+   <url>http://www.jmockit.org</url>
+   <licenses>
+      <license>
+         <name>MIT LICENSE</name>
+         <url>http://www.opensource.org/licenses/mit-license.php</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+   <scm>
+      <url>http://jmockit.org/source/browse/trunk</url>
+      <connection>scm:http://jmockit.googlecode.com/svn/trunk/ jmockit-read-only</connection>
+   </scm>
+   <developers>
+      <developer><name>Rogério Liesenfeld</name></developer>
+   </developers>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
+   <build>
+      <sourceDirectory>src</sourceDirectory>
+      <testSourceDirectory>test</testSourceDirectory>
+      <outputDirectory>classes</outputDirectory>
+      <testOutputDirectory>test-classes</testOutputDirectory>
+      <resources>
+         <resource>
+            <directory>src</directory>
+            <includes>
+               <include>jmockit.properties</include>
+               <include>**/*.css</include>
+               <include>**/*.js</include>
+               <include>**/*.png</include>
+            </includes>
+         </resource>
+         <resource>
+            <directory>../main/classes</directory>
+            <includes>
+               <include>mockit/external/asm4/*.class</include>
+               <include>mockit/internal/util/StackTrace.class</include>
+               <include>mockit/internal/state/TestRun.class</include>
+               <include>mockit/internal/state/MockFixture.class</include>
+               <include>mockit/internal/startup/Startup.class</include>
+            </includes>
+         </resource>
+         <resource>
+            <directory>..</directory>
+            <includes>
+               <include>LICENSE.txt</include>
+               <include>NOTICE.txt</include>
+            </includes>
+         </resource>
+      </resources>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
+            <configuration><source>1.6</source><target>1.6</target></configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-jar-plugin</artifactId><version>2.4</version>
+            <configuration>
+               <archive>
+                  <addMavenDescriptor>false</addMavenDescriptor>
+                  <manifestEntries>
+                     <Main-Class>mockit.coverage.CodeCoverage</Main-Class>
+                     <Premain-Class>mockit.coverage.standalone.Startup</Premain-Class>
+                     <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                     <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                  </manifestEntries>
+               </archive>
+               <excludes>
+                  <exclude>integrationTests/</exclude>
+                  <exclude>*.class</exclude>
+               </excludes>
+            </configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-source-plugin</artifactId><version>2.2.1</version>
+            <configuration>
+               <excludes>
+                  <exclude>integrationTests/**</exclude>
+                  <exclude>*</exclude>
+                  <exclude>**/*.css</exclude>
+                  <exclude>**/*.js</exclude>
+               </excludes>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>attach-sources</id>
+                  <goals><goal>jar</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId><version>2.9.1</version>
+            <configuration>
+               <encoding>UTF-8</encoding>
+               <nodeprecated>true</nodeprecated>
+               <noindex>true</noindex>
+               <notree>true</notree>
+               <nohelp>true</nohelp>
+               <breakiterator>true</breakiterator>
+               <use>false</use>
+               <source>1.7</source>
+               <windowtitle>JMockit Coverage API</windowtitle>
+               <doctitle>JMockit Coverage API Documentation</doctitle>
+               <header><![CDATA[<a href="http://www.jmockit.org" target="_top">JMockit Home</a>]]></header>
+               <footer><![CDATA[<a href="http://www.jmockit.org" target="_top">JMockit Home</a>]]></footer>
+               <notimestamp>true</notimestamp>
+               <quiet>true</quiet>
+               <sourcepath>${basedir}/src</sourcepath>
+               <subpackages>none</subpackages>
+               <additionalparam>mockit.coverage</additionalparam>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>attach-javadocs</id>
+                  <goals><goal>jar</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <configuration>
+               <disableXmlReport>true</disableXmlReport>
+               <excludes><exclude>**/CoverageTest.class</exclude></excludes>
+               <argLine>
+                  -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.9/jmockit-1.9.jar
+                  -Dcoverage-metrics=all
+                  -Dcoverage-outputDir=${project.build.directory}/coverage-report
+               </argLine>
+            </configuration>
+         </plugin>
+<!--
+         <plugin>
+            <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
+            <configuration>
+               <executable>/gnupg/pub/gpg.exe</executable>
+               <homedir>/gnupg/mykey</homedir>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>sign-artifacts</id>
+                  <goals><goal>sign</goal></goals>
+               </execution>
+            </executions>
+         </plugin>
+-->
+      </plugins>
+   </build>
+
+   <distributionManagement>
+      <repository>
+         <id>sonatype-nexus-staging</id>
+         <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      </repository>
+   </distributionManagement>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.11</version>
+         <scope>test</scope><optional>true</optional>
+      </dependency>
+   </dependencies>
+</project>
