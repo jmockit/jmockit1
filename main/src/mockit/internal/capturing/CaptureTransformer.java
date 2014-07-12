@@ -59,7 +59,7 @@ public final class CaptureTransformer implements ClassFileTransformer
       @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
    {
       if (
-         classBeingRedefined != null || inactive || capturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
+         classBeingRedefined != null || inactive || CapturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
       ) {
          return null;
       }

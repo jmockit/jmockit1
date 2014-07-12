@@ -4,7 +4,6 @@
  */
 package mockit.internal.capturing;
 
-import java.net.*;
 import java.security.*;
 import static java.lang.reflect.Proxy.*;
 
@@ -14,6 +13,8 @@ import static mockit.internal.util.GeneratedClasses.*;
 
 final class CapturedType
 {
+   private static final ProtectionDomain JMOCKIT_DOMAIN = CapturedType.class.getProtectionDomain();
+
    @NotNull final Class<?> baseType;
 
    CapturedType(@NotNull Class<?> baseType) { this.baseType = baseType; }
@@ -41,42 +42,28 @@ final class CapturedType
       return !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
    }
 
-   boolean isNotToBeCaptured(
+   static boolean isNotToBeCaptured(
       @Nullable ClassLoader loader, @Nullable ProtectionDomain protectionDomain, @NotNull String classNameOrDesc)
    {
       if (
          loader == null || protectionDomain == null || protectionDomain.getClassLoader() == null ||
-         isGeneratedClass(classNameOrDesc)
+         protectionDomain == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc)
       ) {
          return true;
       }
 
-      if (
+      return
          classNameOrDesc.endsWith("Test") ||
          classNameOrDesc.startsWith("junit") || classNameOrDesc.startsWith("sun") ||
          classNameOrDesc.startsWith("org") && (
-            hasSubPackage(classNameOrDesc, 4, "junit") || hasSubPackage(classNameOrDesc, 4, "testng") ||
-            hasSubPackage(classNameOrDesc, 4, "hamcrest")
+            hasSubPackage(classNameOrDesc, "junit") || hasSubPackage(classNameOrDesc, "testng") ||
+            hasSubPackage(classNameOrDesc, "hamcrest")
          ) ||
-         classNameOrDesc.startsWith("com") && (
-            hasSubPackage(classNameOrDesc, 4, "sun") || hasSubPackage(classNameOrDesc, 4, "intellij")
-         )
-      ) {
-         return true;
-      }
-
-      CodeSource codeSource = protectionDomain.getCodeSource();
-
-      if (codeSource == null || !classNameOrDesc.startsWith("mockit")) {
-         return false;
-      }
-
-      URL location = codeSource.getLocation();
-      return location != null && location.getPath().endsWith("/main/classes/");
+         classNameOrDesc.startsWith("com") && hasSubPackage(classNameOrDesc, "intellij");
    }
 
-   private static boolean hasSubPackage(@NotNull String nameOrDesc, int offset, @NotNull String subPackage)
+   private static boolean hasSubPackage(@NotNull String nameOrDesc, @NotNull String subPackage)
    {
-      return nameOrDesc.regionMatches(offset, subPackage, 0, subPackage.length());
+      return nameOrDesc.regionMatches(4, subPackage, 0, subPackage.length());
    }
 }
