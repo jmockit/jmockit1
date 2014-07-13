@@ -16,11 +16,15 @@
 package org.easymock.samples;
 
 import org.junit.*;
+import org.junit.runner.*;
 
 import org.easymock.*;
 
 public final class BasicClassMockTest extends EasyMockSupport
 {
+   // Neither @Mock nor @TestSubject can be used here.
+   // The first, because the field is still null in the @Before method;
+   // the second, because it does not instantiate the tested class at all.
    private Printer printer;
    private Document document;
 
