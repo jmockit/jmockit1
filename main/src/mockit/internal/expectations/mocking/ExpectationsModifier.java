@@ -50,6 +50,7 @@ final class ExpectationsModifier extends MockedTypeModifier
    private int executionMode;
    private boolean isProxy;
    @Nullable private String defaultFilters;
+   @Nullable List<String> enumSubclasses;
 
    ExpectationsModifier(
       @Nullable ClassLoader classLoader, @NotNull ClassReader classReader, @Nullable MockedType typeMetadata)
@@ -116,6 +117,20 @@ final class ExpectationsModifier extends MockedTypeModifier
    }
 
    @Override
+   public void visitInnerClass(@NotNull String name, @Nullable String outerName, @Nullable String innerName, int access)
+   {
+      cw.visitInnerClass(name, outerName, innerName, access);
+
+      if (access == ACC_ENUM + ACC_STATIC) {
+         if (enumSubclasses == null) {
+            enumSubclasses = new ArrayList<String>();
+         }
+
+         enumSubclasses.add(name);
+      }
+   }
+
+   @Override
    @Nullable public MethodVisitor visitMethod(
       int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
@@ -131,7 +146,8 @@ final class ExpectationsModifier extends MockedTypeModifier
       if ("<clinit>".equals(name)) {
          return stubOutClassInitializationIfApplicable(access, noFiltersToMatch, matchesFilters);
       }
-      else if (stubOutFinalizeMethod(access, name, desc)) {
+
+      if (stubOutFinalizeMethod(access, name, desc)) {
          return null;
       }
 
@@ -180,7 +196,7 @@ final class ExpectationsModifier extends MockedTypeModifier
       return cw.visitMethod(access, name, desc, signature, exceptions);
    }
 
-   private boolean isConstructorOrSystemMethodNotToBeMocked(@NotNull String name, @NotNull String desc)
+   private static boolean isConstructorOrSystemMethodNotToBeMocked(@NotNull String name, @NotNull String desc)
    {
       return
          "<init>".equals(name) || ObjectMethods.isMethodFromObject(name, desc) ||

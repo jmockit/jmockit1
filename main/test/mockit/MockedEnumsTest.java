@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -133,7 +133,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockEnumWithValueSpecificMethods(@Capturing EnumWithValueSpecificMethods mockedEnum)
+   public void mockEnumWithValueSpecificMethods(@Mocked EnumWithValueSpecificMethods mockedEnum)
    {
       assertSame(EnumWithValueSpecificMethods.One, mockedEnum);
 

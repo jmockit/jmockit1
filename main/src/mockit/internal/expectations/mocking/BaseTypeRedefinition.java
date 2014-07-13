@@ -145,8 +145,9 @@ abstract class BaseTypeRedefinition
 
    private void redefineClassAndItsSuperClasses(@NotNull Class<?> realClass)
    {
+      ClassLoader loader = realClass.getClassLoader();
       ClassReader classReader = createClassReader(realClass);
-      ExpectationsModifier modifier = new ExpectationsModifier(realClass.getClassLoader(), classReader, typeMetadata);
+      ExpectationsModifier modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
 
       try {
          redefineClass(realClass, classReader, modifier);
@@ -155,6 +156,17 @@ abstract class BaseTypeRedefinition
          // As defined in ExpectationsModifier, some critical JRE classes have all methods excluded from mocking by
          // default. This exception occurs when they are visited.
          // In this case, we simply stop class redefinition for the rest of the class hierarchy.
+         return;
+      }
+
+      if (modifier.enumSubclasses != null) {
+         for (String enumSubclassDesc : modifier.enumSubclasses) {
+            Class<?> enumSubclass = ClassLoad.loadByInternalName(enumSubclassDesc);
+            classReader = createClassReader(enumSubclass);
+            modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
+            redefineClass(enumSubclass, classReader, modifier);
+         }
+
          return;
       }
 
