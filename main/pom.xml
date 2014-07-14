@@ -3,7 +3,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.9</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.10</version>
    <packaging>jar</packaging>
    <prerequisites>
       <maven>3.0.4</maven>
@@ -26,14 +26,14 @@
       </license>
    </licenses>
    <scm>
-      <url>http://jmockit.org/source/browse/trunk</url>
-      <connection>scm:http://jmockit.googlecode.com/svn/trunk/ jmockit-read-only</connection>
+      <url>https://github.com/jmockit/jmockit1</url>
+      <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
    </scm>
    <developers>
       <developer><name>Rogério Liesenfeld</name></developer>
    </developers>
    <inceptionYear>2006</inceptionYear>
-   <issueManagement><url>http://jmockit.org/issues/list</url></issueManagement>
+   <issueManagement><url>http://github.com/jmockit/jmockit1/issues</url></issueManagement>
    <mailingLists>
       <mailingList>
          <name>JMockit Users</name>
