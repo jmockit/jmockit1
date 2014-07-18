@@ -7,6 +7,8 @@ package mockit.internal.expectations.transformation;
 import org.jetbrains.annotations.*;
 
 import mockit.external.asm4.*;
+import mockit.internal.state.*;
+import mockit.internal.util.*;
 
 import static mockit.external.asm4.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
@@ -19,7 +21,7 @@ final class InvocationBlockModifier extends MethodVisitor
    @NotNull private final MethodWriter mw;
 
    // Input data:
-   @NotNull private final String owner;
+   @NotNull private final String blockOwner;
    private final boolean callEndInvocations;
 
    // Takes care of "withCapture()" matchers, if any:
@@ -31,23 +33,23 @@ final class InvocationBlockModifier extends MethodVisitor
    private int matcherCount;
    @NotNull private Type[] parameterTypes;
 
-   Capture createCapture(int opcode, int var, @Nullable String typeToCapture)
+   Capture createCapture(int opcode, int varIndex, @Nullable String typeToCapture)
    {
-      return new Capture(opcode, var, typeToCapture);
+      return new Capture(opcode, varIndex, typeToCapture);
    }
 
    final class Capture
    {
       final int opcode;
-      private final int var;
+      private final int varIndex;
       @Nullable private final String typeToCapture;
       private int parameterIndex;
       private boolean parameterIndexFixed;
 
-      Capture(int opcode, int var, @Nullable String typeToCapture)
+      Capture(int opcode, int varIndex, @Nullable String typeToCapture)
       {
          this.opcode = opcode;
-         this.var = var;
+         this.varIndex = varIndex;
          this.typeToCapture = typeToCapture;
          parameterIndex = matcherCount - 1;
       }
@@ -66,7 +68,7 @@ final class InvocationBlockModifier extends MethodVisitor
          Type argType = getArgumentType();
          generateCastOrUnboxing(mw, argType, opcode);
 
-         mw.visitVarInsn(opcode, var);
+         mw.visitVarInsn(opcode, varIndex);
       }
 
       @NotNull private Type getArgumentType()
@@ -115,11 +117,11 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   InvocationBlockModifier(@NotNull MethodWriter mw, @NotNull String owner, boolean callEndInvocations)
+   InvocationBlockModifier(@NotNull MethodWriter mw, @NotNull String blockOwner, boolean callEndInvocations)
    {
       super(mw);
       this.mw = mw;
-      this.owner = owner;
+      this.blockOwner = blockOwner;
       this.callEndInvocations = callEndInvocations;
       matcherStacks = new int[40];
       argumentCapturing = new ArgumentCapturing();
@@ -132,12 +134,18 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
-   public void visitFieldInsn(int opcode, @NotNull String fieldOwner, @NotNull String name, @NotNull String desc)
+   public void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
    {
-      if (
+      boolean gettingMockedEnumElement =
+         opcode == GETSTATIC && TestRun.mockFixture().isMockedClass(ClassLoad.loadByInternalName(owner));
+
+      if (gettingMockedEnumElement) {
+         mw.visitVarInsn(ALOAD, 0);
+      }
+      else if (
          (opcode == GETFIELD || opcode == PUTFIELD) &&
          name.indexOf('$') < 1 &&
-         isFieldDefinedByInvocationBlock(fieldOwner)
+         isFieldDefinedByInvocationBlock(owner)
       ) {
          if (opcode == PUTFIELD) {
             if (generateCodeThatReplacesAssignmentToSpecialField(name)) {
@@ -146,18 +154,23 @@ final class InvocationBlockModifier extends MethodVisitor
             }
          }
          else if (name.startsWith("any")) {
-            generateCodeToAddArgumentMatcherForAnyField(fieldOwner, name, desc);
+            generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
             return;
          }
       }
 
-      mw.visitFieldInsn(opcode, fieldOwner, name, desc);
+      mw.visitFieldInsn(opcode, owner, name, desc);
+
+      if (gettingMockedEnumElement) {
+         mw.visitMethodInsn(INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;");
+         mw.visitTypeInsn(CHECKCAST, owner);
+      }
    }
 
    private boolean isFieldDefinedByInvocationBlock(@NotNull String fieldOwner)
    {
       return
-         owner.equals(fieldOwner) ||
+         blockOwner.equals(fieldOwner) ||
          ("mockit/Expectations mockit/NonStrictExpectations " +
           "mockit/Verifications mockit/VerificationsInOrder " +
           "mockit/FullVerifications mockit/FullVerificationsInOrder").contains(fieldOwner);
@@ -169,11 +182,13 @@ final class InvocationBlockModifier extends MethodVisitor
          generateCallToActiveInvocationsMethod("addResult", "(Ljava/lang/Object;)V");
          return true;
       }
-      else if ("times".equals(fieldName) || "minTimes".equals(fieldName) || "maxTimes".equals(fieldName)) {
+
+      if ("times".equals(fieldName) || "minTimes".equals(fieldName) || "maxTimes".equals(fieldName)) {
          generateCallToActiveInvocationsMethod(fieldName, "(I)V");
          return true;
       }
-      else if ("$".equals(fieldName)) {
+
+      if ("$".equals(fieldName)) {
          generateCallToActiveInvocationsMethod("setErrorMessage", "(Ljava/lang/CharSequence;)V");
          return true;
       }
@@ -190,30 +205,30 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
-   public void visitMethodInsn(int opcode, @NotNull String methodOwner, @NotNull String name, @NotNull String desc)
+   public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
    {
-      if (opcode == INVOKESTATIC && (isBoxing(methodOwner, name, desc) || isAccessMethod(methodOwner, name))) {
+      if (opcode == INVOKESTATIC && (isBoxing(owner, name, desc) || isAccessMethod(owner, name))) {
          // It's an invocation to a primitive boxing method or to a synthetic method for private access, just ignore it.
-         mw.visitMethodInsn(INVOKESTATIC, methodOwner, name, desc);
+         mw.visitMethodInsn(INVOKESTATIC, owner, name, desc);
       }
-      else if (opcode == INVOKEVIRTUAL && methodOwner.equals(owner) && name.startsWith("with")) {
-         mw.visitMethodInsn(INVOKEVIRTUAL, methodOwner, name, desc);
+      else if (opcode == INVOKEVIRTUAL && owner.equals(blockOwner) && name.startsWith("with")) {
+         mw.visitMethodInsn(INVOKEVIRTUAL, owner, name, desc);
 
          if (argumentCapturing.registerMatcher(name, desc)) {
             matcherStacks[matcherCount++] = mw.stackSize2;
          }
       }
-      else if (isUnboxing(opcode, methodOwner, desc)) {
+      else if (isUnboxing(opcode, owner, desc)) {
          if (argumentCapturing.justAfterWithCaptureInvocation) {
             generateCodeToReplaceNullWithZeroOnTopOfStack(desc.charAt(2));
             argumentCapturing.justAfterWithCaptureInvocation = false;
          }
          else {
-            mw.visitMethodInsn(opcode, methodOwner, name, desc);
+            mw.visitMethodInsn(opcode, owner, name, desc);
          }
       }
       else if (matcherCount == 0) {
-         mw.visitMethodInsn(opcode, methodOwner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc);
       }
       else {
          parameterTypes = Type.getArgumentTypes(desc);
@@ -227,7 +242,7 @@ final class InvocationBlockModifier extends MethodVisitor
             matcherCount = 0;
          }
 
-         mw.visitMethodInsn(opcode, methodOwner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc);
 
          if (mockedInvocationUsingTheMatchers) {
             argumentCapturing.generateCallsToCaptureMatchedArgumentsIfPending();
@@ -239,7 +254,7 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private boolean isAccessMethod(@NotNull String methodOwner, @NotNull String name)
    {
-      return !methodOwner.equals(owner) && name.startsWith("access$");
+      return !methodOwner.equals(blockOwner) && name.startsWith("access$");
    }
 
    private void generateCodeToReplaceNullWithZeroOnTopOfStack(char primitiveTypeCode)
@@ -315,7 +330,7 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
-   public void visitVarInsn(int opcode, int var)
+   public void visitVarInsn(int opcode, @SuppressWarnings("QuestionableName") int var)
    {
       argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(this, opcode, var);
       mw.visitVarInsn(opcode, var);
