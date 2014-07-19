@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -184,12 +184,12 @@ public final class ExpectationsWithValuesToReturnTest
          mock.getSortedMapItems();
       }};
 
-      assertSame(Collections.<Object>emptyList(), mock.getItems());
-      assertSame(Collections.<Object>emptyList(), mock.getListItems());
-      assertSame(Collections.<Object>emptySet(), mock.getSetItems());
-      assertEquals(Collections.<Object>emptySet(), mock.getSortedSetItems());
-      assertSame(Collections.<Object, Object>emptyMap(), mock.getMapItems());
-      assertEquals(Collections.<Object, Object>emptyMap(), mock.getSortedMapItems());
+      assertSame(Collections.emptyList(), mock.getItems());
+      assertSame(Collections.emptyList(), mock.getListItems());
+      assertSame(Collections.emptySet(), mock.getSetItems());
+      assertEquals(Collections.emptySet(), mock.getSortedSetItems());
+      assertSame(Collections.emptyMap(), mock.getMapItems());
+      assertEquals(Collections.emptyMap(), mock.getSortedMapItems());
    }
 
    @Test
@@ -297,7 +297,7 @@ public final class ExpectationsWithValuesToReturnTest
    public void returnsMultipleValuesInSequenceUsingIterable(@Injectable final Collaborator collaborator)
    {
       final Iterable<Integer> intValues = new Iterable<Integer>() {
-         public Iterator<Integer> iterator() { return asList(3, 2, 1).iterator(); }
+         @Override public Iterator<Integer> iterator() { return asList(3, 2, 1).iterator(); }
       };
 
       new Expectations() {{
@@ -477,7 +477,7 @@ public final class ExpectationsWithValuesToReturnTest
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test(expected = IllegalStateException.class)
    public void returnsMockedCollectionForSimpleReturnType(
       @Mocked final Collaborator mock, @Mocked final List<String> values)
    {
@@ -508,7 +508,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordReturnValueForConstructor(@Mocked final Collaborator mock)
+   public void recordReturnValueForConstructor(@Mocked Collaborator mock)
    {
       new NonStrictExpectations() {{
          new Collaborator();

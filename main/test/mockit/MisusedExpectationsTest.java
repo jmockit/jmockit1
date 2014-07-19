@@ -16,7 +16,7 @@ public final class MisusedExpectationsTest
    @SuppressWarnings("unused")
    static class Blah
    {
-      final String name = new String("Blah");
+      @SuppressWarnings("RedundantStringConstructorCall") final String name = new String("Blah");
       int value() { return 0; }
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
@@ -224,6 +224,7 @@ public final class MisusedExpectationsTest
       static void doSomethingStatic() {}
    }
 
+   @SuppressWarnings("UnnecessarySuperQualifier")
    @Test
    public void accessSpecialFieldsInExpectationBlockThroughSuper(@Mocked final BlahBlah mock2)
    {
@@ -241,6 +242,7 @@ public final class MisusedExpectationsTest
       mock2.setValue(1);
    }
 
+   @SuppressWarnings("UnnecessarySuperQualifier")
    @Test
    public void accessSpecialFieldsInVerificationBlockThroughSuper(@Mocked final BlahBlah mock2)
    {
@@ -337,6 +339,23 @@ public final class MisusedExpectationsTest
             @SuppressWarnings("unused")
             void delegate(boolean b, Invocation inv) {}
          };
+      }};
+   }
+
+   @Test
+   public void attemptToRecordExpectationOnMockedMethodDuringEvaluationOfExpressionAssignedToResultField()
+   {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("record invocation");
+      thrown.expectMessage("outside expectation block");
+
+      class CUT {
+         CUT() { mock.value(); }
+      }
+
+      new NonStrictExpectations() {{
+         mock.getName();
+         result = "test" + new CUT();
       }};
    }
 }

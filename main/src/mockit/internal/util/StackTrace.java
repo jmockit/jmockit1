@@ -53,18 +53,18 @@ public final class StackTrace
       return depth;
    }
 
-   @NotNull public StackTraceElement getElement(int index)
+   @NotNull
+   public StackTraceElement getElement(int index)
    {
-      if (elements != null) {
-         return elements[index];
-      }
+      return elements == null ? getElement(throwable, index) : elements[index];
+   }
 
-      StackTraceElement element;
-      try { element = (StackTraceElement) getStackTraceElement.invoke(throwable, index); }
+   @NotNull
+   public static StackTraceElement getElement(@NotNull Throwable throwable, int index)
+   {
+      try { return (StackTraceElement) getStackTraceElement.invoke(throwable, index); }
       catch (IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e); }
-
-      return element;
    }
 
    public static void filterStackTrace(@NotNull Throwable t)
@@ -114,6 +114,16 @@ public final class StackTrace
 
    private static boolean isJMockitMethod(@NotNull String where)
    {
-      return where.startsWith("mockit.") && !where.endsWith("Test");
+      if (!where.startsWith("mockit.")) {
+         return false;
+      }
+
+      int p = where.lastIndexOf("Test") + 4;
+
+      if (p < 4) {
+         return true;
+      }
+
+      return p < where.length() && where.charAt(p) != '$';
    }
 }

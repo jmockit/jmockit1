@@ -33,16 +33,9 @@ public final class ExpectedInvocation
       @Nullable Object mock, int access, @NotNull String mockedClassDesc, @NotNull String mockNameAndDesc,
       boolean matchInstance, @Nullable String genericSignature, @NotNull Object[] args)
    {
-      this(mock, access, mockedClassDesc, mockNameAndDesc, matchInstance, genericSignature, null, args);
-   }
-
-   public ExpectedInvocation(
-      @Nullable Object mock, int access, @NotNull String mockedClassDesc, @NotNull String mockNameAndDesc,
-      boolean matchInstance, @Nullable String genericSignature, @Nullable String exceptions, @NotNull Object[] args)
-   {
       instance = mock;
       this.matchInstance = matchInstance;
-      arguments = new InvocationArguments(access, mockedClassDesc, mockNameAndDesc, genericSignature, exceptions, args);
+      arguments = new InvocationArguments(access, mockedClassDesc, mockNameAndDesc, genericSignature, args);
       invocationCause = new ExpectationError();
       determineDefaultReturnValueFromMethodSignature();
    }
@@ -51,6 +44,39 @@ public final class ExpectedInvocation
    {
       Object rv = ObjectMethods.evaluateOverride(instance, getMethodNameAndDescription(), getArgumentValues());
       defaultReturnValue = rv == null ? UNDEFINED_DEFAULT_RETURN : rv;
+   }
+
+   @NotNull public Class<?> getCallerClass()
+   {
+      assert invocationCause != null;
+      StackTraceElement firstOuter = StackTrace.getElement(invocationCause, 3);
+      int steIndex = "MockedBridge.java".equals(firstOuter.getFileName()) ? 5 : 4;
+      StackTraceElement ste = StackTrace.getElement(invocationCause, steIndex);
+      String className = ste.getClassName();
+      String methodName = ste.getMethodName();
+
+      if (
+         methodName.startsWith("access$") ||
+         methodName.equals(firstOuter.getMethodName()) && className.equals(firstOuter.getClassName()) // covariant RT
+      ) {
+         steIndex++;
+         ste = StackTrace.getElement(invocationCause, steIndex);
+         className = ste.getClassName();
+      }
+
+      if (ste.getLineNumber() < 0) {
+         // Calling through Reflection.
+         do {
+            steIndex++;
+            ste = StackTrace.getElement(invocationCause, steIndex);
+            className = ste.getClassName();
+         }
+         while (
+            className.contains(".reflect.") || className.startsWith("mockit.internal.") ||
+            "mockit.Deencapsulation".equals(className));
+      }
+
+      return ClassLoad.loadClass(className);
    }
 
    // Simple getters //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +186,7 @@ public final class ExpectedInvocation
    {
       instance = mockedInstance;
       matchInstance = false;
-      arguments = new InvocationArguments(0, classDesc, methodNameAndDesc, null, null, args);
+      arguments = new InvocationArguments(0, classDesc, methodNameAndDesc, null, args);
       invocationCause = null;
    }
 
@@ -212,7 +238,7 @@ public final class ExpectedInvocation
       return newMissingInvocationWithCause("Missing invocations", message);
    }
 
-   @NotNull private String invocationsTo(int invocations)
+   @NotNull private static String invocationsTo(int invocations)
    {
       return invocations == 1 ? " invocation to" : " invocations to";
    }

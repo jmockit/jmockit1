@@ -6,6 +6,7 @@ package mockit.internal.expectations;
 
 import org.jetbrains.annotations.*;
 
+import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -30,23 +31,31 @@ public final class RecordPhase extends TestOnlyPhase
       getCurrentExpectation().addSequenceOfReturnValues(firstValue, remainingValues);
    }
 
-   @Override
-   @Nullable
+   @Nullable @Override
    Object handleInvocation(
-      @Nullable Object mock, int access, @NotNull String classDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, boolean withRealImpl, @NotNull Object[] args)
+      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
+      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
       throws Throwable
    {
       //noinspection AssignmentToMethodParameter
       mock = configureMatchingOnMockInstanceIfSpecified(mock);
-      ExpectedInvocation invocation =
-         new ExpectedInvocation(mock, access, classDesc, mockNameAndDesc, matchInstance, genericSignature, args);
+
+      ExpectedInvocation invocation = new ExpectedInvocation(
+         mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
+      Class<?> callerClass = invocation.getCallerClass();
+
+      if (!Expectations.class.isAssignableFrom(callerClass)) {
+         String kind = mockNameAndDesc.charAt(0) == '<' ? "constructor" : "method";
+         throw new IllegalStateException(
+            "Attempted to record invocation to mocked " + kind + " from outside expectation block" + invocation);
+      }
+
       ExecutingTest executingTest = TestRun.getExecutingTest();
-      boolean nonStrictInvocation = nonStrict || executingTest.isNonStrictInvocation(mock, classDesc, mockNameAndDesc);
+      boolean nonStrictInvocation =
+         nonStrict || executingTest.isNonStrictInvocation(mock, mockClassDesc, mockNameAndDesc);
 
       if (!nonStrictInvocation) {
-         String mockClassDesc = matchInstance ? null : classDesc;
-         executingTest.addStrictMock(mock, mockClassDesc);
+         executingTest.addStrictMock(mock, matchInstance ? null : mockClassDesc);
       }
 
       currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
