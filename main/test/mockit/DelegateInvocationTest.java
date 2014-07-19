@@ -20,7 +20,7 @@ public final class DelegateInvocationTest
       String doSomething(boolean b, int[] i, String s) { return s + b + i[0]; }
       static boolean staticMethod() { return true; }
       static boolean staticMethod(int i) { return i > 0; }
-      native long nativeMethod(boolean b);
+      public native long nativeMethod(boolean b);
       private float privateMethod() { return 1.2F; }
    }
 

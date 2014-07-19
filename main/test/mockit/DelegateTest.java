@@ -26,7 +26,7 @@ public final class DelegateTest
       String doSomething(boolean b, int[] i, String s) { return s + b + i[0]; }
       static boolean staticMethod() { return true; }
       static boolean staticMethod(int i) { return i > 0; }
-      native long nativeMethod(boolean b);
+      protected native long nativeMethod(boolean b);
       final char finalMethod() { return 's'; }
       private float privateMethod() { return 1.2F; }
       void addElements(List<String> elements) { elements.add("one element"); }

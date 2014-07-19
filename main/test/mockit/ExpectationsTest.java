@@ -27,7 +27,7 @@ public final class ExpectationsTest
       private static String doInternal() { return "123"; }
 
       void provideSomeService() {}
-      native boolean nativeMethod();
+      protected native boolean nativeMethod();
 
       String doSomething(URL url) { return url.toString(); }
 
