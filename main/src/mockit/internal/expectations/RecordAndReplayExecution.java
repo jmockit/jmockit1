@@ -175,12 +175,16 @@ public final class RecordAndReplayExecution
          args = NO_ARGS;
       }
 
+      MockFixture mockFixture = TestRun.mockFixture();
+
       if (
          RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread() ||
-         TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread()
+         TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread() ||
+         !mockFixture.isStillMocked(mock, classDesc)
       ) {
          // This occurs if called from a custom argument matching method, in a call to an overridden Object method
-         // (equals, hashCode, toString), or from a different thread during a recording/verification.
+         // (equals, hashCode, toString), from a different thread during recording/verification, or during replay but
+         // between tests.
          return defaultReturnValue(mock, classDesc, mockDesc, genericSignature, executionMode, args);
       }
 
@@ -194,7 +198,7 @@ public final class RecordAndReplayExecution
       if (
          executingTest.shouldProceedIntoRealImplementation(mock, classDesc) ||
          executionMode == 2 && (mock == null || !executingTest.isMockedInstance(mock)) ||
-         executionMode == 3 && mock != null && !TestRun.mockFixture().isInstanceOfMockedClass(mock)
+         executionMode == 3 && mock != null && !mockFixture.isInstanceOfMockedClass(mock)
       ) {
          return Void.class;
       }

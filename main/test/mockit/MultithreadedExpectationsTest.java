@@ -1,13 +1,17 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
+import java.awt.*;
+
 import org.junit.*;
+import org.junit.runners.*;
 import static org.junit.Assert.*;
 
-public final class MultithreadedExpectationsTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public final class MultiThreadedExpectationsTest
 {
    static class Collaborator
    {
@@ -17,7 +21,7 @@ public final class MultithreadedExpectationsTest
 
    @Mocked Collaborator mock;
 
-   private void useMockedCollaboratorFromWorkerThread()
+   void useMockedCollaboratorFromWorkerThread()
    {
       Thread worker = new Thread() {
          @Override public void run() { mock.doSomethingElse(); }
@@ -88,5 +92,34 @@ public final class MultithreadedExpectationsTest
       };
       task.start();
       task.join();
+   }
+
+   static class Dependency
+   {
+      void doSomething() {}
+      static void doSomethingElse() {}
+   }
+
+   @Test
+   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part1(
+      @Mocked final Dependency dep, @Mocked final Graphics2D g2D, @Mocked final Runnable runnable)
+   {
+      new Thread() {
+         @Override
+         public void run()
+         {
+            dep.doSomething();
+            g2D.dispose();
+            runnable.run();
+            Dependency.doSomethingElse();
+         }
+      }.start();
+   }
+
+   @Test
+   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part2() throws Exception
+   {
+      Thread.sleep(10);
+      new FullVerifications() {};
    }
 }

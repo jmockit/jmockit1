@@ -16,6 +16,7 @@ import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.startup.*;
+import mockit.internal.util.*;
 
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
@@ -110,12 +111,40 @@ public final class MockFixture
       }
    }
 
-   public boolean isMockedClass(@NotNull Class<?> realClass)
+   public boolean isStillMocked(@Nullable Object instance, @NotNull String classDesc)
+   {
+      Class<?> targetClass;
+
+      if (instance == null) {
+         targetClass = ClassLoad.loadByInternalName(classDesc);
+         return isMockedClass(targetClass);
+      }
+
+      targetClass = instance.getClass();
+
+      if (mockedTypesAndInstances.containsKey(targetClass)) {
+         return true;
+      }
+
+      int n = mockedClasses.size();
+
+      for (int i = 0; i < n; i++) {
+         Class<?> mockedClass = mockedClasses.get(i);
+
+         if (mockedClass == targetClass || mockedClass.isAssignableFrom(targetClass)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public boolean isMockedClass(@NotNull Class<?> targetClass)
    {
       int n = mockedClasses.size();
 
       for (int i = 0; i < n; i++) {
-         if (mockedClasses.get(i) == realClass) {
+         if (mockedClasses.get(i) == targetClass) {
             return true;
          }
       }
@@ -248,6 +277,7 @@ public final class MockFixture
          byte[] currentDefinition = entry.getValue();
          byte[] previousDefinition = previousDefinitions.get(redefinedClass);
 
+         //noinspection ArrayEquality
          if (currentDefinition != previousDefinition) {
             redefinitionEngine.restoreDefinition(redefinedClass, previousDefinition);
 
@@ -270,7 +300,7 @@ public final class MockFixture
       redefinedClassesWithNativeMethods.add(redefinedClassInternalName.replace('/', '.'));
    }
 
-   private void reregisterNativeMethodsForRestoredClass(@NotNull Class<?> realClass)
+   private static void reregisterNativeMethodsForRestoredClass(@NotNull Class<?> realClass)
    {
       Method registerNatives = null;
 
