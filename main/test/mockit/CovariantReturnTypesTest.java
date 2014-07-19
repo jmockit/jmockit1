@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -131,7 +131,7 @@ public final class CovariantReturnTypesTest
    }
 
    public interface SuperInterface { void someOtherMethod(int i); Object getValue(); }
-   public interface SubInterface extends SuperInterface { String getValue(); }
+   public interface SubInterface extends SuperInterface { @Override String getValue(); }
 
    @Test
    public void methodInSuperInterfaceWithVaryingReturnValuesUsingStrictExpectations(@Mocked final SuperInterface mock)

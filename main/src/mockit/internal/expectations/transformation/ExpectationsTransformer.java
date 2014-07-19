@@ -48,12 +48,12 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       }
    }
 
-   private boolean isFinalClass(@NotNull Class<?> aClass)
+   private static boolean isFinalClass(@NotNull Class<?> aClass)
    {
       return isFinal(aClass.getModifiers()) || ClassNaming.isAnonymousClass(aClass);
    }
 
-   private boolean isExpectationsOrVerificationsSubclassFromUserCode(@NotNull Class<?> aClass)
+   private static boolean isExpectationsOrVerificationsSubclassFromUserCode(@NotNull Class<?> aClass)
    {
       if (isExpectationsOrVerificationsAPIClass(aClass)) {
          return false;
@@ -72,7 +72,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       return false;
    }
 
-   private boolean isExpectationsOrVerificationsAPIClass(@NotNull Class<?> aClass)
+   private static boolean isExpectationsOrVerificationsAPIClass(@NotNull Class<?> aClass)
    {
       return
          ("mockit.Expectations mockit.NonStrictExpectations " +
@@ -165,7 +165,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
          }
 
          if (isClassWhichShouldBeModified(name, superName)) {
-            super.visit(version, access, name, signature, superName, interfaces);
+            cw.visit(version, access, name, signature, superName, interfaces);
             classDesc = name;
          }
          else {

@@ -14,6 +14,8 @@ import mockit.internal.util.*;
 @SuppressWarnings("unused")
 public final class ActiveInvocations
 {
+   private ActiveInvocations() {}
+
    public static void addArgMatcher()
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();

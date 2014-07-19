@@ -16,7 +16,7 @@ public abstract class TestOnlyPhase extends Phase
    @Nullable protected Object nextInstanceToMatch;
    protected boolean matchInstance;
    @Nullable protected List<ArgumentMatcher> argMatchers;
-   Expectation currentExpectation;
+   @Nullable Expectation currentExpectation;
 
    TestOnlyPhase(@NotNull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
 
@@ -65,17 +65,13 @@ public abstract class TestOnlyPhase extends Phase
 
    @NotNull final Expectation getCurrentExpectation()
    {
-      validatePresenceOfExpectation(currentExpectation);
-      return currentExpectation;
-   }
-
-   final void validatePresenceOfExpectation(@Nullable Expectation expectation)
-   {
-      if (expectation == null) {
+      if (currentExpectation == null) {
          throw new IllegalStateException(
             "Missing invocation to mocked type at this point; please make sure such invocations appear only after " +
             "the declaration of a suitable mock field or parameter");
       }
+
+      return currentExpectation;
    }
 
    public void setMaxInvocationCount(int maxInvocations)
