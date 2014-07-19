@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 
 import mockit.internal.*;
 import mockit.internal.state.*;
+import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
@@ -24,14 +25,15 @@ public final class MockInvocation extends BaseInvocation
 
    @NotNull
    public static MockInvocation create(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments,
+      @Nullable Object invokedInstance, @Nullable Object[] invokedArguments,
       @NotNull String mockClassDesc, int mockStateIndex,
       @NotNull String mockedClassDesc, @NotNull String mockedMethodName, @NotNull String mockedMethodDesc)
    {
       Object mockUp = TestRun.getMock(mockClassDesc, invokedInstance);
+      assert mockUp != null;
       MockState mockState = TestRun.getMockStates().getMockState(mockUp, mockStateIndex);
-      return new MockInvocation(
-         invokedInstance, invokedArguments, mockState, mockedClassDesc, mockedMethodName, mockedMethodDesc);
+      Object[] args = invokedArguments == null ? NO_ARGS : invokedArguments;
+      return new MockInvocation(invokedInstance, args, mockState, mockedClassDesc, mockedMethodName, mockedMethodDesc);
    }
 
    public MockInvocation(

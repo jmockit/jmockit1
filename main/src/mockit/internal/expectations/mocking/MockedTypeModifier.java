@@ -39,7 +39,15 @@ class MockedTypeModifier extends BaseClassModifier
       
       // Seventh argument: array with invocation arguments.
       Type[] argTypes = Type.getArgumentTypes(desc);
-      generateCodeToPassMethodArgumentsAsVarargs(isStatic, argTypes);
+      int argCount = argTypes.length;
+
+      if (argCount == 0) {
+         mw.visitInsn(ACONST_NULL);
+      }
+      else {
+         generateCodeToCreateArrayOfObject(argCount);
+         generateCodeToFillArrayWithParameterValues(argTypes, 0, isStatic ? 0 : 1);
+      }
 
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/expectations/RecordAndReplayExecution", "recordOrReplay",
@@ -55,11 +63,5 @@ class MockedTypeModifier extends BaseClassModifier
       else {
          mw.visitLdcInsn(text);
       }
-   }
-
-   private void generateCodeToPassMethodArgumentsAsVarargs(boolean isStatic, @NotNull Type[] argTypes)
-   {
-      generateCodeToCreateArrayOfObject(argTypes.length);
-      generateCodeToFillArrayWithParameterValues(argTypes, 0, isStatic ? 0 : 1);
    }
 }

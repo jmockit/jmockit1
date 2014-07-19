@@ -16,6 +16,10 @@ import org.jetbrains.annotations.*;
  */
 public final class Utilities
 {
+   @NotNull public static final Object[] NO_ARGS = {};
+
+   private Utilities() {}
+
    public static void ensureThatMemberIsAccessible(@NotNull AccessibleObject classMember)
    {
       if (!classMember.isAccessible()) {
@@ -44,15 +48,22 @@ public final class Utilities
    @NotNull
    public static Class<?> getClassType(@NotNull Type declaredType)
    {
-      if (declaredType instanceof ParameterizedType) {
-         return (Class<?>) ((ParameterizedType) declaredType).getRawType();
-      }
-      else if (declaredType instanceof TypeVariable) {
-         Type firstBound = ((TypeVariable<?>) declaredType).getBounds()[0];
-         return getClassType(firstBound);
-      }
+      while (true) {
+         if (declaredType instanceof Class<?>) {
+            return (Class<?>) declaredType;
+         }
 
-      return (Class<?>) declaredType;
+         if (declaredType instanceof ParameterizedType) {
+            return (Class<?>) ((ParameterizedType) declaredType).getRawType();
+         }
+
+         if (declaredType instanceof TypeVariable) {
+            declaredType = ((TypeVariable<?>) declaredType).getBounds()[0];
+            continue;
+         }
+
+         throw new IllegalArgumentException("Type of unexpected kind: " + declaredType);
+      }
    }
 
    public static boolean containsReference(@NotNull List<?> references, @Nullable Object toBeFound)

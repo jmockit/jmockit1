@@ -7,14 +7,15 @@ package mockit.internal.expectations;
 import java.util.*;
 import java.util.concurrent.locks.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.Utilities.*;
+
+import org.jetbrains.annotations.*;
 
 public final class RecordAndReplayExecution
 {
@@ -166,9 +167,14 @@ public final class RecordAndReplayExecution
    @Nullable
    public static Object recordOrReplay(
       @Nullable Object mock, int mockAccess, @NotNull String classDesc, @NotNull String mockDesc,
-      @Nullable String genericSignature, int executionMode, @NotNull Object... args)
+      @Nullable String genericSignature, int executionMode, @Nullable Object[] args)
       throws Throwable
    {
+      if (args == null) {
+         //noinspection AssignmentToMethodParameter
+         args = NO_ARGS;
+      }
+
       if (
          RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread() ||
          TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread()

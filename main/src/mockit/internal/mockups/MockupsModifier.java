@@ -375,8 +375,15 @@ final class MockupsModifier extends BaseClassModifier
    {
       generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
 
-      generateCodeToCreateArrayOfObject(argTypes.length);
-      generateCodeToFillArrayWithParameterValues(argTypes, 0, initialParameterIndex);
+      int argCount = argTypes.length;
+
+      if (argCount == 0) {
+         mw.visitInsn(ACONST_NULL);
+      }
+      else {
+         generateCodeToCreateArrayOfObject(argCount);
+         generateCodeToFillArrayWithParameterValues(argTypes, 0, initialParameterIndex);
+      }
 
       mw.visitLdcInsn(mockMethods.getMockClassInternalName());
       mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
