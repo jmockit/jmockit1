@@ -17,6 +17,7 @@
       </dependency>
       <dependency>
          <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>
+         <optional>true</optional>
       </dependency>
    </dependencies>
 </project>
