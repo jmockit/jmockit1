@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -21,7 +21,7 @@ public final class AnimationLayerTest
 
       JFrame window = new JFrame();
       window.setBounds(20, 10, 200, 150);
-      final JComponent targetComponent = new JButton("Testing");
+      JComponent targetComponent = new JButton("Testing");
       targetComponent.setLocation(15, 23);
       window.add(targetComponent);
 

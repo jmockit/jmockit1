@@ -19,12 +19,6 @@ import mockit.*;
 @SuppressWarnings("unchecked")
 public final class AnimationManagerTest
 {
-   @BeforeClass
-   public static void initializeAWTStaticState()
-   {
-      JComponent.getDefaultLocale();
-   }
-
    @Test
    public void recreateImageForContainerOfSizeZero(@Injectable final JComponent container)
    {
@@ -186,7 +180,7 @@ public final class AnimationManagerTest
       final JButton component = new JButton();
       AnimationManager manager = newAnimationManagerWithAComponent(component);
 
-      final Map<JComponent, AnimationState> componentAnimationStates = getField(manager, Map.class);
+      Map<JComponent, AnimationState> componentAnimationStates = getField(manager, Map.class);
       componentAnimationStates.put(component, startState);
 
       new NonStrictExpectations() {{

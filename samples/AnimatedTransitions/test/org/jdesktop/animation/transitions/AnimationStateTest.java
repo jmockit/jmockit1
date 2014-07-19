@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -86,7 +86,7 @@ public final class AnimationStateTest
    @Test
    public void initWithStartStateOnly(@Mocked final Animator animator, @Mocked final FadeOut effect)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
 
       state.init(animator);
 
@@ -96,7 +96,7 @@ public final class AnimationStateTest
    @Test
    public void initWithEndStateOnly(@Mocked final Animator animator, @Mocked final FadeIn effect)
    {
-      final AnimationState state = new AnimationState(component, false);
+      AnimationState state = new AnimationState(component, false);
 
       state.init(animator);
 
@@ -106,7 +106,7 @@ public final class AnimationStateTest
    @Test
    public void initWithBothStartAndEndStates(@Mocked final Animator animator, @Mocked final Unchanging effect)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
       state.setEnd(new ComponentState(component));
 
       state.init(animator);
@@ -117,7 +117,7 @@ public final class AnimationStateTest
    @Test
    public void initWithStartAndEndStatesInDifferentLocations(@Mocked final Animator animator, @Mocked final Move move)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
 
       component.setLocation(20, 15);
       state.setEnd(new ComponentState(component));
@@ -130,7 +130,7 @@ public final class AnimationStateTest
    @Test
    public void initWithStartAndEndStatesHavingDifferentSizes(@Mocked final Animator animator, @Mocked final Scale scale)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
 
       component.setSize(200, 150);
       state.setEnd(new ComponentState(component));
@@ -144,7 +144,7 @@ public final class AnimationStateTest
    public void initWithStartAndEndStatesHavingDifferentLocationsAndSizes(
       @Mocked final Animator animator, @Mocked final CompositeEffect composite)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
       component.setBounds(20, 15, 200, 150);
 
       final ComponentState startState = state.getStart();
@@ -213,7 +213,7 @@ public final class AnimationStateTest
    @Test
    public void cleanupState(@Mocked final Animator animator, @Mocked final FadeOut effect)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
       Deencapsulation.setField(state, effect);
 
       state.cleanup(animator);
@@ -224,7 +224,7 @@ public final class AnimationStateTest
    @Test
    public void paintState(@Mocked final Graphics2D graphics2D, @Mocked Animator animator, @Mocked final Effect effect)
    {
-      final AnimationState state = new AnimationState(component, true);
+      AnimationState state = new AnimationState(component, true);
 
       // Does nothing when no effect is yet defined.
       state.paint(null);
