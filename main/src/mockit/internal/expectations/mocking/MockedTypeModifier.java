@@ -17,7 +17,7 @@ class MockedTypeModifier extends BaseClassModifier
 
    protected final void generateDirectCallToHandler(
       @NotNull String className, int access, @NotNull String name, @NotNull String desc,
-      @Nullable String genericSignature, @Nullable String[] exceptions, int executionMode)
+      @Nullable String genericSignature, int executionMode)
    {
       // First argument: the mock instance, if any.
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(access);
@@ -34,21 +34,17 @@ class MockedTypeModifier extends BaseClassModifier
       // Fifth argument: generic signature, or null if none.
       generateInstructionToLoadNullableString(genericSignature);
 
-      // Sixth argument: checked exceptions thrown, or null if none.
-      String exceptionsStr = getListOfExceptionsAsSingleString(exceptions);
-      generateInstructionToLoadNullableString(exceptionsStr);
-
-      // Seventh argument: indicate regular or special modes of execution.
+      // Sixth argument: indicate regular or special modes of execution.
       mw.visitLdcInsn(executionMode);
       
-      // Sixth argument: call arguments.
+      // Seventh argument: array with invocation arguments.
       Type[] argTypes = Type.getArgumentTypes(desc);
       generateCodeToPassMethodArgumentsAsVarargs(isStatic, argTypes);
 
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/expectations/RecordAndReplayExecution", "recordOrReplay",
-         "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I" +
-         "[Ljava/lang/Object;)Ljava/lang/Object;");
+         "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/Object;)" +
+         "Ljava/lang/Object;");
    }
 
    private void generateInstructionToLoadNullableString(@Nullable String text)
@@ -65,26 +61,5 @@ class MockedTypeModifier extends BaseClassModifier
    {
       generateCodeToCreateArrayOfObject(argTypes.length);
       generateCodeToFillArrayWithParameterValues(argTypes, 0, isStatic ? 0 : 1);
-   }
-
-   @Nullable
-   protected final String getListOfExceptionsAsSingleString(@Nullable String[] exceptions)
-   {
-      if (exceptions == null) {
-         return null;
-      }
-      else if (exceptions.length == 1) {
-         return exceptions[0];
-      }
-
-      StringBuilder buf = new StringBuilder(200);
-      String sep = "";
-
-      for (String exception : exceptions) {
-         buf.append(sep).append(exception);
-         sep = " ";
-      }
-
-      return buf.toString();
    }
 }

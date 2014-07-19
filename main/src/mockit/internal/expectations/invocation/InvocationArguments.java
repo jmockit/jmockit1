@@ -22,18 +22,16 @@ public final class InvocationArguments
    @NotNull final String classDesc;
    @NotNull final String methodNameAndDesc;
    @Nullable final String genericSignature;
-   @Nullable final String[] exceptions;
    @NotNull private final ArgumentValuesAndMatchers valuesAndMatchers;
    @Nullable private Member realMethodOrConstructor;
 
    InvocationArguments(
-      int access, @NotNull String classDesc, @NotNull String methodNameAndDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, @NotNull Object[] args)
+      int access, @NotNull String classDesc, @NotNull String methodNameAndDesc, @Nullable String genericSignature,
+      @NotNull Object[] args)
    {
       this.classDesc = classDesc;
       this.methodNameAndDesc = methodNameAndDesc;
       this.genericSignature = genericSignature;
-      this.exceptions = exceptions == null ? null : exceptions.split(" ");
       valuesAndMatchers =
          (access & Opcodes.ACC_VARARGS) == 0 ?
             new ArgumentValuesAndMatchersWithoutVarargs(this, args) :
@@ -119,7 +117,8 @@ public final class InvocationArguments
       return new UnexpectedInvocation(message.toString());
    }
 
-   private void appendWarningMessageAboutLackOfEqualsMethod(@NotNull ArgumentMismatch message, @NotNull Object value)
+   private static void appendWarningMessageAboutLackOfEqualsMethod(
+      @NotNull ArgumentMismatch message, @NotNull Object value)
    {
       Class<?> argClass = value.getClass();
 

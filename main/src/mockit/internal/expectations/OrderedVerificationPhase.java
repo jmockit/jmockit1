@@ -249,8 +249,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
 
          argMatchers = verifiedExpectation.argMatchers;
          handleInvocation(
-            invocation.instance, 0, invocation.getClassDesc(), invocation.getMethodNameAndDescription(), null, null,
-            false, verifiedExpectation.arguments);
+            invocation.instance, 0, invocation.getClassDesc(), invocation.getMethodNameAndDescription(), null, false,
+            verifiedExpectation.arguments);
 
          Error testFailure = recordAndReplay.getErrorThrown();
 

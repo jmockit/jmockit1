@@ -177,11 +177,10 @@ final class ExpectationsModifier extends MockedTypeModifier
       int actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
 
       if (useMockingBridge) {
-         return
-            generateCallToHandlerThroughMockingBridge(signature, exceptions, internalClassName, actualExecutionMode);
+         return generateCallToHandlerThroughMockingBridge(signature, internalClassName, actualExecutionMode);
       }
 
-      generateDirectCallToHandler(internalClassName, access, name, desc, signature, exceptions, actualExecutionMode);
+      generateDirectCallToHandler(internalClassName, access, name, desc, signature, actualExecutionMode);
       generateDecisionBetweenReturningOrContinuingToRealImplementation();
 
       // Constructors of non-JRE classes can't be modified (unless running with "-noverify") in a way that
@@ -238,7 +237,7 @@ final class ExpectationsModifier extends MockedTypeModifier
          isConstructorToBeIgnored(name) ||
          isStaticMethodToBeIgnored(access) ||
          isNativeMethodForDynamicMocking(access) ||
-         (access & PRIVATE_NATIVE_METHOD) == PRIVATE_NATIVE_METHOD ||
+         access == ACC_NATIVE || (access & PRIVATE_NATIVE_METHOD) == PRIVATE_NATIVE_METHOD ||
          defaultFilters != null && defaultFilters.contains(name);
    }
 
@@ -266,8 +265,7 @@ final class ExpectationsModifier extends MockedTypeModifier
 
    @NotNull
    private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @Nullable String[] exceptions, @NotNull String internalClassName,
-      int actualExecutionMode)
+      @Nullable String genericSignature, @NotNull String internalClassName, int actualExecutionMode)
    {
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 
@@ -277,7 +275,7 @@ final class ExpectationsModifier extends MockedTypeModifier
 
       // Create array for call arguments (third "invoke" argument):
       Type[] argTypes = Type.getArgumentTypes(methodDesc);
-      generateCodeToCreateArrayOfObject(7 + argTypes.length);
+      generateCodeToCreateArrayOfObject(6 + argTypes.length);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, methodAccess);
@@ -285,7 +283,6 @@ final class ExpectationsModifier extends MockedTypeModifier
       generateCodeToFillArrayElement(i++, methodName);
       generateCodeToFillArrayElement(i++, methodDesc);
       generateCodeToFillArrayElement(i++, genericSignature);
-      generateCodeToFillArrayElement(i++, getListOfExceptionsAsSingleString(exceptions));
       generateCodeToFillArrayElement(i++, actualExecutionMode);
 
       generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);

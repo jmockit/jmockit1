@@ -55,19 +55,19 @@ final class ReplayPhase extends Phase
    @Override
    @Nullable
    Object handleInvocation(
-      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, boolean withRealImpl, @NotNull Object[] args)
+      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
+      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
       throws Throwable
    {
       Expectation nonStrictExpectation =
-         recordAndReplay.executionState.findNonStrictExpectation(mock, mockClassDesc, mockDesc, args);
+         recordAndReplay.executionState.findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance =
-         recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockDesc);
+         recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
       if (nonStrictExpectation == null) {
          nonStrictExpectation = createExpectationIfNonStrictInvocation(
             replacementInstance == null ? mock : replacementInstance,
-            mockAccess, mockClassDesc, mockDesc, genericSignature, exceptions, args);
+            mockAccess, mockClassDesc, mockNameAndDesc, genericSignature, args);
       }
       else if (nonStrictExpectation.recordPhase != null) {
          registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, nonStrictExpectation.invocation);
@@ -87,20 +87,19 @@ final class ReplayPhase extends Phase
          return produceResult(nonStrictExpectation, mock, withRealImpl, args);
       }
 
-      return handleStrictInvocation(mock, mockClassDesc, mockDesc, withRealImpl, args);
+      return handleStrictInvocation(mock, mockClassDesc, mockNameAndDesc, withRealImpl, args);
    }
 
    @Nullable
    private Expectation createExpectationIfNonStrictInvocation(
       @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, @NotNull Object[] args)
+      @Nullable String genericSignature, @NotNull Object[] args)
    {
       Expectation expectation = null;
 
       if (!TestRun.getExecutingTest().isStrictInvocation(mock, mockClassDesc, mockNameAndDesc)) {
          ExpectedInvocation invocation =
-            new ExpectedInvocation(
-               mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, exceptions, args);
+            new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
          expectation = new Expectation(null, invocation, true);
          recordAndReplay.executionState.addExpectation(expectation, true);
       }
@@ -278,6 +277,7 @@ final class ReplayPhase extends Phase
       List<Expectation> nonStrictExpectations = recordAndReplay.executionState.nonStrictExpectations;
 
       // New expectations might get added to the list, so a regular loop would cause a CME.
+      //noinspection ForLoopReplaceableByForEach
       for (int i = 0, n = nonStrictExpectations.size(); i < n; i++) {
          Expectation nonStrict = nonStrictExpectations.get(i);
          InvocationConstraints constraints = nonStrict.constraints;

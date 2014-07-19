@@ -59,8 +59,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    @Override
    @Nullable final Object handleInvocation(
-      @Nullable Object mock, int access, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, boolean withRealImpl, @NotNull Object[] args)
+      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
+      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
    {
       if (pendingError != null) {
          recordAndReplay.setErrorThrown(pendingError);
@@ -70,8 +70,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
       matchInstance = nextInstanceToMatch != null && mock == nextInstanceToMatch;
 
-      ExpectedInvocation currentInvocation =
-         new ExpectedInvocation(mock, access, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
+      ExpectedInvocation currentInvocation = new ExpectedInvocation(
+         mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
       currentInvocation.arguments.setMatchers(argMatchers);
       currentVerification = new Expectation(null, currentInvocation, true);
 
@@ -208,7 +208,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return null;
    }
 
-   private boolean isEligibleForFullVerification(@NotNull Expectation replayExpectation)
+   private static boolean isEligibleForFullVerification(@NotNull Expectation replayExpectation)
    {
       return !replayExpectation.executedRealImplementation && replayExpectation.constraints.minInvocations <= 0;
    }

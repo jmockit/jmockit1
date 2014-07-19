@@ -31,8 +31,9 @@ public final class MockedBridge extends MockingBridge
       String mockName = (String) args[2];
       String mockDesc = (String) args[3];
       String mockNameAndDesc = mockName + mockDesc;
-      Object[] mockArgs = extractMockArguments(7, args);
-      int executionMode = (Integer) args[6];
+      int executionMode = (Integer) args[5];
+      Object[] mockArgs = extractMockArguments(6, args);
+
       boolean lockHeldByCurrentThread = RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread();
 
       if (lockHeldByCurrentThread && mocked != null && executionMode == 3) {
@@ -55,14 +56,12 @@ public final class MockedBridge extends MockingBridge
       }
 
       int mockAccess = (Integer) args[0];
-      String exceptions = (String) args[5];
 
       TestRun.enterNoMockingZone();
 
       try {
          return RecordAndReplayExecution.recordOrReplay(
-            mocked, mockAccess, mockedClassDesc, mockNameAndDesc, genericSignature, exceptions,
-            executionMode, mockArgs);
+            mocked, mockAccess, mockedClassDesc, mockNameAndDesc, genericSignature, executionMode, mockArgs);
       }
       finally {
          TestRun.exitNoMockingZone();

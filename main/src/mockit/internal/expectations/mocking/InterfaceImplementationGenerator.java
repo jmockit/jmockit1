@@ -66,7 +66,7 @@ final class InterfaceImplementationGenerator extends MockedTypeModifier
    public void visitAttribute(Attribute attr) {}
 
    @Override
-   public void visitSource(String file, String debug) {}
+   public void visitSource(String source, String debug) {}
 
    @Override @Nullable
    public FieldVisitor visitField(
@@ -99,7 +99,7 @@ final class InterfaceImplementationGenerator extends MockedTypeModifier
          }
 
          mw = super.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
-         generateDirectCallToHandler(interfaceName, access, name, desc, signature, exceptions, 0);
+         generateDirectCallToHandler(interfaceName, access, name, desc, signature, 0);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxs(1, 0);
 
@@ -132,11 +132,11 @@ final class InterfaceImplementationGenerator extends MockedTypeModifier
          superInterfaces = interfaces;
       }
 
-      @Override
+      @Nullable @Override
       public FieldVisitor visitField(
          int access, @NotNull String name, @NotNull String desc, String signature, Object value) { return null; }
 
-      @Override
+      @Nullable @Override
       public MethodVisitor visitMethod(
          int access, @NotNull String name, @NotNull String desc, String signature, String[] exceptions)
       {

@@ -78,7 +78,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
    public void visitAttribute(Attribute attr) {}
 
    @Override
-   public void visitSource(@Nullable String file, @Nullable String debug) {}
+   public void visitSource(@Nullable String source, @Nullable String debug) {}
 
    @Override @Nullable
    public FieldVisitor visitField(
@@ -107,19 +107,19 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
    {
       mw = cw.visitMethod(ACC_PUBLIC, "<init>", desc, signature, exceptions);
       mw.visitVarInsn(ALOAD, 0);
-      int var = 1;
+      int varIndex = 1;
 
       for (mockit.external.asm4.Type paramType : mockit.external.asm4.Type.getArgumentTypes(desc)) {
          int loadOpcode = getLoadOpcodeForParameterType(paramType.getSort());
-         mw.visitVarInsn(loadOpcode, var);
-         var++;
+         mw.visitVarInsn(loadOpcode, varIndex);
+         varIndex++;
       }
 
       mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", desc);
       generateEmptyImplementation();
    }
 
-   private int getLoadOpcodeForParameterType(int paramType)
+   private static int getLoadOpcodeForParameterType(int paramType)
    {
       if (paramType <= mockit.external.asm4.Type.INT) {
          return ILOAD;
@@ -167,7 +167,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          noFiltersToMatch && !ObjectMethods.isMethodFromObject(name, desc) ||
          !noFiltersToMatch && mockingCfg.matchesFilters(name, desc)
       ) {
-         generateDirectCallToHandler(className, access, name, desc, signature, exceptions, 0);
+         generateDirectCallToHandler(className, access, name, desc, signature, 0);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxs(1, 0);
       }
@@ -202,7 +202,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
       }
    }
 
-   private class BaseMethodModifier extends ClassVisitor
+   private static class BaseMethodModifier extends ClassVisitor
    {
       @NotNull final String typeName;
 
@@ -212,8 +212,8 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          ClassFile.visitClass(typeName, this);
       }
 
-      @Override
-      public FieldVisitor visitField(
+      @Nullable @Override
+      public final FieldVisitor visitField(
          int access, @NotNull String name, @NotNull String desc, String signature, Object value) { return null; }
    }
 
@@ -235,7 +235,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          }
       }
 
-      @Override
+      @Nullable @Override
       public MethodVisitor visitMethod(
          int access, @NotNull String name, @NotNull String desc, String signature, String[] exceptions)
       {
@@ -263,7 +263,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          superInterfaces.addAll(asList(interfaces));
       }
 
-      @Override
+      @Nullable @Override
       public MethodVisitor visitMethod(
          int access, @NotNull String name, @NotNull String desc, String signature, String[] exceptions)
       {

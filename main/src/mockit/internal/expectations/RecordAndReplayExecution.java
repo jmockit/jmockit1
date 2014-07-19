@@ -166,7 +166,7 @@ public final class RecordAndReplayExecution
    @Nullable
    public static Object recordOrReplay(
       @Nullable Object mock, int mockAccess, @NotNull String classDesc, @NotNull String mockDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, int executionMode, @NotNull Object... args)
+      @Nullable String genericSignature, int executionMode, @NotNull Object... args)
       throws Throwable
    {
       if (
@@ -184,23 +184,22 @@ public final class RecordAndReplayExecution
          // This occurs when called from a reentrant delegate method, or during static initialization of a mocked class.
          return defaultReturnValue(executingTest, mock, classDesc, mockDesc, genericSignature, executionMode, args);
       }
-      else if (executingTest.shouldProceedIntoRealImplementation(mock, classDesc)) {
-         return Void.class;
-      }
-      else if (mock != null && executionMode == 3 && !TestRun.mockFixture().isInstanceOfMockedClass(mock)) {
-         return Void.class;
-      }
 
-      if (executionMode == 2 && (mock == null || !executingTest.isMockedInstance(mock))) {
+      if (
+         executingTest.shouldProceedIntoRealImplementation(mock, classDesc) ||
+         executionMode == 2 && (mock == null || !executingTest.isMockedInstance(mock)) ||
+         executionMode == 3 && mock != null && !TestRun.mockFixture().isInstanceOfMockedClass(mock)
+      ) {
          return Void.class;
       }
 
       RECORD_OR_REPLAY_LOCK.lock();
 
       try {
-         RecordAndReplayExecution instance = TestRun.getExecutingTest().getOrCreateRecordAndReplay();
+         boolean isConstructor = mock != null && mockDesc.startsWith("<init>");
+         RecordAndReplayExecution instance = executingTest.getOrCreateRecordAndReplay();
 
-         if (mock != null && mockDesc.startsWith("<init>") && handleCallToConstructor(instance, mock, classDesc)) {
+         if (isConstructor && handleCallToConstructor(instance, mock, classDesc)) {
             return
                executionMode == 3 || executionMode == 1 && instance.replayPhase == null ||
                executingTest.isInjectableMock(mock) ?
@@ -212,8 +211,7 @@ public final class RecordAndReplayExecution
 
          boolean withRealImpl = executionMode == 1;
          Object result =
-            currentPhase.handleInvocation(
-               mock, mockAccess, classDesc, mockDesc, genericSignature, exceptions, withRealImpl, args);
+            currentPhase.handleInvocation(mock, mockAccess, classDesc, mockDesc, genericSignature, withRealImpl, args);
 
          instance.failureState.reportErrorThrownIfAny();
 

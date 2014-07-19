@@ -19,6 +19,6 @@ abstract class Phase
    @Nullable
    abstract Object handleInvocation(
       @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, @Nullable String exceptions, boolean withRealImpl, @NotNull Object[] args)
+      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
       throws Throwable;
 }
