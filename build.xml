@@ -9,7 +9,7 @@
    <taskdef resource="testngtasks" classpath="${TESTNG_JAR}"/>
    <taskdef
       name="jacocoReport" classname="org.jacoco.ant.ReportTask"
-      classpath="../Java/jacoco-0.7.1-20140417/lib/jacocoant.jar"/>
+      classpath="../Java/jacoco-0.7.1/lib/jacocoant.jar"/>
 
    <loadfile property="version" srcFile="version.txt"/>
 
@@ -64,17 +64,6 @@
    </target>
    <target name="buildCoverage" depends="buildMain">
       <build module="coverage"/><buildTests module="coverage"/>
-   </target>
-   <target name="buildIncremental" depends="buildCoverage">
-      <build module="incremental" extraclasspathlocation="coverage/classes"/>
-   </target>
-   <target name="buildMulticore">
-      <build module="multicore"/>
-      <buildTests module="multicore"/>
-   </target>
-   <target name="buildHibernateEmulation">
-      <build module="hibernate3emul"/>
-      <buildTests module="hibernate3emul"/>
    </target>
 
    <macrodef name="buildSample">
@@ -165,9 +154,10 @@
    <!-- Target for generating the Javadoc HTML documentation -->
 
    <target name="createjavadocs">
-      <delete dir="www/javadoc" includes="**/*.html" excludes="overview.html" quiet="true"/>
+      <property name="api" value="../jmockit.github.io/api1x"/>
+      <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
       <javadoc
-         destdir="www/javadoc" overview="www/javadoc/overview.html"
+         destdir="${api}" overview="${api}/overview.html"
          classpathref="common.classpath" classpath="main/classes"
          nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API" doctitle="JMockit Toolkit API Documentation"
@@ -178,22 +168,22 @@
             <include name="mockit/integration/junit4/*.java"/>
             <include name="mockit/integration/testng/*.java"/>
          </fileset>
-         <link href="http://download.oracle.com/javase/7/docs/api" offline="true" packagelistloc="www/javadoc/external"/>
+         <link href="http://download.oracle.com/javase/7/docs/api" offline="true" packagelistloc="${api}/external"/>
          <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
          <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
       </javadoc>
-      <delete file="www/javadoc/constant-values.html"/>
-      <replace dir="www/javadoc" includes="*.html">
+      <delete file="${api}/constant-values.html"/>
+      <replace dir="${api}" includes="*.html">
          <replacetoken><![CDATA[</head>]]></replacetoken>
          <replacevalue><![CDATA[<link rel="shortcut icon" type="image/x-icon" href="resources/favicon.ico">
 </head>]]></replacevalue>
       </replace>
-      <replace dir="www/javadoc/mockit" includes="*.html">
+      <replace dir="${api}/mockit" includes="*.html">
          <replacetoken><![CDATA[</head>]]></replacetoken>
          <replacevalue><![CDATA[<link rel="shortcut icon" type="image/x-icon" href="../resources/favicon.ico">
 </head>]]></replacevalue>
       </replace>
-      <replace dir="www/javadoc/mockit/integration" includes="*/*.html">
+      <replace dir="${api}/mockit/integration" includes="*/*.html">
          <replacetoken><![CDATA[</head>]]></replacetoken>
          <replacevalue><![CDATA[<link rel="shortcut icon" type="image/x-icon" href="../../../resources/favicon.ico">
 </head>]]></replacevalue>
@@ -209,8 +199,8 @@
       <jar destfile="jmockit.jar">
          <fileset file="LICENSE.txt"/>
          <fileset file="NOTICE.txt"/>
-         <fileset dir="main/src" includes="mockit/**/*.java **/attach/**/*.java org/junit/**/*.java junit/*/*.java"/>
-         <fileset dir="main/classes" includes="mockit/**/*.class **/attach/**/*.class org/junit/**/*.class junit/*/*.class"/>
+         <fileset dir="main/src" includes="mockit/**/*.java **/attach/**/*.java org/junit/**/*.java"/>
+         <fileset dir="main/classes" includes="mockit/**/*.class **/attach/**/*.class org/junit/**/*.class"/>
          <manifest>
             <attribute name="Premain-Class" value="mockit.internal.startup.Startup"/>
             <attribute name="Agent-Class" value="mockit.internal.startup.Startup"/>
@@ -247,29 +237,14 @@
       </jar>
    </target>
 
-   <target name="createjar-incremental">
-      <delete file="incremental/jmockit-incremental.jar"/>
-      <jar destfile="incremental/jmockit-incremental.jar" basedir="incremental/classes">
-         <manifest><attribute name="Class-Path" value="jmockit-coverage.jar"/></manifest>
-      </jar>
-   </target>
-
-   <target name="createjar-hibernate3emul">
-      <delete file="incremental/jmockit-hibernate3emul.jar"/>
-      <jar destfile="hibernate3emul/jmockit-hibernate3emul.jar" basedir="hibernate3emul/classes">
-         <manifest><attribute name="Class-Path" value="../jmockit.jar"/></manifest>
-      </jar>
-   </target>
-
    <target name="createzip">
       <zip
-         destfile="jmockit-${version}.zip" basedir=".." includes="jmockit/**"
-         excludes="jmockit/**/*.i*, jmockit/*.zip, jmockit/**/*.ser, jmockit/**/lib/**, jmockit/build.xml,
-                   jmockit/**/target/**, jmockit/**/classes/**, jmockit/**/test-classes/**, jmockit/**/test-output/**,
-                   jmockit/hibernate3emul/**, jmockit/incremental/**, jmockit/multicore/**,
-                   jmockit/samples/javax.inject-tck/**, jmockit/www/tutorial/Incremental*.*,
-                   jmockit/**/coverage-report/**, jmockit/**/jacoco.exec,
-                   jmockit/main/JMockitTests.html, jmockit/samples/JMockitSampleTests.html"
+         destfile="jmockit-${version}.zip" basedir=".." includes="jmockit1.org/**, jmockit.github.io/**"
+         excludes="jmockit1.org/**/*.i*, jmockit.github.io/*.i*,
+                   jmockit1.org/*.zip, jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/build.xml,
+                   jmockit1.org/**/target/**, jmockit1.org/**/classes/**, jmockit1.org/**/test-classes/**,
+                   jmockit1.org/**/test-output/**, jmockit1.org/samples/javax.inject-tck/**,
+                   jmockit1.org/**/coverage-report/**, jmockit1.org/**/jacoco.exec, jmockit1.org/**/*.html"
          encoding="UTF-8"/>
    </target>
 
@@ -316,7 +291,7 @@
          </classpath>
          <classfileset
             dir="main/test-classes"
-            includes="mockit/integration/testng/*Test.class **/MockStateBetweenTestMethodsNGTest.class"
+            includes="mockit/integration/testng/*Test.class"
             excludes="mockit/integration/testng/BaseTestNGDecoratorTest.class
                       mockit/integration/testng/TestNGViolatedExpectationsTest.class"/>
       </testng>
