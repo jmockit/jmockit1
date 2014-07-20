@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -8,6 +8,8 @@ import org.jetbrains.annotations.*;
 
 public final class ClassNaming
 {
+   private ClassNaming() {}
+
    /**
     * This method was created to work around an issue in the standard {@link Class#isAnonymousClass()} method, which
     * causes a sibling nested class to be loaded when called on a nested class. If that sibling nested class is not in

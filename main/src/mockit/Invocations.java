@@ -496,10 +496,10 @@ abstract class Invocations
    {
       addMatcher(new ArgumentMatcher() {
          @Override
-         public boolean matches(@Nullable Object replayValue)
+         public boolean matches(@Nullable Object argValue)
          {
             //noinspection unchecked
-            valueHolderForMultipleInvocations.add((T) replayValue);
+            valueHolderForMultipleInvocations.add((T) argValue);
             return true;
          }
 

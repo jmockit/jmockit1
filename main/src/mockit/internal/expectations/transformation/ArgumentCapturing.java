@@ -39,10 +39,11 @@ final class ArgumentCapturing
       }
    }
 
-   void registerAssignmentToCaptureVariableIfApplicable(@NotNull InvocationBlockModifier modifier, int opcode, int var)
+   void registerAssignmentToCaptureVariableIfApplicable(
+      @NotNull InvocationBlockModifier modifier, int opcode, int varIndex)
    {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
-         Capture capture = modifier.createCapture(opcode, var, capturedTypeDesc);
+         Capture capture = modifier.createCapture(opcode, varIndex, capturedTypeDesc);
          addCapture(capture);
          parameterForCapture = false;
          capturedTypeDesc = null;

@@ -152,7 +152,8 @@ public class CaptureOfNewInstances extends CaptureOfImplementations
    }
 
    @Nullable
-   private Capture findCapture(@Nullable Object fieldOwner, @NotNull Object mock, @NotNull List<Capture> captures)
+   private static Capture findCapture(
+      @Nullable Object fieldOwner, @NotNull Object mock, @NotNull List<Capture> captures)
    {
       for (Capture capture : captures) {
          if (capture.isInstanceAlreadyCaptured(mock)) {
