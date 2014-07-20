@@ -38,7 +38,7 @@ public final class MockUpTest
 
       @Ignore("test") int doSomething(@Deprecated String s) { return s.length(); }
 
-      <N extends Number> N genericMethod(N n) { return null; }
+      <N extends Number> N genericMethod(@SuppressWarnings("unused") N n) { return null; }
 
       @Deprecated static boolean doSomethingElse() { return false; }
    }
@@ -47,7 +47,7 @@ public final class MockUpTest
    public void attemptToCreateMockUpWithMockMethodLackingCorrespondingRealMethod()
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("$init(int i)");
+      thrown.expectMessage("$init(int");
 
       new MockUp<Collaborator>() { @Mock void $init(int i) { System.out.println(i); } };
    }
@@ -456,7 +456,7 @@ public final class MockUpTest
    public void attemptToMockConstructorNotFoundInMockedClassButFoundInASuperClass()
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("$init(int i)");
+      thrown.expectMessage("$init(int");
 
       new MockUp<Derived>() {
          @Mock void $init(int i) {}
