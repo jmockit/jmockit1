@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <parent><groupId>mockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <parent><groupId>org.jmockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
    <artifactId>animatedtransitions</artifactId>
    <name>Animated Transitions Sample</name>
 
@@ -15,7 +16,7 @@
          <groupId>junit</groupId><artifactId>junit</artifactId>
       </dependency>
       <dependency>
-         <groupId>mockit</groupId><artifactId>timingframework</artifactId><version>1</version>
+         <groupId>org.jmockit</groupId><artifactId>timingframework</artifactId><version>1</version>
       </dependency>
       <dependency>
          <groupId>org.jmockit</groupId>
