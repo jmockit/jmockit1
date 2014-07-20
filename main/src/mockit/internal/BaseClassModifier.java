@@ -6,15 +6,16 @@ package mockit.internal;
 
 import java.lang.reflect.*;
 
-import org.jetbrains.annotations.*;
-
-import static mockit.external.asm4.Opcodes.*;
-
 import mockit.external.asm4.*;
 import mockit.external.asm4.Type;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.ClassWriter.*;
+import static mockit.external.asm4.Opcodes.*;
 
+import org.jetbrains.annotations.*;
+
+@SuppressWarnings("ClassWithTooManyFields")
 public class BaseClassModifier extends ClassVisitor
 {
    private static final int ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
@@ -59,11 +60,9 @@ public class BaseClassModifier extends ClassVisitor
    protected String methodDesc;
    private boolean callToAnotherConstructorAlreadyDisregarded;
 
-   protected BaseClassModifier(@NotNull ClassReader classReader) { this(classReader, true); }
-
-   protected BaseClassModifier(@NotNull ClassReader classReader, boolean computeFrames)
+   protected BaseClassModifier(@NotNull ClassReader classReader)
    {
-      super(new ClassWriter(classReader, computeFrames ? ClassWriter.COMPUTE_FRAMES : 0));
+      super(new ClassWriter(classReader, COMPUTE_FRAMES));
       //noinspection ConstantConditions
       cw = (ClassWriter) cv;
    }

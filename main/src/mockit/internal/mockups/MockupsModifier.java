@@ -54,7 +54,7 @@ final class MockupsModifier extends BaseClassModifier
    MockupsModifier(
       @NotNull ClassReader cr, @NotNull Class<?> realClass, @NotNull MockUp<?> mockUp, @NotNull MockMethods mockMethods)
    {
-      super(cr, true);
+      super(cr);
       mockedClass = realClass;
       this.mockMethods = mockMethods;
 
