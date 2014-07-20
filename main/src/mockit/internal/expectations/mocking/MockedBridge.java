@@ -6,12 +6,13 @@ package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.expectations.RecordAndReplayExecution.*;
+
+import org.jetbrains.annotations.*;
 
 public final class MockedBridge extends MockingBridge
 {
@@ -31,40 +32,41 @@ public final class MockedBridge extends MockingBridge
       String mockName = (String) args[2];
       String mockDesc = (String) args[3];
       String mockNameAndDesc = mockName + mockDesc;
-      int executionMode = (Integer) args[5];
+      Integer executionMode = (Integer) args[5];
       Object[] mockArgs = extractMockArguments(6, args);
 
-      boolean lockHeldByCurrentThread = RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread();
+      boolean regularExecutionWithRecordReplayLock =
+         executionMode == ExecutionMode.Regular.ordinal() && RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread();
+      Object rv;
 
-      if (lockHeldByCurrentThread && mocked != null && executionMode == 3) {
-         Object rv = ObjectMethods.evaluateOverride(mocked, mockNameAndDesc, args);
+      if (regularExecutionWithRecordReplayLock && mocked != null) {
+         rv = ObjectMethods.evaluateOverride(mocked, mockNameAndDesc, args);
 
          if (rv != null) {
             return rv;
          }
       }
 
-      if (TestRun.getExecutingTest().isProceedingIntoRealImplementation() || TestRun.isInsideNoMockingZone()) {
+      if (
+         TestRun.getExecutingTest().isProceedingIntoRealImplementation() ||
+         regularExecutionWithRecordReplayLock ||
+         TestRun.isInsideNoMockingZone()
+      ) {
          return Void.class;
       }
-
-      String genericSignature = (String) args[4];
-
-      if (lockHeldByCurrentThread && executionMode == 3) {
-         return RecordAndReplayExecution.defaultReturnValue(
-            mocked, mockedClassDesc, mockNameAndDesc, genericSignature, 1, mockArgs);
-      }
-
-      int mockAccess = (Integer) args[0];
 
       TestRun.enterNoMockingZone();
 
       try {
-         return RecordAndReplayExecution.recordOrReplay(
+         int mockAccess = (Integer) args[0];
+         String genericSignature = (String) args[4];
+         rv = recordOrReplay(
             mocked, mockAccess, mockedClassDesc, mockNameAndDesc, genericSignature, executionMode, mockArgs);
       }
       finally {
          TestRun.exitNoMockingZone();
       }
+
+      return rv;
    }
 }

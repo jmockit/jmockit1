@@ -167,7 +167,7 @@ public final class RecordAndReplayExecution
    @Nullable
    public static Object recordOrReplay(
       @Nullable Object mock, int mockAccess, @NotNull String classDesc, @NotNull String mockDesc,
-      @Nullable String genericSignature, int executionMode, @Nullable Object[] args)
+      @Nullable String genericSignature, int executionModeOrdinal, @Nullable Object[] args)
       throws Throwable
    {
       if (args == null) {
@@ -175,12 +175,12 @@ public final class RecordAndReplayExecution
          args = NO_ARGS;
       }
 
-      MockFixture mockFixture = TestRun.mockFixture();
+      ExecutionMode executionMode = ExecutionMode.values()[executionModeOrdinal];
 
       if (
          RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread() ||
          TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread() ||
-         !mockFixture.isStillMocked(mock, classDesc)
+         !TestRun.mockFixture().isStillMocked(mock, classDesc)
       ) {
          // This occurs if called from a custom argument matching method, in a call to an overridden Object method
          // (equals, hashCode, toString), from a different thread during recording/verification, or during replay but
@@ -197,8 +197,7 @@ public final class RecordAndReplayExecution
 
       if (
          executingTest.shouldProceedIntoRealImplementation(mock, classDesc) ||
-         executionMode == 2 && (mock == null || !executingTest.isMockedInstance(mock)) ||
-         executionMode == 3 && mock != null && !mockFixture.isInstanceOfMockedClass(mock)
+         executionMode.isToExecuteRealImplementation(mock)
       ) {
          return Void.class;
       }
@@ -211,7 +210,8 @@ public final class RecordAndReplayExecution
 
          if (isConstructor && handleCallToConstructor(instance, mock, classDesc)) {
             return
-               executionMode == 3 || executionMode == 1 && instance.replayPhase == null ||
+               executionMode == ExecutionMode.Regular ||
+               executionMode == ExecutionMode.Partial && instance.replayPhase == null ||
                executingTest.isInjectableMock(mock) ?
                   null : Void.class;
          }
@@ -219,7 +219,7 @@ public final class RecordAndReplayExecution
          Phase currentPhase = instance.getCurrentPhase();
          instance.failureState.clearErrorThrown();
 
-         boolean withRealImpl = executionMode == 1;
+         boolean withRealImpl = executionMode.isWithRealImplementation(mock);
          Object result =
             currentPhase.handleInvocation(mock, mockAccess, classDesc, mockDesc, genericSignature, withRealImpl, args);
 
@@ -233,11 +233,12 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   public static Object defaultReturnValue(
+   private static Object defaultReturnValue(
       @Nullable Object mock, @NotNull String classDesc, @NotNull String nameAndDesc,
-      @Nullable String genericSignature, int executionMode, @NotNull Object[] args)
+      @Nullable String genericSignature, @NotNull ExecutionMode executionMode, @NotNull Object[] args)
    {
-      if (executionMode == 1) {
+      if (executionMode == ExecutionMode.Partial) {
+         // TODO: allow cascading on partial mocking?
          return Void.class;
       }
 
@@ -264,7 +265,7 @@ public final class RecordAndReplayExecution
    private static Object defaultReturnValue(
       @NotNull ExecutingTest executingTest, @Nullable Object mock,
       @NotNull String classDesc, @NotNull String nameAndDesc, @Nullable String genericSignature,
-      int executionMode, @NotNull Object[] args) throws Throwable
+      @NotNull ExecutionMode executionMode, @NotNull Object[] args) throws Throwable
    {
       RecordAndReplayExecution execution = executingTest.getCurrentRecordAndReplay();
 

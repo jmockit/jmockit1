@@ -106,7 +106,7 @@ public final class MockFixture
 
    public void registerMockedClass(@NotNull Class<?> mockedType)
    {
-      if (!containsReference(mockedClasses, mockedType) && !isGeneratedImplementationClass(mockedType)) {
+      if (!containsReference(mockedClasses, mockedType)) {
          mockedClasses.add(Proxy.isProxyClass(mockedType) ? mockedType.getInterfaces()[0] : mockedType);
       }
    }

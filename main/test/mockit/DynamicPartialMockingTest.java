@@ -486,29 +486,29 @@ public final class DynamicPartialMockingTest
    @Test
    public void attemptToUseDynamicMockingForInvalidTypes(@Mocked AnotherInterface mockedInterface)
    {
-      assertInvalidTypeForDynamicMocking(Dependency.class);
-      assertInvalidTypeForDynamicMocking(Test.class);
-      assertInvalidTypeForDynamicMocking(int[].class);
-      assertInvalidTypeForDynamicMocking(new String[1]);
-      assertInvalidTypeForDynamicMocking(char.class);
-      assertInvalidTypeForDynamicMocking(123);
-      assertInvalidTypeForDynamicMocking(Boolean.class);
-      assertInvalidTypeForDynamicMocking(true);
-      assertInvalidTypeForDynamicMocking(2.5);
-      assertInvalidTypeForDynamicMocking(mockedInterface);
+      assertInvalidTypeForDynamicPartialMocking(Dependency.class);
+      assertInvalidTypeForDynamicPartialMocking(Test.class);
+      assertInvalidTypeForDynamicPartialMocking(int[].class);
+      assertInvalidTypeForDynamicPartialMocking(new String[1]);
+      assertInvalidTypeForDynamicPartialMocking(char.class);
+      assertInvalidTypeForDynamicPartialMocking(123);
+      assertInvalidTypeForDynamicPartialMocking(Boolean.class);
+      assertInvalidTypeForDynamicPartialMocking(true);
+      assertInvalidTypeForDynamicPartialMocking(2.5);
+      assertInvalidTypeForDynamicPartialMocking(mockedInterface);
 
       Dependency mockInstance = new MockUp<Dependency>() {}.getMockInstance();
-      assertInvalidTypeForDynamicMocking(mockInstance);
+      assertInvalidTypeForDynamicPartialMocking(mockInstance);
    }
 
-   private void assertInvalidTypeForDynamicMocking(Object classOrObject)
+   private void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)
    {
       try {
          new Expectations(classOrObject) {};
          fail();
       }
       catch (IllegalArgumentException e) {
-         assertTrue(e.getMessage().contains("dynamic mocking"));
+         assertTrue(e.getMessage().contains("partial mocking"));
       }
    }
 

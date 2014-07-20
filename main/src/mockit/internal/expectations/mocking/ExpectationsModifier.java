@@ -8,6 +8,7 @@ import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm4.*;
+import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.Opcodes.*;
 
@@ -47,7 +48,7 @@ final class ExpectationsModifier extends MockedTypeModifier
    @Nullable private String baseClassNameForCapturedInstanceMethods;
    private boolean stubOutClassInitialization;
    private boolean ignoreConstructors;
-   private int executionMode;
+   private ExecutionMode executionMode;
    private boolean isProxy;
    @Nullable private String defaultFilters;
    @Nullable List<String> enumSubclasses;
@@ -58,7 +59,7 @@ final class ExpectationsModifier extends MockedTypeModifier
       super(classReader);
 
       setUseMockingBridge(classLoader);
-      executionMode = 3;
+      executionMode = ExecutionMode.Regular;
 
       if (typeMetadata == null) {
          mockingCfg = null;
@@ -74,7 +75,7 @@ final class ExpectationsModifier extends MockedTypeModifier
    {
       if (typeMetadata.injectable) {
          ignoreConstructors = typeMetadata.getMaxInstancesToCapture() <= 0;
-         executionMode = 2;
+         executionMode = ExecutionMode.PerInstance;
       }
    }
 
@@ -86,7 +87,7 @@ final class ExpectationsModifier extends MockedTypeModifier
    public void useDynamicMocking(boolean methodsOnly)
    {
       ignoreConstructors = methodsOnly;
-      executionMode = 1;
+      executionMode = ExecutionMode.Partial;
    }
 
    @Override
@@ -151,18 +152,18 @@ final class ExpectationsModifier extends MockedTypeModifier
          return null;
       }
 
+      boolean visitingConstructor = "<init>".equals(name);
+
       if (
          !matchesFilters ||
          isMethodFromCapturedClassNotToBeMocked(access) ||
-         noFiltersToMatch && isMethodOrConstructorNotToBeMocked(access, name)
+         noFiltersToMatch && isMethodOrConstructorNotToBeMocked(access, visitingConstructor, name)
       ) {
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
       }
 
       // Otherwise, replace original implementation with redirect to JMockit.
       startModifiedMethodVersion(access, name, desc, signature, exceptions);
-
-      boolean visitingConstructor = "<init>".equals(name);
 
       if (visitingConstructor && superClassName != null) {
          generateCallToSuperConstructor();
@@ -174,7 +175,7 @@ final class ExpectationsModifier extends MockedTypeModifier
          internalClassName = baseClassNameForCapturedInstanceMethods;
       }
 
-      int actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
+      ExecutionMode actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
 
       if (useMockingBridge) {
          return generateCallToHandlerThroughMockingBridge(signature, internalClassName, actualExecutionMode);
@@ -231,32 +232,24 @@ final class ExpectationsModifier extends MockedTypeModifier
       return baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_STATIC_METHOD) != 0;
    }
 
-   private boolean isMethodOrConstructorNotToBeMocked(int access, @NotNull String name)
+   private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @NotNull String name)
    {
       return
-         isConstructorToBeIgnored(name) ||
-         isStaticMethodToBeIgnored(access) ||
-         isNativeMethodForDynamicMocking(access) ||
+         visitingConstructor && ignoreConstructors ||
+         executionMode.isMethodToBeIgnored(access) ||
          access == ACC_NATIVE || (access & PRIVATE_NATIVE_METHOD) == PRIVATE_NATIVE_METHOD ||
          defaultFilters != null && defaultFilters.contains(name);
    }
 
-   private boolean isConstructorToBeIgnored(@NotNull String name)
+   private ExecutionMode determineAppropriateExecutionMode(boolean visitingConstructor)
    {
-      return ignoreConstructors && "<init>".equals(name);
-   }
-
-   private boolean isStaticMethodToBeIgnored(int access) { return executionMode == 2 && isStatic(access); }
-   private boolean isNativeMethodForDynamicMocking(int access) { return executionMode < 3 && isNative(access); }
-
-   private int determineAppropriateExecutionMode(boolean visitingConstructor)
-   {
-      if (executionMode == 2) {
+      if (executionMode == ExecutionMode.PerInstance) {
          if (visitingConstructor) {
-            return ignoreConstructors ? 3 : 1;
+            return ignoreConstructors ? ExecutionMode.Regular : ExecutionMode.Partial;
          }
-         else if (isStatic(methodAccess)) {
-            return 3;
+
+         if (isStatic(methodAccess)) {
+            return ExecutionMode.Partial;
          }
       }
 
@@ -265,7 +258,7 @@ final class ExpectationsModifier extends MockedTypeModifier
 
    @NotNull
    private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @NotNull String internalClassName, int actualExecutionMode)
+      @Nullable String genericSignature, @NotNull String internalClassName, @NotNull ExecutionMode actualExecutionMode)
    {
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 
@@ -283,7 +276,7 @@ final class ExpectationsModifier extends MockedTypeModifier
       generateCodeToFillArrayElement(i++, methodName);
       generateCodeToFillArrayElement(i++, methodDesc);
       generateCodeToFillArrayElement(i++, genericSignature);
-      generateCodeToFillArrayElement(i++, actualExecutionMode);
+      generateCodeToFillArrayElement(i++, actualExecutionMode.ordinal());
 
       generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();

@@ -17,7 +17,7 @@ import mockit.internal.expectations.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 
-@SuppressWarnings("ClassWithTooManyFields")
+@SuppressWarnings({"ClassWithTooManyFields", "OverlyComplexClass"})
 public final class ExecutingTest
 {
    @Nullable private RecordAndReplayExecution currentRecordAndReplay;
@@ -166,6 +166,19 @@ public final class ExecutingTest
    public boolean isInjectableMock(@NotNull Object instance)
    {
       return containsReference(injectableMocks, instance);
+   }
+
+   public boolean isClassWithInjectableMocks(@NotNull Class<?> aClass)
+   {
+      for (int i = 0, n = injectableMocks.size(); i < n; i++) {
+         Object injectableMock = injectableMocks.get(i);
+
+         if (injectableMock.getClass() == aClass) {
+            return true;
+         }
+      }
+
+      return false;
    }
 
    public boolean isMockedInstance(@NotNull Object instance)

@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
+import java.net.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -22,6 +23,7 @@ public final class InjectableFieldTest
       int getAnotherValue() { return 2; }
       private Boolean getBooleanValue() { return true; }
       final List<Integer> getList() { return null; }
+      static String doSomethingElse() { return ""; }
    }
 
    @Injectable Foo foo;
@@ -71,5 +73,59 @@ public final class InjectableFieldTest
 
       assertEquals(45, foo.getAnotherValue());
       foo.doSomething("sdf");
+   }
+
+   @Test
+   public void partiallyMockClassWithoutAffectingInjectableInstances()
+   {
+      assertEquals("", Foo.doSomethingElse());
+
+      new NonStrictExpectations(Foo.class) {{
+         Foo.doSomethingElse(); result = "test";
+      }};
+
+      assertEquals("test", Foo.doSomethingElse());
+      assertEquals(12, foo.getValue());
+      foo.doSomething("");
+   }
+
+   @Test
+   public void partiallyMockInstanceWithoutAffectingInjectableInstances()
+   {
+      final Foo localFoo = new Foo();
+
+      new NonStrictExpectations(localFoo) {{
+         localFoo.getAnotherValue(); result = 3;
+         Foo.doSomethingElse(); result = "test";
+      }};
+
+      assertEquals(3, localFoo.getAnotherValue());
+      assertEquals(123, foo.getAnotherValue());
+      assertEquals(2, new Foo().getAnotherValue());
+      assertEquals("test", Foo.doSomethingElse());
+      foo.doSomething("");
+   }
+
+   @Test
+   public void partiallyMockJREClassWhileHavingInjectableInstancesOfSameClassAsWell(
+      @Injectable final InetAddress localHost, @Injectable final InetAddress remoteHost)
+      throws Exception
+   {
+      new NonStrictExpectations(InetAddress.class) {{
+         InetAddress.getLocalHost(); result = localHost;
+         InetAddress.getByName(anyString); result = remoteHost;
+
+         localHost.getCanonicalHostName(); result = "localhost";
+      }};
+
+      assertSame(localHost, InetAddress.getLocalHost());
+      assertSame(remoteHost, InetAddress.getByName("remote"));
+      assertEquals("localhost", localHost.getCanonicalHostName());
+      assertNull(remoteHost.getCanonicalHostName());
+      foo.doSomething(null);
+
+      new Verifications() {{
+         remoteHost.getCanonicalHostName();
+      }};
    }
 }

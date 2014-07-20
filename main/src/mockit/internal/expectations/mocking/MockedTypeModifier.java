@@ -8,6 +8,7 @@ import org.jetbrains.annotations.*;
 
 import mockit.external.asm4.*;
 import mockit.internal.*;
+import mockit.internal.expectations.*;
 
 import static mockit.external.asm4.Opcodes.*;
 
@@ -17,7 +18,14 @@ class MockedTypeModifier extends BaseClassModifier
 
    protected final void generateDirectCallToHandler(
       @NotNull String className, int access, @NotNull String name, @NotNull String desc,
-      @Nullable String genericSignature, int executionMode)
+      @Nullable String genericSignature)
+   {
+      generateDirectCallToHandler(className, access, name, desc, genericSignature, ExecutionMode.Regular);
+   }
+
+   protected final void generateDirectCallToHandler(
+      @NotNull String className, int access, @NotNull String name, @NotNull String desc,
+      @Nullable String genericSignature, @NotNull ExecutionMode executionMode)
    {
       // First argument: the mock instance, if any.
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(access);
@@ -35,7 +43,7 @@ class MockedTypeModifier extends BaseClassModifier
       generateInstructionToLoadNullableString(genericSignature);
 
       // Sixth argument: indicate regular or special modes of execution.
-      mw.visitLdcInsn(executionMode);
+      mw.visitLdcInsn(executionMode.ordinal());
       
       // Seventh argument: array with invocation arguments.
       Type[] argTypes = Type.getArgumentTypes(desc);

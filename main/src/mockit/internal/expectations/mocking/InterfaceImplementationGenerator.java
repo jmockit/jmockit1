@@ -99,7 +99,7 @@ final class InterfaceImplementationGenerator extends MockedTypeModifier
          }
 
          mw = super.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
-         generateDirectCallToHandler(interfaceName, access, name, desc, signature, 0);
+         generateDirectCallToHandler(interfaceName, access, name, desc, signature);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxs(1, 0);
 

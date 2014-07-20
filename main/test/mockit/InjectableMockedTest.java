@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -35,13 +35,6 @@ public final class InjectableMockedTest
    {
       assertEquals(2, ClassWithStaticInitializer2.doSomething());
       assertFalse(ClassWithStaticInitializer2.classInitializationExecuted);
-   }
-
-   @Test
-   public void mockStaticMethodInInjectableMockedClass(
-      @Injectable @Mocked("doSomething") ClassWithStaticInitializer1 mock)
-   {
-      assertEquals(0, ClassWithStaticInitializer1.doSomething());
    }
 
    static class Collaborator

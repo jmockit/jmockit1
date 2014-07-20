@@ -11,6 +11,7 @@ import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
@@ -67,9 +68,14 @@ public final class DynamicPartialMocking
          targetClass.isPrimitive() || AutoBoxing.isWrapperOfPrimitiveType(targetClass) ||
          GeneratedClasses.isGeneratedImplementationClass(targetClass)
       ) {
-         throw new IllegalArgumentException("Invalid type for dynamic mocking: " + targetClass);
+         throw new IllegalArgumentException("Invalid type for partial mocking: " + targetClass);
       }
-      else if (!modifiedClassfiles.containsKey(targetClass) && TestRun.mockFixture().isMockedClass(targetClass)) {
+
+      if (
+         !modifiedClassfiles.containsKey(targetClass) &&
+         TestRun.mockFixture().isMockedClass(targetClass) &&
+         !TestRun.getExecutingTest().isClassWithInjectableMocks(targetClass)
+      ) {
          throw new IllegalArgumentException("Class is already mocked: " + targetClass);
       }
    }
@@ -112,7 +118,7 @@ public final class DynamicPartialMocking
       ExpectationsModifier modifier = new ExpectationsModifier(realClass.getClassLoader(), classReader, null);
       modifier.useDynamicMocking(methodsOnly);
 
-      classReader.accept(modifier, 0);
+      classReader.accept(modifier, SKIP_FRAMES);
       byte[] modifiedClass = modifier.toByteArray();
 
       modifiedClassfiles.put(realClass, modifiedClass);
