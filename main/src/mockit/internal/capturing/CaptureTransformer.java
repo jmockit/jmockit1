@@ -8,14 +8,14 @@ import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
+import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.GeneratedClasses.*;
+
+import org.jetbrains.annotations.*;
 
 public final class CaptureTransformer implements ClassFileTransformer
 {
@@ -68,7 +68,7 @@ public final class CaptureTransformer implements ClassFileTransformer
       SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
 
       try {
-         cr.accept(superTypeCollector, ClassReader.SKIP_DEBUG);
+         cr.accept(superTypeCollector, SKIP_DEBUG);
       }
       catch (VisitInterruptedException ignore) {
          if (superTypeCollector.classExtendsCapturedType && !isGeneratedClass(classDesc)) {
@@ -85,7 +85,7 @@ public final class CaptureTransformer implements ClassFileTransformer
       @Nullable ClassLoader loader, @NotNull String className, @NotNull ClassReader cr)
    {
       ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedTypeDesc);
-      cr.accept(modifier, 0);
+      cr.accept(modifier, SKIP_FRAMES);
 
       ClassIdentification classId = new ClassIdentification(loader, className);
       byte[] originalBytecode = cr.b;
@@ -129,7 +129,7 @@ public final class CaptureTransformer implements ClassFileTransformer
 
          if (superName != null && !classExtendsCapturedType && !"java/lang/Object mockit/MockUp".contains(superName)) {
             ClassReader cr = ClassFile.createClassFileReader(loader, superName);
-            cr.accept(this, ClassReader.SKIP_DEBUG);
+            cr.accept(this, SKIP_DEBUG);
          }
 
          throw VisitInterruptedException.INSTANCE;

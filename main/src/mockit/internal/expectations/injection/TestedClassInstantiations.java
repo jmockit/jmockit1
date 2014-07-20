@@ -8,11 +8,8 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
-
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
-
-import org.jetbrains.annotations.*;
 
 import mockit.*;
 import mockit.external.asm4.*;
@@ -20,8 +17,10 @@ import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
+import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
+
+import org.jetbrains.annotations.*;
 
 public final class TestedClassInstantiations
 {
@@ -213,7 +212,7 @@ public final class TestedClassInstantiations
       return value;
    }
 
-   private Object wrapInProviderIfNeeded(Type type, final Object value)
+   private static Object wrapInProviderIfNeeded(Type type, final Object value)
    {
       if (
          INJECT_CLASS != null && type instanceof ParameterizedType && !(value instanceof Provider) &&
@@ -248,7 +247,7 @@ public final class TestedClassInstantiations
          String subclassName = GeneratedClasses.getNameForGeneratedClass(declaredTestedClass);
 
          ClassVisitor modifier = new SubclassGenerationModifier(testedType, classReader, subclassName);
-         classReader.accept(modifier, 0);
+         classReader.accept(modifier, SKIP_FRAMES);
          byte[] bytecode = modifier.toByteArray();
 
          return ImplementationClass.defineNewClass(declaredTestedClass.getClassLoader(), bytecode, subclassName);
@@ -504,6 +503,7 @@ public final class TestedClassInstantiations
             Object argument = getValueToInject(injectable);
 
             if (argument == null) {
+               assert injectable.mockId != null;
                throw new IllegalArgumentException(
                   "No injectable value available" + missingInjectableDescription(injectable.mockId));
             }

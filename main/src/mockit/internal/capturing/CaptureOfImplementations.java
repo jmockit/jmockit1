@@ -11,6 +11,7 @@ import mockit.external.asm4.Type;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
+import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
@@ -63,7 +64,7 @@ public abstract class CaptureOfImplementations
          ensureThatClassIsInitialized(realClass);
 
          BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseTypeDesc);
-         classReader.accept(modifier, 0);
+         classReader.accept(modifier, SKIP_FRAMES);
 
          if (modifier.wasModified()) {
             byte[] modifiedClass = modifier.toByteArray();
