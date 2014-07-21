@@ -4,6 +4,7 @@
  */
 package java8testing;
 
+import java.io.*;
 import java.time.*;
 import java.util.*;
 import java.util.function.*;
@@ -16,6 +17,7 @@ import mockit.internal.startup.*;
 
 public final class Java8SupportTest
 {
+   @FunctionalInterface
    public interface InterfaceWithDefaultMethods
    {
       int regularMethod();
@@ -26,11 +28,6 @@ public final class Java8SupportTest
    {
       @Override public int regularMethod() { return 4; }
       @Override public int defaultMethod() { return 5; }
-   }
-
-   public static class ClassWhichInheritsDefaultMethodFromInterface implements InterfaceWithDefaultMethods
-   {
-      @Override public int regularMethod() { return 3; }
    }
 
    @Test
@@ -57,7 +54,11 @@ public final class Java8SupportTest
       assertEquals(2, mock.defaultMethod());
    }
 
-   @Ignore("Mocking of default methods inherited from interfaces not supported yet")
+   public static class ClassWhichInheritsDefaultMethodFromInterface implements InterfaceWithDefaultMethods
+   {
+      @Override public int regularMethod() { return 3; }
+   }
+
    @Test
    public void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock)
    {
@@ -69,9 +70,69 @@ public final class Java8SupportTest
       assertEquals(123, mock.defaultMethod());
    }
 
+   public interface SubInterfaceWithDefaultMethods extends InterfaceWithDefaultMethods
+   {
+      default String anotherDefaultMethod(int i) { return String.valueOf(i); }
+      @SuppressWarnings("unused") void anotherRegularMethod(boolean b, String... names);
+   }
+
+   static final class ClassInheritingFromInterfaceHierarchy implements SubInterfaceWithDefaultMethods
+   {
+      @Override public int regularMethod() { return 4; }
+      @Override public void anotherRegularMethod(boolean b, String... names) {}
+   }
+
+   @Test
+   public void mockClassInheritingFromInterfaceHierarchy(@Injectable ClassInheritingFromInterfaceHierarchy mock)
+   {
+      new Expectations() {{
+         mock.defaultMethod(); result = 123;
+         mock.regularMethod(); result = 22;
+         mock.anotherDefaultMethod(anyInt); result = "one";
+      }};
+
+      assertEquals(123, mock.defaultMethod());
+      assertEquals(22, mock.regularMethod());
+      assertEquals("one", mock.anotherDefaultMethod(1));
+   }
+
+   public interface AnotherInterfaceWithDefaultMethods
+   {
+      default int defaultMethod1() { return 1; }
+      default int defaultMethod2() throws IOException { return 2; }
+   }
+
+   static final class ClassInheritingMultipleDefaultMethods
+      implements SubInterfaceWithDefaultMethods, AnotherInterfaceWithDefaultMethods
+   {
+      @Override public int regularMethod() { return 5; }
+      @Override public void anotherRegularMethod(boolean b, String... names) {}
+   }
+
+   @Test
+   public void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() throws Exception
+   {
+      ClassInheritingMultipleDefaultMethods obj = new ClassInheritingMultipleDefaultMethods();
+
+      new NonStrictExpectations(ClassInheritingMultipleDefaultMethods.class) {{
+         obj.defaultMethod(); result = 123;
+         obj.defaultMethod2(); result = 22;
+         obj.anotherDefaultMethod(1); result = "one";
+      }};
+
+      assertEquals(123, obj.defaultMethod());
+      assertEquals(5, obj.regularMethod());
+      assertEquals(1, obj.defaultMethod1());
+      assertEquals(22, obj.defaultMethod2());
+      obj.anotherRegularMethod(true);
+
+      new Verifications() {{
+         obj.anotherRegularMethod(anyBoolean, (String[]) any);
+      }};
+   }
+
    public interface InterfaceWithStaticMethod { static InterfaceWithStaticMethod newInstance() { return null; } }
 
-   @Ignore("Mocking of static methods in interfaces not supported yet")
    @Test
    public void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
    {
@@ -85,7 +146,7 @@ public final class Java8SupportTest
    }
 
    @Test
-   public void mockFunctionalInterface(@Mocked Consumer<String> mockConsumer)
+   public void mockFunctionalInterfaceFromJRE(@Mocked Consumer<String> mockConsumer)
    {
       StringBuilder concatenated = new StringBuilder();
 
@@ -122,6 +183,7 @@ public final class Java8SupportTest
    public void dynamicallyMockReferenceToStaticMethod()
    {
       Supplier<String> s = SomeClass::doSomethingStatic;
+
       new Expectations(s) {};
 
       assertEquals("test1", s.get());
@@ -139,7 +201,7 @@ public final class Java8SupportTest
       new NonStrictExpectations(s) {};
 
       assertEquals("test2", s.get());
-      new VerificationsInOrder() {{ s.get(); }};
+//      new VerificationsInOrder() {{ s.get(); }};
    }
 
    @Ignore("Similar to previous test - apparent JVM issue")

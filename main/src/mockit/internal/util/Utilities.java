@@ -17,6 +17,7 @@ import org.jetbrains.annotations.*;
 public final class Utilities
 {
    @NotNull public static final Object[] NO_ARGS = {};
+   public static final boolean JAVA8 = "1.8".equals(System.getProperty("java.specification.version"));
 
    private Utilities() {}
 

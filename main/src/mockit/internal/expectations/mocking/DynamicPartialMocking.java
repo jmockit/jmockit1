@@ -7,20 +7,19 @@ package mockit.internal.expectations.mocking;
 import java.lang.reflect.*;
 import java.util.*;
 
-import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
-public final class DynamicPartialMocking
+public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
    @NotNull public final List<Object> targetInstances;
    @NotNull private final Map<Class<?>, byte[]> modifiedClassfiles;
    private final boolean nonStrict;
+   private boolean methodsOnly;
 
    public DynamicPartialMocking(boolean nonStrict)
    {
@@ -32,36 +31,36 @@ public final class DynamicPartialMocking
    public void redefineTypes(@NotNull Object[] classesOrInstancesToBePartiallyMocked)
    {
       for (Object classOrInstance : classesOrInstancesToBePartiallyMocked) {
-         generateModifiedClassfileForTargetType(classOrInstance);
+         redefineClassHierarchy(classOrInstance);
       }
 
       new RedefinitionEngine().redefineMethods(modifiedClassfiles);
       modifiedClassfiles.clear();
    }
 
-   private void generateModifiedClassfileForTargetType(@NotNull Object classOrInstance)
+   private void redefineClassHierarchy(@NotNull Object classOrInstance)
    {
-      Class<?> targetClass;
-
       if (classOrInstance instanceof Class) {
          targetClass = (Class<?>) classOrInstance;
-         validateTargetClassType(targetClass);
-         registerAsMocked(targetClass);
+         validateTargetClassType();
+         registerAsMocked();
          ensureThatClassIsInitialized(targetClass);
-         generateModifiedClassfilesForClassAndItsSuperClasses(targetClass, false);
+         methodsOnly = false;
+         redefineMethodsAndConstructorsInTargetType();
       }
       else {
          targetClass = GeneratedClasses.getMockedClass(classOrInstance);
-         validateTargetClassType(targetClass);
+         validateTargetClassType();
          registerAsMocked(classOrInstance);
-         generateModifiedClassfilesForClassAndItsSuperClasses(targetClass, true);
+         methodsOnly = true;
+         redefineMethodsAndConstructorsInTargetType();
          targetInstances.add(classOrInstance);
       }
 
       TestRun.mockFixture().registerMockedClass(targetClass);
    }
 
-   private void validateTargetClassType(@NotNull Class<?> targetClass)
+   private void validateTargetClassType()
    {
       if (
          targetClass.isInterface() || targetClass.isAnnotation() || targetClass.isArray() ||
@@ -80,11 +79,11 @@ public final class DynamicPartialMocking
       }
    }
 
-   private void registerAsMocked(@NotNull Class<?> mockedClass)
+   private void registerAsMocked()
    {
       if (nonStrict) {
          ExecutingTest executingTest = TestRun.getExecutingTest();
-         Class<?> classToRegister = mockedClass;
+         Class<?> classToRegister = targetClass;
 
          do {
             executingTest.registerAsNonStrictlyMocked(classToRegister);
@@ -101,26 +100,15 @@ public final class DynamicPartialMocking
       }
    }
 
-   private void generateModifiedClassfilesForClassAndItsSuperClasses(@NotNull Class<?> realClass, boolean methodsOnly)
+   @Override
+   void configureClassModifier(@NotNull ExpectationsModifier modifier)
    {
-      generatedModifiedClassfile(realClass, methodsOnly);
-      Class<?> superClass = realClass.getSuperclass();
-
-      if (superClass != null && superClass != Object.class && superClass != Proxy.class) {
-         generateModifiedClassfilesForClassAndItsSuperClasses(superClass, methodsOnly);
-      }
+      modifier.useDynamicMocking(methodsOnly);
    }
 
-   private void generatedModifiedClassfile(@NotNull Class<?> realClass, boolean methodsOnly)
+   @Override
+   void applyClassRedefinition(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)
    {
-      ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
-
-      ExpectationsModifier modifier = new ExpectationsModifier(realClass.getClassLoader(), classReader, null);
-      modifier.useDynamicMocking(methodsOnly);
-
-      classReader.accept(modifier, SKIP_FRAMES);
-      byte[] modifiedClass = modifier.toByteArray();
-
       modifiedClassfiles.put(realClass, modifiedClass);
    }
 }

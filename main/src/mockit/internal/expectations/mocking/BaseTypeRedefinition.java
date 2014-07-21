@@ -8,18 +8,19 @@ import java.lang.instrument.*;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
-
 import static java.lang.reflect.Modifier.*;
-
-import org.jetbrains.annotations.*;
 
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.ClassReader.*;
+import static mockit.internal.util.Utilities.*;
 
-abstract class BaseTypeRedefinition
+import org.jetbrains.annotations.*;
+
+class BaseTypeRedefinition
 {
    private static final class MockedClass
    {
@@ -39,12 +40,14 @@ abstract class BaseTypeRedefinition
    }
 
    private static final Map<Integer, MockedClass> mockedClasses = new HashMap<Integer, MockedClass>();
-   private static final Map<Type, Class<?>> mockInterfaces = new HashMap<Type, Class<?>>();
+   private static final Map<Type, Class<?>> mockImplementations = new HashMap<Type, Class<?>>();
 
    @NotNull Class<?> targetClass;
    @NotNull MockedType typeMetadata;
    @Nullable private InstanceFactory instanceFactory;
    @Nullable private List<ClassDefinition> mockedClassDefinitions;
+
+   BaseTypeRedefinition() {}
 
    BaseTypeRedefinition(@NotNull MockedType typeMetadata)
    {
@@ -76,18 +79,18 @@ abstract class BaseTypeRedefinition
          return;
       }
 
-      Class<?> mockClass = mockInterfaces.get(interfaceToMock);
+      Class<?> previousMockImplementationClass = mockImplementations.get(interfaceToMock);
 
-      if (mockClass != null) {
-         targetClass = mockClass;
-         createNewMockInstanceFactoryForInterface();
-         return;
+      if (previousMockImplementationClass == null) {
+         generateNewMockImplementationClassForInterface(interfaceToMock);
+         mockImplementations.put(interfaceToMock, targetClass);
+      }
+      else {
+         targetClass = previousMockImplementationClass;
       }
 
-      generateNewMockImplementationClassForInterface(interfaceToMock);
+      redefinedImplementedInterfacesIfRunningOnJava8(targetClass);
       createNewMockInstanceFactoryForInterface();
-
-      mockInterfaces.put(interfaceToMock, targetClass);
    }
 
    @Nullable
@@ -112,13 +115,31 @@ abstract class BaseTypeRedefinition
 
    private void createMockInterfaceImplementationUsingStandardProxy(@NotNull Type typeToMock)
    {
-      Object mock = EmptyProxy.Impl.newEmptyProxy(getClass().getClassLoader(), typeToMock);
+      ClassLoader loader = getClass().getClassLoader();
+      Object mock = EmptyProxy.Impl.newEmptyProxy(loader, typeToMock);
       targetClass = mock.getClass();
 
-      redefineMethodsAndConstructorsInTargetType();
+      redefineClass(targetClass);
 
       instanceFactory = new InterfaceInstanceFactory(mock);
    }
+
+   private void redefineClass(@NotNull Class<?> realClass)
+   {
+      ClassLoader loader = realClass.getClassLoader();
+      ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
+      ClassVisitor modifier = createClassModifier(loader, classReader);
+      redefineClass(realClass, classReader, modifier);
+   }
+
+   private ExpectationsModifier createClassModifier(@NotNull ClassLoader loader, @NotNull ClassReader classReader)
+   {
+      ExpectationsModifier modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
+      configureClassModifier(modifier);
+      return modifier;
+   }
+
+   void configureClassModifier(@NotNull ExpectationsModifier modifier) {}
 
    private void createNewMockInstanceFactoryForInterface()
    {
@@ -128,14 +149,22 @@ abstract class BaseTypeRedefinition
 
    private void generateNewMockImplementationClassForInterface(@NotNull final Type interfaceToMock)
    {
-      targetClass = new ImplementationClass(interfaceToMock) {
-         @Override
-         @NotNull
+      ImplementationClass<?> implementationGenerator = new ImplementationClass(interfaceToMock) {
+         @NotNull @Override
          protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader, @NotNull String className)
          {
             return new InterfaceImplementationGenerator(typeReader, interfaceToMock, className);
          }
-      }.generateNewMockImplementationClassForInterface();
+      };
+
+      targetClass = implementationGenerator.generateNewMockImplementationClassForInterface();
+   }
+
+   private void redefinedImplementedInterfacesIfRunningOnJava8(@NotNull Class<?> aClass)
+   {
+      if (JAVA8) {
+         redefineImplementedInterfaces(aClass.getInterfaces());
+      }
    }
 
    final void redefineMethodsAndConstructorsInTargetType()
@@ -146,8 +175,8 @@ abstract class BaseTypeRedefinition
    private void redefineClassAndItsSuperClasses(@NotNull Class<?> realClass)
    {
       ClassLoader loader = realClass.getClassLoader();
-      ClassReader classReader = createClassReader(realClass);
-      ExpectationsModifier modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
+      ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
+      ExpectationsModifier modifier = createClassModifier(loader, classReader);
 
       try {
          redefineClass(realClass, classReader, modifier);
@@ -159,16 +188,8 @@ abstract class BaseTypeRedefinition
          return;
       }
 
-      if (modifier.enumSubclasses != null) {
-         for (String enumSubclassDesc : modifier.enumSubclasses) {
-            Class<?> enumSubclass = ClassLoad.loadByInternalName(enumSubclassDesc);
-            classReader = createClassReader(enumSubclass);
-            modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
-            redefineClass(enumSubclass, classReader, modifier);
-         }
-
-         return;
-      }
+      redefineElementSubclassesOfEnumTypeIfAny(modifier.enumSubclasses);
+      redefinedImplementedInterfacesIfRunningOnJava8(realClass);
 
       Class<?> superClass = realClass.getSuperclass();
 
@@ -180,9 +201,14 @@ abstract class BaseTypeRedefinition
    private void redefineClass(
       @NotNull Class<?> realClass, @NotNull ClassReader classReader, @NotNull ClassVisitor modifier)
    {
-      classReader.accept(modifier, ClassReader.SKIP_FRAMES);
+      classReader.accept(modifier, SKIP_FRAMES);
       byte[] modifiedClass = modifier.toByteArray();
 
+      applyClassRedefinition(realClass, modifiedClass);
+   }
+
+   void applyClassRedefinition(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)
+   {
       ClassDefinition classDefinition = new ClassDefinition(realClass, modifiedClass);
       RedefinitionEngine.redefineClasses(classDefinition);
 
@@ -191,10 +217,22 @@ abstract class BaseTypeRedefinition
       }
    }
 
-   @NotNull
-   private static ClassReader createClassReader(@NotNull Class<?> realClass)
+   private void redefineElementSubclassesOfEnumTypeIfAny(@Nullable List<String> enumSubclasses)
    {
-      return ClassFile.createReaderOrGetFromCache(realClass);
+      if (enumSubclasses != null) {
+         for (String enumSubclassDesc : enumSubclasses) {
+            Class<?> enumSubclass = ClassLoad.loadByInternalName(enumSubclassDesc);
+            redefineClass(enumSubclass);
+         }
+      }
+   }
+
+   private void redefineImplementedInterfaces(@NotNull Class<?>[] implementedInterfaces)
+   {
+      for (Class<?> implementedInterface : implementedInterfaces) {
+         redefineClass(implementedInterface);
+         redefineImplementedInterfaces(implementedInterface.getInterfaces());
+      }
    }
 
    private void redefineTargetClassAndCreateInstanceFactory(@NotNull Type typeToMock)
@@ -250,17 +288,17 @@ abstract class BaseTypeRedefinition
    @NotNull
    private Class<?> generateConcreteSubclassForAbstractType(@NotNull Type typeToMock)
    {
-      ClassReader classReader = createClassReader(targetClass);
+      ClassReader classReader = ClassFile.createReaderOrGetFromCache(targetClass);
       String subclassName = getNameForConcreteSubclassToCreate();
 
       SubclassGenerationModifier modifier =
          new SubclassGenerationModifier(typeMetadata.mockingCfg, typeToMock, classReader, subclassName);
-      classReader.accept(modifier, ClassReader.SKIP_FRAMES);
+      classReader.accept(modifier, SKIP_FRAMES);
       byte[] bytecode = modifier.toByteArray();
 
       return ImplementationClass.defineNewClass(targetClass.getClassLoader(), bytecode, subclassName);
    }
 
    @NotNull
-   abstract String getNameForConcreteSubclassToCreate();
+   String getNameForConcreteSubclassToCreate() { return ""; }
 }
