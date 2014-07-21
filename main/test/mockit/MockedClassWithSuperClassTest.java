@@ -20,7 +20,12 @@ public final class MockedClassWithSuperClassTest
       @Override public void close() { throw new UnsupportedOperationException(); }
    }
 
-   static class BaseClass { int doSomething() { return 123; }}
+   static class BaseClass
+   {
+      int doSomething() { return 123; }
+      static int staticMethod() { return -1; }
+   }
+
    static class Subclass extends BaseClass { BaseClass getInstance() { return this; } }
 
    // With Expectations & Verifications API ///////////////////////////////////////////////////////////////////////////
@@ -69,7 +74,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Cascading final Subclass mock)
+   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Cascading Subclass mock)
    {
       // The subclass is already mocked at this point, when the cascaded instance gets created.
       BaseClass cascaded = mock.getInstance();
@@ -114,5 +119,16 @@ public final class MockedClassWithSuperClassTest
       assertEquals(2, new Subclass().doSomething());
       assertEquals(123, new BaseClass() {}.doSomething());
       assertEquals(2, new Subclass() {}.doSomething());
+   }
+
+   @Test
+   public void recordExpectationOnStaticMethodFromBaseClass(@Mocked Subclass unused)
+   {
+      new NonStrictExpectations() {{
+         BaseClass.staticMethod();
+         result = 123;
+      }};
+
+      assertEquals(123, BaseClass.staticMethod());
    }
 }

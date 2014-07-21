@@ -117,21 +117,21 @@ public final class MockFixture
 
       if (instance == null) {
          targetClass = ClassLoad.loadByInternalName(classDesc);
-         return isMockedClass(targetClass);
+         return isAssignableFromMockedClass(targetClass);
       }
 
       targetClass = instance.getClass();
+      return mockedTypesAndInstances.containsKey(targetClass) || isInstanceOfMockedClass(instance);
+   }
 
-      if (mockedTypesAndInstances.containsKey(targetClass)) {
-         return true;
-      }
-
+   private boolean isAssignableFromMockedClass(@NotNull Class<?> targetClass)
+   {
       int n = mockedClasses.size();
 
       for (int i = 0; i < n; i++) {
          Class<?> mockedClass = mockedClasses.get(i);
 
-         if (mockedClass == targetClass || mockedClass.isAssignableFrom(targetClass)) {
+         if (targetClass == mockedClass || targetClass.isAssignableFrom(mockedClass)) {
             return true;
          }
       }
