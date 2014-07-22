@@ -156,4 +156,24 @@ public final class MockUpForSingleInterfaceInstanceTest
       assertEquals(123, mock2.getNumericValue());
       assertNull(mock2.getTextValue());
    }
+
+   @Test
+   public void applyMockUpWithGivenInterfaceInstance()
+   {
+      APublicInterface realInstance = new APublicInterface() {
+         @Override public int getNumericValue() { return 1; }
+         @Override public String getTextValue() { return "test"; }
+         @Override public int getSomeOtherValue() { return 2; }
+      };
+
+      MockUp<APublicInterface> mockUp = new MockUp<APublicInterface>(realInstance) {
+         @Mock int getNumericValue() { return 3; }
+      };
+
+      APublicInterface mockInstance = mockUp.getMockInstance();
+      assertSame(realInstance, mockInstance);
+
+      assertEquals(2, realInstance.getSomeOtherValue());
+      assertEquals(3, mockInstance.getNumericValue());
+   }
 }

@@ -173,4 +173,28 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals("test2", unmockedInstance2.getTextValue());
       assertSame(onlyInstanceToBeMocked, mockUp.getMockInstance());
    }
+
+   static final class ASubClass extends AClass
+   {
+      ASubClass(int n, String s) { super(n, s); }
+      @Override String getTextValue() { return "subtext"; }
+   }
+
+   @Test
+   public void applyMockUpWithGivenSubclassInstance()
+   {
+      AClass realInstance = new ASubClass(123, "test");
+
+      MockUp<AClass> mockUp = new MockUp<AClass>(realInstance) {
+         @Mock String getTextValue() { return "mock"; }
+         @Mock int getSomeOtherValue() { return 45; }
+      };
+
+      AClass mockInstance = mockUp.getMockInstance();
+      assertSame(realInstance, mockInstance);
+
+      assertEquals(123, realInstance.getNumericValue());
+      assertEquals("mock", mockInstance.getTextValue());
+      assertEquals(45, mockInstance.getSomeOtherValue());
+   }
 }

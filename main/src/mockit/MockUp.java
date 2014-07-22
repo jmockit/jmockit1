@@ -34,6 +34,10 @@ import org.jetbrains.annotations.*;
  * Each {@code @Mock} method should have a matching method or constructor in the mocked class/interface.
  * At runtime, the execution of a mocked method/constructor will get redirected to the corresponding mock method.
  * <p/>
+ * When mocking an interface, an implementation class is generated where all methods are empty, with non-void methods
+ * returning a default value according to the return type: {@literal 0} for {@code int}, {@literal null} for a reference
+ * type, and so on.
+ * <p/>
  * When the type to be mocked is specified indirectly through a {@linkplain TypeVariable type variable}, there are two
  * other possible outcomes:
  * <ol>
@@ -104,6 +108,7 @@ public abstract class MockUp<T>
     * or if the real method matching a mock method is {@code abstract}
     *
     * @see #MockUp(Class)
+    * @see #MockUp(Object)
     */
    protected MockUp()
    {
@@ -226,10 +231,11 @@ public abstract class MockUp<T>
    /**
     * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the given class/interface.
     * <p/>
-    * In most cases, the constructor with no parameters can be used. This variation should be used only when the type
-    * to be mocked is not accessible or known to the test.
+    * In most cases, the constructor with no parameters can be used.
+    * This variation should be used only when the type to be mocked is not accessible or known to the test.
     *
     * @see #MockUp()
+    * @see #MockUp(Object)
     */
    protected MockUp(Class<?> classToMock)
    {
@@ -259,16 +265,41 @@ public abstract class MockUp<T>
    }
 
    /**
-    * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the type specified through
-    * the type parameter, but only affecting the given instance.
+    * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the type specified through the type
+    * parameter, but only affecting the given instance.
+    * <p/>
+    * In most cases, the constructor with no parameters should be adequate.
+    * This variation can be used when mock data or behavior is desired only for a particular instance, with other
+    * instances remaining unaffected; or when multiple mock-up objects carrying different states are desired, with one
+    * mock-up instance per real instance to be mocked.
+    * <p/>
+    * If {@link #getMockInstance()} later gets called on this mock-up instance, it will return the instance that was
+    * given here.
+    *
+    * @param instanceToMock a real instance of the type to be mocked, meant to be the only one of that type that should
+    * be affected by this mock-up instance; must not be {@code null}
+    *
+    * @see #MockUp()
+    * @see #MockUp(Class)
     */
    protected MockUp(T instanceToMock)
    {
-      this();
-
       if (instanceToMock == null) {
          throw new IllegalArgumentException("Null reference when expecting the instance to mock");
       }
+
+      validateMockingAllowed();
+
+      Class<?> previouslyMockedClass = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+
+      if (previouslyMockedClass != null) {
+         mockedClass = previouslyMockedClass;
+         return;
+      }
+
+      @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) instanceToMock.getClass();
+      mockedClass = classToMock;
+      classesToRestore = redefineMethods(classToMock, classToMock);
 
       setMockInstance(instanceToMock);
    }
@@ -280,21 +311,15 @@ public abstract class MockUp<T>
    }
 
    /**
-    * TODO: rewrite according to enhanced semantics
-    * Returns the mock instance created for the mocked interface(s), or {@code null} if a class was specified to be
-    * mocked instead.
-    * This mock instance belongs to a dynamically generated class which implements the mocked interface(s).
+    * Returns the mock instance exclusively associated with this mock-up instance.
+    * If the mocked type was an interface, then said instance is the one that was automatically created when the mock-up
+    * was applied.
+    * If it was a class, and no such instance is currently associated with this mock-up object, then a new
+    * <em>uninitialized</em> instance of the mocked class is created and returned, becoming associated with the mock-up.
+    * If a regular <em>initialized</em> instance was desired, then the {@link #MockUp(Object)} constructor should have
+    * been used instead.
     * <p/>
-    * For a given mock-up instance, this method always returns the same mock instance.
-    * <p/>
-    * All methods in the generated implementation class are empty, with non-void methods returning a default value
-    * according to the return type: {@literal 0} for {@code int}, {@literal null} for a reference type, and so on.
-    * <p/>
-    * The {@code equals}, {@code hashCode}, and {@code toString} methods inherited from {@code java.lang.Object} are
-    * overridden with an appropriate implementation in each case:
-    * {@code equals} is implemented by comparing the two object references (the mock instance and the method argument)
-    * for equality; {@code hashCode} is implemented to return the identity hash code for the mock instance; and
-    * {@code toString} returns the standard string representation that {@code Object#toString} would have returned.
+    * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
     * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
     */
