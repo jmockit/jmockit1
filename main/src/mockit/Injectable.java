@@ -23,7 +23,7 @@ import java.lang.annotation.*;
  * used for injection.
  *
  * @see #value
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#injectable">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#injectable">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

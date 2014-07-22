@@ -46,7 +46,7 @@ import java.lang.annotation.*;
  *
  * @see #value
  * @see #stubOutClassInitialization
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#declaration">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#declaration">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -70,7 +70,7 @@ public @interface Mocked
     * this can be used to obtain a mocked instance where no executable code is actually mocked.
     *
     * @see #stubOutClassInitialization
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#staticPartial">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#staticPartial">Tutorial</a>
     */
    String[] value() default {};
 

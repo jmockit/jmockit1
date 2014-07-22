@@ -74,7 +74,7 @@ package mockit;
  * @see #NonStrictExpectations()
  * @see #NonStrictExpectations(Object...)
  * @see #NonStrictExpectations(Integer, Object...)
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
  */
 public abstract class NonStrictExpectations extends Expectations
 {
@@ -107,8 +107,7 @@ public abstract class NonStrictExpectations extends Expectations
     * During replay, invocations to instance methods will only match expectations recorded on the given instance
     * (or instances, if more than one was given).
     * <p/>
-    * <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#dynamicPartial">In the
-    * Tutorial</a>
+    * <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">In the Tutorial</a>
     *
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be considered for
     * partial mocking
@@ -134,8 +133,7 @@ public abstract class NonStrictExpectations extends Expectations
     * 0 (zero) and no upper limit, so the number of iterations will only be meaningful if a positive and finite limit is
     * explicitly specified for the expectation.
     * <p/>
-    * <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#iteratedExpectations">In
-    * the Tutorial</a>
+    * <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">In the Tutorial</a>
     *
     * @param numberOfIterations the positive number of iterations for the whole set of invocations recorded inside the
     * block; when not specified, 1 (one) iteration is assumed

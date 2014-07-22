@@ -56,7 +56,7 @@ import mockit.internal.expectations.*;
  * @see #Expectations()
  * @see #Expectations(Object...)
  * @see #Expectations(Integer, Object...)
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#strictness">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#strictness">Tutorial</a>
  */
 public abstract class Expectations extends Invocations
 {
@@ -113,7 +113,7 @@ public abstract class Expectations extends Invocations
     * matching constructor invocation.
     *
     * @see #returns(Object, Object...)
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#results">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#results">Tutorial</a>
     */
    protected Object result;
 
@@ -157,7 +157,7 @@ public abstract class Expectations extends Invocations
     * interface, or if given a value/instance of such a type
     * 
     * @see #Expectations(Integer, Object...)
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
     */
    protected Expectations(Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -180,7 +180,7 @@ public abstract class Expectations extends Invocations
     * partial mocking
     *
     * @see #Expectations()
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
     */
    protected Expectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -220,7 +220,7 @@ public abstract class Expectations extends Invocations
     * @param firstValue the first value to be returned at replay time
     * @param remainingValues the remaining values to be returned, in the same order
     *
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#results">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#results">Tutorial</a>
     */
    protected final void returns(Object firstValue, Object... remainingValues)
    {

@@ -48,7 +48,7 @@ import mockit.internal.expectations.*;
  * @see #Verifications(int)
  * @see #withCapture()
  * @see NonStrictExpectations
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#verification">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#verification">Tutorial</a>
  */
 public abstract class Verifications extends Invocations
 {
@@ -77,7 +77,7 @@ public abstract class Verifications extends Invocations
     * @see #times
     * @see #minTimes
     * @see #maxTimes
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#iterations">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iterations">Tutorial</a>
     */
    protected Verifications(int numberOfIterations)
    {
@@ -116,7 +116,7 @@ public abstract class Verifications extends Invocations
     *
     * @see #withCapture(java.util.List)
     * @see #withCapture(Object)
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
     */
    protected final <T> T withCapture()
    {
@@ -151,7 +151,7 @@ public abstract class Verifications extends Invocations
     *
     * @see #withCapture()
     * @see #withCapture(java.util.List)
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
     */
    protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification)
    {

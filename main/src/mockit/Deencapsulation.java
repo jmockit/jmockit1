@@ -10,8 +10,8 @@ import mockit.internal.util.*;
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields, methods, and
  * constructors.
  *
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
  */
 @SuppressWarnings("ConstantConditions")
 public final class Deencapsulation

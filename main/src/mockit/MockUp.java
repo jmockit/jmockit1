@@ -21,13 +21,13 @@ import org.jetbrains.annotations.*;
  * integration tests.
  * <pre>
  *
- * // Define and apply one or more mock-ups.
+ * // Define and apply one or more mock-ups:
  * new MockUp&lt;<strong>SomeClass</strong>>() {
  *    &#64;Mock int someMethod(int i) { assertTrue(i > 0); return 123; }
  *    &#64;Mock(maxInvocations = 2) void anotherMethod(int i, String s) { &#47;* validate arguments *&#47; }
  * };
  *
- * // Exercise code under test.
+ * // Exercise code under test:
  * codeUnderTest.doSomething();
  * </pre>
  * One or more <em>mock methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
@@ -80,9 +80,10 @@ import org.jetbrains.annotations.*;
  *
  * @see #MockUp()
  * @see #MockUp(Class)
+ * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #tearDown()
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/StateBasedTesting.html#setUp">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
 {
@@ -145,7 +146,8 @@ public abstract class MockUp<T>
       }
    }
 
-   @Nullable private Class<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
+   @Nullable
+   private Class<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
    {
       MockUpInstances mockUpInstances = TestRun.getMockClasses().findPreviouslyAppliedMockUps(this);
 
@@ -222,7 +224,7 @@ public abstract class MockUp<T>
    }
 
    /**
-    * Applies the {@linkplain Mock mock methods} defined in the concrete subclass to the given class/interface.
+    * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the given class/interface.
     * <p/>
     * In most cases, the constructor with no parameters can be used. This variation should be used only when the type
     * to be mocked is not accessible or known to the test.
@@ -257,7 +259,8 @@ public abstract class MockUp<T>
    }
 
    /**
-    * TODO: write
+    * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the type specified through
+    * the type parameter, but only affecting the given instance.
     */
    protected MockUp(T instanceToMock)
    {
@@ -293,7 +296,7 @@ public abstract class MockUp<T>
     * for equality; {@code hashCode} is implemented to return the identity hash code for the mock instance; and
     * {@code toString} returns the standard string representation that {@code Object#toString} would have returned.
     *
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
     */
    public final T getMockInstance()
    {

@@ -17,10 +17,9 @@
  * the definition of fake implementations for arbitrary classes.
  * <p/>
  * For a description with examples of the <em>Expectations & Verifications</em> API, see the
- * "<a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html">Writing behavior-based
- * tests</a>" chapter in the Tutorial.
- * For the <em>Mockups</em> API, see the
- * "<a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/StateBasedTesting.html">Writing state-based tests and
- * fakes</a>" chapter.
+ * "<a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html">Writing behavior-based tests</a>" chapter in
+ * the Tutorial.
+ * For the <em>Mockups</em> API, see the "<a href="http://jmockit.github.io/tutorial/StateBasedTesting.html">Writing
+ * state-based tests and fakes</a>" chapter.
  */
 package mockit;

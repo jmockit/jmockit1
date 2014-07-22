@@ -20,7 +20,7 @@ import mockit.internal.startup.*;
  * Please check the <a href="http://testng.org/doc/documentation-main.html#running-testng">TestNG documentation</a> for
  * details.
  *
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/RunningTests.html">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/RunningTests.html">Tutorial</a>
  */
 public final class Initializer implements ITestNGListener
 {

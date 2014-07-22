@@ -19,7 +19,7 @@ import java.lang.annotation.*;
  * In a test having a cascading mocked type, a separate non-cascading mocked type can be declared so that expectations
  * on intermediate cascaded instances can be recorded/verified.
  *
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#cascading">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#cascading">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

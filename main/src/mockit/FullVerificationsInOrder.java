@@ -23,7 +23,7 @@ package mockit;
  * @see #FullVerificationsInOrder(int)
  * @see #FullVerificationsInOrder(Object...)
  * @see #FullVerificationsInOrder(Integer, Object...)
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#fullVerificationInOrder">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#fullVerificationInOrder">Tutorial</a>
  */
 public abstract class FullVerificationsInOrder extends Verifications
 {

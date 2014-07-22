@@ -25,8 +25,8 @@ import mockit.internal.*;
  * @see #getMinInvocations()
  * @see #getMaxInvocations()
  * @see #proceed(Object...)
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/BehaviorBasedTesting.html#delegates">Tutorial (expectations)</a>
- * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/StateBasedTesting.html#invocation">Tutorial (mockups)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#delegates">Tutorial (expectations)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#invocation">Tutorial (mockups)</a>
  */
 public class Invocation
 {
@@ -136,7 +136,7 @@ public class Invocation
     * partially mocked type}, into a {@code native} method, or into a mocked constructor while passing replacement
     * arguments
     *
-    * @see <a href="http://jmockit.googlecode.com/svn/trunk/www/tutorial/StateBasedTesting.html#proceed">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#proceed">Tutorial</a>
     */
    public final <T> T proceed(Object... replacementArguments)
    {
