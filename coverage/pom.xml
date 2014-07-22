@@ -22,8 +22,8 @@
       </license>
    </licenses>
    <scm>
-      <url>http://jmockit.org/source/browse/trunk</url>
-      <connection>scm:http://jmockit.googlecode.com/svn/trunk/ jmockit-read-only</connection>
+      <url>https://github.com/jmockit/jmockit1</url>
+      <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
    </scm>
    <developers>
       <developer><name>Rogério Liesenfeld</name></developer>
