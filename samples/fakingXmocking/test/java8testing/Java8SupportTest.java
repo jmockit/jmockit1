@@ -163,6 +163,40 @@ public final class Java8SupportTest
       assertEquals("mocking a lambda ", concatenated.toString());
    }
 
+   interface NonPublicBase
+   {
+      default int baseDefault() { return -1; }
+      default String getDefault() { return "default"; }
+      static void doStatic() { throw new RuntimeException("1"); }
+   }
+
+   interface NonPublicDerived extends NonPublicBase
+   {
+      @Override default String getDefault() { return "default derived"; }
+      static void doAnotherStatic() { throw new RuntimeException("2"); }
+   }
+
+   @Test
+   public void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(
+      @Mocked NonPublicBase base, @Mocked NonPublicDerived derived)
+   {
+      new NonStrictExpectations() {{
+         base.baseDefault(); result = 1;
+         derived.baseDefault(); result = 2;
+      }};
+
+      assertEquals(1, base.baseDefault());
+      assertEquals(2, derived.baseDefault());
+      assertNull(base.getDefault());
+      NonPublicBase.doStatic();
+      NonPublicDerived.doAnotherStatic();
+
+      new VerificationsInOrder() {{
+         NonPublicBase.doStatic();
+         NonPublicDerived.doAnotherStatic();
+      }};
+   }
+
    @Test
    public void dynamicallyMockLambdaObject()
    {

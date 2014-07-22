@@ -209,6 +209,13 @@ public final class ClassReader {
     }
 
     /**
+     * Returns the class version. See "V1_x" constants in {@link Opcodes}.
+     */
+    public int getVersion() {
+       return readInt(4);
+    }
+
+    /**
      * Returns the class's access flags (see {@link Opcodes}). This value may
      * not reflect Deprecated and Synthetic flags when bytecode is before 1.5
      * and those flags are represented by attributes.

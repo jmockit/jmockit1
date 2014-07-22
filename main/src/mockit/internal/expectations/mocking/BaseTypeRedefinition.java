@@ -73,24 +73,17 @@ class BaseTypeRedefinition
    private void createMockedInterfaceImplementationAndInstanceFactory(@NotNull Type interfaceToMock)
    {
       Class<?> mockedInterface = interfaceToMock(interfaceToMock);
+      Object mockedInstance;
 
       if (mockedInterface == null) {
-         createMockInterfaceImplementationUsingStandardProxy(interfaceToMock);
-         return;
-      }
-
-      Class<?> previousMockImplementationClass = mockImplementations.get(interfaceToMock);
-
-      if (previousMockImplementationClass == null) {
-         generateNewMockImplementationClassForInterface(interfaceToMock);
-         mockImplementations.put(interfaceToMock, targetClass);
+         mockedInstance = createMockInterfaceImplementationUsingStandardProxy(interfaceToMock);
       }
       else {
-         targetClass = previousMockImplementationClass;
+         mockedInstance = createMockInterfaceImplementationDirectly(interfaceToMock);
       }
 
       redefinedImplementedInterfacesIfRunningOnJava8(targetClass);
-      createNewMockInstanceFactoryForInterface();
+      instanceFactory = new InterfaceInstanceFactory(mockedInstance);
    }
 
    @Nullable
@@ -113,21 +106,41 @@ class BaseTypeRedefinition
       }
    }
 
-   private void createMockInterfaceImplementationUsingStandardProxy(@NotNull Type typeToMock)
+   @NotNull
+   private Object createMockInterfaceImplementationUsingStandardProxy(@NotNull Type typeToMock)
    {
       ClassLoader loader = getClass().getClassLoader();
-      Object mock = EmptyProxy.Impl.newEmptyProxy(loader, typeToMock);
-      targetClass = mock.getClass();
-
+      Object mockedInstance = EmptyProxy.Impl.newEmptyProxy(loader, typeToMock);
+      targetClass = mockedInstance.getClass();
       redefineClass(targetClass);
+      return mockedInstance;
+   }
 
-      instanceFactory = new InterfaceInstanceFactory(mock);
+   @NotNull
+   private Object createMockInterfaceImplementationDirectly(@NotNull Type interfaceToMock)
+   {
+      Class<?> previousMockImplementationClass = mockImplementations.get(interfaceToMock);
+
+      if (previousMockImplementationClass == null) {
+         generateNewMockImplementationClassForInterface(interfaceToMock);
+         mockImplementations.put(interfaceToMock, targetClass);
+      }
+      else {
+         targetClass = previousMockImplementationClass;
+      }
+
+      return ConstructorReflection.newInstanceUsingDefaultConstructor(targetClass);
    }
 
    private void redefineClass(@NotNull Class<?> realClass)
    {
-      ClassLoader loader = realClass.getClassLoader();
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
+
+      if (realClass.isInterface() && classReader.getVersion() < Opcodes.V1_8) {
+         return;
+      }
+
+      ClassLoader loader = realClass.getClassLoader();
       ClassVisitor modifier = createClassModifier(loader, classReader);
       redefineClass(realClass, classReader, modifier);
    }
@@ -140,12 +153,6 @@ class BaseTypeRedefinition
    }
 
    void configureClassModifier(@NotNull ExpectationsModifier modifier) {}
-
-   private void createNewMockInstanceFactoryForInterface()
-   {
-      Object mock = ConstructorReflection.newInstanceUsingDefaultConstructor(targetClass);
-      instanceFactory = new InterfaceInstanceFactory(mock);
-   }
 
    private void generateNewMockImplementationClassForInterface(@NotNull final Type interfaceToMock)
    {
