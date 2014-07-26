@@ -23,12 +23,14 @@ public final class ClassLoad
       LOADED_CLASSES.put(aClass.getName(), aClass);
    }
 
-   @NotNull public static <T> Class<T> loadByInternalName(@NotNull String internalClassName)
+   @NotNull
+   public static <T> Class<T> loadByInternalName(@NotNull String internalClassName)
    {
       return loadClass(internalClassName.replace('/', '.'));
    }
 
-   @NotNull public static <T> Class<T> loadClass(@NotNull String className)
+   @NotNull
+   public static <T> Class<T> loadClass(@NotNull String className)
    {
       @Nullable Class<?> loadedClass = LOADED_CLASSES.get(className);
 
@@ -66,7 +68,8 @@ public final class ClassLoad
       return (Class<T>) loadedClass;
    }
 
-   @NotNull public static <T> Class<T> loadClassAtStartup(@NotNull String className)
+   @NotNull
+   public static <T> Class<T> loadClassAtStartup(@NotNull String className)
    {
       ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
       Class<?> loadedClass;
@@ -91,12 +94,14 @@ public final class ClassLoad
       return (Class<T>) loadedClass;
    }
 
-   @Nullable public static Class<?> loadClass(@Nullable ClassLoader loader, @NotNull String className)
+   @Nullable
+   public static Class<?> loadClass(@Nullable ClassLoader loader, @NotNull String className)
    {
       try { return Class.forName(className, true, loader); } catch (ClassNotFoundException ignore) { return null; }
    }
 
-   @NotNull public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @NotNull String className)
+   @NotNull
+   public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @NotNull String className)
    {
       try {
          //noinspection unchecked
@@ -105,5 +110,27 @@ public final class ClassLoad
       catch (ClassNotFoundException ignore) {
          throw new IllegalArgumentException("No class with name \"" + className + "\" found");
       }
+   }
+
+   @Nullable
+   public static <T> Class<? extends T> searchTypeInClasspath(@NotNull String typeName)
+   {
+      try {
+         //noinspection unchecked
+         return (Class<? extends T>) Class.forName(typeName, true, THIS_CL);
+      }
+      catch (NoClassDefFoundError ignore) { return null; }
+      catch (ClassNotFoundException ignore) { return null; }
+   }
+
+   public static boolean isTypeAvailableInClasspath(@NotNull Class<?> type)
+   {
+      try {
+         //noinspection unchecked
+         Class.forName(type.getName(), true, type.getClassLoader());
+         return true;
+      }
+      catch (NoClassDefFoundError ignore) { return false; }
+      catch (ClassNotFoundException ignore) { return false; }
    }
 }

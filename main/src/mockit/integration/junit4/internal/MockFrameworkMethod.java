@@ -28,12 +28,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
 {
    public static boolean hasDependenciesInClasspath()
    {
-      try {
-         Class.forName(FrameworkMethod.class.getName(), true, FrameworkMethod.class.getClassLoader());
-         return true;
-      }
-      catch (NoClassDefFoundError ignore) { return false; }
-      catch (ClassNotFoundException ignore) { return false; }
+      return ClassLoad.isTypeAvailableInClasspath(FrameworkMethod.class);
    }
 
    @NotNull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();

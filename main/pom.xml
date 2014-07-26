@@ -8,7 +8,7 @@
    <packaging>jar</packaging>
    <prerequisites>
       <maven>3.0.4</maven>
-      <!-- Must run on JDK 1.7 -->
+      <!-- Must run on JDK 1.8 -->
    </prerequisites>
 
    <name>Main</name>
@@ -116,8 +116,8 @@
                <source>1.7</source>
                <windowtitle>JMockit Toolkit API</windowtitle>
                <doctitle>JMockit Toolkit API Documentation</doctitle>
-               <stylesheetfile>${basedir}/../www/javadoc/stylesheet.css</stylesheetfile>
-               <overview>${basedir}/../www/javadoc/overview.html</overview>
+               <stylesheetfile>${project.basedir}/../../jmockit.github.io/api1x/stylesheet.css</stylesheetfile>
+               <overview>${project.basedir}/../../jmockit.github.io/api1x/overview.html</overview>
                <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
                <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
                <notimestamp>true</notimestamp>
@@ -193,6 +193,10 @@
       </dependency>
       <dependency>
          <groupId>javax.inject</groupId><artifactId>javax.inject</artifactId><version>1</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>javax.persistence</groupId><artifactId>persistence-api</artifactId><version>1.0</version>
          <optional>true</optional>
       </dependency>
    </dependencies>

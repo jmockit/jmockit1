@@ -4,11 +4,14 @@
  */
 package mockit.internal.expectations.injection;
 
+import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
 import javax.inject.*;
+import javax.persistence.*;
+import javax.xml.parsers.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
@@ -18,32 +21,37 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.ClassReader.*;
+import static mockit.internal.util.ClassLoad.*;
+import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
 
 public final class TestedClassInstantiations
 {
    @Nullable private static final Class<? extends Annotation> INJECT_CLASS;
+   @Nullable private static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
+   @Nullable private static final Class<? extends Annotation> PERSISTENCE_CONTEXT_CLASS;
+   @Nullable private static final Class<?> ENTITY_MANAGER_FACTORY_CLASS;
+   @Nullable private static final Class<?> ENTITY_MANAGER_CLASS;
+   private static final boolean WITH_INJECTION_API_IN_CLASSPATH;
 
    static
    {
-      Class<? extends Annotation> injectClass;
-      ClassLoader cl = TestedClassInstantiations.class.getClassLoader();
-
-      try {
-         //noinspection unchecked
-         injectClass = (Class<? extends Annotation>) Class.forName("javax.inject.Inject", false, cl);
-      }
-      catch (ClassNotFoundException ignore) { injectClass = null; }
-
-      INJECT_CLASS = injectClass;
+      INJECT_CLASS = searchTypeInClasspath("javax.inject.Inject");
+      PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
+      PERSISTENCE_CONTEXT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceContext");
+      ENTITY_MANAGER_FACTORY_CLASS = searchTypeInClasspath("javax.persistence.EntityManagerFactory");
+      ENTITY_MANAGER_CLASS = searchTypeInClasspath("javax.persistence.EntityManager");
+      WITH_INJECTION_API_IN_CLASSPATH = INJECT_CLASS != null || PERSISTENCE_UNIT_CLASS != null;
    }
 
    @NotNull private final List<TestedField> testedFields;
    @NotNull private final List<MockedType> injectableFields;
    @NotNull private List<MockedType> injectables;
-   @NotNull private final List<MockedType> consumedInjectables;
+   @NotNull private List<MockedType> consumedInjectables;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
@@ -51,11 +59,16 @@ public final class TestedClassInstantiations
    private final class TestedField
    {
       @NotNull final Field testedField;
+      @NotNull final Tested metadata;
       @Nullable private TestedObjectCreation testedObjectCreation;
       @Nullable private List<Field> targetFields;
       private boolean createAutomatically;
 
-      TestedField(@NotNull Field field) { testedField = field; }
+      TestedField(@NotNull Field field, @NotNull Tested metadata)
+      {
+         testedField = field;
+         this.metadata = metadata;
+      }
 
       void instantiateWithInjectableValues()
       {
@@ -68,7 +81,7 @@ public final class TestedClassInstantiations
 
          testedTypeReflection = new GenericTypeReflection(testedField);
 
-         boolean requiresJavaxInject = false;
+         boolean requiresAnnotation = false;
          Class<?> testedClass;
 
          if (createAutomatically) {
@@ -80,14 +93,15 @@ public final class TestedClassInstantiations
             testedObject = testedObjectCreation.create();
             FieldReflection.setFieldValue(testedField, currentTestClassInstance, testedObject);
 
-            requiresJavaxInject = testedObjectCreation.constructorAnnotatedWithJavaxInject;
+            requiresAnnotation = testedObjectCreation.constructorAnnotatedWithJavaxInject;
          }
          else {
             testedClass = testedObject == null ? null : testedObject.getClass();
          }
 
          if (testedObject != null) {
-            FieldInjection fieldInjection = new FieldInjection(testedClass, testedObject, requiresJavaxInject);
+            FieldInjection fieldInjection =
+               new FieldInjection(testedClass, testedObject, requiresAnnotation, metadata.fullyInitialized());
 
             if (targetFields == null) {
                targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy();
@@ -118,8 +132,10 @@ public final class TestedClassInstantiations
       Field[] fieldsInTestClass = testClass.getDeclaredFields();
 
       for (Field field : fieldsInTestClass) {
-         if (field.isAnnotationPresent(Tested.class)) {
-            testedFields.add(new TestedField(field));
+         Tested testedMetadata = field.getAnnotation(Tested.class);
+
+         if (testedMetadata != null) {
+            testedFields.add(new TestedField(field, testedMetadata));
          }
          else {
             MockedType mockedType = new MockedType(field, true);
@@ -450,7 +466,7 @@ public final class TestedClassInstantiations
          {
             parameterTypes = constructor.getGenericParameterTypes();
             int n = parameterTypes.length;
-            Object[] arguments = new Object[n];
+            Object[] arguments = n == 0 ? NO_ARGS : new Object[n];
             boolean varArgs = constructor.isVarArgs();
 
             if (varArgs) {
@@ -467,7 +483,7 @@ public final class TestedClassInstantiations
                arguments[n] = obtainInjectedVarargsArray(n);
             }
 
-            return ConstructorReflection.invoke(constructor, arguments);
+            return invoke(constructor, arguments);
          }
 
          @NotNull
@@ -529,14 +545,28 @@ public final class TestedClassInstantiations
    {
       @NotNull private final Class<?> testedClass;
       @NotNull private final Object testedObject;
-      private final boolean requiresJavaxInject;
-      private boolean foundJavaxInject;
+      @NotNull private final Map<Object, Object> instantiatedDependencies;
+      private final boolean requiresAnnotation;
+      private boolean foundAnnotations;
+      @Nullable private String defaultPersistenceUnitName;
 
-      private FieldInjection(@NotNull Class<?> testedClass, @NotNull Object testedObject, boolean requiresJavaxInject)
+      FieldInjection(
+         @NotNull Class<?> testedClass, @NotNull Object testedObject, boolean requiresAnnotation, boolean fullInjection)
       {
          this.testedClass = testedClass;
          this.testedObject = testedObject;
-         this.requiresJavaxInject = requiresJavaxInject;
+         this.requiresAnnotation = requiresAnnotation;
+         instantiatedDependencies = fullInjection ? new HashMap<Object, Object>() : Collections.emptyMap();
+      }
+
+      private FieldInjection(
+         @NotNull Object transitiveDependency, boolean requiresAnnotation,
+         @NotNull Map<Object, Object> instantiatedDependencies)
+      {
+         testedClass = transitiveDependency.getClass();
+         testedObject = transitiveDependency;
+         this.requiresAnnotation = requiresAnnotation;
+         this.instantiatedDependencies = instantiatedDependencies;
       }
 
       @NotNull
@@ -556,54 +586,63 @@ public final class TestedClassInstantiations
 
             classWithFields = classWithFields.getSuperclass();
          }
-         while (isFromSameModuleOrSystemAsSuperClass(classWithFields));
+         while (isClassFromSameModuleOrSystemAsTestedClass(classWithFields));
 
-         discardFieldsNotAnnotatedWithJavaxInjectIfAtLeastOneIsAnnotated(targetFields);
+         discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(targetFields);
 
          return targetFields;
       }
 
       private boolean isEligibleForInjection(@NotNull Field field)
       {
-         if (isFinal(field.getModifiers())) return false;
-         if (requiresJavaxInject) return isAnnotatedWithJavaxInject(field);
-         boolean notStatic = !isStatic(field.getModifiers());
-         return INJECT_CLASS == null ? notStatic : isAnnotatedWithJavaxInject(field) || notStatic;
+         if (isFinal(field.getModifiers())) {
+            return false;
+         }
+
+         if (requiresAnnotation || foundAnnotations) {
+            return isAnnotated(field);
+         }
+
+         if (WITH_INJECTION_API_IN_CLASSPATH) {
+            foundAnnotations = isAnnotated(field);
+         }
+
+         return foundAnnotations || !isStatic(field.getModifiers());
       }
 
-      private boolean isAnnotatedWithJavaxInject(@NotNull Field field)
+      private boolean isAnnotated(@NotNull Field field)
       {
-         boolean annotated = field.isAnnotationPresent(INJECT_CLASS);
-         if (annotated) foundJavaxInject = true;
-         return annotated;
+         return
+            field.isAnnotationPresent(INJECT_CLASS) ||
+            field.isAnnotationPresent(PERSISTENCE_CONTEXT_CLASS) || field.isAnnotationPresent(PERSISTENCE_UNIT_CLASS);
       }
 
-      private void discardFieldsNotAnnotatedWithJavaxInjectIfAtLeastOneIsAnnotated(@NotNull List<Field> targetFields)
+      private void discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(@NotNull List<Field> targetFields)
       {
-         if (!requiresJavaxInject && foundJavaxInject) {
+         if (!requiresAnnotation && foundAnnotations) {
             ListIterator<Field> itr = targetFields.listIterator();
 
             while (itr.hasNext()) {
                Field targetField = itr.next();
 
-               if (!targetField.isAnnotationPresent(INJECT_CLASS)) {
+               if (!isAnnotated(targetField)) {
                   itr.remove();
                }
             }
          }
       }
 
-      private boolean isFromSameModuleOrSystemAsSuperClass(@NotNull Class<?> superClass)
+      private boolean isClassFromSameModuleOrSystemAsTestedClass(@NotNull Class<?> anotherClass)
       {
-         if (superClass.getClassLoader() == null) {
+         if (anotherClass.getClassLoader() == null) {
             return false;
          }
 
-         if (superClass.getProtectionDomain() == testedClass.getProtectionDomain()) {
+         if (anotherClass.getProtectionDomain() == testedClass.getProtectionDomain()) {
             return true;
          }
 
-         String className1 = superClass.getName();
+         String className1 = anotherClass.getName();
          String className2 = testedClass.getName();
          int p1 = className1.indexOf('.');
          int p2 = className2.indexOf('.');
@@ -634,7 +673,7 @@ public final class TestedClassInstantiations
 
       private boolean notAssignedByConstructor(@NotNull Field field)
       {
-         if (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS)) {
+         if (WITH_INJECTION_API_IN_CLASSPATH && isAnnotated(field)) {
             return true;
          }
 
@@ -670,7 +709,15 @@ public final class TestedClassInstantiations
             mockedType = findInjectableByTypeAndOptionallyName(targetFieldName);
          }
 
-         return mockedType == null ? null : getValueToInject(mockedType);
+         if (mockedType != null) {
+            return getValueToInject(mockedType);
+         }
+
+         if (instantiatedDependencies != Collections.emptyMap()) {
+            return newInstanceCreatedWithNoArgsConstructorIfAvailable(fieldToBeInjected);
+         }
+
+         return null;
       }
 
       private boolean withMultipleTargetFieldsOfSameType(
@@ -715,6 +762,164 @@ public final class TestedClassInstantiations
          }
 
          return found;
+      }
+
+      @Nullable
+      private Object newInstanceCreatedWithNoArgsConstructorIfAvailable(@NotNull Field fieldToBeInjected)
+      {
+         Object dependencyKey = getDependencyKey(fieldToBeInjected);
+         Object dependency = instantiatedDependencies.get(dependencyKey);
+
+         if (dependency == null) {
+            Class<?> dependencyClass = fieldToBeInjected.getType();
+
+            if (dependencyClass.isInterface()) {
+               dependency = newInstanceIfKnownStandardInterface(fieldToBeInjected, dependencyKey);
+            }
+            else {
+               dependency = newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
+            }
+
+            if (dependency != null) {
+               fillOutDependenciesRecursively(dependency);
+               instantiatedDependencies.put(dependencyKey, dependency);
+            }
+         }
+
+         return dependency;
+      }
+
+      @NotNull
+      private Object getDependencyKey(@NotNull Field fieldToBeInjected)
+      {
+         String id = null;
+
+         for (Annotation annotation : fieldToBeInjected.getDeclaredAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            String candidateId = null;
+
+            if (annotationType == PERSISTENCE_UNIT_CLASS) {
+               candidateId = ((PersistenceUnit) annotation).unitName();
+            }
+            else if (annotationType == PERSISTENCE_CONTEXT_CLASS) {
+               candidateId = ((PersistenceContext) annotation).unitName();
+            }
+
+            if (candidateId != null && !candidateId.isEmpty()) {
+               id = candidateId;
+               break;
+            }
+         }
+
+         Class<?> dependencyClass = fieldToBeInjected.getType();
+         return id == null ? dependencyClass : dependencyClass.getName() + ':' + id;
+      }
+
+      @Nullable
+      private Object newInstanceIfKnownStandardInterface(
+         @NotNull Field fieldToBeInjected, @NotNull Object dependencyKey)
+      {
+         Class<?> dependencyClass = fieldToBeInjected.getType();
+
+         if (dependencyClass == ENTITY_MANAGER_FACTORY_CLASS) {
+            String persistenceUnitName;
+
+            if (dependencyKey instanceof String) {
+               persistenceUnitName = extractIdFromDependencyKey((String) dependencyKey);
+            }
+            else {
+               persistenceUnitName = discoverNameOfDefaultPersistenceUnit();
+            }
+
+            EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+            return emFactory;
+         }
+
+         if (dependencyClass == ENTITY_MANAGER_CLASS) {
+            return findOrCreateEntityManager(dependencyKey);
+         }
+
+         return null;
+      }
+
+      @NotNull
+      private String extractIdFromDependencyKey(@NotNull String dependencyKey)
+      {
+         int p = dependencyKey.indexOf(':');
+         return dependencyKey.substring(p + 1);
+      }
+
+      @NotNull
+      private String discoverNameOfDefaultPersistenceUnit()
+      {
+         if (defaultPersistenceUnitName != null) {
+            return defaultPersistenceUnitName;
+         }
+
+         defaultPersistenceUnitName = "<unknown>";
+         InputStream xmlFile = getClass().getResourceAsStream("/META-INF/persistence.xml");
+
+         if (xmlFile != null) {
+            try {
+               SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+               parser.parse(xmlFile, new DefaultHandler() {
+                  @Override
+                  public void startElement(String uri, String localName, String qName, Attributes attributes)
+                  {
+                     if ("persistence-unit".equals(qName)) {
+                        defaultPersistenceUnitName = attributes.getValue("name");
+                     }
+                  }
+               });
+               xmlFile.close();
+            }
+            catch (ParserConfigurationException ignore) {}
+            catch (SAXException ignore) {}
+            catch (IOException ignore) {}
+         }
+
+         return defaultPersistenceUnitName;
+      }
+
+      @Nullable
+      private Object findOrCreateEntityManager(@NotNull Object dependencyKey)
+      {
+         String persistenceUnitName;
+         Object emFactoryKey;
+
+         if (dependencyKey instanceof String) {
+            persistenceUnitName = extractIdFromDependencyKey((String) dependencyKey);
+            emFactoryKey = EntityManagerFactory.class.getName() + ':' + persistenceUnitName;
+         }
+         else {
+            persistenceUnitName = "";
+            emFactoryKey = EntityManagerFactory.class;
+         }
+
+         EntityManagerFactory emFactory = (EntityManagerFactory) instantiatedDependencies.get(emFactoryKey);
+
+         if (emFactory == null) {
+            emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+         }
+
+         return emFactory == null ? null : emFactory.createEntityManager();
+      }
+
+      private void fillOutDependenciesRecursively(@NotNull Object dependency)
+      {
+         if (isClassFromSameModuleOrSystemAsTestedClass(dependency.getClass())) {
+            FieldInjection recursiveInjection =
+               new FieldInjection(dependency, requiresAnnotation, instantiatedDependencies);
+
+            List<Field> targetFields = recursiveInjection.findAllTargetInstanceFieldsInTestedClassHierarchy();
+
+            if (!targetFields.isEmpty()) {
+               List<MockedType> currentlyConsumedInjectables = consumedInjectables;
+               consumedInjectables = new ArrayList<MockedType>();
+               recursiveInjection.injectIntoEligibleFields(targetFields);
+               consumedInjectables = currentlyConsumedInjectables;
+            }
+         }
       }
    }
 }

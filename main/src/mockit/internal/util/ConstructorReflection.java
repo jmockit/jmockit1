@@ -84,7 +84,7 @@ public final class ConstructorReflection
          }
          else {
             ThrowOfCheckedException.doThrow((Exception) cause);
-            throw new IllegalStateException("Should never get here");
+            throw new IllegalStateException("Should never get here", cause);
          }
       }
    }
@@ -186,6 +186,17 @@ public final class ConstructorReflection
    }
 
    @Nullable
+   public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@NotNull Class<T> aClass)
+   {
+      try {
+         //noinspection ClassNewInstance
+         return aClass.newInstance();
+      }
+      catch (InstantiationException ignore) { return null; }
+      catch (IllegalAccessException ignore) { return null; }
+   }
+
+   @Nullable
    public static <T> T newInstanceUsingPublicConstructorIfAvailable(
       @NotNull Class<T> aClass, @NotNull Class<?>[] parameterTypes, @NotNull Object... initArgs)
    {
@@ -227,11 +238,11 @@ public final class ConstructorReflection
    @NotNull
    public static <T> T newUninitializedInstance(@NotNull Class<T> aClass)
    {
-      @SuppressWarnings("unchecked")
-      Constructor<T> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
+      Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
 
       try {
-         return fakeConstructor.newInstance();
+         //noinspection unchecked
+         return (T) fakeConstructor.newInstance();
       }
       catch (NoClassDefFoundError e) {
          StackTrace.filterStackTrace(e);
