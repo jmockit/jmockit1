@@ -6,10 +6,13 @@ package mockit.internal.util;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+import static java.util.Collections.*;
 
 import mockit.external.asm4.Type;
-
-import static java.util.Collections.*;
+import static mockit.Deencapsulation.*;
+import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
@@ -70,6 +73,50 @@ public final class DefaultValues
       ELEM_TYPE_TO_ONE_D_ARRAY.put("[D", new double[0]);
       ELEM_TYPE_TO_ONE_D_ARRAY.put("[Ljava/lang/Object;", new Object[0]);
       ELEM_TYPE_TO_ONE_D_ARRAY.put("[Ljava/lang/String;", new String[0]);
+
+      if (JAVA8) {
+         addJava8TypeMapEntries();
+      }
+   }
+
+   @SuppressWarnings("Since15")
+   private static void addJava8TypeMapEntries()
+   {
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Optional;", Optional.empty());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalInt;", OptionalInt.empty());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalLong;", OptionalLong.empty());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalDouble;", OptionalDouble.empty());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Spliterator;", Spliterators.emptySpliterator());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Spliterator$OfInt;", Spliterators.emptyIntSpliterator());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Spliterator$OfLong;", Spliterators.emptyLongSpliterator());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Spliterator$OfDouble;", Spliterators.emptyDoubleSpliterator());
+
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/PrimitiveIterator$OfInt;", new PrimitiveIterator.OfInt() {
+         @Override public int nextInt() { throw new NoSuchElementException(); }
+         @Override public Integer next() { throw new NoSuchElementException(); }
+         @Override public boolean hasNext() { return false; }
+         @Override public void forEachRemaining(IntConsumer action) {}
+      });
+
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/PrimitiveIterator$OfLong;", new PrimitiveIterator.OfLong() {
+         @Override public long nextLong() { throw new NoSuchElementException(); }
+         @Override public Long next() { throw new NoSuchElementException(); }
+         @Override public boolean hasNext() { return false; }
+         @Override public void forEachRemaining(LongConsumer action) {}
+      });
+
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/PrimitiveIterator$OfDouble;", new PrimitiveIterator.OfDouble() {
+         @Override public double nextDouble() { throw new NoSuchElementException(); }
+         @Override public Double next() { throw new NoSuchElementException(); }
+         @Override public boolean hasNext() { return false; }
+         @Override public void forEachRemaining(DoubleConsumer action) {}
+      });
+
+      // For some reason, a VerifyError occurs here if Stream.empty() is called directly.
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", invoke(Stream.class, "empty"));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", invoke(IntStream.class, "empty"));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", invoke(LongStream.class, "empty"));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", invoke(DoubleStream.class, "empty"));
    }
 
    @Nullable public static Object computeForReturnType(@NotNull String methodNameAndDesc)

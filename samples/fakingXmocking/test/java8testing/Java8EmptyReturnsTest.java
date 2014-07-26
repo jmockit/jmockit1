@@ -16,25 +16,49 @@ public final class Java8EmptyReturnsTest
 {
    @Test
    public void mockMethodsReturningJava8ObjectsWhichCanBeEmpty(
-      @Injectable Stream<String> stream, @Injectable Stream<Integer> intStream,
-      @Injectable Stream<Long> longStream, @Injectable Stream<Double> doubleStream)
+      @Injectable Stream<?> stream, @Injectable Stream<Integer> streamOfIntegers,
+      @Injectable Stream<Long> streamOfLongs, @Injectable Stream<Double> streamOfDoubles)
    {
-      Optional<String> any = stream.findAny();
+      Optional<?> any = stream.findAny();
       assertSame(Optional.empty(), any);
 
-      Stream<String> distinct = stream.distinct();
-      assertSame(Stream.empty(), distinct);
+      // Stream.empty() always creates a new stream, so it can't be used here.
+      Stream<?> distinct = stream.distinct();
+      assertFalse(distinct.iterator().hasNext());
 
-      Spliterator<String> spliterator = stream.spliterator();
+      Spliterator<?> spliterator = stream.spliterator();
       assertSame(Spliterators.emptySpliterator(), spliterator);
 
-      Spliterator<Integer> intSpliterator = intStream.spliterator();
-      assertSame(Spliterators.emptyIntSpliterator(), intSpliterator);
+      Spliterator<Integer> intSpliterator = streamOfIntegers.spliterator();
+      assertEquals(0, intSpliterator.estimateSize());
 
-      Spliterator<Long> longSpliterator = longStream.spliterator();
-      assertSame(Spliterators.emptyLongSpliterator(), longSpliterator);
+      Spliterator<Long> longSpliterator = streamOfLongs.spliterator();
+      assertEquals(0, longSpliterator.estimateSize());
 
-      Spliterator<Double> doubleSpliterator = doubleStream.spliterator();
-      assertSame(Spliterators.emptyDoubleSpliterator(), doubleSpliterator);
+      Spliterator<Double> doubleSpliterator = streamOfDoubles.spliterator();
+      assertEquals(0, doubleSpliterator.estimateSize());
+
+      assertSame(Collections.emptyIterator(), stream.iterator());
+   }
+
+   @Test
+   public void mockMethodsReturningJava8PrimitiveSpecializationsWhichCanBeEmpty(
+      @Injectable IntStream intStream, @Injectable LongStream longStream, @Injectable DoubleStream doubleStream)
+   {
+      assertSame(OptionalInt.empty(), intStream.max());
+      assertSame(OptionalLong.empty(), longStream.min());
+      assertSame(OptionalDouble.empty(), doubleStream.findFirst());
+
+      assertEquals(0, intStream.sorted().count());
+      assertEquals(0, longStream.sequential().count());
+      assertEquals(0, doubleStream.distinct().count());
+
+      assertSame(Spliterators.emptyIntSpliterator(), intStream.spliterator());
+      assertSame(Spliterators.emptyLongSpliterator(), longStream.spliterator());
+      assertSame(Spliterators.emptyDoubleSpliterator(), doubleStream.spliterator());
+
+      assertFalse(intStream.iterator().hasNext());
+      assertFalse(longStream.iterator().hasNext());
+      assertFalse(doubleStream.iterator().hasNext());
    }
 }
