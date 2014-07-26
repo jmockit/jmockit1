@@ -14,6 +14,8 @@ import mockit.Mocked;
 import org.jmockit.*;
 import org.jmockit.Expectations.*;
 
+@SuppressWarnings("Convert2Lambda")
+@Ignore("Just for API design, no backing implementation yet")
 public final class ExpectationWithInstanceFieldsTest
 {
    @Mocked List<Object> mockList;
@@ -44,7 +46,7 @@ public final class ExpectationWithInstanceFieldsTest
          public void perform(Spec e)
          {
             mockList.addAll(e.anyInt, null);
-            e.delegate = (args) -> args.length > 0;
+            e.delegate = args -> args.length > 0;
          }
       });
 
@@ -110,7 +112,7 @@ public final class ExpectationWithInstanceFieldsTest
 
       Expectations.record(mockList, e -> {
          mockList.addAll(e.anyInt, null);
-         e.delegate = (args) -> args.length > 0;
+         e.delegate = args -> args.length > 0;
       });
 
       mockAction.accept("");

@@ -14,6 +14,7 @@ import mockit.*;
 
 import static mockit.Expectation.*;
 
+@Ignore("Just for API design, no backing implementation yet")
 public final class ExpectationWithStaticFieldsTest
 {
    @Mocked List<Object> mockList;
@@ -33,7 +34,7 @@ public final class ExpectationWithStaticFieldsTest
          mockList.addAll(anyInt, isNotNull()); advice = (execution, args) -> execution.proceed();
       });
 
-      record(mockList, () -> { mockList.addAll(anyInt, null); delegate = (args) -> args.length > 0; });
+      record(mockList, () -> { mockList.addAll(anyInt, null); delegate = args -> args.length > 0; });
 
       mockAction.accept("");
       mockAction.andThen(System.out::println);
