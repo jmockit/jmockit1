@@ -18,6 +18,8 @@
       <module>orderMngmntWebapp</module>
       <module>tourdemock</module>
       <module>LoginService</module>
+      <module>fakingXmocking</module>
+      <module>javax.inject-tck</module>
    </modules>
 
    <name>The JMockit Testing Toolkit Samples</name>
