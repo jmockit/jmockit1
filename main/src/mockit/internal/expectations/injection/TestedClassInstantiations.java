@@ -615,8 +615,10 @@ public final class TestedClassInstantiations
       private boolean isAnnotated(@NotNull Field field)
       {
          return
-            field.isAnnotationPresent(INJECT_CLASS) ||
-            field.isAnnotationPresent(PERSISTENCE_CONTEXT_CLASS) || field.isAnnotationPresent(PERSISTENCE_UNIT_CLASS);
+            INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS) ||
+            PERSISTENCE_UNIT_CLASS != null && (
+               field.isAnnotationPresent(PERSISTENCE_CONTEXT_CLASS) || field.isAnnotationPresent(PERSISTENCE_UNIT_CLASS)
+            );
       }
 
       private void discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(@NotNull List<Field> targetFields)
