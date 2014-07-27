@@ -162,7 +162,7 @@
          nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API" doctitle="JMockit Toolkit API Documentation"
          encoding="UTF-8" charset="UTF-8" locale="en">
-         <arg line="-notimestamp -quiet"/>
+         <arg line="-notimestamp -quiet -Xdoclint:none"/>
          <fileset dir="${basedir}/main/src">
             <include name="mockit/*.java"/>
             <include name="mockit/integration/junit4/*.java"/>

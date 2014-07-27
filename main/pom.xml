@@ -124,7 +124,7 @@
                <quiet>true</quiet>
                <sourcepath>${basedir}/src</sourcepath>
                <subpackages>none</subpackages>
-               <additionalparam>mockit mockit.integration.junit4 mockit.integration.testng</additionalparam>
+               <additionalparam>-Xdoclint:none mockit mockit.integration.junit4 mockit.integration.testng</additionalparam>
             </configuration>
             <executions>
                <execution>
