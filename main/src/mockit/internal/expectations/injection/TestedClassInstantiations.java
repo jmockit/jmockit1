@@ -60,7 +60,7 @@ public final class TestedClassInstantiations
    {
       @NotNull final Field testedField;
       @NotNull final Tested metadata;
-      @Nullable private TestedObjectCreation testedObjectCreation;
+      @NotNull private final TestedObjectCreation testedObjectCreation;
       @Nullable private List<Field> targetFields;
       private boolean createAutomatically;
 
@@ -68,6 +68,7 @@ public final class TestedClassInstantiations
       {
          testedField = field;
          this.metadata = metadata;
+         testedObjectCreation = new TestedObjectCreation(field);
       }
 
       void instantiateWithInjectableValues()
@@ -85,10 +86,6 @@ public final class TestedClassInstantiations
          Class<?> testedClass;
 
          if (createAutomatically) {
-            if (testedObjectCreation == null) {
-               testedObjectCreation = new TestedObjectCreation(testedField);
-            }
-
             testedClass = testedObjectCreation.declaredTestedClass;
             testedObject = testedObjectCreation.create();
             FieldReflection.setFieldValue(testedField, currentTestClassInstance, testedObject);
@@ -135,7 +132,8 @@ public final class TestedClassInstantiations
          Tested testedMetadata = field.getAnnotation(Tested.class);
 
          if (testedMetadata != null) {
-            testedFields.add(new TestedField(field, testedMetadata));
+            TestedField testedField = new TestedField(field, testedMetadata);
+            testedFields.add(testedField);
          }
          else {
             MockedType mockedType = new MockedType(field, true);
@@ -266,7 +264,11 @@ public final class TestedClassInstantiations
          classReader.accept(modifier, SKIP_FRAMES);
          byte[] bytecode = modifier.toByteArray();
 
-         return ImplementationClass.defineNewClass(declaredTestedClass.getClassLoader(), bytecode, subclassName);
+         Class<?> generatedSubclass =
+            ImplementationClass.defineNewClass(declaredTestedClass.getClassLoader(), bytecode, subclassName);
+
+         TestRun.mockFixture().registerMockedClass(generatedSubclass);
+         return generatedSubclass;
       }
 
       @NotNull Object create()
