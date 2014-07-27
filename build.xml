@@ -239,7 +239,8 @@
 
    <target name="createzip">
       <zip
-         destfile="jmockit-${version}.zip" basedir=".." includes="jmockit1.org/**, jmockit.github.io/**"
+         destfile="../artifacts1x/jmockit-${version}.zip"
+         basedir=".." includes="jmockit1.org/**, jmockit.github.io/**"
          excludes="jmockit1.org/**/*.i*, jmockit.github.io/*.i*,
                    jmockit1.org/*.zip, jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/build.xml,
                    jmockit1.org/**/target/**, jmockit1.org/**/classes/**, jmockit1.org/**/test-classes/**,
