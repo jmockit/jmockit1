@@ -16,6 +16,7 @@ public final class SavePoint
    @NotNull private final Set<ClassIdentification> previousTransformedClasses;
    @NotNull private final Map<Class<?>, byte[]> previousRedefinedClasses;
    private final int previousCaptureTransformerCount;
+   @NotNull private final List<Class<?>> previousMockedClasses;
    @NotNull private final MockClasses.SavePoint previousMockClasses;
 
    public SavePoint()
@@ -24,6 +25,7 @@ public final class SavePoint
       previousTransformedClasses = mockFixture.getTransformedClasses();
       previousRedefinedClasses = mockFixture.getRedefinedClasses();
       previousCaptureTransformerCount = mockFixture.getCaptureTransformerCount();
+      previousMockedClasses = mockFixture.getMockedClasses();
       previousMockClasses = TestRun.getMockClasses().new SavePoint();
    }
 
@@ -36,6 +38,7 @@ public final class SavePoint
          mockFixture.removeCaptureTransformers(previousCaptureTransformerCount);
          mockFixture.restoreTransformedClasses(previousTransformedClasses);
          mockFixture.restoreRedefinedClasses(previousRedefinedClasses);
+         mockFixture.removeMockedClasses(previousMockedClasses);
          previousMockClasses.rollback();
       }
       finally {

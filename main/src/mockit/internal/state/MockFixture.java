@@ -107,7 +107,12 @@ public final class MockFixture
    public void registerMockedClass(@NotNull Class<?> mockedType)
    {
       if (!containsReference(mockedClasses, mockedType)) {
-         mockedClasses.add(Proxy.isProxyClass(mockedType) ? mockedType.getInterfaces()[0] : mockedType);
+         if (Proxy.isProxyClass(mockedType)) {
+            // TODO: probably need to change this
+            mockedType = mockedType.getInterfaces()[0];
+         }
+
+         mockedClasses.add(mockedType);
       }
    }
 
@@ -221,8 +226,13 @@ public final class MockFixture
          reregisterNativeMethodsForRestoredClass(redefinedClass);
       }
 
-      mockedTypesAndInstances.remove(redefinedClass);
-      mockedClasses.remove(redefinedClass);
+      removeMockedClass(redefinedClass);
+   }
+
+   private void removeMockedClass(@NotNull Class<?> mockedClass)
+   {
+      mockedTypesAndInstances.remove(mockedClass);
+      mockedClasses.remove(mockedClass);
    }
 
    private void discardStateForCorrespondingMockClassIfAny(@NotNull Class<?> redefinedClass)
@@ -293,6 +303,24 @@ public final class MockFixture
       }
    }
 
+   void removeMockedClasses(@NotNull List<Class<?>> previousMockedClasses)
+   {
+      int currentMockedClassCount = mockedClasses.size();
+
+      if (currentMockedClassCount > 0) {
+         int previousMockedClassCount = previousMockedClasses.size();
+
+         if (previousMockedClassCount == 0) {
+            mockedClasses.clear();
+            mockedTypesAndInstances.clear();
+         }
+         else if (previousMockedClassCount < currentMockedClassCount) {
+            mockedClasses.retainAll(previousMockedClasses);
+            mockedTypesAndInstances.keySet().retainAll(previousMockedClasses);
+         }
+      }
+   }
+
    // Methods that deal with redefined native methods /////////////////////////////////////////////////////////////////
 
    public void addRedefinedClassWithNativeMethods(@NotNull String redefinedClassInternalName)
@@ -325,16 +353,16 @@ public final class MockFixture
       // natives to be explicitly registered again (not all do, such as java.lang.Float).
    }
 
-   // Getter methods for the maps of transformed/redefined classes ////////////////////////////////////////////////////
+   // Getter methods for the maps and collections of transformed/redefined/mocked classes /////////////////////////////
 
-   @NotNull public Set<ClassIdentification> getTransformedClasses()
+   @NotNull Set<ClassIdentification> getTransformedClasses()
    {
       return transformedClasses.isEmpty() ?
          Collections.<ClassIdentification>emptySet() :
          new HashSet<ClassIdentification>(transformedClasses.keySet());
    }
 
-   @NotNull public Map<Class<?>, byte[]> getRedefinedClasses()
+   @NotNull Map<Class<?>, byte[]> getRedefinedClasses()
    {
       return redefinedClasses.isEmpty() ?
          Collections.<Class<?>, byte[]>emptyMap() :
@@ -349,6 +377,11 @@ public final class MockFixture
    public boolean containsRedefinedClass(@NotNull Class<?> redefinedClass)
    {
       return redefinedClasses.containsKey(redefinedClass);
+   }
+
+   @NotNull List<Class<?>> getMockedClasses()
+   {
+      return mockedClasses.isEmpty() ? Collections.<Class<?>>emptyList() : new ArrayList<Class<?>>(mockedClasses);
    }
 
    // Methods dealing with capture transformers ///////////////////////////////////////////////////////////////////////
