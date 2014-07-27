@@ -4,12 +4,12 @@
  */
 package mockit.integration.junit4.internal;
 
-import org.junit.runner.notification.*;
 import org.junit.runner.*;
+import org.junit.runner.notification.*;
 
 import mockit.*;
 import mockit.integration.internal.*;
-import mockit.internal.mockups.*;
+import mockit.internal.*;
 import mockit.internal.state.*;
 
 /**
@@ -25,10 +25,10 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       TestRun.enterNoMockingZone();
 
       try {
-//         TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
+         TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
 
          RunNotifier it = invocation.getInvokedInstance();
-         ((MockInvocation) invocation).prepareToProceed();
+         ((BaseInvocation) invocation).prepareToProceed();
          it.fireTestRunFinished(result);
       }
       finally {
