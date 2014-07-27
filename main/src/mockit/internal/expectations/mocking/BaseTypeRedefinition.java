@@ -65,8 +65,9 @@ class BaseTypeRedefinition
          redefineTargetClassAndCreateInstanceFactory(typeToMock);
       }
 
+      Class<?> mockedType = getClassType(typeToMock);
       assert instanceFactory != null;
-      TestRun.mockFixture().registerInstanceFactoryForMockedType(targetClass, instanceFactory);
+      TestRun.mockFixture().registerInstanceFactoryForMockedType(mockedType, instanceFactory);
       return instanceFactory;
    }
 
