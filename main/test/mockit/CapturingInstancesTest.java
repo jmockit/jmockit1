@@ -44,9 +44,10 @@ public final class CapturingInstancesTest
    @Test
    public void captureServiceInstancesCreatedByTestedConstructor()
    {
-      new TestedUnit();
+      TestedUnit unit = new TestedUnit();
 
-      assertFalse(service instanceof Service1Impl);
+      assertEquals(0, unit.service1.doSomething());
+      assertEquals(0, unit.service2.doSomething());
    }
 
    @Test
