@@ -125,7 +125,7 @@
                <quiet>true</quiet>
                <sourcepath>${basedir}/src</sourcepath>
                <subpackages>none</subpackages>
-               <additionalparam>mockit.coverage</additionalparam>
+               <additionalparam>-Xdoclint:none mockit.coverage</additionalparam>
             </configuration>
             <executions>
                <execution>
