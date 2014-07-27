@@ -117,7 +117,7 @@ public final class ClassLoad
    {
       try {
          //noinspection unchecked
-         return (Class<? extends T>) Class.forName(typeName, false, THIS_CL);
+         return (Class<? extends T>) Class.forName(typeName, true, THIS_CL);
       }
       catch (NoClassDefFoundError ignore) { return null; }
       catch (ClassNotFoundException ignore) { return null; }
