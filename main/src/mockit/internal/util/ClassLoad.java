@@ -117,20 +117,9 @@ public final class ClassLoad
    {
       try {
          //noinspection unchecked
-         return (Class<? extends T>) Class.forName(typeName, true, THIS_CL);
+         return (Class<? extends T>) Class.forName(typeName, false, THIS_CL);
       }
       catch (NoClassDefFoundError ignore) { return null; }
       catch (ClassNotFoundException ignore) { return null; }
-   }
-
-   public static boolean isTypeAvailableInClasspath(@NotNull Class<?> type)
-   {
-      try {
-         //noinspection unchecked
-         Class.forName(type.getName(), true, type.getClassLoader());
-         return true;
-      }
-      catch (NoClassDefFoundError ignore) { return false; }
-      catch (ClassNotFoundException ignore) { return false; }
    }
 }

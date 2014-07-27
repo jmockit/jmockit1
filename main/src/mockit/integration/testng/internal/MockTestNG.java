@@ -14,7 +14,7 @@ public final class MockTestNG extends MockUp<TestNG>
 {
    public static boolean hasDependenciesInClasspath()
    {
-      return ClassLoad.isTypeAvailableInClasspath(TestNG.class);
+      return ClassLoad.searchTypeInClasspath("org.testng.TestNG") != null;
    }
 
    @Mock

@@ -28,7 +28,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
 {
    public static boolean hasDependenciesInClasspath()
    {
-      return ClassLoad.isTypeAvailableInClasspath(FrameworkMethod.class);
+      return ClassLoad.searchTypeInClasspath("org.junit.runners.model.FrameworkMethod") != null;
    }
 
    @NotNull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();
