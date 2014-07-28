@@ -182,6 +182,19 @@ public class TestRunnerDecorator
       }
    }
 
+   protected static void clearTestedFieldsIfAny()
+   {
+      SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
+
+      if (sharedRedefinitions != null) {
+         TestedClassInstantiations testedClasses = sharedRedefinitions.getTestedClassInstantiations();
+
+         if (testedClasses != null) {
+            testedClasses.clearTestedFields();
+         }
+      }
+   }
+
    protected static void concludeTestMethodExecution(
       @NotNull SavePoint savePoint, @Nullable Throwable thrownByTest, boolean thrownAsExpected)
       throws Throwable

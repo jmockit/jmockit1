@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -36,6 +36,7 @@ public final class TestedAbstractClassTest
    @Test
    public void exerciseTestedObject(@Injectable("Test") String name)
    {
+      assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
       assertEquals("Test", tested.name);
 
@@ -51,6 +52,7 @@ public final class TestedAbstractClassTest
    @Test
    public void exerciseDynamicallyMockedTestedObject()
    {
+      assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
 
       new NonStrictExpectations(tested) {{
@@ -67,6 +69,7 @@ public final class TestedAbstractClassTest
    @Test
    public void exerciseTestedObjectAgain(@Injectable("Another test") String text)
    {
+      assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
       assertEquals("Another test", tested.name);
 
@@ -78,16 +81,17 @@ public final class TestedAbstractClassTest
       }};
    }
 
-   static Class<?> generatedSubclass;
+   Class<?> generatedSubclass;
 
-   @After
-   public void assertThatGeneratedSubclassIsAlwaysTheSame()
+   void assertThatGeneratedSubclassIsAlwaysTheSame()
    {
+      Class<?> testedClass = tested.getClass();
+
       if (generatedSubclass == null) {
-         generatedSubclass = tested.getClass();
+         generatedSubclass = testedClass;
       }
       else {
-         assertSame(generatedSubclass, tested.getClass());
+         assertSame(generatedSubclass, testedClass);
       }
    }
 }

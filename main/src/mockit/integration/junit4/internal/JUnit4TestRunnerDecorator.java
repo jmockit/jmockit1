@@ -147,6 +147,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
          testFailureExpected = expectedType.isAssignableFrom(thrownByTest.getClass());
       }
       finally {
+         clearTestedFieldsIfAny();
          concludeTestMethodExecution(savePoint, testFailure, testFailureExpected);
       }
    }

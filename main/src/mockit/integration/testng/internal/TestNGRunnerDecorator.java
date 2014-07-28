@@ -6,24 +6,23 @@ package mockit.integration.testng.internal;
 
 import java.lang.reflect.*;
 
-import static mockit.internal.util.StackTrace.*;
-
-import org.jetbrains.annotations.*;
-import org.testng.*;
 import org.testng.annotations.*;
-import org.testng.internal.Parameters;
 
 import mockit.*;
 import mockit.integration.internal.*;
-import mockit.internal.expectations.injection.*;
-import mockit.internal.expectations.mocking.*;
-import mockit.internal.mockups.*;
+import mockit.internal.*;
 import mockit.internal.state.*;
+import static mockit.internal.util.StackTrace.*;
+
+import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.Nullable;
+import org.testng.*;
+import org.testng.internal.Parameters;
 
 /**
  * Provides callbacks to be called by the TestNG 5.14+ test runner for each test execution.
- * JMockit will then assert any expectations set during the test, including those specified through {@link mockit.Mock}
- * and those recorded in {@link mockit.Expectations} subclasses.
+ * JMockit will then assert any expectations set during the test, including those specified through {@link Mock} and
+ * those recorded in {@link Expectations} subclasses.
  * <p/>
  * This class is not supposed to be accessed from user code; it will be automatically loaded at startup.
  */
@@ -42,7 +41,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          @NotNull Invocation invocation, Class<?> c, @Nullable Method method,
          ITestContext context, ITestResult testResult)
       {
-         ((MockInvocation) invocation).prepareToProceed();
+         ((BaseInvocation) invocation).prepareToProceed();
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
 
          if (value != null) {
@@ -212,20 +211,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void clearTestedFieldsIfAny()
-   {
-      SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
-
-      if (sharedRedefinitions != null) {
-         TestedClassInstantiations testedClasses = sharedRedefinitions.getTestedClassInstantiations();
-
-         if (testedClasses != null) {
-            testedClasses.clearTestedFields();
-         }
-      }
-   }
-
-   private void afterConfigurationMethod(@NotNull ITestResult testResult)
+   private static void afterConfigurationMethod(@NotNull ITestResult testResult)
    {
       TestRun.enterNoMockingZone();
 
@@ -245,7 +231,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void concludeTestExecutionWithNothingThrown(
+   private static void concludeTestExecutionWithNothingThrown(
       @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult)
    {
       try {
@@ -258,7 +244,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void concludeTestExecutionWithExpectedExceptionNotThrown(
+   private static void concludeTestExecutionWithExpectedExceptionNotThrown(
       @NotNull IInvokedMethod invokedMethod, @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult)
    {
       try {
@@ -277,7 +263,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void concludeTestExecutionWithExpectedExceptionThrown(
+   private static void concludeTestExecutionWithExpectedExceptionThrown(
       @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult, @NotNull Throwable thrownByTest)
    {
       filterStackTrace(thrownByTest);
@@ -294,7 +280,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void concludeTestExecutionWithUnexpectedExceptionThrown(
+   private static void concludeTestExecutionWithUnexpectedExceptionThrown(
       @NotNull SavePoint testMethodSavePoint, @NotNull Throwable thrownByTest)
    {
       filterStackTrace(thrownByTest);
@@ -305,7 +291,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       catch (Throwable ignored) {}
    }
 
-   private boolean isExpectedException(@NotNull IInvokedMethod invokedMethod, @NotNull Throwable thrownByTest)
+   private static boolean isExpectedException(@NotNull IInvokedMethod invokedMethod, @NotNull Throwable thrownByTest)
    {
       Method testMethod = invokedMethod.getTestMethod().getConstructorOrMethod().getMethod();
       Class<?>[] expectedExceptions = testMethod.getAnnotation(Test.class).expectedExceptions();

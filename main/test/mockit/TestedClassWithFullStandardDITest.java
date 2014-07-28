@@ -5,6 +5,7 @@
 package mockit;
 
 import java.io.*;
+import javax.annotation.*;
 import javax.inject.*;
 import javax.persistence.*;
 
@@ -17,15 +18,32 @@ public final class TestedClassWithFullStandardDITest
    {
       @Inject private Runnable dependencyToBeMocked;
       @Inject private FirstLevelDependency dependency2;
-      @Inject private FirstLevelDependency dependency3;
+      @Resource private FirstLevelDependency dependency3;
       @Inject private CommonDependency commonDependency;
+      boolean initialized;
+      static boolean destroyed;
+
+      @PostConstruct
+      void initialize()
+      {
+         assertNotNull(dependency3);
+         initialized = true;
+      }
+
+      @PreDestroy
+      void destroy()
+      {
+         assertTrue(initialized);
+         destroyed = true;
+      }
    }
 
    public static class FirstLevelDependency
    {
-      @Inject private static SecondLevelDependency dependency;
+      @Inject private SecondLevelDependency dependency;
+      @Inject private static SecondLevelDependency staticDependency;
       @Inject private CommonDependency commonDependency;
-      @Inject private static Runnable dependencyToBeMocked;
+      @Resource private static Runnable dependencyToBeMocked;
       @PersistenceContext private EntityManager em;
    }
 
@@ -34,6 +52,13 @@ public final class TestedClassWithFullStandardDITest
       @Inject CommonDependency commonDependency;
       @PersistenceUnit private EntityManagerFactory emFactory;
       @PersistenceContext private EntityManager em;
+      boolean initialized;
+
+      @PostConstruct
+      final void initialize()
+      {
+         initialized = true;
+      }
    }
 
    public static class CommonDependency
@@ -78,23 +103,40 @@ public final class TestedClassWithFullStandardDITest
    @Test
    public void useFullyInitializedTestedObject()
    {
+      // First level dependencies:
       assertSame(mockedDependency, tested.dependencyToBeMocked);
       assertNotNull(tested.dependency2);
       assertSame(tested.dependency2, tested.dependency3);
       assertNotNull(tested.commonDependency);
-      assertNotNull(FirstLevelDependency.dependency);
-      assertSame(FirstLevelDependency.dependency, FirstLevelDependency.dependency);
+
+      // Second level dependencies:
+      assertNotNull(tested.dependency2.dependency);
+      assertSame(FirstLevelDependency.staticDependency, tested.dependency2.dependency);
+      assertSame(tested.dependency3.dependency, tested.dependency2.dependency);
       assertSame(tested.commonDependency, tested.dependency2.commonDependency);
       assertSame(tested.commonDependency, tested.dependency3.commonDependency);
-      assertSame(tested.commonDependency, FirstLevelDependency.dependency.commonDependency);
       assertSame(mockedDependency, FirstLevelDependency.dependencyToBeMocked);
       assertSame(mockedDependency, FirstLevelDependency.dependencyToBeMocked);
       assertSame(defaultEM, tested.dependency2.em);
       assertSame(tested.dependency2.em, tested.dependency3.em);
-      assertSame(defaultEMFactory, FirstLevelDependency.dependency.emFactory);
-      assertSame(tested.dependency2.em, FirstLevelDependency.dependency.em);
       assertSame(namedEMFactory, tested.commonDependency.emFactory);
       assertSame(namedEM, tested.commonDependency.em);
       assertNotSame(tested.dependency2.em, tested.commonDependency.em);
+
+      // Third level dependencies:
+      assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
+      assertSame(defaultEMFactory, tested.dependency2.dependency.emFactory);
+      assertSame(tested.dependency2.em, tested.dependency2.dependency.em);
+
+      // Lifecycle methods:
+      assertTrue(tested.initialized);
+      assertTrue(tested.dependency2.dependency.initialized);
+   }
+
+   @After
+   public void verifyThatTestedFieldsWereClearedAndPreDestroyMethodsWereExecuted()
+   {
+      assertNull(tested);
+      assertTrue(TestedClass.destroyed);
    }
 }
