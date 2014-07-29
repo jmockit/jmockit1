@@ -50,7 +50,6 @@ public final class TestedClassWithFullStandardDITest
    public static class SecondLevelDependency
    {
       @Inject CommonDependency commonDependency;
-      @PersistenceUnit private EntityManagerFactory emFactory;
       @PersistenceContext private EntityManager em;
       boolean initialized;
 
@@ -125,7 +124,6 @@ public final class TestedClassWithFullStandardDITest
 
       // Third level dependencies:
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
-      assertSame(defaultEMFactory, tested.dependency2.dependency.emFactory);
       assertSame(tested.dependency2.em, tested.dependency2.dependency.em);
 
       // Lifecycle methods:

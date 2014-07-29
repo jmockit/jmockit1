@@ -343,13 +343,17 @@ final class FieldInjection
          emFactoryKey = EntityManagerFactory.class.getName() + ':' + persistenceUnitName;
       }
       else {
-         persistenceUnitName = "";
+         persistenceUnitName = null;
          emFactoryKey = EntityManagerFactory.class;
       }
 
       EntityManagerFactory emFactory = (EntityManagerFactory) instantiatedDependencies.get(emFactoryKey);
 
       if (emFactory == null) {
+         if (persistenceUnitName == null) {
+            persistenceUnitName = discoverNameOfDefaultPersistenceUnit();
+         }
+
          emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
       }
 
