@@ -53,14 +53,13 @@ final class TestedField
 
       if (testedObject != null) {
          FieldInjection fieldInjection =
-            new FieldInjection(
-               injectionState, testedClass, testedObject, requiresAnnotation, metadata.fullyInitialized());
+            new FieldInjection(injectionState, testedClass, requiresAnnotation, metadata.fullyInitialized());
 
          if (targetFields == null) {
-            targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy();
+            targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(testedClass);
          }
 
-         fieldInjection.injectIntoEligibleFields(targetFields);
+         fieldInjection.injectIntoEligibleFields(targetFields, testedObject);
 
          if (createAutomatically) {
             executePostConstructMethodIfAny(testedClass, testedObject);
