@@ -6,17 +6,16 @@ package mockit.internal.expectations.mocking;
 
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
 import static mockit.internal.util.FieldReflection.*;
 
-public class CaptureOfNewInstances extends CaptureOfImplementations
+import org.jetbrains.annotations.*;
+
+public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 {
    static final class Capture
    {
@@ -57,18 +56,19 @@ public class CaptureOfNewInstances extends CaptureOfImplementations
       }
    }
 
-   @NotNull final Map<Class<?>, List<Capture>> baseTypeToCaptures;
-   @NotNull private MockedType capturingTypeMetadata;
+   @NotNull private final Map<Class<?>, List<Capture>> baseTypeToCaptures;
 
    CaptureOfNewInstances() { baseTypeToCaptures = new HashMap<Class<?>, List<Capture>>(); }
 
-   @Override
    @NotNull
+   protected final Collection<List<Capture>> getCapturesForAllBaseTypes() { return baseTypeToCaptures.values(); }
+
+   @NotNull @Override
    protected final BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull String baseTypeDesc)
+      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, @NotNull MockedType typeMetadata)
    {
-      ExpectationsModifier modifier = new ExpectationsModifier(cl, cr, capturingTypeMetadata);
-      modifier.setClassNameForCapturedInstanceMethods(baseTypeDesc);
+      ExpectationsModifier modifier = new ExpectationsModifier(cl, cr, typeMetadata);
+      modifier.setClassNameForCapturedInstanceMethods(Type.getInternalName(baseType));
       return modifier;
    }
 
@@ -80,12 +80,10 @@ public class CaptureOfNewInstances extends CaptureOfImplementations
 
    final void registerCaptureOfNewInstances(@NotNull MockedType typeMetadata, @Nullable Object mockInstance)
    {
-      capturingTypeMetadata = typeMetadata;
-
       Class<?> baseType = typeMetadata.getClassType();
 
       if (!typeMetadata.isFinalFieldOrParameter()) {
-         makeSureAllSubtypesAreModified(baseType, typeMetadata.fieldFromTestClass);
+         makeSureAllSubtypesAreModified(typeMetadata);
       }
 
       List<Capture> captures = baseTypeToCaptures.get(baseType);
@@ -96,6 +94,12 @@ public class CaptureOfNewInstances extends CaptureOfImplementations
       }
 
       captures.add(new Capture(typeMetadata, mockInstance));
+   }
+
+   final void makeSureAllSubtypesAreModified(@NotNull MockedType typeMetadata)
+   {
+      Class<?> baseType = typeMetadata.getClassType();
+      makeSureAllSubtypesAreModified(baseType, typeMetadata.fieldFromTestClass, typeMetadata);
    }
 
    public final boolean captureNewInstance(@Nullable Object fieldOwner, @NotNull Object mock)
@@ -114,15 +118,14 @@ public class CaptureOfNewInstances extends CaptureOfImplementations
 
       Capture captureFound = findCapture(fieldOwner, mock, captures);
 
-      if (capturingTypeMetadata.injectable) {
-         if (captureFound != null) {
+      if (captureFound != null) {
+         if (captureFound.typeMetadata.injectable) {
             TestRun.getExecutingTest().addCapturedInstanceForInjectableMock(captureFound.originalMockInstance, mock);
+            constructorModifiedForCaptureOnly = true;
          }
-
-         constructorModifiedForCaptureOnly = true;
-      }
-      else if (captureFound != null) {
-         TestRun.getExecutingTest().addCapturedInstance(captureFound.originalMockInstance, mock);
+         else {
+            TestRun.getExecutingTest().addCapturedInstance(captureFound.originalMockInstance, mock);
+         }
       }
 
       return constructorModifiedForCaptureOnly;

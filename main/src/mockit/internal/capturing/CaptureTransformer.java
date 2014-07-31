@@ -13,27 +13,28 @@ import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.ClassReader.*;
-import static mockit.internal.util.GeneratedClasses.*;
 
 import org.jetbrains.annotations.*;
 
-public final class CaptureTransformer implements ClassFileTransformer
+public final class CaptureTransformer<M> implements ClassFileTransformer
 {
    @NotNull private final CapturedType capturedType;
    @NotNull private final String capturedTypeDesc;
-   @NotNull private final CaptureOfImplementations captureOfImplementations;
+   @NotNull private final CaptureOfImplementations<M> captureOfImplementations;
    @NotNull private final Map<ClassIdentification, byte[]> transformedClasses;
+   @Nullable private final M typeMetadata;
    private boolean inactive;
 
    CaptureTransformer(
-      @NotNull CapturedType capturedType, @NotNull CaptureOfImplementations captureOfImplementations,
-      boolean registerTransformedClasses)
+      @NotNull CapturedType capturedType, @NotNull CaptureOfImplementations<M> captureOfImplementations,
+      boolean registerTransformedClasses, @Nullable M typeMetadata)
    {
       this.capturedType = capturedType;
       capturedTypeDesc = Type.getInternalName(capturedType.baseType);
       this.captureOfImplementations = captureOfImplementations;
       transformedClasses = registerTransformedClasses ?
          new HashMap<ClassIdentification, byte[]>(2) : Collections.<ClassIdentification, byte[]>emptyMap();
+      this.typeMetadata = typeMetadata;
    }
 
    public void deactivate()
@@ -71,7 +72,7 @@ public final class CaptureTransformer implements ClassFileTransformer
          cr.accept(superTypeCollector, SKIP_DEBUG);
       }
       catch (VisitInterruptedException ignore) {
-         if (superTypeCollector.classExtendsCapturedType && !isGeneratedClass(classDesc)) {
+         if (superTypeCollector.classExtendsCapturedType) {
             String className = classDesc.replace('/', '.');
             return modifyAndRegisterClass(loader, className, cr);
          }
@@ -84,7 +85,7 @@ public final class CaptureTransformer implements ClassFileTransformer
    private byte[] modifyAndRegisterClass(
       @Nullable ClassLoader loader, @NotNull String className, @NotNull ClassReader cr)
    {
-      ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedTypeDesc);
+      ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedType.baseType, typeMetadata);
       cr.accept(modifier, SKIP_FRAMES);
 
       ClassIdentification classId = new ClassIdentification(loader, className);

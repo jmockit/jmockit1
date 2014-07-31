@@ -7,7 +7,6 @@ package mockit.internal.capturing;
 import java.lang.reflect.*;
 
 import mockit.external.asm4.*;
-import mockit.external.asm4.Type;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -16,40 +15,35 @@ import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
-public abstract class CaptureOfImplementations
+public abstract class CaptureOfImplementations<M>
 {
    protected CaptureOfImplementations() {}
 
-   public final void makeSureAllSubtypesAreModified(@NotNull Class<?> baseType)
-   {
-      makeSureAllSubtypesAreModified(baseType, false);
-   }
-
-   public final void makeSureAllSubtypesAreModified(@NotNull Class<?> baseType, boolean registerCapturedClasses)
+   public final void makeSureAllSubtypesAreModified(
+      @NotNull Class<?> baseType, boolean registerCapturedClasses, @Nullable M typeMetadata)
    {
       if (baseType == TypeVariable.class) {
          throw new IllegalArgumentException("Capturing implementations of multiple base types is not supported");
       }
 
-      String baseTypeDesc = Type.getInternalName(baseType);
       CapturedType captureMetadata = new CapturedType(baseType);
-
-      redefineClassesAlreadyLoaded(captureMetadata, baseTypeDesc);
-      createCaptureTransformer(captureMetadata, registerCapturedClasses);
+      redefineClassesAlreadyLoaded(captureMetadata, baseType, typeMetadata);
+      createCaptureTransformer(captureMetadata, registerCapturedClasses, typeMetadata);
    }
 
-   private void redefineClassesAlreadyLoaded(@NotNull CapturedType captureMetadata, @NotNull String baseTypeDesc)
+   private void redefineClassesAlreadyLoaded(
+      @NotNull CapturedType captureMetadata, @NotNull Class<?> baseType, @Nullable M typeMetadata)
    {
       Class<?>[] classesLoaded = Startup.instrumentation().getAllLoadedClasses();
 
       for (Class<?> aClass : classesLoaded) {
          if (captureMetadata.isToBeCaptured(aClass)) {
-            redefineClass(aClass, baseTypeDesc);
+            redefineClass(aClass, baseType, typeMetadata);
          }
       }
    }
 
-   public void redefineClass(@NotNull Class<?> realClass, @NotNull String baseTypeDesc)
+   public void redefineClass(@NotNull Class<?> realClass, @NotNull Class<?> baseType, @Nullable M typeMetadata)
    {
       if (!TestRun.mockFixture().containsRedefinedClass(realClass)) {
          ClassReader classReader;
@@ -63,7 +57,7 @@ public abstract class CaptureOfImplementations
 
          ensureThatClassIsInitialized(realClass);
 
-         BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseTypeDesc);
+         BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseType, typeMetadata);
          classReader.accept(modifier, SKIP_FRAMES);
 
          if (modifier.wasModified()) {
@@ -75,13 +69,16 @@ public abstract class CaptureOfImplementations
 
    @NotNull
    protected abstract BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull String baseTypeDesc);
+      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, M typeMetadata);
 
    protected abstract void redefineClass(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass);
 
-   private void createCaptureTransformer(@NotNull CapturedType captureMetadata, boolean registerCapturedClasses)
+   private void createCaptureTransformer(
+      @NotNull CapturedType captureMetadata, boolean registerCapturedClasses, @Nullable M typeMetadata)
    {
-      CaptureTransformer transformer = new CaptureTransformer(captureMetadata, this, registerCapturedClasses);
+      CaptureTransformer<M> transformer =
+         new CaptureTransformer<M>(captureMetadata, this, registerCapturedClasses, typeMetadata);
+
       Startup.instrumentation().addTransformer(transformer, true);
       TestRun.mockFixture().addCaptureTransformer(transformer);
    }

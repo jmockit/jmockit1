@@ -1,11 +1,15 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
-import static org.junit.Assert.*;
+import java.nio.*;
+
 import org.junit.*;
+import static org.junit.Assert.*;
+
+import org.jetbrains.annotations.*;
 
 public final class MockedParametersWithCapturingTest
 {
@@ -22,8 +26,8 @@ public final class MockedParametersWithCapturingTest
       ServiceImpl() { str = ""; }
       ServiceImpl(String str) { this.str = str; }
 
-      public int doSomething() { return 1; }
-      public void doSomethingElse(int i) { throw new IllegalMonitorStateException(); }
+      @Override public int doSomething() { return 1; }
+      @Override public void doSomethingElse(int i) { throw new IllegalMonitorStateException(); }
 
       private boolean privateMethod() { return true; }
       static boolean staticMethod() { return true; }
@@ -33,10 +37,9 @@ public final class MockedParametersWithCapturingTest
    {
       final Service service1 = new ServiceImpl("test");
 
-      final Service service2 = new Service()
-      {
-         public int doSomething() { return 2; }
-         public void doSomethingElse(int i) {}
+      final Service service2 = new Service() {
+         @Override public int doSomething() { return 2; }
+         @Override public void doSomethingElse(int i) {}
       };
 
       public int businessOperation()
@@ -99,7 +102,7 @@ public final class MockedParametersWithCapturingTest
       DerivedClass(String str) { super(str); }
    }
 
-   @SuppressWarnings({"UnusedDeclaration"})
+   @SuppressWarnings("UnusedDeclaration")
    Object[] valueForSuper(String s)
    {
       return new Object[] {"mock"};
@@ -117,5 +120,23 @@ public final class MockedParametersWithCapturingTest
    {
       assertNull(mock.str);
       assertEquals("test", new DerivedClass("test").str);
+   }
+
+   @Test
+   public void captureImplementationsOfDifferentInterfacesWithPartialMockingFiltersForEach(
+      @Capturing @Mocked("run") Runnable mock1, @Capturing @Mocked("read") Readable mock2)
+      throws Exception
+   {
+      Runnable runnable = new Runnable() {
+         @Override
+         public void run() { throw new RuntimeException("run"); }
+      };
+      runnable.run();
+
+      Readable readable = new Readable() {
+         @Override
+         public int read(@NotNull CharBuffer cb) { throw new RuntimeException("read"); }
+      };
+      readable.read(CharBuffer.wrap("test"));
    }
 }

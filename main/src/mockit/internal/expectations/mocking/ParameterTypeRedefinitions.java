@@ -101,7 +101,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       }
 
       captureOfNewInstances.registerCaptureOfNewInstances(mockedType, originalInstance);
-      captureOfNewInstances.makeSureAllSubtypesAreModified(mockedType.getClassType());
+      captureOfNewInstances.makeSureAllSubtypesAreModified(mockedType);
    }
 
    private void instantiateMockedTypes(@NotNull InstanceFactory[] instanceFactories)

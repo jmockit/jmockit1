@@ -5,6 +5,7 @@
 package mockit.internal.mockups;
 
 import java.lang.reflect.Type;
+
 import org.jetbrains.annotations.*;
 
 import mockit.*;
@@ -13,7 +14,7 @@ import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.util.*;
 
-public final class CaptureOfMockedUpImplementations extends CaptureOfImplementations
+public final class CaptureOfMockedUpImplementations extends CaptureOfImplementations<Void>
 {
    private final MockClassSetup mockClassSetup;
 
@@ -23,10 +24,9 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
       mockClassSetup = new MockClassSetup(baseClassType, baseType, mockUp, null);
    }
 
-   @NotNull
-   @Override
+   @NotNull @Override
    protected BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull String baseTypeDesc)
+      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, Void typeMetadata)
    {
       return mockClassSetup.createClassModifier(cr);
    }
@@ -50,11 +50,11 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
       }
 
       if (baseClassType != Object.class) {
-         redefineClass(baseClassType, mockit.external.asm4.Type.getInternalName(baseType));
+         redefineClass(baseClassType, baseType, null);
          mockClassSetup.validateThatAllMockMethodsWereApplied();
       }
 
-      makeSureAllSubtypesAreModified(baseType, false);
+      makeSureAllSubtypesAreModified(baseType, false, null);
       return mockedClass;
    }
 }
