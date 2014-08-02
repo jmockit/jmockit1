@@ -73,7 +73,7 @@ public final class MockUpForSingleInterfaceInstanceTest
       assertEquals(2, mock2.getNumericValue());
    }
 
-   @Test(timeout = 500) // TODO: investigate why mockFixture is dirty at this point on full test run
+   @Test(timeout = 500)
    public void instantiateSameMockUpForPublicInterfaceManyTimesButApplyOnlyOnce()
    {
       class InterfaceMockUp extends MockUp<APublicInterface> {
