@@ -45,7 +45,7 @@ public final class RecordPhase extends TestOnlyPhase
       Class<?> callerClass = invocation.getCallerClass();
 
       if (!Expectations.class.isAssignableFrom(callerClass)) {
-         String kind = mockNameAndDesc.charAt(0) == '<' ? "constructor" : "method";
+         String kind = invocation.isConstructor() ? "constructor" : "method";
          throw new IllegalStateException(
             "Attempted to record invocation to mocked " + kind + " from outside expectation block" + invocation);
       }
@@ -56,6 +56,10 @@ public final class RecordPhase extends TestOnlyPhase
 
       if (!nonStrictInvocation) {
          executingTest.addStrictMock(mock, matchInstance ? null : mockClassDesc);
+      }
+      else if (!matchInstance && invocation.isConstructor()) {
+         invocation.replacementInstance = mock;
+         getReplacementMap().put(mock, mock);
       }
 
       currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
@@ -74,7 +78,15 @@ public final class RecordPhase extends TestOnlyPhase
    {
       matchInstance = false;
 
-      if (mock == null || nextInstanceToMatch == null) {
+      if (mock == null) {
+         return null;
+      }
+
+      if (nextInstanceToMatch == null) {
+         if (mock == getReplacementMap().get(mock)) {
+            matchInstance = true;
+         }
+
          return mock;
       }
 

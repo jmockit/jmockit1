@@ -45,6 +45,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
             replayIndex = i;
             expectationBeingVerified().constraints.invocationCount++;
             currentExpectation = replayExpectation;
+            mapNewInstanceToReplacementIfApplicable(mock);
          }
       }
 

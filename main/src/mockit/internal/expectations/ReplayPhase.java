@@ -153,6 +153,7 @@ final class ReplayPhase extends Phase
       return expectation.produceResult(mock, args);
    }
 
+   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    @Nullable
    private Object handleStrictInvocation(
       @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, boolean withRealImpl,
@@ -171,7 +172,7 @@ final class ReplayPhase extends Phase
          ExpectedInvocation invocation = expectation.invocation;
          InvocationConstraints constraints = expectation.constraints;
 
-         if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc)) {
+         if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, null)) {
             registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, invocation);
 
             Error error = invocation.assertThatArgumentsMatch(replayArgs, instanceMap);

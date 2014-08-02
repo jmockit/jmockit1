@@ -60,7 +60,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
             continue;
          }
 
-         if (recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
+         if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
             matchInstance = true;
          }
 
@@ -70,6 +70,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
             indexIncrement = 1;
             replayIndex = i;
             expectationBeingVerified().constraints.invocationCount++;
+            mapNewInstanceToReplacementIfApplicable(mock);
             break;
          }
 

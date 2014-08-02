@@ -114,14 +114,6 @@ public final class ExpectedInvocation
       return invokedClassDesc.equals(getClassDesc()) && isMatchingMethod(invokedMethod);
    }
 
-   public boolean isMatch(
-      @Nullable Object replayInstance, @NotNull String invokedClassDesc, @NotNull String invokedMethod)
-   {
-      return
-         isMatch(invokedClassDesc, invokedMethod) &&
-         (arguments.isForConstructor() || !matchInstance || isEquivalentInstance(replayInstance));
-   }
-
    private boolean isMatchingMethod(@NotNull String invokedMethod)
    {
       String nameAndDesc = getMethodNameAndDescription();
@@ -171,10 +163,20 @@ public final class ExpectedInvocation
       return TypeDescriptor.getClassForType(rt2).isAssignableFrom(TypeDescriptor.getClassForType(rt1));
    }
 
-   public boolean isEquivalentInstance(@Nullable Object mockedInstance)
+   public boolean isMatch(
+      @Nullable Object replayInstance, @NotNull String invokedClassDesc, @NotNull String invokedMethod,
+      @Nullable Map<Object, Object> replacementMap)
+   {
+      return
+         isMatch(invokedClassDesc, invokedMethod) &&
+         (arguments.isForConstructor() || !matchInstance || isEquivalentInstance(replayInstance, replacementMap));
+   }
+
+   private boolean isEquivalentInstance(@Nullable Object mockedInstance, @Nullable Map<Object, Object> replacementMap)
    {
       return
          mockedInstance == instance ||
+         replacementMap != null && replacementMap.get(mockedInstance) == instance ||
          TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(instance, mockedInstance);
    }
 

@@ -21,8 +21,7 @@ public final class DynamicPartialMockingTest
    @Deprecated
    static class Collaborator
    {
-      @Deprecated
-      protected int value;
+      @Deprecated protected int value;
 
       Collaborator() { value = -1; }
       @Deprecated Collaborator(@Deprecated int value) { this.value = value; }
@@ -97,19 +96,98 @@ public final class DynamicPartialMockingTest
       }};
 
       // Mocked:
-      assertEquals(123, new Collaborator().getValue());
-
-      // Not mocked:
-      Collaborator col1 = new Collaborator(200);
-      col1.setValue(45);
-      assertEquals(45, col1.value);
-
-      // Still mocked:
+      final Collaborator col1 = new Collaborator();
       assertEquals(123, col1.getValue());
 
+      // Not mocked:
+      final Collaborator col2 = new Collaborator(200);
+      col2.setValue(45);
+      assertEquals(45, col2.value);
+      assertEquals(45, col2.getValue());
+
       new Verifications() {{
-         Collaborator col2 = new Collaborator(200); times = 1;
-         col2.getValue(); times = 2;
+         col1.getValue(); times = 1;
+         col2.getValue(); times = 1;
+
+         Collaborator col2Equivalent = new Collaborator(200); times = 1;
+         col2Equivalent.getValue(); times = 1;
+      }};
+   }
+
+   @Test
+   public void mockOnlyTheFutureObjectsThatMatchASpecificConstructorInvocation()
+   {
+      final String path1 = "one";
+
+      // Not mocked:
+      File f0 = new File(path1);
+      assertFalse(f0.exists());
+
+      // Applies partial mocking to all instances.
+      new NonStrictExpectations(File.class) {{
+         File anyFutureFileWithPath1 = new File(path1);
+         anyFutureFileWithPath1.exists(); result = true;
+      }};
+
+      // Mocked:
+      File f1 = new File(path1);
+      assertTrue(f1.exists());
+
+      // Not mocked:
+      File f2 = new File("two");
+      assertFalse(f2.exists());
+
+      // Also mocked:
+      File f3 = new File(path1);
+      assertTrue(f3.exists());
+
+      // Full verification applies only to mocked instances.
+      new FullVerifications() {{
+         File anyPastFileWithPath1 = new File(path1);
+         anyPastFileWithPath1.exists(); times = 2;
+      }};
+
+      // Invocations to non-mocked instances can also be verified (excluding those existing before mocking was applied).
+      new Verifications() {{
+         File anyOtherFile = new File(withNotEqual(path1));
+         anyOtherFile.exists(); times = 1;
+      }};
+   }
+
+   @Test
+   public void verifyFutureMockedAndNonMockedObjectsInOrder()
+   {
+      final String path1 = "one";
+
+      new NonStrictExpectations(File.class) {{
+         File anyFutureFileWithPath1 = new File(path1);
+         anyFutureFileWithPath1.exists(); result = true;
+      }};
+
+      File f1 = new File(path1);
+      assertTrue(f1.exists());
+
+      File f2 = new File("two");
+      assertFalse(f2.exists());
+      assertEquals("two", f2.getPath());
+
+      assertNull(f1.getPath());
+
+      File f3 = new File(path1);
+      assertTrue(f3.exists());
+
+      new FullVerificationsInOrder() {{
+         File anyFileWithPath1 = new File(path1);
+         anyFileWithPath1.exists();
+
+         File anyOtherFile = new File(withNotEqual(path1));
+         anyOtherFile.exists();
+         anyOtherFile.getPath();
+
+         anyFileWithPath1.getPath();
+
+         new File(path1);
+         anyFileWithPath1.exists();
       }};
    }
 

@@ -68,7 +68,9 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
          return null;
       }
 
-      matchInstance = nextInstanceToMatch != null && mock == nextInstanceToMatch;
+      matchInstance =
+         nextInstanceToMatch != null && mock == nextInstanceToMatch ||
+         recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc) != null;
 
       ExpectedInvocation currentInvocation = new ExpectedInvocation(
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
@@ -105,17 +107,19 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    {
       ExpectedInvocation invocation = replayExpectation.invocation;
       Map<Object, Object> instanceMap = getInstanceMap();
+      Map<Object, Object> replacementMap = getReplacementMap();
 
       if (
-         invocation.isMatch(mock, mockClassDesc, mockNameAndDesc) &&
-         (!matchInstance || invocation.isEquivalentInstance(mock))
+         invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, replacementMap) &&
+         (!matchInstance || recordAndReplay.executionState.isEquivalentInstance(invocation.instance, mock))
       ) {
-         Object[] originalArgs = invocation.arguments.prepareForVerification(args, argMatchers);
-         boolean argumentsMatch = invocation.arguments.isMatch(replayArgs, instanceMap);
-         invocation.arguments.setValuesWithNoMatchers(originalArgs);
+         InvocationArguments invocationArguments = invocation.arguments;
+         Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);
+         boolean argumentsMatch = invocationArguments.isMatch(replayArgs, instanceMap);
+         invocationArguments.setValuesWithNoMatchers(originalArgs);
 
          if (argumentsMatch) {
-            if (mockNameAndDesc.charAt(0) == '<') {
+            if (invocation.isConstructor()) {
                instanceMap.put(replayInstance, mock);
             }
 
@@ -138,6 +142,22 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    {
       recordAndReplay.executionState.verifiedExpectations.add(verifiedExpectation);
       currentVerifiedExpectations.add(verifiedExpectation);
+   }
+
+   final void mapNewInstanceToReplacementIfApplicable(@Nullable Object mock)
+   {
+      if (!matchInstance) {
+         assert currentExpectation != null;
+         ExpectedInvocation invocation = currentExpectation.invocation;
+
+         if (invocation.isConstructor()) {
+            Object replacementInstance = invocation.replacementInstance;
+
+            if (replacementInstance != null) {
+               getReplacementMap().put(mock, replacementInstance);
+            }
+         }
+      }
    }
 
    @Override

@@ -134,12 +134,13 @@ public final class InvocationProceedTest
 
       try { ClassToBeMocked.staticMethodToBeMocked(); fail(); } catch (FileNotFoundException ignored) {}
 
+      //noinspection OverlyBroadCatchBlock
       try {
          ClassToBeMocked.staticMethodToBeMocked();
          fail();
       }
       catch (Exception e) {
-         //noinspection ConstantConditions
+         //noinspection ConstantConditions,InstanceofCatchParameter
          assertTrue(e instanceof InterruptedException);
       }
    }
@@ -432,8 +433,11 @@ public final class InvocationProceedTest
          };
       }};
 
-      assertEquals("proceed", new File("proceed").getPath());
-      assertNull(new File("do not proceed").getPath());
+      File f1 = new File("proceed");
+      assertEquals("proceed", f1.getPath());
+
+      File f2 = new File("do not proceed");
+      assertNull(f2.getPath());
    }
 
    @SuppressWarnings("UseOfObsoleteCollectionType")

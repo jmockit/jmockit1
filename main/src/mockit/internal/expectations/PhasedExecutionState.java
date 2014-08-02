@@ -91,10 +91,12 @@ final class PhasedExecutionState
       if (mock == null || mockNameAndDesc.charAt(0) == '<') {
          return false;
       }
-      else if (dynamicMockInstancesToMatch != null && containsReference(dynamicMockInstancesToMatch, mock)) {
+
+      if (dynamicMockInstancesToMatch != null && containsReference(dynamicMockInstancesToMatch, mock)) {
          return true;
       }
-      else if (mockedTypesToMatchOnInstances != null) {
+
+      if (mockedTypesToMatchOnInstances != null) {
          Class<?> mockedClass = GeneratedClasses.getMockedClass(mock);
 
          if (containsReference(mockedTypesToMatchOnInstances, mockedClass)) {
@@ -118,7 +120,8 @@ final class PhasedExecutionState
       }
    }
 
-   @Nullable private Expectation findPreviousNonStrictExpectation(@NotNull ExpectedInvocation newInvocation)
+   @Nullable
+   private Expectation findPreviousNonStrictExpectation(@NotNull ExpectedInvocation newInvocation)
    {
       Object mock = newInvocation.instance;
       String mockClassDesc = newInvocation.getClassDesc();
@@ -173,8 +176,12 @@ final class PhasedExecutionState
                continue;
             }
 
-            if (constructorInvocation && invocation.replacementInstance != null) {
-               replacementMap.put(mock, invocation.replacementInstance);
+            if (constructorInvocation) {
+               Object replacementInstance = invocation.replacementInstance;
+
+               if (replacementInstance != null && replacementInstance != invocation.instance) {
+                  replacementMap.put(mock, replacementInstance);
+               }
             }
 
             return nonStrict;
@@ -184,24 +191,24 @@ final class PhasedExecutionState
       return replayExpectationFound;
    }
 
-   private boolean isMatchingInstance(@NotNull Object mock, @NotNull Expectation expectation)
+   private boolean isMatchingInstance(@NotNull Object invokedInstance, @NotNull Expectation expectation)
    {
       ExpectedInvocation invocation = expectation.invocation;
-      assert invocation.instance != null;
 
-      if (invocation.instance == replacementMap.get(mock) || invocation.isEquivalentInstance(mock)) {
+      if (isEquivalentInstance(invocation.instance, invokedInstance)) {
          return true;
       }
 
-      if (TestRun.getExecutingTest().isInjectableMock(mock)) {
+      if (TestRun.getExecutingTest().isInjectableMock(invokedInstance)) {
          return false;
       }
 
       if (dynamicMockInstancesToMatch != null) {
-         if (containsReference(dynamicMockInstancesToMatch, mock)) {
+         if (containsReference(dynamicMockInstancesToMatch, invokedInstance)) {
             return false;
          }
 
+         assert invocation.instance != null;
          Class<?> invokedClass = invocation.instance.getClass();
 
          for (Object dynamicMock : dynamicMockInstancesToMatch) {
@@ -212,6 +219,16 @@ final class PhasedExecutionState
       }
 
       return !invocation.matchInstance && expectation.recordPhase != null;
+   }
+
+   boolean isEquivalentInstance(Object invocationInstance, Object invokedInstance)
+   {
+      return
+         invocationInstance == invokedInstance ||
+         invocationInstance == replacementMap.get(invokedInstance) ||
+         invocationInstance == instanceMap.get(invokedInstance) ||
+         invokedInstance == instanceMap.get(invocationInstance) ||
+         TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(invocationInstance, invokedInstance);
    }
 
    @Nullable

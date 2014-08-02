@@ -14,7 +14,11 @@ abstract class Phase
 
    Phase(@NotNull RecordAndReplayExecution recordAndReplay) { this.recordAndReplay = recordAndReplay; }
 
-   @NotNull public final Map<Object, Object> getInstanceMap() { return recordAndReplay.executionState.instanceMap; }
+   @NotNull
+   public final Map<Object, Object> getInstanceMap() { return recordAndReplay.executionState.instanceMap; }
+
+   @NotNull
+   final Map<Object, Object> getReplacementMap() { return recordAndReplay.executionState.replacementMap; }
 
    @Nullable
    abstract Object handleInvocation(
