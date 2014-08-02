@@ -13,6 +13,7 @@ import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.ClassReader.*;
+import static mockit.internal.capturing.CapturedType.*;
 
 import org.jetbrains.annotations.*;
 
@@ -59,9 +60,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @NotNull String classDesc, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
    {
-      if (
-         classBeingRedefined != null || inactive || CapturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
-      ) {
+      if (classBeingRedefined != null || inactive || isNotToBeCaptured(loader, protectionDomain, classDesc)) {
          return null;
       }
 
@@ -135,5 +134,16 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
          throw VisitInterruptedException.INSTANCE;
       }
+   }
+
+   @Nullable
+   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@NotNull Class<?> baseType)
+   {
+      if (baseType == capturedType.baseType && typeMetadata != null) {
+         //noinspection unchecked
+         return (C) captureOfImplementations;
+      }
+
+      return null;
    }
 }

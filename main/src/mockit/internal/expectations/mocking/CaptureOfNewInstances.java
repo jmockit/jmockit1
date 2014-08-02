@@ -9,8 +9,10 @@ import java.util.*;
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
+import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.ClassReader.*;
 import static mockit.internal.util.FieldReflection.*;
 
 import org.jetbrains.annotations.*;
@@ -57,18 +59,61 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @NotNull private final Map<Class<?>, List<Capture>> baseTypeToCaptures;
+   @NotNull private final List<Class<?>> partiallyMockedBaseTypes;
 
-   CaptureOfNewInstances() { baseTypeToCaptures = new HashMap<Class<?>, List<Capture>>(); }
+   CaptureOfNewInstances()
+   {
+      baseTypeToCaptures = new HashMap<Class<?>, List<Capture>>();
+      partiallyMockedBaseTypes = new ArrayList<Class<?>>();
+   }
 
    @NotNull
    protected final Collection<List<Capture>> getCapturesForAllBaseTypes() { return baseTypeToCaptures.values(); }
+
+   void useDynamicMocking(@NotNull Class<?> baseType)
+   {
+      partiallyMockedBaseTypes.add(baseType);
+
+      List<Class<?>> mockedClasses = TestRun.mockFixture().getMockedClasses();
+
+      for (Class<?> mockedClass : mockedClasses) {
+         if (mockedClass != baseType && baseType.isAssignableFrom(mockedClass)) {
+            redefineClassForDynamicPartialMocking(baseType, mockedClass);
+         }
+      }
+   }
+
+   private static void redefineClassForDynamicPartialMocking(@NotNull Class<?> baseType, @NotNull Class<?> mockedClass)
+   {
+      ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
+
+      ExpectationsModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
+      modifier.useDynamicMocking(false);
+      classReader.accept(modifier, SKIP_FRAMES);
+      byte[] modifiedClassfile = modifier.toByteArray();
+
+      Startup.redefineMethods(mockedClass, modifiedClassfile);
+   }
+
+   @NotNull
+   private static ExpectationsModifier newModifier(
+      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, @Nullable MockedType typeMetadata)
+   {
+      ExpectationsModifier modifier = new ExpectationsModifier(cl, cr, typeMetadata);
+      modifier.setClassNameForCapturedInstanceMethods(Type.getInternalName(baseType));
+      return modifier;
+   }
 
    @NotNull @Override
    protected final BaseClassModifier createModifier(
       @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, @NotNull MockedType typeMetadata)
    {
-      ExpectationsModifier modifier = new ExpectationsModifier(cl, cr, typeMetadata);
-      modifier.setClassNameForCapturedInstanceMethods(Type.getInternalName(baseType));
+      ExpectationsModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
+
+      if (partiallyMockedBaseTypes.contains(baseType)) {
+         modifier.useDynamicMocking(false);
+      }
+
       return modifier;
    }
 
@@ -131,7 +176,8 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       return constructorModifiedForCaptureOnly;
    }
 
-   @Nullable private List<Capture> findCaptures(@NotNull Class<?> mockedClass)
+   @Nullable
+   private List<Capture> findCaptures(@NotNull Class<?> mockedClass)
    {
       Class<?>[] interfaces = mockedClass.getInterfaces();
 
@@ -170,5 +216,9 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       return null;
    }
 
-   public final void cleanUp() { baseTypeToCaptures.clear(); }
+   public final void cleanUp()
+   {
+      baseTypeToCaptures.clear();
+      partiallyMockedBaseTypes.clear();
+   }
 }

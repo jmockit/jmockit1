@@ -65,7 +65,7 @@ public final class MockFixture
    @NotNull private final List<Class<?>> mockedClasses;
    @NotNull private final Map<Type, InstanceFactory> mockedTypesAndInstances;
 
-   @NotNull private final List<CaptureTransformer> captureTransformers;
+   @NotNull private final List<CaptureTransformer<?>> captureTransformers;
 
    public MockFixture()
    {
@@ -75,7 +75,7 @@ public final class MockFixture
       realClassesToMockClasses = new IdentityHashMap<Class<?>, String>(8);
       mockedClasses = new ArrayList<Class<?>>();
       mockedTypesAndInstances = new IdentityHashMap<Type, InstanceFactory>();
-      captureTransformers = new ArrayList<CaptureTransformer>();
+      captureTransformers = new ArrayList<CaptureTransformer<?>>();
    }
 
    // Methods to add/remove transformed/redefined classes /////////////////////////////////////////////////////////////
@@ -379,14 +379,17 @@ public final class MockFixture
       return redefinedClasses.containsKey(redefinedClass);
    }
 
-   @NotNull List<Class<?>> getMockedClasses()
+   @NotNull public List<Class<?>> getMockedClasses()
    {
       return mockedClasses.isEmpty() ? Collections.<Class<?>>emptyList() : new ArrayList<Class<?>>(mockedClasses);
    }
 
    // Methods dealing with capture transformers ///////////////////////////////////////////////////////////////////////
 
-   public void addCaptureTransformer(@NotNull CaptureTransformer transformer) { captureTransformers.add(transformer); }
+   public void addCaptureTransformer(@NotNull CaptureTransformer<?> transformer)
+   {
+      captureTransformers.add(transformer);
+   }
 
    public int getCaptureTransformerCount() { return captureTransformers.size(); }
 
@@ -395,10 +398,24 @@ public final class MockFixture
       int currentTransformerCount = captureTransformers.size();
 
       for (int i = currentTransformerCount - 1; i >= previousTransformerCount; i--) {
-         CaptureTransformer transformer = captureTransformers.get(i);
+         CaptureTransformer<?> transformer = captureTransformers.get(i);
          transformer.deactivate();
          Startup.instrumentation().removeTransformer(transformer);
          captureTransformers.remove(i);
       }
+   }
+
+   @Nullable
+   public CaptureOfNewInstances findCaptureOfImplementations(@NotNull Class<?> baseType)
+   {
+      for (CaptureTransformer<?> captureTransformer : captureTransformers) {
+         CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(baseType);
+
+         if (capture != null) {
+            return capture;
+         }
+      }
+
+      return null;
    }
 }

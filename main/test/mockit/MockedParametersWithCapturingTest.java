@@ -64,7 +64,7 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test(expected = IllegalMonitorStateException.class)
-   public void mockOnlySpecifiedMethod(@Capturing @Mocked("doSomething") final Service service)
+   public void mockStrictlyOnlySpecifiedMethod(@Capturing @Mocked("doSomething") final Service service)
    {
       new Expectations() {{ service.doSomething(); returns(3, 4); }};
 
@@ -75,7 +75,7 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void mockAllMethodsExceptOne(@Mocked("doSomethingElse") @Capturing final Service service)
+   public void mockNonStrictlyOnlySpecifiedMethod(@Mocked("doSomethingElse") @Capturing final Service service)
    {
       ServiceImpl impl = new ServiceImpl();
       impl.doSomethingElse(5);
@@ -138,5 +138,30 @@ public final class MockedParametersWithCapturingTest
          public int read(@NotNull CharBuffer cb) { throw new RuntimeException("read"); }
       };
       readable.read(CharBuffer.wrap("test"));
+   }
+
+   @Test
+   public void capturePartiallyMockedInterfaceImplementation(@Capturing final Service service)
+   {
+      new NonStrictExpectations(Service.class) {{
+         service.doSomethingElse(1);
+      }};
+
+      Service impl1 = new ServiceImpl("test1");
+      assertEquals(1, impl1.doSomething());
+      impl1.doSomethingElse(1);
+
+      Service impl2 = new Service() {
+         @Override public int doSomething() { return 2; }
+         @Override public void doSomethingElse(int i) { throw new IllegalStateException("2"); }
+      };
+      assertEquals(2, impl2.doSomething());
+      impl2.doSomethingElse(1);
+
+      try {
+         impl2.doSomethingElse(2);
+         fail();
+      }
+      catch (IllegalStateException ignore) {}
    }
 }

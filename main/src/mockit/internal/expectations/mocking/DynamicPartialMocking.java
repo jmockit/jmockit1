@@ -9,7 +9,8 @@ import java.util.*;
 
 import mockit.internal.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
+import static mockit.internal.util.AutoBoxing.*;
+import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
@@ -34,22 +35,32 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          redefineClassHierarchy(classOrInstance);
       }
 
-      new RedefinitionEngine().redefineMethods(modifiedClassfiles);
-      modifiedClassfiles.clear();
+      if (!modifiedClassfiles.isEmpty()) {
+         new RedefinitionEngine().redefineMethods(modifiedClassfiles);
+         modifiedClassfiles.clear();
+      }
    }
 
    private void redefineClassHierarchy(@NotNull Object classOrInstance)
    {
+      boolean registerMockedClass = true;
+
       if (classOrInstance instanceof Class) {
          targetClass = (Class<?>) classOrInstance;
-         validateTargetClassType();
-         registerAsMocked();
-         ensureThatClassIsInitialized(targetClass);
-         methodsOnly = false;
-         redefineMethodsAndConstructorsInTargetType();
+
+         if (isCapturingInterface()) {
+            registerMockedClass = false;
+         }
+         else {
+            validateTargetClassType();
+            registerAsMocked();
+            ensureThatClassIsInitialized(targetClass);
+            methodsOnly = false;
+            redefineMethodsAndConstructorsInTargetType();
+         }
       }
       else {
-         targetClass = GeneratedClasses.getMockedClass(classOrInstance);
+         targetClass = getMockedClass(classOrInstance);
          validateTargetClassType();
          registerAsMocked(classOrInstance);
          methodsOnly = true;
@@ -57,15 +68,35 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          targetInstances.add(classOrInstance);
       }
 
-      TestRun.mockFixture().registerMockedClass(targetClass);
+      if (registerMockedClass) {
+         TestRun.mockFixture().registerMockedClass(targetClass);
+      }
+   }
+
+   private boolean isCapturingInterface()
+   {
+      if (targetClass.isInterface()) {
+         CaptureOfNewInstances capture = TestRun.mockFixture().findCaptureOfImplementations(targetClass);
+
+         if (capture != null) {
+            capture.useDynamicMocking(targetClass);
+            return true;
+         }
+
+         throw new IllegalArgumentException(
+            "Invalid non-@Capturing interface for partial mocking: " + targetClass.getName());
+      }
+
+      return false;
    }
 
    private void validateTargetClassType()
    {
       if (
-         targetClass.isInterface() || targetClass.isAnnotation() || targetClass.isArray() ||
-         targetClass.isPrimitive() || AutoBoxing.isWrapperOfPrimitiveType(targetClass) ||
-         GeneratedClasses.isGeneratedImplementationClass(targetClass)
+         targetClass.isInterface() || targetClass.isAnnotation() ||
+         targetClass.isArray() || targetClass.isPrimitive() ||
+         isWrapperOfPrimitiveType(targetClass) ||
+         isGeneratedImplementationClass(targetClass)
       ) {
          throw new IllegalArgumentException("Invalid type for partial mocking: " + targetClass);
       }
