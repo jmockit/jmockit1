@@ -18,7 +18,7 @@ import org.jetbrains.annotations.*;
 @SuppressWarnings("ClassWithTooManyFields")
 public class BaseClassModifier extends ClassVisitor
 {
-   private static final int ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
+   private static final int METHOD_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
    protected static final Type VOID_TYPE = Type.getType("Ljava/lang/Void;");
 
    @NotNull
@@ -51,7 +51,7 @@ public class BaseClassModifier extends ClassVisitor
    }
 
    @NotNull protected final ClassWriter cw;
-   protected MethodVisitor mw;
+   protected MethodWriter mw;
    protected boolean useMockingBridge;
    protected String superClassName;
    protected String classDesc;
@@ -99,7 +99,7 @@ public class BaseClassModifier extends ClassVisitor
    protected final void startModifiedMethodVersion(
       int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      mw = cw.visitMethod(access & ACCESS_MASK, name, desc, signature, exceptions);
+      mw = cw.visitMethod(access & METHOD_ACCESS_MASK, name, desc, signature, exceptions);
 
       methodAccess = access;
       methodName = name;
@@ -138,7 +138,7 @@ public class BaseClassModifier extends ClassVisitor
       mw.visitInsn(returnType.getOpcode(IRETURN));
    }
 
-   protected final boolean generateCodeToPassThisOrNullIfStaticMethod(int access)
+   public static boolean generateCodeToPassThisOrNullIfStaticMethod(@NotNull MethodWriter mw, int access)
    {
       boolean isStatic = Modifier.isStatic(access);
 
@@ -152,14 +152,14 @@ public class BaseClassModifier extends ClassVisitor
       return isStatic;
    }
 
-   protected final void generateCodeToCreateArrayOfObject(int arrayLength)
+   public static void generateCodeToCreateArrayOfObject(@NotNull MethodWriter mw, int arrayLength)
    {
       mw.visitIntInsn(BIPUSH, arrayLength);
       mw.visitTypeInsn(ANEWARRAY, "java/lang/Object");
    }
 
-   protected final void generateCodeToFillArrayWithParameterValues(
-      @NotNull Type[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
+   public static void generateCodeToFillArrayWithParameterValues(
+      @NotNull MethodWriter mw, @NotNull Type[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
    {
       int i = initialArrayIndex;
       int j = initialParameterIndex;

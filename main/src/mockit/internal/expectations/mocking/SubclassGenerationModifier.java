@@ -7,18 +7,17 @@ package mockit.internal.expectations.mocking;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
-
 import static java.util.Arrays.*;
-
-import org.jetbrains.annotations.*;
-
-import static mockit.external.asm4.Opcodes.*;
 
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.Opcodes.*;
+import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
-public final class SubclassGenerationModifier extends MockedTypeModifier
+import org.jetbrains.annotations.*;
+
+public final class SubclassGenerationModifier extends BaseClassModifier
 {
    private static final int CLASS_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT;
    private static final int CONSTRUCTOR_ACCESS_MASK = ACC_PUBLIC + ACC_PROTECTED;
@@ -159,7 +158,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          signature = mockedTypeInfo.genericTypeMap.resolveReturnType(signature);
       }
 
-      mw = super.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
+      mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
 
       boolean noFiltersToMatch = mockingCfg == null;
 
@@ -167,7 +166,7 @@ public final class SubclassGenerationModifier extends MockedTypeModifier
          noFiltersToMatch && !ObjectMethods.isMethodFromObject(name, desc) ||
          !noFiltersToMatch && mockingCfg.matchesFilters(name, desc)
       ) {
-         generateDirectCallToHandler(className, access, name, desc, signature);
+         generateDirectCallToHandler(mw, className, access, name, desc, signature);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxs(1, 0);
       }

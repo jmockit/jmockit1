@@ -8,13 +8,15 @@ import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm4.*;
+import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.Opcodes.*;
+import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 import org.jetbrains.annotations.*;
 
-final class ExpectationsModifier extends MockedTypeModifier
+final class ExpectationsModifier extends BaseClassModifier
 {
    private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
    private static final int PRIVATE_NATIVE_METHOD = ACC_PRIVATE + ACC_NATIVE;
@@ -181,7 +183,7 @@ final class ExpectationsModifier extends MockedTypeModifier
          return generateCallToHandlerThroughMockingBridge(signature, internalClassName, actualExecutionMode);
       }
 
-      generateDirectCallToHandler(internalClassName, access, name, desc, signature, actualExecutionMode);
+      generateDirectCallToHandler(mw, internalClassName, access, name, desc, signature, actualExecutionMode);
       generateDecisionBetweenReturningOrContinuingToRealImplementation();
 
       // Constructors of non-JRE classes can't be modified (unless running with "-noverify") in a way that
@@ -263,12 +265,12 @@ final class ExpectationsModifier extends MockedTypeModifier
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 
       // First and second "invoke" arguments:
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
       Type[] argTypes = Type.getArgumentTypes(methodDesc);
-      generateCodeToCreateArrayOfObject(6 + argTypes.length);
+      generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, methodAccess);
@@ -278,7 +280,7 @@ final class ExpectationsModifier extends MockedTypeModifier
       generateCodeToFillArrayElement(i++, genericSignature);
       generateCodeToFillArrayElement(i++, actualExecutionMode.ordinal());
 
-      generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
+      generateCodeToFillArrayWithParameterValues(mw, argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
 
       generateDecisionBetweenReturningOrContinuingToRealImplementation();

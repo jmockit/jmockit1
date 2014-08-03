@@ -211,7 +211,7 @@ final class MockupsModifier extends BaseClassModifier
       }
       else {
          mw.visitLdcInsn(mockMethods.getMockClassInternalName());
-         generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+         generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
          mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
          mw.visitMethodInsn(
             INVOKESTATIC, "mockit/internal/state/TestRun", "updateMockState",
@@ -224,11 +224,11 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToObtainInstanceOfMockingBridge(MockupBridge.MB);
 
       // First and second "invoke" arguments:
-      generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
-      generateCodeToCreateArrayOfObject(2);
+      generateCodeToCreateArrayOfObject(mw, 2);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, mockMethods.getMockClassInternalName());
@@ -289,12 +289,12 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToObtainInstanceOfMockingBridge(MockMethodBridge.MB);
 
       // First and second "invoke" arguments:
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
       Type[] argTypes = Type.getArgumentTypes(methodDesc);
-      generateCodeToCreateArrayOfObject(6 + argTypes.length);
+      generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, mockMethods.getMockClassInternalName());
@@ -312,7 +312,7 @@ final class MockupsModifier extends BaseClassModifier
 
       generateCodeToFillArrayElement(i++, mockMethod.getIndexForMockState());
 
-      generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
+      generateCodeToFillArrayWithParameterValues(mw, argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
    }
 
@@ -336,7 +336,7 @@ final class MockupsModifier extends BaseClassModifier
    private void generateCodeToObtainMockUpInstance(@NotNull String mockClassDesc)
    {
       mw.visitLdcInsn(mockClassDesc);
-      generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/state/TestRun", "getMock",
          "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;");
@@ -373,7 +373,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateCallToCreateNewMockInvocation(@NotNull Type[] argTypes, int initialParameterIndex)
    {
-      generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
 
       int argCount = argTypes.length;
 
@@ -381,8 +381,8 @@ final class MockupsModifier extends BaseClassModifier
          mw.visitInsn(ACONST_NULL);
       }
       else {
-         generateCodeToCreateArrayOfObject(argCount);
-         generateCodeToFillArrayWithParameterValues(argTypes, 0, initialParameterIndex);
+         generateCodeToCreateArrayOfObject(mw, argCount);
+         generateCodeToFillArrayWithParameterValues(mw, argTypes, 0, initialParameterIndex);
       }
 
       mw.visitLdcInsn(mockMethods.getMockClassInternalName());
