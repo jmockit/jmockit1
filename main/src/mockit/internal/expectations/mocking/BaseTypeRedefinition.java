@@ -12,6 +12,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm4.*;
 import mockit.internal.*;
+import mockit.internal.classGeneration.ImplementationClass;
 import mockit.internal.expectations.mocking.InstanceFactory.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -159,13 +160,13 @@ class BaseTypeRedefinition
    {
       ImplementationClass<?> implementationGenerator = new ImplementationClass(interfaceToMock) {
          @NotNull @Override
-         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader, @NotNull String className)
+         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
          {
-            return new InterfaceImplementationGenerator(typeReader, interfaceToMock, className);
+            return new InterfaceImplementationGenerator(typeReader, interfaceToMock, generatedClassName);
          }
       };
 
-      targetClass = implementationGenerator.generateNewMockImplementationClassForInterface();
+      targetClass = implementationGenerator.generateClass();
    }
 
    private void redefinedImplementedInterfacesIfRunningOnJava8(@NotNull Class<?> aClass)
@@ -294,17 +295,19 @@ class BaseTypeRedefinition
    }
 
    @NotNull
-   private Class<?> generateConcreteSubclassForAbstractType(@NotNull Type typeToMock)
+   private Class<?> generateConcreteSubclassForAbstractType(@NotNull final Type typeToMock)
    {
-      ClassReader classReader = ClassFile.createReaderOrGetFromCache(targetClass);
-      String subclassName = getNameForConcreteSubclassToCreate();
+      final String subclassName = getNameForConcreteSubclassToCreate();
 
-      SubclassGenerationModifier modifier =
-         new SubclassGenerationModifier(typeMetadata.mockingCfg, typeToMock, classReader, subclassName);
-      classReader.accept(modifier, SKIP_FRAMES);
-      byte[] bytecode = modifier.toByteArray();
+      Class<?> subclass = new ImplementationClass<Object>(targetClass, subclassName) {
+         @NotNull @Override
+         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         {
+            return new SubclassGenerationModifier(typeMetadata.mockingCfg, typeToMock, typeReader, subclassName);
+         }
+      }.generateClass();
 
-      return ImplementationClass.defineNewClass(targetClass.getClassLoader(), bytecode, subclassName);
+      return subclass;
    }
 
    @NotNull

@@ -11,13 +11,14 @@ import static java.util.Arrays.*;
 
 import mockit.external.asm4.*;
 import mockit.internal.*;
+import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 import org.jetbrains.annotations.*;
 
-public final class SubclassGenerationModifier extends BaseClassModifier
+public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
    private static final int CLASS_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT;
    private static final int CONSTRUCTOR_ACCESS_MASK = ACC_PUBLIC + ACC_PROTECTED;

@@ -10,7 +10,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.external.asm4.*;
-import mockit.internal.*;
+import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
 
 import org.jetbrains.annotations.*;
@@ -38,15 +38,7 @@ public final class MockedImplementationClass<T>
    Class<T> createImplementation(@NotNull Class<T> interfaceToBeMocked)
    {
       if (isPublic(interfaceToBeMocked.getModifiers())) {
-         implementationClass = new ImplementationClass<T>(interfaceToBeMocked) {
-            @NotNull @Override
-            protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader, @NotNull String className)
-            {
-               return new InterfaceImplementationGenerator(typeReader, className);
-            }
-         };
-
-         generatedClass = implementationClass.generateNewMockImplementationClassForInterface();
+         generateImplementationForPublicInterface(interfaceToBeMocked);
       }
       else {
          //noinspection unchecked
@@ -54,6 +46,19 @@ public final class MockedImplementationClass<T>
       }
 
       return generatedClass;
+   }
+
+   private void generateImplementationForPublicInterface(@NotNull Class<T> interfaceToBeMocked)
+   {
+      implementationClass = new ImplementationClass<T>(interfaceToBeMocked) {
+         @NotNull @Override
+         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         {
+            return new InterfaceImplementationGenerator(typeReader, generatedClassName);
+         }
+      };
+
+      generatedClass = implementationClass.generateClass();
    }
 
    @NotNull
