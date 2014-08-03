@@ -77,8 +77,10 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       List<Class<?>> mockedClasses = TestRun.mockFixture().getMockedClasses();
 
       for (Class<?> mockedClass : mockedClasses) {
-         if (mockedClass != baseType && baseType.isAssignableFrom(mockedClass)) {
-            redefineClassForDynamicPartialMocking(baseType, mockedClass);
+         if (baseType.isAssignableFrom(mockedClass)) {
+            if (mockedClass != baseType || !baseType.isInterface()) {
+               redefineClassForDynamicPartialMocking(baseType, mockedClass);
+            }
          }
       }
    }
@@ -88,7 +90,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
 
       ExpectationsModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
-      modifier.useDynamicMocking(false);
+      modifier.useDynamicMocking(true);
       classReader.accept(modifier, SKIP_FRAMES);
       byte[] modifiedClassfile = modifier.toByteArray();
 
@@ -111,7 +113,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       ExpectationsModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
 
       if (partiallyMockedBaseTypes.contains(baseType)) {
-         modifier.useDynamicMocking(false);
+         modifier.useDynamicMocking(true);
       }
 
       return modifier;

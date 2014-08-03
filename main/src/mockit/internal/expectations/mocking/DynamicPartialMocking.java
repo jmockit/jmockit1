@@ -43,51 +43,41 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 
    private void redefineClassHierarchy(@NotNull Object classOrInstance)
    {
-      boolean registerMockedClass = true;
-
       if (classOrInstance instanceof Class) {
          targetClass = (Class<?>) classOrInstance;
-
-         if (isCapturingInterface()) {
-            registerMockedClass = false;
-         }
-         else {
-            validateTargetClassType();
-            registerAsMocked();
-            ensureThatClassIsInitialized(targetClass);
-            methodsOnly = false;
-            redefineMethodsAndConstructorsInTargetType();
-         }
-      }
-      else {
-         targetClass = getMockedClass(classOrInstance);
-         validateTargetClassType();
-         registerAsMocked(classOrInstance);
-         methodsOnly = true;
-         redefineMethodsAndConstructorsInTargetType();
-         targetInstances.add(classOrInstance);
-      }
-
-      if (registerMockedClass) {
-         TestRun.mockFixture().registerMockedClass(targetClass);
-      }
-   }
-
-   private boolean isCapturingInterface()
-   {
-      if (targetClass.isInterface()) {
          CaptureOfNewInstances capture = TestRun.mockFixture().findCaptureOfImplementations(targetClass);
 
          if (capture != null) {
             capture.useDynamicMocking(targetClass);
-            return true;
+            return;
          }
 
-         throw new IllegalArgumentException(
-            "Invalid non-@Capturing interface for partial mocking: " + targetClass.getName());
+         applyPartialMockingToGivenClass();
+      }
+      else {
+         targetClass = getMockedClass(classOrInstance);
+         applyPartialMockingToGivenInstance(classOrInstance);
       }
 
-      return false;
+      TestRun.mockFixture().registerMockedClass(targetClass);
+   }
+
+   private void applyPartialMockingToGivenClass()
+   {
+      validateTargetClassType();
+      registerAsMocked();
+      ensureThatClassIsInitialized(targetClass);
+      methodsOnly = false;
+      redefineMethodsAndConstructorsInTargetType();
+   }
+
+   private void applyPartialMockingToGivenInstance(@NotNull Object instance)
+   {
+      validateTargetClassType();
+      registerAsMocked(instance);
+      methodsOnly = true;
+      redefineMethodsAndConstructorsInTargetType();
+      targetInstances.add(instance);
    }
 
    private void validateTargetClassType()

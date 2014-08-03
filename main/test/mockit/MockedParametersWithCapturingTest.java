@@ -91,15 +91,17 @@ public final class MockedParametersWithCapturingTest
    static class BaseClass
    {
       final String str;
-
       BaseClass() { str = ""; }
       BaseClass(String str) { this.str = str; }
+      String getStr() { return str; }
+      void doSomething() { throw new IllegalStateException("Invalid state"); }
    }
 
    static class DerivedClass extends BaseClass
    {
       DerivedClass() {}
       DerivedClass(String str) { super(str); }
+      @Override String getStr() { return super.getStr().toUpperCase(); }
    }
 
    @SuppressWarnings("UnusedDeclaration")
@@ -141,7 +143,7 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void capturePartiallyMockedInterfaceImplementation(@Capturing final Service service)
+   public void captureAndPartiallyMockImplementationsOfAnInterface(@Capturing final Service service)
    {
       new NonStrictExpectations(Service.class) {{
          service.doSomethingElse(1);
@@ -163,5 +165,31 @@ public final class MockedParametersWithCapturingTest
          fail();
       }
       catch (IllegalStateException ignore) {}
+   }
+
+   @Test
+   public void captureAndPartiallyMockSubclassesOfABaseClass(@Capturing final BaseClass base)
+   {
+      new NonStrictExpectations(BaseClass.class) {{
+         base.doSomething();
+      }};
+
+      BaseClass impl1 = new DerivedClass("test1");
+      assertEquals("TEST1", impl1.getStr());
+      impl1.doSomething();
+
+      BaseClass impl2 = new BaseClass("test2") {
+         @Override void doSomething() { throw new IllegalStateException("2"); }
+      };
+      assertEquals("test2", impl2.getStr());
+      impl2.doSomething();
+
+      final class DerivedClass2 extends DerivedClass {
+         DerivedClass2() { super("DeRiVed"); }
+         @Override String getStr() { return super.getStr().toLowerCase(); }
+      }
+      DerivedClass2 impl3 = new DerivedClass2();
+      impl3.doSomething();
+      assertEquals("derived", impl3.getStr());
    }
 }
