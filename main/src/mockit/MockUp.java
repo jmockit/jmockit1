@@ -5,12 +5,16 @@
 package mockit;
 
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
+import static java.lang.reflect.Modifier.*;
 
+import mockit.external.asm4.*;
+import mockit.internal.classGeneration.*;
 import mockit.internal.mockups.*;
 import mockit.internal.startup.*;
-import mockit.internal.state.*;
 import mockit.internal.state.MockClasses.*;
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 import org.jetbrains.annotations.*;
@@ -93,6 +97,7 @@ public abstract class MockUp<T>
 {
    static { Startup.verifyInitialization(); }
 
+   @NotNull private final Type mockedType;
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T mockInstance;
@@ -114,26 +119,27 @@ public abstract class MockUp<T>
    {
       validateMockingAllowed();
 
-      Class<?> previouslyMockedClass = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
-      if (previouslyMockedClass != null) {
-         mockedClass = previouslyMockedClass;
+      if (previousMockUp != null) {
+         mockedType = previousMockUp.mockedType;
+         mockedClass = previousMockUp.mockedClass;
          return;
       }
 
-      Type typeToMock = validateTypeToMock();
+      mockedType = validateTypeToMock();
 
-      if (typeToMock instanceof Class<?>) {
-         @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) typeToMock;
-         mockedClass = redefineClassOrImplementInterface(classToMock, typeToMock);
+      if (mockedType instanceof Class<?>) {
+         @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) mockedType;
+         mockedClass = redefineClassOrImplementInterface(classToMock);
       }
-      else if (typeToMock instanceof ParameterizedType) {
-         ParameterizedType parameterizedType = (ParameterizedType) typeToMock;
+      else if (mockedType instanceof ParameterizedType) {
+         ParameterizedType parameterizedType = (ParameterizedType) mockedType;
          @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) parameterizedType.getRawType();
-         mockedClass = redefineClassOrImplementInterface(classToMock, typeToMock);
+         mockedClass = redefineClassOrImplementInterface(classToMock);
       }
       else {
-         Type[] typesToMock = ((TypeVariable<?>) typeToMock).getBounds();
+         Type[] typesToMock = ((TypeVariable<?>) mockedType).getBounds();
 
          if (typesToMock.length > 1) {
             mockedClass = new MockedImplementationClass<T>(this).createImplementation(typesToMock);
@@ -152,13 +158,13 @@ public abstract class MockUp<T>
    }
 
    @Nullable
-   private Class<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
+   private MockUp<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
    {
       MockUpInstances mockUpInstances = TestRun.getMockClasses().findPreviouslyAppliedMockUps(this);
 
       if (mockUpInstances != null) {
          if (mockUpInstances.hasMockUpsForSingleInstances()) {
-            return mockUpInstances.initialMockUp.mockedClass;
+            return mockUpInstances.initialMockUp;
          }
 
          tearDown();
@@ -202,13 +208,13 @@ public abstract class MockUp<T>
    }
 
    @NotNull
-   private Class<T> redefineClassOrImplementInterface(@NotNull Class<T> classToMock, @Nullable Type typeToMock)
+   private Class<T> redefineClassOrImplementInterface(@NotNull Class<T> classToMock)
    {
       if (classToMock.isInterface()) {
-         return createInstanceOfMockedImplementationClass(classToMock, typeToMock);
+         return createInstanceOfMockedImplementationClass(classToMock, mockedType);
       }
 
-      classesToRestore = redefineMethods(classToMock, typeToMock);
+      classesToRestore = redefineMethods(classToMock, mockedType);
       return classToMock;
    }
 
@@ -219,13 +225,13 @@ public abstract class MockUp<T>
    }
 
    @Nullable
-   private Set<Class<?>> redefineMethods(@NotNull Class<T> realClass, @Nullable Type mockedType)
+   private Set<Class<?>> redefineMethods(@NotNull Class<T> realClass, @Nullable Type genericMockedType)
    {
       if (TestRun.mockFixture().isMockedClass(realClass)) {
          throw new IllegalArgumentException("Class already mocked: " + realClass.getName());
       }
 
-      return new MockClassSetup(realClass, mockedType, this, null).redefineMethods();
+      return new MockClassSetup(realClass, genericMockedType, this, null).redefineMethods();
    }
 
    /**
@@ -245,10 +251,11 @@ public abstract class MockUp<T>
 
       validateMockingAllowed();
 
-      Class<?> previouslyMockedClass = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      mockedType = classToMock;
+      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
-      if (previouslyMockedClass != null) {
-         mockedClass = previouslyMockedClass;
+      if (previousMockUp != null) {
+         mockedClass = previousMockUp.mockedClass;
          return;
       }
 
@@ -290,14 +297,16 @@ public abstract class MockUp<T>
 
       validateMockingAllowed();
 
-      Class<?> previouslyMockedClass = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
-      if (previouslyMockedClass != null) {
-         mockedClass = previouslyMockedClass;
+      if (previousMockUp != null) {
+         mockedType = previousMockUp.mockedType;
+         mockedClass = previousMockUp.mockedClass;
          return;
       }
 
       @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) instanceToMock.getClass();
+      mockedType = classToMock;
       mockedClass = classToMock;
       classesToRestore = redefineMethods(classToMock, classToMock);
 
@@ -343,6 +352,10 @@ public abstract class MockUp<T>
          else if (Proxy.isProxyClass(mockedClass)) {
             newInstance = MockInvocationHandler.newMockedInstance(mockedClass);
          }
+         else if (isAbstract(mockedClass.getModifiers())) {
+            Class<?> subclass = generateConcreteSubclass(mockedClass);
+            newInstance = ConstructorReflection.newUninitializedInstance(subclass);
+         }
          else {
             newInstance = ConstructorReflection.newUninitializedInstance(mockedClass);
          }
@@ -353,6 +366,18 @@ public abstract class MockUp<T>
 
       //noinspection ConstantConditions
       return mockInstance;
+   }
+
+   @NotNull
+   private Class<?> generateConcreteSubclass(@NotNull final Class<?> abstractClass)
+   {
+      return new ImplementationClass<T>(abstractClass) {
+         @NotNull @Override
+         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         {
+            return new SubclassGenerationModifier(abstractClass, typeReader, mockedType, generatedClassName);
+         }
+      }.generateClass();
    }
 
    /**

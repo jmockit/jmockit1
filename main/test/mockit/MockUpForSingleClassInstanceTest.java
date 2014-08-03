@@ -197,4 +197,30 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals("mock", mockInstance.getTextValue());
       assertEquals(45, mockInstance.getSomeOtherValue());
    }
+
+   public abstract static class AbstractBase implements Runnable
+   {
+      abstract String getValue();
+      abstract void doSomething(int i);
+   }
+
+   @Test
+   public void getMockInstanceFromMockUpForAbstractClass()
+   {
+      MockUp<AbstractBase> mockUp = new MockUp<AbstractBase>() {
+         @Mock
+         String getValue()
+         {
+            assertNotNull(getMockInstance());
+            return "test";
+         }
+      };
+
+      AbstractBase mock = mockUp.getMockInstance();
+
+      assertEquals("test", mock.getValue());
+      mock.doSomething(123);
+      mock.run();
+      assertSame(mock, mockUp.getMockInstance());
+   }
 }
