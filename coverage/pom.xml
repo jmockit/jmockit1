@@ -5,8 +5,9 @@
    <modelVersion>4.0.0</modelVersion>
 
    <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.11</version>
-   <name>JMockit Coverage</name>
+   <packaging>jar</packaging>
 
+   <name>JMockit Coverage</name>
    <description>
       JMockit Coverage is a code coverage tool with several metrics (line, path, data) capable of generating HTML
       reports. It is designed with ease of use in mind, avoiding the need for complex configuration.

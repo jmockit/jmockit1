@@ -34,7 +34,10 @@
       <developer><name>Rogério Liesenfeld</name></developer>
    </developers>
    <inceptionYear>2006</inceptionYear>
-   <issueManagement><url>http://github.com/jmockit/jmockit1/issues</url></issueManagement>
+   <issueManagement>
+      <url>https://github.com/jmockit/jmockit1/issues</url>
+      <system>GitHub</system>
+   </issueManagement>
    <mailingLists>
       <mailingList>
          <name>JMockit Users</name>
