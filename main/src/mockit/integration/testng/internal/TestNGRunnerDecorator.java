@@ -184,7 +184,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
       TestRun.enterNoMockingZone();
 
-      clearTestedFieldsIfAny();
       shouldPrepareForNextTest = true;
       SavePoint testMethodSavePoint = savePoint.get();
       savePoint.set(null);

@@ -143,11 +143,10 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       }
       catch (Throwable thrownByTest) {
          testFailure = thrownByTest;
-         Class<? extends Throwable> expectedType = testMethod.getAnnotation(Test.class).expected();
+         Class<?> expectedType = testMethod.getAnnotation(Test.class).expected();
          testFailureExpected = expectedType.isAssignableFrom(thrownByTest.getClass());
       }
       finally {
-         clearTestedFieldsIfAny();
          concludeTestMethodExecution(savePoint, testFailure, testFailureExpected);
       }
    }

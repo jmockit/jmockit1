@@ -182,7 +182,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void clearTestedFieldsIfAny()
+   protected static void clearTestedFieldsIfAny(boolean testSucceeded)
    {
       SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
 
@@ -190,7 +190,7 @@ public class TestRunnerDecorator
          TestedClassInstantiations testedClasses = sharedRedefinitions.getTestedClassInstantiations();
 
          if (testedClasses != null) {
-            testedClasses.clearTestedFields();
+            testedClasses.clearTestedFields(testSucceeded);
          }
       }
    }
@@ -200,10 +200,14 @@ public class TestRunnerDecorator
       throws Throwable
    {
       TestRun.enterNoMockingZone();
+
       Error expectationsFailure = RecordAndReplayExecution.endCurrentReplayIfAny();
+      boolean testSucceeded = expectationsFailure == null && (thrownByTest == null || thrownAsExpected);
       MockStates mockStates = TestRun.getMockStates();
 
       try {
+         clearTestedFieldsIfAny(testSucceeded);
+
          if (expectationsFailure == null && (thrownByTest == null || thrownAsExpected)) {
             mockStates.verifyMissingInvocations();
          }

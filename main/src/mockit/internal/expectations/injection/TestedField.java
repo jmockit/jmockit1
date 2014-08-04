@@ -67,15 +67,18 @@ final class TestedField
       }
    }
 
-   void clearIfAutomaticCreation()
+   void clearIfAutomaticCreation(boolean testSucceeded)
    {
       if (createAutomatically) {
          Object testClassInstance = injectionState.getCurrentTestClassInstance();
-         Object testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
 
-         if (testedObject != null) {
-            Class<?> testedClass = testedField.getType();
-            executePreDestroyMethodIfAny(testedClass, testedObject);
+         if (testSucceeded) {
+            Object testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
+
+            if (testedObject != null) {
+               Class<?> testedClass = testedField.getType();
+               executePreDestroyMethodIfAny(testedClass, testedObject);
+            }
          }
 
          FieldReflection.setFieldValue(testedField, testClassInstance, null);
