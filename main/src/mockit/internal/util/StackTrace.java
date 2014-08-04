@@ -118,12 +118,20 @@ public final class StackTrace
          return false;
       }
 
-      int p = where.lastIndexOf("Test") + 4;
+      int p = where.indexOf('$');
 
-      if (p < 4) {
+      if (p < 0) {
+         int q = where.lastIndexOf("Test");
+         return q < 0 || q + 4 < where.length();
+      }
+
+      int q = where.lastIndexOf("Test", p - 4);
+
+      if (q < 0) {
          return true;
       }
 
-      return p < where.length() && where.charAt(p) != '$';
+      q += 4;
+      return q < where.length() && where.charAt(q) != '$';
    }
 }
