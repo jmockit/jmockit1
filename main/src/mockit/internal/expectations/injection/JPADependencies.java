@@ -2,7 +2,6 @@ package mockit.internal.expectations.injection;
 
 import java.io.*;
 import java.lang.annotation.*;
-import java.util.*;
 import javax.persistence.*;
 import javax.xml.parsers.*;
 
@@ -19,9 +18,9 @@ import org.xml.sax.helpers.*;
 final class JPADependencies
 {
    @Nullable
-   static JPADependencies createIfAvailableInClasspath()
+   static JPADependencies createIfAvailableInClasspath(@NotNull InjectionState injectionState)
    {
-      return PERSISTENCE_CONTEXT_CLASS == null ? null : new JPADependencies();
+      return PERSISTENCE_CONTEXT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
    @Nullable
@@ -39,12 +38,13 @@ final class JPADependencies
       return null;
    }
 
+   @NotNull private final InjectionState injectionState;
    @Nullable private String defaultPersistenceUnitName;
 
+   JPADependencies(@NotNull InjectionState injectionState) { this.injectionState = injectionState; }
+
    @Nullable
-   Object newInstanceIfApplicable(
-      @NotNull Class<?> dependencyType, @NotNull Object dependencyKey,
-      @NotNull Map<Object, Object> instantiatedDependencies)
+   Object newInstanceIfApplicable(@NotNull Class<?> dependencyType, @NotNull Object dependencyKey)
    {
       if (dependencyType == ENTITY_MANAGER_FACTORY_CLASS) {
          String persistenceUnitName;
@@ -61,7 +61,7 @@ final class JPADependencies
       }
 
       if (dependencyType == ENTITY_MANAGER_CLASS) {
-         return findOrCreateEntityManager(dependencyKey, instantiatedDependencies);
+         return findOrCreateEntityManager(dependencyKey);
       }
 
       return null;
@@ -107,8 +107,7 @@ final class JPADependencies
    }
 
    @Nullable
-   private Object findOrCreateEntityManager(
-      @NotNull Object dependencyKey, @NotNull Map<Object, Object> instantiatedDependencies)
+   private Object findOrCreateEntityManager(@NotNull Object dependencyKey)
    {
       String persistenceUnitName;
       Object emFactoryKey;
@@ -122,7 +121,7 @@ final class JPADependencies
          emFactoryKey = EntityManagerFactory.class;
       }
 
-      EntityManagerFactory emFactory = (EntityManagerFactory) instantiatedDependencies.get(emFactoryKey);
+      EntityManagerFactory emFactory = injectionState.getInstantiatedDependency(emFactoryKey);
 
       if (emFactory == null) {
          if (persistenceUnitName == null) {
@@ -130,8 +129,9 @@ final class JPADependencies
          }
 
          emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+         injectionState.saveInstantiatedDependency(emFactoryKey, emFactory);
       }
 
-      return emFactory == null ? null : emFactory.createEntityManager();
+      return emFactory.createEntityManager();
    }
 }

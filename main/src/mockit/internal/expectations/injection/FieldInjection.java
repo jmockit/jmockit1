@@ -28,7 +28,7 @@ final class FieldInjection
       protectionDomainOfTestedClass = testedClass.getProtectionDomain();
       nameOfTestedClass = testedClass.getName();
       this.requiresAnnotation = requiresAnnotation;
-      this.fullInjection = fullInjection ? new FullInjection() : null;
+      this.fullInjection = fullInjection ? new FullInjection(injectionState) : null;
    }
 
    @NotNull

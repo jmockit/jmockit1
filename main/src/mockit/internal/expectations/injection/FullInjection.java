@@ -2,7 +2,6 @@ package mockit.internal.expectations.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
 import static mockit.external.asm4.Opcodes.*;
@@ -18,13 +17,13 @@ final class FullInjection
 {
    private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
 
-   @NotNull private final Map<Object, Object> instantiatedDependencies;
+   @NotNull private final InjectionState injectionState;
    @Nullable private final JPADependencies jpaDependencies;
 
-   FullInjection()
+   FullInjection(@NotNull InjectionState injectionState)
    {
-      instantiatedDependencies = new HashMap<Object, Object>();
-      jpaDependencies = JPADependencies.createIfAvailableInClasspath();
+      this.injectionState = injectionState;
+      jpaDependencies = JPADependencies.createIfAvailableInClasspath(injectionState);
    }
 
    @Nullable
@@ -38,7 +37,7 @@ final class FullInjection
       }
 
       Object dependencyKey = getDependencyKey(fieldToBeInjected);
-      Object dependency = instantiatedDependencies.get(dependencyKey);
+      Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
 
       if (dependency == null) {
          Class<?> dependencyClass = fieldToBeInjected.getType();
@@ -47,8 +46,7 @@ final class FullInjection
             dependency = newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
          }
          else if (jpaDependencies != null) {
-            dependency =
-               jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey, instantiatedDependencies);
+            dependency = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
          }
 
          if (dependency != null) {
@@ -59,7 +57,7 @@ final class FullInjection
                executePostConstructMethodIfAny(instantiatedClass, dependency);
             }
 
-            instantiatedDependencies.put(dependencyKey, dependency);
+            injectionState.saveInstantiatedDependency(dependencyKey, dependency);
          }
       }
 

@@ -33,9 +33,14 @@ public final class TestedClassWithFullStandardDITest
       @PreDestroy
       void destroy()
       {
-         assertTrue(initialized);
+         assertTrue("TestedClass not initialized", initialized);
          destroyed = true;
       }
+   }
+
+   static final class AnotherTestedClass
+   {
+      @PersistenceContext EntityManager em;
    }
 
    public static class FirstLevelDependency
@@ -67,6 +72,7 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @Tested(fullyInitialized = true) TestedClass tested;
+   @Tested(fullyInitialized = true) AnotherTestedClass tested2;
    @Injectable Runnable mockedDependency;
 
    @Mocked Persistence persistence;
@@ -79,14 +85,19 @@ public final class TestedClassWithFullStandardDITest
    public void setUpPersistence() throws Exception
    {
       new NonStrictExpectations() {{
-         Persistence.createEntityManagerFactory("test"); result = namedEMFactory;
-         Persistence.createEntityManagerFactory("default"); result = defaultEMFactory;
-         Persistence.createEntityManagerFactory(""); result = new PersistenceException("Empty persistence unit name");
+         Persistence.createEntityManagerFactory("test"); result = namedEMFactory; times = 1;
+         Persistence.createEntityManagerFactory("default"); result = defaultEMFactory; times = 1;
+         Persistence.createEntityManagerFactory(anyString); times = 0;
 
          namedEMFactory.createEntityManager(); result = namedEM;
          defaultEMFactory.createEntityManager(); result = defaultEM;
       }};
 
+      createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit();
+   }
+
+   void createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit() throws IOException
+   {
       String rootOfClasspath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
       File tempFolder = new File(rootOfClasspath + "META-INF");
       if (tempFolder.mkdir()) tempFolder.deleteOnExit();
@@ -121,6 +132,7 @@ public final class TestedClassWithFullStandardDITest
       assertSame(namedEMFactory, tested.commonDependency.emFactory);
       assertSame(namedEM, tested.commonDependency.em);
       assertNotSame(tested.dependency2.em, tested.commonDependency.em);
+      assertSame(tested2.em, tested.dependency2.em);
 
       // Third level dependencies:
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
@@ -135,6 +147,7 @@ public final class TestedClassWithFullStandardDITest
    public void verifyThatTestedFieldsWereClearedAndPreDestroyMethodsWereExecuted()
    {
       assertNull(tested);
+      assertNull(tested2);
       assertTrue(TestedClass.destroyed);
    }
 }

@@ -16,16 +16,18 @@ import org.jetbrains.annotations.*;
  */
 final class InjectionState
 {
-   private GenericTypeReflection testedTypeReflection;
-   private Type typeOfInjectionPoint;
    @NotNull private List<MockedType> injectables;
    @NotNull private List<MockedType> consumedInjectables;
+   @NotNull private final Map<Object, Object> instantiatedDependencies;
+   private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
+   private Type typeOfInjectionPoint;
 
    InjectionState()
    {
       injectables = Collections.emptyList();
       consumedInjectables = new ArrayList<MockedType>();
+      instantiatedDependencies = new HashMap<Object, Object>();
    }
 
    void buildListsOfInjectables(@NotNull Object testClassInstance, @NotNull List<MockedType> injectableFields)
@@ -150,5 +152,17 @@ final class InjectionState
    void restoreConsumedInjectables(@NotNull List<MockedType> previousConsumedInjectables)
    {
       consumedInjectables = previousConsumedInjectables;
+   }
+
+   @Nullable
+   <D> D getInstantiatedDependency(@NotNull Object dependencyKey)
+   {
+      //noinspection unchecked
+      return (D) instantiatedDependencies.get(dependencyKey);
+   }
+
+   void saveInstantiatedDependency(@NotNull Object dependencyKey, @NotNull Object dependency)
+   {
+      instantiatedDependencies.put(dependencyKey, dependency);
    }
 }
