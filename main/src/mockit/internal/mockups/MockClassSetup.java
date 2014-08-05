@@ -8,14 +8,15 @@ import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.*;
 import mockit.external.asm4.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm4.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 public final class MockClassSetup
 {
@@ -95,7 +96,7 @@ public final class MockClassSetup
       }
 
       MockupsModifier modifier = new MockupsModifier(rcReader, classToModify, mockUp, mockMethods);
-      rcReader.accept(modifier, ClassReader.SKIP_FRAMES);
+      rcReader.accept(modifier, SKIP_FRAMES);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }
