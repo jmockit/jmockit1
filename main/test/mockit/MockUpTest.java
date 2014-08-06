@@ -254,6 +254,25 @@ public final class MockUpTest
       assertEquals(12, i);
    }
 
+   public static class PublicNamedMockUpWithNoInvocationParameters extends MockUp<Collaborator>
+   {
+      boolean executed;
+      @Mock public void $init() { executed = true; }
+      @Mock public int doSomething(String s) { return s.length(); }
+   }
+
+   @Test
+   public void publicNamedMockUpWithNoInvocationParameter()
+   {
+      PublicNamedMockUpWithNoInvocationParameters mockUp = new PublicNamedMockUpWithNoInvocationParameters();
+
+      Collaborator col = new Collaborator();
+      int i = col.doSomething("test");
+
+      assertTrue(mockUp.executed);
+      assertEquals(4, i);
+   }
+
    public static final class NamedMockUp extends MockUp<Collaborator>
    {
       @Mock

@@ -261,8 +261,6 @@ final class MockupsModifier extends BaseClassModifier
          jumpInsnOpcode = IF_ACMPEQ;
       }
       else {
-         mw.visitMethodInsn(
-            INVOKEVIRTUAL, "mockit/internal/mockups/MockInvocation", "shouldProceedIntoConstructor", "()Z");
          jumpInsnOpcode = IFNE;
       }
 
@@ -329,8 +327,13 @@ final class MockupsModifier extends BaseClassModifier
          invokeOpcode = INVOKEVIRTUAL;
       }
 
-      generateArgumentsForMockMethodInvocation();
+      boolean canProceedIntoConstructor = generateArgumentsForMockMethodInvocation();
       mw.visitMethodInsn(invokeOpcode, mockClassDesc, mockMethod.name, mockMethod.desc);
+
+      if (canProceedIntoConstructor) {
+         mw.visitMethodInsn(
+            INVOKEVIRTUAL, "mockit/internal/mockups/MockInvocation", "shouldProceedIntoConstructor", "()Z");
+      }
    }
 
    private void generateCodeToObtainMockUpInstance(@NotNull String mockClassDesc)
@@ -343,17 +346,19 @@ final class MockupsModifier extends BaseClassModifier
       mw.visitTypeInsn(CHECKCAST, mockClassDesc);
    }
 
-   private void generateArgumentsForMockMethodInvocation()
+   private boolean generateArgumentsForMockMethodInvocation()
    {
       Type[] argTypes = Type.getArgumentTypes(mockMethod.mockDescWithoutInvocationParameter);
       int varIndex = isStatic(methodAccess) ? 0 : 1;
+      boolean canProceedIntoConstructor = false;
 
       if (mockMethod.hasInvocationParameter) {
          generateCallToCreateNewMockInvocation(argTypes, varIndex);
 
          // When invoking a constructor, the invocation object will need to be consulted for proceeding:
-         if (methodName.charAt(0) == '<') {
+         if (isConstructor) {
             mw.visitInsn(mockMethod.isStatic() ? DUP : DUP_X1);
+            canProceedIntoConstructor = true;
          }
       }
 
@@ -369,6 +374,8 @@ final class MockupsModifier extends BaseClassModifier
 
          varIndex += argType.getSize();
       }
+
+      return canProceedIntoConstructor;
    }
 
    private void generateCallToCreateNewMockInvocation(@NotNull Type[] argTypes, int initialParameterIndex)
