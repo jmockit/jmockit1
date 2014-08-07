@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * This file is subject to the terms of the MIT license (see LICENSE.txt).
+ */
 package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
@@ -67,18 +71,15 @@ final class TestedField
       }
    }
 
-   void clearIfAutomaticCreation(boolean testSucceeded)
+   void clearIfAutomaticCreation()
    {
       if (createAutomatically) {
          Object testClassInstance = injectionState.getCurrentTestClassInstance();
+         Object testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
 
-         if (testSucceeded) {
-            Object testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
-
-            if (testedObject != null) {
-               Class<?> testedClass = testedField.getType();
-               executePreDestroyMethodIfAny(testedClass, testedObject);
-            }
+         if (testedObject != null) {
+            Class<?> testedClass = testedField.getType();
+            executePreDestroyMethodIfAny(testedClass, testedObject);
          }
 
          FieldReflection.setFieldValue(testedField, testClassInstance, null);

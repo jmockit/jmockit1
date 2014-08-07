@@ -64,10 +64,10 @@ public final class TestedClassInstantiations
       }
    }
 
-   public void clearTestedFields(boolean testSucceeded)
+   public void clearTestedFields()
    {
       for (TestedField testedField : testedFields) {
-         testedField.clearIfAutomaticCreation(testSucceeded);
+         testedField.clearIfAutomaticCreation();
       }
    }
 }

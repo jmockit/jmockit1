@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * This file is subject to the terms of the MIT license (see LICENSE.txt).
+ */
 package mockit.internal.expectations.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
 import javax.inject.*;
+import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.util.*;
 import static mockit.internal.util.ClassLoad.*;
@@ -76,11 +81,18 @@ final class InjectionPoint
       }
    }
 
+   // TODO: execute @PreDestroy on all instantiated dependencies, not just the top-level ones
    static void executePreDestroyMethodIfAny(@NotNull Class<?> testedClass, @NotNull Object testedObject)
    {
       for (Method method : testedClass.getDeclaredMethods()) {
-         if (method.isAnnotationPresent(PreDestroy.class)) {
-            try { MethodReflection.invoke(testedObject, method); } catch (RuntimeException ignore) {}
+         if (
+            !isStatic(method.getModifiers()) &&
+            method.getReturnType() == void.class && method.getParameterTypes().length == 0 &&
+            method.isAnnotationPresent(PreDestroy.class)
+         ) {
+            try { MethodReflection.invoke(testedObject, method); }
+            catch (RuntimeException ignore) {}
+            catch (AssertionError ignore) {}
             break;
          }
       }
