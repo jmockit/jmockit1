@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -154,7 +154,9 @@ public final class InvocationsWithCustomMessagesTest
    {
       try {
          new Verifications() {{
-            mock.provideSomeService(); times = 1; $ = message;
+            mock.provideSomeService();
+            $ = message;
+            times = 1;
          }};
       }
       catch (MissingInvocation e) {
@@ -173,7 +175,7 @@ public final class InvocationsWithCustomMessagesTest
       try {
          new VerificationsInOrder() {{
             Collaborator.doInternal();
-            mock.provideSomeService(); minTimes = 1; $ = message; maxTimes = 2;
+            mock.provideSomeService(); $ = message; minTimes = 1; maxTimes = 2;
          }};
       }
       catch (MissingInvocation e) {
@@ -192,8 +194,8 @@ public final class InvocationsWithCustomMessagesTest
       try {
          new FullVerifications() {{
             new Collaborator();
-            times = 1;
             $ = message;
+            times = 1;
          }};
       }
       catch (UnexpectedInvocation e) {
@@ -210,7 +212,7 @@ public final class InvocationsWithCustomMessagesTest
       try {
          new FullVerificationsInOrder() {{
             mock.provideSomeService();
-            mock.setValue(anyInt); times = 0; $ = message;
+            mock.setValue(anyInt); $ = message; times = 0;
          }};
       }
       catch (UnexpectedInvocation e) {

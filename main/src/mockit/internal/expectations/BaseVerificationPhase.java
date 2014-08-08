@@ -171,12 +171,10 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    @Override
    public final void setCustomErrorMessage(@Nullable CharSequence customMessage)
    {
-      Expectation expectation = getCurrentExpectation();
+      Expectation expectation = expectationBeingVerified();
+      expectation.setCustomErrorMessage(customMessage);
 
-      if (pendingError == null) {
-         expectation.setCustomErrorMessage(customMessage);
-      }
-      else if (customMessage != null) {
+      if (customMessage != null && pendingError != null) {
          String finalMessage = customMessage + "\n" + pendingError.getMessage();
          StackTraceElement[] previousStackTrace = pendingError.getStackTrace();
          pendingError = pendingError instanceof MissingInvocation ?

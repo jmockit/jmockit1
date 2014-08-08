@@ -104,7 +104,8 @@ public final class ActiveInvocations
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
-         instance.getCurrentTestOnlyPhase().setCustomErrorMessage(customMessage);
+         TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
+         currentPhase.setCustomErrorMessage(customMessage);
       }
    }
 

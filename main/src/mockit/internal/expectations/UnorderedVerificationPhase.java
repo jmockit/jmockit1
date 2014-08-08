@@ -54,7 +54,8 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       }
    }
 
-   @Nullable private Error verifyConstraints()
+   @Nullable
+   private Error verifyConstraints()
    {
       ExpectedInvocation lastInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
       Object[] lastArgs = invocationArgumentsInReplayOrder.get(replayIndex);
@@ -74,22 +75,30 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    @Override
    public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
    {
+      pendingError = null;
+
       Expectation verifying = expectationBeingVerified();
       int multiplier = numberOfIterations <= 1 ? 1 : numberOfIterations;
       int iteratedMin = multiplier * minInvocations;
+      Error errorThrown;
 
       if (replayIndex >= 0) {
          ExpectedInvocation replayInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
          Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex);
          int iteratedMax = multiplier * maxInvocations;
-         pendingError = verifying.verifyConstraints(replayInvocation, replayArgs, iteratedMin, iteratedMax);
+         errorThrown = verifying.verifyConstraints(replayInvocation, replayArgs, iteratedMin, iteratedMax);
       }
       else {
-         pendingError = verifying.verifyConstraints(iteratedMin);
+         errorThrown = verifying.verifyConstraints(iteratedMin);
+      }
+
+      if (errorThrown != null) {
+         throw errorThrown;
       }
    }
 
-   @Nullable VerifiedExpectation firstExpectationVerified()
+   @Nullable
+   VerifiedExpectation firstExpectationVerified()
    {
       VerifiedExpectation first = null;
 

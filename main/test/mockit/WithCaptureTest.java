@@ -504,7 +504,8 @@ public final class WithCaptureTest
       dao.create("test", 14);
 
       new Verifications() {{
-         List<Person> newInstances = withCapture(new Person()); times = 0;
+         List<Person> newInstances = withCapture(new Person());
+         times = 0;
          assertTrue(newInstances.isEmpty());
 
          withCapture(new Person(anyString, anyInt));
@@ -542,6 +543,35 @@ public final class WithCaptureTest
 
          List<Person> persons = withCapture(new Person(anyString, 10));
          assertEquals(asList(p1, p2), persons);
+      }};
+   }
+
+   @Test
+   public void attemptToCaptureArgumentForInvocationThatNeverOccurred_unordered()
+   {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("Missing 1 invocation to:");
+      thrown.expectMessage("PersonDAO#create(");
+      thrown.expectMessage("with arguments: any " + Person.class.getName());
+
+      new Verifications() {{
+         Person p;
+         dao.create(p = withCapture());
+         times = 1;
+         assertEquals("...", p.getName());
+      }};
+   }
+
+   @Test
+   public void attemptToCaptureArgumentForInvocationThatNeverOccurred_ordered()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new VerificationsInOrder() {{
+         Person p;
+         dao.create(p = withCapture());
+         times = 1;
+         assertEquals("...", p.getName());
       }};
    }
 }

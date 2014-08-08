@@ -118,8 +118,11 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    @Override
    public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
    {
-      if (pendingError != null && minInvocations > 0) {
-         return;
+      Error errorThrown = pendingError;
+      pendingError = null;
+
+      if (errorThrown != null && minInvocations > 0) {
+         throw errorThrown;
       }
 
       Expectation verifying = expectationBeingVerified();
@@ -136,8 +139,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
 
             if (invocationCount > maxInvocations) {
                if (maxInvocations >= 0 && numberOfIterations <= 1) {
-                  pendingError = replayExpectation.invocation.errorForUnexpectedInvocation();
-                  return;
+                  throw replayExpectation.invocation.errorForUnexpectedInvocation();
                }
 
                break;
@@ -155,11 +157,10 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       int n = minInvocations - invocationCount;
 
       if (n > 0) {
-         pendingError = invocation.errorForMissingInvocations(n);
-         return;
+         throw invocation.errorForMissingInvocations(n);
       }
 
-      pendingError = verifyMaxInvocations(maxInvocations);
+      verifyMaxInvocations(maxInvocations);
    }
 
    private boolean matchesCurrentVerification(@NotNull Expectation replayExpectation)
@@ -181,7 +182,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs);
    }
 
-   @Nullable private Error verifyMaxInvocations(int maxInvocations)
+   private void verifyMaxInvocations(int maxInvocations)
    {
       if (maxInvocations >= 0) {
          int multiplier = numberOfIterations <= 1 ? 1 : numberOfIterations;
@@ -190,15 +191,13 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
 
          if (n > 0) {
             Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex - 1);
-            return verifying.invocation.errorForUnexpectedInvocations(replayArgs, n);
+            throw verifying.invocation.errorForUnexpectedInvocations(replayArgs, n);
          }
       }
-
-      return null;
    }
 
-   @Override
-   @Nullable protected Error endVerification()
+   @Nullable @Override
+   protected Error endVerification()
    {
       if (pendingError != null) {
          return pendingError;
@@ -225,7 +224,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return super.endVerification();
    }
 
-   @Nullable private Error verifyRemainingIterations()
+   @Nullable
+   private Error verifyRemainingIterations()
    {
       int expectationsVerifiedInFirstIteration = recordAndReplay.executionState.verifiedExpectations.size();
 
@@ -240,7 +240,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return null;
    }
 
-   @Nullable private Error verifyNextIterationOfWholeBlockOfInvocations(int expectationsVerifiedInFirstIteration)
+   @Nullable
+   private Error verifyNextIterationOfWholeBlockOfInvocations(int expectationsVerifiedInFirstIteration)
    {
       List<VerifiedExpectation> expectationsVerified = recordAndReplay.executionState.verifiedExpectations;
 

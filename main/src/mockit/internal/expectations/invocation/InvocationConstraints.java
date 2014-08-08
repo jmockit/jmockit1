@@ -4,6 +4,8 @@
  */
 package mockit.internal.expectations.invocation;
 
+import mockit.internal.*;
+
 import org.jetbrains.annotations.*;
 
 public final class InvocationConstraints
@@ -60,20 +62,26 @@ public final class InvocationConstraints
    }
 
    @Nullable
-   public Error verifyUpperLimit(@NotNull ExpectedInvocation invocation, @NotNull Object[] replayArgs, int upperLimit)
+   public Error verifyUpperLimit(
+      @NotNull ExpectedInvocation invocation, @NotNull Object[] replayArgs, int upperLimit,
+      @Nullable CharSequence customErrorMessage)
    {
       if (upperLimit >= 0) {
          int unexpectedInvocations = invocationCount - upperLimit;
 
          if (unexpectedInvocations > 0) {
-            return invocation.errorForUnexpectedInvocations(replayArgs, unexpectedInvocations);
+            invocation.customErrorMessage = customErrorMessage;
+            UnexpectedInvocation error = invocation.errorForUnexpectedInvocations(replayArgs, unexpectedInvocations);
+            invocation.customErrorMessage = null;
+            return error;
          }
       }
 
       return null;
    }
 
-   @NotNull public Error errorForMissingExpectations(@NotNull ExpectedInvocation invocation)
+   @NotNull
+   public Error errorForMissingExpectations(@NotNull ExpectedInvocation invocation)
    {
       return invocation.errorForMissingInvocations(minInvocations - invocationCount) ;
    }

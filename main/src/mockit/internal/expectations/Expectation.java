@@ -127,7 +127,7 @@ final class Expectation
          return error;
       }
 
-      return constraints.verifyUpperLimit(replayInvocation, replayArgs, maxInvocations);
+      return constraints.verifyUpperLimit(replayInvocation, replayArgs, maxInvocations, invocation.customErrorMessage);
    }
 
    @Nullable Error verifyConstraints(int minInvocations)
