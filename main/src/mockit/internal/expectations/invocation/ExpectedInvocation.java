@@ -46,39 +46,6 @@ public final class ExpectedInvocation
       defaultReturnValue = rv == null ? UNDEFINED_DEFAULT_RETURN : rv;
    }
 
-   @NotNull public Class<?> getCallerClass()
-   {
-      assert invocationCause != null;
-      StackTraceElement firstOuter = StackTrace.getElement(invocationCause, 3);
-      int steIndex = "MockedBridge.java".equals(firstOuter.getFileName()) ? 5 : 4;
-      StackTraceElement ste = StackTrace.getElement(invocationCause, steIndex);
-      String className = ste.getClassName();
-      String methodName = ste.getMethodName();
-
-      if (
-         methodName.startsWith("access$") ||
-         methodName.equals(firstOuter.getMethodName()) && className.equals(firstOuter.getClassName()) // covariant RT
-      ) {
-         steIndex++;
-         ste = StackTrace.getElement(invocationCause, steIndex);
-         className = ste.getClassName();
-      }
-
-      if (ste.getLineNumber() < 0) {
-         // Calling through Reflection.
-         do {
-            steIndex++;
-            ste = StackTrace.getElement(invocationCause, steIndex);
-            className = ste.getClassName();
-         }
-         while (
-            className.contains(".reflect.") || className.startsWith("mockit.internal.") ||
-            "mockit.Deencapsulation".equals(className));
-      }
-
-      return ClassLoad.loadClass(className);
-   }
-
    // Simple getters //////////////////////////////////////////////////////////////////////////////////////////////////
 
    @NotNull public String getClassDesc() { return arguments.classDesc; }

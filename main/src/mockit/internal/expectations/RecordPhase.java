@@ -5,9 +5,11 @@
 package mockit.internal.expectations;
 
 import org.jetbrains.annotations.*;
+import sun.reflect.*;
 
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
+import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
@@ -42,7 +44,7 @@ public final class RecordPhase extends TestOnlyPhase
 
       ExpectedInvocation invocation = new ExpectedInvocation(
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
-      Class<?> callerClass = invocation.getCallerClass();
+      Class<?> callerClass = getCallerClass();
 
       if (!Expectations.class.isAssignableFrom(callerClass)) {
          String kind = invocation.isConstructor() ? "constructor" : "method";
@@ -74,7 +76,8 @@ public final class RecordPhase extends TestOnlyPhase
       return invocation.getDefaultValueForReturnType(this);
    }
 
-   @Nullable private Object configureMatchingOnMockInstanceIfSpecified(@Nullable Object mock)
+   @Nullable
+   private Object configureMatchingOnMockInstanceIfSpecified(@Nullable Object mock)
    {
       matchInstance = false;
 
@@ -103,6 +106,42 @@ public final class RecordPhase extends TestOnlyPhase
       nextInstanceToMatch = null;
       matchInstance = true;
       return specified;
+   }
+
+   private static final int CALLER_CLASS_INDEX = System.getProperty("java.vm.name").contains("HotSpot") ? 4 : 5;
+
+   @NotNull @SuppressWarnings("deprecation")
+   private static Class<?> getCallerClass()
+   {
+      Class<?> firstCaller = Reflection.getCallerClass(CALLER_CLASS_INDEX);
+      int steIndex = CALLER_CLASS_INDEX + (firstCaller == MockedBridge.class ? 2 : 1);
+      Class<?> secondCaller = Reflection.getCallerClass(steIndex);
+
+      if (secondCaller == MethodReflection.class) { // called through Reflection
+         steIndex += 3;
+
+         while (true) {
+            Class<?> nextCaller = Reflection.getCallerClass(steIndex);
+            steIndex++;
+
+            if (nextCaller == Deencapsulation.class) {
+               continue;
+            }
+
+            String className = nextCaller.getName();
+
+            if (!className.contains(".reflect.") && !className.startsWith("mockit.internal.")) {
+               return nextCaller;
+            }
+         }
+      }
+
+      if (secondCaller != firstCaller) {
+         return secondCaller;
+      }
+
+      Class<?> thirdCaller = Reflection.getCallerClass(steIndex + 1);
+      return thirdCaller;
    }
 
    @Override

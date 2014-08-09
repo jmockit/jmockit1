@@ -27,7 +27,7 @@ final class MockingBridgeFields
       ClassFileTransformer trans = new FieldAdditionTransformer();
       inst.addTransformer(trans);
 
-      new IOR(); // loads a JRE class expected to not be loaded initially by the JVM
+      IORHelper.id(); // loads a JRE class expected to not be loaded initially by the JVM
 
       inst.removeTransformer(trans);
       setMockingBridgeFields();
@@ -70,7 +70,7 @@ final class MockingBridgeFields
    private static void setMockingBridgeField(@NotNull MockingBridge mockingBridge)
    {
       try {
-         IOR.class.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
+         IORHelper.class.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
       }
       catch (NoSuchFieldException ignore) {}
       catch (IllegalAccessException e) { throw new RuntimeException(e); }

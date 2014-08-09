@@ -18,8 +18,8 @@ import org.jetbrains.annotations.*;
 
 final class ExpectationsModifier extends BaseClassModifier
 {
+   private static final boolean NATIVE_UNSUPPORTED = !System.getProperty("java.vm.name").contains("HotSpot");
    private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
-   private static final int PRIVATE_NATIVE_METHOD = ACC_PRIVATE + ACC_NATIVE;
    private static final int PRIVATE_STATIC_METHOD = ACC_PRIVATE + ACC_STATIC;
 
    private static final Map<String, String> DEFAULT_FILTERS = new HashMap<String, String>();
@@ -236,10 +236,13 @@ final class ExpectationsModifier extends BaseClassModifier
 
    private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @NotNull String name)
    {
+      if (isNative(access) && (access == ACC_NATIVE || isPrivate(access) || NATIVE_UNSUPPORTED)) {
+         return true;
+      }
+
       return
          visitingConstructor && ignoreConstructors ||
          executionMode.isMethodToBeIgnored(access) ||
-         access == ACC_NATIVE || (access & PRIVATE_NATIVE_METHOD) == PRIVATE_NATIVE_METHOD ||
          defaultFilters != null && defaultFilters.contains(name);
    }
 

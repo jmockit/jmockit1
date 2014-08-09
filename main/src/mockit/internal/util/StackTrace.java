@@ -16,7 +16,8 @@ public final class StackTrace
    private static final Method getStackTraceDepth = getThrowableMethod("getStackTraceDepth");
    private static final Method getStackTraceElement = getThrowableMethod("getStackTraceElement", int.class);
 
-   @Nullable private static Method getThrowableMethod(@NotNull String name, @NotNull Class<?>... parameterTypes)
+   @Nullable
+   private static Method getThrowableMethod(@NotNull String name, @NotNull Class<?>... parameterTypes)
    {
       Method method;
       try { method = Throwable.class.getDeclaredMethod(name, parameterTypes); }
@@ -56,12 +57,10 @@ public final class StackTrace
    @NotNull
    public StackTraceElement getElement(int index)
    {
-      return elements == null ? getElement(throwable, index) : elements[index];
-   }
+      if (elements != null) {
+         return elements[index];
+      }
 
-   @NotNull
-   public static StackTraceElement getElement(@NotNull Throwable throwable, int index)
-   {
       try { return (StackTraceElement) getStackTraceElement.invoke(throwable, index); }
       catch (IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e); }
