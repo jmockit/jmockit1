@@ -109,7 +109,6 @@ final class AgentLoader
    private void loadAgentAndDetachFromThisVM(@NotNull VirtualMachine vm)
    {
       try {
-         //noinspection ConstantConditions
          vm.loadAgent(jarFilePath, null);
          vm.detach();
       }
