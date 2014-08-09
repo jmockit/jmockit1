@@ -56,7 +56,7 @@ class BaseTypeRedefinition
       this.typeMetadata = typeMetadata;
    }
 
-   @NotNull
+   @Nullable
    final InstanceFactory redefineType(@NotNull Type typeToMock)
    {
       if (targetClass == TypeVariable.class || targetClass.isInterface()) {
@@ -66,9 +66,11 @@ class BaseTypeRedefinition
          redefineTargetClassAndCreateInstanceFactory(typeToMock);
       }
 
-      Class<?> mockedType = getClassType(typeToMock);
-      assert instanceFactory != null;
-      TestRun.mockFixture().registerInstanceFactoryForMockedType(mockedType, instanceFactory);
+      if (instanceFactory != null) {
+         Class<?> mockedType = getClassType(typeToMock);
+         TestRun.mockFixture().registerInstanceFactoryForMockedType(mockedType, instanceFactory);
+      }
+
       return instanceFactory;
    }
 
@@ -176,13 +178,17 @@ class BaseTypeRedefinition
       }
    }
 
-   final void redefineMethodsAndConstructorsInTargetType()
+   final boolean redefineMethodsAndConstructorsInTargetType()
    {
-      redefineClassAndItsSuperClasses(targetClass);
+      return redefineClassAndItsSuperClasses(targetClass);
    }
 
-   private void redefineClassAndItsSuperClasses(@NotNull Class<?> realClass)
+   private boolean redefineClassAndItsSuperClasses(@NotNull Class<?> realClass)
    {
+      if (!HOTSPOT_VM && realClass == System.class) {
+         return false;
+      }
+
       ClassLoader loader = realClass.getClassLoader();
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
       ExpectationsModifier modifier = createClassModifier(loader, classReader);
@@ -194,17 +200,20 @@ class BaseTypeRedefinition
          // As defined in ExpectationsModifier, some critical JRE classes have all methods excluded from mocking by
          // default. This exception occurs when they are visited.
          // In this case, we simply stop class redefinition for the rest of the class hierarchy.
-         return;
+         return false;
       }
 
       redefineElementSubclassesOfEnumTypeIfAny(modifier.enumSubclasses);
       redefinedImplementedInterfacesIfRunningOnJava8(realClass);
 
       Class<?> superClass = realClass.getSuperclass();
+      boolean redefined = true;
 
       if (superClass != null && superClass != Object.class && superClass != Proxy.class && superClass != Enum.class) {
-         redefineClassAndItsSuperClasses(superClass);
+         redefined = redefineClassAndItsSuperClasses(superClass);
       }
+
+      return redefined;
    }
 
    private void redefineClass(
@@ -252,21 +261,34 @@ class BaseTypeRedefinition
          return;
       }
 
+      boolean redefined;
+
       if (targetClass.isEnum()) {
-         instanceFactory = new EnumInstanceFactory(targetClass);
-         redefineMethodsAndConstructorsInTargetType();
+         redefined = redefineMethodsAndConstructorsInTargetType();
+
+         if (redefined) {
+            instanceFactory = new EnumInstanceFactory(targetClass);
+         }
       }
       else if (isAbstract(targetClass.getModifiers())) {
-         redefineMethodsAndConstructorsInTargetType();
-         Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
-         instanceFactory = new ClassInstanceFactory(subclass);
+         redefined = redefineMethodsAndConstructorsInTargetType();
+
+         if (redefined) {
+            Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
+            instanceFactory = new ClassInstanceFactory(subclass);
+         }
       }
       else {
-         redefineMethodsAndConstructorsInTargetType();
-         instanceFactory = new ClassInstanceFactory(targetClass);
+         redefined = redefineMethodsAndConstructorsInTargetType();
+
+         if (redefined) {
+            instanceFactory = new ClassInstanceFactory(targetClass);
+         }
       }
 
-      storeRedefinedClassesInCache(mockedClassId);
+      if (redefined) {
+         storeRedefinedClassesInCache(mockedClassId);
+      }
    }
 
    @Nullable

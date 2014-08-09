@@ -51,17 +51,27 @@ public final class SharedFieldTypeRedefinitions extends FieldTypeRedefinitions
    protected void redefineTypeForMockField(@NotNull MockedType mockedType, @NotNull Field mockField, boolean isFinal)
    {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
+      boolean redefined;
 
       if (isFinal) {
-         typeRedefinition.redefineTypeForFinalField();
-         finalMockFields.add(mockedType);
+         redefined = typeRedefinition.redefineTypeForFinalField();
+
+         if (redefined) {
+            finalMockFields.add(mockedType);
+         }
       }
       else {
          InstanceFactory factory = typeRedefinition.redefineType();
-         mockInstanceFactories.put(mockedType, factory);
+         redefined = factory != null;
+
+         if (redefined) {
+            mockInstanceFactories.put(mockedType, factory);
+         }
       }
 
-      addTargetClass(mockedType);
+      if (redefined) {
+         addTargetClass(mockedType);
+      }
    }
 
    public void assignNewInstancesToMockFields(@NotNull Object target)

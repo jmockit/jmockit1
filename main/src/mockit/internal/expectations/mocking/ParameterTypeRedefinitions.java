@@ -67,7 +67,8 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       }
    }
 
-   @NotNull private InstanceFactory[] redefineMockedTypes()
+   @NotNull
+   private InstanceFactory[] redefineMockedTypes()
    {
       int n = mockParameters.length;
       InstanceFactory[] instanceFactories = new InstanceFactory[n];
@@ -83,13 +84,16 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       return instanceFactories;
    }
 
-   @NotNull private InstanceFactory redefineMockedType(@NotNull MockedType mockedType)
+   @Nullable
+   private InstanceFactory redefineMockedType(@NotNull MockedType mockedType)
    {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
       InstanceFactory instanceFactory = typeRedefinition.redefineType();
 
-      addTargetClass(mockedType);
-      typesRedefined++;
+      if (instanceFactory != null) {
+         addTargetClass(mockedType);
+         typesRedefined++;
+      }
 
       return instanceFactory;
    }
