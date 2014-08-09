@@ -9,10 +9,11 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.*;
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import mockit.internal.*;
+import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("deprecation")
 public final class DynamicPartialMockingTest
@@ -851,7 +852,7 @@ public final class DynamicPartialMockingTest
       assertTrue(mockedClass.isAnnotationPresent(Deprecated.class));
       assertTrue(mockedClass.getDeclaredField("value").isAnnotationPresent(Deprecated.class));
 
-      boolean jreDiscardsAnnotationsOnConstructors = System.getProperty("java.specification.version").equals("1.6");
+      boolean jreDiscardsAnnotationsOnConstructors = JAVA6;
 
       if (!jreDiscardsAnnotationsOnConstructors) {
          Constructor<?> mockedConstructor = mockedClass.getDeclaredConstructor(int.class);
