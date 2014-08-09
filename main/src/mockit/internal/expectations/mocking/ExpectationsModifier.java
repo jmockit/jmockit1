@@ -20,27 +20,28 @@ final class ExpectationsModifier extends BaseClassModifier
 {
    private static final boolean NATIVE_UNSUPPORTED = !System.getProperty("java.vm.name").contains("HotSpot");
    private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
-   private static final int PRIVATE_STATIC_METHOD = ACC_PRIVATE + ACC_STATIC;
+   private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
+   private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
 
    private static final Map<String, String> DEFAULT_FILTERS = new HashMap<String, String>();
    static {
       DEFAULT_FILTERS.put("java/lang/Object", "<init> clone getClass hashCode");
-      DEFAULT_FILTERS.put("java/lang/String", "");
       DEFAULT_FILTERS.put("java/lang/AbstractStringBuilder", "");
-      DEFAULT_FILTERS.put("java/lang/StringBuilder", "");
+      DEFAULT_FILTERS.put("java/lang/String", "");
       DEFAULT_FILTERS.put("java/lang/StringBuffer", "");
+      DEFAULT_FILTERS.put("java/lang/StringBuilder", "");
       DEFAULT_FILTERS.put("java/lang/System",
                           "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName");
-      DEFAULT_FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace");
       DEFAULT_FILTERS.put("java/lang/Exception", "<init>");
+      DEFAULT_FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace");
       DEFAULT_FILTERS.put("java/lang/Thread", "currentThread getName interrupted isInterrupted");
       DEFAULT_FILTERS.put("java/util/AbstractCollection", "<init>");
       DEFAULT_FILTERS.put("java/util/AbstractSet", "<init>");
-      DEFAULT_FILTERS.put("java/util/HashSet", "<init> add");
-      DEFAULT_FILTERS.put("java/util/Hashtable", "<init> containsKey get hash");
-      DEFAULT_FILTERS.put("java/util/Properties", "<init>");
       DEFAULT_FILTERS.put("java/util/ArrayList", "");
+      DEFAULT_FILTERS.put("java/util/HashSet", "<init> add");
+      DEFAULT_FILTERS.put("java/util/Hashtable", "<init> containsKey get");
       DEFAULT_FILTERS.put("java/util/HashMap", "");
+      DEFAULT_FILTERS.put("java/util/Properties", "<init>");
       DEFAULT_FILTERS.put("java/util/jar/JarEntry", "<init>");
       DEFAULT_FILTERS.put("java/util/logging/Logger", "<init> getName");
    }
@@ -231,21 +232,29 @@ final class ExpectationsModifier extends BaseClassModifier
    
    private boolean isMethodFromCapturedClassNotToBeMocked(int access)
    {
-      return baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_STATIC_METHOD) != 0;
+      return baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_OR_STATIC) != 0;
    }
 
    private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @NotNull String name)
    {
-      if (isNative(access) && (access == ACC_NATIVE || isPrivate(access) || NATIVE_UNSUPPORTED)) {
+      if (visitingConstructor) {
+         return ignoreConstructors || defaultFilters != null && defaultFilters.contains(name);
+      }
+
+      boolean notPublicNorProtected = (access & PUBLIC_OR_PROTECTED) == 0;
+
+      if (isNative(access) && (notPublicNorProtected || NATIVE_UNSUPPORTED)) {
          return true;
       }
 
-      return
-         visitingConstructor && ignoreConstructors ||
-         executionMode.isMethodToBeIgnored(access) ||
-         defaultFilters != null && defaultFilters.contains(name);
+      if (useMockingBridge && notPublicNorProtected) {
+         return true;
+      }
+
+      return executionMode.isMethodToBeIgnored(access) || defaultFilters != null && defaultFilters.contains(name);
    }
 
+   @NotNull
    private ExecutionMode determineAppropriateExecutionMode(boolean visitingConstructor)
    {
       if (executionMode == ExecutionMode.PerInstance) {
