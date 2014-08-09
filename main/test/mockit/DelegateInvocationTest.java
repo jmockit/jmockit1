@@ -20,7 +20,7 @@ public final class DelegateInvocationTest
       String doSomething(boolean b, int[] i, String s) { return s + b + i[0]; }
       static boolean staticMethod() { return true; }
       static boolean staticMethod(int i) { return i > 0; }
-      public native long nativeMethod(boolean b);
+      public long publicMethod(boolean b) { return b ? 0L : -1L; }
       private float privateMethod() { return 1.2F; }
    }
 
@@ -155,14 +155,14 @@ public final class DelegateInvocationTest
    public void delegateMethodWithNoParametersForExpectationWithParameters(@Mocked final Collaborator mock)
    {
       new Expectations() {{
-         mock.nativeMethod(true);
+         mock.publicMethod(true);
          result = new Delegate() {
             @Mock
             long nonMatchingDelegate() { return 123L; }
          };
       }};
 
-      assertEquals(123, mock.nativeMethod(true));
+      assertEquals(123, mock.publicMethod(true));
    }
 
    @Test(expected = IllegalArgumentException.class)
@@ -184,7 +184,7 @@ public final class DelegateInvocationTest
    public void delegateWithDifferentMethodName(@Mocked final Collaborator mock)
    {
       new NonStrictExpectations() {{
-         mock.nativeMethod(anyBoolean);
+         mock.publicMethod(anyBoolean);
          result = new Delegate() {
             @Mock
             long differentName(Invocation invocation, boolean b)
@@ -197,7 +197,7 @@ public final class DelegateInvocationTest
          };
       }};
 
-      assertEquals(3L, new Collaborator().nativeMethod(true));
+      assertEquals(3L, new Collaborator().publicMethod(true));
    }
 
    @Test
