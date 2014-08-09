@@ -13,12 +13,13 @@ import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
+import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
 final class ExpectationsModifier extends BaseClassModifier
 {
-   private static final boolean NATIVE_UNSUPPORTED = !System.getProperty("java.vm.name").contains("HotSpot");
+   private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
    private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
    private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;

@@ -4,14 +4,15 @@
  */
 package mockit.internal.expectations;
 
-import org.jetbrains.annotations.*;
-import sun.reflect.*;
-
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.Utilities.*;
+
+import org.jetbrains.annotations.*;
+import sun.reflect.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
@@ -108,7 +109,7 @@ public final class RecordPhase extends TestOnlyPhase
       return specified;
    }
 
-   private static final int CALLER_CLASS_INDEX = System.getProperty("java.vm.name").contains("HotSpot") ? 4 : 5;
+   private static final int CALLER_CLASS_INDEX = HOTSPOT_VM ? 4 : 5;
 
    @NotNull @SuppressWarnings("deprecation")
    private static Class<?> getCallerClass()

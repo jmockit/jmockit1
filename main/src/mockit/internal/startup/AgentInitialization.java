@@ -9,6 +9,8 @@ import java.net.*;
 import java.security.*;
 import java.util.regex.*;
 
+import static mockit.internal.util.Utilities.*;
+
 import org.jetbrains.annotations.*;
 
 final class AgentInitialization
@@ -19,9 +21,7 @@ final class AgentInitialization
 
    static boolean loadAgentFromLocalJarFile()
    {
-      String javaSpecVersion = System.getProperty("java.specification.version");
-
-      if (!"1.6 1.7 1.8".contains(javaSpecVersion)) {
+      if (!JAVA6 && !JAVA7 && !JAVA8) {
          throw new IllegalStateException("JMockit requires a Java 6+ VM");
       }
 

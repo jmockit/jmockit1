@@ -12,12 +12,23 @@ import mockit.internal.state.*;
 import org.jetbrains.annotations.*;
 
 /**
- * Miscellaneous utility methods.
+ * Miscellaneous utility constants and methods.
  */
 public final class Utilities
 {
    @NotNull public static final Object[] NO_ARGS = {};
-   public static final boolean JAVA8 = "1.8".equals(System.getProperty("java.specification.version"));
+
+   public static final boolean JAVA6;
+   public static final boolean JAVA7;
+   public static final boolean JAVA8;
+   public static final boolean HOTSPOT_VM;
+   static {
+      HOTSPOT_VM = System.getProperty("java.vm.name").contains("HotSpot");
+      String javaVersion = System.getProperty("java.specification.version");
+      JAVA8 = "1.8".equals(javaVersion);
+      JAVA7 = "1.7".equals(javaVersion);
+      JAVA6 = "1.6".equals(javaVersion);
+   }
 
    private Utilities() {}
 
