@@ -74,7 +74,8 @@ public final class ClassFile
       return reader;
    }
 
-   @NotNull private static InputStream readClassFromClasspath(@NotNull String classDesc)
+   @NotNull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
+   private static InputStream readClassFromClasspath(@NotNull String classDesc)
    {
       String classFileName = classDesc + ".class";
       ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -147,6 +148,14 @@ public final class ClassFile
       catch (IOException e) {
          throw new RuntimeException("Failed to read class file for " + classDesc.replace('/', '.'), e);
       }
+      finally {
+         closeInputStream(classFile);
+      }
+   }
+
+   private static void closeInputStream(@NotNull InputStream inputStream)
+   {
+      try { inputStream.close(); } catch (IOException ignore) {}
    }
 
    public static void visitClass(@NotNull String classDesc, @NotNull ClassVisitor visitor)
@@ -159,6 +168,9 @@ public final class ClassFile
       }
       catch (IOException e) {
          throw new RuntimeException(e);
+      }
+      finally {
+         closeInputStream(classFile);
       }
    }
 }
