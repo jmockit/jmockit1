@@ -31,7 +31,8 @@ final class AgentLoader
       pid = discoverProcessIdForRunningVM();
    }
 
-   @NotNull private String discoverProcessIdForRunningVM()
+   @NotNull
+   private static String discoverProcessIdForRunningVM()
    {
       String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
       int p = nameOfRunningVM.indexOf('@');
@@ -58,8 +59,8 @@ final class AgentLoader
       return false;
    }
 
-   @SuppressWarnings("UseOfSunClasses")
-   @Nullable private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
+   @Nullable @SuppressWarnings("UseOfSunClasses")
+   private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
    {
       try {
          if (File.separatorChar == '\\') {
@@ -91,7 +92,8 @@ final class AgentLoader
       return null;
    }
 
-   @Nullable private VirtualMachine attachToThisVM()
+   @Nullable
+   private VirtualMachine attachToThisVM()
    {
       try {
          return VirtualMachine.attach(pid);

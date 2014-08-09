@@ -15,7 +15,9 @@ final class AgentInitialization
 {
    private static final Pattern JAR_REGEX = Pattern.compile(".*jmockit[-.\\d]*.jar");
 
-   boolean loadAgentFromLocalJarFile()
+   private AgentInitialization() {}
+
+   static boolean loadAgentFromLocalJarFile()
    {
       String javaSpecVersion = System.getProperty("java.specification.version");
 
@@ -27,7 +29,8 @@ final class AgentInitialization
       return new AgentLoader(jarFilePath).loadAgent();
    }
 
-   @NotNull private String discoverPathToJarFile()
+   @NotNull
+   private static String discoverPathToJarFile()
    {
       String jarFilePath = findPathToJarFileFromClasspath();
 
@@ -45,7 +48,8 @@ final class AgentInitialization
          "found in the classpath");
    }
 
-   @Nullable private String findPathToJarFileFromClasspath()
+   @Nullable
+   private static String findPathToJarFileFromClasspath()
    {
       String[] classPath = System.getProperty("java.class.path").split(File.pathSeparator);
 
@@ -58,7 +62,8 @@ final class AgentInitialization
       return null;
    }
 
-   @Nullable private String getPathToJarFileContainingThisClass()
+   @Nullable
+   private static String getPathToJarFileContainingThisClass()
    {
       CodeSource codeSource = AgentInitialization.class.getProtectionDomain().getCodeSource();
 
@@ -80,7 +85,8 @@ final class AgentInitialization
       return jarFilePath;
    }
 
-   @NotNull private String findLocalJarOrZipFileFromLocationOfCurrentClassFile(@NotNull String locationPath)
+   @NotNull
+   private static String findLocalJarOrZipFileFromLocationOfCurrentClassFile(@NotNull String locationPath)
    {
       File localJarFile = new File(locationPath.replace("main/classes/", "jmockit.jar"));
 
@@ -92,7 +98,8 @@ final class AgentInitialization
       return localMETAINFFile.getPath();
    }
 
-   @NotNull private String findJarFileContainingCurrentClass(@NotNull URL location)
+   @NotNull
+   private static String findJarFileContainingCurrentClass(@NotNull URL location)
    {
       // URI is used to deal with spaces and non-ASCII characters.
       URI jarFileURI;

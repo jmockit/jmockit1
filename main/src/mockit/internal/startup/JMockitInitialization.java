@@ -43,7 +43,7 @@ final class JMockitInitialization
       setUpStartupMocksIfAny();
    }
 
-   private void loadInternalStartupMocksForJUnitIntegration()
+   private static void loadInternalStartupMocksForJUnitIntegration()
    {
       new RunNotifierDecorator();
       new BlockJUnit4ClassRunnerDecorator();
@@ -70,7 +70,7 @@ final class JMockitInitialization
       }
    }
 
-   private void setUpStartupMock(@NotNull String mockClassName)
+   private static void setUpStartupMock(@NotNull String mockClassName)
    {
       try {
          Class<?> mockClass = ClassLoad.loadClassAtStartup(mockClassName);

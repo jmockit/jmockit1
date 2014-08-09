@@ -8,9 +8,9 @@ import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.startup.*;
+
+import org.jetbrains.annotations.*;
 
 /**
  * Holds a map of internal class names to the corresponding class files (bytecode arrays), for the classes
@@ -29,13 +29,15 @@ public final class CachedClassfiles implements ClassFileTransformer
 {
    @NotNull public static final CachedClassfiles INSTANCE = new CachedClassfiles();
 
-   @NotNull private final Map<ClassLoader, Map<String, byte[]>> classLoadersAndClassfiles =
-      new WeakHashMap<ClassLoader, Map<String, byte[]>>(2);
+   @NotNull private final Map<ClassLoader, Map<String, byte[]>> classLoadersAndClassfiles;
    @Nullable private Class<?> classBeingCached;
 
-   private CachedClassfiles() {}
+   private CachedClassfiles()
+   {
+      classLoadersAndClassfiles = new WeakHashMap<ClassLoader, Map<String, byte[]>>(2);
+   }
 
-   @Override @Nullable
+   @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, String classDesc, @Nullable Class<?> classBeingRedefinedOrRetransformed,
       @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
@@ -56,7 +58,8 @@ public final class CachedClassfiles implements ClassFileTransformer
       classfiles.put(classDesc, classfile);
    }
 
-   @NotNull private Map<String, byte[]> getClassfiles(@Nullable ClassLoader loader)
+   @NotNull
+   private Map<String, byte[]> getClassfiles(@Nullable ClassLoader loader)
    {
       Map<String, byte[]> classfiles = classLoadersAndClassfiles.get(loader);
 
@@ -68,7 +71,8 @@ public final class CachedClassfiles implements ClassFileTransformer
       return classfiles;
    }
 
-   @Nullable private byte[] findClassfile(@NotNull Class<?> aClass)
+   @Nullable
+   private byte[] findClassfile(@NotNull Class<?> aClass)
    {
       String className = aClass.getName();
 
@@ -80,13 +84,15 @@ public final class CachedClassfiles implements ClassFileTransformer
       return classfiles.get(className.replace('.', '/'));
    }
 
-   @Nullable private synchronized byte[] findClassfile(@Nullable ClassLoader loader, @NotNull String classDesc)
+   @Nullable
+   private synchronized byte[] findClassfile(@Nullable ClassLoader loader, @NotNull String classDesc)
    {
       Map<String, byte[]> classfiles = getClassfiles(loader);
       return classfiles.get(classDesc);
    }
 
-   @Nullable public static synchronized byte[] getClassfile(@NotNull Class<?> aClass)
+   @Nullable
+   public static synchronized byte[] getClassfile(@NotNull Class<?> aClass)
    {
       byte[] cached = INSTANCE.findClassfile(aClass);
       if (cached != null) return cached;
@@ -96,7 +102,8 @@ public final class CachedClassfiles implements ClassFileTransformer
       return INSTANCE.findClassfile(aClass);
    }
 
-   @Nullable public static byte[] getClassfile(@Nullable ClassLoader loader, @NotNull String internalClassName)
+   @Nullable
+   public static byte[] getClassfile(@Nullable ClassLoader loader, @NotNull String internalClassName)
    {
       return INSTANCE.findClassfile(loader, internalClassName);
    }
