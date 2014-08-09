@@ -13,7 +13,7 @@ public final class ClassInitializationTest
    {
       static
       {
-         //noinspection ConstantIfStatement
+         //noinspection ConstantIfStatement,ConstantConditions
          if (true) {
             throw new AssertionError();
          }
@@ -172,6 +172,14 @@ public final class ClassInitializationTest
    {
       static { new NestedImplementationClass().someValue().length(); }
       @Override public String someValue() { return "some value"; }
+   }
+
+   @Before
+   public void loadNestedImplementationClass() throws Exception
+   {
+      // Ensure the class gets loaded, but not initialized, before it gets mocked.
+      // The HotSpot VM would (for some reason) already have loaded it, but the J9 VM would not.
+      NestedImplementationClass.class.getName();
    }
 
    @Test
