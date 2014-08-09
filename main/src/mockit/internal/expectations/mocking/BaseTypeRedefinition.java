@@ -185,7 +185,7 @@ class BaseTypeRedefinition
 
    private boolean redefineClassAndItsSuperClasses(@NotNull Class<?> realClass)
    {
-      if (!HOTSPOT_VM && realClass == System.class) {
+      if (!HOTSPOT_VM && (realClass == System.class || realClass == Object.class)) {
          return false;
       }
 
