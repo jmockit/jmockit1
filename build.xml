@@ -9,7 +9,7 @@
    <taskdef resource="testngtasks" classpath="${TESTNG_JAR}"/>
    <taskdef
       name="jacocoReport" classname="org.jacoco.ant.ReportTask"
-      classpath="../Java/jacoco-0.7.1/lib/jacocoant.jar"/>
+      classpath="../../Java/jacoco-0.7.1/lib/jacocoant.jar"/>
 
    <loadfile property="version" srcFile="version.txt"/>
 
