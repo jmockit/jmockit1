@@ -55,9 +55,7 @@ public final class Startup
          instrumentation = inst;
 
          MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
-
-         CachedClassfiles cachingTransformer = CachedClassfiles.INSTANCE;
-         inst.addTransformer(cachingTransformer, true);
+         inst.addTransformer(CachedClassfiles.INSTANCE, true);
 
          if (applyStartupMocks) {
             applyStartupMocks();
@@ -91,6 +89,11 @@ public final class Startup
    public static void agentmain(@SuppressWarnings("unused") String agentArgs, @NotNull Instrumentation inst)
       throws IOException
    {
+      if (!inst.isRedefineClassesSupported()) {
+         throw new UnsupportedOperationException(
+            "This JRE must be started with -javaagent:<proper path>jmockit.jar, or in debug mode");
+      }
+
       initialize(false, inst);
 
       ClassLoader customCL = (ClassLoader) System.getProperties().remove("jmockit-customCL");
@@ -156,7 +159,7 @@ public final class Startup
             initializing = false;
          }
 
-         inst.addTransformer(CachedClassfiles.INSTANCE);
+         inst.addTransformer(CachedClassfiles.INSTANCE, true);
          inst.addTransformer(new ExpectationsTransformer(inst));
       }
    }
@@ -166,7 +169,7 @@ public final class Startup
    public static void verifyInitialization()
    {
       if (getInstrumentation() == null) {
-         initializedOnDemand = new AgentInitialization().loadAgentFromLocalJarFile();
+         initializedOnDemand = AgentInitialization.loadAgentFromLocalJarFile();
 
          if (initializedOnDemand) {
             System.out.println(
@@ -201,11 +204,12 @@ public final class Startup
          boolean usingCustomCL = currentCL != ClassLoader.getSystemClassLoader();
 
          if (usingCustomCL) {
+            //noinspection UseOfPropertiesAsHashtable
             System.getProperties().put("jmockit-customCL", currentCL);
          }
 
          try {
-            boolean initialized = new AgentInitialization().loadAgentFromLocalJarFile();
+            boolean initialized = AgentInitialization.loadAgentFromLocalJarFile();
 
             if (initialized && !usingCustomCL) {
                applyStartupMocks();
