@@ -20,13 +20,15 @@ public final class CascadingTypeRedefinition extends BaseTypeRedefinition
       this.mockedType = mockedType;
    }
 
-   @NotNull public InstanceFactory redefineType()
+   @NotNull
+   public InstanceFactory redefineType()
    {
+      //noinspection ConstantConditions
       return redefineType(mockedType);
    }
 
-   @Override
-   @NotNull String getNameForConcreteSubclassToCreate()
+   @NotNull @Override
+   String getNameForConcreteSubclassToCreate()
    {
       return GeneratedClasses.SUBCLASS_PREFIX + targetClass.getSimpleName();
    }

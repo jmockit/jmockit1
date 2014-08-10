@@ -91,7 +91,7 @@ public final class MockedTypeCascade
       @NotNull String genericReturnTypeDesc, @NotNull ParameterizedType mockedGenericType)
    {
       String typeName = getInternalTypeName(genericReturnTypeDesc);
-      TypeVariable<?>[] typeParameters = ((Class<?>) mockedGenericType.getRawType()).getTypeParameters();
+      TypeVariable<?>[] typeParameters = ((GenericDeclaration) mockedGenericType.getRawType()).getTypeParameters();
       Type[] actualTypeArguments = mockedGenericType.getActualTypeArguments();
 
       for (int i = 0; i < typeParameters.length; i++) {
@@ -152,12 +152,11 @@ public final class MockedTypeCascade
    @NotNull
    private Type registerIntermediateCascadingType(@NotNull String methodNameAndDesc, @NotNull String returnTypeDesc)
    {
-      Type returnType;
-
       Class<?> cascadingClass = mockedType instanceof Class<?> ?
          (Class<?>) mockedType : (Class<?>) ((ParameterizedType) mockedType).getRawType();
+
       Method cascadingMethod = new RealMethodOrConstructor(cascadingClass, methodNameAndDesc).getMember();
-      returnType = cascadingMethod.getGenericReturnType();
+      Type returnType = cascadingMethod.getGenericReturnType();
 
       if (returnType instanceof TypeVariable<?>) {
          GenericTypeReflection typeReflection = new GenericTypeReflection(cascadingClass, mockedType);
@@ -170,7 +169,7 @@ public final class MockedTypeCascade
    }
 
    @NotNull
-   private Object createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(@NotNull Type mockedReturnType)
+   private static Object createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(@NotNull Type mockedReturnType)
    {
       InstanceFactory instanceFactory = TestRun.mockFixture().findInstanceFactory(mockedReturnType);
 
