@@ -137,7 +137,7 @@ public final class GenericMockedTypesTest
       assertSame(Item.class, cascadedMock.getClass());
    }
 
-   static class ConcreteContainer extends GenericContainer<Item> { ConcreteContainer() {} }
+   static class ConcreteContainer extends GenericContainer<Item> {}
    static class Factory2 { ConcreteContainer getContainer() { return null; } }
 
    @Test
@@ -185,5 +185,17 @@ public final class GenericMockedTypesTest
       Callable<?> fooAsCallable = mock.getFoo();
       assertSame(fooAsRunnable, fooAsCallable);
       fooAsCallable.call();
+   }
+
+   static class Abc {}
+   @SuppressWarnings("UnusedDeclaration") static class GenericBase<T> {}
+   static class GenericSubclass<T> extends GenericBase<T> { T getAbc() { return null; } }
+
+   @Test
+   public void createCascadedMockFromGenericSubclassHavingSameTypeParameterNameAsBaseClass(
+      @Cascading GenericSubclass<Abc> mock)
+   {
+      Abc abc = mock.getAbc();
+      assertNotNull(abc);
    }
 }

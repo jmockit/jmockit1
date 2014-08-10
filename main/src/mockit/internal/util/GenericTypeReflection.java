@@ -91,6 +91,10 @@ public final class GenericTypeReflection
          TypeVariable<?> typeParam = typeParameters[i];
          String typeVarName = typeParam.getName();
 
+         if (typeParametersToTypeArguments.containsKey(typeVarName)) {
+            continue;
+         }
+
          Type typeArg = typeArguments[i];
          Type mappedTypeArg;
          String mappedTypeArgName = null;
