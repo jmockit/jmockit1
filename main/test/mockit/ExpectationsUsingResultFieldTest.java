@@ -6,10 +6,9 @@ package mockit;
 
 import java.util.*;
 import java.util.concurrent.*;
+import static java.util.Arrays.*;
 
 import org.junit.*;
-
-import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ZeroLengthArrayAllocation")
@@ -216,12 +215,12 @@ public final class ExpectationsUsingResultFieldTest
          mock.getSortedMapItems();
       }};
 
-      assertSame(Collections.<Object>emptyList(), mock.getItems());
-      assertSame(Collections.<Object>emptyList(), mock.getListItems());
-      assertSame(Collections.<Object>emptySet(), mock.getSetItems());
-      assertEquals(Collections.<Object>emptySet(), mock.getSortedSetItems());
-      assertSame(Collections.<Object, Object>emptyMap(), mock.getMapItems());
-      assertEquals(Collections.<Object, Object>emptyMap(), mock.getSortedMapItems());
+      assertSame(Collections.emptyList(), mock.getItems());
+      assertSame(Collections.emptyList(), mock.getListItems());
+      assertSame(Collections.emptySet(), mock.getSetItems());
+      assertEquals(Collections.emptySet(), mock.getSortedSetItems());
+      assertSame(Collections.emptyMap(), mock.getMapItems());
+      assertEquals(Collections.emptyMap(), mock.getSortedMapItems());
    }
 
    @Test
@@ -631,7 +630,7 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test(expected = IllegalArgumentException.class)
-   public void recordReturnValueForConstructor(@Mocked final Collaborator mock)
+   public void recordReturnValueForConstructor(@Mocked Collaborator mock)
    {
       new NonStrictExpectations() {{
          new Collaborator();
