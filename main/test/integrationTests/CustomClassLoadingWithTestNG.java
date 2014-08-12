@@ -24,7 +24,7 @@ public final class CustomClassLoadingWithTestNG
          super(
             new URL[] {
                new URL("file:lib/testng-6.8.jar"),
-               new URL("file:///jmockit/jmockit.jar"),
+               new URL("file:///github/jmockit1.org/jmockit.jar"),
                new URL("file:main/test-classes/")
             },
             IsolatedClassLoader.class.getClassLoader().getParent());

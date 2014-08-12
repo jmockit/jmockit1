@@ -22,7 +22,7 @@ public final class CustomClassLoadingTest
       {
          super(
             new URL[] {
-               new URL("file:///jmockit/jmockit.jar"),
+               new URL("file:///github/jmockit1.org/jmockit.jar"),
                new URL("file:lib/junit-dep-4.11.jar"), new URL("file:lib/hamcrest-core-1.2.jar"),
                new URL("file:main/test-classes/")
             },
@@ -50,6 +50,7 @@ public final class CustomClassLoadingTest
       Class<?> textListenerClass = cl.loadClass("org.junit.internal.TextListener");
       Class<?> testClass = cl.loadClass(CustomClassLoadingTest.class.getName());
 
+      //noinspection ClassNewInstance
       Object jUnit = jUnitCoreClass.newInstance();
 
       Object textListener = textListenerClass.getConstructor(PrintStream.class).newInstance(System.out);
@@ -58,6 +59,7 @@ public final class CustomClassLoadingTest
 
       if (args.length > 0){
          System.out.println("Pre-initializing JMockit...");
+         //noinspection UnnecessaryFullyQualifiedName
          mockit.internal.startup.Startup.initializeIfPossible();
       }
 
