@@ -23,18 +23,21 @@ final class CoverageModifier extends ClassVisitor
    private static final int FIELD_MODIFIERS_TO_IGNORE = ACC_FINAL + ACC_SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
 
-   @Nullable static byte[] recoverModifiedByteCodeIfAvailable(@NotNull String innerClassName)
+   @Nullable
+   static byte[] recoverModifiedByteCodeIfAvailable(@NotNull String innerClassName)
    {
       CoverageModifier modifier = INNER_CLASS_MODIFIERS.remove(innerClassName);
       return modifier == null ? null : modifier.toByteArray();
    }
 
-   @Nullable static ClassReader createClassReader(@NotNull Class<?> aClass)
+   @Nullable
+   static ClassReader createClassReader(@NotNull Class<?> aClass)
    {
       return createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
    }
 
-   @Nullable private static ClassReader createClassReader(@NotNull ClassLoader cl, @NotNull String internalClassName)
+   @Nullable
+   private static ClassReader createClassReader(@NotNull ClassLoader cl, @NotNull String internalClassName)
    {
       InputStream classFile = cl.getResourceAsStream(internalClassName + ".class");
 
@@ -123,7 +126,8 @@ final class CoverageModifier extends ClassVisitor
       cw.visit(finalVersion, access, name, signature, superName, interfaces);
    }
 
-   @NotNull private String getKindOfJavaType(int typeModifiers, @NotNull String superName)
+   @NotNull
+   private static String getKindOfJavaType(int typeModifiers, @NotNull String superName)
    {
       if ((typeModifiers & ACC_ANNOTATION) != 0) return "annotation";
       else if ((typeModifiers & ACC_INTERFACE) != 0) return "interface";
@@ -177,7 +181,7 @@ final class CoverageModifier extends ClassVisitor
       }
    }
 
-   private boolean isSyntheticOrEnumClass(int access)
+   private static boolean isSyntheticOrEnumClass(int access)
    {
       return (access & ACC_SYNTHETIC) != 0 || access == ACC_STATIC + ACC_ENUM;
    }
@@ -200,7 +204,7 @@ final class CoverageModifier extends ClassVisitor
    {
       if (
          fileData != null && simpleClassName != null &&
-         (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && Metrics.DataCoverage.isActive()
+         (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && Metrics.DataCoverage.active
       ) {
          fileData.dataCoverageInfo.addField(simpleClassName, name, (access & ACC_STATIC) != 0);
       }
@@ -218,7 +222,7 @@ final class CoverageModifier extends ClassVisitor
          return mw;
       }
 
-      boolean withPathOrDataCoverage = Metrics.PathCoverage.isActive() || Metrics.DataCoverage.isActive();
+      boolean withPathOrDataCoverage = Metrics.PathCoverage.active || Metrics.DataCoverage.active;
 
       if (name.charAt(0) == '<') {
          if (name.charAt(1) == 'c') {
@@ -477,7 +481,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitTableSwitchInsn(int min, int max, Label dflt, Label[] labels)
+      public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTableSwitchInsn(min, max, dflt, labels);
@@ -621,7 +625,7 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
       {
-         if (!Metrics.DataCoverage.isActive()) {
+         if (!Metrics.DataCoverage.active) {
             super.visitFieldInsn(opcode, owner, name, desc);
             return;
          }
@@ -726,7 +730,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitTableSwitchInsn(int min, int max, @NotNull Label dflt, @NotNull Label[] labels)
+      public final void visitTableSwitchInsn(int min, int max, @NotNull Label dflt, @NotNull Label... labels)
       {
          if (nodeBuilder != null) {
             int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);

@@ -42,19 +42,21 @@ public final class FileCoverageData implements Serializable
    {
       this.index = index;
       this.kindOfTopLevelType = kindOfTopLevelType;
-      lineCoverageInfo = Metrics.LineCoverage.isActive() ? new PerFileLineCoverage() : NO_LINE_INFO;
-      pathCoverageInfo = Metrics.PathCoverage.isActive() ? new PerFilePathCoverage() : NO_PATH_INFO;
-      dataCoverageInfo = Metrics.DataCoverage.isActive() ? new PerFileDataCoverage() : NO_DATA_INFO;
+      lineCoverageInfo = Metrics.LineCoverage.active ? new PerFileLineCoverage() : NO_LINE_INFO;
+      pathCoverageInfo = Metrics.PathCoverage.active ? new PerFilePathCoverage() : NO_PATH_INFO;
+      dataCoverageInfo = Metrics.DataCoverage.active ? new PerFileDataCoverage() : NO_DATA_INFO;
    }
 
-   @NotNull public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }
+   @NotNull
+   public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }
 
    public void addMethod(@NotNull MethodCoverageData methodData) { pathCoverageInfo.addMethod(methodData); }
 
    @NotNull
    public Collection<MethodCoverageData> getMethods() { return pathCoverageInfo.firstLineToMethodData.values(); }
 
-   @NotNull public PerFileCoverage getPerFileCoverage(@NotNull Metrics metric)
+   @NotNull
+   public PerFileCoverage getPerFileCoverage(@NotNull Metrics metric)
    {
       switch (metric) {
          case LineCoverage: return lineCoverageInfo;

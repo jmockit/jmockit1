@@ -114,7 +114,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
             output.write("      <th onclick='sortTables(");
             output.print(tableColumn);
             output.write(")' style='cursor: n-resize' title='");
-            output.write(metric.htmlDescription());
+            output.write(metric.htmlDescription);
             output.write("'>");
             output.write(metric.toString());
             output.println("</th>");

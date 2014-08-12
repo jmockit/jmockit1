@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
@@ -76,7 +76,7 @@ abstract class ListWithFilesAndPercentages
       output.write("style='background-color:#");
       output.write(CoveragePercentage.percentageColor(covered, total));
       output.write("' title='");
-      output.write(metric.itemName());
+      output.write(metric.itemName);
       output.write(": ");
       output.print(covered);
       output.write('/');

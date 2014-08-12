@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
@@ -46,9 +46,10 @@ public final class FileCoverageReport
       dataCoverage = createDataCoverageOutput(fileData);
    }
 
-   @Nullable private PathCoverageOutput createPathCoverageOutput(@NotNull FileCoverageData fileData)
+   @Nullable
+   private PathCoverageOutput createPathCoverageOutput(@NotNull FileCoverageData fileData)
    {
-      if (Metrics.PathCoverage.isActive()) {
+      if (Metrics.PathCoverage.active) {
          Collection<MethodCoverageData> methods = fileData.getMethods();
          return methods.isEmpty() ? null : new PathCoverageOutput(output, methods);
       }
@@ -56,9 +57,10 @@ public final class FileCoverageReport
       return null;
    }
 
-   @Nullable private DataCoverageOutput createDataCoverageOutput(@NotNull FileCoverageData fileData)
+   @Nullable
+   private static DataCoverageOutput createDataCoverageOutput(@NotNull FileCoverageData fileData)
    {
-      if (Metrics.DataCoverage.isActive()) {
+      if (Metrics.DataCoverage.active) {
          PerFileDataCoverage dataCoverageInfo = fileData.dataCoverageInfo;
          return dataCoverageInfo.hasFields() ? new DataCoverageOutput(dataCoverageInfo) : null;
       }

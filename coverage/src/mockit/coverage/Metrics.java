@@ -10,78 +10,58 @@ import mockit.coverage.standalone.*;
 
 public enum Metrics
 {
-   LineCoverage
-   {
-      @Override public boolean isActive() { return isActive("line"); }
-      @Override public String toString() { return "Line"; }
-      @Override @NotNull public String itemName() { return "Line segments"; }
+   LineCoverage(
+      "Line", "Line segments",
+      "Measures how much of the executable production code was exercised by tests.\r\n" +
+      "An executable line of code contains one or more executable segments.\r\n" +
+      "The percentages are calculated as 100*NE/NS, where NS is the number of segments and NE the number of " +
+      "executed segments.",
+      isActive("line")),
 
-      @Override
-      @NotNull public String htmlDescription()
-      {
-         return
-            "Measures how much of the executable production code was exercised by tests.\r\n" +
-            "An executable line of code contains one or more executable segments.\r\n" +
-            "The percentages are calculated as 100*NE/NS, where NS is the number of segments and NE the number of " +
-            "executed segments.";
-      }
-   },
+   PathCoverage(
+      "Path", "Paths",
+      "Measures how many of the possible execution paths through method/constructor bodies were actually " +
+      "executed by tests.\r\n" +
+      "The percentages are calculated as 100*NPE/NP, where NP is the number of possible paths and NPE the " +
+      "number of fully executed paths.",
+      isActive("path")),
 
-   PathCoverage
-   {
-      @Override public boolean isActive() { return isActive("path"); }
-      @Override public String toString() { return "Path"; }
-      @Override @NotNull public String itemName() { return "Paths"; }
+   DataCoverage(
+      "Data", "Fields",
+      "Measures how many of the instance and static non-final fields were fully exercised by the test run.\r\n" +
+      "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
+      "The percentages are calculated as 100*NFE/NF, where NF is the number of non-final fields and NFE the " +
+      "number of fully exercised fields.",
+      Startup.isTestRun() && Startup.isJMockitAvailable() && isActive("data"));
 
-      @Override
-      @NotNull public String htmlDescription()
-      {
-         return
-            "Measures how many of the possible execution paths through method/constructor bodies were actually " +
-            "executed by tests.\r\n" +
-            "The percentages are calculated as 100*NPE/NP, where NP is the number of possible paths and NPE the " +
-            "number of fully executed paths.";
-      }
-   },
-
-   DataCoverage
-   {
-      @Override public boolean isActive()
-      {
-         return Startup.isTestRun() && Startup.isJMockitAvailable() && isActive("data");
-      }
-
-      @Override public String toString() { return "Data"; }
-      @Override @NotNull public String itemName() { return "Fields"; }
-
-      @Override
-      @NotNull public String htmlDescription()
-      {
-         return
-            "Measures how many of the instance and static non-final fields were fully exercised by the test run.\r\n" +
-            "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
-            "The percentages are calculated as 100*NFE/NF, where NF is the number of non-final fields and NFE the " +
-            "number of fully exercised fields.";
-      }
-   };
-
-   public abstract boolean isActive();
-   @NotNull public abstract String itemName();
-   @NotNull public abstract String htmlDescription();
-
-   final boolean isActive(@NotNull String name)
+   private static boolean isActive(@NotNull String name)
    {
       String metrics = Configuration.getProperty("metrics", "line");
       boolean all = "all".equals(metrics);
       return all || metrics.contains(name);
    }
 
+   @NotNull private final String name;
+   @NotNull public final String itemName;
+   @NotNull public final String htmlDescription;
+   public final boolean active;
+
+   Metrics(@NotNull String name, @NotNull String itemName, @NotNull String htmlDescription, boolean active)
+   {
+      this.name = name;
+      this.itemName = itemName;
+      this.htmlDescription = htmlDescription;
+      this.active = active;
+   }
+
+   @Override public String toString() { return name; }
+
    public interface Action { void perform(@NotNull Metrics metric); }
 
    public static void performAction(@NotNull Action action)
    {
       for (Metrics metric : values()) {
-         if (metric.isActive()) {
+         if (metric.active) {
             action.perform(metric);
          }
       }
