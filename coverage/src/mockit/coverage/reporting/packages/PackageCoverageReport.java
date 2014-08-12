@@ -28,7 +28,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
       fileNameWithSpaces = new char[maximumSourceFileNameLength(allSourceFileNames)];
    }
 
-   private int maximumSourceFileNameLength(@NotNull Collection<List<String>> allSourceFileNames)
+   private static int maximumSourceFileNameLength(@NotNull Collection<List<String>> allSourceFileNames)
    {
       int maxLength = 0;
 
