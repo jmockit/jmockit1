@@ -87,6 +87,8 @@ tr.total td {
 td.nocode { background-color: #999999; text-align: center; border-bottom: white solid 1px; }
 table#packages table td.nocode { text-align: center; }
 
+table#packages span { display: none; width: 100%; text-align: center; }
+
 pre.jmp { background-color: #f8ebb8; }
 pre.jmp span { display: table-cell; }
 

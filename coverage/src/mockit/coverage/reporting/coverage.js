@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2011 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 var cellShown;
@@ -62,8 +62,6 @@ function showHideAllFiles()
 
    for (var i = 0; i < rows.length; i++) {
       var filesCell = rows[i].cells[1];
-      var table = filesCell.getElementsByTagName('table')[0];
-      if (table) table.style.display = newDisplay;
       filesCell.style.display = newDisplay;
    }
 }
@@ -72,26 +70,17 @@ function showHideFiles(files)
 {
    var filesCell = files.parentNode.cells[1];
    var filesTable = filesCell.getElementsByTagName('table')[0];
+   var fileCount = filesCell.getElementsByTagName('span')[0];
    var filesShown = filesCell.style.display != 'none' && filesTable.style.display != 'none';
 
-   if (!allFilesShown) {
-      var rows = document.getElementById('packages').rows;
-
-      for (var i = 0; i < rows.length; i++) {
-         var filesCell = rows[i].cells[1];
-
-         if (filesShown) {
-            filesCell.style.display = 'none';
-         }
-         else {
-            var table = filesCell.getElementsByTagName('table')[0];
-            if (table && table != filesTable) table.style.display = 'none';
-            filesCell.style.display = 'block';
-         }
-      }
+   if (filesShown) {
+      filesTable.style.display = 'none';
+      fileCount.style.display = 'block';
    }
-
-   filesTable.style.display = filesShown ? 'none' : 'block';
+   else {
+      fileCount.style.display = 'none';
+      filesTable.style.display = 'block';
+   }
 }
 
 function showHideLines(cell)

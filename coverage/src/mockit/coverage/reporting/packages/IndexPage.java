@@ -34,7 +34,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       totalFileCount = totalNumberOfSourceFilesWithCoverageData(fileToFileData.values());
    }
 
-   private int totalNumberOfSourceFilesWithCoverageData(@NotNull Collection<FileCoverageData> fileData)
+   private static int totalNumberOfSourceFilesWithCoverageData(@NotNull Collection<FileCoverageData> fileData)
    {
       return fileData.size() - Collections.frequency(fileData, null);
    }
@@ -78,7 +78,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   private String getCommaSeparatedListOfSourceDirs(@NotNull String concatenatedSourceDirs)
+   @NotNull
+   private static String getCommaSeparatedListOfSourceDirs(@NotNull String concatenatedSourceDirs)
    {
       String prefixToRemove = ".." + File.separatorChar;
       String commaSepDirs = concatenatedSourceDirs.replace(prefixToRemove, "");
@@ -156,7 +157,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       ((OutputFile) output).writeCommonFooter();
    }
 
-   @Override
+   @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    protected void writeMetricsForFile(String unused, @NotNull final String packageName)
    {
       writeRowStart();
@@ -191,10 +192,12 @@ public final class IndexPage extends ListWithFilesAndPercentages
    {
       printIndent();
       output.println("  <td>");
+
       printIndent();
       output.println("    <table width='100%'>");
 
-      packageReport.writeMetricsForEachFile(packageName, packageToFiles.get(packageName));
+      List<String> fileNames = packageToFiles.get(packageName);
+      packageReport.writeMetricsForEachFile(packageName, fileNames);
 
       Metrics.performAction(new Metrics.Action() {
          @Override
@@ -204,6 +207,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
       printIndent();
       output.println("    </table>");
       printIndent();
+
+      writeInitiallyHiddenSourceFileCount(fileNames.size());
       output.println("  </td>");
    }
 
@@ -229,6 +234,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
 
       percentages[metric.ordinal()] = percentage;
+   }
+
+   private void writeInitiallyHiddenSourceFileCount(int fileCount)
+   {
+      output.write("    <span>(");
+      output.print(fileCount);
+      output.println(" source files)</span>");
    }
 
    private void writeCoveragePercentageForPackage(@NotNull String packageName, @NotNull Metrics metric)
