@@ -8,6 +8,8 @@ import java.io.*;
 import java.lang.management.*;
 import java.util.*;
 
+import mockit.internal.util.*;
+
 import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
 import org.jetbrains.annotations.*;
@@ -63,33 +65,36 @@ final class AgentLoader
    private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
    {
       try {
+         Class<? extends VirtualMachine> vmClass;
+
          if (File.separatorChar == '\\') {
-            return new WindowsVirtualMachine(ATTACH_PROVIDER, pid);
+            vmClass = WindowsVirtualMachine.class;
+         }
+         else {
+            String osName = System.getProperty("os.name");
+
+            if (osName.startsWith("Linux") || osName.startsWith("LINUX")) {
+               vmClass = LinuxVirtualMachine.class;
+            }
+            else if (osName.startsWith("Mac OS X")) {
+               vmClass = BsdVirtualMachine.class;
+            }
+            else if (osName.startsWith("Solaris")) {
+               vmClass = SolarisVirtualMachine.class;
+            }
+            else {
+               return null;
+            }
          }
 
-         String osName = System.getProperty("os.name");
-
-         if (osName.startsWith("Linux") || osName.startsWith("LINUX")) {
-            return new LinuxVirtualMachine(ATTACH_PROVIDER, pid);
-         }
-         else if (osName.startsWith("Mac OS X")) {
-            return new BsdVirtualMachine(ATTACH_PROVIDER, pid);
-         }
-         else if (osName.startsWith("Solaris")) {
-            return new SolarisVirtualMachine(ATTACH_PROVIDER, pid);
-         }
-      }
-      catch (AttachNotSupportedException e) {
-         throw new RuntimeException(e);
-      }
-      catch (IOException e) {
-         throw new RuntimeException(e);
+         // This is only done with Reflection to avoid the JVM pre-loading all the XyzVirtualMachine classes.
+         Class<?>[] parameterTypes = {AttachProvider.class, String.class};
+         VirtualMachine newVM = ConstructorReflection.newInstance(vmClass, parameterTypes, ATTACH_PROVIDER, pid);
+         return newVM;
       }
       catch (UnsatisfiedLinkError e) {
          throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
       }
-
-      return null;
    }
 
    @Nullable
