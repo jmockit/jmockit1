@@ -15,6 +15,8 @@ import mockit.external.asm4.*;
 
 public final class ClassModification
 {
+   private static final Class<?>[] NO_CLASSES = {};
+
    @NotNull private final Set<String> modifiedClasses;
    @NotNull final List<ProtectionDomain> protectionDomains;
    @NotNull private final ClassSelection classSelection;
@@ -30,7 +32,7 @@ public final class ClassModification
    private void redefineClassesAlreadyLoadedForCoverage()
    {
       Instrumentation inst = Startup.instrumentation();
-      Class<?>[] previousLoadedClasses = {};
+      Class<?>[] previousLoadedClasses = NO_CLASSES;
 
       while (true) {
          Class<?>[] loadedClasses = inst.getAllLoadedClasses();
@@ -76,7 +78,7 @@ public final class ClassModification
       }
    }
 
-   private void addProtectionDomainIfHasUniqueNewPath(ProtectionDomain newPD)
+   private void addProtectionDomainIfHasUniqueNewPath(@NotNull ProtectionDomain newPD)
    {
       String newPath = newPD.getCodeSource().getLocation().getPath();
 
@@ -96,7 +98,8 @@ public final class ClassModification
       protectionDomains.add(newPD);
    }
 
-   @Nullable private byte[] readAndModifyClassForCoverage(@NotNull Class<?> aClass)
+   @Nullable
+   private static byte[] readAndModifyClassForCoverage(@NotNull Class<?> aClass)
    {
       try {
          return modifyClassForCoverage(aClass);
@@ -114,7 +117,8 @@ public final class ClassModification
       return null;
    }
 
-   @Nullable private byte[] modifyClassForCoverage(@NotNull Class<?> aClass)
+   @Nullable
+   private static byte[] modifyClassForCoverage(@NotNull Class<?> aClass)
    {
       String className = aClass.getName();
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
@@ -128,14 +132,15 @@ public final class ClassModification
       return cr == null ? null : modifyClassForCoverage(cr);
    }
 
-   @NotNull private byte[] modifyClassForCoverage(@NotNull ClassReader cr)
+   @NotNull
+   private static byte[] modifyClassForCoverage(@NotNull ClassReader cr)
    {
       CoverageModifier modifier = new CoverageModifier(cr);
       cr.accept(modifier, 0);
       return modifier.toByteArray();
    }
 
-   private void redefineClassForCoverage(@NotNull Class<?> loadedClass, @NotNull byte[] modifiedClassfile)
+   private static void redefineClassForCoverage(@NotNull Class<?> loadedClass, @NotNull byte[] modifiedClassfile)
    {
       ClassDefinition[] classDefs = {new ClassDefinition(loadedClass, modifiedClassfile)};
 
@@ -183,7 +188,8 @@ public final class ClassModification
       return null;
    }
 
-   @NotNull private byte[] modifyClassForCoverage(@NotNull String className, @NotNull byte[] classBytecode)
+   @NotNull
+   private static byte[] modifyClassForCoverage(@NotNull String className, @NotNull byte[] classBytecode)
    {
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
 

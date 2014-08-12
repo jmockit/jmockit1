@@ -16,6 +16,7 @@ import mockit.coverage.standalone.*;
 final class ClassSelection
 {
    private static final String THIS_CLASS_NAME = ClassSelection.class.getName();
+   private static final Pattern CSV = Pattern.compile(",");
 
    final boolean loadedOnly;
    @Nullable private final Matcher classesToInclude;
@@ -34,14 +35,15 @@ final class ClassSelection
       testCode = Startup.isTestRun() ? Pattern.compile(".+Test(\\$.+)?").matcher("") : null;
    }
 
-   @Nullable private Matcher newMatcherForClassSelection(@NotNull String specification)
+   @Nullable
+   private static Matcher newMatcherForClassSelection(@NotNull String specification)
    {
       if (specification.isEmpty()) {
          return null;
       }
 
-      String[] specs = specification.split(",");
-      String finalRegex = "";
+      String[] specs = CSV.split(specification);
+      StringBuilder finalRegexBuilder = new StringBuilder();
       String sep = "";
 
       for (String spec : specs) {
@@ -55,11 +57,12 @@ final class ClassSelection
          }
 
          if (regex != null) {
-            finalRegex += sep + regex;
+            finalRegexBuilder.append(sep).append(regex);
             sep = "|";
          }
       }
 
+      String finalRegex = finalRegexBuilder.toString();
       return finalRegex.isEmpty() ? null : Pattern.compile(finalRegex).matcher("");
    }
 
@@ -90,8 +93,8 @@ final class ClassSelection
       }
 
       URL codeSourceLocation = codeSource.getLocation();
-
-      return codeSourceLocation != null && !isClassFromExternalLibrary(codeSourceLocation.getPath());
+      boolean selected = codeSourceLocation != null && !isClassFromExternalLibrary(codeSourceLocation.getPath());
+      return selected;
    }
 
    private boolean canAccessJMockitFromClassToBeMeasured(@NotNull ClassLoader loaderOfClassToBeMeasured)
@@ -105,10 +108,10 @@ final class ClassSelection
       }
    }
 
-   private boolean isClassFromExternalLibrary(String location)
+   private boolean isClassFromExternalLibrary(@NotNull String location)
    {
       return
          location.endsWith(".jar") || location.endsWith("/.cp/") ||
-         testCode != null && (location.endsWith("/test-classes/") || location.endsWith("/jmockit/main/classes/"));
+         testCode != null && (location.endsWith("/test-classes/") || location.endsWith("/jmockit1.org/main/classes/"));
    }
 }
