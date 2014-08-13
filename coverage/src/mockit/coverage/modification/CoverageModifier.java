@@ -6,16 +6,17 @@ package mockit.coverage.modification;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
-
-import static mockit.external.asm4.Opcodes.*;
+import java.util.Map.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.external.asm4.*;
+import static mockit.external.asm4.ClassWriter.*;
+import static mockit.external.asm4.Opcodes.*;
+
+import org.jetbrains.annotations.*;
 
 final class CoverageModifier extends ClassVisitor
 {
@@ -39,7 +40,9 @@ final class CoverageModifier extends ClassVisitor
    @Nullable
    private static ClassReader createClassReader(@NotNull ClassLoader cl, @NotNull String internalClassName)
    {
-      InputStream classFile = cl.getResourceAsStream(internalClassName + ".class");
+      String classFileName = internalClassName + ".class";
+      //noinspection IOResourceOpenedButNotSafelyClosed
+      InputStream classFile = cl.getResourceAsStream(classFileName);
 
       if (classFile == null) {
          // Ignore the class if the ".class" file wasn't located.
@@ -68,7 +71,7 @@ final class CoverageModifier extends ClassVisitor
 
    private CoverageModifier(@NotNull ClassReader cr, boolean forInnerClass)
    {
-      super(new ClassWriter(cr, ClassWriter.COMPUTE_MAXS));
+      super(new ClassWriter(cr, COMPUTE_FRAMES));
       //noinspection ConstantConditions
       cw = (ClassWriter) cv;
       this.forInnerClass = forInnerClass;
@@ -120,10 +123,7 @@ final class CoverageModifier extends ClassVisitor
          }
       }
 
-      // A VerifyError can occur with Java 7, related to stack map frames. ASM has a bug affecting "COMPUTE_FRAMES",
-      // so the only solution was to "downgrade" the bytecode to Java 6.
-      int finalVersion = (version & 0xFFFF) == V1_7 ? V1_6 : version;
-      cw.visit(finalVersion, access, name, signature, superName, interfaces);
+      cw.visit(version, access, name, signature, superName, interfaces);
    }
 
    @NotNull
@@ -349,13 +349,17 @@ final class CoverageModifier extends ClassVisitor
             return;
          }
 
-         for (Integer branchIndex : pendingBranches.keySet()) {
+         for (Entry<Integer, Boolean> pendingBranch : pendingBranches.entrySet()) {
+            Integer branchIndex = pendingBranch.getKey();
+
             // TODO: if..return added to avoid an IndexOutOfBoundsException;
             // see TryCatchFinallyStatements#finallyBlockContainingIfWithBodyInSameLine
-            if (branchIndex >= lineCoverageInfo.getBranchCount(currentLine))
+            if (branchIndex >= lineCoverageInfo.getBranchCount(currentLine)) {
                return;
+            }
+
             BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, branchIndex);
-            Boolean firstInsnAfterJump = pendingBranches.get(branchIndex);
+            Boolean firstInsnAfterJump = pendingBranch.getValue();
 
             if (firstInsnAfterJump) {
                branchData.setHasJumpTarget();
@@ -421,10 +425,10 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitVarInsn(int opcode, int var)
+      public void visitVarInsn(int opcode, int varIndex)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
-         mw.visitVarInsn(opcode, var);
+         mw.visitVarInsn(opcode, varIndex);
       }
 
       @Override
@@ -459,10 +463,10 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitIincInsn(int var, int increment)
+      public void visitIincInsn(int varIndex, int increment)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
-         mw.visitIincInsn(var, increment);
+         mw.visitIincInsn(varIndex, increment);
       }
 
       @Override
@@ -595,9 +599,9 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitIincInsn(int var, int increment)
+      public final void visitIincInsn(int varIndex, int increment)
       {
-         super.visitIincInsn(var, increment);
+         super.visitIincInsn(varIndex, increment);
          handleRegularInstruction(IINC);
       }
 
@@ -616,9 +620,9 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitVarInsn(int opcode, int var)
+      public final void visitVarInsn(int opcode, int varIndex)
       {
-         super.visitVarInsn(opcode, var);
+         super.visitVarInsn(opcode, varIndex);
          handleRegularInstruction(opcode);
       }
 

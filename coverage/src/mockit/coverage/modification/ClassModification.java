@@ -8,10 +8,11 @@ import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.coverage.standalone.*;
 import mockit.external.asm4.*;
+import static mockit.external.asm4.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 public final class ClassModification
 {
@@ -136,7 +137,7 @@ public final class ClassModification
    private static byte[] modifyClassForCoverage(@NotNull ClassReader cr)
    {
       CoverageModifier modifier = new CoverageModifier(cr);
-      cr.accept(modifier, 0);
+      cr.accept(modifier, SKIP_FRAMES);
       return modifier.toByteArray();
    }
 
