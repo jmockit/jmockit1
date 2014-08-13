@@ -223,6 +223,32 @@ public final class ClassLoadingAndJREMocksTest
       }};
    }
 
+   String readResourceContents(String hostName, int port, String resourceId, int connectionTimeoutMillis)
+      throws IOException
+   {
+      URL url = new URL("http", hostName, port, resourceId);
+      URLConnection connection = url.openConnection();
+
+      connection.setConnectTimeout(connectionTimeoutMillis);
+      connection.connect();
+
+      Object content = connection.getContent();
+      return content.toString();
+   }
+
+   @Test
+   public void cascadingMockedURLWithInjectableCascadedURLConnection(
+      @Cascading URL anyUrl, @Injectable final URLConnection cascadedUrlConnection)
+      throws Exception
+   {
+      final String testContents = "testing";
+      new NonStrictExpectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
+
+      String contents = readResourceContents("remoteHost", 80, "aResource", 1000);
+
+      assertEquals(testContents, contents);
+   }
+
    @Test
    public void mockFileInputStream() throws Exception
    {
