@@ -46,7 +46,7 @@ public final class InputFile
 
    @Nullable
    private static File getSourceFile(
-      @NotNull File sourceDir, @NotNull final String topLevelPackage, @NotNull final String filePath)
+      @NotNull File sourceDir, @NotNull final String topLevelPackage, @NotNull String filePath)
    {
       File file = new File(sourceDir, filePath);
 
@@ -109,12 +109,14 @@ public final class InputFile
 
    @NotNull String getSourceFileName() { return sourceFile.getName(); }
 
-   @NotNull String getSourceFilePath()
+   @NotNull
+   String getSourceFilePath()
    {
       String path = sourceFile.getPath();
       return path.startsWith("..") ? path.substring(3) : path;
    }
 
    @Nullable String nextLine() throws IOException { return input.readLine(); }
+
    void close() throws IOException { input.close(); }
 }

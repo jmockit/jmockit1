@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -42,6 +42,7 @@ final class StaticFiles
          return;
       }
 
+      //noinspection IOResourceOpenedButNotSafelyClosed
       OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
       InputStream input = new BufferedInputStream(StaticFiles.class.getResourceAsStream(fileName));
 

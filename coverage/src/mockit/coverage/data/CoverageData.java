@@ -37,7 +37,8 @@ public final class CoverageData implements Serializable
     * Returns an immutable map containing all source files with the corresponding coverage data gathered for each
     * file during a test run.
     */
-   @NotNull public Map<String, FileCoverageData> getFileToFileDataMap()
+   @NotNull
+   public Map<String, FileCoverageData> getFileToFileDataMap()
    {
       Map<String, FileCoverageData> copy = new LinkedHashMap<String, FileCoverageData>(fileToFileData);
 
@@ -53,7 +54,8 @@ public final class CoverageData implements Serializable
       return Collections.unmodifiableMap(copy);
    }
 
-   @NotNull public FileCoverageData getOrAddFile(@NotNull String file, @Nullable String kindOfTopLevelType)
+   @NotNull
+   public FileCoverageData getOrAddFile(@NotNull String file, @Nullable String kindOfTopLevelType)
    {
       FileCoverageData fileData = fileToFileData.get(file);
 
@@ -154,7 +156,8 @@ public final class CoverageData implements Serializable
       }
    }
 
-   @Nullable private File getClassFile(@NotNull String sourceFilePath)
+   @Nullable
+   private File getClassFile(@NotNull String sourceFilePath)
    {
       String sourceFilePathNoExt = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
       String className = sourceFilePathNoExt.replace('/', '.');
@@ -171,7 +174,8 @@ public final class CoverageData implements Serializable
       return new File(pathToClassFile);
    }
 
-   @Nullable private Class<?> findCoveredClass(@NotNull String className)
+   @Nullable
+   private Class<?> findCoveredClass(@NotNull String className)
    {
       ClassLoader currentCL = getClass().getClassLoader();
       Class<?> coveredClass = loadClass(className, currentCL);
@@ -195,7 +199,8 @@ public final class CoverageData implements Serializable
       return coveredClass;
    }
 
-   @Nullable private Class<?> loadClass(@NotNull String className, @Nullable ClassLoader loader)
+   @Nullable
+   private static Class<?> loadClass(@NotNull String className, @Nullable ClassLoader loader)
    {
       try {
          return Class.forName(className, false, loader);
@@ -212,7 +217,8 @@ public final class CoverageData implements Serializable
     *
     * @return a new object containing all coverage data resulting from a previous test run
     */
-   @NotNull public static CoverageData readDataFromFile(@NotNull File dataFile) throws IOException
+   @NotNull
+   public static CoverageData readDataFromFile(@NotNull File dataFile) throws IOException
    {
       ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(dataFile)));
 
