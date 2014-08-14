@@ -13,6 +13,7 @@ import mockit.coverage.modification.*;
 import mockit.coverage.reporting.*;
 import mockit.coverage.standalone.*;
 
+@SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
 final class OutputFileGenerator
 {
    private static final String[] ALL_SOURCE_DIRS = new String[0];
@@ -41,7 +42,7 @@ final class OutputFileGenerator
       }
    }
 
-   @NotNull private String[] getOutputFormat()
+   @NotNull private static String[] getOutputFormat()
    {
       String format = Configuration.getProperty("output", "");
       return format.isEmpty() ? new String[] {"html-nocp"} : format.trim().split("\\s*,\\s*|\\s+");

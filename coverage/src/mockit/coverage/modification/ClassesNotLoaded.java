@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -64,7 +64,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private void loadClass(@NotNull String className, @NotNull ProtectionDomain protectionDomain)
+   private static void loadClass(@NotNull String className, @NotNull ProtectionDomain protectionDomain)
    {
       try {
          Class.forName(className, false, protectionDomain.getClassLoader());

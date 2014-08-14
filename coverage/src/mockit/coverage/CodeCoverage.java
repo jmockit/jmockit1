@@ -17,8 +17,8 @@ public final class CodeCoverage implements ClassFileTransformer
 {
    private static CodeCoverage instance;
 
-   private final ClassModification classModification;
-   private final OutputFileGenerator outputGenerator;
+   @NotNull private final ClassModification classModification;
+   @NotNull private final OutputFileGenerator outputGenerator;
    private boolean inactive;
 
    public static void main(String[] args)
@@ -27,6 +27,7 @@ public final class CodeCoverage implements ClassFileTransformer
       generator.generateAggregateReportFromInputFiles(args);
    }
 
+   @NotNull
    private static OutputFileGenerator createOutputFileGenerator(@Nullable ClassModification classModification)
    {
       OutputFileGenerator generator = new OutputFileGenerator(classModification);
@@ -97,8 +98,7 @@ public final class CodeCoverage implements ClassFileTransformer
       }
    }
 
-   @Override
-   @Nullable
+   @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, @NotNull String internalClassName, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @NotNull byte[] originalClassfile)
