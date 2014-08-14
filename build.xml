@@ -34,7 +34,8 @@
 
          <javac
             srcdir="@{module}/@{srcdir}" destdir="@{module}/@{outdir}" includeantruntime="false"
-            source="1.6" target="1.6" debug="true" nowarn="true" excludes="**/package-info.java">
+            source="1.6" target="1.6" encoding="UTF-8"
+            debug="true" nowarn="true" excludes="**/package-info.java">
             <classpath refid="common.classpath"/>
             <classpath location="main/classes"/>
             <classpath location="@{module}/classes"/>
