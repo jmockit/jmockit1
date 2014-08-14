@@ -67,7 +67,7 @@ public final class Move extends Effect
       Effect targetEffect = parentEffect == null ? this : parentEffect;
       Point startPoint = new Point(getStart().getX(), getStart().getY());
       Point endPoint = new Point(getEnd().getX(), getEnd().getY());
-      ps = new PropertySetter<Point>(targetEffect, "location", startPoint, endPoint);
+      ps = new PropertySetter<>(targetEffect, "location", startPoint, endPoint);
       animator.addTarget(ps);
       super.init(animator, null);
    }

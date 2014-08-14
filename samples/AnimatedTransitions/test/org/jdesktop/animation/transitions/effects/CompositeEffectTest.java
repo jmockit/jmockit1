@@ -26,7 +26,7 @@ public final class CompositeEffectTest
    Effect effect2;
 
    @Before
-   public void setUp()
+   public void createEffects()
    {
       composite = new CompositeEffect();
       effect1 = new Unchanging();
@@ -131,7 +131,7 @@ public final class CompositeEffectTest
    }
 
    @Test
-   public void setup(@Mocked final Effect anyEffect)
+   public void setup(@Mocked Effect anyEffect)
    {
       composite = new CompositeEffect(effect1);
       composite.addEffect(effect2);
@@ -168,7 +168,7 @@ public final class CompositeEffectTest
    }
 
    @Test
-   public void setupWhenComponentImageHasBeenSetupAlready(@Mocked final Effect anyEffect)
+   public void setupWhenComponentImageHasBeenSetupAlready(@Mocked Effect anyEffect)
    {
       composite = new CompositeEffect(effect1);
       composite.addEffect(effect2);
