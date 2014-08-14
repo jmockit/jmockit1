@@ -71,7 +71,7 @@ final class CoverageModifier extends ClassVisitor
 
    private CoverageModifier(@NotNull ClassReader cr, boolean forInnerClass)
    {
-      super(new ClassWriter(cr, COMPUTE_FRAMES));
+      super(new ClassWriter(cr, COMPUTE_MAXS));
       //noinspection ConstantConditions
       cw = (ClassWriter) cv;
       this.forInnerClass = forInnerClass;
@@ -123,7 +123,10 @@ final class CoverageModifier extends ClassVisitor
          }
       }
 
-      cw.visit(version, access, name, signature, superName, interfaces);
+      // A VerifyError can occur with Java 7, related to stack map frames. ASM has a bug affecting "COMPUTE_FRAMES",
+      // so the only solution was to "downgrade" the bytecode to Java 6.
+      int finalVersion = (version & 0xFFFF) >= V1_7 ? V1_6 : version;
+      cw.visit(finalVersion, access, name, signature, superName, interfaces);
    }
 
    @NotNull
