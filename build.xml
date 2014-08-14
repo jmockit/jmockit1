@@ -2,11 +2,8 @@
   ~ Copyright (c) 2006-2014 Rogério Liesenfeld
   ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
   -->
-<project name="jmockit" basedir="." default="minimalRebuild">
-   <property name="JUNIT_JAR" value="lib/junit-dep-4.11.jar"/>
-   <property name="TESTNG_JAR" value="lib/testng-6.8.jar"/>
-
-   <taskdef resource="testngtasks" classpath="${TESTNG_JAR}"/>
+<project name="jmockit" basedir="." default="printDirections">
+   <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
    <taskdef
       name="jacocoReport" classname="org.jacoco.ant.ReportTask"
       classpath="../../Java/jacoco-0.7.1/lib/jacocoant.jar"/>
@@ -17,139 +14,14 @@
       <fileset dir="lib" includes="*.jar"/>
    </path>
 
-   <target name="minimalRebuild" depends="buildMain, buildCoverage, createjars"/>
-   <target name="fullRebuild" depends="minimalRebuild, createjavadocs, buildSamples"/>
-
-   <!-- Targets for building/compiling the several JMockit components (modules) -->
-
-   <macrodef name="build">
-      <attribute name="module"/>
-      <attribute name="srcdir" default="src"/>
-      <attribute name="outdir" default="classes"/>
-      <attribute name="extraclasspathLocation" default=""/>
-      <attribute name="extraclasspath" default="none"/>
-      <sequential>
-         <delete dir="@{module}/@{outdir}" includes="**/*" quiet="true"/>
-         <mkdir dir="@{module}/@{outdir}"/>
-
-         <javac
-            srcdir="@{module}/@{srcdir}" destdir="@{module}/@{outdir}" includeantruntime="false"
-            source="1.6" target="1.6" debug="true" nowarn="true" excludes="**/package-info.java">
-            <classpath refid="common.classpath"/>
-            <classpath location="main/classes"/>
-            <classpath location="@{module}/classes"/>
-            <classpath location="@{module}/@{outdir}"/>
-            <classpath location="@{extraclasspathLocation}"/>
-            <classpath><fileset dir="." includes="@{extraclasspath}"/></classpath>
-         </javac>
-
-         <copy todir="@{module}/@{outdir}">
-            <fileset dir="@{module}/@{srcdir}" includes="**/*.properties, **/*.css, **/*.js, **/*.png, **/*.zip"/>
-         </copy>
-      </sequential>
-   </macrodef>
-   <macrodef name="buildTests">
-      <attribute name="module"/>
-      <attribute name="extraclasspathLocation" default=""/>
-      <attribute name="extraclasspath" default=""/>
-      <sequential>
-         <build
-            module="@{module}" srcdir="test" outdir="test-classes"
-            extraclasspathlocation="@{extraclasspathLocation}" extraclasspath="@{extraclasspath}"/>
-      </sequential>
-   </macrodef>
-
-   <target name="buildMain">
-      <build module="main"/><buildTests module="main"/>
+   <target name="printDirections">
+      <echo>
+         Please use main/pom.xml for building the main library (jmockit.jar, with the mocking APIs).
+         For the coverage tool (jmockit-coverage.jar), use coverage/pom.xml.
+         For the sample test suites, use samples/pom.xml.
+         In any case, the Maven build must run on JDK 1.8.
+      </echo>
    </target>
-   <target name="buildCoverage" depends="buildMain">
-      <build module="coverage"/><buildTests module="coverage"/>
-   </target>
-
-   <macrodef name="buildSample">
-      <attribute name="module"/>
-      <attribute name="jdkVersion" default="1.7"/>
-      <attribute name="outdir" default="classes"/>
-      <attribute name="testLibrary" default="${JUNIT_JAR}"/>
-      <attribute name="extraclasspathLocation" default=""/>
-      <attribute name="extraclasspath" default="none"/>
-      <sequential>
-         <delete dir="samples/@{module}/@{outdir}" includes="**/*.class" quiet="true"/>
-         <mkdir dir="samples/@{module}/@{outdir}"/>
-         <javac
-            srcdir="samples/@{module}/src" destdir="samples/@{module}/@{outdir}" includeantruntime="false"
-            source="@{jdkVersion}" target="@{jdkVersion}" debug="true" nowarn="true" excludes="**/package-info.java">
-            <classpath refid="common.classpath"/>
-            <classpath>
-               <fileset dir="samples/@{module}/lib" includes="*.jar" erroronmissingdir="false"/>
-            </classpath>
-            <classpath location="@{extraclasspathLocation}"/>
-            <classpath><fileset dir="." includes="@{extraclasspath}"/></classpath>
-         </javac>
-
-         <delete dir="samples/@{module}/test-classes" includes="**/*.class" quiet="true"/>
-         <mkdir dir="samples/@{module}/test-classes"/>
-         <javac
-            srcdir="samples/@{module}/test" destdir="samples/@{module}/test-classes" includeantruntime="false"
-            source="@{jdkVersion}" target="@{jdkVersion}" debug="true" nowarn="true">
-            <classpath refid="common.classpath"/>
-            <classpath location="jmockit.jar"/>
-            <classpath location="@{testLibrary}"/>
-            <classpath>
-               <fileset dir="samples/@{module}/lib" includes="*.jar" erroronmissingdir="false"/>
-            </classpath>
-            <classpath location="samples/@{module}/@{outdir}"/>
-            <classpath location="@{extraclasspathLocation}"/>
-            <classpath><fileset dir="." includes="@{extraclasspath}"/></classpath>
-         </javac>
-      </sequential>
-   </macrodef>
-
-   <target name="buildEasyMock">
-      <buildSample module="easymock" jdkVersion="1.6" extraclasspath="samples/lib/easymock*.jar"/>
-   </target>
-   <target name="buildJMock">
-      <buildSample module="jmock" jdkVersion="1.6" extraclasspath="lib/hamcrest-*.jar samples/lib/jmock*.jar"/>
-   </target>
-   <target name="buildMockito">
-      <buildSample
-         module="mockito" extraclasspath="lib/hamcrest-*.jar samples/lib/hamcrest-*.jar samples/lib/mockito*.jar"/>
-   </target>
-   <target name="buildUnitils">
-      <buildSample module="unitils" extraclasspath="samples/lib/unitils*.jar"/>
-   </target>
-   <target name="buildPowerMock">
-      <buildSample module="powermock" extraclasspath="lib/*.jar"/>
-   </target>
-   <target name="buildLoginService">
-      <buildSample module="LoginService" testlibrary="${TESTNG_JAR}"/>
-   </target>
-   <target name="buildTutorial">
-      <buildSample module="tutorial"/>
-   </target>
-   <target name="buildOrderManagement">
-      <buildSample module="orderMngmntWebapp"/>
-   </target>
-   <target name="buildTimingFramework">
-      <buildSample module="TimingFramework" extraclasspath="lib/hamcrest-*.jar"/>
-   </target>
-   <target name="buildAnimatedTransitions">
-      <buildSample module="AnimatedTransitions" extraclasspathLocation="samples/TimingFramework/classes"/>
-   </target>
-   <target name="buildTourDeMock">
-      <buildSample
-         module="tourdemock"
-         extraclasspath="samples/lib/easymock*.jar samples/lib/jmock*.jar samples/lib/mockito*.jar
-                         samples/lib/unitils*.jar samples/lib/org.springframework.*.jar"/>
-   </target>
-   <target name="buildFakingXMocking">
-      <buildSample module="fakingXmocking" jdkVersion="1.8" extraclasspath="samples/lib/mockito*.jar"/>
-   </target>
-
-   <target
-      name="buildSamples"
-      depends="buildEasyMock, buildJMock, buildMockito, buildUnitils, buildPowerMock, buildLoginService,
-               buildTutorial, buildOrderManagement, buildTimingFramework, buildAnimatedTransitions, buildTourDeMock"/>
 
    <!-- Target for generating the Javadoc HTML documentation -->
 
