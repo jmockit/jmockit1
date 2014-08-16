@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -124,7 +124,7 @@ public final class ExpectationsUsingReflectionTest
    }
 
    @Test
-   public void expectStaticMethodInvocations(@Mocked final Collaborator mock)
+   public void expectStaticMethodInvocations(@Mocked Collaborator mock)
    {
       new Expectations() {{
          invoke(Collaborator.class, "doInternal"); result = "test";
@@ -138,7 +138,7 @@ public final class ExpectationsUsingReflectionTest
    }
 
    @Test // the order of the results from "Class#getDeclaredMethods()" is different in JDK 7
-   public void expectStaticMethodInvocationsWithMethodsInReverseOrderInTheMockedClass(@Mocked final Collaborator2 mock)
+   public void expectStaticMethodInvocationsWithMethodsInReverseOrderInTheMockedClass(@Mocked Collaborator2 mock)
    {
       new Expectations() {{
          invoke(Collaborator2.class, "staticMethod", anyInt, withAny(Object.class), anyChar);
@@ -170,7 +170,7 @@ public final class ExpectationsUsingReflectionTest
    }
 
    @Test
-   public void expectInvocationToStaticMethodWithParameterOfTypeClass(@Mocked final Collaborator mock)
+   public void expectInvocationToStaticMethodWithParameterOfTypeClass(@Mocked Collaborator mock)
    {
       new NonStrictExpectations() {{
          invoke(Collaborator.class, "doSomething", new Class<?>[] {Class.class}, String.class); result = 123;
@@ -291,7 +291,7 @@ public final class ExpectationsUsingReflectionTest
       thrown.expectMessage("not found");
 
       new Expectations() {{
-         setField(Collaborator.class, Collections.<Object>emptyList());
+         setField(Collaborator.class, Collections.emptyList());
       }};
    }
 
