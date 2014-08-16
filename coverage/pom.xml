@@ -52,7 +52,7 @@
          <resource>
             <directory>../main/classes</directory>
             <includes>
-               <include>mockit/external/asm4/*.class</include>
+               <include>mockit/external/asm/*.class</include>
                <include>mockit/internal/util/StackTrace.class</include>
                <include>mockit/internal/state/TestRun.class</include>
                <include>mockit/internal/state/MockFixture.class</include>

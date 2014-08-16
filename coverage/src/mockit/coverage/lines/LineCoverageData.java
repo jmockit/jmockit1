@@ -9,7 +9,7 @@ import java.util.*;
 import org.jetbrains.annotations.*;
 
 import mockit.coverage.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
 /**
  * Coverage data gathered for a single executable line of code in a source file.

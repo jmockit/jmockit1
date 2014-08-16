@@ -9,7 +9,7 @@ import java.security.*;
 import java.util.*;
 
 import mockit.coverage.standalone.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
 import org.jetbrains.annotations.*;
 

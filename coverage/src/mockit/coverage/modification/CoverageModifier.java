@@ -12,9 +12,9 @@ import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
-import mockit.external.asm4.*;
-import static mockit.external.asm4.ClassWriter.*;
-import static mockit.external.asm4.Opcodes.*;
+import mockit.external.asm.*;
+import static mockit.external.asm.ClassWriter.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 
@@ -291,7 +291,7 @@ final class CoverageModifier extends ClassVisitor
          assert fileData != null;
          mw.visitIntInsn(SIPUSH, fileData.index);
          pushCurrentLineOnTheStack();
-         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "lineExecuted", "(II)V");
+         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "lineExecuted", "(II)V", false);
       }
 
       private void pushCurrentLineOnTheStack()
@@ -410,7 +410,7 @@ final class CoverageModifier extends ClassVisitor
          mw.visitIntInsn(SIPUSH, fileData.index);
          pushCurrentLineOnTheStack();
          mw.visitIntInsn(SIPUSH, branchIndex);
-         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, methodName, "(III)V");
+         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, methodName, "(III)V", false);
       }
 
       @Override
@@ -452,10 +452,11 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
-         mw.visitMethodInsn(opcode, owner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc, itf);
       }
 
       @Override
@@ -545,7 +546,7 @@ final class CoverageModifier extends ClassVisitor
             mw.visitLdcInsn(sourceFileName);
             mw.visitLdcInsn(nodeBuilder.firstLine);
             mw.visitIntInsn(SIPUSH, nodeIndex);
-            mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "nodeReached", "(Ljava/lang/String;II)V");
+            mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "nodeReached", "(Ljava/lang/String;II)V", false);
          }
       }
 
@@ -707,13 +708,14 @@ final class CoverageModifier extends ClassVisitor
             isStatic ?
                "(Ljava/lang/String;Ljava/lang/String;)V" : "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
 
-         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, methodToCall, methodDesc);
+         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, methodToCall, methodDesc, false);
       }
 
       @Override
-      public final void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public final void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
-         super.visitMethodInsn(opcode, owner, name, desc);
+         super.visitMethodInsn(opcode, owner, name, desc, itf);
          handleRegularInstruction(opcode);
       }
 
@@ -792,7 +794,8 @@ final class CoverageModifier extends ClassVisitor
       StaticBlockModifier(@NotNull MethodWriter mw) { super(mw); }
 
       @Override
-      public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
          // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by
          // the Java compiler when the class contains at least one "assert" statement. Otherwise, that line of code
@@ -800,7 +803,7 @@ final class CoverageModifier extends ClassVisitor
          assertFoundInCurrentLine =
             opcode == INVOKEVIRTUAL && "java/lang/Class".equals(owner) && "desiredAssertionStatus".equals(name);
 
-         super.visitMethodInsn(opcode, owner, name, desc);
+         super.visitMethodInsn(opcode, owner, name, desc, itf);
       }
    }
 }

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
 public final class PerFileLineCoverage implements PerFileCoverage
 {
