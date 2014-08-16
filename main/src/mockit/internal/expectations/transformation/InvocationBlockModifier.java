@@ -6,11 +6,11 @@ package mockit.internal.expectations.transformation;
 
 import org.jetbrains.annotations.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
 final class InvocationBlockModifier extends MethodVisitor
@@ -130,7 +130,7 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private void generateCallToActiveInvocationsMethod(@NotNull String name, @NotNull String desc)
    {
-      mw.visitMethodInsn(INVOKESTATIC, CLASS_DESC, name, desc);
+      mw.visitMethodInsn(INVOKESTATIC, CLASS_DESC, name, desc, false);
    }
 
    @Override
@@ -162,7 +162,7 @@ final class InvocationBlockModifier extends MethodVisitor
       mw.visitFieldInsn(opcode, owner, name, desc);
 
       if (gettingMockedEnumElement) {
-         mw.visitMethodInsn(INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;");
+         mw.visitMethodInsn(INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
          mw.visitTypeInsn(CHECKCAST, owner);
       }
    }
@@ -201,21 +201,22 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
       generateCallToActiveInvocationsMethod("addArgMatcher", "()V");
-      matcherStacks[matcherCount++] = mw.stackSize2;
+      matcherStacks[matcherCount++] = mw.stackSize;
    }
 
    @Override
-   public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+   public void visitMethodInsn(
+      int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
    {
       if (opcode == INVOKESTATIC && (isBoxing(owner, name, desc) || isAccessMethod(owner, name))) {
          // It's an invocation to a primitive boxing method or to a synthetic method for private access, just ignore it.
-         mw.visitMethodInsn(INVOKESTATIC, owner, name, desc);
+         mw.visitMethodInsn(INVOKESTATIC, owner, name, desc, itf);
       }
       else if (opcode == INVOKEVIRTUAL && owner.equals(blockOwner) && name.startsWith("with")) {
-         mw.visitMethodInsn(INVOKEVIRTUAL, owner, name, desc);
+         mw.visitMethodInsn(INVOKEVIRTUAL, owner, name, desc, itf);
 
          if (argumentCapturing.registerMatcher(name, desc)) {
-            matcherStacks[matcherCount++] = mw.stackSize2;
+            matcherStacks[matcherCount++] = mw.stackSize;
          }
       }
       else if (isUnboxing(opcode, owner, desc)) {
@@ -224,15 +225,15 @@ final class InvocationBlockModifier extends MethodVisitor
             argumentCapturing.justAfterWithCaptureInvocation = false;
          }
          else {
-            mw.visitMethodInsn(opcode, owner, name, desc);
+            mw.visitMethodInsn(opcode, owner, name, desc, itf);
          }
       }
       else if (matcherCount == 0) {
-         mw.visitMethodInsn(opcode, owner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc, itf);
       }
       else {
          parameterTypes = Type.getArgumentTypes(desc);
-         int stackSize = mw.stackSize2;
+         int stackSize = mw.stackSize;
          int stackAfter = stackSize - sumOfParameterSizes();
          boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
 
@@ -242,7 +243,7 @@ final class InvocationBlockModifier extends MethodVisitor
             matcherCount = 0;
          }
 
-         mw.visitMethodInsn(opcode, owner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc, itf);
 
          if (mockedInvocationUsingTheMatchers) {
             argumentCapturing.generateCallsToCaptureMatchedArgumentsIfPending();

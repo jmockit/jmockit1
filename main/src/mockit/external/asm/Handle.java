@@ -27,11 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package mockit.external.asm4;
+
+package mockit.external.asm;
 
 /**
  * A reference to a field or a method.
- *
+ * 
  * @author Remi Forax
  * @author Eric Bruneton
  */
@@ -39,16 +40,17 @@ public final class Handle {
 
     /**
      * The kind of field or method designated by this Handle. Should be
-     * {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-     * {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-     * {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
-     * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or
-     * {@link Opcodes#H_INVOKEINTERFACE}.
+     * {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
+     * {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
+     * {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL}, {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
+     * {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL}, {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
+     * {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
      */
     final int tag;
 
     /**
-     * The internal name of the field or method designed by this handle.
+     * The internal name of the class that owns the field or method designated
+     * by this handle.
      */
     final String owner;
 
@@ -64,19 +66,24 @@ public final class Handle {
 
     /**
      * Constructs a new field or method handle.
-     *
-     * @param tag the kind of field or method designated by this Handle. Must be
-     *        {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-     *        {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-     *        {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
-     *        {@link Opcodes#H_INVOKESPECIAL},
-     *        {@link Opcodes#H_NEWINVOKESPECIAL} or
-     *        {@link Opcodes#H_INVOKEINTERFACE}.
-     * @param owner the internal name of the field or method designed by this
-     *        handle.
-     * @param name the name of the field or method designated by this handle.
-     * @param desc the descriptor of the field or method designated by this
-     *        handle.
+     * 
+     * @param tag
+     *            the kind of field or method designated by this Handle. Must be
+     *            {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
+     *            {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
+     *            {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL},
+     *            {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
+     *            {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL},
+     *            {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
+     *            {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
+     * @param owner
+     *            the internal name of the class that owns the field or method
+     *            designated by this handle.
+     * @param name
+     *            the name of the field or method designated by this handle.
+     * @param desc
+     *            the descriptor of the field or method designated by this
+     *            handle.
      */
     public Handle(int tag, String owner, String name, String desc) {
         this.tag = tag;
@@ -87,24 +94,24 @@ public final class Handle {
 
     /**
      * Returns the kind of field or method designated by this handle.
-     *
-     * @return {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-     *         {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-     *         {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
-     *         {@link Opcodes#H_INVOKESPECIAL},
-     *         {@link Opcodes#H_NEWINVOKESPECIAL} or
-     *         {@link Opcodes#H_INVOKEINTERFACE}.
+     * 
+     * @return {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
+     *         {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
+     *         {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL}, {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
+     *         {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL},
+     *         {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
+     *         {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
      */
     public int getTag() {
         return tag;
     }
 
     /**
-     * Returns the internal name of the field or method designed by this
-     * handle.
-     *
-     * @return the internal name of the field or method designed by this
-     *         handle.
+     * Returns the internal name of the class that owns the field or method
+     * designated by this handle.
+     * 
+     * @return the internal name of the class that owns the field or method
+     *         designated by this handle.
      */
     public String getOwner() {
         return owner;
@@ -112,7 +119,7 @@ public final class Handle {
 
     /**
      * Returns the name of the field or method designated by this handle.
-     *
+     * 
      * @return the name of the field or method designated by this handle.
      */
     public String getName() {
@@ -121,7 +128,7 @@ public final class Handle {
 
     /**
      * Returns the descriptor of the field or method designated by this handle.
-     *
+     * 
      * @return the descriptor of the field or method designated by this handle.
      */
     public String getDesc() {
@@ -137,8 +144,8 @@ public final class Handle {
             return false;
         }
         Handle h = (Handle) obj;
-        return tag == h.tag && owner.equals(h.owner)
-                && name.equals(h.name) && desc.equals(h.desc);
+        return tag == h.tag && owner.equals(h.owner) && name.equals(h.name)
+                && desc.equals(h.desc);
     }
 
     @Override
@@ -148,8 +155,13 @@ public final class Handle {
 
     /**
      * Returns the textual representation of this handle. The textual
-     * representation is: <pre>owner '.' name desc ' ' '(' tag ')'</pre>. As
-     * this format is unambiguous, it can be parsed if necessary.
+     * representation is:
+     * 
+     * <pre>
+     * owner '.' name desc ' ' '(' tag ')'
+     * </pre>
+     * 
+     * . As this format is unambiguous, it can be parsed if necessary.
      */
     @Override
     public String toString() {

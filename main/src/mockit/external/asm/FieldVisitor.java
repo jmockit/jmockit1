@@ -27,18 +27,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package mockit.external.asm4;
-
-import org.jetbrains.annotations.*;
+package mockit.external.asm;
 
 /**
- * A visitor to visit a Java field. The methods of this class must be called
- * in the following order: ( <tt>visitAnnotation</tt> |
- * <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
- *
+ * A visitor to visit a Java field. The methods of this class must be called in
+ * the following order: ( <tt>visitAnnotation</tt> |
+ * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
+ * 
  * @author Eric Bruneton
  */
 public abstract class FieldVisitor {
+
+
+
+
+
+
 
     /**
      * The field visitor to which this visitor must delegate method calls. May
@@ -47,31 +51,45 @@ public abstract class FieldVisitor {
     protected FieldVisitor fv;
 
     /**
-     * Constructs a new FieldVisitor.
+     * Constructs a new {@link FieldVisitor}.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected FieldVisitor() {
-        this(null);
+    public FieldVisitor(final int api) {
+        this(api, null);
     }
 
     /**
-     * Constructs a new FieldVisitor.
-     *
-     * @param fv the field visitor to which this visitor must delegate method
-     *        calls. May be null.
+     * Constructs a new {@link FieldVisitor}.
+     * 
+     * @param api
+     *            the ASM API version implemented by this visitor. Must be one
+     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param fv
+     *            the field visitor to which this visitor must delegate method
+     *            calls. May be null.
      */
-    protected FieldVisitor(@Nullable FieldVisitor fv) {
+    public FieldVisitor(final int api, final FieldVisitor fv) {
+
+
+
+
         this.fv = fv;
     }
 
     /**
      * Visits an annotation of the field.
-     *
-     * @param desc the class descriptor of the annotation class.
-     * @param visible <tt>true</tt> if the annotation is visible at runtime.
+     * 
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    @Nullable public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (fv != null) {
             return fv.visitAnnotation(desc, visible);
         }
@@ -79,9 +97,39 @@ public abstract class FieldVisitor {
     }
 
     /**
-     * Visits a non standard attribute of the field.
+     * Visits an annotation on the type of the field.
+     * 
+     * @param typeRef
+     *            a reference to the annotated type. The sort of this type
+     *            reference must be FIELD.
      *
-     * @param attr an attribute.
+     * @param typePath
+     *            the path to the annotated type argument, wildcard bound, array
+     *            element type, or static inner type within 'typeRef'. May be
+     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     * @param desc
+     *            the class descriptor of the annotation class.
+     * @param visible
+     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
+     */
+    public AnnotationVisitor visitTypeAnnotation(int typeRef,
+            TypePath typePath, String desc, boolean visible) {
+
+
+
+        if (fv != null) {
+            return fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
+        }
+        return null;
+    }
+
+    /**
+     * Visits a non standard attribute of the field.
+     * 
+     * @param attr
+     *            an attribute.
      */
     public void visitAttribute(Attribute attr) {
         if (fv != null) {
