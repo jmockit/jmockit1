@@ -12,25 +12,10 @@ public final class MisusingMockupsAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   abstract static class AbstractClass
-   {
-      @SuppressWarnings("unused")
-      abstract void abstractMethod();
-   }
-
-   @Test
-   public void attemptToMockAbstractMethod()
-   {
-      new MockUp<AbstractClass>() {
-         // Has no effect.
-         @Mock void abstractMethod() {}
-      };
-   }
-
    public static class Collaborator
    {
       int doSomething() { return 1; }
-      void methodWithParameters(int i, String s) {}
+      @SuppressWarnings("unused") void methodWithParameters(int i, String s) {}
    }
 
    @Test

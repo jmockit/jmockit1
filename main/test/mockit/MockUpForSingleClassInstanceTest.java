@@ -4,6 +4,8 @@
  */
 package mockit;
 
+import java.util.concurrent.*;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -200,8 +202,8 @@ public final class MockUpForSingleClassInstanceTest
 
    public abstract static class AbstractBase implements Runnable
    {
-      abstract String getValue();
-      abstract void doSomething(int i);
+      protected abstract String getValue();
+      public abstract void doSomething(int i);
    }
 
    @Test
@@ -211,7 +213,8 @@ public final class MockUpForSingleClassInstanceTest
          @Mock
          String getValue()
          {
-            assertNotNull(getMockInstance());
+            AbstractBase mockInstance = getMockInstance();
+            assertNotNull(mockInstance);
             return "test";
          }
       };
@@ -222,5 +225,31 @@ public final class MockUpForSingleClassInstanceTest
       mock.doSomething(123);
       mock.run();
       assertSame(mock, mockUp.getMockInstance());
+   }
+
+   public abstract static class GenericAbstractBase<T, N extends Number> implements Callable<N>
+   {
+      protected abstract int doSomething(String s, T value);
+   }
+
+   @Test
+   public void getMockInstanceFromMockUpForGenericAbstractClass() throws Exception
+   {
+      GenericAbstractBase<Boolean, Long> mock = new MockUp<GenericAbstractBase<Boolean, Long>>() {
+         @Mock
+         Long call()
+         {
+            GenericAbstractBase<Boolean, Long> mockInstance = getMockInstance();
+            assertNotNull(mockInstance);
+            return 123L;
+         }
+
+         @Mock
+         int doSomething(String s, Boolean value) { return value ? s.length() : 1; }
+      }.getMockInstance();
+
+      assertEquals(123L, mock.call().longValue());
+      assertEquals(5, mock.doSomething("test1", true));
+      assertEquals(1, mock.doSomething("test2", false));
    }
 }

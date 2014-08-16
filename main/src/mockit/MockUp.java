@@ -214,6 +214,10 @@ public abstract class MockUp<T>
          return createInstanceOfMockedImplementationClass(classToMock, mockedType);
       }
 
+      if (isAbstract(classToMock.getModifiers()) && classToMock.getClassLoader() != null) {
+         classToMock = generateConcreteSubclass(classToMock);
+      }
+
       classesToRestore = redefineMethods(classToMock, mockedType);
       return classToMock;
    }
@@ -222,6 +226,18 @@ public abstract class MockUp<T>
    private Class<T> createInstanceOfMockedImplementationClass(@NotNull Class<T> classToMock, @Nullable Type typeToMock)
    {
       return new MockedImplementationClass<T>(this).createImplementation(classToMock, typeToMock);
+   }
+
+   @NotNull
+   private Class<T> generateConcreteSubclass(@NotNull final Class<T> abstractClass)
+   {
+      return new ImplementationClass<T>(abstractClass) {
+         @NotNull @Override
+         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         {
+            return new SubclassGenerationModifier(abstractClass, typeReader, generatedClassName);
+         }
+      }.generateClass();
    }
 
    @Nullable
@@ -352,10 +368,6 @@ public abstract class MockUp<T>
          else if (Proxy.isProxyClass(mockedClass)) {
             newInstance = MockInvocationHandler.newMockedInstance(mockedClass);
          }
-         else if (isAbstract(mockedClass.getModifiers())) {
-            Class<?> subclass = generateConcreteSubclass(mockedClass);
-            newInstance = ConstructorReflection.newUninitializedInstance(subclass);
-         }
          else {
             newInstance = ConstructorReflection.newUninitializedInstance(mockedClass);
          }
@@ -366,18 +378,6 @@ public abstract class MockUp<T>
 
       //noinspection ConstantConditions
       return mockInstance;
-   }
-
-   @NotNull
-   private Class<?> generateConcreteSubclass(@NotNull final Class<?> abstractClass)
-   {
-      return new ImplementationClass<T>(abstractClass) {
-         @NotNull @Override
-         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
-         {
-            return new SubclassGenerationModifier(abstractClass, typeReader, mockedType, generatedClassName);
-         }
-      }.generateClass();
    }
 
    /**
