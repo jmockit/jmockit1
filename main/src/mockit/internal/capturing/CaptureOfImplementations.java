@@ -6,11 +6,11 @@ package mockit.internal.capturing;
 
 import java.lang.reflect.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import static mockit.external.asm4.ClassReader.*;
+import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;

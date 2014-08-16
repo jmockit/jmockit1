@@ -7,15 +7,15 @@ package mockit.internal.expectations.transformation;
 import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
-
 import static java.lang.reflect.Modifier.*;
 
-import org.jetbrains.annotations.*;
-
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.util.*;
+import static mockit.external.asm.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 public final class ExpectationsTransformer implements ClassFileTransformer
 {
@@ -98,7 +98,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       EndOfBlockModifier modifier = new EndOfBlockModifier(cr, aClass.getClassLoader(), isFinalClass);
 
       try {
-         cr.accept(modifier, 0);
+         cr.accept(modifier, SKIP_FRAMES);
       }
       catch (VisitInterruptedException ignore) {
          return;
@@ -128,7 +128,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
          try {
             EndOfBlockModifier modifier = new EndOfBlockModifier(cr, loader, isAnonymousClass);
-            cr.accept(modifier, 0);
+            cr.accept(modifier, SKIP_FRAMES);
             return modifier.toByteArray();
          }
          catch (VisitInterruptedException ignore) {}
@@ -147,7 +147,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
       EndOfBlockModifier(@NotNull ClassReader cr, @Nullable ClassLoader loader, boolean isFinalClass)
       {
-         super(new ClassWriter(cr, ClassWriter.COMPUTE_MAXS));
+         super(new ClassWriter(cr));
          assert cv != null;
          cw = (ClassWriter) cv;
          this.loader = loader;
@@ -233,7 +233,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
          ClassReader cr = ClassFile.createClassFileReader(loader, classOfInterest);
 
-         try { cr.accept(this, ClassReader.SKIP_DEBUG); } catch (VisitInterruptedException ignore) {}
+         try { cr.accept(this, SKIP_DEBUG + SKIP_FRAMES); } catch (VisitInterruptedException ignore) {}
 
          return classExtendsBaseSubclass;
       }

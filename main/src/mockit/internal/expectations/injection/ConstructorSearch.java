@@ -108,7 +108,7 @@ final class ConstructorSearch
          n--;
       }
 
-      String constructorDesc = "<init>" + mockit.external.asm4.Type.getConstructorDescriptor(candidate);
+      String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(candidate);
 
       for (int i = 0; i < n; i++) {
          injectionState.setTypeOfInjectionPoint(parameterTypes[i]);

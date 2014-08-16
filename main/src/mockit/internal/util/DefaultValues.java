@@ -10,7 +10,7 @@ import java.util.function.*;
 import java.util.stream.*;
 import static java.util.Collections.*;
 
-import mockit.external.asm4.Type;
+import mockit.external.asm.Type;
 import static mockit.Deencapsulation.*;
 import static mockit.internal.util.Utilities.*;
 

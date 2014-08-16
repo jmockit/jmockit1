@@ -9,7 +9,7 @@ import static java.lang.reflect.Modifier.*;
 
 import org.jetbrains.annotations.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 public abstract class FieldTypeRedefinitions extends TypeRedefinitions
 {

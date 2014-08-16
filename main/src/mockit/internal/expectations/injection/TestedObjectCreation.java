@@ -8,7 +8,7 @@ import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;

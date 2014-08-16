@@ -6,9 +6,9 @@ package mockit.internal.util;
 
 import org.jetbrains.annotations.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 public final class TypeConversion
 {
@@ -24,6 +24,8 @@ public final class TypeConversion
    };
    private static final String[] UNBOXING_DESC = {null, "()Z", "()C", "()B", "()S", "()I", "()F", "()J", "()D"};
 
+   private TypeConversion() {}
+
    public static void generateCastToObject(@NotNull MethodVisitor mv, @NotNull Type type)
    {
       int sort = type.getSort();
@@ -31,7 +33,7 @@ public final class TypeConversion
       if (sort < Type.ARRAY) {
          String wrapperType = PRIMITIVE_WRAPPER_TYPE[sort];
          String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
-         mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc);
+         mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
       }
    }
 
@@ -46,7 +48,8 @@ public final class TypeConversion
          generateTypeCheck(mv, toType);
 
          if (sort < Type.ARRAY) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, PRIMITIVE_WRAPPER_TYPE[sort], UNBOXING_NAME[sort], UNBOXING_DESC[sort]);
+            mv.visitMethodInsn(
+               INVOKEVIRTUAL, PRIMITIVE_WRAPPER_TYPE[sort], UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
          }
       }
    }
@@ -90,17 +93,20 @@ public final class TypeConversion
          }
          else {
             sort = Type.INT;
+
+            //noinspection SwitchStatementWithoutDefaultBranch
             switch (opcode) {
                case FSTORE: sort = Type.FLOAT; break;
                case LSTORE: sort = Type.LONG; break;
                case DSTORE: sort = Type.DOUBLE;
             }
+
             typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
          }
       }
 
       mv.visitTypeInsn(CHECKCAST, typeDesc);
-      mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, UNBOXING_NAME[sort], UNBOXING_DESC[sort]);
+      mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
    }
 
    public static boolean isPrimitiveWrapper(@NotNull String typeDesc)

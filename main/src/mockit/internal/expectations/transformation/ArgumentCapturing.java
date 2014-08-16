@@ -8,7 +8,7 @@ import java.util.*;
 
 import org.jetbrains.annotations.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 import mockit.internal.expectations.transformation.InvocationBlockModifier.Capture;
 

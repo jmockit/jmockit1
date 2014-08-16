@@ -4,9 +4,9 @@
  */
 package mockit.internal.mockups;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 

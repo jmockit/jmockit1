@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import org.jetbrains.annotations.*;
 
 import mockit.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.util.*;

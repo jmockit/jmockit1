@@ -4,15 +4,15 @@
  */
 package mockit.internal.mockups;
 
-import org.jetbrains.annotations.*;
-
-import static mockit.external.asm4.Opcodes.*;
-
 import mockit.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.external.asm.ClassReader.*;
+import static mockit.external.asm.Opcodes.*;
+
+import org.jetbrains.annotations.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given mock class which are explicitly annotated
@@ -37,7 +37,7 @@ final class MockMethodCollector extends ClassVisitor
 
       do {
          ClassReader mcReader = ClassFile.createReaderOrGetFromCache(classToCollectMocksFrom);
-         mcReader.accept(this, ClassReader.SKIP_FRAMES);
+         mcReader.accept(this, SKIP_CODE + SKIP_FRAMES);
          classToCollectMocksFrom = classToCollectMocksFrom.getSuperclass();
          collectingFromSuperClass = true;
       }

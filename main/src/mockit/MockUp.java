@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.mockups.*;
 import mockit.internal.startup.*;

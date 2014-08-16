@@ -6,9 +6,9 @@ package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.Type;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 import org.jetbrains.annotations.*;

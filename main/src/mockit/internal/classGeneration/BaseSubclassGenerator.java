@@ -9,10 +9,10 @@ import java.lang.reflect.Type;
 import java.util.*;
 import static java.util.Arrays.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 
@@ -105,26 +105,26 @@ public class BaseSubclassGenerator extends BaseClassModifier
       mw.visitVarInsn(ALOAD, 0);
       int varIndex = 1;
 
-      for (mockit.external.asm4.Type paramType : mockit.external.asm4.Type.getArgumentTypes(desc)) {
+      for (mockit.external.asm.Type paramType : mockit.external.asm.Type.getArgumentTypes(desc)) {
          int loadOpcode = getLoadOpcodeForParameterType(paramType.getSort());
          mw.visitVarInsn(loadOpcode, varIndex);
          varIndex++;
       }
 
-      mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", desc);
+      mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", desc, false);
       generateEmptyImplementation();
    }
 
    private static int getLoadOpcodeForParameterType(int paramType)
    {
-      if (paramType <= mockit.external.asm4.Type.INT) {
+      if (paramType <= mockit.external.asm.Type.INT) {
          return ILOAD;
       }
 
       switch (paramType) {
-         case mockit.external.asm4.Type.FLOAT:  return FLOAD;
-         case mockit.external.asm4.Type.LONG:   return LLOAD;
-         case mockit.external.asm4.Type.DOUBLE: return DLOAD;
+         case mockit.external.asm.Type.FLOAT:  return FLOAD;
+         case mockit.external.asm.Type.LONG:   return LLOAD;
+         case mockit.external.asm.Type.DOUBLE: return DLOAD;
          default: return ALOAD;
       }
    }

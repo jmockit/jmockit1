@@ -9,7 +9,7 @@ import java.util.*;
 import org.jetbrains.annotations.*;
 
 import mockit.internal.*;
-import mockit.external.asm4.Type;
+import mockit.external.asm.Type;
 
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;

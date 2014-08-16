@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -9,7 +9,7 @@ import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
 final class MockingConfiguration
 {
@@ -20,7 +20,8 @@ final class MockingConfiguration
       filtersToApply = parseMockFilters(filters);
    }
 
-   @NotNull private List<RegexMockFilter> parseMockFilters(@NotNull String[] mockFilters)
+   @NotNull
+   private static List<RegexMockFilter> parseMockFilters(@NotNull String[] mockFilters)
    {
       List<RegexMockFilter> filters = new ArrayList<RegexMockFilter>(mockFilters.length);
 
@@ -45,6 +46,7 @@ final class MockingConfiguration
    private static final class RegexMockFilter
    {
       private static final Pattern CONSTRUCTOR_NAME_REGEX = Pattern.compile("<init>");
+      private static final Pattern COMMA_SEPARATOR_REGEX = Pattern.compile(",");
       private static final String[] ANY_PARAMS = {};
 
       @NotNull private final Pattern nameRegex;
@@ -69,7 +71,8 @@ final class MockingConfiguration
          paramTypeNames = parseParameterTypes(filter, lp, rp);
       }
 
-      @Nullable private String[] parseParameterTypes(@NotNull String filter, int lp, int rp)
+      @Nullable
+      private static String[] parseParameterTypes(@NotNull String filter, int lp, int rp)
       {
          if (lp < 0) {
             return ANY_PARAMS;
@@ -78,7 +81,7 @@ final class MockingConfiguration
             return null;
          }
 
-         String[] typeNames = filter.substring(lp + 1, rp).split(",");
+         String[] typeNames = COMMA_SEPARATOR_REGEX.split(filter.substring(lp + 1, rp));
 
          for (int i = 0; i < typeNames.length; i++) {
             typeNames[i] = typeNames[i].trim();

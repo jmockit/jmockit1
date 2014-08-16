@@ -7,10 +7,11 @@ package mockit.internal;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.util.*;
+import static mockit.external.asm.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 final class SuperConstructorCollector extends ClassVisitor
 {
@@ -33,7 +34,7 @@ final class SuperConstructorCollector extends ClassVisitor
       findIfBothClassesAreInSamePackage(classDesc, superClassDesc);
 
       ClassReader cr = ClassFile.readFromFile(superClassDesc);
-      try { cr.accept(this, ClassReader.SKIP_DEBUG); } catch (VisitInterruptedException ignore) {}
+      try { cr.accept(this, SKIP_DEBUG + SKIP_FRAMES); } catch (VisitInterruptedException ignore) {}
 
       cache.put(superClassDesc, constructorDesc);
       

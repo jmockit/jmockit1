@@ -6,11 +6,12 @@ package mockit.internal.startup;
 
 import java.lang.instrument.*;
 
-import org.jetbrains.annotations.*;
-
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
+import static mockit.external.asm.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 final class ToolLoader extends ClassVisitor
 {
@@ -33,7 +34,7 @@ final class ToolLoader extends ClassVisitor
       }
 
       try {
-         cr.accept(this, ClassReader.SKIP_DEBUG);
+         cr.accept(this, SKIP_DEBUG + SKIP_FRAMES);
          System.out.println("JMockit: loaded external tool " + toolClassName);
       }
       catch (IllegalStateException ignore) {}
@@ -49,7 +50,7 @@ final class ToolLoader extends ClassVisitor
       }
    }
 
-   private boolean containsClassFileTransformer(@NotNull String[] interfaces)
+   private static boolean containsClassFileTransformer(@NotNull String[] interfaces)
    {
       for (String anInterface : interfaces) {
          if ("java/lang/instrument/ClassFileTransformer".equals(anInterface)) {
@@ -90,7 +91,7 @@ final class ToolLoader extends ClassVisitor
          }
          catch (TypeNotPresentException e) {
             // OK, ignores the startup mock if the necessary third-party class files are not in the classpath.
-            System.out.println(e);
+            e.printStackTrace();
          }
       }
    }

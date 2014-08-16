@@ -6,10 +6,10 @@ package mockit.internal.classGeneration;
 
 import java.lang.reflect.Type;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.ClassReader.*;
+import static mockit.external.asm.ClassReader.*;
 
 import org.jetbrains.annotations.*;
 

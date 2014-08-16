@@ -4,10 +4,10 @@ import java.util.*;
 
 import static java.lang.reflect.Modifier.isStatic;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 
@@ -43,7 +43,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    {
       mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
       mw.visitVarInsn(ALOAD, 0);
-      mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+      mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
       generateEmptyImplementation();
    }
 

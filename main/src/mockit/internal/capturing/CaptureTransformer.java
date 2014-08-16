@@ -8,11 +8,11 @@ import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.ClassReader.*;
+import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.capturing.CapturedType.*;
 
 import org.jetbrains.annotations.*;

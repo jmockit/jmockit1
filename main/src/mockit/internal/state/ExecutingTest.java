@@ -11,7 +11,7 @@ import org.jetbrains.annotations.*;
 
 import static mockit.internal.util.Utilities.containsReference;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.invocation.*;

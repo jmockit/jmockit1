@@ -6,6 +6,7 @@ package mockit.internal.expectations.mocking;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import org.jetbrains.annotations.*;
@@ -35,8 +36,8 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
          mockParameters = new MockedType[n];
          injectableParameters = new ArrayList<MockedType>(n);
 
-         String testClassDesc = mockit.external.asm4.Type.getInternalName(testMethod.getDeclaringClass());
-         String testMethodDesc = testMethod.getName() + mockit.external.asm4.Type.getMethodDescriptor(testMethod);
+         String testClassDesc = mockit.external.asm.Type.getInternalName(testMethod.getDeclaringClass());
+         String testMethodDesc = testMethod.getName() + mockit.external.asm.Type.getMethodDescriptor(testMethod);
 
          for (int i = 0; i < n; i++) {
             getMockedTypeFromMockParameterDeclaration(testClassDesc, testMethodDesc, i);

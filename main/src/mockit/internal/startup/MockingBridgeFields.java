@@ -7,11 +7,12 @@ package mockit.internal.startup;
 import java.lang.instrument.*;
 import java.security.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.ClassReader.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 import org.omg.IOP.*;
@@ -41,7 +42,7 @@ final class MockingBridgeFields
          @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
       {
          ClassReader cr = new ClassReader(classfileBuffer);
-         final ClassWriter cw = new ClassWriter(cr, 0);
+         final ClassWriter cw = new ClassWriter(cr);
 
          ClassVisitor cv = new ClassVisitor(cw) {
             @Override
@@ -55,7 +56,7 @@ final class MockingBridgeFields
             }
          };
 
-         cr.accept(cv, 0);
+         cr.accept(cv, SKIP_FRAMES);
          return cw.toByteArray();
       }
    }

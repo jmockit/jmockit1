@@ -4,9 +4,9 @@
  */
 package mockit.internal.expectations.mocking;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.expectations.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.BaseClassModifier.*;
 
 import org.jetbrains.annotations.*;
@@ -59,7 +59,7 @@ final class MockedTypeModifier
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/expectations/RecordAndReplayExecution", "recordOrReplay",
          "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/Object;)" +
-         "Ljava/lang/Object;");
+         "Ljava/lang/Object;", false);
    }
 
    private static void generateInstructionToLoadNullableString(@NotNull MethodWriter mw, @Nullable String text)

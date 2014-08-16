@@ -8,10 +8,11 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.jetbrains.annotations.*;
-
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.state.*;
+import static mockit.external.asm.ClassReader.*;
+
+import org.jetbrains.annotations.*;
 
 public final class ClassFile
 {
@@ -156,7 +157,7 @@ public final class ClassFile
 
       try {
          ClassReader cr = new ClassReader(classFile);
-         cr.accept(visitor, ClassReader.SKIP_DEBUG);
+         cr.accept(visitor, SKIP_DEBUG + SKIP_FRAMES);
       }
       catch (IOException e) {
          throw new RuntimeException(e);

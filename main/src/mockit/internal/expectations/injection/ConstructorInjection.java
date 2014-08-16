@@ -96,8 +96,8 @@ final class ConstructorInjection
    @NotNull
    private String missingInjectableDescription(@NotNull String name)
    {
-      String classDesc = mockit.external.asm4.Type.getInternalName(constructor.getDeclaringClass());
-      String constructorDesc = "<init>" + mockit.external.asm4.Type.getConstructorDescriptor(constructor);
+      String classDesc = mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass());
+      String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
 
       return " for parameter \"" + name + "\" in constructor " + constructorDescription.replace("java.lang.", "");

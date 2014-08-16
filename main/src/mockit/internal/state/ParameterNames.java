@@ -7,7 +7,7 @@ package mockit.internal.state;
 import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 
 import org.jetbrains.annotations.*;
 

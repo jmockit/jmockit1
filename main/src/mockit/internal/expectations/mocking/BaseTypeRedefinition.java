@@ -10,13 +10,13 @@ import java.lang.reflect.Type;
 import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.classGeneration.ImplementationClass;
+import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.ClassReader.*;
+import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;

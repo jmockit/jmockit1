@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import static java.lang.reflect.Modifier.*;
 
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 

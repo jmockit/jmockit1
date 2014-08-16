@@ -4,11 +4,13 @@
  */
 package mockit.internal.expectations.injection;
 
-import org.jetbrains.annotations.*;
-
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
+import static mockit.external.asm.ClassReader.*;
+import static mockit.external.asm.Opcodes.*;
+
+import org.jetbrains.annotations.*;
 
 final class ParameterNameExtractor extends ClassVisitor
 {
@@ -32,7 +34,7 @@ final class ParameterNameExtractor extends ClassVisitor
       if (!ParameterNames.hasNamesForClass(classDesc)) {
          // Reads class from file, since JRE 1.6 (but not 1.7) discards parameter names on retransformation.
          ClassReader cr = ClassFile.readFromFile(classDesc);
-         cr.accept(this, ClassReader.SKIP_FRAMES);
+         cr.accept(this, SKIP_FRAMES);
       }
 
       return classDesc;
@@ -42,7 +44,7 @@ final class ParameterNameExtractor extends ClassVisitor
    public MethodVisitor visitMethod(
       int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      if ((access & Opcodes.ACC_SYNTHETIC) == 0) {
+      if ((access & ACC_SYNTHETIC) == 0) {
          boolean visitingAMethod = name.charAt(0) != '<';
 
          if (visitingAMethod == forMethods) {
