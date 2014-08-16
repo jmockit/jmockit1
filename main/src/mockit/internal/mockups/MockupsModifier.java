@@ -7,11 +7,11 @@ package mockit.internal.mockups;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.state.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
 import org.jetbrains.annotations.*;
@@ -168,13 +168,14 @@ final class MockupsModifier extends BaseClassModifier
       }
 
       @Override
-      public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
          if (isConstructor) {
-            disregardIfInvokingAnotherConstructor(opcode, owner, name, desc);
+            disregardIfInvokingAnotherConstructor(opcode, owner, name, desc, itf);
          }
          else {
-            mw.visitMethodInsn(opcode, owner, name, desc);
+            mw.visitMethodInsn(opcode, owner, name, desc, itf);
          }
       }
    }
@@ -207,7 +208,7 @@ final class MockupsModifier extends BaseClassModifier
       if (useMockingBridgeForUpdatingMockState) {
          generateCallToControlMethodThroughMockingBridge();
          mw.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-         mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+         mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
       }
       else {
          mw.visitLdcInsn(mockMethods.getMockClassInternalName());
@@ -215,7 +216,7 @@ final class MockupsModifier extends BaseClassModifier
          mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
          mw.visitMethodInsn(
             INVOKESTATIC, "mockit/internal/state/TestRun", "updateMockState",
-            "(Ljava/lang/String;Ljava/lang/Object;I)Z");
+            "(Ljava/lang/String;Ljava/lang/Object;I)Z", false);
       }
    }
 
@@ -328,11 +329,11 @@ final class MockupsModifier extends BaseClassModifier
       }
 
       boolean canProceedIntoConstructor = generateArgumentsForMockMethodInvocation();
-      mw.visitMethodInsn(invokeOpcode, mockClassDesc, mockMethod.name, mockMethod.desc);
+      mw.visitMethodInsn(invokeOpcode, mockClassDesc, mockMethod.name, mockMethod.desc, false);
 
       if (canProceedIntoConstructor) {
          mw.visitMethodInsn(
-            INVOKEVIRTUAL, "mockit/internal/mockups/MockInvocation", "shouldProceedIntoConstructor", "()Z");
+            INVOKEVIRTUAL, "mockit/internal/mockups/MockInvocation", "shouldProceedIntoConstructor", "()Z", false);
       }
    }
 
@@ -342,7 +343,7 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/state/TestRun", "getMock",
-         "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;");
+         "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
       mw.visitTypeInsn(CHECKCAST, mockClassDesc);
    }
 
@@ -401,7 +402,7 @@ final class MockupsModifier extends BaseClassModifier
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/mockups/MockInvocation", "create",
          "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;I" +
-         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/mockups/MockInvocation;");
+         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/mockups/MockInvocation;", false);
    }
 
    private void generateMethodReturn()

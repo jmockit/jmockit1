@@ -6,11 +6,10 @@ package mockit.internal;
 
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.ClassWriter.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 
@@ -61,7 +60,7 @@ public class BaseClassModifier extends ClassVisitor
 
    protected BaseClassModifier(@NotNull ClassReader classReader)
    {
-      super(new ClassWriter(classReader, COMPUTE_FRAMES));
+      super(new ClassWriter(classReader));
       //noinspection ConstantConditions
       cw = (ClassWriter) cv;
    }
@@ -81,7 +80,7 @@ public class BaseClassModifier extends ClassVisitor
 
       if (originalVersion < V1_5) {
          // LDC instructions (see MethodVisitor#visitLdcInsn) are more capable in JVMs with support for class files of
-         // version 49 (Java 1.5) or newer, so we "upgrade" it to avoid a VerifyError:
+         // version 49 (Java 5) or newer, so we "upgrade" it to avoid a VerifyError:
          modifiedVersion = V1_5;
       }
 
@@ -127,7 +126,7 @@ public class BaseClassModifier extends ClassVisitor
          }
       }
 
-      mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc);
+      mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc, false);
    }
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@NotNull String mockedMethodDesc)
@@ -188,11 +187,11 @@ public class BaseClassModifier extends ClassVisitor
       }
       else if (value instanceof Integer) {
          mw.visitIntInsn(SIPUSH, (Integer) value);
-         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
       }
       else if (value instanceof Boolean) {
          mw.visitInsn((Boolean) value ? ICONST_1 : ICONST_0);
-         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
       }
       else {
          mw.visitLdcInsn(value);
@@ -261,7 +260,7 @@ public class BaseClassModifier extends ClassVisitor
    {
       mw.visitMethodInsn(
          INVOKEINTERFACE, "java/lang/reflect/InvocationHandler", "invoke",
-         "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;");
+         "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
    }
 
    protected final void generateEmptyImplementation(@NotNull String desc)
@@ -279,14 +278,14 @@ public class BaseClassModifier extends ClassVisitor
    }
 
    protected final void disregardIfInvokingAnotherConstructor(
-      int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
    {
       if (
          callToAnotherConstructorAlreadyDisregarded ||
          opcode != INVOKESPECIAL || !"<init>".equals(name) ||
          !owner.equals(superClassName) && !owner.equals(classDesc)
       ) {
-         mw.visitMethodInsn(opcode, owner, name, desc);
+         mw.visitMethodInsn(opcode, owner, name, desc, itf);
       }
       else {
          mw.visitInsn(POP);

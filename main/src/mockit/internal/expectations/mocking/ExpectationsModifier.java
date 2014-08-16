@@ -7,11 +7,11 @@ package mockit.internal.expectations.mocking;
 import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm4.*;
+import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
-import static mockit.external.asm4.Opcodes.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -352,9 +352,10 @@ final class ExpectationsModifier extends BaseClassModifier
    private final class DynamicConstructorModifier extends DynamicModifier
    {
       @Override
-      public void visitMethodInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
-         disregardIfInvokingAnotherConstructor(opcode, owner, name, desc);
+         disregardIfInvokingAnotherConstructor(opcode, owner, name, desc, itf);
       }
    }
 }
