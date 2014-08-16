@@ -4,10 +4,9 @@
  */
 package mockit.internal;
 
-import java.lang.reflect.*;
+import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm4.*;
-import mockit.external.asm4.Type;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm4.ClassWriter.*;
@@ -106,7 +105,7 @@ public class BaseClassModifier extends ClassVisitor
       methodDesc = desc;
       callToAnotherConstructorAlreadyDisregarded = false;
 
-      if (Modifier.isNative(access)) {
+      if (isNative(access)) {
          TestRun.mockFixture().addRedefinedClassWithNativeMethods(classDesc);
       }
    }
@@ -140,7 +139,7 @@ public class BaseClassModifier extends ClassVisitor
 
    public static boolean generateCodeToPassThisOrNullIfStaticMethod(@NotNull MethodWriter mw, int access)
    {
-      boolean isStatic = Modifier.isStatic(access);
+      boolean isStatic = isStatic(access);
 
       if (isStatic) {
          mw.visitInsn(ACONST_NULL);
