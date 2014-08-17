@@ -31,6 +31,7 @@ final class InvocationBlockModifier extends MethodVisitor
    // corresponding parameters:
    @NotNull private final int[] matcherStacks;
    private int matcherCount;
+   private int stackSize;
    @NotNull private Type[] parameterTypes;
 
    Capture createCapture(int opcode, int varIndex, @Nullable String typeToCapture)
@@ -130,11 +131,11 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private void generateCallToActiveInvocationsMethod(@NotNull String name, @NotNull String desc)
    {
-      mw.visitMethodInsn(INVOKESTATIC, CLASS_DESC, name, desc, false);
+      visitMethodInstruction(INVOKESTATIC, CLASS_DESC, name, desc, false);
    }
 
    @Override
-   public void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+   public void visitFieldInsn(int opcode, String owner, String name, String desc)
    {
       boolean gettingMockedEnumElement =
          opcode == GETSTATIC && TestRun.mockFixture().isMockedClass(ClassLoad.loadByInternalName(owner));
@@ -149,7 +150,7 @@ final class InvocationBlockModifier extends MethodVisitor
       ) {
          if (opcode == PUTFIELD) {
             if (generateCodeThatReplacesAssignmentToSpecialField(name)) {
-               mw.visitInsn(POP);
+               visitInsn(POP);
                return;
             }
          }
@@ -159,10 +160,12 @@ final class InvocationBlockModifier extends MethodVisitor
          }
       }
 
+      stackSize += stackSizeVariationForFieldAccess(opcode, desc);
       mw.visitFieldInsn(opcode, owner, name, desc);
 
       if (gettingMockedEnumElement) {
-         mw.visitMethodInsn(INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
+         visitMethodInstruction(
+            INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
          mw.visitTypeInsn(CHECKCAST, owner);
       }
    }
@@ -201,39 +204,50 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
       generateCallToActiveInvocationsMethod("addArgMatcher", "()V");
-      matcherStacks[matcherCount++] = mw.stackSize;
+      matcherStacks[matcherCount++] = stackSize;
+   }
+
+   private static int stackSizeVariationForFieldAccess(int opcode, @NotNull String fieldType)
+   {
+      char c = fieldType.charAt(0);
+      boolean twoByteType = c == 'D' || c == 'J';
+
+      switch (opcode) {
+         case GETSTATIC: return twoByteType ? 2 : 1;
+         case PUTSTATIC: return twoByteType ? -2 : -1;
+         case GETFIELD: return twoByteType ? 1 : 0;
+         default: return twoByteType ? -3 : -2;
+      }
    }
 
    @Override
-   public void visitMethodInsn(
-      int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+   public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf)
    {
       if (opcode == INVOKESTATIC && (isBoxing(owner, name, desc) || isAccessMethod(owner, name))) {
          // It's an invocation to a primitive boxing method or to a synthetic method for private access, just ignore it.
-         mw.visitMethodInsn(INVOKESTATIC, owner, name, desc, itf);
+         visitMethodInstruction(INVOKESTATIC, owner, name, desc, itf);
       }
       else if (opcode == INVOKEVIRTUAL && owner.equals(blockOwner) && name.startsWith("with")) {
-         mw.visitMethodInsn(INVOKEVIRTUAL, owner, name, desc, itf);
+         visitMethodInstruction(INVOKEVIRTUAL, owner, name, desc, itf);
 
          if (argumentCapturing.registerMatcher(name, desc)) {
-            matcherStacks[matcherCount++] = mw.stackSize;
+            matcherStacks[matcherCount++] = stackSize;
          }
       }
       else if (isUnboxing(opcode, owner, desc)) {
          if (argumentCapturing.justAfterWithCaptureInvocation) {
-            generateCodeToReplaceNullWithZeroOnTopOfStack(desc.charAt(2));
+            generateCodeToReplaceNullWithZeroOnTopOfStack(desc);
             argumentCapturing.justAfterWithCaptureInvocation = false;
          }
          else {
-            mw.visitMethodInsn(opcode, owner, name, desc, itf);
+            visitMethodInstruction(opcode, owner, name, desc, itf);
          }
       }
       else if (matcherCount == 0) {
-         mw.visitMethodInsn(opcode, owner, name, desc, itf);
+         visitMethodInstruction(opcode, owner, name, desc, itf);
       }
       else {
          parameterTypes = Type.getArgumentTypes(desc);
-         int stackSize = mw.stackSize;
          int stackAfter = stackSize - sumOfParameterSizes();
          boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
 
@@ -243,7 +257,7 @@ final class InvocationBlockModifier extends MethodVisitor
             matcherCount = 0;
          }
 
-         mw.visitMethodInsn(opcode, owner, name, desc, itf);
+         visitMethodInstruction(opcode, owner, name, desc, itf);
 
          if (mockedInvocationUsingTheMatchers) {
             argumentCapturing.generateCallsToCaptureMatchedArgumentsIfPending();
@@ -258,9 +272,23 @@ final class InvocationBlockModifier extends MethodVisitor
       return !methodOwner.equals(blockOwner) && name.startsWith("access$");
    }
 
-   private void generateCodeToReplaceNullWithZeroOnTopOfStack(char primitiveTypeCode)
+   private void visitMethodInstruction(int opcode, String owner, String name, String desc, boolean itf)
    {
-      mw.visitInsn(POP);
+      int argSize = Type.getArgumentsAndReturnSizes(desc);
+      int sizeVariation = (argSize & 0x03) - (argSize >> 2);
+
+      if (opcode == INVOKESTATIC) {
+         sizeVariation++;
+      }
+
+      stackSize += sizeVariation;
+      mw.visitMethodInsn(opcode, owner, name, desc, itf);
+   }
+
+   private void generateCodeToReplaceNullWithZeroOnTopOfStack(@NotNull String unboxingMethodDesc)
+   {
+      char primitiveTypeCode = unboxingMethodDesc.charAt(2);
+      visitInsn(POP);
 
       int zeroOpcode;
       switch (primitiveTypeCode) {
@@ -270,7 +298,7 @@ final class InvocationBlockModifier extends MethodVisitor
          default: zeroOpcode = ICONST_0;
       }
 
-      mw.visitInsn(zeroOpcode);
+      visitInsn(zeroOpcode);
    }
 
    private int sumOfParameterSizes()
@@ -324,17 +352,90 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
+   public void visitLabel(Label label)
+   {
+      mw.visitLabel(label);
+
+      if (!label.isDebug()) {
+         stackSize = 0;
+      }
+   }
+
+   @Override
    public void visitTypeInsn(int opcode, @NotNull String type)
    {
       argumentCapturing.registerTypeToCaptureIfApplicable(opcode, type);
+
+      if (opcode == NEW) {
+         stackSize++;
+      }
+
       mw.visitTypeInsn(opcode, type);
    }
 
    @Override
-   public void visitVarInsn(int opcode, @SuppressWarnings("QuestionableName") int var)
+   public void visitIntInsn(int opcode, int operand)
    {
-      argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(this, opcode, var);
-      mw.visitVarInsn(opcode, var);
+      if (opcode != NEWARRAY) {
+         stackSize++;
+      }
+
+      mw.visitIntInsn(opcode, operand);
+   }
+
+   @Override
+   public void visitVarInsn(int opcode, @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter") int varIndex)
+   {
+      argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(this, opcode, varIndex);
+
+      if (opcode != RET) {
+         stackSize += Frame.SIZE[opcode];
+      }
+
+      mw.visitVarInsn(opcode, varIndex);
+   }
+
+   @Override
+   public void visitLdcInsn(Object cst)
+   {
+      stackSize++;
+
+      if (cst instanceof Long || cst instanceof Double) {
+         stackSize++;
+      }
+
+      mw.visitLdcInsn(cst);
+   }
+
+   @Override
+   public void visitJumpInsn(int opcode, Label label)
+   {
+      if (opcode != JSR) {
+         stackSize += Frame.SIZE[opcode];
+      }
+
+      mw.visitJumpInsn(opcode, label);
+   }
+
+   @Override
+   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
+   {
+      stackSize--;
+      mw.visitTableSwitchInsn(min, max, dflt, labels);
+   }
+
+   @Override
+   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels)
+   {
+      stackSize--;
+      mw.visitLookupSwitchInsn(dflt, keys, labels);
+   }
+
+   @Override
+   public void visitMultiANewArrayInsn(String desc, int dims)
+   {
+      stackSize += 1 - dims;
+      mw.visitMultiANewArrayInsn(desc, dims);
    }
 
    @Override
@@ -342,6 +443,9 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       if (opcode == RETURN && callEndInvocations) {
          generateCallToActiveInvocationsMethod("endInvocations", "()V");
+      }
+      else {
+         stackSize += Frame.SIZE[opcode];
       }
 
       mw.visitInsn(opcode);

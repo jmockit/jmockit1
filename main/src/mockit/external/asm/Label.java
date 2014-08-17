@@ -38,7 +38,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-public class Label {
+public final class Label {
 
     /**
      * Indicates if this label is only used for debug attributes. Such a label
@@ -557,4 +557,6 @@ public class Label {
     public String toString() {
         return "L" + System.identityHashCode(this);
     }
+
+    public boolean isDebug() { return (status & DEBUG) != 0; }
 }

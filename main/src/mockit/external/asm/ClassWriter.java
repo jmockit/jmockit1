@@ -38,7 +38,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-public class ClassWriter extends ClassVisitor {
+public final class ClassWriter extends ClassVisitor {
 
     /**
      * Flag to automatically compute the maximum stack size and the maximum

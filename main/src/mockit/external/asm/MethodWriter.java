@@ -37,7 +37,7 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class MethodWriter extends MethodVisitor {
+public final class MethodWriter extends MethodVisitor {
 
     /**
      * Pseudo access flag used to denote constructors.

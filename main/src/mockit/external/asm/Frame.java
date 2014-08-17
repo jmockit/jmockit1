@@ -34,7 +34,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-final class Frame {
+public final class Frame {
 
     /*
      * Frames are computed in a two steps process: during the visit of each
@@ -229,7 +229,7 @@ final class Frame {
      * stack variation is equal to the size of the values produced by an
      * instruction, minus the size of the values consumed by this instruction.
      */
-    static final int[] SIZE;
+    public static final int[] SIZE;
 
     /**
      * Computes the stack size variation corresponding to each JVM instruction.
