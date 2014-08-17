@@ -5,15 +5,16 @@
 package mockit;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.xml.bind.annotation.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
-import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("deprecation")
 public final class DynamicPartialMockingTest
@@ -30,7 +31,7 @@ public final class DynamicPartialMockingTest
       final int getValue() { return value; }
       void setValue(int value) { this.value = value; }
 
-      final boolean simpleOperation(int a, String b, Date c) { return true; }
+      final boolean simpleOperation(int a, @XmlElement(name = "test") String b, Date c) { return true; }
       static void doSomething(boolean b, String s) { throw new IllegalStateException(); }
 
       @Ignore("test")
@@ -852,16 +853,17 @@ public final class DynamicPartialMockingTest
       assertTrue(mockedClass.isAnnotationPresent(Deprecated.class));
       assertTrue(mockedClass.getDeclaredField("value").isAnnotationPresent(Deprecated.class));
 
-      boolean jreDiscardsAnnotationsOnConstructors = JAVA6;
+      Method mockedMethod1 = mockedClass.getDeclaredMethod("simpleOperation", int.class, String.class, Date.class);
+      Annotation xmlElement = mockedMethod1.getParameterAnnotations()[1][0];
+      assertTrue(xmlElement instanceof XmlElement);
+      assertEquals("test", ((XmlElement) xmlElement).name());
 
-      if (!jreDiscardsAnnotationsOnConstructors) {
-         Constructor<?> mockedConstructor = mockedClass.getDeclaredConstructor(int.class);
-         assertTrue(mockedConstructor.isAnnotationPresent(Deprecated.class));
-         assertTrue(mockedConstructor.getParameterAnnotations()[0][0] instanceof Deprecated);
-      }
+      Constructor<?> mockedConstructor = mockedClass.getDeclaredConstructor(int.class);
+      assertTrue(mockedConstructor.isAnnotationPresent(Deprecated.class));
+      assertTrue(mockedConstructor.getParameterAnnotations()[0][0] instanceof Deprecated);
 
-      Method mockedMethod = mockedClass.getDeclaredMethod("methodWhichCallsAnotherInTheSameClass");
-      Ignore ignore = mockedMethod.getAnnotation(Ignore.class);
+      Method mockedMethod2 = mockedClass.getDeclaredMethod("methodWhichCallsAnotherInTheSameClass");
+      Ignore ignore = mockedMethod2.getAnnotation(Ignore.class);
       assertNotNull(ignore);
       assertEquals("test", ignore.value());
 
