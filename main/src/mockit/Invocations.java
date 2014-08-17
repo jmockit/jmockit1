@@ -583,7 +583,7 @@ abstract class Invocations
     */
    protected final <T> T withInstanceLike(T object)
    {
-      addMatcher(new ClassMatcher(object.getClass()));
+      addMatcher(ClassMatcher.create(object.getClass()));
       return object;
    }
 
@@ -599,7 +599,7 @@ abstract class Invocations
     */
    protected final <T> T withInstanceOf(Class<T> argClass)
    {
-      addMatcher(new ClassMatcher(argClass));
+      addMatcher(ClassMatcher.create(argClass));
       return null;
    }
 

@@ -11,9 +11,9 @@ public final class StringSuffixMatcher extends SubstringMatcher
    public StringSuffixMatcher(@NotNull CharSequence substring) { super(substring); }
 
    @Override
-   public boolean matches(@Nullable Object string)
+   public boolean matches(@Nullable Object argValue)
    {
-      return string instanceof CharSequence && string.toString().endsWith(substring);
+      return argValue instanceof CharSequence && argValue.toString().endsWith(substring);
    }
 
    @Override

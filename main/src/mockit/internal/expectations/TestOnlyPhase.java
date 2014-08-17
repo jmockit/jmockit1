@@ -59,7 +59,7 @@ public abstract class TestOnlyPhase extends Phase
 
    public final void setExpectedArgumentType(int parameterIndex, @NotNull Class<?> argumentType)
    {
-      ArgumentMatcher newMatcher = new ClassMatcher(argumentType);
+      ArgumentMatcher newMatcher = ClassMatcher.create(argumentType);
       getArgumentMatchers().set(parameterIndex, newMatcher);
    }
 

@@ -17,7 +17,7 @@ public final class PatternMatcher implements ArgumentMatcher
    @Override
    public boolean matches(@Nullable Object argValue)
    {
-      return pattern.matcher((CharSequence) argValue).matches();
+      return argValue instanceof CharSequence && pattern.matcher((CharSequence) argValue).matches();
    }
 
    @Override

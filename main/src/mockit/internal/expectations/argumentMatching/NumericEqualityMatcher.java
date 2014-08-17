@@ -20,7 +20,7 @@ public final class NumericEqualityMatcher implements ArgumentMatcher
       this.delta = delta;
    }
 
-   @Override
+   @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    public boolean matches(@Nullable Object decimalValue)
    {
       return decimalValue instanceof Number && actualDelta((Number) decimalValue) <= delta;

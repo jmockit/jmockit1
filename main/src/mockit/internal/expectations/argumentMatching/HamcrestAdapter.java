@@ -16,7 +16,8 @@ public final class HamcrestAdapter implements ArgumentMatcher
 {
    @NotNull private final org.hamcrest.Matcher<?> hamcrestMatcher;
 
-   @NotNull public static ArgumentMatcher create(@NotNull Object matcher)
+   @NotNull
+   public static ArgumentMatcher create(@NotNull Object matcher)
    {
       if (matcher instanceof org.hamcrest.Matcher<?>) {
          return new HamcrestAdapter((org.hamcrest.Matcher<?>) matcher);
@@ -60,7 +61,8 @@ public final class HamcrestAdapter implements ArgumentMatcher
       return innerMatcher;
    }
 
-   @Nullable private Object getArgumentValueFromMatcherIfAvailable(@NotNull Object argMatcher)
+   @Nullable
+   private static Object getArgumentValueFromMatcherIfAvailable(@NotNull Object argMatcher)
    {
       if (
          argMatcher instanceof org.hamcrest.core.IsEqual || argMatcher instanceof org.hamcrest.core.IsSame ||
