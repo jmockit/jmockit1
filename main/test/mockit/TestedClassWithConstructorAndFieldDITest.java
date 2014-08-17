@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -7,14 +7,20 @@ package mockit;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-public final class TestedClassWithConstructorAndFieldDITest
+class TestBase
+{
+   static class Dependency { int doSomething() { return -1; } }
+   @Injectable Dependency dependency;
+}
+
+public final class TestedClassWithConstructorAndFieldDITest extends TestBase
 {
    public static class TestedClass
    {
       protected final int i;
 
       // Suppose this is injected by some DI framework or Java EE container:
-      @SuppressWarnings("UnusedDeclaration") protected Dependency dependency;
+      protected Dependency dependency;
 
       public TestedClass() { i = -1; }
       public TestedClass(int i) { this.i = i; }
@@ -22,9 +28,7 @@ public final class TestedClassWithConstructorAndFieldDITest
       public boolean doSomeOperation() { return dependency.doSomething() > 0; }
    }
 
-   static class Dependency { int doSomething() { return -1; } }
-
-   @SuppressWarnings("UnusedDeclaration")
+   @SuppressWarnings("unused")
    public static class AnotherTestedClass extends TestedClass
    {
       Runnable runnable;
@@ -32,7 +36,13 @@ public final class TestedClassWithConstructorAndFieldDITest
       Dependency dependency2;
 
       public AnotherTestedClass() { super(-2); }
-      public AnotherTestedClass(int value, Dependency dependency1) { super(value); dependency = dependency1; }
+
+      public AnotherTestedClass(int value, Dependency dependency1)
+      {
+         super(value);
+         //noinspection UnnecessarySuperQualifier
+         super.dependency = dependency1;
+      }
 
       @Override
       public boolean doSomeOperation()
@@ -43,7 +53,6 @@ public final class TestedClassWithConstructorAndFieldDITest
    }
 
    @Tested AnotherTestedClass tested;
-   @Injectable Dependency dependency;
    @Injectable Runnable mock2;
    @Injectable Dependency dependency2;
 

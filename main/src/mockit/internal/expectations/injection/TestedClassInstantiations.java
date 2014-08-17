@@ -27,29 +27,44 @@ public final class TestedClassInstantiations
 
    public boolean findTestedAndInjectableFields(@NotNull Class<?> testClass)
    {
-      Field[] fieldsInTestClass = testClass.getDeclaredFields();
-
-      for (Field field : fieldsInTestClass) {
-         Tested testedMetadata = field.getAnnotation(Tested.class);
-
-         if (testedMetadata != null) {
-            TestedField testedField = new TestedField(injectionState, field, testedMetadata);
-            testedFields.add(testedField);
-         }
-         else {
-            MockedType mockedType = new MockedType(field, true);
-
-            if (mockedType.injectable) {
-               injectableFields.add(mockedType);
-            }
-         }
-      }
-
-      boolean foundTestedFields = !testedFields.isEmpty();
+      boolean foundTestedFields = findAllTestedAndInjectableFieldsInTestClassHierarchy(testClass);
 
       if (foundTestedFields) {
          new ParameterNameExtractor(true).extractNames(testClass);
       }
+
+      return foundTestedFields;
+   }
+
+   private boolean findAllTestedAndInjectableFieldsInTestClassHierarchy(@NotNull Class<?> testClass)
+   {
+      Class<?> classWithFields = testClass;
+      boolean atFirstLevel = true;
+      boolean foundTestedFields = false;
+
+      do {
+         Field[] fields = classWithFields.getDeclaredFields();
+
+         for (Field field : fields) {
+            if (field.isAnnotationPresent(Injectable.class)) {
+               MockedType mockedType = new MockedType(field, true);
+               injectableFields.add(mockedType);
+            }
+            else if (atFirstLevel) {
+               Tested testedMetadata = field.getAnnotation(Tested.class);
+
+               if (testedMetadata != null) {
+                  TestedField testedField = new TestedField(injectionState, field, testedMetadata);
+                  testedFields.add(testedField);
+                  foundTestedFields = true;
+               }
+            }
+         }
+
+         atFirstLevel = false;
+         classWithFields = classWithFields.getSuperclass();
+      }
+      while (foundTestedFields && classWithFields.getClassLoader() != null);
 
       return foundTestedFields;
    }
