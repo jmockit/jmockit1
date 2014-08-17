@@ -11,7 +11,7 @@ import org.junit.runners.*;
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public final class MultithreadedExpectationsTest
+public final class MultiThreadedExpectationsTest
 {
    static class Collaborator
    {
