@@ -13,7 +13,7 @@ import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.external.asm.*;
-import static mockit.external.asm.ClassWriter.*;
+import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
@@ -71,8 +71,7 @@ final class CoverageModifier extends ClassVisitor
 
    private CoverageModifier(@NotNull ClassReader cr, boolean forInnerClass)
    {
-      super(new ClassWriter(cr, COMPUTE_MAXS));
-      //noinspection ConstantConditions
+      super(new ClassWriter(cr));
       cw = (ClassWriter) cv;
       this.forInnerClass = forInnerClass;
    }
@@ -123,10 +122,7 @@ final class CoverageModifier extends ClassVisitor
          }
       }
 
-      // A VerifyError can occur with Java 7, related to stack map frames. ASM has a bug affecting "COMPUTE_FRAMES",
-      // so the only solution was to "downgrade" the bytecode to Java 6.
-      int finalVersion = (version & 0xFFFF) >= V1_7 ? V1_6 : version;
-      cw.visit(finalVersion, access, name, signature, superName, interfaces);
+      cw.visit(version, access, name, signature, superName, interfaces);
    }
 
    @NotNull
@@ -179,7 +175,7 @@ final class CoverageModifier extends ClassVisitor
 
       if (innerCR != null) {
          CoverageModifier innerClassModifier = new CoverageModifier(innerCR, this, innerName);
-         innerCR.accept(innerClassModifier, 0);
+         innerCR.accept(innerClassModifier, SKIP_FRAMES);
          INNER_CLASS_MODIFIERS.put(innerClassName, innerClassModifier);
       }
    }
