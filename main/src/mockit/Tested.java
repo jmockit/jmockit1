@@ -27,7 +27,7 @@ import java.lang.annotation.*;
  * Only non-<code>final</code> fields are considered, between those declared in the tested class itself or in one of its
  * super-classes; at this time constructor injection already occurred, so only <em>eligible</em> fields which remain
  * uninitialized are targeted; eligible fields are those annotated with a standard DI annotation (one of
- * {@code @Inject}, {@code PersistenceContext}, {@code PersistenceUnit}), or any <em>instance</em> fields when such
+ * {@code @Inject}, {@code @PersistenceContext}, {@code @PersistenceUnit}), or any <em>instance</em> fields when such
  * annotations are not being used.
  * For each such <em>target</em> field, the value of an still unused {@linkplain Injectable injectable} field or test
  * method parameter of the <em>same</em> type is assigned, if any is available.
