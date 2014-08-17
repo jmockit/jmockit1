@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -32,6 +32,8 @@ public final class AutoBoxing
       PRIMITIVE_TO_WRAPPER.put(long.class, Long.class);
       PRIMITIVE_TO_WRAPPER.put(double.class, Double.class);
    }
+
+   private AutoBoxing() {}
 
    public static boolean isWrapperOfPrimitiveType(@NotNull Class<?> type)
    {
