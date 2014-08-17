@@ -190,7 +190,7 @@ final class ExpectationsModifier extends BaseClassModifier
 
       // Constructors of non-JRE classes can't be modified (unless running with "-noverify") in a way that
       // "super(...)/this(...)" get called twice, so we disregard such calls when copying the original bytecode.
-      return visitingConstructor ? new DynamicConstructorModifier() : copyOriginalImplementationCode();
+      return copyOriginalImplementationCode(visitingConstructor);
    }
 
    @Nullable
@@ -278,7 +278,7 @@ final class ExpectationsModifier extends BaseClassModifier
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 
       // First and second "invoke" arguments:
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
@@ -301,7 +301,7 @@ final class ExpectationsModifier extends BaseClassModifier
       // Copies the entire original implementation even for a constructor, in which case the complete bytecode inside
       // the constructor fails the strict verification activated by "-Xfuture". However, this is necessary to allow the
       // full execution of a JRE constructor when the call was not meant to be mocked.
-      return copyOriginalImplementationCode();
+      return copyOriginalImplementationCode(false);
    }
 
    private void generateDecisionBetweenReturningOrContinuingToRealImplementation()
@@ -313,49 +313,5 @@ final class ExpectationsModifier extends BaseClassModifier
       generateReturnWithObjectAtTopOfTheStack(methodDesc);
       mw.visitLabel(startOfRealImplementation);
       mw.visitInsn(POP);
-   }
-
-   @NotNull private MethodVisitor copyOriginalImplementationCode()
-   {
-      if (isNative(methodAccess)) {
-         generateEmptyImplementation(methodDesc);
-         return methodAnnotationsVisitor;
-      }
-
-      return new DynamicModifier();
-   }
-
-   private class DynamicModifier extends MethodVisitor
-   {
-      DynamicModifier() { super(mw); }
-
-      @Override
-      public final void visitLocalVariable(
-         @NotNull String name, @NotNull String desc, @Nullable String signature,
-         @NotNull Label start, @NotNull Label end, int index)
-      {
-         registerParameterName(name, index);
-
-         // For some reason, the start position for "this" gets displaced by bytecode inserted at the beginning,
-         // in a method modified by the EMMA tool. If not treated, this causes a ClassFormatError.
-         if (end.position > 0 && start.position > end.position) {
-            start.position = end.position;
-         }
-
-         // Ignores any local variable with required information missing, to avoid a VerifyError/ClassFormatError.
-         if (start.position > 0 && end.position > 0) {
-            mw.visitLocalVariable(name, desc, signature, start, end, index);
-         }
-      }
-   }
-
-   private final class DynamicConstructorModifier extends DynamicModifier
-   {
-      @Override
-      public void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
-      {
-         disregardIfInvokingAnotherConstructor(opcode, owner, name, desc, itf);
-      }
    }
 }

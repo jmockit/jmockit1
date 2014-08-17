@@ -129,7 +129,7 @@ final class MockupsModifier extends BaseClassModifier
       }
 
       generateDynamicCallToMock();
-      return new CopyingMethodWriter();
+      return copyOriginalImplementationCode(isConstructor);
    }
 
    private boolean hasMock(int access, @NotNull String name, @NotNull String desc, @Nullable String signature)
@@ -150,34 +150,6 @@ final class MockupsModifier extends BaseClassModifier
       }
 
       return name;
-   }
-
-   private final class CopyingMethodWriter extends MethodVisitor
-   {
-      private CopyingMethodWriter() { super(mw); }
-
-      @Override
-      public void visitLocalVariable(
-         @NotNull String name, @NotNull String desc, @Nullable String signature,
-         @NotNull Label start, @NotNull Label end, int index)
-      {
-         // Discards debug info with missing information, to avoid a ClassFormatError (happens with EMMA).
-         if (end.position > 0) {
-            mw.visitLocalVariable(name, desc, signature, start, end, index);
-         }
-      }
-
-      @Override
-      public void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
-      {
-         if (isConstructor) {
-            disregardIfInvokingAnotherConstructor(opcode, owner, name, desc, itf);
-         }
-         else {
-            mw.visitMethodInsn(opcode, owner, name, desc, itf);
-         }
-      }
    }
 
    private boolean isMockedSuperclass() { return mockedClass != mockMethods.getRealClass(); }
@@ -212,7 +184,7 @@ final class MockupsModifier extends BaseClassModifier
       }
       else {
          mw.visitLdcInsn(mockMethods.getMockClassInternalName());
-         generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+         generateCodeToPassThisOrNullIfStaticMethod();
          mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
          mw.visitMethodInsn(
             INVOKESTATIC, "mockit/internal/state/TestRun", "updateMockState",
@@ -225,7 +197,7 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToObtainInstanceOfMockingBridge(MockupBridge.MB);
 
       // First and second "invoke" arguments:
-      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
@@ -288,7 +260,7 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToObtainInstanceOfMockingBridge(MockMethodBridge.MB);
 
       // First and second "invoke" arguments:
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
@@ -340,7 +312,7 @@ final class MockupsModifier extends BaseClassModifier
    private void generateCodeToObtainMockUpInstance(@NotNull String mockClassDesc)
    {
       mw.visitLdcInsn(mockClassDesc);
-      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/state/TestRun", "getMock",
          "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
@@ -381,7 +353,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateCallToCreateNewMockInvocation(@NotNull Type[] argTypes, int initialParameterIndex)
    {
-      generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      generateCodeToPassThisOrNullIfStaticMethod();
 
       int argCount = argTypes.length;
 

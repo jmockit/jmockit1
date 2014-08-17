@@ -6,10 +6,10 @@ package mockit;
 
 import java.io.*;
 
-import org.jetbrains.annotations.*;
-
 import org.junit.*;
 import static org.junit.Assert.*;
+
+import org.jetbrains.annotations.*;
 
 public final class MockedClassWithSuperClassTest
 {
@@ -130,5 +130,31 @@ public final class MockedClassWithSuperClassTest
       }};
 
       assertEquals(123, BaseClass.staticMethod());
+   }
+
+   static class BaseClassWithConstructor { BaseClassWithConstructor(@SuppressWarnings("unused") boolean b) {} }
+   static class DerivedClass extends BaseClassWithConstructor
+   {
+      DerivedClass()
+      {
+         // TRYCATCHBLOCK instruction appears before call to super, which caused a VerifyError.
+         super(true);
+         try { doSomething(); } catch (RuntimeException ignore) {}
+      }
+
+      private void doSomething() {}
+   }
+
+   @Test
+   public void mockSubclassWithConstructorContainingTryCatch_usingMockUp()
+   {
+      new MockUp<DerivedClass>() { @Mock void $init() {} };
+      new DerivedClass();
+   }
+
+   @Test
+   public void mockSubclassWithConstructorContainingTryCatch_usingExpectations(@Mocked DerivedClass mock)
+   {
+      new DerivedClass();
    }
 }

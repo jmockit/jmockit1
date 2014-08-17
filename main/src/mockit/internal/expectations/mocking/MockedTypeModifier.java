@@ -27,7 +27,7 @@ final class MockedTypeModifier
       @Nullable String genericSignature, @NotNull ExecutionMode executionMode)
    {
       // First argument: the mock instance, if any.
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, access);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, access, name);
 
       // Second argument: method access flags.
       mw.visitLdcInsn(access);
@@ -43,7 +43,7 @@ final class MockedTypeModifier
 
       // Sixth argument: indicate regular or special modes of execution.
       mw.visitLdcInsn(executionMode.ordinal());
-      
+
       // Seventh argument: array with invocation arguments.
       Type[] argTypes = Type.getArgumentTypes(desc);
       int argCount = argTypes.length;

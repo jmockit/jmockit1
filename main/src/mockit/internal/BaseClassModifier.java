@@ -32,21 +32,11 @@ public class BaseClassModifier extends ClassVisitor
       public void visitLocalVariable(
          @NotNull String name, @NotNull String desc, String signature, @NotNull Label start, @NotNull Label end,
          int index)
-      {
-         registerParameterName(name, index);
-      }
+      {}
 
       @Override
-      public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible)
-      {
-         return mw.visitParameterAnnotation(parameter, desc, visible);
-      }
+      public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) { return null; }
    };
-
-   protected final void registerParameterName(@NotNull String name, int index)
-   {
-      ParameterNames.registerName(classDesc, methodAccess, methodName, methodDesc, name, index);
-   }
 
    @NotNull protected final ClassWriter cw;
    protected MethodWriter mw;
@@ -131,16 +121,27 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@NotNull String mockedMethodDesc)
    {
+      // TODO: for #10
+      // if (methodName.charAt(0) == '<') {
+      //    generateCallToSuperConstructor();
+      // }
+
       Type returnType = Type.getReturnType(mockedMethodDesc);
       TypeConversion.generateCastFromObject(mw, returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
    }
 
-   public static boolean generateCodeToPassThisOrNullIfStaticMethod(@NotNull MethodWriter mw, int access)
+   protected final boolean generateCodeToPassThisOrNullIfStaticMethod()
+   {
+      return generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess, methodName);
+   }
+
+   public static boolean generateCodeToPassThisOrNullIfStaticMethod(
+      @NotNull MethodWriter mw, int access, @SuppressWarnings("unused") @NotNull String name)
    {
       boolean isStatic = isStatic(access);
 
-      if (isStatic) {
+      if (isStatic/* || name.charAt(0) == '<'*/) { // TODO: for #10
          mw.visitInsn(ACONST_NULL);
       }
       else {
@@ -277,19 +278,67 @@ public class BaseClassModifier extends ClassVisitor
       mw.visitMaxs(1, 0);
    }
 
-   protected final void disregardIfInvokingAnotherConstructor(
-      int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+   @NotNull protected final MethodVisitor copyOriginalImplementationCode(boolean disregardCallToSuper)
    {
-      if (
-         callToAnotherConstructorAlreadyDisregarded ||
-         opcode != INVOKESPECIAL || !"<init>".equals(name) ||
-         !owner.equals(superClassName) && !owner.equals(classDesc)
-      ) {
-         mw.visitMethodInsn(opcode, owner, name, desc, itf);
+      if (disregardCallToSuper) {
+         return new DynamicConstructorModifier();
       }
-      else {
-         mw.visitInsn(POP);
-         callToAnotherConstructorAlreadyDisregarded = true;
+
+      if (isNative(methodAccess)) {
+         generateEmptyImplementation(methodDesc);
+         return methodAnnotationsVisitor;
+      }
+
+      return new DynamicModifier();
+   }
+
+   private class DynamicModifier extends MethodVisitor
+   {
+      DynamicModifier() { super(mw); }
+
+      @Override
+      public final void visitLocalVariable(
+         @NotNull String name, @NotNull String desc, @Nullable String signature,
+         @NotNull Label start, @NotNull Label end, int index)
+      {
+         // For some reason, the start position for "this" gets displaced by bytecode inserted at the beginning,
+         // in a method modified by the EMMA tool. If not treated, this causes a ClassFormatError.
+         if (end.position > 0 && start.position > end.position) {
+            start.position = end.position;
+         }
+
+         // Ignores any local variable with required information missing, to avoid a VerifyError/ClassFormatError.
+         if (start.position > 0 && end.position > 0) {
+            mw.visitLocalVariable(name, desc, signature, start, end, index);
+         }
+      }
+   }
+
+   private final class DynamicConstructorModifier extends DynamicModifier
+   {
+      @Override
+      public void visitMethodInsn(
+         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+      {
+         if (
+            callToAnotherConstructorAlreadyDisregarded ||
+            opcode != INVOKESPECIAL || !"<init>".equals(name) ||
+            !owner.equals(superClassName) && !owner.equals(classDesc)
+         ) {
+            mw.visitMethodInsn(opcode, owner, name, desc, itf);
+         }
+         else {
+            mw.visitInsn(POP);
+            callToAnotherConstructorAlreadyDisregarded = true;
+         }
+      }
+
+      @Override
+      public void visitTryCatchBlock(Label start, Label end, Label handler, String type)
+      {
+         if (callToAnotherConstructorAlreadyDisregarded) {
+            mw.visitTryCatchBlock(start, end, handler, type);
+         }
       }
    }
 
