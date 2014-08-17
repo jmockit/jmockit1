@@ -13,7 +13,6 @@ import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
-import static mockit.internal.util.Utilities.*;
 
 public final class WithCaptureTest
 {
@@ -499,7 +498,7 @@ public final class WithCaptureTest
    public void attemptToCaptureNewInstanceWhenThereWasNone(@Mocked Person mockedPerson)
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage(JAVA6 ? "Person(String, int)" : "Person(String name, int age)");
+      thrown.expectMessage("Person(String");
 
       dao.create("test", 14);
 
