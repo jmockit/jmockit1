@@ -28,31 +28,31 @@ public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
    @Test
    public void setUpAndUseSomeMocks()
    {
-      assertEquals("TEST1", new RealClass1().getValue());
-      assertEquals("REAL2", new RealClass2().getValue());
+      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new RealClass2().getValue(), "REAL2");
 
       new MockClass2();
 
-      assertEquals("TEST2", new RealClass2().getValue());
-      assertEquals("TEST1", new RealClass1().getValue());
+      assertEquals(new RealClass2().getValue(), "TEST2");
+      assertEquals(new RealClass1().getValue(), "TEST1");
    }
 
    @Test
    public void setUpAndUseMocksAgain()
    {
-      assertEquals("TEST1", new RealClass1().getValue());
-      assertEquals("REAL2", new RealClass2().getValue());
+      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new RealClass2().getValue(), "REAL2");
 
       new MockClass2();
 
-      assertEquals("TEST2", new RealClass2().getValue());
-      assertEquals("TEST1", new RealClass1().getValue());
+      assertEquals(new RealClass2().getValue(), "TEST2");
+      assertEquals(new RealClass1().getValue(), "TEST1");
    }
 
    @AfterMethod
    public void afterTest()
    {
-      assertEquals("REAL2", new RealClass2().getValue());
+      assertEquals(new RealClass2().getValue(), "REAL2");
    }
 
    @SuppressWarnings("ClassMayBeInterface")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.testng;
@@ -126,7 +126,7 @@ public final class TestNGExpectationsTest
       }};
 
       assertTrue(dependency.doSomething(5));
-      assertEquals("mocked", dependency.getValue());
+      assertEquals(dependency.getValue(), "mocked");
       assertTrue(tested.doSomething(-5));
       assertTrue(mock2.doSomethingElse(6));
 
@@ -139,7 +139,7 @@ public final class TestNGExpectationsTest
    @Test
    public void testSomethingElse()
    {
-      assertEquals("mocked", dependency.getValue());
+      assertEquals(dependency.getValue(), "mocked");
       assertFalse(tested.doSomething(41));
       assertTrue(mock2.doSomethingElse(6));
 
