@@ -37,14 +37,26 @@ final class InjectionState
    void buildListsOfInjectables(@NotNull Object testClassInstance, @NotNull List<MockedType> injectableFields)
    {
       currentTestClassInstance = testClassInstance;
+      injectables = new ArrayList<MockedType>(injectableFields);
+
       ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterTypeRedefinitions();
 
-      if (paramTypeRedefs == null) {
-         injectables = injectableFields;
-      }
-      else {
-         injectables = new ArrayList<MockedType>(injectableFields);
+      if (paramTypeRedefs != null) {
          injectables.addAll(paramTypeRedefs.getInjectableParameters());
+      }
+   }
+
+   void discardInjectablesFromLowerTestClassHierarchyLevels(@NotNull Class<?> testSuperClass)
+   {
+      Iterator<MockedType> itr = injectables.iterator();
+
+      while (itr.hasNext()) {
+         MockedType injectable = itr.next();
+         Field injectableField = injectable.field;
+
+         if (injectableField == null || !injectableField.getDeclaringClass().isAssignableFrom(testSuperClass)) {
+            itr.remove();
+         }
       }
    }
 

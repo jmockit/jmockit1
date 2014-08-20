@@ -31,6 +31,13 @@ final class TestedField
       testedObjectCreation = new TestedObjectCreation(injectionState, field);
    }
 
+   boolean isAtSameLevelInTestClassHierarchy(@NotNull TestedField another)
+   {
+      return getDeclaringTestClass() == another.getDeclaringTestClass();
+   }
+
+   @NotNull Class<?> getDeclaringTestClass() { return testedField.getDeclaringClass(); }
+
    void instantiateWithInjectableValues(@NotNull Object testClassInstance)
    {
       Object testedObject = null;

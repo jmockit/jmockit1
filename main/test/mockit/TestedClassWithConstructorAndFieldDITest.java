@@ -7,20 +7,15 @@ package mockit;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-class TestBase
+class BaseTest
 {
    static class Dependency { int doSomething() { return -1; } }
-   @Injectable Dependency dependency;
-}
 
-public final class TestedClassWithConstructorAndFieldDITest extends TestBase
-{
    public static class TestedClass
    {
       protected final int i;
-
-      // Suppose this is injected by some DI framework or Java EE container:
       protected Dependency dependency;
+      Runnable action;
 
       public TestedClass() { i = -1; }
       public TestedClass(int i) { this.i = i; }
@@ -28,10 +23,23 @@ public final class TestedClassWithConstructorAndFieldDITest extends TestBase
       public boolean doSomeOperation() { return dependency.doSomething() > 0; }
    }
 
+   @Tested TestedClass tested1;
+   @Injectable Dependency dependency;
+
+   final void verifyTestedObjectFromBaseTestClass()
+   {
+      assertEquals(-1, tested1.i);
+      assertSame(dependency, tested1.dependency);
+      assertNull(tested1.action);
+   }
+}
+
+public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
+{
    @SuppressWarnings("unused")
    public static class AnotherTestedClass extends TestedClass
    {
-      Runnable runnable;
+      Runnable anotherAction;
       Dependency dependency3;
       Dependency dependency2;
 
@@ -52,22 +60,24 @@ public final class TestedClassWithConstructorAndFieldDITest extends TestBase
       }
    }
 
-   @Tested AnotherTestedClass tested;
-   @Injectable Runnable mock2;
+   @Tested AnotherTestedClass tested2;
+   @Injectable Runnable anotherAction;
    @Injectable Dependency dependency2;
 
    @Test
    public void exerciseTestedSubclassObjectWithFieldsInjectedByTypeAndName()
    {
-      assertEquals(-2, tested.i);
-      assertSame(mock2, tested.runnable);
-      assertSame(dependency, tested.dependency);
-      assertSame(dependency2, tested.dependency2);
-      assertNull(tested.dependency3);
-      assertFalse(tested.doSomeOperation());
+      verifyTestedObjectFromBaseTestClass();
+
+      assertEquals(-2, tested2.i);
+      assertSame(anotherAction, tested2.anotherAction);
+      assertSame(dependency, tested2.dependency);
+      assertSame(dependency2, tested2.dependency2);
+      assertNull(tested2.dependency3);
+      assertFalse(tested2.doSomeOperation());
 
       new Verifications() {{
-         mock2.run(); times = 0;
+         anotherAction.run(); times = 0;
          dependency.doSomething(); times = 1;
          dependency2.doSomething();
       }};
@@ -77,22 +87,27 @@ public final class TestedClassWithConstructorAndFieldDITest extends TestBase
    public void exerciseTestedSubclassObjectWithFieldsInjectedFromMockFieldsAndMockParameter(
       @Injectable Dependency dependency3)
    {
-      assertEquals(-2, tested.i);
-      assertSame(dependency, tested.dependency);
-      assertSame(dependency2, tested.dependency2);
-      assertSame(dependency3, tested.dependency3);
-      assertFalse(tested.doSomeOperation());
+      verifyTestedObjectFromBaseTestClass();
+
+      assertEquals(-2, tested2.i);
+      assertSame(dependency, tested2.dependency);
+      assertSame(dependency2, tested2.dependency2);
+      assertSame(dependency3, tested2.dependency3);
+      assertSame(anotherAction, tested2.anotherAction);
+      assertFalse(tested2.doSomeOperation());
    }
 
    @Test
    public void exerciseTestedSubclassObjectUsingConstructorAndFieldInjection(
       @Injectable("45") int value, @Injectable Dependency dependency1)
    {
-      assertEquals(45, tested.i);
-      assertSame(dependency1, tested.dependency);
-      assertSame(dependency2, tested.dependency2);
-      assertNull(tested.dependency3);
-      assertSame(mock2, tested.runnable);
-      assertFalse(tested.doSomeOperation());
+      verifyTestedObjectFromBaseTestClass();
+
+      assertEquals(45, tested2.i);
+      assertSame(dependency1, tested2.dependency);
+      assertSame(dependency2, tested2.dependency2);
+      assertNull(tested2.dependency3);
+      assertSame(anotherAction, tested2.anotherAction);
+      assertFalse(tested2.doSomeOperation());
    }
 }

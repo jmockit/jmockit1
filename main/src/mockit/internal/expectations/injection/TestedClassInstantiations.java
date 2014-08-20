@@ -39,8 +39,6 @@ public final class TestedClassInstantiations
    private boolean findAllTestedAndInjectableFieldsInTestClassHierarchy(@NotNull Class<?> testClass)
    {
       Class<?> classWithFields = testClass;
-      boolean atFirstLevel = true;
-      boolean foundTestedFields = false;
 
       do {
          Field[] fields = classWithFields.getDeclaredFields();
@@ -50,32 +48,37 @@ public final class TestedClassInstantiations
                MockedType mockedType = new MockedType(field, true);
                injectableFields.add(mockedType);
             }
-            else if (atFirstLevel) {
+            else {
                Tested testedMetadata = field.getAnnotation(Tested.class);
 
                if (testedMetadata != null) {
                   TestedField testedField = new TestedField(injectionState, field, testedMetadata);
                   testedFields.add(testedField);
-                  foundTestedFields = true;
                }
             }
          }
 
-         atFirstLevel = false;
          classWithFields = classWithFields.getSuperclass();
       }
-      while (foundTestedFields && classWithFields.getClassLoader() != null);
+      while (classWithFields.getClassLoader() != null);
 
-      return foundTestedFields;
+      return !testedFields.isEmpty();
    }
 
    public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance)
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 
+      TestedField previousField = null;
+
       for (TestedField testedField : testedFields) {
+         if (previousField != null && !testedField.isAtSameLevelInTestClassHierarchy(previousField)) {
+            injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
+         }
+
          testedField.instantiateWithInjectableValues(testClassInstance);
          injectionState.resetConsumedInjectables();
+         previousField = testedField;
       }
    }
 
