@@ -84,6 +84,8 @@ public final class TestedClassInstantiations
 
    public void clearTestedFields()
    {
+      injectionState.lifecycleMethods.executePreDestroyMethodsIfAny();
+
       for (TestedField testedField : testedFields) {
          testedField.clearIfAutomaticCreation();
       }

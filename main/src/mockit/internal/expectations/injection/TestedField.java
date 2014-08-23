@@ -10,7 +10,6 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
 
 import org.jetbrains.annotations.*;
 
@@ -73,7 +72,7 @@ final class TestedField
          fieldInjection.injectIntoEligibleFields(targetFields, testedObject);
 
          if (createAutomatically) {
-            executePostConstructMethodIfAny(testedClass, testedObject);
+            injectionState.lifecycleMethods.executePostConstructMethodIfAny(testedClass, testedObject);
          }
       }
    }
@@ -82,13 +81,6 @@ final class TestedField
    {
       if (createAutomatically) {
          Object testClassInstance = injectionState.getCurrentTestClassInstance();
-         Object testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
-
-         if (testedObject != null) {
-            Class<?> testedClass = testedField.getType();
-            executePreDestroyMethodIfAny(testedClass, testedObject);
-         }
-
          FieldReflection.setFieldValue(testedField, testClassInstance, null);
       }
    }

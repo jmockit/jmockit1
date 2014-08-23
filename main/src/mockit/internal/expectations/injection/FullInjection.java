@@ -9,7 +9,6 @@ import java.lang.reflect.*;
 import static java.lang.reflect.Modifier.*;
 
 import static mockit.external.asm.Opcodes.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 
 import org.jetbrains.annotations.*;
@@ -58,7 +57,7 @@ final class FullInjection
 
             if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
                fieldInjection.fillOutDependenciesRecursively(dependency);
-               executePostConstructMethodIfAny(instantiatedClass, dependency);
+               injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
             }
 
             injectionState.saveInstantiatedDependency(dependencyKey, dependency);

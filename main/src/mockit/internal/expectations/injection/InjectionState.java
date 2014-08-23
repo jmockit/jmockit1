@@ -23,6 +23,7 @@ final class InjectionState
    @NotNull private List<MockedType> injectables;
    @NotNull private List<MockedType> consumedInjectables;
    @NotNull private final Map<Object, Object> instantiatedDependencies;
+   @NotNull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
@@ -32,6 +33,7 @@ final class InjectionState
       injectables = Collections.emptyList();
       consumedInjectables = new ArrayList<MockedType>();
       instantiatedDependencies = new HashMap<Object, Object>();
+      lifecycleMethods = new LifecycleMethods();
    }
 
    void buildListsOfInjectables(@NotNull Object testClassInstance, @NotNull List<MockedType> injectableFields)

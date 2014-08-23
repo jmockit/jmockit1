@@ -8,9 +8,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
 import javax.inject.*;
-import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.util.*;
 import static mockit.internal.util.ClassLoad.*;
 
 import org.jetbrains.annotations.*;
@@ -68,33 +66,6 @@ final class InjectionPoint
       }
       else {
          return ((GenericArrayType) parameterType).getGenericComponentType();
-      }
-   }
-
-   static void executePostConstructMethodIfAny(@NotNull Class<?> testedClass, @NotNull Object testedObject)
-   {
-      for (Method method : testedClass.getDeclaredMethods()) {
-         if (method.isAnnotationPresent(PostConstruct.class)) {
-            MethodReflection.invoke(testedObject, method);
-            break;
-         }
-      }
-   }
-
-   // TODO: execute @PreDestroy on all instantiated dependencies, not just the top-level ones
-   static void executePreDestroyMethodIfAny(@NotNull Class<?> testedClass, @NotNull Object testedObject)
-   {
-      for (Method method : testedClass.getDeclaredMethods()) {
-         if (
-            !isStatic(method.getModifiers()) &&
-            method.getReturnType() == void.class && method.getParameterTypes().length == 0 &&
-            method.isAnnotationPresent(PreDestroy.class)
-         ) {
-            try { MethodReflection.invoke(testedObject, method); }
-            catch (RuntimeException ignore) {}
-            catch (AssertionError ignore) {}
-            break;
-         }
       }
    }
 }

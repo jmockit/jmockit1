@@ -57,12 +57,10 @@ public final class TestedClassWithFullStandardDITest
       @Inject CommonDependency commonDependency;
       @PersistenceContext private EntityManager em;
       boolean initialized;
+      static boolean terminated;
 
-      @PostConstruct
-      final void initialize()
-      {
-         initialized = true;
-      }
+      @PostConstruct void initialize() { initialized = true; }
+      @PreDestroy void terminate() { terminated = true; }
    }
 
    public static class CommonDependency
@@ -149,5 +147,6 @@ public final class TestedClassWithFullStandardDITest
       assertNull(tested);
       assertNull(tested2);
       assertTrue(TestedClass.destroyed);
+      assertTrue(SecondLevelDependency.terminated);
    }
 }
