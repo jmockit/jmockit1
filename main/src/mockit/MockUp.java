@@ -214,11 +214,13 @@ public abstract class MockUp<T>
          return createInstanceOfMockedImplementationClass(classToMock, mockedType);
       }
 
+      Class<T> realClass = classToMock;
+
       if (isAbstract(classToMock.getModifiers()) && classToMock.getClassLoader() != null) {
          classToMock = generateConcreteSubclass(classToMock);
       }
 
-      classesToRestore = redefineMethods(classToMock, mockedType);
+      classesToRestore = redefineMethods(realClass, classToMock, mockedType);
       return classToMock;
    }
 
@@ -241,13 +243,14 @@ public abstract class MockUp<T>
    }
 
    @Nullable
-   private Set<Class<?>> redefineMethods(@NotNull Class<T> realClass, @Nullable Type genericMockedType)
+   private Set<Class<?>> redefineMethods(
+      @NotNull Class<T> realClass, @NotNull Class<T> classToMock, @Nullable Type genericMockedType)
    {
       if (TestRun.mockFixture().isMockedClass(realClass)) {
          throw new IllegalArgumentException("Class already mocked: " + realClass.getName());
       }
 
-      return new MockClassSetup(realClass, genericMockedType, this, null).redefineMethods();
+      return new MockClassSetup(realClass, classToMock, genericMockedType, this).redefineMethods();
    }
 
    /**
@@ -282,7 +285,8 @@ public abstract class MockUp<T>
       else {
          mockedClass = classToMock;
          //noinspection unchecked
-         classesToRestore = redefineMethods((Class<T>) classToMock, null);
+         Class<T> realClass = (Class<T>) classToMock;
+         classesToRestore = redefineMethods(realClass, realClass, null);
          mockInstance = null;
       }
    }
@@ -324,7 +328,7 @@ public abstract class MockUp<T>
       @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) instanceToMock.getClass();
       mockedType = classToMock;
       mockedClass = classToMock;
-      classesToRestore = redefineMethods(classToMock, classToMock);
+      classesToRestore = redefineMethods(classToMock, classToMock, classToMock);
 
       setMockInstance(instanceToMock);
    }

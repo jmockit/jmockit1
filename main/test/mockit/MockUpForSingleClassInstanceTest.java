@@ -204,6 +204,7 @@ public final class MockUpForSingleClassInstanceTest
    {
       protected abstract String getValue();
       public abstract void doSomething(int i);
+      public boolean doSomethingElse() { return true; }
    }
 
    @Test
@@ -217,6 +218,9 @@ public final class MockUpForSingleClassInstanceTest
             assertNotNull(mockInstance);
             return "test";
          }
+
+         @Mock
+         boolean doSomethingElse() { return false; }
       };
 
       AbstractBase mock = mockUp.getMockInstance();
@@ -224,6 +228,7 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals("test", mock.getValue());
       mock.doSomething(123);
       mock.run();
+      assertFalse(mock.doSomethingElse());
       assertSame(mock, mockUp.getMockInstance());
    }
 

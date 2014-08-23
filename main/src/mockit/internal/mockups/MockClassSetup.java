@@ -28,9 +28,22 @@ public final class MockClassSetup
    private final boolean forStartupMock;
 
    public MockClassSetup(
+      @NotNull Class<?> realClass, @NotNull Class<?> classToMock, @Nullable Type mockedType, @NotNull MockUp<?> mockUp)
+   {
+      this(realClass, classToMock, mockedType, mockUp, null);
+   }
+
+   public MockClassSetup(
       @NotNull Class<?> realClass, @Nullable Type mockedType, @NotNull MockUp<?> mockUp, @Nullable byte[] realClassCode)
    {
-      this.realClass = realClass;
+      this(realClass, realClass, mockedType, mockUp, realClassCode);
+   }
+
+   private MockClassSetup(
+      @NotNull Class<?> realClass, @NotNull Class<?> classToMock, @Nullable Type mockedType, @NotNull MockUp<?> mockUp,
+      @Nullable byte[] realClassCode)
+   {
+      this.realClass = classToMock;
       mockMethods = new MockMethods(realClass, mockedType);
       this.mockUp = mockUp;
       forStartupMock = Startup.initializing;
