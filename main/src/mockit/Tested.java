@@ -8,7 +8,8 @@ import java.lang.annotation.*;
 
 /**
  * Indicates a class to be tested, with optional automatic instantiation and/or automatic injection of dependencies.
- * This annotation is only applicable to instance fields of a test class.
+ * This annotation is applicable to instance fields of a test class; alternatively, it can be used as a meta-annotation
+ * on a user-defined annotation which, in turn, needs to have runtime retention and be applicable to fields.
  * <p/>
  * If the tested field is not {@code final} and its value remains {@code null} at the time a test method is about to be
  * executed, then a suitable instance of the tested class is created and assigned to the field.
@@ -52,7 +53,7 @@ import java.lang.annotation.*;
  * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#tested">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 public @interface Tested
 {
    /**

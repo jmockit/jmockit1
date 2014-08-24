@@ -4,6 +4,8 @@
  */
 package mockit;
 
+import java.lang.annotation.*;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -32,7 +34,12 @@ public final class TestedClassWithFullDITest
    public static class SecondLevelDependency { CommonDependency commonDependency; }
    public static class CommonDependency {}
 
-   @Tested(fullyInitialized = true) TestedClass tested;
+   @Tested(fullyInitialized = true)
+   @Retention(RetentionPolicy.RUNTIME)
+   @Target(ElementType.FIELD)
+   public @interface IntegrationTested {}
+
+   @IntegrationTested TestedClass tested;
    @Injectable Runnable mockedDependency;
 
    @Test

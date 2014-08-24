@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.injection;
 
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -42,27 +43,45 @@ public final class TestedClassInstantiations
 
       do {
          Field[] fields = classWithFields.getDeclaredFields();
-
-         for (Field field : fields) {
-            if (field.isAnnotationPresent(Injectable.class)) {
-               MockedType mockedType = new MockedType(field, true);
-               injectableFields.add(mockedType);
-            }
-            else {
-               Tested testedMetadata = field.getAnnotation(Tested.class);
-
-               if (testedMetadata != null) {
-                  TestedField testedField = new TestedField(injectionState, field, testedMetadata);
-                  testedFields.add(testedField);
-               }
-            }
-         }
-
+         findTestedAndInjectableFields(fields);
          classWithFields = classWithFields.getSuperclass();
       }
       while (classWithFields.getClassLoader() != null);
 
       return !testedFields.isEmpty();
+   }
+
+   private void findTestedAndInjectableFields(@NotNull Field[] fieldsDeclaredInTestClass)
+   {
+      for (Field field : fieldsDeclaredInTestClass) {
+         if (field.isAnnotationPresent(Injectable.class)) {
+            MockedType mockedType = new MockedType(field, true);
+            injectableFields.add(mockedType);
+         }
+         else {
+            addAsTestedFieldIfApplicable(field);
+         }
+      }
+   }
+
+   private void addAsTestedFieldIfApplicable(@NotNull Field fieldFromTestClass)
+   {
+      for (Annotation fieldAnnotation : fieldFromTestClass.getDeclaredAnnotations()) {
+         Tested testedMetadata;
+
+         if (fieldAnnotation instanceof Tested) {
+            testedMetadata = (Tested) fieldAnnotation;
+         }
+         else {
+            testedMetadata = fieldAnnotation.annotationType().getAnnotation(Tested.class);
+         }
+
+         if (testedMetadata != null) {
+            TestedField testedField = new TestedField(injectionState, fieldFromTestClass, testedMetadata);
+            testedFields.add(testedField);
+            break;
+         }
+      }
    }
 
    public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance)
