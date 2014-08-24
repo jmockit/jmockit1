@@ -8,12 +8,13 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.startup.*;
 import mockit.internal.util.*;
+
+import org.hamcrest.Matcher;
+import org.jetbrains.annotations.*;
 
 /**
  * Provides common API for use inside {@linkplain NonStrictExpectations expectation} and
@@ -325,69 +326,6 @@ abstract class Invocations
    // Methods for argument matching ///////////////////////////////////////////////////////////////////////////////////
 
    /**
-    * Applies a custom argument matcher for a parameter in the current expectation.
-    * <p/>
-    * The given matcher can be any existing <em>Hamcrest</em> matcher or a user provided one.
-    * <p/>
-    * Alternatively, it can be an instance of an <em>invocation handler</em> class.
-    * In this case, the non-<code>private</code> <em>handler method</em> must have a single parameter of a type capable
-    * of receiving the relevant argument values.
-    * The name of this handler method does not matter.
-    * Its return type, on the other hand, should either be {@code boolean} or {@code void}.
-    * In the first case, a return value of {@code true} will indicate a successful match for the actual invocation
-    * argument at replay time, while a return of {@code false} will cause the test to fail.
-    * In the case of a {@code void} return type, instead of returning a value the handler method should validate the
-    * actual invocation argument through a JUnit/TestNG assertion.
-    * <p/>
-    * For additional details, refer to {@link #withEqual(Object)}.
-    *
-    * @param argValue an arbitrary value of the proper type, necessary to provide a valid argument to the invocation
-    * parameter
-    * @param argumentMatcher an instance of a class implementing the {@code org.hamcrest.Matcher} interface, <em>or</em>
-    * an instance of an invocation handler class containing an appropriate invocation handler method
-    *
-    * @return the given {@code argValue}
-    *
-    * @deprecated Use {@link #with(Delegate)} or {@link #withArgThat(org.hamcrest.Matcher)} instead; this method will
-    * be removed in a future version.
-    */
-   @Deprecated
-   protected final <T> T with(T argValue, Object argumentMatcher)
-   {
-      addMatcher(HamcrestAdapter.create(argumentMatcher));
-      return argValue;
-   }
-
-   /**
-    * Applies a custom argument matcher for a parameter in the current expectation.
-    * This works just like {@link #with(Object, Object)}, but attempting to discover the argument type from the supplied
-    * <em>Hamcrest</em> argument matcher, when applicable.
-    *
-    * @param argumentMatcher an instance of a class implementing the {@code org.hamcrest.Matcher} interface, <em>or</em>
-    * an instance of an invocation handler class containing an appropriate invocation handler method
-    *
-    * @return the value recorded inside the given <em>Hamcrest</em> argument matcher, or {@code null} if there is no
-    * such value to be found
-    *
-    * @deprecated Use {@link #with(Delegate)} or {@link #withArgThat(org.hamcrest.Matcher)} instead; this method will
-    * be removed in a future version.
-    */
-   @Deprecated
-   protected final <T> T with(Object argumentMatcher)
-   {
-      ArgumentMatcher matcher = HamcrestAdapter.create(argumentMatcher);
-      addMatcher(matcher);
-
-      if (matcher instanceof HamcrestAdapter) {
-         Object argValue = ((HamcrestAdapter) matcher).getInnerValue();
-         //noinspection unchecked
-         return (T) argValue;
-      }
-
-      return null;
-   }
-
-   /**
     * Applies a <em>Hamcrest</em> argument matcher for a parameter in the current expectation.
     *
     * @param argumentMatcher any {@code org.hamcrest.Matcher} object
@@ -397,7 +335,7 @@ abstract class Invocations
     *
     * @see #with(Delegate)
     */
-   protected final <T> T withArgThat(org.hamcrest.Matcher<? super T> argumentMatcher)
+   protected final <T> T withArgThat(Matcher<? super T> argumentMatcher)
    {
       HamcrestAdapter matcher = new HamcrestAdapter(argumentMatcher);
       addMatcher(matcher);
