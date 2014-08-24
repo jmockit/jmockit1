@@ -23,15 +23,13 @@
       </echo>
    </target>
 
-   <!-- Target for generating the Javadoc HTML documentation -->
-
    <target name="createjavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
       <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
          classpathref="common.classpath" classpath="main/classes"
-         nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
+         nodeprecated="true" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API" doctitle="JMockit Toolkit API Documentation"
          encoding="UTF-8" charset="UTF-8" locale="en">
          <arg line="-notimestamp -quiet -Xdoclint:none"/>
@@ -62,10 +60,7 @@
       </replace>
    </target>
 
-   <!-- Targets for generating component jars and the distribution zip file -->
-
    <target name="createjars" depends="createjar-main, createjar-coverage"/>
-
    <target name="createjar-main">
       <delete file="jmockit.jar"/>
       <jar destfile="jmockit.jar">
@@ -83,7 +78,6 @@
          <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.Initializer"/>
       </jar>
    </target>
-
    <target name="createjar-coverage">
       <delete file="jmockit-coverage.jar"/>
       <jar destfile="jmockit-coverage.jar">
@@ -121,8 +115,6 @@
          encoding="UTF-8"/>
    </target>
 
-   <!-- Targets for running tests and generating corresponding test reports in HTML -->
-   
    <macrodef name="testReport">
       <attribute name="name"/>
       <sequential>
