@@ -87,7 +87,11 @@ public final class LineCoverageData extends LineSegmentData
 
    public int getNumberOfCoveredSegments()
    {
-      return noBranchesYet() ? 1 : getSegmentsCovered();
+      if (noBranchesYet()) {
+         return executionCount > 0 ? 1 : 0;
+      }
+
+      return getSegmentsCovered();
    }
 
    private int getSegmentsCovered()
