@@ -17,6 +17,8 @@ public final class Startup
    private static boolean inATestRun = true;
    private static boolean jmockitAvailable = true;
 
+   private Startup() {}
+
    public static void premain(String agentArgs, @NotNull Instrumentation inst) throws IOException
    {
       instrumentation = inst;
@@ -39,7 +41,7 @@ public final class Startup
       System.out.println(startupMessage);
       System.out.println();
 
-      if (isJMockitAvailable()) {
+      if (jmockitAvailable) {
          mockit.internal.startup.Startup.initialize(inst);
       }
    }
