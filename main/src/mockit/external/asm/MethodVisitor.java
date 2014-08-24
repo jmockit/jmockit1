@@ -54,12 +54,6 @@ package mockit.external.asm;
  */
 public abstract class MethodVisitor {
 
-
-
-
-
-
-
     /**
      * The method visitor to which this visitor must delegate method calls. May
      * be null.
@@ -88,9 +82,6 @@ public abstract class MethodVisitor {
      *            calls. May be null.
      */
     public MethodVisitor(final MethodVisitor mv) {
-
-
-
         this.mv = mv;
     }
 
@@ -109,9 +100,6 @@ public abstract class MethodVisitor {
      *            allowed (see {@link Opcodes}).
      */
     public void visitParameter(String name, int access) {
-
-
-
         if (mv != null) {
             mv.visitParameter(name, access);
         }
@@ -178,9 +166,6 @@ public abstract class MethodVisitor {
      */
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
             TypePath typePath, String desc, boolean visible) {
-
-
-
         if (mv != null) {
             return mv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         }
@@ -437,48 +422,11 @@ public abstract class MethodVisitor {
      *            the method's name.
      * @param desc
      *            the method's descriptor (see {@link Type Type}).
-     */
-    @Deprecated
-    public void visitMethodInsn(int opcode, String owner, String name,
-            String desc)
-    {
-         boolean itf = opcode == Opcodes.INVOKEINTERFACE;
-         visitMethodInsn(opcode, owner, name, desc, itf);
-
-
-
-
-
-    }
-
-    /**
-     * Visits a method instruction. A method instruction is an instruction that
-     * invokes a method.
-     * 
-     * @param opcode
-     *            the opcode of the type instruction to be visited. This opcode
-     *            is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
-     *            INVOKEINTERFACE.
-     * @param owner
-     *            the internal name of the method's owner class (see
-     *            {@link Type#getInternalName() getInternalName}).
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type Type}).
      * @param itf
      *            if the method's owner class is an interface.
      */
     public void visitMethodInsn(int opcode, String owner, String name,
-            String desc, boolean itf)
-    {
-
-
-
-
-
-
-
+            String desc, boolean itf) {
         if (mv != null) {
             mv.visitMethodInsn(opcode, owner, name, desc, itf);
         }
@@ -692,9 +640,6 @@ public abstract class MethodVisitor {
      */
     public AnnotationVisitor visitInsnAnnotation(int typeRef,
             TypePath typePath, String desc, boolean visible) {
-
-
-
         if (mv != null) {
             return mv.visitInsnAnnotation(typeRef, typePath, desc, visible);
         }
@@ -752,9 +697,6 @@ public abstract class MethodVisitor {
      */
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
             TypePath typePath, String desc, boolean visible) {
-
-
-
         if (mv != null) {
             return mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
         }
@@ -823,9 +765,6 @@ public abstract class MethodVisitor {
     public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
             TypePath typePath, Label[] start, Label[] end, int[] index,
             String desc, boolean visible) {
-
-
-
         if (mv != null) {
             return mv.visitLocalVariableAnnotation(typeRef, typePath, start,
                     end, index, desc, visible);
