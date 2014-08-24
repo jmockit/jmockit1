@@ -23,6 +23,7 @@ final class CoverageModifier extends ClassVisitor
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = ACC_FINAL + ACC_SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
+   private static final boolean WITH_PATH_OR_DATA_COVERAGE = Metrics.PathCoverage.active || Metrics.DataCoverage.active;
 
    @Nullable
    static byte[] recoverModifiedByteCodeIfAvailable(@NotNull String innerClassName)
@@ -221,19 +222,17 @@ final class CoverageModifier extends ClassVisitor
          return mw;
       }
 
-      boolean withPathOrDataCoverage = Metrics.PathCoverage.active || Metrics.DataCoverage.active;
-
       if (name.charAt(0) == '<') {
          if (name.charAt(1) == 'c') {
             return forEnumClass ? mw : new StaticBlockModifier(mw);
          }
 
-         if (withPathOrDataCoverage) {
+         if (WITH_PATH_OR_DATA_COVERAGE) {
             return new ConstructorModifier(mw);
          }
       }
 
-      return withPathOrDataCoverage ? new MethodModifier(mw) : new BaseMethodModifier(mw);
+      return WITH_PATH_OR_DATA_COVERAGE ? new MethodModifier(mw) : new BaseMethodModifier(mw);
    }
 
    private class BaseMethodModifier extends MethodVisitor
