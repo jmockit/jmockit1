@@ -2495,6 +2495,6 @@ public final class ClassReader {
     }
 
     public int getVersion() {
-       return readInt(4);
+       return readShort(6);
     }
 }
