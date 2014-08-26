@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -10,6 +10,8 @@ public final class Configuration
 {
    private static final String COVERAGE_PREFIX1 = "jmockit-coverage-";
    private static final String COVERAGE_PREFIX2 = "coverage-";
+
+   private Configuration() {}
 
    @Nullable public static String getProperty(@NotNull String nameSuffix)
    {
