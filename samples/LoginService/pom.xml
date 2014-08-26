@@ -8,6 +8,20 @@
    <artifactId>LoginService</artifactId>
    <name>LoginService Sample</name>
 
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <configuration>
+               <systemPropertyVariables>
+                  <coverage-output>html</coverage-output>
+                  <coverage-maxCallPoints>20</coverage-maxCallPoints>
+               </systemPropertyVariables>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
    <dependencies>
       <dependency>
          <groupId>org.testng</groupId><artifactId>testng</artifactId>

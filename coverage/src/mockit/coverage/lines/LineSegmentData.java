@@ -14,7 +14,7 @@ import mockit.coverage.*;
 public class LineSegmentData implements Serializable
 {
    private static final long serialVersionUID = -6233980722802474992L;
-   private static final int MAX_CALL_POINTS = 10;
+   private static final int MAX_CALL_POINTS = Integer.parseInt(Configuration.getProperty("maxCallPoints", "10"));
 
    // Static data:
    boolean unreachable;
@@ -25,7 +25,7 @@ public class LineSegmentData implements Serializable
 
    public final void markAsUnreachable() { unreachable = true; }
 
-   boolean acceptsAdditionalCallPoints()
+   final boolean acceptsAdditionalCallPoints()
    {
       return callPoints == null || callPoints.size() < MAX_CALL_POINTS;
    }
