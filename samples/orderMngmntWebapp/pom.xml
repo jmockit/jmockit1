@@ -16,7 +16,7 @@
                <disableXmlReport>false</disableXmlReport>
                <systemPropertyVariables>
                   <coverage-output>html</coverage-output>
-                  <coverage-outputDir>../../www/coverage-sample</coverage-outputDir>
+                  <coverage-outputDir>../../../jmockit.github.io/coverage-sample</coverage-outputDir>
                   <coverage-metrics>all</coverage-metrics>
                </systemPropertyVariables>
             </configuration>

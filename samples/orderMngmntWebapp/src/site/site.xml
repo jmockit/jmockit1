@@ -5,7 +5,7 @@
    <body>
       <menu ref="reports"/>
       <menu>
-         <item name="Code Coverage Report" href="../../../../www/coverage-sample/index.html"/>
+         <item name="Code Coverage Report" href="../../../../../jmockit.github.io/coverage-sample/index.html"/>
       </menu>
    </body>
 </project>
