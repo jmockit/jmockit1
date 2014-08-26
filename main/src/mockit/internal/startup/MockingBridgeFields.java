@@ -28,9 +28,13 @@ final class MockingBridgeFields
       ClassFileTransformer trans = new FieldAdditionTransformer();
       inst.addTransformer(trans);
 
-      IORHelper.id(); // loads a JRE class expected to not be loaded initially by the JVM
+      try {
+         IORHelper.id(); // loads a JRE class expected to not be loaded initially by the JVM
+      }
+      finally {
+         inst.removeTransformer(trans);
+      }
 
-      inst.removeTransformer(trans);
       setMockingBridgeFields();
    }
 
@@ -41,6 +45,10 @@ final class MockingBridgeFields
          @Nullable ClassLoader loader, @NotNull String className, @Nullable Class<?> classBeingRedefined,
          @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
       {
+         if (!"org/omg/IOP/IORHelper".equals(className)) {
+            return null;
+         }
+
          ClassReader cr = new ClassReader(classfileBuffer);
          final ClassWriter cw = new ClassWriter(cr);
 
