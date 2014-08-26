@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
 
 import static java.util.Arrays.*;
 import java.util.*;
+import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
@@ -13,6 +14,8 @@ public final class LineElement implements Iterable<LineElement>
 {
    private static final List<String> CONDITIONAL_OPERATORS = asList("||", "&&", ":", "else");
    private static final List<String> CONDITIONAL_INSTRUCTIONS = asList("if", "for", "while");
+   private static final Pattern OPEN_TAG = Pattern.compile("<");
+   private static final NoSuchElementException LAST_ELEMENT_REACHED = new NoSuchElementException();
 
    enum ElementType { CODE, COMMENT, SEPARATOR }
 
@@ -28,7 +31,7 @@ public final class LineElement implements Iterable<LineElement>
    LineElement(@NotNull ElementType type, @NotNull String text)
    {
       this.type = type;
-      this.text = text.replaceAll("<", "&lt;");
+      this.text = OPEN_TAG.matcher(text).replaceAll("&lt;");
    }
 
    public boolean isCode() { return type == ElementType.CODE; }
@@ -62,10 +65,10 @@ public final class LineElement implements Iterable<LineElement>
       return null;
    }
 
-   public void wrapText(@NotNull String openingTag, @NotNull String closingTag)
+   public void wrapText(@NotNull String desiredOpeningTag, @NotNull String desiredClosingTag)
    {
-      this.openingTag = openingTag;
-      this.closingTag = closingTag;
+      openingTag = desiredOpeningTag;
+      closingTag = desiredClosingTag;
    }
 
    @Nullable public LineElement appendUntilNextCodeElement(@NotNull StringBuilder line)
@@ -130,6 +133,8 @@ public final class LineElement implements Iterable<LineElement>
       }
 
       copyConditionalTrackingState(next);
+
+      //noinspection TailRecursion
       return next.findNextBranchingPoint();
    }
 
@@ -138,14 +143,22 @@ public final class LineElement implements Iterable<LineElement>
 
    private int getParenthesisBalance()
    {
-      if (text.indexOf('(') >= 0) {
-         return 1;
-      }
-      else if (text.indexOf(')') >= 0) {
-         return -1;
+      int balance = 0;
+      int p = text.indexOf('(');
+
+      while (p >= 0) {
+         balance++;
+         p = text.indexOf('(', p + 1);
       }
 
-      return 0;
+      int q = text.indexOf(')');
+
+      while (q >= 0) {
+         balance--;
+         q = text.indexOf(')', q + 1);
+      }
+
+      return balance;
    }
 
    @Nullable public LineElement findWord(@NotNull String word)
@@ -197,30 +210,28 @@ public final class LineElement implements Iterable<LineElement>
       while (elementToPrint != null && elementToPrint != elementToStopBefore);
    }
 
-   @NotNull public Iterator<LineElement> iterator()
+   @NotNull @Override
+   public Iterator<LineElement> iterator()
    {
-      return new Iterator<LineElement>()
-      {
+      return new Iterator<LineElement>() {
          @Nullable private LineElement current = LineElement.this;
 
-         public boolean hasNext()
-         {
-            return current != null;
-         }
+         @Override public boolean hasNext() { return current != null; }
 
+         @NotNull @Override
          public LineElement next()
          {
             if (current == null) {
-               throw new NoSuchElementException();
+               throw LAST_ELEMENT_REACHED;
             }
 
-            LineElement next = current;
+            LineElement nextElement = current;
             current = current.next;
 
-            return next;
+            return nextElement;
          }
 
-         public void remove() {}
+         @Override public void remove() {}
       };
    }
 
