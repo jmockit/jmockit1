@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
@@ -51,18 +51,18 @@ public final class LineParser
 
    @NotNull public LineElement getInitialElement() { assert initialElement != null; return initialElement; }
 
-   boolean parse(@NotNull String line)
+   boolean parse(@NotNull String lineToParse)
    {
       lineNum++;
       initialElement = null;
       currentElement = null;
-      this.line = line;
-      lineLength = line.length();
+      line = lineToParse;
+      lineLength = lineToParse.length();
       startPos = inComments ? 0 : -1;
       inCodeElement = false;
 
       for (pos = 0; pos < lineLength; pos++) {
-         currChar = line.codePointAt(pos);
+         currChar = lineToParse.codePointAt(pos);
 
          if (parseComment()) {
             break;
