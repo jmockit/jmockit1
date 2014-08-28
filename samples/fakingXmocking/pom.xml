@@ -53,5 +53,8 @@
             <exclusion><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId></exclusion>
          </exclusions>
       </dependency>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>
+      </dependency>
    </dependencies>
 </project>
