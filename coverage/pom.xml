@@ -53,6 +53,7 @@
             <directory>../main/classes</directory>
             <includes>
                <include>mockit/external/asm/*.class</include>
+               <include>mockit/internal/util/ClassLoad.class</include>
                <include>mockit/internal/util/StackTrace.class</include>
                <include>mockit/internal/state/TestRun.class</include>
                <include>mockit/internal/state/MockFixture.class</include>

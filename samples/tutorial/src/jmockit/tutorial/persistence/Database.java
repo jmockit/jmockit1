@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.tutorial.persistence;
 
+import java.sql.*;
 import java.util.*;
 import javax.persistence.*;
 
@@ -33,7 +34,7 @@ import javax.persistence.*;
  */
 public final class Database
 {
-   private static final ThreadLocal<EntityManager> workUnit = new ThreadLocal<EntityManager>();
+   private static final ThreadLocal<EntityManager> workUnit = new ThreadLocal<>();
    private static final EntityManagerFactory entityManagerFactory;
 
    static
@@ -68,10 +69,15 @@ public final class Database
          position++;
       }
 
-      @SuppressWarnings("unchecked")
-      List<E> result = query.getResultList();
-
-      return result;
+      try {
+         @SuppressWarnings("unchecked")
+         List<E> result = query.getResultList();
+         return result;
+      }
+      catch (PersistenceException e) {
+         Throwable cause = e.getCause();
+         throw cause instanceof SQLException ? new RuntimeException(cause) : e;
+      }
    }
 
    public static void persist(Object data)

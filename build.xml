@@ -88,6 +88,7 @@
             dir="coverage/classes" includes="jmockit.properties mockit/coverage/**/*.class **/*.css **/*.js **/*.png"/>
          <fileset dir="main/classes">
             <include name="mockit/external/asm/*.class"/>
+            <include name="mockit/internal/util/ClassLoad.class"/>
             <include name="mockit/internal/util/StackTrace.class"/>
             <include name="mockit/internal/state/TestRun.class"/>
             <include name="mockit/internal/state/MockFixture.class"/>

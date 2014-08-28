@@ -29,6 +29,9 @@
  */
 package mockit.external.asm;
 
+import mockit.internal.util.*;
+import static mockit.internal.util.ClassLoad.OBJECT;
+
 /**
  * A {@link ClassVisitor} that generates classes in bytecode form. More
  * precisely this visitor generates a byte array conforming to the Java class
@@ -678,6 +681,10 @@ public final class ClassWriter extends ClassVisitor {
             for (int i = 0; i < interfaceCount; ++i) {
                 this.interfaces[i] = newClass(interfaces[i]);
             }
+        }
+
+        if (superName != null) {
+           ClassLoad.addSuperClass(name, superName);
         }
     }
 
@@ -1674,9 +1681,29 @@ public final class ClassWriter extends ClassVisitor {
      * @return the internal name of the common super class of the two given
      *         classes.
      */
-    protected String getCommonSuperClass(final String type1, final String type2) {
-        // Replaced with this fixed return to avoid "duplicate class definition" errors.
-        return "java/lang/Object";
+    private String getCommonSuperClass(final String type1, final String type2) {
+       // Reimplemented to avoid "duplicate class definition" errors.
+       String class1 = type1;
+       String class2 = type2;
+
+       while (true) {
+          if (OBJECT.equals(class1) || OBJECT.equals(class2)) {
+             return OBJECT;
+          }
+
+          String superClass = ClassLoad.whichIsSuperClass(class1, class2);
+
+          if (superClass != null) {
+             return superClass;
+          }
+
+          class1 = ClassLoad.getSuperClass(class1);
+          class2 = ClassLoad.getSuperClass(class2);
+
+          if (class1.equals(class2)) {
+             return class1;
+          }
+       }
     }
 
     /**

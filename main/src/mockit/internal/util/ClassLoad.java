@@ -13,8 +13,11 @@ import mockit.internal.state.*;
 
 public final class ClassLoad
 {
+   public static final String OBJECT = "java/lang/Object";
+
    private static final ClassLoader THIS_CL = ClassLoad.class.getClassLoader();
    private static final Map<String, Class<?>> LOADED_CLASSES = new ConcurrentHashMap<String, Class<?>>();
+   private static final Map<String, String> SUPER_CLASSES = new ConcurrentHashMap<String, String>();
 
    private ClassLoad() {}
 
@@ -121,5 +124,62 @@ public final class ClassLoad
       }
       catch (NoClassDefFoundError ignore) { return null; }
       catch (ClassNotFoundException ignore) { return null; }
+   }
+
+   public static void addSuperClass(@NotNull String classInternalName, @NotNull String superClassInternalName)
+   {
+      SUPER_CLASSES.put(classInternalName.intern(), superClassInternalName.intern());
+   }
+
+   @NotNull
+   public static String getSuperClass(@NotNull String classInternalName)
+   {
+      String classDesc = classInternalName.intern();
+      String superName = SUPER_CLASSES.get(classDesc);
+
+      if (superName == null) {
+         Class<?> theClass = loadByInternalName(classDesc);
+         Class<?> superClass = theClass.getSuperclass();
+
+         if (superClass != null) {
+            superName = superClass.getName().replace('.', '/').intern();
+            SUPER_CLASSES.put(classDesc, superName);
+         }
+      }
+
+      return superName == null ? OBJECT : superName;
+   }
+
+   @Nullable
+   public static String whichIsSuperClass(@NotNull String internalClassName1, @NotNull String internalClassName2)
+   {
+      String class1 = actualSuperClass(internalClassName1, internalClassName2);
+
+      if (class1 != null) {
+         return class1;
+      }
+
+      String class2 = actualSuperClass(internalClassName2, internalClassName1);
+      return class2;
+   }
+
+   @Nullable
+   private static String actualSuperClass(@NotNull String candidateSuperClass, @NotNull String candidateSubclass)
+   {
+      String subclass = candidateSubclass;
+
+      while (true) {
+         String superClass = getSuperClass(subclass);
+
+         if (superClass.equals(OBJECT)) {
+            return null;
+         }
+
+         if (superClass.equals(candidateSuperClass)) {
+            return candidateSuperClass;
+         }
+
+         subclass = superClass;
+      }
    }
 }
