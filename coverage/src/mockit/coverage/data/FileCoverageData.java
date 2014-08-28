@@ -67,7 +67,21 @@ public final class FileCoverageData implements Serializable
 
    public int getTotalItemsForAllMetrics()
    {
-      return lineCoverageInfo.getTotalItems() + pathCoverageInfo.getTotalItems() + dataCoverageInfo.getTotalItems();
+      int totalItems = 0;
+
+      if (lineCoverageInfo != NO_LINE_INFO) {
+         totalItems += lineCoverageInfo.getTotalItems();
+      }
+
+      if (pathCoverageInfo != NO_PATH_INFO) {
+         totalItems += pathCoverageInfo.getTotalItems();
+      }
+
+      if (dataCoverageInfo != NO_DATA_INFO) {
+         totalItems += dataCoverageInfo.getTotalItems();
+      }
+
+      return totalItems;
    }
 
    void mergeWithDataFromPreviousTestRun(@NotNull FileCoverageData previousInfo)
