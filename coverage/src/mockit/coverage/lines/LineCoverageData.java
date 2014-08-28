@@ -96,10 +96,13 @@ public final class LineCoverageData extends LineSegmentData
 
    private int getSegmentsCovered()
    {
-      int segmentsCovered = 1;
+      int segmentsCovered = 0;
 
-      for (BranchCoverageData branch : branches) {
+      for (int i = 0, n = branches.size(); i < n; i++) {
+         BranchCoverageData branch = branches.get(i);
+
          if (branch.isCovered()) {
+            if (i == 0) segmentsCovered++;
             segmentsCovered++;
          }
       }
