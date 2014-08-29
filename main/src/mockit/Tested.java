@@ -30,7 +30,7 @@ import java.lang.annotation.*;
  * uninitialized are targeted; eligible fields are those annotated with a standard DI annotation (one of
  * {@code @Inject}, {@code @PersistenceContext}, {@code @PersistenceUnit}), or any <em>instance</em> fields when such
  * annotations are not being used.
- * For each such <em>target</em> field, the value of an still unused {@linkplain Injectable injectable} field or test
+ * For each such <em>target</em> field, the value of a still unused {@linkplain Injectable injectable} field or test
  * method parameter of the <em>same</em> type is assigned, if any is available.
  * Multiple target fields of the same type can be injected from separate injectables, provided each target field has the
  * same name as an available injectable field/parameter of that type.
