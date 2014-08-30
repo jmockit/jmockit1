@@ -6,6 +6,7 @@ package mockit;
 
 import java.io.*;
 import javax.annotation.*;
+import javax.ejb.EJB;
 import javax.inject.*;
 import javax.persistence.*;
 
@@ -45,7 +46,7 @@ public final class TestedClassWithFullStandardDITest
 
    public static class FirstLevelDependency
    {
-      @Inject private SecondLevelDependency dependency;
+      @EJB private SecondLevelDependency dependency;
       @Inject private static SecondLevelDependency staticDependency;
       @Inject private CommonDependency commonDependency;
       @Resource private static Runnable dependencyToBeMocked;

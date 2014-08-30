@@ -16,6 +16,7 @@ import org.jetbrains.annotations.*;
 final class InjectionPoint
 {
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
+   @Nullable private static final Class<? extends Annotation> EJB_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_CONTEXT_CLASS;
    @Nullable static final Class<?> ENTITY_MANAGER_FACTORY_CLASS;
@@ -25,6 +26,7 @@ final class InjectionPoint
    static
    {
       INJECT_CLASS = searchTypeInClasspath("javax.inject.Inject");
+      EJB_CLASS = searchTypeInClasspath("javax.ejb.EJB");
       PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
       PERSISTENCE_CONTEXT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceContext");
       ENTITY_MANAGER_FACTORY_CLASS = searchTypeInClasspath("javax.persistence.EntityManagerFactory");
@@ -51,6 +53,7 @@ final class InjectionPoint
       return
          field.isAnnotationPresent(Resource.class) ||
          INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS) ||
+         EJB_CLASS != null && field.isAnnotationPresent(EJB_CLASS) ||
          PERSISTENCE_UNIT_CLASS != null && (
             field.isAnnotationPresent(PERSISTENCE_CONTEXT_CLASS) || field.isAnnotationPresent(PERSISTENCE_UNIT_CLASS)
          );
