@@ -96,13 +96,12 @@ public final class LineCoverageData extends LineSegmentData
 
    private int getSegmentsCovered()
    {
-      int segmentsCovered = 0;
+      int segmentsCovered = executionCount > 0 ? 1 : 0;
 
       for (int i = 0, n = branches.size(); i < n; i++) {
          BranchCoverageData branch = branches.get(i);
 
          if (branch.isCovered()) {
-            if (i == 0) segmentsCovered++;
             segmentsCovered++;
          }
       }
@@ -115,7 +114,7 @@ public final class LineCoverageData extends LineSegmentData
       addExecutionCountAndCallPointsFromPreviousTestRun(previousData);
 
       if (containsBranches()) {
-         for (int i = 0; i < branches.size(); i++) {
+         for (int i = 0, n = branches.size(); i < n; i++) {
             BranchCoverageData segmentData = branches.get(i);
             BranchCoverageData previousSegmentData = previousData.branches.get(i);
 
