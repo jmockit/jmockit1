@@ -11,7 +11,6 @@ import org.jetbrains.annotations.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
-import mockit.external.asm.*;
 
 public final class PerFileLineCoverage implements PerFileCoverage
 {
@@ -70,13 +69,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public int addBranch(int line, @NotNull Label jumpSource, @NotNull Label jumpTarget)
-   {
-      LineCoverageData lineData = getOrCreateLineData(line);
-      return lineData.addBranch(jumpSource, jumpTarget);
-   }
-
-   @NotNull private LineCoverageData getOrCreateLineData(int line)
+   @NotNull public LineCoverageData getOrCreateLineData(int line)
    {
       LineCoverageData lineData = lineToLineData.get(line);
 
@@ -122,16 +115,16 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public boolean acceptsAdditionalCallPoints(int line, int segment)
+   public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
    {
       LineCoverageData lineData = getOrCreateLineData(line);
-      return lineData.acceptsAdditionalCallPoints(segment);
+      return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
-   public void registerExecution(int line, int segment, boolean jumped, @Nullable CallPoint callPoint)
+   public void registerExecution(int line, int branchIndex, boolean jumped, @Nullable CallPoint callPoint)
    {
       LineCoverageData lineData = getOrCreateLineData(line);
-      lineData.registerExecution(segment, jumped, callPoint);
+      lineData.registerExecution(branchIndex, jumped, callPoint);
    }
 
    public int getLineCount() { return lastLine; }

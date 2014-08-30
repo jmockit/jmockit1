@@ -242,11 +242,9 @@ final class CoverageModifier extends ClassVisitor
       @NotNull final MethodWriter mw;
       @NotNull final List<Label> visitedLabels;
       @NotNull final List<Label> jumpTargetsForCurrentLine;
-      @NotNull private final Map<Label, Label> unconditionalJumps;
       @NotNull final Map<Integer, Boolean> pendingBranches;
       @NotNull final PerFileLineCoverage lineCoverageInfo;
       boolean assertFoundInCurrentLine;
-      boolean nextLabelAfterConditionalJump;
       boolean potentialAssertFalseFound;
 
       BaseMethodModifier(@NotNull MethodWriter mw)
@@ -255,7 +253,6 @@ final class CoverageModifier extends ClassVisitor
          this.mw = mw;
          visitedLabels = new ArrayList<Label>();
          jumpTargetsForCurrentLine = new ArrayList<Label>(4);
-         unconditionalJumps = new HashMap<Label, Label>(2);
          pendingBranches = new HashMap<Integer, Boolean>();
 
          assert fileData != null;
@@ -273,8 +270,6 @@ final class CoverageModifier extends ClassVisitor
          currentLine = line;
 
          jumpTargetsForCurrentLine.clear();
-         nextLabelAfterConditionalJump = false;
-         unconditionalJumps.clear();
 
          generateCallToRegisterLineExecution();
 
@@ -308,14 +303,17 @@ final class CoverageModifier extends ClassVisitor
             return;
          }
 
-         jumpTargetsForCurrentLine.add(label);
-         nextLabelAfterConditionalJump = isConditionalJump(opcode);
+         boolean conditionalJump = isConditionalJump(opcode);
 
          Label jumpingFrom = mw.currentBlock;
          assert jumpingFrom != null;
+         jumpingFrom.info = currentLine;
 
-         if (nextLabelAfterConditionalJump) {
-            int branchIndex = lineCoverageInfo.addBranch(currentLine, jumpingFrom, label);
+         LineCoverageData lineData = lineCoverageInfo.getOrCreateLineData(currentLine);
+
+         if (conditionalJump) {
+            jumpTargetsForCurrentLine.add(label);
+            int branchIndex = lineData.addBranch(jumpingFrom, label);
             pendingBranches.put(branchIndex, false);
 
             if (assertFoundInCurrentLine) {
@@ -323,13 +321,16 @@ final class CoverageModifier extends ClassVisitor
                branchData.markAsUnreachable();
             }
          }
-         else {
-            unconditionalJumps.put(label, jumpingFrom);
+         else if (!lineData.noBranchesYet()) {
+            int branchIndex = lineData.addBranch(jumpingFrom, label);
+            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, branchIndex);
+            branchData.setHasJumpTarget();
+            generateCallToRegisterBranchTargetExecution("jumpTargetExecuted", branchIndex);
          }
 
          mw.visitJumpInsn(opcode, label);
 
-         if (nextLabelAfterConditionalJump) {
+         if (conditionalJump) {
             generateCallToRegisterBranchTargetExecutionIfPending();
          }
       }
@@ -347,16 +348,18 @@ final class CoverageModifier extends ClassVisitor
             return;
          }
 
+         int line = currentLine;
+
          for (Entry<Integer, Boolean> pendingBranch : pendingBranches.entrySet()) {
             Integer branchIndex = pendingBranch.getKey();
 
             // TODO: if..return added to avoid an IndexOutOfBoundsException;
             // see TryCatchFinallyStatements#finallyBlockContainingIfWithBodyInSameLine
-            if (branchIndex >= lineCoverageInfo.getBranchCount(currentLine)) {
+            if (branchIndex >= lineCoverageInfo.getBranchCount(line)) {
                return;
             }
 
-            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, branchIndex);
+            BranchCoverageData branchData = lineCoverageInfo.getBranchData(line, branchIndex);
             Boolean firstInsnAfterJump = pendingBranch.getValue();
 
             if (firstInsnAfterJump) {
@@ -378,24 +381,12 @@ final class CoverageModifier extends ClassVisitor
          visitedLabels.add(label);
          mw.visitLabel(label);
 
-         if (nextLabelAfterConditionalJump) {
-            int branchIndex = jumpTargetsForCurrentLine.indexOf(label);
+         int branchIndex = jumpTargetsForCurrentLine.indexOf(label);
 
-            if (branchIndex >= 0) {
-               pendingBranches.put(branchIndex, true);
-               assertFoundInCurrentLine = false;
-            }
-
-            nextLabelAfterConditionalJump = false;
-         }
-
-         Label unconditionalJumpSource = unconditionalJumps.get(label);
-
-         if (unconditionalJumpSource != null) {
-            int branchIndex = lineCoverageInfo.addBranch(currentLine, unconditionalJumpSource, label);
-            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, branchIndex);
-            branchData.setHasJumpTarget();
-            generateCallToRegisterBranchTargetExecution("jumpTargetExecuted", branchIndex);
+         if (branchIndex >= 0) {
+            label.info = currentLine;
+            pendingBranches.put(branchIndex, true);
+            assertFoundInCurrentLine = false;
          }
       }
 
