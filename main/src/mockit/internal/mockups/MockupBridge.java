@@ -20,13 +20,24 @@ public final class MockupBridge extends MockingBridge
    @Nullable @Override
    public Object invoke(@Nullable Object mocked, Method method, @NotNull Object[] args) throws Throwable
    {
-      String mockClassDesc = (String) args[0];
-
-      if (notToBeMocked(mocked, mockClassDesc)) {
+      if (TestRun.isInsideNoMockingZone()) {
          return false;
       }
 
-      Integer mockStateIndex = (Integer) args[1];
-      return TestRun.updateMockState(mockClassDesc, mocked, mockStateIndex);
+      TestRun.enterNoMockingZone();
+
+      try {
+         String mockClassDesc = (String) args[0];
+
+         if (notToBeMocked(mocked, mockClassDesc)) {
+            return false;
+         }
+
+         Integer mockStateIndex = (Integer) args[1];
+         return TestRun.updateMockState(mockClassDesc, mocked, mockStateIndex);
+      }
+      finally {
+         TestRun.exitNoMockingZone();
+      }
    }
 }

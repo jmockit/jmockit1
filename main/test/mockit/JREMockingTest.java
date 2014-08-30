@@ -232,6 +232,18 @@ public final class JREMockingTest
    }
 
    @Test
+   public void threadMockUp()
+   {
+       Thread t = new MockUp<Thread>() {
+           @Mock String getName() { return "test"; }
+       }.getMockInstance();
+
+       String threadName = t.getName();
+
+       assertEquals("test", threadName);
+   }
+
+   @Test
    public void mockingOfAnnotatedNativeMethod(@Mocked("countStackFrames") Thread mock) throws Exception
    {
       assertTrue(Thread.class.getDeclaredMethod("countStackFrames").isAnnotationPresent(Deprecated.class));
