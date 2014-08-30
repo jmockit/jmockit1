@@ -9,6 +9,7 @@ import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
 
 import mockit.coverage.data.*;
@@ -68,13 +69,19 @@ public class CoverageTest
    }
 
    protected final void assertLine(
-      int line, int expectedSegments, int expectedCoveredSegments, int expectedExecutionCount)
+      int line, int expectedSegments, int expectedCoveredSegments, int... expectedExecutionCounts)
    {
       PerFileLineCoverage lineCoverageInfo = fileData.lineCoverageInfo;
       LineCoverageData lineData = lineCoverageInfo.getLineData(line);
       assertEquals("Segments:", expectedSegments, lineCoverageInfo.getNumberOfSegments(line));
       assertEquals("Covered segments:", expectedCoveredSegments, lineData.getNumberOfCoveredSegments());
-      assertEquals("Execution count:", expectedExecutionCount, lineCoverageInfo.getExecutionCount(line));
+      assertEquals("Execution count:", expectedExecutionCounts[0], lineCoverageInfo.getExecutionCount(line));
+
+      for (int i = 1; i < expectedExecutionCounts.length; i++) {
+         BranchCoverageData segmentData = lineCoverageInfo.getBranchData(line, i - 1);
+         int executionCount = segmentData.getExecutionCount();
+         assertEquals("Execution count for segment " + i + ':', expectedExecutionCounts[i], executionCount);
+      }
    }
 
    protected final void findMethodData(int firstLineOfMethodBody)

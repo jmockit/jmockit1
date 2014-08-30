@@ -62,7 +62,7 @@ public final class IfElseStatementsTest extends CoverageTest
       tested.singleLineIfAndElse(false);
 
       assertLines(30, 31, 2);
-      assertLine(30, 3, 3, 2);
+      assertLine(30, 3, 3, 2, 1, 1);
       assertLine(31, 1, 1, 2);
 
       findMethodData(30);
