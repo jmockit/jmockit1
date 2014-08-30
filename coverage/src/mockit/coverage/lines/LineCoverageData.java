@@ -42,7 +42,7 @@ public final class LineCoverageData extends LineSegmentData
       return branches.size() - 1;
    }
 
-   private boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
+   public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
 
    private int findBranchIndex(@NotNull Label jumpSource, @NotNull Label jumpTarget)
    {
@@ -57,9 +57,9 @@ public final class LineCoverageData extends LineSegmentData
       return -1;
    }
 
-   @NotNull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
+   @NotNull BranchCoverageData getBranchData(int index) { return branches.get(index); }
 
-   public boolean acceptsAdditionalCallPoints(int branchIndex)
+   boolean acceptsAdditionalCallPoints(int branchIndex)
    {
       BranchCoverageData data = branches.get(branchIndex);
       return data.acceptsAdditionalCallPoints();
@@ -80,7 +80,7 @@ public final class LineCoverageData extends LineSegmentData
    public boolean containsBranches() { return !noBranchesYet(); }
    @NotNull public List<BranchCoverageData> getBranches() { return branches; }
 
-   public int getNumberOfSegments()
+   int getNumberOfSegments()
    {
       return noBranchesYet() ? 1 : 1 + branches.size();
    }
@@ -109,7 +109,7 @@ public final class LineCoverageData extends LineSegmentData
       return segmentsCovered;
    }
 
-   public void addCountsFromPreviousTestRun(@NotNull LineCoverageData previousData)
+   void addCountsFromPreviousTestRun(@NotNull LineCoverageData previousData)
    {
       addExecutionCountAndCallPointsFromPreviousTestRun(previousData);
 
@@ -124,7 +124,7 @@ public final class LineCoverageData extends LineSegmentData
    }
 
    @Override
-   public void reset()
+   void reset()
    {
       super.reset();
 

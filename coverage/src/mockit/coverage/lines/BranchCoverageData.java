@@ -18,7 +18,7 @@ public final class BranchCoverageData extends LineSegmentData
 
    // Static data:
    @NotNull public final transient Label jumpSource;
-   @NotNull public final transient Label jumpTarget;
+   @NotNull final transient Label jumpTarget;
 
    // Runtime data (and static if any execution count is -1, meaning lack of the jump target):
    private int jumpExecutionCount;
