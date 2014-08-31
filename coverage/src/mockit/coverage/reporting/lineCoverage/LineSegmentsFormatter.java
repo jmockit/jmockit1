@@ -1,17 +1,18 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.lineCoverage;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import static java.lang.Character.*;
 
 import mockit.coverage.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.reporting.*;
 import mockit.coverage.reporting.parsing.*;
+
+import org.jetbrains.annotations.*;
 
 final class LineSegmentsFormatter
 {
@@ -88,13 +89,12 @@ final class LineSegmentsFormatter
       appendTooltipWithExecutionCounts(segmentData);
 
       if (segmentData.isCovered()) {
-         line.append("class='covered");
-
          if (segmentData.containsCallPoints()) {
-            line.append(" cp' onclick='showHide(this,").append(segmentIndex).append(')');
+            line.append("class='covered cp' onclick='showHide(this,").append(segmentIndex).append(")'>");
          }
-
-         line.append("'>");
+         else {
+            line.append("class='covered'>");
+         }
       }
       else {
          line.append("class='uncovered'>");
@@ -110,18 +110,15 @@ final class LineSegmentsFormatter
    {
       int i = line.length() - 1;
 
-      while (Character.isWhitespace(line.charAt(i))) {
+      while (isWhitespace(line.charAt(i))) {
          i--;
       }
-      
+
       line.insert(i + 1, "</span>");
 
       if (listOfCallPoints != null) {
          List<CallPoint> callPoints = segmentData.getCallPoints();
-
-         if (callPoints != null) {
-            listOfCallPoints.insertListOfCallPoints(callPoints);
-         }
+         listOfCallPoints.insertListOfCallPoints(callPoints);
       }
    }
 }

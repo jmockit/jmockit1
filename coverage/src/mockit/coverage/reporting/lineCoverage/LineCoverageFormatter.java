@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.lineCoverage;
@@ -55,16 +55,16 @@ final class LineCoverageFormatter
       formattedLine.append(lineData.isCovered() ? " covered" : " uncovered");
 
       List<CallPoint> callPoints = lineData.getCallPoints();
-      boolean lineWithCallPoints = listOfCallPoints != null && callPoints != null;
 
-      if (lineWithCallPoints) {
+      if (listOfCallPoints != null && callPoints != null) {
          formattedLine.append(" cp' onclick='showHide(this)");
       }
 
       formattedLine.append("' id='l").append(lineParser.getNumber()).append("s0'>");
-      formattedLine.append(lineParser.getInitialElement().toString()).append("</pre>");
+      String content = lineParser.getInitialElement().toString();
+      formattedLine.append(content).append("</pre>");
 
-      if (lineWithCallPoints) {
+      if (listOfCallPoints != null) {
          listOfCallPoints.insertListOfCallPoints(callPoints);
          formattedLine.append(listOfCallPoints.getContents());
       }

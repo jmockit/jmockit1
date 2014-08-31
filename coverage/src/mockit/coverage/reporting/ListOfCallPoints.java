@@ -5,6 +5,7 @@
 package mockit.coverage.reporting;
 
 import java.util.*;
+import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
@@ -13,18 +14,24 @@ import mockit.coverage.*;
 public final class ListOfCallPoints
 {
    @NotNull private static final String EOL = System.getProperty("line.separator");
+   private static final Pattern LESS_THAN_CHAR = Pattern.compile("<");
 
    @NotNull private final StringBuilder content;
 
    public ListOfCallPoints() { content = new StringBuilder(100); }
 
-   public void insertListOfCallPoints(@NotNull List<CallPoint> callPoints)
+   public void insertListOfCallPoints(@Nullable List<CallPoint> callPoints)
    {
       if (content.length() == 0) {
          content.append(EOL).append("      ");
       }
 
-      content.append("  <ol style='display: none'>").append(EOL);
+      if (callPoints == null) {
+         content.append("  <ol style='display:none'></ol>").append(EOL).append("      ");
+         return;
+      }
+
+      content.append("  <ol style='display:none'>").append(EOL);
 
       CallPoint currentCP = callPoints.get(0);
       appendTestMethod(currentCP.getStackTraceElement());
@@ -53,7 +60,7 @@ public final class ListOfCallPoints
    {
       content.append("          <li>");
       content.append(current.getClassName()).append('#');
-      content.append(current.getMethodName().replaceFirst("<", "&lt;")).append(": ");
+      content.append(LESS_THAN_CHAR.matcher(current.getMethodName()).replaceFirst("&lt;")).append(": ");
       content.append(current.getLineNumber());
    }
 
