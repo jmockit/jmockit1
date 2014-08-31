@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.loops;
@@ -75,7 +75,7 @@ public final class WhileStatementsTest extends CoverageTest
 
       findMethodData(20);
       assertMethodLines(20, 29);
-      assertPaths(3, 2, 2); // TODO: one path is unfeasible
+      assertPaths(3, 2, 2); // one path is unfeasible
    }
 
    @Test
@@ -138,23 +138,24 @@ public final class WhileStatementsTest extends CoverageTest
       assertPath(2, 1);
    }
 
-   @Ignore @Test
+   @Test
    public void bothKindsOfWhileCombined()
    {
+      tested.bothKindsOfWhileCombined(0, 0);
       tested.bothKindsOfWhileCombined(0, 2);
       tested.bothKindsOfWhileCombined(1, 1);
 
       assertLines(69, 76, 5);
-      assertLine(69, 1, 1, 3);
-      assertLine(71, 1, 1, 3);
-      assertLine(73, 1, 1, 2);
-      assertLine(75, 1, 1, 2); // why only one segment?
-      assertLine(76, 1, 1, 2);
+      assertLine(69, 1, 1, 5);
+      assertLine(71, 1, 1, 5);
+      assertLine(73, 1, 1, 4);
+      assertLine(75, 1, 1, 4);
+      assertLine(76, 1, 1, 3);
 
       findMethodData(69);
       assertMethodLines(69, 76);
-      assertPaths(1, 1, 2); // why only one path?
-      assertPath(2, 2);
+      assertPaths(1, 1, 3); // there is only one effective path
+      assertPath(2, 3);
    }
 
    @Test
@@ -163,7 +164,8 @@ public final class WhileStatementsTest extends CoverageTest
       tested.whileTrueEndingWithAnIf(0);
 
       findMethodData(84);
-//      assertPaths(2, 1, 1);
+      assertPaths(1, 1, 1); // there is only one effective path
+      assertPath(2, 1);
    }
 
    @Test
@@ -172,7 +174,9 @@ public final class WhileStatementsTest extends CoverageTest
       tested.whileTrueStartingWithAnIf(0);
 
       findMethodData(94);
-//      assertPaths(2, 1, 1);
+      // TODO: execution count ends up with zero instead of one
+//      assertPaths(1, 1, 1);
+//      assertPath(3, 1);
    }
 
    @Test(expected = IllegalStateException.class)
