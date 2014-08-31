@@ -147,4 +147,9 @@ public final class IfElseStatements
    {
       int r; if (b) r = 1; else r = 2; return r;
    }
+
+   int yetAnotherSingleLineIfAndElse(boolean b)
+   {
+      if (b) return 1; else return 2;
+   }
 }
