@@ -296,37 +296,29 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public void visitJumpInsn(int opcode, @NotNull Label label)
       {
-         if (currentLine == 0 || visitedLabels.contains(label)) {
+         if (currentLine == 0 || visitedLabels.contains(label) || !isConditionalJump(opcode)) {
             assertFoundInCurrentLine = false;
             mw.visitJumpInsn(opcode, label);
             return;
          }
 
-         boolean conditionalJump = isConditionalJump(opcode);
-
          Label jumpingFrom = mw.currentBlock;
          assert jumpingFrom != null;
          jumpingFrom.info = currentLine;
 
+         jumpTargetsForCurrentLine.add(label);
+
          LineCoverageData lineData = lineCoverageInfo.getOrCreateLineData(currentLine);
+         int noJumpBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
+         pendingBranches.add(noJumpBranchIndex);
 
-         if (conditionalJump) {
-            jumpTargetsForCurrentLine.add(label);
-
-            int noJumpBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
-            pendingBranches.add(noJumpBranchIndex);
-
-            if (assertFoundInCurrentLine) {
-               BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, noJumpBranchIndex);
-               branchData.markAsUnreachable();
-            }
+         if (assertFoundInCurrentLine) {
+            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, noJumpBranchIndex + 1);
+            branchData.markAsUnreachable();
          }
 
          mw.visitJumpInsn(opcode, label);
-
-         if (conditionalJump) {
-            generateCallToRegisterBranchTargetExecutionIfPending();
-         }
+         generateCallToRegisterBranchTargetExecutionIfPending();
       }
 
       protected final boolean isConditionalJump(int opcode) { return opcode != GOTO && opcode != JSR; }
@@ -335,15 +327,22 @@ final class CoverageModifier extends ClassVisitor
       {
          potentialAssertFalseFound = false;
 
-         if (pendingBranches.isEmpty()) {
-            return;
-         }
+         if (!pendingBranches.isEmpty()) {
+            for (Integer pendingBranchIndex : pendingBranches) {
+               generateCallToRegisterBranchTargetExecution(pendingBranchIndex);
+            }
 
-         for (Integer pendingBranchIndex : pendingBranches) {
-            generateCallToRegisterBranchTargetExecution(pendingBranchIndex);
+            pendingBranches.clear();
          }
+      }
 
-         pendingBranches.clear();
+      private void generateCallToRegisterBranchTargetExecution(int branchIndex)
+      {
+         assert fileData != null;
+         mw.visitIntInsn(SIPUSH, fileData.index);
+         pushCurrentLineOnTheStack();
+         mw.visitIntInsn(SIPUSH, branchIndex);
+         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "branchExecuted", "(III)V", false);
       }
 
       @Override
@@ -360,15 +359,6 @@ final class CoverageModifier extends ClassVisitor
             pendingBranches.add(jumpBranchIndex);
             assertFoundInCurrentLine = false;
          }
-      }
-
-      private void generateCallToRegisterBranchTargetExecution(int branchIndex)
-      {
-         assert fileData != null;
-         mw.visitIntInsn(SIPUSH, fileData.index);
-         pushCurrentLineOnTheStack();
-         mw.visitIntInsn(SIPUSH, branchIndex);
-         mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "branchExecuted", "(III)V", false);
       }
 
       @Override
