@@ -195,7 +195,7 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>javax</groupId><artifactId>javaee-api</artifactId><version>7.0</version>
+         <groupId>javax</groupId><artifactId>javaee-api</artifactId><version>6.0</version>
          <optional>true</optional>
       </dependency>
    </dependencies>
