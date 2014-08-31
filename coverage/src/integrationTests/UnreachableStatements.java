@@ -4,7 +4,7 @@ public final class UnreachableStatements
 {
    void nonBranchingMethodWithUnreachableLines()
    {
-      @SuppressWarnings({"UnusedDeclaration"}) int a = 1;
+      int a = 1;
       assert false;
       System.gc();
    }

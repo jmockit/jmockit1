@@ -47,11 +47,8 @@ public final class LineCoverageData extends LineSegmentData
 
    private int findBranchIndex(@NotNull Label jumpSource, @NotNull Label jumpTarget)
    {
-      for (int i = branches.size() - 1; i >= 0; i -= 2) {
-         BranchCoverageData targetBranch = branches.get(i);
-         BranchCoverageData sourceBranch = branches.get(i - 1);
-
-         if (sourceBranch.label == jumpSource && targetBranch.label == jumpTarget) {
+      for (int i = branches.size() - 2; i >= 0; i -= 2) {
+         if (jumpSource == branches.get(i).label && jumpTarget == branches.get(i + 1).label) {
             return i;
          }
       }
@@ -84,13 +81,13 @@ public final class LineCoverageData extends LineSegmentData
          return 1;
       }
 
-      BranchCoverageData branchData = branches.get(0);
-      Integer sourceLine = branchData.getLine();
+      BranchCoverageData branch = branches.get(0);
+      Integer sourceLine = branch.getLine();
       int count = 2;
 
       for (int i = 1; i < n; i += 2) {
-         branchData = branches.get(i);
-         Integer targetLine = branchData.getLine();
+         branch = branches.get(i);
+         Integer targetLine = branch.getLine();
 
          if (targetLine != null && targetLine.equals(sourceLine)) {
             count++;
@@ -102,22 +99,27 @@ public final class LineCoverageData extends LineSegmentData
 
    public int getNumberOfCoveredSegments()
    {
-      if (noBranchesYet()) {
-         return executionCount > 0 ? 1 : 0;
+      int segmentsCovered = executionCount > 0 ? 1 : 0;
+      int n = branches.size();
+
+      if (n == 0) {
+         return segmentsCovered;
       }
 
-      return getSegmentsCovered();
-   }
+      for (int i = 0; i < n; i += 2) {
+         BranchCoverageData sourceBranch = branches.get(i);
+         BranchCoverageData targetBranch = branches.get(i + 1);
 
-   private int getSegmentsCovered()
-   {
-      int segmentsCovered = executionCount > 0 ? 1 : 0;
-
-      for (int i = 0, n = branches.size(); i < n; i++) {
-         BranchCoverageData branch = branches.get(i);
-
-         if (branch.isCovered()) {
+         if (sourceBranch.isCovered()) {
             segmentsCovered++;
+         }
+
+         if (targetBranch.isCovered()) {
+            Integer targetLine = targetBranch.getLine();
+
+            if (targetLine != null && targetLine.equals(sourceBranch.getLine())) {
+               segmentsCovered++;
+            }
          }
       }
 
