@@ -121,10 +121,10 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
-   public void registerExecution(int line, int branchIndex, boolean jumped, @Nullable CallPoint callPoint)
+   public void registerExecution(int line, int branchIndex, @Nullable CallPoint callPoint)
    {
       LineCoverageData lineData = getOrCreateLineData(line);
-      lineData.registerExecution(branchIndex, jumped, callPoint);
+      lineData.registerExecution(branchIndex, callPoint);
    }
 
    public int getLineCount() { return lastLine; }

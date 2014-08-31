@@ -23,9 +23,11 @@ public final class LineCoverageData extends LineSegmentData
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
-   public int addBranch(@NotNull Label jumpSource, @NotNull Label jumpTarget)
+   public int addBranchingPoint(@NotNull Label jumpSource, @NotNull Label jumpTarget)
    {
-      if (noBranchesYet()) {
+      int initialIndex = branches.size();
+
+      if (initialIndex == 0) {
          branches = new ArrayList<BranchCoverageData>(4);
       }
       else {
@@ -36,20 +38,20 @@ public final class LineCoverageData extends LineSegmentData
          }
       }
 
-      BranchCoverageData data = new BranchCoverageData(jumpSource, jumpTarget);
-      branches.add(data);
-
-      return branches.size() - 1;
+      branches.add(new BranchCoverageData(jumpSource));
+      branches.add(new BranchCoverageData(jumpTarget));
+      return initialIndex;
    }
 
    public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
 
    private int findBranchIndex(@NotNull Label jumpSource, @NotNull Label jumpTarget)
    {
-      for (int i = branches.size() - 1; i >= 0; i--) {
-         BranchCoverageData data = branches.get(i);
+      for (int i = branches.size() - 1; i >= 0; i -= 2) {
+         BranchCoverageData targetBranch = branches.get(i);
+         BranchCoverageData sourceBranch = branches.get(i - 1);
 
-         if (data.jumpSource == jumpSource && data.jumpTarget == jumpTarget) {
+         if (sourceBranch.label == jumpSource && targetBranch.label == jumpTarget) {
             return i;
          }
       }
@@ -57,7 +59,7 @@ public final class LineCoverageData extends LineSegmentData
       return -1;
    }
 
-   @NotNull BranchCoverageData getBranchData(int index) { return branches.get(index); }
+   @NotNull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
 
    boolean acceptsAdditionalCallPoints(int branchIndex)
    {
@@ -65,16 +67,10 @@ public final class LineCoverageData extends LineSegmentData
       return data.acceptsAdditionalCallPoints();
    }
 
-   void registerExecution(int branchIndex, boolean jumped, @Nullable CallPoint callPoint)
+   void registerExecution(int branchIndex, @Nullable CallPoint callPoint)
    {
       BranchCoverageData data = branches.get(branchIndex);
-
-      if (jumped) {
-         data.registerJumpExecution(callPoint);
-      }
-      else {
-         data.registerNoJumpExecution(callPoint);
-      }
+      data.registerExecution(callPoint);
    }
 
    public boolean containsBranches() { return !noBranchesYet(); }
@@ -82,7 +78,26 @@ public final class LineCoverageData extends LineSegmentData
 
    int getNumberOfSegments()
    {
-      return noBranchesYet() ? 1 : 1 + branches.size();
+      int n = branches.size();
+
+      if (n == 0) {
+         return 1;
+      }
+
+      BranchCoverageData branchData = branches.get(0);
+      Integer sourceLine = branchData.getLine();
+      int count = 2;
+
+      for (int i = 1; i < n; i += 2) {
+         branchData = branches.get(i);
+         Integer targetLine = branchData.getLine();
+
+         if (targetLine != null && targetLine.equals(sourceLine)) {
+            count++;
+         }
+      }
+
+      return count;
    }
 
    public int getNumberOfCoveredSegments()
@@ -118,7 +133,7 @@ public final class LineCoverageData extends LineSegmentData
             BranchCoverageData segmentData = branches.get(i);
             BranchCoverageData previousSegmentData = previousData.branches.get(i);
 
-            segmentData.addCountsFromPreviousTestRun(previousSegmentData);
+            segmentData.addExecutionCountAndCallPointsFromPreviousTestRun(previousSegmentData);
          }
       }
    }

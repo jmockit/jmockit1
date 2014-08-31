@@ -17,7 +17,7 @@ public class LineSegmentData implements Serializable
    private static final int MAX_CALL_POINTS = Integer.parseInt(Configuration.getProperty("maxCallPoints", "10"));
 
    // Static data:
-   boolean unreachable;
+   private boolean unreachable;
 
    // Runtime data:
    int executionCount;
@@ -30,10 +30,13 @@ public class LineSegmentData implements Serializable
       return callPoints == null || callPoints.size() < MAX_CALL_POINTS;
    }
 
-   final void registerExecution(@NotNull CallPoint callPoint)
+   final void registerExecution(@Nullable CallPoint callPoint)
    {
-      addCallPoint(callPoint);
       executionCount++;
+
+      if (callPoint != null) {
+         addCallPoint(callPoint);
+      }
    }
 
    private void addCallPoint(@NotNull CallPoint callPoint)
@@ -54,20 +57,13 @@ public class LineSegmentData implements Serializable
       callPoints.add(callPoint);
    }
 
-   final void addCallPointIfAny(@Nullable CallPoint callPoint)
-   {
-      if (callPoint != null) {
-         addCallPoint(callPoint);
-      }
-   }
-
    public final boolean containsCallPoints() { return callPoints != null; }
    @Nullable public final List<CallPoint> getCallPoints() { return callPoints; }
 
-   public int getExecutionCount() { return executionCount; }
+   public final int getExecutionCount() { return executionCount; }
    final void setExecutionCount(int executionCount) { this.executionCount = executionCount; }
 
-   public boolean isCovered() { return unreachable || executionCount > 0; }
+   public final boolean isCovered() { return unreachable || executionCount > 0; }
 
    final void addExecutionCountAndCallPointsFromPreviousTestRun(@NotNull LineSegmentData previousData)
    {

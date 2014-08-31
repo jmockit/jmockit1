@@ -1,6 +1,6 @@
 package integrationTests;
 
-@SuppressWarnings({"ControlFlowStatementWithoutBraces"})
+@SuppressWarnings("ControlFlowStatementWithoutBraces")
 public final class IfElseStatements
 {
    void simpleIf(boolean b)
@@ -141,5 +141,10 @@ public final class IfElseStatements
       if (a) {
          System.runFinalization();
       }
+   }
+
+   int anotherSingleLineIfAndElse(boolean b)
+   {
+      int r; if (b) r = 1; else r = 2; return r;
    }
 }

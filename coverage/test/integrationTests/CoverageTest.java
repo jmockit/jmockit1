@@ -12,6 +12,7 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
+import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.dataItems.*;
 import mockit.coverage.lines.*;
@@ -78,9 +79,16 @@ public class CoverageTest
       assertEquals("Execution count:", expectedExecutionCounts[0], lineCoverageInfo.getExecutionCount(line));
 
       for (int i = 1; i < expectedExecutionCounts.length; i++) {
-         BranchCoverageData segmentData = lineCoverageInfo.getBranchData(line, i - 1);
+         BranchCoverageData segmentData = lineData.getBranchData(i - 1);
+
          int executionCount = segmentData.getExecutionCount();
          assertEquals("Execution count for segment " + i + ':', expectedExecutionCounts[i], executionCount);
+
+         List<CallPoint> callPoints = segmentData.getCallPoints();
+
+         if (callPoints != null) {
+            assertEquals(executionCount, callPoints.size());
+         }
       }
    }
 

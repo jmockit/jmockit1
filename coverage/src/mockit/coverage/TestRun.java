@@ -31,7 +31,7 @@ public final class TestRun
       fileData.registerExecution(line, callPoint);
    }
 
-   public static void jumpTargetExecuted(int fileIndex, int line, int branchIndex)
+   public static void branchExecuted(int fileIndex, int line, int branchIndex)
    {
       if (terminated) return;
 
@@ -43,22 +43,7 @@ public final class TestRun
          callPoint = CallPoint.create(new Throwable());
       }
 
-      fileData.registerExecution(line, branchIndex, true, callPoint);
-   }
-
-   public static void noJumpTargetExecuted(int fileIndex, int line, int branchIndex)
-   {
-      if (terminated) return;
-
-      CoverageData coverageData = CoverageData.instance();
-      PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
-      CallPoint callPoint = null;
-
-      if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line, branchIndex)) {
-         callPoint = CallPoint.create(new Throwable());
-      }
-
-      fileData.registerExecution(line, branchIndex, false, callPoint);
+      fileData.registerExecution(line, branchIndex, callPoint);
    }
 
    public static void nodeReached(@NotNull String file, int firstLineInMethodBody, int node)

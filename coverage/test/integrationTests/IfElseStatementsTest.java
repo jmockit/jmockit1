@@ -73,6 +73,15 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
+   public void singleLineIfAndElseWhereOnlyTheElseIsExecuted()
+   {
+      tested.anotherSingleLineIfAndElse(false);
+
+      assertLines(148, 148, 1);
+      assertLine(148, 3, 2, 1, 0, 1);
+   }
+
+   @Test
    public void methodWithFourDifferentPathsAndSimpleLines_exerciseTwoOppositePaths()
    {
       tested.methodWithFourDifferentPathsAndSimpleLines(true, 0);
