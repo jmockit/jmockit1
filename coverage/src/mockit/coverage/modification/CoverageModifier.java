@@ -340,12 +340,6 @@ final class CoverageModifier extends ClassVisitor
          }
 
          for (Integer pendingBranchIndex : pendingBranches) {
-            // TODO: if..return added to avoid an IndexOutOfBoundsException;
-            // see TryCatchFinallyStatements#finallyBlockContainingIfWithBodyInSameLine
-            if (pendingBranchIndex >= lineCoverageInfo.getBranchCount(currentLine)) {
-               return;
-            }
-
             generateCallToRegisterBranchTargetExecution(pendingBranchIndex);
          }
 

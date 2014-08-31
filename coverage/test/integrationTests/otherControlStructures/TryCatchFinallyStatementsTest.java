@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2011 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.otherControlStructures;
@@ -10,7 +10,7 @@ import integrationTests.*;
 
 public final class TryCatchFinallyStatementsTest extends CoverageTest
 {
-   final TryCatchFinallyStatements tested = new TryCatchFinallyStatements();
+   TryCatchFinallyStatements tested;
 
    @Test
    public void tryCatch()
