@@ -35,16 +35,15 @@ final class LineSegmentsFormatter
       lineNumber = lineParser.getNumber();
 
       List<BranchCoverageData> branchData = lineData.getBranches();
-      int numSegments = 1 + branchData.size();
+      int numSegments = lineData.getNumberOfSegments();
 
       element = lineParser.getInitialElement().appendUntilNextCodeElement(line);
 
       segmentIndex = 0;
       appendUntilFirstElementAfterNextBranchingPoint(lineData);
 
-      for (segmentIndex = 1; element != null && segmentIndex < numSegments; segmentIndex++) {
-         LineSegmentData segmentData = branchData.get(segmentIndex - 1);
-
+      while (element != null && segmentIndex < numSegments) {
+         LineSegmentData segmentData = segmentIndex == 0 ? lineData : branchData.get(segmentIndex - 1);
          element = element.appendUntilNextCodeElement(line);
          appendUntilFirstElementAfterNextBranchingPoint(segmentData);
       }
@@ -80,6 +79,8 @@ final class LineSegmentsFormatter
       appendStartTag(segmentData);
       firstElement.appendAllBefore(line, element);
       appendEndTag(segmentData);
+
+      segmentIndex++;
    }
 
    private void appendStartTag(@NotNull LineSegmentData segmentData)

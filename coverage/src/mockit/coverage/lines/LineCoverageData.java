@@ -76,7 +76,7 @@ public final class LineCoverageData extends LineSegmentData
    public boolean containsBranches() { return !noBranchesYet(); }
    @NotNull public List<BranchCoverageData> getBranches() { return branches; }
 
-   int getNumberOfSegments()
+   public int getNumberOfSegments()
    {
       int n = branches.size();
 
