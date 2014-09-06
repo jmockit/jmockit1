@@ -99,8 +99,19 @@ final class ExpectationsModifier extends BaseClassModifier
       int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
-      if ("java/lang/Class".equals(name) || "java/lang/ClassLoader".equals(name) ) {
-         throw new IllegalArgumentException("Class " + name.replace('/', '.') + " is not mockable");
+      if (name.startsWith("java/")) {
+         if ("java/lang/Class".equals(name) || "java/lang/ClassLoader".equals(name)) {
+            throw new IllegalArgumentException("Class " + name.replace('/', '.') + " is not mockable");
+         }
+
+         if (
+            executionMode == ExecutionMode.Regular &&
+            ("java/io/FileOutputStream".equals(name) || "java/io/PrintWriter".equals(name))
+         ) {
+            throw new IllegalArgumentException(
+               "Class " + name.replace('/', '.') + " cannot be @Mocked fully; " +
+               "instead, use @Injectable or partial mocking");
+         }
       }
 
       super.visit(version, access, name, signature, superName, interfaces);
