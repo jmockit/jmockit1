@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -59,7 +59,7 @@ public final class ReusableTopLevelInvocationsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void useTopLevelAndFinalVerificationsSubclass(@Mocked PrintWriter mock) throws Exception
+   public void useTopLevelAndFinalVerificationsSubclass(@Injectable PrintWriter mock) throws Exception
    {
       mock.flush();
 
@@ -67,7 +67,7 @@ public final class ReusableTopLevelInvocationsTest
    }
 
    @Test
-   public void useTopLevelAndFinalSubclassOfVerificationsSubclass(@Mocked PrintWriter mock) throws Exception
+   public void useTopLevelAndFinalSubclassOfVerificationsSubclass(@Injectable PrintWriter mock) throws Exception
    {
       mock.flush();
       mock.flush();
@@ -76,7 +76,7 @@ public final class ReusableTopLevelInvocationsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void useTopLevelAndNonFinalVerificationsSubclassWithNoAdditionalVerifications(@Mocked PrintWriter mock)
+   public void useTopLevelAndNonFinalVerificationsSubclassWithNoAdditionalVerifications(@Injectable PrintWriter mock)
       throws Exception
    {
       mock.flush();
@@ -85,7 +85,8 @@ public final class ReusableTopLevelInvocationsTest
    }
 
    @Test
-   public void useTopLevelAndNonFinalVerificationsSubclassWithAdditionalVerifications(@Mocked final PrintWriter mock)
+   public void useTopLevelAndNonFinalVerificationsSubclassWithAdditionalVerifications(
+      @Injectable final PrintWriter mock)
       throws Exception
    {
       mock.flush();
