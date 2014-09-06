@@ -115,12 +115,12 @@ public final class ClassLoadingAndJREMocksTest
 
       new Expectations(FileOutputStream.class) {{
          OutputStream os = new FileOutputStream(fileName);
-         os.write(anyInt);
+         os.write((byte[]) any);
          os.close();
       }};
 
       FileOutputStream output = new FileOutputStream(fileName);
-      output.write(123);
+      output.write(new byte[] {123});
       output.close();
 
       assertFalse(new File(fileName).exists());
