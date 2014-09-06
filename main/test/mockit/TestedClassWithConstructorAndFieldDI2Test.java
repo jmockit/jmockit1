@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -48,7 +48,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
    @Before
    public void setUp()
    {
-      Runnable action1 = new Runnable() { public void run() {} };
+      Runnable action1 = new Runnable() { @Override public void run() {} };
       tested2 = new TestedClass(45, "another", action1);
    }
 
