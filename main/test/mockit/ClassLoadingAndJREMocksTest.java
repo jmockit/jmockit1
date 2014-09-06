@@ -14,8 +14,6 @@ import static java.util.Arrays.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import static mockit.Deencapsulation.*;
-
 public final class ClassLoadingAndJREMocksTest
 {
    static class Foo1 {}
@@ -111,28 +109,21 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileOutputStreamInstantiation(
-      @Mocked("helperMethod") final TestedUnitUsingIO tested, @Mocked FileOutputStream mockOS) throws Exception
+   public void mockFileOutputStreamInstantiation() throws Exception
    {
-      new Expectations() {{
-         invoke(tested, "helperMethod", withAny(FileOutputStream.class));
+      final String fileName = "test.txt";
+
+      new Expectations(FileOutputStream.class) {{
+         OutputStream os = new FileOutputStream(fileName);
+         os.write(anyInt);
+         os.close();
       }};
 
-      new TestedUnitUsingIO().doSomething();
-   }
+      FileOutputStream output = new FileOutputStream(fileName);
+      output.write(123);
+      output.close();
 
-   static class TestedUnitUsingIO
-   {
-      void doSomething() throws FileNotFoundException
-      {
-         helperMethod(new FileOutputStream("test"));
-      }
-
-      private void helperMethod(OutputStream output)
-      {
-         // Won't happen:
-         throw new IllegalStateException(output.toString());
-      }
+      assertFalse(new File(fileName).exists());
    }
 
    @Test
