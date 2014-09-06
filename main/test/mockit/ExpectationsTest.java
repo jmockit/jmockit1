@@ -273,7 +273,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void mockConstructorsInJREClassHierarchies(@Mocked FileWriter fileWriter, @Mocked PrintWriter printWriter)
+   public void mockConstructorsInJREClassHierarchies(@Mocked FileWriter fileWriter)
       throws Exception
    {
       new Expectations() {{
