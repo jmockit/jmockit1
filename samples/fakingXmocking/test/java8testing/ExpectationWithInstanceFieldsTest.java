@@ -11,8 +11,7 @@ import java.util.function.*;
 import org.junit.*;
 
 import mockit.Mocked;
-import org.jmockit.*;
-import org.jmockit.Expectations.*;
+import static org.jmockit.Expectations.*;
 
 @SuppressWarnings("Convert2Lambda")
 @Ignore("Just for API design, no backing implementation yet")
@@ -21,9 +20,9 @@ public final class ExpectationWithInstanceFieldsTest
    @Mocked List<Object> mockList;
 
    @Test
-   public void mockNotUsingLambdas(@Mocked Consumer<String> mockAction)
+   public void mockWithoutUsingLambdas(@Mocked Consumer<String> mockAction)
    {
-      Expectations.record(new Block()
+      record(new Block()
       {
          @Override
          public void perform(Spec s)
@@ -34,19 +33,30 @@ public final class ExpectationWithInstanceFieldsTest
             mockList.isEmpty(); s.result = true;
             mockList.remove(s.isSame("test")); s.result = true;
 
-            mockList.sort(null); s.action = System.out::println;
+            mockList.sort(null);
+            s.action = new Action() {
+               @Override
+               public void perform(Object... args) { System.out.println(args[0]); }
+            };
 
-            mockList.addAll(s.anyInt, s.isNotNull()); s.advice = (execution, args) -> execution.proceed();
+            mockList.addAll(s.anyInt, s.isNotNull());
+            s.advice = new Advice() {
+               @Override
+               public Object advice(Execution execution, Object... args) { return execution.proceed(); }
+            };
          }
       });
 
-      Expectations.record(mockList, new Block()
+      record(mockList, new Block()
       {
          @Override
          public void perform(Spec e)
          {
             mockList.addAll(e.anyInt, null);
-            e.delegate = args -> args.length > 0;
+            e.delegate = new Delegate() {
+               @Override
+               public Object delegate(Object... args) { return args.length > 0; }
+            };
          }
       });
 
@@ -57,12 +67,12 @@ public final class ExpectationWithInstanceFieldsTest
       mockList.add(2, "testing");
       mockList.add(2);
 
-      Expectations.verify(new Block() {
-         @Override public void perform(Spec e) { mockList.add(e.anyInt, null); }
+      verify(new Block() {
+         @Override
+         public void perform(Spec e) { mockList.add(e.anyInt, null); }
       });
 
-      Expectations.verify(new Block()
-      {
+      verify(new Block() {
          @Override
          public void perform(Spec e)
          {
@@ -74,7 +84,7 @@ public final class ExpectationWithInstanceFieldsTest
          }
       });
 
-      Expectations.verifyInOrder(new Block()
+      verifyInOrder(new Block()
       {
          @Override
          public void perform(Spec e)
@@ -84,7 +94,7 @@ public final class ExpectationWithInstanceFieldsTest
          }
       });
 
-      Expectations.verifyAll(mockAction, new Block()
+      verifyAll(mockAction, new Block()
       {
          @Override
          public void perform(Spec e)
@@ -98,7 +108,7 @@ public final class ExpectationWithInstanceFieldsTest
    @Test
    public void mockUsingLambdas(@Mocked Consumer<String> mockAction)
    {
-      Expectations.record(e -> {
+      record(e -> {
          mockAction.accept(e.anyString); e.result = 1;
          mockAction.andThen(e.isNull()); e.result = new IOException(); e.times = 1;
 
@@ -110,10 +120,7 @@ public final class ExpectationWithInstanceFieldsTest
          mockList.addAll(e.anyInt, e.isNotNull()); e.advice = (execution, args) -> execution.proceed();
       });
 
-      Expectations.record(mockList, e -> {
-         mockList.addAll(e.anyInt, null);
-         e.delegate = args -> args.length > 0;
-      });
+      record(mockList, e -> { mockList.addAll(e.anyInt, null); e.delegate = args -> args.length > 0; });
 
       mockAction.accept("");
       mockAction.andThen(System.out::println);
@@ -122,22 +129,20 @@ public final class ExpectationWithInstanceFieldsTest
       mockList.add(2, "testing");
       mockList.add(2);
 
-      Expectations.verify(e -> mockList.add(e.anyInt, null));
+      verify(e -> mockList.add(e.anyInt, null));
 
-      Expectations.verify(e -> {
-         mockAction.accept("");
-         e.minTimes = 1;
-         e.maxTimes = 2;
+      verify(e -> {
+         mockAction.accept(""); e.minTimes = 1; e.maxTimes = 2;
          mockAction.andThen(e.isNotNull());
          mockList.add(e.is(i -> i > 1), e.isNotNull());
       });
 
-      Expectations.verifyInOrder(e -> {
+      verifyInOrder(e -> {
          mockList.add(1);
          mockList.add(2);
       });
 
-      Expectations.verifyAll(mockAction, e -> {
+      verifyAll(mockAction, e -> {
          mockAction.accept(e.anyString);
          mockAction.andThen(null);
       });
