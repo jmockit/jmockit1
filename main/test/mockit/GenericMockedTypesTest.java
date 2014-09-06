@@ -149,6 +149,20 @@ public final class GenericMockedTypesTest
       assertSame(Item.class, cascadedMock.getClass());
    }
 
+   static class Collaborator { Runnable doSomething() { return null; } }
+   static class Collaborator2 {}
+
+   @Test
+   public void cascadingClassWithNameStartingWithAnotherMockedClass(
+      @Mocked final Collaborator regularMock, @Cascading Collaborator2 cascadingMock)
+   {
+      new NonStrictExpectations() {{
+         regularMock.doSomething();
+      }};
+
+       assertNull(regularMock.doSomething());
+   }
+
    public interface InterfaceWithBoundedTypeParameter<T extends Runnable> { T getFoo(); }
 
    @Test

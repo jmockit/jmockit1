@@ -351,7 +351,10 @@ public final class ExecutingTest
       if (cascade != null) return cascade;
 
       for (Entry<String, MockedTypeCascade> cascadeEntry : cascadingTypes.entrySet()) {
-         if (cascadeEntry.getKey().startsWith(mockedTypeDesc)) {
+          String cascadingTypeDesc = cascadeEntry.getKey();
+          int p = cascadingTypeDesc.indexOf('<');
+
+          if (p > 0 && cascadingTypeDesc.regionMatches(0, mockedTypeDesc, 0, p)) {
             return cascadeEntry.getValue();
          }
       }
