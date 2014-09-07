@@ -89,7 +89,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
 
    private void redefineFieldType(@NotNull MockedType mockedType, boolean partialMocking, boolean needsValueToSet)
    {
-      TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
+      FieldTypeRedefinition typeRedefinition = new FieldTypeRedefinition(mockedType);
       boolean redefined;
 
       if (needsValueToSet) {

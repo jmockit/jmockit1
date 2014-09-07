@@ -4,56 +4,16 @@
  */
 package mockit.internal.expectations.mocking;
 
-import java.lang.reflect.*;
-
-import mockit.internal.state.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
 import org.jetbrains.annotations.*;
 
-final class TypeRedefinition extends BaseTypeRedefinition
+class TypeRedefinition extends BaseTypeRedefinition
 {
-   private boolean usePartialMocking;
-
    TypeRedefinition(@NotNull MockedType typeMetadata) { super(typeMetadata); }
 
-   boolean redefineTypeForTestedField()
-   {
-      usePartialMocking = true;
-      return redefineTypeForFieldNotSet();
-   }
-
-   @Override
-   void configureClassModifier(@NotNull ExpectationsModifier modifier)
-   {
-      if (usePartialMocking) {
-         modifier.useDynamicMocking(true);
-      }
-   }
-
-   boolean redefineTypeForFinalField()
-   {
-      if (targetClass == TypeVariable.class || !typeMetadata.injectable && targetClass.isInterface()) {
-         throw new IllegalArgumentException("Final mock field \"" + typeMetadata.mockId + "\" must be of a class type");
-      }
-
-      return redefineTypeForFieldNotSet();
-   }
-
-   private boolean redefineTypeForFieldNotSet()
-   {
-      typeMetadata.buildMockingConfiguration();
-      boolean redefined = redefineMethodsAndConstructorsInTargetType();
-
-      if (redefined) {
-         TestRun.mockFixture().registerMockedClass(targetClass);
-      }
-
-      return redefined;
-   }
-
    @Nullable
-   InstanceFactory redefineType()
+   final InstanceFactory redefineType()
    {
       typeMetadata.buildMockingConfiguration();
 
@@ -61,7 +21,7 @@ final class TypeRedefinition extends BaseTypeRedefinition
    }
 
    @NotNull @Override
-   String getNameForConcreteSubclassToCreate()
+   final String getNameForConcreteSubclassToCreate()
    {
       String mockId = typeMetadata.mockId;
       return mockId == null ? getNameForGeneratedClass(targetClass) : getNameForGeneratedClass(targetClass, mockId);
