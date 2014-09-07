@@ -5,19 +5,54 @@
 package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.*;
+import java.util.*;
+import java.util.Map.*;
 import static java.lang.reflect.Modifier.*;
+
+import mockit.internal.expectations.injection.*;
+import mockit.internal.state.*;
+import mockit.internal.util.*;
 
 import org.jetbrains.annotations.*;
 
 import static mockit.external.asm.Opcodes.*;
 
-public abstract class FieldTypeRedefinitions extends TypeRedefinitions
+public class FieldTypeRedefinitions extends TypeRedefinitions
 {
    private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
 
-   protected FieldTypeRedefinitions(@NotNull Object objectWithMockFields) { super(objectWithMockFields); }
+   @Nullable private TestedClassInstantiations testedClassInstantiations;
+   @NotNull private final Map<MockedType, InstanceFactory> mockInstanceFactories;
+   @NotNull private final List<MockedType> mockFieldsNotSet;
 
-   protected final void redefineFieldTypes(@NotNull Class<?> classWithMockFields)
+   public FieldTypeRedefinitions(@NotNull Object objectWithMockFields)
+   {
+      super(objectWithMockFields);
+      mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
+      mockFieldsNotSet = new ArrayList<MockedType>();
+   }
+
+   public void redefineTypesForTestClass()
+   {
+      Class<?> testClass = parentObject.getClass();
+      TestRun.enterNoMockingZone();
+
+      try {
+         testedClassInstantiations = new TestedClassInstantiations();
+
+         if (!testedClassInstantiations.findTestedAndInjectableFields(testClass)) {
+            testedClassInstantiations = null;
+         }
+
+         clearTargetClasses();
+         redefineFieldTypes(testClass);
+      }
+      finally {
+         TestRun.exitNoMockingZone();
+      }
+   }
+
+   private void redefineFieldTypes(@NotNull Class<?> classWithMockFields)
    {
       Class<?> superClass = classWithMockFields.getSuperclass();
 
@@ -47,15 +82,39 @@ public abstract class FieldTypeRedefinitions extends TypeRedefinitions
       MockedType mockedType = new MockedType(field);
 
       if (mockedType.isMockableType()) {
-         redefineTypeForMockField(mockedType, field, isFinal(modifiers));
+         boolean needsValueToSet = !isFinal(modifiers);
+         redefineTypeForMockField(mockedType, needsValueToSet);
          typesRedefined++;
 
          registerCaptureOfNewInstances(mockedType);
       }
    }
 
-   protected abstract void redefineTypeForMockField(
-      @NotNull MockedType mockedType, @NotNull Field mockField, boolean isFinal);
+   protected void redefineTypeForMockField(@NotNull MockedType mockedType, boolean needsValueToSet)
+   {
+      TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
+      boolean redefined;
+
+      if (needsValueToSet) {
+         InstanceFactory factory = typeRedefinition.redefineType();
+         redefined = factory != null;
+
+         if (redefined) {
+            mockInstanceFactories.put(mockedType, factory);
+         }
+      }
+      else {
+         redefined = typeRedefinition.redefineTypeForFinalField();
+
+         if (redefined) {
+            mockFieldsNotSet.add(mockedType);
+         }
+      }
+
+      if (redefined) {
+         addTargetClass(mockedType);
+      }
+   }
 
    private void registerCaptureOfNewInstances(@NotNull MockedType mockedType)
    {
@@ -70,9 +129,89 @@ public abstract class FieldTypeRedefinitions extends TypeRedefinitions
       captureOfNewInstances.registerCaptureOfNewInstances(mockedType, null);
    }
 
+   public void assignNewInstancesToMockFields(@NotNull Object target)
+   {
+      TestRun.getExecutingTest().clearInjectableAndNonStrictMocks();
+
+      for (Entry<MockedType, InstanceFactory> metadataAndFactory : mockInstanceFactories.entrySet()) {
+         MockedType mockedType = metadataAndFactory.getKey();
+         InstanceFactory instanceFactory = metadataAndFactory.getValue();
+
+         Object mock = assignNewInstanceToMockField(target, mockedType, instanceFactory);
+         registerMock(mockedType, mock);
+      }
+
+      obtainAndRegisterInstancesOfFinalFields(target);
+   }
+
+   @NotNull
+   private Object assignNewInstanceToMockField(
+      @NotNull Object target, @NotNull MockedType mockedType, @NotNull InstanceFactory instanceFactory)
+   {
+      Field mockField = mockedType.field;
+      assert mockField != null;
+      Object mock = FieldReflection.getFieldValue(mockField, target);
+
+      if (mock == null) {
+         try {
+            mock = instanceFactory.create();
+         }
+         catch (NoClassDefFoundError e) {
+            StackTrace.filterStackTrace(e);
+            e.printStackTrace();
+            throw e;
+         }
+         catch (ExceptionInInitializerError e) {
+            StackTrace.filterStackTrace(e);
+            e.printStackTrace();
+            throw e;
+         }
+
+         FieldReflection.setFieldValue(mockField, target, mock);
+
+         if (mockedType.getMaxInstancesToCapture() > 0) {
+            assert captureOfNewInstances != null;
+            CaptureOfNewInstancesForFields capture = (CaptureOfNewInstancesForFields) captureOfNewInstances;
+            capture.resetCaptureCount(mockField);
+         }
+      }
+
+      return mock;
+   }
+
+   private void obtainAndRegisterInstancesOfFinalFields(@NotNull Object target)
+   {
+      for (MockedType metadata : mockFieldsNotSet) {
+         assert metadata.field != null;
+         Object mock = FieldReflection.getFieldValue(metadata.field, target);
+
+         if (mock != null) {
+            registerMock(metadata, mock);
+         }
+      }
+   }
+
+   @Nullable
+   public TestedClassInstantiations getTestedClassInstantiations() { return testedClassInstantiations; }
+
    /**
     * Returns true iff the mock instance concrete class is not mocked in some test, ie it's a class
     * which only appears in the code under test.
     */
-   public abstract boolean captureNewInstanceForApplicableMockField(@NotNull Object mock);
+   public boolean captureNewInstanceForApplicableMockField(@NotNull Object mock)
+   {
+      if (captureOfNewInstances == null) {
+         return false;
+      }
+
+      Object fieldOwner = TestRun.getCurrentTestInstance();
+      return captureOfNewInstances.captureNewInstance(fieldOwner, mock);
+   }
+
+   @Override
+   public void cleanUp()
+   {
+      TestRun.getExecutingTest().clearCascadingTypes();
+      super.cleanUp();
+   }
 }

@@ -31,7 +31,7 @@ public final class TestRun
 
    @Nullable private Class<?> currentTestClass;
    @Nullable private Object currentTestInstance;
-   @Nullable private SharedFieldTypeRedefinitions sharedFieldTypeRedefinitions;
+   @Nullable private FieldTypeRedefinitions fieldTypeRedefinitions;
 
    @NotNull private final MockFixture mockFixture = new MockFixture();
 
@@ -49,10 +49,8 @@ public final class TestRun
    @SuppressWarnings("unused")
    public static int getTestId() { return INSTANCE.testId; }
 
-   @Nullable public static SharedFieldTypeRedefinitions getSharedFieldTypeRedefinitions()
-   {
-      return INSTANCE.sharedFieldTypeRedefinitions;
-   }
+   @Nullable
+   public static FieldTypeRedefinitions getFieldTypeRedefinitions() { return INSTANCE.fieldTypeRedefinitions; }
 
    @NotNull public static MockFixture mockFixture() { return INSTANCE.mockFixture; }
 
@@ -92,10 +90,9 @@ public final class TestRun
       INSTANCE.currentTestInstance = testInstance;
    }
 
-   @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
-   public static void setSharedFieldTypeRedefinitions(@Nullable SharedFieldTypeRedefinitions redefinitions)
+   public static void setFieldTypeRedefinitions(@Nullable FieldTypeRedefinitions redefinitions)
    {
-      INSTANCE.sharedFieldTypeRedefinitions = redefinitions;
+      INSTANCE.fieldTypeRedefinitions = redefinitions;
    }
 
    public static void finishCurrentTestExecution(boolean clearSharedMocks)

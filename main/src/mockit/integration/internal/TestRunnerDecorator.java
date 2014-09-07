@@ -88,11 +88,11 @@ public class TestRunnerDecorator
          rollbackForTestClass();
       }
 
-      SharedFieldTypeRedefinitions redefinitions = TestRun.getSharedFieldTypeRedefinitions();
+      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
-      if (redefinitions != null) {
-         redefinitions.cleanUp();
-         TestRun.setSharedFieldTypeRedefinitions(null);
+      if (fieldTypeRedefinitions != null) {
+         fieldTypeRedefinitions.cleanUp();
+         TestRun.setFieldTypeRedefinitions(null);
       }
    }
 
@@ -127,26 +127,26 @@ public class TestRunnerDecorator
 
    private static void handleMockFieldsForWholeTestClass(@NotNull Object target)
    {
-      SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
+      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
-      if (sharedRedefinitions == null) {
-         sharedRedefinitions = new SharedFieldTypeRedefinitions(target);
-         sharedRedefinitions.redefineTypesForTestClass();
-         TestRun.setSharedFieldTypeRedefinitions(sharedRedefinitions);
+      if (fieldTypeRedefinitions == null) {
+         fieldTypeRedefinitions = new FieldTypeRedefinitions(target);
+         fieldTypeRedefinitions.redefineTypesForTestClass();
+         TestRun.setFieldTypeRedefinitions(fieldTypeRedefinitions);
       }
 
       //noinspection ObjectEquality
       if (target != TestRun.getCurrentTestInstance()) {
-         sharedRedefinitions.assignNewInstancesToMockFields(target);
+         fieldTypeRedefinitions.assignNewInstancesToMockFields(target);
       }
    }
 
    protected static void createInstancesForTestedFields(@NotNull Object target)
    {
-      SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
+      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
-      if (sharedRedefinitions != null) {
-         TestedClassInstantiations testedClasses = sharedRedefinitions.getTestedClassInstantiations();
+      if (fieldTypeRedefinitions != null) {
+         TestedClassInstantiations testedClasses = fieldTypeRedefinitions.getTestedClassInstantiations();
 
          if (testedClasses != null) {
             TestRun.enterNoMockingZone();
@@ -223,10 +223,10 @@ public class TestRunnerDecorator
 
    private static void clearTestedFieldsIfAny()
    {
-      SharedFieldTypeRedefinitions sharedRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
+      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
-      if (sharedRedefinitions != null) {
-         TestedClassInstantiations testedClasses = sharedRedefinitions.getTestedClassInstantiations();
+      if (fieldTypeRedefinitions != null) {
+         TestedClassInstantiations testedClasses = fieldTypeRedefinitions.getTestedClassInstantiations();
 
          if (testedClasses != null) {
             testedClasses.clearTestedFields();

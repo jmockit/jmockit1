@@ -51,7 +51,7 @@ public final class RecordAndReplayExecution
 
    private static void validateRecordingContext(boolean recordingExpectations)
    {
-      if (TestRun.getSharedFieldTypeRedefinitions() == null) {
+      if (TestRun.getFieldTypeRedefinitions() == null) {
          String msg;
 
          if (Startup.wasInitializedOnDemand()) {
@@ -119,7 +119,7 @@ public final class RecordAndReplayExecution
 
    private void discoverMockedTypesAndInstancesForMatchingOnInstance()
    {
-      SharedFieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getSharedFieldTypeRedefinitions();
+      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
       assert fieldTypeRedefinitions != null;
       List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
       List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
@@ -295,7 +295,7 @@ public final class RecordAndReplayExecution
             }
          }
 
-         FieldTypeRedefinitions sharedFieldTypeRedefs = TestRun.getSharedFieldTypeRedefinitions();
+         FieldTypeRedefinitions sharedFieldTypeRedefs = TestRun.getFieldTypeRedefinitions();
          assert sharedFieldTypeRedefs != null;
 
          if (sharedFieldTypeRedefs.captureNewInstanceForApplicableMockField(mock)) {
