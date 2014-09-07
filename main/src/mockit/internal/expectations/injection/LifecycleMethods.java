@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * This file is subject to the terms of the MIT license (see LICENSE.txt).
+ */
 package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
@@ -70,13 +74,23 @@ final class LifecycleMethods
 
    void executePreDestroyMethodsIfAny()
    {
-      for (Object testedObject : objectsWithPreDestroyMethodsToExecute) {
-         Class<?> testedClass = testedObject.getClass();
-         Method preDestroyMethod = preDestroyMethods.get(testedClass);
-
-         try { MethodReflection.invoke(testedObject, preDestroyMethod); }
-         catch (RuntimeException ignore) {}
-         catch (AssertionError ignore) {}
+      try {
+         for (Object testedObject : objectsWithPreDestroyMethodsToExecute) {
+            executePreDestroyMethod(testedObject);
+         }
       }
+      finally {
+         objectsWithPreDestroyMethodsToExecute.clear();
+      }
+   }
+
+   private void executePreDestroyMethod(@NotNull Object testedObject)
+   {
+      Class<?> testedClass = testedObject.getClass();
+      Method preDestroyMethod = preDestroyMethods.get(testedClass);
+
+      try { MethodReflection.invoke(testedObject, preDestroyMethod); }
+      catch (RuntimeException ignore) {}
+      catch (AssertionError ignore) {}
    }
 }

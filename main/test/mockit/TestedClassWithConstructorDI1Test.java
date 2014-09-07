@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.util.*;
+
+import javax.annotation.*;
 
 import static org.junit.Assert.*;
 import org.junit.*;
@@ -13,6 +15,7 @@ public final class TestedClassWithConstructorDI1Test
 {
    public static final class TestedClass
    {
+      static int counter;
       private final Dependency dependency;
       private final Runnable runnable;
       private final Observable observable;
@@ -41,6 +44,9 @@ public final class TestedClassWithConstructorDI1Test
 
          return b;
       }
+
+      @PostConstruct void initialize() { counter++; }
+      @PreDestroy void destroy() { counter++; }
    }
 
    static class Dependency
@@ -54,6 +60,8 @@ public final class TestedClassWithConstructorDI1Test
    @Test
    public void exerciseTestedObjectWithSingleDependencyInjectedThroughConstructor()
    {
+      assertTestedObjectWasInitialized();
+
       new Expectations() {{ mock.doSomething(); result = 23; }};
 
       assertTrue(tested.doSomeOperation());
@@ -62,6 +70,8 @@ public final class TestedClassWithConstructorDI1Test
    @Test
    public void exerciseTestedObjectWithTwoDependenciesInjectedThroughConstructor(@Injectable final Runnable mock2)
    {
+      assertTestedObjectWasInitialized();
+
       new Expectations() {{ mock.doSomething(); result = 23; }};
 
       assertTrue(tested.doSomeOperation());
@@ -72,6 +82,8 @@ public final class TestedClassWithConstructorDI1Test
    @Test
    public void exerciseTestedObjectWithTwoOtherDependenciesInjectedThroughConstructor(@Injectable final Observable obs)
    {
+      assertTestedObjectWasInitialized();
+
       new Expectations() {{ mock.doSomething(); result = 123; }};
 
       assertTrue(tested.doSomeOperation());
@@ -83,6 +95,8 @@ public final class TestedClassWithConstructorDI1Test
    public void exerciseTestedObjectWithAllDependenciesInjectedThroughConstructor(
       @Injectable final Runnable mock2, @Injectable final Observable mock3)
    {
+      assertTestedObjectWasInitialized();
+
       new Expectations() {{ mock.doSomething(); result = 123; }};
 
       assertTrue(tested.doSomeOperation());
@@ -91,5 +105,22 @@ public final class TestedClassWithConstructorDI1Test
          mock2.run();
          mock3.notifyObservers();
       }};
+   }
+
+   @Before
+   public void resetCounter()
+   {
+      TestedClass.counter = 0;
+   }
+
+   void assertTestedObjectWasInitialized()
+   {
+      assertEquals(1, TestedClass.counter);
+   }
+
+   @After
+   public void verifyTestedObjectAfterEveryTest()
+   {
+      assertEquals(2, TestedClass.counter);
    }
 }
