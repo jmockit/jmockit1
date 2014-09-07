@@ -45,10 +45,10 @@ public final class MockedType
    @Nullable MockingConfiguration mockingCfg;
    @Nullable Object providedValue;
 
-   public MockedType(@NotNull Field field, boolean fromTestClass)
+   public MockedType(@NotNull Field field)
    {
       this.field = field;
-      fieldFromTestClass = fromTestClass;
+      fieldFromTestClass = true;
       accessModifiers = field.getModifiers();
       mocked = field.getAnnotation(Mocked.class);
       capturing = field.getAnnotation(Capturing.class);
@@ -61,7 +61,8 @@ public final class MockedType
       registerCascadingIfSpecified();
    }
 
-   @Nullable private Object getDefaultInjectableValue(@Nullable Injectable annotation)
+   @Nullable
+   private Object getDefaultInjectableValue(@Nullable Injectable annotation)
    {
       if (annotation != null) {
          String value = annotation.value();

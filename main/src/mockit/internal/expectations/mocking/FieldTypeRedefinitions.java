@@ -17,7 +17,7 @@ public abstract class FieldTypeRedefinitions extends TypeRedefinitions
 
    protected FieldTypeRedefinitions(@NotNull Object objectWithMockFields) { super(objectWithMockFields); }
 
-   protected final void redefineFieldTypes(@NotNull Class<?> classWithMockFields, boolean isTestClass)
+   protected final void redefineFieldTypes(@NotNull Class<?> classWithMockFields)
    {
       Class<?> superClass = classWithMockFields.getSuperclass();
 
@@ -26,7 +26,7 @@ public abstract class FieldTypeRedefinitions extends TypeRedefinitions
          superClass != null && superClass != Object.class &&
          superClass != mockit.Expectations.class && superClass != mockit.NonStrictExpectations.class
       ) {
-         redefineFieldTypes(superClass, isTestClass);
+         redefineFieldTypes(superClass);
       }
 
       Field[] fields = classWithMockFields.getDeclaredFields();
@@ -35,16 +35,16 @@ public abstract class FieldTypeRedefinitions extends TypeRedefinitions
          int fieldModifiers = candidateField.getModifiers();
 
          if ((fieldModifiers & FIELD_ACCESS_MASK) == 0) {
-            redefineFieldType(candidateField, isTestClass, fieldModifiers);
+            redefineFieldType(candidateField, fieldModifiers);
          }
       }
 
       ensureThatTargetClassesAreInitialized();
    }
 
-   private void redefineFieldType(@NotNull Field field, boolean fromTestClass, int modifiers)
+   private void redefineFieldType(@NotNull Field field, int modifiers)
    {
-      MockedType mockedType = new MockedType(field, fromTestClass);
+      MockedType mockedType = new MockedType(field);
 
       if (mockedType.isMockableType()) {
          redefineTypeForMockField(mockedType, field, isFinal(modifiers));

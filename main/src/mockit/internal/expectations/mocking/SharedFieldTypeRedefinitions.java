@@ -40,7 +40,7 @@ public final class SharedFieldTypeRedefinitions extends FieldTypeRedefinitions
          }
 
          clearTargetClasses();
-         redefineFieldTypes(testClass, true);
+         redefineFieldTypes(testClass);
       }
       finally {
          TestRun.exitNoMockingZone();

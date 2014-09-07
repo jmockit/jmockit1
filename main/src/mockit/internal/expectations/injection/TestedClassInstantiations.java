@@ -55,7 +55,7 @@ public final class TestedClassInstantiations
    {
       for (Field field : fieldsDeclaredInTestClass) {
          if (field.isAnnotationPresent(Injectable.class)) {
-            MockedType mockedType = new MockedType(field, true);
+            MockedType mockedType = new MockedType(field);
             injectableFields.add(mockedType);
          }
          else {
