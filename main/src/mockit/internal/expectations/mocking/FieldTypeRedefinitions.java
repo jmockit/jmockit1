@@ -17,6 +17,7 @@ import org.jetbrains.annotations.*;
 
 import static mockit.external.asm.Opcodes.*;
 
+@SuppressWarnings("UnnecessaryFullyQualifiedName")
 public final class FieldTypeRedefinitions extends TypeRedefinitions
 {
    private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
@@ -50,7 +51,6 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    {
       Class<?> superClass = classWithMockFields.getSuperclass();
 
-      //noinspection UnnecessaryFullyQualifiedName
       if (
          superClass != null && superClass != Object.class &&
          superClass != mockit.Expectations.class && superClass != mockit.NonStrictExpectations.class
@@ -76,10 +76,8 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
       MockedType mockedType = new MockedType(field);
 
       if (mockedType.isMockableType()) {
-         boolean needsValueToSet = !isFinal(modifiers);
+         boolean needsValueToSet = !isFinal(modifiers) && !field.isAnnotationPresent(mockit.Tested.class);
          redefineTypeForMockField(mockedType, needsValueToSet);
-         typesRedefined++;
-
          registerCaptureOfNewInstances(mockedType);
       }
    }

@@ -90,7 +90,6 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
 
       if (instanceFactory != null) {
          addTargetClass(mockedType);
-         typesRedefined++;
       }
 
       return instanceFactory;

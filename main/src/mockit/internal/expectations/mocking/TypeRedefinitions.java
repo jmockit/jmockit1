@@ -16,7 +16,6 @@ public class TypeRedefinitions
 {
    @NotNull private final List<Class<?>> targetClasses;
    @Nullable protected CaptureOfNewInstances captureOfNewInstances;
-   protected int typesRedefined;
 
    protected TypeRedefinitions() { targetClasses = new ArrayList<Class<?>>(2); }
 
