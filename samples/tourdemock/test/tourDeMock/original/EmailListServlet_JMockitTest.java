@@ -17,23 +17,19 @@ import tourDeMock.original.service.*;
 
 public final class EmailListServlet_JMockitTest
 {
-   EmailListServlet servlet;
+   @Tested EmailListServlet servlet;
+   @Injectable @Cascading ServletConfig servletConfig;
 
    @Mocked HttpServletRequest request;
    @Cascading HttpServletResponse response;
    @Mocked EmailListService service;
 
-   @Cascading ServletConfig servletConfig;
-
    @Before
-   public void before() throws Exception
+   public void before()
    {
       new NonStrictExpectations() {{
          servletConfig.getServletContext().getAttribute(EmailListService.KEY); result = service;
       }};
-
-      servlet = new EmailListServlet();
-      servlet.init(servletConfig);
    }
 
    @Test(expected = ServletException.class)
