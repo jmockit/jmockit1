@@ -26,10 +26,11 @@ public final class Logger_JMockit_Test
    }
 
    @Test
-   public void testLogger(@Mocked FileWriter fileWriter, @Mocked final PrintWriter printWriter) throws Exception
+   public void testLogger(@Mocked FileWriter fileWriter)
    {
-      new NonStrictExpectations() {{
-         printWriter.println("qwe");
+      new NonStrictExpectations(PrintWriter.class) {{
+         PrintWriter pw = new PrintWriter((Writer) any);
+         pw.println("qwe"); times = 1;
       }};
 
       Logger logger = new Logger();

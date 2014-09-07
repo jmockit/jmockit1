@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package powermock.examples.tutorial.partialmocking.service.impl;
@@ -19,27 +19,27 @@ import mockit.*;
 import static mockit.Deencapsulation.*;
 
 /**
- * Demonstrates <em>dynamic partial mocking</em>, where the methods to mock are determined from
- * those actually called in the record phase. In contrast, when using regular/static partial
- * mocking, the names of the desired methods need to be individually specified in strings.
+ * Demonstrates <em>partial mocking</em> of the class under test, where the methods to be mocked are determined from
+ * those actually called in the record phase.
  * <p/>
- * The first four tests mock a private method defined in the class under test, while the last two
- * tests directly exercise this private method. This is not recommended, though. Instead, unit tests
- * should be created only for the non-private methods in the class under test.
+ * The first four tests mock a private method defined in the class under test, while the last two tests directly
+ * exercise this private method.
+ * This is not recommended, though; instead, unit tests should be created only for the non-private methods in the class
+ * under test.
  * <p/>
  * <a href="http://code.google.com/p/powermock/source/browse/trunk/examples/tutorial/src/solution/java/demo/org/powermock/examples/tutorial/partialmocking/service/impl/ProviderServiceImplTest.java">PowerMock version</a>
  */
 public final class ProviderServiceImpl_JMockit_Test
 {
+   @Tested @Mocked ProviderServiceImpl tested;
+
    @Test
    public void testGetAllServiceProviders()
    {
       final Set<ServiceProducer> expectedServiceProducers = new HashSet<>();
       expectedServiceProducers.add(new ServiceProducer(1, "mock name"));
 
-      final ProviderService tested = new ProviderServiceImpl();
-
-      new NonStrictExpectations(tested) {{
+      new NonStrictExpectations() {{
          invoke(tested, "getAllServiceProducers"); result = expectedServiceProducers;
       }};
 
@@ -52,9 +52,8 @@ public final class ProviderServiceImpl_JMockit_Test
    public void testGetAllServiceProviders_noServiceProvidersFound()
    {
       Set<ServiceProducer> expectedServiceProducers = new HashSet<>();
-      final ProviderService tested = new ProviderServiceImpl();
 
-      new NonStrictExpectations(tested) {{ invoke(tested, "getAllServiceProducers"); result = null; }};
+      new NonStrictExpectations() {{ invoke(tested, "getAllServiceProducers"); result = null; }};
 
       Set<ServiceProducer> actualServiceProviders = tested.getAllServiceProviders();
 
@@ -71,9 +70,7 @@ public final class ProviderServiceImpl_JMockit_Test
       final Set<ServiceProducer> serviceProducers = new HashSet<>();
       serviceProducers.add(expected);
 
-      final ProviderService tested = new ProviderServiceImpl();
-
-      new NonStrictExpectations(tested) {{ invoke(tested, "getAllServiceProducers"); result = serviceProducers; }};
+      new NonStrictExpectations() {{ invoke(tested, "getAllServiceProducers"); result = serviceProducers; }};
 
       ServiceProducer actual = tested.getServiceProvider(expectedServiceProducerId);
 
@@ -83,9 +80,7 @@ public final class ProviderServiceImpl_JMockit_Test
    @Test
    public void testGetServiceProvider_notFound()
    {
-      final ProviderService tested = new ProviderServiceImpl();
-
-      new NonStrictExpectations(tested) {{
+      new NonStrictExpectations() {{
          invoke(tested, "getAllServiceProducers");
          // An empty collection is the default return value, so we don't have to record it here.
          // returns(new HashSet<ServiceProducer>());

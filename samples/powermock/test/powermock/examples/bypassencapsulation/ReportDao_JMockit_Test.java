@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package powermock.examples.bypassencapsulation;
@@ -17,7 +17,7 @@ import static mockit.Deencapsulation.*;
  */
 public final class ReportDao_JMockit_Test
 {
-   @Tested ReportDao tested;
+   @Tested @Mocked ReportDao tested;
 
    @Test
    public void testDeleteReport(@Injectable final Cache cacheMock)
@@ -25,8 +25,8 @@ public final class ReportDao_JMockit_Test
       final String reportName = "reportName";
       final Report report = new Report(reportName);
 
-      new NonStrictExpectations(tested) {{ // will mock only the "getReportFromTargetName" method
-         // Record an expectation for the private method.
+      new NonStrictExpectations() {{
+         // Will mock only the "getReportFromTargetName" method.
          invoke(tested, "getReportFromTargetName", reportName); result = report;
       }};
 

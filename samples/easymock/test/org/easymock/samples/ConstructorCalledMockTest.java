@@ -18,17 +18,17 @@ package org.easymock.samples;
 import java.math.*;
 
 import org.junit.*;
-
-import static org.easymock.EasyMock.*;
-import org.easymock.*;
 import static org.junit.Assert.*;
+
+import org.easymock.*;
+import static org.easymock.EasyMock.*;
 
 /**
  * Example of how to partial mock with actually calling a constructor.
  */
 public final class ConstructorCalledMockTest extends EasyMockSupport
 {
-   private TaxCalculator tc;
+   TaxCalculator tc;
 
    @Before
    public void setUp()
@@ -36,8 +36,7 @@ public final class ConstructorCalledMockTest extends EasyMockSupport
       BigDecimal[] taxValues = {new BigDecimal("5"), new BigDecimal("15")};
 
       // No need to mock any methods, abstract ones are mocked by default:
-      tc = createMockBuilder(TaxCalculator.class).withConstructor(BigDecimal[].class).withArgs(
-         (Object) taxValues).createMock();
+      tc = createMockBuilder(TaxCalculator.class).withConstructor((Object) taxValues).createMock();
    }
 
    @After
@@ -52,7 +51,9 @@ public final class ConstructorCalledMockTest extends EasyMockSupport
       expect(tc.rate()).andStubReturn(new BigDecimal("0.20"));
       replayAll();
 
-      assertEquals(new BigDecimal("4.00"), tc.tax());
+      BigDecimal tax = tc.tax();
+
+      assertEquals(new BigDecimal("4.00"), tax);
    }
 
    @Test
@@ -61,6 +62,8 @@ public final class ConstructorCalledMockTest extends EasyMockSupport
       expect(tc.rate()).andStubReturn(BigDecimal.ZERO);
       replayAll();
 
-      assertEquals(BigDecimal.ZERO, tc.tax());
+      BigDecimal tax = tc.tax();
+
+      assertEquals(BigDecimal.ZERO, tax);
    }
 }

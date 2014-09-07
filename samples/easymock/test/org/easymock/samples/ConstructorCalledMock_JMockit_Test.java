@@ -20,16 +20,20 @@ public final class ConstructorCalledMock_JMockit_Test
    @Test
    public void testTax()
    {
-      new NonStrictExpectations(tc) {{ tc.rate(); result = "0.20"; }};
+      new NonStrictExpectations() {{ tc.rate(); result = "0.20"; }};
 
-      assertEquals(new BigDecimal("4.00"), tc.tax());
+      BigDecimal tax = tc.tax();
+
+      assertEquals(new BigDecimal("4.00"), tax);
    }
 
    @Test
    public void testTax_ZeroRate()
    {
-      new NonStrictExpectations(tc) {{ tc.rate(); result = 0; }};
+      new NonStrictExpectations() {{ tc.rate(); result = 0; }};
 
-      assertEquals(BigDecimal.ZERO, tc.tax());
+      BigDecimal tax = tc.tax();
+
+      assertEquals(BigDecimal.ZERO, tax);
    }
 }

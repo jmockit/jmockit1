@@ -17,7 +17,7 @@ import mockit.*;
 
 public final class CurrencyConversionTest
 {
-   @Tested CurrencyConversion conversion;
+   @Tested @Mocked CurrencyConversion conversion;
 
    @Test
    public void loadCurrencySymbolsFromWebSite(@Mocked URL url) throws Exception
@@ -40,7 +40,7 @@ public final class CurrencyConversionTest
    {
       // Partial mocking of the tested object is acceptable here, since the mocked method
       // ("currencySymbols") is public and already exercised in a different test.
-      new NonStrictExpectations(conversion) {{
+      new NonStrictExpectations() {{
          conversion.currencySymbols();
          returns("X", "Y");
       }};

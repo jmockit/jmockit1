@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package powermock.examples.privatemocking;
@@ -16,7 +16,7 @@ import static mockit.Deencapsulation.*;
  */
 public final class DataService_JMockit_Test
 {
-   @Tested DataService tested;
+   @Tested @Mocked DataService tested;
 
    @Test
    public void testReplaceData()
@@ -25,7 +25,7 @@ public final class DataService_JMockit_Test
       final String expectedDataId = "id";
 
       // Mock only the "modifyData" method.
-      new NonStrictExpectations(tested) {{
+      new NonStrictExpectations() {{
          invoke(tested, "modifyData", expectedDataId, expectedBinaryData);
          result = true;
       }};
@@ -39,7 +39,7 @@ public final class DataService_JMockit_Test
       final String expectedDataId = "id";
 
       // Mock only the "modifyData" method.
-      new NonStrictExpectations(tested) {{
+      new NonStrictExpectations() {{
          invoke(tested, "modifyData", expectedDataId, byte[].class);
          result = true;
       }};

@@ -29,7 +29,7 @@ public final class PartialClassMockTest extends EasyMockSupport
    private Rect rect;
 
    @Before
-   public void setUp() throws Exception
+   public void setUp()
    {
       rect = createMockBuilder(Rect.class).addMockedMethods("getX", "getY").createMock();
    }
@@ -40,6 +40,7 @@ public final class PartialClassMockTest extends EasyMockSupport
       expect(rect.getX()).andReturn(4);
       expect(rect.getY()).andReturn(5);
       replayAll();
+
       assertEquals(20, rect.getArea());
       verifyAll();
    }

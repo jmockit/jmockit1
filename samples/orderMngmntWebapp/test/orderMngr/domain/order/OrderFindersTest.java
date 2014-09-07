@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package orderMngr.domain.order;
@@ -21,7 +21,7 @@ public final class OrderFindersTest
 {
    @Mocked final Database db = null;
    @Mocked ResultSet rs;
-   @Tested OrderRepository repository;
+   @Tested @Mocked OrderRepository repository;
    Order order;
 
    @Test
@@ -78,7 +78,7 @@ public final class OrderFindersTest
       }};
 
       // Causes an already tested private method to do nothing:
-      new NonStrictExpectations(repository) {{
+      new NonStrictExpectations() {{
          invoke(repository, "loadOrderItems", order);
       }};
 
