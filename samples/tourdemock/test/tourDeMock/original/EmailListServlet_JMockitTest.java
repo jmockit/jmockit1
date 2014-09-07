@@ -47,7 +47,7 @@ public final class EmailListServlet_JMockitTest
    }
 
    @Test
-   public void doGetWithList(@Mocked final PrintWriter writer) throws Exception
+   public void doGetWithList(@Injectable final PrintWriter writer) throws Exception
    {
       new NonStrictExpectations() {{
          service.getListByName(anyString);

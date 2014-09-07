@@ -18,6 +18,7 @@ import mockit.*;
 
 public final class EmailListServletTest
 {
+   @Tested EmailListServlet servlet;
    @Mocked HttpServletRequest request;
    @Mocked EmailListService emailListService;
 
@@ -28,11 +29,11 @@ public final class EmailListServletTest
          emailListService.getListByName(null); result = new EmailListNotFound();
       }};
 
-      new EmailListServlet().doGet(request, null);
+      servlet.doGet(request, null);
    }
 
    @Test
-   public void doGetWithList(@Cascading final HttpServletResponse response, @Mocked final PrintWriter writer)
+   public void doGetWithList(@Cascading final HttpServletResponse response, @Injectable final PrintWriter writer)
       throws Exception
    {
       new NonStrictExpectations() {{
@@ -40,7 +41,7 @@ public final class EmailListServletTest
          result = asList("larry@stooge.com", "moe@stooge.com", "curley@stooge.com");
       }};
 
-      new EmailListServlet().doGet(request, response);
+      servlet.doGet(request, response);
 
       new VerificationsInOrder() {{
          writer.println("larry@stooge.com");
