@@ -13,7 +13,23 @@ import org.jetbrains.annotations.*;
 
 final class TypeRedefinition extends BaseTypeRedefinition
 {
+   private boolean usePartialMocking;
+
    TypeRedefinition(@NotNull MockedType typeMetadata) { super(typeMetadata); }
+
+   boolean redefineTypeForTestedField()
+   {
+      usePartialMocking = true;
+      return redefineTypeForFieldNotSet();
+   }
+
+   @Override
+   void configureClassModifier(@NotNull ExpectationsModifier modifier)
+   {
+      if (usePartialMocking) {
+         modifier.useDynamicMocking(true);
+      }
+   }
 
    boolean redefineTypeForFinalField()
    {
@@ -21,6 +37,11 @@ final class TypeRedefinition extends BaseTypeRedefinition
          throw new IllegalArgumentException("Final mock field \"" + typeMetadata.mockId + "\" must be of a class type");
       }
 
+      return redefineTypeForFieldNotSet();
+   }
+
+   private boolean redefineTypeForFieldNotSet()
+   {
       Integer mockedClassId = redefineClassesFromCache();
       boolean redefined = mockedClassId == null;
 

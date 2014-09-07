@@ -76,13 +76,18 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
       MockedType mockedType = new MockedType(field);
 
       if (mockedType.isMockableType()) {
-         boolean needsValueToSet = !isFinal(modifiers) && !field.isAnnotationPresent(mockit.Tested.class);
-         redefineTypeForMockField(mockedType, needsValueToSet);
-         registerCaptureOfNewInstances(mockedType);
+         boolean partialMocking = field.isAnnotationPresent(mockit.Tested.class);
+         boolean needsValueToSet = !isFinal(modifiers) && !partialMocking;
+
+         redefineFieldType(mockedType, partialMocking, needsValueToSet);
+
+         if (!partialMocking) {
+            registerCaptureOfNewInstances(mockedType);
+         }
       }
    }
 
-   private void redefineTypeForMockField(@NotNull MockedType mockedType, boolean needsValueToSet)
+   private void redefineFieldType(@NotNull MockedType mockedType, boolean partialMocking, boolean needsValueToSet)
    {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
       boolean redefined;
@@ -96,7 +101,12 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
          }
       }
       else {
-         redefined = typeRedefinition.redefineTypeForFinalField();
+         if (partialMocking) {
+            redefined = typeRedefinition.redefineTypeForTestedField();
+         }
+         else {
+            redefined = typeRedefinition.redefineTypeForFinalField();
+         }
 
          if (redefined) {
             mockFieldsNotSet.add(mockedType);
@@ -110,15 +120,13 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
 
    private void registerCaptureOfNewInstances(@NotNull MockedType mockedType)
    {
-      if (mockedType.getMaxInstancesToCapture() <= 0) {
-         return;
-      }
+      if (mockedType.getMaxInstancesToCapture() > 0) {
+         if (captureOfNewInstances == null) {
+            captureOfNewInstances = new CaptureOfNewInstancesForFields();
+         }
 
-      if (captureOfNewInstances == null) {
-         captureOfNewInstances = new CaptureOfNewInstancesForFields();
+         captureOfNewInstances.registerCaptureOfNewInstances(mockedType, null);
       }
-
-      captureOfNewInstances.registerCaptureOfNewInstances(mockedType, null);
    }
 
    public void assignNewInstancesToMockFields(@NotNull Object target)
