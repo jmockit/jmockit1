@@ -21,6 +21,7 @@ final class InjectionPoint
    @Nullable static final Class<? extends Annotation> PERSISTENCE_CONTEXT_CLASS;
    @Nullable static final Class<?> ENTITY_MANAGER_FACTORY_CLASS;
    @Nullable static final Class<?> ENTITY_MANAGER_CLASS;
+   @Nullable static final Class<?> SERVLET_CLASS;
    static final boolean WITH_INJECTION_API_IN_CLASSPATH;
 
    static
@@ -31,6 +32,7 @@ final class InjectionPoint
       PERSISTENCE_CONTEXT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceContext");
       ENTITY_MANAGER_FACTORY_CLASS = searchTypeInClasspath("javax.persistence.EntityManagerFactory");
       ENTITY_MANAGER_CLASS = searchTypeInClasspath("javax.persistence.EntityManager");
+      SERVLET_CLASS = searchTypeInClasspath("javax.servlet.GenericServlet");
       WITH_INJECTION_API_IN_CLASSPATH = INJECT_CLASS != null || PERSISTENCE_UNIT_CLASS != null;
    }
 

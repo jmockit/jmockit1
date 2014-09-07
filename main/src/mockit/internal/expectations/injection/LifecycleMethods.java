@@ -9,42 +9,62 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.util.*;
+import static mockit.internal.expectations.injection.InjectionPoint.*;
 
 import org.jetbrains.annotations.*;
 
 final class LifecycleMethods
 {
-   private final Map<Class<?>, Method> postConstructMethods;
-   private final Map<Class<?>, Method> preDestroyMethods;
+   private final Map<Class<?>, Method> initializationMethods;
+   private final Map<Class<?>, Method> terminationMethods;
    private final List<Object> objectsWithPreDestroyMethodsToExecute;
 
    LifecycleMethods()
    {
-      postConstructMethods = new IdentityHashMap<Class<?>, Method>();
-      preDestroyMethods = new IdentityHashMap<Class<?>, Method>();
+      initializationMethods = new IdentityHashMap<Class<?>, Method>();
+      terminationMethods = new IdentityHashMap<Class<?>, Method>();
       objectsWithPreDestroyMethodsToExecute = new ArrayList<Object>();
    }
 
    private void findLifecycleMethods(@NotNull Class<?> testedClass)
    {
-      Method postConstructMethod = null;
-      Method preDestroyMethod = null;
+      boolean isServlet = SERVLET_CLASS != null && SERVLET_CLASS.isAssignableFrom(testedClass);
+      Method initializationMethod = null;
+      Method terminationMethod = null;
 
       for (Method method : testedClass.getDeclaredMethods()) {
-         if (postConstructMethod == null && method.isAnnotationPresent(PostConstruct.class)) {
-            postConstructMethod = method;
+         if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
+            initializationMethod = method;
          }
-         else if (preDestroyMethod == null && method.isAnnotationPresent(PreDestroy.class)) {
-            preDestroyMethod = method;
+         else if (terminationMethod == null && isTerminationMethod(method, isServlet)) {
+            terminationMethod = method;
          }
 
-         if (postConstructMethod != null && preDestroyMethod != null) {
+         if (initializationMethod != null && terminationMethod != null) {
             break;
          }
       }
 
-      postConstructMethods.put(testedClass, postConstructMethod);
-      preDestroyMethods.put(testedClass, preDestroyMethod);
+      initializationMethods.put(testedClass, initializationMethod);
+      terminationMethods.put(testedClass, terminationMethod);
+   }
+
+   private static boolean isInitializationMethod(@NotNull Method method, boolean isServlet)
+   {
+      if (method.isAnnotationPresent(PostConstruct.class)) {
+         return true;
+      }
+
+      return isServlet && "init".equals(method.getName()) && method.getParameterTypes().length == 0;
+   }
+
+   private static boolean isTerminationMethod(@NotNull Method method, boolean isServlet)
+   {
+      if (method.isAnnotationPresent(PreDestroy.class)) {
+         return true;
+      }
+
+      return isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
    void executePostConstructMethodIfAny(@NotNull Class<?> testedClass, @NotNull Object testedObject)
@@ -55,7 +75,7 @@ final class LifecycleMethods
          MethodReflection.invoke(testedObject, postConstructMethod);
       }
 
-      Method preDestroyMethod = preDestroyMethods.get(testedClass);
+      Method preDestroyMethod = terminationMethods.get(testedClass);
 
       if (preDestroyMethod != null) {
          objectsWithPreDestroyMethodsToExecute.add(testedObject);
@@ -65,11 +85,11 @@ final class LifecycleMethods
    @Nullable
    private Method getLifecycleMethod(@NotNull Class<?> testedClass)
    {
-      if (!postConstructMethods.containsKey(testedClass)) {
+      if (!initializationMethods.containsKey(testedClass)) {
          findLifecycleMethods(testedClass);
       }
 
-      return postConstructMethods.get(testedClass);
+      return initializationMethods.get(testedClass);
    }
 
    void executePreDestroyMethodsIfAny()
@@ -87,7 +107,7 @@ final class LifecycleMethods
    private void executePreDestroyMethod(@NotNull Object testedObject)
    {
       Class<?> testedClass = testedObject.getClass();
-      Method preDestroyMethod = preDestroyMethods.get(testedClass);
+      Method preDestroyMethod = terminationMethods.get(testedClass);
 
       try { MethodReflection.invoke(testedObject, preDestroyMethod); }
       catch (RuntimeException ignore) {}

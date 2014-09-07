@@ -52,7 +52,10 @@ final class FieldInjection
 
          classWithFields = classWithFields.getSuperclass();
       }
-      while (isClassFromSameModuleOrSystemAsTestedClass(classWithFields));
+      while (
+         isClassFromSameModuleOrSystemAsTestedClass(classWithFields) ||
+         isExternalBaseClassSupportingInjection(classWithFields)
+      );
 
       discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(targetFields);
 
@@ -113,6 +116,11 @@ final class FieldInjection
       p2 = nameOfTestedClass.indexOf('.', p2 + 1);
 
       return p1 == p2 && p1 > 0 && nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
+   }
+
+   private static boolean isExternalBaseClassSupportingInjection(@NotNull Class<?> anotherClass)
+   {
+      return SERVLET_CLASS != null && SERVLET_CLASS.isAssignableFrom(anotherClass);
    }
 
    void injectIntoEligibleFields(@NotNull List<Field> targetFields, @NotNull Object testedObject)
