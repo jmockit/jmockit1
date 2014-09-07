@@ -42,17 +42,8 @@ final class TypeRedefinition extends BaseTypeRedefinition
 
    private boolean redefineTypeForFieldNotSet()
    {
-      Integer mockedClassId = redefineClassesFromCache();
-      boolean redefined = mockedClassId == null;
-
-      if (mockedClassId != null) {
-         typeMetadata.buildMockingConfiguration();
-         redefined = redefineMethodsAndConstructorsInTargetType();
-
-         if (redefined) {
-            storeRedefinedClassesInCache(mockedClassId);
-         }
-      }
+      typeMetadata.buildMockingConfiguration();
+      boolean redefined = redefineMethodsAndConstructorsInTargetType();
 
       if (redefined) {
          TestRun.mockFixture().registerMockedClass(targetClass);

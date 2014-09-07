@@ -292,7 +292,7 @@ class BaseTypeRedefinition
    }
 
    @Nullable
-   final Integer redefineClassesFromCache()
+   private Integer redefineClassesFromCache()
    {
       Integer mockedClassId = typeMetadata.hashCode();
       MockedClass mockedClass = mockedClasses.get(mockedClassId);
@@ -307,7 +307,7 @@ class BaseTypeRedefinition
       return mockedClassId;
    }
 
-   final void storeRedefinedClassesInCache(@NotNull Integer mockedClassId)
+   private void storeRedefinedClassesInCache(@NotNull Integer mockedClassId)
    {
       assert mockedClassDefinitions != null;
       ClassDefinition[] classDefs = mockedClassDefinitions.toArray(new ClassDefinition[mockedClassDefinitions.size()]);
