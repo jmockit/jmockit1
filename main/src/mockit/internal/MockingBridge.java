@@ -42,7 +42,7 @@ public abstract class MockingBridge implements InvocationHandler
          Class.forName("mockit.internal.expectations.invocation.InvocationResults");
          Class.forName("mockit.internal.expectations.invocation.MockedTypeCascade");
          Class.forName("mockit.internal.expectations.mocking.BaseTypeRedefinition$MockedClass");
-         Class.forName("mockit.internal.expectations.mocking.SharedFieldTypeRedefinitions");
+         Class.forName("mockit.internal.expectations.mocking.FieldTypeRedefinitions");
          Class.forName("mockit.internal.expectations.argumentMatching.EqualityMatcher");
       }
       catch (ClassNotFoundException ignore) {}

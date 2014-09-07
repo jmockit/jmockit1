@@ -12,18 +12,13 @@ import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
-class TypeRedefinitions
+public class TypeRedefinitions
 {
-   @NotNull protected final Object parentObject;
-   protected int typesRedefined;
    @NotNull private final List<Class<?>> targetClasses;
    @Nullable protected CaptureOfNewInstances captureOfNewInstances;
+   protected int typesRedefined;
 
-   protected TypeRedefinitions(@NotNull Object parentObject)
-   {
-      this.parentObject = parentObject;
-      targetClasses = new ArrayList<Class<?>>(2);
-   }
+   protected TypeRedefinitions() { targetClasses = new ArrayList<Class<?>>(2); }
 
    protected final void addTargetClass(@NotNull MockedType mockedType)
    {
@@ -59,8 +54,6 @@ class TypeRedefinitions
          ensureThatClassIsInitialized(targetClass);
       }
    }
-
-   protected final void clearTargetClasses() { targetClasses.clear(); }
 
    public void cleanUp()
    {

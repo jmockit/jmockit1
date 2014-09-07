@@ -123,7 +123,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
          if (!isMethodWithParametersProvidedByTestNG(method)) {
             Object[] parameters = testResult.getParameters();
-            Object[] mockParameters = createInstancesForMockParameters(testInstance, method, parameters);
+            Object[] mockParameters = createInstancesForMockParameters(method, parameters);
 
             if (mockParameters != null) {
                System.arraycopy(mockParameters, 0, parameters, 0, parameters.length);

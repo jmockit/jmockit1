@@ -21,11 +21,8 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    @NotNull private final MockedType[] mockParameters;
    @NotNull private final List<MockedType> injectableParameters;
 
-   public ParameterTypeRedefinitions(
-      @NotNull Object owner, @NotNull Method testMethod, @Nullable Object[] parameterValues)
+   public ParameterTypeRedefinitions(@NotNull Method testMethod, @Nullable Object[] parameterValues)
    {
-      super(owner);
-
       TestRun.enterNoMockingZone();
 
       try {

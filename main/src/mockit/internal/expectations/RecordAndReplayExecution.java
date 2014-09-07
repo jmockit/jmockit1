@@ -119,12 +119,12 @@ public final class RecordAndReplayExecution
 
    private void discoverMockedTypesAndInstancesForMatchingOnInstance()
    {
-      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+      TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
       assert fieldTypeRedefinitions != null;
       List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
       List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
 
-      ParameterTypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
+      TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
 
       if (paramTypeRedefinitions != null) {
          targetClasses.addAll(paramTypeRedefinitions.getTargetClasses());
@@ -285,7 +285,7 @@ public final class RecordAndReplayExecution
       @NotNull RecordAndReplayExecution instance, @NotNull Object mock, @NotNull String classDesc)
    {
       if (instance.replayPhase != null) {
-         ParameterTypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
+         TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
 
          if (paramTypeRedefinitions != null) {
             CaptureOfNewInstances paramTypeCaptures = paramTypeRedefinitions.getCaptureOfNewInstances();
@@ -295,10 +295,10 @@ public final class RecordAndReplayExecution
             }
          }
 
-         FieldTypeRedefinitions sharedFieldTypeRedefs = TestRun.getFieldTypeRedefinitions();
-         assert sharedFieldTypeRedefs != null;
+         FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+         assert fieldTypeRedefinitions != null;
 
-         if (sharedFieldTypeRedefs.captureNewInstanceForApplicableMockField(mock)) {
+         if (fieldTypeRedefinitions.captureNewInstanceForApplicableMockField(mock)) {
             return true;
          }
       }

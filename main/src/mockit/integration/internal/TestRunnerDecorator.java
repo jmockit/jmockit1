@@ -88,7 +88,7 @@ public class TestRunnerDecorator
          rollbackForTestClass();
       }
 
-      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+      TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions != null) {
          fieldTypeRedefinitions.cleanUp();
@@ -131,7 +131,6 @@ public class TestRunnerDecorator
 
       if (fieldTypeRedefinitions == null) {
          fieldTypeRedefinitions = new FieldTypeRedefinitions(target);
-         fieldTypeRedefinitions.redefineTypesForTestClass();
          TestRun.setFieldTypeRedefinitions(fieldTypeRedefinitions);
       }
 
@@ -163,7 +162,7 @@ public class TestRunnerDecorator
 
    @Nullable
    protected static Object[] createInstancesForMockParameters(
-      @NotNull Object target, @NotNull Method testMethod, @Nullable Object[] parameterValues)
+      @NotNull Method testMethod, @Nullable Object[] parameterValues)
    {
       if (testMethod.getParameterTypes().length == 0) {
          return null;
@@ -172,7 +171,7 @@ public class TestRunnerDecorator
       TestRun.enterNoMockingZone();
 
       try {
-         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(target, testMethod, parameterValues);
+         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(testMethod, parameterValues);
          TestRun.getExecutingTest().setParameterTypeRedefinitions(redefinitions);
 
          return redefinitions.getParameterValues();

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.*;
 
 import static mockit.external.asm.Opcodes.*;
 
-public class FieldTypeRedefinitions extends TypeRedefinitions
+public final class FieldTypeRedefinitions extends TypeRedefinitions
 {
    private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
 
@@ -27,14 +27,7 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
 
    public FieldTypeRedefinitions(@NotNull Object objectWithMockFields)
    {
-      super(objectWithMockFields);
-      mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
-      mockFieldsNotSet = new ArrayList<MockedType>();
-   }
-
-   public void redefineTypesForTestClass()
-   {
-      Class<?> testClass = parentObject.getClass();
+      Class<?> testClass = objectWithMockFields.getClass();
       TestRun.enterNoMockingZone();
 
       try {
@@ -44,7 +37,8 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
             testedClassInstantiations = null;
          }
 
-         clearTargetClasses();
+         mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
+         mockFieldsNotSet = new ArrayList<MockedType>();
          redefineFieldTypes(testClass);
       }
       finally {
@@ -90,7 +84,7 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
       }
    }
 
-   protected void redefineTypeForMockField(@NotNull MockedType mockedType, boolean needsValueToSet)
+   private void redefineTypeForMockField(@NotNull MockedType mockedType, boolean needsValueToSet)
    {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
       boolean redefined;
@@ -132,7 +126,12 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
    public void assignNewInstancesToMockFields(@NotNull Object target)
    {
       TestRun.getExecutingTest().clearInjectableAndNonStrictMocks();
+      createAndAssignNewInstances(target);
+      obtainAndRegisterInstancesOfFieldsNotSet(target);
+   }
 
+   private void createAndAssignNewInstances(@NotNull Object target)
+   {
       for (Entry<MockedType, InstanceFactory> metadataAndFactory : mockInstanceFactories.entrySet()) {
          MockedType mockedType = metadataAndFactory.getKey();
          InstanceFactory instanceFactory = metadataAndFactory.getValue();
@@ -140,8 +139,6 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
          Object mock = assignNewInstanceToMockField(target, mockedType, instanceFactory);
          registerMock(mockedType, mock);
       }
-
-      obtainAndRegisterInstancesOfFinalFields(target);
    }
 
    @NotNull
@@ -179,7 +176,7 @@ public class FieldTypeRedefinitions extends TypeRedefinitions
       return mock;
    }
 
-   private void obtainAndRegisterInstancesOfFinalFields(@NotNull Object target)
+   private void obtainAndRegisterInstancesOfFieldsNotSet(@NotNull Object target)
    {
       for (MockedType metadata : mockFieldsNotSet) {
          assert metadata.field != null;
