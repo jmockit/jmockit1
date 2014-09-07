@@ -37,14 +37,12 @@ public final class PersistenceManager_JMockit_Test
    @Test
    public void createDirectoryStructure_usingRegularMocking(@Mocked final File fileMock)
    {
-      final String path = "directoryPath";
-
       new NonStrictExpectations() {{
          fileMock.exists(); result = false;
          fileMock.mkdirs(); result = true;
       }};
 
-      assertTrue(tested.createDirectoryStructure(path));
+      assertTrue(tested.createDirectoryStructure("directoryPath"));
    }
 
    @Test(expected = IllegalArgumentException.class)

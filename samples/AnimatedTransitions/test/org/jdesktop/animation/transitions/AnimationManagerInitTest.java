@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -36,7 +36,7 @@ public final class AnimationManagerInitTest
 
       manager = new AnimationManager(container);
 
-      @SuppressWarnings({"unchecked"}) Map<JComponent, AnimationState> animationStates = getField(manager, Map.class);
+      @SuppressWarnings("unchecked") Map<JComponent, AnimationState> animationStates = getField(manager, Map.class);
       component = new JButton();
       animationStates.put(component, animationState);
 
@@ -104,7 +104,7 @@ public final class AnimationManagerInitTest
    @Test
    public void initForChangingComponent()
    {
-      @SuppressWarnings({"unchecked"}) List<JComponent> changingComponents = getField(manager, List.class);
+      @SuppressWarnings("unchecked") List<JComponent> changingComponents = getField(manager, List.class);
       changingComponents.add(component);
 
       new NonStrictExpectations() {{ animationState.getStart(); result = componentState; }};

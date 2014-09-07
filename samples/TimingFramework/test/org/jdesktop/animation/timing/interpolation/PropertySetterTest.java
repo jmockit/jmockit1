@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.timing.interpolation;
@@ -49,7 +49,7 @@ public final class PropertySetterTest
    public void createAnimatorWithGivenKeyFrames()
    {
       int duration = 500;
-      KeyFrames<Integer> keyFrames = new KeyFrames<Integer>(KeyValues.create(0, 2, 4));
+      KeyFrames<Integer> keyFrames = new KeyFrames<>(KeyValues.create(0, 2, 4));
 
       Animator animator = PropertySetter.createAnimator(duration, new Animated(), "value", keyFrames);
 
@@ -66,7 +66,7 @@ public final class PropertySetterTest
    public void beginAnimationWithoutInitialPropertyValueWhenNotToAnimation()
    {
       Animated animated = new Animated();
-      PropertySetter<Integer> setter = new PropertySetter<Integer>(animated, "value", 1, 3);
+      PropertySetter<Integer> setter = new PropertySetter<>(animated, "value", 1, 3);
 
       setter.begin();
 
@@ -79,7 +79,7 @@ public final class PropertySetterTest
       final KeyValues<Integer> keyValues = KeyValues.create(3);
       final Integer startValue = 2;
       final Animated animated = new Animated(startValue);
-      PropertySetter<Integer> setter = new PropertySetter<Integer>(animated, "value", new KeyFrames<Integer>(keyValues));
+      PropertySetter<Integer> setter = new PropertySetter<>(animated, "value", new KeyFrames<>(keyValues));
 
       new NonStrictExpectations(KeyValues.class, Animated.class) {{
          keyValues.isToAnimation(); result = true;
@@ -98,7 +98,7 @@ public final class PropertySetterTest
          animated.getValue(); result = new IllegalStateException("test");
       }};
 
-      TimingTarget setter = new PropertySetter<Integer>(animated, "value", 3);
+      TimingTarget setter = new PropertySetter<>(animated, "value", 3);
       setter.begin();
    }
 
@@ -106,7 +106,7 @@ public final class PropertySetterTest
    public void signalTimingEventAtHalfTheTimingRange()
    {
       Animated animated = new Animated();
-      PropertySetter<Integer> setter = new PropertySetter<Integer>(animated, "value", 1, 3);
+      PropertySetter<Integer> setter = new PropertySetter<>(animated, "value", 1, 3);
 
       setter.timingEvent(0.5f);
 
@@ -120,7 +120,7 @@ public final class PropertySetterTest
          animated.setValue(anyInt); result = new IllegalStateException("test");
       }};
 
-      PropertySetter<Integer> setter = new PropertySetter<Integer>(animated, "value", 1, 3);
+      PropertySetter<Integer> setter = new PropertySetter<>(animated, "value", 1, 3);
       setter.timingEvent(0.1f);
    }
 }
