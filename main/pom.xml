@@ -7,7 +7,7 @@
    <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.12</version>
    <packaging>jar</packaging>
    <prerequisites>
-      <maven>3.0.4</maven>
+      <maven>3.2.1</maven>
       <!-- Must run on JDK 1.8 -->
    </prerequisites>
 
@@ -26,17 +26,20 @@
          <distribution>repo</distribution>
       </license>
    </licenses>
+   <developers>
+      <developer>
+         <name>Rogério Liesenfeld</name>
+         <email>rliesenfeld@gmail.com</email>
+      </developer>
+   </developers>
+   <inceptionYear>2006</inceptionYear>
    <scm>
       <url>https://github.com/jmockit/jmockit1</url>
       <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
    </scm>
-   <developers>
-      <developer><name>Rogério Liesenfeld</name></developer>
-   </developers>
-   <inceptionYear>2006</inceptionYear>
    <issueManagement>
+      <system>GitHub Issues</system>
       <url>https://github.com/jmockit/jmockit1/issues</url>
-      <system>GitHub</system>
    </issueManagement>
    <mailingLists>
       <mailingList>
@@ -81,7 +84,12 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
-            <configuration><source>1.6</source><target>1.6</target></configuration>
+            <configuration>
+               <source>1.6</source><target>1.6</target>
+               <encoding>UTF-8</encoding>
+               <fork>true</fork>
+               <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
+            </configuration>
          </plugin>
          <plugin>
             <artifactId>maven-jar-plugin</artifactId><version>2.4</version>
@@ -102,7 +110,7 @@
             <executions>
                <execution>
                   <id>attach-sources</id>
-                  <goals><goal>jar</goal></goals>
+                  <goals><goal>jar-no-fork</goal></goals>
                </execution>
             </executions>
          </plugin>

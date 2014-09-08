@@ -22,13 +22,16 @@
          <distribution>repo</distribution>
       </license>
    </licenses>
+   <developers>
+      <developer>
+         <name>Rogério Liesenfeld</name>
+         <email>rliesenfeld@gmail.com</email>
+      </developer>
+   </developers>
    <scm>
       <url>https://github.com/jmockit/jmockit1</url>
       <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
    </scm>
-   <developers>
-      <developer><name>Rogério Liesenfeld</name></developer>
-   </developers>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -71,7 +74,10 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
-            <configuration><source>1.6</source><target>1.6</target></configuration>
+            <configuration>
+               <source>1.6</source><target>1.6</target>
+               <encoding>UTF-8</encoding>
+            </configuration>
          </plugin>
          <plugin>
             <artifactId>maven-jar-plugin</artifactId><version>2.4</version>
@@ -104,7 +110,7 @@
             <executions>
                <execution>
                   <id>attach-sources</id>
-                  <goals><goal>jar</goal></goals>
+                  <goals><goal>jar-no-fork</goal></goals>
                </execution>
             </executions>
          </plugin>
@@ -121,8 +127,9 @@
                <source>1.7</source>
                <windowtitle>JMockit Coverage API</windowtitle>
                <doctitle>JMockit Coverage API Documentation</doctitle>
-               <header><![CDATA[<a href="http://www.jmockit.org" target="_top">JMockit Home</a>]]></header>
-               <footer><![CDATA[<a href="http://www.jmockit.org" target="_top">JMockit Home</a>]]></footer>
+               <stylesheetfile>${project.basedir}/../../jmockit.github.io/api1x/stylesheet.css</stylesheetfile>
+               <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
+               <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
                <notimestamp>true</notimestamp>
                <quiet>true</quiet>
                <sourcepath>${basedir}/src</sourcepath>
