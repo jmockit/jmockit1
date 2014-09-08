@@ -33,7 +33,7 @@ public final class MockUpTest
    {
       @Deprecated final boolean b;
 
-      @Deprecated Collaborator() { b = false; }
+      @Deprecated Collaborator() { b = true; }
       Collaborator(boolean b) { this.b = b; }
 
       @Ignore("test") int doSomething(@Deprecated String s) { return s.length(); }
@@ -258,7 +258,7 @@ public final class MockUpTest
    {
       boolean executed;
       @Mock public void $init() { executed = true; }
-      @Mock public int doSomething(String s) { return s.length(); }
+      @Mock public int doSomething(String s) { return 45; }
    }
 
    @Test
@@ -267,10 +267,11 @@ public final class MockUpTest
       PublicNamedMockUpWithNoInvocationParameters mockUp = new PublicNamedMockUpWithNoInvocationParameters();
 
       Collaborator col = new Collaborator();
-      int i = col.doSomething("test");
-
       assertTrue(mockUp.executed);
-      assertEquals(4, i);
+      assertFalse(col.b);
+
+      int i = col.doSomething("test");
+      assertEquals(45, i);
    }
 
    public static final class NamedMockUp extends MockUp<Collaborator>
@@ -332,6 +333,8 @@ public final class MockUpTest
    public void namedMockUpWithPublicMockMethodsUsingInvocationParameter()
    {
       Collaborator col = new Collaborator();
+      assertTrue(col.b);
+
       new NamedMockUp();
 
       assertTrue(Collaborator.doSomethingElse());

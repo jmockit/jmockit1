@@ -234,7 +234,7 @@ final class MockupsModifier extends BaseClassModifier
          jumpInsnOpcode = IF_ACMPEQ;
       }
       else {
-         jumpInsnOpcode = IFNE;
+         jumpInsnOpcode = mockMethod.hasInvocationParameter ? IFNE : IFEQ;
       }
 
       Label startOfRealImplementation = new Label();
