@@ -24,7 +24,7 @@ final class JPADependencies
    @Nullable
    static JPADependencies createIfAvailableInClasspath(@NotNull InjectionState injectionState)
    {
-      return PERSISTENCE_CONTEXT_CLASS == null ? null : new JPADependencies(injectionState);
+      return PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
    @Nullable
@@ -32,10 +32,10 @@ final class JPADependencies
    {
       Class<? extends Annotation> annotationType = annotation.annotationType();
 
-      if (annotationType == PERSISTENCE_UNIT_CLASS) {
+      if (annotationType == PersistenceUnit.class) {
          return ((PersistenceUnit) annotation).unitName();
       }
-      else if (annotationType == PERSISTENCE_CONTEXT_CLASS) {
+      else if (annotationType == PersistenceContext.class) {
          return  ((PersistenceContext) annotation).unitName();
       }
 
@@ -45,12 +45,12 @@ final class JPADependencies
    @NotNull private final InjectionState injectionState;
    @Nullable private String defaultPersistenceUnitName;
 
-   JPADependencies(@NotNull InjectionState injectionState) { this.injectionState = injectionState; }
+   private JPADependencies(@NotNull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
    Object newInstanceIfApplicable(@NotNull Class<?> dependencyType, @NotNull Object dependencyKey)
    {
-      if (dependencyType == ENTITY_MANAGER_FACTORY_CLASS) {
+      if (dependencyType == EntityManagerFactory.class) {
          String persistenceUnitName;
 
          if (dependencyKey instanceof String) {
@@ -64,7 +64,7 @@ final class JPADependencies
          return emFactory;
       }
 
-      if (dependencyType == ENTITY_MANAGER_CLASS) {
+      if (dependencyType == EntityManager.class) {
          return findOrCreateEntityManager(dependencyKey);
       }
 
@@ -111,7 +111,7 @@ final class JPADependencies
    }
 
    @Nullable
-   private Object findOrCreateEntityManager(@NotNull Object dependencyKey)
+   private EntityManager findOrCreateEntityManager(@NotNull Object dependencyKey)
    {
       String persistenceUnitName;
       Object emFactoryKey;

@@ -120,7 +120,7 @@ final class FieldInjection
 
    private static boolean isExternalBaseClassSupportingInjection(@NotNull Class<?> anotherClass)
    {
-      return SERVLET_CLASS != null && SERVLET_CLASS.isAssignableFrom(anotherClass);
+      return isServlet(anotherClass);
    }
 
    void injectIntoEligibleFields(@NotNull List<Field> targetFields, @NotNull Object testedObject)

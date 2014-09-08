@@ -7,7 +7,10 @@ package mockit.internal.expectations.injection;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
+import javax.ejb.EJB;
 import javax.inject.*;
+import javax.persistence.*;
+import javax.servlet.GenericServlet;
 
 import static mockit.internal.util.ClassLoad.*;
 
@@ -18,10 +21,7 @@ final class InjectionPoint
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
-   @Nullable static final Class<? extends Annotation> PERSISTENCE_CONTEXT_CLASS;
-   @Nullable static final Class<?> ENTITY_MANAGER_FACTORY_CLASS;
-   @Nullable static final Class<?> ENTITY_MANAGER_CLASS;
-   @Nullable static final Class<?> SERVLET_CLASS;
+   @Nullable private static final Class<?> SERVLET_CLASS;
    static final boolean WITH_INJECTION_API_IN_CLASSPATH;
 
    static
@@ -29,11 +29,13 @@ final class InjectionPoint
       INJECT_CLASS = searchTypeInClasspath("javax.inject.Inject");
       EJB_CLASS = searchTypeInClasspath("javax.ejb.EJB");
       PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
-      PERSISTENCE_CONTEXT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceContext");
-      ENTITY_MANAGER_FACTORY_CLASS = searchTypeInClasspath("javax.persistence.EntityManagerFactory");
-      ENTITY_MANAGER_CLASS = searchTypeInClasspath("javax.persistence.EntityManager");
       SERVLET_CLASS = searchTypeInClasspath("javax.servlet.GenericServlet");
       WITH_INJECTION_API_IN_CLASSPATH = INJECT_CLASS != null || PERSISTENCE_UNIT_CLASS != null;
+   }
+
+   static boolean isServlet(@NotNull Class<?> aClass)
+   {
+      return SERVLET_CLASS != null && GenericServlet.class.isAssignableFrom(aClass);
    }
 
    private InjectionPoint() {}
@@ -54,10 +56,10 @@ final class InjectionPoint
    {
       return
          field.isAnnotationPresent(Resource.class) ||
-         INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS) ||
-         EJB_CLASS != null && field.isAnnotationPresent(EJB_CLASS) ||
+         INJECT_CLASS != null && field.isAnnotationPresent(Inject.class) ||
+         EJB_CLASS != null && field.isAnnotationPresent(EJB.class) ||
          PERSISTENCE_UNIT_CLASS != null && (
-            field.isAnnotationPresent(PERSISTENCE_CONTEXT_CLASS) || field.isAnnotationPresent(PERSISTENCE_UNIT_CLASS)
+            field.isAnnotationPresent(PersistenceContext.class) || field.isAnnotationPresent(PersistenceUnit.class)
          );
    }
 

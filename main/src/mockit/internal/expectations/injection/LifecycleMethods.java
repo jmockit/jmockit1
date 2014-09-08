@@ -28,7 +28,7 @@ final class LifecycleMethods
 
    private void findLifecycleMethods(@NotNull Class<?> testedClass)
    {
-      boolean isServlet = SERVLET_CLASS != null && SERVLET_CLASS.isAssignableFrom(testedClass);
+      boolean isServlet = isServlet(testedClass);
       Method initializationMethod = null;
       Method terminationMethod = null;
 
