@@ -221,7 +221,7 @@ final class ExpectationsModifier extends BaseClassModifier
    @Nullable
    private MethodVisitor stubOutClassInitializationIfApplicable(int access, boolean noFilters, boolean matchesFilters)
    {
-      mw = cw.visitMethod(access, "<clinit>", "()V", null, null);
+      startModifiedMethodVersion(access, "<clinit>", "()V", null, null);
 
       if (!noFilters && matchesFilters || stubOutClassInitialization) {
          generateEmptyImplementation();
@@ -234,7 +234,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private boolean stubOutFinalizeMethod(int access, @NotNull String name, @NotNull String desc)
    {
       if ("finalize".equals(name) && "()V".equals(desc)) {
-         mw = cw.visitMethod(access, name, desc, null, null);
+         startModifiedMethodVersion(access, name, desc, null, null);
          generateEmptyImplementation();
          return true;
       }

@@ -145,10 +145,11 @@ class BaseTypeRedefinition
       }
 
       ClassLoader loader = realClass.getClassLoader();
-      ClassVisitor modifier = createClassModifier(loader, classReader);
+      ExpectationsModifier modifier = createClassModifier(loader, classReader);
       redefineClass(realClass, classReader, modifier);
    }
 
+   @NotNull
    private ExpectationsModifier createClassModifier(@NotNull ClassLoader loader, @NotNull ClassReader classReader)
    {
       ExpectationsModifier modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
@@ -217,12 +218,14 @@ class BaseTypeRedefinition
    }
 
    private void redefineClass(
-      @NotNull Class<?> realClass, @NotNull ClassReader classReader, @NotNull ClassVisitor modifier)
+      @NotNull Class<?> realClass, @NotNull ClassReader classReader, @NotNull ExpectationsModifier modifier)
    {
       classReader.accept(modifier, SKIP_FRAMES);
-      byte[] modifiedClass = modifier.toByteArray();
 
-      applyClassRedefinition(realClass, modifiedClass);
+      if (modifier.wasModified()) {
+         byte[] modifiedClass = modifier.toByteArray();
+         applyClassRedefinition(realClass, modifiedClass);
+      }
    }
 
    void applyClassRedefinition(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)

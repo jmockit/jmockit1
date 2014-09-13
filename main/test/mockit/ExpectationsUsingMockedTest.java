@@ -112,7 +112,7 @@ public final class ExpectationsUsingMockedTest
 
    @Test
    public void onlyStubOutStaticInitializers(
-      @Mocked(value = "", stubOutClassInitialization = true) final ClassWithStaticInitializer unused)
+      @Mocked(value = "", stubOutClassInitialization = true) ClassWithStaticInitializer unused)
    {
       assertEquals(-1, ClassWithStaticInitializer.initialized());
    }
