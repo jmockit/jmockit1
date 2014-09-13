@@ -7,6 +7,8 @@ package mockit.internal.capturing;
 import java.security.*;
 import static java.lang.reflect.Proxy.*;
 
+import mockit.internal.util.*;
+
 import org.jetbrains.annotations.*;
 
 import static mockit.internal.util.GeneratedClasses.*;
@@ -59,7 +61,8 @@ final class CapturedType
             hasSubPackage(classNameOrDesc, "junit") || hasSubPackage(classNameOrDesc, "testng") ||
             hasSubPackage(classNameOrDesc, "hamcrest")
          ) ||
-         classNameOrDesc.startsWith("com") && hasSubPackage(classNameOrDesc, "intellij");
+         classNameOrDesc.startsWith("com") && hasSubPackage(classNameOrDesc, "intellij") ||
+         ClassLoad.isGeneratedSubclass(classNameOrDesc);
    }
 
    private static boolean hasSubPackage(@NotNull String nameOrDesc, @NotNull String subPackage)

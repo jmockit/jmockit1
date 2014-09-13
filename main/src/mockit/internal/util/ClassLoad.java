@@ -182,4 +182,9 @@ public final class ClassLoad
          subclass = superClass;
       }
    }
+
+   public static boolean isGeneratedSubclass(@NotNull String className)
+   {
+      return className.contains("_$$_javassist_") || className.contains("CGLIB$$");
+   }
 }

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.*;
 
 import mockit.coverage.*;
 import mockit.coverage.standalone.*;
+import mockit.internal.util.*;
 
 final class ClassSelection
 {
@@ -73,7 +74,7 @@ final class ClassSelection
       if (
          codeSource == null || className.charAt(0) == '[' || className.startsWith("mockit.") ||
          className.startsWith("org.junit.") || className.startsWith("junit.") || className.startsWith("org.testng.") ||
-         className.contains("_$$_javassist_")
+         ClassLoad.isGeneratedSubclass(className)
       ) {
          return false;
       }
