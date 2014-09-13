@@ -477,7 +477,7 @@ public final class ExpectationsWithValuesToReturnTest
       }};
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expected = IllegalArgumentException.class)
    public void returnsMockedCollectionForSimpleReturnType(
       @Mocked final Collaborator mock, @Mocked final List<String> values)
    {

@@ -17,7 +17,7 @@ public final class MisusedExpectationsTest
    static class Blah
    {
       @SuppressWarnings("RedundantStringConstructorCall") final String name = new String("Blah");
-      int value() { return 0; }
+      int value() { return -1; }
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
       String getName() { return name.toUpperCase(); }
@@ -343,19 +343,21 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void attemptToRecordExpectationOnMockedMethodDuringEvaluationOfExpressionAssignedToResultField()
+   public void callMockedMethodDuringEvaluationOfExpressionAssignedToResultField()
    {
-      thrown.expect(IllegalStateException.class);
-      thrown.expectMessage("record invocation");
-      thrown.expectMessage("outside expectation block");
-
       class CUT {
-         CUT() { mock.value(); }
+         final int value;
+         CUT() { value = mock.value(); }
+         @Override public String toString() { return "cut=" + value; }
       }
 
       new NonStrictExpectations() {{
          mock.getName();
-         result = "test" + new CUT();
+         result = "test " + new CUT();
       }};
+
+      String name = mock.getName();
+
+      assertEquals("test cut=0", name);
    }
 }

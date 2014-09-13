@@ -47,32 +47,28 @@ public final class RecordPhase extends TestOnlyPhase
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
       Class<?> callerClass = getCallerClass();
 
-      if (!Expectations.class.isAssignableFrom(callerClass)) {
-         String kind = invocation.isConstructor() ? "constructor" : "method";
-         throw new IllegalStateException(
-            "Attempted to record invocation to mocked " + kind + " from outside expectation block" + invocation);
+      if (Expectations.class.isAssignableFrom(callerClass)) {
+         ExecutingTest executingTest = TestRun.getExecutingTest();
+         boolean nonStrictInvocation =
+            nonStrict || executingTest.isNonStrictInvocation(mock, mockClassDesc, mockNameAndDesc);
+
+         if (!nonStrictInvocation) {
+            executingTest.addStrictMock(mock, matchInstance ? null : mockClassDesc);
+         }
+         else if (!matchInstance && invocation.isConstructor()) {
+            invocation.replacementInstance = mock;
+            getReplacementMap().put(mock, mock);
+         }
+
+         currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
+
+         if (argMatchers != null) {
+            invocation.arguments.setMatchers(argMatchers);
+            argMatchers = null;
+         }
+
+         recordAndReplay.executionState.addExpectation(currentExpectation, nonStrictInvocation);
       }
-
-      ExecutingTest executingTest = TestRun.getExecutingTest();
-      boolean nonStrictInvocation =
-         nonStrict || executingTest.isNonStrictInvocation(mock, mockClassDesc, mockNameAndDesc);
-
-      if (!nonStrictInvocation) {
-         executingTest.addStrictMock(mock, matchInstance ? null : mockClassDesc);
-      }
-      else if (!matchInstance && invocation.isConstructor()) {
-         invocation.replacementInstance = mock;
-         getReplacementMap().put(mock, mock);
-      }
-
-      currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
-
-      if (argMatchers != null) {
-         invocation.arguments.setMatchers(argMatchers);
-         argMatchers = null;
-      }
-
-      recordAndReplay.executionState.addExpectation(currentExpectation, nonStrictInvocation);
 
       return invocation.getDefaultValueForReturnType(this);
    }
