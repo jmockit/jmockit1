@@ -33,12 +33,13 @@ public final class JREMockingTest
    public void mockingOfCalendar()
    {
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
+      final TimeZone tzCST = TimeZone.getTimeZone("CST");
 
       new NonStrictExpectations(Calendar.class) {{
-         Calendar.getInstance(TimeZone.getTimeZone("CST")); result = calCST;
+         Calendar.getInstance(tzCST); result = calCST;
       }};
 
-      Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("CST"));
+      Calendar cal = Calendar.getInstance(tzCST);
       assertSame(calCST, cal);
       assertEquals(2010, cal.get(Calendar.YEAR));
 

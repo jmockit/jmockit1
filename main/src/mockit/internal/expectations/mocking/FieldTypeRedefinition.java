@@ -30,6 +30,7 @@ final class FieldTypeRedefinition extends TypeRedefinition
       }
    }
 
+   @SuppressWarnings("ConstantConditions")
    boolean redefineTypeForFinalField()
    {
       if (targetClass == TypeVariable.class || !typeMetadata.injectable && targetClass.isInterface()) {
@@ -41,6 +42,7 @@ final class FieldTypeRedefinition extends TypeRedefinition
 
    private boolean redefineTypeForFieldNotSet()
    {
+      //noinspection ConstantConditions
       typeMetadata.buildMockingConfiguration();
       boolean redefined = redefineMethodsAndConstructorsInTargetType();
 

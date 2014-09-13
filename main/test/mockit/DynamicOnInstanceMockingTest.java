@@ -130,7 +130,9 @@ public final class DynamicOnInstanceMockingTest
    {
       boolean doIt() { return false; }
       boolean doItAgain() { return false; }
+      AnotherDependency getBar() { return null; }
    }
+
    public static class SubFoo extends Foo {}
 
    @Test
@@ -196,6 +198,18 @@ public final class DynamicOnInstanceMockingTest
          assertFalse(foo1.doItAgain()); times = 1;
          assertFalse(foo3.doItAgain()); times = 2;
       }};
+   }
+
+   @Test
+   public void createCascadedMockFromPartiallyMockedInstance()
+   {
+      final Foo foo = new Foo();
+
+      new NonStrictExpectations(foo) {{
+         foo.getBar().getName(); result = "cascade";
+      }};
+
+      assertEquals("cascade", foo.getBar().getName());
    }
 
    @Test

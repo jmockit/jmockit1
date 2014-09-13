@@ -59,7 +59,11 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          applyPartialMockingToGivenInstance(classOrInstance);
       }
 
-      TestRun.mockFixture().registerMockedClass(targetClass);
+      InstanceFactory instanceFactory = createInstanceFactory(targetClass);
+      TestRun.mockFixture().registerInstanceFactoryForMockedType(targetClass, instanceFactory);
+
+      String mockedTypeDesc = targetClass.getName().replace('.', '/');
+      TestRun.getExecutingTest().addCascadingType(mockedTypeDesc, false, targetClass);
    }
 
    private void applyPartialMockingToGivenClass()

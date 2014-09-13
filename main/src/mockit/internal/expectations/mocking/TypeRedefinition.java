@@ -4,8 +4,6 @@
  */
 package mockit.internal.expectations.mocking;
 
-import static mockit.internal.util.GeneratedClasses.*;
-
 import org.jetbrains.annotations.*;
 
 class TypeRedefinition extends BaseTypeRedefinition
@@ -15,15 +13,9 @@ class TypeRedefinition extends BaseTypeRedefinition
    @Nullable
    final InstanceFactory redefineType()
    {
+      //noinspection ConstantConditions
       typeMetadata.buildMockingConfiguration();
 
       return redefineType(typeMetadata.declaredType);
-   }
-
-   @NotNull @Override
-   final String getNameForConcreteSubclassToCreate()
-   {
-      String mockId = typeMetadata.mockId;
-      return mockId == null ? getNameForGeneratedClass(targetClass) : getNameForGeneratedClass(targetClass, mockId);
    }
 }

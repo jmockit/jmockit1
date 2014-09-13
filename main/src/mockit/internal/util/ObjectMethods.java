@@ -8,6 +8,8 @@ import org.jetbrains.annotations.*;
 
 public final class ObjectMethods
 {
+   private ObjectMethods() {}
+
    @NotNull public static String objectIdentity(@NotNull Object obj)
    {
       return obj.getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(obj));
@@ -15,12 +17,9 @@ public final class ObjectMethods
 
    @Nullable
    public static Object evaluateOverride(
-      @Nullable Object obj, @NotNull String methodNameAndDesc, @NotNull Object[] args)
+      @NotNull Object obj, @NotNull String methodNameAndDesc, @NotNull Object[] args)
    {
-      if (obj == null) {
-         return null;
-      }
-      else if ("equals(Ljava/lang/Object;)Z".equals(methodNameAndDesc)) {
+      if ("equals(Ljava/lang/Object;)Z".equals(methodNameAndDesc)) {
          return obj == args[0];
       }
       else if ("hashCode()I".equals(methodNameAndDesc)) {

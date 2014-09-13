@@ -37,13 +37,20 @@ public final class ExpectedInvocation
       this.matchInstance = matchInstance;
       arguments = new InvocationArguments(access, mockedClassDesc, mockNameAndDesc, genericSignature, args);
       invocationCause = new ExpectationError();
-      determineDefaultReturnValueFromMethodSignature();
+      defaultReturnValue = determineDefaultReturnValueFromMethodSignature();
    }
 
-   private void determineDefaultReturnValueFromMethodSignature()
+   private Object determineDefaultReturnValueFromMethodSignature()
    {
-      Object rv = ObjectMethods.evaluateOverride(instance, getMethodNameAndDescription(), getArgumentValues());
-      defaultReturnValue = rv == null ? UNDEFINED_DEFAULT_RETURN : rv;
+      if (instance != null) {
+         Object rv = ObjectMethods.evaluateOverride(instance, getMethodNameAndDescription(), getArgumentValues());
+
+         if (rv != null) {
+            return rv;
+         }
+      }
+
+      return UNDEFINED_DEFAULT_RETURN;
    }
 
    // Simple getters //////////////////////////////////////////////////////////////////////////////////////////////////

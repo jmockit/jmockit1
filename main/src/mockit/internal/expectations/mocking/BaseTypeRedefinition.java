@@ -17,6 +17,7 @@ import mockit.internal.expectations.mocking.InstanceFactory.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
+import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
@@ -44,7 +45,7 @@ class BaseTypeRedefinition
    private static final Map<Type, Class<?>> mockImplementations = new HashMap<Type, Class<?>>();
 
    @NotNull Class<?> targetClass;
-   @NotNull MockedType typeMetadata;
+   @Nullable MockedType typeMetadata;
    @Nullable private InstanceFactory instanceFactory;
    @Nullable private List<ClassDefinition> mockedClassDefinitions;
 
@@ -267,28 +268,30 @@ class BaseTypeRedefinition
       boolean redefined = redefineMethodsAndConstructorsInTargetType();
 
       if (redefined) {
-         createInstanceFactory(typeToMock);
+         instanceFactory = createInstanceFactory(typeToMock);
          storeRedefinedClassesInCache(mockedClassId);
       }
    }
 
-   private void createInstanceFactory(@NotNull Type typeToMock)
+   @NotNull
+   protected final InstanceFactory createInstanceFactory(@NotNull Type typeToMock)
    {
       if (targetClass.isEnum()) {
-         instanceFactory = new EnumInstanceFactory(targetClass);
+         return new EnumInstanceFactory(targetClass);
       }
       else if (isAbstract(targetClass.getModifiers())) {
          Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
-         instanceFactory = new ClassInstanceFactory(subclass);
+         return new ClassInstanceFactory(subclass);
       }
       else {
-         instanceFactory = new ClassInstanceFactory(targetClass);
+         return new ClassInstanceFactory(targetClass);
       }
    }
 
    @Nullable
    private Integer redefineClassesFromCache()
    {
+      //noinspection ConstantConditions
       Integer mockedClassId = typeMetadata.hashCode();
       MockedClass mockedClass = mockedClasses.get(mockedClassId);
 
@@ -320,7 +323,7 @@ class BaseTypeRedefinition
          @NotNull @Override
          protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
          {
-            MockingConfiguration mockingCfg = typeMetadata.mockingCfg;
+            MockingConfiguration mockingCfg = typeMetadata == null ? null : typeMetadata.mockingCfg;
             return new SubclassGenerationModifier(targetClass, mockingCfg, typeToMock, typeReader, subclassName);
          }
       }.generateClass();
@@ -329,5 +332,9 @@ class BaseTypeRedefinition
    }
 
    @NotNull
-   String getNameForConcreteSubclassToCreate() { return ""; }
+   private String getNameForConcreteSubclassToCreate()
+   {
+      String mockId = typeMetadata == null ? null : typeMetadata.mockId;
+      return mockId == null ? getNameForGeneratedClass(targetClass) : getNameForGeneratedClass(targetClass, mockId);
+   }
 }

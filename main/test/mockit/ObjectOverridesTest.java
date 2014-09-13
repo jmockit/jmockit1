@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -12,51 +12,52 @@ import static org.junit.Assert.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings({
-   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "LiteralAsArgToStringEquals", "FinalizeCalledExplicitly", "SimplifiableJUnitAssertion"})
+   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "FinalizeCalledExplicitly", "SimplifiableJUnitAssertion"})
 public final class ObjectOverridesTest
 {
    @Test
-   public void verifyStandardBehaviorOfOverridableObjectMethodsInMockedInterface(@Mocked Runnable a, @Mocked Runnable b)
+   public void verifyStandardBehaviorOfOverridableObjectMethodsInMockedInterface(
+      @Mocked Runnable r1, @Mocked Runnable r2)
    {
-      assertDefaultEqualsBehavior(a, b);
-      assertDefaultEqualsBehavior(b, a);
+      assertDefaultEqualsBehavior(r1, r2);
+      assertDefaultEqualsBehavior(r2, r1);
 
-      assertDefaultHashCodeBehavior(a);
-      assertDefaultHashCodeBehavior(b);
+      assertDefaultHashCodeBehavior(r1);
+      assertDefaultHashCodeBehavior(r2);
 
-      assertDefaultToStringBehavior(a);
-      assertDefaultToStringBehavior(b);
+      assertDefaultToStringBehavior(r1);
+      assertDefaultToStringBehavior(r2);
    }
 
-   private void assertDefaultEqualsBehavior(Object a, Object b)
+   private void assertDefaultEqualsBehavior(Object obj1, Object obj2)
    {
-      assertFalse(a.equals(null));
-      assertFalse(a.equals("test"));
-      assertTrue(a.equals(a));
-      assertFalse(a.equals(b));
+      assertFalse(obj1.equals(null));
+      assertFalse(obj1.equals("test"));
+      assertTrue(obj1.equals(obj1));
+      assertFalse(obj1.equals(obj2));
    }
 
-   private void assertDefaultHashCodeBehavior(Object a)
+   private void assertDefaultHashCodeBehavior(Object obj)
    {
-      assertEquals(System.identityHashCode(a), a.hashCode());
+      assertEquals(System.identityHashCode(obj), obj.hashCode());
    }
 
-   private void assertDefaultToStringBehavior(Object a)
+   private void assertDefaultToStringBehavior(Object obj)
    {
-      assertEquals(ObjectMethods.objectIdentity(a), a.toString());
+      assertEquals(ObjectMethods.objectIdentity(obj), obj.toString());
    }
 
    @Test
-   public void verifyStandardBehaviorOfOverriddenObjectMethodsInMockedJREClass(@Mocked Date a, @Mocked Date b)
+   public void verifyStandardBehaviorOfOverriddenObjectMethodsInMockedJREClass(@Mocked Date d1, @Mocked Date d2)
    {
-      assertDefaultEqualsBehavior(a, b);
-      assertDefaultEqualsBehavior(b, a);
+      assertDefaultEqualsBehavior(d1, d2);
+      assertDefaultEqualsBehavior(d2, d1);
 
-      assertDefaultHashCodeBehavior(a);
-      assertDefaultHashCodeBehavior(b);
+      assertDefaultHashCodeBehavior(d1);
+      assertDefaultHashCodeBehavior(d2);
 
-      assertDefaultToStringBehavior(a);
-      assertDefaultToStringBehavior(b);
+      assertDefaultToStringBehavior(d1);
+      assertDefaultToStringBehavior(d2);
    }
 
    @Mocked ClassWithObjectOverrides a;

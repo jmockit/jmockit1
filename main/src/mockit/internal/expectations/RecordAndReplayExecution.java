@@ -234,16 +234,11 @@ public final class RecordAndReplayExecution
       @Nullable Object mock, @NotNull String classDesc, @NotNull String nameAndDesc,
       @Nullable String genericSignature, @NotNull ExecutionMode executionMode, @NotNull Object[] args)
    {
-      if (executionMode == ExecutionMode.Partial) {
-         // TODO: allow cascading on partial mocking?
-         return Void.class;
-      }
-
       if (mock != null) {
          Object rv = ObjectMethods.evaluateOverride(mock, nameAndDesc, args);
 
          if (rv != null) {
-            return rv;
+            return executionMode == ExecutionMode.Partial ? Void.class : rv;
          }
       }
 
