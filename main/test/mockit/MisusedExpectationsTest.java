@@ -216,6 +216,18 @@ public final class MisusedExpectationsTest
       }
    }
 
+   @AfterClass
+   public static void verifyExpectationsInStaticContext()
+   {
+      try {
+         new FullVerifications() {};
+         fail();
+      }
+      catch (IllegalStateException ignored) {
+         // OK
+      }
+   }
+
    @SuppressWarnings("UnusedParameters")
    static class BlahBlah extends Blah
    {

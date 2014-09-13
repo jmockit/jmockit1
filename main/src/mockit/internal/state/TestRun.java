@@ -9,6 +9,7 @@ import org.jetbrains.annotations.*;
 import mockit.internal.mockups.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.util.*;
 
 /**
  * A singleton which stores several data structures which in turn hold global state for individual test methods, test
@@ -64,6 +65,17 @@ public final class TestRun
    @NotNull public static RecordAndReplayExecution getOrCreateRecordAndReplayForRunningTest()
    {
       return INSTANCE.executingTest.getOrCreateRecordAndReplay();
+   }
+
+   @NotNull public static RecordAndReplayExecution getRecordAndReplayForVerifications()
+   {
+      if (INSTANCE.fieldTypeRedefinitions == null) {
+         IllegalStateException failure = new IllegalStateException("Invalid place to verify expectations");
+         StackTrace.filterStackTrace(failure);
+         throw failure;
+      }
+
+      return INSTANCE.executingTest.getRecordAndReplayForVerifications();
    }
 
    @NotNull public static MockClasses getMockClasses() { return INSTANCE.mockClasses; }

@@ -35,7 +35,7 @@ public final class RecordAndReplayExecution
 
    public RecordAndReplayExecution()
    {
-      validateRecordingContext(false);
+      validateRecordingContext();
       executionState = new PhasedExecutionState();
       lastExpectationIndexInPreviousReplayPhase = 0;
       dynamicPartialMocking = null;
@@ -49,7 +49,7 @@ public final class RecordAndReplayExecution
       return replayPhase == null ? -1 : replayPhase.currentStrictExpectationIndex;
    }
 
-   private static void validateRecordingContext(boolean recordingExpectations)
+   private static void validateRecordingContext()
    {
       if (TestRun.getFieldTypeRedefinitions() == null) {
          String msg;
@@ -59,11 +59,8 @@ public final class RecordAndReplayExecution
                "JMockit wasn't properly initialized; check that jmockit.jar precedes junit.jar in the classpath " +
                "(if using JUnit; if not, check the documentation)";
          }
-         else if (recordingExpectations) {
-            msg = "Invalid place to record expectations";
-         }
          else {
-            msg = "Invalid place to verify expectations";
+            msg = "Invalid place to record expectations";
          }
 
          IllegalStateException failure = new IllegalStateException(msg);
@@ -75,7 +72,7 @@ public final class RecordAndReplayExecution
    public RecordAndReplayExecution(
       @NotNull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked)
    {
-      validateRecordingContext(true);
+      validateRecordingContext();
 
       TestRun.enterNoMockingZone();
       ExecutingTest executingTest = TestRun.getExecutingTest();

@@ -121,7 +121,7 @@ public final class ExecutingTest
       proceedingInvocation.set(previousInvocation);
    }
 
-   @NotNull public RecordAndReplayExecution getRecordAndReplayForVerifications()
+   @NotNull RecordAndReplayExecution getRecordAndReplayForVerifications()
    {
       if (currentRecordAndReplay == null) {
          if (recordAndReplayForLastTestMethod != null) {
