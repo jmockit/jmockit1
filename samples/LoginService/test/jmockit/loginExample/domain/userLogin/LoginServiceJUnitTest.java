@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.loginExample.domain.userLogin;
 
-import org.testng.annotations.*;
+import org.junit.*;
 
 import mockit.*;
 
@@ -14,12 +14,12 @@ import jmockit.loginExample.domain.userAccount.*;
  * A small TestNG test suite for a single class (<code>LoginService</code>), based on
  * <a href="http://schuchert.wikispaces.com/Mockito.LoginServiceExample">this article</a>.
  */
-public final class LoginServiceTest
+public final class LoginServiceJUnitTest
 {
    @Tested LoginService service;
    @Mocked UserAccount account;
 
-   @BeforeMethod
+   @Before
    public void init()
    {
       new NonStrictExpectations() {{ UserAccount.find("john"); result = account; }};
@@ -35,9 +35,9 @@ public final class LoginServiceTest
       new Verifications() {{ account.setLoggedIn(true); }};
    }
 
-   private void willMatchPassword(final boolean match)
+   private void willMatchPassword(final boolean... matches)
    {
-      new NonStrictExpectations() {{ account.passwordMatches(anyString); result = match; }};
+      new NonStrictExpectations() {{ account.passwordMatches(anyString); result = matches; }};
    }
 
    @Test
@@ -88,7 +88,7 @@ public final class LoginServiceTest
       }
    }
 
-   @Test(expectedExceptions = AccountLoginLimitReachedException.class)
+   @Test(expected = AccountLoginLimitReachedException.class)
    public void disallowConcurrentLogins() throws Exception
    {
       willMatchPassword(true);
@@ -98,7 +98,7 @@ public final class LoginServiceTest
       service.login("john", "password");
    }
 
-   @Test(expectedExceptions = UserAccountNotFoundException.class)
+   @Test(expected = UserAccountNotFoundException.class)
    public void throwExceptionIfAccountNotFound() throws Exception
    {
       new NonStrictExpectations() {{ UserAccount.find("roger"); result = null; }};
@@ -106,7 +106,7 @@ public final class LoginServiceTest
       new LoginService().login("roger", "password");
    }
 
-   @Test(expectedExceptions = UserAccountRevokedException.class)
+   @Test(expected = UserAccountRevokedException.class)
    public void disallowLoggingIntoRevokedAccount() throws Exception
    {
       willMatchPassword(true);
@@ -119,9 +119,7 @@ public final class LoginServiceTest
    @Test
    public void resetBackToInitialStateAfterSuccessfulLogin() throws Exception
    {
-      new NonStrictExpectations() {{
-         account.passwordMatches(anyString); returns(false, false, true, false);
-      }};
+      willMatchPassword(false, false, true, false);
 
       service.login("john", "password");
       service.login("john", "password");

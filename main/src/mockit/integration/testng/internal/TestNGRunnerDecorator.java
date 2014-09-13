@@ -96,19 +96,26 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    @Override
    public void beforeInvocation(@NotNull IInvokedMethod invokedMethod, @NotNull ITestResult testResult)
    {
+      ITestNGMethod testNGMethod = testResult.getMethod();
+      Class<?> testClass = testResult.getTestClass().getRealClass();
+
       if (!invokedMethod.isTestMethod()) {
-         beforeConfigurationMethod(testResult);
+         beforeConfigurationMethod(testNGMethod, testClass);
+         return;
+      }
+
+      Object testInstance = testResult.getInstance();
+
+      if (!testClass.isInstance(testInstance)) {
+         // Happens when TestNG is running a JUnit test class, for which "TestResult#getInstance()" erroneously returns
+         // a org.junit.runner.Description object.
          return;
       }
 
       TestRun.enterNoMockingZone();
 
-      Object testInstance = testResult.getInstance();
-
       try {
-         Class<?> testClass = testResult.getTestClass().getRealClass();
          updateTestClassState(testInstance, testClass);
-
          TestRun.setRunningIndividualTest(testInstance);
 
          SavePoint testMethodSavePoint = new SavePoint();
@@ -119,7 +126,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
             shouldPrepareForNextTest = false;
          }
 
-         Method method = testResult.getMethod().getConstructorOrMethod().getMethod();
+         Method method = testNGMethod.getConstructorOrMethod().getMethod();
 
          if (!isMethodWithParametersProvidedByTestNG(method)) {
             Object[] parameters = testResult.getParameters();
@@ -137,15 +144,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void beforeConfigurationMethod(@NotNull ITestResult testResult)
+   private void beforeConfigurationMethod(@NotNull ITestNGMethod method, @NotNull Class<?> testClass)
    {
       TestRun.enterNoMockingZone();
 
       try {
-         Class<?> testClass = testResult.getTestClass().getRealClass();
          updateTestClassState(null, testClass);
-
-         ITestNGMethod method = testResult.getMethod();
 
          if (method.isBeforeMethodConfiguration()) {
             if (shouldPrepareForNextTest) {
