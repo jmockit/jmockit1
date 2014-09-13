@@ -264,33 +264,25 @@ class BaseTypeRedefinition
          return;
       }
 
-      boolean redefined;
-
-      if (targetClass.isEnum()) {
-         redefined = redefineMethodsAndConstructorsInTargetType();
-
-         if (redefined) {
-            instanceFactory = new EnumInstanceFactory(targetClass);
-         }
-      }
-      else if (isAbstract(targetClass.getModifiers())) {
-         redefined = redefineMethodsAndConstructorsInTargetType();
-
-         if (redefined) {
-            Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
-            instanceFactory = new ClassInstanceFactory(subclass);
-         }
-      }
-      else {
-         redefined = redefineMethodsAndConstructorsInTargetType();
-
-         if (redefined) {
-            instanceFactory = new ClassInstanceFactory(targetClass);
-         }
-      }
+      boolean redefined = redefineMethodsAndConstructorsInTargetType();
 
       if (redefined) {
+         createInstanceFactory(typeToMock);
          storeRedefinedClassesInCache(mockedClassId);
+      }
+   }
+
+   private void createInstanceFactory(@NotNull Type typeToMock)
+   {
+      if (targetClass.isEnum()) {
+         instanceFactory = new EnumInstanceFactory(targetClass);
+      }
+      else if (isAbstract(targetClass.getModifiers())) {
+         Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
+         instanceFactory = new ClassInstanceFactory(subclass);
+      }
+      else {
+         instanceFactory = new ClassInstanceFactory(targetClass);
       }
    }
 
