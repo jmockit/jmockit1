@@ -347,13 +347,11 @@ public final class RecordAndReplayExecution
 
    @NotNull public BaseVerificationPhase startVerifications(boolean inOrder)
    {
-      if (replayPhase == null) {
-         throw new IllegalStateException("Not in the replay phase yet");
-      }
-
+      assert replayPhase != null;
       List<Expectation> expectations = replayPhase.nonStrictInvocations;
       List<Object> invocationInstances = replayPhase.nonStrictInvocationInstances;
       List<Object[]> invocationArguments = replayPhase.nonStrictInvocationArguments;
+
       verificationPhase =
          inOrder ?
             new OrderedVerificationPhase(this, expectations, invocationInstances, invocationArguments) :
