@@ -24,6 +24,7 @@ public final class MockStates
     * invocation count constraint, a runtime state will be kept here.
     */
    @NotNull private final Map<Object, List<MockState>> mockUpsToMockStates;
+   @NotNull private final Map<Object, List<MockState>> startupMockUpsToMockStates;
 
    /**
     * For each annotated mock method with at least one invocation expectation, its mock state will
@@ -33,8 +34,14 @@ public final class MockStates
 
    public MockStates()
    {
+      startupMockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(2);
       mockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(8);
       mockStatesWithExpectations = new LinkedHashSet<MockState>(10);
+   }
+
+   void addStartupMockUpAndItsMockStates(@NotNull Object mockUp, @NotNull List<MockState> mockStates)
+   {
+      startupMockUpsToMockStates.put(mockUp, mockStates);
    }
 
    void addMockStates(@NotNull Iterable<MockState> mockStates)
@@ -127,7 +134,12 @@ public final class MockStates
    @NotNull
    MockState getMockState(@NotNull Object mockUp, int mockStateIndex)
    {
-      List<MockState> mockStates = mockUpsToMockStates.get(mockUp);
+      List<MockState> mockStates = startupMockUpsToMockStates.get(mockUp);
+
+      if (mockStates == null) {
+         mockStates = mockUpsToMockStates.get(mockUp);
+      }
+
       MockState mockState = mockStates.get(mockStateIndex);
       assert mockState != null;
       return mockState;

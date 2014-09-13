@@ -4,6 +4,7 @@
  */
 package fakingXmocking.simplified;
 
+import java.io.*;
 import java.math.*;
 import java.net.*;
 import java.util.*;
@@ -53,5 +54,13 @@ public final class CurrencyConversionTest
       BigDecimal rate = conversion.convertFromTo("X", "Y");
 
       assertEquals("1.3", rate.toPlainString());
+   }
+
+   @Test
+   public void useURLMockedUpAtStartup() throws Exception
+   {
+      URL url = new URL("http://www.xe.com");
+      InputStream stream = url.openStream();
+      assertNotNull(stream);
    }
 }

@@ -252,13 +252,15 @@ final class MockMethods
    void registerMockStates(@NotNull Object mockUp, boolean forStartupMock)
    {
       if (mockStates != null) {
-         MockStates globalMockStates = TestRun.getMockStates();
+         MockStates allMockStates = TestRun.getMockStates();
 
-         if (!forStartupMock) {
-            globalMockStates.addMockStates(mockStates);
+         if (forStartupMock) {
+            allMockStates.addStartupMockUpAndItsMockStates(mockUp, mockStates);
          }
-
-         globalMockStates.addMockUpAndItsMockStates(mockUp, mockStates);
+         else {
+            allMockStates.addMockStates(mockStates);
+            allMockStates.addMockUpAndItsMockStates(mockUp, mockStates);
+         }
       }
    }
 }
