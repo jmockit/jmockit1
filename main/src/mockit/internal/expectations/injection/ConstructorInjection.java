@@ -85,7 +85,6 @@ final class ConstructorInjection
       Object argument = injectionState.getValueToInject(injectable);
 
       if (argument == null) {
-         assert injectable.mockId != null;
          throw new IllegalArgumentException(
             "No injectable value available" + missingInjectableDescription(injectable.mockId));
       }

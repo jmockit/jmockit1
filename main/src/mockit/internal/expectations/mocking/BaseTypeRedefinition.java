@@ -279,13 +279,13 @@ class BaseTypeRedefinition
       if (targetClass.isEnum()) {
          return new EnumInstanceFactory(targetClass);
       }
-      else if (isAbstract(targetClass.getModifiers())) {
+
+      if (isAbstract(targetClass.getModifiers())) {
          Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
          return new ClassInstanceFactory(subclass);
       }
-      else {
-         return new ClassInstanceFactory(targetClass);
-      }
+
+      return new ClassInstanceFactory(targetClass);
    }
 
    @Nullable
@@ -335,6 +335,6 @@ class BaseTypeRedefinition
    private String getNameForConcreteSubclassToCreate()
    {
       String mockId = typeMetadata == null ? null : typeMetadata.mockId;
-      return mockId == null ? getNameForGeneratedClass(targetClass) : getNameForGeneratedClass(targetClass, mockId);
+      return getNameForGeneratedClass(targetClass, mockId);
    }
 }

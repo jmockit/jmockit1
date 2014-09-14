@@ -43,7 +43,10 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 
    private void redefineClassHierarchy(@NotNull Object classOrInstance)
    {
+      Object mockInstance;
+
       if (classOrInstance instanceof Class) {
+         mockInstance = null;
          targetClass = (Class<?>) classOrInstance;
          CaptureOfNewInstances capture = TestRun.mockFixture().findCaptureOfImplementations(targetClass);
 
@@ -55,15 +58,16 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          applyPartialMockingToGivenClass();
       }
       else {
+         mockInstance = classOrInstance;
          targetClass = getMockedClass(classOrInstance);
          applyPartialMockingToGivenInstance(classOrInstance);
       }
 
       InstanceFactory instanceFactory = createInstanceFactory(targetClass);
-      TestRun.mockFixture().registerInstanceFactoryForMockedType(targetClass, instanceFactory);
+      instanceFactory.lastInstance = mockInstance;
 
-      String mockedTypeDesc = targetClass.getName().replace('.', '/');
-      TestRun.getExecutingTest().addCascadingType(mockedTypeDesc, false, targetClass);
+      TestRun.mockFixture().registerInstanceFactoryForMockedType(targetClass, instanceFactory);
+      TestRun.getExecutingTest().getCascadingTypes().add(false, targetClass, mockInstance);
    }
 
    private void applyPartialMockingToGivenClass()

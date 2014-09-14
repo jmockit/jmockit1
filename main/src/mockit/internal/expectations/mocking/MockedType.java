@@ -41,7 +41,7 @@ public final class MockedType
    @Nullable private final Cascading cascading;
    public final boolean injectable;
    @NotNull public final Type declaredType;
-   @Nullable public final String mockId;
+   @NotNull public final String mockId;
    @Nullable MockingConfiguration mockingCfg;
    @Nullable Object providedValue;
 
@@ -58,7 +58,7 @@ public final class MockedType
       declaredType = field.getGenericType();
       mockId = field.getName();
       providedValue = getDefaultInjectableValue(injectableAnnotation);
-      registerCascadingIfSpecified();
+      registerCascadingAsNeeded();
    }
 
    @Nullable
@@ -96,15 +96,12 @@ public final class MockedType
       return null;
    }
 
-   private void registerCascadingIfSpecified()
+   private void registerCascadingAsNeeded()
    {
-      if (cascading != null) {
-         Class<?> classType = getClassType();
+      boolean shouldCascade = mocked == null || mocked.cascading();
 
-         if (classType != TypeVariable.class) {
-            String mockedTypeDesc = classType.getName().replace('.', '/');
-            TestRun.getExecutingTest().addCascadingType(mockedTypeDesc, fieldFromTestClass, declaredType);
-         }
+      if (shouldCascade && !(declaredType instanceof TypeVariable)) {
+         TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
       }
    }
 
@@ -121,9 +118,12 @@ public final class MockedType
       Injectable injectableAnnotation = getAnnotation(annotationsOnParameter, Injectable.class);
       injectable = injectableAnnotation != null;
       declaredType = parameterType;
-      mockId = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
+
+      String parameterName = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
+      mockId = parameterName == null ? "param" + paramIndex : parameterName;
+
       providedValue = getDefaultInjectableValue(injectableAnnotation);
-      registerCascadingIfSpecified();
+      registerCascadingAsNeeded();
    }
 
    @Nullable
@@ -140,7 +140,7 @@ public final class MockedType
       return null;
    }
 
-   MockedType(@NotNull Type cascadedType)
+   MockedType(@NotNull String cascadingMethodName, @NotNull Type cascadedType)
    {
       field = null;
       fieldFromTestClass = false;
@@ -150,7 +150,7 @@ public final class MockedType
       cascading = null;
       injectable = true;
       declaredType = cascadedType;
-      mockId = "cascaded_" + cascadedType;
+      mockId = cascadingMethodName;
    }
 
    /**

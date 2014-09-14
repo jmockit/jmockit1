@@ -5,33 +5,33 @@
 package mockit.internal.state;
 
 import java.util.*;
-import java.util.Map.*;
-
-import org.jetbrains.annotations.*;
-
-import static mockit.internal.util.Utilities.containsReference;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
+import static mockit.internal.util.Utilities.*;
 
-@SuppressWarnings({"ClassWithTooManyFields", "OverlyComplexClass"})
+import org.jetbrains.annotations.*;
+
+@SuppressWarnings("ClassWithTooManyFields")
 public final class ExecutingTest
 {
    @Nullable private RecordAndReplayExecution currentRecordAndReplay;
    @Nullable private RecordAndReplayExecution recordAndReplayForLastTestMethod;
-   private final ThreadLocal<Boolean> shouldIgnoreMockingCallbacks;
+
+   @NotNull private final ThreadLocal<Boolean> shouldIgnoreMockingCallbacks;
    @NotNull private final ThreadLocal<BaseInvocation> proceedingInvocation;
    private boolean proceeding;
+
    @Nullable private ParameterTypeRedefinitions parameterTypeRedefinitions;
-   private final List<Object> regularMocks;
-   private final List<Object> injectableMocks;
-   private final Map<Object, Object> originalToCapturedInstance;
-   private final List<Object> nonStrictMocks;
-   private final List<Object> strictMocks;
-   private final Map<String, MockedTypeCascade> cascadingTypes;
+
+   @NotNull private final List<Object> regularMocks;
+   @NotNull private final List<Object> injectableMocks;
+   @NotNull private final List<Object> nonStrictMocks;
+   @NotNull private final List<Object> strictMocks;
+   @NotNull private final Map<Object, Object> originalToCapturedInstance;
+   @NotNull private final CascadingTypes cascadingTypes;
 
    ExecutingTest()
    {
@@ -41,10 +41,10 @@ public final class ExecutingTest
       proceedingInvocation = new ThreadLocal<BaseInvocation>();
       regularMocks = new ArrayList<Object>();
       injectableMocks = new ArrayList<Object>();
-      originalToCapturedInstance = new IdentityHashMap<Object, Object>(4);
       nonStrictMocks = new ArrayList<Object>();
       strictMocks = new ArrayList<Object>();
-      cascadingTypes = new HashMap<String, MockedTypeCascade>(4);
+      originalToCapturedInstance = new IdentityHashMap<Object, Object>(4);
+      cascadingTypes = new CascadingTypes();
    }
 
    @NotNull public RecordAndReplayExecution getOrCreateRecordAndReplay()
@@ -321,71 +321,7 @@ public final class ExecutingTest
       return false;
    }
 
-   public void addCascadingType(
-      @NotNull String mockedTypeDesc, boolean fromMockField, @NotNull java.lang.reflect.Type mockedType)
-   {
-      if (!cascadingTypes.containsKey(mockedTypeDesc)) {
-         cascadingTypes.put(mockedTypeDesc, new MockedTypeCascade(fromMockField, mockedType));
-      }
-   }
-   
-   @Nullable
-   public MockedTypeCascade getMockedTypeCascade(@NotNull String mockedTypeDesc, @Nullable Object mockInstance)
-   {
-      if (cascadingTypes.isEmpty()) {
-         return null;
-      }
-
-      MockedTypeCascade cascade = getCascade(mockedTypeDesc);
-
-      if (cascade != null || mockInstance == null) {
-         return cascade;
-      }
-
-      return getMockedTypeCascade(mockedTypeDesc, mockInstance.getClass());
-   }
-
-   @Nullable private MockedTypeCascade getCascade(@NotNull String mockedTypeDesc)
-   {
-      MockedTypeCascade cascade = cascadingTypes.get(mockedTypeDesc);
-      if (cascade != null) return cascade;
-
-      for (Entry<String, MockedTypeCascade> cascadeEntry : cascadingTypes.entrySet()) {
-          String cascadingTypeDesc = cascadeEntry.getKey();
-          int p = cascadingTypeDesc.indexOf('<');
-
-          if (p > 0 && cascadingTypeDesc.regionMatches(0, mockedTypeDesc, 0, p)) {
-            return cascadeEntry.getValue();
-         }
-      }
-
-      return null;
-   }
-
-   @Nullable
-   private MockedTypeCascade getMockedTypeCascade(@NotNull String invokedTypeDesc, @NotNull Class<?> mockedType)
-   {
-      Class<?> typeToLookFor = mockedType;
-
-      do {
-         String typeDesc = Type.getInternalName(typeToLookFor);
-
-         if (invokedTypeDesc.equals(typeDesc)) {
-            return null;
-         }
-
-         MockedTypeCascade cascade = cascadingTypes.get(typeDesc);
-
-         if (cascade != null) {
-            return cascade;
-         }
-
-         typeToLookFor = typeToLookFor.getSuperclass();
-      }
-      while (typeToLookFor != Object.class);
-      
-      return null;
-   }
+   @NotNull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
    void finishExecution(boolean clearSharedMocks)
    {
@@ -402,29 +338,6 @@ public final class ExecutingTest
       }
 
       strictMocks.clear();
-      clearNonSharedCascadingTypes();
-   }
-
-   private void clearNonSharedCascadingTypes()
-   {
-      if (!cascadingTypes.isEmpty()) {
-         Iterator<MockedTypeCascade> itr = cascadingTypes.values().iterator();
-
-         while (itr.hasNext()) {
-            MockedTypeCascade cascade = itr.next();
-
-            if (cascade.isSharedBetweenTests()) {
-               cascade.discardCascadedMocks();
-            }
-            else {
-               itr.remove();
-            }
-         }
-      }
-   }
-
-   public void clearCascadingTypes()
-   {
-      cascadingTypes.clear();
+      cascadingTypes.clearNonSharedCascadingTypes();
    }
 }

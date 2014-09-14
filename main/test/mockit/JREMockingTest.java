@@ -384,14 +384,14 @@ public final class JREMockingTest
    public void mockLogManager(@Mocked LogManager mock)
    {
       LogManager logManager = LogManager.getLogManager();
-      assertNull(logManager);
+      assertSame(mock, logManager);
    }
 
    @Test
    public void mockLogger(@Mocked Logger mock)
    {
       assertNotNull(LogManager.getLogManager());
-      assertNull(Logger.getLogger("test"));
+      assertSame(mock, Logger.getLogger("test"));
    }
 
    // Mocking critical collection classes /////////////////////////////////////////////////////////////////////////////

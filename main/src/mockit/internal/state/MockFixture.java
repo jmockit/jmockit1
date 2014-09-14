@@ -180,25 +180,33 @@ public final class MockFixture
       mockedTypesAndInstances.put(mockedType, mockedInstanceFactory);
    }
 
-   @Nullable public InstanceFactory findInstanceFactory(@NotNull Type mockedType)
+   @Nullable
+   public InstanceFactory findInstanceFactory(@NotNull Type mockedType)
    {
       Class<?> mockedClass = getClassType(mockedType);
+      InstanceFactory instanceFactory = mockedTypesAndInstances.get(mockedType);
 
-      if (mockedClass.isInterface() || isAbstract(mockedClass.getModifiers())) {
-         for (Entry<Type, InstanceFactory> entry : mockedTypesAndInstances.entrySet()) {
-            Type registeredMockedType = entry.getKey();
-            Class<?> registeredMockedClass = getClassType(registeredMockedType);
-            Class<?> baseType = getMockedClassOrInterfaceType(registeredMockedClass);
-
-            if (baseType == mockedClass) {
-               return entry.getValue();
-            }
-         }
-
-         return null;
+      if (instanceFactory != null) {
+         return instanceFactory;
       }
 
-      return mockedTypesAndInstances.get(mockedType);
+      boolean abstractType = mockedClass.isInterface() || isAbstract(mockedClass.getModifiers());
+
+      for (Entry<Type, InstanceFactory> entry : mockedTypesAndInstances.entrySet()) {
+         Type registeredMockedType = entry.getKey();
+         Class<?> registeredMockedClass = getClassType(registeredMockedType);
+
+         if (abstractType) {
+            registeredMockedClass = getMockedClassOrInterfaceType(registeredMockedClass);
+         }
+
+         if (mockedClass.isAssignableFrom(registeredMockedClass)) {
+            instanceFactory = entry.getValue();
+            break;
+         }
+      }
+
+      return instanceFactory;
    }
 
    public void restoreAndRemoveRedefinedClasses(@Nullable Set<Class<?>> desiredClasses)

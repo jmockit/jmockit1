@@ -15,15 +15,15 @@ public final class GeneratedClasses
 
    private GeneratedClasses() {}
 
-   @NotNull public static String getNameForGeneratedClass(@NotNull Class<?> aClass)
-   {
-      return getNameForGeneratedClass(aClass, aClass.getSimpleName());
-   }
-
-   @NotNull public static String getNameForGeneratedClass(@NotNull Class<?> aClass, @NotNull String suffix)
+   @NotNull
+   public static String getNameForGeneratedClass(@NotNull Class<?> aClass, @Nullable String suffix)
    {
       String prefix = aClass.isInterface() ? IMPLCLASS_PREFIX : SUBCLASS_PREFIX;
-      StringBuilder name = new StringBuilder(60).append(prefix).append(suffix);
+      StringBuilder name = new StringBuilder(60).append(prefix).append(aClass.getSimpleName());
+
+      if (suffix != null) {
+         name.append('_').append(suffix);
+      }
 
       if (aClass.getClassLoader() != null) {
          Package targetPackage = aClass.getPackage();

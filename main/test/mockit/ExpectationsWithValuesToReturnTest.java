@@ -48,7 +48,7 @@ public final class ExpectationsWithValuesToReturnTest
       Collection<?> getItems() { return null; }
       List<?> getListItems() { return null; }
       @SuppressWarnings("CollectionDeclaredAsConcreteClass")
-      ArrayList<?> getArrayList() { return null; }
+      List<?> getAList() { return null; }
       Set<?> getSetItems() { return null; }
       SortedSet<?> getSortedSetItems() { return null; }
       Map<?, ?> getMapItems() { return null; }
@@ -667,15 +667,15 @@ public final class ExpectationsWithValuesToReturnTest
       final List<?> thirdResult = new LinkedList<Object>();
 
       new NonStrictExpectations() {{
-         mock.getArrayList();
+         mock.getAList();
          returns(firstResult, secondResult);
 
          mock.getListItems();
          returns(firstResult, secondResult, thirdResult);
       }};
 
-      assertSame(firstResult, mock.getArrayList());
-      assertSame(secondResult, mock.getArrayList());
+      assertSame(firstResult, mock.getAList());
+      assertSame(secondResult, mock.getAList());
 
       assertSame(firstResult, mock.getListItems());
       assertSame(secondResult, mock.getListItems());

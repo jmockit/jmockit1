@@ -43,9 +43,13 @@ import java.lang.annotation.*;
  * this final field can receive the {@code null} reference.
  * Mock parameters, on the other hand, will always receive a new mocked instance whenever the test method is executed by
  * the test runner.
+ * <p/>
+ * By default, mocking will cascade into the return types of all non-void methods belonging to the mocked type.
+ * If needed, this {@link #cascading} process can be explicitly disabled on a per-mocked type basis.
  *
  * @see #value
  * @see #stubOutClassInitialization
+ * @see #cascading
  * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#declaration">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -92,4 +96,24 @@ public @interface Mocked
     * {@code NullPointerException}'s to occur.
     */
    boolean stubOutClassInitialization() default false;
+
+   /**
+    * Indicates whether the mocked type is <em>cascading</em> or not, ie, whether its non-void methods should return
+    * mocked instances or {@code null}; {@code true} by default.
+    * <p/>
+    * A non-<code>void</code> mocked method which returns a reference type will produce, if and when called, a
+    * <em>cascaded</em> mocked instance according to its return type.
+    * Methods returning {@code String}, primitive wrappers, or collection types, however, are <em>not</em> cascaded,
+    * producing non-mocked default values instead (in either case, a <em>recorded</em> return value for the method will
+    * always produce the recorded value).
+    * This cascaded mocking process means that mocked methods will never return {@code null}, unless {@code null} is
+    * explicitly recorded as the result.
+    * <p/>
+    * If a mock field/parameter is explicitly declared with the same type (or, alternatively, a subtype) of some
+    * cascaded type, then the instance originally assigned to the mock field/parameter will be used as the cascaded
+    * instance.
+    * This allows expectations on intermediate cascaded instances to be recorded/verified when needed, without having
+    * to specify the full method call chain from the "root" instance to the "leaf" instance of interest.
+    */
+   boolean cascading() default true;
 }

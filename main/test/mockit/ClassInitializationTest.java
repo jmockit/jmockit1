@@ -202,7 +202,7 @@ public final class ClassInitializationTest
       static { DEPENDENCY.toString(); }
    }
 
-   @Cascading Dependency dependency;
+   @Mocked Dependency dependency;
    @Mocked Dependent dependent;
 
    @Test

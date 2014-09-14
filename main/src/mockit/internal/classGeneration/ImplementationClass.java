@@ -26,7 +26,7 @@ public abstract class ImplementationClass<T>
 
    protected ImplementationClass(@NotNull Class<?> mockedClass)
    {
-      this(mockedClass, GeneratedClasses.getNameForGeneratedClass(mockedClass));
+      this(mockedClass, GeneratedClasses.getNameForGeneratedClass(mockedClass, null));
    }
 
    protected ImplementationClass(@NotNull Class<?> mockedClass, @NotNull String desiredClassName)
@@ -58,17 +58,18 @@ public abstract class ImplementationClass<T>
          parentLoader = ImplementationClass.class.getClassLoader();
       }
 
-      generatedBytecode = modifier.toByteArray();
+      final byte[] modifiedClassfile = modifier.toByteArray();
 
       @SuppressWarnings("unchecked")
       Class<T> generatedClass = (Class<T>) new ClassLoader(parentLoader) {
          @Override
          protected Class<?> findClass(String name)
          {
-            return defineClass(name, generatedBytecode, 0, generatedBytecode.length);
+            return defineClass(name, modifiedClassfile, 0, modifiedClassfile.length);
          }
       }.findClass(generatedClassName);
 
+      generatedBytecode = modifiedClassfile;
       return generatedClass;
    }
 

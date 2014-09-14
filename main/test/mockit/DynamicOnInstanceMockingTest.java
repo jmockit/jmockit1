@@ -23,7 +23,7 @@ public final class DynamicOnInstanceMockingTest
       void setValue(int value) { this.value = value; }
    }
 
-   static final class AnotherDependency
+   static class AnotherDependency
    {
       private String name;
 
@@ -128,6 +128,7 @@ public final class DynamicOnInstanceMockingTest
 
    public static class Foo
    {
+      Foo buildValue(@SuppressWarnings("unused") String s) { return this; }
       boolean doIt() { return false; }
       boolean doItAgain() { return false; }
       AnotherDependency getBar() { return null; }
@@ -210,6 +211,50 @@ public final class DynamicOnInstanceMockingTest
       }};
 
       assertEquals("cascade", foo.getBar().getName());
+   }
+
+   @Test
+   public void useAvailableMockedInstanceAsCascadeFromPartiallyMockedInstance(@Mocked AnotherDependency bar)
+   {
+      final Foo foo = new Foo();
+
+      new NonStrictExpectations(foo) {{
+         foo.getBar().getName(); result = "cascade";
+      }};
+
+      AnotherDependency cascadedBar = foo.getBar();
+      assertSame(bar, cascadedBar);
+      assertEquals("cascade", cascadedBar.getName());
+   }
+
+   static final class Bar extends AnotherDependency {}
+
+   @Test
+   public void useAvailableMockedSubclassInstanceAsCascadeFromPartiallyMockedInstance(@Mocked Bar bar)
+   {
+      final Foo foo = new Foo();
+
+      new NonStrictExpectations(foo) {{
+         foo.getBar().getName(); result = "cascade";
+      }};
+
+      AnotherDependency cascadedBar = foo.getBar();
+      assertSame(bar, cascadedBar);
+      assertEquals("cascade", cascadedBar.getName());
+   }
+
+   @Test
+   public void useItselfAsCascadeFromPartiallyMockedInstance()
+   {
+      final Foo foo = new Foo();
+
+      new NonStrictExpectations(foo) {{
+         foo.buildValue(anyString).doIt(); result = true;
+      }};
+
+      Foo cascadedFoo = foo.buildValue("test");
+      assertSame(foo, cascadedFoo);
+      assertTrue(cascadedFoo.doIt());
    }
 
    @Test

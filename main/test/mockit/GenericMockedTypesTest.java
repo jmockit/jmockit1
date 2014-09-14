@@ -117,7 +117,7 @@ public final class GenericMockedTypesTest
    static class GenericContainer<T extends Serializable> { final T getItem() { return null; } }
 
    @Test
-   public void createFirstLevelCascadedMockFromTypeParameter(@Cascading GenericContainer<Item> mockContainer)
+   public void createFirstLevelCascadedMockFromTypeParameter(@Mocked GenericContainer<Item> mockContainer)
    {
       Serializable mock = mockContainer.getItem();
 
@@ -128,7 +128,7 @@ public final class GenericMockedTypesTest
 
    @Test
    public void createSecondLevelCascadedMockFromTypeParameterInGenericMethodResolvedFromFirstLevelReturnType(
-      @Cascading Factory1 mockFactory)
+      @Mocked Factory1 mockFactory)
    {
       GenericContainer<Item> mockContainer = Factory1.getContainer();
       Serializable cascadedMock = mockContainer.getItem();
@@ -141,7 +141,7 @@ public final class GenericMockedTypesTest
    static class Factory2 { ConcreteContainer getContainer() { return null; } }
 
    @Test
-   public void createSecondLevelCascadedMockFromTypeParameterInBaseTypeOfMethodReturn(@Cascading Factory2 mockFactory)
+   public void createSecondLevelCascadedMockFromTypeParameterInBaseTypeOfMethodReturn(@Mocked Factory2 mockFactory)
    {
       ConcreteContainer mockContainer = mockFactory.getContainer();
       Serializable cascadedMock = mockContainer.getItem();
@@ -154,20 +154,20 @@ public final class GenericMockedTypesTest
 
    @Test
    public void cascadingClassWithNameStartingWithAnotherMockedClass(
-      @Mocked final Collaborator regularMock, @Cascading Collaborator2 cascadingMock)
+      @Mocked final Collaborator regularMock, @Mocked Collaborator2 cascadingMock)
    {
       new NonStrictExpectations() {{
          regularMock.doSomething();
       }};
 
-       assertNull(regularMock.doSomething());
+      assertNotNull(regularMock.doSomething());
    }
 
    public interface InterfaceWithBoundedTypeParameter<T extends Runnable> { T getFoo(); }
 
    @Test
    public void createCascadedMockFromGenericInterfaceMethodWhichReturnsBoundedTypeParameter(
-      @Cascading InterfaceWithBoundedTypeParameter<?> mock)
+      @Mocked InterfaceWithBoundedTypeParameter<?> mock)
    {
       Runnable foo = mock.getFoo();
       assertNotNull(foo);
@@ -179,7 +179,7 @@ public final class GenericMockedTypesTest
 
    @Test
    public void createCascadedMockFromGenericMethodDefinedInSuperInterfaceWithBoundedTypeParameter(
-      @Cascading InterfaceWhichExtendsInterfaceWithBoundedTypeParameter<?> mock)
+      @Mocked InterfaceWhichExtendsInterfaceWithBoundedTypeParameter<?> mock)
    {
       Runnable foo = mock.getFoo();
       assertNotNull(foo);
@@ -190,7 +190,7 @@ public final class GenericMockedTypesTest
 
    @Test @Ignore
    public void createCascadedMockFromGenericInterfaceMethodWhichReturnsMultiBoundedTypeParameter(
-      @Cascading InterfaceWithMultiBoundedTypeParameter<?> mock) throws Exception
+      @Mocked InterfaceWithMultiBoundedTypeParameter<?> mock) throws Exception
    {
       Runnable fooAsRunnable = mock.getFoo();
       assertNotNull(fooAsRunnable);
@@ -207,7 +207,7 @@ public final class GenericMockedTypesTest
 
    @Test
    public void createCascadedMockFromGenericSubclassHavingSameTypeParameterNameAsBaseClass(
-      @Cascading GenericSubclass<Abc> mock)
+      @Mocked GenericSubclass<Abc> mock)
    {
       Abc abc = mock.getAbc();
       assertNotNull(abc);

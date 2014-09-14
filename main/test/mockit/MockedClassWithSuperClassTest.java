@@ -28,17 +28,11 @@ public final class MockedClassWithSuperClassTest
 
    static class Subclass extends BaseClass { BaseClass getInstance() { return this; } }
 
-   // With Expectations & Verifications API ///////////////////////////////////////////////////////////////////////////
-
    @Test
-   public void mockedClassExtendingJREClass(@Mocked final SubclassOfJREClass mock) throws Exception
+   public void mockedClassExtendingJREClass(@Mocked SubclassOfJREClass mock) throws Exception
    {
-      new NonStrictExpectations() {{
-         mock.append(anyChar); result = mock;
-      }};
-
       // Mocked:
-      assertNull(mock.append("a"));
+      assertSame(mock, mock.append("a"));
       assertSame(mock, mock.append('a'));
       mock.close();
 
@@ -74,7 +68,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Cascading Subclass mock)
+   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Mocked Subclass mock)
    {
       // The subclass is already mocked at this point, when the cascaded instance gets created.
       BaseClass cascaded = mock.getInstance();
@@ -82,8 +76,6 @@ public final class MockedClassWithSuperClassTest
       assertEquals(0, cascaded.doSomething());
       assertEquals(0, mock.doSomething());
    }
-
-   /// With Mockups API ///////////////////////////////////////////////////////////////////////////////////////////////
 
    public static final class MockUpForSubclass extends MockUp<Subclass> {
       @Mock public int doSomething() { return 1; }

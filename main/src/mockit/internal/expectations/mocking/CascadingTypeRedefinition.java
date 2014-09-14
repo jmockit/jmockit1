@@ -12,9 +12,9 @@ public final class CascadingTypeRedefinition extends BaseTypeRedefinition
 {
    @NotNull private final Type mockedType;
 
-   public CascadingTypeRedefinition(@NotNull Type mockedType)
+   public CascadingTypeRedefinition(@NotNull String cascadingMethodName, @NotNull Type mockedType)
    {
-      super(new MockedType(mockedType));
+      super(new MockedType(cascadingMethodName, mockedType));
       this.mockedType = mockedType;
    }
 

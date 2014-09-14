@@ -42,8 +42,8 @@ public final class CascadingFieldTest
    public interface B { C getC(); }
    public interface C {}
 
-   @Cascading Foo foo;
-   @Cascading A a;
+   @Mocked Foo foo;
+   @Mocked A a;
 
    @Before
    public void recordCommonExpectations()
@@ -124,7 +124,7 @@ public final class CascadingFieldTest
 
    @Test
    public void recordUnambiguousNonStrictExpectationsProducingDifferentCascadedInstances(
-      @Cascading final Foo foo1, @Cascading final Foo foo2)
+      @Mocked final Foo foo1, @Mocked final Foo foo2)
    {
       new NonStrictExpectations() {{
          Date c1 = foo1.getDate();
@@ -166,7 +166,7 @@ public final class CascadingFieldTest
    }
 
    static final class AnotherFoo { Bar getBar() { return null; } }
-   @Cascading AnotherFoo anotherFoo;
+   @Mocked AnotherFoo anotherFoo;
 
    @Test
    public void cascadingMockField()
@@ -196,7 +196,7 @@ public final class CascadingFieldTest
    static class GenericBaseClass1<T> { T getValue() { return null; } }
 
    @Test
-   public void cascadeGenericMethodFromSpecializedGenericClass(@Cascading GenericBaseClass1<C> mock)
+   public void cascadeGenericMethodFromSpecializedGenericClass(@Mocked GenericBaseClass1<C> mock)
    {
       C value = mock.getValue();
       assertNotNull(value);
@@ -205,7 +205,7 @@ public final class CascadingFieldTest
    static class ConcreteSubclass1 extends GenericBaseClass1<A> {}
 
    @Test
-   public void cascadeGenericMethodOfConcreteSubclassWhichExtendsGenericClass(@Cascading final ConcreteSubclass1 mock)
+   public void cascadeGenericMethodOfConcreteSubclassWhichExtendsGenericClass(@Mocked final ConcreteSubclass1 mock)
    {
       new NonStrictExpectations() {{
          mock.getValue().getB().getC();
@@ -227,7 +227,7 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingInterface(
-      @Cascading final ConcreteSubclass2 mock)
+      @Mocked final ConcreteSubclass2 mock)
    {
       new NonStrictExpectations() {{ mock.getValue().getB().getC(); }};
 
@@ -240,7 +240,7 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundOnlyInVerificationBlock(
-      @Cascading final ConcreteSubclass2 mock)
+      @Mocked final ConcreteSubclass2 mock)
    {
       new FullVerifications() {{
          Ab value = mock.getValue(); times = 0;
@@ -254,7 +254,7 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingClass(
-      @Cascading final ActionHolder mock)
+      @Mocked final ActionHolder mock)
    {
       new Expectations() {{ mock.getValue().getB().getC(); }};
 

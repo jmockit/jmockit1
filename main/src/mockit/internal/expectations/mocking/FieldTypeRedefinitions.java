@@ -214,7 +214,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    @Override
    public void cleanUp()
    {
-      TestRun.getExecutingTest().clearCascadingTypes();
+      TestRun.getExecutingTest().getCascadingTypes().clear();
       super.cleanUp();
    }
 }

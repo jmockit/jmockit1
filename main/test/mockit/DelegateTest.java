@@ -471,7 +471,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void delegateWhichCallsAnotherMockedMethodProducingACascadedInstance(@Cascading final Collaborator mock)
+   public void delegateWhichCallsAnotherMockedMethodProducingACascadedInstance(@Mocked final Collaborator mock)
    {
       new NonStrictExpectations() {{
          mock.getFoo().doSomething(); result = 123;

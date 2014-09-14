@@ -19,8 +19,13 @@ import java.lang.annotation.*;
  * In a test having a cascading mocked type, a separate non-cascading mocked type can be declared so that expectations
  * on intermediate cascaded instances can be recorded/verified.
  *
+ * @deprecated All <code>@Mocked</code>/<code>@Injectable</code>/<code>@Capturing</code> types are now
+ * {@linkplain Mocked#cascading cascading} by default; existing uses of this annotation should therefore be replaced
+ * with {@code @Mocked} or removed where another mocking annotation is already applied.
+ *
  * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#cascading">Tutorial</a>
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 public @interface Cascading

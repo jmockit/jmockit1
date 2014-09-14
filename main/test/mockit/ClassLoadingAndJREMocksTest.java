@@ -229,7 +229,7 @@ public final class ClassLoadingAndJREMocksTest
 
    @Test
    public void cascadingMockedURLWithInjectableCascadedURLConnection(
-      @Cascading URL anyUrl, @Injectable final URLConnection cascadedUrlConnection)
+      @Mocked URL anyUrl, @Injectable final URLConnection cascadedUrlConnection)
       throws Exception
    {
       final String testContents = "testing";

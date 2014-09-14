@@ -24,10 +24,10 @@ public final class InstanceSpecificMockingTest
 
       int getValue() { return value; }
 
-      @SuppressWarnings("UnusedDeclaration")
+      @SuppressWarnings("unused")
       final boolean simpleOperation(int a, String b, Date c) { return true; }
 
-      @SuppressWarnings("UnusedDeclaration")
+      @SuppressWarnings("unused")
       static void doSomething(boolean b, String s) { throw new IllegalStateException(); }
    }
 
@@ -171,15 +171,16 @@ public final class InstanceSpecificMockingTest
    }
 
    @Test
-   public void mockByteBufferRegularly(@Mocked ByteBuffer unused)
+   public void mockByteBufferRegularly(@Mocked ByteBuffer mockBuffer)
    {
-      assertNull(ByteBuffer.allocateDirect(10));
+      ByteBuffer buffer = ByteBuffer.allocateDirect(10);
+      assertSame(mockBuffer, buffer);
 
       new Verifications() {{ ByteBuffer.allocateDirect(anyInt); }};
    }
 
    @Test
-   public void mockByteBufferAsCascading(@Cascading ByteBuffer unused)
+   public void mockByteBufferAsCascading(@Mocked ByteBuffer unused)
    {
       ByteBuffer cascadedBuf = ByteBuffer.allocateDirect(10);
       assertNotNull(cascadedBuf);
@@ -192,7 +193,7 @@ public final class InstanceSpecificMockingTest
    }
 
    @Test
-   public void mockByteBufferAsCascadedMock(@Cascading BufferFactory cascadingMock)
+   public void mockByteBufferAsCascadedMock(@Mocked BufferFactory cascadingMock)
    {
       ByteBuffer realBuf1 = ByteBuffer.allocateDirect(10);
       assertEquals(10, realBuf1.capacity());
@@ -229,6 +230,7 @@ public final class InstanceSpecificMockingTest
          }
 
          currentInput = sequentialInputs.poll();
+         //noinspection TailRecursion
          return read();
       }
    }

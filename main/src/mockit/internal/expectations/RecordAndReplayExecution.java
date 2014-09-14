@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.concurrent.locks.*;
 
 import mockit.*;
-import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
