@@ -63,7 +63,10 @@ public abstract class MockingBridge implements InvocationHandler
    {
       Thread currentThread = Thread.currentThread();
 
-      //noinspection SimplifiableIfStatement
+      if ("java.awt.EventDispatchThread".equals(currentThread.getClass().getName())) {
+         return true;
+      }
+
       if ("Finalizer".equals(currentThread.getName())) {
          return true;
       }
