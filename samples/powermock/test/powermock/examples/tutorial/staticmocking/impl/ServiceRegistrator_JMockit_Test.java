@@ -27,11 +27,11 @@ public final class ServiceRegistrator_JMockit_Test
    @Mocked final IdGenerator unused = null;
 
    @Test
-   public void registerService(@Cascading @Injectable final BundleContext bundleContextMock)
+   public void registerService(@Injectable BundleContext bundleContextMock)
    {
       // Data for the test:
-      final String name = "a name";
-      final Object serviceImpl = new Object();
+      String name = "a name";
+      Object serviceImpl = new Object();
       final long expectedId = 42;
 
       new NonStrictExpectations() {{ IdGenerator.generateNewId(); result = expectedId; }};
@@ -50,7 +50,7 @@ public final class ServiceRegistrator_JMockit_Test
    public void unregisterService()
    {
       //noinspection unchecked
-      final Map<Long, ServiceRegistration> serviceRegistrations = getField(tested, Map.class);
+      Map<Long, ServiceRegistration> serviceRegistrations = getField(tested, Map.class);
       long id = 1L;
       serviceRegistrations.put(id, serviceRegistrationMock);
 

@@ -18,10 +18,10 @@ import tourDeMock.original.service.*;
 public final class EmailListServlet_JMockitTest
 {
    @Tested EmailListServlet servlet;
-   @Injectable @Cascading ServletConfig servletConfig;
+   @Injectable ServletConfig servletConfig;
 
    @Mocked HttpServletRequest request;
-   @Cascading HttpServletResponse response;
+   @Mocked HttpServletResponse response;
    @Mocked EmailListService service;
 
    @Before

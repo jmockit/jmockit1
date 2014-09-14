@@ -55,14 +55,13 @@ import org.jdesktop.animation.timing.Animator;
  *
  * @author Chet Haase
  */
-class AnimationManager
+final class AnimationManager
 {
    // The set of start/end states for each component in the transition.
-   private final Map<JComponent, AnimationState> componentAnimationStates =
-      new HashMap<JComponent, AnimationState>();
+   private final Map<JComponent, AnimationState> componentAnimationStates = new HashMap<>();
 
    // The set of components that change between their start and end states.
-   private final List<JComponent> changingComponents = new ArrayList<JComponent>();
+   private final List<JComponent> changingComponents = new ArrayList<>();
 
    // The container in which the transition will occur.
    private final JComponent container;
@@ -132,7 +131,7 @@ class AnimationManager
       recreateImage();
 
       // First, make sure that we don't run animations for components that aren't even visible.
-      List<Component> componentsToRemove = new ArrayList<Component>();
+      List<Component> componentsToRemove = new ArrayList<>();
 
       for (AnimationState state : componentAnimationStates.values()) {
          ComponentState start = state.getStart();
@@ -158,10 +157,7 @@ class AnimationManager
          assert bounds != null;
          Rectangle componentBounds = container.getBounds();
 
-         if (bounds.intersects(componentBounds)) {
-            continue;
-         }
-         else {
+         if (!bounds.intersects(componentBounds)) {
             componentsToRemove.add(state.getComponent());
          }
       }
@@ -231,8 +227,8 @@ class AnimationManager
             }
             else {
                changingComponents.add((JComponent) child);
-               animState = new AnimationState(end, false);
-               componentAnimationStates.put((JComponent) child, animState);
+               AnimationState endState = new AnimationState(end, false);
+               componentAnimationStates.put((JComponent) child, endState);
             }
          }
       }

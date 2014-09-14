@@ -29,7 +29,8 @@ public final class AnimationManagerTest
    }
 
    @Test
-   public void recreateImageForContainerOfSizeNotZeroAndBackgroundStillUndefined(@Injectable final JComponent container)
+   public void recreateImageForContainerOfSizeNotZeroAndBackgroundStillUndefined(
+      @Injectable final JComponent container, @Injectable BufferedImage backgroundImage)
    {
       new NonStrictExpectations() {{
          container.getWidth(); result = 100;
@@ -155,20 +156,22 @@ public final class AnimationManagerTest
 
    @Test
    public void setupEndForComponentWithoutStartState(
-      @Mocked AnimationState animationState, @Mocked final ComponentState componentState)
+      @Mocked AnimationState animationState, @Mocked ComponentState componentState)
    {
       final JButton component = new JButton();
       AnimationManager manager = newAnimationManagerWithAComponent(component);
 
       manager.setupEnd();
 
-      new Verifications() {{
-         new ComponentState(component);
-         new AnimationState(withInstanceLike(componentState), false);
-      }};
+      final Map<JComponent, AnimationState> componentAnimationStates = getField(manager, Map.class);
 
-      Map<JComponent, AnimationState> compAnimStates = getField(manager, Map.class);
-      assertSame(animationState.getComponent(), compAnimStates.get(component).getComponent());
+      new Verifications() {{
+         ComponentState createdComponentState = new ComponentState(component);
+
+         List<AnimationState> createdAnimationStates = withCapture(new AnimationState(createdComponentState, false));
+         AnimationState addedAnimationState = componentAnimationStates.get(component);
+         assertTrue(createdAnimationStates.contains(addedAnimationState));
+      }};
 
       List<JComponent> changingComponents = getField(manager, List.class);
       assertTrue(changingComponents.contains(component));
@@ -193,7 +196,8 @@ public final class AnimationManagerTest
    }
 
    @Test
-   public void setupEndForComponentWithDifferentStartAndEndStates(@Mocked final AnimationState animationState)
+   public void setupEndForComponentWithDifferentStartAndEndStates(
+      @Mocked(cascading = false) final AnimationState animationState)
    {
       final JButton component = new JButton();
       AnimationManager manager = newAnimationManagerWithAComponent(component);

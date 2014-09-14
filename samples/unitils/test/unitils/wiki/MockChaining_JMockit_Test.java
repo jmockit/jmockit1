@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package unitils.wiki;
@@ -26,7 +26,7 @@ public final class MockChaining_JMockit_Test
    }
 
    @Test
-   public void sameTestButWithChaining(@Cascading final UserService userService)
+   public void sameTestButWithChaining(@Mocked final UserService userService)
    {
       new NonStrictExpectations() {{
          userService.getUser().getName(); result = "my name"; // automatically returns user mock

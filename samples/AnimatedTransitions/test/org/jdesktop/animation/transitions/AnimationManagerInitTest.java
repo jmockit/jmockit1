@@ -4,29 +4,27 @@
  */
 package org.jdesktop.animation.transitions;
 
-import java.awt.*;
 import java.awt.image.*;
-import java.util.List;
 import java.util.*;
 import javax.swing.*;
 
-import static mockit.Deencapsulation.*;
-import org.jdesktop.animation.timing.*;
 import org.junit.*;
 
 import mockit.*;
+import static mockit.Deencapsulation.*;
+
+import org.jdesktop.animation.timing.*;
 
 public final class AnimationManagerInitTest
 {
    @Mocked Animator animator;
-   @Mocked AnimationState animationState;
-   @Mocked ComponentState componentState;
+   @Mocked(cascading = false) AnimationState animationState;
+   @Mocked(cascading = false) ComponentState componentState;
 
    AnimationManager manager;
    JComponent component;
 
    @Mocked BufferedImage bgImage;
-   @Mocked Graphics gImg;
 
    @Before
    public void setUp()
@@ -43,7 +41,6 @@ public final class AnimationManagerInitTest
       // Common stubbings:
       new NonStrictExpectations(container) {{
          container.createImage(100, 100); result = bgImage;
-         bgImage.getGraphics(); result = gImg;
       }};
    }
 

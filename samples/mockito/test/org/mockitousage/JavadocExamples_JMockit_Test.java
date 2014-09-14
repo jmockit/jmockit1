@@ -469,7 +469,7 @@ public final class JavadocExamples_JMockit_Test
    }
 
    @Test // Uses of JMockit API: 4
-   public void chainingMethodCallsWithCascading(@Cascading final MockedClass mock)
+   public void chainingMethodCallsWithCascading(@Mocked final MockedClass mock)
    {
       new NonStrictExpectations() {{ mock.getPerson().getName(); result = "deep"; }};
 

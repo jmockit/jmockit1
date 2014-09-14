@@ -33,7 +33,7 @@ public final class EmailListServletTest
    }
 
    @Test
-   public void doGetWithList(@Cascading final HttpServletResponse response, @Injectable final PrintWriter writer)
+   public void doGetWithList(@Mocked final HttpServletResponse response, @Injectable final PrintWriter writer)
       throws Exception
    {
       new NonStrictExpectations() {{

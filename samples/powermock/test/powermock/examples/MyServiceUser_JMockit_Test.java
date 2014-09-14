@@ -18,7 +18,7 @@ import mockit.*;
 public final class MyServiceUser_JMockit_Test
 {
    @Tested MyServiceUser tested;
-   @Cascading DependencyManager dependencyManagerMock;
+   @Mocked DependencyManager dependencyManagerMock;
 
    @Test
    public void getNumberOfPersons()

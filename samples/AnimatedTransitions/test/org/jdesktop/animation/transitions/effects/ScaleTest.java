@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions.effects;
 
-import org.jdesktop.animation.timing.*;
-import org.jdesktop.animation.timing.interpolation.*;
-import org.jdesktop.animation.transitions.*;
 import org.junit.*;
 
 import mockit.*;
+
+import org.jdesktop.animation.timing.*;
+import org.jdesktop.animation.transitions.*;
 
 public final class ScaleTest
 {
@@ -17,7 +17,7 @@ public final class ScaleTest
    @Injectable ComponentState start;
    @Injectable ComponentState end;
    @Mocked Animator animator;
-   @Cascading @Mocked Effect base;
+   @Mocked Effect base;
 
    @Test
    public void addsAnimationTargetsOnInit()

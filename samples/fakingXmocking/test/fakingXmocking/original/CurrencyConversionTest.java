@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package fakingXmocking.original;
@@ -17,7 +17,7 @@ import mockit.*;
 public final class CurrencyConversionTest
 {
    @Capturing // so that any class implementing the base type gets mocked
-   @Cascading // so that intermediate objects obtained from chained calls get mocked
+   @Mocked
    HttpClient httpClient;
 
    @Mocked
