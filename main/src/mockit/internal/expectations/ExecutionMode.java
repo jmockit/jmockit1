@@ -18,19 +18,22 @@ public enum ExecutionMode
       boolean isNativeMethodToBeIgnored(int access) { return false; }
 
       @Override
-      boolean isToExecuteRealImplementation(@Nullable Object mockedInstance)
+      boolean isToExecuteRealImplementation(@Nullable Object instance)
       {
-         return mockedInstance != null && !TestRun.mockFixture().isInstanceOfMockedClass(mockedInstance);
+         return instance != null && !TestRun.mockFixture().isInstanceOfMockedClass(instance);
       }
    },
 
    Partial
    {
       @Override
-      boolean isWithRealImplementation(@Nullable Object mockedInstance)
+      boolean isWithRealImplementation(@Nullable Object instance)
       {
-         return mockedInstance == null || !TestRun.getExecutingTest().isInjectableMock(mockedInstance);
+         return instance == null || !TestRun.getExecutingTest().isInjectableMock(instance);
       }
+
+      @Override
+      boolean isToExecuteRealObjectOverride(@NotNull Object instance) { return true; }
    },
 
    PerInstance
@@ -39,9 +42,15 @@ public enum ExecutionMode
       boolean isStaticMethodToBeIgnored(int access) { return isStatic(access); }
 
       @Override
-      boolean isToExecuteRealImplementation(@Nullable Object mockedInstance)
+      boolean isToExecuteRealImplementation(@Nullable Object instance)
       {
-         return mockedInstance == null || !TestRun.getExecutingTest().isMockedInstance(mockedInstance);
+         return instance == null || !TestRun.getExecutingTest().isMockedInstance(instance);
+      }
+
+      @Override
+      boolean isToExecuteRealObjectOverride(@NotNull Object instance)
+      {
+         return !TestRun.getExecutingTest().isMockedInstance(instance);
       }
    };
 
@@ -53,6 +62,7 @@ public enum ExecutionMode
    boolean isStaticMethodToBeIgnored(int access) { return false; }
    boolean isNativeMethodToBeIgnored(int access) { return isNative(access); }
 
-   boolean isToExecuteRealImplementation(@Nullable Object mockedInstance) { return false; }
-   boolean isWithRealImplementation(@Nullable Object mockedInstance) { return false; }
+   boolean isToExecuteRealImplementation(@Nullable Object instance) { return false; }
+   boolean isWithRealImplementation(@Nullable Object instance) { return false; }
+   boolean isToExecuteRealObjectOverride(@NotNull Object instance) { return false; }
 }

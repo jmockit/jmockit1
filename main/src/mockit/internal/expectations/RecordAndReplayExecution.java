@@ -237,7 +237,7 @@ public final class RecordAndReplayExecution
          Object rv = ObjectMethods.evaluateOverride(mock, nameAndDesc, args);
 
          if (rv != null) {
-            return executionMode == ExecutionMode.Partial ? Void.class : rv;
+            return executionMode.isToExecuteRealObjectOverride(mock) ? Void.class : rv;
          }
       }
 

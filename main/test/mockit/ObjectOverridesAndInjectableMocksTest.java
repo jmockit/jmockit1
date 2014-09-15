@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -7,7 +7,7 @@ package mockit;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-@SuppressWarnings({"ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "LiteralAsArgToStringEquals", "SimplifiableJUnitAssertion"})
+@SuppressWarnings({"ObjectEqualsNull", "SimplifiableJUnitAssertion"})
 public final class ObjectOverridesAndInjectableMocksTest
 {
    @Injectable ClassWithObjectOverrides a;
@@ -20,12 +20,12 @@ public final class ObjectOverridesAndInjectableMocksTest
       assertDefaultEqualsBehavior(b, a);
    }
 
-   private void assertDefaultEqualsBehavior(Object a, Object b)
+   void assertDefaultEqualsBehavior(Object obj1, Object obj2)
    {
-      assertFalse(a.equals(null));
-      assertFalse(a.equals("test"));
-      assertTrue(a.equals(a));
-      assertFalse(a.equals(b));
+      assertFalse(obj1.equals(null));
+      assertFalse(obj1.equals("test"));
+      assertTrue(obj1.equals(obj1));
+      assertFalse(obj1.equals(obj2));
    }
 
    @Test
@@ -38,5 +38,25 @@ public final class ObjectOverridesAndInjectableMocksTest
       assertEquals(58, a.getIntValue());
       assertFalse(b.equals(a));
       assertFalse(a.equals(b));
+   }
+
+   static class BaseClass
+   {
+      final int value;
+      BaseClass(int value) { this.value = value; }
+      @Override public boolean equals(Object obj) { return value == ((BaseClass) obj).value; }
+   }
+   static class Subclass1 extends BaseClass { Subclass1() { super(1); } }
+   static class Subclass2 extends BaseClass { Subclass2() { super(2); } }
+
+   @Test
+   public void executeEqualsOverrideOnInstancesOfDifferentSubclassThanTheOneMocked(@Injectable Subclass1 mocked)
+   {
+      Object s1 = new Subclass2();
+      Object s2 = new Subclass2();
+
+      boolean cmp = s1.equals(s2);
+
+      assertTrue(cmp);
    }
 }
