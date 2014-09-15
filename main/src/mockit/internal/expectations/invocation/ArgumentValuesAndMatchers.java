@@ -55,7 +55,7 @@ abstract class ArgumentValuesAndMatchers
 
    abstract boolean isMatch(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap);
 
-   final boolean areEqual(
+   static boolean areEqual(
       @NotNull Object[] expectedValues, @NotNull Object[] actualValues, int count,
       @NotNull Map<Object, Object> instanceMap)
    {
@@ -68,7 +68,7 @@ abstract class ArgumentValuesAndMatchers
       return true;
    }
 
-   private boolean isNotEqual(
+   private static boolean isNotEqual(
       @Nullable Object expected, @Nullable Object actual, @NotNull Map<Object, Object> instanceMap)
    {
       return
@@ -102,7 +102,7 @@ abstract class ArgumentValuesAndMatchers
 
    abstract boolean hasEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other);
 
-   final boolean equivalentMatches(
+   static boolean equivalentMatches(
       @NotNull ArgumentMatcher matcher1, @Nullable Object arg1,
       @NotNull ArgumentMatcher matcher2, @Nullable Object arg2)
    {
