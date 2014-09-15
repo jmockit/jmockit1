@@ -29,7 +29,7 @@ public final class ObjectOverridesTest
       assertDefaultToStringBehavior(r2);
    }
 
-   private void assertDefaultEqualsBehavior(Object obj1, Object obj2)
+   void assertDefaultEqualsBehavior(Object obj1, Object obj2)
    {
       assertFalse(obj1.equals(null));
       assertFalse(obj1.equals("test"));
@@ -37,12 +37,12 @@ public final class ObjectOverridesTest
       assertFalse(obj1.equals(obj2));
    }
 
-   private void assertDefaultHashCodeBehavior(Object obj)
+   void assertDefaultHashCodeBehavior(Object obj)
    {
       assertEquals(System.identityHashCode(obj), obj.hashCode());
    }
 
-   private void assertDefaultToStringBehavior(Object obj)
+   void assertDefaultToStringBehavior(Object obj)
    {
       assertEquals(ObjectMethods.objectIdentity(obj), obj.toString());
    }
@@ -71,7 +71,7 @@ public final class ObjectOverridesTest
    }
 
    @Test
-   public void verifyStandardBehaviorOfOverriddenObjectMethodsInMockedClass()
+   public void verifyStandardBehaviorOfOverriddenObjectMethodsInMockedClass() throws Throwable
    {
       assertDefaultEqualsBehavior(a, b);
       assertDefaultEqualsBehavior(b, a);

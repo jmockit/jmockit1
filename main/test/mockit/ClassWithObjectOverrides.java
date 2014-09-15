@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -24,8 +24,9 @@ public final class ClassWithObjectOverrides implements Cloneable
 
    @SuppressWarnings("FinalizeDeclaration")
    @Override
-   protected void finalize()
+   protected void finalize() throws Throwable
    {
+      super.finalize();
       text.setLength(0);
    }
 
