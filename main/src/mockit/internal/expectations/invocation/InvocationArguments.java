@@ -50,11 +50,11 @@ public final class InvocationArguments
       valuesAndMatchers.setValuesWithNoMatchers(argsToVerify);
    }
 
-   @Nullable public List<ArgumentMatcher> getMatchers() { return valuesAndMatchers.matchers; }
-   public void setMatchers(@Nullable List<ArgumentMatcher> matchers) { valuesAndMatchers.matchers = matchers; }
+   @Nullable public List<ArgumentMatcher<?>> getMatchers() { return valuesAndMatchers.matchers; }
+   public void setMatchers(@Nullable List<ArgumentMatcher<?>> matchers) { valuesAndMatchers.matchers = matchers; }
 
    @NotNull
-   public Object[] prepareForVerification(@NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher> matchers)
+   public Object[] prepareForVerification(@NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers)
    {
       return valuesAndMatchers.prepareForVerification(argsToVerify, matchers);
    }

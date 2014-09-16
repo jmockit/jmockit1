@@ -9,7 +9,7 @@ import org.jetbrains.annotations.*;
 /**
  * Matches a decimal argument against another within a given margin of error.
  */
-public final class NumericEqualityMatcher implements ArgumentMatcher
+public final class NumericEqualityMatcher implements ArgumentMatcher<NumericEqualityMatcher>
 {
    private final double value;
    private final double delta;
@@ -19,6 +19,10 @@ public final class NumericEqualityMatcher implements ArgumentMatcher
       this.value = value;
       this.delta = delta;
    }
+
+   @SuppressWarnings("FloatingPointEquality")
+   @Override
+   public boolean same(@NotNull NumericEqualityMatcher other) { return value == other.value && delta == other.delta; }
 
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    public boolean matches(@Nullable Object decimalValue)

@@ -5,6 +5,7 @@
 package mockit;
 
 import static org.junit.Assert.*;
+
 import org.junit.*;
 
 public final class NonStrictExpectationsWithDuplicateRecordingsTest
@@ -327,5 +328,26 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
       assertEquals(2L, b.doSomething(2L, "A"));
       assertEquals(2L, b.doSomething(0L, "B"));
       assertEquals(2L, b.doSomething(0L, null));
+   }
+
+   @Test
+   public void recordMultipleNonStrictExpectationsWithSameDelegate()
+   {
+      final Delegate<String> delegate = new Delegate<String>() {
+         @SuppressWarnings("unused")
+         boolean matches(String arg) { return !arg.isEmpty(); }
+      };
+
+      new NonStrictExpectations() {{
+         mock.doSomething(with(delegate)); result = "first";
+      }};
+
+      assertEquals("first", mock.doSomething("test1"));
+
+      new NonStrictExpectations() {{
+         mock.doSomething(with(delegate)); result = "second";
+      }};
+
+      assertEquals("second", mock.doSomething("test2"));
    }
 }

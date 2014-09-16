@@ -6,11 +6,14 @@ package mockit.internal.expectations.argumentMatching;
 
 import org.jetbrains.annotations.*;
 
-public final class SamenessMatcher implements ArgumentMatcher
+public final class SamenessMatcher implements ArgumentMatcher<SamenessMatcher>
 {
    @Nullable private final Object object;
 
    public SamenessMatcher(@Nullable Object object) { this.object = object; }
+
+   @Override
+   public boolean same(@NotNull SamenessMatcher other) { return object == other.object; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return argValue == object; }

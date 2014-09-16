@@ -9,8 +9,13 @@ import org.jetbrains.annotations.*;
 /**
  * An argument matcher for the recording/verification of expectations.
  */
-public interface ArgumentMatcher
+public interface ArgumentMatcher<M extends ArgumentMatcher<M>>
 {
+   /**
+    * Indicates whether this matcher instance is functionally the same as another one of the same type.
+    */
+   boolean same(@NotNull M other);
+
    /**
     * Evaluates the matcher for the given argument.
     */

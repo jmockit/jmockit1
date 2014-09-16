@@ -389,7 +389,7 @@ abstract class Invocations
       return DefaultValues.computeForWrapperType(parameterType);
    }
 
-   private void addMatcher(@NotNull ArgumentMatcher matcher)
+   private void addMatcher(@NotNull ArgumentMatcher<?> matcher)
    {
       getCurrentPhase().addArgMatcher(matcher);
    }
@@ -430,20 +430,9 @@ abstract class Invocations
     * @see Verifications#withCapture(Object)
     * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
     */
-   protected final <T> T withCapture(final List<T> valueHolderForMultipleInvocations)
+   protected final <T> T withCapture(List<T> valueHolderForMultipleInvocations)
    {
-      addMatcher(new ArgumentMatcher() {
-         @Override
-         public boolean matches(@Nullable Object argValue)
-         {
-            //noinspection unchecked
-            valueHolderForMultipleInvocations.add((T) argValue);
-            return true;
-         }
-
-         @Override
-         public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch) {}
-      });
+      addMatcher(new CaptureMatcher<T>(valueHolderForMultipleInvocations));
       return null;
    }
 

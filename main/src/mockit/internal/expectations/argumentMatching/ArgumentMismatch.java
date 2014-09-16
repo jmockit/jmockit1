@@ -31,7 +31,7 @@ public final class ArgumentMismatch
    @NotNull public ArgumentMismatch append(@Nullable CharSequence str) { out.append(str); return this; }
 
    public void appendFormatted(
-      @Nullable String parameterTypeName, @Nullable Object argumentValue, @Nullable ArgumentMatcher matcher)
+      @Nullable String parameterTypeName, @Nullable Object argumentValue, @Nullable ArgumentMatcher<?> matcher)
    {
       if (matcher == null) {
          appendFormatted(argumentValue);
@@ -42,6 +42,7 @@ public final class ArgumentMismatch
       }
    }
 
+   @SuppressWarnings("OverlyComplexMethod")
    public void appendFormatted(@Nullable Object value)
    {
       if (value == null) {
@@ -74,7 +75,7 @@ public final class ArgumentMismatch
          appendArray(value);
       }
       else if (value instanceof ArgumentMatcher) {
-         ((ArgumentMatcher) value).writeMismatchPhrase(this);
+         ((ArgumentMatcher<?>) value).writeMismatchPhrase(this);
       }
       else {
          appendArbitraryArgument(value);

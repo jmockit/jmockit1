@@ -8,11 +8,14 @@ import java.lang.reflect.Array;
 
 import org.jetbrains.annotations.*;
 
-public class EqualityMatcher implements ArgumentMatcher
+public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
 {
    @Nullable final Object object;
 
    EqualityMatcher(@Nullable Object equalArg) { object = equalArg; }
+
+   @Override
+   public boolean same(@NotNull EqualityMatcher other) { return object == other.object; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return areEqual(argValue, object); }

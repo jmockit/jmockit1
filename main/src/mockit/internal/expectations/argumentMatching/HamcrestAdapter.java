@@ -4,29 +4,23 @@
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.util.*;
+
+import org.hamcrest.*;
+import org.hamcrest.core.*;
+import org.jetbrains.annotations.*;
 
 /**
  * Adapts the {@code org.hamcrest.Matcher} interface to {@link ArgumentMatcher}.
  */
-@SuppressWarnings("UnnecessaryFullyQualifiedName")
-public final class HamcrestAdapter implements ArgumentMatcher
+public final class HamcrestAdapter implements ArgumentMatcher<HamcrestAdapter>
 {
-   @NotNull private final org.hamcrest.Matcher<?> hamcrestMatcher;
+   @NotNull private final Matcher<?> hamcrestMatcher;
 
-   @NotNull
-   public static ArgumentMatcher create(@NotNull Object matcher)
-   {
-      if (matcher instanceof org.hamcrest.Matcher<?>) {
-         return new HamcrestAdapter((org.hamcrest.Matcher<?>) matcher);
-      }
+   public HamcrestAdapter(@NotNull Matcher<?> matcher) { hamcrestMatcher = matcher; }
 
-      return new ReflectiveMatcher(matcher);
-   }
-
-   public HamcrestAdapter(@NotNull org.hamcrest.Matcher<?> matcher) { hamcrestMatcher = matcher; }
+   @Override
+   public boolean same(@NotNull HamcrestAdapter other) { return hamcrestMatcher == other.hamcrestMatcher; }
 
    @Override
    public boolean matches(@Nullable Object argValue)
@@ -37,7 +31,7 @@ public final class HamcrestAdapter implements ArgumentMatcher
    @Override
    public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
    {
-      org.hamcrest.Description strDescription = new org.hamcrest.StringDescription();
+      Description strDescription = new StringDescription();
       hamcrestMatcher.describeTo(strDescription);
       argumentMismatch.append(strDescription.toString());
    }
@@ -45,16 +39,15 @@ public final class HamcrestAdapter implements ArgumentMatcher
    @Nullable public Object getInnerValue()
    {
       Object innermostMatcher = getInnermostMatcher();
-
       return getArgumentValueFromMatcherIfAvailable(innermostMatcher);
    }
 
    @NotNull private Object getInnermostMatcher()
    {
-      org.hamcrest.Matcher<?> innerMatcher = hamcrestMatcher;
+      Matcher<?> innerMatcher = hamcrestMatcher;
 
-      while (innerMatcher instanceof org.hamcrest.core.Is || innerMatcher instanceof org.hamcrest.core.IsNot) {
-         innerMatcher = FieldReflection.getField(innerMatcher.getClass(), org.hamcrest.Matcher.class, innerMatcher);
+      while (innerMatcher instanceof Is || innerMatcher instanceof IsNot) {
+         innerMatcher = FieldReflection.getField(innerMatcher.getClass(), Matcher.class, innerMatcher);
       }
 
       assert innerMatcher != null;
@@ -65,7 +58,7 @@ public final class HamcrestAdapter implements ArgumentMatcher
    private static Object getArgumentValueFromMatcherIfAvailable(@NotNull Object argMatcher)
    {
       if (
-         argMatcher instanceof org.hamcrest.core.IsEqual || argMatcher instanceof org.hamcrest.core.IsSame ||
+         argMatcher instanceof IsEqual || argMatcher instanceof IsSame ||
          "org.hamcrest.number.OrderingComparison".equals(argMatcher.getClass().getName())
       ) {
          return FieldReflection.getField(argMatcher.getClass(), Object.class, argMatcher);

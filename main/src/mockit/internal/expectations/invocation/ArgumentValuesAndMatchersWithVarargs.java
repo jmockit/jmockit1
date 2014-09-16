@@ -35,7 +35,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
       for (int i = 0; i < n; i++) {
          Object actual = varargsComparison.getOtherArgument(i);
-         ArgumentMatcher expected = getArgumentMatcher(i);
+         ArgumentMatcher<?> expected = getArgumentMatcher(i);
 
          if (expected == null) {
             Object arg = varargsComparison.getThisArgument(i);
@@ -86,7 +86,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
       for (int i = 0; i < n; i++) {
          Object actual = varargsComparison.getOtherArgument(i);
-         ArgumentMatcher expected = getArgumentMatcher(i);
+         ArgumentMatcher<?> expected = getArgumentMatcher(i);
 
          if (expected == null) {
             Object arg = varargsComparison.getThisArgument(i);

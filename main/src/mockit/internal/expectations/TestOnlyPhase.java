@@ -15,7 +15,7 @@ public abstract class TestOnlyPhase extends Phase
    protected int numberOfIterations;
    @Nullable protected Object nextInstanceToMatch;
    protected boolean matchInstance;
-   @Nullable protected List<ArgumentMatcher> argMatchers;
+   @Nullable protected List<ArgumentMatcher<?>> argMatchers;
    @Nullable Expectation currentExpectation;
 
    TestOnlyPhase(@NotNull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
@@ -27,15 +27,15 @@ public abstract class TestOnlyPhase extends Phase
       this.nextInstanceToMatch = nextInstanceToMatch;
    }
 
-   public final void addArgMatcher(@NotNull ArgumentMatcher matcher)
+   public final void addArgMatcher(@NotNull ArgumentMatcher<?> matcher)
    {
       getArgumentMatchers().add(matcher);
    }
 
-   @NotNull private List<ArgumentMatcher> getArgumentMatchers()
+   @NotNull private List<ArgumentMatcher<?>> getArgumentMatchers()
    {
       if (argMatchers == null) {
-         argMatchers = new ArrayList<ArgumentMatcher>();
+         argMatchers = new ArrayList<ArgumentMatcher<?>>();
       }
 
       return argMatchers;
@@ -43,7 +43,7 @@ public abstract class TestOnlyPhase extends Phase
 
    public final void moveArgMatcher(int originalMatcherIndex, int toIndex)
    {
-      List<ArgumentMatcher> matchers = getArgumentMatchers();
+      List<ArgumentMatcher<?>> matchers = getArgumentMatchers();
       int i = 0;
 
       for (int matchersFound = 0; matchersFound <= originalMatcherIndex; i++) {
@@ -59,7 +59,7 @@ public abstract class TestOnlyPhase extends Phase
 
    public final void setExpectedArgumentType(int parameterIndex, @NotNull Class<?> argumentType)
    {
-      ArgumentMatcher newMatcher = ClassMatcher.create(argumentType);
+      ArgumentMatcher<?> newMatcher = ClassMatcher.create(argumentType);
       getArgumentMatchers().set(parameterIndex, newMatcher);
    }
 

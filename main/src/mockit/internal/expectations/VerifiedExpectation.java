@@ -14,11 +14,11 @@ final class VerifiedExpectation
 {
    @NotNull final Expectation expectation;
    @NotNull final Object[] arguments;
-   @Nullable final List<ArgumentMatcher> argMatchers;
+   @Nullable final List<ArgumentMatcher<?>> argMatchers;
    final int replayIndex;
 
    VerifiedExpectation(
-      @NotNull Expectation expectation, @NotNull Object[] arguments, @Nullable List<ArgumentMatcher> argMatchers,
+      @NotNull Expectation expectation, @NotNull Object[] arguments, @Nullable List<ArgumentMatcher<?>> argMatchers,
       int replayIndex)
    {
       this.expectation = expectation;

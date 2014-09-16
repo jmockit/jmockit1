@@ -15,7 +15,7 @@ abstract class ArgumentValuesAndMatchers
 {
    @NotNull final InvocationArguments signature;
    @NotNull Object[] values;
-   @Nullable List<ArgumentMatcher> matchers;
+   @Nullable List<ArgumentMatcher<?>> matchers;
 
    ArgumentValuesAndMatchers(@NotNull InvocationArguments signature, @NotNull Object[] values)
    {
@@ -30,7 +30,8 @@ abstract class ArgumentValuesAndMatchers
    }
 
    @NotNull
-   final Object[] prepareForVerification(@NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher> matchersToUse)
+   final Object[] prepareForVerification(
+      @NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchersToUse)
    {
       Object[] replayArgs = values;
       values = argsToVerify;
@@ -38,13 +39,13 @@ abstract class ArgumentValuesAndMatchers
       return replayArgs;
    }
 
-   @Nullable final ArgumentMatcher getArgumentMatcher(int parameterIndex)
+   @Nullable final ArgumentMatcher<?> getArgumentMatcher(int parameterIndex)
    {
       if (matchers == null) {
          return null;
       }
 
-      ArgumentMatcher matcher = parameterIndex < matchers.size() ? matchers.get(parameterIndex) : null;
+      ArgumentMatcher<?> matcher = parameterIndex < matchers.size() ? matchers.get(parameterIndex) : null;
 
       if (matcher == null && parameterIndex < values.length && values[parameterIndex] == null) {
          matcher = AlwaysTrueMatcher.INSTANCE;
@@ -103,8 +104,8 @@ abstract class ArgumentValuesAndMatchers
    abstract boolean hasEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other);
 
    static boolean equivalentMatches(
-      @NotNull ArgumentMatcher matcher1, @Nullable Object arg1,
-      @NotNull ArgumentMatcher matcher2, @Nullable Object arg2)
+      @NotNull ArgumentMatcher<?> matcher1, @Nullable Object arg1,
+      @NotNull ArgumentMatcher<?> matcher2, @Nullable Object arg2)
    {
       boolean matcher1MatchesArg2 = matcher1.matches(arg2);
       boolean matcher2MatchesArg1 = matcher2.matches(arg1);
@@ -124,9 +125,11 @@ abstract class ArgumentValuesAndMatchers
       return false;
    }
 
-   final int indexOfFirstValueAfterEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other)
+   @SuppressWarnings("unchecked")
+   final <M1 extends ArgumentMatcher<M1>, M2 extends ArgumentMatcher<M2>> int indexOfFirstValueAfterEquivalentMatchers(
+      @NotNull ArgumentValuesAndMatchers other)
    {
-      List<ArgumentMatcher> otherMatchers = other.matchers;
+      List<ArgumentMatcher<?>> otherMatchers = other.matchers;
 
       if (otherMatchers == null || matchers == null || otherMatchers.size() != matchers.size()) {
          return -1;
@@ -136,8 +139,8 @@ abstract class ArgumentValuesAndMatchers
       int m = matchers.size();
 
       while (i < m) {
-         ArgumentMatcher matcher1 = matchers.get(i);
-         ArgumentMatcher matcher2 = otherMatchers.get(i);
+         M1 matcher1 = (M1) matchers.get(i);
+         M2 matcher2 = (M2) otherMatchers.get(i);
 
          if (matcher1 == null || matcher2 == null) {
             if (!EqualityMatcher.areEqual(values[i], other.values[i])) {
@@ -145,16 +148,19 @@ abstract class ArgumentValuesAndMatchers
             }
          }
          else if (matcher1 != matcher2) {
-            if (
-               matcher1.getClass() != matcher2.getClass() ||
-               matcher1.getClass() == HamcrestAdapter.class ||
-               matcher1.getClass() == ReflectiveMatcher.class
-            ) {
+            Class<?> matcherClass = matcher1.getClass();
+
+            if (matcherClass != matcher2.getClass()) {
                return -1;
             }
 
-            if (!equivalentMatches(matcher1, values[i], matcher2, other.values[i])) {
-               return -1;
+            if (!matcher1.same((M1) matcher2)) {
+               if (
+                  matcherClass == ReflectiveMatcher.class || matcherClass == HamcrestAdapter.class ||
+                  !equivalentMatches(matcher1, values[i], matcher2, other.values[i])
+               ){
+                  return -1;
+               }
             }
          }
 
@@ -182,7 +188,7 @@ abstract class ArgumentValuesAndMatchers
             String sep = "";
 
             for (int i = 0; i < parameterCount; i++) {
-               ArgumentMatcher matcher = getArgumentMatcher(i);
+               ArgumentMatcher<?> matcher = getArgumentMatcher(i);
                String parameterType = parameterTypes.get(i);
                desc.append(sep).appendFormatted(parameterType, values[i], matcher);
                sep = ", ";

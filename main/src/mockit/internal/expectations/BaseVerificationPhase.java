@@ -132,7 +132,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    private void addVerifiedExpectation(
-      @NotNull Expectation expectation, @NotNull Object[] args, @Nullable List<ArgumentMatcher> matchers)
+      @NotNull Expectation expectation, @NotNull Object[] args, @Nullable List<ArgumentMatcher<?>> matchers)
    {
       int i = expectationsInReplayOrder.indexOf(expectation);
       addVerifiedExpectation(new VerifiedExpectation(expectation, args, matchers, i));

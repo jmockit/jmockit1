@@ -8,25 +8,29 @@ import java.lang.reflect.*;
 
 import org.jetbrains.annotations.*;
 
+import mockit.Delegate;
 import mockit.internal.util.*;
 
-public final class ReflectiveMatcher implements ArgumentMatcher
+public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatcher>
 {
-   @NotNull private final Object handlerObject;
+   @NotNull private final Delegate<?> delegate;
    @Nullable private Method handlerMethod;
    @Nullable private Object matchedValue;
 
-   public ReflectiveMatcher(@NotNull Object handlerObject) { this.handlerObject = handlerObject; }
+   public ReflectiveMatcher(@NotNull Delegate<?> delegate) { this.delegate = delegate; }
+
+   @Override
+   public boolean same(@NotNull ReflectiveMatcher other) { return delegate == other.delegate; }
 
    @Override
    public boolean matches(@Nullable Object argValue)
    {
       if (handlerMethod == null) {
-         handlerMethod = MethodReflection.findNonPrivateHandlerMethod(handlerObject);
+         handlerMethod = MethodReflection.findNonPrivateHandlerMethod(delegate);
       }
 
       matchedValue = argValue;
-      Boolean result = MethodReflection.invoke(handlerObject, handlerMethod, argValue);
+      Boolean result = MethodReflection.invoke(delegate, handlerMethod, argValue);
 
       return result == null || result;
    }

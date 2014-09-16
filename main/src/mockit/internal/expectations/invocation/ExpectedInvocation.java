@@ -294,7 +294,7 @@ public final class ExpectedInvocation
    @NotNull String toString(@NotNull Object[] actualInvocationArguments)
    {
       Object[] invocationArgs = arguments.getValues();
-      List<ArgumentMatcher> matchers = arguments.getMatchers();
+      List<ArgumentMatcher<?>> matchers = arguments.getMatchers();
       arguments.setValues(actualInvocationArguments);
       arguments.setMatchers(null);
       String description = toString();

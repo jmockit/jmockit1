@@ -6,11 +6,14 @@ package mockit.internal.expectations.argumentMatching;
 
 import org.jetbrains.annotations.*;
 
-public final class AlwaysTrueMatcher implements ArgumentMatcher
+public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatcher>
 {
-   public static final ArgumentMatcher INSTANCE = new AlwaysTrueMatcher();
+   public static final ArgumentMatcher<?> INSTANCE = new AlwaysTrueMatcher();
 
    private AlwaysTrueMatcher() {}
+
+   @Override
+   public boolean same(@NotNull AlwaysTrueMatcher other) { return true; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return true; }

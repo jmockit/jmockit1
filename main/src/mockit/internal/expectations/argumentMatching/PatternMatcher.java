@@ -8,11 +8,14 @@ import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
-public final class PatternMatcher implements ArgumentMatcher
+public final class PatternMatcher implements ArgumentMatcher<PatternMatcher>
 {
    @NotNull private final Pattern pattern;
 
    public PatternMatcher(@NotNull String regex) { pattern = Pattern.compile(regex); }
+
+   @Override
+   public boolean same(@NotNull PatternMatcher other) { return pattern == other.pattern; }
 
    @Override
    public boolean matches(@Nullable Object argValue)

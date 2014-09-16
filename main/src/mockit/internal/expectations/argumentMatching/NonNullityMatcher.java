@@ -6,11 +6,14 @@ package mockit.internal.expectations.argumentMatching;
 
 import org.jetbrains.annotations.*;
 
-public final class NonNullityMatcher implements ArgumentMatcher
+public final class NonNullityMatcher implements ArgumentMatcher<NonNullityMatcher>
 {
-   public static final ArgumentMatcher INSTANCE = new NonNullityMatcher();
+   public static final ArgumentMatcher<?> INSTANCE = new NonNullityMatcher();
 
    private NonNullityMatcher() {}
+
+   @Override
+   public boolean same(@NotNull NonNullityMatcher other) { return true; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return argValue != null; }

@@ -8,7 +8,7 @@ import java.util.*;
 
 import org.jetbrains.annotations.*;
 
-public final class ClassMatcher implements ArgumentMatcher
+public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
 {
    private static final Map<Class<?>, ClassMatcher> PRIMITIVE_MATCHERS;
    static {
@@ -61,10 +61,10 @@ public final class ClassMatcher implements ArgumentMatcher
    }
 
    @Override
-   public boolean matches(@Nullable Object argValue)
-   {
-      return matchableClass.isInstance(argValue);
-   }
+   public boolean same(@NotNull ClassMatcher other) { return matchableClass == other.matchableClass; }
+
+   @Override
+   public boolean matches(@Nullable Object argValue) { return matchableClass.isInstance(argValue); }
 
    @Override
    public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)

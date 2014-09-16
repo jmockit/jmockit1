@@ -26,7 +26,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
 
       for (int i = 0; i < replayArgs.length; i++) {
          Object actual = replayArgs[i];
-         ArgumentMatcher expected = getArgumentMatcher(i);
+         ArgumentMatcher<?> expected = getArgumentMatcher(i);
 
          if (expected == null) {
             Object arg = values[i];
@@ -53,7 +53,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
 
       for (int i = 0; i < replayArgs.length; i++) {
          Object actual = replayArgs[i];
-         ArgumentMatcher expected = getArgumentMatcher(i);
+         ArgumentMatcher<?> expected = getArgumentMatcher(i);
 
          if (expected == null) {
             Object arg = values[i];
