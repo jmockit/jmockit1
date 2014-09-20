@@ -93,6 +93,18 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
+   public void ifWithBooleanOperator()
+   {
+      tested.ifWithBooleanOperator(true, false);
+      tested.ifWithBooleanOperator(false, true);
+
+      assertLines(158, 161, 2);
+      assertLine(158, 3, 2, 2, 1, 0);
+      assertLine(159, 1, 0, 0);
+      assertLine(161, 1, 1, 2);
+   }
+
+   @Test
    public void methodWithFourDifferentPathsAndSimpleLines_exerciseTwoOppositePaths()
    {
       tested.methodWithFourDifferentPathsAndSimpleLines(true, 0);

@@ -20,6 +20,7 @@ public final class LineCoverageData extends LineSegmentData
 
    // Static data:
    @NotNull private List<BranchCoverageData> branches;
+   private transient int segments;
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
@@ -30,13 +31,6 @@ public final class LineCoverageData extends LineSegmentData
       if (initialIndex == 0) {
          branches = new ArrayList<BranchCoverageData>(4);
       }
-      else {
-         int existingBranchIndex = findBranchIndex(jumpSource, jumpTarget);
-
-         if (existingBranchIndex >= 0) {
-            return existingBranchIndex;
-         }
-      }
 
       branches.add(new BranchCoverageData(jumpSource));
       branches.add(new BranchCoverageData(jumpTarget));
@@ -44,17 +38,6 @@ public final class LineCoverageData extends LineSegmentData
    }
 
    public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
-
-   private int findBranchIndex(@NotNull Label jumpSource, @NotNull Label jumpTarget)
-   {
-      for (int i = branches.size() - 2; i >= 0; i -= 2) {
-         if (jumpSource == branches.get(i).label && jumpTarget == branches.get(i + 1).label) {
-            return i;
-         }
-      }
-
-      return -1;
-   }
 
    @NotNull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
 
@@ -75,6 +58,12 @@ public final class LineCoverageData extends LineSegmentData
 
    public int getNumberOfSegments()
    {
+      int previouslyCounted = segments;
+
+      if (previouslyCounted > 0) {
+         return previouslyCounted;
+      }
+
       int n = branches.size();
 
       if (n == 0) {
@@ -83,7 +72,7 @@ public final class LineCoverageData extends LineSegmentData
 
       BranchCoverageData branch = branches.get(0);
       Integer sourceLine = branch.getLine();
-      int count = 2;
+      int count = 1;
 
       for (int i = 1; i < n; i += 2) {
          branch = branches.get(i);
@@ -92,8 +81,11 @@ public final class LineCoverageData extends LineSegmentData
          if (targetLine != null && targetLine.equals(sourceLine)) {
             count++;
          }
+
+         count++;
       }
 
+      segments = count;
       return count;
    }
 

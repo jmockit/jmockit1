@@ -152,4 +152,11 @@ public final class IfElseStatements
    {
       if (b) return 1; else return 2;
    }
+
+   void ifWithBooleanOperator(boolean b1, boolean b2)
+   {
+      if (b1 && b2) {
+         System.gc();
+      }
+   }
 }

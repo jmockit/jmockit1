@@ -19,5 +19,5 @@ public final class BranchCoverageData extends LineSegmentData
 
    BranchCoverageData(@NotNull Label label) { this.label = label; }
 
-   @Nullable Integer getLine() { return (Integer) label.info; }
+   @Nullable Integer getLine() { return label.info == null ? label.line : (Integer) label.info; }
 }

@@ -306,7 +306,9 @@ final class CoverageModifier extends ClassVisitor
          assert jumpingFrom != null;
          jumpingFrom.info = currentLine;
 
-         jumpTargetsForCurrentLine.add(label);
+         if (!jumpTargetsForCurrentLine.contains(label)) {
+            jumpTargetsForCurrentLine.add(label);
+         }
 
          LineCoverageData lineData = lineCoverageInfo.getOrCreateLineData(currentLine);
          int noJumpBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
