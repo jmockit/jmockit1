@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -14,7 +14,7 @@ public final class AssertionErrorMessagesTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedParameters")
+   @SuppressWarnings("unused")
    static class Collaborator
    {
       void doSomething() {}
