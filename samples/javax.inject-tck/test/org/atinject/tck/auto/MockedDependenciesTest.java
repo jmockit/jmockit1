@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.atinject.tck.auto;
@@ -16,27 +16,38 @@ import mockit.*;
 import static mockit.Deencapsulation.*;
 
 /**
- * Most tests in the TCK do not apply to JMockit.
- * They fall into one of the following categories:
+ * This test class replicates the applicable {@code @Inject} TCK tests, as it was not possible to use the test cases
+ * nested in the {@link Convertible} class directly.
+ * <p/>
+ * These tests correspond to those in the TCK which don't require support for features intentionally left out in
+ * JMockit. They are described below.
  * <ol>
- * <li>They expect the mock objects themselves to be injected with second-level dependencies, rather than just
- * injecting them into the first-level tested object. For a mocking tool, it only makes sense to support injection
- * into top-level tested objects.</li>
- * <li>They require support for "method injection", which is intentionally not supported in JMockit.</li>
- * <li>They require that a particular implementation class be instantiated for a qualified injection point, as
- * indicated through the "javax.inject.Qualifier" annotation. When the injected type is mocked, however, there is no
- * implementation code to speak of, so qualifiers are simply ignored.
- * It would be possible for JMockit to use the qualifiers applied on a mock field/parameter to find a matching injection
- * point of the same type, though. However, it's already possible to disambiguate by type+name (including constructor
- * parameter names as well as mock parameter names), so support for qualifiers would add little value to justify the
- * cost.</li>
+ * <li>
+ *    <em>Method</em> injection.
+ *    Historically, method injection originated with the use of public setters in the Spring framework, which were
+ *    meant to be used in test code. In Java EE, such setters are not commonly used. Also, modern testing tools,
+ *    including all mocking libraries, have their own annotation-based mechanisms for injection, dispensing with the
+ *    need for users to explicitly call setter methods in tests.
+ * </li>
+ * <li>
+ *    <em>Constructor</em> injection into lower-level dependencies.
+ *    JMockit only supports <em>field</em> injection into such dependencies, through the
+ *    {@link Tested#fullyInitialized} annotation attribute.
+ *    Again, historically the use of constructor injection originated in the Guice framework, for direct use in test
+ *    code. Just like setters, in Java EE such constructors are not commonly used. Also, use of modern testing tools
+ *    avoids the need for hand-coded injection in tests.
+ * </li>
+ * <li>
+ *    Selection of a particular implementation class to be instantiated for a <em>qualified</em> injection point, as
+ *    indicated through the {@code javax.inject.Qualifier} meta-annotation.
+ *    It would be possible for JMockit to use the qualifiers applied on a mock field or mock parameter to find a
+ *    matching injection point of the same type.
+ *    However, it's already possible to disambiguate by type and name (including constructor parameter names as well as
+ *    mock parameter names), so support for qualifiers would be of little value.
+ * </li>
  * </ol>
- * This test class replicates the applicable TCK tests, as it was not possible to use the test cases nested in the
- * {@code Convertible} class directly.
- * (Also, there are several deficiencies in the original tests, which are fixed here.)
  */
-@SuppressWarnings("ClassWithTooManyFields")
-public final class JavaxInjectTCKTest
+public final class MockedDependenciesTest
 {
    @Tested Convertible car;
 
