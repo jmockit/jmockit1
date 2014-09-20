@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -146,5 +146,19 @@ public final class ExpectationsForConstructorsTest
       new Derived();
 
       new Verifications() {{ new Base(); }};
+   }
+
+   @SuppressWarnings("unused")
+   static class Collaborator2
+   {
+      Collaborator2(long l) {}
+      Collaborator2(Collaborator2 c) {}
+      Collaborator2() { this(new Collaborator2(123L)); }
+   }
+
+   @Test
+   public void mockConstructorWhichCallsTwoOthersOfTheSameClass(@Mocked Collaborator2 mock)
+   {
+      new Collaborator2();
    }
 }

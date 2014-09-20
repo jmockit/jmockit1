@@ -13,7 +13,6 @@ import static mockit.external.asm.Opcodes.*;
 
 import org.jetbrains.annotations.*;
 
-@SuppressWarnings("ClassWithTooManyFields")
 public class BaseClassModifier extends ClassVisitor
 {
    private static final int METHOD_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
@@ -46,7 +45,6 @@ public class BaseClassModifier extends ClassVisitor
    protected int methodAccess;
    protected String methodName;
    protected String methodDesc;
-   private boolean callToAnotherConstructorAlreadyDisregarded;
 
    protected BaseClassModifier(@NotNull ClassReader classReader)
    {
@@ -92,12 +90,13 @@ public class BaseClassModifier extends ClassVisitor
       methodAccess = access;
       methodName = name;
       methodDesc = desc;
-      callToAnotherConstructorAlreadyDisregarded = false;
 
       if (isNative(access)) {
          TestRun.mockFixture().addRedefinedClassWithNativeMethods(classDesc);
       }
    }
+
+   public final boolean wasModified() { return methodName != null; }
 
    protected final void generateCallToSuperConstructor()
    {
@@ -316,11 +315,30 @@ public class BaseClassModifier extends ClassVisitor
 
    private final class DynamicConstructorModifier extends DynamicModifier
    {
+      private boolean pendingCallToConstructorOfSameClass;
+      private boolean callToAnotherConstructorAlreadyDisregarded;
+
+      @Override
+      public void visitTypeInsn(int opcode, @NotNull String type)
+      {
+         if (!callToAnotherConstructorAlreadyDisregarded && opcode == NEW && type.equals(classDesc)) {
+            pendingCallToConstructorOfSameClass = true;
+         }
+
+         mw.visitTypeInsn(opcode, type);
+      }
+
       @Override
       public void visitMethodInsn(
          int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
       {
-         if (
+         if (pendingCallToConstructorOfSameClass) {
+            if (opcode == INVOKESPECIAL && "<init>".equals(name) && owner.equals(classDesc)) {
+               mw.visitMethodInsn(opcode, owner, name, desc, itf);
+               pendingCallToConstructorOfSameClass = false;
+            }
+         }
+         else if (
             callToAnotherConstructorAlreadyDisregarded ||
             opcode != INVOKESPECIAL || !"<init>".equals(name) ||
             !owner.equals(superClassName) && !owner.equals(classDesc)
@@ -341,6 +359,4 @@ public class BaseClassModifier extends ClassVisitor
          }
       }
    }
-
-   public final boolean wasModified() { return methodName != null; }
 }
