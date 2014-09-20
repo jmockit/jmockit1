@@ -54,34 +54,44 @@ public final class TestedClassInstantiations
    private void findTestedAndInjectableFields(@NotNull Field[] fieldsDeclaredInTestClass)
    {
       for (Field field : fieldsDeclaredInTestClass) {
-         if (field.isAnnotationPresent(Injectable.class)) {
-            MockedType mockedType = new MockedType(field);
-            injectableFields.add(mockedType);
-         }
-         else {
-            addAsTestedFieldIfApplicable(field);
-         }
+         addAsTestedOrInjectableFieldIfApplicable(field);
       }
    }
 
-   private void addAsTestedFieldIfApplicable(@NotNull Field fieldFromTestClass)
+   private void addAsTestedOrInjectableFieldIfApplicable(@NotNull Field fieldFromTestClass)
    {
-      for (Annotation fieldAnnotation : fieldFromTestClass.getDeclaredAnnotations()) {
-         Tested testedMetadata;
+      boolean testedAnnotationFound = false;
+      boolean injectableAnnotationFound = false;
 
-         if (fieldAnnotation instanceof Tested) {
-            testedMetadata = (Tested) fieldAnnotation;
-         }
-         else {
-            testedMetadata = fieldAnnotation.annotationType().getAnnotation(Tested.class);
-         }
+      for (Annotation fieldAnnotation : fieldFromTestClass.getDeclaredAnnotations()) {
+         Tested testedMetadata = testedAnnotationFound ? null : getTestedAnnotationIfPresent(fieldAnnotation);
 
          if (testedMetadata != null) {
             TestedField testedField = new TestedField(injectionState, fieldFromTestClass, testedMetadata);
             testedFields.add(testedField);
+            testedAnnotationFound = true;
+         }
+         else if (fieldAnnotation instanceof Injectable) {
+            MockedType mockedType = new MockedType(fieldFromTestClass);
+            injectableFields.add(mockedType);
+            injectableAnnotationFound = true;
+         }
+
+         if (testedAnnotationFound && injectableAnnotationFound) {
+            Collections.swap(testedFields, 0, testedFields.size() - 1);
             break;
          }
       }
+   }
+
+   @Nullable
+   private static Tested getTestedAnnotationIfPresent(@NotNull Annotation fieldAnnotation)
+   {
+      if (fieldAnnotation instanceof Tested) {
+         return (Tested) fieldAnnotation;
+      }
+
+      return fieldAnnotation.annotationType().getAnnotation(Tested.class);
    }
 
    public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance)

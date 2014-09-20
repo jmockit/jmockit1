@@ -15,6 +15,7 @@ public final class TestedAndMockedTest
    {
       private final String someData;
       String outputData;
+      AnotherClassToBeTested collaborator;
 
       public ClassToBeTested(String someData) { this.someData = someData; }
 
@@ -29,10 +30,21 @@ public final class TestedAndMockedTest
       static void validateInput(int i, String s) { if (i <= 0 || s == null) throw new IllegalArgumentException(); }
       int doSomething() { return -1; }
       private void doSomethingElse(String s) { outputData = "output data: " + s; }
+
+      int doAnotherOperation()
+      {
+         return collaborator.doSomething() - 23;
+      }
+   }
+
+   static final class AnotherClassToBeTested
+   {
+      int doSomething() { return 123; }
    }
 
    @Tested @Mocked ClassToBeTested tested;
    @Injectable final String testData = "test data";
+   @Tested @Injectable AnotherClassToBeTested testedAndInjected;
 
    @Test
    public void exercisePublicMethodWhileHavingHelperMethodsMocked()
@@ -50,5 +62,12 @@ public final class TestedAndMockedTest
       new Verifications() {{
          invoke(tested, "doSomethingElse", anyString); times = 1;
       }};
+   }
+
+   @Test
+   public void exerciseTopLevelTestedObjectTogetherWithInjectedSecondLevelTestedObject()
+   {
+      assertEquals(123, testedAndInjected.doSomething());
+      assertEquals(100, tested.doAnotherOperation());
    }
 }
