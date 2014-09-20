@@ -6,9 +6,11 @@ package mockit.internal.expectations.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
 import static mockit.external.asm.Opcodes.*;
+import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 
 import org.jetbrains.annotations.*;
@@ -43,24 +45,22 @@ final class FullInjection
       Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
 
       if (dependency == null) {
-         Class<?> dependencyClass = fieldToBeInjected.getType();
-
-         if (!fieldType.isInterface()) {
-            dependency = newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
+         if (INJECT_CLASS != null && fieldType == Provider.class) {
+            dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
          }
-         else if (jpaDependencies != null) {
-            dependency = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
-         }
+         else {
+            dependency = getOrCreateInstance(fieldType, dependencyKey);
 
-         if (dependency != null) {
-            Class<?> instantiatedClass = dependency.getClass();
+            if (dependency != null) {
+               Class<?> instantiatedClass = dependency.getClass();
 
-            if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
-               fieldInjection.fillOutDependenciesRecursively(dependency);
-               injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
+               if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
+                  fieldInjection.fillOutDependenciesRecursively(dependency);
+                  injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
+               }
+
+               injectionState.saveInstantiatedDependency(dependencyKey, dependency);
             }
-
-            injectionState.saveInstantiatedDependency(dependencyKey, dependency);
          }
       }
 
@@ -100,5 +100,51 @@ final class FullInjection
       }
 
       return dependencyClass;
+   }
+
+   @NotNull
+   private Object createProviderInstance(@NotNull Field fieldToBeInjected, @NotNull final Object dependencyKey)
+   {
+      ParameterizedType genericType = (ParameterizedType) fieldToBeInjected.getGenericType();
+      final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
+
+      if (providedClass.isAnnotationPresent(Singleton.class)) {
+         return new Provider<Object>() {
+            private Object dependency;
+
+            @Override
+            public synchronized Object get()
+            {
+               if (dependency == null) {
+                  dependency = getOrCreateInstance(providedClass, dependencyKey);
+               }
+
+               return dependency;
+            }
+         };
+      }
+
+      return new Provider<Object>() {
+         @Override
+         public Object get()
+         {
+            Object dependency = getOrCreateInstance(providedClass, dependencyKey);
+            return dependency;
+         }
+      };
+   }
+
+   @Nullable
+   private Object getOrCreateInstance(@NotNull Class<?> dependencyClass, @NotNull Object dependencyKey)
+   {
+      if (!dependencyClass.isInterface()) {
+         return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
+      }
+
+      if (jpaDependencies != null) {
+         return jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
+      }
+
+      return null;
    }
 }
