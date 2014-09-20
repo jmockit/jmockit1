@@ -40,6 +40,7 @@ final class InjectionPoint
 
    private InjectionPoint() {}
 
+   @NotNull
    static Object wrapInProviderIfNeeded(@NotNull Type type, @NotNull final Object value)
    {
       if (
