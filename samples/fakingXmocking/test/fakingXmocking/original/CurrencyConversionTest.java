@@ -7,21 +7,21 @@ package fakingXmocking.original;
 import java.math.*;
 import java.util.*;
 
-import org.apache.http.*;
-import org.apache.http.client.*;
-import static org.junit.Assert.*;
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import mockit.*;
 
+import org.apache.http.*;
+import org.apache.http.impl.client.*;
+
 public final class CurrencyConversionTest
 {
-   @Capturing // so that any class implementing the base type gets mocked
-   @Mocked
-   HttpClient httpClient;
+   @Mocked // mocking cascades to other reference types returned by methods of this type
+   HttpClientBuilder httpClientBuilder;
 
    @Mocked
-   HttpEntity httpEntity; // provides access to the intermediate (cascaded) object
+   HttpEntity httpEntity; // automatically used as a cascaded mock instance
 
    @After
    public void resetSUT()
@@ -32,13 +32,11 @@ public final class CurrencyConversionTest
    @Test
    public void loadCurrencySymbolsFromWebSite() throws Exception
    {
-      new NonStrictExpectations() {{
-         httpEntity.getContent(); times = 1;
-         result =
-            "<table class='currencyTable'>\r\n" +
-            "<td><a href=\"/currency/x\">USD</a></td><td class=\"x\">Dollar</td>\r\n" +
-            "<td><a href=\"/currency/x\">EUR</a></td><td class=\"x\">Euro</td>";
-      }};
+      String content =
+         "<table class='currencyTable'>\r\n" +
+         "<td><a href=\"/currency/x\">USD</a></td><td class=\"x\">Dollar</td>\r\n" +
+         "<td><a href=\"/currency/x\">EUR</a></td><td class=\"x\">Euro</td>";
+      new NonStrictExpectations() {{ httpEntity.getContent(); result = content; times = 1; }};
 
       Map<String, String> symbols = CurrencyConversion.currencySymbols();
 
@@ -52,10 +50,8 @@ public final class CurrencyConversionTest
    {
       CurrencyConversion.allCurrenciesCache = new HashMap<String, String>() {{ put("X", ""); put("Y", ""); }};
 
-      new NonStrictExpectations() {{
-         httpEntity.getContent(); times = 1;
-         result = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
-      }};
+      String content = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
+      new NonStrictExpectations() {{ httpEntity.getContent(); result = content; times = 1; }};
 
       BigDecimal rate = CurrencyConversion.convertFromTo("X", "Y");
 

@@ -9,6 +9,7 @@ import java.math.*;
 import java.util.*;
 import java.util.function.*;
 
+import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.mockito.*;
@@ -50,11 +51,17 @@ public final class CurrencyConversionMockitoTest
    @Mock(answer = Answers.RETURNS_DEEP_STUBS) HttpClient httpClient;
    Supplier<HttpClient> originalFactory;
 
+   @Mock
+   HttpEntity httpEntity; // not automatically used as a "deep stub"
+
    @Before
-   public void prepareSUT()
+   public void prepareSUT() throws Exception
    {
       originalFactory = CurrencyConversion_testable.httpClientFactory;
       CurrencyConversion_testable.httpClientFactory = () -> httpClient;
+
+      // Needed because Mockito would not use the existing HttpEntity mock, but create a new one:
+      when(httpClient.execute(any(HttpGet.class)).getEntity()).thenReturn(httpEntity);
    }
 
    @After
@@ -67,12 +74,11 @@ public final class CurrencyConversionMockitoTest
    @Test
    public void loadCurrencySymbolsFromWebSite() throws Exception
    {
-      String result =
+      String content =
          "<table class='currencyTable'>\r\n" +
          "<td><a href=\"/currency/x\">USD</a></td><td class=\"x\">Dollar</td>\r\n" +
          "<td><a href=\"/currency/x\">EUR</a></td><td class=\"x\">Euro</td>";
-      when(httpClient.execute(any(HttpGet.class)).getEntity().getContent()).thenReturn(
-         new ByteArrayInputStream(result.getBytes()));
+      when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(content.getBytes()));
 
       Map<String, String> symbols = CurrencyConversion_testable.currencySymbols();
 
@@ -86,9 +92,8 @@ public final class CurrencyConversionMockitoTest
    {
       CurrencyConversion_testable.allCurrenciesCache = new HashMap<String, String>() {{ put("X", ""); put("Y", ""); }};
 
-      String result = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
-      when(httpClient.execute(any(HttpGet.class)).getEntity().getContent()).thenReturn(
-         new ByteArrayInputStream(result.getBytes()));
+      String content = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
+      when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream(content.getBytes()));
 
       BigDecimal rate = CurrencyConversion_testable.convertFromTo("X", "Y");
 

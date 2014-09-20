@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package fakingXmocking.original;
@@ -9,16 +9,14 @@ import java.math.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+import static java.util.Arrays.*;
 
-import static java.util.Arrays.stream;
+import mockit.*;
 
 import org.apache.http.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
-import org.apache.http.message.*;
-
-import mockit.*;
 
 /**
  * This mock-up class allows the currency conversion code to be tested with a functional/integration test,
@@ -26,20 +24,20 @@ import mockit.*;
  * The integration test does not refer to this class, so by default it tests the real thing, including the
  * part that hits the external web site.
  * If this class is activated for the test run, however, it will provide a partial alternate implementation
- * for the {@code AbstractHttpClient} base class, thereby avoiding actual access to the network.
+ * for the {@code CloseableHttpClient} base class, thereby avoiding actual access to the network.
  *
  * @see CurrencyConversionIntegrationTest
  */
-public final class CurrencyConversionHttpClientFake extends MockUp<AbstractHttpClient>
+public final class CurrencyConversionHttpClientFake extends MockUp<CloseableHttpClient>
 {
    private static final BigDecimal DEFAULT_RATE = new BigDecimal("1.2");
    private final Map<String, BigDecimal> currenciesAndRates = new ConcurrentHashMap<>();
 
    @Mock
-   public HttpResponse execute(HttpUriRequest req)
+   public CloseableHttpResponse execute(HttpUriRequest req)
    {
       URI uri = req.getURI();
-      final String response;
+      String response;
 
       if ("www.xe.com".equals(uri.getHost())) {
          response =
@@ -55,10 +53,14 @@ public final class CurrencyConversionHttpClientFake extends MockUp<AbstractHttpC
          response = formatResultContainingCurrencyConversion(params);
       }
 
-      return new BasicHttpResponse(req.getProtocolVersion(), 200, "OK") {
-         @Override
-         public HttpEntity getEntity() { return createHttpResponse(response); }
-      };
+      return new MockUp<CloseableHttpResponse>() {
+         @Mock
+         HttpEntity getEntity()
+         {
+            try { return new StringEntity(response); }
+            catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
+         }
+      }.getMockInstance();
    }
 
    private String formatResultContainingCurrencyConversion(String[] params)
@@ -71,16 +73,6 @@ public final class CurrencyConversionHttpClientFake extends MockUp<AbstractHttpC
       currenciesAndRates.put(to + '>' + from, BigDecimal.ONE.divide(rate, 2, RoundingMode.HALF_UP));
 
       return "<div id=\"converter_results\"><ul><li><b>1 " + from + " = " + rate + ' ' + to + "</b>";
-   }
-
-   private HttpEntity createHttpResponse(String content)
-   {
-      try {
-         return new StringEntity(content);
-      }
-      catch (UnsupportedEncodingException e) {
-         throw new RuntimeException(e);
-      }
    }
 
    private String getParameter(String[] params, String name)
