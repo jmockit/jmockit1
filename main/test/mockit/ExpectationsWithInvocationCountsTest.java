@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -64,9 +64,9 @@ public final class ExpectationsWithInvocationCountsTest
    }
 
    @Test(expected = UnexpectedInvocation.class)
-   public void expectOnceButReplayThreeTimes(@Mocked final Collaborator mock)
+   public void expectOnceButReplayMoreTimes(@Mocked final Collaborator mock)
    {
-      new Expectations() {{ mock.provideSomeService(); }};
+      new NonStrictExpectations() {{ mock.provideSomeService(); times = 1; }};
 
       codeUnderTest.doSomething();
 
@@ -74,10 +74,23 @@ public final class ExpectationsWithInvocationCountsTest
          codeUnderTest.doSomething();
       }
       finally {
-         codeUnderTest.doSomething();
+         codeUnderTest.doSomethingElse();
       }
 
       fail("Should not get here");
+   }
+
+   @Test
+   public void catchUnexpectedInvocationAndContinue(@Mocked final Collaborator mock)
+   {
+      new NonStrictExpectations() {{ mock.provideSomeService(); maxTimes = 0; }};
+
+      try {
+         mock.provideSomeService();
+      }
+      catch (UnexpectedInvocation ignore) {}
+
+      mock.simpleOperation(1, "", null);
    }
 
    @Test

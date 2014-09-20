@@ -321,22 +321,18 @@ public final class RecordAndReplayExecution
       ReplayPhase replay = replayPhase;
 
       if (replay == null) {
-         assert recordPhase != null;
-         return recordPhase;
+         RecordPhase record = recordPhase;
+         assert record != null;
+         return record;
       }
 
       BaseVerificationPhase verification = verificationPhase;
 
-      if (verification == null) {
-         if (failureState.getErrorThrown() != null) {
-            // This can only happen when called from a catch/finally block.
-            throw failureState.getErrorThrown();
-         }
-
-         return replay;
+      if (verification != null) {
+         return verification;
       }
 
-      return verification;
+      return replay;
    }
 
    @NotNull public BaseVerificationPhase startVerifications(boolean inOrder)
