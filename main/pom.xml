@@ -118,7 +118,7 @@
             <artifactId>maven-javadoc-plugin</artifactId><version>2.9.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <nodeprecated>true</nodeprecated>
+               <nodeprecated>false</nodeprecated>
                <noindex>true</noindex>
                <notree>true</notree>
                <nohelp>true</nohelp>
