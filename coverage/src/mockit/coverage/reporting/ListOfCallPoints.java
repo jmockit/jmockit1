@@ -22,13 +22,12 @@ public final class ListOfCallPoints
 
    public void insertListOfCallPoints(@Nullable List<CallPoint> callPoints)
    {
-      if (content.length() == 0) {
-         content.append(EOL).append("      ");
+      if (callPoints == null) {
+         return;
       }
 
-      if (callPoints == null) {
-         content.append("  <ol style='display:none'></ol>").append(EOL).append("      ");
-         return;
+      if (content.length() == 0) {
+         content.append(EOL).append("      ");
       }
 
       content.append("  <ol style='display:none'>").append(EOL);
