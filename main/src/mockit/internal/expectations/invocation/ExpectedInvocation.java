@@ -6,19 +6,18 @@ package mockit.internal.expectations.invocation;
 
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
+import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.external.asm.Type;
-
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
+import org.jetbrains.annotations.*;
+
 public final class ExpectedInvocation
 {
-   private static final Object UNDEFINED_DEFAULT_RETURN = new Object();
+   @NotNull private static final Object UNDEFINED_DEFAULT_RETURN = new Object();
 
    @Nullable public final Object instance;
    @Nullable public Object replacementInstance;
@@ -40,6 +39,7 @@ public final class ExpectedInvocation
       defaultReturnValue = determineDefaultReturnValueFromMethodSignature();
    }
 
+   @NotNull
    private Object determineDefaultReturnValueFromMethodSignature()
    {
       if (instance != null) {
@@ -53,6 +53,43 @@ public final class ExpectedInvocation
       return UNDEFINED_DEFAULT_RETURN;
    }
 
+   @NotNull
+   public String getCallerClassName()
+   {
+      //noinspection ConstantConditions
+      StackTrace st = new StackTrace(invocationCause);
+
+      int steIndex = 3;
+      String firstCaller = st.getElement(steIndex).getClassName();
+
+      steIndex += "mockit.internal.expectations.mocking.MockedBridge".equals(firstCaller) ? 2 : 1;
+      String secondCaller = st.getElement(steIndex).getClassName();
+
+      if (secondCaller.startsWith("sun.reflect.")) { // called through Reflection
+         steIndex += 3;
+
+         while (true) {
+            String nextCaller = st.getElement(steIndex).getClassName();
+            steIndex++;
+
+            if ("mockit.Deencapsulation".equals(nextCaller)) {
+               continue;
+            }
+
+            if (!nextCaller.contains(".reflect.") && !nextCaller.startsWith("mockit.internal.")) {
+               return nextCaller;
+            }
+         }
+      }
+
+      if (!secondCaller.equals(firstCaller)) {
+         return secondCaller;
+      }
+
+      String thirdCaller = st.getElement(steIndex + 1).getClassName();
+      return thirdCaller;
+   }
+
    // Simple getters //////////////////////////////////////////////////////////////////////////////////////////////////
 
    @NotNull public String getClassDesc() { return arguments.classDesc; }
@@ -61,12 +98,14 @@ public final class ExpectedInvocation
    @NotNull public Object[] getArgumentValues() { return arguments.getValues(); }
    public boolean isConstructor() { return arguments.isForConstructor(); }
 
-   @Nullable public Object getRecordedInstance()
+   @Nullable
+   public Object getRecordedInstance()
    {
       return replacementInstance != null ? replacementInstance : instance;
    }
 
-   @NotNull public String getSignatureWithResolvedReturnType()
+   @NotNull
+   public String getSignatureWithResolvedReturnType()
    {
       String signature = arguments.genericSignature;
 
@@ -166,7 +205,8 @@ public final class ExpectedInvocation
       invocationCause = null;
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocation()
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocation()
    {
       return newUnexpectedInvocationWithCause("Unexpected invocation", "Unexpected invocation of" + this);
    }
@@ -181,7 +221,8 @@ public final class ExpectedInvocation
       return error;
    }
 
-   @NotNull private String getErrorMessage(@NotNull String initialMessage)
+   @NotNull
+   private String getErrorMessage(@NotNull String initialMessage)
    {
       return customErrorMessage == null ? initialMessage : customErrorMessage + "\n" + initialMessage;
    }
@@ -203,18 +244,21 @@ public final class ExpectedInvocation
       return error;
    }
 
-   @NotNull public MissingInvocation errorForMissingInvocation()
+   @NotNull
+   public MissingInvocation errorForMissingInvocation()
    {
       return newMissingInvocationWithCause("Missing invocation", "Missing invocation of" + this);
    }
 
-   @NotNull public MissingInvocation errorForMissingInvocations(int missingInvocations)
+   @NotNull
+   public MissingInvocation errorForMissingInvocations(int missingInvocations)
    {
       String message = "Missing " + missingInvocations + invocationsTo(missingInvocations) + this;
       return newMissingInvocationWithCause("Missing invocations", message);
    }
 
-   @NotNull private static String invocationsTo(int invocations)
+   @NotNull
+   private static String invocationsTo(int invocations)
    {
       return invocations == 1 ? " invocation to" : " invocations to";
    }
@@ -243,25 +287,29 @@ public final class ExpectedInvocation
       return newUnexpectedInvocationWithCause("Unexpected invocation", message.toString());
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocation(@NotNull Object[] replayArgs)
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocation(@NotNull Object[] replayArgs)
    {
       String message = "unexpected invocation to" + toString(replayArgs);
       return newUnexpectedInvocationWithCause("Unexpected invocation", message);
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocations(@NotNull Object[] replayArgs, int numUnexpected)
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocations(@NotNull Object[] replayArgs, int numUnexpected)
    {
       String message = numUnexpected + " unexpected" + invocationsTo(numUnexpected) + toString(replayArgs);
       String titleForCause = numUnexpected == 1 ? "Unexpected invocation" : "Unexpected invocations";
       return newUnexpectedInvocationWithCause(titleForCause, message);
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocationBeforeAnother(@NotNull ExpectedInvocation another)
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocationBeforeAnother(@NotNull ExpectedInvocation another)
    {
       return newUnexpectedInvocationWithCause("Unexpected invocation" + this, "Unexpected invocation before" + another);
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother()
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother()
    {
       String initialMessage = "Invocation occurred unexpectedly before another" + this;
       return newUnexpectedInvocationWithCause("Unexpected invocation", initialMessage);
@@ -274,12 +322,13 @@ public final class ExpectedInvocation
       return newUnexpectedInvocationWithCause("Unexpected invocation" + this, initialMessage);
    }
 
-   @NotNull public UnexpectedInvocation errorForUnexpectedInvocationAfterAnother(@NotNull ExpectedInvocation another)
+   @NotNull
+   public UnexpectedInvocation errorForUnexpectedInvocationAfterAnother(@NotNull ExpectedInvocation another)
    {
       return newUnexpectedInvocationWithCause("Unexpected invocation" + this, "Unexpected invocation after" + another);
    }
 
-   @Override
+   @NotNull @Override
    public String toString()
    {
       String desc = arguments.toString();
@@ -291,7 +340,8 @@ public final class ExpectedInvocation
       return desc;
    }
 
-   @NotNull String toString(@NotNull Object[] actualInvocationArguments)
+   @NotNull
+   String toString(@NotNull Object[] actualInvocationArguments)
    {
       Object[] invocationArgs = arguments.getValues();
       List<ArgumentMatcher<?>> matchers = arguments.getMatchers();
