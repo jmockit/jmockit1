@@ -4,10 +4,12 @@
  */
 package mockit;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import org.junit.*;
@@ -278,6 +280,13 @@ public final class JREMockingTest
 
       stream.write("Hello world".getBytes());
    }
+
+   @Test
+   public void mockPackagePrivateMethodsInJREClass(@Mocked(cascading = false) AWTEvent awtEvent)
+   {
+       Object ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
+       assertNull(ctx);
+   }    
 
    // Mocking of java.lang.Object methods /////////////////////////////////////////////////////////////////////////////
 

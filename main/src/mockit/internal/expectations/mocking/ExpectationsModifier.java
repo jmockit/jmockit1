@@ -259,10 +259,6 @@ final class ExpectationsModifier extends BaseClassModifier
          return true;
       }
 
-      if (useMockingBridge && notPublicNorProtected) {
-         return true;
-      }
-
       return executionMode.isMethodToBeIgnored(access) || defaultFilters != null && defaultFilters.contains(name);
    }
 
