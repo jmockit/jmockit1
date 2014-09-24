@@ -73,9 +73,9 @@ public final class Scale extends Effect
    public void init(Animator animator, Effect parentEffect)
    {
       Effect targetEffect = parentEffect == null ? this : parentEffect;
-      psWidth = new PropertySetter<Integer>(targetEffect, "width", getStart().getWidth(), getEnd().getWidth());
+      psWidth = new PropertySetter<>(targetEffect, "width", getStart().getWidth(), getEnd().getWidth());
       animator.addTarget(psWidth);
-      psHeight = new PropertySetter<Integer>(targetEffect, "height", getStart().getHeight(), getEnd().getHeight());
+      psHeight = new PropertySetter<>(targetEffect, "height", getStart().getHeight(), getEnd().getHeight());
       animator.addTarget(psHeight);
       super.init(animator, null);
    }

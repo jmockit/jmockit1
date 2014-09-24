@@ -114,7 +114,7 @@ public final class Rotate extends Effect
    @Override
    public void init(Animator animator, Effect parentEffect)
    {
-      ps = new PropertySetter<Double>(this, "radians", 0.0, endRadians);
+      ps = new PropertySetter<>(this, "radians", 0.0, endRadians);
       animator.addTarget(ps);
       super.init(animator, null);
    }

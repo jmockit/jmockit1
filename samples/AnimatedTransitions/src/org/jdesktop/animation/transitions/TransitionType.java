@@ -62,7 +62,7 @@ public enum TransitionType
     */
    DISAPPEARING;
 
-   private final Map<JComponent, Effect> cachedEffects = new HashMap<JComponent, Effect>();
+   private final Map<JComponent, Effect> cachedEffects = new HashMap<>();
 
    /**
     * This method is used to cache a custom effect on a per-component basis for the application.

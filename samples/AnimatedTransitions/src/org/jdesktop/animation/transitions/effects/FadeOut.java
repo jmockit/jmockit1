@@ -61,7 +61,7 @@ public final class FadeOut extends Fade
    @Override
    public void init(Animator animator, Effect parentEffect)
    {
-      ps = new PropertySetter<Float>(this, "opacity", 1.0f, 0.0f);
+      ps = new PropertySetter<>(this, "opacity", 1.0f, 0.0f);
       animator.addTarget(ps);
       setOpacity(1.0f);
       super.init(animator, null);

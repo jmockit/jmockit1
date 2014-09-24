@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -14,82 +14,60 @@ import org.junit.*;
 import mockit.*;
 
 import static mockit.Deencapsulation.*;
-import static org.junit.Assert.*;
 
 public final class ScreenTransitionContainerResizeTest
 {
    JComponent container;
-   Dimension newSize;
-   @Mocked BufferedImage transitionImage;
    ScreenTransition transition;
+   ComponentListener containerSizeListener;
+   @Injectable BufferedImage transitionImage;
+   @Mocked AnimationManager animationManager;
 
    @Before
    public void setUp()
    {
       container = new JPanel();
-      newSize = new Dimension(100, 80);
+
+      // ScreenTransition adds itself as listener to the container:
+      transition = new ScreenTransition(container, null, 100);
+
+      // Get the internal listener:
+      containerSizeListener = container.getListeners(ComponentListener.class)[0];
+   }
+
+   @After
+   public void tearDown()
+   {
+      new Verifications() {{ animationManager.recreateImage(); }};
    }
 
    @Test
    public void resizeTransitionContainerOnce()
    {
-      new CreationOfTransitionImageExpectations();
-
-      createTransition();
-
-      simulateContainerResizeThenAssertCreationOfTransitionImage();
+      simulateContainerResize();
    }
 
-   final class CreationOfTransitionImageExpectations extends NonStrictExpectations
+   // Simulate a resizing of the container, including the triggering of the "componentResized" event.
+   void simulateContainerResize()
    {
-      CreationOfTransitionImageExpectations()
-      {
-         super(container);
-
-         container.createImage(newSize.width, newSize.height);
-         minTimes = 1;
-         result = transitionImage;
-      }
-   }
-
-   void createTransition()
-   {
-      // Creates ScreenTransition, which adds itself as listener to the container:
-      transition = new ScreenTransition(container, null, 100);
-   }
-
-   void simulateContainerResizeThenAssertCreationOfTransitionImage()
-   {
-      // Get the internal listener:
-      ComponentListener containerSizeListener = container.getListeners(ComponentListener.class)[0];
-
-      // Simulate a resizing of the container, including the event that would be triggered.
-      container.setSize(newSize);
+      container.setSize(new Dimension(100, 80));
       containerSizeListener.componentResized(null);
-
-      assertSame(transitionImage, transition.getTransitionImage());
    }
 
    @Test
-   public void changeWidthOfTransitionContainerAlreadyWithTransitionImage()
+   public void changeWidthOfTransitionContainerWhenAlreadyWithTransitionImage()
    {
-      createTransition();
       setField(transition, transitionImage);
 
-      new CreationOfTransitionImageExpectations();
-
-      simulateContainerResizeThenAssertCreationOfTransitionImage();
+      simulateContainerResize();
    }
 
    @Test
-   public void changeHeightOfTransitionContainerAlreadyWithTransitionImage()
+   public void changeHeightOfTransitionContainerWhenAlreadyWithTransitionImage()
    {
-      createTransition();
       setField(transition, transitionImage);
+      new NonStrictExpectations() {{ transitionImage.getWidth(); result = 100; }};
 
-      new NonStrictExpectations() {{ transitionImage.getWidth(); result = newSize.width; }};
-      new CreationOfTransitionImageExpectations();
-
-      simulateContainerResizeThenAssertCreationOfTransitionImage();
+      simulateContainerResize();
    }
 }

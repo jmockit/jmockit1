@@ -62,7 +62,7 @@ public final class FadeIn extends Fade
    @Override
    public void init(Animator animator, Effect parentEffect)
    {
-      ps = new PropertySetter<Float>(this, "opacity", 0.0f, 1.0f);
+      ps = new PropertySetter<>(this, "opacity", 0.0f, 1.0f);
       animator.addTarget(ps);
       setOpacity(0.0f);
       super.init(animator, null);

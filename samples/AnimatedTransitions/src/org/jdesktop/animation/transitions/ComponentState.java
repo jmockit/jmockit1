@@ -210,7 +210,7 @@ public class ComponentState
    }
 
    /**
-    * Override of {@link Object#equals(Object)} that returns <code>true</code> if either it is the
+    * Override of {@code Object#equals(Object)} that returns {@code true} if either it is the
     * same object exactly or the objects contain the same position, size, and component information.
     * This method is used, for example, to detect whether some start state is equal to some other
     * end state, which helps in determining whether a component is changing during the course of a

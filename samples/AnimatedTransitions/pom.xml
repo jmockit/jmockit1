@@ -19,8 +19,7 @@
          <groupId>org.jmockit</groupId><artifactId>timingframework</artifactId><version>1</version>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId>
-         <artifactId>jmockit-coverage</artifactId>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>
       </dependency>
    </dependencies>
 </project>

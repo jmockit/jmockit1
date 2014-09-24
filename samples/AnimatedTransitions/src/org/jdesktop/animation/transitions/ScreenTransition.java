@@ -56,7 +56,7 @@ import org.jdesktop.animation.timing.interpolation.PropertySetter;
  *
  * @author Chet Haase
  */
-public class ScreenTransition
+public final class ScreenTransition
 {
    /*
     * Implementation detail: The key to making ScreenTransition work correctly is having two
@@ -82,13 +82,13 @@ public class ScreenTransition
    /**
     * Handles the structure and rendering of the actual animation during the transitions.
     */
-   private AnimationManager animationManager;
+   private final AnimationManager animationManager;
 
    /**
     * The component where the transition animation occurs.  This component (which is set to be the
     * glass pane) is visible during the transition, but is otherwise invisible.
     */
-   private AnimationLayer animationLayer;
+   private final AnimationLayer animationLayer;
 
    /**
     * The component supplied at construction time that holds the actual components added to
@@ -96,7 +96,7 @@ public class ScreenTransition
     * allows us to render the AnimationLayer during the transitions and separate the animation
     * sequence from the actual container of the components.
     */
-   private JComponent containerLayer;
+   private final JComponent containerLayer;
 
    /**
     * Image used to store the current state of the transition animation.  This image will be
@@ -109,7 +109,7 @@ public class ScreenTransition
     * The user-defined code which ScreenTransition will call to setup the next state of the GUI when
     * a transition is started.
     */
-   private TransitionTarget transitionTarget;
+   private final TransitionTarget transitionTarget;
 
    /**
     * If the application has already set their own custom glass pane, we save that component here
@@ -143,7 +143,7 @@ public class ScreenTransition
 
       // Hack: pre-warm PropertySetter just to get some static initializers out of the way that will
       // be needed before the first transition can start.
-      new PropertySetter<Point>(transitionComponent, "location", new Point(0, 0));
+      new PropertySetter<>(transitionComponent, "location", new Point(0, 0));
 
       containerLayer.addComponentListener(new ContainerSizeListener());
       createTransitionImages();
@@ -351,7 +351,7 @@ public class ScreenTransition
        * We force a repaint, which causes the current transition state to be rendered.
        */
       @Override
-      public void timingEvent(float elapsedFraction)
+      public void timingEvent(float fraction)
       {
          Graphics2D gImg = (Graphics2D) transitionImage.getGraphics();
 

@@ -46,7 +46,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Chet Haase
  */
-class AnimationLayer extends JComponent
+final class AnimationLayer extends JComponent
 {
    // Need to keep track of where the transition container lives in the window so that we copy the
    // transition image to the proper place in the window-wide GlassPane.

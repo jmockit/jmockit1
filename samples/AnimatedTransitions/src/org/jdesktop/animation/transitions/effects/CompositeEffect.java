@@ -53,7 +53,7 @@ public final class CompositeEffect extends Effect
    /**
     * The list of effects in the CompositeEffect.
     */
-   private final List<Effect> effects = new ArrayList<Effect>();
+   private final List<Effect> effects = new ArrayList<>();
 
    /**
     * Creates a CompositeEffect with no sub-effects.  Additional sub-effects should be added via the
