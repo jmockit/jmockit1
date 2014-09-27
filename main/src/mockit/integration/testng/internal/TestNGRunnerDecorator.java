@@ -106,7 +106,10 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
       Object testInstance = testResult.getInstance();
 
-      if (!testClass.isInstance(testInstance)) {
+      if (
+         testInstance == null ||
+         testInstance.getClass() != testClass && testClass.getClass().getName().equals(testClass.getName())
+      ) {
          // Happens when TestNG is running a JUnit test class, for which "TestResult#getInstance()" erroneously returns
          // a org.junit.runner.Description object.
          return;
@@ -186,10 +189,14 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          return;
       }
 
-      TestRun.enterNoMockingZone();
-
-      shouldPrepareForNextTest = true;
       SavePoint testMethodSavePoint = savePoint.get();
+       
+      if (testMethodSavePoint == null) {
+         return;
+      }
+
+      TestRun.enterNoMockingZone();
+      shouldPrepareForNextTest = true;
       savePoint.set(null);
 
       Throwable thrownByTest = testResult.getThrowable();
