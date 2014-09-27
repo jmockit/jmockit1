@@ -18,7 +18,7 @@ import org.jetbrains.annotations.*;
  */
 public abstract class ImplementationClass<T>
 {
-   @NotNull private final Class<?> mockedClass;
+   @NotNull protected final Class<?> sourceClass;
    @NotNull protected String generatedClassName;
    @Nullable private byte[] generatedBytecode;
 
@@ -29,16 +29,16 @@ public abstract class ImplementationClass<T>
       this(mockedClass, GeneratedClasses.getNameForGeneratedClass(mockedClass, null));
    }
 
-   protected ImplementationClass(@NotNull Class<?> mockedClass, @NotNull String desiredClassName)
+   protected ImplementationClass(@NotNull Class<?> sourceClass, @NotNull String desiredClassName)
    {
-      this.mockedClass = mockedClass;
+      this.sourceClass = sourceClass;
       generatedClassName = desiredClassName;
    }
 
    @NotNull
    public final Class<T> generateClass()
    {
-      ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
+      ClassReader classReader = ClassFile.createReaderOrGetFromCache(sourceClass);
 
       ClassVisitor modifier = createMethodBodyGenerator(classReader);
       classReader.accept(modifier, SKIP_FRAMES);
@@ -52,7 +52,7 @@ public abstract class ImplementationClass<T>
    @NotNull
    private Class<T> defineNewClass(@NotNull ClassVisitor modifier)
    {
-      ClassLoader parentLoader = mockedClass.getClassLoader();
+      ClassLoader parentLoader = sourceClass.getClassLoader();
 
       if (parentLoader == null) {
          parentLoader = ImplementationClass.class.getClassLoader();

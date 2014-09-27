@@ -10,7 +10,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
-import mockit.internal.expectations.mocking.*;
+import mockit.internal.expectations.mocking.SubclassGenerationModifier;
 import mockit.internal.state.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 

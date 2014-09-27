@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.io.*;
 import java.util.*;
 
 import static mockit.Deencapsulation.*;
@@ -13,7 +14,7 @@ import org.junit.rules.*;
 
 import mockit.internal.util.*;
 
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings("unused")
 public final class DeencapsulationTest
 {
    @Rule public ExpectedException thrown = ExpectedException.none();
@@ -662,5 +663,52 @@ public final class DeencapsulationTest
    {
       //noinspection ClassNewInstance
       Runnable.class.newInstance();
+   }
+
+   @Test
+   public void newUninitializedInstanceOfConcreteClass()
+   {
+      Subclass instance = newUninitializedInstance(Subclass.class);
+
+      assertEquals(0, instance.intField);
+      assertEquals(0, instance.INITIAL_VALUE);
+      assertEquals(-1, instance.initialValue);
+
+      // This field value is a compile-time constant, so we need Reflection to read its current value:
+      int initialValue = getField(instance, "initialValue");
+      assertEquals(0, initialValue);
+   }
+
+   public abstract static class AbstractClass implements Runnable { protected abstract int doSomething(); }
+
+   @Test
+   public void newUninitializedInstanceOfAbstractClass()
+   {
+      AbstractClass instance = newUninitializedInstance(AbstractClass.class);
+
+      assertNotNull(instance);
+      assertEquals(0, instance.doSomething());
+      instance.run();
+   }
+
+   @Test
+   public void newUninitializedInstanceOfAbstractJREClass() throws Exception
+   {
+      Writer instance = newUninitializedInstance(Writer.class);
+
+      assertNotNull(instance);
+      assertNull(getField(instance, "lock"));
+
+      // Abstract methods.
+      instance.write(new char[0], 0, 0);
+      instance.flush();
+      instance.close();
+
+      // Regular methods.
+      try {
+         instance.write(123);
+         fail();
+      }
+      catch (NullPointerException ignore) {}
    }
 }

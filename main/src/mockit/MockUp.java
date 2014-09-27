@@ -5,11 +5,9 @@
 package mockit;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.mockups.*;
 import mockit.internal.startup.*;
@@ -217,7 +215,7 @@ public abstract class MockUp<T>
       Class<T> realClass = classToMock;
 
       if (isAbstract(classToMock.getModifiers()) && classToMock.getClassLoader() != null) {
-         classToMock = generateConcreteSubclass(classToMock);
+         classToMock = new ConcreteSubclass<T>(classToMock).generateClass();
       }
 
       classesToRestore = redefineMethods(realClass, classToMock, mockedType);
@@ -228,18 +226,6 @@ public abstract class MockUp<T>
    private Class<T> createInstanceOfMockedImplementationClass(@NotNull Class<T> classToMock, @Nullable Type typeToMock)
    {
       return new MockedImplementationClass<T>(this).createImplementation(classToMock, typeToMock);
-   }
-
-   @NotNull
-   private Class<T> generateConcreteSubclass(@NotNull final Class<T> abstractClass)
-   {
-      return new ImplementationClass<T>(abstractClass) {
-         @NotNull @Override
-         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
-         {
-            return new SubclassGenerationModifier(abstractClass, typeReader, generatedClassName);
-         }
-      }.generateClass();
    }
 
    @Nullable
@@ -262,7 +248,7 @@ public abstract class MockUp<T>
     * @see #MockUp()
     * @see #MockUp(Object)
     */
-   protected MockUp(Class<?> classToMock)
+   protected MockUp(@SuppressWarnings("NullableProblems") Class<?> classToMock)
    {
       if (classToMock == null) {
          throw new IllegalArgumentException("Null reference when expecting the class to mock");

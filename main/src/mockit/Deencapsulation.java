@@ -4,12 +4,19 @@
  */
 package mockit;
 
+import static java.lang.reflect.Modifier.*;
+
+import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
 
 /**
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields, methods, and
  * constructors.
  *
+ * @see #getField(Object, String)
+ * @see #setField(Object, String, Object)
+ * @see #invoke(Object, String, Object...)
+ * @see #newInstance(String, Object...)
  * @see <a href="http://jmockit.github.io/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
  * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
  */
@@ -28,6 +35,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if the desired field is not found
     *
     * @see #getField(Object, Class)
+    * @see #getField(Class, String)
     * @see #setField(Object, String, Object)
     */
    public static <T> T getField(Object objectWithField, String fieldName)
@@ -45,6 +53,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if either the desired field is not found, or more than one is
     *
     * @see #getField(Object, String)
+    * @see #getField(Class, String)
     * @see #setField(Object, Object)
     */
    public static <T> T getField(Object objectWithField, Class<T> fieldType)
@@ -62,6 +71,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if the desired field is not found
     *
     * @see #getField(Class, Class)
+    * @see #getField(Object, String)
     * @see #setField(Class, String, Object)
     */
    public static <T> T getField(Class<?> classWithStaticField, String fieldName)
@@ -80,6 +90,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if either the desired field is not found, or more than one is
     *
     * @see #getField(Class, String)
+    * @see #getField(Object, Class)
     * @see #setField(Class, Object)
     */
    public static <T> T getField(Class<?> classWithStaticField, Class<T> fieldType)
@@ -97,6 +108,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if the desired field is not found
     *
     * @see #setField(Class, String, Object)
+    * @see #setField(Object, Object)
     * @see #getField(Object, String)
     */
    public static void setField(Object objectWithField, String fieldName, Object fieldValue)
@@ -111,6 +123,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if either the desired field is not found, or more than one is
     *
     * @see #setField(Object, String, Object)
+    * @see #setField(Class, String, Object)
     * @see #getField(Object, String)
     */
    public static void setField(Object objectWithField, Object fieldValue)
@@ -128,6 +141,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if the desired field is not found
     *
     * @see #setField(Class, Object)
+    * @see #setField(Object, String, Object)
     * @see #getField(Class, String)
     */
    public static void setField(Class<?> classWithStaticField, String fieldName, Object fieldValue)
@@ -145,6 +159,7 @@ public final class Deencapsulation
     * @throws IllegalArgumentException if either the desired field is not found, or more than one is
     *
     * @see #setField(Class, String, Object)
+    * @see #setField(Object, Object)
     * @see #getField(Class, Class)
     */
    public static void setField(Class<?> classWithStaticField, Object fieldValue)
@@ -383,5 +398,28 @@ public final class Deencapsulation
       Class<? extends T> innerClassToInstantiate, Object outerClassInstance, Object... nonNullArgs)
    {
       return ConstructorReflection.newInnerInstance(innerClassToInstantiate, outerClassInstance, nonNullArgs);
+   }
+
+   /**
+    * Creates a new instance of a given class, without invoking any constructor.
+    * If the class is {@code abstract}, a concrete subclass is created, with empty implementations for the
+    * {@code abstract} methods.
+    *
+    * @param classToInstantiate the class to be instantiated
+    * @param <T> type to which the returned instance should be assignable
+    *
+    * @return a newly created instance of the specified class, with any instance fields left uninitialized
+    *
+    * @see #newInstance(Class, Object...)
+    * @see #newInstance(String, Class[], Object...)
+    * @see #newInnerInstance(Class, Object, Object...)
+    */
+   public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate)
+   {
+      if (isAbstract(classToInstantiate.getModifiers())) {
+         classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
+      }
+
+      return ConstructorReflection.newUninitializedInstance(classToInstantiate);
    }
 }
