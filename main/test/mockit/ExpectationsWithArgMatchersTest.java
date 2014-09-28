@@ -242,7 +242,7 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void expectInvocationWithSameMockInstanceButReplayWithNull(
       // This class defines an abstract "toString" override, which initially was erroneously
-      // mocked, causing a non-strict expectation to be created during replay:
+      // mocked, causing a new expectation to be created during replay:
       @Mocked final Certificate cert)
    {
       thrown.expect(MissingInvocation.class);

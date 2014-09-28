@@ -66,7 +66,7 @@ public class Invocation
     */
    public final <M extends Member> M getInvokedMember()
    {
-      //noinspection unchecked
+      //noinspection unchecked,ClassReferencesSubclass
       return (M) ((BaseInvocation) this).getRealMember();
    }
 
@@ -91,7 +91,7 @@ public class Invocation
     * <p/>
     * For an expectation, this call will return the value specified through the
     * {@linkplain Invocations#times times} or {@linkplain Invocations#minTimes minTimes} field, if that was the case;
-    * if not, the value will be {@code 0} for a non-strict expectation and {@code 1} for a strict expectation.
+    * if not, the value will be {@code 1} for a regular or strict expectation, or {@code 0} for a non-strict one.
     * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
     * or {@linkplain Mock#minInvocations minInvocations} attribute, or {@code 0} if none.
     */
@@ -103,7 +103,7 @@ public class Invocation
     * <p/>
     * For an expectation, this call will return the value specified through the
     * {@linkplain Invocations#times times} or {@linkplain Invocations#maxTimes maxTimes} field, if that was the case;
-    * if not, the value will be {@code -1} for a non-strict expectation and {@code 1} for a strict expectation.
+    * if not, the value will be {@code -1} for a regular or non-strict expectation, or {@code 1} for a strict one.
     * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
     * or {@linkplain Mock#maxInvocations maxInvocations} attribute, or {@code -1} if none.
     */
@@ -140,6 +140,7 @@ public class Invocation
     */
    public final <T> T proceed(Object... replacementArguments)
    {
+      //noinspection ClassReferencesSubclass
       return ((BaseInvocation) this).doProceed(replacementArguments);
    }
 }

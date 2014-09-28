@@ -392,7 +392,7 @@ public final class DynamicPartialMockingTest
       // Mocked:
       assertEquals(0, collaborator.getValue());
 
-      // Still mocked because it's non-strict:
+      // Still mocked because it's not strict:
       assertEquals(0, collaborator.getValue());
    }
 

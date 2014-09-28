@@ -12,7 +12,7 @@ public class ComplexVerificationsTest
    public static class A
    {
       @SuppressWarnings("UnusedParameters")
-      public void process(Object[] input) {}
+      public void process(Object[] inputData) {}
       public int result() { return 1; }
    }
 
@@ -155,7 +155,7 @@ public class ComplexVerificationsTest
          unverifiedInvocations(); // accounts for the instantiations of A, B, and C
          a.process(input); times = 1;
          unverifiedInvocations(); // accounts for the calls to "foo" and "bar"
-         a.result(); // this duplication is inevitable with non-strict expectations, so it's ok
+         a.result(); // this duplication is inevitable without resorting to strict expectations, so it's ok
       }};
 
       new FullVerifications(input.length) {{
