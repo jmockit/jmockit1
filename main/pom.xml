@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.12</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.13</version>
    <packaging>jar</packaging>
    <prerequisites>
       <maven>3.2.1</maven>
@@ -160,7 +160,6 @@
                </excludes>
             </configuration>
          </plugin>
-<!--
          <plugin>
             <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
             <configuration>
@@ -174,7 +173,6 @@
                </execution>
             </executions>
          </plugin>
--->
       </plugins>
    </build>
 
