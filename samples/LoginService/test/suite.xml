@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All tests">
+  <test verbose="1" name="jmockit1.org" annotations="JDK" junit="true">
+    <classes>
+      <class name="jmockit.loginExample.domain.userLogin.LoginServiceNGTest"/>
+      <class name="jmockit.loginExample.domain.userLogin.LoginServiceJUnitTest"/>
+    </classes>
+  </test>
+</suite>
