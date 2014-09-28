@@ -40,14 +40,14 @@ public final class Cache_JMockit_Test
    {
       final long loadTime = 10;
 
-      new NonStrictExpectations() {{ // (this is "JMockit Expectations", not the jMock version)
+      new Expectations() {{ // (this is "JMockit Expectations", not the jMock version)
          clock.time(); result = loadTime;
          loader.load(KEY); result = VALUE;
       }};
 
       Object actualValueFromFirstLookup = cache.lookup(KEY);
 
-      new NonStrictExpectations() {
+      new Expectations() {
          final long fetchTime = 200;
 
          {
@@ -67,14 +67,14 @@ public final class Cache_JMockit_Test
    {
       final long loadTime = 10;
 
-      new NonStrictExpectations() {{
+      new StrictExpectations() {{
          clock.time(); result = loadTime;
          loader.load(KEY); result = VALUE;
       }};
 
       final long fetchTime = 200;
 
-      new NonStrictExpectations() {{
+      new StrictExpectations() {{
          clock.time(); result = fetchTime;
          reloadPolicy.shouldReload(loadTime, fetchTime); result = false;
       }};

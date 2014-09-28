@@ -44,7 +44,7 @@ public final class NaturalOrderingTest
          a.compareTo(anyString); result = 123;
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          b.compareTo("test"); result = -50;
       }};
 
@@ -56,7 +56,7 @@ public final class NaturalOrderingTest
    @Test
    public void mockOverrideOfCompareToMethodInJREClass(@Mocked final Date a, @Mocked final Date b)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          a.compareTo(b); result = 5;
       }};
 

@@ -54,7 +54,7 @@ public final class CapturingInstancesTest
    public void captureAllInternallyCreatedInstances(
       @Capturing Observable observable, @Capturing final Callable<?> callable) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          service.doSomething(); returns(3, 4);
       }};
 
@@ -76,7 +76,7 @@ public final class CapturingInstancesTest
    public void recordStrictExpectationsForNextTwoInstancesToBeCreated(
       @Capturing(maxInstances = 1) final Service2 s1, @Capturing(maxInstances = 1) final Service2 s2)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          s1.doSomething(); result = 11;
          s2.doSomething(); returns(22, 33);
       }};
@@ -88,10 +88,10 @@ public final class CapturingInstancesTest
    }
 
    @Test
-   public void recordNonStrictExpectationsForNextTwoInstancesToBeCreated(
+   public void recordExpectationsForNextTwoInstancesToBeCreated(
       @Capturing(maxInstances = 1) final Service2 mock1, @Capturing(maxInstances = 1) final Service2 mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(); result = 11;
          mock2.doSomething(); result = 22;
       }};
@@ -109,7 +109,7 @@ public final class CapturingInstancesTest
    public void recordExpectationsForNextTwoInstancesOfTwoDifferentImplementingClasses(
       @Capturing(maxInstances = 1) final Service2 mock1, @Capturing(maxInstances = 1) final Service2 mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(); result = 1;
          mock2.doSomething(); result = 2;
       }};
@@ -125,7 +125,7 @@ public final class CapturingInstancesTest
    public void recordExpectationsForTwoConsecutiveSetsOfFutureInstances(
       @Capturing(maxInstances = 2) final Service2 set1, @Capturing(maxInstances = 3) final Service2 set2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          set1.doSomething(); result = 1;
          set2.doSomething(); result = 2;
       }};
@@ -154,7 +154,7 @@ public final class CapturingInstancesTest
       @Capturing(maxInstances = 1) @Mocked({"()", "doSomething"}) final Service2 s1,
       @Capturing(maxInstances = 1) final Service2 s2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          s1.doSomething(); result = 1;
          s2.doSomething(); result = 2;
       }};
@@ -170,7 +170,7 @@ public final class CapturingInstancesTest
    public void recordExpectationsForNextTwoInstancesToBeCreatedUsingMockParameters(
       @Capturing(maxInstances = 1) final Service2 s1, @Capturing(maxInstances = 1) final Service2 s2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          s2.doSomething(); result = 22;
          s1.doSomething(); result = 11;
       }};
@@ -191,7 +191,7 @@ public final class CapturingInstancesTest
    @Test
    public void verifyExpectationsOnlyOnFirstOfTwoCapturedInstances(@Capturing(maxInstances = 1) final Base b)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          b.doSomething(); result = true; times = 1;
       }};
 
@@ -203,7 +203,7 @@ public final class CapturingInstancesTest
    public void verifyExpectationsOnlyOnOneOfTwoSubclassesForAnyNumberOfCapturedInstances(
       @Capturing final Derived1 anyCapture)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Derived1(); minTimes = 1;
          anyCapture.doSomething(); result = true; times = 3;
       }};
@@ -220,7 +220,7 @@ public final class CapturingInstancesTest
       @Capturing(maxInstances = 1) final Derived1 firstCapture,
       @Capturing(maxInstances = 1) final Derived1 secondCapture)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Derived1(); times = 2;
          firstCapture.doSomething(); result = true; times = 1;
          secondCapture.doSomething(); result = true; times = 1;
@@ -235,7 +235,7 @@ public final class CapturingInstancesTest
    public void specifyDifferentBehaviorForFirstNewInstanceAndForRemainingNewInstances(
       @Capturing(maxInstances = 1) final Buffer firstNewBuffer, @Capturing final Buffer remainingNewBuffers)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          firstNewBuffer.position(); result = 10;
          remainingNewBuffers.position(); result = 20;
       }};

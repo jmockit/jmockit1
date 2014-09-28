@@ -45,7 +45,7 @@ public final class InvocationsWithCustomMessagesTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new Expectations() {{ mock.getValue(); $ = message; }};
+      new StrictExpectations() {{ mock.getValue(); $ = message; }};
 
       try {
          mock.provideSomeService();
@@ -64,7 +64,7 @@ public final class InvocationsWithCustomMessagesTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          Collaborator.doInternal();
          mock.provideSomeService(); minTimes = 1; $ = message; maxTimes = 2;
       }};
@@ -86,7 +86,7 @@ public final class InvocationsWithCustomMessagesTest
    @Test
    public void replayNonStrictExpectationOnceMoreThanExpected()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator(); times = 1; $ = message;
       }};
 
@@ -109,7 +109,7 @@ public final class InvocationsWithCustomMessagesTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage(message);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator(); minTimes = 2; maxTimes = 3; $ = message;
       }};
 
@@ -133,7 +133,7 @@ public final class InvocationsWithCustomMessagesTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage(message);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.setValue(1); $ = message;
          mock.setValue(2);
       }};

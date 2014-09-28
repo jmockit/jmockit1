@@ -23,7 +23,7 @@ public final class CurrencyConversionTest
    @Test
    public void loadCurrencySymbolsFromWebSite(@Mocked URL url) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new URL(withMatch(".+iso4217.*")).openStream();
          result =
             "<table class='currencyTable'>\r\n" +
@@ -41,12 +41,12 @@ public final class CurrencyConversionTest
    {
       // Partial mocking of the tested object is acceptable here, since the mocked method
       // ("currencySymbols") is public and already exercised in a different test.
-      new NonStrictExpectations() {{
+      new Expectations() {{
          conversion.currencySymbols();
          returns("X", "Y");
       }};
 
-      new NonStrictExpectations(URL.class) {{
+      new Expectations(URL.class) {{
          new URL(withMatch(".+&from=X&to=Y.*")).openStream();
          result = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
       }};

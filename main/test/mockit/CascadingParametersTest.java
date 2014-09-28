@@ -133,7 +133,7 @@ public final class CascadingParametersTest
    {
       final List<Integer> list = Arrays.asList(1, 2, 3);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockFoo.doSomething(anyString); minTimes = 2;
          mockFoo.getBar().doSomething(); result = 2;
          Foo.globalBar().doSomething(); result = 3;
@@ -190,7 +190,7 @@ public final class CascadingParametersTest
    {
       final Date now = new Date();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockFoo.getBar().doSomething(); result = 1;
          Foo.globalBar().doSomething(); result = 2;
 
@@ -239,7 +239,7 @@ public final class CascadingParametersTest
    @Test
    public void cascadeTwoLevelsWithInvocationRecordedOnLastMockOnly(@Mocked Foo foo, @Mocked final Baz baz)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          baz.runIt(); times = 1;
       }};
 
@@ -262,7 +262,7 @@ public final class CascadingParametersTest
    @Test
    public void cascadeOnJREClasses(@Mocked final ProcessBuilder pb) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          ProcessBuilder sameBuilder = pb.directory((File) any);
          assertSame(sameBuilder, pb);
 
@@ -292,13 +292,13 @@ public final class CascadingParametersTest
    @Test
    public void mockDynamicallyAClassToBeLaterMockedThroughCascading()
    {
-      new NonStrictExpectations(Socket.class) {};
+      new Expectations(Socket.class) {};
    }
 
    @Test
    public void cascadeOneLevelWithArgumentMatchers(@Mocked final SocketFactory sf) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sf.createSocket(anyString, 80); result = null;
       }};
 
@@ -311,7 +311,7 @@ public final class CascadingParametersTest
    {
       final OutputStream out = new ByteArrayOutputStream();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sf.createSocket().getOutputStream(); result = out;
       }};
 
@@ -327,7 +327,7 @@ public final class CascadingParametersTest
       final OutputStream out1 = new ByteArrayOutputStream();
       final OutputStream out2 = new ByteArrayOutputStream();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sf1.createSocket().getOutputStream(); result = out1;
          sf2.createSocket().getOutputStream(); result = out2;
       }};
@@ -345,7 +345,7 @@ public final class CascadingParametersTest
    public void recordAndVerifySameInvocationOnMocksReturnedFromInvocationsWithDifferentArguments(
       @Mocked final SocketFactory sf) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sf.createSocket().getPort(); result = 1;
          sf.createSocket("first", 80).getPort(); result = 2;
          sf.createSocket("second", 80).getPort(); result = 3;
@@ -375,7 +375,7 @@ public final class CascadingParametersTest
    @Test
    public void recordAndVerifyWithMixedCascadeLevels(@Mocked final SocketFactory sf) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sf.createSocket("first", 80).getKeepAlive(); result = true;
          sf.createSocket("second", anyInt).getChannel().close(); times = 1;
       }};
@@ -392,7 +392,7 @@ public final class CascadingParametersTest
    @Test
    public void overrideCascadedMockAndRecordStrictExpectationOnIt(@Mocked final Foo foo, @Mocked final Bar mockBar)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          foo.getBar(); result = mockBar;
          mockBar.doSomething();
       }};
@@ -402,10 +402,10 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void overrideCascadedMockAndRecordNonStrictExpectationOnIt(
+   public void overrideCascadedMockAndRecordExpectationOnIt(
       @Mocked final Foo foo, @Mocked final Bar mockBar)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getBar(); result = mockBar;
          mockBar.doSomething(); times = 1; result = 123;
       }};
@@ -435,7 +435,7 @@ public final class CascadingParametersTest
    public void overrideTwoCascadedMocksOfTheSameTypeButReplayInDifferentOrder(
       @Mocked final Foo foo1, @Mocked final Foo foo2, @Mocked final Bar mockBar1, @Mocked final Bar mockBar2)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          foo1.getBar(); result = mockBar1;
          foo2.getBar(); result = mockBar2;
          mockBar1.doSomething();
@@ -459,9 +459,9 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void cascadedNonStrictEnumReturningConsecutiveValuesThroughResultField(@Mocked final Foo mock)
+   public void cascadedEnumReturningConsecutiveValuesThroughResultField(@Mocked final Foo mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getBar().getEnum();
          result = AnEnum.First;
          result = AnEnum.Second;
@@ -474,9 +474,9 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void cascadedNonStrictEnumReturningConsecutiveValuesThroughReturnsMethod(@Mocked final Foo mock)
+   public void cascadedEnumReturningConsecutiveValuesThroughReturnsMethod(@Mocked final Foo mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getBar().getEnum();
          returns(AnEnum.First, AnEnum.Second, AnEnum.Third);
       }};
@@ -489,7 +489,7 @@ public final class CascadingParametersTest
    @Test
    public void cascadedStrictEnumReturningConsecutiveValuesThroughResultField(@Mocked final Foo mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getBar().getEnum();
          result = AnEnum.Third;
          result = AnEnum.Second;
@@ -505,7 +505,7 @@ public final class CascadingParametersTest
    @Test
    public void cascadedStrictEnumReturningConsecutiveValuesThroughReturnsMethod(@Mocked final Foo mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getBar().getEnum();
          returns(AnEnum.First, AnEnum.Second, AnEnum.Third);
       }};
@@ -522,7 +522,7 @@ public final class CascadingParametersTest
       final Date newDate = new Date(123);
       assertEquals(123, newDate.getTime());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getBar().getBaz().getDate();
          result = newDate;
       }};
@@ -537,7 +537,7 @@ public final class CascadingParametersTest
       Date newDate = new Date(123);
       assertEquals(0, newDate.getTime());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getBar().getBaz().getDate();
          result = mockedDate;
       }};
@@ -554,7 +554,7 @@ public final class CascadingParametersTest
       Date newDate = new Date(123);
       assertEquals(123, newDate.getTime());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getBar().getBaz().getDate();
          result = mockDate;
       }};
@@ -570,7 +570,7 @@ public final class CascadingParametersTest
    @Test
    public void cascadeOnMethodReturningAParameterizedClassWithAGenericMethod(@Mocked final A a)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          a.getB().getValue(); result = "test";
       }};
 

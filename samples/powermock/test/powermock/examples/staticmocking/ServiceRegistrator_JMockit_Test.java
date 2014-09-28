@@ -21,7 +21,7 @@ public final class ServiceRegistrator_JMockit_Test
       final long expectedId = 42;
       ServiceRegistrator tested = new ServiceRegistrator();
 
-      new NonStrictExpectations() {{ IdGenerator.generateNewId(); result = expectedId; }};
+      new Expectations() {{ IdGenerator.generateNewId(); result = expectedId; }};
 
       long actualId = tested.registerService(new Object());
 

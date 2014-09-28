@@ -25,7 +25,7 @@ public final class ReportDao_JMockit_Test
       final String reportName = "reportName";
       final Report report = new Report(reportName);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Will mock only the "getReportFromTargetName" method.
          invoke(tested, "getReportFromTargetName", reportName); result = report;
       }};

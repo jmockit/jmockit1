@@ -75,7 +75,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       ExpectedInvocation currentInvocation = new ExpectedInvocation(
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
       currentInvocation.arguments.setMatchers(argMatchers);
-      currentVerification = new Expectation(null, currentInvocation, true);
+      currentVerification = new Expectation(currentInvocation);
 
       currentExpectation = null;
       currentVerifiedExpectations.clear();

@@ -94,7 +94,7 @@ public final class ObjectOverridesTest
          a.equals(anyString); result = true;
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          b.equals(a); result = true;
       }};
 
@@ -108,7 +108,7 @@ public final class ObjectOverridesTest
    {
       assertTrue(a.hashCode() != b.hashCode());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          a.hashCode(); result = 123;
          b.hashCode(); result = 45; times = 1;
       }};
@@ -122,7 +122,7 @@ public final class ObjectOverridesTest
    {
       assertFalse(a.toString().equals(b.toString()));
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          a.toString(); result = "mocked";
       }};
 
@@ -147,7 +147,7 @@ public final class ObjectOverridesTest
    @Test
    public void allowAnyInvocationsOnOverriddenObjectMethodsForStrictMocks()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          a.getIntValue(); result = 58;
          b.doSomething();
       }};
@@ -176,7 +176,7 @@ public final class ObjectOverridesTest
    }
 
    @Test
-   public void recordExpectationsOnOverriddenObjectMethodAsNonStrictEvenInsideStrictExpectationBlock()
+   public void recordExpectationsOnOverriddenObjectMethodAsAlwaysNonStrict()
    {
       new Expectations() {{
          a.doSomething();
@@ -201,7 +201,7 @@ public final class ObjectOverridesTest
       final Object o1 = new ClassWithEqualsOverride(123);
       Object o2 = new ClassWithEqualsOverride(123);
 
-      new Expectations(ClassWithEqualsOverride.class) {{ a.doSomething(o1); }};
+      new StrictExpectations(ClassWithEqualsOverride.class) {{ a.doSomething(o1); }};
 
       a.doSomething(o2);
    }
@@ -212,7 +212,7 @@ public final class ObjectOverridesTest
       final Object o1 = new Date(123);
       Object o2 = new Date(123);
 
-      new Expectations(Date.class) {{ a.doSomething(o1); }};
+      new StrictExpectations(Date.class) {{ a.doSomething(o1); }};
 
       a.doSomething(o2);
    }

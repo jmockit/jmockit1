@@ -39,7 +39,7 @@ public final class ProviderServiceImpl_JMockit_Test
       final Set<ServiceProducer> expectedServiceProducers = new HashSet<>();
       expectedServiceProducers.add(new ServiceProducer(1, "mock name"));
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(tested, "getAllServiceProducers"); result = expectedServiceProducers;
       }};
 
@@ -53,7 +53,7 @@ public final class ProviderServiceImpl_JMockit_Test
    {
       Set<ServiceProducer> expectedServiceProducers = new HashSet<>();
 
-      new NonStrictExpectations() {{ invoke(tested, "getAllServiceProducers"); result = null; }};
+      new Expectations() {{ invoke(tested, "getAllServiceProducers"); result = null; }};
 
       Set<ServiceProducer> actualServiceProviders = tested.getAllServiceProviders();
 
@@ -70,7 +70,7 @@ public final class ProviderServiceImpl_JMockit_Test
       final Set<ServiceProducer> serviceProducers = new HashSet<>();
       serviceProducers.add(expected);
 
-      new NonStrictExpectations() {{ invoke(tested, "getAllServiceProducers"); result = serviceProducers; }};
+      new Expectations() {{ invoke(tested, "getAllServiceProducers"); result = serviceProducers; }};
 
       ServiceProducer actual = tested.getServiceProvider(expectedServiceProducerId);
 
@@ -80,7 +80,7 @@ public final class ProviderServiceImpl_JMockit_Test
    @Test
    public void testGetServiceProvider_notFound()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(tested, "getAllServiceProducers");
          // An empty collection is the default return value, so we don't have to record it here.
          // returns(new HashSet<ServiceProducer>());
@@ -91,7 +91,7 @@ public final class ProviderServiceImpl_JMockit_Test
       assertNull(actual);
    }
 
-   static class RealProviderServiceExpectations extends NonStrictExpectations
+   static class RealProviderServiceExpectations extends Expectations
    {
       private final ProviderService providerService;
 

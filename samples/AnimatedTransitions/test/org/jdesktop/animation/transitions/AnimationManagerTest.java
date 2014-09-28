@@ -32,7 +32,7 @@ public final class AnimationManagerTest
    public void recreateImageForContainerOfSizeNotZeroAndBackgroundStillUndefined(
       @Injectable final JComponent container, @Injectable BufferedImage backgroundImage)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          container.getWidth(); result = 100;
          container.getHeight(); result = 80;
          container.createImage(100, 80); times = 1;
@@ -51,13 +51,12 @@ public final class AnimationManagerTest
       final int cw = 100;
       final int ch = 80;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          container.getWidth(); result = cw;
          container.getHeight(); result = ch;
-
-         transitionImageBG.getWidth(); result = cw + 1;
-         transitionImageBG.getHeight(); result = ch;
       }};
+
+      new Expectations() {{ transitionImageBG.getWidth(); result = cw + 1; }};
 
       manager.recreateImage();
 
@@ -141,7 +140,7 @@ public final class AnimationManagerTest
       final JButton component = new JButton();
       final AnimationManager manager = newAnimationManagerWithAComponent(component);
 
-      new NonStrictExpectations(manager) {{ manager.addStart(component); times = 1; }};
+      new Expectations(manager) {{ manager.addStart(component); times = 1; }};
 
       manager.setupStart();
    }
@@ -186,7 +185,7 @@ public final class AnimationManagerTest
       Map<JComponent, AnimationState> componentAnimationStates = getField(manager, Map.class);
       componentAnimationStates.put(component, startState);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          startState.getStart(); result = new ComponentState(component);
       }};
 
@@ -205,7 +204,7 @@ public final class AnimationManagerTest
       Map<JComponent, AnimationState> componentAnimationStates = getField(manager, Map.class);
       componentAnimationStates.put(component, animationState);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animationState.getStart(); result = new ComponentState(new JLabel());
       }};
 

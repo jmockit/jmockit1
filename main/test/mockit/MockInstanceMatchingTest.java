@@ -9,11 +9,14 @@ import javax.sql.*;
 
 import static org.junit.Assert.*;
 import org.junit.*;
+import org.junit.rules.*;
 
 import mockit.internal.*;
 
 public final class MockInstanceMatchingTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    static class Collaborator
    {
       private int value;
@@ -37,9 +40,11 @@ public final class MockInstanceMatchingTest
       assertEquals(12, mock.getValue());
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void recordOnMockInstanceButReplayOnDifferentInstance()
    {
+      thrown.expect(MissingInvocation.class);
+
       Collaborator collaborator = new Collaborator();
 
       new Expectations() {{
@@ -81,9 +86,11 @@ public final class MockInstanceMatchingTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void verifyOnMockInstanceButReplayOnDifferentInstance()
    {
+      thrown.expect(MissingInvocation.class);
+
       new Collaborator().setValue(12);
 
       new Verifications() {{
@@ -105,10 +112,12 @@ public final class MockInstanceMatchingTest
       mock.setValue(20);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void recordOnSpecificMockInstancesButReplayOnDifferentOnes(@Mocked final Collaborator mock2)
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.setValue(12);
          mock2.setValue(13);
       }};
@@ -131,9 +140,11 @@ public final class MockInstanceMatchingTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void verifyOnSpecificMockInstancesButReplayOnDifferentOnes(@Mocked final Collaborator mock2)
    {
+      thrown.expect(MissingInvocation.class);
+
       mock2.setValue(12);
       mock.setValue(13);
 
@@ -143,9 +154,11 @@ public final class MockInstanceMatchingTest
       }};
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void recordOnNullMockInstance(@Mocked Collaborator mock1)
    {
+      thrown.expect(NullPointerException.class);
+
       final Collaborator mock2 = null;
 
       new Expectations() {{
@@ -153,9 +166,11 @@ public final class MockInstanceMatchingTest
       }};
    }
 
-   @Test(expected = NullPointerException.class)
+   @Test
    public void verifyOnNullMockInstance()
    {
+      thrown.expect(NullPointerException.class);
+
       new Verifications() {{
          Collaborator mock2 = null;
          onInstance(mock2).getValue();
@@ -163,9 +178,9 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void matchOnTwoMockInstancesWithNonStrictExpectations(@Mocked final Collaborator mock2)
+   public void matchOnTwoMockInstances(@Mocked final Collaborator mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); result = 1; times = 1;
          mock2.getValue(); result = 2; times = 1;
       }};
@@ -175,10 +190,10 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void matchOnTwoMockInstancesWithNonStrictExpectationsAndReplayInDifferentOrder(
+   public void matchOnTwoMockInstancesAndReplayInDifferentOrder(
       @Mocked final Collaborator mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); result = 1;
          mock2.getValue(); result = 2;
       }};
@@ -208,11 +223,13 @@ public final class MockInstanceMatchingTest
       }};
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void recordExpectationsMatchingOnMultipleMockParametersButReplayOutOfOrder(
       @Mocked final Runnable r1, @Mocked final Runnable r2)
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          r2.run();
          r1.run();
       }};
@@ -221,10 +238,12 @@ public final class MockInstanceMatchingTest
       r2.run();
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void verifyExpectationsMatchingOnMultipleMockParametersButReplayedOutOfOrder(
       @Mocked final AbstractExecutorService es1, @Mocked final AbstractExecutorService es2)
    {
+      thrown.expect(MissingInvocation.class);
+
       //noinspection ConstantConditions
       es2.execute(null);
       es1.submit((Runnable) null);
@@ -250,19 +269,19 @@ public final class MockInstanceMatchingTest
       @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
    {
       new NonStrictExpectations() {{ mock2.getValue(); result = 123; }};
-      new Expectations() {{ mock1.setValue(5); }};
+      new StrictExpectations() {{ mock1.setValue(5); }};
 
       // mock1 is strict, mock2 is not
       mock1.setValue(5);
    }
 
    @Test
-   public void recordExpectedConstructorInvocationForMockedTypeWithBothStrictAndNonStrictExpectations(
+   public void recordExpectedConstructorInvocationForMockedTypeWithBothStrictAndNotStrictExpectations(
       @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
    {
-      new NonStrictExpectations() {{ mock1.getValue(); result = 123; }};
+      new Expectations() {{ mock1.getValue(); result = 123; minTimes = 0; }};
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock2.setValue(2);
          new Collaborator();
       }};
@@ -276,7 +295,7 @@ public final class MockInstanceMatchingTest
       @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
    {
       new NonStrictExpectations() {{ mock1.getValue(); result = 1; }};
-      new Expectations() {{ mock2.getValue(); result = 2; }};
+      new StrictExpectations() {{ mock2.getValue(); result = 2; }};
 
       assertEquals(2, mock2.getValue());
 
@@ -290,7 +309,7 @@ public final class MockInstanceMatchingTest
    @Test
    public void recordExpectationsOnTwoInstancesOfSameMockedInterface() throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockDS1.getLoginTimeout(); result = 1000;
          mockDS2.getLoginTimeout(); result = 2000;
       }};

@@ -11,16 +11,14 @@ import org.jetbrains.annotations.*;
 import mockit.internal.expectations.*;
 
 /**
- * Used to record <em>strict</em> expectations on {@linkplain Mocked mocked} types and mocked instances.
- * It should be noted that strict expectations are rather stringent, and can lead to brittle tests.
- * Users should first consider <em>non-strict</em> expectations instead, which can be recorded with the
- * {@link NonStrictExpectations} class.
+ * Used to <em>record</em> expectations on {@linkplain mockit.Mocked mocked} types and their instances.
  * <p/>
- * A recorded expectation is intended to match one or more method or constructor invocations, that we expect will occur
- * during the execution of some code under test.
+ * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will
+ * occur during the execution of code under test.
  * When a match is detected, the recorded {@linkplain #result result} is returned to the caller.
- * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain Delegate delegate} method is
+ * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain mockit.Delegate delegate} method is
  * executed.
+ * <p/>
  * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during
  * the initialization of an {@code Expectations} object.
  * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
@@ -35,23 +33,77 @@ import mockit.internal.expectations.*;
  * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
  * codeUnderTest.doSomething();
  * </pre>
- * During replay, invocations matching recorded expectations must occur in the exact same number and order as specified
- * in the expectation block.
- * Invocations that don't match any recorded expectation, on the other hand, will cause an "unexpected invocation" error
- * to be thrown.
- * Even more, if an expectation was recorded but no matching invocations occurred, a "missing invocation" error will
- * be thrown at the end of the test.
+ * Rather than creating anonymous subclasses, we can also create <em>named</em> subclasses to be reused in multiple
+ * tests.
+ * Some examples:
+ * <pre>
+ * public final class MyReusableExpectations extends Expectations {
+ *    public MyReusableExpectations(...any parameters...) {
+ *       // expectations recorded here
+ *    }
+ * }
+ *
+ * public class ReusableBaseExpectations extends Expectations {
+ *     protected ReusableBaseExpectations(...) {
+ *        // expectations here
+ *     }
+ * }
+ *
+ * &#64;Test
+ * public void someTest(@Mocked final SomeType aMock, etc.) {
+ *     // Record reusable expectations by instantiating a <em>final</em> "...Expectations" class.
+ *     new MyReusableExpectations(123, "test", <em>etc.</em>);
+ *
+ *     // Record and extend reusable expectations by instantiating a <em>non-final</em> base class.
+ *     new ReusableBaseExpectations() {{
+ *        // additional expectations
+ *     }};
+ * }
+ * </pre>
+ * During replay, invocations matching a recorded expectation must occur at least <em>once</em> (unless specified
+ * otherwise);
+ * if, by the end of the test, no matching invocation occurred for a given recorded expectation, the test will fail with
+ * a {@code MissingInvocation} error.
  * <p/>
- * There are several special fields and methods which can be used in the expectation block, to: a) record desired return
- * values or exceptions/errors to be thrown ({@link #result}, {@link #returns(Object, Object...)}); b) relax or
- * constrain the matching of argument values ({@link #anyInt}, {@link #anyString}, {@link #withNotNull()}, etc.);
- * c) relax or constrain the expected and/or allowed number of matching invocations ({@link #times}, {@link #minTimes},
- * {@link #maxTimes}).
+ * When multiple expectations are recorded, matching invocations are allowed to occur in a <em>different</em> order.
+ * So, the order in which expectations are recorded is not significant.
  * <p/>
- * By default, the exact instance on which instance method invocations will occur is <em>not</em> verified to be the
- * same as the instance used when recording the expectation.
- * That said, instance-specific matching can be obtained by annotating the mock field/parameter as
- * {@linkplain Injectable @Injectable}, or by using the {@link #onInstance(Object)} method.
+ * Besides the special {@link #result} field already mentioned, there are several other fields and methods which can be
+ * used inside the expectation block:
+ * a) {@link #returns(Object, Object...)}, a convenience method for returning a <em>sequence</em> of values;
+ * b) argument matchers such as {@link #anyInt}, {@link #anyString}, {@link #withNotNull()}, etc., which relax or
+ * constrain the matching of argument values;
+ * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or
+ * allowed number of matching invocations.
+ * <p/>
+ * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified
+ * to be the same as the instance used when recording the expectation.
+ * That said, instance-specific matching can be obtained by declaring the mocked type as
+ * {@linkplain Injectable @Injectable}, by using the {@link #onInstance(Object)} method, or by declaring multiple mock
+ * fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each mock
+ * instance).
+ * <p/>
+ * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified
+ * <em>after</em> exercising the code under test.
+ * To that end, we use a set of complementary base classes: {@link mockit.Verifications},
+ * {@link mockit.VerificationsInOrder}, {@link mockit.FullVerifications}, and {@link mockit.FullVerificationsInOrder}.
+ * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
+ * <p/>
+ * Finally, note that this class has two specialized subclasses: {@link mockit.StrictExpectations} and
+ * {@link mockit.NonStrictExpectations}.
+ * The first one differs in that 1) each recorded expectation has, by default, a maximum allowed number of invocations
+ * of {@code 1} (one); 2) matching invocations must occur in the <em>same order</em> as recorded; 3) <em>only</em>
+ * matching invocations are allowed, with any occurrence of unmatched invocations causing the test to fail with an
+ * {@code UnexpectedInvocation} error; and 4) use of verification blocks is not supported, since all invocations are
+ * implicitly verified through the strictly recorded sequence of expectations.
+ * The second one is a smaller variation, in which recorded expectations have a minimum expected number of invocations
+ * of {@code 0} (zero), that is, they are allowed to have no matching invocations at all by default.
+ * Most tests can and should only use {@code Expectations}; {@code StrictExpectations} are meant for users who prefer a
+ * mocking style where all expectations are specified before exercising the code under test, or for situations where
+ * the recording of a strict sequence of expectations produces a test that is more succinct or that fails as early as
+ * an unexpected invocation occurs; {@code NonStrictExpectations} are mainly useful for test setup methods
+ * (a {@code @Before} method in JUnit, or {@code @BeforeMethod} in TestNG), where we often end up recording expectations
+ * that get replayed by <em>some</em> tests, but not all.
  *
  * @see #Expectations()
  * @see #Expectations(Object...)

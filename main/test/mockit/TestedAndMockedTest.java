@@ -51,8 +51,8 @@ public final class TestedAndMockedTest
    {
       assertEquals(testData, tested.someData);
 
-      new NonStrictExpectations() {{ tested.doSomething(); result = 123; }};
-      new NonStrictExpectations() {{ ClassToBeTested.validateInput(anyInt, anyString); }};
+      new Expectations() {{ tested.doSomething(); result = 123; }};
+      new Expectations() {{ ClassToBeTested.validateInput(anyInt, anyString); }};
 
       boolean result = tested.doSomeOperation(0, "testing");
 

@@ -8,12 +8,15 @@ import java.util.*;
 import static java.util.Arrays.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
 public final class ExpectationsWithSomeArgMatchersRecordedTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    static class Dependency
    {
       private final int value;
@@ -28,6 +31,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       public int hashCode() { return value; }
    }
 
+   @SuppressWarnings("UnusedParameters")
    static class Collaborator
    {
       void setValue(int value) {}
@@ -38,10 +42,8 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       void setValues(long value1, byte value2, double value3, short value4) {}
       boolean booleanValues(long value1, byte value2, double value3, short value4) { return true; }
 
-      @SuppressWarnings("unused")
       static void staticSetValues(long value1, byte value2, double value3, short value4) {}
 
-      @SuppressWarnings("unused")
       static long staticLongValues(long value1, byte value2, double value3, short value4) { return -2; }
 
       int doSomething(Dependency src) { return -1; }
@@ -52,10 +54,8 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       final void simpleOperation(int a, String b, Date c) {}
       long anotherOperation(byte b, Long l) { return -1; }
 
-      @SuppressWarnings("unused")
       static void staticVoidMethod(long l, char c, double d) {}
 
-      @SuppressWarnings("unused")
       static boolean staticBooleanMethod(boolean b, String s, int[] array) { return false; }
 
       void methodWithArrayParameters(char[][] c, String[] s, Object[][][] matrix) {}
@@ -73,7 +73,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Object o = new Object();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.simpleOperation(withEqual(1), "", null);
          mock.simpleOperation(withNotEqual(1), null, (Date) withNull());
          mock.simpleOperation(1, withNotEqual("arg"), null); minTimes = 1; maxTimes = 2;
@@ -107,30 +107,36 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
          new char[][] {{'a', 'b'}, {'X', 'Y', 'Z'}}, null, new Object[][][] {null, {{1, 'X', "test"}}, {{o}}});
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void useMatcherOnlyForFirstArgumentWithUnexpectedReplayValue()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.simpleOperation(withEqual(1), "", null);
       }};
 
       mock.simpleOperation(2, "", null);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void useMatcherOnlyForSecondArgumentWithUnexpectedReplayValue()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.simpleOperation(1, withPrefix("arg"), null);
       }};
 
       mock.simpleOperation(1, "Xyz", null);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void useMatcherOnlyForLastArgumentWithUnexpectedReplayValue()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.simpleOperation(12, "arg", (Date) withNotNull());
       }};
 
@@ -140,7 +146,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useMatchersForParametersOfAllSizes()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setValues(123L, withEqual((byte) 5), 6.4, withNotEqual((short) 14));
          mock.booleanValues(12L, (byte) 4, withEqual(6.0, 0.1), withEqual((short) 14));
          Collaborator.staticSetValues(withNotEqual(1L), (byte) 4, 6.1, withEqual((short) 3));
@@ -164,7 +170,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useAnyStringField()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setValue(anyString); returns("one", "two");
       }};
 
@@ -209,7 +215,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useWithMethodsMixedWithAnyFields()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.simpleOperation(anyInt, null, (Date) any);
          mock.simpleOperation(anyInt, withEqual("test"), null);
          mock.simpleOperation(3, withPrefix("test"), (Date) any);
@@ -232,7 +238,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useMatchersInInvocationsToInterfaceMethods(@Mocked final Scheduler scheduler)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          scheduler.getAlerts(any, 1, anyBoolean); result = asList("A", "b");
       }};
 
@@ -244,7 +250,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void recordStrictExpectationWithMatcherForMockedObjectInstantiatedInsideSUT(@Mocked Dependency dep)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          Dependency src = new Dependency();
          mock.doSomething(withEqual(src));
       }};
@@ -254,9 +260,9 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordNonStrictExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep)
+   public void recordExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Dependency src1 = new Dependency(1);
          Dependency src2 = new Dependency(2);
          mock.doSomething(src1); result = 1; times = 2;
@@ -323,7 +329,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    public void recordStrictExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          Dependency src = new Dependency();
          mock.doSomething(src, anyString);
       }};
@@ -333,17 +339,17 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordNonStrictExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
+   public void recordNotStrictExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
       final List<Dependency> dependencies = new ArrayList<Dependency>();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          Dependency src = new Dependency();
          dependencies.add(src);
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Dependency firstDep = dependencies.get(0);
          mock.doSomething(firstDep, anyString);
          result = 123;
@@ -359,7 +365,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    public void recordStrictVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          Dependency src = new Dependency();
          mock.doSomething(src, (String[]) any);
       }};
@@ -369,17 +375,17 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordNonStrictVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
+   public void recordNotStrictVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
       final List<Dependency> dependencies = new ArrayList<Dependency>();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          Dependency src = new Dependency();
          dependencies.add(src);
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Dependency firstDep = dependencies.get(0);
          mock.doSomething(firstDep, (String[]) any);
          result = 123;
@@ -395,7 +401,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    public void recordStrictExpectationWithReplacementInstanceForMockedObjectInstantiatedInsideSUT(
       @Mocked final Dependency dep)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          new Dependency(); result = dep;
          mock.doSomething(dep);
       }};
@@ -405,10 +411,10 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordNonStrictExpectationsWithReplacementInstancesForMockedObjectsInstantiatedInsideSUT(
+   public void recordExpectationsWithReplacementInstancesForMockedObjectsInstantiatedInsideSUT(
       @Mocked final Dependency dep1, @Mocked final Dependency dep2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Dependency(1); result = dep1;
          new Dependency(2); result = dep2;
          mock.doSomething(dep1); result = 1; times = 2;
@@ -456,7 +462,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Date now = new Date();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          // Expectations with one matcher:
          mock.simpleOperation(
             anyInt,

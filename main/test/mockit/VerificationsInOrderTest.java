@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -85,7 +85,7 @@ public final class VerificationsInOrderTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(1);
          mock.notifyBeforeSave();
       }};
@@ -101,7 +101,7 @@ public final class VerificationsInOrderTest
    @Test
    public void verifyAllInvocationsWithSomeOfThemRecorded()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare();
          mock.editABunchMoreStuff();
       }};
@@ -121,9 +121,9 @@ public final class VerificationsInOrderTest
    @Test
    public void verifyInvocationsWithOneRecordedButNotReplayed()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare();
-         mock.editABunchMoreStuff();
+         mock.editABunchMoreStuff(); minTimes = 0;
       }};
 
       mock.prepare();
@@ -141,7 +141,7 @@ public final class VerificationsInOrderTest
    @Test
    public void verifyInvocationsWithExactInvocationCountsHavingRecordedMatchingExpectationWithArgumentMatcher()
    {
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(1);
       mock.setSomething(2);
@@ -169,7 +169,7 @@ public final class VerificationsInOrderTest
    @Test
    public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
    {
-      new NonStrictExpectations() {{ mock.save(); }};
+      new Expectations() {{ mock.save(); minTimes = 0; }};
 
       mock.prepare();
       mock.setSomething(123);
@@ -333,7 +333,7 @@ public final class VerificationsInOrderTest
       for (int i = 1; i <= 5; i++) {
          mock.setSomething(i);
          if (i % 2 == 0) mock.setSomething(-i);
-         mock.setSomethingElse("" + i);
+         mock.setSomethingElse(String.valueOf(i));
       }
 
       new VerificationsInOrder(2) {{

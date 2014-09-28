@@ -264,7 +264,7 @@ public final class WithCaptureTest
    @Test
    public void captureArgumentsForInvocationAlreadyMatchedByRecordedExpectation()
    {
-      new NonStrictExpectations() {{ dao.doSomething(anyString, anyShort); }};
+      new Expectations() {{ dao.doSomething(anyString, anyShort); }};
 
       dao.doSomething("testing", (short) 15);
 
@@ -402,7 +402,7 @@ public final class WithCaptureTest
       final List<String> personNames = new LinkedList<String>();
       final List<Integer> personAges = new LinkedList<Integer>();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          dao.create(withCapture(personsCreated));
          dao.create(withCapture(personNames), withCapture(personAges));
       }};

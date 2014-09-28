@@ -8,12 +8,15 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
 public final class ExpectationsWithVarArgsMatchersTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    static class Collaborator
    {
       List<?> complexOperation(Object input1, Object... otherInputs)
@@ -32,50 +35,60 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Mocked Collaborator mock;
    @Mocked Dependency mock2;
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void replayVarargsMethodWithDifferentThanExpectedNonVarargsArgument()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.complexOperation(1, 2, 3);
       }};
 
       mock.complexOperation(2, 2, 3);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
-   public void replayVarargsMethodWithDifferentThanExpectedNumberOfVarargsArguments()
+   @Test
+   public void replayVarargsMethodWithDifferentThanExpectedNumberOfVarargsArguments_strict()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.complexOperation(1, 2, 3);
       }};
 
       mock.complexOperation(1, 2);
    }
 
-   @Test(expected = MissingInvocation.class)
-   public void replayVarargsMethodWithDifferentThanExpectedNumberOfVarargsArguments_nonStrict()
+   @Test
+   public void replayVarargsMethodWithDifferentThanExpectedNumberOfVarargsArguments()
    {
-      new NonStrictExpectations() {{
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations() {{
          mock2.doSomething("1", "2", "3"); times = 1;
       }};
 
       mock2.doSomething("1", "2");
    }
 
-   @Test(expected = UnexpectedInvocation.class)
-   public void replayVarargsMethodWithDifferentThanExpectedVarargsArgument()
+   @Test
+   public void replayVarargsMethodWithDifferentThanExpectedVarargsArgument_strict()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.complexOperation(1, 2, 3);
       }};
 
       mock.complexOperation(1, 2, 4);
    }
 
-   @Test(expected = MissingInvocation.class)
-   public void replayVarargsMethodWithDifferentThanExpectedVarargsArgument_nonStrict()
+   @Test
+   public void replayVarargsMethodWithDifferentThanExpectedVarargsArgument()
    {
-      new NonStrictExpectations() {{
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations() {{
          mock2.doSomething("1", "2", "3"); minTimes = 1;
       }};
 
@@ -97,7 +110,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithAnyNumberOfVariableArguments()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.complexOperation(any, (Object[]) null); times = 3;
          mock2.doSomething((String[]) any); minTimes = 2;
          mock.complexOperation(123, (Object[]) any);
@@ -116,7 +129,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    {
       final List<Integer> values = asList(1, 2, 3);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.complexOperation("test", (Object[]) any); result = values;
          mock.anotherOperation(1, true, null, (String[]) any); result = 123;
          mock.doSomething(anyInt, (Object[]) any); result = true;
@@ -159,7 +172,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void recordExpectationsWithMatchersForSomeRegularParametersAndNoneForVarargs()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.anotherOperation(1, anyBoolean, "test", "a"); result = 1;
          mock.anotherOperation(anyInt, true, withSubstring("X"), "a", "b"); result = 2;
       }};
@@ -200,10 +213,12 @@ public final class ExpectationsWithVarArgsMatchersTest
       mock.complexOperation(123);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void expectInvocationWithNonNullRegularArgumentAndAnyVarargsButReplayWithNull()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.complexOperation(withNotNull(), (Object[]) any);
       }};
 
@@ -213,7 +228,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithMatchersForSomeRegularParametersAndAllForVarargs()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.anotherOperation(anyInt, true, withEqual("abc"), anyString, withEqual("test")); result = 1;
          mock.anotherOperation(0, anyBoolean, withEqual("Abc"), anyString, anyString, anyString); result = 2;
       }};
@@ -237,19 +252,19 @@ public final class ExpectationsWithVarArgsMatchersTest
 
    @SuppressWarnings("NullArgumentToVariableArgMethod")
    @Test
-   public void expectInvocationWithNoVarArgs(@Mocked final VarArgs mock)
+   public void expectInvocationWithNoVarArgs(@Mocked final VarArgs varargs)
    {
       new Expectations() {{
-         mock.varsOnly();
-         mock.varsOnly(null);
-         mock.mixed("abcd");
-         mock.mixed("abcd", null);
+         varargs.varsOnly();
+         varargs.varsOnly(null);
+         varargs.mixed("abcd");
+         varargs.mixed("abcd", null);
       }};
 
-      mock.varsOnly();
-      mock.varsOnly(null);
-      mock.mixed("abcd");
-      mock.mixed("abcd", null);
+      varargs.varsOnly();
+      varargs.varsOnly(null);
+      varargs.mixed("abcd");
+      varargs.mixed("abcd", null);
    }
 
    class ReferenceVarArgs
@@ -259,26 +274,26 @@ public final class ExpectationsWithVarArgsMatchersTest
    }
 
    @Test
-   public void expectInvocationWithNonPrimitiveVarArgs(@Mocked final ReferenceVarArgs mock)
+   public void expectInvocationWithNonPrimitiveVarArgs(@Mocked final ReferenceVarArgs varargs)
    {
       final String[] strings1 = new String[0];
       final String[] strings2 = {"efgh", "ijkl"};
 
       new Expectations() {{
-         mock.mixed(null, 4, 5, 6);
-         mock.mixed(strings1, 4, 5, 6);
-         mock.mixed(strings2, 4, 5, 6);
-         mock.mixed(null);
-         mock.mixed(strings1);
-         mock.mixed(strings2);
+         varargs.mixed(null, 4, 5, 6);
+         varargs.mixed(strings1, 4, 5, 6);
+         varargs.mixed(strings2, 4, 5, 6);
+         varargs.mixed(null);
+         varargs.mixed(strings1);
+         varargs.mixed(strings2);
       }};
 
-      mock.mixed(null, 4, 5, 6);
-      mock.mixed(strings1, 4, 5, 6);
-      mock.mixed(strings2, 4, 5, 6);
-      mock.mixed(null);
-      mock.mixed(strings1);
-      mock.mixed(strings2);
+      varargs.mixed(null, 4, 5, 6);
+      varargs.mixed(strings1, 4, 5, 6);
+      varargs.mixed(strings2, 4, 5, 6);
+      varargs.mixed(null);
+      varargs.mixed(strings1);
+      varargs.mixed(strings2);
    }
 
    @SuppressWarnings("unused")
@@ -290,34 +305,34 @@ public final class ExpectationsWithVarArgsMatchersTest
 
    @SuppressWarnings("NullArgumentToVariableArgMethod")
    @Test
-   public void expectInvocationWithPrimitiveVarArgs(@Mocked final PrimitiveVarArgs mock)
+   public void expectInvocationWithPrimitiveVarArgs(@Mocked final PrimitiveVarArgs varargs)
    {
       final String[] strings1 = new String[0];
       final String[] strings2 = {"efgh", "ijkl"};
 
       new Expectations() {{
-         mock.varsOnly(1, 2, 3);
-         mock.varsOnly(null);
-         mock.mixed("abcd", null, 4, 5, 6);
-         mock.mixed("abcd", strings1, 4, 5, 6);
-         mock.mixed("abcd", strings2, 4, 5, 6);
-         mock.mixed("abcd", null);
-         mock.mixed("abcd", strings1);
-         mock.mixed("abcd", strings2);
-         mock.mixed("abcd", null, null);
-         mock.mixed(null, null, null);
+         varargs.varsOnly(1, 2, 3);
+         varargs.varsOnly(null);
+         varargs.mixed("abcd", null, 4, 5, 6);
+         varargs.mixed("abcd", strings1, 4, 5, 6);
+         varargs.mixed("abcd", strings2, 4, 5, 6);
+         varargs.mixed("abcd", null);
+         varargs.mixed("abcd", strings1);
+         varargs.mixed("abcd", strings2);
+         varargs.mixed("abcd", null, null);
+         varargs.mixed(null, null, null);
       }};
 
-      mock.varsOnly(1, 2, 3);
-      mock.varsOnly(null);
-      mock.mixed("abcd", null, 4, 5, 6);
-      mock.mixed("abcd", strings1, 4, 5, 6);
-      mock.mixed("abcd", strings2, 4, 5, 6);
-      mock.mixed("abcd", null);
-      mock.mixed("abcd", strings1);
-      mock.mixed("abcd", strings2);
-      mock.mixed("abcd", null, null);
-      mock.mixed(null, null, null);
+      varargs.varsOnly(1, 2, 3);
+      varargs.varsOnly(null);
+      varargs.mixed("abcd", null, 4, 5, 6);
+      varargs.mixed("abcd", strings1, 4, 5, 6);
+      varargs.mixed("abcd", strings2, 4, 5, 6);
+      varargs.mixed("abcd", null);
+      varargs.mixed("abcd", strings1);
+      varargs.mixed("abcd", strings2);
+      varargs.mixed("abcd", null, null);
+      varargs.mixed(null, null, null);
    }
 
    class MixedVarArgs
@@ -327,32 +342,34 @@ public final class ExpectationsWithVarArgsMatchersTest
    }
 
    @Test
-   public void expectInvocationWithPrimitiveVarArgsUsingMatchers(@Mocked final MixedVarArgs mock)
+   public void expectInvocationWithPrimitiveVarArgsUsingMatchers(@Mocked final MixedVarArgs varargs)
    {
       final String[] strings1 = new String[0];
       final String[] strings2 = {"efgh", "ijkl"};
 
       new Expectations() {{
-         mock.mixed((String[]) withNull(), withEqual(4), withEqual(5), withEqual(6));
-         mock.mixed(withEqual(strings1), withEqual(4), withEqual(5), withEqual(6));
-         mock.mixed(withEqual(strings2), withEqual(4), withEqual(5), withEqual(6));
-         mock.mixed((String[]) withNull());
-         mock.mixed(withEqual(strings1));
-         mock.mixed(withEqual(strings2));
+         varargs.mixed((String[]) withNull(), withEqual(4), withEqual(5), withEqual(6));
+         varargs.mixed(withEqual(strings1), withEqual(4), withEqual(5), withEqual(6));
+         varargs.mixed(withEqual(strings2), withEqual(4), withEqual(5), withEqual(6));
+         varargs.mixed((String[]) withNull());
+         varargs.mixed(withEqual(strings1));
+         varargs.mixed(withEqual(strings2));
       }};
 
-      mock.mixed(null, 4, 5, 6);
-      mock.mixed(strings1, 4, 5, 6);
-      mock.mixed(strings2, 4, 5, 6);
-      mock.mixed(null);
-      mock.mixed(strings1);
-      mock.mixed(strings2);
+      varargs.mixed(null, 4, 5, 6);
+      varargs.mixed(strings1, 4, 5, 6);
+      varargs.mixed(strings2, 4, 5, 6);
+      varargs.mixed(null);
+      varargs.mixed(strings1);
+      varargs.mixed(strings2);
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void expectInvocationWithMatchersForAllParametersAndVarargsValuesButReplayWithDifferentVarargValue()
    {
-      new Expectations() {{
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{
          mock.complexOperation(anyString, anyBoolean, withEqual(123L));
       }};
 
@@ -362,7 +379,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectationRecordedWithNotNullMatcherForVarargsParameter()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(0, (Object[]) withNotNull());
          result = true;
       }};

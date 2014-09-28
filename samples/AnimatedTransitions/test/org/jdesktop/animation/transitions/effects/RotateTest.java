@@ -22,7 +22,7 @@ public final class RotateTest
    public void callsSuperOnInit(@Injectable JComponent component)
    {
       final Effect base = new Effect() {};
-      new NonStrictExpectations(Effect.class) {{ base.init(animator, null); times = 1; }};
+      new Expectations(Effect.class) {{ base.init(animator, null); times = 1; }};
 
       new Rotate(30, component).init(animator, null);
    }
@@ -53,7 +53,7 @@ public final class RotateTest
    {
       final Effect base = new Unchanging();
 
-      new NonStrictExpectations(Effect.class) {{ base.setup(g2D); times = 1; }};
+      new Expectations(Effect.class) {{ base.setup(g2D); times = 1; }};
 
       Rotate rotate = new Rotate(90, new JButton());
       rotate.setRadians(0.2);

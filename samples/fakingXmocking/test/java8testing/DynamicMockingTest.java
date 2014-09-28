@@ -18,7 +18,7 @@ public final class DynamicMockingTest
    public void dynamicallyMockLambdaObject()
    {
       Supplier<String> s = () -> "test";
-      new NonStrictExpectations(s) {};
+      new Expectations(s) {};
 
       assertEquals("test", s.get());
       new Verifications() {{ s.get(); }};
@@ -49,7 +49,7 @@ public final class DynamicMockingTest
    {
       Supplier<String> s = new SomeClass()::doSomething;
 
-      new NonStrictExpectations(s) {};
+      new Expectations(s) {};
 
       assertEquals("test2", s.get());
 //      new VerificationsInOrder() {{ s.get(); }};

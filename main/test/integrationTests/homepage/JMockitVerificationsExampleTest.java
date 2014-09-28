@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.homepage;
@@ -13,7 +13,7 @@ public final class JMockitVerificationsExampleTest
    @Test // notice the "mock parameters", whose values will be created automatically
    public void testDoAnotherOperation(@Mocked final AnotherDependency anotherMock, @Mocked final DependencyXyz mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething("test"); result = 123;
       }};
 

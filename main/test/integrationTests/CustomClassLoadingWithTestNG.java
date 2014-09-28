@@ -106,7 +106,7 @@ public final class CustomClassLoadingWithTestNG
       {
          final SomeClass sc = new SomeClass();
 
-         new NonStrictExpectations(sc) {{
+         new Expectations(sc) {{
             sc.doSomething(anyString);
             result = 123;
          }};
@@ -117,7 +117,7 @@ public final class CustomClassLoadingWithTestNG
       @Test
       public void useVerificationsAPIWithMockParameter(@Mocked final SomeClass mock)
       {
-         new NonStrictExpectations() {{
+         new Expectations() {{
             mock.doSomething(anyString);
             result = 45;
          }};

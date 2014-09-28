@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2011 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.mockitousage.examples.use;
@@ -20,7 +20,7 @@ public final class ArticleManager_JMockit_Test
    @Test
    public void managerCountsArticlesAndSavesThemInTheDatabase()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockCalculator.countArticles("Guardian"); result = 12;
          mockCalculator.countArticlesInPolish(anyString); result = 5;
       }};
@@ -64,7 +64,7 @@ public final class ArticleManager_JMockit_Test
       final Article articleTwo = new Article();
       final Article articleThree = new Article();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockCalculator.countNumberOfRelatedArticles(articleOne); result = 1;
          mockCalculator.countNumberOfRelatedArticles(articleTwo); result = 12;
          mockCalculator.countNumberOfRelatedArticles(articleThree); result = 0;
@@ -86,7 +86,7 @@ public final class ArticleManager_JMockit_Test
       final Article articleOne = new Article();
       final Article articleTwo = new Article();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockCalculator.countNumberOfRelatedArticles(articleOne); result = 1;
          mockCalculator.countNumberOfRelatedArticles(articleTwo); result = 12;
          mockDatabase.getArticlesFor("Guardian"); result = asList(articleOne, articleTwo);

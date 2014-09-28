@@ -127,15 +127,15 @@ public final class ExpectationsForConstructorsTest
    @Test(expected = MissingInvocation.class)
    public void recordStrictExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
    {
-      new Expectations() {{ new Base(); }};
+      new StrictExpectations() {{ new Base(); }};
 
       new Derived();
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordNonStrictExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
+   public void recordExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
    {
-      new NonStrictExpectations() {{ new Base(); times = 1; }};
+      new Expectations() {{ new Base(); times = 1; }};
 
       new Derived();
    }

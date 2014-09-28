@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -19,7 +19,7 @@ public final class OverlappedMockingWithBeforeMethodTest
    @Test
    public void overlappedStaticPartialMocking(@Mocked({"doStatic2", "doSomethingElse"}) final DerivedClass derived)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          derived.doSomethingElse(); result = true;
       }};
 
@@ -49,7 +49,7 @@ public final class OverlappedMockingWithBeforeMethodTest
    {
       final DerivedClass derived = new DerivedClass();
 
-      new NonStrictExpectations(DerivedClass.class) {{
+      new Expectations(DerivedClass.class) {{
          BaseClass.doStatic2();
          derived.doSomethingElse(); result = true;
       }};
@@ -76,7 +76,7 @@ public final class OverlappedMockingWithBeforeMethodTest
    {
       final DerivedClass derived = new DerivedClass();
 
-      new NonStrictExpectations(derived) {{
+      new Expectations(derived) {{
          derived.doSomethingElse(); result = true;
       }};
 

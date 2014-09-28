@@ -43,7 +43,7 @@ public final class MockedEnumsTest
    @Test
    public void mockEnumValues(@Mocked final MyEnum mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          MyEnum.values(); result = new MyEnum[] {mock};
          mock.getValue(anyDouble); result = 50.0;
       }};
@@ -60,7 +60,7 @@ public final class MockedEnumsTest
    {
       final double f = 2.5;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(f); result = 12.3;
       }};
 
@@ -71,7 +71,7 @@ public final class MockedEnumsTest
    @Test
    public void mockSpecificEnumElementsByUsingTwoMockInstances(@Mocked MyEnum mock1, @Mocked MyEnum mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          MyEnum.First.getValue(anyDouble); result = 12.3;
          MyEnum.Second.getValue(anyDouble); result = -5.01;
       }};
@@ -83,7 +83,7 @@ public final class MockedEnumsTest
    @Test
    public void mockSpecificEnumElementsEvenWhenUsingASingleMockInstance(@Mocked MyEnum unused)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          MyEnum.First.getValue(anyDouble); result = 12.3;
          MyEnum.Second.getValue(anyDouble); result = -5.01;
       }};
@@ -100,7 +100,7 @@ public final class MockedEnumsTest
    @Test(expected = UnexpectedInvocation.class)
    public void mockSpecificEnumElementsEvenWhenUsingASingleStrictMockInstance(@Mocked("getDescription") MyEnum unused)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          MyEnum.First.getDescription();
          MyEnum.Second.getDescription();
       }};
@@ -142,7 +142,7 @@ public final class MockedEnumsTest
    {
       assertSame(EnumWithValueSpecificMethods.One, mockedEnum);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          EnumWithValueSpecificMethods.One.getValue(); result = 123;
          EnumWithValueSpecificMethods.Two.getValue(); result = -45;
 

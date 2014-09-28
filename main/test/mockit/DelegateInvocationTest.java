@@ -27,7 +27,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateWithContextObject(@Mocked Collaborator unused)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Collaborator.staticMethod();
          result = new Delegate() {
             @Mock
@@ -36,7 +36,7 @@ public final class DelegateInvocationTest
                assertNull(context.getInvokedInstance());
                assertEquals(0, context.getInvokedArguments().length);
                assertEquals(context.getInvocationCount() - 1, context.getInvocationIndex());
-               assertEquals(0, context.getMinInvocations());
+               assertEquals(1, context.getMinInvocations());
                assertEquals(-1, context.getMaxInvocations());
                return context.getInvocationCount() > 0;
             }
@@ -76,7 +76,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateReceivingNullArguments(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {
+      new Expectations() {
       {
          mock.doSomething(true, null, null);
          result = new Delegate() {
@@ -105,7 +105,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateWithAnotherMethodOnTheDelegateClass(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          result = new Delegate() {
             @Mock
@@ -129,7 +129,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateClassWithMultipleMethodsAndInexactButValidMatch(@Mocked Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          Collaborator.staticMethod(1);
          result = new Delegate() {
             @SuppressWarnings("unused")
@@ -168,8 +168,8 @@ public final class DelegateInvocationTest
    @Test(expected = IllegalArgumentException.class)
    public void delegateClassWithTwoPrivateMethods(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
-         mock.privateMethod();
+      new Expectations() {{
+         mock.privateMethod(); minTimes = 0;
          result = new Delegate() {
             @SuppressWarnings("unused")
             private float privateMethod(Invocation invocation) { return 1.0F; }
@@ -183,7 +183,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateWithDifferentMethodName(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.publicMethod(anyBoolean);
          result = new Delegate() {
             @Mock
@@ -203,7 +203,7 @@ public final class DelegateInvocationTest
    @Test
    public void consecutiveDelegatesForTheSameExpectation(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue();
          returns(
             new Delegate() {
@@ -248,7 +248,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateMethodWithInvocationForInterface(@Mocked final Callable<String> mock) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.call();
          result = new Delegate() {
             @Mock String delegate(Invocation inv) { return inv.getInvokedMember().getDeclaringClass().getName(); }
@@ -265,7 +265,7 @@ public final class DelegateInvocationTest
    public void useOfContextParametersForJREMethods(@Mocked({"runFinalizersOnExit", "exec"}) final Runtime rt)
       throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Runtime.runFinalizersOnExit(anyBoolean); minTimes = 1;
          result = new Delegate() {
             @Mock
@@ -286,7 +286,7 @@ public final class DelegateInvocationTest
             {
                assertSame(Runtime.getRuntime(), inv.getInvokedInstance());
                assertEquals(0, inv.getInvocationIndex());
-               assertEquals(0, inv.getMinInvocations());
+               assertEquals(1, inv.getMinInvocations());
                assertEquals(1, inv.getMaxInvocations());
                assertNotNull(command);
                assertNull(envp);

@@ -160,7 +160,7 @@ public final class ClassInitializationTest
    @Test
    public void partiallyMockUninitializedClass()
    {
-      new NonStrictExpectations(ClassWhichCallsStaticMethodFromInitializer2.class) {{
+      new Expectations(ClassWhichCallsStaticMethodFromInitializer2.class) {{
          ClassWhichCallsStaticMethodFromInitializer2.someValue();
       }};
 
@@ -222,7 +222,7 @@ public final class ClassInitializationTest
    @Test
    public void partiallyMockBothDependencyAndDependentClasses()
    {
-      new NonStrictExpectations(Dependency2.class, Dependent2.class) {};
+      new Expectations(Dependency2.class, Dependent2.class) {};
 
       assertNotNull(Dependent2.DEPENDENCY);
    }
@@ -238,9 +238,10 @@ public final class ClassInitializationTest
    public void partiallyMockDependencyClassThenDependentClass()
    {
       final Dependency3 dep = new Dependency3();
-      new NonStrictExpectations(Dependency3.class) {{ Dependency3.create(); result = dep; }};
-      new NonStrictExpectations(Dependent3.class) {};
+      new Expectations(Dependency3.class) {{ Dependency3.create(); result = dep; }};
+      new Expectations(Dependent3.class) {};
 
+      assertSame(dep, Dependency3.create());
       assertNotNull(Dependent3.DEPENDENCY);
    }
 

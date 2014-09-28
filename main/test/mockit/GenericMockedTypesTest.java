@@ -69,7 +69,7 @@ public final class GenericMockedTypesTest
    @Test
    public void mockRawMapInterface(@SuppressWarnings("rawtypes") @Mocked final Map rawMap)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          rawMap.get("test");
          result = new Object();
       }};
@@ -101,7 +101,7 @@ public final class GenericMockedTypesTest
    @Test
    public void resultFromGenericMethodsOfNonGenericInterface(@Mocked final NonGenericInterfaceWithGenericMethods mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.genericMethodWithUnboundedReturnType(); result = 123;
          mock.genericMethodWithBoundedReturnType(); result = "test";
       }};
@@ -156,7 +156,7 @@ public final class GenericMockedTypesTest
    public void cascadingClassWithNameStartingWithAnotherMockedClass(
       @Mocked final Collaborator regularMock, @Mocked Collaborator2 cascadingMock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          regularMock.doSomething();
       }};
 

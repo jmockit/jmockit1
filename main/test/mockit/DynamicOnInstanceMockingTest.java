@@ -38,7 +38,7 @@ public final class DynamicOnInstanceMockingTest
       Collaborator collaborator2 = new Collaborator();
       final Collaborator collaborator3 = new Collaborator();
 
-      new NonStrictExpectations(collaborator3) {{
+      new Expectations(collaborator3) {{
          collaborator3.getValue(); result = 3;
       }};
 
@@ -54,7 +54,7 @@ public final class DynamicOnInstanceMockingTest
       final Collaborator collaborator1 = new Collaborator();
       Collaborator collaborator2 = new Collaborator();
 
-      new NonStrictExpectations(collaborator1, collaborator2) {{
+      new Expectations(collaborator1, collaborator2) {{
          collaborator1.getValue(); result = 1;
       }};
 
@@ -69,7 +69,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(Collaborator.class) {{
+      new Expectations(Collaborator.class) {{
          collaborator.getValue(); result = 1;
       }};
 
@@ -85,7 +85,7 @@ public final class DynamicOnInstanceMockingTest
       final Collaborator collaborator2 = new Collaborator();
       Collaborator collaborator3 = new Collaborator();
 
-      new NonStrictExpectations(collaborator1) {{
+      new Expectations(collaborator1) {{
          // A misuse of the API:
          collaborator2.getValue(); result = -2;
       }};
@@ -106,7 +106,7 @@ public final class DynamicOnInstanceMockingTest
       Collaborator collaborator3 = new Collaborator();
       final AnotherDependency dependency = new AnotherDependency();
 
-      new NonStrictExpectations(collaborator2, AnotherDependency.class) {{
+      new Expectations(collaborator2, AnotherDependency.class) {{
          collaborator2.getValue(); result = -2;
          dependency.getName(); result = "name1";
       }};
@@ -142,7 +142,7 @@ public final class DynamicOnInstanceMockingTest
       final Foo f1 = new Foo();
       final SubFoo f2 = new SubFoo();
 
-      new NonStrictExpectations(f1, f2) {{
+      new Expectations(f1, f2) {{
          f1.doIt(); result = true;
          f2.doIt(); result = false;
       }};
@@ -161,7 +161,7 @@ public final class DynamicOnInstanceMockingTest
 
       // Instance-specific mocking takes precedence over any-instance mocking, when both are
       // (erroneously) used for the same class.
-      new NonStrictExpectations(Foo.class, foo1) {{
+      new Expectations(Foo.class, foo1) {{
          foo1.doIt(); result = true;
       }};
 
@@ -180,7 +180,7 @@ public final class DynamicOnInstanceMockingTest
       final Foo foo1 = new Foo();
       final Foo foo2 = new Foo();
 
-      new NonStrictExpectations(foo1, foo2) {{
+      new Expectations(foo1, foo2) {{
          foo1.doIt(); result = true;
       }};
 
@@ -206,7 +206,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Foo foo = new Foo();
 
-      new NonStrictExpectations(foo) {{
+      new Expectations(foo) {{
          foo.getBar().getName(); result = "cascade";
       }};
 
@@ -218,7 +218,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Foo foo = new Foo();
 
-      new NonStrictExpectations(foo) {{
+      new Expectations(foo) {{
          foo.getBar().getName(); result = "cascade";
       }};
 
@@ -234,7 +234,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Foo foo = new Foo();
 
-      new NonStrictExpectations(foo) {{
+      new Expectations(foo) {{
          foo.getBar().getName(); result = "cascade";
       }};
 
@@ -248,7 +248,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Foo foo = new Foo();
 
-      new NonStrictExpectations(foo) {{
+      new Expectations(foo) {{
          foo.buildValue(anyString).doIt(); result = true;
       }};
 
@@ -262,7 +262,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Collaborator mocked = new Collaborator();
 
-      new NonStrictExpectations(mocked) {};
+      new Expectations(mocked) {};
 
       Collaborator notMocked = new Collaborator();
       assertEquals(-1, notMocked.getValue());
@@ -279,7 +279,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Collaborator mock = new Collaborator();
 
-      new NonStrictExpectations(mock) {};
+      new Expectations(mock) {};
 
       mock.setValue(1);
       new Collaborator().setValue(2);
@@ -295,7 +295,7 @@ public final class DynamicOnInstanceMockingTest
    {
       final Collaborator mock = new Collaborator();
 
-      new NonStrictExpectations(mock) {{ mock.setValue(anyInt); }};
+      new Expectations(mock) {{ mock.setValue(anyInt); }};
 
       mock.setValue(1);
       new Collaborator().setValue(2);

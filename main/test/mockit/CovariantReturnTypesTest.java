@@ -24,7 +24,7 @@ public final class CovariantReturnTypesTest
    {
       final JPasswordField passwordField = new JPasswordField();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          // These recordings apply to all calls to the method on a SubClass object, regardless of
          // whether the owner object is of a base or derived type.
          mock.getTextField(); result = passwordField;
@@ -36,11 +36,11 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInClassHierarchyUsingNonStrictExpectations(@Mocked final SubClass mock)
+   public void methodInClassHierarchyUsingNotStrictExpectations(@Mocked final SubClass mock)
    {
       final JPasswordField passwordField = new JPasswordField();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getTextField();
          result = passwordField;
       }};
@@ -66,7 +66,7 @@ public final class CovariantReturnTypesTest
    {
       final JTextField formattedField = new JFormattedTextField();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getTextField(); result = formattedField;
          ((AbstractBaseClass) mock).getTextField(); result = formattedField;
       }};
@@ -76,12 +76,12 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void concreteMethodImplementationUsingNonStrictExpectations(@Mocked final ConcreteClass mock)
+   public void concreteMethodImplementationUsingNotStrictExpectations(@Mocked final ConcreteClass mock)
    {
       final JTextField formattedField1 = new JFormattedTextField();
       final JTextField formattedField2 = new JFormattedTextField();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getTextField(); returns(formattedField1, formattedField2);
       }};
 
@@ -95,15 +95,13 @@ public final class CovariantReturnTypesTest
       final JTextField regularField = new JTextField();
       final JTextField formattedField = new JFormattedTextField();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getTextField(); result = regularField;
          mock.getTextField(); result = formattedField;
       }};
 
-      AbstractBaseClass firstInstance = new AbstractBaseClass()
-      {
-         @Override
-         public JTextField getTextField() { return null; }
+      AbstractBaseClass firstInstance = new AbstractBaseClass() {
+         @Override public JTextField getTextField() { return null; }
       };
       assertSame(regularField, firstInstance.getTextField());
 
@@ -111,19 +109,17 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void abstractMethodImplementationUsingNonStrictExpectations(@Capturing final AbstractBaseClass mock)
+   public void abstractMethodImplementationUsingNotStrictExpectations(@Capturing final AbstractBaseClass mock)
    {
       final JTextField regularField = new JTextField();
       final JTextField formattedField = new JFormattedTextField();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getTextField(); result = new JTextField[] {regularField, formattedField};
       }};
 
-      AbstractBaseClass firstInstance = new AbstractBaseClass()
-      {
-         @Override
-         public JTextField getTextField() { return null; }
+      AbstractBaseClass firstInstance = new AbstractBaseClass() {
+         @Override public JTextField getTextField() { return null; }
       };
       assertSame(regularField, firstInstance.getTextField());
 
@@ -139,7 +135,7 @@ public final class CovariantReturnTypesTest
       final Object value = new Object();
       final String specificValue = "test";
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue(); result = value;
          mock.getValue(); result = specificValue;
       }};
@@ -149,13 +145,13 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSuperInterfaceWithVaryingReturnValuesUsingNonStrictExpectations(
+   public void methodInSuperInterfaceWithVaryingReturnValuesUsingNotStrictExpectations(
       @Mocked final SuperInterface mock)
    {
       final Object value = new Object();
       final String specificValue = "test";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); result = value; result = specificValue;
       }};
 
@@ -170,7 +166,7 @@ public final class CovariantReturnTypesTest
       final Object value = new Object();
       final String specificValue = "test";
 
-      new Expectations() {{
+      new StrictExpectations() {{
          base.getValue(); result = value;
          base.getValue(); result = specificValue;
 
@@ -190,14 +186,14 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSubInterfaceUsingNonStrictExpectations(@Mocked final SubInterface mock)
+   public void methodInSubInterfaceUsingNotStrictExpectations(@Mocked final SubInterface mock)
    {
       @SuppressWarnings("UnnecessaryLocalVariable") final SuperInterface base = mock;
       final Object value = new Object();
       final String specificValue1 = "test1";
       final String specificValue2 = "test2";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          base.getValue(); returns(specificValue1, value);
 
          mock.getValue(); result = specificValue2;
@@ -214,18 +210,18 @@ public final class CovariantReturnTypesTest
    {
       final String specificValue = "test";
 
-      new Expectations() {{ mock.getValue(); result = specificValue; }};
+      new StrictExpectations() {{ mock.getValue(); result = specificValue; }};
 
       assertSame(specificValue, ((SuperInterface) mock).getValue());
    }
 
    @Test
-   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingNonStrictExpectations(
+   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingNotStrictExpectations(
       @Mocked final SubInterface mock)
    {
       final String specificValue = "test";
 
-      new NonStrictExpectations() {{ mock.getValue(); result = specificValue; }};
+      new Expectations() {{ mock.getValue(); result = specificValue; }};
 
       assertSame(specificValue, ((SuperInterface) mock).getValue());
    }

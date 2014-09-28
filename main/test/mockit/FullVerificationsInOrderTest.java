@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -62,7 +62,7 @@ public final class FullVerificationsInOrderTest
    @Test
    public void verifyAllInvocationsWithSomeOfThemRecorded()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare(); result = true;
          mock.editABunchMoreStuff(); result = 5;
       }};
@@ -83,7 +83,7 @@ public final class FullVerificationsInOrderTest
    @Test
    public void verifyAllInvocationsWithThoseRecordedAsExpectedToOccurVerifiedImplicitly()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(45); times = 1;
          mock.editABunchMoreStuff(); result = 5; minTimes = 1;
       }};
@@ -121,9 +121,9 @@ public final class FullVerificationsInOrderTest
    @Test
    public void verifyInvocationsWithOneRecordedButNotReplayed()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare(); result = true;
-         mock.editABunchMoreStuff(); result = 5;
+         mock.editABunchMoreStuff(); result = 5; minTimes = 0;
       }};
 
       mock.prepare();
@@ -177,8 +177,8 @@ public final class FullVerificationsInOrderTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 45");
 
-      new NonStrictExpectations() {{
-         mock.setSomething(anyInt);
+      new Expectations() {{
+         mock.setSomething(anyInt); minTimes = 0;
       }};
 
       mock.setSomething(123);
@@ -197,7 +197,7 @@ public final class FullVerificationsInOrderTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: 123");
 
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(123);
       mock.setSomething(45);
@@ -251,7 +251,7 @@ public final class FullVerificationsInOrderTest
    @Test
    public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
    {
-      new NonStrictExpectations() {{ mock.save(); }};
+      new Expectations() {{ mock.save(); minTimes = 0;}};
 
       mock.prepare();
       mock.setSomething(123);

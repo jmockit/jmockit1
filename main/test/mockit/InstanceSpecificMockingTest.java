@@ -46,14 +46,14 @@ public final class InstanceSpecificMockingTest
       assertThatNewlyCreatedInstanceIsNotMocked();
    }
 
-   private void assertThatPreviouslyCreatedInstanceIsNotMocked()
+   void assertThatPreviouslyCreatedInstanceIsNotMocked()
    {
       assertEquals(-1, previousInstance.value);
       assertEquals(-1, previousInstance.getValue());
       assertTrue(previousInstance.simpleOperation(1, "test", null));
    }
 
-   private void assertThatNewlyCreatedInstanceIsNotMocked()
+   void assertThatNewlyCreatedInstanceIsNotMocked()
    {
       Collaborator newInstance = new Collaborator();
       assertEquals(-1, newInstance.value);
@@ -66,16 +66,16 @@ public final class InstanceSpecificMockingTest
    {
       assertThatPreviouslyCreatedInstanceIsNotMocked();
 
-      new Expectations() {{ mock.getValue(); result = 123; }};
+      new StrictExpectations() {{ mock.getValue(); result = 123; }};
 
       assertEquals(123, mock.getValue());
       assertThatNewlyCreatedInstanceIsNotMocked();
    }
 
    @Test
-   public void mockSpecificInstanceWithNonStrictExpectations()
+   public void mockSpecificInstance()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(1, "", null); result = false;
          mock.getValue(); result = 123;
       }};
@@ -99,7 +99,7 @@ public final class InstanceSpecificMockingTest
    {
       assertThatPreviouslyCreatedInstanceIsNotMocked();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock2.getValue(); result = 2;
          mock.getValue(); returns(1, 3);
       }};
@@ -124,7 +124,7 @@ public final class InstanceSpecificMockingTest
    @Test
    public void allowInjectableMockOfInterfaceType(@Injectable final Runnable runnable)
    {
-      new NonStrictExpectations() {{ runnable.run(); minTimes = 1; }};
+      new Expectations() {{ runnable.run(); minTimes = 1; }};
       
       runnable.run();
       runnable.run();
@@ -159,7 +159,7 @@ public final class InstanceSpecificMockingTest
       assertNotNull(realBuf);
       assertEquals(10, realBuf.capacity());
       
-      new NonStrictExpectations() {{
+      new Expectations() {{
          buf.isDirect(); result = true;
 
          // Calling "getBytes()" here indirectly creates a new ByteBuffer, requiring use of @Injectable.

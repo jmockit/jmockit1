@@ -94,7 +94,7 @@ public final class CapturingImplementationsTest
    @Test
    public void captureGeneratedMockSubclass(@Capturing final AbstractService mock1, @Mocked final AbstractService mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(); result = true;
          mock2.doSomething(); result = false;
       }};

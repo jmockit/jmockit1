@@ -108,7 +108,7 @@ public final class AnimatorTimingSourceTest
       animator.addTarget(timingTarget);
       animator.setTimer(timingSource);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Consecutive values for the calls to animator.start() then timingSource.timingEvent():
          System.nanoTime(); returns(0L, 50L * 1000000);
       }};
@@ -131,7 +131,7 @@ public final class AnimatorTimingSourceTest
       animator.addTarget(timingTarget);
       animator.setTimer(timingSource);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          System.nanoTime(); returns(0L, 60L * 1000000);
       }};
 

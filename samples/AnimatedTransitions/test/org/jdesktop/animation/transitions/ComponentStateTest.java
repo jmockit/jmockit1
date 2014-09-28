@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -40,7 +40,7 @@ public final class ComponentStateTest
    {
       component.setSize(80, 60);
 
-      new NonStrictExpectations(component) {{
+      new Expectations(component) {{
          component.print(withInstanceOf(Graphics.class)); times = 1;
       }};
 
@@ -64,7 +64,7 @@ public final class ComponentStateTest
       component.setBounds(15, 12, 80, 60);
       container.add(component);
 
-      new NonStrictExpectations(JComponent.class) {{
+      new Expectations(JComponent.class) {{
          component.print(graphics); times = 1;
       }};
 

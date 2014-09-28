@@ -19,14 +19,14 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
    @NotNull public final List<Object> targetInstances;
    @NotNull private final Map<Class<?>, byte[]> modifiedClassfiles;
-   private final boolean nonStrict;
+   private final boolean notStrict;
    private boolean methodsOnly;
 
-   public DynamicPartialMocking(boolean nonStrict)
+   public DynamicPartialMocking(boolean notStrict)
    {
       targetInstances = new ArrayList<Object>(2);
       modifiedClassfiles = new HashMap<Class<?>, byte[]>();
-      this.nonStrict = nonStrict;
+      this.notStrict = notStrict;
    }
 
    public void redefineTypes(@NotNull Object[] classesOrInstancesToBePartiallyMocked)
@@ -110,12 +110,12 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 
    private void registerAsMocked()
    {
-      if (nonStrict) {
+      if (notStrict) {
          ExecutingTest executingTest = TestRun.getExecutingTest();
          Class<?> classToRegister = targetClass;
 
          do {
-            executingTest.registerAsNonStrictlyMocked(classToRegister);
+            executingTest.registerAsNotStrictlyMocked(classToRegister);
             classToRegister = classToRegister.getSuperclass();
          }
          while (classToRegister != null && classToRegister != Object.class && classToRegister != Proxy.class);
@@ -124,8 +124,8 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 
    private void registerAsMocked(@NotNull Object mock)
    {
-      if (nonStrict) {
-         TestRun.getExecutingTest().registerAsNonStrictlyMocked(mock);
+      if (notStrict) {
+         TestRun.getExecutingTest().registerAsNotStrictlyMocked(mock);
       }
    }
 

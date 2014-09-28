@@ -64,7 +64,7 @@ public final class DelegateTest
    @Test
    public void consecutiveResultsThroughDelegatesHavingDifferentValues(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          result = new Delegate() { int getValue() { return 1; } };
          result = new Delegate() { int getValue() { return 2; } };
@@ -81,7 +81,7 @@ public final class DelegateTest
    {
       final int[] array = {1, 2};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, array, "");
          returns(
             new Delegate() {
@@ -109,7 +109,7 @@ public final class DelegateTest
    @Test
    public void resultWithMultipleReturnValuesThroughSingleDelegate(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.getValue();
          result = new Delegate() {
             int i = 1;
@@ -145,7 +145,7 @@ public final class DelegateTest
    @Test
    public void constructorDelegateWithMultipleMethods(@Mocked Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator(anyInt);
          result = new Delegate() {
             void init(int i) { if (i < 0) throw new IllegalArgumentException(); }
@@ -168,7 +168,7 @@ public final class DelegateTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No non-private instance method found");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator();
          result = new Delegate() {
             private void delegate() {}
@@ -191,7 +191,7 @@ public final class DelegateTest
    @Test
    public void delegateWithStaticMethod(@Mocked Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Collaborator.staticMethod(anyInt); result = StaticDelegate.create();
       }};
 
@@ -212,7 +212,7 @@ public final class DelegateTest
    @Test
    public void delegateForNativeMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.nativeMethod(anyBoolean);
          result = new Delegate() {
             Long nativeMethod(boolean b) { assertTrue(b); return 0L; }
@@ -225,7 +225,7 @@ public final class DelegateTest
    @Test
    public void delegateForFinalMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.finalMethod();
          result = new Delegate() { char finalMethod() { return 'M'; } };
       }};
@@ -236,7 +236,7 @@ public final class DelegateTest
    @Test
    public void delegateForPrivateMethod(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(collaborator, "privateMethod");
          result = new Delegate() { float privateMethod() { return 0.5F; } };
       }};
@@ -247,7 +247,7 @@ public final class DelegateTest
    @Test
    public void delegateForMethodWithCompatibleButDistinctParameterType(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.addElements(this.<List<String>>withNotNull());
          result = new Delegate() {
             void delegate(Collection<String> elements) { elements.add("test"); }
@@ -263,7 +263,7 @@ public final class DelegateTest
    @Test
    public void delegateReceivingNullArguments(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, null, null);
          result = new Delegate() {
             String delegate(boolean b, int[] i, String s) {
@@ -280,7 +280,7 @@ public final class DelegateTest
    @Test
    public void delegateWithTwoMethods(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, null, "str");
          result = new Delegate() {
             private String someOther() { return ""; }
@@ -294,7 +294,7 @@ public final class DelegateTest
    @Test
    public void delegateWithSingleMethodHavingADifferentName(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, null, "str");
          result = new Delegate() {
             void onReplay(boolean b, int[] i, String s)
@@ -312,7 +312,7 @@ public final class DelegateTest
    @Test
    public void delegateWithSingleMethodHavingNoParameters(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(anyBoolean, null, null);
          result = new Delegate() { String onReplay() { return "action"; } };
       }};
@@ -324,7 +324,7 @@ public final class DelegateTest
    public void delegateWithSingleMethodHavingNoParametersExceptForInvocationContext(
       @Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(anyBoolean, null, null);
          result = new Delegate() {
             void doSomething(Invocation inv) { assertEquals(1, inv.getInvocationCount()); }
@@ -340,7 +340,7 @@ public final class DelegateTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("delegate(");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, null, "str");
          result = new Delegate() { void delegate(boolean b, String s) {} };
       }};
@@ -356,7 +356,7 @@ public final class DelegateTest
       thrown.expectMessage("someOther()");
       thrown.expectMessage("doSomethingElse(boolean,int[],String)");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.doSomething(true, null, "str");
          result = new Delegate() {
             String someOther() { return ""; }
@@ -374,7 +374,7 @@ public final class DelegateTest
          public void run() { collaborator.doSomething(false, null, ""); }
       });
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); times = 1;
          result = new Delegate() {
             int executeInAnotherThread() throws Exception
@@ -392,7 +392,7 @@ public final class DelegateTest
    @Test
    public void delegateWhichCallsTheSameMockedMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          result = new Delegate() {
             int count;
@@ -407,7 +407,7 @@ public final class DelegateTest
    @Test
    public void delegateWhichCallsAnotherMockedMethod_fullMocking(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          result = new Delegate() {
             int delegate() { return mock.finalMethod(); }
@@ -424,7 +424,7 @@ public final class DelegateTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(Collaborator.class) {{
+      new Expectations(Collaborator.class) {{
          Collaborator.staticMethod(); result = false;
 
          collaborator.getValue();
@@ -443,7 +443,7 @@ public final class DelegateTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getValue();
          result = new Delegate() {
             int delegate() { return collaborator.finalMethod(); }
@@ -458,7 +458,7 @@ public final class DelegateTest
    @Test
    public void delegateWhichCallsAnotherMockedMethod_injectableMocking(@Injectable final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          result = new Delegate() {
             int delegate() { return mock.finalMethod(); }
@@ -473,7 +473,7 @@ public final class DelegateTest
    @Test
    public void delegateWhichCallsAnotherMockedMethodProducingACascadedInstance(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getFoo().doSomething(); result = 123;
 
          mock.getValue();
@@ -490,7 +490,7 @@ public final class DelegateTest
    public void delegateCallingMockedMethodLaterVerified(
       @Mocked final Collaborator collaborator, @Mocked final Runnable action)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.getFoo();
          result = new Delegate() {
             void delegate() { action.run(); }

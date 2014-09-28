@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -75,7 +75,7 @@ public final class VerificationsTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new NonStrictExpectations() {{ mock.editABunchMoreStuff(); }};
+      new Expectations() {{ mock.editABunchMoreStuff(); }};
 
       mock.setSomething(123);
       mock.prepare();
@@ -99,7 +99,7 @@ public final class VerificationsTest
    @Test
    public void verifyRecordedInvocationThatIsAllowedToOccurAnyNumberOfTimesAndDoesNotOccur()
    {
-      new NonStrictExpectations() {{ mock.save(); }};
+      new Expectations() {{ mock.save(); minTimes = 0; }};
 
       mock.prepare();
       mock.setSomething(123);
@@ -113,7 +113,7 @@ public final class VerificationsTest
    @Test
    public void verifyRecordedInvocationWithExactInvocationCountUsingArgumentMatchers()
    {
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(1);
       mock.setSomething(2);
@@ -202,7 +202,7 @@ public final class VerificationsTest
       thrown.expectMessage("2 unexpected invocations");
       thrown.expectMessage("with arguments: 123");
 
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(5);
       mock.setSomething(123);
@@ -350,7 +350,7 @@ public final class VerificationsTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: 45");
 
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(123);
 
@@ -363,7 +363,7 @@ public final class VerificationsTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: 123");
 
-      new NonStrictExpectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(123);
       mock.setSomething(45);
@@ -392,7 +392,7 @@ public final class VerificationsTest
       new Verifications() {{ mock.prepare(); times = 1; }};
 
       // Previous replay state is discarded, with a new empty one being created:
-      new NonStrictExpectations() {{ mock.prepare(); }};
+      new Expectations() {{ mock.prepare(); }};
       new Verifications() {{ mock.prepare(); times = 0; }};
 
       // Second replay, but counts again as first since the previous one was discarded:

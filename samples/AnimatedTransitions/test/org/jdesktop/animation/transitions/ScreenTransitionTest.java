@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -39,7 +39,7 @@ public final class ScreenTransitionTest
    @Test(expected = IllegalStateException.class)
    public void setAnimatorWithAnimationAlreadyRunning()
    {
-      new NonStrictExpectations() {{ animator.isRunning(); result = true; }};
+      new Expectations() {{ animator.isRunning(); result = true; }};
 
       transition.setAnimator(animator);
    }
@@ -58,7 +58,7 @@ public final class ScreenTransitionTest
    @Test
    public void startWithRunningAnimator()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animator.isRunning(); result = true;
       }};
 

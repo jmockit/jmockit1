@@ -107,7 +107,7 @@ public final class CascadingFieldTest
    @Test
    public void recordUnambiguousStrictExpectationsProducingDifferentCascadedInstances()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          Bar c1 = Foo.globalBar();
          c1.isDone(); result = true;
          Bar c2 = Foo.globalBar();
@@ -126,7 +126,7 @@ public final class CascadingFieldTest
    public void recordUnambiguousNonStrictExpectationsProducingDifferentCascadedInstances(
       @Mocked final Foo foo1, @Mocked final Foo foo2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Date c1 = foo1.getDate();
          Date c2 = foo2.getDate();
          assertNotSame(c1, c2);
@@ -138,9 +138,9 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void recordAmbiguousNonStrictExpectationsOnInstanceMethodProducingTheSameCascadedInstance()
+   public void recordAmbiguousExpectationsOnInstanceMethodProducingTheSameCascadedInstance()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Bar c1 = foo.getBar();
          Bar c2 = foo.getBar();
          assertSame(c1, c2);
@@ -152,9 +152,9 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void recordAmbiguousNonStrictExpectationsOnStaticMethodProducingTheSameCascadedInstance()
+   public void recordAmbiguousExpectationsOnStaticMethodProducingTheSameCascadedInstance()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Bar c1 = Foo.globalBar();
          Bar c2 = Foo.globalBar();
          assertSame(c1, c2);
@@ -171,7 +171,7 @@ public final class CascadingFieldTest
    @Test
    public void cascadingMockField()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          anotherFoo.getBar().doSomething(); result = 123;
       }};
 
@@ -181,7 +181,7 @@ public final class CascadingFieldTest
    @Test
    public void cascadingInstanceAccessedFromDelegateMethod()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getIntValue();
          result = new Delegate() {
             @Mock int delegate() { return foo.getBar().doSomething(); }
@@ -207,7 +207,7 @@ public final class CascadingFieldTest
    @Test
    public void cascadeGenericMethodOfConcreteSubclassWhichExtendsGenericClass(@Mocked final ConcreteSubclass1 mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue().getB().getC();
          result = new C() {};
       }};
@@ -229,7 +229,7 @@ public final class CascadingFieldTest
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingInterface(
       @Mocked final ConcreteSubclass2 mock)
    {
-      new NonStrictExpectations() {{ mock.getValue().getB().getC(); }};
+      new Expectations() {{ mock.getValue().getB().getC(); }};
 
       Ab value = mock.getValue();
       assertNotNull(value);
@@ -256,7 +256,7 @@ public final class CascadingFieldTest
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingClass(
       @Mocked final ActionHolder mock)
    {
-      new Expectations() {{ mock.getValue().getB().getC(); }};
+      new StrictExpectations() {{ mock.getValue().getB().getC(); }};
 
       mock.getValue().getB().getC();
    }

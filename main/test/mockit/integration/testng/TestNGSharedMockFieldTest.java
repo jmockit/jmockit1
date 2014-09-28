@@ -36,9 +36,9 @@ public final class TestNGSharedMockFieldTest
    @Test
    public void recordAndReplayExpectationsOnSharedMocksAgain()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(); result = true;
-         mock1.doSomethingElse();
+         mock1.doSomethingElse(); minTimes = 0;
       }};
 
       assertTrue(mock1.doSomething());

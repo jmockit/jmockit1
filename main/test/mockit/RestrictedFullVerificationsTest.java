@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -31,13 +31,13 @@ public final class RestrictedFullVerificationsTest
    static final class AnotherDependency
    {
       void doSomething() {}
-      String doSomethingElse(int i) { return "" + i; }
+      String doSomethingElse(int i) { return String.valueOf(i); }
       static boolean staticMethod() { return true; }
    }
    
    @Mocked Dependency mock;
 
-   private void exerciseCodeUnderTest()
+   void exerciseCodeUnderTest()
    {
       mock.prepare();
       mock.setSomething(123);
@@ -135,7 +135,7 @@ public final class RestrictedFullVerificationsTest
    }
 
    @Test(expected = UnexpectedInvocation.class)
-   public void verifyAllInvocationsToSubclassMethods_whenNotVerified(@Mocked final SubDependency mock2)
+   public void verifyAllInvocationsToSubclassMethods_whenNotVerified(@Mocked SubDependency mock2)
    {
       mock.prepare();
       mock2.getValue();
@@ -167,7 +167,7 @@ public final class RestrictedFullVerificationsTest
 
    @Test(expected = UnexpectedInvocation.class)
    public void verifyAllInvocationsToMethodsOfBaseClassAndOfSubclass_whenSubclassMethodNotVerified(
-      @Mocked final SubDependency mock2)
+      @Mocked SubDependency mock2)
    {
       mock.prepare();
       mock2.getValue();
@@ -195,7 +195,7 @@ public final class RestrictedFullVerificationsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void verifyAllWithReplayOnDifferentInstanceWhenShouldBeSame(@Mocked final Dependency mock2)
+   public void verifyAllWithReplayOnDifferentInstanceWhenShouldBeSame(@Mocked Dependency mock2)
    {
       mock2.editABunchMoreStuff();
 
@@ -205,7 +205,7 @@ public final class RestrictedFullVerificationsTest
    }
 
    @Test(expected = UnexpectedInvocation.class)
-   public void verifyAllWithUnverifiedReplayOnSameInstance(@Mocked final Dependency mock2)
+   public void verifyAllWithUnverifiedReplayOnSameInstance(@Mocked Dependency mock2)
    {
       mock.editABunchMoreStuff();
       mock2.editABunchMoreStuff();
@@ -275,7 +275,7 @@ public final class RestrictedFullVerificationsTest
    public void verifyNoInvocationsOnOneOfTwoMockedDependenciesBeyondThoseRecordedAsExpected(
       @Mocked final AnotherDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(anyInt); minTimes = 1;
          mock2.doSomething(); times = 1;
       }};

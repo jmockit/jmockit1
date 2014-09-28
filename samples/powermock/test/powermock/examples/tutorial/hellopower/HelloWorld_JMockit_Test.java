@@ -18,7 +18,7 @@ public final class HelloWorld_JMockit_Test
    @Test
    public void testGreetingUsingExpectationsAPI(@Mocked SimpleConfig mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          SimpleConfig.getGreeting(); result = "Hello";
          SimpleConfig.getTarget(); result = "world";
       }};

@@ -57,7 +57,7 @@ public final class EffectTest
 
    void setUpEffect(boolean withStartState)
    {
-      new NonStrictExpectations() {{ state.getComponent(); result = component; }};
+      new Expectations() {{ state.getComponent(); result = component; }};
       effect.setComponentStates(withStartState ? state : null, withStartState ? null : state);
    }
 
@@ -100,7 +100,7 @@ public final class EffectTest
       effect.setComponentStates(state, null);
       effect.setComponentImage(image);
 
-      new NonStrictExpectations() {{ image.getWidth(null); result = 100; }};
+      new Expectations() {{ image.getWidth(null); result = 100; }};
 
       effect.init(null, null);
 
@@ -139,7 +139,7 @@ public final class EffectTest
    {
       effect.setComponentStates(state, null);
 
-      new NonStrictExpectations() {{ state.getSnapshot(); result = componentImage; }};
+      new Expectations() {{ state.getSnapshot(); result = componentImage; }};
 
       assertSetupOfComponentImage(componentImage);
    }
@@ -158,7 +158,7 @@ public final class EffectTest
    {
       effect.setComponentStates(null, state);
 
-      new NonStrictExpectations() {{ state.getSnapshot(); result = componentImage; }};
+      new Expectations() {{ state.getSnapshot(); result = componentImage; }};
 
       assertSetupOfComponentImage(componentImage);
    }
@@ -168,7 +168,7 @@ public final class EffectTest
    {
       effect.setComponentStates(state, state);
 
-      new NonStrictExpectations() {{ state.getSnapshot(); result = componentImage; }};
+      new Expectations() {{ state.getSnapshot(); result = componentImage; }};
 
       assertSetupOfComponentImage(componentImage);
    }
@@ -187,7 +187,7 @@ public final class EffectTest
 
       assertFalse(effect.getRenderComponent());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Start state:
          startState.getWidth(); result = 20;
          startState.getHeight(); result = 20;

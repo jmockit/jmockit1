@@ -2,6 +2,8 @@ package org.mockitousage;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
+
 import org.mockito.*;
 import org.mockito.Mock;
 import org.mockito.exceptions.verification.*;
@@ -85,10 +87,12 @@ public final class JavadocExamplesTest
 
       //stubbing using hamcrest:
       when(mockedList.get(intThat(is(equalTo(5))))).thenThrow(new IllegalArgumentException());
-      when(mockedList.contains(argThat(hasProperty("abc")))).thenReturn(true);
+      when(mockedList.contains(argThat(hasProperty("bytes")))).thenReturn(true);
       when(mockedList.containsAll(argThat(hasSize(2)))).thenReturn(true);
 
       assertEquals("element", mockedList.get(999));
+      assertTrue(mockedList.contains("abc"));
+      assertTrue(mockedList.containsAll(asList("a", "b")));
 
       //you can also verify using an argument matcher
       verify(mockedList).get(anyInt());
@@ -104,7 +108,7 @@ public final class JavadocExamplesTest
 
       when(mockedList.addAll(argThat(new IsListOfTwoElements()))).thenReturn(true);
 
-      mockedList.addAll(Arrays.asList("one", "two"));
+      mockedList.addAll(asList("one", "two"));
 
       verify(mockedList).addAll(argThat(new IsListOfTwoElements()));
    }
@@ -112,7 +116,7 @@ public final class JavadocExamplesTest
    @Test // Uses of Mockito API: 3
    public void customArgumentMatcherUsingAnonymousClass()
    {
-      mockedList.addAll(Arrays.asList("one", "two"));
+      mockedList.addAll(asList("one", "two"));
 
       verify(mockedList).addAll(argThat(new ArgumentMatcher<List<String>>() {
          @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.textFile;
@@ -36,9 +36,6 @@ public final class TextFileUsingExpectationsTest
    public void parseTextFileUsingConcreteClass(@Mocked final DefaultTextReader reader) throws Exception
    {
       new Expectations() {{
-         // From the TextFile constructor:
-         new DefaultTextReader("file");
-
          // From TextFile#parse():
          reader.skip(200); result = 200L;
          reader.readLine(); returns("line1", "another,line", null);
@@ -51,7 +48,7 @@ public final class TextFileUsingExpectationsTest
       assertResultFromTextFileParsing(result);
    }
 
-   private void assertResultFromTextFileParsing(List<String[]> result)
+   void assertResultFromTextFileParsing(List<String[]> result)
    {
       assertEquals(2, result.size());
       String[] line1 = result.get(0);
@@ -82,8 +79,7 @@ public final class TextFileUsingExpectationsTest
    }
 
    @Test
-   public void parseTextFileUsingBufferedReader(
-      @Mocked final FileReader fileReader, @Mocked final BufferedReader reader)
+   public void parseTextFileUsingBufferedReader(@Mocked FileReader fileReader, @Mocked final BufferedReader reader)
       throws Exception
    {
       // Records TextFile#TextFile(String):

@@ -38,7 +38,7 @@ public final class AlertService_JMockit_Test
    @Test
    public void sendScheduledAlerts()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockSchedulerService.getScheduledAlerts(any, anyInt, anyBoolean); result = alerts;
       }};
 
@@ -53,7 +53,7 @@ public final class AlertService_JMockit_Test
    @Test
    public void sendScheduledAlertsInProperSequence()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockSchedulerService.getScheduledAlerts(any, anyInt, anyBoolean); result = alerts;
       }};
 
@@ -86,7 +86,7 @@ public final class AlertService_JMockit_Test
    @Test(expected = IllegalArgumentException.class)
    public void attemptToGetScheduledAlertsWithInvalidArguments()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockSchedulerService.getScheduledAlerts("123", 1, true);
          result = new IllegalArgumentException();
       }};
@@ -97,7 +97,7 @@ public final class AlertService_JMockit_Test
    @Test(expected = Exception.class)
    public void recordConsecutiveInvocationsToSameMethodWithSameArguments()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockSchedulerService.getScheduledAlerts(null, 0, true);
          result = alerts; result = new Exception();
       }};
@@ -109,7 +109,7 @@ public final class AlertService_JMockit_Test
    @Test
    public void specifyingCustomMockBehavior()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockSchedulerService.getScheduledAlerts("123", 1, true);
          result = new Delegate() {
             List<Message> getScheduledAlerts(Object arg0, int arg1, boolean arg2)

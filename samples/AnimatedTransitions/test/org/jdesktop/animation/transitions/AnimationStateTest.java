@@ -230,7 +230,7 @@ public final class AnimationStateTest
       state.paint(null);
 
       // Test painting with a defined effect:
-      new NonStrictExpectations() {{ graphics2D.create(); result = graphics2D; }};
+      new Expectations() {{ graphics2D.create(); result = graphics2D; }};
 
       Deencapsulation.setField(state, effect);
       state.paint(graphics2D);

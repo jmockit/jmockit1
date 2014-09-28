@@ -46,7 +46,7 @@ public final class MultiThreadedExpectationsTest
    @Test
    public void useMockedObjectFromWorkerThreadWhileRecordingAndVerifyingExpectation()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething();
          useMockedCollaboratorFromWorkerThread();
          result = 123;
@@ -65,7 +65,7 @@ public final class MultiThreadedExpectationsTest
    @Test
    public void useMockedObjectFromWorkerThreadWhileRecordingStrictExpectation()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomething();
          useMockedCollaboratorFromWorkerThread();
          result = 123;

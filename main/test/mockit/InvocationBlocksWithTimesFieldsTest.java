@@ -50,7 +50,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectTwiceByUsingInvocationCount(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); times = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -65,7 +65,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); times = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -77,7 +77,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectAtLeastOnceAndReplayTwice(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 1;
          mock.simpleOperation(1, "b", null);
       }};
@@ -92,7 +92,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 2;
       }};
 
@@ -104,7 +104,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -116,7 +116,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_minTimesAndMaxTimesOutOfOrder(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); maxTimes = 2; minTimes = 1;
       }};
 
@@ -128,7 +128,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectAtMostTwiceAndReplayOnce(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); maxTimes = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -142,7 +142,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); maxTimes = 1;
          mock.simpleOperation(1, "b", null);
       }};
@@ -155,7 +155,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectAtMostZero(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); maxTimes = 0;
       }};
    }
@@ -165,7 +165,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService();
          maxTimes = 0;
       }};
@@ -178,7 +178,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 2; maxTimes = 3;
       }};
 
@@ -189,7 +189,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    public void strict_expectSameMethodOnceOrTwiceThenOnceButReplayEachExpectationOnlyOnce(
       @Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.simpleOperation(1, "", null); minTimes = 1; maxTimes = 2;
          mock.simpleOperation(2, "", null);
       }};
@@ -201,7 +201,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectTwoOrThreeTimes(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 2; maxTimes = 3;
          mock.simpleOperation(1, "b", null);
       }};
@@ -214,7 +214,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectZeroOrMoreTimesAndReplayTwice(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 0; maxTimes = -1;
          mock.simpleOperation(1, "b", null);
       }};
@@ -227,7 +227,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    @Test
    public void strict_expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 0; maxTimes = -1;
          mock.simpleOperation(1, "b", null);
       }};
@@ -235,12 +235,12 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomethingElse();
    }
 
-   // Tests with recorded non-strict expectations /////////////////////////////////////////////////////////////////////
+   // Tests with recorded not-strict expectations /////////////////////////////////////////////////////////////////////
 
    @Test
-   public void nonStrict_expectTwiceByUsingInvocationCount(@Mocked final Collaborator mock)
+   public void expectTwiceByUsingInvocationCount(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); times = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -251,11 +251,11 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectTwiceByUsingInvocationCountButReplayOnlyOnce(@Mocked final Collaborator mock)
+   public void expectTwiceByUsingInvocationCountButReplayOnlyOnce(@Mocked final Collaborator mock)
    {
       thrown.expect(MissingInvocation.class);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(1, "b", null);
          mock.provideSomeService(); times = 2;
       }};
@@ -265,9 +265,9 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectAtLeastOnceAndReplayTwice(@Mocked final Collaborator mock)
+   public void expectAtLeastOnceAndReplayTwice(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); minTimes = 1;
          mock.simpleOperation(1, "b", null);
       }};
@@ -278,9 +278,9 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_minTimesAndMaxTimesOutOfOrder(@Mocked final Collaborator mock)
+   public void minTimesAndMaxTimesOutOfOrder(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); maxTimes = 2; minTimes = 1;
       }};
 
@@ -290,9 +290,9 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectAtMostTwiceAndReplayOnce(@Mocked final Collaborator mock)
+   public void expectAtMostTwiceAndReplayOnce(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); maxTimes = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -302,11 +302,11 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectAtMostOnceButReplayTwice(@Mocked final Collaborator mock)
+   public void expectAtMostOnceButReplayTwice(@Mocked final Collaborator mock)
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(1, "b", null);
          mock.provideSomeService(); maxTimes = 1;
       }};
@@ -317,15 +317,15 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectAtMostZero(@Mocked final Collaborator mock)
+   public void expectAtMostZero(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); maxTimes = 0;
       }};
    }
 
    @Test
-   public void nonStrict_expectAtMostZeroButReplayOnce(@Mocked final Collaborator mock)
+   public void expectAtMostZeroButReplayOnce(@Mocked final Collaborator mock)
    {
       thrown.expect(UnexpectedInvocation.class);
 
@@ -337,11 +337,11 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_maxTimesDoesNotOverwriteMinTimes(@Mocked final Collaborator mock)
+   public void maxTimesDoesNotOverwriteMinTimes(@Mocked final Collaborator mock)
    {
       thrown.expect(MissingInvocation.class);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); minTimes = 2; maxTimes = 3;
       }};
 
@@ -349,10 +349,10 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectSameMethodOnceOrTwiceThenOnceButReplayEachExpectationOnlyOnce(
+   public void expectSameMethodOnceOrTwiceThenOnceButReplayEachExpectationOnlyOnce(
       @Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(1, "", null); minTimes = 1; maxTimes = 2;
          mock.simpleOperation(2, "", null);
       }};
@@ -362,9 +362,9 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectTwoOrThreeTimes(@Mocked final Collaborator mock)
+   public void expectTwoOrThreeTimes(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); minTimes = 2; maxTimes = 3;
          mock.simpleOperation(1, "b", null);
       }};
@@ -375,12 +375,12 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectZeroOrMoreTimesAndReplayTwice()
+   public void expectZeroOrMoreTimesAndReplayTwice()
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
-         collaborator.simpleOperation(1, "b", null);
+      new Expectations(collaborator) {{
+         collaborator.simpleOperation(1, "b", null); minTimes = 0;
          collaborator.provideSomeService(); minTimes = 0; maxTimes = -1;
       }};
 
@@ -390,9 +390,9 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void nonStrict_expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
+   public void expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService(); minTimes = 0; maxTimes = -1;
          mock.simpleOperation(1, "b", null);
       }};

@@ -33,9 +33,7 @@ public final class TimeAPIMockingTest
    {
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T09:35:12");
 
-      new NonStrictExpectations(LocalDateTime.class) {{
-         LocalDateTime.now(); result = testDateTime;
-      }};
+      new Expectations(LocalDateTime.class) {{ LocalDateTime.now(); result = testDateTime; }};
 
       LocalDateTime now = LocalDateTime.now();
 
@@ -47,9 +45,7 @@ public final class TimeAPIMockingTest
    {
       Instant testInstant = Instant.parse("2014-05-10T09:35:12Z");
 
-      new NonStrictExpectations(Instant.class) {{
-         Instant.now(); result = testInstant;
-      }};
+      new Expectations(Instant.class) {{ Instant.now(); result = testInstant; }};
 
       Instant now = Instant.now();
 

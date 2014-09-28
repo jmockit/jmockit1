@@ -13,8 +13,8 @@ import mockit.internal.state.*;
 import mockit.internal.expectations.*;
 
 /**
- * Used to <em>verify</em> a set of non-strict expectations on available {@linkplain Mocked mocked} types and/or
- * instances, against the invocations which actually occurred during the test.
+ * Used to <em>verify</em> a set of expectations on available {@linkplain mockit.Mocked mocked} types and/or instances,
+ * against the invocations which actually occurred during the test.
  * As such, these verifications can only appear <em>after</em> having exercised the code under test.
  * <p/>
  * An expectation verification attempts to match a number of method or constructor invocations, that we expect have
@@ -36,18 +36,18 @@ import mockit.internal.expectations.*;
  *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); times = 2;
  * }};
  * </pre>
- * The relative order between the invocations that match two or more verifications is not taken into
- * consideration; when that is desired, the {@link VerificationsInOrder} class should be used instead.
+ * The relative order between the invocations that match two or more verifications is not taken into consideration; when
+ * that is desired, the {@link mockit.VerificationsInOrder} class should be used instead.
  * <p/>
  * Naturally, not all invocations that occurred during the execution of code under test need to be explicitly verified
  * in a verification block.
  * If desired, however, we can make sure that <em>all</em> such invocations are verified, by using the
- * {@link FullVerifications} class instead.
+ * {@link mockit.FullVerifications} class instead.
  *
  * @see #Verifications()
  * @see #Verifications(int)
  * @see #withCapture()
- * @see NonStrictExpectations
+ * @see mockit.Expectations
  * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#verification">Tutorial</a>
  */
 public abstract class Verifications extends Invocations

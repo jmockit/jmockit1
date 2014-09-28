@@ -22,7 +22,7 @@ public final class StateFormatter_JMockit_Test
    public void getFormattedState_actualStateExists()
    {
       final String expectedState = "state";
-      new NonStrictExpectations() {{ stateHolderMock.getState(); result = expectedState; }};
+      new Expectations() {{ stateHolderMock.getState(); result = expectedState; }};
 
       String actualState = tested.getFormattedState();
 

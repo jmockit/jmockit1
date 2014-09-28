@@ -174,7 +174,7 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       return
          blockOwner.equals(fieldOwner) ||
-         ("mockit/Expectations mockit/NonStrictExpectations " +
+         ("mockit/Expectations mockit/StrictExpectations mockit/NonStrictExpectations " +
           "mockit/Verifications mockit/VerificationsInOrder " +
           "mockit/FullVerifications mockit/FullVerificationsInOrder").contains(fieldOwner);
    }

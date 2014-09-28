@@ -22,7 +22,7 @@ public final class MoveTest
    public void callsSuperOnInit()
    {
       final Effect base = new Effect() {};
-      new NonStrictExpectations(Effect.class) {{ base.init(animator, null); times = 1; }};
+      new Expectations(Effect.class) {{ base.init(animator, null); times = 1; }};
 
       move.init(animator, null);
    }

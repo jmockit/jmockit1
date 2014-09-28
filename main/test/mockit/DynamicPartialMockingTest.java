@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import javax.xml.bind.annotation.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
@@ -19,6 +20,8 @@ import mockit.internal.*;
 @SuppressWarnings("deprecation")
 public final class DynamicPartialMockingTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    @SuppressWarnings("unused")
    @Deprecated
    static class Collaborator
@@ -54,11 +57,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicallyMockAClass()
+   public void dynamicallyMockAClassStrictly()
    {
       final Collaborator toBeMocked = new Collaborator();
 
-      new Expectations(Collaborator.class) {{
+      new StrictExpectations(Collaborator.class) {{
          toBeMocked.getValue(); result = 123;
       }};
 
@@ -91,9 +94,9 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicallyMockClassNonStrictly()
+   public void dynamicallyMockClass()
    {
-      new NonStrictExpectations(Collaborator.class) {{
+      new Expectations(Collaborator.class) {{
          new Collaborator().getValue(); result = 123;
       }};
 
@@ -126,7 +129,7 @@ public final class DynamicPartialMockingTest
       assertFalse(f0.exists());
 
       // Applies partial mocking to all instances.
-      new NonStrictExpectations(File.class) {{
+      new Expectations(File.class) {{
          File anyFutureFileWithPath1 = new File(path1);
          anyFutureFileWithPath1.exists(); result = true;
       }};
@@ -161,7 +164,7 @@ public final class DynamicPartialMockingTest
    {
       final String path1 = "one";
 
-      new NonStrictExpectations(File.class) {{
+      new Expectations(File.class) {{
          File anyFutureFileWithPath1 = new File(path1);
          anyFutureFileWithPath1.exists(); result = true;
       }};
@@ -194,11 +197,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicallyMockAnInstance()
+   public void dynamicallyMockAnInstanceStrictly()
    {
       final Collaborator collaborator = new Collaborator();
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.getValue(); result = 123;
       }};
 
@@ -211,12 +214,14 @@ public final class DynamicPartialMockingTest
       assertEquals(-1, new Collaborator().value);
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void expectTwoInvocationsOnStrictDynamicMockButReplayOnce()
    {
+      thrown.expect(MissingInvocation.class);
+
       final Collaborator collaborator = new Collaborator();
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.getValue(); times = 2;
       }};
 
@@ -228,7 +233,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator collaborator = new Collaborator(1);
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.methodWhichCallsAnotherInTheSameClass(); result = false;
       }};
 
@@ -244,7 +249,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator collaborator = new Collaborator(1);
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.getValue(); times = 2;
       }};
 
@@ -256,12 +261,14 @@ public final class DynamicPartialMockingTest
       assertEquals(1, collaborator.getValue());
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void expectTwoOrderedInvocationsOnStrictDynamicMockButReplayOutOfOrder()
    {
+      thrown.expect(MissingInvocation.class);
+
       final Collaborator collaborator = new Collaborator(1);
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.setValue(1);
          collaborator.setValue(2);
       }};
@@ -277,9 +284,11 @@ public final class DynamicPartialMockingTest
       // The recorded call to "setValue(2)" is missing at this point.
    }
 
-   @Test(expected = UnexpectedInvocation.class)
-   public void nonStrictDynamicMockFullyVerified_verifyOnlyOneOfMultipleRecordedInvocations()
+   @Test
+   public void dynamicMockFullyVerified_verifyOnlyOneOfMultipleRecordedInvocations()
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       final Collaborator collaborator = new Collaborator(0);
 
       new NonStrictExpectations(collaborator) {{
@@ -298,11 +307,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void nonStrictDynamicMockFullyVerified_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes()
+   public void dynamicMockFullyVerified_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes()
    {
       final Collaborator collaborator = new Collaborator(0);
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.setValue(1);
       }};
 
@@ -317,11 +326,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void nonStrictDynamicMockFullyVerifiedInOrder_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes()
+   public void dynamicMockFullyVerifiedInOrder_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes()
    {
       final Collaborator collaborator = new Collaborator(0);
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.setValue(2);
          collaborator.setValue(3);
       }};
@@ -339,11 +348,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void nonStrictDynamicallyMockedClassFullyVerified_verifyRecordedExpectationButNotReplayedOne()
+   public void dynamicallyMockedClassFullyVerified_verifyRecordedExpectationButNotReplayedOne()
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(Collaborator.class) {{
+      new Expectations(Collaborator.class) {{
          collaborator.simpleOperation(1, "internal", null);
          result = false;
       }};
@@ -355,24 +364,28 @@ public final class DynamicPartialMockingTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
-   public void expectTwoInvocationsOnNonStrictDynamicMockButReplayOnce()
+   @Test
+   public void expectTwoInvocationsOnDynamicMockButReplayOnce()
    {
+      thrown.expect(MissingInvocation.class);
+
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getValue(); times = 2;
       }};
 
       assertEquals(0, collaborator.getValue());
    }
 
-   @Test(expected = UnexpectedInvocation.class)
-   public void expectOneInvocationOnNonStrictDynamicMockButReplayTwice()
+   @Test
+   public void expectOneInvocationOnDynamicMockButReplayTwice()
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       final Collaborator collaborator = new Collaborator(1);
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getValue(); times = 1;
       }};
 
@@ -384,11 +397,11 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicallyMockAnInstanceWithNonStrictExpectations()
+   public void dynamicallyMockAnInstance()
    {
       final Collaborator collaborator = new Collaborator(2);
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.simpleOperation(1, "", null); result = false;
          Collaborator.doSomething(anyBoolean, "test");
       }};
@@ -419,7 +432,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.simpleOperation(1, anyString, null); result = false;
       }};
 
@@ -445,7 +458,7 @@ public final class DynamicPartialMockingTest
    {
       final SubCollaborator collaborator = new SubCollaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getValue(); result = 5;
          collaborator.format(); result = "test";
          SubCollaborator.causeFailure();
@@ -454,6 +467,7 @@ public final class DynamicPartialMockingTest
       // Mocked:
       assertEquals(5, collaborator.getValue());
       SubCollaborator.causeFailure();
+      assertEquals("test", collaborator.format());
 
       // Not mocked:
       assertTrue(collaborator.simpleOperation(0, null, null)); // not recorded
@@ -471,7 +485,7 @@ public final class DynamicPartialMockingTest
    {
       final SubCollaborator collaborator = new SubCollaborator();
 
-      new NonStrictExpectations(SubCollaborator.class) {{
+      new Expectations(SubCollaborator.class) {{
          collaborator.getValue(); result = 123;
          collaborator.format(); result = "test";
       }};
@@ -498,8 +512,7 @@ public final class DynamicPartialMockingTest
       final Collaborator collaborator = new Collaborator();
       
       new Expectations(Collaborator.class) {{
-         collaborator.overridableMethod(); result = "";
-         collaborator.overridableMethod(); result = "mocked";
+         collaborator.overridableMethod(); result = ""; result = "mocked";
       }};
 
       assertEquals("", collaborator.overridableMethod());
@@ -516,7 +529,7 @@ public final class DynamicPartialMockingTest
          @Override public List<?> doSomethingElse(int n) { return null; }
       };
       
-      new NonStrictExpectations(collaborator, dependency) {{
+      new Expectations(collaborator, dependency) {{
          collaborator.getValue(); result = 5;
          dependency.doSomething(); result = true;
       }};
@@ -543,7 +556,7 @@ public final class DynamicPartialMockingTest
       final List<String> list = new LinkedList<String>();
       @SuppressWarnings("UseOfObsoleteCollectionType") List<String> anotherList = new Vector<String>();
 
-      new NonStrictExpectations(list, anotherList) {{
+      new Expectations(list, anotherList) {{
          list.get(1); result = "an item";
          list.size(); result = 2;
       }};
@@ -584,7 +597,7 @@ public final class DynamicPartialMockingTest
    private void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)
    {
       try {
-         new Expectations(classOrObject) {};
+         new StrictExpectations(classOrObject) {};
          fail();
       }
       catch (IllegalArgumentException e) {
@@ -597,7 +610,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.simpleOperation(1, "s", null); result = false;
       }};
 
@@ -618,7 +631,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator mock = new Collaborator();
 
-      new NonStrictExpectations(mock) {{
+      new Expectations(mock) {{
          mock.simpleOperation(anyInt, withPrefix("s"), null); result = false;
       }};
 
@@ -640,7 +653,7 @@ public final class DynamicPartialMockingTest
       final Collaborator collaborator1 = new Collaborator();
       final Collaborator collaborator2 = new Collaborator(4);
 
-      new NonStrictExpectations(collaborator1, collaborator2) {{
+      new Expectations(collaborator1, collaborator2) {{
          collaborator1.getValue(); result = 3;
       }};
 
@@ -659,7 +672,7 @@ public final class DynamicPartialMockingTest
       final Collaborator mock1 = new Collaborator();
       final Collaborator mock2 = new Collaborator();
 
-      new NonStrictExpectations(mock1, mock2) {{
+      new Expectations(mock1, mock2) {{
          mock1.getValue(); result = 1;
          mock2.getValue(); result = 2;
       }};
@@ -678,7 +691,7 @@ public final class DynamicPartialMockingTest
    {
       final Collaborator collaborator = new Collaborator(123);
 
-      new NonStrictExpectations(collaborator) {};
+      new Expectations(collaborator) {};
 
       assertEquals(123, collaborator.getValue());
       assertEquals(123, collaborator.getValue());
@@ -779,9 +792,11 @@ public final class DynamicPartialMockingTest
       private native int nativeMethod();
    }
 
-   @Test(expected = UnsatisfiedLinkError.class)
+   @Test
    public void attemptToPartiallyMockNativeMethod()
    {
+      thrown.expect(UnsatisfiedLinkError.class);
+
       final ClassWithNative mock = new ClassWithNative();
 
       new Expectations(mock) {{
@@ -809,7 +824,7 @@ public final class DynamicPartialMockingTest
    @Ignore @Test
    public void mockConstructorsInClassHierarchyWithMockedCallToSuperWhichChecksArgumentReceived()
    {
-      new Expectations(Derived.class) {};
+      new StrictExpectations(Derived.class) {};
 
       new Derived();
    }
@@ -820,7 +835,7 @@ public final class DynamicPartialMockingTest
    @Ignore @Test
    public void mockConstructorsInClassHierarchyWithMockedCallToSuper()
    {
-      new NonStrictExpectations(Derived2.class) {};
+      new Expectations(Derived2.class) {};
 
       Derived2 d = new Derived2(123);
 
@@ -836,7 +851,7 @@ public final class DynamicPartialMockingTest
    @Ignore @Test
    public void mockConstructorsInSingleClassWithMockedCallToThis()
    {
-      new NonStrictExpectations(AClass.class) {};
+      new Expectations(AClass.class) {};
 
       new AClass();
       assertEquals(123, AClass.i);
@@ -845,7 +860,7 @@ public final class DynamicPartialMockingTest
    @Test
    public void mockedClassWithAnnotatedElements() throws Exception
    {
-      new NonStrictExpectations(Collaborator.class) {};
+      new Expectations(Collaborator.class) {};
 
       Collaborator mock = new Collaborator(123);
       Class<?> mockedClass = mock.getClass();
@@ -875,7 +890,7 @@ public final class DynamicPartialMockingTest
    {
       @SuppressWarnings("TooBroadScope") final File f = new File("test");
 
-      new NonStrictExpectations(File.class) {};
+      new Expectations(File.class) {};
 
       mock.readFile(new File("test"));
 
@@ -897,7 +912,7 @@ public final class DynamicPartialMockingTest
    @Test
    public void mockClassWithConstructorWhichCallsPrivateMethod()
    {
-      new NonStrictExpectations(TestedClass.class) {};
+      new Expectations(TestedClass.class) {};
 
       assertTrue(new TestedClass(true).value);
 

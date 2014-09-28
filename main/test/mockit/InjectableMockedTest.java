@@ -57,7 +57,7 @@ public final class InjectableMockedTest
    @Test
    public void mockNextCreatedInstance(@Capturing(maxInstances = 1) @Injectable final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(true); result = 2;
       }};
 
@@ -91,7 +91,7 @@ public final class InjectableMockedTest
    public void mockInheritedMethodInCapturedInstanceOfOneSubclassButNotInAnother(
       @Capturing @Injectable final SubCollaborator1 capturedInstance)
    {
-      new Expectations() {{ capturedInstance.doSomething(true); }};
+      new StrictExpectations() {{ capturedInstance.doSomething(true); }};
 
       assertEquals(1, new SubCollaborator2().doSomething());
    }
@@ -101,7 +101,7 @@ public final class InjectableMockedTest
       @Injectable @Capturing(maxInstances = 1) final Collaborator mock1,
       @Injectable @Capturing(maxInstances = 1) final Collaborator mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(true); result = 10;
          mock2.doSomething(false); result = 20;
       }};
@@ -127,7 +127,7 @@ public final class InjectableMockedTest
       @Capturing(maxInstances = 2) @Injectable final Collaborator mock1,
       @Capturing(maxInstances = 3) @Injectable final Collaborator mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(false); result = -45;
          mock2.doSomething(true); result = 123;
       }};
@@ -173,7 +173,7 @@ public final class InjectableMockedTest
    @Test
    public void mockSeparatelyTwoGroupsOfInternallyCreatedInstancesUsingMockFields()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          anotherMock1.doSomething(true); result = -45;
          anotherMock2.doSomething(true); result = 123;
          anotherMock2.doSomething(false); result = 246;

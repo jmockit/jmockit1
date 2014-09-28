@@ -9,17 +9,20 @@ import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
+import static mockit.internal.state.ExecutingTest.isInstanceMethodWithStandardBehavior;
 import static mockit.internal.util.ClassLoad.loadClass;
 
 import org.jetbrains.annotations.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
+   private final boolean strict;
    private final boolean nonStrict;
 
-   RecordPhase(@NotNull RecordAndReplayExecution recordAndReplay, boolean nonStrict)
+   RecordPhase(@NotNull RecordAndReplayExecution recordAndReplay, boolean strict, boolean nonStrict)
    {
       super(recordAndReplay);
+      this.strict = strict;
       this.nonStrict = nonStrict;
    }
 
@@ -47,26 +50,27 @@ public final class RecordPhase extends TestOnlyPhase
       Class<?> callerClass = loadClass(invocation.getCallerClassName());
 
       if (Expectations.class.isAssignableFrom(callerClass)) {
-         ExecutingTest executingTest = TestRun.getExecutingTest();
-         boolean nonStrictInvocation =
-            nonStrict || executingTest.isNonStrictInvocation(mock, mockClassDesc, mockNameAndDesc);
+         boolean nonStrictInvocation = false;
 
-         if (!nonStrictInvocation) {
-            executingTest.addStrictMock(mock, matchInstance ? null : mockClassDesc);
+         if (strict) {
+            TestRun.getExecutingTest().addStrictMock(mock, matchInstance ? null : mockClassDesc);
          }
          else if (!matchInstance && invocation.isConstructor()) {
             invocation.replacementInstance = mock;
             getReplacementMap().put(mock, mock);
          }
+         else {
+            nonStrictInvocation = nonStrict || isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
+         }
 
-         currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
+         currentExpectation = new Expectation(this, invocation, strict, nonStrictInvocation);
 
          if (argMatchers != null) {
             invocation.arguments.setMatchers(argMatchers);
             argMatchers = null;
          }
 
-         recordAndReplay.executionState.addExpectation(currentExpectation, nonStrictInvocation);
+         recordAndReplay.executionState.addExpectation(currentExpectation, strict);
       }
 
       return invocation.getDefaultValueForReturnType(this);
@@ -110,7 +114,7 @@ public final class RecordPhase extends TestOnlyPhase
       int lowerLimit = minInvocations;
       int upperLimit = maxInvocations;
 
-      if (numberOfIterations > 1 && nonStrict) {
+      if (numberOfIterations > 1 && !strict) {
          lowerLimit *= numberOfIterations;
          upperLimit *= numberOfIterations;
       }

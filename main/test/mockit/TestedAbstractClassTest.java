@@ -40,7 +40,7 @@ public final class TestedAbstractClassTest
       assertEquals(123, tested.getValue());
       assertEquals("Test", tested.name);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          tested.doSomething(); result = 23; times = 1;
       }};
 
@@ -55,7 +55,7 @@ public final class TestedAbstractClassTest
       assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
 
-      new NonStrictExpectations(tested) {{
+      new Expectations(tested) {{
          tested.getValue(); result = 45;
          tested.doSomething(); result = 7;
       }};

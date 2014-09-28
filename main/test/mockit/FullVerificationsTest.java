@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -57,7 +57,7 @@ public final class FullVerificationsTest
    @Test
    public void verifyAllInvocationsWithSomeOfThemRecorded()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.editABunchMoreStuff(); result = true;
          mock.setSomething(45);
       }};
@@ -77,7 +77,7 @@ public final class FullVerificationsTest
    @Test
    public void verifyAllInvocationsWithThoseRecordedAsExpectedToOccurVerifiedImplicitly()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(45); times = 1;
          mock.editABunchMoreStuff(); result = true; minTimes = 1;
       }};
@@ -175,7 +175,7 @@ public final class FullVerificationsTest
    @Test
    public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
    {
-      new NonStrictExpectations() {{ mock.save(); }};
+      new Expectations() {{ mock.save(); minTimes = 0; }};
 
       mock.prepare();
       mock.setSomething(123);
@@ -215,7 +215,7 @@ public final class FullVerificationsTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new NonStrictExpectations() {{ mock.notifyBeforeSave(); }};
+      new Expectations() {{ mock.notifyBeforeSave(); }};
 
       mock.setSomething(1);
 
@@ -228,8 +228,8 @@ public final class FullVerificationsTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 123");
 
-      new NonStrictExpectations() {{
-         mock.setSomething(anyInt);
+      new Expectations() {{
+         mock.setSomething(anyInt); minTimes = 0;
       }};
 
       mock.setSomething(123);
@@ -249,7 +249,7 @@ public final class FullVerificationsTest
       thrown.expectMessage("Missing 1 invocation");
       thrown.expectMessage("with arguments: 123");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(anyInt);
       }};
 
@@ -392,11 +392,11 @@ public final class FullVerificationsTest
    @Test
    public void verifyNoInvocationsOnMockedDependencyBeyondThoseRecordedAsExpected()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare(); times = 1;
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setSomething(anyInt); minTimes = 1;
          mock.save(); times = 1;
       }};
@@ -415,7 +415,7 @@ public final class FullVerificationsTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("editABunchMoreStuff()");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.prepare(); times = 1;
          mock.save(); minTimes = 1;
       }};

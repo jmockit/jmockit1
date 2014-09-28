@@ -17,7 +17,7 @@ public final class PartialClassMock_JMockit_Test
    @Test
    public void testGetArea()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          rect.getX(); result = 4;
          rect.getY(); result = 5;
       }};

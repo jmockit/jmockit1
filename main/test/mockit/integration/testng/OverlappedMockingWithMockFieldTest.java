@@ -31,7 +31,7 @@ public final class OverlappedMockingWithMockFieldTest
    @Test
    public void overlappedStaticPartialMocking(@Mocked({"doSomething2", "doSomethingElse"}) final DerivedClass derived)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          derived.doSomethingElse(); result = true;
       }};
 
@@ -75,7 +75,7 @@ public final class OverlappedMockingWithMockFieldTest
    {
       final DerivedClass derived = new DerivedClass();
 
-      new NonStrictExpectations(DerivedClass.class) {{
+      new Expectations(DerivedClass.class) {{
          base.doSomething2();
          derived.doSomethingElse(); result = true;
       }};
@@ -107,7 +107,7 @@ public final class OverlappedMockingWithMockFieldTest
    {
       final DerivedClass derived = new DerivedClass();
 
-      new NonStrictExpectations(derived) {{
+      new Expectations(derived) {{
          derived.doSomething2();
          derived.doSomethingElse(); result = true;
       }};

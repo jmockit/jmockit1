@@ -14,9 +14,9 @@ public final class InvocationConstraints
    int maxInvocations;
    public int invocationCount;
 
-   public InvocationConstraints(boolean nonStrictInvocation)
+   public InvocationConstraints(boolean strictInvocation, boolean nonStrictInvocation)
    {
-      setLimits(nonStrictInvocation ? 0 : 1, nonStrictInvocation ? -1 : 1);
+      setLimits(nonStrictInvocation ? 0 : 1, strictInvocation ? 1 : -1);
    }
 
    public void setLimits(int minInvocations, int maxInvocations)

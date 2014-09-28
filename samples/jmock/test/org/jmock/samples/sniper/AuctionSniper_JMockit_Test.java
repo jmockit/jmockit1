@@ -64,7 +64,7 @@ public final class AuctionSniper_JMockit_Test
    public void catchesExceptionsAndReportsThemToErrorListener() throws Exception
    {
       final AuctionException exception = new AuctionException("test");
-      new NonStrictExpectations() {{ auction.bid((Money) any); result = exception; }};
+      new Expectations() {{ auction.bid((Money) any); result = exception; }};
 
       sniper.bidAccepted(beatableBid);
 

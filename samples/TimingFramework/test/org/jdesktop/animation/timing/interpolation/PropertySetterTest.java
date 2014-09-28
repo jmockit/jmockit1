@@ -81,7 +81,7 @@ public final class PropertySetterTest
       final Animated animated = new Animated(startValue);
       PropertySetter<Integer> setter = new PropertySetter<>(animated, "value", new KeyFrames<>(keyValues));
 
-      new NonStrictExpectations(KeyValues.class, Animated.class) {{
+      new Expectations(KeyValues.class, Animated.class) {{
          keyValues.isToAnimation(); result = true;
          animated.getValue(); result = startValue;
       }};
@@ -94,7 +94,7 @@ public final class PropertySetterTest
    @Test(expected = RuntimeException.class)
    public void beginToAnimationWithFailingProperty(@Mocked final Animated animated)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animated.getValue(); result = new IllegalStateException("test");
       }};
 
@@ -116,7 +116,7 @@ public final class PropertySetterTest
    @Test(expected = RuntimeException.class)
    public void signalTimingEventWithFailingProperty(@Mocked final Animated animated)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animated.setValue(anyInt); result = new IllegalStateException("test");
       }};
 

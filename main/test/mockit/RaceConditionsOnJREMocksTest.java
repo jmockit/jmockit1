@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -97,7 +97,7 @@ public final class RaceConditionsOnJREMocksTest
    public void getCompleteStuff(
       @Mocked({"load", "getProperty"}) final Properties props, @Mocked("(String)") FileInputStream mockFIS)
    {
-      new NonStrictExpectations(stuffHandler) {{
+      new Expectations(stuffHandler) {{
          invoke(stuffHandler, "getStuffType"); result = "*mocked*";
          invoke(props, "getProperty", withAny("")); result = " *mocked*";
       }};

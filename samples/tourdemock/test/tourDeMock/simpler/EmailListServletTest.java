@@ -25,9 +25,7 @@ public final class EmailListServletTest
    @Test(expected = ServletException.class)
    public void doGetWithoutList() throws Exception
    {
-      new NonStrictExpectations() {{
-         emailListService.getListByName(null); result = new EmailListNotFound();
-      }};
+      new Expectations() {{ emailListService.getListByName(null); result = new EmailListNotFound(); }};
 
       servlet.doGet(request, null);
    }
@@ -36,7 +34,7 @@ public final class EmailListServletTest
    public void doGetWithList(@Mocked final HttpServletResponse response, @Injectable final PrintWriter writer)
       throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          emailListService.getListByName(anyString);
          result = asList("larry@stooge.com", "moe@stooge.com", "curley@stooge.com");
       }};

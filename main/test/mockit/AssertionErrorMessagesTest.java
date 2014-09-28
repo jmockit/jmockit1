@@ -30,7 +30,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 2, \"xyz\"");
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomething(anyInt, anyString);
       }};
 
@@ -44,7 +44,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 2, \"xyz\"");
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomething(anyInt, anyString);
          mock.doSomethingElse(anyString);
       }};
@@ -60,7 +60,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 1, \"Abc\"");
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomething(anyInt, anyString); times = 0;
       }};
 
@@ -68,12 +68,12 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationForRecordedNonStrictExpectation()
+   public void unexpectedInvocationForRecordedExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("with arguments: 2, \"xyz\"");
 
-      new NonStrictExpectations() {{ mock.doSomething(anyInt, anyString); times = 1; }};
+      new Expectations() {{ mock.doSomething(anyInt, anyString); times = 1; }};
 
       mock.doSomething(1, "Abc");
       mock.doSomething(2, "xyz");
@@ -179,7 +179,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("doSomething()\n   on instance");
 
-      new Expectations() {{ mock.doSomethingElse(anyString); }};
+      new StrictExpectations() {{ mock.doSomethingElse(anyString); }};
 
       mock.doSomething();
    }
@@ -190,7 +190,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: any int, any String");
 
-      new Expectations() {{ mock.doSomething(anyInt, anyString); }};
+      new StrictExpectations() {{ mock.doSomething(anyInt, anyString); }};
    }
 
    @Test
@@ -199,7 +199,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: 1, any String");
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomethingElse(anyString); maxTimes = -1;
          mock.doSomething(1, anyString);
       }};
@@ -208,12 +208,12 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForRecordedNonStrictExpectation()
+   public void missingInvocationForRecordedExpectation()
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("with arguments: any int, any String");
 
-      new NonStrictExpectations() {{ mock.doSomething(anyInt, anyString); times = 2; }};
+      new Expectations() {{ mock.doSomething(anyInt, anyString); times = 2; }};
 
       mock.doSomething(123, "Abc");
    }

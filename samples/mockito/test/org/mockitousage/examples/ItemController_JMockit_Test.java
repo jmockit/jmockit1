@@ -25,7 +25,7 @@ public final class ItemController_JMockit_Test
    public void testViewItem() throws Exception
    {
       final Item item = new Item(1, "Item 1");
-      new NonStrictExpectations() {{ itemService.getItem(item.getId()); result = item; }};
+      new Expectations() {{ itemService.getItem(item.getId()); result = item; }};
 
       String view = itemController.viewItem(item.getId(), modelMap);
 
@@ -37,7 +37,7 @@ public final class ItemController_JMockit_Test
    public void testViewItemWithItemNotFoundException() throws Exception
    {
       final ItemNotFoundException exception = new ItemNotFoundException(5);
-      new NonStrictExpectations() {{ itemService.getItem(5); result = exception; }};
+      new Expectations() {{ itemService.getItem(5); result = exception; }};
 
       String view = itemController.viewItem(5, modelMap);
 

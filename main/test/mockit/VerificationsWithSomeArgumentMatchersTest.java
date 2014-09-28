@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -7,6 +7,7 @@ package mockit;
 import java.util.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 
 import static java.util.Arrays.*;
 
@@ -14,6 +15,8 @@ import mockit.internal.*;
 
 public final class VerificationsWithSomeArgumentMatchersTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    @SuppressWarnings("UnusedDeclaration")
    static class Collaborator
    {
@@ -71,9 +74,11 @@ public final class VerificationsWithSomeArgumentMatchersTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void useMatcherOnlyForFirstArgumentWithUnexpectedReplayValue()
    {
+      thrown.expect(MissingInvocation.class);
+
       mock.simpleOperation(2, "", null);
 
       new Verifications() {{
@@ -81,9 +86,11 @@ public final class VerificationsWithSomeArgumentMatchersTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void useMatcherOnlyForSecondArgumentWithUnexpectedReplayValue()
    {
+      thrown.expect(MissingInvocation.class);
+
       mock.simpleOperation(1, "Xyz", null);
 
       new Verifications() {{
@@ -91,9 +98,11 @@ public final class VerificationsWithSomeArgumentMatchersTest
       }};
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void useMatcherOnlyForLastArgumentWithUnexpectedReplayValue()
    {
+      thrown.expect(MissingInvocation.class);
+
       mock.simpleOperation(12, "arg", null);
 
       new Verifications() {{
@@ -177,17 +186,17 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useMatchersInInvocationsToInterfaceMethods(@Mocked final Scheduler mock)
+   public void useMatchersInInvocationsToInterfaceMethods(@Mocked final Scheduler scheduler)
    {
-      mock.getAlerts("123", 1, true);
-      mock.getAlerts(null, 1, false);
+      scheduler.getAlerts("123", 1, true);
+      scheduler.getAlerts(null, 1, false);
 
       new FullVerifications() {{
-         mock.getAlerts(any, 1, anyBoolean); times = 2;
+         scheduler.getAlerts(any, 1, anyBoolean); times = 2;
       }};
 
       new Verifications() {{
-         mock.getAlerts(null, anyInt, anyBoolean); times = 2;
+         scheduler.getAlerts(null, anyInt, anyBoolean); times = 2;
       }};
    }
 }

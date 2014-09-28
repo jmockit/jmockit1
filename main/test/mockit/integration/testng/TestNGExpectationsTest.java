@@ -121,7 +121,7 @@ public final class TestNGExpectationsTest
    @Test
    public void testSomething()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          dependency.doSomething(anyInt); result = true;
       }};
 

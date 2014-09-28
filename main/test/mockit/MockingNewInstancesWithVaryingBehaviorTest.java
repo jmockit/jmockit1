@@ -69,7 +69,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    {
       final SimpleDateFormat sdf = new SimpleDateFormat();
 
-      new NonStrictExpectations(SimpleDateFormat.class) {{
+      new Expectations(SimpleDateFormat.class) {{
          sdf.format((Date) any);
          result = new Delegate() {
             @Mock String format(Invocation inv)
@@ -99,7 +99,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    @Test // too complex
    public void usingDelegates(@Mocked final SimpleDateFormat mockSDF)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new SimpleDateFormat(DATE_FORMAT); result = new SDFFormatDelegate(FORMATTED_DATE);
          new SimpleDateFormat(TIME_FORMAT); result = new SDFFormatDelegate(FORMATTED_TIME);
 
@@ -115,7 +115,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    @Test // nice
    public void usingCapturing(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new SimpleDateFormat(DATE_FORMAT); result = dateFmt;
          dateFmt.format((Date) any); result = FORMATTED_DATE;
 
@@ -139,7 +139,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    @Test
    public void matchMethodCallsOnInstancesCreatedWithConstructorMatchingRecordedOne(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator(5); result = mock;
          onInstance(mock).getValue(); result = 123;
       }};
@@ -176,7 +176,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       final Collaborator col1 = new Collaborator(1);
       final Collaborator col2 = new Collaborator(-2);
 
-      new NonStrictExpectations(Collaborator.class) {{
+      new Expectations(Collaborator.class) {{
          new Collaborator(3); result = col1;
          new Collaborator(5); result = col2;
          onInstance(col1).doSomething("recorded"); result = "mocked";

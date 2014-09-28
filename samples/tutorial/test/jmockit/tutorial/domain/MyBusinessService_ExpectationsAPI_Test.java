@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.tutorial.domain;
@@ -23,16 +23,16 @@ public final class MyBusinessService_ExpectationsAPI_Test
       final EntityX data = new EntityX(5, "abc", "abc@xpta.net");
 
       // Recorded strictly, so matching invocations must be replayed in the same order:
-      new Expectations() {{
+      new StrictExpectations() {{
          Database.find(withSubstring("select"), any);
          result = new EntityX(1, "AX5", "someone@somewhere.com");
 
          Database.persist(data);
       }};
 
-      // Recorded non-strictly, so matching invocations can be replayed in any order:
-      new NonStrictExpectations() {{
-         email.send(); times = 1; // a non-strict expectation requires a constraint if expected
+      // Recorded normally, so matching invocations can be replayed in any order:
+      new Expectations() {{
+         email.send(); times = 1; // by default, expects at least one invocation
       }};
 
       new MyBusinessService().doBusinessOperationXyz(data);
@@ -41,7 +41,7 @@ public final class MyBusinessService_ExpectationsAPI_Test
    @Test(expected = EmailException.class)
    public void doBusinessOperationXyzWithInvalidEmailAddress() throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          email.addTo((String) withNotNull()); result = new EmailException();
 
          // If the e-mail address is invalid, sending the message should not be attempted:

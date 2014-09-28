@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 
 import static java.util.Arrays.*;
 
@@ -16,10 +17,10 @@ import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
-@SuppressWarnings("ZeroLengthArrayAllocation")
 public final class ExpectationsWithValuesToReturnTest
 {
-   @SuppressWarnings("ClassWithTooManyMethods")
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    static class Collaborator
    {
       private static String doInternal() { return "123"; }
@@ -83,9 +84,9 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsExpectedValues(@Mocked final Collaborator mock)
+   public void returnsExpectedValuesWithStrictExpectations(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue(); returns(3);
          Collaborator.doInternal(); returns("test");
       }};
@@ -95,9 +96,9 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsExpectedValuesWithNonStrictExpectations(@Mocked final Collaborator mock)
+   public void returnsExpectedValues(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); returns(3);
          Collaborator.doInternal(); returns("test");
       }};
@@ -233,7 +234,7 @@ public final class ExpectationsWithValuesToReturnTest
       final Collaborator collaborator = new Collaborator();
       final char[] charArray = {'a', 'b', 'c'};
 
-      new Expectations(collaborator) {{
+      new StrictExpectations(collaborator) {{
          collaborator.getBooleanValue(); returns(true, false);
          collaborator.getShortValue(); returns((short) 1, (short) 2, (short) 3);
          collaborator.getShortWrapper(); returns((short) 5, (short) 6, (short) -7, (short) -8);
@@ -353,7 +354,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void returnsMultipleValuesFromMethodWithReturnTypeOfObject(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.getObject();
          returns(1, 2);
          returns(new int[] {1, 2});
@@ -372,7 +373,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void returnsMultipleValuesFromGenericMethod(@Mocked final Callable<Integer> callable) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          callable.call();
          returns(3, 2, 1);
       }};
@@ -420,7 +421,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void returnsValueOfIncompatibleTypeForMethodReturningArray(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getBooleanArray(); returns(new HashSet());
          mock.getStringArray(); returns(Collections.emptyList());
          mock.getIntArray(); returns(new short[0]);
@@ -434,7 +435,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void returnsValueOfIncompatibleTypeForMethodReturningCollection(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getListItems(); returns(Collections.emptySet());
          mock.getSetItems(); returns(new ArrayList());
          mock.getItems(); returns(new char[0]);
@@ -449,9 +450,10 @@ public final class ExpectationsWithValuesToReturnTest
    public void returnsValueOfIncompatibleTypeForMethodReturningIterator(@Mocked final Collaborator mock)
    {
       new Expectations() {{
-         mock.getIterator(); returns(Collections.emptySet());
-         mock.getIterator(); returns(asList("a", true, 123));
-         mock.getIterator(); returns(new char[] {'A', 'b'});
+         mock.getIterator();
+         returns(Collections.emptySet());
+         returns(asList("a", true, 123));
+         returns(new char[] {'A', 'b'});
       }};
 
       try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
@@ -459,38 +461,46 @@ public final class ExpectationsWithValuesToReturnTest
       try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyArrayForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+
+      new Expectations() {{
          mock.getString();
          returns(new String[0]);
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyCollectionForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+
+      new Expectations() {{
          mock.getString();
          returns(Collections.emptyList());
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsMockedCollectionForSimpleReturnType(
       @Mocked final Collaborator mock, @Mocked final List<String> values)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+
+      new Expectations() {{
          mock.getString();
          result = values;
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyIteratorForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+
+      new Expectations() {{
          mock.getString();
          returns(Collections.emptySet().iterator());
       }};
@@ -510,7 +520,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void recordReturnValueForConstructor(@Mocked Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Collaborator();
          returns("test");
       }};
@@ -521,7 +531,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void recordMultipleReturnValuesForVoidMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService();
          returns(null, 123, "abc");
       }};
@@ -533,7 +543,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void recordMultipleReturnValuesForConstructor(@Mocked Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          new Collaborator();
          returns(123, null, "abc");
       }};
@@ -554,7 +564,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void recordResultsForCollectionAndListReturningMethodsUsingVarargs(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getItems(); returns(1, "2", 3.0);
          mock.getListItems(); returns("a", true);
       }};
@@ -582,7 +592,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void recordResultsForIteratorReturningMethodUsingVarargs(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getIterator();
          returns("ab", "cde", 1, 3);
       }};
@@ -611,7 +621,7 @@ public final class ExpectationsWithValuesToReturnTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new NonStrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getIntArray(); returns(1, 2, 3, 4);
          collaborator.getLongArray(); returns(1023, 20234L, 354);
          collaborator.getByteArray(); returns(0, -4, 5);
@@ -643,7 +653,7 @@ public final class ExpectationsWithValuesToReturnTest
       final ListIterator<?> secondResult = new LinkedList<Object>().listIterator();
       final Iterator<?> thirdResult = new ArrayList<Object>().iterator();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getListIterator();
          returns(firstResult, secondResult);
 
@@ -666,7 +676,7 @@ public final class ExpectationsWithValuesToReturnTest
       final List<?> secondResult = new ArrayList<Object>();
       final List<?> thirdResult = new LinkedList<Object>();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getAList();
          returns(firstResult, secondResult);
 
@@ -689,7 +699,7 @@ public final class ExpectationsWithValuesToReturnTest
       final Float f = 3.45F;
       final BigDecimal price = new BigDecimal("123.45");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getNumbers(); result = 123;
          mock.getNumberList(); result = 45L;
          mock.getStringSet(); result = "test";
@@ -725,7 +735,7 @@ public final class ExpectationsWithValuesToReturnTest
    @Test
    public void createArrayFromSingleRecordedValueOfTheElementType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getIntArray(); result = 123;
          mock.getStringArray(); result = "test";
       }};

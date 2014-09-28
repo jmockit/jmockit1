@@ -16,8 +16,8 @@ import mockit.internal.util.*;
 
 final class PhasedExecutionState
 {
-   @NotNull final List<Expectation> expectations;
-   @NotNull final List<Expectation> nonStrictExpectations;
+   @NotNull final List<Expectation> strictExpectations;
+   @NotNull final List<Expectation> notStrictExpectations;
    @NotNull final List<VerifiedExpectation> verifiedExpectations;
    @NotNull final Map<Object, Object> instanceMap;
    @NotNull final Map<Object, Object> replacementMap;
@@ -26,8 +26,8 @@ final class PhasedExecutionState
 
    PhasedExecutionState()
    {
-      expectations = new ArrayList<Expectation>();
-      nonStrictExpectations = new ArrayList<Expectation>();
+      strictExpectations = new ArrayList<Expectation>();
+      notStrictExpectations = new ArrayList<Expectation>();
       verifiedExpectations = new ArrayList<VerifiedExpectation>();
       instanceMap = new IdentityHashMap<Object, Object>();
       replacementMap = new IdentityHashMap<Object, Object>();
@@ -65,17 +65,17 @@ final class PhasedExecutionState
       }
    }
 
-   void addExpectation(@NotNull Expectation expectation, boolean nonStrict)
+   void addExpectation(@NotNull Expectation expectation, boolean strict)
    {
       ExpectedInvocation invocation = expectation.invocation;
       forceMatchingOnMockInstanceIfRequired(invocation);
       removeMatchingExpectationsCreatedBefore(invocation);
 
-      if (nonStrict) {
-         nonStrictExpectations.add(expectation);
+      if (strict) {
+         strictExpectations.add(expectation);
       }
       else {
-         expectations.add(expectation);
+         notStrictExpectations.add(expectation);
       }
    }
 
@@ -112,16 +112,16 @@ final class PhasedExecutionState
 
    private void removeMatchingExpectationsCreatedBefore(@NotNull ExpectedInvocation invocation)
    {
-      Expectation previousExpectation = findPreviousNonStrictExpectation(invocation);
+      Expectation previousExpectation = findPreviousNotStrictExpectation(invocation);
 
       if (previousExpectation != null) {
-         nonStrictExpectations.remove(previousExpectation);
+         notStrictExpectations.remove(previousExpectation);
          invocation.copyDefaultReturnValue(previousExpectation.invocation);
       }
    }
 
    @Nullable
-   private Expectation findPreviousNonStrictExpectation(@NotNull ExpectedInvocation newInvocation)
+   private Expectation findPreviousNotStrictExpectation(@NotNull ExpectedInvocation newInvocation)
    {
       Object mock = newInvocation.instance;
       String mockClassDesc = newInvocation.getClassDesc();
@@ -132,8 +132,8 @@ final class PhasedExecutionState
       boolean constructorInvocation = newInvocation.isConstructor();
       boolean newInvocationWithMatchers = arguments.getMatchers() != null;
 
-      for (int i = 0, n = nonStrictExpectations.size(); i < n; i++) {
-         Expectation previousExpectation = nonStrictExpectations.get(i);
+      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
+         Expectation previousExpectation = notStrictExpectations.get(i);
          ExpectedInvocation previousInvocation = previousExpectation.invocation;
 
          if (
@@ -150,29 +150,29 @@ final class PhasedExecutionState
    }
 
    @Nullable
-   Expectation findNonStrictExpectation(
+   Expectation findNotStrictExpectation(
       @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, @NotNull Object[] args)
    {
       boolean constructorInvocation = mockNameAndDesc.charAt(0) == '<';
       Expectation replayExpectationFound = null;
 
       // Note: new expectations might get added to the list, so a regular loop would cause a CME:
-      for (int i = 0, n = nonStrictExpectations.size(); i < n; i++) {
-         Expectation nonStrict = nonStrictExpectations.get(i);
+      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
+         Expectation expectation = notStrictExpectations.get(i);
 
-         if (replayExpectationFound != null && nonStrict.recordPhase == null) {
+         if (replayExpectationFound != null && expectation.recordPhase == null) {
             continue;
          }
 
-         ExpectedInvocation invocation = nonStrict.invocation;
+         ExpectedInvocation invocation = expectation.invocation;
 
          if (
             invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
-            (constructorInvocation || mock == null || isMatchingInstance(mock, nonStrict)) &&
+            (constructorInvocation || mock == null || isMatchingInstance(mock, expectation)) &&
             invocation.arguments.isMatch(args, instanceMap)
          ) {
-            if (nonStrict.recordPhase == null) {
-               replayExpectationFound = nonStrict;
+            if (expectation.recordPhase == null) {
+               replayExpectationFound = expectation;
                continue;
             }
 
@@ -184,7 +184,7 @@ final class PhasedExecutionState
                }
             }
 
-            return nonStrict;
+            return expectation;
          }
       }
 

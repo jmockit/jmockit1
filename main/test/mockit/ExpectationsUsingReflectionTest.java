@@ -166,13 +166,13 @@ public final class ExpectationsUsingReflectionTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("as argument 0");
 
-      new NonStrictExpectations() {{ invoke(mock, "setValue", any); }};
+      new Expectations() {{ invoke(mock, "setValue", any); }};
    }
 
    @Test
    public void expectInvocationToStaticMethodWithParameterOfTypeClass(@Mocked Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(Collaborator.class, "doSomething", new Class<?>[] {Class.class}, String.class); result = 123;
          invoke(Collaborator.class, "doSomething", new Class<?>[] {Class.class}, withNull()); result = 45;
       }};
@@ -185,7 +185,7 @@ public final class ExpectationsUsingReflectionTest
    @Test
    public void expectInvocationToInstanceMethodWithParameterOfTypeClass(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Class<?>[] parameterTypes = {int.class, Class.class};
          invoke(mock, "doSomething", parameterTypes, 123, String.class); result = 1;
          invoke(mock, "doSomething", parameterTypes, 45, null); result = 2;

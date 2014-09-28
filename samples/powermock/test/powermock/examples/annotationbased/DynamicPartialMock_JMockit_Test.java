@@ -20,7 +20,7 @@ public final class DynamicPartialMock_JMockit_Test
       SomeService someService = new SomeService(someDao);
 
       // Only invocations recorded inside this block will stay mocked for the replay.
-      new NonStrictExpectations(someDao) {{ someDao.getSomeData(); result = "test"; }};
+      new Expectations(someDao) {{ someDao.getSomeData(); result = "test"; }};
 
       assertEquals("test", someService.getData());
       assertNotNull(someService.getMoreData());

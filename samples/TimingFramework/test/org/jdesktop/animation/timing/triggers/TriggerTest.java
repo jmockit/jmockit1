@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.timing.triggers;
@@ -28,7 +28,7 @@ public final class TriggerTest
    @Test
    public void fireTriggerWithoutEventOnRunningAnimator()
    {
-      new NonStrictExpectations() {{ animator.isRunning(); result = true; }};
+      new Expectations() {{ animator.isRunning(); result = true; }};
 
       trigger.fire();
 
@@ -103,7 +103,7 @@ public final class TriggerTest
       TriggerEvent event = FocusTriggerEvent.IN;
       trigger = new Trigger(animator, event, false);
 
-      new NonStrictExpectations() {{ animator.isRunning(); result = true; }};
+      new Expectations() {{ animator.isRunning(); result = true; }};
 
       trigger.fire(event);
 
@@ -136,7 +136,7 @@ public final class TriggerTest
       trigger = new Trigger(animator, event, true);
       final float timingFraction = 0.2f;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animator.isRunning(); result = true;
          animator.getTimingFraction(); result = timingFraction;
       }};
@@ -168,7 +168,7 @@ public final class TriggerTest
       TriggerEvent event = FocusTriggerEvent.IN;
       trigger = new Trigger(animator, event, true);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animator.getStartFraction(); result = 0.2f;
       }};
 
@@ -188,7 +188,7 @@ public final class TriggerTest
       trigger = new Trigger(animator, event, true);
       final float timingFraction = 0.2f;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animator.isRunning(); result = true;
          animator.getTimingFraction(); result = timingFraction;
       }};

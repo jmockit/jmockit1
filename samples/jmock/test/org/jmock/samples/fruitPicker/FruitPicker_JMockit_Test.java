@@ -21,7 +21,7 @@ public final class FruitPicker_JMockit_Test
       final Mango mango1 = new Mango();
       final Mango mango2 = new Mango();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mangoTree.pickFruit((Collection<Fruit>) any);
          result = new Delegate() {
             void pickFruit(Collection<Fruit> fruits)

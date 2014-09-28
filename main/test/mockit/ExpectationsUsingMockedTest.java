@@ -65,19 +65,21 @@ public final class ExpectationsUsingMockedTest
    public void multipleMockParametersOfSameMockedType(
       @Mocked final Dependency dependency1, @Mocked final Dependency dependency2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          dependency1.doSomething(true); result = "1";
          dependency2.doSomething(false); result = "2";
       }};
 
       assertEquals("1", dependency1.doSomething(true));
       assertNull(dependency1.doSomething(false));
+      assertEquals("2", dependency2.doSomething(false));
+      assertNull(dependency2.doSomething(true));
    }
 
    @Test
    public void mockFieldForAbstractClass()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          base.add(1); result = true;
       }};
 
@@ -178,7 +180,7 @@ public final class ExpectationsUsingMockedTest
    {
       assertEquals(0, innerMock.getValue());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          innerMock.getValue(); result = 123; times = 1;
       }};
 

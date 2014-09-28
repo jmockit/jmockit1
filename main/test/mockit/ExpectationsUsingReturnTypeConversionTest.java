@@ -57,7 +57,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       thrown.expectMessage("String");
       thrown.expectMessage("int");
 
-      new NonStrictExpectations() {{ mock.getInt(); result = "test"; }};
+      new Expectations() {{ mock.getInt(); result = "test"; }};
    }
 
    @Test
@@ -67,7 +67,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       thrown.expectMessage("Boolean");
       thrown.expectMessage("Float");
 
-      new NonStrictExpectations() {{ mock.getFloatWrapper(); result = true; }};
+      new Expectations() {{ mock.getFloatWrapper(); result = true; }};
    }
 
    @Test
@@ -77,7 +77,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       thrown.expectMessage("Integer");
       thrown.expectMessage("boolean");
 
-      new NonStrictExpectations() {{ mock.getBoolean(); result = 123; }};
+      new Expectations() {{ mock.getBoolean(); result = 123; }};
    }
 
    @Test
@@ -87,7 +87,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       thrown.expectMessage("Character");
       thrown.expectMessage("Boolean");
 
-      new NonStrictExpectations() {{ mock.getBooleanWrapper(); result = 'a'; }};
+      new Expectations() {{ mock.getBooleanWrapper(); result = 'a'; }};
    }
 
    @Test
@@ -97,13 +97,13 @@ public final class ExpectationsUsingReturnTypeConversionTest
       thrown.expectMessage("Collaborator");
       thrown.expectMessage("InputStream");
 
-      new NonStrictExpectations() {{ mock.getInputStream(); result = mock; }};
+      new Expectations() {{ mock.getInputStream(); result = mock; }};
    }
 
    @Test
    public void convertNumberValueToWiderNumericalReturnType()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getShort(); result = (byte) 51;
          mock.getShortWrapper(); result = 'z';
          mock.getInt(); result = 'A';
@@ -138,7 +138,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Test
    public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueFitsTheReturnType()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getByte(); result = 23; result = 'C';
          mock.getByteWrapper(); result = (short) 127;
          mock.getShort(); result = 51;
@@ -168,7 +168,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Test
    public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueDoesNotFitTheReturnType()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getByte(); result = 230;
          mock.getByteWrapper(); result = 'ç';
          mock.getShort(); result = 51000;
@@ -198,7 +198,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    {
       final String text = "Some textual value";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getStringBuilder(); result = text;
          mock.getCharBuffer(); result = text;
          mock.getInputStream(); result = text;
@@ -228,7 +228,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Test
    public void convertTextualAndNumericalResultsToNumberSubtypes()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getBigDecimal(); result = "1.50"; result = 123; result = 56L; result = -4.125;
          mock.getBigInteger(); result = "123"; result = 567L;
          mock.getAtomicInteger(); result = 1234;

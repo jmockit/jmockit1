@@ -25,7 +25,7 @@ public final class PersistenceManager_JMockit_Test
    {
       final String path = "directoryPath";
 
-      new NonStrictExpectations(File.class) {{
+      new Expectations(File.class) {{
          File fileMock = new File(path);
          fileMock.exists(); result = false;
          fileMock.mkdirs(); result = true;
@@ -37,7 +37,7 @@ public final class PersistenceManager_JMockit_Test
    @Test
    public void createDirectoryStructure_usingRegularMocking(@Mocked final File fileMock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          fileMock.exists(); result = false;
          fileMock.mkdirs(); result = true;
       }};
@@ -48,7 +48,7 @@ public final class PersistenceManager_JMockit_Test
    @Test(expected = IllegalArgumentException.class)
    public void createDirectoryStructure_fails(@Mocked final File fileMock)
    {
-      new NonStrictExpectations() {{ fileMock.exists(); result = true; }};
+      new Expectations() {{ fileMock.exists(); result = true; }};
 
       tested.createDirectoryStructure("directoryPath");
    }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.easymock.documentation;
@@ -18,7 +18,7 @@ public final class DocumentationExamples_JMockit_Test
    {
       final String title = "Document";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.voteForRemoval(title);
          result = new Object[] {42, 42, 42, new RuntimeException(), -42};
       }};

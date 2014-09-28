@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests;
@@ -83,7 +83,7 @@ public final class SubclassTest
    }
 
    @Test
-   public void mockSubclassUsingExpectationsWithFirstSuperConstructor(@Mocked final SubClass mock)
+   public void mockSubclassUsingExpectationsWithFirstSuperConstructor(@Mocked SubClass mock)
    {
       new Expectations() {{
          new SubClass("test");

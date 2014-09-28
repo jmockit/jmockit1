@@ -17,7 +17,7 @@ public final class MockChaining_JMockit_Test
    @Test
    public void withoutChaining(@Mocked final User user, @Mocked final UserService userService)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          userService.getUser(); result = user; // returns the user mock
          user.getName(); result = "my name";   // define behavior of user mock
       }};
@@ -28,7 +28,7 @@ public final class MockChaining_JMockit_Test
    @Test
    public void sameTestButWithChaining(@Mocked final UserService userService)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          userService.getUser().getName(); result = "my name"; // automatically returns user mock
       }};
 

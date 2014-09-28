@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -36,7 +36,7 @@ public final class MockedAnnotationsTest
    @Test
    public void verifyUsesOfAnnotationAttributes(@Mocked final MyAnnotation a)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          a.value(); result = "test";
          a.values(); returns("abc", "dEf");
       }};

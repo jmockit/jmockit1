@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * <p/>
  * Any type can be mocked, except for primitive and array types.
  * A mocked instance of that type is automatically created and assigned to the mock field/parameter, for use when
- * {@linkplain NonStrictExpectations recording} or {@linkplain Verifications verifying} expectations.
+ * {@linkplain mockit.Expectations recording} or {@linkplain mockit.Verifications verifying} expectations.
  * <p/>
  * The effect of declaring a {@code @Mocked} type, by default, is that all new instances of that type, as well as those
  * previously created, will also be mocked instances; this will last for the duration of each test where the associated

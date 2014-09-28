@@ -76,7 +76,7 @@ public final class MessageTest
       exerciseCodeUnderTest(listener, theClient);
    }
 
-   private void exerciseCodeUnderTest(StatusListener listener, Client... to)
+   void exerciseCodeUnderTest(StatusListener listener, Client... to)
    {
       final Message message = new Message(to, testContents, listener);
 
@@ -174,7 +174,7 @@ public final class MessageTest
    {
       Client[] testClients = {new Client("client1"), new Client("client2"), new Client("client3")};
 
-      new NonStrictExpectations(testClients.length) {{
+      new Expectations(testClients.length) {{
          new Socket(withPrefix("client"), anyInt); times = 1;
          con.getOutputStream(); result = new ByteArrayOutputStream();
          con.getInputStream(); result = "reply1\nreply2\n";
@@ -198,7 +198,7 @@ public final class MessageTest
    {
       Client[] testClients = {new Client("client1"), new Client("client2")};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          con.getOutputStream(); result = new ByteArrayOutputStream();
          con.getInputStream(); result = "reply1\n reply2\n";
       }};

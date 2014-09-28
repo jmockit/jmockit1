@@ -57,7 +57,7 @@ public final class InjectableFieldTest
       }
       catch (RuntimeException ignore) {}
 
-      new NonStrictExpectations() {{ foo.doSomething("test"); times = 1; }};
+      new Expectations() {{ foo.doSomething("test"); times = 1; }};
 
       assertEquals(123, foo.getAnotherValue());
       assertFalse(foo.getBooleanValue());
@@ -69,7 +69,7 @@ public final class InjectableFieldTest
    @Test
    public void overrideExpectationRecordedInBeforeMethod()
    {
-      new NonStrictExpectations() {{ foo.getAnotherValue(); result = 45; }};
+      new Expectations() {{ foo.getAnotherValue(); result = 45; }};
 
       assertEquals(45, foo.getAnotherValue());
       foo.doSomething("sdf");
@@ -80,7 +80,7 @@ public final class InjectableFieldTest
    {
       assertEquals("", Foo.doSomethingElse());
 
-      new NonStrictExpectations(Foo.class) {{
+      new Expectations(Foo.class) {{
          Foo.doSomethingElse(); result = "test";
       }};
 
@@ -94,7 +94,7 @@ public final class InjectableFieldTest
    {
       final Foo localFoo = new Foo();
 
-      new NonStrictExpectations(localFoo) {{
+      new Expectations(localFoo) {{
          localFoo.getAnotherValue(); result = 3;
          Foo.doSomethingElse(); result = "test";
       }};
@@ -111,7 +111,7 @@ public final class InjectableFieldTest
       @Injectable final InetAddress localHost, @Injectable final InetAddress remoteHost)
       throws Exception
    {
-      new NonStrictExpectations(InetAddress.class) {{
+      new Expectations(InetAddress.class) {{
          InetAddress.getLocalHost(); result = localHost;
          InetAddress.getByName(anyString); result = remoteHost;
 

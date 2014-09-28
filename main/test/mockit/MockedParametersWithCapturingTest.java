@@ -66,7 +66,7 @@ public final class MockedParametersWithCapturingTest
    @Test(expected = IllegalMonitorStateException.class)
    public void mockStrictlyOnlySpecifiedMethod(@Capturing @Mocked("doSomething") final Service service)
    {
-      new Expectations() {{ service.doSomething(); returns(3, 4); }};
+      new StrictExpectations() {{ service.doSomething(); returns(3, 4); }};
 
       assertEquals(7, new TestedUnit().businessOperation());
 
@@ -145,7 +145,7 @@ public final class MockedParametersWithCapturingTest
    @Test
    public void captureAndPartiallyMockImplementationsOfAnInterface(@Capturing final Service service)
    {
-      new NonStrictExpectations(Service.class) {{
+      new Expectations(Service.class) {{
          service.doSomethingElse(1);
       }};
 
@@ -170,7 +170,7 @@ public final class MockedParametersWithCapturingTest
    @Test
    public void captureAndPartiallyMockSubclassesOfABaseClass(@Capturing final BaseClass base)
    {
-      new NonStrictExpectations(BaseClass.class) {{
+      new Expectations(BaseClass.class) {{
          base.doSomething();
       }};
 

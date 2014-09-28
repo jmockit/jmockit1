@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -47,13 +47,13 @@ public final class MultipleMockedTypesTest
 
       static void doSomethingWithInternallyCreatedImplementations()
       {
-         new Observer()
-         {
+         new Observer() {
+            @Override
             public void update(Observable o, Object arg) { throw new IllegalStateException(); }
          }.update(null, "event");
 
-         new Callable<String>()
-         {
+         new Callable<String>() {
+            @Override
             public String call() { return "tested"; }
          }.call();
       }
@@ -64,7 +64,7 @@ public final class MultipleMockedTypesTest
    @Test
    public void invocationsOnMethodsOfDifferentClassesWithDifferentSignatures(@Mocked final SecondDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getValue(); result = 15;
          mock2.getDifferentValue(); result = -50;
       }};
@@ -77,7 +77,7 @@ public final class MultipleMockedTypesTest
    @Test
    public void invocationsOnMethodsOfDifferentClassesButSameSignature(@Mocked final SecondDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getValue(); result = 15;
          mock2.getValue(); result = -50;
       }};
@@ -112,9 +112,9 @@ public final class MultipleMockedTypesTest
    public void invocationOnBaseTypeWithReplayOnSubtypeThatOverridesTheInvokedMethod(
       @Mocked final SecondDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getValue(); result = 15;
-         mock2.getValue(); result = -50;
+         mock2.getValue(); result = -50; minTimes = 0;
       }};
 
       // The executed method will be the override, which is not mocked.
@@ -130,7 +130,7 @@ public final class MultipleMockedTypesTest
    public void invocationOnBaseTypeWithCapturingOfSubtypeThatInheritsTheInvokedMethod(
       @Capturing final SecondDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getValue(); result = 15;
          mock2.getValue(); result = -50;
       }};
@@ -144,7 +144,7 @@ public final class MultipleMockedTypesTest
    public void invocationOnBaseTypeWithCapturingOfSubtypeThatOverridesTheInvokedMethod(
       @Capturing final SecondDependency mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getValue(); result = 15;
          mock2.getValue(); result = -50;
       }};
@@ -161,7 +161,7 @@ public final class MultipleMockedTypesTest
    public void invocationsOnCapturedImplementationsOfInterfaces(
       @Capturing final Callable<String> callable, @Capturing(maxInstances = 1) final Observer observer) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          observer.update(null, any); times = 1;
       }};
 

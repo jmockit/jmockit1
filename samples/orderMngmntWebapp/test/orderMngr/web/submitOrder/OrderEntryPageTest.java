@@ -28,7 +28,7 @@ public final class OrderEntryPageTest
 
       final int orderNo = 464;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          orderFactory.createOrder(customerId, page.getOrderItems());
          result = new Order(orderNo, customerId);
       }};

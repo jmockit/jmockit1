@@ -69,7 +69,7 @@ public final class MockFieldCapturingMaxInstancesTest
    @Test
    public void mockFieldWithCapturingLimitedToOneInstance()
    {
-      new NonStrictExpectations() {{ mock2.getStr(); result = "mocked"; }};
+      new Expectations() {{ mock2.getStr(); result = "mocked"; }};
 
       assertNull(preexistingInstance.getStr());
 
@@ -92,7 +92,7 @@ public final class MockFieldCapturingMaxInstancesTest
    @Test
    public void secondMockFieldWithCapturingLimitedToOneInstance()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock2.getStr(); result = "mocked1"; times = 1;
          mock3.getStr(); result = "mocked2"; times = 1;
       }};

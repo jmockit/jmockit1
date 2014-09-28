@@ -43,7 +43,7 @@ public final class SampleServiceImpl_JMockit_Test
       String lastName = "lastName";
       final Person person = new Person(firstName, lastName);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          businessMessages.hasErrors(); result = true;
       }};
 
@@ -62,7 +62,7 @@ public final class SampleServiceImpl_JMockit_Test
       final String firstName = "firstName";
       final String lastName = "lastName";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Person(firstName, lastName); result = new IllegalArgumentException("test");
       }};
 

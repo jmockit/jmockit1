@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package coverageExperiments;
@@ -14,7 +14,7 @@ public final class PartialMockingTest
    @Test
    public void useStaticPartialMocking(@Mocked("doSomethingElse") final TestedClassPartiallyMocked sut)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          sut.doSomethingElse(); result = 3;
       }};
 
@@ -27,7 +27,7 @@ public final class PartialMockingTest
    {
       final TestedClassPartiallyMocked sut = new TestedClassPartiallyMocked();
 
-      new NonStrictExpectations(sut) {{
+      new Expectations(sut) {{
          sut.doSomethingElse(); result = 5;
       }};
 

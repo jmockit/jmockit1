@@ -36,7 +36,7 @@ public final class CurrencyConversionTest
          "<table class='currencyTable'>\r\n" +
          "<td><a href=\"/currency/x\">USD</a></td><td class=\"x\">Dollar</td>\r\n" +
          "<td><a href=\"/currency/x\">EUR</a></td><td class=\"x\">Euro</td>";
-      new NonStrictExpectations() {{ httpEntity.getContent(); result = content; times = 1; }};
+      new Expectations() {{ httpEntity.getContent(); result = content; times = 1; }};
 
       Map<String, String> symbols = CurrencyConversion.currencySymbols();
 
@@ -51,7 +51,7 @@ public final class CurrencyConversionTest
       CurrencyConversion.allCurrenciesCache = new HashMap<String, String>() {{ put("X", ""); put("Y", ""); }};
 
       String content = "<div id=\"converter_results\"><ul><li><b>1 X = 1.3 Y</b>";
-      new NonStrictExpectations() {{ httpEntity.getContent(); result = content; times = 1; }};
+      new Expectations() {{ httpEntity.getContent(); result = content; times = 1; }};
 
       BigDecimal rate = CurrencyConversion.convertFromTo("X", "Y");
 

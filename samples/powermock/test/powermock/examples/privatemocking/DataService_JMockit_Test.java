@@ -25,7 +25,7 @@ public final class DataService_JMockit_Test
       final String expectedDataId = "id";
 
       // Mock only the "modifyData" method.
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(tested, "modifyData", expectedDataId, expectedBinaryData);
          result = true;
       }};
@@ -39,7 +39,7 @@ public final class DataService_JMockit_Test
       final String expectedDataId = "id";
 
       // Mock only the "modifyData" method.
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(tested, "modifyData", expectedDataId, byte[].class);
          result = true;
       }};

@@ -380,7 +380,7 @@ public final class ReentrantMockTest
    @Test
    public void recursiveDelegateMethodWithoutInvocationParameter()
    {
-      new NonStrictExpectations(RealClass.class) {{
+      new Expectations(RealClass.class) {{
          RealClass.nonRecursiveStaticMethod(anyInt);
          result = new Delegate() {
             @Mock
@@ -399,7 +399,7 @@ public final class ReentrantMockTest
    @Test
    public void recursiveDelegateMethodWithInvocationParameterNotUsedForProceeding(@Injectable final RealClass rc)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          rc.nonRecursiveMethod(anyInt);
          result = new Delegate() {
             @Mock
@@ -419,7 +419,7 @@ public final class ReentrantMockTest
    @Test
    public void nonRecursiveDelegateMethodWithInvocationParameterUsedForProceeding(@Injectable final RealClass rc)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          rc.nonRecursiveMethod(anyInt);
          result = new Delegate() {
             @Mock

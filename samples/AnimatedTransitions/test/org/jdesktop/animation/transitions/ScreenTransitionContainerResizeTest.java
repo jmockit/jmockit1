@@ -66,7 +66,7 @@ public final class ScreenTransitionContainerResizeTest
    public void changeHeightOfTransitionContainerWhenAlreadyWithTransitionImage()
    {
       setField(transition, transitionImage);
-      new NonStrictExpectations() {{ transitionImage.getWidth(); result = 100; }};
+      new Expectations() {{ transitionImage.getWidth(); result = 100; }};
 
       simulateContainerResize();
    }

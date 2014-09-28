@@ -23,7 +23,7 @@ public final class ReportGenerator_JMockit_Test
    {
       final String reportId = "id";
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          reportTemplateServiceMock.getTemplateId(reportId); result = "templateId";
       }};
 

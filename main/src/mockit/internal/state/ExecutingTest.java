@@ -245,18 +245,18 @@ public final class ExecutingTest
       return containsReference(strictMocks, mockOrClassDesc);
    }
 
-   public void registerAsNonStrictlyMocked(@NotNull Class<?> mockedClass)
+   public void registerAsNotStrictlyMocked(@NotNull Class<?> mockedClass)
    {
       String toBeRegistered = Type.getInternalName(mockedClass).intern();
-      registerAsNonStrictMock(toBeRegistered, mockedClass);
+      registerAsNotStrictMock(toBeRegistered, mockedClass);
    }
 
-   public void registerAsNonStrictlyMocked(@NotNull Object mockedObject)
+   public void registerAsNotStrictlyMocked(@NotNull Object mockedObject)
    {
-      registerAsNonStrictMock(mockedObject, mockedObject);
+      registerAsNotStrictMock(mockedObject, mockedObject);
    }
 
-   private void registerAsNonStrictMock(@NotNull Object toBeRegistered, @NotNull Object mockedObjectOrClass)
+   private void registerAsNotStrictMock(@NotNull Object toBeRegistered, @NotNull Object mockedObjectOrClass)
    {
       if (containsStrictMock(toBeRegistered)) {
          throw new IllegalArgumentException("Already mocked strictly: " + mockedObjectOrClass);
@@ -267,23 +267,7 @@ public final class ExecutingTest
       }
    }
 
-   public boolean isNonStrictInvocation(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc)
-   {
-      if (isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc)) {
-         return true;
-      }
-
-      for (Object nonStrictMock : nonStrictMocks) {
-         if (nonStrictMock == mock || nonStrictMock == mockClassDesc) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   private static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @NotNull String nameAndDesc)
+   public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @NotNull String nameAndDesc)
    {
       return
          mock != null && nameAndDesc.charAt(0) != '<' &&

@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
 public final class Greeter_JMockit_Test
 {
    @Test
-   public void getMessage(@Mocked(stubOutClassInitialization = true) final SimpleConfig unused)
+   public void getMessage(@Mocked(stubOutClassInitialization = true) SimpleConfig unused)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          SimpleConfig.getGreeting(); result = "Hi";
          SimpleConfig.getTarget(); result = "All";
       }};
@@ -34,7 +34,7 @@ public final class Greeter_JMockit_Test
    @Test
    public void testRun(@Mocked final Logger logger)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          logger.log("Hello"); times = 10;
       }};
 
@@ -44,7 +44,7 @@ public final class Greeter_JMockit_Test
    @Test(expected = IllegalArgumentException.class)
    public void runWhenLoggerThrowsUnexpectedRuntimeException(@Mocked Logger mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Logger(); result = new IllegalArgumentException("Unexpected exception");
       }};
 

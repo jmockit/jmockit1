@@ -28,7 +28,7 @@ public final class MyServiceUser_JMockit_Test
          new Person("John", "Doe", "MockStreet2")
       };
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          DependencyManager.getInstance().getMyService().getAllPersons(); result = persons;
       }};
 

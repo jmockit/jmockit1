@@ -9,11 +9,14 @@ import java.util.concurrent.*;
 import static java.util.Arrays.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ZeroLengthArrayAllocation")
 public final class ExpectationsUsingResultFieldTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    @SuppressWarnings("ClassWithTooManyMethods")
    static class Collaborator
    {
@@ -67,7 +70,7 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsExpectedValues(@Mocked final Collaborator mock)
+   public void returnsExpectedValuesFromStrictExpectations(@Mocked final Collaborator mock)
    {
       new Expectations() {{
          mock.getValue(); result = 3;
@@ -79,9 +82,9 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsExpectedValuesWithNonStrictExpectations(@Mocked final Collaborator mock)
+   public void returnsExpectedValues(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getValue(); result = 3;
          Collaborator.doInternal(); result = "test";
       }};
@@ -361,7 +364,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsMultipleValuesFromMethodWithReturnTypeOfObject(@Mocked final Collaborator collaborator)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaborator.getObject();
          result = new int[] {1, 2};
          result = new Object[] {"test", 'X'};
@@ -381,7 +384,7 @@ public final class ExpectationsUsingResultFieldTest
    {
       final String[] emptyArray = {};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getObject();
          result = emptyArray;
       }};
@@ -392,7 +395,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsMultipleValuesFromGenericMethod(@Mocked final Callable<Integer> callable) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          callable.call();
          result = new int[] {3, 2, 1};
       }};
@@ -441,7 +444,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsValueOfIncompatibleTypeForMethodReturningArray(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getBooleanArray(); result = new HashSet();
          mock.getStringArray(); result = Collections.emptyList();
          mock.getIntArray(); result = new short[] {1, 2};
@@ -455,7 +458,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsValueOfIncompatibleTypeForMethodReturningCollection(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getListItems(); result = Collections.emptySet();
          mock.getSetItems(); result = new ArrayList();
       }};
@@ -485,7 +488,7 @@ public final class ExpectationsUsingResultFieldTest
       final Boolean[] iterator = {true, false, true};
       final Object[] listIterator = {"test", 123, true};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getItems(); result = items;
          mock.getListItems(); result = listItems;
          mock.getSetItems(); result = new char[] {'A', 'c', 'b', 'A'};
@@ -522,7 +525,7 @@ public final class ExpectationsUsingResultFieldTest
       final int[][] sortedItems1 = {{13, 1}, {2, 2}, {31, 3}, {5, 4}};
       final Object[][] items2 = {{1, "first"}, {2}, {3, true}};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock1.getMapItems(); result = new String[][] {{"Abc", "first"}, {"test", "Second"}, {"Xyz", null}};
          mock1.getSortedMapItems(); result = sortedItems1;
          mock2.getMapItems(); result = items2;
@@ -533,28 +536,40 @@ public final class ExpectationsUsingResultFieldTest
       assertEquals("{1=first, 2=null, 3=true}", mock2.getMapItems().toString());
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyArrayForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid return value");
+      thrown.expectMessage("String");
+
+      new Expectations() {{
          mock.getString();
          result = new String[0];
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyCollectionForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid return value");
+      thrown.expectMessage("String");
+
+      new Expectations() {{
          mock.getString();
          result = Collections.emptyList();
       }};
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void returnsEmptyIteratorForSimpleReturnType(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid return value");
+      thrown.expectMessage("String");
+
+      new Expectations() {{
          mock.getString();
          result = Collections.emptySet().iterator();
       }};
@@ -574,7 +589,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test(expected = UnknownError.class)
    public void recordNullReturnValueForVoidMethodAndThenAThrownError(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.provideSomeService();
          result = null;
          result = new UnknownError();
@@ -608,10 +623,14 @@ public final class ExpectationsUsingResultFieldTest
       new Collaborator();
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void recordReturnValueForVoidMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("incompatible with return type void");
+      thrown.expectMessage("Integer");
+
+      new Expectations() {{
          mock.provideSomeService();
          result = 123;
       }};
@@ -629,10 +648,14 @@ public final class ExpectationsUsingResultFieldTest
       mock.provideSomeService();
    }
 
-   @Test(expected = IllegalArgumentException.class)
+   @Test
    public void recordReturnValueForConstructor(@Mocked Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("String");
+      thrown.expectMessage("incompatible with return type void");
+
+      new Expectations() {{
          new Collaborator();
          result = "test"; // invalid, throws IllegalArgumentException
       }};
@@ -641,7 +664,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void recordReturnValuesMixedWithThrowablesForNonVoidMethod(@Mocked final Collaborator mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getString();
          result = asList("Abc", new IllegalStateException(), "DEF", null, new UnknownError());
       }};
@@ -658,7 +681,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void recordExceptionFollowedByNullReturnValueForVoidMethod(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          // One way of doing it:
          mock.provideSomeService();
          result = new IllegalArgumentException();
@@ -686,7 +709,7 @@ public final class ExpectationsUsingResultFieldTest
       final Number[] numberValues = {5L, 12.5F};
       final String[] stringValues = {"a", "b"};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getArrayOfGenericElements(1); result = integerValues;
          mock.getArrayOfGenericElements(2); result = numberValues;
          mock.getArrayOfGenericElements(3); result = stringValues;

@@ -18,7 +18,7 @@ public final class DynamicMockingInBeforeMethodTest
    {
       assertTrue(anInstance.doSomething(56));
 
-      new NonStrictExpectations(anInstance) {{
+      new Expectations(anInstance) {{
          anInstance.doSomething(anyInt); result = true;
       }};
 

@@ -33,7 +33,7 @@ public final class OrderFindersTest
       order.getItems().add(orderItem);
 
       // Expectations for the first database query, which loads order data:
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Database.executeQuery(withSubstring("where number="), order.getNumber());
          result = rs;
 
@@ -42,7 +42,7 @@ public final class OrderFindersTest
       }};
 
       // Expectations for the second query, which loads the order items:
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Database.executeQuery(withMatch("select .+ from order_item where .+"), order.getNumber());
          result = rsItems;
 
@@ -69,7 +69,7 @@ public final class OrderFindersTest
       final String customerId = "Cust";
       order = new Order(890, customerId);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Database.executeQuery(withMatch("select.+from\\s+order.*where.+customer_id\\s*=\\s*\\?"), customerId);
          result = rs;
 
@@ -78,7 +78,7 @@ public final class OrderFindersTest
       }};
 
       // Causes an already tested private method to do nothing:
-      new NonStrictExpectations() {{
+      new Expectations() {{
          invoke(repository, "loadOrderItems", order);
       }};
 

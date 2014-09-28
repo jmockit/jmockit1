@@ -91,13 +91,12 @@ public final class RecordAndReplayExecution
 
          failureState = new FailureState();
 
+         boolean strict = targetObject instanceof StrictExpectations;
          boolean nonStrict = targetObject instanceof NonStrictExpectations;
-         recordPhase = new RecordPhase(this, nonStrict);
+         recordPhase = new RecordPhase(this, strict, nonStrict);
 
          executingTest.setRecordAndReplay(this);
-
-         dynamicPartialMocking = applyDynamicPartialMocking(nonStrict, classesOrInstancesToBePartiallyMocked);
-
+         dynamicPartialMocking = applyDynamicPartialMocking(!strict, classesOrInstancesToBePartiallyMocked);
          discoverMockedTypesAndInstancesForMatchingOnInstance();
 
          //noinspection LockAcquiredButNotSafelyReleased
@@ -133,14 +132,15 @@ public final class RecordAndReplayExecution
       }
    }
 
-   @Nullable private static DynamicPartialMocking applyDynamicPartialMocking(
-      boolean nonStrict, @Nullable Object... classesOrInstances)
+   @Nullable
+   private static DynamicPartialMocking applyDynamicPartialMocking(
+      boolean notStrict, @Nullable Object... classesOrInstances)
    {
       if (classesOrInstances == null || classesOrInstances.length == 0) {
          return null;
       }
 
-      DynamicPartialMocking mocking = new DynamicPartialMocking(nonStrict);
+      DynamicPartialMocking mocking = new DynamicPartialMocking(notStrict);
       mocking.redefineTypes(classesOrInstances);
       return mocking;
    }
@@ -262,7 +262,7 @@ public final class RecordAndReplayExecution
 
       if (execution != null) {
          Expectation recordedExpectation =
-            execution.executionState.findNonStrictExpectation(mock, classDesc, nameAndDesc, args);
+            execution.executionState.findNotStrictExpectation(mock, classDesc, nameAndDesc, args);
 
          if (recordedExpectation != null) {
             return recordedExpectation.produceResult(mock, args);
@@ -338,9 +338,9 @@ public final class RecordAndReplayExecution
    @NotNull public BaseVerificationPhase startVerifications(boolean inOrder)
    {
       assert replayPhase != null;
-      List<Expectation> expectations = replayPhase.nonStrictInvocations;
-      List<Object> invocationInstances = replayPhase.nonStrictInvocationInstances;
-      List<Object[]> invocationArguments = replayPhase.nonStrictInvocationArguments;
+      List<Expectation> expectations = replayPhase.invocations;
+      List<Object> invocationInstances = replayPhase.invocationInstances;
+      List<Object[]> invocationArguments = replayPhase.invocationArguments;
 
       verificationPhase =
          inOrder ?
@@ -362,10 +362,8 @@ public final class RecordAndReplayExecution
          TEST_ONLY_PHASE_LOCK.unlock();
       }
 
-      switchFromRecordToReplayIfNotYet();
-
-      assert replayPhase != null;
-      Error error = replayPhase.endExecution();
+      ReplayPhase replay = switchFromRecordToReplayIfNotYet();
+      Error error = replay.endExecution();
 
       if (error == null) {
          error = failureState.getErrorThrownInAnotherThreadIfAny();
@@ -379,12 +377,14 @@ public final class RecordAndReplayExecution
       return error;
    }
 
-   private void switchFromRecordToReplayIfNotYet()
+   @NotNull private ReplayPhase switchFromRecordToReplayIfNotYet()
    {
       if (replayPhase == null) {
          recordPhase = null;
          replayPhase = new ReplayPhase(this);
       }
+
+      return replayPhase;
    }
 
    @NotNull public TestOnlyPhase getCurrentTestOnlyPhase()

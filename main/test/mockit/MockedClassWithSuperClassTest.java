@@ -51,7 +51,7 @@ public final class MockedClassWithSuperClassTest
    @Test
    public void mockedClassExtendingNonJREClass(@Mocked final Subclass mock)
    {
-      new NonStrictExpectations() {{ mock.doSomething(); result = 45; }};
+      new Expectations() {{ mock.doSomething(); result = 45; }};
 
       // Mocked:
       assertEquals(45, mock.doSomething());
@@ -116,7 +116,7 @@ public final class MockedClassWithSuperClassTest
    @Test
    public void recordExpectationOnStaticMethodFromBaseClass(@Mocked Subclass unused)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          BaseClass.staticMethod();
          result = 123;
       }};

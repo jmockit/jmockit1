@@ -35,9 +35,9 @@ public final class LoginServiceNGTest
       new Verifications() {{ account.setLoggedIn(true); }};
    }
 
-   private void willMatchPassword(final boolean... matches)
+   void willMatchPassword(final boolean... matches)
    {
-      new NonStrictExpectations() {{ account.passwordMatches(anyString); result = matches; }};
+      new Expectations() {{ account.passwordMatches(anyString); result = matches; }};
    }
 
    @Test
@@ -68,7 +68,7 @@ public final class LoginServiceNGTest
    {
       willMatchPassword(false);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          UserAccount.find("roger"); result = secondAccount;
          secondAccount.passwordMatches(anyString); result = false;
       }};
@@ -93,7 +93,7 @@ public final class LoginServiceNGTest
    {
       willMatchPassword(true);
 
-      new NonStrictExpectations() {{ account.isLoggedIn(); result = true; }};
+      new Expectations() {{ account.isLoggedIn(); result = true; }};
 
       service.login("john", "password");
    }
@@ -101,7 +101,7 @@ public final class LoginServiceNGTest
    @Test(expectedExceptions = UserAccountNotFoundException.class)
    public void throwExceptionIfAccountNotFound() throws Exception
    {
-      new NonStrictExpectations() {{ UserAccount.find("roger"); result = null; }};
+      new Expectations() {{ UserAccount.find("roger"); result = null; }};
 
       new LoginService().login("roger", "password");
    }
@@ -111,7 +111,7 @@ public final class LoginServiceNGTest
    {
       willMatchPassword(true);
 
-      new NonStrictExpectations() {{ account.isRevoked(); result = true; }};
+      new Expectations() {{ account.isRevoked(); result = true; }};
 
       service.login("john", "password");
    }

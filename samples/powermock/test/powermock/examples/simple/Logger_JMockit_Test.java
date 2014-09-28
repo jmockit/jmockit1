@@ -18,7 +18,7 @@ public final class Logger_JMockit_Test
    @Test(expected = IllegalStateException.class)
    public void testException(@Mocked FileWriter fileWriter) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new FileWriter("target/logger.log"); result = new IOException();
       }};
 
@@ -28,7 +28,7 @@ public final class Logger_JMockit_Test
    @Test
    public void testLogger(@Mocked FileWriter fileWriter)
    {
-      new NonStrictExpectations(PrintWriter.class) {{
+      new Expectations(PrintWriter.class) {{
          PrintWriter pw = new PrintWriter((Writer) any);
          pw.println("qwe"); times = 1;
       }};

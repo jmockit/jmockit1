@@ -20,7 +20,7 @@ public final class ConstructorCalledMock_JMockit_Test
    @Test
    public void testTax()
    {
-      new NonStrictExpectations() {{ tc.rate(); result = "0.20"; }};
+      new Expectations() {{ tc.rate(); result = "0.20"; }};
 
       BigDecimal tax = tc.tax();
 
@@ -30,7 +30,7 @@ public final class ConstructorCalledMock_JMockit_Test
    @Test
    public void testTax_ZeroRate()
    {
-      new NonStrictExpectations() {{ tc.rate(); result = 0; }};
+      new Expectations() {{ tc.rate(); result = 0; }};
 
       BigDecimal tax = tc.tax();
 

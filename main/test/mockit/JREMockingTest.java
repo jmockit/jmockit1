@@ -23,7 +23,7 @@ public final class JREMockingTest
    @Test
    public void mockingOfFile(@Mocked final File file)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          file.exists(); result = true;
       }};
 
@@ -37,7 +37,7 @@ public final class JREMockingTest
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
 
-      new NonStrictExpectations(Calendar.class) {{
+      new Expectations(Calendar.class) {{
          Calendar.getInstance(tzCST); result = calCST;
       }};
 
@@ -59,7 +59,7 @@ public final class JREMockingTest
    {
       final Date d = new Date();
 
-      new NonStrictExpectations(d) {{
+      new Expectations(d) {{
          d.getMinutes(); result = 5;
       }};
 
@@ -70,7 +70,7 @@ public final class JREMockingTest
    @Test
    public void fullMockingOfSystem(@Mocked System mockSystem)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          System.currentTimeMillis();
          result = 123L;
       }};
@@ -190,7 +190,7 @@ public final class JREMockingTest
    @Test
    public void dynamicMockingOfNativeMethod(@Injectable final Thread t)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          t.isAlive();
 
          try {
@@ -206,7 +206,7 @@ public final class JREMockingTest
    @Test
    public void fullMockingOfThread(@Mocked Thread t)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Thread.activeCount();
          result = 123;
       }};
@@ -223,7 +223,7 @@ public final class JREMockingTest
    {
       final Thread d = new Thread((Runnable) null);
 
-      new NonStrictExpectations(d) {};
+      new Expectations(d) {};
 
       d.start();
       d.interrupt();
@@ -257,7 +257,7 @@ public final class JREMockingTest
    @Test
    public void recordDelegatedResultForMethodInMockedThreadSubclass(@Mocked final SomeTask task)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          task.doSomething();
          result = new Delegate() {
             @SuppressWarnings("unused")
@@ -312,7 +312,7 @@ public final class JREMockingTest
    @Test
    public void waitingWithMockParameter(@Mocked final Object mockedLock) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockedLock.wait(); minTimes = 1;
       }};
 
@@ -377,7 +377,7 @@ public final class JREMockingTest
    public void attemptToDynamicallyMockJREClassThatIsNeverMockable() throws Exception
    {
       try {
-         new NonStrictExpectations(ClassLoader.class) {{
+         new Expectations(ClassLoader.class) {{
             String.class.getClassLoader().getResourceAsStream("resource");
          }};
          fail();
@@ -436,7 +436,7 @@ public final class JREMockingTest
       assertFalse(s.contains("test"));
       assertEquals(0, s.size());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockedHashSet.size();
          result = 15;
       }};

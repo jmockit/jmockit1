@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.timing;
@@ -25,7 +25,7 @@ public final class AnimatorSwingTimingSourceTest
       Animator animator = new Animator(50);
       animator.addTarget(timingTarget);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          System.nanoTime(); returns(0L, 50L * 1000000);
       }};
 

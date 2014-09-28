@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -35,9 +35,9 @@ public final class ScreenTransitionExecutionTest
    }
 
    @Test
-   public void endTransition(@Mocked final JRootPane rootPane, @Mocked final Component savedGlassPane)
+   public void endTransition(@Mocked final JRootPane rootPane, @Mocked Component savedGlassPane)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          container.getRootPane(); result = rootPane;
       }};
 
@@ -60,7 +60,7 @@ public final class ScreenTransitionExecutionTest
       final int width = 200;
       final int height = 150;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          container.getWidth(); result = width;
          container.getHeight(); result = height;
 

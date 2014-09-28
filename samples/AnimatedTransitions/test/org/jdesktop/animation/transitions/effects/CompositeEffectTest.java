@@ -159,7 +159,7 @@ public final class CompositeEffectTest
       composite = new CompositeEffect(effect1);
       composite.addEffect(effect2);
 
-      new NonStrictExpectations() {{ composite.getRenderComponent(); times = 1; result = true; }};
+      new Expectations() {{ composite.getRenderComponent(); times = 1; result = true; }};
 
       composite.setup(null);
 
@@ -173,7 +173,7 @@ public final class CompositeEffectTest
       composite = new CompositeEffect(effect1);
       composite.addEffect(effect2);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          composite.getComponentImage(); times = 1;
          result = new BufferedImage(10, 5, BufferedImage.TYPE_BYTE_GRAY);
       }};

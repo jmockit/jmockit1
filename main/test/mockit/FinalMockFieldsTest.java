@@ -46,11 +46,11 @@ public final class FinalMockFieldsTest
    }
 
    @Test
-   public void recordNonStrictExpectationsOnFinalMockField()
+   public void recordExpectationsOnFinalMockField()
    {
       AnotherCollaborator collaborator = new AnotherCollaborator();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock2.doSomething(); times = 1;
       }};
 
@@ -63,7 +63,7 @@ public final class FinalMockFieldsTest
    @Test
    public void recordExpectationsOnConstructorOfFinalMockField()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new ProcessBuilder("test"); times = 1;
       }};
 

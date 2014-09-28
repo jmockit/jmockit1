@@ -18,11 +18,19 @@ final class Expectation
    @Nullable private InvocationResults results;
    boolean executedRealImplementation;
 
-   Expectation(@Nullable RecordPhase recordPhase, @NotNull ExpectedInvocation invocation, boolean nonStrict)
+   Expectation(@NotNull ExpectedInvocation invocation)
+   {
+      recordPhase = null;
+      this.invocation = invocation;
+      constraints = new InvocationConstraints(false, true);
+   }
+
+   Expectation(
+      @Nullable RecordPhase recordPhase, @NotNull ExpectedInvocation invocation, boolean strict, boolean nonStrict)
    {
       this.recordPhase = recordPhase;
       this.invocation = invocation;
-      constraints = new InvocationConstraints(nonStrict);
+      constraints = new InvocationConstraints(strict, nonStrict);
    }
 
    @NotNull InvocationResults getResults()

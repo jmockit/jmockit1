@@ -29,7 +29,7 @@ public final class MisusedExpectationsTest
    public void multipleReplayPhasesWithFirstSetOfExpectationsFullyReplayed()
    {
       // First record phase:
-      new Expectations() {{
+      new StrictExpectations() {{
          new Blah().value(); result = 5;
       }};
 
@@ -37,7 +37,7 @@ public final class MisusedExpectationsTest
       assertEquals(5, new Blah().value());
 
       // Second record phase:
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.value(); result = 6;
          mock.value(); result = 3;
       }};
@@ -51,7 +51,7 @@ public final class MisusedExpectationsTest
    public void multipleReplayPhasesWithFirstSetOfExpectationsPartiallyReplayed()
    {
       // First record phase:
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.value(); returns(1, 2);
       }};
 
@@ -59,7 +59,7 @@ public final class MisusedExpectationsTest
       assertEquals(1, mock.value());
 
       // Second record phase:
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.value(); returns(3, 4);
       }};
 
@@ -72,7 +72,7 @@ public final class MisusedExpectationsTest
    @Test
    public void recordDuplicateInvocationWithNoArguments()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.value(); result = 1;
          mock.value(); result = 2; // second recording overrides the first
       }};
@@ -84,7 +84,7 @@ public final class MisusedExpectationsTest
    @Test
    public void recordDuplicateInvocationWithArgumentMatcher()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setValue(anyInt); result = new UnknownError();
          mock.setValue(anyInt); // overrides the previous one
       }};
@@ -93,13 +93,13 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void recordDuplicateInvocationInSeparateNonStrictExpectationBlocks()
+   public void recordDuplicateInvocationInSeparateExpectationBlocks()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.value(); result = 1;
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.value(); result = 2; // overrides the previous expectation
       }};
 
@@ -107,16 +107,16 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void recordSameInvocationInNonStrictExpectationBlockThenInStrictOne()
+   public void recordSameInvocationInNotStrictExpectationBlockThenInStrictOne()
    {
       thrown.handleAssertionErrors();
       thrown.expect(AssertionError.class);
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.value(); result = 1;
       }};
 
-      new Expectations() {{
+      new StrictExpectations() {{
          // This expectation can never be replayed, so it will cause the test to fail:
          mock.value(); result = 2;
       }};
@@ -126,11 +126,11 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void recordNonStrictExpectationAfterInvokingSameMethodInReplayPhase()
+   public void recordNotStrictExpectationAfterInvokingSameMethodInReplayPhase()
    {
       assertEquals(0, mock.value());
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.value(); result = 1;
       }};
 
@@ -142,7 +142,7 @@ public final class MisusedExpectationsTest
    {
       assertEquals(0, mock.value());
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.value(); result = 1;
       }};
 
@@ -152,7 +152,7 @@ public final class MisusedExpectationsTest
    @Test
    public void recordOrderedInstantiationOfClassMockedTwice(@Mocked Blah mock2)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          // OK because of the strictly ordered matching (will match the *first* invocation with this constructor).
          new Blah();
       }};
@@ -163,7 +163,7 @@ public final class MisusedExpectationsTest
    @Test
    public void recordUnorderedInstantiationOfClassMockedTwice(@Mocked final Blah mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new Blah(); times = 1;
          mock.value(); result = 123;
          mock2.value(); result = 45;
@@ -206,7 +206,7 @@ public final class MisusedExpectationsTest
       final Blah blah = new Blah();
 
       try {
-         new NonStrictExpectations(blah) {{
+         new Expectations(blah) {{
             blah.doSomething(anyBoolean); result = "invalid";
          }};
          fail();
@@ -240,7 +240,7 @@ public final class MisusedExpectationsTest
    @Test
    public void accessSpecialFieldsInExpectationBlockThroughSuper(@Mocked final BlahBlah mock2)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock2.value(); super.result = 123; super.minTimes = 1; super.maxTimes = 2;
 
          mock2.doSomething(super.anyBoolean); super.result = "test";
@@ -269,7 +269,7 @@ public final class MisusedExpectationsTest
    @Test // with Java 7 only: "java.lang.VerifyError: Expecting a stackmap frame ..."
    public void expectationBlockContainingATryBlock()
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          try { mock.doSomething(anyBoolean); } finally { mock.setValue(1); }
       }};
 
@@ -278,50 +278,50 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void mixingStrictAndNonStrictExpectationsForSameDynamicallyMockedObject()
+   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedObject()
    {
       final BlahBlah tested = new BlahBlah();
 
-      new Expectations(tested) {{ tested.value(); }};
+      new StrictExpectations(tested) {{ tested.value(); }};
 
       try {
-         new NonStrictExpectations(tested) {{ tested.doSomething(anyBoolean); }};
+         new Expectations(tested) {{ tested.doSomething(anyBoolean); }};
          fail();
       }
       catch (IllegalArgumentException ignore) {}
    }
 
    @Test
-   public void mixingStrictAndNonStrictExpectationsForSameDynamicallyMockedClass()
+   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass()
    {
-      new Expectations(BlahBlah.class) {{ BlahBlah.doSomethingStatic(); }};
+      new StrictExpectations(BlahBlah.class) {{ BlahBlah.doSomethingStatic(); }};
 
       try {
-         new NonStrictExpectations(BlahBlah.class) {};
+         new Expectations(BlahBlah.class) {};
          fail();
       }
       catch (IllegalArgumentException ignore) {}
    }
 
    @Test
-   public void mixingStrictAndNonStrictExpectationsForSameDynamicallyMockedClass_forNonStrictBaseClass()
+   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass_forNotStrictBaseClass()
    {
-      new Expectations(BlahBlah.class) {{ new Blah(); BlahBlah.doSomethingStatic(); }};
+      new StrictExpectations(BlahBlah.class) {{ new Blah(); BlahBlah.doSomethingStatic(); }};
 
       try {
-         new NonStrictExpectations(Blah.class) {};
+         new Expectations(Blah.class) {};
          fail();
       }
       catch (IllegalArgumentException ignore) {}
    }
 
    @Test
-   public void mixingStrictAndNonStrictExpectationsForSameDynamicallyMockedClass_forStrictBaseClass()
+   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass_forStrictBaseClass()
    {
-      new Expectations(BlahBlah.class) {{ new BlahBlah(); }};
+      new StrictExpectations(BlahBlah.class) {{ new BlahBlah(); }};
 
       try {
-         new NonStrictExpectations(BlahBlah.class) {};
+         new Expectations(BlahBlah.class) {};
          fail();
       }
       catch (IllegalArgumentException ignore) {}
@@ -334,7 +334,7 @@ public final class MisusedExpectationsTest
       thrown.expectMessage("already mocked");
       thrown.expectMessage("Blah");
 
-      new NonStrictExpectations(Blah.class) {};
+      new Expectations(Blah.class) {};
    }
 
    @Test
@@ -363,7 +363,7 @@ public final class MisusedExpectationsTest
          @Override public String toString() { return "cut=" + value; }
       }
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getName();
          result = "test " + new CUT();
       }};

@@ -15,7 +15,7 @@ import mockit.internal.*;
 
 import static mockit.Deencapsulation.*;
 
-public final class ExpectationsTest
+public final class StrictExpectationsTest
 {
    static class Collaborator
    {
@@ -38,7 +38,7 @@ public final class ExpectationsTest
    @Test(expected = UnexpectedInvocation.class)
    public void expectOnlyOneInvocationButExerciseOthersDuringReplay(@Mocked final Collaborator mock)
    {
-      new Expectations() {{ mock.provideSomeService(); }};
+      new StrictExpectations() {{ mock.provideSomeService(); }};
 
       mock.provideSomeService();
       mock.setValue(1);
@@ -53,7 +53,7 @@ public final class ExpectationsTest
    @Test
    public void recordNothingOnTestScopedMockedTypeAndExerciseItDuringReplay(@Mocked Collaborator mock)
    {
-      new Expectations() {};
+      new StrictExpectations() {};
 
       mock.provideSomeService();
    }
@@ -61,7 +61,7 @@ public final class ExpectationsTest
    @Test(expected = UnexpectedInvocation.class)
    public void expectNothingOnMockedTypeButExerciseItDuringReplay(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.setValue(anyInt); times = 0;
       }};
 
@@ -71,7 +71,7 @@ public final class ExpectationsTest
    @Test
    public void mockInterface(@Mocked final Runnable mock)
    {
-      new Expectations() {{ mock.run(); }};
+      new StrictExpectations() {{ mock.run(); }};
 
       mock.run();
    }
@@ -83,7 +83,7 @@ public final class ExpectationsTest
    @Test
    public void mockInterfaceWhichExtendsAnother(@Mocked final IB b, @Mocked final IC c)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          c.doSomething(b); result = false;
          invoke(c, "doSomething", b); result = true;
       }};
@@ -101,7 +101,7 @@ public final class ExpectationsTest
    @Test
    public void mockAbstractClass(@Mocked final AbstractCollaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.doSomethingConcrete();
          mock.doSomethingAbstract();
       }};
@@ -131,7 +131,7 @@ public final class ExpectationsTest
    @Test
    public void mockSubclass(@Mocked final SubCollaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          new SubCollaborator();
          mock.provideSomeService();
          mock.getValue(); result = 1;
@@ -145,7 +145,7 @@ public final class ExpectationsTest
    @Test
    public void mockSuperClass(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue(); times = 2; returns(1, 2);
       }};
 
@@ -157,7 +157,7 @@ public final class ExpectationsTest
    @Test(expected = IllegalStateException.class)
    public void attemptToRecordExpectedReturnValueForNoCurrentInvocation(@Mocked Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          result = 42;
       }};
    }
@@ -165,14 +165,14 @@ public final class ExpectationsTest
    @Test(expected = IllegalStateException.class)
    public void attemptToAddArgumentMatcherWhenNotRecording(@Mocked Collaborator mock)
    {
-      new Expectations() {}.withNotEqual(5);
+      new StrictExpectations() {}.withNotEqual(5);
    }
 
    @Test
    public void mockClassWithMethodsOfAllReturnTypesReturningDefaultValues(
       @Mocked final ClassWithMethodsOfEveryReturnType mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getBoolean();
          mock.getChar();
          mock.getByte();
@@ -214,7 +214,7 @@ public final class ExpectationsTest
    @Test(expected = UnexpectedInvocation.class)
    public void replayWithUnexpectedStaticMethodInvocation(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue();
       }};
 
@@ -224,7 +224,7 @@ public final class ExpectationsTest
    @Test(expected = MissingInvocation.class)
    public void replayWithMissingExpectedMethodInvocation(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.setValue(123);
       }};
    }
@@ -232,7 +232,7 @@ public final class ExpectationsTest
    @Test
    public void defineTwoConsecutiveReturnValues(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue(); result = 1; result = 2;
       }};
 
@@ -243,7 +243,7 @@ public final class ExpectationsTest
    @Test
    public void mockNativeMethodUsingFullMocking(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.nativeMethod(); result = true;
       }};
 
@@ -265,7 +265,7 @@ public final class ExpectationsTest
    @Test
    public void mockSystemGetenvMethod(@Mocked System mockedSystem)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          System.getenv("envVar"); result = ".";
       }};
 
@@ -276,7 +276,7 @@ public final class ExpectationsTest
    public void mockConstructorsInJREClassHierarchies(@Mocked FileWriter fileWriter)
       throws Exception
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          new FileWriter("no.file");
       }};
 
@@ -291,7 +291,7 @@ public final class ExpectationsTest
          public void run() { mock.provideSomeService(); }
       };
 
-      new Expectations() {{ mock.getValue(); }};
+      new StrictExpectations() {{ mock.getValue(); }};
 
       mock.getValue();
       t.start();
@@ -310,7 +310,7 @@ public final class ExpectationsTest
    @Test
    public void recordStrictExpectationsAllowingZeroInvocationsAndReplayNone(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.provideSomeService(); minTimes = 0;
          mock.setValue(1); minTimes = 0;
       }};
@@ -324,7 +324,7 @@ public final class ExpectationsTest
    {
       final URL expectedURL = new URL("http://expected");
 
-      new Expectations() {{ mock.doSomething(expectedURL); }};
+      new StrictExpectations() {{ mock.doSomething(expectedURL); }};
 
       mock.doSomething(expectedURL);
 
@@ -342,7 +342,7 @@ public final class ExpectationsTest
    @Test
    public void recordExpectationInMethodOfExpectationBlockInsteadOfConstructor(@Mocked final Collaborator mock)
    {
-      new Expectations() {
+      new StrictExpectations() {
          {
             recordExpectation();
          }

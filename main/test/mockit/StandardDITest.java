@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -164,7 +164,7 @@ public final class StandardDITest
    public void supportVarargsParameterWithProviders(@Injectable final Provider<String> nameProvider)
    {
       final String[] names = {"John", "Mary"};
-      new NonStrictExpectations() {{ nameProvider.get(); result = names; }};
+      new Expectations() {{ nameProvider.get(); result = names; }};
 
       assertSame(collaborator, tested5.collaborator1);
       assertNotNull(tested5.collaborator2);

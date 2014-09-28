@@ -17,10 +17,10 @@ import org.hamcrest.Matcher;
 import org.jetbrains.annotations.*;
 
 /**
- * Provides common API for use inside {@linkplain NonStrictExpectations expectation} and
- * {@linkplain Verifications verification} blocks.
+ * Provides common API for use inside {@linkplain mockit.Expectations expectation} and
+ * {@linkplain mockit.Verifications verification} blocks.
  */
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings({"ConstantConditions", "ClassWithTooManyFields"})
 abstract class Invocations
 {
    static { Startup.verifyInitialization(); }

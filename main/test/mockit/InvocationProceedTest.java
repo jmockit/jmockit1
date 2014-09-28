@@ -263,7 +263,7 @@ public final class InvocationProceedTest
    @Test
    public void proceedFromDelegateMethodOnRegularMockedClass(@Mocked final ClassToBeMocked mocked)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mocked.methodToBeMocked();
          result = new Delegate() {
             boolean delegate(Invocation inv) { return inv.proceed(); }
@@ -291,7 +291,7 @@ public final class InvocationProceedTest
    {
       final ClassToBeMocked mocked = new ClassToBeMocked();
 
-      new NonStrictExpectations(mocked) {{
+      new Expectations(mocked) {{
          mocked.methodToBeMocked(anyInt);
          result = new Delegate() { int delegate(Invocation inv, int i) { Integer j = inv.proceed(); return j + 1; } };
 
@@ -315,7 +315,7 @@ public final class InvocationProceedTest
    {
       final ClassToBeMocked mocked = new ClassToBeMocked();
 
-      new NonStrictExpectations(mocked) {{
+      new Expectations(mocked) {{
          mocked.anotherMethodToBeMocked(anyString, anyBoolean, null);
          result = new Delegate() {
             String delegate(Invocation inv, String s, boolean b, List<Number> ints)
@@ -365,7 +365,7 @@ public final class InvocationProceedTest
    @Test
    public void proceedFromDelegateMethodIntoConstructor()
    {
-      new NonStrictExpectations(ClassToBeMocked.class) {{
+      new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked();
          result = new Delegate() {
             void init(Invocation inv)
@@ -383,7 +383,7 @@ public final class InvocationProceedTest
    @Test
    public void proceedConditionallyFromDelegateMethodIntoConstructor()
    {
-      new NonStrictExpectations(ClassToBeMocked.class) {{
+      new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
             void init(Invocation inv, String name)
@@ -408,7 +408,7 @@ public final class InvocationProceedTest
       thrown.expectMessage("Cannot replace arguments");
       thrown.expectMessage("constructor");
 
-      new NonStrictExpectations(ClassToBeMocked.class) {{
+      new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
             void init(Invocation inv, String name) { inv.proceed("mock"); }
@@ -421,7 +421,7 @@ public final class InvocationProceedTest
    @Test
    public void proceedConditionallyFromDelegateMethodIntoJREConstructor()
    {
-      new NonStrictExpectations(File.class) {{
+      new Expectations(File.class) {{
          new File(anyString);
          result = new Delegate() {
             void init(Invocation inv, String name)
@@ -444,7 +444,7 @@ public final class InvocationProceedTest
    @Test
    public void proceedFromDelegateMethodIntoJREConstructorWhichCallsAnotherInTheSameClass()
    {
-      new NonStrictExpectations(Vector.class) {{
+      new Expectations(Vector.class) {{
          new Vector<String>(anyInt);
          result = new Delegate() {
             void init(Invocation inv, int i) { inv.proceed(); }
@@ -466,7 +466,7 @@ public final class InvocationProceedTest
    @Ignore("Mocked constructor proceeding into another: not supported yet") @Test
    public void proceedFromDelegateMethodIntoConstructorWhichCallsAnotherInTheSameClass()
    {
-      new NonStrictExpectations(MyVector.class) {{
+      new Expectations(MyVector.class) {{
          new MyVector();
          result = new Delegate() {
             void init(Invocation inv) { inv.proceed(); }
@@ -482,7 +482,7 @@ public final class InvocationProceedTest
    {
       final ClassToBeMocked obj = new ClassToBeMocked();
 
-      new NonStrictExpectations(obj) {{
+      new Expectations(obj) {{
          obj.baseMethod(anyInt);
          result = new Delegate() {
             int baseMethod(Invocation inv, int i) { return inv.proceed(i + 1); }
@@ -496,7 +496,7 @@ public final class InvocationProceedTest
    public void proceedFromDelegateMethodIntoOverridingMethodWhichCallsSuper(@Mocked final ClassToBeMocked mocked)
       throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mocked.methodToBeMocked(1);
          result = new Delegate() {
             int delegate(Invocation inv) { return inv.proceed(); }
@@ -510,7 +510,7 @@ public final class InvocationProceedTest
    public void proceedFromDelegateMethodIntoOverridingMethodThatCallsSuperWhichAlsoHasAProceedingDelegate(
       @Mocked final BaseClassToBeMocked mockedBase, @Mocked final ClassToBeMocked mocked) throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockedBase.methodToBeMocked(1);
          result = new Delegate() {
             // Will not execute when calling on subclass instance.
@@ -532,7 +532,7 @@ public final class InvocationProceedTest
    {
       final ClassToBeMocked notMocked = new ClassToBeMocked("not mocked");
 
-      new NonStrictExpectations(ClassToBeMocked.class) {{
+      new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString); result = notMocked;
       }};
 
@@ -544,7 +544,7 @@ public final class InvocationProceedTest
       @Injectable final AbstractExecutorService c1, @Mocked final ClassToBeMocked c2)
       throws Exception
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          c1.submit((Runnable) any);
          result = new Delegate() {
             void delegate(Invocation inv) { inv.proceed(); }
@@ -556,7 +556,7 @@ public final class InvocationProceedTest
          fail();
       }
       catch (NullPointerException ignored) {
-         new NonStrictExpectations() {{
+         new Expectations() {{
             c2.methodToBeMocked(anyInt); result = 123;
          }};
 

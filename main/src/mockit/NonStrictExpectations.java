@@ -5,71 +5,12 @@
 package mockit;
 
 /**
- * Used to <em>record</em> non-strict expectations on {@linkplain Mocked mocked} types and mocked instances.
- * <p/>
- * A recorded expectation is intended to match a number of method or constructor invocations, that we expect will occur
- * during the execution of some code under test.
- * When a match is detected, the recorded {@linkplain #result result} is returned to the caller.
- * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain Delegate delegate} method is
- * executed.
- * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during
- * the initialization of a {@code NonStrictExpectations} object.
- * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
- * call it, an <em>expectation block</em>:
- * <pre>
- * // <em>Record</em> one or more expectations on available mocked types/instances:
- * new NonStrictExpectations() {{
- *    <strong>mock1</strong>.expectedMethod(<em>anyInt</em>); <em>result</em> = 123; <em>times</em> = 1;
- *    <strong>MockedClass</strong>.allowedMethod(); <em>result</em> = new IOException();
- *    <strong>mock2</strong>.anotherAllowedMethod(1, "test"); returns("Abc", "xyz");
- * }};
- *
- * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
- * codeUnderTest.doSomething();
- * </pre>
- * During replay, invocations matching recorded expectations can occur in any number and in any order.
- * The result the caller gets will be as recorded in the non-strict expectation block.
- * Invocations that don't match any recorded expectation, on the other hand, will simply result in a default value being
- * returned to the caller, or in nothing at all in the case of a {@code void} method.
- * <p/>
- * Multiple expectations on the same method or constructor can be recorded, provided different arguments are used.
- * For flexible matching of parameter values, we can use a variety of argument matching {@linkplain #anyString fields}
- * and {@linkplain #withAny(Object) methods}.
- * Also, multiple separate expectation blocks can be created in the same test method or test setup method.
- * <p/>
- * A lower/upper limit or an exact number of expected invocations can be specified for each recorded expectation,
- * by assigning the {@link #minTimes}, {@link #maxTimes}, or {@link #times} field, as appropriate, when recording the
- * expectation.
- * <p/>
- * Rather than creating anonymous subclasses, we can also create named subclasses to be reused in multiple tests.
- * Some examples:
- * <pre>
- * public final class MyReusableExpectations extends NonStrictExpectations {
- *    public MyReusableExpectations(...any parameters...) {
- *       // expectations recorded here
- *    }
- * }
- *
- * public class ReusableBaseExpectations extends NonStrictExpectations {
- *     protected ReusableBaseExpectations(...) {
- *        // expectations here
- *     }
- * }
- *
- * &#64;Test
- * public void someTest(@Mocked final SomeType aMock, etc.) {
- *     // Record reusable expectations by instantiating a <em>final</em> "...Expectations" class.
- *     new MyReusableExpectations(123, "test", <em>etc.</em>);
- *
- *     // Record and extend reusable expectations by instantiating a <em>non-final</em> base class.
- *     new ReusableBaseExpectations() {{
- *        // additional expectations
- *     }};
- * }
- * </pre>
- * Finally, non-strict expectations, either recorded or not, can be explicitly verified <em>after</em> exercising the
- * code under test, by using a set of complementary base classes: {@link Verifications},
- * {@link mockit.VerificationsInOrder}, etc.
+ * Used to record <em>non-strict</em> expectations on {@linkplain mockit.Mocked mocked} types and their instances.
+ * The difference from {@linkplain mockit.Expectations regular expectations} is that a non-strict recorded expectation
+ * is allowed to have <em>no</em> matching invocations (unless otherwise specified).
+ * This property makes them particularly useful for test setup methods such as a JUnit {@code @Before} method, or a
+ * {@code @BeforeMethod} in a TestNG test class, since such expectations may be used by some tests only, but not all in
+ * the test class.
  *
  * @see #NonStrictExpectations()
  * @see #NonStrictExpectations(Object...)

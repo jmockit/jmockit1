@@ -57,7 +57,7 @@ public final class DocumentManager_JMockit_Test
    @Test
    public void voteForRemoval()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Expect to be asked to vote, and vote for it.
          mock.voteForRemoval("Document"); result = 42; times = 1;
       }};
@@ -76,7 +76,7 @@ public final class DocumentManager_JMockit_Test
    @Test
    public void voteAgainstRemoval()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Expect to be asked to vote, and vote against it.
          mock.voteForRemoval("Document"); result = -42; times = 1;
       }};
@@ -94,7 +94,7 @@ public final class DocumentManager_JMockit_Test
    @Test
    public void voteForRemovals()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.voteForRemovals("Document 1", "Document 2"); result = 42; times = 1;
       }};
 
@@ -113,7 +113,7 @@ public final class DocumentManager_JMockit_Test
    @Test
    public void voteAgainstRemovals()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.voteForRemovals("Document 1", "Document 2"); result = -42; times = 1;
       }};
 
@@ -130,7 +130,7 @@ public final class DocumentManager_JMockit_Test
    @Test
    public void delegateMethodWhichProducesResultBasedOnCustomLogic(@Mocked final List<String> l)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          l.remove(10);
          result = new Delegate() {
             @SuppressWarnings("unused")

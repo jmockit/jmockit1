@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -48,7 +48,7 @@ public class ComplexVerificationsTest
    @Test
    public void usingStrictExpectationsOnly(@Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          // Meets requirement 1:
          new A();
          new B();
@@ -58,13 +58,13 @@ public class ComplexVerificationsTest
          a.process(input);
       }};
 
-      new Expectations(input.length) {{
+      new StrictExpectations(input.length) {{
          // Meets requirement 3 but NOT 4:
          b.foo();
          c.bar();
       }};
 
-      new Expectations() {{
+      new StrictExpectations() {{
          // Meets requirement 5:
          a.result(); result = 42;
       }};
@@ -75,9 +75,9 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingStrictAndNonStrictMockedTypes(@Mocked final A a, @Mocked final B b, @Mocked final C c)
+   public void usingStrictAndNotStrictMockedTypes(@Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          // Meets requirements 1 and 2.
          new A();
          a.process(input);
@@ -86,7 +86,7 @@ public class ComplexVerificationsTest
          a.result(); result = 42;
       }};
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Meets requirements 1 and 2.
          new B(); times = 1;
          new C(); times = 1;
@@ -103,9 +103,9 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingNonStrictExpectationsOnly(@Mocked final A a, @Mocked final B b, @Mocked final C c)
+   public void usingNotStrictExpectationsOnly(@Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Meets requirements 1b and 5b.
          new A(); times = 1;
          new B(); times = 1;
@@ -137,10 +137,10 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingNonStrictExpectationsOnlyWithoutDuplicateInvocations(
+   public void usingNotStrictExpectationsOnlyWithoutDuplicateInvocations(
       @Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Meets requirements 1b and 5b.
          new A(); times = 1;
          new B(); times = 1;
@@ -166,12 +166,12 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void testFewerRequirementsUsingNonStrictExpectationsOnly(
+   public void testFewerRequirementsUsingNotStrictExpectationsOnly(
       @Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
       // Requirements to meet: only 1b, 3b, 4, 6b and 6c.
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Meets requirement 1b.
          new A(); times = 1;
          new B(); times = 1;

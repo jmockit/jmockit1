@@ -18,17 +18,17 @@ final class ReplayPhase extends Phase
    int currentStrictExpectationIndex;
    @Nullable private Expectation strictExpectation;
 
-   // Fields for the handling of non-strict invocations:
-   @NotNull final List<Expectation> nonStrictInvocations;
-   @NotNull final List<Object> nonStrictInvocationInstances;
-   @NotNull final List<Object[]> nonStrictInvocationArguments;
+   // Fields for the handling of invocations that are not strict:
+   @NotNull final List<Expectation> invocations;
+   @NotNull final List<Object> invocationInstances;
+   @NotNull final List<Object[]> invocationArguments;
 
    ReplayPhase(@NotNull RecordAndReplayExecution recordAndReplay)
    {
       super(recordAndReplay);
-      nonStrictInvocations = new ArrayList<Expectation>();
-      nonStrictInvocationInstances = new ArrayList<Object>();
-      nonStrictInvocationArguments = new ArrayList<Object[]>();
+      invocations = new ArrayList<Expectation>();
+      invocationInstances = new ArrayList<Object>();
+      invocationArguments = new ArrayList<Object[]>();
       initialStrictExpectationIndexForCurrentBlock =
          Math.max(recordAndReplay.lastExpectationIndexInPreviousReplayPhase, 0);
       positionOnFirstStrictExpectation();
@@ -36,21 +36,22 @@ final class ReplayPhase extends Phase
 
    private void positionOnFirstStrictExpectation()
    {
-      List<Expectation> expectations = getExpectations();
+      List<Expectation> strictExpectations = getStrictExpectations();
 
-      if (expectations.isEmpty()) {
+      if (strictExpectations.isEmpty()) {
          currentStrictExpectationIndex = -1;
          strictExpectation = null ;
       }
       else {
          currentStrictExpectationIndex = initialStrictExpectationIndexForCurrentBlock;
          strictExpectation =
-            currentStrictExpectationIndex < expectations.size() ?
-               expectations.get(currentStrictExpectationIndex) : null;
+            currentStrictExpectationIndex < strictExpectations.size() ?
+               strictExpectations.get(currentStrictExpectationIndex) : null;
       }
    }
 
-   @NotNull private List<Expectation> getExpectations() { return recordAndReplay.executionState.expectations; }
+   @NotNull
+   private List<Expectation> getStrictExpectations() { return recordAndReplay.executionState.strictExpectations; }
 
    @Override
    @Nullable
@@ -59,39 +60,39 @@ final class ReplayPhase extends Phase
       @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
       throws Throwable
    {
-      Expectation nonStrictExpectation =
-         recordAndReplay.executionState.findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+      Expectation notStrictExpectation =
+         recordAndReplay.executionState.findNotStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance =
          recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
-      if (nonStrictExpectation == null) {
-         nonStrictExpectation = createExpectationIfNonStrictInvocation(
+      if (notStrictExpectation == null) {
+         notStrictExpectation = createExpectationIfNotStrictInvocation(
             replacementInstance == null ? mock : replacementInstance,
             mockAccess, mockClassDesc, mockNameAndDesc, genericSignature, args);
       }
-      else if (nonStrictExpectation.recordPhase != null) {
-         registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, nonStrictExpectation.invocation);
+      else if (notStrictExpectation.recordPhase != null) {
+         registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, notStrictExpectation.invocation);
       }
 
-      if (nonStrictExpectation != null) {
-         nonStrictInvocations.add(nonStrictExpectation);
-         nonStrictInvocationInstances.add(mock);
-         nonStrictInvocationArguments.add(args);
+      if (notStrictExpectation != null) {
+         invocations.add(notStrictExpectation);
+         invocationInstances.add(mock);
+         invocationArguments.add(args);
 
-         nonStrictExpectation.constraints.incrementInvocationCount();
+         notStrictExpectation.constraints.incrementInvocationCount();
 
          if (withRealImpl && replacementInstance != null) {
-            return produceResult(nonStrictExpectation, replacementInstance, args);
+            return produceResult(notStrictExpectation, replacementInstance, args);
          }
 
-         return produceResult(nonStrictExpectation, mock, withRealImpl, args);
+         return produceResult(notStrictExpectation, mock, withRealImpl, args);
       }
 
       return handleStrictInvocation(mock, mockClassDesc, mockNameAndDesc, withRealImpl, args);
    }
 
    @Nullable
-   private Expectation createExpectationIfNonStrictInvocation(
+   private Expectation createExpectationIfNotStrictInvocation(
       @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
       @Nullable String genericSignature, @NotNull Object[] args)
    {
@@ -100,8 +101,8 @@ final class ReplayPhase extends Phase
       if (!TestRun.getExecutingTest().isStrictInvocation(mock, mockClassDesc, mockNameAndDesc)) {
          ExpectedInvocation invocation =
             new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
-         expectation = new Expectation(null, invocation, true);
-         recordAndReplay.executionState.addExpectation(expectation, true);
+         expectation = new Expectation(invocation);
+         recordAndReplay.executionState.addExpectation(expectation, false);
       }
 
       return expectation;
@@ -234,7 +235,7 @@ final class ReplayPhase extends Phase
 
    private void moveToNextExpectation()
    {
-      List<Expectation> expectations = getExpectations();
+      List<Expectation> strictExpectations = getStrictExpectations();
 
       assert strictExpectation != null;
       RecordPhase expectationBlock = strictExpectation.recordPhase;
@@ -243,7 +244,8 @@ final class ReplayPhase extends Phase
       currentStrictExpectationIndex++;
 
       strictExpectation =
-         currentStrictExpectationIndex < expectations.size() ? expectations.get(currentStrictExpectationIndex) : null;
+         currentStrictExpectationIndex < strictExpectations.size() ?
+            strictExpectations.get(currentStrictExpectationIndex) : null;
 
       if (expectationBlock.numberOfIterations <= 1) {
          if (strictExpectation != null && strictExpectation.recordPhase != expectationBlock) {
@@ -259,7 +261,7 @@ final class ReplayPhase extends Phase
 
    private void resetInvocationCountsForStrictExpectations(@NotNull RecordPhase expectationBlock)
    {
-      for (Expectation expectation : getExpectations()) {
+      for (Expectation expectation : getStrictExpectations()) {
          if (expectation.recordPhase == expectationBlock) {
             expectation.constraints.invocationCount = 0;
          }
@@ -275,12 +277,12 @@ final class ReplayPhase extends Phase
          return strict.invocation.errorForMissingInvocation();
       }
 
-      List<Expectation> nonStrictExpectations = recordAndReplay.executionState.nonStrictExpectations;
+      List<Expectation> notStrictExpectations = recordAndReplay.executionState.notStrictExpectations;
 
       // New expectations might get added to the list, so a regular loop would cause a CME.
       //noinspection ForLoopReplaceableByForEach
-      for (int i = 0, n = nonStrictExpectations.size(); i < n; i++) {
-         Expectation nonStrict = nonStrictExpectations.get(i);
+      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
+         Expectation nonStrict = notStrictExpectations.get(i);
          InvocationConstraints constraints = nonStrict.constraints;
 
          if (constraints.isInvocationCountLessThanMinimumExpected()) {
@@ -289,9 +291,10 @@ final class ReplayPhase extends Phase
       }
 
       int nextStrictExpectationIndex = currentStrictExpectationIndex + 1;
+      List<Expectation> strictExpectations = getStrictExpectations();
 
-      if (nextStrictExpectationIndex < getExpectations().size()) {
-         Expectation nextStrictExpectation = getExpectations().get(nextStrictExpectationIndex);
+      if (nextStrictExpectationIndex < strictExpectations.size()) {
+         Expectation nextStrictExpectation = strictExpectations.get(nextStrictExpectationIndex);
 
          if (nextStrictExpectation.constraints.isInvocationCountLessThanMinimumExpected()) {
             return nextStrictExpectation.invocation.errorForMissingInvocation();

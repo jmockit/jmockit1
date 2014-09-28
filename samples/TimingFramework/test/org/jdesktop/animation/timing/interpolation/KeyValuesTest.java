@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.timing.interpolation;
@@ -88,7 +88,7 @@ public final class KeyValuesTest
       final float fraction = 0.5f;
       final float expectedValue = 2.0f;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          evaluator.evaluate(startValue, toValue, fraction); result = expectedValue;
       }};
 
@@ -105,7 +105,7 @@ public final class KeyValuesTest
       final float fraction = 0.5f;
       final float expectedValue = 2.0f;
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          evaluator.evaluate(lowerValue, upperValue, fraction); result = expectedValue;
       }};
 

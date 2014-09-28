@@ -83,7 +83,7 @@ public final class ClassLoadingAndJREMocksTest
    {
       final File aFile = new File("");
 
-      new NonStrictExpectations(File.class) {{
+      new Expectations(File.class) {{
          aFile.exists();
          result = new Delegate() {
             @Mock boolean exists(Invocation inv)
@@ -100,7 +100,7 @@ public final class ClassLoadingAndJREMocksTest
    @Test
    public void mockFileSafelyUsingReplacementInstanceForMatchingConstructorInvocations(@Mocked final File aFile)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          new File("testFile"); result = aFile;
          onInstance(aFile).exists(); result = true;
       }};
@@ -148,7 +148,7 @@ public final class ClassLoadingAndJREMocksTest
    @Test
    public void useMockedVectorDuringClassLoading(@Mocked final Vector<?> mockedVector)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockedVector.size(); result = 2;
       }};
 
@@ -160,7 +160,7 @@ public final class ClassLoadingAndJREMocksTest
    {
       Properties props = new Properties();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.remove(anyString); result = 123;
          mock.getProperty("test"); result = "mock";
       }};
@@ -183,7 +183,7 @@ public final class ClassLoadingAndJREMocksTest
    public void mockURLAndHttpURLConnection(@Mocked final URL mockUrl, @Mocked final HttpURLConnection mockConnection)
       throws Exception
    {
-      new NonStrictExpectations() {{ mockUrl.openConnection(); result = mockConnection; }};
+      new Expectations() {{ mockUrl.openConnection(); result = mockConnection; }};
 
       HttpURLConnection conn = (HttpURLConnection) mockUrl.openConnection();
       assertSame(mockConnection, conn);
@@ -195,7 +195,7 @@ public final class ClassLoadingAndJREMocksTest
    {
       final URL url = new URL("http://nowhere");
 
-      new NonStrictExpectations(url) {{
+      new Expectations(url) {{
          url.openConnection(); result = mockHttpConnection;
          mockHttpConnection.getOutputStream(); result = new ByteArrayOutputStream();
       }};
@@ -233,7 +233,7 @@ public final class ClassLoadingAndJREMocksTest
       throws Exception
    {
       final String testContents = "testing";
-      new NonStrictExpectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
+      new Expectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
 
       String contents = readResourceContents("remoteHost", 80, "aResource", 1000);
 
@@ -260,7 +260,7 @@ public final class ClassLoadingAndJREMocksTest
       String existentZipFileName = getClass().getResource("test.zip").getPath();
       final ZipFile testZip = new ZipFile(existentZipFileName);
 
-      new NonStrictExpectations(ZipFile.class) {{
+      new Expectations(ZipFile.class) {{
          new ZipFile("non-existent"); result = testZip;
       }};
 
@@ -286,7 +286,7 @@ public final class ClassLoadingAndJREMocksTest
    @Test
    public void mockJarEntry(@Mocked final JarEntry mockEntry)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockEntry.getName(); result = "Test";
       }};
 
@@ -319,7 +319,7 @@ public final class ClassLoadingAndJREMocksTest
       final File testFile = new File("test.jar");
       final String mainClassName = "test.Main";
 
-      new Expectations() {{
+      new StrictExpectations() {{
          new JarFile(testFile);
          mockFile.getManifest(); result = mockManifest;
          mockManifest.getMainAttributes(); result = mockAttributes;
@@ -341,7 +341,7 @@ public final class ClassLoadingAndJREMocksTest
       String mainClassFromJar = readMainClassAndFileNamesFromJar(testFile, fileNames);
 
       assertEquals(mainClassName, mainClassFromJar);
-      assertEquals(fileNames, asList("test/Main$Inner.class", "test/Main.class"));
+      assertEquals(asList("test/Main$Inner.class", "test/Main.class"), fileNames);
    }
 
    @Test(expected = IllegalArgumentException.class)

@@ -31,7 +31,7 @@ public final class InterfacesWithMethodBodiesTest
    @Test
    public void mockInterfaceWithDefaultMethods(@Mocked InterfaceWithDefaultMethods mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.defaultMethod(); result = 2;
          mock.regularMethod(); result = 1;
       }};
@@ -43,7 +43,7 @@ public final class InterfacesWithMethodBodiesTest
    @Test
    public void mockClassWithOverriddenDefaultMethod(@Mocked ClassWhichOverridesDefaultMethodFromInterface mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.defaultMethod(); result = 2;
          mock.regularMethod(); result = 1;
       }};
@@ -60,7 +60,7 @@ public final class InterfacesWithMethodBodiesTest
    @Test
    public void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.defaultMethod();
          result = 123;
       }};
@@ -112,7 +112,7 @@ public final class InterfacesWithMethodBodiesTest
    {
       ClassInheritingMultipleDefaultMethods obj = new ClassInheritingMultipleDefaultMethods();
 
-      new NonStrictExpectations(ClassInheritingMultipleDefaultMethods.class) {{
+      new Expectations(ClassInheritingMultipleDefaultMethods.class) {{
          obj.defaultMethod(); result = 123;
          obj.defaultMethod2(); result = 22;
          obj.anotherDefaultMethod(1); result = "one";
@@ -122,6 +122,7 @@ public final class InterfacesWithMethodBodiesTest
       assertEquals(5, obj.regularMethod());
       assertEquals(1, obj.defaultMethod1());
       assertEquals(22, obj.defaultMethod2());
+      assertEquals("one", obj.anotherDefaultMethod(1));
       obj.anotherRegularMethod(true);
 
       new Verifications() {{
@@ -134,7 +135,7 @@ public final class InterfacesWithMethodBodiesTest
    @Test
    public void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          InterfaceWithStaticMethod.newInstance();
          result = mock;
       }};
@@ -148,7 +149,7 @@ public final class InterfacesWithMethodBodiesTest
    {
       StringBuilder concatenated = new StringBuilder();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockConsumer.accept(anyString);
          result = new Delegate() {
             @Mock void delegate(String s) { concatenated.append(s).append(' '); }
@@ -178,7 +179,7 @@ public final class InterfacesWithMethodBodiesTest
    public void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(
       @Mocked NonPublicBase base, @Mocked NonPublicDerived derived)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          base.baseDefault(); result = 1;
          derived.baseDefault(); result = 2;
       }};

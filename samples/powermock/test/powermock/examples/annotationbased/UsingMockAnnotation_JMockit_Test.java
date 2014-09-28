@@ -24,7 +24,7 @@ public final class UsingMockAnnotation_JMockit_Test
    {
       final Object data = new Object();
 
-      new NonStrictExpectations() {{ someDaoMock.getSomeData(); result = data; }};
+      new Expectations() {{ someDaoMock.getSomeData(); result = data; }};
 
       assertSame(data, someService.getData());
    }

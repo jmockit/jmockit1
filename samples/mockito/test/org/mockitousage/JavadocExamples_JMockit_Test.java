@@ -6,6 +6,8 @@ package org.mockitousage;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -55,7 +57,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 4
    public void stubInvocations(@Mocked final MockedClass mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.getItem(0); result = "first";
          mock.getItem(1); result = new RuntimeException();
       }};
@@ -75,7 +77,8 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 3
    public void stubAndVerifyInvocation()
    {
-      new NonStrictExpectations() {{ mockedList.get(0); result = "first"; }};
+      // A recorded expectation is expected to occur at least once, by default.
+      new Expectations() {{ mockedList.get(0); result = "first"; }};
 
       assertEquals("first", mockedList.get(0));
 
@@ -83,38 +86,36 @@ public final class JavadocExamples_JMockit_Test
       // invocation occurs at least once. If this is the case, then it's not safe to expect the test
       // to break without an explicit verification, because the method under test may never call the
       // stubbed one, and that would be a bug that the test should detect.
-      new Verifications() {{ mockedList.get(0); }};
    }
 
    @Test // Uses of JMockit API: 3
    public void stubAndVerifyInvocationWithoutRepeatingItInExpectationAndVerificationBlocks()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Notice that this can't be done in Mockito, which requires the repetition of
          // "mockedList.get(0);" in the verification phase.
          mockedList.get(0); result = "first"; times = 1;
-
-         // Notice also that if the expectation above was strict (ie, recorded inside an
-         // "Expectations" block) then the "times = 1;" constraint could be removed.
       }};
 
       assertEquals("first", mockedList.get(0));
    }
 
-   @Test // Uses of JMockit API: 7
+   @Test // Uses of JMockit API: 8
    public void useArgumentMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Using built-in matchers:
          mockedList.get(anyInt); result = "element";
 
          // Using Hamcrest matchers:
-         mockedList.get(withArgThat(is(equalTo(5)))); result = new IllegalArgumentException();
-         mockedList.contains(withArgThat(hasProperty("abc"))); result = true;
+         mockedList.get(withArgThat(is(equalTo(5)))); result = new IllegalArgumentException(); minTimes = 0;
+         mockedList.contains(withArgThat(hasProperty("bytes"))); result = true;
          mockedList.containsAll(withArgThat(hasSize(2))); result = true;
       }};
 
       assertEquals("element", mockedList.get(999));
+      assertTrue(mockedList.contains("abc"));
+      assertTrue(mockedList.containsAll(asList("a", "b")));
 
       new Verifications() {{ mockedList.get(anyInt); }};
    }
@@ -126,7 +127,7 @@ public final class JavadocExamples_JMockit_Test
          boolean matches(List<?> list) { return list.size() == 2; }
       }
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mockedList.addAll(with(new IsListOfTwoElements())); result = true;
          times = 1;
       }};
@@ -183,7 +184,7 @@ public final class JavadocExamples_JMockit_Test
    @Test(expected = RuntimeException.class) // Uses of JMockit API: 2
    public void stubVoidMethodsWithExceptions()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // void/non-void methods are handled the same way, with a consistent API:
          mockedList.clear(); result = new RuntimeException();
       }};
@@ -302,7 +303,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 4
    public void stubbingConsecutiveCalls(@Mocked final Iterator<String> mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.next(); result = new IllegalStateException(); result = "foo";
       }};
 
@@ -325,7 +326,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 3
    public void stubbingConsecutiveCallsToReturnASequenceOfValues(@Mocked final MockedClass mock)
    {
-      new NonStrictExpectations() {{ mock.someMethod("some arg"); returns("one", "two", "three"); }};
+      new Expectations() {{ mock.someMethod("some arg"); returns("one", "two", "three"); }};
 
       assertEquals("one", mock.someMethod("some arg"));
       assertEquals("two", mock.someMethod("some arg"));
@@ -336,7 +337,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 5
    public void stubbingWithCallbacksUsingDelegate(@Mocked final MockedClass mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.someMethod(anyString);
          result = new Delegate() {
             String delegate(String s) { return "called with arguments: " + s; }
@@ -366,7 +367,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 7
    public void callingRealMethodFromDelegate(@Injectable final MockedClass mock)
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.someMethod(anyString);
          result = new Delegate() {
             String delegate(Invocation invocation, String s)
@@ -384,7 +385,7 @@ public final class JavadocExamples_JMockit_Test
    public void stubbingVoidMethods()
    {
       // The API is consistent, so this is the same as for non-void methods:
-      new NonStrictExpectations() {{ mockedList.clear(); result = new RuntimeException(); }};
+      new Expectations() {{ mockedList.clear(); result = new RuntimeException(); }};
 
       try {
          // Following throws RuntimeException:
@@ -401,7 +402,7 @@ public final class JavadocExamples_JMockit_Test
       final MockedClass dynamicMock = new MockedClass();
 
       // Optionally, you can record some invocations:
-      new NonStrictExpectations(dynamicMock) {{
+      new Expectations(dynamicMock) {{
          dynamicMock.getSomeValue(); result = 100;
 
          // When recording invocations the real implementations are never executed, so this call
@@ -471,7 +472,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 4
    public void chainingMethodCallsWithCascading(@Mocked final MockedClass mock)
    {
-      new NonStrictExpectations() {{ mock.getPerson().getName(); result = "deep"; }};
+      new Expectations() {{ mock.getPerson().getName(); result = "deep"; }};
 
       assertEquals("deep", mock.getPerson().getName());
 
@@ -486,7 +487,7 @@ public final class JavadocExamples_JMockit_Test
    public void verificationIgnoringStubs(@Mocked final MockedClass mock, @Mocked final MockedClass mockTwo)
    {
       // Stubbings, with an invocation count constraint for later (automatic) verification:
-      new NonStrictExpectations() {{ mock.getItem(1); result = "ignored"; times = 1; }};
+      new Expectations() {{ mock.getItem(1); result = "ignored"; times = 1; }};
 
       // In tested code:
       mock.doSomething("a", true);
@@ -507,7 +508,7 @@ public final class JavadocExamples_JMockit_Test
    public void verificationInOrderIgnoringStubs(@Mocked final MockedClass mock, @Mocked final MockedClass mockTwo)
    {
       // Stubbings, with an invocation count constraint for later (automatic) verification:
-      new NonStrictExpectations() {{ mock.getItem(1); result = "ignored"; times = 1; }};
+      new Expectations() {{ mock.getItem(1); result = "ignored"; times = 1; }};
 
       // In tested code:
       mock.doSomething("a", true);

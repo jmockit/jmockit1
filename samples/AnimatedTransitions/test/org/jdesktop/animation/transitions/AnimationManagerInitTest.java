@@ -53,7 +53,7 @@ public final class AnimationManagerInitTest
    @Test
    public void initForComponentWithStartStateOnly()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Expect checking of states to remove those components completely outside the container:
          animationState.getStart(); result = componentState;
       }};
@@ -65,7 +65,7 @@ public final class AnimationManagerInitTest
    public void initForComponentWithEndStateOnly()
    {
       // Expect checking of states to remove those components completely outside the container:
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animationState.getEnd(); result = componentState;
       }};
 
@@ -76,7 +76,7 @@ public final class AnimationManagerInitTest
    public void initForComponentWithStartAndEndStates()
    {
       // Expect checking of states to remove those components completely outside the container:
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animationState.getStart(); result = componentState;
          animationState.getEnd(); result = componentState;
       }};
@@ -87,7 +87,7 @@ public final class AnimationManagerInitTest
    @Test
    public void initForComponentCompletelyOutsideTheContainer()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          animationState.getStart(); result = componentState;
          componentState.getX(); result = -10;
          componentState.getY(); result = -8;
@@ -104,7 +104,7 @@ public final class AnimationManagerInitTest
       @SuppressWarnings("unchecked") List<JComponent> changingComponents = getField(manager, List.class);
       changingComponents.add(component);
 
-      new NonStrictExpectations() {{ animationState.getStart(); result = componentState; }};
+      new Expectations() {{ animationState.getStart(); result = componentState; }};
 
       manager.init(animator);
    }
