@@ -205,16 +205,6 @@ public final class ExecutingTest
          capturedInstance == originalToCapturedInstance.get(invokedInstance);
    }
 
-   public void discardCascadedMockWhenInjectable(@NotNull Object oldMock)
-   {
-      for (int i = 0, n = injectableMocks.size(); i < n; i++) {
-         if (injectableMocks.get(i) == oldMock) {
-            injectableMocks.remove(i);
-            return;
-         }
-      }
-   }
-
    private boolean containsNonStrictMock(@NotNull Object mockOrClassDesc)
    {
       return containsReference(nonStrictMocks, mockOrClassDesc);

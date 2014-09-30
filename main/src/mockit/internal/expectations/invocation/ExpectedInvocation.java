@@ -26,7 +26,6 @@ public final class ExpectedInvocation
    @Nullable public CharSequence customErrorMessage;
    @Nullable private final ExpectationError invocationCause;
    @Nullable private Object defaultReturnValue;
-   @Nullable private Object cascadedMock;
 
    public ExpectedInvocation(
       @Nullable Object mock, int access, @NotNull String mockedClassDesc, @NotNull String mockNameAndDesc,
@@ -388,9 +387,8 @@ public final class ExpectedInvocation
       @Nullable TestOnlyPhase phase, @NotNull String returnTypeDesc, @Nullable String genericReturnTypeDesc)
    {
       String mockedTypeDesc = getClassDesc();
-      cascadedMock =
-         MockedTypeCascade.getMock(
-            mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericReturnTypeDesc);
+      Object cascadedMock = MockedTypeCascade.getMock(
+         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericReturnTypeDesc);
 
       if (cascadedMock != null) {
          if (phase != null) {
@@ -400,8 +398,6 @@ public final class ExpectedInvocation
          defaultReturnValue = cascadedMock;
       }
    }
-
-   @Nullable public Object getCascadedMock() { return cascadedMock; }
 
    public void copyDefaultReturnValue(@NotNull ExpectedInvocation other)
    {

@@ -54,7 +54,7 @@ final class ReturnTypeConversion
          }
       }
 
-      expectation.substituteCascadedMockToBeReturnedIfNeeded(valueToReturn);
+      expectation.clearNextInstanceToMatchIfRecording();
       results.addReturnValue(valueToReturn);
    }
 

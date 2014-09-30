@@ -4,11 +4,10 @@
  */
 package mockit.internal.expectations;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.expectations.invocation.*;
-import mockit.internal.state.*;
 import mockit.internal.util.*;
+
+import org.jetbrains.annotations.*;
 
 final class Expectation
 {
@@ -57,16 +56,10 @@ final class Expectation
       return TypeDescriptor.getReturnType(invocation.getSignatureWithResolvedReturnType());
    }
 
-   void substituteCascadedMockToBeReturnedIfNeeded(@NotNull Object instanceToBeReturned)
+   void clearNextInstanceToMatchIfRecording()
    {
-      Object cascadedMock = invocation.getCascadedMock();
-
-      if (cascadedMock != null && cascadedMock != instanceToBeReturned) {
-         TestRun.getExecutingTest().discardCascadedMockWhenInjectable(cascadedMock);
-
-         if (recordPhase != null) {
-            recordPhase.setNextInstanceToMatch(null);
-         }
+      if (recordPhase != null) {
+         recordPhase.setNextInstanceToMatch(null);
       }
    }
 
@@ -108,7 +101,7 @@ final class Expectation
          Class<?> rt = getReturnType();
 
          if (rt.isInstance(value)) {
-            substituteCascadedMockToBeReturnedIfNeeded(value);
+            clearNextInstanceToMatchIfRecording();
             getResults().addReturnValueResult(value);
          }
          else {

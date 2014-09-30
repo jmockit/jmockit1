@@ -142,6 +142,19 @@ public final class CascadingParametersTest
    }
 
    @Test
+   public void replaceCascadedInstanceWithFirstOneOfTwoInjectableInstances(
+      @Mocked final Foo foo, @Injectable final Bar bar1, @Injectable Bar bar2)
+   {
+      new Expectations() {{ foo.getBar(); result = bar1; }};
+
+      Bar cascadedBar = foo.getBar();
+
+      assertSame(bar1, cascadedBar);
+      assertEquals(0, bar1.doSomething());
+      assertEquals(0, bar2.doSomething());
+   }
+
+   @Test
    public void cascadeOneLevelDuringRecord(@Mocked final Callable<String> action, @Mocked final Foo mockFoo)
    {
       final List<Integer> list = Arrays.asList(1, 2, 3);
