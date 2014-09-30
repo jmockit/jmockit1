@@ -216,7 +216,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          }
       }
       finally {
-         TestRun.finishCurrentTestExecution(false);
+         TestRun.finishCurrentTestExecution();
          TestRun.exitNoMockingZone();
       }
    }

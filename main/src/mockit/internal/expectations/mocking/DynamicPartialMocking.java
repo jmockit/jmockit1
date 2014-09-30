@@ -4,7 +4,6 @@
  */
 package mockit.internal.expectations.mocking;
 
-import java.lang.reflect.*;
 import java.util.*;
 
 import mockit.internal.*;
@@ -19,14 +18,12 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
    @NotNull public final List<Object> targetInstances;
    @NotNull private final Map<Class<?>, byte[]> modifiedClassfiles;
-   private final boolean notStrict;
    private boolean methodsOnly;
 
-   public DynamicPartialMocking(boolean notStrict)
+   public DynamicPartialMocking()
    {
       targetInstances = new ArrayList<Object>(2);
       modifiedClassfiles = new HashMap<Class<?>, byte[]>();
-      this.notStrict = notStrict;
    }
 
    public void redefineTypes(@NotNull Object[] classesOrInstancesToBePartiallyMocked)
@@ -73,7 +70,6 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    private void applyPartialMockingToGivenClass()
    {
       validateTargetClassType();
-      registerAsMocked();
       ensureThatClassIsInitialized(targetClass);
       methodsOnly = false;
       redefineMethodsAndConstructorsInTargetType();
@@ -82,7 +78,6 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    private void applyPartialMockingToGivenInstance(@NotNull Object instance)
    {
       validateTargetClassType();
-      registerAsMocked(instance);
       methodsOnly = true;
       redefineMethodsAndConstructorsInTargetType();
       targetInstances.add(instance);
@@ -105,27 +100,6 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          !TestRun.getExecutingTest().isClassWithInjectableMocks(targetClass)
       ) {
          throw new IllegalArgumentException("Class is already mocked: " + targetClass);
-      }
-   }
-
-   private void registerAsMocked()
-   {
-      if (notStrict) {
-         ExecutingTest executingTest = TestRun.getExecutingTest();
-         Class<?> classToRegister = targetClass;
-
-         do {
-            executingTest.registerAsNotStrictlyMocked(classToRegister);
-            classToRegister = classToRegister.getSuperclass();
-         }
-         while (classToRegister != null && classToRegister != Object.class && classToRegister != Proxy.class);
-      }
-   }
-
-   private void registerAsMocked(@NotNull Object mock)
-   {
-      if (notStrict) {
-         TestRun.getExecutingTest().registerAsNotStrictlyMocked(mock);
       }
    }
 

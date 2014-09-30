@@ -6,7 +6,6 @@ package mockit.internal.state;
 
 import java.util.*;
 
-import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
@@ -28,7 +27,6 @@ public final class ExecutingTest
 
    @NotNull private final List<Object> regularMocks;
    @NotNull private final List<Object> injectableMocks;
-   @NotNull private final List<Object> nonStrictMocks;
    @NotNull private final List<Object> strictMocks;
    @NotNull private final Map<Object, Object> originalToCapturedInstance;
    @NotNull private final CascadingTypes cascadingTypes;
@@ -41,7 +39,6 @@ public final class ExecutingTest
       proceedingInvocation = new ThreadLocal<BaseInvocation>();
       regularMocks = new ArrayList<Object>();
       injectableMocks = new ArrayList<Object>();
-      nonStrictMocks = new ArrayList<Object>();
       strictMocks = new ArrayList<Object>();
       originalToCapturedInstance = new IdentityHashMap<Object, Object>(4);
       cascadingTypes = new CascadingTypes();
@@ -152,7 +149,6 @@ public final class ExecutingTest
    {
       regularMocks.clear();
       injectableMocks.clear();
-      nonStrictMocks.clear();
       originalToCapturedInstance.clear();
    }
 
@@ -205,11 +201,6 @@ public final class ExecutingTest
          capturedInstance == originalToCapturedInstance.get(invokedInstance);
    }
 
-   private boolean containsNonStrictMock(@NotNull Object mockOrClassDesc)
-   {
-      return containsReference(nonStrictMocks, mockOrClassDesc);
-   }
-
    public void addStrictMock(@Nullable Object mock, @Nullable String mockClassDesc)
    {
       addStrictMock(mock);
@@ -217,7 +208,7 @@ public final class ExecutingTest
       if (mockClassDesc != null) {
          String uniqueMockClassDesc = mockClassDesc.intern();
 
-         if (!containsStrictMock(uniqueMockClassDesc) && !containsNonStrictMock(uniqueMockClassDesc)) {
+         if (!containsStrictMock(uniqueMockClassDesc)) {
             strictMocks.add(uniqueMockClassDesc);
          }
       }
@@ -233,28 +224,6 @@ public final class ExecutingTest
    private boolean containsStrictMock(@NotNull Object mockOrClassDesc)
    {
       return containsReference(strictMocks, mockOrClassDesc);
-   }
-
-   public void registerAsNotStrictlyMocked(@NotNull Class<?> mockedClass)
-   {
-      String toBeRegistered = Type.getInternalName(mockedClass).intern();
-      registerAsNotStrictMock(toBeRegistered, mockedClass);
-   }
-
-   public void registerAsNotStrictlyMocked(@NotNull Object mockedObject)
-   {
-      registerAsNotStrictMock(mockedObject, mockedObject);
-   }
-
-   private void registerAsNotStrictMock(@NotNull Object toBeRegistered, @NotNull Object mockedObjectOrClass)
-   {
-      if (containsStrictMock(toBeRegistered)) {
-         throw new IllegalArgumentException("Already mocked strictly: " + mockedObjectOrClass);
-      }
-
-      if (!containsNonStrictMock(toBeRegistered)) {
-         nonStrictMocks.add(toBeRegistered);
-      }
    }
 
    public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @NotNull String nameAndDesc)
@@ -297,7 +266,7 @@ public final class ExecutingTest
 
    @NotNull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
-   void finishExecution(boolean clearSharedMocks)
+   void finishExecution()
    {
       recordAndReplayForLastTestMethod = currentRecordAndReplay;
       currentRecordAndReplay = null;
@@ -305,10 +274,6 @@ public final class ExecutingTest
       if (parameterTypeRedefinitions != null) {
          parameterTypeRedefinitions.cleanUp();
          parameterTypeRedefinitions = null;
-      }
-
-      if (clearSharedMocks) {
-         nonStrictMocks.clear();
       }
 
       strictMocks.clear();

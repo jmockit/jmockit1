@@ -96,7 +96,7 @@ public final class RecordAndReplayExecution
          recordPhase = new RecordPhase(this, strict, nonStrict);
 
          executingTest.setRecordAndReplay(this);
-         dynamicPartialMocking = applyDynamicPartialMocking(!strict, classesOrInstancesToBePartiallyMocked);
+         dynamicPartialMocking = applyDynamicPartialMocking(classesOrInstancesToBePartiallyMocked);
          discoverMockedTypesAndInstancesForMatchingOnInstance();
 
          //noinspection LockAcquiredButNotSafelyReleased
@@ -133,14 +133,13 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   private static DynamicPartialMocking applyDynamicPartialMocking(
-      boolean notStrict, @Nullable Object... classesOrInstances)
+   private static DynamicPartialMocking applyDynamicPartialMocking(@Nullable Object... classesOrInstances)
    {
       if (classesOrInstances == null || classesOrInstances.length == 0) {
          return null;
       }
 
-      DynamicPartialMocking mocking = new DynamicPartialMocking(notStrict);
+      DynamicPartialMocking mocking = new DynamicPartialMocking();
       mocking.redefineTypes(classesOrInstances);
       return mocking;
    }

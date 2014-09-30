@@ -76,7 +76,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
          throw t;
       }
       finally {
-         TestRun.finishCurrentTestExecution(true);
+         TestRun.finishCurrentTestExecution();
       }
    }
 
