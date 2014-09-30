@@ -9,12 +9,12 @@ import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.ConstructorReflection.*;
+import static mockit.internal.util.MethodReflection.*;
 
-import static mockit.internal.util.ConstructorReflection.newInstanceUsingPublicConstructorIfAvailable;
+import org.jetbrains.annotations.*;
 
 final class ReturnTypeConversion
 {
@@ -35,25 +35,27 @@ final class ReturnTypeConversion
    {
       boolean valueIsArray = valueToReturn.getClass().isArray();
       boolean valueIsIterable = valueToReturn instanceof Iterable<?>;
+      InvocationResults results = expectation.getResults();
 
       if (valueIsArray || valueIsIterable || valueToReturn instanceof Iterator<?>) {
          if (returnType == void.class || hasReturnOfDifferentType()) {
             if (valueIsArray) {
-               expectation.getResults().addReturnValues(valueToReturn);
+               results.addReturnValues(valueToReturn);
             }
             else if (valueIsIterable) {
-               expectation.getResults().addReturnValues((Iterable<?>) valueToReturn);
+               //noinspection CastConflictsWithInstanceof
+               results.addReturnValues((Iterable<?>) valueToReturn);
             }
             else {
-               expectation.getResults().addDeferredReturnValues((Iterator<?>) valueToReturn);
+               results.addDeferredReturnValues((Iterator<?>) valueToReturn);
             }
 
             return;
          }
       }
 
-      expectation.substituteCascadedMockToBeReturnedIfNeeded();
-      expectation.getResults().addReturnValue(valueToReturn);
+      expectation.substituteCascadedMockToBeReturnedIfNeeded(valueToReturn);
+      results.addReturnValue(valueToReturn);
    }
 
    private boolean hasReturnOfDifferentType()
@@ -71,7 +73,7 @@ final class ReturnTypeConversion
       Class<?> valueType = valueToReturn.getClass();
 
       if (valueType == wrapperType) {
-         expectation.getResults().addReturnValueResult(valueToReturn);
+         addReturnValue(valueToReturn);
       }
       else if (wrapperType != null && AutoBoxing.isWrapperOfPrimitiveType(valueType)) {
          addPrimitiveValueConvertingAsNeeded(wrapperType);
@@ -91,13 +93,18 @@ final class ReturnTypeConversion
       }
    }
 
+   private void addReturnValue(@NotNull Object returnValue)
+   {
+      expectation.getResults().addReturnValueResult(returnValue);
+   }
+
    private void addMultiValuedResultBasedOnTheReturnType(boolean valueIsArray)
    {
       if (returnType == void.class) {
          addMultiValuedResult(valueIsArray);
       }
       else if (returnType == Object.class) {
-         expectation.getResults().addReturnValueResult(valueToReturn);
+         addReturnValue(valueToReturn);
       }
       else if (valueIsArray && addCollectionOrMapWithElementsFromArray()) {
          return;
@@ -106,20 +113,22 @@ final class ReturnTypeConversion
          addMultiValuedResult(valueIsArray);
       }
       else {
-         expectation.getResults().addReturnValueResult(valueToReturn);
+         addReturnValue(valueToReturn);
       }
    }
 
    private void addMultiValuedResult(boolean valueIsArray)
    {
+      InvocationResults results = expectation.getResults();
+
       if (valueIsArray) {
-         expectation.getResults().addResults(valueToReturn);
+         results.addResults(valueToReturn);
       }
       else if (valueToReturn instanceof Iterable<?>) {
-         expectation.getResults().addResults((Iterable<?>) valueToReturn);
+         results.addResults((Iterable<?>) valueToReturn);
       }
       else {
-         expectation.getResults().addDeferredResults((Iterator<?>) valueToReturn);
+         results.addDeferredResults((Iterator<?>) valueToReturn);
       }
    }
 
@@ -189,15 +198,13 @@ final class ReturnTypeConversion
    private void addResultFromSingleValue()
    {
       if (returnType == Object.class) {
-         expectation.getResults().addReturnValueResult(valueToReturn);
+         addReturnValue(valueToReturn);
       }
       else if (returnType == void.class) {
          throw newIncompatibleTypesException();
       }
       else if (returnType.isArray()) {
-         Object array = Array.newInstance(returnType.getComponentType(), 1);
-         Array.set(array, 0, valueToReturn);
-         expectation.getResults().addReturnValueResult(array);
+         addArray();
       }
       else if (returnType.isAssignableFrom(ArrayList.class)) {
          addCollectionWithSingleElement(new ArrayList<Object>(1));
@@ -212,45 +219,55 @@ final class ReturnTypeConversion
          addCollectionWithSingleElement(new TreeSet<Object>());
       }
       else if (returnType.isAssignableFrom(ListIterator.class)) {
-         List<Object> l = new ArrayList<Object>(1);
-         l.add(valueToReturn);
-         expectation.getResults().addReturnValueResult(l.listIterator());
+         addListIterator();
       }
       else if (valueToReturn instanceof CharSequence) {
          addCharSequence((CharSequence) valueToReturn);
       }
       else {
-         Class<?> primitiveType = AutoBoxing.getPrimitiveType(valueToReturn.getClass());
-
-         if (primitiveType != null) {
-            Class<?>[] parameterType = {primitiveType};
-            Object convertedValue =
-               newInstanceUsingPublicConstructorIfAvailable(returnType, parameterType, valueToReturn);
-
-            if (convertedValue == null) {
-               convertedValue =
-                  MethodReflection.invokePublicIfAvailable(returnType, null, "valueOf", parameterType, valueToReturn);
-            }
-
-            if (convertedValue != null) {
-               expectation.getResults().addReturnValueResult(convertedValue);
-               return;
-            }
-         }
-
-         throw newIncompatibleTypesException();
+         addPrimitiveValue();
       }
+   }
+
+   @NotNull
+   private IllegalArgumentException newIncompatibleTypesException()
+   {
+      ExpectedInvocation invocation = expectation.invocation;
+      String valueTypeName = valueToReturn.getClass().getName().replace("java.lang.", "");
+      String returnTypeName = returnType.getName().replace("java.lang.", "");
+
+      MethodFormatter methodDesc =
+         new MethodFormatter(invocation.getClassDesc(), invocation.getMethodNameAndDescription());
+      String msg =
+         "Value of type " + valueTypeName + " incompatible with return type " + returnTypeName + " of " + methodDesc;
+
+      return new IllegalArgumentException(msg);
+   }
+
+   private void addArray()
+   {
+      Object array = Array.newInstance(returnType.getComponentType(), 1);
+      Array.set(array, 0, valueToReturn);
+      addReturnValue(array);
    }
 
    private void addCollectionWithSingleElement(@NotNull Collection<Object> container)
    {
       container.add(valueToReturn);
-      expectation.getResults().addReturnValueResult(container);
+      addReturnValue(container);
+   }
+
+   private void addListIterator()
+   {
+      List<Object> l = new ArrayList<Object>(1);
+      l.add(valueToReturn);
+      ListIterator<Object> iterator = l.listIterator();
+      addReturnValue(iterator);
    }
 
    private void addCharSequence(@NotNull CharSequence textualValue)
    {
-      Object convertedValue = textualValue;
+      @NotNull Object convertedValue = textualValue;
 
       if (returnType.isAssignableFrom(ByteArrayInputStream.class)) {
          convertedValue = new ByteArrayInputStream(textualValue.toString().getBytes());
@@ -272,21 +289,29 @@ final class ReturnTypeConversion
          }
       }
 
-      expectation.getResults().addReturnValueResult(convertedValue);
+      addReturnValue(convertedValue);
    }
 
-   @NotNull private IllegalArgumentException newIncompatibleTypesException()
+   private void addPrimitiveValue()
    {
-      ExpectedInvocation invocation = expectation.invocation;
-      String valueTypeName = valueToReturn.getClass().getName().replace("java.lang.", "");
-      String returnTypeName = returnType.getName().replace("java.lang.", "");
+      Class<?> primitiveType = AutoBoxing.getPrimitiveType(valueToReturn.getClass());
 
-      StringBuilder msg = new StringBuilder(200);
-      msg.append("Value of type ").append(valueTypeName);
-      msg.append(" incompatible with return type ").append(returnTypeName).append(" of ");
-      msg.append(new MethodFormatter(invocation.getClassDesc(), invocation.getMethodNameAndDescription()));
+      if (primitiveType != null) {
+         Class<?>[] parameterType = {primitiveType};
+         Object convertedValue =
+            newInstanceUsingPublicConstructorIfAvailable(returnType, parameterType, valueToReturn);
 
-      return new IllegalArgumentException(msg.toString());
+         if (convertedValue == null) {
+            convertedValue = invokePublicIfAvailable(returnType, null, "valueOf", parameterType, valueToReturn);
+         }
+
+         if (convertedValue != null) {
+            addReturnValue(convertedValue);
+            return;
+         }
+      }
+
+      throw newIncompatibleTypesException();
    }
 
    private void addPrimitiveValueConvertingAsNeeded(@NotNull Class<?> targetType)
@@ -304,11 +329,11 @@ final class ReturnTypeConversion
          throw newIncompatibleTypesException();
       }
 
-      expectation.getResults().addReturnValueResult(convertedValue);
+      addReturnValue(convertedValue);
    }
 
    @Nullable
-   private Object convertFromNumber(@NotNull Class<?> targetType, @NotNull Number number)
+   private static Object convertFromNumber(@NotNull Class<?> targetType, @NotNull Number number)
    {
       if (targetType == Integer.class) {
          return number.intValue();
@@ -336,7 +361,7 @@ final class ReturnTypeConversion
    }
 
    @Nullable
-   private Object convertFromChar(@NotNull Class<?> targetType, char c)
+   private static Object convertFromChar(@NotNull Class<?> targetType, char c)
    {
       if (targetType == Integer.class) {
          return (int) c;

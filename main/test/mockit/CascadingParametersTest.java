@@ -125,7 +125,20 @@ public final class CascadingParametersTest
    public void useAvailableMockedInstanceOfSubclassAsCascadedInstance(@Mocked Foo foo, @Mocked SubBar bar)
    {
       Bar cascadedBar = foo.getBar();
+
       assertSame(bar, cascadedBar);
+   }
+
+   @Test
+   public void replaceCascadedInstanceWithInjectableInstance(@Mocked final Foo foo, @Injectable final Bar bar)
+   {
+      // This is redundant, but should still work:
+      new Expectations() {{ foo.getBar(); result = bar; }};
+
+      Bar cascadedBar = foo.getBar();
+
+      assertSame(bar, cascadedBar);
+      assertEquals(0, cascadedBar.doSomething());
    }
 
    @Test

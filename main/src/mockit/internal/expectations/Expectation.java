@@ -57,11 +57,11 @@ final class Expectation
       return TypeDescriptor.getReturnType(invocation.getSignatureWithResolvedReturnType());
    }
 
-   void substituteCascadedMockToBeReturnedIfNeeded()
+   void substituteCascadedMockToBeReturnedIfNeeded(@NotNull Object instanceToBeReturned)
    {
       Object cascadedMock = invocation.getCascadedMock();
 
-      if (cascadedMock != null) {
+      if (cascadedMock != null && cascadedMock != instanceToBeReturned) {
          TestRun.getExecutingTest().discardCascadedMockWhenInjectable(cascadedMock);
 
          if (recordPhase != null) {
@@ -108,7 +108,7 @@ final class Expectation
          Class<?> rt = getReturnType();
 
          if (rt.isInstance(value)) {
-            substituteCascadedMockToBeReturnedIfNeeded();
+            substituteCascadedMockToBeReturnedIfNeeded(value);
             getResults().addReturnValueResult(value);
          }
          else {
