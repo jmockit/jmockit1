@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
@@ -17,6 +18,8 @@ import static mockit.Deencapsulation.*;
 
 public final class StrictExpectationsTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    static class Collaborator
    {
       private int value;
@@ -35,9 +38,11 @@ public final class StrictExpectationsTest
       void setValue(int value) { this.value = value; }
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void expectOnlyOneInvocationButExerciseOthersDuringReplay(@Mocked final Collaborator mock)
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       new StrictExpectations() {{ mock.provideSomeService(); }};
 
       mock.provideSomeService();
@@ -51,16 +56,18 @@ public final class StrictExpectationsTest
    }
 
    @Test
-   public void recordNothingOnTestScopedMockedTypeAndExerciseItDuringReplay(@Mocked Collaborator mock)
+   public void recordEmptyBlockOnLocalMockedTypeAndExerciseItDuringReplay(@Mocked Collaborator mock)
    {
       new StrictExpectations() {};
 
       mock.provideSomeService();
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void expectNothingOnMockedTypeButExerciseItDuringReplay(@Mocked final Collaborator mock)
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       new StrictExpectations() {{
          mock.setValue(anyInt); times = 0;
       }};
@@ -154,17 +161,21 @@ public final class StrictExpectationsTest
       assertEquals(3, collaborator.getValue(1));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void attemptToRecordExpectedReturnValueForNoCurrentInvocation(@Mocked Collaborator mock)
    {
+      thrown.expect(IllegalStateException.class);
+
       new StrictExpectations() {{
          result = 42;
       }};
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void attemptToAddArgumentMatcherWhenNotRecording(@Mocked Collaborator mock)
    {
+      thrown.expect(IllegalStateException.class);
+
       new StrictExpectations() {}.withNotEqual(5);
    }
 
@@ -211,9 +222,11 @@ public final class StrictExpectationsTest
       Enumeration<?> getElements() { return null; }
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void replayWithUnexpectedStaticMethodInvocation(@Mocked final Collaborator mock)
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       new StrictExpectations() {{
          mock.getValue();
       }};
@@ -221,9 +234,11 @@ public final class StrictExpectationsTest
       Collaborator.doInternal();
    }
 
-   @Test(expected = MissingInvocation.class)
+   @Test
    public void replayWithMissingExpectedMethodInvocation(@Mocked final Collaborator mock)
    {
+      thrown.expect(MissingInvocation.class);
+
       new StrictExpectations() {{
          mock.setValue(123);
       }};
@@ -283,9 +298,11 @@ public final class StrictExpectationsTest
       new FileWriter("no.file");
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test
    public void failureFromUnexpectedInvocationInAnotherThread(@Mocked final Collaborator mock) throws Exception
    {
+      thrown.expect(UnexpectedInvocation.class);
+
       Thread t = new Thread() {
          @Override
          public void run() { mock.provideSomeService(); }
