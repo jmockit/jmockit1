@@ -13,6 +13,7 @@ import mockit.integration.internal.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
+import static mockit.internal.util.Utilities.NO_ARGS;
 
 import org.jetbrains.annotations.*;
 import org.jetbrains.annotations.Nullable;
@@ -212,7 +213,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
             concludeTestExecutionWithExpectedExceptionThrown(testMethodSavePoint, testResult, thrownByTest);
          }
          else {
-            concludeTestExecutionWithUnexpectedExceptionThrown(testMethodSavePoint, thrownByTest);
+            concludeTestExecutionWithUnexpectedExceptionThrown(testMethodSavePoint, testResult, thrownByTest);
          }
       }
       finally {
@@ -244,6 +245,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    private static void concludeTestExecutionWithNothingThrown(
       @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult)
    {
+      clearTestMethodArguments(testResult);
+
       try {
          concludeTestMethodExecution(testMethodSavePoint, null, false);
       }
@@ -254,9 +257,16 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
+   private static void clearTestMethodArguments(@NotNull ITestResult testResult)
+   {
+       testResult.setParameters(NO_ARGS);
+   }
+
    private static void concludeTestExecutionWithExpectedExceptionNotThrown(
       @NotNull IInvokedMethod invokedMethod, @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult)
    {
+      clearTestMethodArguments(testResult);
+
       try {
          concludeTestMethodExecution(testMethodSavePoint, null, false);
       }
@@ -276,6 +286,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    private static void concludeTestExecutionWithExpectedExceptionThrown(
       @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult, @NotNull Throwable thrownByTest)
    {
+      clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
       try {
@@ -291,8 +302,9 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void concludeTestExecutionWithUnexpectedExceptionThrown(
-      @NotNull SavePoint testMethodSavePoint, @NotNull Throwable thrownByTest)
+      @NotNull SavePoint testMethodSavePoint, @NotNull ITestResult testResult, @NotNull Throwable thrownByTest)
    {
+      clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
       try {
