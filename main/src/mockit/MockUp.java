@@ -214,7 +214,7 @@ public abstract class MockUp<T>
 
       Class<T> realClass = classToMock;
 
-      if (isAbstract(classToMock.getModifiers()) && classToMock.getClassLoader() != null) {
+      if (isAbstract(classToMock.getModifiers())) {
          classToMock = new ConcreteSubclass<T>(classToMock).generateClass();
       }
 

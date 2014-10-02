@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.io.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
@@ -256,5 +257,29 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals(123L, mock.call().longValue());
       assertEquals(5, mock.doSomething("test1", true));
       assertEquals(1, mock.doSomething("test2", false));
+   }
+
+   @Test
+   public void getMockInstanceFromMockUpForAbstractJREClass() throws Exception
+   {
+      MockUp<Reader> mockUp = new MockUp<Reader>() {
+         @Mock
+         int read(char[] cbuf, int off, int len)
+         {
+            Reader mockInstance = getMockInstance();
+            assertNotNull(mockInstance);
+            return 123;
+         }
+
+         @Mock
+         boolean ready() { return true; }
+      };
+
+      Reader mock = mockUp.getMockInstance();
+
+      assertEquals(123, mock.read(new char[0], 0, 0));
+      mock.close();
+      assertTrue(mock.ready());
+      assertSame(mock, mockUp.getMockInstance());
    }
 }
