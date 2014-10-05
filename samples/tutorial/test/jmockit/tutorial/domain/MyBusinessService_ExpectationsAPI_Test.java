@@ -15,40 +15,33 @@ import jmockit.tutorial.persistence.*;
 public final class MyBusinessService_ExpectationsAPI_Test
 {
    @Mocked(stubOutClassInitialization = true) final Database unused = null;
-   @Mocked SimpleEmail email;
+   @Mocked SimpleEmail anyEmail;
 
    @Test
    public void doBusinessOperationXyz() throws Exception
    {
       final EntityX data = new EntityX(5, "abc", "abc@xpta.net");
+      final EntityX existingItem = new EntityX(1, "AX5", "someone@somewhere.com");
 
-      // Recorded strictly, so matching invocations must be replayed in the same order:
-      new StrictExpectations() {{
+      new NonStrictExpectations() {{
          Database.find(withSubstring("select"), any);
-         result = new EntityX(1, "AX5", "someone@somewhere.com");
-
-         Database.persist(data);
+         result = existingItem; // automatically wrapped in a list of one item
       }};
 
-      // Recorded normally, so matching invocations can be replayed in any order:
-      new Expectations() {{
-         email.send(); times = 1; // by default, expects at least one invocation
-      }};
+      new MyBusinessService(data).doBusinessOperationXyz();
 
-      new MyBusinessService().doBusinessOperationXyz(data);
+      new Verifications() {{ Database.persist(data); }};
+      new Verifications() {{ anyEmail.send(); times = 1; }};
    }
 
    @Test(expected = EmailException.class)
    public void doBusinessOperationXyzWithInvalidEmailAddress() throws Exception
    {
       new Expectations() {{
-         email.addTo((String) withNotNull()); result = new EmailException();
-
-         // If the e-mail address is invalid, sending the message should not be attempted:
-         email.send(); times = 0;
+         anyEmail.addTo((String) withNotNull()); result = new EmailException();
       }};
 
       EntityX data = new EntityX(5, "abc", "someone@somewhere.com");
-      new MyBusinessService().doBusinessOperationXyz(data);
+      new MyBusinessService(data).doBusinessOperationXyz();
    }
 }

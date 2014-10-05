@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.tutorial.domain;
@@ -59,7 +59,7 @@ public final class MyBusinessService_MockupsAPI_Test
          String send() { return ""; }
       };
 
-      new MyBusinessService().doBusinessOperationXyz(data);
+      new MyBusinessService(data).doBusinessOperationXyz();
    }
 
    @Test(expected = EmailException.class)
@@ -72,11 +72,8 @@ public final class MyBusinessService_MockupsAPI_Test
             assertNotNull(email);
             throw new EmailException();
          }
-         
-         @Mock(invocations = 0)
-         String send() { return null; }
       };
 
-      new MyBusinessService().doBusinessOperationXyz(data);
+      new MyBusinessService(data).doBusinessOperationXyz();
    }
 }

@@ -11,8 +11,7 @@ import org.junit.runners.Suite.*;
 @RunWith(Suite.class)
 @SuiteClasses({
    MyBusinessService_MockupsAPI_Test.class,
-   MyBusinessService_ExpectationsAPI_Test.class,
-   MyBusinessService_VerificationsAPI_Test.class
+   MyBusinessService_ExpectationsAPI_Test.class
 })
 public final class DomainTestSuite
 {

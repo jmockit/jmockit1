@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.tutorial.domain;
@@ -13,10 +13,8 @@ import static jmockit.tutorial.persistence.Database.*;
 
 /**
  * This class makes use of several idioms which would prevent unit testing with more "conventional" mocking tools.
- * Its usage is as simple as it gets: {@code new MyBusinessService().doBusinessOperationXyz(data)}.
- * No need to make such classes stateless, or worse, <em>singletons</em>.
- * (Although not shown in this simple example, it is often a great idea to have stateful service objects with
- * operation-specific state passed in a constructor and assigned to {@code final} fields.)
+ * Its usage is as simple as it gets: {@code new MyBusinessService(data).doBusinessOperationXyz()}.
+ * No need to make such classes stateless, or worse, <em>singletons</em>; instead, it's designed as a proper object.
  * <p/>
  * One of those "untestable" idioms is the use of a <em>static persistence facade</em> (the
  * {@linkplain jmockit.tutorial.persistence.Database Database} class) for high-level database operations in the context
@@ -49,9 +47,13 @@ import static jmockit.tutorial.persistence.Database.*;
  */
 public final class MyBusinessService
 {
+   private final EntityX data;
+
+   public MyBusinessService(EntityX data) { this.data = data; }
+
    // This method can easily be made transactional, so that any exception thrown during its execution causes a rollback
    // somewhere up in the call stack (assuming a transaction gets started in the first place).
-   public void doBusinessOperationXyz(EntityX data) throws EmailException
+   public void doBusinessOperationXyz() throws EmailException
    {
       // Locate existing persistent entities of the same entity type (note that the query string is a DSL for querying
       // persistent domain entities, written in terms of the domain, not in terms of relational tables and columns):
@@ -64,10 +66,10 @@ public final class MyBusinessService
       // Persist the entity (no DAO required for such a common, high-level, operation):
       persist(data);
 
-      sendNotificationEmail(data, items);
+      sendNotificationEmail(items);
    }
 
-   private void sendNotificationEmail(EntityX data, List<EntityX> items) throws EmailException
+   private void sendNotificationEmail(List<EntityX> items) throws EmailException
    {
       Email email = new SimpleEmail();
       email.setSubject("Notification about processing of ...");
@@ -82,7 +84,7 @@ public final class MyBusinessService
       email.send();
    }
 
-   private String buildNotificationMessage(List<EntityX> items)
+   private static String buildNotificationMessage(List<EntityX> items)
    {
       StringBuilder message = new StringBuilder();
 
