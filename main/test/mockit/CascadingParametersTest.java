@@ -305,6 +305,27 @@ public final class CascadingParametersTest
 
    // Tests using java.net classes ////////////////////////////////////////////////////////////////////////////////////
 
+   @Test
+   public void recordAndVerifyExpectationsOnCascadedMocks(
+      @Mocked Socket anySocket, @Mocked final SocketChannel cascadedSocketChannel)
+      throws Exception
+   {
+      new Expectations() {{ cascadedSocketChannel.isConnected(); result = false; }};
+
+      Socket s = new Socket();
+
+      if (!s.getChannel().isConnected()) {
+         SocketAddress sa = new InetSocketAddress("remoteHost", 123);
+         s.getChannel().connect(sa);
+      }
+
+      InetAddress adr1 = s.getInetAddress();
+      InetAddress adr2 = s.getLocalAddress();
+      assertNotSame(adr1, adr2);
+
+      new Verifications() {{ cascadedSocketChannel.connect((SocketAddress) withNotNull()); }};
+   }
+
    static final class SocketFactory
    {
       public Socket createSocket() { return new Socket(); }
