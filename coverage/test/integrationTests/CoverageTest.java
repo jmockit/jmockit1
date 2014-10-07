@@ -55,8 +55,9 @@ public class CoverageTest
    protected final void assertLines(int startingLine, int endingLine, int expectedLinesExecuted)
    {
       PerFileLineCoverage lineCoverageInfo = fileData.lineCoverageInfo;
-      assertTrue("Starting line not found", lineCoverageInfo.getLineCount() >= startingLine);
-      assertTrue("Ending line not found", lineCoverageInfo.getLineCount() >= endingLine);
+      int lineCount = lineCoverageInfo.getLineCount();
+      assertTrue("Starting line not found", lineCount >= startingLine);
+      assertTrue("Ending line not found", lineCount >= endingLine);
 
       int linesExecuted = 0;
 
@@ -82,12 +83,20 @@ public class CoverageTest
          BranchCoverageData segmentData = lineData.getBranchData(i - 1);
 
          int executionCount = segmentData.getExecutionCount();
-         assertEquals("Execution count for segment " + i + ':', expectedExecutionCounts[i], executionCount);
+         assertEquals(
+            "Execution count for line " + line + ", segment " + i + ':', expectedExecutionCounts[i], executionCount);
 
          List<CallPoint> callPoints = segmentData.getCallPoints();
 
          if (callPoints != null) {
-            assertEquals(executionCount, callPoints.size());
+            int callPointCount = 0;
+
+            for (CallPoint callPoint : callPoints) {
+               callPointCount++;
+               callPointCount += callPoint.getRepetitionCount();
+            }
+
+            assertEquals("Missing call points for line " + line + ", segment " + i, executionCount, callPointCount);
          }
       }
    }
