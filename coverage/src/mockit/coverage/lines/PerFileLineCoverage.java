@@ -87,12 +87,6 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.getBranchData(index);
    }
 
-   public int getBranchCount(int line)
-   {
-      LineCoverageData lineData = lineToLineData.get(line);
-      return lineData == null ? 0 : lineData.getBranches().size();
-   }
-
    public boolean acceptsAdditionalCallPoints(int line)
    {
       LineCoverageData lineData = getOrCreateLineData(line);
@@ -109,10 +103,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
          executionCounts[line]++;
       }
 
-      if (callPoint != null) {
-         LineCoverageData lineData = getOrCreateLineData(line);
-         lineData.registerExecution(callPoint);
-      }
+      LineCoverageData lineData = getOrCreateLineData(line);
+      lineData.registerExecution(callPoint);
    }
 
    public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
