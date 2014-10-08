@@ -27,7 +27,7 @@
       <!-- Mocking tools used in the test suite -->
       <dependency><groupId>org.jmockit</groupId><artifactId>jmockit</artifactId></dependency>
       <dependency><groupId>org.easymock</groupId><artifactId>easymock</artifactId></dependency>
-      <dependency><groupId>org.mockito</groupId><artifactId>mockito-all</artifactId></dependency>
+      <dependency><groupId>org.mockito</groupId><artifactId>mockito-core</artifactId></dependency>
       <dependency><groupId>org.unitils</groupId><artifactId>unitils-mock</artifactId></dependency>
       <dependency><groupId>org.jmock</groupId><artifactId>jmock</artifactId></dependency>
       <dependency><groupId>org.jmock</groupId><artifactId>jmock-junit4</artifactId></dependency>
