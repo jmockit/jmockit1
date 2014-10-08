@@ -93,15 +93,39 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifWithBooleanOperator()
+   public void ifWithBooleanAndOperator()
    {
-      tested.ifWithBooleanOperator(true, false);
-      tested.ifWithBooleanOperator(false, true);
+      tested.ifWithBooleanAndOperator(true, false);
+      tested.ifWithBooleanAndOperator(false, true);
 
       assertLines(158, 161, 2);
       assertLine(158, 3, 2, 2, 1, 0);
       assertLine(159, 1, 0, 0);
       assertLine(161, 1, 1, 2);
+   }
+
+   @Test @Ignore
+   public void anotherIfWithBooleanAndOperator()
+   {
+      tested.anotherIfWithBooleanAndOperator(true, true);
+      tested.anotherIfWithBooleanAndOperator(true, false);
+
+      assertLines(172, 175, 3);
+      assertLine(172, 3, 2, 2, 2, 0);
+      assertLine(173, 1, 1, 1);
+      assertLine(175, 1, 1, 2);
+   }
+
+   @Test
+   public void ifWithBooleanOrOperator()
+   {
+      tested.ifWithBooleanOrOperator(false, false);
+      tested.ifWithBooleanOrOperator(true, true);
+
+      assertLines(165, 168, 3);
+      assertLine(165, 3, 2, 2, 1, 0);
+      assertLine(166, 1, 1, 1);
+      assertLine(168, 1, 1, 2);
    }
 
    @Test

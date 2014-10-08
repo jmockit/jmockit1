@@ -1,6 +1,6 @@
 package integrationTests.loops;
 
-import java.util.List;
+import java.util.*;
 
 public class ForStatements
 {
@@ -13,6 +13,39 @@ public class ForStatements
 
    void forInSingleLine(int i) {
       for (; i < 2; i++) System.gc();
+   }
+
+   int forEachArrayElement(int... values)
+   {
+      int sum = 0;
+
+      for (int value : values) {
+         sum += value;
+      }
+
+      return sum;
+   }
+
+   String forEachCollectionElement(List<String> values)
+   {
+      StringBuilder result = new StringBuilder();
+
+      for (String value : values) {
+         result.append(value);
+      }
+
+      return result.toString();
+   }
+
+   void forUsingIterator(Collection<? extends Number> values)
+   {
+      for (Iterator<? extends Number> itr = values.iterator(); itr.hasNext(); ) {
+         Number value = itr.next();
+
+         if (value.intValue() == 0) {
+            itr.remove();
+         }
+      }
    }
 
    int forWithBreakAndContinue(int i)
