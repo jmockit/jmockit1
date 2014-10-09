@@ -57,12 +57,12 @@ public final class PerFileLineCoverage implements PerFileCoverage
       if (line > lastLine) {
          // Happens for source files with multiple types, where one is only loaded
          // after another has already executed some code.
-         if (executionCounts != NO_EXECUTIONS_YET && line >= executionCounts.length) {
-            synchronized (lineToLineData) {
-               int[] newCounts = new int[line + 30];
-               System.arraycopy(executionCounts, 0, newCounts, 0, executionCounts.length);
-               executionCounts = newCounts;
-            }
+         int[] initialExecutionCounts = executionCounts;
+
+         if (initialExecutionCounts != NO_EXECUTIONS_YET && line >= initialExecutionCounts.length) {
+            int[] newCounts = new int[line + 30];
+            System.arraycopy(initialExecutionCounts, 0, newCounts, 0, initialExecutionCounts.length);
+            executionCounts = newCounts;
          }
 
          lastLine = line;
@@ -99,12 +99,12 @@ public final class PerFileLineCoverage implements PerFileCoverage
          executionCounts = new int[lastLine + 1];
       }
 
-      synchronized (lineToLineData) {
-         executionCounts[line]++;
-      }
+      executionCounts[line]++;
 
-      LineCoverageData lineData = getOrCreateLineData(line);
-      lineData.registerExecution(callPoint);
+      if (callPoint != null) {
+         LineCoverageData lineData = getOrCreateLineData(line);
+         lineData.registerExecution(callPoint);
+      }
    }
 
    public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
@@ -174,15 +174,17 @@ public final class PerFileLineCoverage implements PerFileCoverage
       for (int line = 1, n = lastLine; line <= n; line++) {
          if (lineToLineData.containsKey(line)) {
             LineCoverageData lineData = lineToLineData.get(line);
+            int executionCount = executionCounts == NO_EXECUTIONS_YET ? 0 : executionCounts[line];
 
             if (lineData == null) {
                totalSegments++;
 
-               if (executionCounts != NO_EXECUTIONS_YET && executionCounts[line] > 0) {
+               if (executionCount > 0) {
                   coveredSegments++;
                }
             }
             else {
+               lineData.setExecutionCount(executionCount);
                totalSegments += lineData.getNumberOfSegments();
                coveredSegments += lineData.getNumberOfCoveredSegments();
             }

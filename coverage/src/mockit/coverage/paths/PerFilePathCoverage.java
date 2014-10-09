@@ -37,7 +37,7 @@ public final class PerFilePathCoverage implements PerFileCoverage
       firstLineToMethodData.put(methodData.getFirstLineInBody(), methodData);
    }
 
-   public synchronized void registerExecution(int firstLineInMethodBody, int node)
+   public void registerExecution(int firstLineInMethodBody, int node)
    {
       MethodCoverageData methodData = firstLineToMethodData.get(firstLineInMethodBody);
 

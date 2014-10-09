@@ -49,7 +49,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
          staticFieldsData.containsKey(classAndFieldNames);
    }
 
-   public synchronized void registerAssignmentToStaticField(@NotNull String classAndFieldNames)
+   public void registerAssignmentToStaticField(@NotNull String classAndFieldNames)
    {
       StaticFieldData staticData = getStaticFieldData(classAndFieldNames);
 
@@ -63,7 +63,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
       return staticFieldsData.get(classAndFieldNames);
    }
 
-   public synchronized void registerReadOfStaticField(@NotNull String classAndFieldNames)
+   public void registerReadOfStaticField(@NotNull String classAndFieldNames)
    {
       StaticFieldData staticData = getStaticFieldData(classAndFieldNames);
 
@@ -72,8 +72,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
       }
    }
 
-   public synchronized void registerAssignmentToInstanceField(
-      @NotNull Object instance, @NotNull String classAndFieldNames)
+   public void registerAssignmentToInstanceField(@NotNull Object instance, @NotNull String classAndFieldNames)
    {
       InstanceFieldData instanceData = getInstanceFieldData(classAndFieldNames);
 
@@ -87,7 +86,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
       return instanceFieldsData.get(classAndFieldNames);
    }
 
-   public synchronized void registerReadOfInstanceField(@NotNull Object instance, @NotNull String classAndFieldNames)
+   public void registerReadOfInstanceField(@NotNull Object instance, @NotNull String classAndFieldNames)
    {
       InstanceFieldData instanceData = getInstanceFieldData(classAndFieldNames);
 
@@ -162,7 +161,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
       addFieldsFromPreviousTestRunIfAbsent(instanceFieldsData, previousInfo.instanceFieldsData);
    }
 
-   private <FI extends FieldData> void addInfoFromPreviousTestRun(
+   private static <FI extends FieldData> void addInfoFromPreviousTestRun(
       @NotNull Map<String, FI> currentInfo, @NotNull Map<String, FI> previousInfo)
    {
       for (Entry<String, FI> nameAndInfo : currentInfo.entrySet()) {
@@ -176,7 +175,7 @@ public final class PerFileDataCoverage implements PerFileCoverage
       }
    }
 
-   private <FI extends FieldData> void addFieldsFromPreviousTestRunIfAbsent(
+   private static <FI extends FieldData> void addFieldsFromPreviousTestRunIfAbsent(
       @NotNull Map<String, FI> currentInfo, @NotNull Map<String, FI> previousInfo)
    {
       for (Entry<String, FI> nameAndInfo : previousInfo.entrySet()) {

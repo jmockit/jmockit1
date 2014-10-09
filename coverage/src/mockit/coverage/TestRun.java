@@ -20,75 +20,89 @@ public final class TestRun
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
-      CallPoint callPoint = null;
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
+         CallPoint callPoint = null;
 
-      if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line)) {
-         callPoint = CallPoint.create(new Throwable());
+         if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line)) {
+            callPoint = CallPoint.create(new Throwable());
+         }
+
+         fileData.registerExecution(line, callPoint);
       }
-
-      fileData.registerExecution(line, callPoint);
    }
 
    public static void branchExecuted(int fileIndex, int line, int branchIndex)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
-      CallPoint callPoint = null;
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
+         CallPoint callPoint = null;
 
-      if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line, branchIndex)) {
-         callPoint = CallPoint.create(new Throwable());
+         if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line, branchIndex)) {
+            callPoint = CallPoint.create(new Throwable());
+         }
+
+         fileData.registerExecution(line, branchIndex, callPoint);
       }
-
-      fileData.registerExecution(line, branchIndex, callPoint);
    }
 
    public static void nodeReached(@NotNull String file, int firstLineInMethodBody, int node)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      FileCoverageData fileData = coverageData.getFileData(file);
-      fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         FileCoverageData fileData = coverageData.getFileData(file);
+         fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
+      }
    }
 
    public static void fieldAssigned(@NotNull String file, @NotNull String classAndFieldNames)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      FileCoverageData fileData = coverageData.getFileData(file);
-      fileData.dataCoverageInfo.registerAssignmentToStaticField(classAndFieldNames);
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         FileCoverageData fileData = coverageData.getFileData(file);
+         fileData.dataCoverageInfo.registerAssignmentToStaticField(classAndFieldNames);
+      }
    }
 
    public static void fieldRead(@NotNull String file, @NotNull String classAndFieldNames)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      FileCoverageData fileData = coverageData.getFileData(file);
-      fileData.dataCoverageInfo.registerReadOfStaticField(classAndFieldNames);
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         FileCoverageData fileData = coverageData.getFileData(file);
+         fileData.dataCoverageInfo.registerReadOfStaticField(classAndFieldNames);
+      }
    }
 
    public static void fieldAssigned(@NotNull Object instance, @NotNull String file, @NotNull String classAndFieldNames)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      FileCoverageData fileData = coverageData.getFileData(file);
-      fileData.dataCoverageInfo.registerAssignmentToInstanceField(instance, classAndFieldNames);
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         FileCoverageData fileData = coverageData.getFileData(file);
+         fileData.dataCoverageInfo.registerAssignmentToInstanceField(instance, classAndFieldNames);
+      }
    }
 
    public static void fieldRead(@NotNull Object instance, @NotNull String file, @NotNull String classAndFieldNames)
    {
       if (terminated) return;
 
-      CoverageData coverageData = CoverageData.instance();
-      FileCoverageData fileData = coverageData.getFileData(file);
-      fileData.dataCoverageInfo.registerReadOfInstanceField(instance, classAndFieldNames);
+      synchronized (TestRun.class) {
+         CoverageData coverageData = CoverageData.instance();
+         FileCoverageData fileData = coverageData.getFileData(file);
+         fileData.dataCoverageInfo.registerReadOfInstanceField(instance, classAndFieldNames);
+      }
    }
 
    static void terminate() { terminated = true; }
