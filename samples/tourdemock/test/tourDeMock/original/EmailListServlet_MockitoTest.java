@@ -20,7 +20,7 @@ public final class EmailListServlet_MockitoTest
    EmailListServlet servlet;
 
    @Mock HttpServletRequest request;
-   @Mock(answer = Answers.RETURNS_DEEP_STUBS) HttpServletResponse response;
+   @Mock HttpServletResponse response;
    @Mock EmailListService emailListService;
 
    @Before
@@ -44,7 +44,8 @@ public final class EmailListServlet_MockitoTest
    @Test
    public void doGetWithList() throws Exception
    {
-      PrintWriter writer = response.getWriter();
+      PrintWriter writer = mock(PrintWriter.class);
+      when(response.getWriter()).thenReturn(writer);
 
       List<String> emails = asList("larry@stooge.com", "moe@stooge.com", "curley@stooge.com");
       when(emailListService.getListByName(anyString())).thenReturn(emails);
