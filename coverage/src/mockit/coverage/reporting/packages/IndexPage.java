@@ -57,7 +57,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeHeader()
    {
-      ((OutputFile) output).writeCommonHeader(null);
+      ((OutputFile) output).writeCommonHeader("JMockit Coverage Report");
 
       output.println("  <h1>JMockit Coverage Report</h1>");
       output.println("  <table id='packages'>");

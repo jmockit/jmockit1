@@ -65,14 +65,12 @@ public final class OutputFile extends PrintWriter
       return cssRelPath.toString();
    }
 
-   public void writeCommonHeader(@Nullable String subTitle)
+   public void writeCommonHeader(@NotNull String pageTitle)
    {
-      String titleSuffix = subTitle == null ? "" : " - " + subTitle;
-
       println("<!DOCTYPE html>");
       println("<html>");
       println("<head>");
-      println("  <title>JMockit Coverage Report" + titleSuffix + "</title>");
+      println("  <title>" + pageTitle + "</title>");
       println("  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
       println("  <link rel='stylesheet' type='text/css' href='" + relPathToOutDir + "coverage.css'/>");
       println("  <link rel='shortcut icon' type='image/png' href='" + relPathToOutDir + "logo.png'/>");
