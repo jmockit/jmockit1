@@ -27,7 +27,8 @@ public abstract class BaseInvocation extends Invocation
       super(invokedInstance, invokedArguments, invocationCount, minInvocations, maxInvocations);
    }
 
-   @NotNull public final Member getRealMember()
+   @NotNull
+   public final Member getRealMember()
    {
       if (realMember == null) {
          realMember = findRealMember();
@@ -75,7 +76,7 @@ public abstract class BaseInvocation extends Invocation
    }
 
    @NotNull
-   private Object[] createArgumentsArrayWithVarargs(int numInvokedArgs, @NotNull Object[] replacementArguments)
+   private static Object[] createArgumentsArrayWithVarargs(int numInvokedArgs, @NotNull Object[] replacementArguments)
    {
       int m = numInvokedArgs - 1;
       Object[] actualArgs = new Object[numInvokedArgs];
