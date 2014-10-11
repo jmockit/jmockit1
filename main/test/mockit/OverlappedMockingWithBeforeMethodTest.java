@@ -6,7 +6,9 @@ package mockit;
 
 import static org.junit.Assert.*;
 import org.junit.*;
+import org.junit.runners.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class OverlappedMockingWithBeforeMethodTest
 {
    static final class DerivedClass extends BaseClass
@@ -32,68 +34,10 @@ public final class OverlappedMockingWithBeforeMethodTest
    @Test
    public void regularMockingOfBaseClassAfterRegularMockingOfDerivedClassInPreviousTest()
    {
-      assertRegularMockingOfBaseClass();
-   }
-
-   private void assertRegularMockingOfBaseClass()
-   {
       BaseClass.doStatic1();
       try { BaseClass.doStatic2(); fail(); } catch (RuntimeException ignore) {}
 
       DerivedClass derived = new DerivedClass();
       assertTrue(derived.doSomethingElse());
-   }
-
-   @Test
-   public void overlappedDynamicPartialMockingOfAllInstances()
-   {
-      final DerivedClass derived = new DerivedClass();
-
-      new Expectations(DerivedClass.class) {{
-         BaseClass.doStatic2();
-         derived.doSomethingElse(); result = true;
-      }};
-
-      try { BaseClass.doStatic1(); fail(); } catch (RuntimeException ignore) {}
-      BaseClass.doStatic2();
-      assertTrue(derived.doSomethingElse());
-
-      new Verifications() {{
-         BaseClass.doStatic1(); times = 1;
-         BaseClass.doStatic2(); times = 1;
-         derived.doSomethingElse(); times = 1;
-      }};
-   }
-
-   @Test
-   public void regularMockingOfBaseClassAfterDynamicMockingOfDerivedClassInPreviousTest()
-   {
-      assertRegularMockingOfBaseClass();
-   }
-
-   @Test
-   public void overlappedDynamicPartialMockingOfSingleInstance()
-   {
-      final DerivedClass derived = new DerivedClass();
-
-      new Expectations(derived) {{
-         derived.doSomethingElse(); result = true;
-      }};
-
-      try { BaseClass.doStatic1(); fail(); } catch (RuntimeException ignore) {}
-      try { BaseClass.doStatic2(); fail(); } catch (RuntimeException ignore) {}
-      assertTrue(derived.doSomethingElse());
-
-      new Verifications() {{
-         BaseClass.doStatic1(); times = 1;
-         BaseClass.doStatic2(); times = 1;
-         derived.doSomethingElse(); times = 1;
-      }};
-   }
-
-   @Test
-   public void regularMockingOfBaseClassAfterDynamicMockingOfDerivedClassInstanceInPreviousTest()
-   {
-      assertRegularMockingOfBaseClass();
    }
 }

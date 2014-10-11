@@ -18,12 +18,14 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
    @NotNull public final List<Object> targetInstances;
    @NotNull private final Map<Class<?>, byte[]> modifiedClassfiles;
+   @NotNull private final List<Class<?>> classesPartiallyMocked;
    private boolean methodsOnly;
 
    public DynamicPartialMocking()
    {
       targetInstances = new ArrayList<Object>(2);
       modifiedClassfiles = new HashMap<Class<?>, byte[]>();
+      classesPartiallyMocked = new ArrayList<Class<?>>();
    }
 
    public void redefineTypes(@NotNull Object[] classesOrInstancesToBePartiallyMocked)
@@ -94,12 +96,12 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
          throw new IllegalArgumentException("Invalid type for partial mocking: " + targetClass);
       }
 
-      if (
-         !modifiedClassfiles.containsKey(targetClass) &&
-         TestRun.mockFixture().isMockedClass(targetClass) &&
-         !TestRun.getExecutingTest().isClassWithInjectableMocks(targetClass)
-      ) {
-         throw new IllegalArgumentException("Class is already mocked: " + targetClass);
+      if (!isClassAssignableFrom(classesPartiallyMocked, targetClass)) {
+         Class<?> classAlreadyMocked = TestRun.mockFixture().findClassAlreadyMocked(targetClass);
+
+         if (classAlreadyMocked != null && !TestRun.getExecutingTest().isClassWithInjectableMocks(targetClass)) {
+            throw new IllegalArgumentException("Already mocked: " + classAlreadyMocked);
+         }
       }
    }
 
@@ -113,5 +115,13 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    void applyClassRedefinition(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)
    {
       modifiedClassfiles.put(realClass, modifiedClass);
+
+      Class<?> classPartiallyMocked = realClass;
+
+      do {
+         classesPartiallyMocked.add(classPartiallyMocked);
+         classPartiallyMocked = classPartiallyMocked.getSuperclass();
+      }
+      while (classPartiallyMocked != null && classPartiallyMocked != Object.class);
    }
 }

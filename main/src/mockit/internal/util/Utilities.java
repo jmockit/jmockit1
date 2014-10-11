@@ -93,4 +93,40 @@ public final class Utilities
 
       return -1;
    }
+
+   public static boolean isClassAssignableTo(@NotNull List<Class<?>> fromClasses, @NotNull Class<?> toClass)
+   {
+      int n = fromClasses.size();
+
+      for (int i = 0; i < n; i++) {
+         Class<?> fromClass = fromClasses.get(i);
+
+         if (toClass == fromClass || toClass.isAssignableFrom(fromClass)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   @Nullable
+   public static Class<?> findClassAssignableFrom(@NotNull List<Class<?>> toClasses, @NotNull Class<?> fromClass)
+   {
+      int n = toClasses.size();
+
+      for (int i = 0; i < n; i++) {
+         Class<?> toClass = toClasses.get(i);
+
+         if (toClass == fromClass || toClass.isAssignableFrom(fromClass)) {
+            return toClass;
+         }
+      }
+
+      return null;
+   }
+
+   public static boolean isClassAssignableFrom(@NotNull List<Class<?>> toClasses, @NotNull Class<?> fromClass)
+   {
+      return findClassAssignableFrom(toClasses, fromClass) != null;
+   }
 }

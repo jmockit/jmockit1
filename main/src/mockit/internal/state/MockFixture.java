@@ -108,7 +108,6 @@ public final class MockFixture
    {
       if (!containsReference(mockedClasses, mockedType)) {
          if (Proxy.isProxyClass(mockedType)) {
-            // TODO: probably need to change this
             mockedType = mockedType.getInterfaces()[0];
          }
 
@@ -122,26 +121,11 @@ public final class MockFixture
 
       if (instance == null) {
          targetClass = ClassLoad.loadByInternalName(classDesc);
-         return isAssignableFromMockedClass(targetClass);
+         return isClassAssignableTo(mockedClasses, targetClass);
       }
 
       targetClass = instance.getClass();
       return mockedTypesAndInstances.containsKey(targetClass) || isInstanceOfMockedClass(instance);
-   }
-
-   private boolean isAssignableFromMockedClass(@NotNull Class<?> targetClass)
-   {
-      int n = mockedClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> mockedClass = mockedClasses.get(i);
-
-         if (targetClass == mockedClass || targetClass.isAssignableFrom(mockedClass)) {
-            return true;
-         }
-      }
-
-      return false;
    }
 
    public boolean isMockedClass(@NotNull Class<?> targetClass)
@@ -157,20 +141,16 @@ public final class MockFixture
       return false;
    }
 
+   @Nullable
+   public Class<?> findClassAlreadyMocked(@NotNull Class<?> targetClass)
+   {
+      return findClassAssignableFrom(mockedClasses, targetClass);
+   }
+
    public boolean isInstanceOfMockedClass(@NotNull Object mockedInstance)
    {
       Class<?> mockedClass = mockedInstance.getClass();
-      int n = mockedClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> mockedType = mockedClasses.get(i);
-
-         if (mockedType == mockedClass || mockedType.isAssignableFrom(mockedClass)) {
-            return true;
-         }
-      }
-
-      return false;
+      return findClassAlreadyMocked(mockedClass) != null;
    }
 
    public void registerInstanceFactoryForMockedType(

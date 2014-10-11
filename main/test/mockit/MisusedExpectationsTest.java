@@ -233,7 +233,6 @@ public final class MisusedExpectationsTest
    {
       @Override String doSomething(boolean b) { return "overridden"; }
       void doSomethingElse(Object o) {}
-      static void doSomethingStatic() {}
    }
 
    @SuppressWarnings("UnnecessarySuperQualifier")
@@ -278,63 +277,24 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedObject()
-   {
-      final BlahBlah tested = new BlahBlah();
-
-      new StrictExpectations(tested) {{ tested.value(); }};
-
-      try {
-         new Expectations(tested) {{ tested.doSomething(anyBoolean); }};
-         fail();
-      }
-      catch (IllegalArgumentException ignore) {}
-   }
-
-   @Test
-   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass()
-   {
-      new StrictExpectations(BlahBlah.class) {{ BlahBlah.doSomethingStatic(); }};
-
-      try {
-         new Expectations(BlahBlah.class) {};
-         fail();
-      }
-      catch (IllegalArgumentException ignore) {}
-   }
-
-   @Test
-   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass_forNotStrictBaseClass()
-   {
-      new StrictExpectations(BlahBlah.class) {{ new Blah(); BlahBlah.doSomethingStatic(); }};
-
-      try {
-         new Expectations(Blah.class) {};
-         fail();
-      }
-      catch (IllegalArgumentException ignore) {}
-   }
-
-   @Test
-   public void mixingStrictAndNotStrictExpectationsForSameDynamicallyMockedClass_forStrictBaseClass()
-   {
-      new StrictExpectations(BlahBlah.class) {{ new BlahBlah(); }};
-
-      try {
-         new Expectations(BlahBlah.class) {};
-         fail();
-      }
-      catch (IllegalArgumentException ignore) {}
-   }
-
-   @Test
    public void partiallyMockingAClassWhichIsAlreadyMocked()
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("already mocked");
+      thrown.expectMessage("Already mocked");
       thrown.expectMessage("Blah");
 
       new Expectations(Blah.class) {};
+   }
+
+   @Test
+   public void partiallyMockingASubclassOfAClassWhichIsAlreadyMocked()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Already mocked");
+      thrown.expectMessage("Blah");
+
+      BlahBlah blahBlah = new BlahBlah();
+      new Expectations(blahBlah) {};
    }
 
    @Test
