@@ -103,6 +103,11 @@
          <scope>test</scope>
       </dependency>
 
+      <dependency>
+         <groupId>org.hamcrest</groupId><artifactId>hamcrest-core</artifactId><version>1.3</version>
+         <scope>test</scope>
+      </dependency>
+
       <!-- Mocking tools -->
       <dependency>
          <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
@@ -117,10 +122,6 @@
 
       <dependency>
          <groupId>org.jmock</groupId><artifactId>jmock</artifactId><version>2.6.0</version>
-         <exclusions>
-            <exclusion><groupId>org.hamcrest</groupId><artifactId>hamcrest-core</artifactId></exclusion>
-            <exclusion><groupId>org.hamcrest</groupId><artifactId>hamcrest-library</artifactId></exclusion>
-         </exclusions>
          <scope>test</scope>
       </dependency>
       <dependency>
