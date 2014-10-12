@@ -13,11 +13,30 @@ import org.jetbrains.annotations.*;
 public final class LineElement implements Iterable<LineElement>
 {
    private static final List<String> CONDITIONAL_OPERATORS = asList("||", "&&", ":", "else");
-   private static final List<String> CONDITIONAL_INSTRUCTIONS = asList("if", "for", "while");
    private static final Pattern OPEN_TAG = Pattern.compile("<");
    private static final NoSuchElementException LAST_ELEMENT_REACHED = new NoSuchElementException();
 
    enum ElementType { CODE, COMMENT, SEPARATOR }
+
+   enum ConditionalStatement
+   {
+      IF("if"), FOR("for"), WHILE("while");
+
+      @NotNull private final String keyword;
+      ConditionalStatement(@NotNull String keyword) { this.keyword = keyword; }
+
+      @Nullable
+      static ConditionalStatement find(@NotNull String keyword)
+      {
+         for (ConditionalStatement statement : values()) {
+            if (statement.keyword.equals(keyword)) {
+               return statement;
+            }
+         }
+
+         return null;
+      }
+   }
 
    @NotNull private final ElementType type;
    @NotNull private final String text;
@@ -25,7 +44,7 @@ public final class LineElement implements Iterable<LineElement>
    @Nullable private String closingTag;
    @Nullable private LineElement next;
 
-   private boolean underConditionalStatement;
+   @Nullable private ConditionalStatement conditionalStatement;
    private int parenthesesBalance;
 
    LineElement(@NotNull ElementType type, @NotNull String text)
@@ -91,7 +110,7 @@ public final class LineElement implements Iterable<LineElement>
 
    private void copyConditionalTrackingState(@NotNull LineElement destination)
    {
-      destination.underConditionalStatement = underConditionalStatement;
+      destination.conditionalStatement = conditionalStatement;
       destination.parenthesesBalance = parenthesesBalance;
    }
 
@@ -105,10 +124,11 @@ public final class LineElement implements Iterable<LineElement>
       }
    }
 
-   @Nullable public LineElement findNextBranchingPoint()
+   @Nullable
+   public LineElement findNextBranchingPoint()
    {
-      if (!underConditionalStatement) {
-         underConditionalStatement = isConditionalStatement();
+      if (conditionalStatement == null) {
+         conditionalStatement = ConditionalStatement.find(text);
       }
 
       if (isBranchingElement()) {
@@ -119,7 +139,7 @@ public final class LineElement implements Iterable<LineElement>
          return this;
       }
 
-      if (underConditionalStatement) {
+      if (conditionalStatement != null) {
          int balance = getParenthesisBalance();
          parenthesesBalance += balance;
 
@@ -138,8 +158,15 @@ public final class LineElement implements Iterable<LineElement>
       return next.findNextBranchingPoint();
    }
 
-   private boolean isConditionalStatement() { return CONDITIONAL_INSTRUCTIONS.contains(text); }
-   public boolean isBranchingElement() { return CONDITIONAL_OPERATORS.contains(text); }
+   public boolean isBranchingElement()
+   {
+      if (conditionalStatement == ConditionalStatement.FOR) {
+         int p = text.indexOf(';');
+         return p >= 0 && text.trim().length() == 1;
+      }
+
+      return CONDITIONAL_OPERATORS.contains(text);
+   }
 
    private int getParenthesisBalance()
    {
