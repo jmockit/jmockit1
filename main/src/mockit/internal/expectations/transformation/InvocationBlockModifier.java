@@ -4,14 +4,12 @@
  */
 package mockit.internal.expectations.transformation;
 
-import org.jetbrains.annotations.*;
-
 import mockit.external.asm.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
-
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
+
+import org.jetbrains.annotations.*;
 
 final class InvocationBlockModifier extends MethodVisitor
 {
@@ -138,7 +136,7 @@ final class InvocationBlockModifier extends MethodVisitor
    public void visitFieldInsn(int opcode, String owner, String name, String desc)
    {
       boolean gettingMockedEnumElement =
-         opcode == GETSTATIC && TestRun.mockFixture().isMockedClass(ClassLoad.loadByInternalName(owner));
+         opcode == GETSTATIC && TestRun.mockFixture().isMockedClass(owner.replace('/', '.'));
 
       if (gettingMockedEnumElement) {
          mw.visitVarInsn(ALOAD, 0);

@@ -133,7 +133,24 @@ public final class MockFixture
       int n = mockedClasses.size();
 
       for (int i = 0; i < n; i++) {
-         if (mockedClasses.get(i) == targetClass) {
+         Class<?> mockedClass = mockedClasses.get(i);
+
+         if (mockedClass == targetClass) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public boolean isMockedClass(@NotNull String targetClassName)
+   {
+      int n = mockedClasses.size();
+
+      for (int i = 0; i < n; i++) {
+         Class<?> mockedClass = mockedClasses.get(i);
+
+         if (targetClassName.equals(mockedClass.getName())) {
             return true;
          }
       }
