@@ -48,6 +48,10 @@ final class LineSegmentsFormatter
          appendUntilFirstElementAfterNextBranchingPoint(segmentData);
       }
 
+      if (element != null) {
+         element.appendAllBefore(line, null);
+      }
+
       line.append("</pre>");
 
       if (listOfCallPoints != null && lineData.containsCallPoints()) {
