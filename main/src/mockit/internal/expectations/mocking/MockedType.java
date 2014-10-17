@@ -17,7 +17,6 @@ import mockit.internal.util.*;
 @SuppressWarnings({"EqualsAndHashcode", "ClassWithTooManyFields"})
 public final class MockedType
 {
-   @SuppressWarnings("unused")
    @Mocked private static final Object DUMMY = null;
    private static final int DUMMY_HASHCODE;
 
@@ -98,10 +97,12 @@ public final class MockedType
 
    private void registerCascadingAsNeeded()
    {
-      boolean shouldCascade = mocked == null || mocked.cascading();
+      if (isMockableType()) {
+         boolean shouldCascade = mocked == null || mocked.cascading();
 
-      if (shouldCascade && !(declaredType instanceof TypeVariable)) {
-         TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
+         if (shouldCascade && !(declaredType instanceof TypeVariable)) {
+            TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
+         }
       }
    }
 
@@ -222,7 +223,8 @@ public final class MockedType
       return capturing == null ? 0 : capturing.maxInstances();
    }
 
-   @Nullable public Object getValueToInject(@Nullable Object objectWithFields)
+   @Nullable
+   public Object getValueToInject(@Nullable Object objectWithFields)
    {
       if (field == null) {
          return providedValue;
