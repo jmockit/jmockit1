@@ -36,6 +36,8 @@ public final class CascadingParametersTest
 
       <T1 extends Baz, T2 extends List<? extends Number>> Entry<T1, T2> returnTypeWithMultipleTypeVariables()
       { return null; }
+
+      HashMap<?, ?> getMap() { return null; }
    }
 
    static class Bar
@@ -85,6 +87,10 @@ public final class CascadingParametersTest
 
       Entry<Baz, List<Integer>> x = foo.returnTypeWithMultipleTypeVariables();
       assertNotNull(x);
+
+      // Un-mockable return type:
+      HashMap<?, ?> map = foo.getMap();
+      assertNull(map);
    }
 
    @Test

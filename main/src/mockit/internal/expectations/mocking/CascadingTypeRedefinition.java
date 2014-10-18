@@ -18,10 +18,9 @@ public final class CascadingTypeRedefinition extends BaseTypeRedefinition
       this.mockedType = mockedType;
    }
 
-   @NotNull
+   @Nullable
    public InstanceFactory redefineType()
    {
-      //noinspection ConstantConditions
       return redefineType(mockedType);
    }
 }

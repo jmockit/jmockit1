@@ -141,7 +141,7 @@ public final class MockedTypeCascade
       return isTypeSupportedForCascading(typeName) ? typeName : null;
    }
 
-   @NotNull
+   @Nullable
    private Object getCascadedInstance(@NotNull String methodNameAndDesc, @NotNull String returnTypeInternalName)
    {
       Type returnType = cascadedTypesAndMocks.get(returnTypeInternalName);
@@ -186,7 +186,7 @@ public final class MockedTypeCascade
       return genericReturnType;
    }
 
-   @NotNull
+   @Nullable
    private static Object createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(
       @NotNull String methodNameAndDesc, @NotNull Type mockedReturnType)
    {
@@ -196,6 +196,10 @@ public final class MockedTypeCascade
          String methodName = methodNameAndDesc.substring(0, methodNameAndDesc.indexOf('('));
          CascadingTypeRedefinition typeRedefinition = new CascadingTypeRedefinition(methodName, mockedReturnType);
          instanceFactory = typeRedefinition.redefineType();
+
+         if (instanceFactory == null) {
+            return null;
+         }
       }
       else {
          Object lastInstance = instanceFactory.getLastInstance();
