@@ -57,10 +57,13 @@ public final class MockedTypeCascade
 
       if (resolvedReturnTypeDesc == null) {
          resolvedReturnTypeDesc = getReturnTypeIfCascadingSupportedForIt(returnTypeDesc);
-      }
 
-      if (resolvedReturnTypeDesc == null) {
-         return null;
+         if (resolvedReturnTypeDesc == null) {
+            return null;
+         }
+      }
+      else if (resolvedReturnTypeDesc.charAt(0) == '[') {
+         return DefaultValues.computeForArrayType(resolvedReturnTypeDesc);
       }
 
       return cascade.getCascadedInstance(mockedMethodNameAndDesc, resolvedReturnTypeDesc);

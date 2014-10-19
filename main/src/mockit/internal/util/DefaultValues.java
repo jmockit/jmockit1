@@ -119,19 +119,22 @@ public final class DefaultValues
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", invoke(DoubleStream.class, "empty"));
    }
 
-   @Nullable public static Object computeForReturnType(@NotNull String methodNameAndDesc)
+   @Nullable
+   public static Object computeForReturnType(@NotNull String methodNameAndDesc)
    {
       String typeDesc = getReturnTypeDesc(methodNameAndDesc);
       return computeForType(typeDesc);
    }
 
-   @NotNull public static String getReturnTypeDesc(@NotNull String methodNameAndDesc)
+   @NotNull
+   public static String getReturnTypeDesc(@NotNull String methodNameAndDesc)
    {
       int rightParen = methodNameAndDesc.indexOf(')') + 1;
       return methodNameAndDesc.substring(rightParen);
    }
 
-   @Nullable public static Object computeForType(@NotNull String typeDesc)
+   @Nullable
+   public static Object computeForType(@NotNull String typeDesc)
    {
       char typeDescChar = typeDesc.charAt(0);
 
@@ -150,6 +153,12 @@ public final class DefaultValues
       }
 
       // It's an array.
+      return computeForArrayType(typeDesc);
+   }
+
+   @NotNull
+   public static Object computeForArrayType(@NotNull String typeDesc)
+   {
       Object emptyArray = ELEM_TYPE_TO_ONE_D_ARRAY.get(typeDesc);
 
       if (emptyArray == null) {
@@ -159,7 +168,8 @@ public final class DefaultValues
       return emptyArray;
    }
 
-   @NotNull private static Object newEmptyArray(@NotNull String typeDesc)
+   @NotNull
+   private static Object newEmptyArray(@NotNull String typeDesc)
    {
       Type type = Type.getType(typeDesc);
       Class<?> elementType = TypeDescriptor.getClassForType(type.getElementType());
@@ -167,7 +177,8 @@ public final class DefaultValues
       return Array.newInstance(elementType, new int[type.getDimensions()]);
    }
 
-   @Nullable public static Object computeForType(Class<?> type)
+   @Nullable
+   public static Object computeForType(@NotNull Class<?> type)
    {
       if (type.isArray()) {
          return Array.newInstance(type.getComponentType(), 0);
@@ -179,7 +190,8 @@ public final class DefaultValues
       return computeForWrapperType(type);
    }
 
-   public static Object defaultValueForPrimitiveType(Class<?> type)
+   @NotNull
+   public static Object defaultValueForPrimitiveType(@NotNull Class<?> type)
    {
       if (type == int.class) {
          return ZERO_INT;
@@ -208,7 +220,8 @@ public final class DefaultValues
    }
 
    @SuppressWarnings("unchecked")
-   @Nullable public static <T> T computeForWrapperType(java.lang.reflect.Type type)
+   @Nullable
+   public static <T> T computeForWrapperType(@NotNull java.lang.reflect.Type type)
    {
       if (type == Integer.class) {
          return (T) ZERO_INT;

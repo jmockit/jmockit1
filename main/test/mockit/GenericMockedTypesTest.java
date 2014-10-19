@@ -202,7 +202,7 @@ public final class GenericMockedTypesTest
    }
 
    static class Abc {}
-   @SuppressWarnings("UnusedDeclaration") static class GenericBase<T> {}
+   static class GenericBase<T> { T doSomething() { return null; } }
    static class GenericSubclass<T> extends GenericBase<T> { T getAbc() { return null; } }
 
    @Test
@@ -211,5 +211,21 @@ public final class GenericMockedTypesTest
    {
       Abc abc = mock.getAbc();
       assertNotNull(abc);
+   }
+
+   @Test
+   public void mockGenericBaseClassHavingTypeArgumentOfArrayType(@Mocked GenericBase<String[]> mock)
+   {
+      String[] result = mock.doSomething();
+      assertEquals(0, result.length);
+   }
+
+   static final class DerivedClass extends GenericBase<Number[]> {}
+
+   @Test
+   public void mockClassExtendingAGenericBaseClassHavingTypeArgumentOfArrayType(@Mocked DerivedClass mock)
+   {
+      Number[] result = mock.doSomething();
+      assertEquals(0, result.length);
    }
 }
