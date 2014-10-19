@@ -98,11 +98,11 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileSafelyUsingReplacementInstanceForMatchingConstructorInvocations(@Mocked final File aFile)
+   public void mockFileSafelyUsingInstantiationRecordingToMatchDesiredFuturesInstancesOnly(@Mocked File anyFile)
    {
       new Expectations() {{
-         new File("testFile"); result = aFile;
-         onInstance(aFile).exists(); result = true;
+         File testFile = new File("testFile");
+         testFile.exists(); result = true;
       }};
 
       checkForTheExistenceOfSeveralFiles();

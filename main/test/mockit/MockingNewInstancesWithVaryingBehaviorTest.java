@@ -12,13 +12,13 @@ import org.junit.*;
 
 public final class MockingNewInstancesWithVaryingBehaviorTest
 {
-   private static final String DATE_FORMAT = "yyyy-MM-dd";
-   private static final String FORMATTED_DATE = "2012-02-28";
+   static final String DATE_FORMAT = "yyyy-MM-dd";
+   static final String FORMATTED_DATE = "2012-02-28";
 
-   private static final String TIME_FORMAT = "HH";
-   private static final String FORMATTED_TIME = "13";
+   static final String TIME_FORMAT = "HH";
+   static final String FORMATTED_TIME = "13";
 
-   private void exerciseAndVerifyTestedCode()
+   void exerciseAndVerifyTestedCode()
    {
       Date now = new Date();
 
@@ -113,7 +113,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test // nice
-   public void usingCapturing(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt)
+   public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt)
    {
       new Expectations() {{
          new SimpleDateFormat(DATE_FORMAT); result = dateFmt;
@@ -126,14 +126,30 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       exerciseAndVerifyTestedCode();
    }
 
+   @Test // nicer
+   public void usingInstantiationRecording(@Mocked SimpleDateFormat anyDateFormat)
+   {
+      new Expectations() {{
+         SimpleDateFormat dateFmt = new SimpleDateFormat(DATE_FORMAT);
+         dateFmt.format((Date) any); result = FORMATTED_DATE;
+
+         SimpleDateFormat hourFmt = new SimpleDateFormat(TIME_FORMAT);
+         hourFmt.format((Date) any); result = FORMATTED_TIME;
+      }};
+
+      exerciseAndVerifyTestedCode();
+   }
+
    static class Collaborator
    {
       final int value;
       Collaborator() { value = -1; }
       Collaborator(int value) { this.value = value; }
+      Collaborator(String value) { this.value = Integer.parseInt(value); }
       int getValue() { return value; }
       boolean isPositive() { return value > 0; }
       String doSomething(String s) { return s + ": " + value; }
+      int doSomething(int i) { return i; }
    }
 
    @Test

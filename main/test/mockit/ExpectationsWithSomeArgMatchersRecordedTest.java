@@ -193,6 +193,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
 
          Collaborator.staticSetValues(2L, anyByte, 0.0, anyShort);
 
+         //noinspection ConstantConditions
          mock.methodWithManyParameters(
             anyByte, anyShort, anyInt, anyLong, anyString, anyBoolean, anyFloat, anyDouble, (int[]) any, (String[]) any,
             anyByte, anyShort, anyInt, anyLong, anyString, anyBoolean, anyFloat, anyDouble, (int[]) any, (String[]) any,
@@ -398,25 +399,11 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordStrictExpectationWithReplacementInstanceForMockedObjectInstantiatedInsideSUT(
-      @Mocked final Dependency dep)
-   {
-      new StrictExpectations() {{
-         new Dependency(); result = dep;
-         mock.doSomething(dep);
-      }};
-
-      Dependency src = new Dependency();
-      mock.doSomething(src);
-   }
-
-   @Test
-   public void recordExpectationsWithReplacementInstancesForMockedObjectsInstantiatedInsideSUT(
-      @Mocked final Dependency dep1, @Mocked final Dependency dep2)
+   public void recordInstantiationExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency anyDep)
    {
       new Expectations() {{
-         new Dependency(1); result = dep1;
-         new Dependency(2); result = dep2;
+         Dependency dep1 = new Dependency(1);
+         Dependency dep2 = new Dependency(2);
          mock.doSomething(dep1); result = 1; times = 2;
          mock.doSomething(dep2); result = 2; times = 2;
       }};
