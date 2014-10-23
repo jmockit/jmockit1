@@ -8,12 +8,14 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
 final class StartupConfiguration
 {
    @NotNull private static final Collection<String> NO_VALUES = Collections.emptyList();
+   @NotNull private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
 
    @NotNull private final Properties config;
    @NotNull final Collection<String> externalTools;
@@ -52,9 +54,10 @@ final class StartupConfiguration
       }
    }
 
-   private void addPropertyValues(@NotNull Properties propertiesToAdd)
+   @SuppressWarnings("UseOfPropertiesAsHashtable")
+   private void addPropertyValues(@NotNull Map<Object, Object> propertiesToAdd)
    {
-      for (Entry<?, ?> propertyToAdd : propertiesToAdd.entrySet()) {
+      for (Entry<Object, Object> propertyToAdd : propertiesToAdd.entrySet()) {
          Object key = propertyToAdd.getKey();
          String valueToAdd = (String) propertyToAdd.getValue();
          String existingValue = (String) config.get(key);
@@ -73,20 +76,20 @@ final class StartupConfiguration
 
    private void loadJMockitPropertiesIntoSystemProperties()
    {
-      Properties systemProperties = System.getProperties();
+      Map<Object, Object> systemProperties = System.getProperties();
 
-      for (Entry<?, ?> prop : config.entrySet()) {
-         String key = (String) prop.getKey();
+      for (Entry<Object, Object> property : config.entrySet()) {
+         String key = (String) property.getKey();
          String name = key.startsWith("jmockit-") ? key : "jmockit-" + key;
 
          if (!systemProperties.containsKey(name)) {
-            systemProperties.put(name, prop.getValue());
+            systemProperties.put(name, property.getValue());
          }
       }
    }
 
    @NotNull
-   private Collection<String> getMultiValuedProperty(@NotNull String key)
+   private static Collection<String> getMultiValuedProperty(@NotNull String key)
    {
       String commaOrSpaceSeparatedValues = System.getProperty(key);
       
@@ -94,7 +97,7 @@ final class StartupConfiguration
          return NO_VALUES;
       }
 
-      List<String> allValues = Arrays.asList(commaOrSpaceSeparatedValues.split("\\s*,\\s*|\\s+"));
+      List<String> allValues = Arrays.asList(COMMA_OR_SPACES.split(commaOrSpaceSeparatedValues));
       Set<String> uniqueValues = new HashSet<String>(allValues);
       uniqueValues.remove("");
 
