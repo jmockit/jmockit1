@@ -78,6 +78,22 @@ public final class Utilities
       }
    }
 
+   @NotNull
+   public static Class<?> getClassType(@NotNull GenericArrayType arrayType)
+   {
+      Type componentType = arrayType.getGenericComponentType();
+      int dimensions = 1;
+
+      while (componentType instanceof GenericArrayType) {
+         componentType = ((GenericArrayType) componentType).getGenericComponentType();
+         dimensions++;
+      }
+
+      Class<?> componentClass = getClassType(componentType);
+      Object emptyArray = Array.newInstance(componentClass, new int[dimensions]);
+      return emptyArray.getClass();
+   }
+
    public static boolean containsReference(@NotNull List<?> references, @Nullable Object toBeFound)
    {
       return indexOfReference(references, toBeFound) >= 0;

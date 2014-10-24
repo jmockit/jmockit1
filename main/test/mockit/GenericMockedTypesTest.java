@@ -214,9 +214,34 @@ public final class GenericMockedTypesTest
    }
 
    @Test
-   public void mockGenericBaseClassHavingTypeArgumentOfArrayType(@Mocked GenericBase<String[]> mock)
+   public void mockGenericClassHavingTypeArgumentOfArrayType(@Mocked GenericBase<String[]> mock)
    {
       String[] result = mock.doSomething();
+
+      assertEquals(0, result.length);
+   }
+
+   @Test
+   public void mockGenericClassHavingTypeArgumentOfArrayTypeWithPrimitiveComponent(@Mocked GenericBase<int[]> mock)
+   {
+      int[] result = mock.doSomething();
+
+      assertEquals(0, result.length);
+   }
+
+   @Test
+   public void mockGenericClassHavingTypeArgumentOfArrayTypeWith2DPrimitiveComponent(@Mocked GenericBase<int[][]> mock)
+   {
+      int[][] result = mock.doSomething();
+
+      assertEquals(0, result.length);
+   }
+
+   @Test
+   public void mockGenericClassHavingTypeArgumentOfArrayTypeWithGenericComponent(@Mocked GenericBase<List<?>[]> mock)
+   {
+      List<?>[] result = mock.doSomething();
+
       assertEquals(0, result.length);
    }
 
@@ -226,6 +251,7 @@ public final class GenericMockedTypesTest
    public void mockClassExtendingAGenericBaseClassHavingTypeArgumentOfArrayType(@Mocked DerivedClass mock)
    {
       Number[] result = mock.doSomething();
+
       assertEquals(0, result.length);
    }
 }

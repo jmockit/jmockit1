@@ -81,9 +81,8 @@ public final class MockedTypeCascade
       if (cascadingType instanceof ParameterizedType) {
          return getGenericReturnTypeWithTypeArguments(genericReturnTypeDesc, (ParameterizedType) cascadingType);
       }
-      else {
-         return getReturnTypeIfCascadingSupportedForIt(genericReturnTypeDesc);
-      }
+
+      return getReturnTypeIfCascadingSupportedForIt(genericReturnTypeDesc);
    }
 
    @NotNull
@@ -113,6 +112,10 @@ public final class MockedTypeCascade
             }
             else if (actualType instanceof WildcardType) {
                actualClass = (Class<?>) ((WildcardType) actualType).getUpperBounds()[0];
+            }
+            else if (actualType instanceof GenericArrayType) {
+               Class<?> componentClass = getClassType((GenericArrayType) actualType);
+               return getInternalName(componentClass);
             }
             else {
                return null;
