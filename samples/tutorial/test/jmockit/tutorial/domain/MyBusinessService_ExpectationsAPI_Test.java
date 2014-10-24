@@ -23,7 +23,7 @@ public final class MyBusinessService_ExpectationsAPI_Test
       final EntityX data = new EntityX(5, "abc", "abc@xpta.net");
       final EntityX existingItem = new EntityX(1, "AX5", "someone@somewhere.com");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          Database.find(withSubstring("select"), any);
          result = existingItem; // automatically wrapped in a list of one item
       }};
