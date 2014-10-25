@@ -4,6 +4,8 @@
  */
 package mockit.coverage.lines;
 
+import java.io.*;
+
 import org.jetbrains.annotations.*;
 
 import mockit.external.asm.*;
@@ -15,9 +17,23 @@ public final class BranchCoverageData extends LineSegmentData
 {
    private static final long serialVersionUID = 1003335601845442606L;
 
-   @NotNull final transient Label label;
+   @NotNull private transient Label label;
 
    BranchCoverageData(@NotNull Label label) { this.label = label; }
 
-   @Nullable Integer getLine() { return label.info == null ? label.line : (Integer) label.info; }
+   int getLine() { return label.info == null ? label.line : (Integer) label.info; }
+
+   private void readObject(@NotNull ObjectInputStream in) throws IOException, ClassNotFoundException
+   {
+      label = new Label();
+      label.line = in.readInt();
+      in.defaultReadObject();
+   }
+
+   private void writeObject(@NotNull ObjectOutputStream out) throws IOException
+   {
+      int line = getLine();
+      out.writeInt(line);
+      out.defaultWriteObject();
+   }
 }

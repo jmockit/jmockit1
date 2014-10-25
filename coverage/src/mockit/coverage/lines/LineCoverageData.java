@@ -71,14 +71,14 @@ public final class LineCoverageData extends LineSegmentData
       }
 
       BranchCoverageData branch = branches.get(0);
-      Integer sourceLine = branch.getLine();
+      int sourceLine = branch.getLine();
       int count = 1;
 
       for (int i = 1; i < n; i += 2) {
          branch = branches.get(i);
-         Integer targetLine = branch.getLine();
+         int targetLine = branch.getLine();
 
-         if (targetLine != null && targetLine.equals(sourceLine)) {
+         if (targetLine == sourceLine) {
             count++;
          }
 
@@ -107,9 +107,9 @@ public final class LineCoverageData extends LineSegmentData
          }
 
          if (targetBranch.isCovered()) {
-            Integer targetLine = targetBranch.getLine();
+            int targetLine = targetBranch.getLine();
 
-            if (targetLine != null && targetLine.equals(sourceBranch.getLine())) {
+            if (targetLine == sourceBranch.getLine()) {
                segmentsCovered++;
             }
          }
