@@ -484,4 +484,23 @@ public final class MockUpTest
          @Mock void $init(int i) {}
       };
    }
+
+   static class ClassWithConstructorCallingAnother
+   {
+      final Number value;
+      ClassWithConstructorCallingAnother() { this(123); }
+      ClassWithConstructorCallingAnother(long l) { value = l; }
+   }
+
+   @Test
+   public void mockConstructorWhichCallsAnotherWhoseLastParameterHasDoubleWordSize()
+   {
+      new MockUp<ClassWithConstructorCallingAnother>() {
+         @Mock void $init() {}
+      };
+
+      ClassWithConstructorCallingAnother a = new ClassWithConstructorCallingAnother();
+
+      assertNull(a.value);
+   }
 }

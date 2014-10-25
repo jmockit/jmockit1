@@ -346,7 +346,6 @@ public class BaseClassModifier extends ClassVisitor
             mw.visitMethodInsn(opcode, owner, name, desc, itf);
          }
          else {
-            mw.visitInsn(POP);
             callToAnotherConstructorAlreadyDisregarded = true;
          }
       }
