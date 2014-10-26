@@ -170,9 +170,8 @@ public abstract class Expectations extends Invocations
    protected Object result;
 
    /**
-    * Registers a sequence of one or more strict expectations recorded on available mocked types and/or mocked
-    * instances, as written inside the instance initialization body of an anonymous subclass or the called constructor
-    * of a named subclass.
+    * Registers one or more expectations recorded on available mocked types and/or mocked instances, as written inside
+    * the instance initialization body of an anonymous subclass or the called constructor of a named subclass.
     *
     * @see #Expectations(Object...)
     * @see #Expectations(Integer, Object...)
@@ -220,8 +219,8 @@ public abstract class Expectations extends Invocations
     * Same as {@link #Expectations(Object...)}, but considering that the invocations inside the block will occur in a
     * given number of iterations.
     * <p/>
-    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to duplicating (like in "copy &
-    * paste") the whole sequence of expectations in the block.
+    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to multiplying by that number
+    * the lower and upper invocation count limits for each invocation inside the expectation block.
     * <p/>
     * It's also valid to have multiple expectation blocks for the same test, each with an arbitrary number of
     * iterations.
@@ -240,8 +239,8 @@ public abstract class Expectations extends Invocations
       getCurrentPhase().setNumberOfIterations(numberOfIterations);
    }
 
-   @Override
-   @NotNull final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
+   @NotNull @Override
+   final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**
     * Specifies that the previously recorded method invocation will return a given sequence of values during replay.

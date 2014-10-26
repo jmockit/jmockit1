@@ -12,7 +12,7 @@ package mockit;
  * When combined with the {@code result} field, a test will typically assign it with an anonymous class object
  * implementing this interface and containing a <em>delegate method</em>:
  * <pre>
- *    new NonStrictExpectations() {{
+ *    new Expectations() {{
  *       mock.doSomething(anyInt, anyString);
  *       result = new Delegate() {
  *          String <strong>delegate</strong>(int i, String s) {

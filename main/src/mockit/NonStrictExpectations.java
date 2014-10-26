@@ -47,8 +47,6 @@ public abstract class NonStrictExpectations extends Expectations
     * The constructors of those classes will <em>not</em> be considered.
     * During replay, invocations to instance methods will only match expectations recorded on the given instance
     * (or instances, if more than one was given).
-    * <p/>
-    * <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">In the Tutorial</a>
     *
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be considered for
     * partial mocking
@@ -58,6 +56,7 @@ public abstract class NonStrictExpectations extends Expectations
     * interface, or if given a value/instance of such a type
     *
     * @see #NonStrictExpectations(Integer, Object...)
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
     */
    protected NonStrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -73,8 +72,6 @@ public abstract class NonStrictExpectations extends Expectations
     * Note that by default the invocation count range for a non-strict expectation is [0, ∞), that is, a lower limit of
     * 0 (zero) and no upper limit, so the number of iterations will only be meaningful if a positive and finite limit is
     * explicitly specified for the expectation.
-    * <p/>
-    * <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">In the Tutorial</a>
     *
     * @param numberOfIterations the positive number of iterations for the whole set of invocations recorded inside the
     * block; when not specified, 1 (one) iteration is assumed
@@ -82,6 +79,7 @@ public abstract class NonStrictExpectations extends Expectations
     * partial mocking
     *
     * @see #NonStrictExpectations()
+    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
     */
    protected NonStrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {

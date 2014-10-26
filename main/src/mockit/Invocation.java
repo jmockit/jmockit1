@@ -14,8 +14,8 @@ import mockit.internal.*;
  * A context object representing the current invocation to a mocked method/constructor, to be passed as the
  * <em>first</em> parameter of the corresponding delegate/mock method implementation.
  * <p/>
- * With the <em>Expectations & Verifications</em> API, this parameter can appear in delegate methods implemented in
- * {@link Delegate} classes.
+ * With the <em>Expectations</em> API, this parameter can appear in delegate methods implemented in {@link Delegate}
+ * classes.
  * With the <em>Mockups</em> API, it can appear in {@link Mock @Mock} methods.
  *
  * @see #getInvokedInstance()
