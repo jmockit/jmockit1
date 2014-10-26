@@ -208,7 +208,8 @@
       </testng>
 
       <java fork="yes" dir="samples" jar="jmockit-coverage.jar">
-         <arg line="-Djmockit-coverage-output=html . LoginService"/>
+         <jvmarg line="-Djmockit-coverage-output=html"/>
+         <arg line=". LoginService"/>
       </java>
       <delete file="samples/coverage.ser"/>
       <delete file="samples/LoginService/coverage.ser"/>
