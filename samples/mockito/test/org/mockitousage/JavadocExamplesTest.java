@@ -1,21 +1,19 @@
 package org.mockitousage;
 
 import java.util.*;
-
-import static java.util.Arrays.asList;
-
-import org.mockito.*;
-import org.mockito.Mock;
-import org.mockito.exceptions.verification.*;
-import org.mockito.invocation.*;
-import org.mockito.runners.*;
-import org.mockito.stubbing.*;
+import static java.util.Arrays.*;
 
 import org.junit.*;
 import org.junit.runner.*;
 import static org.junit.Assert.*;
 
+import org.mockito.*;
+import org.mockito.exceptions.verification.*;
+import org.mockito.invocation.*;
+import org.mockito.runners.*;
+import org.mockito.stubbing.*;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.AdditionalAnswers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -487,5 +485,36 @@ public final class JavadocExamplesTest
       // "atLeast(2)" would also count the fourth invocation:
       inOrder.verify(mock, calls(2)).someMethod("some arg");
       inOrder.verify(mock).doSomething("testing", true);
+   }
+
+   @Test // Uses of Mockito API: 4
+   public void returningElementsFromAList()
+   {
+      List<String> list = asList("a", "b", "c");
+
+      when(mockedList.get(anyInt())).then(returnsElementsOf(list));
+
+      assertEquals("a", mockedList.get(0));
+      assertEquals("b", mockedList.get(1));
+      assertEquals("c", mockedList.get(2));
+      assertEquals("c", mockedList.get(3));
+   }
+
+   @Test // Uses of Mockito API: 5
+   public void returningFirstArgument()
+   {
+      MockedClass mock = mock(MockedClass.class);
+
+      when(mock.someMethod(anyString())).then(returnsFirstArg());
+
+      assertEquals("test", mock.someMethod("test"));
+   }
+
+   @Test // Uses of Mockito API: 5
+   public void returningLastArgument()
+   {
+      when(mockedList.set(anyInt(), anyString())).then(returnsLastArg());
+
+      assertEquals("test", mockedList.set(1, "test"));
    }
 }

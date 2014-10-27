@@ -132,7 +132,7 @@ public final class JavadocExamples_JMockit_Test
          times = 1;
       }};
 
-      mockedList.addAll(Arrays.asList("one", "two"));
+      mockedList.addAll(asList("one", "two"));
 
       // No need to re-verify the invocation of "addAll" here.
    }
@@ -140,7 +140,7 @@ public final class JavadocExamples_JMockit_Test
    @Test // Uses of JMockit API: 3
    public void customArgumentMatcherUsingAnonymousClass()
    {
-      mockedList.addAll(Arrays.asList("one", "two"));
+      mockedList.addAll(asList("one", "two"));
 
       new Verifications() {{
          mockedList.addAll(with(new Delegate<List<String>>() {
@@ -538,5 +538,40 @@ public final class JavadocExamples_JMockit_Test
          mock.someMethod("some arg"); minTimes = 2;
          mock.doSomething("testing", true);
       }};
+   }
+
+   @Test // Uses of JMockit API: 3
+   public void returningElementsFromAList()
+   {
+      final List<String> list = asList("a", "b", "c");
+
+      new Expectations() {{ mockedList.get(anyInt); result = list; }};
+
+      assertEquals("a", mockedList.get(0));
+      assertEquals("b", mockedList.get(1));
+      assertEquals("c", mockedList.get(2));
+      assertEquals("c", mockedList.get(3));
+   }
+
+   @Test // Uses of JMockit API: 5
+   public void returningFirstArgument(@Mocked final MockedClass mock)
+   {
+      new Expectations() {{
+         mock.someMethod(anyString);
+         result = new Delegate() { String firstArg(String s) { return s; } };
+      }};
+
+      assertEquals("test", mock.someMethod("test"));
+   }
+
+   @Test // Uses of Mockito API: 5
+   public void returningLastArgument()
+   {
+      new Expectations() {{
+         mockedList.set(anyInt, anyString);
+         result = new Delegate() { String lastArg(int i, String s) { return s; } };
+      }};
+
+      assertEquals("test", mockedList.set(1, "test"));
    }
 }
