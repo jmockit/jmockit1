@@ -89,9 +89,21 @@ final class OutputFileGenerator
       CoverageData coverageData = CoverageData.instance();
 
       if (coverageData.isEmpty()) {
-         System.out.println(
-            "JMockit: No classes were instrumented for coverage; please make sure that classes selected for coverage " +
-            "have been compiled with debug information.");
+         System.out.print("JMockit: No classes were instrumented for coverage; please make sure that ");
+
+         String classesRegexp = Configuration.getProperty("classes");
+
+         if (classesRegexp == null) {
+            System.out.print(
+               "classes exercised by tests are in a directory included in the runtime classpath");
+         }
+         else {
+            System.out.print(
+               "classes selected for coverage through the regular expression \"" + classesRegexp +
+               "\" are available from the runtime classpath");
+         }
+
+         System.out.println(", and that they have been compiled with debug information.");
          return;
       }
 
