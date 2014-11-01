@@ -50,13 +50,12 @@ final class TestedObjectCreation
    @NotNull
    Object create()
    {
-      ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, declaredTestedClass);
-      Constructor<?> constructor =
-         constructorSearch.findConstructorAccordingToAccessibilityAndAvailableInjectables(actualTestedClass);
+      ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, actualTestedClass);
+      Constructor<?> constructor = constructorSearch.findConstructorAccordingToAccessibilityAndAvailableInjectables();
 
       if (constructor == null) {
          throw new IllegalArgumentException(
-            "No constructor in " + declaredTestedClass + " that can be satisfied by available injectables");
+            "No constructor in tested class that can be satisfied by available injectables" + constructorSearch);
       }
 
       constructorIsAnnotated = INJECT_CLASS != null && constructor.isAnnotationPresent(INJECT_CLASS);

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.*;
 
 public final class GeneratedClasses
 {
-   public static final String SUBCLASS_PREFIX = "$Subclass_";
+   private static final String SUBCLASS_PREFIX = "$Subclass_";
    public static final String IMPLCLASS_PREFIX = "$Impl_";
 
    private GeneratedClasses() {}
@@ -41,7 +41,7 @@ public final class GeneratedClasses
       return isGeneratedImplementationClass(mockedType.getName());
    }
 
-   private static boolean isGeneratedSubclass(@NotNull String className)
+   public static boolean isGeneratedSubclass(@NotNull String className)
    {
       return className.contains(SUBCLASS_PREFIX);
    }
