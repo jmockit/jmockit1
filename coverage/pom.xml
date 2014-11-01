@@ -151,7 +151,6 @@
                <argLine>
                   -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.13/jmockit-1.13.jar
                   -Dcoverage-metrics=all
-                  -Dcoverage-outputDir=${project.build.directory}/coverage-report
                </argLine>
             </configuration>
          </plugin>
