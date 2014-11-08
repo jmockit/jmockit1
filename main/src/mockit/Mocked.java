@@ -28,9 +28,9 @@ import java.lang.annotation.*;
  * field or mock parameter of the specific base type.
  * <p/>
  * While a method or constructor is mocked, an invocation does not result in the execution of the original code, but in
- * a (generated) call into JMockit, which then responds with either a default or a <em>recorded</em> result (or with a
- * constraint violation, if the invocation is deemed to be unexpected - which depends on a few factors discussed
- * elsewhere).
+ * a (generated) call into JMockit, which then responds with either a default or a <em>recorded</em>
+ * {@linkplain Expectations#result result} (or with a {@linkplain Expectations#times constraint} violation, if the
+ * invocation is deemed to be unexpected - which depends on a few factors discussed elsewhere).
  * <p/>
  * Static <em>class initializers</em> (including assignments to {@code static} fields) of a mocked class are not
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
