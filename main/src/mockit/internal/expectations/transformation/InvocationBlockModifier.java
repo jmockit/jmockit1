@@ -23,6 +23,8 @@ final class InvocationBlockModifier extends MethodVisitor
    private final boolean callEndInvocations;
 
    // Takes care of "withCapture()" matchers, if any:
+   private final boolean verifications;
+   private boolean justAfterWithCaptureInvocation;
    @NotNull private final ArgumentCapturing argumentCapturing;
 
    // Helper fields that allow argument matchers to be moved to the correct positions of their
@@ -116,13 +118,15 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   InvocationBlockModifier(@NotNull MethodWriter mw, @NotNull String blockOwner, boolean callEndInvocations)
+   InvocationBlockModifier(
+      @NotNull MethodWriter mw, @NotNull String blockOwner, boolean callEndInvocations, boolean verifications)
    {
       super(mw);
       this.mw = mw;
       this.blockOwner = blockOwner;
       this.callEndInvocations = callEndInvocations;
       matcherStacks = new int[40];
+      this.verifications = verifications;
       argumentCapturing = new ArgumentCapturing();
       parameterTypes = NO_PARAMETERS;
    }
@@ -228,14 +232,17 @@ final class InvocationBlockModifier extends MethodVisitor
       else if (opcode == INVOKEVIRTUAL && owner.equals(blockOwner) && name.startsWith("with")) {
          visitMethodInstruction(INVOKEVIRTUAL, owner, name, desc, itf);
 
-         if (argumentCapturing.registerMatcher(name, desc)) {
+         boolean withCaptureMethod = "withCapture".equals(name);
+
+         if (argumentCapturing.registerMatcher(withCaptureMethod, desc)) {
+            justAfterWithCaptureInvocation = withCaptureMethod;
             matcherStacks[matcherCount++] = stackSize;
          }
       }
       else if (isUnboxing(opcode, owner, desc)) {
-         if (argumentCapturing.justAfterWithCaptureInvocation) {
+         if (justAfterWithCaptureInvocation) {
             generateCodeToReplaceNullWithZeroOnTopOfStack(desc);
-            argumentCapturing.justAfterWithCaptureInvocation = false;
+            justAfterWithCaptureInvocation = false;
          }
          else {
             visitMethodInstruction(opcode, owner, name, desc, itf);
@@ -245,23 +252,9 @@ final class InvocationBlockModifier extends MethodVisitor
          visitMethodInstruction(opcode, owner, name, desc, itf);
       }
       else {
-         parameterTypes = Type.getArgumentTypes(desc);
-         int stackAfter = stackSize - sumOfParameterSizes();
-         boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
-
-         if (mockedInvocationUsingTheMatchers) {
-            generateCallsToMoveArgMatchers(stackAfter);
-            argumentCapturing.generateCallsToSetArgumentTypesToCaptureIfAny();
-            matcherCount = 0;
-         }
-
+         boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
          visitMethodInstruction(opcode, owner, name, desc, itf);
-
-         if (mockedInvocationUsingTheMatchers) {
-            argumentCapturing.generateCallsToCaptureMatchedArgumentsIfPending();
-         }
-
-         argumentCapturing.justAfterWithCaptureInvocation = false;
+         handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
       }
    }
 
@@ -297,6 +290,21 @@ final class InvocationBlockModifier extends MethodVisitor
       }
 
       visitInsn(zeroOpcode);
+   }
+
+   private boolean handleInvocationParameters(@NotNull String desc)
+   {
+      parameterTypes = Type.getArgumentTypes(desc);
+      int stackAfter = stackSize - sumOfParameterSizes();
+      boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
+
+      if (mockedInvocationUsingTheMatchers) {
+         generateCallsToMoveArgMatchers(stackAfter);
+         argumentCapturing.generateCallsToSetArgumentTypesToCaptureIfAny();
+         matcherCount = 0;
+      }
+
+      return mockedInvocationUsingTheMatchers;
    }
 
    private int sumOfParameterSizes()
@@ -335,6 +343,15 @@ final class InvocationBlockModifier extends MethodVisitor
       mw.visitIntInsn(SIPUSH, originalMatcherIndex);
       mw.visitIntInsn(SIPUSH, toIndex);
       generateCallToActiveInvocationsMethod("moveArgMatcher", "(II)V");
+   }
+
+   private void handleArgumentCapturingIfNeeded(boolean mockedInvocationUsingTheMatchers)
+   {
+      if (mockedInvocationUsingTheMatchers) {
+         argumentCapturing.generateCallsToCaptureMatchedArgumentsIfPending();
+      }
+
+      justAfterWithCaptureInvocation = false;
    }
 
    @Override
@@ -412,6 +429,10 @@ final class InvocationBlockModifier extends MethodVisitor
          stackSize += Frame.SIZE[opcode];
       }
 
+      if (!verifications || !argumentCapturing.hasCaptures()) {
+         generateCodeToThrowExceptionReportingInvalidSyntax("conditional");
+      }
+
       mw.visitJumpInsn(opcode, label);
    }
 
@@ -419,6 +440,7 @@ final class InvocationBlockModifier extends MethodVisitor
    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
    {
       stackSize--;
+      generateCodeToThrowExceptionReportingInvalidSyntax("switch");
       mw.visitTableSwitchInsn(min, max, dflt, labels);
    }
 
@@ -426,6 +448,7 @@ final class InvocationBlockModifier extends MethodVisitor
    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels)
    {
       stackSize--;
+      generateCodeToThrowExceptionReportingInvalidSyntax("switch");
       mw.visitLookupSwitchInsn(dflt, keys, labels);
    }
 
@@ -447,5 +470,22 @@ final class InvocationBlockModifier extends MethodVisitor
       }
 
       mw.visitInsn(opcode);
+   }
+
+   @Override
+   public void visitTryCatchBlock(Label start, Label end, Label handler, String type)
+   {
+      String description = type == null ? "try/finally" : "try/catch";
+      generateCodeToThrowExceptionReportingInvalidSyntax(description);
+      mw.visitTryCatchBlock(start, end, handler, type);
+   }
+
+   private void generateCodeToThrowExceptionReportingInvalidSyntax(@NotNull String description)
+   {
+      mw.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+      mw.visitInsn(DUP);
+      mw.visitLdcInsn("Invalid " + description + " statement inside expectation block");
+      mw.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
+      mw.visitInsn(ATHROW);
    }
 }

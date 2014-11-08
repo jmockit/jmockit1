@@ -14,20 +14,17 @@ import mockit.internal.expectations.transformation.InvocationBlockModifier.Captu
 
 final class ArgumentCapturing
 {
-   boolean justAfterWithCaptureInvocation;
    @Nullable private List<Capture> captures;
    private boolean parameterForCapture;
    @Nullable private String capturedTypeDesc;
+   private boolean capturesFound;
 
-   boolean registerMatcher(@NotNull String methodName, @NotNull String methodDesc)
+   boolean registerMatcher(boolean withCaptureMethod, @NotNull String methodDesc)
    {
-      boolean withCaptureMethod = "withCapture".equals(methodName);
-
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
       }
 
-      justAfterWithCaptureInvocation = withCaptureMethod;
       parameterForCapture = withCaptureMethod && !methodDesc.contains("List");
       return true;
    }
@@ -54,6 +51,7 @@ final class ArgumentCapturing
    {
       if (captures == null) {
          captures = new ArrayList<Capture>();
+         capturesFound = true;
       }
 
       captures.add(capture);
@@ -91,4 +89,6 @@ final class ArgumentCapturing
          captures = null;
       }
    }
+
+   boolean hasCaptures() { return capturesFound; }
 }

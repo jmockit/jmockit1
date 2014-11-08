@@ -265,15 +265,96 @@ public final class MisusedExpectationsTest
       }};
    }
 
-   @Test // with Java 7 only: "java.lang.VerifyError: Expecting a stackmap frame ..."
-   public void expectationBlockContainingATryBlock()
+   @Test
+   public void expectationBlockContainingATryCatchStatement()
    {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("try/catch");
+
+      new Expectations() {{
+         try { mock.doSomething(anyBoolean); } catch (RuntimeException ignore) {}
+      }};
+   }
+
+   @Test
+   public void expectationBlockContainingATryFinallyStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("try/finally");
+
       new StrictExpectations() {{
          try { mock.doSomething(anyBoolean); } finally { mock.setValue(1); }
       }};
+   }
 
-      mock.doSomething(true);
-      mock.setValue(1);
+   @Test
+   public void expectationBlockContainingATryCatchFinallyStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("try/catch");
+
+      new NonStrictExpectations() {{
+         try { mock.doSomething(anyBoolean); } catch (RuntimeException ignore) {}
+         finally { System.out.println(); }
+      }};
+   }
+
+   @Test
+   public void expectationBlockContainingATableSwitchStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("switch");
+
+      final int s = 1;
+
+      new Expectations() {{
+         switch (s) {
+            case 1: mock.doSomething(true); break;
+            case 2: mock.doSomething(false); break;
+            case 3: mock.doSomething(false); break;
+            default: mock.setValue(3);
+         }
+      }};
+   }
+
+   @Test
+   public void expectationBlockContainingALookupSwitchStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("switch");
+
+      new Verifications() {{
+         switch (mock.value()) {
+            case 1: mock.doSomething(true); break;
+            default: mock.doSomething(false);
+         }
+      }};
+   }
+
+   @Test
+   public void expectationBlockContainingAnIfStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("conditional");
+
+      new Expectations() {{
+         if (mock.value() > 0) {
+            mock.doSomething(false);
+         }
+      }};
+   }
+
+   @Test
+   public void expectationBlockContainingAForStatement()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("conditional");
+
+      new Expectations() {{
+         for (int i = 0; i < 3; i++) {
+            mock.setValue(i);
+         }
+      }};
    }
 
    @Test

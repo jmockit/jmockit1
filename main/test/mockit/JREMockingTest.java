@@ -187,19 +187,12 @@ public final class JREMockingTest
 
    // When a native instance method is called on a regular instance, there is no way to execute its real
    // implementation; therefore, dynamic mocking of native methods is not supported.
-   @Test
+   @Test(expected = IllegalStateException.class)
    public void dynamicMockingOfNativeMethod(@Injectable final Thread t)
    {
       new Expectations() {{
          t.isAlive();
-
-         try {
-            result = true;
-            fail();
-         }
-         catch (IllegalStateException ignore) {
-            // OK
-         }
+         result = true;
       }};
    }
 
