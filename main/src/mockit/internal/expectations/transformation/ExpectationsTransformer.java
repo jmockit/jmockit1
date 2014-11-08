@@ -96,17 +96,26 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    private void modifyInvocationsSubclass(@NotNull Class<?> aClass, boolean isFinalClass)
    {
       ClassReader cr = ClassFile.createClassFileReader(aClass);
-      EndOfBlockModifier modifier = new EndOfBlockModifier(cr, aClass.getClassLoader(), isFinalClass);
+      byte[] modifiedClassfile = modifyInvocationsSubclass(cr, aClass.getClassLoader(), isFinalClass);
+
+      if (modifiedClassfile != null) {
+         Startup.redefineMethods(aClass, modifiedClassfile);
+      }
+   }
+
+   @Nullable
+   private byte[] modifyInvocationsSubclass(@NotNull ClassReader cr, ClassLoader loader, boolean finalClass)
+   {
+      EndOfBlockModifier modifier = new EndOfBlockModifier(cr, loader, finalClass);
 
       try {
          cr.accept(modifier, SKIP_FRAMES);
+         return modifier.toByteArray();
       }
-      catch (VisitInterruptedException ignore) {
-         return;
-      }
+      catch (VisitInterruptedException ignore) {}
+      catch (Throwable e) { e.printStackTrace(); }
 
-      byte[] modifiedClassfile = modifier.toByteArray();
-      Startup.redefineMethods(aClass, modifiedClassfile);
+      return null;
    }
 
    @Override @Nullable
@@ -125,15 +134,8 @@ public final class ExpectationsTransformer implements ClassFileTransformer
             return null;
          }
 
-         boolean isAnonymousClass = ClassNaming.isAnonymousClass(className);
-
-         try {
-            EndOfBlockModifier modifier = new EndOfBlockModifier(cr, loader, isAnonymousClass);
-            cr.accept(modifier, SKIP_FRAMES);
-            return modifier.toByteArray();
-         }
-         catch (VisitInterruptedException ignore) {}
-         catch (Throwable e) { e.printStackTrace(); }
+         boolean finalClass = ClassNaming.isAnonymousClass(className);
+         return modifyInvocationsSubclass(cr, loader, finalClass);
       }
 
       return null;
