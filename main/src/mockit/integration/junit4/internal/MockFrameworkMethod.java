@@ -86,7 +86,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       for (Annotation parameterAnnotation : parameterAnnotations) {
          String annotationTypeName = parameterAnnotation.annotationType().getName();
 
-         if (!"mockit.Mocked mockit.Injectable mockit.Cascading mockit.Capturing".contains(annotationTypeName)) {
+         if (!"mockit.Mocked mockit.Injectable mockit.Capturing".contains(annotationTypeName)) {
             return false;
          }
       }

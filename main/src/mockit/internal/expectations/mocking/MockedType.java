@@ -14,7 +14,7 @@ import mockit.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-@SuppressWarnings({"EqualsAndHashcode", "ClassWithTooManyFields"})
+@SuppressWarnings("EqualsAndHashcode")
 public final class MockedType
 {
    @Mocked private static final Object DUMMY = null;
@@ -37,7 +37,6 @@ public final class MockedType
    private final int accessModifiers;
    @Nullable private final Mocked mocked;
    @Nullable private final Capturing capturing;
-   @Nullable private final Cascading cascading;
    public final boolean injectable;
    @NotNull public final Type declaredType;
    @NotNull public final String mockId;
@@ -51,7 +50,6 @@ public final class MockedType
       accessModifiers = field.getModifiers();
       mocked = field.getAnnotation(Mocked.class);
       capturing = field.getAnnotation(Capturing.class);
-      cascading = field.getAnnotation(Cascading.class);
       Injectable injectableAnnotation = field.getAnnotation(Injectable.class);
       injectable = injectableAnnotation != null;
       declaredType = field.getGenericType();
@@ -115,7 +113,6 @@ public final class MockedType
       accessModifiers = 0;
       mocked = getAnnotation(annotationsOnParameter, Mocked.class);
       capturing = getAnnotation(annotationsOnParameter, Capturing.class);
-      cascading = getAnnotation(annotationsOnParameter, Cascading.class);
       Injectable injectableAnnotation = getAnnotation(annotationsOnParameter, Injectable.class);
       injectable = injectableAnnotation != null;
       declaredType = parameterType;
@@ -148,7 +145,6 @@ public final class MockedType
       accessModifiers = 0;
       mocked = null;
       capturing = null;
-      cascading = null;
       injectable = true;
       declaredType = cascadedType;
       mockId = cascadingMethodName;
@@ -158,7 +154,8 @@ public final class MockedType
     * @return the class object corresponding to the type to be mocked, or {@code TypeVariable.class} in case the
     * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
     */
-   @NotNull public Class<?> getClassType()
+   @NotNull
+   public Class<?> getClassType()
    {
       if (declaredType instanceof Class) {
          return (Class<?>) declaredType;
@@ -176,7 +173,7 @@ public final class MockedType
 
    boolean isMockableType()
    {
-      if (mocked == null && !injectable && cascading == null && capturing == null) {
+      if (mocked == null && !injectable && capturing == null) {
          return false;
       }
 

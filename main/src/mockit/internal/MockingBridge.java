@@ -26,7 +26,6 @@ public abstract class MockingBridge implements InvocationHandler
       // when certain JRE classes are mocked, such as ArrayList or Thread.
       try {
          Class.forName("mockit.Capturing");
-         Class.forName("mockit.Cascading");
          Class.forName("mockit.Delegate");
          Class.forName("mockit.Injectable");
          Class.forName("mockit.Invocation");
@@ -38,9 +37,9 @@ public abstract class MockingBridge implements InvocationHandler
          Class.forName("mockit.internal.util.MethodReflection");
          Class.forName("mockit.internal.util.ObjectMethods");
          Class.forName("mockit.internal.util.TypeDescriptor");
+         Class.forName("mockit.internal.state.MockedTypeCascade");
          Class.forName("mockit.internal.expectations.RecordAndReplayExecution");
          Class.forName("mockit.internal.expectations.invocation.InvocationResults");
-         Class.forName("mockit.internal.expectations.invocation.MockedTypeCascade");
          Class.forName("mockit.internal.expectations.mocking.BaseTypeRedefinition$MockedClass");
          Class.forName("mockit.internal.expectations.mocking.FieldTypeRedefinitions");
          Class.forName("mockit.internal.expectations.argumentMatching.EqualityMatcher");
