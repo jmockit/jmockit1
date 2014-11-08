@@ -4,11 +4,14 @@
  */
 package mockit;
 
+import java.io.Serializable;
 import java.util.*;
 
 import org.junit.*;
+import org.junit.runners.*;
 import static org.junit.Assert.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class CascadingFieldTest
 {
    static class Foo
@@ -259,5 +262,38 @@ public final class CascadingFieldTest
       new StrictExpectations() {{ mock.getValue().getB().getC(); }};
 
       mock.getValue().getB().getC();
+   }
+
+   class Base<T extends Serializable> { @SuppressWarnings("unchecked") T value() { return (T) Long.valueOf(123); } }
+   class Derived1 extends Base<Long> {}
+   class Derived2 extends Base<Long> {}
+   interface Factory1 { Derived1 get1(); }
+   interface Factory2 { Derived2 get2(); }
+
+   @Mocked Factory1 factory1;
+   @Mocked Factory2 factory2;
+
+   @Test
+   public void useSubclassMockedThroughCascading()
+   {
+      Derived1 d1 = factory1.get1(); // cascade-mocks Derived1 (per-instance)
+      Long v1 = d1.value();
+      assertEquals(0, v1.longValue());
+
+      Long v2 = new Derived1().value(); // new instance, not mocked
+      assertEquals(123, v2.longValue());
+   }
+
+   @Test
+   public void useSubclassPreviouslyMockedThroughCascadingWhileMockingSiblingSubclass(@Injectable Derived2 d2)
+   {
+      Long v1 = new Derived1().value();
+      assertEquals(123, v1.longValue());
+
+      Long v2 = d2.value();
+      assertEquals(0, v2.longValue());
+
+      Long v3 = new Derived2().value();
+      assertEquals(123, v3.longValue());
    }
 }

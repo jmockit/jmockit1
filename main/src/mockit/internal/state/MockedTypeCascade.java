@@ -151,28 +151,50 @@ public final class MockedTypeCascade
    private Object getCascadedInstance(@NotNull String methodNameAndDesc, @NotNull String returnTypeInternalName)
    {
       Type returnType = cascadedTypesAndMocks.get(returnTypeInternalName);
+      Class<?> returnClass;
 
       if (returnType == null) {
-         returnType = registerIntermediateCascadingType(methodNameAndDesc, returnTypeInternalName);
+         Class<?> cascadingClass = mockedType instanceof Class<?> ?
+            (Class<?>) mockedType : (Class<?>) ((ParameterizedType) mockedType).getRawType();
 
-         if (returnType == null) {
+         Type genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc);
+         Class<?> resolvedReturnType = getClassType(genericReturnType);
+
+         if (resolvedReturnType.isAssignableFrom(cascadingClass)) {
             if (cascadedInstance != null) {
                return cascadedInstance;
             }
 
             returnType = mockedType;
+            returnClass = cascadingClass;
          }
+         else {
+            Object defaultReturnValue = DefaultValues.computeForType(resolvedReturnType);
+
+            if (defaultReturnValue != null) {
+               return defaultReturnValue;
+            }
+
+            cascadedTypesAndMocks.put(returnTypeInternalName, genericReturnType);
+            CASCADING_TYPES.add(returnTypeInternalName, false, genericReturnType, null);
+            returnType = genericReturnType;
+            returnClass = resolvedReturnType;
+         }
+      }
+      else {
+         returnClass = getClassType(returnType);
+      }
+
+      if (getReturnTypeIfCascadingSupportedForIt(returnClass) == null) {
+         return null;
       }
 
       return createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);
    }
 
-   @Nullable
-   private Type registerIntermediateCascadingType(@NotNull String methodNameAndDesc, @NotNull String returnTypeDesc)
+   @NotNull
+   private Type getGenericReturnType(@NotNull Class<?> cascadingClass, @NotNull String methodNameAndDesc)
    {
-      Class<?> cascadingClass = mockedType instanceof Class<?> ?
-         (Class<?>) mockedType : (Class<?>) ((ParameterizedType) mockedType).getRawType();
-
       Method cascadingMethod = new RealMethodOrConstructor(cascadingClass, methodNameAndDesc).getMember();
       Type genericReturnType = cascadingMethod.getGenericReturnType();
 
@@ -181,14 +203,6 @@ public final class MockedTypeCascade
          genericReturnType = typeReflection.resolveReturnType((TypeVariable<?>) genericReturnType);
       }
 
-      Class<?> resolvedReturnType = getClassType(genericReturnType);
-
-      if (resolvedReturnType.isAssignableFrom(cascadingClass)) {
-         return null;
-      }
-
-      cascadedTypesAndMocks.put(returnTypeDesc, genericReturnType);
-      CASCADING_TYPES.add(returnTypeDesc, fromMockField, genericReturnType, null);
       return genericReturnType;
    }
 
