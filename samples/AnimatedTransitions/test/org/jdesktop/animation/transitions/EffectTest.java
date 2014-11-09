@@ -187,6 +187,8 @@ public final class EffectTest
 
       assertFalse(effect.getRenderComponent());
 
+      final ComponentState stateToGetSnapshotImageFrom = dx < 0 || dy < 0 ? startState : endState;
+
       new Expectations() {{
          // Start state:
          startState.getWidth(); result = 20;
@@ -196,7 +198,6 @@ public final class EffectTest
          endState.getWidth(); result = 20 + dx;
          endState.getHeight(); result = 20 + dy;
 
-         ComponentState stateToGetSnapshotImageFrom = dx < 0 || dy < 0 ? startState : endState;
          stateToGetSnapshotImageFrom.getSnapshot(); result = componentImage;
       }};
 
