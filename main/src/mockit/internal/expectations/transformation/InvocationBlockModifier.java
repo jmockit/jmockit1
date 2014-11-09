@@ -429,8 +429,14 @@ final class InvocationBlockModifier extends MethodVisitor
          stackSize += Frame.SIZE[opcode];
       }
 
-      if (!verifications || !argumentCapturing.hasCaptures()) {
-         generateCodeToThrowExceptionReportingInvalidSyntax("conditional");
+      boolean labelIsFromCompiledSourceCode = label.line > 0 || label.position > 0;
+
+      if (labelIsFromCompiledSourceCode) {
+         boolean verifyingWithCaptures = verifications && argumentCapturing.hasCaptures();
+
+         if (!verifyingWithCaptures) {
+            generateCodeToThrowExceptionReportingInvalidSyntax("conditional");
+         }
       }
 
       mw.visitJumpInsn(opcode, label);
