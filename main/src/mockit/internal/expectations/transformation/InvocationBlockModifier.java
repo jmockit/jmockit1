@@ -5,16 +5,19 @@
 package mockit.internal.expectations.transformation;
 
 import mockit.external.asm.*;
+import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
 import org.jetbrains.annotations.*;
 
+@SuppressWarnings("OverlyComplexClass")
 final class InvocationBlockModifier extends MethodVisitor
 {
    private static final String CLASS_DESC = Type.getInternalName(ActiveInvocations.class);
    private static final Type[] NO_PARAMETERS = new Type[0];
+   private static final MockFixture MOCK_FIXTURE = TestRun.mockFixture();
 
    @NotNull private final MethodWriter mw;
 
@@ -139,8 +142,7 @@ final class InvocationBlockModifier extends MethodVisitor
    @Override
    public void visitFieldInsn(int opcode, String owner, String name, String desc)
    {
-      boolean gettingMockedEnumElement =
-         opcode == GETSTATIC && TestRun.mockFixture().isMockedClass(owner.replace('/', '.'));
+      boolean gettingMockedEnumElement = opcode == GETSTATIC && isMockedClass(owner);
 
       if (gettingMockedEnumElement) {
          mw.visitVarInsn(ALOAD, 0);
@@ -171,6 +173,8 @@ final class InvocationBlockModifier extends MethodVisitor
          mw.visitTypeInsn(CHECKCAST, owner);
       }
    }
+
+   private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }
 
    private boolean isFieldDefinedByInvocationBlock(@NotNull String fieldOwner)
    {
@@ -249,6 +253,7 @@ final class InvocationBlockModifier extends MethodVisitor
          }
       }
       else if (matcherCount == 0) {
+         checkForInvocationThatIsNotMockable(owner, name);
          visitMethodInstruction(opcode, owner, name, desc, itf);
       }
       else {
@@ -290,6 +295,15 @@ final class InvocationBlockModifier extends MethodVisitor
       }
 
       visitInsn(zeroOpcode);
+   }
+
+   private void checkForInvocationThatIsNotMockable(@NotNull String owner, @NotNull String name)
+   {
+      if (MockingFilters.isUnmockable(owner, name) && isMockedClass(owner)) {
+         generateCodeToThrowException(
+            "Attempted to " + (verifications ? "verify" : "record") +
+            " expectation on unmockable " + (name.charAt(0) == '<' ? "constructor" : "method"));
+      }
    }
 
    private boolean handleInvocationParameters(@NotNull String desc)
@@ -488,9 +502,14 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private void generateCodeToThrowExceptionReportingInvalidSyntax(@NotNull String description)
    {
+      generateCodeToThrowException("Invalid " + description + " statement inside expectation block");
+   }
+
+   private void generateCodeToThrowException(@NotNull String message)
+   {
       mw.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
       mw.visitInsn(DUP);
-      mw.visitLdcInsn("Invalid " + description + " statement inside expectation block");
+      mw.visitLdcInsn(message);
       mw.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
       mw.visitInsn(ATHROW);
    }

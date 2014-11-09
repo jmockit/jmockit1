@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.logging.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({
    "WaitWhileNotSynced", "UnconditionalWait", "WaitWithoutCorrespondingNotify", "WaitNotInLoop",
-   "WaitOrAwaitWithoutTimeout", "unused", "deprecation"})
+   "WaitOrAwaitWithoutTimeout", "deprecation"})
 public final class JREMockingTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    @Test
    public void mockingOfFile(@Mocked final File file)
    {
@@ -187,9 +190,12 @@ public final class JREMockingTest
 
    // When a native instance method is called on a regular instance, there is no way to execute its real
    // implementation; therefore, dynamic mocking of native methods is not supported.
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void dynamicMockingOfNativeMethod(@Injectable final Thread t)
    {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Missing invocation to mocked type");
+
       new Expectations() {{
          t.isAlive();
          result = true;
@@ -378,6 +384,32 @@ public final class JREMockingTest
       catch (IllegalArgumentException e) {
          assertTrue(e.getMessage().contains("java.lang.ClassLoader"));
       }
+   }
+
+   // Un-mockable JRE methods/constructors ////////////////////////////////////////////////////////////////////////////
+
+   @Test
+   public void attemptToRecordExpectationOnJREMethodThatIsExcludedFromMocking(@Mocked System system)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("record");
+      thrown.expectMessage("unmockable method");
+
+      new Expectations() {{
+         System.getProperties();
+      }};
+   }
+
+   @Test
+   public void attemptToVerifyExpectationOnJREConstructorThatIsExcludedFromMocking(@Mocked Properties properties)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("verify");
+      thrown.expectMessage("unmockable constructor");
+
+      new Verifications() {{
+         new Properties();
+      }};
    }
 
    // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////

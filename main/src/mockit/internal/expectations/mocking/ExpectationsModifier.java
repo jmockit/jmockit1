@@ -12,6 +12,7 @@ import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
+import static mockit.internal.expectations.MockingFilters.isUnmockableInvocation;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -23,29 +24,6 @@ final class ExpectationsModifier extends BaseClassModifier
    private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
    private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
-
-   private static final Map<String, String> DEFAULT_FILTERS = new HashMap<String, String>();
-   static {
-      DEFAULT_FILTERS.put("java/lang/Object", "<init> clone getClass hashCode");
-      DEFAULT_FILTERS.put("java/lang/AbstractStringBuilder", "");
-      DEFAULT_FILTERS.put("java/lang/String", "");
-      DEFAULT_FILTERS.put("java/lang/StringBuffer", "");
-      DEFAULT_FILTERS.put("java/lang/StringBuilder", "");
-      DEFAULT_FILTERS.put("java/lang/System",
-                          "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName");
-      DEFAULT_FILTERS.put("java/lang/Exception", "<init>");
-      DEFAULT_FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace");
-      DEFAULT_FILTERS.put("java/lang/Thread", "currentThread getName interrupted isInterrupted");
-      DEFAULT_FILTERS.put("java/util/AbstractCollection", "<init>");
-      DEFAULT_FILTERS.put("java/util/AbstractSet", "<init>");
-      DEFAULT_FILTERS.put("java/util/ArrayList", "");
-      DEFAULT_FILTERS.put("java/util/HashSet", "<init> add");
-      DEFAULT_FILTERS.put("java/util/Hashtable", "<init> containsKey get");
-      DEFAULT_FILTERS.put("java/util/HashMap", "");
-      DEFAULT_FILTERS.put("java/util/Properties", "<init>");
-      DEFAULT_FILTERS.put("java/util/jar/JarEntry", "<init>");
-      DEFAULT_FILTERS.put("java/util/logging/Logger", "<init> getName");
-   }
 
    @Nullable private final MockingConfiguration mockingCfg;
    private String className;
@@ -124,7 +102,7 @@ final class ExpectationsModifier extends BaseClassModifier
       }
       else {
          className = name;
-         defaultFilters = DEFAULT_FILTERS.get(name);
+         defaultFilters = MockingFilters.forClass(name);
 
          if (defaultFilters != null && defaultFilters.isEmpty()) {
             throw VisitInterruptedException.INSTANCE;
@@ -250,7 +228,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @NotNull String name)
    {
       if (visitingConstructor) {
-         return ignoreConstructors || defaultFilters != null && defaultFilters.contains(name);
+         return ignoreConstructors || isUnmockableInvocation(defaultFilters, name);
       }
 
       boolean notPublicNorProtected = (access & PUBLIC_OR_PROTECTED) == 0;
@@ -259,7 +237,7 @@ final class ExpectationsModifier extends BaseClassModifier
          return true;
       }
 
-      return executionMode.isMethodToBeIgnored(access) || defaultFilters != null && defaultFilters.contains(name);
+      return executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
    }
 
    @NotNull
