@@ -29,7 +29,7 @@
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
          classpathref="common.classpath" classpath="main/classes"
-         nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
+         nodeprecated="true" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API" doctitle="JMockit Toolkit API Documentation"
          encoding="UTF-8" charset="UTF-8" locale="en">
          <arg line="-notimestamp -quiet -Xdoclint:none"/>

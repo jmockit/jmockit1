@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.13</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.14</version>
    <packaging>jar</packaging>
    <prerequisites>
       <maven>3.2.1</maven>
@@ -118,7 +118,7 @@
             <artifactId>maven-javadoc-plugin</artifactId><version>2.9.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <nodeprecated>false</nodeprecated>
+               <nodeprecated>true</nodeprecated>
                <noindex>true</noindex>
                <notree>true</notree>
                <nohelp>true</nohelp>
@@ -165,6 +165,7 @@
             <configuration>
                <executable>/gnupg/pub/gpg.exe</executable>
                <homedir>/gnupg/mykey</homedir>
+               <useAgent>true</useAgent>
             </configuration>
             <executions>
                <execution>
