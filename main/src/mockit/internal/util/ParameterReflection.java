@@ -11,7 +11,7 @@ import org.jetbrains.annotations.*;
 
 public final class ParameterReflection
 {
-   @NotNull static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
+   @NotNull public static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
 
    private ParameterReflection() {}
 

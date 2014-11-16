@@ -7,17 +7,21 @@ package mockit.internal.expectations.injection;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
-import javax.ejb.EJB;
+import javax.ejb.*;
 import javax.inject.*;
 import javax.persistence.*;
-import javax.servlet.GenericServlet;
+import javax.servlet.*;
 
 import static mockit.internal.util.ClassLoad.*;
+import static mockit.internal.util.MethodReflection.*;
+import static mockit.internal.util.ParameterReflection.*;
 
 import org.jetbrains.annotations.*;
 
 final class InjectionPoint
 {
+   enum KindOfInjectionPoint { NotAnnotated, Required, Optional }
+
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
@@ -53,15 +57,72 @@ final class InjectionPoint
       return value;
    }
 
-   static boolean isAnnotated(@NotNull Field field)
+   @NotNull
+   static KindOfInjectionPoint isAnnotated(@NotNull AccessibleObject fieldOrConstructor)
    {
-      return
-         field.isAnnotationPresent(Resource.class) ||
-         INJECT_CLASS != null && field.isAnnotationPresent(Inject.class) ||
-         EJB_CLASS != null && field.isAnnotationPresent(EJB.class) ||
+      Annotation[] annotations = fieldOrConstructor.getDeclaredAnnotations();
+
+      if (annotations.length == 0) {
+         return KindOfInjectionPoint.NotAnnotated;
+      }
+
+      if (INJECT_CLASS != null && isAnnotated(annotations, Inject.class)) {
+         return KindOfInjectionPoint.Required;
+      }
+
+      KindOfInjectionPoint kind = isAutowired(annotations);
+
+      if (kind != KindOfInjectionPoint.NotAnnotated || fieldOrConstructor instanceof Constructor) {
+         return kind;
+      }
+
+      if (
+         isAnnotated(annotations, Resource.class) ||
+         EJB_CLASS != null && isAnnotated(annotations, EJB.class) ||
          PERSISTENCE_UNIT_CLASS != null && (
-            field.isAnnotationPresent(PersistenceContext.class) || field.isAnnotationPresent(PersistenceUnit.class)
-         );
+            isAnnotated(annotations, PersistenceContext.class) || isAnnotated(annotations, PersistenceUnit.class)
+         )
+      ) {
+         return KindOfInjectionPoint.Required;
+      }
+
+      return KindOfInjectionPoint.NotAnnotated;
+   }
+
+   private static boolean isAnnotated(
+      @NotNull Annotation[] declaredAnnotations, @NotNull Class<? extends Annotation> annotationOfInterest)
+   {
+      Annotation annotation = getAnnotation(declaredAnnotations, annotationOfInterest);
+      return annotation != null;
+   }
+
+   @Nullable
+   static <A extends Annotation> A getAnnotation(
+      @NotNull Annotation[] declaredAnnotations, @NotNull Class<A> annotationOfInterest)
+   {
+      for (Annotation declaredAnnotation : declaredAnnotations) {
+         if (declaredAnnotation.annotationType() == annotationOfInterest) {
+            //noinspection unchecked
+            return (A) declaredAnnotation;
+         }
+      }
+
+      return null;
+   }
+
+   @NotNull
+   private static KindOfInjectionPoint isAutowired(@NotNull Annotation[] declaredAnnotations)
+   {
+      for (Annotation declaredAnnotation : declaredAnnotations) {
+         Class<? extends Annotation> annotationType = declaredAnnotation.annotationType();
+
+         if (annotationType.getName().endsWith(".Autowired")) {
+            Boolean required = invokePublicIfAvailable(annotationType, declaredAnnotation, "required", NO_PARAMETERS);
+            return required != null && required ? KindOfInjectionPoint.Required : KindOfInjectionPoint.Optional;
+         }
+      }
+
+      return KindOfInjectionPoint.NotAnnotated;
    }
 
    @NotNull

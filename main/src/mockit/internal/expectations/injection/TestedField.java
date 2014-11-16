@@ -15,12 +15,14 @@ import org.jetbrains.annotations.*;
 
 final class TestedField
 {
-   @NotNull private final InjectionState injectionState;
+   @NotNull final InjectionState injectionState;
    @NotNull private final Field testedField;
    @NotNull private final Tested metadata;
    @NotNull private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
+   boolean requireAnnotations;
+   boolean foundAnnotations;
 
    TestedField(@NotNull InjectionState injectionState, @NotNull Field field, @NotNull Tested metadata)
    {
@@ -48,22 +50,21 @@ final class TestedField
 
       injectionState.setTestedField(testedField);
 
-      boolean requiresAnnotation = false;
+      requireAnnotations = false;
       Class<?> testedClass;
 
       if (createAutomatically) {
          testedClass = testedField.getType();
          testedObject = testedObjectCreation.create();
          FieldReflection.setFieldValue(testedField, testClassInstance, testedObject);
-         requiresAnnotation = testedObjectCreation.constructorIsAnnotated;
+         requireAnnotations = testedObjectCreation.constructorIsAnnotated;
       }
       else {
          testedClass = testedObject == null ? null : testedObject.getClass();
       }
 
       if (testedObject != null) {
-         FieldInjection fieldInjection =
-            new FieldInjection(injectionState, testedClass, requiresAnnotation, metadata.fullyInitialized());
+         FieldInjection fieldInjection = new FieldInjection(this, testedClass, metadata.fullyInitialized());
 
          if (targetFields == null) {
             targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(testedClass);

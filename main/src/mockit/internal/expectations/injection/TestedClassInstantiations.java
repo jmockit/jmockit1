@@ -105,8 +105,13 @@ public final class TestedClassInstantiations
             injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
          }
 
-         testedField.instantiateWithInjectableValues(testClassInstance);
-         injectionState.resetConsumedInjectables();
+         try {
+            testedField.instantiateWithInjectableValues(testClassInstance);
+         }
+         finally {
+            injectionState.resetConsumedInjectables();
+         }
+
          previousField = testedField;
       }
    }

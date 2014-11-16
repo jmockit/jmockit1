@@ -58,7 +58,7 @@ final class TestedObjectCreation
             "No constructor in tested class that can be satisfied by available injectables" + constructorSearch);
       }
 
-      constructorIsAnnotated = INJECT_CLASS != null && constructor.isAnnotationPresent(INJECT_CLASS);
+      constructorIsAnnotated = isAnnotated(constructor) != KindOfInjectionPoint.NotAnnotated;
 
       ConstructorInjection constructorInjection = new ConstructorInjection(injectionState, constructor);
       return constructorInjection.instantiate(constructorSearch.getInjectables());

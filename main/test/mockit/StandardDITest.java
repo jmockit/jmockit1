@@ -19,7 +19,7 @@ public final class StandardDITest
       private final Collaborator collaborator;
       @Inject private Collaborator collaborator1;
       Collaborator collaborator2;
-      @Inject int someValue = 123; // will get assigned even if not null
+      @Inject int someValue;
       @Inject private int anotherValue;
 
       @Inject public TestedClass(Collaborator collaborator) { this.collaborator = collaborator; }
@@ -32,6 +32,8 @@ public final class StandardDITest
 
    @Tested TestedClass tested1;
    @Injectable Collaborator collaborator; // for constructor injection
+   @Injectable("123") int someValue;
+   @Injectable final int anotherValue = 45;
 
    static final class TestedClassWithNoAnnotatedConstructor
    {
@@ -41,6 +43,7 @@ public final class StandardDITest
    }
 
    @Tested TestedClassWithNoAnnotatedConstructor tested2;
+   @Injectable final String text1 = "Abc";
 
    public static class TestedClassWithInjectOnConstructorOnly
    {
@@ -51,21 +54,20 @@ public final class StandardDITest
    @Tested TestedClassWithInjectOnConstructorOnly tested3;
 
    @Test
-   public void invokeInjectAnnotatedConstructorOnly(@Injectable("45") int someValue)
+   public void invokeInjectAnnotatedConstructorOnly()
    {
       assertSame(collaborator, tested1.collaborator);
       assertNull(tested1.collaborator1);
       assertNull(tested1.collaborator2);
-      assertEquals(45, tested1.someValue);
-      assertEquals(0, tested1.anotherValue);
+      assertEquals(123, tested1.someValue);
+      assertEquals(45, tested1.anotherValue);
 
-      assertEquals(45, tested2.value);
+      assertEquals(123, tested2.value);
    }
 
    @Test
    public void assignInjectAnnotatedFieldsWhileIgnoringNonAnnotatedOnes(
-      @Injectable Collaborator collaborator2, @Injectable Collaborator collaborator1,
-      @Injectable("45") int anotherValue, @Injectable("67") int notToBeUsed)
+      @Injectable Collaborator collaborator2, @Injectable Collaborator collaborator1, @Injectable("67") int notToBeUsed)
    {
       assertSame(collaborator, tested1.collaborator);
       assertSame(collaborator1, tested1.collaborator1);
@@ -73,7 +75,7 @@ public final class StandardDITest
       assertEquals(123, tested1.someValue);
       assertEquals(45, tested1.anotherValue);
 
-      assertEquals(45, tested2.value);
+      assertEquals(123, tested2.value);
    }
 
    @Test
@@ -82,15 +84,16 @@ public final class StandardDITest
       assertEquals(123, tested2.value);
    }
 
+   @Injectable Runnable action;
+
    @Test
-   public void assignAnnotatedStaticFieldDuringFieldInjection(@Injectable Runnable action)
+   public void assignAnnotatedStaticFieldDuringFieldInjection()
    {
       assertSame(action, TestedClass.globalAction);
-      assertEquals(0, tested2.value);
    }
 
    @Test
-   public void onlyConsiderAnnotatedFieldsForInjection(@Injectable("Abc") String text1, @Injectable("XY") String text2)
+   public void onlyConsiderAnnotatedFieldsForInjection(@Injectable("XY") String text2)
    {
       assertEquals(text1, tested2.aText);
       assertNull(tested2.anotherText);
@@ -113,9 +116,11 @@ public final class StandardDITest
 
    @Tested TestedClassWithProviders tested4;
    @Injectable Integer portNumber = 4567;
+   @Injectable String user = "John";
+   @Injectable String password = "123";
 
    @Test
-   public void supportProviderFieldsAndParameters(@Injectable("John") String user, @Injectable("123") String password)
+   public void supportProviderFieldsAndParameters()
    {
       assertEquals(portNumber.intValue(), tested4.port);
       assertSame(collaborator, tested4.collaborator);
@@ -142,8 +147,8 @@ public final class StandardDITest
          assertNull(collaborators[1].get()); // recorded
 
          if (n > 2) {
-            Collaborator col3 = collaborators[2].get();
-            optionalCollaborators.add(col3);
+            Collaborator col = collaborators[2].get();
+            optionalCollaborators.add(col);
          }
       }
    }
