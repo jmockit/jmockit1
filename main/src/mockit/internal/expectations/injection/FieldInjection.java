@@ -7,8 +7,6 @@ package mockit.internal.expectations.injection;
 import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
-import javax.annotation.*;
-import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.expectations.mocking.*;
@@ -161,11 +159,10 @@ final class FieldInjection
       InjectionState injectionState = testedField.injectionState;
       injectionState.setTypeOfInjectionPoint(fieldToBeInjected.getGenericType());
 
-      String specifiedName = getNameFromAnnotationIfAvailable(fieldToBeInjected);
-      String targetFieldName = specifiedName != null ? specifiedName : fieldToBeInjected.getName();
+      String targetFieldName = fieldToBeInjected.getName();
       MockedType mockedType;
 
-      if (specifiedName != null || withMultipleTargetFieldsOfSameType(targetFields, fieldToBeInjected)) {
+      if (withMultipleTargetFieldsOfSameType(targetFields, fieldToBeInjected)) {
          mockedType = injectionState.findInjectableByTypeAndName(targetFieldName);
       }
       else {
@@ -184,34 +181,10 @@ final class FieldInjection
          throw new IllegalStateException(
             "Missing @Injectable for field " +
             fieldToBeInjected.getDeclaringClass().getSimpleName() + '#' + fieldToBeInjected.getName() + ", of type " +
-            fieldToBeInjected.getGenericType().toString().replace("interface ", ""));
+            fieldToBeInjected.getGenericType().toString().replace("class ", "").replace("interface ", ""));
       }
 
       return null;
-   }
-
-   @Nullable
-   private String getNameFromAnnotationIfAvailable(@NotNull Field fieldToBeInjected)
-   {
-      if (!testedField.requireAnnotations && !testedField.foundAnnotations) {
-         return null;
-      }
-
-      String name = "";
-      Resource resource = fieldToBeInjected.getAnnotation(Resource.class);
-
-      if (resource != null) {
-         name = resource.name();
-      }
-      else if (INJECT_CLASS != null) {
-         Named named = fieldToBeInjected.getAnnotation(Named.class);
-
-         if (named != null) {
-            name = named.value();
-         }
-      }
-
-      return name.isEmpty() ? null : name;
    }
 
    private boolean withMultipleTargetFieldsOfSameType(

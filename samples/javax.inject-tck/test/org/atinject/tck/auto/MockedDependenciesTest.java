@@ -66,7 +66,9 @@ public final class MockedDependenciesTest
    // For field injection:
    @Injectable SpareTire anotherSpareTire;
    @Injectable Cupholder cupholder;
+   @Injectable Seat fieldPlainSeat;
    @Injectable Seat fieldDriversSeat;
+   @Injectable Tire fieldPlainTire;
    @Injectable Tire fieldSpareTire;
    @Injectable Seat driversSeatA;
    @Injectable Seat driversSeatB;

@@ -4,10 +4,8 @@
  */
 package mockit.internal.expectations.injection;
 
-import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.expectations.mocking.*;
@@ -120,16 +118,13 @@ final class ConstructorSearch
       printCandidateConstructorNameIfRequested(candidate);
 
       String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(candidate);
-      Annotation[][] parameterAnnotations = candidate.getParameterAnnotations();
 
       for (int i = 0; i < n; i++) {
          injectionState.setTypeOfInjectionPoint(parameterTypes[i]);
 
          String parameterName = ParameterNames.getName(testedClassDesc, constructorDesc, i);
-         String specifiedName = getNameFromAnnotationIfAvailable(parameterAnnotations[i]);
-         String injectionName = specifiedName == null ? parameterName : specifiedName;
          MockedType injectable =
-            injectionName == null ? null : injectionState.findInjectableByTypeAndOptionallyName(injectionName);
+            parameterName == null ? null : injectionState.findInjectableByTypeAndOptionallyName(parameterName);
 
          if (injectable == null || injectablesFound.contains(injectable)) {
             printParameterOfCandidateConstructorIfRequested(parameterName, injectable);
@@ -155,26 +150,6 @@ final class ConstructorSearch
       if (searchResults != null) {
          searchResults.append("\r\n  ").append(candidate).append("\r\n");
       }
-   }
-
-   @Nullable
-   private static String getNameFromAnnotationIfAvailable(@NotNull Annotation[] annotations)
-   {
-      if (INJECT_CLASS == null) {
-         return null;
-      }
-
-      Named named = getAnnotation(annotations, Named.class);
-
-      if (named != null) {
-         String name = named.value();
-
-         if (!name.isEmpty()) {
-            return name;
-         }
-      }
-
-      return null;
    }
 
    private void printParameterOfCandidateConstructorIfRequested(

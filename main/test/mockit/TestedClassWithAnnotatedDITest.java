@@ -43,27 +43,27 @@ public final class TestedClassWithAnnotatedDITest
 
    @Tested TestedClass1 tested1;
    @Tested TestedClass2 tested2;
-   @Injectable Runnable firstAction;
+   @Injectable Runnable action1;
    @Injectable final int someValue = 1;
    @Injectable Runnable action;
-   @Injectable String testName = "test";
-   @Injectable String anotherName = "name2";
+   @Injectable String textValue = "test";
+   @Injectable String anotherText = "name2";
 
    @Test
    public void injectAllAnnotatedInjectionPoints(
-      @Injectable("2") int anotherValue, @Injectable Runnable secondAction, @Injectable Runnable anotherAction,
-      @Injectable("text") String textValue, @Injectable("true") boolean flag)
+      @Injectable("2") int anotherValue, @Injectable Runnable action2, @Injectable Runnable anotherAction,
+      @Injectable("true") boolean unused)
    {
-      assertSame(firstAction, tested1.action1);
-      assertSame(secondAction, tested1.action2);
+      assertSame(action1, tested1.action1);
+      assertSame(action2, tested1.action2);
       assertEquals(1, tested1.someValue);
       assertEquals(2, tested1.anotherValue);
 
       assertEquals(1, tested2.someValue);
       assertSame(action, tested2.action);
       assertSame(anotherAction, tested2.anotherAction);
-      assertSame(testName, tested2.text);
-      assertSame(anotherName, tested2.anotherText);
+      assertSame(textValue, tested2.text);
+      assertSame(anotherText, tested2.anotherText);
       assertNull(tested2.optionalAction);
    }
 
@@ -82,4 +82,4 @@ public final class TestedClassWithAnnotatedDITest
 }
 
 @Retention(RetentionPolicy.RUNTIME)
-@interface Autowired { boolean required() default true; }
+@interface Autowired { @SuppressWarnings("unused") boolean required() default true; }
