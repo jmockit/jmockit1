@@ -328,7 +328,10 @@ public final class JavadocExamplesTest
    @Test // Uses of Mockito API: 9
    public void spyingOnRealObjects()
    {
-      MockedClass spy = spy(new MockedClass());
+      MockedClass realObj = new MockedClass();
+
+      // Create an spy for a real object:
+      MockedClass spy = spy(realObj);
 
       // Optionally, you can stub out some methods:
       when(spy.getSomeValue()).thenReturn(100);

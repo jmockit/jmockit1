@@ -396,33 +396,33 @@ public final class JavadocExamples_JMockit_Test
    }
 
    // Equivalent to "spyingOnRealObjects", but real implementations execute only on replay.
-   @Test // Uses of JMockit API: 5
+   @Test // Uses of JMockit API: 7
    public void dynamicPartialMocking()
    {
-      final MockedClass dynamicMock = new MockedClass();
+      final MockedClass mock = new MockedClass();
+
+      // Mocks a real object:
+      new Expectations(mock) {};
 
       // Optionally, you can record some invocations:
-      new Expectations(dynamicMock) {{
-         dynamicMock.getSomeValue(); result = 100;
+      new Expectations() {{ mock.getSomeValue(); result = 100; }};
 
-         // When recording invocations the real implementations are never executed, so this call
-         // would never throw an exception:
-         dynamicMock.getItem(1); result = "an item";
-      }};
+      // When recording invocations on any mocked instance, partially mocked or not, real implementations
+      // are never executed, so this call would never throw an exception:
+      new Expectations() {{ mock.getItem(1); result = "an item"; }};
 
       // Using the mock calls real methods, except for calls which match recorded expectations:
-      dynamicMock.doSomething("one", true);
-      dynamicMock.doSomething("two", false);
+      mock.doSomething("one", true);
+      mock.doSomething("two", false);
 
-      assertEquals("one", dynamicMock.getItem(0));
-      assertEquals("an item", dynamicMock.getItem(1));
-      assertEquals(100, dynamicMock.getSomeValue());
+      assertEquals("one", mock.getItem(0));
+      assertEquals("an item", mock.getItem(1));
+      assertEquals(100, mock.getSomeValue());
 
       // Optionally, you can verify invocations to the dynamically mocked types/objects:
-      new Verifications() {{
-         // When verifying invocations, real implementations are never executed:
-         dynamicMock.doSomething("one", true);
-         dynamicMock.doSomething("two", anyBoolean);
+      new Verifications() {{ // when verifying invocations, real implementations are never executed
+         mock.doSomething("one", true);
+         mock.doSomething("two", anyBoolean);
       }};
    }
 
