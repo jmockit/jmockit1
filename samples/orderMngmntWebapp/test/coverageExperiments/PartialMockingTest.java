@@ -12,17 +12,6 @@ import mockit.*;
 public final class PartialMockingTest
 {
    @Test
-   public void useStaticPartialMocking(@Mocked("doSomethingElse") final TestedClassPartiallyMocked sut)
-   {
-      new Expectations() {{
-         sut.doSomethingElse(); result = 3;
-      }};
-
-      int r = sut.doSomething("testing");
-      assertEquals(10, r);
-   }
-
-   @Test
    public void useDynamicPartialMocking()
    {
       final TestedClassPartiallyMocked sut = new TestedClassPartiallyMocked();

@@ -102,7 +102,7 @@ public final class AnimatorTimingSourceTest
 
    @Test
    public void timingSourceEventOnTimingSourceTargetForRunningAnimatorAtTimeToStop(
-      @Mocked("nanoTime") System system, @Mocked final TimingTarget timingTarget)
+      @Mocked System system, @Mocked final TimingTarget timingTarget)
    {
       Animator animator = new Animator(50);
       animator.addTarget(timingTarget);
@@ -125,7 +125,7 @@ public final class AnimatorTimingSourceTest
 
    @Test
    public void timingSourceEventOnTimingSourceTargetForRunningRepeatingAnimator(
-      @Mocked("nanoTime") System system, @Mocked final TimingTarget timingTarget)
+      @Mocked System system, @Mocked final TimingTarget timingTarget)
    {
       Animator animator = new Animator(50, INFINITE, RepeatBehavior.LOOP, null);
       animator.addTarget(timingTarget);
