@@ -16,7 +16,6 @@ import static mockit.internal.util.StackTrace.*;
 import static mockit.internal.util.Utilities.NO_ARGS;
 
 import org.jetbrains.annotations.*;
-import org.jetbrains.annotations.Nullable;
 import org.testng.*;
 import org.testng.internal.Parameters;
 
@@ -170,7 +169,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
             TestRun.setRunningIndividualTest(testInstance);
          }
-         else if (!method.isAfterMethodConfiguration()) {
+         else if (method.isAfterClassConfiguration()) {
+            TestRun.getExecutingTest().setRecordAndReplay(null);
+            cleanUpMocksFromPreviousTest();
+            TestRun.setRunningIndividualTest(null);
+         }
+         else if (!method.isAfterMethodConfiguration() && !method.isBeforeClassConfiguration()) {
             TestRun.getExecutingTest().setRecordAndReplay(null);
             cleanUpMocksFromPreviousTestClass();
             TestRun.setRunningIndividualTest(null);
