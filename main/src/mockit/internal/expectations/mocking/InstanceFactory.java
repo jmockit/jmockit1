@@ -40,14 +40,4 @@ public abstract class InstanceFactory
          return lastInstance;
       }
    }
-
-   static final class EnumInstanceFactory extends InstanceFactory
-   {
-      @NotNull private final Object anEnumValue;
-
-      EnumInstanceFactory(@NotNull Class<?> enumClass) { anEnumValue = enumClass.getEnumConstants()[0]; }
-
-      @Override
-      @NotNull public Object create() { lastInstance = anEnumValue; return anEnumValue; }
-   }
 }

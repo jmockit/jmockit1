@@ -56,16 +56,28 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockInstanceMethodOnAnyEnumElement(@Mocked final MyEnum mock)
+   public void mockInstanceMethodOnAnyEnumElement(@Mocked final MyEnum anyEnum)
    {
       final double f = 2.5;
 
       new Expectations() {{
-         mock.getValue(f); result = 12.3;
+         anyEnum.getValue(f); result = 12.3;
       }};
 
       assertEquals(12.3, MyEnum.First.getValue(f), 0.0);
       assertEquals(12.3, MyEnum.Second.getValue(f), 0.0);
+   }
+
+   @Test
+   public void verifyInstanceMethodInvocationOnAnyEnumElement(@Mocked MyEnum anyEnum)
+   {
+      assertNull(MyEnum.First.getDescription());
+      assertNull(MyEnum.Second.getDescription());
+      assertNull(anyEnum.getDescription());
+
+      new Verifications() {{
+         MyEnum.Second.getDescription(); times = 1;
+      }};
    }
 
    @Test
@@ -140,8 +152,6 @@ public final class MockedEnumsTest
    @Test
    public void mockEnumWithValueSpecificMethods(@Mocked EnumWithValueSpecificMethods mockedEnum)
    {
-      assertSame(EnumWithValueSpecificMethods.One, mockedEnum);
-
       new Expectations() {{
          EnumWithValueSpecificMethods.One.getValue(); result = 123;
          EnumWithValueSpecificMethods.Two.getValue(); result = -45;
@@ -154,5 +164,22 @@ public final class MockedEnumsTest
       assertEquals(-45, EnumWithValueSpecificMethods.Two.getValue());
       assertEquals("1", EnumWithValueSpecificMethods.One.getDescription());
       assertEquals("2", EnumWithValueSpecificMethods.Two.getDescription());
+   }
+
+   enum Foo { FOO; String value() { return "foo"; } }
+   interface InterfaceWhichReturnsAnEnum { Foo getFoo(); }
+
+   @Test
+   public void cascadedEnum(@Mocked final InterfaceWhichReturnsAnEnum mock)
+   {
+      final Foo foo = Foo.FOO;
+
+      new Expectations() {{
+         mock.getFoo(); result = foo;
+      }};
+
+      Foo cascadedFoo = mock.getFoo();
+      assertSame(foo, cascadedFoo);
+      assertEquals("foo", foo.value());
    }
 }

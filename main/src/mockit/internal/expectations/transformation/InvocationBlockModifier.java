@@ -142,12 +142,7 @@ final class InvocationBlockModifier extends MethodVisitor
    @Override
    public void visitFieldInsn(int opcode, String owner, String name, String desc)
    {
-      boolean gettingMockedEnumElement = opcode == GETSTATIC && isMockedClass(owner);
-
-      if (gettingMockedEnumElement) {
-         mw.visitVarInsn(ALOAD, 0);
-      }
-      else if (
+      if (
          (opcode == GETFIELD || opcode == PUTFIELD) &&
          name.indexOf('$') < 1 &&
          isFieldDefinedByInvocationBlock(owner)
@@ -166,12 +161,6 @@ final class InvocationBlockModifier extends MethodVisitor
 
       stackSize += stackSizeVariationForFieldAccess(opcode, desc);
       mw.visitFieldInsn(opcode, owner, name, desc);
-
-      if (gettingMockedEnumElement) {
-         visitMethodInstruction(
-            INVOKEVIRTUAL, blockOwner, "onInstance", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
-         mw.visitTypeInsn(CHECKCAST, owner);
-      }
    }
 
    private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }

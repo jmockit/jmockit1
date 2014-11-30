@@ -16,6 +16,7 @@ import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import mockit.internal.util.EmptyProxy.Impl;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
@@ -115,7 +116,7 @@ class BaseTypeRedefinition
    private Object createMockInterfaceImplementationUsingStandardProxy(@NotNull Type typeToMock)
    {
       ClassLoader loader = getClass().getClassLoader();
-      Object mockedInstance = EmptyProxy.Impl.newEmptyProxy(loader, typeToMock);
+      Object mockedInstance = Impl.newEmptyProxy(loader, typeToMock);
       targetClass = mockedInstance.getClass();
       redefineClass(targetClass);
       return mockedInstance;
@@ -276,16 +277,13 @@ class BaseTypeRedefinition
    @NotNull
    protected final InstanceFactory createInstanceFactory(@NotNull Type typeToMock)
    {
-      if (targetClass.isEnum()) {
-         return new EnumInstanceFactory(targetClass);
+      Class<?> classToInstantiate = targetClass;
+
+      if (isAbstract(classToInstantiate.getModifiers())) {
+         classToInstantiate = generateConcreteSubclassForAbstractType(typeToMock);
       }
 
-      if (isAbstract(targetClass.getModifiers())) {
-         Class<?> subclass = generateConcreteSubclassForAbstractType(typeToMock);
-         return new ClassInstanceFactory(subclass);
-      }
-
-      return new ClassInstanceFactory(targetClass);
+      return new ClassInstanceFactory(classToInstantiate);
    }
 
    @Nullable

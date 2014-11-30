@@ -36,7 +36,6 @@ import java.lang.annotation.*;
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
  * <p/>
  * Normally, a new mocked instance gets created and assigned to a declared mock field/parameter automatically.
- * An exception to that occurs in the case of a mocked {@code enum} type, where the first enumeration element is used.
  * Alternatively, and only in the case of a mock <em>field</em>, the test itself can provide the instance by declaring
  * the field as {@code final} and explicitly assigning it with the desired instance (which will still be a mocked
  * instance); if no instance is necessary (perhaps because only static methods or constructors will be called), then

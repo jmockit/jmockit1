@@ -69,8 +69,11 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       }
 
       matchInstance =
-         nextInstanceToMatch != null && mock == nextInstanceToMatch ||
-         recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc) != null;
+         mock != null && (
+            nextInstanceToMatch != null && mock == nextInstanceToMatch ||
+            recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc) != null ||
+            isEnumElement(mock)
+         );
 
       ExpectedInvocation currentInvocation = new ExpectedInvocation(
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);

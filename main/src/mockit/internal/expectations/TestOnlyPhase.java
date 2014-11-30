@@ -9,6 +9,7 @@ import java.util.*;
 import org.jetbrains.annotations.*;
 
 import mockit.internal.expectations.argumentMatching.*;
+import static mockit.internal.util.Utilities.indexOfReference;
 
 public abstract class TestOnlyPhase extends Phase
 {
@@ -32,7 +33,8 @@ public abstract class TestOnlyPhase extends Phase
       getArgumentMatchers().add(matcher);
    }
 
-   @NotNull private List<ArgumentMatcher<?>> getArgumentMatchers()
+   @NotNull
+   private List<ArgumentMatcher<?>> getArgumentMatchers()
    {
       if (argMatchers == null) {
          argMatchers = new ArrayList<ArgumentMatcher<?>>();
@@ -63,7 +65,8 @@ public abstract class TestOnlyPhase extends Phase
       getArgumentMatchers().set(parameterIndex, newMatcher);
    }
 
-   @NotNull final Expectation getCurrentExpectation()
+   @NotNull
+   final Expectation getCurrentExpectation()
    {
       if (currentExpectation == null) {
          throw new IllegalStateException(
@@ -90,4 +93,10 @@ public abstract class TestOnlyPhase extends Phase
    public abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);
 
    public abstract void setCustomErrorMessage(@Nullable CharSequence customMessage);
+
+   protected static boolean isEnumElement(@NotNull Object mock)
+   {
+      Class<?> mockedClass = mock.getClass();
+      return mockedClass.isEnum() && indexOfReference(mockedClass.getEnumConstants(), mock) >= 0;
+   }
 }

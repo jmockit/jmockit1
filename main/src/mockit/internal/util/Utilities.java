@@ -110,6 +110,17 @@ public final class Utilities
       return -1;
    }
 
+   public static int indexOfReference(@NotNull Object[] references, @Nullable Object toBeFound)
+   {
+      for (int i = 0, n = references.length; i < n; i++) {
+         if (references[i] == toBeFound) {
+            return i;
+         }
+      }
+
+      return -1;
+   }
+
    public static boolean isClassAssignableTo(@NotNull List<Class<?>> fromClasses, @NotNull Class<?> toClass)
    {
       int n = fromClasses.size();
