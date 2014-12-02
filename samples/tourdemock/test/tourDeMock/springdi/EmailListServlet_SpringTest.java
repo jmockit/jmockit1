@@ -27,8 +27,7 @@ public final class EmailListServlet_SpringTest
    @Configuration
    static class ApplicationConfiguration
    {
-      @Bean
-      EmailListService emailListService() { return new MockEmailListService(); }
+      @Bean EmailListService emailListService() { return new MockEmailListService(); }
       @Bean EmailListServlet emailListServlet() { return new EmailListServlet(); }
    }
 
@@ -39,7 +38,7 @@ public final class EmailListServlet_SpringTest
    MockHttpServletResponse response;
 
    @Before
-   public void before() throws ServletException
+   public void before()
    {
       request = new MockHttpServletRequest();
       response = new MockHttpServletResponse();
