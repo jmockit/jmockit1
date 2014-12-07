@@ -177,11 +177,18 @@ final class FieldInjection
          return fullInjection.newInstanceCreatedWithNoArgsConstructorIfAvailable(this, fieldToBeInjected);
       }
 
-      if (isAnnotated(fieldToBeInjected) == KindOfInjectionPoint.Required) {
+      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(fieldToBeInjected);
+
+      if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
+         return getValueFromAnnotation(fieldToBeInjected);
+      }
+
+      if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
+         String fieldType = fieldToBeInjected.getGenericType().toString();
          throw new IllegalStateException(
             "Missing @Injectable for field " +
             fieldToBeInjected.getDeclaringClass().getSimpleName() + '#' + fieldToBeInjected.getName() + ", of type " +
-            fieldToBeInjected.getGenericType().toString().replace("class ", "").replace("interface ", ""));
+            fieldType.replace("class ", "").replace("interface ", "").replace("java.lang.", ""));
       }
 
       return null;

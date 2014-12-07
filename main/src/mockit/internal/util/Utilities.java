@@ -156,4 +156,30 @@ public final class Utilities
    {
       return findClassAssignableFrom(toClasses, fromClass) != null;
    }
+
+   @Nullable
+   public static Object convertFromString(@NotNull Class<?> targetType, @Nullable String value)
+   {
+      if (value != null) {
+         if (targetType == String.class) {
+            return value;
+         }
+         else if (targetType == char.class) {
+            return value.charAt(0);
+         }
+         else if (targetType.isPrimitive()) {
+            Class<?> wrapperClass = AutoBoxing.getWrapperType(targetType);
+            assert wrapperClass != null;
+            Class<?>[] constructorParameters = {String.class};
+            return ConstructorReflection.newInstance(wrapperClass, constructorParameters, value);
+         }
+         else if (targetType.isEnum()) {
+            @SuppressWarnings({"rawtypes", "unchecked"})
+            Class<? extends Enum> enumType = (Class<? extends Enum>) targetType;
+            return Enum.valueOf(enumType, value);
+         }
+      }
+
+      return null;
+   }
 }

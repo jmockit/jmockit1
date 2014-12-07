@@ -70,22 +70,8 @@ public final class MockedType
             if (injectableClass == TypeVariable.class) {
                // Not supported, do nothing.
             }
-            else if (injectableClass == char.class) {
-               return value.charAt(0);
-            }
-            else if (injectableClass == String.class) {
-               return value;
-            }
-            else if (injectableClass.isPrimitive()) {
-               Class<?> wrapperClass = AutoBoxing.getWrapperType(injectableClass);
-               assert wrapperClass != null;
-               Class<?>[] constructorParameters = {String.class};
-               return ConstructorReflection.newInstance(wrapperClass, constructorParameters, value);
-            }
-            else if (injectableClass.isEnum()) {
-               @SuppressWarnings({"rawtypes", "unchecked"})
-               Class<? extends Enum> enumType = (Class<? extends Enum>) injectableClass;
-               return Enum.valueOf(enumType, value);
+            else {
+               return Utilities.convertFromString(injectableClass, value);
             }
          }
       }

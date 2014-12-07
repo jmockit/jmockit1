@@ -21,6 +21,9 @@ public final class TestedClassWithAnnotatedDITest
       @Autowired int someValue;
       @Resource(name = "firstAction") Runnable action1;
       @Inject int anotherValue;
+      @Value("textValue") String stringFieldWithValue;
+      @Value("123.45") double numericFieldWithValue;
+      @Value("#{systemProperties.someProperty}") String systemProperty;
    }
 
    static class TestedClass2
@@ -52,12 +55,15 @@ public final class TestedClassWithAnnotatedDITest
    @Test
    public void injectAllAnnotatedInjectionPoints(
       @Injectable("2") int anotherValue, @Injectable Runnable action2, @Injectable Runnable anotherAction,
-      @Injectable("true") boolean unused)
+      @Injectable("true") boolean unused, @Injectable("propertyValue") String systemProperty)
    {
       assertSame(action1, tested1.action1);
       assertSame(action2, tested1.action2);
       assertEquals(1, tested1.someValue);
       assertEquals(2, tested1.anotherValue);
+      assertEquals("textValue", tested1.stringFieldWithValue);
+      assertEquals(123.45, tested1.numericFieldWithValue, 0);
+      assertEquals("propertyValue", tested1.systemProperty);
 
       assertEquals(1, tested2.someValue);
       assertSame(action, tested2.action);
@@ -83,3 +89,6 @@ public final class TestedClassWithAnnotatedDITest
 
 @Retention(RetentionPolicy.RUNTIME)
 @interface Autowired { @SuppressWarnings("unused") boolean required() default true; }
+
+@Retention(RetentionPolicy.RUNTIME)
+@interface Value { String value(); }

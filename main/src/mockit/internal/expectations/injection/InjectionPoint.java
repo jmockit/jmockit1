@@ -15,12 +15,13 @@ import javax.servlet.*;
 import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.util.MethodReflection.*;
 import static mockit.internal.util.ParameterReflection.*;
+import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
 final class InjectionPoint
 {
-   enum KindOfInjectionPoint { NotAnnotated, Required, Optional }
+   enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
 
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
@@ -76,6 +77,10 @@ final class InjectionPoint
          return kind;
       }
 
+      if (hasValue(annotations)) {
+         return KindOfInjectionPoint.WithValue;
+      }
+
       if (
          isAnnotated(annotations, Resource.class) ||
          EJB_CLASS != null && isAnnotated(annotations, EJB.class) ||
@@ -97,7 +102,7 @@ final class InjectionPoint
    }
 
    @Nullable
-   static <A extends Annotation> A getAnnotation(
+   private static <A extends Annotation> A getAnnotation(
       @NotNull Annotation[] declaredAnnotations, @NotNull Class<A> annotationOfInterest)
    {
       for (Annotation declaredAnnotation : declaredAnnotations) {
@@ -123,6 +128,37 @@ final class InjectionPoint
       }
 
       return KindOfInjectionPoint.NotAnnotated;
+   }
+
+   private static boolean hasValue(@NotNull Annotation[] declaredAnnotations)
+   {
+      for (Annotation declaredAnnotation : declaredAnnotations) {
+         Class<? extends Annotation> annotationType = declaredAnnotation.annotationType();
+
+         if (annotationType.getName().endsWith(".Value")) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   @Nullable
+   static Object getValueFromAnnotation(@NotNull Field field)
+   {
+      String value = null;
+
+      for (Annotation declaredAnnotation : field.getDeclaredAnnotations()) {
+         Class<? extends Annotation> annotationType = declaredAnnotation.annotationType();
+
+         if (annotationType.getName().endsWith(".Value")) {
+            value = invokePublicIfAvailable(annotationType, declaredAnnotation, "value", NO_PARAMETERS);
+            break;
+         }
+      }
+
+      Object convertedValue = convertFromString(field.getType(), value);
+      return convertedValue;
    }
 
    @NotNull
