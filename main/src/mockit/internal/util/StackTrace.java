@@ -4,67 +4,28 @@
  */
 package mockit.internal.util;
 
-import java.lang.reflect.*;
-
 import org.jetbrains.annotations.*;
 
 /**
- * Provides optimized utility methods to extract stack trace information.
+ * Provides utility methods to extract and filter stack trace information.
  */
 public final class StackTrace
 {
-   private static final Method getStackTraceDepth = getThrowableMethod("getStackTraceDepth");
-   private static final Method getStackTraceElement = getThrowableMethod("getStackTraceElement", int.class);
-
-   @Nullable
-   private static Method getThrowableMethod(@NotNull String name, @NotNull Class<?>... parameterTypes)
-   {
-      Method method;
-      try { method = Throwable.class.getDeclaredMethod(name, parameterTypes); }
-      catch (NoSuchMethodException ignore) { return null; }
-      method.setAccessible(true);
-      return method;
-   }
-
    @NotNull private final Throwable throwable;
-   @Nullable private final StackTraceElement[] elements;
+   @NotNull private final StackTraceElement[] elements;
 
    public StackTrace() { this(new Throwable()); }
 
    public StackTrace(@NotNull Throwable throwable)
    {
       this.throwable = throwable;
-      elements = getStackTraceDepth == null ? throwable.getStackTrace() : null;
+      elements = throwable.getStackTrace();
    }
 
-   public int getDepth()
-   {
-      if (elements != null) {
-         return elements.length;
-      }
-
-      int depth = 0;
-
-      try {
-         depth = (Integer) getStackTraceDepth.invoke(throwable);
-      }
-      catch (IllegalAccessException ignore) {}
-      catch (InvocationTargetException ignored) {}
-
-      return depth;
-   }
+   public int getDepth() { return elements.length; }
 
    @NotNull
-   public StackTraceElement getElement(int index)
-   {
-      if (elements != null) {
-         return elements[index];
-      }
-
-      try { return (StackTraceElement) getStackTraceElement.invoke(throwable, index); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e); }
-   }
+   public StackTraceElement getElement(int index) { return elements[index]; }
 
    public static void filterStackTrace(@NotNull Throwable t)
    {
@@ -73,25 +34,22 @@ public final class StackTrace
 
    public void filter()
    {
-      int n = getDepth();
-      StackTraceElement[] filteredST = new StackTraceElement[n];
-      int j = 0;
+      StackTraceElement[] filteredST = new StackTraceElement[elements.length];
+      int i = 0;
 
-      for (int i = 0; i < n; i++) {
-         StackTraceElement ste = getElement(i);
-
+      for (StackTraceElement ste : elements) {
          if (ste.getFileName() != null) {
             String where = ste.getClassName();
 
             if (!isSunMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
-               filteredST[j] = ste;
-               j++;
+               filteredST[i] = ste;
+               i++;
             }
          }
       }
 
-      StackTraceElement[] newStackTrace = new StackTraceElement[j];
-      System.arraycopy(filteredST, 0, newStackTrace, 0, j);
+      StackTraceElement[] newStackTrace = new StackTraceElement[i];
+      System.arraycopy(filteredST, 0, newStackTrace, 0, i);
       throwable.setStackTrace(newStackTrace);
 
       Throwable cause = throwable.getCause();
