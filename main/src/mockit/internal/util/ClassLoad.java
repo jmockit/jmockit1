@@ -118,12 +118,18 @@ public final class ClassLoad
    @Nullable
    public static <T> Class<? extends T> searchTypeInClasspath(@NotNull String typeName)
    {
+       return searchTypeInClasspath(typeName, false);
+   }
+
+   @Nullable
+   public static <T> Class<? extends T> searchTypeInClasspath(@NotNull String typeName, boolean initializeType)
+   {
+      //noinspection OverlyBroadCatchBlock
       try {
          //noinspection unchecked
-         return (Class<? extends T>) Class.forName(typeName, true, THIS_CL);
+         return (Class<? extends T>) Class.forName(typeName, initializeType, THIS_CL);
       }
-      catch (NoClassDefFoundError ignore) { return null; }
-      catch (ClassNotFoundException ignore) { return null; }
+      catch (Throwable ignore) { return null; }
    }
 
    public static void addSuperClass(@NotNull String classInternalName, @NotNull String superClassInternalName)
