@@ -45,14 +45,14 @@ public final class RealMethodOrConstructor
    }
 
    @NotNull
-   private Constructor<?> findConstructor(@NotNull Class<?> realClass, @NotNull String methodDesc)
+   private static Constructor<?> findConstructor(@NotNull Class<?> realClass, @NotNull String methodDesc)
    {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
       return ConstructorReflection.findSpecifiedConstructor(realClass, parameterTypes);
    }
 
    @NotNull
-   private Method findMethod(@NotNull Class<?> realClass, @NotNull String methodName, @NotNull String methodDesc)
+   private static Method findMethod(@NotNull Class<?> realClass, @NotNull String methodName, @NotNull String methodDesc)
    {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
       Class<?> ownerClass = realClass;
@@ -83,7 +83,7 @@ public final class RealMethodOrConstructor
    }
 
    @Nullable
-   private Method findInterfaceMethod(
+   private static Method findInterfaceMethod(
       @NotNull Class<?> anInterface, @NotNull String methodName, @NotNull Class<?>[] parameterTypes)
    {
       for (Class<?> superInterface : anInterface.getInterfaces()) {
