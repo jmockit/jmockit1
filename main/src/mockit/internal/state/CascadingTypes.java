@@ -70,9 +70,9 @@ public final class CascadingTypes
    }
 
    @Nullable
-   private MockedTypeCascade getCascade(@NotNull String invokedTypeDesc, @NotNull Class<?> mockedType)
+   private MockedTypeCascade getCascade(@NotNull String invokedTypeDesc, @NotNull Class<?> mockedClass)
    {
-      Class<?> typeToLookFor = mockedType;
+      Class<?> typeToLookFor = mockedClass;
 
       do {
          String typeDesc = Type.getInternalName(typeToLookFor);
@@ -84,6 +84,7 @@ public final class CascadingTypes
          MockedTypeCascade cascade = cascadingTypes.get(typeDesc);
 
          if (cascade != null) {
+            cascade.mockedClass = mockedClass;
             return cascade;
          }
 

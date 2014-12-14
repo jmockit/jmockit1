@@ -21,6 +21,7 @@ public final class MockedTypeCascade
 
    final boolean fromMockField;
    @NotNull private final Type mockedType;
+   @Nullable Class<?> mockedClass;
    @Nullable private final Object cascadedInstance;
    @NotNull private final Map<String, Type> cascadedTypesAndMocks;
 
@@ -154,9 +155,7 @@ public final class MockedTypeCascade
       Class<?> returnClass;
 
       if (returnType == null) {
-         Class<?> cascadingClass = mockedType instanceof Class<?> ?
-            (Class<?>) mockedType : (Class<?>) ((ParameterizedType) mockedType).getRawType();
-
+         Class<?> cascadingClass = getClassWithCalledMethod();
          Type genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc);
          Class<?> resolvedReturnType = getClassType(genericReturnType);
 
@@ -190,6 +189,20 @@ public final class MockedTypeCascade
       }
 
       return createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);
+   }
+
+   @NotNull
+   private Class<?> getClassWithCalledMethod()
+   {
+      if (mockedClass != null) {
+         return mockedClass;
+      }
+
+      if (mockedType instanceof Class<?>) {
+         return (Class<?>) mockedType;
+      }
+
+      return (Class<?>) ((ParameterizedType) mockedType).getRawType();
    }
 
    @NotNull

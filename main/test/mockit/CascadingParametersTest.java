@@ -656,4 +656,13 @@ public final class CascadingParametersTest
    {
       assertNull(foo.getBar());
    }
+
+   public abstract class AbstractClass implements LevelZero {}
+
+   @Test
+   public void cascadeTypeReturnedFromInterfaceImplementedByAbstractClass(@Mocked AbstractClass mock)
+   {
+      Runnable foo = mock.getFoo();
+      assertNotNull(foo);
+   }
 }
