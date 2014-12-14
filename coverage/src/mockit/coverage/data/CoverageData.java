@@ -5,9 +5,9 @@
 package mockit.coverage.data;
 
 import java.io.*;
-import java.security.*;
 import java.util.*;
 import java.util.Map.*;
+import java.util.jar.*;
 
 import org.jetbrains.annotations.*;
 
@@ -137,27 +137,19 @@ public final class CoverageData implements Serializable
    {
       for (Iterator<Entry<String, FileCoverageData>> itr = fileToFileData.entrySet().iterator(); itr.hasNext(); ) {
          Entry<String, FileCoverageData> fileAndFileData = itr.next();
-         File coveredClassFile = getClassFile(fileAndFileData.getKey());
+         long lastModified = getLastModifiedTimeForClassFile(fileAndFileData.getKey());
 
-         if (coveredClassFile != null) {
-            long lastModified = coveredClassFile.lastModified();
-
-            if (lastModified > 0L) {
-               FileCoverageData fileCoverageData = fileAndFileData.getValue();
-               fileCoverageData.lastModified = lastModified;
-               continue;
-            }
-            else {
-               System.err.println("JMockit: unable to obtain last modified time for " + coveredClassFile.getPath());
-            }
+         if (lastModified > 0L) {
+            FileCoverageData fileCoverageData = fileAndFileData.getValue();
+            fileCoverageData.lastModified = lastModified;
+            continue;
          }
 
          itr.remove();
       }
    }
 
-   @Nullable
-   private File getClassFile(@NotNull String sourceFilePath)
+   private long getLastModifiedTimeForClassFile(@NotNull String sourceFilePath)
    {
       String sourceFilePathNoExt = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
       String className = sourceFilePathNoExt.replace('/', '.');
@@ -165,13 +157,34 @@ public final class CoverageData implements Serializable
       Class<?> coveredClass = findCoveredClass(className);
 
       if (coveredClass == null) {
-         return null;
+         return 0L;
       }
 
-      CodeSource codeSource = coveredClass.getProtectionDomain().getCodeSource();
-      String pathToClassFile = codeSource.getLocation().getPath() + sourceFilePathNoExt + ".class";
+      String locationPath = coveredClass.getProtectionDomain().getCodeSource().getLocation().getPath();
 
-      return new File(pathToClassFile);
+      if (locationPath.endsWith(".jar")) {
+         try { return getLastModifiedTimeFromJarEntry(sourceFilePathNoExt, locationPath); }
+         catch (IOException ignore) { return 0L; }
+      }
+
+      String pathToClassFile = locationPath + sourceFilePathNoExt + ".class";
+
+      return new File(pathToClassFile).lastModified();
+   }
+
+   private static long getLastModifiedTimeFromJarEntry(
+      @NotNull String sourceFilePathNoExt, @NotNull String locationPath)
+      throws IOException
+   {
+      JarFile jarFile = new JarFile(locationPath);
+
+      try {
+         JarEntry classEntry = jarFile.getJarEntry(sourceFilePathNoExt + ".class");
+         return classEntry.getTime();
+      }
+      finally {
+         jarFile.close();
+      }
    }
 
    @Nullable
