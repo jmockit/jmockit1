@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -232,6 +232,10 @@ public final class RecordAndReplayExecution
       @Nullable Object mock, @NotNull String classDesc, @NotNull String nameAndDesc,
       @Nullable String genericSignature, @NotNull ExecutionMode executionMode, @NotNull Object[] args)
    {
+      if (executionMode.isToExecuteRealImplementation(mock)) {
+         return Void.class;
+      }
+
       if (mock != null) {
          Object rv = ObjectMethods.evaluateOverride(mock, nameAndDesc, args);
 

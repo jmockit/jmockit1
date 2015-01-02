@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -39,8 +39,15 @@ public final class CascadingFieldTest
       Runnable getTask() { return null; }
    }
 
-   static final class Baz { void doSomething() {} }
+   static final class Baz
+   {
+      final E e;
+      Baz(E e) { this.e = e; }
+      E getE() { return e; }
+      void doSomething() {}
+   }
 
+   public enum E { A, B }
    public interface A { B getB(); }
    public interface B { C getC(); }
    public interface C {}
@@ -192,6 +199,31 @@ public final class CascadingFieldTest
       }};
 
       assertEquals(0, foo.getIntValue());
+   }
+
+   @Mocked BazCreatorAndConsumer bazCreatorAndConsumer;
+
+   static class BazCreatorAndConsumer
+   {
+      Baz create() { return null; }
+      void consume(Baz arg) { arg.toString(); }
+   }
+
+   @Test
+   public void callMethodOnNonCascadedInstanceFromCustomArgumentMatcherWithCascadedInstanceAlsoCreated()
+   {
+      Baz nonCascadedInstance = new Baz(E.A);
+      Baz cascadedInstance = bazCreatorAndConsumer.create();
+      assertNotSame(nonCascadedInstance, cascadedInstance);
+
+      bazCreatorAndConsumer.consume(nonCascadedInstance);
+
+      new Verifications() {{
+         bazCreatorAndConsumer.consume(with(new Delegate<Baz>() {
+            @SuppressWarnings("unused")
+            boolean matches(Baz actual) { return actual.getE() == E.A; }
+         }));
+      }};
    }
 
    // Tests for cascaded instances obtained from generic methods //////////////////////////////////////////////////////
