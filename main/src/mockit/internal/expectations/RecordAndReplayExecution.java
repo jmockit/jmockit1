@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.locks.*;
 
 import mockit.*;
+import mockit.integration.junit4.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -54,9 +55,14 @@ public final class RecordAndReplayExecution
          String msg;
 
          if (Startup.wasInitializedOnDemand()) {
-            msg =
-               "JMockit wasn't properly initialized; check that jmockit.jar precedes junit.jar in the classpath " +
-               "(if using JUnit; if not, check the documentation)";
+            msg = "JMockit wasn't properly initialized; please ";
+
+            if (MockFrameworkMethod.hasDependenciesInClasspath()) {
+               msg += "ensure that jmockit precedes junit in the runtime classpath, or use @RunWith(JMockit.class)";
+            }
+            else {
+               msg += "check the documentation";
+            }
          }
          else {
             msg = "Invalid place to record expectations";
