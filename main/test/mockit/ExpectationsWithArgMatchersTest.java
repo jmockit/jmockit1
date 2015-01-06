@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -46,6 +46,8 @@ public final class ExpectationsWithArgMatchersTest
 
       void setValue(Certificate cert) {}
       void setValue(Exception ex) {}
+
+      String useObject(Object arg) { return ""; }
    }
 
    @Mocked Collaborator mock;
@@ -500,5 +502,59 @@ public final class ExpectationsWithArgMatchersTest
       }};
 
       mock.setValue(new RuntimeException("Replayed"));
+   }
+
+   @Test
+   public void recordExpectationsUsingTheAnyFieldsForParameterOfTypeObject()
+   {
+      new Expectations() {{
+         mock.useObject(anyString); result = "String";
+         mock.useObject(anyInt); result = "int";
+         mock.useObject(anyByte); result = "byte";
+         mock.useObject(anyShort); result = "short";
+         mock.useObject(anyLong); result = "long";
+         mock.useObject(anyBoolean); result = "boolean";
+         mock.useObject(anyChar); result = "char";
+         mock.useObject(anyFloat); result = "float";
+         mock.useObject(anyDouble); result = "double";
+         mock.useObject(any); result = "Object";
+      }};
+
+      assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject();
+   }
+
+   void assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject()
+   {
+      assertEquals("String", mock.useObject("test"));
+      assertEquals("String", mock.useObject(null)); // uses the first recorded expectation, since they all match null
+      assertEquals("int", mock.useObject(2));
+      assertEquals("Object", mock.useObject(new Object()));
+      assertEquals("byte", mock.useObject((byte) -3));
+      assertEquals("short", mock.useObject((short) 4));
+      assertEquals("long", mock.useObject(-5L));
+      assertEquals("boolean", mock.useObject(true));
+      assertEquals("boolean", mock.useObject(false));
+      assertEquals("char", mock.useObject('A'));
+      assertEquals("float", mock.useObject(-1.5F));
+      assertEquals("double", mock.useObject(23.456));
+   }
+
+   @Test
+   public void recordExpectationsUsingTheWithAnyMethodForParameterOfTypeObject()
+   {
+      new Expectations() {{
+         mock.useObject(withAny("a")); result = "String";
+         mock.useObject(withAny(2)); result = "int";
+         mock.useObject(withAny((byte) 3)); result = "byte";
+         mock.useObject(withAny((short) 4)); result = "short";
+         mock.useObject(withAny(5L)); result = "long";
+         mock.useObject(withAny(true)); result = "boolean";
+         mock.useObject(withAny('\0')); result = "char";
+         mock.useObject(withAny(0.41F)); result = "float";
+         mock.useObject(withAny(0.41)); result = "double";
+         mock.useObject(withAny(new Object())); result = "Object";
+      }};
+
+      assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject();
    }
 }

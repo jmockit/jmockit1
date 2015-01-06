@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -198,7 +198,7 @@ final class InvocationBlockModifier extends MethodVisitor
       @NotNull String fieldOwner, @NotNull String name, @NotNull String desc)
    {
       mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
-      generateCallToActiveInvocationsMethod("addArgMatcher", "()V");
+      generateCallToActiveInvocationsMethod(name, "()V");
       matcherStacks[matcherCount++] = stackSize;
    }
 

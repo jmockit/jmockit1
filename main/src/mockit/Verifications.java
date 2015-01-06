@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -120,7 +120,7 @@ public abstract class Verifications extends Invocations
     */
    protected final <T> T withCapture()
    {
-      verificationPhase.addArgMatcher(AlwaysTrueMatcher.INSTANCE);
+      verificationPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
       //noinspection ConstantConditions
       return null;
    }

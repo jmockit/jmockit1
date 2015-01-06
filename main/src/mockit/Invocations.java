@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -412,7 +412,19 @@ abstract class Invocations
     */
    protected final <T> T withAny(T arg)
    {
-      addMatcher(AlwaysTrueMatcher.INSTANCE);
+      ArgumentMatcher<?> matcher;
+      if (arg instanceof String) matcher = AlwaysTrueMatcher.ANY_STRING;
+      else if (arg instanceof Integer) matcher = AlwaysTrueMatcher.ANY_INT;
+      else if (arg instanceof Boolean) matcher = AlwaysTrueMatcher.ANY_BOOLEAN;
+      else if (arg instanceof Character) matcher = AlwaysTrueMatcher.ANY_CHAR;
+      else if (arg instanceof Double) matcher = AlwaysTrueMatcher.ANY_DOUBLE;
+      else if (arg instanceof Float) matcher = AlwaysTrueMatcher.ANY_FLOAT;
+      else if (arg instanceof Long) matcher = AlwaysTrueMatcher.ANY_LONG;
+      else if (arg instanceof Byte) matcher = AlwaysTrueMatcher.ANY_BYTE;
+      else if (arg instanceof Short) matcher = AlwaysTrueMatcher.ANY_SHORT;
+      else matcher = AlwaysTrueMatcher.ANY_VALUE;
+
+      addMatcher(matcher);
       return arg;
    }
 

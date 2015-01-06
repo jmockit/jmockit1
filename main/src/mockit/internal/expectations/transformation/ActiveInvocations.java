@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -16,13 +16,24 @@ public final class ActiveInvocations
 {
    private ActiveInvocations() {}
 
-   public static void addArgMatcher()
+   public static void anyString()  { addArgMatcher(AlwaysTrueMatcher.ANY_STRING); }
+   public static void anyBoolean() { addArgMatcher(AlwaysTrueMatcher.ANY_BOOLEAN); }
+   public static void anyChar()    { addArgMatcher(AlwaysTrueMatcher.ANY_CHAR); }
+   public static void anyByte()    { addArgMatcher(AlwaysTrueMatcher.ANY_BYTE); }
+   public static void anyShort()   { addArgMatcher(AlwaysTrueMatcher.ANY_SHORT); }
+   public static void anyInt()     { addArgMatcher(AlwaysTrueMatcher.ANY_INT); }
+   public static void anyFloat()   { addArgMatcher(AlwaysTrueMatcher.ANY_FLOAT); }
+   public static void anyLong()    { addArgMatcher(AlwaysTrueMatcher.ANY_LONG); }
+   public static void anyDouble()  { addArgMatcher(AlwaysTrueMatcher.ANY_DOUBLE); }
+   public static void any()        { addArgMatcher(AlwaysTrueMatcher.ANY_VALUE); }
+
+   private static void addArgMatcher(@NotNull ArgumentMatcher<?> argumentMatcher)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.addArgMatcher(AlwaysTrueMatcher.INSTANCE);
+         currentPhase.addArgMatcher(argumentMatcher);
       }
    }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -48,7 +48,7 @@ abstract class ArgumentValuesAndMatchers
       ArgumentMatcher<?> matcher = parameterIndex < matchers.size() ? matchers.get(parameterIndex) : null;
 
       if (matcher == null && parameterIndex < values.length && values[parameterIndex] == null) {
-         matcher = AlwaysTrueMatcher.INSTANCE;
+         matcher = AlwaysTrueMatcher.ANY_VALUE;
       }
 
       return matcher;
