@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.testng.internal;
@@ -195,7 +195,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
 
       SavePoint testMethodSavePoint = savePoint.get();
-       
+
       if (testMethodSavePoint == null) {
          return;
       }
@@ -263,7 +263,11 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
    private static void clearTestMethodArguments(@NotNull ITestResult testResult)
    {
-       testResult.setParameters(NO_ARGS);
+      Method method = testResult.getMethod().getConstructorOrMethod().getMethod();
+
+      if (!isMethodWithParametersProvidedByTestNG(method)) {
+         testResult.setParameters(NO_ARGS);
+      }
    }
 
    private static void concludeTestExecutionWithExpectedExceptionNotThrown(

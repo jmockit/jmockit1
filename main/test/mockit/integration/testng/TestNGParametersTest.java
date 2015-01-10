@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.testng;
@@ -71,5 +71,19 @@ public final class TestNGParametersTest
    {
       assertEquals(param, "XPTO");
       assertEquals(param, p2);
+   }
+
+   @DataProvider
+   public Object[][] data()
+   {
+      Object[][] data = {{1, "A"}, {2, "B"}, {3, "C"}};
+      return data;
+   }
+
+   @Test(dataProvider = "data")
+   public void usingDataProvider(int i, String s)
+   {
+      assertTrue(i > 0);
+      assertFalse(s.isEmpty());
    }
 }
