@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -148,7 +148,8 @@ final class ConstructorSearch
    private void printCandidateConstructorNameIfRequested(@NotNull Constructor<?> candidate)
    {
       if (searchResults != null) {
-         searchResults.append("\r\n  ").append(candidate).append("\r\n");
+         String constructorDesc = candidate.toGenericString().replace("java.lang.", "");
+         searchResults.append("\r\n  ").append(constructorDesc).append("\r\n");
       }
    }
 
