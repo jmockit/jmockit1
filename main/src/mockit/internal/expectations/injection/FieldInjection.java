@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -47,44 +47,15 @@ final class FieldInjection
 
          classWithFields = classWithFields.getSuperclass();
       }
-      while (
-         isClassFromSameModuleOrSystemAsTestedClass(classWithFields) ||
-         isExternalBaseClassSupportingInjection(classWithFields)
-      );
-
-      discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(targetFields);
+      while (isClassFromSameModuleOrSystemAsTestedClass(classWithFields) || isServlet(classWithFields));
 
       return targetFields;
    }
 
-   private boolean isEligibleForInjection(@NotNull Field field)
+   private static boolean isEligibleForInjection(@NotNull Field field)
    {
-      if (isFinal(field.getModifiers())) {
-         return false;
-      }
-
-      if (testedField.requireAnnotations || testedField.foundAnnotations) {
-         return isAnnotated(field) != KindOfInjectionPoint.NotAnnotated;
-      }
-
-      testedField.foundAnnotations = isAnnotated(field) != KindOfInjectionPoint.NotAnnotated;
-
-      return testedField.foundAnnotations || !isStatic(field.getModifiers());
-   }
-
-   private void discardFieldsNotAnnotatedIfAtLeastOneIsAnnotated(@NotNull List<Field> targetFields)
-   {
-      if (!testedField.requireAnnotations && testedField.foundAnnotations) {
-         ListIterator<Field> itr = targetFields.listIterator();
-
-         while (itr.hasNext()) {
-            Field targetField = itr.next();
-
-            if (isAnnotated(targetField) == KindOfInjectionPoint.NotAnnotated) {
-               itr.remove();
-            }
-         }
-      }
+      int modifiers = field.getModifiers();
+      return !isFinal(modifiers) && (!isStatic(modifiers) || isAnnotated(field) != KindOfInjectionPoint.NotAnnotated);
    }
 
    boolean isClassFromSameModuleOrSystemAsTestedClass(@NotNull Class<?> anotherClass)
@@ -109,11 +80,6 @@ final class FieldInjection
       p2 = nameOfTestedClass.indexOf('.', p2 + 1);
 
       return p1 == p2 && p1 > 0 && nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
-   }
-
-   private static boolean isExternalBaseClassSupportingInjection(@NotNull Class<?> anotherClass)
-   {
-      return isServlet(anotherClass);
    }
 
    void injectIntoEligibleFields(@NotNull List<Field> targetFields, @NotNull Object testedObject)

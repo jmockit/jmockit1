@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -21,8 +21,6 @@ final class TestedField
    @NotNull private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
-   boolean requireAnnotations;
-   boolean foundAnnotations;
 
    TestedField(@NotNull InjectionState injectionState, @NotNull Field field, @NotNull Tested metadata)
    {
@@ -50,14 +48,12 @@ final class TestedField
 
       injectionState.setTestedField(testedField);
 
-      requireAnnotations = false;
       Class<?> testedClass;
 
       if (createAutomatically) {
          testedClass = testedField.getType();
          testedObject = testedObjectCreation.create();
          FieldReflection.setFieldValue(testedField, testClassInstance, testedObject);
-         requireAnnotations = testedObjectCreation.constructorIsAnnotated;
       }
       else {
          testedClass = testedObject == null ? null : testedObject.getClass();

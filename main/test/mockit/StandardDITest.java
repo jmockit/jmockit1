@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.util.*;
+import java.util.concurrent.*;
 import javax.inject.*;
 
 import org.junit.*;
@@ -22,6 +23,9 @@ public final class StandardDITest
       @Inject int someValue;
       @Inject private int anotherValue;
 
+      String nonAnnotatedField;
+      Callable<String> nonAnnotatedGenericField;
+
       @Inject public TestedClass(Collaborator collaborator) { this.collaborator = collaborator; }
 
       @SuppressWarnings("UnusedParameters")
@@ -32,8 +36,10 @@ public final class StandardDITest
 
    @Tested TestedClass tested1;
    @Injectable Collaborator collaborator; // for constructor injection
+   @Injectable Collaborator collaborator1; // for field injection
    @Injectable("123") int someValue;
    @Injectable final int anotherValue = 45;
+   @Injectable Callable<String> callable;
 
    static final class TestedClassWithNoAnnotatedConstructor
    {
@@ -43,7 +49,7 @@ public final class StandardDITest
    }
 
    @Tested TestedClassWithNoAnnotatedConstructor tested2;
-   @Injectable final String text1 = "Abc";
+   @Injectable final String aText = "Abc";
 
    public static class TestedClassWithInjectOnConstructorOnly
    {
@@ -57,7 +63,7 @@ public final class StandardDITest
    public void invokeInjectAnnotatedConstructorOnly()
    {
       assertSame(collaborator, tested1.collaborator);
-      assertNull(tested1.collaborator1);
+      assertSame(collaborator1, tested1.collaborator1);
       assertNull(tested1.collaborator2);
       assertEquals(123, tested1.someValue);
       assertEquals(45, tested1.anotherValue);
@@ -66,12 +72,12 @@ public final class StandardDITest
    }
 
    @Test
-   public void assignInjectAnnotatedFieldsWhileIgnoringNonAnnotatedOnes(
-      @Injectable Collaborator collaborator2, @Injectable Collaborator collaborator1, @Injectable("67") int notToBeUsed)
+   public void assignInjectAnnotatedFieldsAndAlsoNonAnnotatedOnes(
+      @Injectable Collaborator collaborator2, @Injectable("67") int notToBeUsed)
    {
       assertSame(collaborator, tested1.collaborator);
       assertSame(collaborator1, tested1.collaborator1);
-      assertNull(tested1.collaborator2);
+      assertSame(collaborator2, tested1.collaborator2);
       assertEquals(123, tested1.someValue);
       assertEquals(45, tested1.anotherValue);
 
@@ -93,11 +99,11 @@ public final class StandardDITest
    }
 
    @Test
-   public void onlyConsiderAnnotatedFieldsForInjection(@Injectable("XY") String text2)
+   public void considerAnnotatedAndNonAnnotatedFieldsForInjection(@Injectable("XY") String text2)
    {
-      assertEquals(text1, tested2.aText);
+      assertEquals(aText, tested2.aText);
       assertNull(tested2.anotherText);
-      assertNull(tested3.name);
+      assertEquals(aText, tested3.name);
    }
 
    static final class TestedClassWithProviders
@@ -143,11 +149,11 @@ public final class StandardDITest
          collaborator1 = collaborators[0].get();
          assertSame(collaborator1, collaborators[0].get()); // default (singleton)
 
-         collaborator2 = collaborators[1].get();
-         assertNull(collaborators[1].get()); // recorded
+         collaborator2 = collaborators[2].get();
+         assertNull(collaborators[2].get()); // recorded
 
-         if (n > 2) {
-            Collaborator col = collaborators[2].get();
+         if (n > 3) {
+            Collaborator col = collaborators[3].get();
             optionalCollaborators.add(col);
          }
       }
@@ -178,5 +184,12 @@ public final class StandardDITest
 
       assertEquals(names[0], tested5.nameProvider.get());
       assertEquals(names[1], tested5.nameProvider.get());
+   }
+
+   @Test
+   public void fieldsNotAnnotatedWithKnownDIAnnotationsShouldStillBeInjected()
+   {
+      assertEquals("Abc", tested1.nonAnnotatedField);
+      assertSame(callable, tested1.nonAnnotatedGenericField);
    }
 }
