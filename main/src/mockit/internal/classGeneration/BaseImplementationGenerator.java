@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
+ * This file is subject to the terms of the MIT license (see LICENSE.txt).
+ */
 package mockit.internal.classGeneration;
 
 import java.util.*;
@@ -48,10 +52,10 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    @Override
-   public final void visitInnerClass(@NotNull String name, String outerName, String innerName, int access) {}
+   public final void visitInnerClass(String name, String outerName, String innerName, int access) {}
 
    @Override
-   public final void visitOuterClass(@NotNull String owner, @Nullable String name, @Nullable String desc) {}
+   public final void visitOuterClass(String owner, @Nullable String name, @Nullable String desc) {}
 
    @Override
    public final void visitAttribute(Attribute attr) {}
@@ -61,12 +65,12 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Override @Nullable
    public final FieldVisitor visitField(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable Object value)
+      int access, String name, String desc, @Nullable String signature, @Nullable Object value)
    { return null; }
 
    @Override @Nullable
    public final MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, String name, String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       generateMethodImplementation(access, name, desc, signature, exceptions);
       return null;
@@ -110,7 +114,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
       @Override
       public void visit(
-         int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+         int version, int access, String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
          superInterfaces = interfaces;
@@ -118,13 +122,12 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
       @Nullable @Override
       public FieldVisitor visitField(
-         int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable Object value)
+         int access, String name, String desc, @Nullable String signature, @Nullable Object value)
       { return null; }
 
       @Nullable @Override
       public MethodVisitor visitMethod(
-         int access, @NotNull String name, @NotNull String desc,
-         @Nullable String signature, @Nullable String[] exceptions)
+         int access, String name, String desc, @Nullable String signature, @Nullable String[] exceptions)
       {
          generateMethodImplementation(access, name, desc, signature, exceptions);
          return null;
