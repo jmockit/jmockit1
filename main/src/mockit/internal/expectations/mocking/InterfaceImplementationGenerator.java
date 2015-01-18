@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -31,7 +31,7 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
       @Nullable String[] interfaces)
    {
       interfaceName = name;
-      String classSignature = signature + mockedTypeInfo.implementationSignature;
+      String classSignature = signature == null ? null : signature + mockedTypeInfo.implementationSignature;
       super.visit(version, access, name, classSignature, superName, interfaces);
    }
 

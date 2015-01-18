@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -38,6 +38,17 @@ public final class GenericMockedTypesTest
 
       assertEquals("mocked", mock1.call());
       assertEquals(123, mock2.call().intValue());
+   }
+
+   @Test
+   public void obtainGenericSuperclassFromClassGeneratedForNonGenericInterface(@Mocked Runnable mock)
+   {
+      Class<?> generatedClass = mock.getClass();
+      Type genericSuperClass = generatedClass.getGenericSuperclass();
+
+      // At one time, a "GenericSignatureFormatError: Signature Parse error: expected a class type
+      // Remaining input: nullLjava/lang/Runnable;" would occur.
+      assertSame(Object.class, genericSuperClass);
    }
 
    @Test
