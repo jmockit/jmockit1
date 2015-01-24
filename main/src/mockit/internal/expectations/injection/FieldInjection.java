@@ -33,6 +33,8 @@ final class FieldInjection
    @NotNull
    List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@NotNull Class<?> testedClass)
    {
+      testedField.requireDIAnnotation = false;
+
       List<Field> targetFields = new ArrayList<Field>();
       Class<?> classWithFields = testedClass;
 
@@ -52,10 +54,22 @@ final class FieldInjection
       return targetFields;
    }
 
-   private static boolean isEligibleForInjection(@NotNull Field field)
+   private boolean isEligibleForInjection(@NotNull Field field)
    {
       int modifiers = field.getModifiers();
-      return !isFinal(modifiers) && (!isStatic(modifiers) || isAnnotated(field) != KindOfInjectionPoint.NotAnnotated);
+
+      if (isFinal(modifiers)) {
+         return false;
+      }
+
+      boolean annotated = isAnnotated(field) != KindOfInjectionPoint.NotAnnotated;
+
+      if (annotated) {
+         testedField.requireDIAnnotation = true;
+         return true;
+      }
+
+      return !isStatic(modifiers);
    }
 
    boolean isClassFromSameModuleOrSystemAsTestedClass(@NotNull Class<?> anotherClass)
@@ -139,11 +153,15 @@ final class FieldInjection
          return injectionState.getValueToInject(mockedType);
       }
 
+      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(fieldToBeInjected);
+
       if (fullInjection != null) {
+         if (testedField.requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
+            return null;
+         }
+
          return fullInjection.newInstanceCreatedWithNoArgsConstructorIfAvailable(this, fieldToBeInjected);
       }
-
-      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(fieldToBeInjected);
 
       if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
          return getValueFromAnnotation(fieldToBeInjected);

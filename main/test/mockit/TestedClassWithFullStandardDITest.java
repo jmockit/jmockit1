@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -11,8 +11,10 @@ import javax.inject.*;
 import javax.persistence.*;
 
 import org.junit.*;
+import org.junit.runners.*;
 import static org.junit.Assert.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithFullStandardDITest
 {
    public static class TestedClass
@@ -21,6 +23,7 @@ public final class TestedClassWithFullStandardDITest
       @Inject private FirstLevelDependency dependency2;
       @Resource private FirstLevelDependency dependency3;
       @Inject private CommonDependency commonDependency;
+      String text;
       boolean initialized;
       static boolean destroyed;
 
@@ -84,8 +87,8 @@ public final class TestedClassWithFullStandardDITest
    public void setUpPersistence() throws Exception
    {
       new NonStrictExpectations() {{
-         Persistence.createEntityManagerFactory("test"); result = namedEMFactory; times = 1;
-         Persistence.createEntityManagerFactory("default"); result = defaultEMFactory; times = 1;
+         Persistence.createEntityManagerFactory("test"); result = namedEMFactory;
+         Persistence.createEntityManagerFactory("default"); result = defaultEMFactory;
          Persistence.createEntityManagerFactory(anyString); times = 0;
 
          namedEMFactory.createEntityManager(); result = namedEM;
@@ -117,6 +120,7 @@ public final class TestedClassWithFullStandardDITest
       assertNotNull(tested.dependency2);
       assertSame(tested.dependency2, tested.dependency3);
       assertNotNull(tested.commonDependency);
+      assertNull(tested.text);
 
       // Second level dependencies:
       assertNotNull(tested.dependency2.dependency);
@@ -140,6 +144,12 @@ public final class TestedClassWithFullStandardDITest
       // Lifecycle methods:
       assertTrue(tested.initialized);
       assertTrue(tested.dependency2.dependency.initialized);
+   }
+
+   @Test
+   public void useFullyInitializedTestedObjectAgain()
+   {
+      assertNull(tested.text);
    }
 
    @After
