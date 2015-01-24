@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -14,7 +14,6 @@ import mockit.internal.util.*;
 
 import org.jetbrains.annotations.*;
 
-@SuppressWarnings("unchecked")
 public final class CallPoint implements Serializable
 {
    private static final long serialVersionUID = 362727169057343840L;
@@ -36,12 +35,14 @@ public final class CallPoint implements Serializable
          annotation = getTestNGAnnotationIfAvailable();
       }
 
+      //noinspection unchecked
       testAnnotation = (Class<? extends Annotation>) annotation;
       checkTestAnnotationOnClass = checkOnClassAlso;
       checkIfTestCaseSubclass = checkForJUnit3Availability();
    }
 
-   @Nullable private static Class<?> getTestNGAnnotationIfAvailable()
+   @Nullable
+   private static Class<?> getTestNGAnnotationIfAvailable()
    {
       try {
          return Class.forName("org.testng.annotations.Test");
@@ -93,7 +94,8 @@ public final class CallPoint implements Serializable
       return isSameTestMethod(other) && ste.getLineNumber() == other.ste.getLineNumber();
    }
 
-   @Nullable static CallPoint create(@NotNull Throwable newThrowable)
+   @Nullable
+   static CallPoint create(@NotNull Throwable newThrowable)
    {
       StackTrace st = new StackTrace(newThrowable);
       int n = st.getDepth();
@@ -111,7 +113,10 @@ public final class CallPoint implements Serializable
 
    private static boolean isTestMethod(@NotNull StackTraceElement ste)
    {
-      if (ste.getClassName() == null || ste.getMethodName() == null) {
+      String className = ste.getClassName();
+      String methodName = ste.getMethodName();
+
+      if (className == null || methodName == null) {
          return false;
       }
 
@@ -119,54 +124,56 @@ public final class CallPoint implements Serializable
          return steCache.get(ste);
       }
 
-      if (ste.getFileName() == null || ste.getLineNumber() < 0) {
-         steCache.put(ste, false);
-         return false;
+      boolean isTestMethod = false;
+
+      if (
+         ste.getFileName() != null && ste.getLineNumber() >= 0 &&
+         !className.startsWith("java.") && !className.startsWith("javax.") && !className.startsWith("sun.") &&
+         !className.startsWith("org.junit.") && !className.startsWith("org.testng.") && !className.startsWith("mockit.")
+      ) {
+         Class<?> aClass = loadClass(className);
+
+         if (aClass != null) {
+            if (checkTestAnnotationOnClass && aClass.isAnnotationPresent(testAnnotation)) {
+               isTestMethod = true;
+            }
+            else {
+               Method method = findMethod(aClass, methodName);
+
+               if (method != null) {
+                  isTestMethod =
+                     containsATestFrameworkAnnotation(method.getDeclaredAnnotations()) ||
+                     checkIfTestCaseSubclass && isJUnit3xTestMethod(aClass, method);
+               }
+            }
+         }
       }
-
-      Class<?> aClass = loadClass(ste.getClassName());
-      Method method = findMethod(aClass, ste.getMethodName());
-
-      if (method == null) {
-         steCache.put(ste, false);
-         return false;
-      }
-
-      boolean isTestMethod =
-         checkTestAnnotationOnClass && aClass.isAnnotationPresent(testAnnotation) ||
-         containsATestFrameworkAnnotation(method.getDeclaredAnnotations()) ||
-         checkIfTestCaseSubclass && isJUnit3xTestMethod(aClass, method);
 
       steCache.put(ste, isTestMethod);
-
       return isTestMethod;
    }
 
-   @NotNull private static Class<?> loadClass(@NotNull String className)
+   @Nullable
+   private static Class<?> loadClass(@NotNull String className)
    {
       try {
          return Class.forName(className);
       }
-      catch (ClassNotFoundException e) {
-         throw new RuntimeException(e);
-      }
+      catch (ClassNotFoundException ignore) { return null; }
+      catch (LinkageError ignore) { return null; }
    }
 
-   @Nullable private static Method findMethod(@NotNull Class<?> aClass, @NotNull String name)
+   @Nullable
+   private static Method findMethod(@NotNull Class<?> aClass, @NotNull String name)
    {
       try {
          for (Method method : aClass.getDeclaredMethods()) {
-            if (
-               isPublic(method.getModifiers()) && method.getReturnType() == void.class &&
-               name.equals(method.getName())
-            ) {
+            if (method.getReturnType() == void.class && name.equals(method.getName())) {
                return method;
             }
          }
       }
-      catch (NoClassDefFoundError e) {
-         System.out.println(e + " when attempting to find method \"" + name + "\" in " + aClass);
-      }
+      catch (NoClassDefFoundError ignore) {}
 
       return null;
    }
@@ -186,7 +193,7 @@ public final class CallPoint implements Serializable
 
    private static boolean isJUnit3xTestMethod(@NotNull Class<?> aClass, @NotNull Method method)
    {
-      if (!method.getName().startsWith("test")) {
+      if (!isPublic(method.getModifiers()) || !method.getName().startsWith("test")) {
          return false;
       }
 
