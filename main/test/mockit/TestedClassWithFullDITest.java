@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -7,8 +7,10 @@ package mockit;
 import java.lang.annotation.*;
 
 import org.junit.*;
+import org.junit.runners.*;
 import static org.junit.Assert.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithFullDITest
 {
    public static class TestedClass
@@ -18,6 +20,7 @@ public final class TestedClassWithFullDITest
       FirstLevelDependency dependency3;
       CommonDependency commonDependency;
       String name;
+      StringBuilder description;
       final Integer number = null;
       boolean flag = true;
       Thread.State threadState;
@@ -43,9 +46,17 @@ public final class TestedClassWithFullDITest
    @Injectable Runnable mockedDependency;
 
    @Test
-   public void useFullyInitializedTestedObject(@Injectable("test") String firstLevelId)
+   public void useFullyInitializedTestedObjectWithNoInjectableForFirstLevelDependency()
+   {
+      assertEquals("", tested.name);
+      assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
+   }
+
+   @Test
+   public void useFullyInitializedTestedObjectWithValueForFirstLevelDependency(@Injectable("test") String id)
    {
       assertEquals("test", tested.name);
+      assertEquals(0, tested.description.length());
       assertNull(tested.number);
       assertTrue(tested.flag);
       assertNull(tested.threadState);

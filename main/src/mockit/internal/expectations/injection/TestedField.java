@@ -21,6 +21,7 @@ final class TestedField
    @NotNull private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
+   boolean requireDIAnnotation;
 
    TestedField(@NotNull InjectionState injectionState, @NotNull Field field, @NotNull Tested metadata)
    {
@@ -77,6 +78,8 @@ final class TestedField
    void clearIfAutomaticCreation()
    {
       if (createAutomatically) {
+         injectionState.clearInstantiatedDependencies();
+
          Object testClassInstance = injectionState.getCurrentTestClassInstance();
          FieldReflection.setFieldValue(testedField, testClassInstance, null);
       }
