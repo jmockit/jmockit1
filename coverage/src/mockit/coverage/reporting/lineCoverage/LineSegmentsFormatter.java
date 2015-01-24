@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.lineCoverage;
@@ -80,9 +80,14 @@ final class LineSegmentsFormatter
          return;
       }
 
-      appendStartTag(segmentData);
-      firstElement.appendAllBefore(line, element);
-      appendEndTag(segmentData);
+      if (element == null && !firstElement.containsExecutableCodeBeforeEndOfLine()) {
+         firstElement.appendAllBefore(line, null);
+      }
+      else {
+         appendStartTag(segmentData);
+         firstElement.appendAllBefore(line, element);
+         appendEndTag(segmentData);
+      }
 
       segmentIndex++;
    }
