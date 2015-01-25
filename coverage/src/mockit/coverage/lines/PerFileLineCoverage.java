@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -69,7 +69,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   @NotNull public LineCoverageData getOrCreateLineData(int line)
+   @NotNull
+   public LineCoverageData getOrCreateLineData(int line)
    {
       LineCoverageData lineData = lineToLineData.get(line);
 
@@ -81,10 +82,17 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData;
    }
 
-   @NotNull public BranchCoverageData getBranchData(int line, int index)
+   @NotNull
+   public BranchCoverageData getBranchData(int line, int index)
    {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.getBranchData(index);
+   }
+
+   public void markLastLineSegmentAsEmpty(int line)
+   {
+      LineCoverageData lineData = lineToLineData.get(line);
+      lineData.markLastSegmentAsEmpty();
    }
 
    public boolean acceptsAdditionalCallPoints(int line)
@@ -127,7 +135,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return executionCounts != NO_EXECUTIONS_YET && lineToLineData.containsKey(line);
    }
 
-   @NotNull public LineCoverageData getLineData(int line)
+   @NotNull
+   public LineCoverageData getLineData(int line)
    {
       LineCoverageData data = lineToLineData.get(line);
 

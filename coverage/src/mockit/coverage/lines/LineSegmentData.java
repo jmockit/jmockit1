@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -16,14 +16,18 @@ public class LineSegmentData implements Serializable
    private static final long serialVersionUID = -6233980722802474992L;
    private static final int MAX_CALL_POINTS = Integer.parseInt(Configuration.getProperty("maxCallPoints", "10"));
 
-   // Static data:
+   // Constant data:
    private boolean unreachable;
+   private boolean empty;
 
    // Runtime data:
    int executionCount;
    @Nullable private List<CallPoint> callPoints;
 
    public final void markAsUnreachable() { unreachable = true; }
+
+   public final boolean isEmpty() { return empty; }
+   final void markAsEmpty() { empty = true; }
 
    final boolean acceptsAdditionalCallPoints()
    {
@@ -63,7 +67,7 @@ public class LineSegmentData implements Serializable
    public final int getExecutionCount() { return executionCount; }
    final void setExecutionCount(int executionCount) { this.executionCount = executionCount; }
 
-   public final boolean isCovered() { return unreachable || executionCount > 0; }
+   public final boolean isCovered() { return unreachable || !empty && executionCount > 0; }
 
    final void addExecutionCountAndCallPointsFromPreviousTestRun(@NotNull LineSegmentData previousData)
    {

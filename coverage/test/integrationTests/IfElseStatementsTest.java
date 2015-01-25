@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests;
@@ -18,7 +18,7 @@ public final class IfElseStatementsTest extends CoverageTest
       tested.simpleIf(false);
 
       assertLines(8, 11, 3);
-      assertLine(8, 2, 2, 2);
+      assertLine(8, 1, 1, 2);
       assertLine(9, 1, 1, 1);
       assertLine(11, 1, 1, 2);
 
@@ -99,7 +99,7 @@ public final class IfElseStatementsTest extends CoverageTest
       tested.ifWithBooleanAndOperator(false, true);
 
       assertLines(158, 161, 2);
-      assertLine(158, 3, 2, 2, 1, 0);
+      assertLine(158, 2, 2, 2, 1);
       assertLine(159, 1, 0, 0);
       assertLine(161, 1, 1, 2);
    }
@@ -123,7 +123,7 @@ public final class IfElseStatementsTest extends CoverageTest
       tested.ifWithBooleanOrOperator(true, true);
 
       assertLines(165, 168, 3);
-      assertLine(165, 3, 2, 2, 1, 0);
+      assertLine(165, 2, 2, 2, 1);
       assertLine(166, 1, 1, 1);
       assertLine(168, 1, 1, 2);
    }

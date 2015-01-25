@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -35,6 +35,12 @@ public final class LineCoverageData extends LineSegmentData
       branches.add(new BranchCoverageData(jumpSource));
       branches.add(new BranchCoverageData(jumpTarget));
       return initialIndex;
+   }
+
+   void markLastSegmentAsEmpty()
+   {
+      BranchCoverageData lastBranch = branches.get(branches.size() - 1);
+      lastBranch.markAsEmpty();
    }
 
    public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
@@ -82,7 +88,9 @@ public final class LineCoverageData extends LineSegmentData
             count++;
          }
 
-         count++;
+         if (!branch.isEmpty()) {
+            count++;
+         }
       }
 
       segments = count;
@@ -102,7 +110,7 @@ public final class LineCoverageData extends LineSegmentData
          BranchCoverageData sourceBranch = branches.get(i);
          BranchCoverageData targetBranch = branches.get(i + 1);
 
-         if (sourceBranch.isCovered()) {
+         if (sourceBranch.isCovered() && !targetBranch.isEmpty()) {
             segmentsCovered++;
          }
 

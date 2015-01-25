@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.loops;
@@ -23,7 +23,7 @@ public final class ForStatementsTest extends CoverageTest
       tested.forInSeparateLines();
 
       assertLines(9, 12, 3);
-      assertLine(9, 2, 2, 6, 4); // TODO: should have 4 segments
+      assertLine(9, 1, 1, 6, 4); // TODO: should have 3 segments
       assertLine(10, 1, 1, 4);
       assertLine(12, 1, 1, 2);
 
@@ -85,9 +85,9 @@ public final class ForStatementsTest extends CoverageTest
       tested.forUsingIterator(numbers);
 
       assertLines(42, 49, 6);
-      assertLine(42, 2, 2, 1, 3);
+      assertLine(42, 1, 1, 1, 3); // TODO: should have 2 segments
       assertLine(43, 1, 1, 3);
-      assertLine(45, 2, 2, 3, 1);
+      assertLine(45, 1, 1, 3);
       assertLine(46, 1, 1, 1);
       assertLine(48, 1, 1, 3);
       assertLine(49, 1, 1, 1);

@@ -226,13 +226,6 @@ public final class LineElement implements Iterable<LineElement>
       return 0;
    }
 
-   public boolean containsExecutableCodeBeforeEndOfLine()
-   {
-      return
-         isCode() && (text.length() > 1 || text.charAt(0) != '{') ||
-         next != null && next.containsExecutableCodeBeforeEndOfLine();
-   }
-
    public void appendAllBefore(@NotNull StringBuilder line, @Nullable LineElement elementToStopBefore)
    {
       LineElement elementToPrint = this;

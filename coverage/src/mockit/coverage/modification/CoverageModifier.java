@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -238,13 +238,14 @@ final class CoverageModifier extends ClassVisitor
    {
       static final String DATA_RECORDING_CLASS = "mockit/coverage/TestRun";
 
-      @NotNull final MethodWriter mw;
-      @NotNull final List<Label> visitedLabels;
-      @NotNull final List<Label> jumpTargetsForCurrentLine;
-      @NotNull final List<Integer> pendingBranches;
-      @NotNull final PerFileLineCoverage lineCoverageInfo;
-      boolean assertFoundInCurrentLine;
-      boolean potentialAssertFalseFound;
+      @NotNull protected final MethodWriter mw;
+      @NotNull protected final List<Label> visitedLabels;
+      @NotNull private final List<Label> jumpTargetsForCurrentLine;
+      @NotNull private final List<Integer> pendingBranches;
+      @NotNull private final PerFileLineCoverage lineCoverageInfo;
+      protected boolean assertFoundInCurrentLine;
+      private boolean potentialAssertFalseFound;
+      private int lineExpectingInstructionAfterJump;
 
       BaseMethodModifier(@NotNull MethodWriter mw)
       {
@@ -320,7 +321,9 @@ final class CoverageModifier extends ClassVisitor
          }
 
          mw.visitJumpInsn(opcode, label);
+         lineExpectingInstructionAfterJump = 0;
          generateCallToRegisterBranchTargetExecutionIfPending();
+         lineExpectingInstructionAfterJump = currentLine;
       }
 
       protected final boolean isConditionalJump(int opcode) { return opcode != GOTO && opcode != JSR; }
@@ -335,6 +338,14 @@ final class CoverageModifier extends ClassVisitor
             }
 
             pendingBranches.clear();
+         }
+
+         if (lineExpectingInstructionAfterJump > 0) {
+            if (currentLine > lineExpectingInstructionAfterJump) {
+               lineCoverageInfo.markLastLineSegmentAsEmpty(lineExpectingInstructionAfterJump);
+            }
+
+            lineExpectingInstructionAfterJump = 0;
          }
       }
 

@@ -80,14 +80,9 @@ final class LineSegmentsFormatter
          return;
       }
 
-      if (element == null && !firstElement.containsExecutableCodeBeforeEndOfLine()) {
-         firstElement.appendAllBefore(line, null);
-      }
-      else {
-         appendStartTag(segmentData);
-         firstElement.appendAllBefore(line, element);
-         appendEndTag(segmentData);
-      }
+      appendStartTag(segmentData);
+      firstElement.appendAllBefore(line, element);
+      appendEndTag(segmentData);
 
       segmentIndex++;
    }

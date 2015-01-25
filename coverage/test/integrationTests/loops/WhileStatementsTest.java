@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.loops;
@@ -19,7 +19,7 @@ public final class WhileStatementsTest extends CoverageTest
 
       assertLines(7, 12, 4);
       assertLine(7, 1, 1, 1);
-      assertLine(9, 2, 2, 6);
+      assertLine(9, 1, 1, 6);
       assertLine(10, 1, 1, 5);
       assertLine(12, 1, 1, 1);
 
@@ -66,8 +66,8 @@ public final class WhileStatementsTest extends CoverageTest
       tested.whileWithContinue(2);
 
       assertLines(20, 29, 6);
-      assertLine(20, 2, 2, 6);
-      assertLine(21, 2, 2, 3);
+      assertLine(20, 1, 1, 6);
+      assertLine(21, 1, 1, 3);
       assertLine(22, 1, 1, 2);
       assertLine(23, 1, 1, 2);
       assertLine(26, 1, 1, 1);
@@ -86,8 +86,8 @@ public final class WhileStatementsTest extends CoverageTest
       tested.whileWithBreak(2);
 
       assertLines(34, 42, 5);
-      assertLine(34, 2, 2, 4);
-      assertLine(35, 2, 2, 3);
+      assertLine(34, 1, 1, 4);
+      assertLine(35, 1, 1, 3);
       assertLine(36, 1, 1, 2);
       assertLine(39, 1, 1, 1);
       assertLine(42, 1, 1, 3);
@@ -107,8 +107,8 @@ public final class WhileStatementsTest extends CoverageTest
       tested.nestedWhile(1, 1);
 
       assertLines(47, 54, 4);
-      assertLine(47, 2, 2, 3);
-      assertLine(48, 2, 1, 1);
+      assertLine(47, 1, 1, 3);
+      assertLine(48, 1, 1, 1);
       assertLine(49, 1, 0, 0);
       assertLine(52, 1, 1, 1);
       assertLine(54, 1, 1, 2);
