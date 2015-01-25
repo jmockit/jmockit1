@@ -161,7 +161,8 @@ public final class LineElement implements Iterable<LineElement>
    public boolean isBranchingElement()
    {
       if (conditionalStatement == ConditionalStatement.FOR) {
-         int p = text.indexOf(';');
+         int p = text.indexOf(':');
+         if (p < 0) p = text.indexOf(';');
          return p >= 0 && text.trim().length() == 1;
       }
 
