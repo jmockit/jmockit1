@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -280,7 +280,7 @@ public final class VerificationsTest
 
       new Verifications() {{
          mock.setSomethingElse(with(new Delegate<String>() {
-            @Mock boolean isNotEmpty(String s) { return s.length() > 0; }
+            @Mock boolean isNotEmpty(String s) { return !s.isEmpty(); }
          }));
       }};
    }
@@ -288,7 +288,6 @@ public final class VerificationsTest
    @Test
    public void verifyThroughCapturedArguments()
    {
-      thrown.handleAssertionErrors();
       thrown.expect(AssertionError.class);
       thrown.expectMessage("not empty");
 
@@ -311,7 +310,7 @@ public final class VerificationsTest
 
       new Verifications() {{
          mock.setSomethingElse(with(new Delegate<String>() {
-            @Mock boolean isEmpty(String s) { return s.length() == 0; }
+            @Mock boolean isEmpty(String s) { return s.isEmpty(); }
          }));
       }};
    }
