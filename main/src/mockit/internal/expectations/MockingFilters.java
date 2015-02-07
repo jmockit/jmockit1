@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -46,10 +46,15 @@ public final class MockingFilters
       return isUnmockableInvocation(mockingFilters, name);
    }
 
+   @Contract("null, _ -> false")
    public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @NotNull String name)
    {
       if (mockingFilters == null) {
          return false;
+      }
+
+      if (mockingFilters.isEmpty()) {
+         return true;
       }
 
       int i = mockingFilters.indexOf(name);

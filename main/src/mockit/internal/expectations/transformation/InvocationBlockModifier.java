@@ -241,14 +241,17 @@ final class InvocationBlockModifier extends MethodVisitor
             visitMethodInstruction(opcode, owner, name, desc, itf);
          }
       }
-      else if (matcherCount == 0) {
-         checkForInvocationThatIsNotMockable(owner, name);
-         visitMethodInstruction(opcode, owner, name, desc, itf);
-      }
       else {
-         boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
-         visitMethodInstruction(opcode, owner, name, desc, itf);
-         handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
+         checkForInvocationThatIsNotMockable(owner, name);
+
+         if (matcherCount == 0) {
+            visitMethodInstruction(opcode, owner, name, desc, itf);
+         }
+         else {
+            boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
+            visitMethodInstruction(opcode, owner, name, desc, itf);
+            handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
+         }
       }
    }
 
