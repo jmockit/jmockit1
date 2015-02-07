@@ -99,6 +99,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       ITestNGMethod testNGMethod = testResult.getMethod();
       Class<?> testClass = testResult.getTestClass().getRealClass();
 
+      TestRun.clearNoMockingZone();
+
       if (!invokedMethod.isTestMethod()) {
          beforeConfigurationMethod(testNGMethod, testClass);
          return;
@@ -222,7 +224,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
       finally {
          TestRun.finishCurrentTestExecution();
-         TestRun.exitNoMockingZone();
       }
    }
 

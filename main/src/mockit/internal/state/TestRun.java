@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -96,6 +96,7 @@ public final class TestRun
 
    public static void enterNoMockingZone() { noMockingCount.set(1); }
    public static void exitNoMockingZone()  { noMockingCount.set(-1); }
+   public static void clearNoMockingZone() { noMockingCount.remove(); }
 
    public static void setRunningIndividualTest(@Nullable Object testInstance)
    {
