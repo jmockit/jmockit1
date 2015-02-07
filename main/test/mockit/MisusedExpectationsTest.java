@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
+
+import java.util.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -109,7 +111,6 @@ public final class MisusedExpectationsTest
    @Test
    public void recordSameInvocationInNotStrictExpectationBlockThenInStrictOne()
    {
-      thrown.handleAssertionErrors();
       thrown.expect(AssertionError.class);
 
       new Expectations() {{
@@ -233,6 +234,7 @@ public final class MisusedExpectationsTest
    {
       @Override String doSomething(boolean b) { return "overridden"; }
       void doSomethingElse(Object o) {}
+      Blah getBlah() { return null; }
    }
 
    @SuppressWarnings("UnnecessarySuperQualifier")
@@ -413,4 +415,39 @@ public final class MisusedExpectationsTest
 
       assertEquals("test cut=0", name);
    }
+
+   @Test @Ignore("because Blah is mocked, the result gets confused")
+   public void recordResultByInstantiatingMockedClass(@Mocked final BlahBlah mock2)
+   {
+      final Blah[] blahs = new Blah[1];
+
+      new NonStrictExpectations() {{
+         mock2.getBlah();
+         result = blahs[0] = new Blah();
+      }};
+
+      Blah blah = mock2.getBlah();
+
+      assertSame(blahs[0], blah);
+   }
+
+   // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
+
+   @Test
+   public void attemptToMockString(@Mocked String s) { assertNotNull(s); }
+
+   @Test
+   public void attemptToMockStringBuilder(@Mocked StringBuilder s) { assertNotNull(s); }
+
+   @Test
+   public void attemptToMockStringBuffer(@Mocked StringBuffer s) { assertNotNull(s); }
+
+   @Test
+   public void attemptToMockArrayList(@Mocked ArrayList<?> list) { assertNotNull(list); }
+
+   @Test
+   public void attemptToMockLinkedList(@Mocked LinkedList<?> list) { assertNotNull(list); }
+
+   @Test
+   public void attemptToMockHashMap(@Mocked HashMap<?, ?> map) { assertNotNull(map); }
 }

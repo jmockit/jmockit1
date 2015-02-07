@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -88,9 +88,8 @@ public final class CascadingParametersTest
       Entry<Baz, List<Integer>> x = foo.returnTypeWithMultipleTypeVariables();
       assertNotNull(x);
 
-      // Un-mockable return type:
       HashMap<?, ?> map = foo.getMap();
-      assertNull(map);
+      assertNotNull(map);
    }
 
    @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -267,9 +267,9 @@ class BaseTypeRedefinition
       }
 
       boolean redefined = redefineMethodsAndConstructorsInTargetType();
+      instanceFactory = createInstanceFactory(typeToMock);
 
       if (redefined) {
-         instanceFactory = createInstanceFactory(typeToMock);
          storeRedefinedClassesInCache(mockedClassId);
       }
    }
