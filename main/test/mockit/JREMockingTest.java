@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -99,6 +99,29 @@ public final class JREMockingTest
       Thread.sleep(delay);
       long t1 = System.currentTimeMillis();
       assertTrue(t1 - t0 >= delay);
+   }
+
+   @Test
+   public void mockPackagePrivateMethodsInJREClass(@Mocked(cascading = false) AWTEvent awtEvent)
+   {
+       Object ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
+       assertNull(ctx);
+   }
+
+   @Ignore @Test
+   public void recordExpectationOnNativeMethodForPartiallyMockedClass()
+   {
+      new Expectations(System.class) {{
+         System.currentTimeMillis();
+         result = 123;
+      }};
+
+      long t0 = System.nanoTime();
+      long timeMillis = System.currentTimeMillis();
+      long t1 = System.nanoTime();
+
+      assertEquals(123, timeMillis);
+      assertNotEquals(t0, t1);
    }
 
    // Mocking of java.lang.Thread and native methods //////////////////////////////////////////////////////////////////
@@ -267,6 +290,8 @@ public final class JREMockingTest
       assertTrue(task.doSomething());
    }
 
+   // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
+
    @Injectable FileOutputStream stream;
 
    // This interferes with the test runner if regular mocking is applied.
@@ -274,18 +299,12 @@ public final class JREMockingTest
    public void dynamicMockingOfFileOutputStreamThroughMockField() throws Exception
    {
       new Expectations() {{
+         //noinspection ConstantConditions
          stream.write((byte[]) any);
       }};
 
       stream.write("Hello world".getBytes());
    }
-
-   @Test
-   public void mockPackagePrivateMethodsInJREClass(@Mocked(cascading = false) AWTEvent awtEvent)
-   {
-       Object ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
-       assertNull(ctx);
-   }    
 
    // Mocking of java.lang.Object methods /////////////////////////////////////////////////////////////////////////////
 
@@ -389,6 +408,18 @@ public final class JREMockingTest
    // Un-mockable JRE methods/constructors ////////////////////////////////////////////////////////////////////////////
 
    @Test
+   public void attemptToRecordExpectationOnJREClassHavingAllMethodsExcludedFromMocking(@Mocked final ArrayList<?> list)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("record");
+      thrown.expectMessage("unmockable method");
+
+      new Expectations() {{
+         list.get(anyInt);
+      }};
+   }
+
+   @Test
    public void attemptToRecordExpectationOnJREMethodThatIsExcludedFromMocking(@Mocked System system)
    {
       thrown.expect(IllegalArgumentException.class);
@@ -397,6 +428,19 @@ public final class JREMockingTest
 
       new Expectations() {{
          System.getProperties();
+      }};
+   }
+
+   @Test
+   public void attemptToRecordExpectationOnJREMethodExcludedFromMockingWhenUsingArgumentMatcher(
+      @Mocked final Hashtable<?, ?> map)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("record");
+      thrown.expectMessage("unmockable method");
+
+      new Expectations() {{
+         map.containsKey(any);
       }};
    }
 
