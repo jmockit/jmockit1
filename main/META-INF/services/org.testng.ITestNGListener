@@ -1,1 +1,1 @@
-mockit.integration.testng.Initializer
+mockit.integration.testng.internal.TestNGRunnerDecorator

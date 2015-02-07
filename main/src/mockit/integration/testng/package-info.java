@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 
 /**
- * Provides integration with <em>TestNG</em> test runners, for version 5.14 or newer.
- * Contains the {@link mockit.integration.testng.Initializer} test listener class.
- * <p/>
+ * Provides integration with <em>TestNG</em> test runners, for version 6.2 or newer.
  * This integration provides the following benefits to test code:
  * <ol>
  * <li>

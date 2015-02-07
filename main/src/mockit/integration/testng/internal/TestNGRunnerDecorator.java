@@ -11,6 +11,7 @@ import org.testng.annotations.*;
 import mockit.*;
 import mockit.integration.internal.*;
 import mockit.internal.*;
+import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 import static mockit.internal.util.Utilities.NO_ARGS;
@@ -20,7 +21,7 @@ import org.testng.*;
 import org.testng.internal.Parameters;
 
 /**
- * Provides callbacks to be called by the TestNG 5.14+ test runner for each test execution.
+ * Provides callbacks to be called by the TestNG 6.2+ test runner for each test execution.
  * JMockit will then assert any expectations set during the test, including those specified through {@link Mock} and
  * those recorded in {@link Expectations} subclasses.
  * <p/>
@@ -81,16 +82,9 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
    @NotNull private final ThreadLocal<SavePoint> savePoint;
 
-   public static void registerWithTestNG(@NotNull TestNG testNG)
-   {
-      Object runnerDecorator = new TestNGRunnerDecorator();
-      testNG.addListener(runnerDecorator);
-   }
-
    public TestNGRunnerDecorator()
    {
       savePoint = new ThreadLocal<SavePoint>();
-      new MockParameters();
    }
 
    @Override
@@ -338,7 +332,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    @Override
-   public void onExecutionStart() {}
+   public void onExecutionStart()
+   {
+      if (Startup.initializeIfPossible()) {
+         new MockParameters();
+      }
+   }
 
    @Override
    public void onExecutionFinish()

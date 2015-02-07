@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -11,7 +11,6 @@ import org.jetbrains.annotations.*;
 import mockit.*;
 import mockit.integration.junit4.internal.*;
 import mockit.integration.robolectric.internal.*;
-import mockit.integration.testng.internal.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 
@@ -24,10 +23,6 @@ final class JMockitInitialization
    void initialize()
    {
       MockingBridge.preventEventualClassLoadingConflicts();
-
-      if (MockTestNG.hasDependenciesInClasspath()) {
-         new MockTestNG();
-      }
 
       if (MockFrameworkMethod.hasDependenciesInClasspath()) {
          loadInternalStartupMocksForJUnitIntegration();

@@ -194,7 +194,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.8</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.17</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>

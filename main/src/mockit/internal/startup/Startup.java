@@ -221,7 +221,7 @@ public final class Startup
          }
       }
 
-      return false;
+      return true;
    }
 
    public static void retransformClass(@NotNull Class<?> aClass)
