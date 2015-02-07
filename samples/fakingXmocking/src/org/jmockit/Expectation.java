@@ -2,7 +2,7 @@
  * Copyright (c) 2014 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit;
+package org.jmockit;
 
 import java.util.function.*;
 
@@ -11,10 +11,16 @@ import java.util.function.*;
  */
 public final class Expectation
 {
+   @FunctionalInterface
    public interface Action { void perform(Object... args); }
+
+   @FunctionalInterface
    public interface Delegate { Object delegate(Object... args); }
 
+   @FunctionalInterface
    public interface Execution { Object proceed(Object... replacementArgs); }
+
+   @FunctionalInterface
    public interface Advice { Object advice(Execution execution, Object... args); }
 
    private Expectation() {}

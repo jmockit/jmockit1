@@ -11,23 +11,32 @@ import java.util.function.*;
  */
 public final class Expectations
 {
+   @FunctionalInterface
    public interface Block { void perform(Spec s); }
+
+   @FunctionalInterface
    public interface Action { void perform(Object... args); }
+
+   @FunctionalInterface
    public interface Delegate { Object delegate(Object... args); }
+
+   @FunctionalInterface
    public interface Execution { Object proceed(Object... replacementArgs); }
+
+   @FunctionalInterface
    public interface Advice { Object advice(Execution execution, Object... args); }
 
    private Expectations() {}
 
-   public static void record(Block expectations) { expectations.perform(new Spec()); }
-   public static void record(Object toPartiallyMock, Block expectations) {}
-   public static void record(Class<?> toPartiallyMock, Block expectations) {}
+   public void record(Block expectations) { expectations.perform(new Spec()); }
+   public void record(Object toPartiallyMock, Block expectations) {}
+   public void record(Class<?> toPartiallyMock, Block expectations) {}
 
-   public static void verify(Block expectations) { expectations.perform(new Spec()); }
-   public static void verifyInOrder(Block expectations) {}
-   public static void verifyAll(Block expectations) {}
-   public static void verifyAll(Object mock, Block expectations) {}
-   public static void verifyAll(Class<?> mockedType, Block expectations) {}
+   public void verify(Block expectations) { expectations.perform(new Spec()); }
+   public void verifyInOrder(Block expectations) {}
+   public void verifyAll(Block expectations) {}
+   public void verifyAll(Object mock, Block expectations) {}
+   public void verifyAll(Class<?> mockedType, Block expectations) {}
 
    public static final class Spec
    {
