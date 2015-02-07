@@ -16,11 +16,11 @@ import static org.junit.Assert.*;
  * class, with actual Web access. Therefore, they can only be executed successfully in a machine with free access
  * to the Web.
  * <p/>
- * That said, the <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html">JMockit Mockups</a> API provides a
+ * That said, the <a href="http://jmockit.org/tutorial/StateBasedTesting.html">JMockit Mockups</a> API provides a
  * convenient way to <em>fake</em> the Internet connection, with simulated Web sites.
  * The code for the fake behavior is implemented in a {@linkplain CurrencyConversionHttpClientFake mock-up class}, which
  * can be set up for a test run through
- * <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#widerScopes">external application</a>.
+ * <a href="http://jmockit.org/tutorial/StateBasedTesting.html#widerScopes">external application</a>.
  * <p/>
  * To execute these tests with fake Web access, run with
  * "<code>-Djmockit-mocks=fakingXmocking.original.CurrencyConversionHttpClientFake</code>".

@@ -20,7 +20,7 @@ package mockit;
  * @see #StrictExpectations()
  * @see #StrictExpectations(Object...)
  * @see #StrictExpectations(Integer, Object...)
- * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
  */
 public abstract class StrictExpectations extends Expectations
 {
@@ -61,7 +61,7 @@ public abstract class StrictExpectations extends Expectations
     * interface, or if given a value/instance of such a type
     *
     * @see #StrictExpectations(Integer, Object...)
-    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
     */
    protected StrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -81,7 +81,7 @@ public abstract class StrictExpectations extends Expectations
     * partial mocking
     *
     * @see #StrictExpectations()
-    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
     */
    protected StrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {

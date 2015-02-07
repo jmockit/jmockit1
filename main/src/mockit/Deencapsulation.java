@@ -17,8 +17,8 @@ import mockit.internal.util.*;
  * @see #setField(Object, String, Object)
  * @see #invoke(Object, String, Object...)
  * @see #newInstance(String, Object...)
- * @see <a href="http://jmockit.github.io/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
- * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
+ * @see <a href="http://jmockit.org/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
+ * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
  */
 @SuppressWarnings("ConstantConditions")
 public final class Deencapsulation

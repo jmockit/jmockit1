@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 
@@ -17,9 +17,9 @@
  * the definition of fake implementations for arbitrary classes.
  * <p/>
  * For a description with examples of the <em>Expectations</em> API, see the
- * "<a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html">Writing behavior-based tests</a>" chapter in
- * the Tutorial.
- * For the <em>Mockups</em> API, see the "<a href="http://jmockit.github.io/tutorial/StateBasedTesting.html">Writing
+ * "<a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html">Writing behavior-based tests</a>" chapter in the
+ * Tutorial.
+ * For the <em>Mockups</em> API, see the "<a href="http://jmockit.org/tutorial/StateBasedTesting.html">Writing
  * state-based tests and fakes</a>" chapter.
  */
 package mockit;

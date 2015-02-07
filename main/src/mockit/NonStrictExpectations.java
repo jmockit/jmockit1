@@ -15,7 +15,7 @@ package mockit;
  * @see #NonStrictExpectations()
  * @see #NonStrictExpectations(Object...)
  * @see #NonStrictExpectations(Integer, Object...)
- * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#expectation">Tutorial</a>
  */
 public abstract class NonStrictExpectations extends Expectations
 {
@@ -56,7 +56,7 @@ public abstract class NonStrictExpectations extends Expectations
     * interface, or if given a value/instance of such a type
     *
     * @see #NonStrictExpectations(Integer, Object...)
-    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
     */
    protected NonStrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -79,7 +79,7 @@ public abstract class NonStrictExpectations extends Expectations
     * partial mocking
     *
     * @see #NonStrictExpectations()
-    * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
     */
    protected NonStrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {

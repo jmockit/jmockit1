@@ -29,7 +29,7 @@ package mockit;
  * @see #FullVerifications(Integer, Object...)
  * @see #unverifiedInvocations()
  * @see FullVerificationsInOrder
- * @see <a href="http://jmockit.github.io/tutorial/BehaviorBasedTesting.html#fullVerification">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#fullVerification">Tutorial</a>
  */
 public abstract class FullVerifications extends Verifications
 {

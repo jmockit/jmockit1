@@ -89,7 +89,7 @@ import org.jetbrains.annotations.*;
  * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #tearDown()
- * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#setUp">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
 {
@@ -336,7 +336,7 @@ public abstract class MockUp<T>
     * <p/>
     * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
-    * @see <a href="http://jmockit.github.io/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
     */
    public final T getMockInstance()
    {
