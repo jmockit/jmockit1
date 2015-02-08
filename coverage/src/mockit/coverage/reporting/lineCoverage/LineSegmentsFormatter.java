@@ -17,17 +17,18 @@ import org.jetbrains.annotations.*;
 final class LineSegmentsFormatter
 {
    @Nullable private final ListOfCallPoints listOfCallPoints;
-   @NotNull private final StringBuilder line;
-   private int lineNumber;
+   @NotNull private final StringBuilder formattedLine;
 
    // Helper fields:
-   @Nullable private LineElement element;
+   private int lineNumber;
    private int segmentIndex;
+   private LineSegmentData segmentData;
+   @Nullable private LineElement element;
 
-   LineSegmentsFormatter(boolean withCallPoints, @NotNull StringBuilder line)
+   LineSegmentsFormatter(boolean withCallPoints, @NotNull StringBuilder formattedLine)
    {
       listOfCallPoints = withCallPoints ? new ListOfCallPoints() : null;
-      this.line = line;
+      this.formattedLine = formattedLine;
    }
 
    void formatSegments(@NotNull LineParser lineParser, @NotNull LineCoverageData lineData)
@@ -37,89 +38,82 @@ final class LineSegmentsFormatter
       List<BranchCoverageData> branchData = lineData.getBranches();
       int numSegments = lineData.getNumberOfSegments();
 
-      element = lineParser.getInitialElement().appendUntilNextCodeElement(line);
+      element = lineParser.getInitialElement().appendUntilNextCodeElement(formattedLine);
 
       segmentIndex = 0;
-      appendUntilFirstElementAfterNextBranchingPoint(lineData);
+      segmentData = lineData;
+      appendUntilNextBranchingPoint();
 
       while (element != null && segmentIndex < numSegments) {
-         LineSegmentData segmentData = segmentIndex == 0 ? lineData : branchData.get(segmentIndex - 1);
-         element = element.appendUntilNextCodeElement(line);
-         appendUntilFirstElementAfterNextBranchingPoint(segmentData);
+         segmentData = segmentIndex == 0 ? lineData : branchData.get(segmentIndex - 1);
+         element = element.appendUntilNextCodeElement(formattedLine);
+         appendUntilNextBranchingPoint();
       }
 
       if (element != null) {
-         element.appendAllBefore(line, null);
+         element.appendAllBefore(formattedLine, null);
       }
 
-      line.append("</pre>");
+      formattedLine.append("</pre>");
 
       if (listOfCallPoints != null && lineData.containsCallPoints()) {
-         line.append(listOfCallPoints.getContents());
+         formattedLine.append(listOfCallPoints.getContents());
       }
    }
 
-   private void appendUntilFirstElementAfterNextBranchingPoint(@NotNull LineSegmentData segmentData)
+   private void appendUntilNextBranchingPoint()
    {
       if (element != null) {
          LineElement firstElement = element;
          element = element.findNextBranchingPoint();
 
-         appendToFormattedLine(firstElement, segmentData);
+         appendToFormattedLine(firstElement);
 
          if (element != null && element.isBranchingElement()) {
-            line.append(element.getText());
+            formattedLine.append(element.getText());
             element = element.getNext();
          }
       }
    }
 
-   private void appendToFormattedLine(@NotNull LineElement firstElement, @NotNull LineSegmentData segmentData)
+   private void appendToFormattedLine(@NotNull LineElement firstElement)
    {
-      if (firstElement == element) {
-         return;
+      if (firstElement != element) {
+         appendStartTag();
+         firstElement.appendAllBefore(formattedLine, element);
+         appendEndTag();
+
+         segmentIndex++;
       }
-
-      appendStartTag(segmentData);
-      firstElement.appendAllBefore(line, element);
-      appendEndTag(segmentData);
-
-      segmentIndex++;
    }
 
-   private void appendStartTag(@NotNull LineSegmentData segmentData)
+   private void appendStartTag()
    {
-      line.append("<span id='l").append(lineNumber).append('s').append(segmentIndex).append("' ");
-
-      appendTooltipWithExecutionCounts(segmentData);
+      formattedLine.append("<span id='l").append(lineNumber).append('s').append(segmentIndex);
+      formattedLine.append("' title='Executions: ").append(segmentData.getExecutionCount()).append("' ");
 
       if (segmentData.isCovered()) {
          if (segmentData.containsCallPoints()) {
-            line.append("class='covered cp' onclick='showHide(this,").append(segmentIndex).append(")'>");
+            formattedLine.append("class='covered cp' onclick='showHide(this,").append(segmentIndex).append(")'>");
          }
          else {
-            line.append("class='covered'>");
+            formattedLine.append("class='covered'>");
          }
       }
       else {
-         line.append("class='uncovered'>");
+         formattedLine.append("class='uncovered'>");
       }
    }
 
-   private void appendTooltipWithExecutionCounts(@NotNull LineSegmentData segmentData)
+   private void appendEndTag()
    {
-      line.append("title='Executions: ").append(segmentData.getExecutionCount()).append("' ");
-   }
+      int i = formattedLine.length() - 1;
 
-   private void appendEndTag(@NotNull LineSegmentData segmentData)
-   {
-      int i = line.length() - 1;
-
-      while (isWhitespace(line.charAt(i))) {
+      while (isWhitespace(formattedLine.charAt(i))) {
          i--;
       }
 
-      line.insert(i + 1, "</span>");
+      formattedLine.insert(i + 1, "</span>");
 
       if (listOfCallPoints != null) {
          List<CallPoint> callPoints = segmentData.getCallPoints();

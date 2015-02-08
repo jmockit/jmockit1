@@ -12,7 +12,7 @@ import org.jetbrains.annotations.*;
 
 public final class LineElement implements Iterable<LineElement>
 {
-   private static final List<String> CONDITIONAL_OPERATORS = asList("||", "&&", ":", "else");
+   private static final List<String> CONDITIONAL_OPERATORS = asList("||", "&&", ":", "else", "?");
    private static final Pattern OPEN_TAG = Pattern.compile("<");
    private static final NoSuchElementException LAST_ELEMENT_REACHED = new NoSuchElementException();
 
@@ -71,7 +71,8 @@ public final class LineElement implements Iterable<LineElement>
    @Nullable public LineElement getNext() { return next; }
    void setNext(@Nullable LineElement next) { this.next = next; }
 
-   @Nullable public LineElement getNextCodeElement()
+   @Nullable
+   public LineElement getNextCodeElement()
    {
       if (next != null) {
          for (LineElement element : next) {
@@ -90,7 +91,8 @@ public final class LineElement implements Iterable<LineElement>
       closingTag = desiredClosingTag;
    }
 
-   @Nullable public LineElement appendUntilNextCodeElement(@NotNull StringBuilder line)
+   @Nullable
+   public LineElement appendUntilNextCodeElement(@NotNull StringBuilder line)
    {
       LineElement element = this;
 
@@ -189,7 +191,8 @@ public final class LineElement implements Iterable<LineElement>
       return balance;
    }
 
-   @Nullable public LineElement findWord(@NotNull String word)
+   @Nullable
+   public LineElement findWord(@NotNull String word)
    {
       for (LineElement element : this) {
          if (element.isCode() && word.equals(element.text)) {

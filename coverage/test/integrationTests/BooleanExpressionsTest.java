@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests;
@@ -142,6 +142,13 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertFalse(tested.returnsResultPreviouslyComputedFromInput(false, 0));
       assertTrue(tested.returnsResultPreviouslyComputedFromInput(true, 1));
       assertTrue(tested.returnsResultPreviouslyComputedFromInput(true, -1));
+
+      assertLines(77, 86, 5);
+      assertLine(77, 3, 3, 4, 2, 2);
+      assertLine(80, 2, 2, 4, 3);
+      assertLine(82, 1, 1, 1);
+      assertLine(83, 1, 1, 1);
+      assertLine(86, 1, 1, 4);
 
       findMethodData(77);
       assertPaths(4, 3, 4);
