@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2006-2014 Rogério Liesenfeld
+  ~ Copyright (c) 2006-2015 Rogério Liesenfeld
   ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
   -->
 <project name="jmockit" basedir="." default="printDirections">
@@ -75,7 +75,8 @@
             <attribute name="Can-Retransform-Classes" value="true"/>
             <attribute name="Implementation-Version" value="${version}"/>
          </manifest>
-         <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.Initializer"/>
+         <service
+            type="org.testng.ITestNGListener" provider="mockit.integration.testng.internal.TestNGRunnerDecorator"/>
       </jar>
    </target>
    <target name="createjar-coverage">
