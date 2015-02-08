@@ -334,9 +334,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    @Override
    public void onExecutionStart()
    {
-      if (Startup.initializeIfPossible()) {
-         new MockParameters();
-      }
+      Startup.initializeIfPossible();
+      new MockParameters();
    }
 
    @Override
@@ -348,7 +347,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
       }
       finally {
-         TestRun.exitNoMockingZone();
+         // Maven Surefire, somehow, runs these methods twice per test run.
+         TestRun.clearNoMockingZone();
       }
    }
 }

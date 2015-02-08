@@ -191,7 +191,7 @@ public final class Startup
       return instrumentation;
    }
 
-   public static boolean initializeIfPossible()
+   public static void initializeIfPossible()
    {
       if (getInstrumentation() == null) {
          ClassLoader currentCL = Startup.class.getClassLoader();
@@ -208,8 +208,6 @@ public final class Startup
             if (initialized && !usingCustomCL) {
                applyStartupMocks();
             }
-
-            return initialized;
          }
          catch (RuntimeException e) {
             e.printStackTrace(); // makes sure the exception gets printed at least once
@@ -220,8 +218,6 @@ public final class Startup
             throw new RuntimeException(e);
          }
       }
-
-      return true;
    }
 
    public static void retransformClass(@NotNull Class<?> aClass)
