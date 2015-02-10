@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -22,15 +22,18 @@ public final class ListOfCallPoints
 
    public void insertListOfCallPoints(@Nullable List<CallPoint> callPoints)
    {
-      if (callPoints == null) {
-         return;
-      }
-
       if (content.length() == 0) {
          content.append(EOL).append("      ");
       }
 
-      content.append("  <ol style='display:none'>").append(EOL);
+      content.append("  <ol style='display:none'>");
+
+      if (callPoints == null) {
+         content.append("</ol>").append(EOL).append("      ");
+         return;
+      }
+
+      content.append(EOL);
 
       CallPoint currentCP = callPoints.get(0);
       appendTestMethod(currentCP.getStackTraceElement());
