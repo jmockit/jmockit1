@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 var cellShown;
@@ -50,6 +50,7 @@ function showHide(callPoints, listIndex)
    }
 
    var list = tableCell.getElementsByTagName('ol')[listIndex].style;
+   list.margin = "1ex 2em 1ex " + (4 + listIndex) + "em";
    list.display = list.display == 'none' ? 'block' : 'none';
 }
 
