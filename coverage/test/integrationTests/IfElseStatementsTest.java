@@ -252,4 +252,15 @@ public final class IfElseStatementsTest extends CoverageTest
       assertPath(8, 0);
       assertPath(9, 1);
    }
+
+   @Test
+   public void ifSpanningMultipleLines()
+   {
+      tested.ifSpanningMultipleLines(true, 0);
+      tested.ifSpanningMultipleLines(false, -1);
+
+      assertLine(179, 2, 2, 2, 1);
+      assertLine(183, 1, 1, 1);
+      assertLine(185, 1, 1, 2);
+   }
 }

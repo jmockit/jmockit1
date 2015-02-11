@@ -173,4 +173,14 @@ public final class IfElseStatements
          System.gc();
       }
    }
+
+   void ifSpanningMultipleLines(boolean b, int i)
+   {
+      if (
+         b ||
+         i > 0
+      ) {
+         System.gc();
+      }
+   }
 }
