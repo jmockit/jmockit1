@@ -75,7 +75,8 @@ public final class ListOfCallPoints
       }
    }
 
-   @NotNull public String getContents()
+   @NotNull
+   public String getContents()
    {
       String result = content.toString();
       content.setLength(0);
