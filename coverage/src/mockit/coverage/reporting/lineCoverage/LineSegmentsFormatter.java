@@ -56,7 +56,7 @@ final class LineSegmentsFormatter
 
       formattedLine.append("</pre>");
 
-      if (listOfCallPoints != null && lineData.containsCallPoints()) {
+      if (listOfCallPoints != null) {
          formattedLine.append(listOfCallPoints.getContents());
       }
    }
