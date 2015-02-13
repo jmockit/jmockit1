@@ -8,6 +8,7 @@ import java.awt.*;
 import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.Field;
+import java.security.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -102,10 +103,10 @@ public final class JREMockingTest
    }
 
    @Test
-   public void mockPackagePrivateMethodsInJREClass(@Mocked(cascading = false) AWTEvent awtEvent)
+   public void mockPackagePrivateMethodsInJREClass(@Mocked AWTEvent awtEvent)
    {
-       Object ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
-       assertNull(ctx);
+      AccessControlContext ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
+      ctx.checkPermission(null);
    }
 
    @Ignore @Test
