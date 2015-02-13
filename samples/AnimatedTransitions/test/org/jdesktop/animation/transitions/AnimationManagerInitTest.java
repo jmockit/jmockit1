@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -18,8 +18,8 @@ import org.jdesktop.animation.timing.*;
 public final class AnimationManagerInitTest
 {
    @Mocked Animator animator;
-   @Mocked(cascading = false) AnimationState animationState;
-   @Mocked(cascading = false) ComponentState componentState;
+   @Mocked AnimationState animationState;
+   @Mocked ComponentState componentState;
 
    AnimationManager manager;
    JComponent component;

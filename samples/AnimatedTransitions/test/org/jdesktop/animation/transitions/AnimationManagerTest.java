@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -195,8 +195,7 @@ public final class AnimationManagerTest
    }
 
    @Test
-   public void setupEndForComponentWithDifferentStartAndEndStates(
-      @Mocked(cascading = false) final AnimationState animationState)
+   public void setupEndForComponentWithDifferentStartAndEndStates(@Mocked final AnimationState animationState)
    {
       final JButton component = new JButton();
       AnimationManager manager = newAnimationManagerWithAComponent(component);
