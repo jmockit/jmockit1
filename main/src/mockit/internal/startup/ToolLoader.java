@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -35,7 +35,10 @@ final class ToolLoader extends ClassVisitor
 
       try {
          cr.accept(this, SKIP_DEBUG + SKIP_FRAMES);
-         System.out.println("JMockit: loaded external tool " + toolClassName);
+
+         if (!toolClassName.startsWith("mockit.")) {
+            System.out.println("JMockit: loaded external tool " + toolClassName);
+         }
       }
       catch (IllegalStateException ignore) {}
    }
