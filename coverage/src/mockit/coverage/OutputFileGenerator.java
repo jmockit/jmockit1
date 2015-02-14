@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -94,8 +94,7 @@ final class OutputFileGenerator
          String classesRegexp = Configuration.getProperty("classes");
 
          if (classesRegexp == null) {
-            System.out.print(
-               "classes exercised by tests are in a directory included in the runtime classpath");
+            System.out.print("classes exercised by tests are in a directory included in the runtime classpath");
          }
          else {
             System.out.print(

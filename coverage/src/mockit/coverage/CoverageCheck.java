@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -96,7 +96,7 @@ final class CoverageCheck
    {
       String configuration = Configuration.getProperty("check", "");
 
-      if (configuration.length() == 0) {
+      if (configuration.isEmpty()) {
          thresholds = null;
          return;
       }
@@ -117,6 +117,7 @@ final class CoverageCheck
 
       for (final Threshold threshold : thresholds) {
          Metrics.performAction(new Metrics.Action() {
+            @Override
             public void perform(@NotNull Metrics metric)
             {
                allThresholdsSatisfied &= threshold.verifyMinimum(metric);
