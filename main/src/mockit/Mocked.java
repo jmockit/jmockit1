@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -11,13 +11,19 @@ import java.lang.annotation.*;
  * <em>mock parameter</em>; in either case, the declared type of the field/parameter is a <em>mocked type</em>, whose
  * instances are <em>mocked instances</em>.
  * <p/>
+ * Mocked types can also be introduced by other annotations: {@linkplain Injectable @Injectable},
+ * {@link Capturing @Capturing}.
+ * Their effect is to <em>extend</em> and/or <em>constrain</em> the mocking capabilities here specified.
+ * <p/>
  * Any type can be mocked, except for primitive and array types.
  * A mocked instance of that type is automatically created and assigned to the mock field/parameter, for use when
- * {@linkplain mockit.Expectations recording} or {@linkplain mockit.Verifications verifying} expectations.
+ * {@linkplain Expectations recording} and/or {@linkplain Verifications verifying} expectations.
+ * For a mock <em>field</em>, the test itself can provide the instance by declaring the field as {@code final} and
+ * assigning it the desired instance (or {@code null}).
  * <p/>
- * The effect of declaring a {@code @Mocked} type, by default, is that all new instances of that type, as well as those
- * previously created, will also be mocked instances; this will last for the duration of each test where the associated
- * mock field/parameter is in scope.
+ * The effect of declaring a {@code @Mocked} type, <em>by default</em>, is that all new instances of that type, as well
+ * as those previously created, will also be mocked instances; this will last for the duration of each test where the
+ * associated mock field/parameter is in scope.
  * Also, all methods of the mocked type will be mocked, unless a subset is {@linkplain #value explicitly specified}.
  * <p/>
  * When the mocked type is a class, all super-classes up to but not including {@code java.lang.Object} are also mocked.
@@ -30,25 +36,22 @@ import java.lang.annotation.*;
  * While a method or constructor is mocked, an invocation does not result in the execution of the original code, but in
  * a (generated) call into JMockit, which then responds with either a default or a <em>recorded</em>
  * {@linkplain Expectations#result result} (or with a {@linkplain Expectations#times constraint} violation, if the
- * invocation is deemed to be unexpected - which depends on a few factors discussed elsewhere).
+ * invocation is deemed to be unexpected).
+ * <p/>
+ * Mocking will automatically <em>cascade</em> into the return types of all non-void methods belonging to the mocked
+ * type, except for non-eligible ones (primitive wrappers, {@code String}, and collections/maps).
+ * When needed, such cascaded returns can be overridden by explicitly recording a return value for the mocked method.
+ * If there is a mock field/parameter with the same type (or a subtype) of some cascaded type, then the original
+ * instance from that mock field/parameter will be used as the cascaded instance, rather than a new one being created;
+ * this applies to all cascading levels, and even to the type of the mock field/parameter itself (ie, if a method in
+ * class/interface "<code>A</code>" has return type {@code A}, then it will return itself by default).
+ * Finally, when new cascaded instances are created, {@linkplain Injectable @Injectable} semantics apply.
  * <p/>
  * Static <em>class initializers</em> (including assignments to {@code static} fields) of a mocked class are not
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
- * <p/>
- * Normally, a new mocked instance gets created and assigned to a declared mock field/parameter automatically.
- * Alternatively, and only in the case of a mock <em>field</em>, the test itself can provide the instance by declaring
- * the field as {@code final} and explicitly assigning it with the desired instance (which will still be a mocked
- * instance); if no instance is necessary (perhaps because only static methods or constructors will be called), then
- * this final field can receive the {@code null} reference.
- * Mock parameters, on the other hand, will always receive a new mocked instance whenever the test method is executed by
- * the test runner.
- * <p/>
- * By default, mocking will cascade into the return types of all non-void methods belonging to the mocked type.
- * If needed, this {@link #cascading} process can be explicitly disabled on a per-mocked type basis.
  *
  * @see #value
  * @see #stubOutClassInitialization
- * @see #cascading
  * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#declaration">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -99,20 +102,10 @@ public @interface Mocked
    /**
     * Indicates whether the mocked type is <em>cascading</em> or not, ie, whether its non-void methods should return
     * mocked instances or {@code null}; {@code true} by default.
-    * <p/>
-    * A non-<code>void</code> mocked method which returns a reference type will produce, if and when called, a
-    * <em>cascaded</em> mocked instance according to its return type.
-    * Methods returning {@code String}, primitive wrappers, or collection types, however, are <em>not</em> cascaded,
-    * producing non-mocked default values instead (in either case, a <em>recorded</em> return value for the method will
-    * always produce the recorded value).
-    * This cascaded mocking process means that mocked methods will never return {@code null}, unless {@code null} is
-    * explicitly recorded as the result.
-    * <p/>
-    * If a mock field/parameter is explicitly declared with the same type (or, alternatively, a subtype) of some
-    * cascaded type, then the instance originally assigned to the mock field/parameter will be used as the cascaded
-    * instance.
-    * This allows expectations on intermediate cascaded instances to be recorded/verified when needed, without having
-    * to specify the full method call chain from the "root" instance to the "leaf" instance of interest.
+    *
+    * @deprecated Simply remove existing uses of this attribute. If really needed, an expectation can be recorded with
+    * "{@code result = null}", in order to disable cascading from a particular method.
     */
+   @Deprecated
    boolean cascading() default true;
 }
