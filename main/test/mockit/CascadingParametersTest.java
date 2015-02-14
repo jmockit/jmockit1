@@ -312,23 +312,24 @@ public final class CascadingParametersTest
 
    @Test
    public void recordAndVerifyExpectationsOnCascadedMocks(
-      @Mocked Socket anySocket, @Mocked final SocketChannel cascadedSocketChannel)
+      @Mocked Socket anySocket, @Mocked final SocketChannel cascadedChannel)
       throws Exception
    {
-      new Expectations() {{ cascadedSocketChannel.isConnected(); result = false; }};
+      new Expectations() {{ cascadedChannel.isConnected(); result = false; }};
 
-      Socket s = new Socket();
+      Socket sk = new Socket();
+      SocketChannel ch = sk.getChannel();
 
-      if (!s.getChannel().isConnected()) {
+      if (!ch.isConnected()) {
          SocketAddress sa = new InetSocketAddress("remoteHost", 123);
-         s.getChannel().connect(sa);
+         ch.connect(sa);
       }
 
-      InetAddress adr1 = s.getInetAddress();
-      InetAddress adr2 = s.getLocalAddress();
+      InetAddress adr1 = sk.getInetAddress();
+      InetAddress adr2 = sk.getLocalAddress();
       assertNotSame(adr1, adr2);
 
-      new Verifications() {{ cascadedSocketChannel.connect((SocketAddress) withNotNull()); }};
+      new Verifications() {{ cascadedChannel.connect((SocketAddress) withNotNull()); }};
    }
 
    static final class SocketFactory
