@@ -26,23 +26,38 @@
    <target name="createjavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
       <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
+      <delete file="${api}/stylesheet.css"/>
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
          classpathref="common.classpath" classpath="main/classes"
-         nodeprecated="true" noindex="true" notree="true" nohelp="true" breakiterator="yes"
-         windowtitle="JMockit Toolkit API" doctitle="JMockit Toolkit API Documentation"
+         nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
+         windowtitle="JMockit Toolkit API"
          encoding="UTF-8" charset="UTF-8" locale="en">
          <arg line="-notimestamp -quiet -Xdoclint:none"/>
          <fileset dir="${basedir}/main/src">
             <include name="mockit/*.java"/>
             <include name="mockit/integration/junit4/*.java"/>
-            <include name="mockit/integration/testng/*.java"/>
          </fileset>
-         <link href="http://download.oracle.com/javase/7/docs/api" offline="true" packagelistloc="${api}/external"/>
-         <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
-         <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
+         <link href="http://docs.oracle.com/javase/8/docs/api/" offline="true" packagelistloc="${api}/external"/>
+         <doctitle><![CDATA[
+            <a href="http://jmockit.org" target="_top"><img src="resources/logo.png" style="vertical-align:middle">
+               JMockit</a>
+            - API Documentation
+         ]]></doctitle>
+         <header><![CDATA[
+            <a href="http://jmockit.org" target="_top">
+               <img src="resources/logo.png" style="padding:4px;vertical-align:middle">JMockit Home</a>
+         ]]></header>
+         <footer><![CDATA[
+            <a href="http://jmockit.org" target="_top">
+               <img src="resources/logo.png" style="padding:4px;vertical-align:middle">JMockit Home</a>
+         ]]></footer>
       </javadoc>
       <delete file="${api}/constant-values.html"/>
+      <replace dir="${api}/mockit" includes="*.html" token="resources/logo.png" value="../resources/logo.png"/>
+      <replace
+         dir="${api}/mockit/integration/junit4" includes="*.html"
+         token="resources/logo.png" value="../../../resources/logo.png"/>
       <replace dir="${api}" includes="*.html">
          <replacetoken><![CDATA[</head>]]></replacetoken>
          <replacevalue><![CDATA[<link rel="shortcut icon" type="image/x-icon" href="resources/favicon.ico">
