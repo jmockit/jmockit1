@@ -26,6 +26,7 @@
    <target name="createjavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
       <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
+      <delete dir="${api}/resources" includes="*.gif" quiet="true"/>
       <delete file="${api}/stylesheet.css"/>
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
