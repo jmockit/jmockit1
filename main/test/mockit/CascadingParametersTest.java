@@ -308,11 +308,28 @@ public final class CascadingParametersTest
       assertEquals(1, process.exitValue());
    }
 
+   @Test
+   public void createOSProcessToCopyTempFiles(@Mocked final ProcessBuilder pb) throws Exception
+   {
+      // Code under test creates a new process to execute an OS-specific command.
+      String cmdLine = "copy /Y *.txt D:\\TEMP";
+      File wrkDir = new File("C:\\TEMP");
+      Process copy = new ProcessBuilder().command(cmdLine).directory(wrkDir).start();
+      int exit = copy.waitFor();
+
+      if (exit != 0) {
+         throw new RuntimeException("Process execution failed");
+      }
+
+      // Verify the desired process was created with the correct command.
+      new Verifications() {{ pb.command(withSubstring("copy")).start(); }};
+   }
+
    // Tests using java.net classes ////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordAndVerifyExpectationsOnCascadedMocks(
-      @Mocked Socket anySocket, @Mocked final SocketChannel cascadedChannel)
+      @Mocked Socket anySocket, @Mocked final SocketChannel cascadedChannel, @Mocked InetSocketAddress inetAddr)
       throws Exception
    {
       new Expectations() {{ cascadedChannel.isConnected(); result = false; }};
