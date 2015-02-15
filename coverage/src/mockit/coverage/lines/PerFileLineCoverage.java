@@ -115,6 +115,12 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
+   public boolean hasValidBranch(int line, int branchIndex)
+   {
+      LineCoverageData lineData = getOrCreateLineData(line);
+      return lineData.isValidBranch(branchIndex);
+   }
+
    public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
    {
       LineCoverageData lineData = getOrCreateLineData(line);

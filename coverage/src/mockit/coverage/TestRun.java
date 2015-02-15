@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -40,13 +40,16 @@ public final class TestRun
       synchronized (TestRun.class) {
          CoverageData coverageData = CoverageData.instance();
          PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
-         CallPoint callPoint = null;
 
-         if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line, branchIndex)) {
-            callPoint = CallPoint.create(new Throwable());
+         if (fileData.hasValidBranch(line, branchIndex)) {
+            CallPoint callPoint = null;
+
+            if (coverageData.isWithCallPoints() && fileData.acceptsAdditionalCallPoints(line, branchIndex)) {
+               callPoint = CallPoint.create(new Throwable());
+            }
+
+            fileData.registerExecution(line, branchIndex, callPoint);
          }
-
-         fileData.registerExecution(line, branchIndex, callPoint);
       }
    }
 

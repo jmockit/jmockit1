@@ -243,9 +243,10 @@ final class CoverageModifier extends ClassVisitor
       @NotNull private final List<Label> jumpTargetsForCurrentLine;
       @NotNull private final List<Integer> pendingBranches;
       @NotNull private final PerFileLineCoverage lineCoverageInfo;
-      protected boolean assertFoundInCurrentLine;
-      private boolean potentialAssertFalseFound;
       private int lineExpectingInstructionAfterJump;
+      protected boolean assertFoundInCurrentLine;
+      private boolean foundPotentialAssertFalse;
+      private int foundPotentialBooleanExpressionValue;
 
       BaseMethodModifier(@NotNull MethodWriter mw)
       {
@@ -300,6 +301,11 @@ final class CoverageModifier extends ClassVisitor
          if (currentLine == 0 || visitedLabels.contains(label) || !isConditionalJump(opcode)) {
             assertFoundInCurrentLine = false;
             mw.visitJumpInsn(opcode, label);
+
+            if (opcode == GOTO && foundPotentialBooleanExpressionValue == 1) {
+               foundPotentialBooleanExpressionValue = 2;
+            }
+
             return;
          }
 
@@ -330,7 +336,8 @@ final class CoverageModifier extends ClassVisitor
 
       private void generateCallToRegisterBranchTargetExecutionIfPending()
       {
-         potentialAssertFalseFound = false;
+         foundPotentialAssertFalse = false;
+         foundPotentialBooleanExpressionValue = 0;
 
          if (!pendingBranches.isEmpty()) {
             for (Integer pendingBranchIndex : pendingBranches) {
@@ -372,12 +379,21 @@ final class CoverageModifier extends ClassVisitor
             pendingBranches.add(jumpBranchIndex);
             assertFoundInCurrentLine = false;
          }
+
+         foundPotentialBooleanExpressionValue = 0;
       }
 
       @Override
       public void visitInsn(int opcode)
       {
-         generateCallToRegisterBranchTargetExecutionIfPending();
+         if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
+            generateCallToRegisterBranchTargetExecutionIfPending();
+            foundPotentialBooleanExpressionValue = 1;
+         }
+         else {
+            generateCallToRegisterBranchTargetExecutionIfPending();
+         }
+
          mw.visitInsn(opcode);
       }
 
@@ -409,7 +425,7 @@ final class CoverageModifier extends ClassVisitor
          mw.visitFieldInsn(opcode, owner, name, desc);
 
          assertFoundInCurrentLine = opcode == GETSTATIC && "$assertionsDisabled".equals(name);
-         potentialAssertFalseFound = true;
+         foundPotentialAssertFalse = true;
       }
 
       @Override

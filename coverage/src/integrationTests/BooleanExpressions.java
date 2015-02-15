@@ -14,7 +14,7 @@ public final class BooleanExpressions
 
    public boolean eval3(boolean x, boolean y, boolean z)
    {
-      return x && (y || z);
+      return x && (y || z); // LOAD 1 IFEQ L1, LOAD 2 IFNE L2, LOAD 3 IFEQ L1, [L2 1 GOTO L3], [L1 0 L3 RETURN]
    }
 
    public boolean eval4(boolean x, boolean y, boolean z)
@@ -55,7 +55,7 @@ public final class BooleanExpressions
 
    public boolean returnsNegatedInput(boolean b)
    {
-      return !b; // Pattern: IFNE Ln, ICONST_1 (=4), GOTO Ln+1, Ln ICONST_0 (=3), Ln+1 ...
+      return !b; // LOAD 1 IFNE L1, 1 GOTO L2, L1 0 L2 RETURN
    }
 
    public boolean returnsTrivialResultFromInputAfterIfElse(boolean b, int i)
@@ -69,7 +69,7 @@ public final class BooleanExpressions
          s = "two";
       }
 
-      return i != 0 ? true : false; // Pattern: IFEQ Ln, ICONST_1, GOTO Ln+1, Ln ICONST_0, Ln+1 ...
+      return i != 0 ? true : false; // LOAD 2 IFEQ L1, 1 GOTO L2, L1 0 L2 RETURN
    }
 
    public boolean returnsResultPreviouslyComputedFromInput(boolean b, int i)
@@ -96,5 +96,10 @@ public final class BooleanExpressions
       }
 
       return b;
+   }
+
+   public boolean returnsNegatedInputFromLocalVariable(boolean b)
+   {
+      boolean var = !b; return var; // LOAD 1 IFNE L1, [1 GOTO L2], [L1 0], L2 STORE 2, L3 LOAD 2 RETURN
    }
 }

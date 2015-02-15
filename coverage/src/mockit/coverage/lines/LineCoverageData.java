@@ -60,7 +60,16 @@ public final class LineCoverageData extends LineSegmentData
    }
 
    public boolean containsBranches() { return !noBranchesYet(); }
+
    @NotNull public List<BranchCoverageData> getBranches() { return branches; }
+
+   public boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
+
+   public void invalidateBranchingPoint(int targetBranchIndex)
+   {
+      branches.set(targetBranchIndex, BranchCoverageData.INVALID);
+      branches.set(targetBranchIndex - 1, BranchCoverageData.INVALID);
+   }
 
    public int getNumberOfSegments()
    {
@@ -76,20 +85,23 @@ public final class LineCoverageData extends LineSegmentData
          return 1;
       }
 
-      BranchCoverageData branch = branches.get(0);
-      int sourceLine = branch.getLine();
       int count = 1;
 
-      for (int i = 1; i < n; i += 2) {
-         branch = branches.get(i);
-         int targetLine = branch.getLine();
+      for (int targetBranchIndex = 1; targetBranchIndex < n; targetBranchIndex += 2) {
+         BranchCoverageData targetBranch = branches.get(targetBranchIndex);
+         int targetLine = targetBranch.getLine();
 
-         if (targetLine == sourceLine) {
-            count++;
-         }
+         if (targetLine > 0) {
+            BranchCoverageData sourceBranch = branches.get(targetBranchIndex - 1);
+            int sourceLine = sourceBranch.getLine();
 
-         if (!branch.isEmpty()) {
-            count++;
+            if (targetLine == sourceLine) {
+               count++;
+            }
+
+            if (!targetBranch.isEmpty()) {
+               count++;
+            }
          }
       }
 
@@ -106,9 +118,9 @@ public final class LineCoverageData extends LineSegmentData
          return segmentsCovered;
       }
 
-      for (int i = 0; i < n; i += 2) {
-         BranchCoverageData sourceBranch = branches.get(i);
-         BranchCoverageData targetBranch = branches.get(i + 1);
+      for (int sourceBranchIndex = 0; sourceBranchIndex < n; sourceBranchIndex += 2) {
+         BranchCoverageData sourceBranch = branches.get(sourceBranchIndex);
+         BranchCoverageData targetBranch = branches.get(sourceBranchIndex + 1);
 
          if (sourceBranch.isCovered() && !targetBranch.isEmpty()) {
             segmentsCovered++;
