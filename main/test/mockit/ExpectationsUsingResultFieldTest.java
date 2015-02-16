@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -72,7 +72,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsExpectedValuesFromStrictExpectations(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.getValue(); result = 3;
          Collaborator.doInternal(); result = "test";
       }};
@@ -155,39 +155,16 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsNullAsDefaultValueForMethodsReturningString(@Mocked final Collaborator mock)
+   public void returnsNullAsDefaultValueForMethodsReturningStringOrObject(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         mock.getString();
-         Collaborator.doInternal();
-      }};
-
       assertNull(mock.getString());
       assertNull(Collaborator.doInternal());
+      assertNull(mock.getObject());
    }
 
    @Test
-   public void returnsDefaultValuesForPrimitiveAndWrapperReturnTypes(@Mocked final Collaborator mock)
+   public void returnsDefaultValuesForPrimitiveAndWrapperReturnTypes(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         mock.getValue();
-         mock.getInteger();
-         mock.getByteValue();
-         mock.getByteWrapper();
-         mock.getShortValue();
-         mock.getShortWrapper();
-         mock.getLongValue();
-         mock.getLongWrapper();
-         mock.getFloatValue();
-         mock.getFloatWrapper();
-         mock.getDoubleValue();
-         mock.getDoubleWrapper();
-         mock.getCharValue();
-         mock.getCharacter();
-         mock.getBooleanValue();
-         mock.getBooleanWrapper();
-      }};
-
       assertEquals(0, mock.getValue());
       assertEquals(0, mock.getInteger().intValue());
       assertEquals((byte) 0, mock.getByteValue());
@@ -207,17 +184,8 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsDefaultValuesForCollectionValuedReturnTypes(@Mocked final Collaborator mock)
+   public void returnsDefaultValuesForCollectionValuedReturnTypes(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         mock.getItems();
-         mock.getListItems();
-         mock.getSetItems();
-         mock.getSortedSetItems();
-         mock.getMapItems();
-         mock.getSortedMapItems();
-      }};
-
       assertSame(Collections.emptyList(), mock.getItems());
       assertSame(Collections.emptyList(), mock.getListItems());
       assertSame(Collections.emptySet(), mock.getSetItems());
@@ -227,38 +195,16 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsDefaultValuesForIteratorAndIterableReturnTypes(@Mocked final Collaborator mock)
+   public void returnsDefaultValuesForIteratorAndIterableReturnTypes(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         mock.getIterator();
-         mock.getListIterator();
-         mock.getIterable();
-      }};
-
       assertFalse(mock.getIterator().hasNext());
       assertFalse(mock.getListIterator().hasNext());
       assertFalse(mock.getIterable().iterator().hasNext());
    }
 
    @Test
-   public void returnsDefaultValuesForArrayValuedReturnTypes(@Mocked final Collaborator mock)
+   public void returnsDefaultValuesForArrayValuedReturnTypes(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         mock.getIntArray();
-         mock.getInt2Array();
-         mock.getByteArray();
-         mock.getShortArray();
-         mock.getShortWrapperArray();
-         mock.getLongArray();
-         mock.getLong2Array();
-         mock.getFloatArray();
-         mock.getDoubleArray();
-         mock.getCharArray();
-         mock.getBooleanArray();
-         mock.getStringArray();
-         mock.getString2Array();
-      }};
-
       assertArrayEquals(new int[0], mock.getIntArray());
       assertArrayEquals(new int[0][0], mock.getInt2Array());
       assertArrayEquals(new byte[0], mock.getByteArray());

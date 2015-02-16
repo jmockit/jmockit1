@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -11,12 +11,12 @@ import org.jetbrains.annotations.*;
 import mockit.internal.expectations.*;
 
 /**
- * Used to <em>record</em> expectations on {@linkplain mockit.Mocked mocked} types and their instances.
+ * Used to <em>record</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
  * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will
  * occur during the execution of code under test.
  * When a match is detected, the recorded {@linkplain #result result} is returned to the caller.
- * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain mockit.Delegate delegate} method is
+ * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain Delegate delegate} method is
  * executed.
  * <p/>
  * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during
@@ -85,12 +85,12 @@ import mockit.internal.expectations.*;
  * <p/>
  * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified
  * <em>after</em> exercising the code under test.
- * To that end, we use a set of complementary base classes: {@link mockit.Verifications},
- * {@link mockit.VerificationsInOrder}, {@link mockit.FullVerifications}, and {@link mockit.FullVerificationsInOrder}.
+ * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder},
+ * {@link FullVerifications}, and {@link FullVerificationsInOrder}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
  * <p/>
- * Finally, note that this class has two specialized subclasses: {@link mockit.StrictExpectations} and
- * {@link mockit.NonStrictExpectations}.
+ * Finally, note that this class has two specialized subclasses: {@link StrictExpectations} and
+ * {@link NonStrictExpectations}.
  * The first one differs in that 1) each recorded expectation has, by default, a maximum allowed number of invocations
  * of {@code 1} (one); 2) matching invocations must occur in the <em>same order</em> as recorded; 3) <em>only</em>
  * matching invocations are allowed, with any occurrence of unmatched invocations causing the test to fail with an
@@ -124,9 +124,10 @@ public abstract class Expectations extends Invocations
     * If no result is recorded for a given expectation, then all matching invocations will return the appropriate
     * default value according to the method return type:
     * <ul>
-    * <li>{@code String}: returns {@code null}.</li>
-    * <li>Primitive or primitive wrapper: the standard default value is returned (ie {@code false} for
-    * {@code boolean/Boolean}, {@code '\0'} for {@code char/Character}, {@code 0} for {@code int/Integer}, and so on).
+    * <li>Most {@code java.lang} types (<code>String</code>, {@code Object}, etc.): returns {@code null}.</li>
+    * <li>{@code java.math} types (<code>BigDecimal</code>, etc.): returns {@code null}.</li>
+    * <li>Primitive/wrapper types: returns the standard default value (<code>false</code> for {@code boolean/Boolean},
+    * {@code 0} for {@code int/Integer}, and so on).
     * </li>
     * <li>{@code java.util.List}, {@code java.util.Collection}, or {@code java.lang.Iterable}: returns
     * {@link Collections#EMPTY_LIST}.</li>
@@ -135,8 +136,9 @@ public abstract class Expectations extends Invocations
     * <li>{@code java.util.SortedSet}: returns an unmodifiable empty sorted set.</li>
     * <li>{@code java.util.Map}: returns {@link Collections#EMPTY_MAP}.</li>
     * <li>{@code java.util.SortedMap}: returns an unmodifiable empty sorted map.</li>
-    * <li>A reference type, except for the collection types above: returns {@code null}.</li>
-    * <li>An array type: returns an array with zero elements (empty) in each dimension.</li>
+    * <li>{@code java.util.Optional}: returns {@link Optional#empty()}.</li>
+    * <li>Other reference types: returns a mocked instance through cascading.</li>
+    * <li>Array types: returns an array with zero elements (empty) in each dimension.</li>
     * </ul>
     * <p/>
     * When an expectation is recorded for a method which actually <em>returns</em> an exception or error (as opposed to
@@ -154,8 +156,8 @@ public abstract class Expectations extends Invocations
     * {@link Iterator}, and the return type is single-valued, then the assigned multi-valued result is taken as a
     * sequence of <em>consecutive results</em> for the expectation.
     * <p/>
-    * Results that depend on some programming logic can be provided through a {@linkplain mockit.Delegate} object
-    * assigned to the field.
+    * Results that depend on some programming logic can be provided through a {@linkplain Delegate} object assigned to
+    * the field.
     * This applies to {@code void} and non-<code>void</code> methods, as well as to constructors.
     * <p/>
     * Finally, when recording an expectation on a <em>constructor</em> of a mocked class, an arbitrary instance of said

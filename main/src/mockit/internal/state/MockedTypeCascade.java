@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -138,7 +138,14 @@ public final class MockedTypeCascade
 
    private static boolean isTypeSupportedForCascading(@NotNull String typeName)
    {
-      return !typeName.startsWith("java/lang/") || typeName.contains("/Process") || typeName.endsWith("/Runnable");
+      if (typeName.contains("/Process") || typeName.endsWith("/Runnable")) {
+         return true;
+      }
+
+      return
+         !typeName.startsWith("java/lang/") &&
+         !typeName.startsWith("java/math/") &&
+         !typeName.startsWith("java/util/concurrent/atomic/");
    }
 
    @Nullable

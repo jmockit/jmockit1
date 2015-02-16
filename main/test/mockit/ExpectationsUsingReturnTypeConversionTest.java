@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -164,7 +164,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals('0', mock.getCharacter().charValue());
    }
 
-   @SuppressWarnings("NumericCastThatLosesPrecision")
+   @SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
    @Test
    public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueDoesNotFitTheReturnType()
    {
@@ -196,6 +196,8 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Test
    public void convertRecordedTextualResultForMethodsWithEligibleReturnTypes() throws Exception
    {
+      assertNull(mock.getStringBuilder());
+
       final String text = "Some textual value";
 
       new Expectations() {{
@@ -228,6 +230,11 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Test
    public void convertTextualAndNumericalResultsToNumberSubtypes()
    {
+      assertNull(mock.getBigDecimal());
+      assertNull(mock.getBigInteger());
+      assertNull(mock.getAtomicInteger());
+      assertNull(mock.getAtomicLong());
+
       new Expectations() {{
          mock.getBigDecimal(); result = "1.50"; result = 123; result = 56L; result = -4.125;
          mock.getBigInteger(); result = "123"; result = 567L;
