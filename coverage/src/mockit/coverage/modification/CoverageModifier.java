@@ -318,11 +318,11 @@ final class CoverageModifier extends ClassVisitor
          }
 
          LineCoverageData lineData = lineCoverageInfo.getOrCreateLineData(currentLine);
-         int noJumpBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
-         pendingBranches.add(noJumpBranchIndex);
+         int sourceBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
+         pendingBranches.add(sourceBranchIndex);
 
          if (assertFoundInCurrentLine) {
-            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, noJumpBranchIndex + 1);
+            BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, sourceBranchIndex + 1);
             branchData.markAsUnreachable();
          }
 
@@ -375,8 +375,8 @@ final class CoverageModifier extends ClassVisitor
 
          if (jumpTargetIndex >= 0) {
             label.info = label.line > 0 ? label.line : currentLine;
-            int jumpBranchIndex = 2 * jumpTargetIndex + 1;
-            pendingBranches.add(jumpBranchIndex);
+            int targetBranchIndex = 2 * jumpTargetIndex + 1;
+            pendingBranches.add(targetBranchIndex);
             assertFoundInCurrentLine = false;
          }
 
