@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -97,14 +97,12 @@ public final class DefaultValues
          @Override public boolean hasNext() { return false; }
          @Override public void forEachRemaining(IntConsumer action) {}
       });
-
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/PrimitiveIterator$OfLong;", new PrimitiveIterator.OfLong() {
          @Override public long nextLong() { throw new NoSuchElementException(); }
          @Override public Long next() { throw new NoSuchElementException(); }
          @Override public boolean hasNext() { return false; }
          @Override public void forEachRemaining(LongConsumer action) {}
       });
-
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/PrimitiveIterator$OfDouble;", new PrimitiveIterator.OfDouble() {
          @Override public double nextDouble() { throw new NoSuchElementException(); }
          @Override public Double next() { throw new NoSuchElementException(); }
@@ -112,7 +110,7 @@ public final class DefaultValues
          @Override public void forEachRemaining(DoubleConsumer action) {}
       });
 
-      // For some reason, a VerifyError occurs here if Stream.empty() is called directly.
+      // These are static interface methods, which can't be compiled on "-source 1.6".
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", invoke(Stream.class, "empty"));
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", invoke(IntStream.class, "empty"));
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", invoke(LongStream.class, "empty"));
