@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -28,13 +28,24 @@ class CoverageReport
       @NotNull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs,
       @NotNull CoverageData coverageData, boolean withCallPoints)
    {
-      this.outputDir = outputDir.isEmpty() ? "coverage-report" : outputDir;
+      this.outputDir = getOrChooseOutputDirectory(outputDir);
       this.outputDirCreated = outputDirCreated;
       sourceDirs = srcDirs == null ? null : new SourceFiles().buildListOfSourceDirectories(srcDirs);
       fileToFileData = coverageData.getFileToFileDataMap();
       packageToFiles = new HashMap<String, List<String>>();
       this.withCallPoints = withCallPoints;
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
+   }
+
+   @NotNull
+   private static String getOrChooseOutputDirectory(@NotNull String outputDir)
+   {
+      if (!outputDir.isEmpty()) {
+         return outputDir;
+      }
+
+      String mavenBaseDir = System.getProperty("basedir");
+      return mavenBaseDir == null ? "coverage-report" : "target/coverage-report";
    }
 
    public final void generate() throws IOException
@@ -69,7 +80,8 @@ class CoverageReport
       }
    }
 
-   @Nullable private File createOutputFileForIndexPage() throws IOException
+   @Nullable
+   private File createOutputFileForIndexPage() throws IOException
    {
       File outputFile = new File(outputDir, "index.html");
 
@@ -128,7 +140,7 @@ class CoverageReport
       filesInPackage.add(file.substring(p + 1));
    }
 
-   private void deleteOutdatedHTMLFileIfExists(@NotNull String filePath) throws IOException
+   private void deleteOutdatedHTMLFileIfExists(@NotNull String filePath)
    {
       if (!outputDirCreated) {
          File outputFile = OutputFile.getOutputFile(outputDir, filePath);
