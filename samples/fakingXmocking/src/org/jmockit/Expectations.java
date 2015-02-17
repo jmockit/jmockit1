@@ -12,7 +12,7 @@ import java.util.function.*;
 public final class Expectations
 {
    @FunctionalInterface
-   public interface Block { void perform(Spec s); }
+   public interface Block<S extends Spec> { void perform(S s); }
 
    @FunctionalInterface
    public interface Action { void perform(Object... args); }
@@ -28,23 +28,18 @@ public final class Expectations
 
    private Expectations() {}
 
-   public void record(Block expectations) { expectations.perform(new Spec()); }
-   public void record(Object toPartiallyMock, Block expectations) {}
-   public void record(Class<?> toPartiallyMock, Block expectations) {}
+   public void record(Block<RecordingSpec> expectations) { expectations.perform(new RecordingSpec()); }
+   public void record(Object toPartiallyMock, Block<RecordingSpec> expectations) { expectations.perform(new RecordingSpec());}
+   public void record(Class<?> toPartiallyMock, Block<RecordingSpec> expectations) { expectations.perform(new RecordingSpec());}
 
-   public void verify(Block expectations) { expectations.perform(new Spec()); }
-   public void verifyInOrder(Block expectations) {}
-   public void verifyAll(Block expectations) {}
-   public void verifyAll(Object mock, Block expectations) {}
-   public void verifyAll(Class<?> mockedType, Block expectations) {}
+   public void verify(Block<VerificationSpec> expectations) { expectations.perform(new VerificationSpec()); }
+   public void verifyInOrder(Block<VerificationSpec> expectations) { expectations.perform(new VerificationSpec()); }
+   public void verifyAll(Block<VerificationSpec> expectations) { expectations.perform(new VerificationSpec()); }
+   public void verifyAll(Object mock, Block<VerificationSpec> expectations) { expectations.perform(new VerificationSpec()); }
+   public void verifyAll(Class<?> mockedType, Block<VerificationSpec> expectations) { expectations.perform(new VerificationSpec()); }
 
-   public static final class Spec
+   public static class Spec
    {
-      public Object result;
-      public Action action;
-      public Delegate delegate;
-      public Advice advice;
-
       public int times;
       public int minTimes;
       public int maxTimes;
@@ -59,9 +54,26 @@ public final class Expectations
       public final Float anyFloat = 0.0F;
       public final Double anyDouble = 0.0;
 
+      Spec() {}
+
       public <T> T isNull() { return null; }
       public <T> T isNotNull() { return null; }
       public <T> T isSame(T instance) { return null; }
       public <T> T is(Predicate<? super T> predicate) { return null; }
+   }
+
+   public static final class RecordingSpec extends Spec
+   {
+      public Object result;
+      public Action action;
+      public Delegate delegate;
+      public Advice advice;
+
+      RecordingSpec() {}
+   }
+
+   public static final class VerificationSpec extends Spec
+   {
+      VerificationSpec() {}
    }
 }
