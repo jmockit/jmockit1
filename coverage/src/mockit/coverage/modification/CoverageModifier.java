@@ -245,6 +245,7 @@ final class CoverageModifier extends ClassVisitor
       @NotNull private final PerFileLineCoverage lineCoverageInfo;
       private int lineExpectingInstructionAfterJump;
       protected boolean assertFoundInCurrentLine;
+      protected boolean ignoreUntilNextLabel;
       private boolean foundPotentialAssertFalse;
       private int foundPotentialBooleanExpressionValue;
       protected int ignoreUntilNextSwitch;
@@ -300,7 +301,7 @@ final class CoverageModifier extends ClassVisitor
       public void visitJumpInsn(int opcode, @NotNull Label label)
       {
          if (
-            currentLine == 0 || ignoreUntilNextSwitch > 0 ||
+            currentLine == 0 || ignoreUntilNextLabel || ignoreUntilNextSwitch > 0 ||
             visitedLabels.contains(label) || !isConditionalJump(opcode)
          ) {
             assertFoundInCurrentLine = false;
@@ -340,7 +341,7 @@ final class CoverageModifier extends ClassVisitor
 
       private void generateCallToRegisterBranchTargetExecutionIfPending()
       {
-         if (ignoreUntilNextSwitch > 0) {
+         if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
             return;
          }
 
@@ -376,8 +377,9 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public void visitLabel(@NotNull Label label)
       {
-         if (ignoreUntilNextSwitch > 0) {
+         if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
             mw.visitLabel(label);
+            ignoreUntilNextLabel = false;
             return;
          }
 
@@ -437,7 +439,11 @@ final class CoverageModifier extends ClassVisitor
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitFieldInsn(opcode, owner, name, desc);
 
-         assertFoundInCurrentLine = opcode == GETSTATIC && "$assertionsDisabled".equals(name);
+         if (opcode == GETSTATIC && "$assertionsDisabled".equals(name)) {
+            assertFoundInCurrentLine = true;
+            ignoreUntilNextLabel = true;
+         }
+
          foundPotentialAssertFalse = true;
       }
 
@@ -804,8 +810,10 @@ final class CoverageModifier extends ClassVisitor
          // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by
          // the Java compiler when the class contains at least one "assert" statement. Otherwise, that line of code
          // would always appear as partially covered when running with assertions enabled.
-         assertFoundInCurrentLine =
-            opcode == INVOKEVIRTUAL && "java/lang/Class".equals(owner) && "desiredAssertionStatus".equals(name);
+         if (opcode == INVOKEVIRTUAL && "java/lang/Class".equals(owner) && "desiredAssertionStatus".equals(name)) {
+            assertFoundInCurrentLine = true;
+            ignoreUntilNextLabel = true;
+         }
 
          super.visitMethodInsn(opcode, owner, name, desc, itf);
       }

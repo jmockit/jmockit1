@@ -12,7 +12,7 @@ public final class UnreachableStatements
    void branchingMethodWithUnreachableLines(int a)
    {
       if (a > 0) {
-         assert a < 0;
+         assert false;
          System.gc();
       }
 
