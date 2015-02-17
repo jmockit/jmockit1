@@ -40,11 +40,14 @@ public final class Expectations
 
    public static class Spec
    {
+      private static final String EMPTY = new String();
+
       public int times;
       public int minTimes;
       public int maxTimes;
 
-      public final String anyString = "";
+
+      public final String anyString = EMPTY;
       public final Boolean anyBoolean = false;
       public final Character anyChar = 0;
       public final Byte anyByte = 0;
