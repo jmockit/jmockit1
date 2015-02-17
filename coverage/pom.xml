@@ -39,9 +39,7 @@
 
    <build>
       <sourceDirectory>src</sourceDirectory>
-      <testSourceDirectory>test</testSourceDirectory>
       <outputDirectory>classes</outputDirectory>
-      <testOutputDirectory>test-classes</testOutputDirectory>
       <resources>
          <resource>
             <directory>src</directory>
@@ -77,7 +75,6 @@
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.6</source><target>1.6</target>
-               <testSource>1.8</testSource><testTarget>1.8</testTarget>
             </configuration>
          </plugin>
          <plugin>
@@ -92,17 +89,12 @@
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
                   </manifestEntries>
                </archive>
-               <excludes>
-                  <exclude>integrationTests/</exclude>
-                  <exclude>*.class</exclude>
-               </excludes>
             </configuration>
          </plugin>
          <plugin>
             <artifactId>maven-source-plugin</artifactId><version>2.2.1</version>
             <configuration>
                <excludes>
-                  <exclude>integrationTests/**</exclude>
                   <exclude>*</exclude>
                   <exclude>**/*.css</exclude>
                   <exclude>**/*.js</exclude>
@@ -143,17 +135,6 @@
                   <goals><goal>jar</goal></goals>
                </execution>
             </executions>
-         </plugin>
-         <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
-            <configuration>
-               <disableXmlReport>true</disableXmlReport>
-               <excludes><exclude>**/CoverageTest.class</exclude></excludes>
-               <argLine>
-                  -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.16/jmockit-1.16.jar
-                  -Dcoverage-metrics=all
-               </argLine>
-            </configuration>
          </plugin>
          <plugin>
             <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>

@@ -120,7 +120,8 @@ public class CoverageTest
       assertEquals(endingLine, methodData.getLastLineInBody());
    }
 
-   @NotNull protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount)
+   @NotNull
+   protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount)
    {
       int i = currentPathIndex + 1;
       currentPathIndex = -1;

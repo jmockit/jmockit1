@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.jmockit</groupId><artifactId>coverage-tests</artifactId><version>1</version>
+   <name>JMockit Coverage Tests</name>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   </properties>
+
+   <build>
+      <sourceDirectory>src</sourceDirectory>
+      <outputDirectory>classes</outputDirectory>
+      <testSourceDirectory>test</testSourceDirectory>
+      <testOutputDirectory>test-classes</testOutputDirectory>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
+            <configuration>
+               <encoding>UTF-8</encoding>
+               <source>1.8</source><target>1.8</target>
+            </configuration>
+         </plugin>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <configuration>
+               <disableXmlReport>true</disableXmlReport>
+               <excludes><exclude>**/CoverageTest.class</exclude></excludes>
+               <argLine>
+                  -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.16/jmockit-1.16.jar
+                  -Dcoverage-metrics=all
+               </argLine>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.16</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.16</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
+         <scope>test</scope><optional>true</optional>
+      </dependency>
+   </dependencies>
+</project>
