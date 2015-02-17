@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -83,10 +83,10 @@ final class ClassSelection
          return false;
       }
 
-      if (classesToExclude != null && classesToExclude.reset(className).matches()) {
-         return false;
-      }
-      else if (testCode != null && testCode.reset(className).matches()) {
+      if (
+         classesToExclude != null && classesToExclude.reset(className).matches() ||
+         testCode != null && testCode.reset(className).matches()
+      ) {
          return false;
       }
       else if (classesToInclude != null) {
