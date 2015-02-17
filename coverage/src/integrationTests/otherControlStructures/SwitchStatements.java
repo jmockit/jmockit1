@@ -92,4 +92,13 @@ public final class SwitchStatements
          default: throw new IllegalArgumentException();
       }
    }
+
+   int switchOnString(String s, boolean b)
+   {
+      switch(s) {
+         case "A": return 1;
+         default:
+            return b ? 2 : 3;
+      }
+   }
 }

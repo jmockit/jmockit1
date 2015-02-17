@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests.otherControlStructures;
@@ -117,5 +117,23 @@ public final class SwitchStatementsTest extends CoverageTest
       assertPath(5, 1);
       assertPath(5, 1);
       assertPath(5, 0);
+   }
+
+   @Test
+   public void switchOnString()
+   {
+      tested.switchOnString("A", true);
+      tested.switchOnString("M", false);
+
+      assertLines(98, 101, 3);
+      // TODO: assertLine(98, 1, 1, 2);
+      assertLine(99, 1, 1, 1);
+      assertLine(101, 3, 2, 1, 0, 1);
+
+      findMethodData(98);
+      assertPaths(3, 2, 2);
+      assertPath(5, 1);
+      assertPath(9, 1);
+      assertPath(8, 0);
    }
 }

@@ -7,11 +7,11 @@ package mockit.coverage.modification;
 import java.io.*;
 import java.util.*;
 
-import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.external.asm.*;
+import static mockit.coverage.Metrics.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -22,7 +22,7 @@ final class CoverageModifier extends ClassVisitor
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = ACC_FINAL + ACC_SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
-   private static final boolean WITH_PATH_OR_DATA_COVERAGE = Metrics.PathCoverage.active || Metrics.DataCoverage.active;
+   private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
    @Nullable
    static byte[] recoverModifiedByteCodeIfAvailable(@NotNull String innerClassName)
@@ -203,7 +203,7 @@ final class CoverageModifier extends ClassVisitor
    {
       if (
          fileData != null && simpleClassName != null &&
-         (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && Metrics.DataCoverage.active
+         (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && DataCoverage.active
       ) {
          fileData.dataCoverageInfo.addField(simpleClassName, name, (access & ACC_STATIC) != 0);
       }
@@ -484,6 +484,7 @@ final class CoverageModifier extends ClassVisitor
    {
       @Nullable private NodeBuilder nodeBuilder;
       @Nullable private Label entryPoint;
+      private int ignoreUntilNextSwitch;
       private int jumpCount;
 
       MethodOrConstructorModifier(@NotNull MethodWriter mw)
@@ -495,7 +496,7 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitLabel(@NotNull Label label)
       {
-         if (nodeBuilder == null) {
+         if (nodeBuilder == null || ignoreUntilNextSwitch > 0) {
             super.visitLabel(label);
             return;
          }
@@ -530,7 +531,10 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitJumpInsn(int opcode, @NotNull Label label)
       {
-         if (nodeBuilder == null || entryPoint == null || visitedLabels.contains(label)) {
+         if (
+            nodeBuilder == null || entryPoint == null || ignoreUntilNextSwitch > 0 ||
+            visitedLabels.contains(label)
+         ) {
             super.visitJumpInsn(opcode, label);
             return;
          }
@@ -566,7 +570,7 @@ final class CoverageModifier extends ClassVisitor
 
       private void handleRegularInstruction(int opcode)
       {
-         if (nodeBuilder != null) {
+         if (nodeBuilder != null && ignoreUntilNextSwitch == 0) {
             int nodeIndex = nodeBuilder.handleRegularInstruction(currentLine, opcode);
             generateCallToRegisterNodeReached(nodeIndex);
          }
@@ -610,7 +614,7 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
       {
-         if (!Metrics.DataCoverage.active) {
+         if (!DataCoverage.active) {
             super.visitFieldInsn(opcode, owner, name, desc);
             return;
          }
@@ -664,7 +668,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       private void generateCallToRegisterFieldCoverage(
-         boolean getField, boolean isStatic, boolean size2, String classAndFieldNames)
+         boolean getField, boolean isStatic, boolean size2, @NotNull String classAndFieldNames)
       {
          if (!isStatic && getField) {
             if (size2) {
@@ -694,6 +698,13 @@ final class CoverageModifier extends ClassVisitor
       {
          super.visitMethodInsn(opcode, owner, name, desc, itf);
          handleRegularInstruction(opcode);
+
+         if (
+            opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) &&
+            ignoreUntilNextSwitch == 0
+         ) {
+            ignoreUntilNextSwitch = 1;
+         }
       }
 
       @Override
@@ -708,8 +719,14 @@ final class CoverageModifier extends ClassVisitor
       public final void visitLookupSwitchInsn(@NotNull Label dflt, @NotNull int[] keys, @NotNull Label[] labels)
       {
          if (nodeBuilder != null) {
-            int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
-            generateCallToRegisterNodeReached(nodeIndex);
+            if (ignoreUntilNextSwitch == 1) {
+               ignoreUntilNextSwitch = 2;
+            }
+            else {
+               int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
+               generateCallToRegisterNodeReached(nodeIndex);
+               ignoreUntilNextSwitch = 0;
+            }
          }
 
          super.visitLookupSwitchInsn(dflt, keys, labels);
@@ -718,7 +735,7 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitTableSwitchInsn(int min, int max, @NotNull Label dflt, @NotNull Label... labels)
       {
-         if (nodeBuilder != null) {
+         if (nodeBuilder != null && ignoreUntilNextSwitch == 0) {
             int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
             generateCallToRegisterNodeReached(nodeIndex);
          }

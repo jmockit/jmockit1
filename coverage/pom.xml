@@ -75,8 +75,9 @@
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
             <configuration>
-               <source>1.6</source><target>1.6</target>
                <encoding>UTF-8</encoding>
+               <source>1.6</source><target>1.6</target>
+               <testSource>1.8</testSource><testTarget>1.8</testTarget>
             </configuration>
          </plugin>
          <plugin>
