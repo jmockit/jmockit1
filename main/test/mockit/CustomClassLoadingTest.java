@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -23,7 +23,7 @@ public final class CustomClassLoadingTest
          super(
             new URL[] {
                new URL("file:///github/jmockit1.org/jmockit.jar"),
-               new URL("file:lib/junit-dep-4.11.jar"), new URL("file:lib/hamcrest-core-1.2.jar"),
+               new URL("file:lib/junit-4.12.jar"), new URL("file:lib/hamcrest-core-1.2.jar"),
                new URL("file:main/test-classes/")
             },
             null);
