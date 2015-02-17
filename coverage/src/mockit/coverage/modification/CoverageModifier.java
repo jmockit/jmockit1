@@ -247,6 +247,7 @@ final class CoverageModifier extends ClassVisitor
       protected boolean assertFoundInCurrentLine;
       private boolean foundPotentialAssertFalse;
       private int foundPotentialBooleanExpressionValue;
+      protected int ignoreUntilNextSwitch;
 
       BaseMethodModifier(@NotNull MethodWriter mw)
       {
@@ -298,7 +299,10 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public void visitJumpInsn(int opcode, @NotNull Label label)
       {
-         if (currentLine == 0 || visitedLabels.contains(label) || !isConditionalJump(opcode)) {
+         if (
+            currentLine == 0 || ignoreUntilNextSwitch > 0 ||
+            visitedLabels.contains(label) || !isConditionalJump(opcode)
+         ) {
             assertFoundInCurrentLine = false;
             mw.visitJumpInsn(opcode, label);
 
@@ -336,6 +340,10 @@ final class CoverageModifier extends ClassVisitor
 
       private void generateCallToRegisterBranchTargetExecutionIfPending()
       {
+         if (ignoreUntilNextSwitch > 0) {
+            return;
+         }
+
          foundPotentialAssertFalse = false;
          foundPotentialBooleanExpressionValue = 0;
 
@@ -368,6 +376,11 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public void visitLabel(@NotNull Label label)
       {
+         if (ignoreUntilNextSwitch > 0) {
+            mw.visitLabel(label);
+            return;
+         }
+
          visitedLabels.add(label);
          mw.visitLabel(label);
 
@@ -434,6 +447,13 @@ final class CoverageModifier extends ClassVisitor
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMethodInsn(opcode, owner, name, desc, itf);
+
+         if (
+            opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) &&
+            ignoreUntilNextSwitch == 0
+         ) {
+            ignoreUntilNextSwitch = 1;
+         }
       }
 
       @Override
@@ -484,7 +504,6 @@ final class CoverageModifier extends ClassVisitor
    {
       @Nullable private NodeBuilder nodeBuilder;
       @Nullable private Label entryPoint;
-      private int ignoreUntilNextSwitch;
       private int jumpCount;
 
       MethodOrConstructorModifier(@NotNull MethodWriter mw)
@@ -698,13 +717,6 @@ final class CoverageModifier extends ClassVisitor
       {
          super.visitMethodInsn(opcode, owner, name, desc, itf);
          handleRegularInstruction(opcode);
-
-         if (
-            opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) &&
-            ignoreUntilNextSwitch == 0
-         ) {
-            ignoreUntilNextSwitch = 1;
-         }
       }
 
       @Override
@@ -718,15 +730,13 @@ final class CoverageModifier extends ClassVisitor
       @Override
       public final void visitLookupSwitchInsn(@NotNull Label dflt, @NotNull int[] keys, @NotNull Label[] labels)
       {
-         if (nodeBuilder != null) {
-            if (ignoreUntilNextSwitch == 1) {
-               ignoreUntilNextSwitch = 2;
-            }
-            else {
-               int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
-               generateCallToRegisterNodeReached(nodeIndex);
-               ignoreUntilNextSwitch = 0;
-            }
+         if (ignoreUntilNextSwitch == 1) {
+            ignoreUntilNextSwitch = 2;
+         }
+         else if (nodeBuilder != null) {
+            int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
+            generateCallToRegisterNodeReached(nodeIndex);
+            ignoreUntilNextSwitch = 0;
          }
 
          super.visitLookupSwitchInsn(dflt, keys, labels);

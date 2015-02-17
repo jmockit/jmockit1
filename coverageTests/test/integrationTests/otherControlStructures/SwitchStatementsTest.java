@@ -38,12 +38,7 @@ public final class SwitchStatementsTest extends CoverageTest
    @Test
    public void switchStatementWithSparseCasesAndDefaultOnDefaultCase()
    {
-      try {
-         tested.anotherSwitchStatementWithSparseCasesAndDefault('x');
-      }
-      catch (IllegalArgumentException e) {
-         // OK
-      }
+      tested.anotherSwitchStatementWithSparseCasesAndDefault('x');
 
       findMethodData(26);
       assertPaths(2, 1, 1);
@@ -66,13 +61,14 @@ public final class SwitchStatementsTest extends CoverageTest
    @Test
    public void switchStatementWithCompactCasesAndDefaultOnDefaultCase()
    {
-      try {
-         tested.anotherSwitchStatementWithCompactCasesAndDefault(1);
-         tested.anotherSwitchStatementWithCompactCasesAndDefault(5);
-      }
-      catch (IllegalArgumentException e) {
-         // OK
-      }
+      tested.anotherSwitchStatementWithCompactCasesAndDefault(1);
+      tested.anotherSwitchStatementWithCompactCasesAndDefault(5);
+
+      assertLines(56, 60, 4);
+      assertLine(56, 1, 1, 2);
+      assertLine(57, 1, 1, 1);
+      assertLine(58, 1, 1, 1);
+      assertLine(60, 1, 1, 2);
 
       findMethodData(56);
       assertPaths(2, 2, 2);
@@ -83,6 +79,14 @@ public final class SwitchStatementsTest extends CoverageTest
    {
       tested.switchStatementWithSparseCasesAndNoDefault('f');
       tested.switchStatementWithSparseCasesAndNoDefault('b');
+
+      assertLines(64, 72, 3);
+      assertLine(64, 1, 1, 2);
+      assertLine(66, 1, 0, 0);
+      assertLine(67, 1, 0, 0);
+      assertLine(69, 1, 1, 1);
+      assertLine(70, 0, 0, 0);
+      assertLine(72, 1, 1, 2);
 
       findMethodData(64);
       assertPaths(3, 2, 2);
@@ -98,6 +102,14 @@ public final class SwitchStatementsTest extends CoverageTest
       tested.switchStatementWithCompactCasesAndNoDefault(4);
       tested.switchStatementWithCompactCasesAndNoDefault(5);
 
+      assertLines(76, 84, 4);
+      assertLine(76, 1, 1, 3);
+      assertLine(78, 1, 1, 3);
+      assertLine(79, 1, 0, 0);
+      assertLine(80, 1, 0, 0);
+      assertLine(81, 1, 1, 1);
+      assertLine(84, 1, 1, 3);
+
       findMethodData(76);
       assertPaths(4, 2, 3);
       assertPath(5, 0);
@@ -111,6 +123,12 @@ public final class SwitchStatementsTest extends CoverageTest
    {
       tested.switchStatementWithExitInAllCases(1);
       tested.switchStatementWithExitInAllCases(2);
+
+      assertLines(89, 92, 3);
+      assertLine(89, 1, 1, 2);
+      assertLine(90, 1, 1, 1);
+      assertLine(91, 1, 1, 1);
+      assertLine(92, 1, 0, 0);
 
       findMethodData(89);
       assertPaths(3, 2, 2);
@@ -126,7 +144,7 @@ public final class SwitchStatementsTest extends CoverageTest
       tested.switchOnString("M", false);
 
       assertLines(98, 101, 3);
-      // TODO: assertLine(98, 1, 1, 2);
+      assertLine(98, 1, 1, 2);
       assertLine(99, 1, 1, 1);
       assertLine(101, 3, 2, 1, 0, 1);
 
