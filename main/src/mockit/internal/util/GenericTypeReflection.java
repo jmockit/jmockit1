@@ -219,6 +219,7 @@ public final class GenericTypeReflection
 
          if (c == '<') {
             advancePastTypeArguments();
+            currentPos++;
          }
 
          return endPos;
@@ -303,7 +304,7 @@ public final class GenericTypeReflection
       return finalSignature.toString();
    }
 
-   private void addTypeArgumentsIfAvailable(String signature)
+   private void addTypeArgumentsIfAvailable(@NotNull String signature)
    {
       int firstParen = signature.indexOf('(');
       if (firstParen == 0) return;
