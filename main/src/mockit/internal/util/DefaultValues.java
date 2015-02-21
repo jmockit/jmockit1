@@ -117,18 +117,18 @@ public final class DefaultValues
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", invoke(DoubleStream.class, "empty"));
    }
 
-   @Nullable
-   public static Object computeForReturnType(@NotNull String methodNameAndDesc)
-   {
-      String typeDesc = getReturnTypeDesc(methodNameAndDesc);
-      return computeForType(typeDesc);
-   }
-
    @NotNull
    public static String getReturnTypeDesc(@NotNull String methodNameAndDesc)
    {
       int rightParen = methodNameAndDesc.indexOf(')') + 1;
       return methodNameAndDesc.substring(rightParen);
+   }
+
+   @Nullable
+   public static Object computeForReturnType(@NotNull String methodNameAndDesc)
+   {
+      String typeDesc = getReturnTypeDesc(methodNameAndDesc);
+      return computeForType(typeDesc);
    }
 
    @Nullable
