@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -16,13 +16,6 @@ public final class GenericTypeReflection
    @NotNull private final Map<String, Type> typeParametersToTypeArguments;
    @NotNull private final Map<String, String> typeParametersToTypeArgumentNames;
    private final boolean withSignatures;
-
-   public GenericTypeReflection()
-   {
-      typeParametersToTypeArguments = emptyMap();
-      typeParametersToTypeArgumentNames = new HashMap<String, String>(4);
-      withSignatures = true;
-   }
 
    public GenericTypeReflection(@NotNull Class<?> realClass, @Nullable Type mockedType)
    {

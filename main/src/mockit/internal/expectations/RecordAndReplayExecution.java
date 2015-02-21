@@ -138,7 +138,7 @@ public final class RecordAndReplayExecution
       }
    }
 
-   @Nullable
+   @Nullable @Contract("!null -> _")
    private static DynamicPartialMocking applyDynamicPartialMocking(@Nullable Object... classesOrInstances)
    {
       if (classesOrInstances == null || classesOrInstances.length == 0) {
@@ -150,7 +150,8 @@ public final class RecordAndReplayExecution
       return mocking;
    }
 
-   @NotNull public RecordPhase getRecordPhase()
+   @NotNull
+   public RecordPhase getRecordPhase()
    {
       if (recordPhase == null) {
          throw new IllegalStateException("Not in the recording phase");
@@ -252,7 +253,7 @@ public final class RecordAndReplayExecution
 
       String returnTypeDesc = DefaultValues.getReturnTypeDesc(nameAndDesc);
       Object cascadedInstance =
-         MockedTypeCascade.getMock(classDesc, nameAndDesc, mock, returnTypeDesc, genericSignature);
+         MockedTypeCascade.getMock(classDesc, nameAndDesc, mock, returnTypeDesc, genericSignature, args);
 
       if (cascadedInstance != null) {
          return cascadedInstance;
@@ -325,7 +326,8 @@ public final class RecordAndReplayExecution
       return !calledClassName.equals(mockedClass.getName());
    }
 
-   @NotNull private Phase getCurrentPhase()
+   @NotNull
+   private Phase getCurrentPhase()
    {
       ReplayPhase replay = replayPhase;
 
@@ -344,7 +346,8 @@ public final class RecordAndReplayExecution
       return replay;
    }
 
-   @NotNull public BaseVerificationPhase startVerifications(boolean inOrder)
+   @NotNull
+   public BaseVerificationPhase startVerifications(boolean inOrder)
    {
       assert replayPhase != null;
       List<Expectation> expectations = replayPhase.invocations;
@@ -359,13 +362,15 @@ public final class RecordAndReplayExecution
       return verificationPhase;
    }
 
-   @Nullable public static Error endCurrentReplayIfAny()
+   @Nullable
+   public static Error endCurrentReplayIfAny()
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
       return instance == null ? null : instance.endExecution();
    }
 
-   @Nullable private Error endExecution()
+   @Nullable
+   private Error endExecution()
    {
       if (TEST_ONLY_PHASE_LOCK.isLocked()) {
          TEST_ONLY_PHASE_LOCK.unlock();
@@ -386,7 +391,8 @@ public final class RecordAndReplayExecution
       return error;
    }
 
-   @NotNull private ReplayPhase switchFromRecordToReplayIfNotYet()
+   @NotNull
+   private ReplayPhase switchFromRecordToReplayIfNotYet()
    {
       if (replayPhase == null) {
          recordPhase = null;
@@ -396,7 +402,8 @@ public final class RecordAndReplayExecution
       return replayPhase;
    }
 
-   @NotNull public TestOnlyPhase getCurrentTestOnlyPhase()
+   @NotNull
+   public TestOnlyPhase getCurrentTestOnlyPhase()
    {
       if (recordPhase != null) return recordPhase;
       assert verificationPhase != null;

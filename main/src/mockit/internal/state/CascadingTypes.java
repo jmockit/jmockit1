@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -61,7 +61,7 @@ public final class CascadingTypes
           String cascadingTypeDesc = cascadeEntry.getKey();
           int p = cascadingTypeDesc.indexOf('<');
 
-          if (p > 0 && cascadingTypeDesc.regionMatches(0, mockedTypeDesc, 0, p)) {
+          if (p > 0 && cascadingTypeDesc.regionMatches(1, mockedTypeDesc, 0, p - 1)) {
             return cascadeEntry.getValue();
          }
       }

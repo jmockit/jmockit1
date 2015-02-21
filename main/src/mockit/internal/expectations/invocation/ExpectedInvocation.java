@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -368,15 +368,7 @@ public final class ExpectedInvocation
          defaultReturnValue = DefaultValues.computeForType(returnTypeDesc);
 
          if (defaultReturnValue == null) {
-            String genericSignature = arguments.genericSignature;
-            String genericReturnTypeDesc = null;
-
-            if (genericSignature != null) {
-               String resolvedSignature = new GenericTypeReflection().resolveReturnType(genericSignature);
-               genericReturnTypeDesc = DefaultValues.getReturnTypeDesc(resolvedSignature);
-            }
-
-            produceCascadedInstanceIfApplicable(phase, returnTypeDesc, genericReturnTypeDesc);
+            produceCascadedInstanceIfApplicable(phase, returnTypeDesc, arguments.genericSignature);
          }
       }
 
@@ -384,11 +376,12 @@ public final class ExpectedInvocation
    }
 
    private void produceCascadedInstanceIfApplicable(
-      @Nullable TestOnlyPhase phase, @NotNull String returnTypeDesc, @Nullable String genericReturnTypeDesc)
+      @Nullable TestOnlyPhase phase, @NotNull String returnTypeDesc, @Nullable String genericSignature)
    {
       String mockedTypeDesc = getClassDesc();
       Object cascadedMock = MockedTypeCascade.getMock(
-         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericReturnTypeDesc);
+         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericSignature,
+         arguments.getValues());
 
       if (cascadedMock != null) {
          if (phase != null) {

@@ -36,7 +36,7 @@ public final class MockedTypeCascade
    @Nullable
    public static Object getMock(
       @NotNull String mockedTypeDesc, @NotNull String mockedMethodNameAndDesc, @Nullable Object mockInstance,
-      @NotNull String returnTypeDesc, @Nullable String genericReturnTypeDesc)
+      @NotNull String returnTypeDesc, @Nullable String genericSignature, @NotNull Object[] args)
    {
       char typeCode = returnTypeDesc.charAt(0);
 
@@ -52,8 +52,8 @@ public final class MockedTypeCascade
 
       String resolvedReturnTypeDesc = null;
 
-      if (genericReturnTypeDesc != null) {
-         resolvedReturnTypeDesc = cascade.getGenericReturnType(genericReturnTypeDesc);
+      if (genericSignature != null) {
+         resolvedReturnTypeDesc = cascade.getGenericReturnType(genericSignature);
       }
 
       if (resolvedReturnTypeDesc == null) {
@@ -71,7 +71,7 @@ public final class MockedTypeCascade
    }
 
    @Nullable
-   private String getGenericReturnType(@NotNull String genericReturnTypeDesc)
+   private String getGenericReturnType(@NotNull String genericSignature)
    {
       Type cascadingType = mockedType;
 
@@ -80,10 +80,10 @@ public final class MockedTypeCascade
       }
 
       if (cascadingType instanceof ParameterizedType) {
-         return getGenericReturnTypeWithTypeArguments(genericReturnTypeDesc, (ParameterizedType) cascadingType);
+         return getGenericReturnTypeWithTypeArguments(genericSignature, (ParameterizedType) cascadingType);
       }
 
-      return getReturnTypeIfCascadingSupportedForIt(genericReturnTypeDesc);
+      return getReturnTypeIfCascadingSupportedForIt(genericSignature);
    }
 
    @NotNull
@@ -95,9 +95,14 @@ public final class MockedTypeCascade
 
    @Nullable
    private static String getGenericReturnTypeWithTypeArguments(
-      @NotNull String genericReturnTypeDesc, @NotNull ParameterizedType mockedGenericType)
+      @NotNull String genericSignature, @NotNull ParameterizedType mockedGenericType)
    {
-      String typeName = getInternalTypeName(genericReturnTypeDesc);
+      String typeName = getInternalTypeName(genericSignature);
+
+      if (typeName.charAt(0) == 'T') {
+         typeName = typeName.substring(1);
+      }
+
       TypeVariable<?>[] typeParameters = ((GenericDeclaration) mockedGenericType.getRawType()).getTypeParameters();
       Type[] actualTypeArguments = mockedGenericType.getActualTypeArguments();
 
