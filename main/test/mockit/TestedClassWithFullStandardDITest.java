@@ -77,30 +77,59 @@ public final class TestedClassWithFullStandardDITest
    @Tested(fullyInitialized = true) AnotherTestedClass tested2;
    @Injectable Runnable mockedDependency;
 
-   @Mocked Persistence persistence;
-   @Mocked EntityManagerFactory defaultEMFactory;
-   @Mocked EntityManagerFactory namedEMFactory;
-   @Mocked EntityManager defaultEM;
-   @Mocked EntityManager namedEM;
+   static EntityManagerFactory namedEMFactory;
+   static EntityManager namedEM;
+   static EntityManagerFactory defaultEMFactory;
+   static EntityManager defaultEM;
 
-   @Before
-   public void setUpPersistence() throws Exception
+   @BeforeClass
+   public static void setUpPersistence() throws Exception
    {
-      new NonStrictExpectations() {{
-         Persistence.createEntityManagerFactory("test"); result = namedEMFactory;
-         Persistence.createEntityManagerFactory("default"); result = defaultEMFactory;
-         Persistence.createEntityManagerFactory(anyString); times = 0;
+      final MockUp<EntityManager> namedEMMockUp = new MockUp<EntityManager>() {};
+      final MockUp<EntityManager> defaultEMMockUp = new MockUp<EntityManager>() {};
+      final MockUp<EntityManagerFactory> namedEMFactoryMockUp = new MockUp<EntityManagerFactory>() {
+         @Mock
+         EntityManager createEntityManager()
+         {
+            namedEM = namedEMMockUp.getMockInstance();
+            return namedEM;
+         }
+      };
+      final MockUp<EntityManagerFactory> defaultEMFactoryMockUp = new MockUp<EntityManagerFactory>() {
+         @Mock
+         EntityManager createEntityManager()
+         {
+            defaultEM = defaultEMMockUp.getMockInstance();
+            return defaultEM;
+         }
+      };
 
-         namedEMFactory.createEntityManager(); result = namedEM;
-         defaultEMFactory.createEntityManager(); result = defaultEM;
-      }};
+      new MockUp<Persistence>() {
+         @Mock
+         EntityManagerFactory createEntityManagerFactory(String persistenceUnitName)
+         {
+            if ("test".equals(persistenceUnitName)) {
+               assertNull("Named EM factory already created", namedEMFactory);
+               namedEMFactory = namedEMFactoryMockUp.getMockInstance();
+               return namedEMFactory;
+            }
+            else if ("default".equals(persistenceUnitName)) {
+               assertNull("Default EM factory already created", defaultEMFactory);
+               defaultEMFactory = defaultEMFactoryMockUp.getMockInstance();
+               return defaultEMFactory;
+            }
+
+            fail("Unexpected persistence unit");
+            return null;
+         }
+      };
 
       createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit();
    }
 
-   void createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit() throws IOException
+   static void createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit() throws IOException
    {
-      String rootOfClasspath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+      String rootOfClasspath = TestedClass.class.getProtectionDomain().getCodeSource().getLocation().getFile();
       File tempFolder = new File(rootOfClasspath + "META-INF");
       if (tempFolder.mkdir()) tempFolder.deleteOnExit();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -61,6 +61,7 @@ final class JPADependencies
          }
 
          EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+         injectionState.saveInstantiatedDependency(dependencyKey, emFactory, true);
          return emFactory;
       }
 
@@ -133,7 +134,7 @@ final class JPADependencies
          }
 
          emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
-         injectionState.saveInstantiatedDependency(emFactoryKey, emFactory);
+         injectionState.saveInstantiatedDependency(emFactoryKey, emFactory, true);
       }
 
       return emFactory.createEntityManager();

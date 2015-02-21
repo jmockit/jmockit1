@@ -23,6 +23,7 @@ final class InjectionState
    @NotNull private List<MockedType> injectables;
    @NotNull private List<MockedType> consumedInjectables;
    @NotNull private final Map<Object, Object> instantiatedDependencies;
+   @NotNull private final Map<Object, Object> globalDependencies;
    @NotNull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
@@ -33,6 +34,7 @@ final class InjectionState
       injectables = Collections.emptyList();
       consumedInjectables = new ArrayList<MockedType>();
       instantiatedDependencies = new HashMap<Object, Object>();
+      globalDependencies = new HashMap<Object, Object>();
       lifecycleMethods = new LifecycleMethods();
    }
 
@@ -172,16 +174,23 @@ final class InjectionState
       consumedInjectables = previousConsumedInjectables;
    }
 
+   @SuppressWarnings("unchecked")
    @Nullable
    <D> D getInstantiatedDependency(@NotNull Object dependencyKey)
    {
-      //noinspection unchecked
-      return (D) instantiatedDependencies.get(dependencyKey);
+      Object dependency = instantiatedDependencies.get(dependencyKey);
+
+      if (dependency == null) {
+         dependency = globalDependencies.get(dependencyKey);
+      }
+
+      return (D) dependency;
    }
 
-   void saveInstantiatedDependency(@NotNull Object dependencyKey, @NotNull Object dependency)
+   void saveInstantiatedDependency(@NotNull Object dependencyKey, @NotNull Object dependency, boolean global)
    {
-      instantiatedDependencies.put(dependencyKey, dependency);
+      Map<Object, Object> dependenciesCache = global ? globalDependencies : instantiatedDependencies;
+      dependenciesCache.put(dependencyKey, dependency);
    }
 
    void clearInstantiatedDependencies()
