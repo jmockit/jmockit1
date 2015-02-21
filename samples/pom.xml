@@ -27,7 +27,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.16</jmockit.version>
+      <jmockit.version>1.16-beta1</jmockit.version>
    </properties>
 
    <profiles>
