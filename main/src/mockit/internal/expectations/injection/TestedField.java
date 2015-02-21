@@ -31,6 +31,8 @@ final class TestedField
       testedObjectCreation = new TestedObjectCreation(injectionState, field);
    }
 
+   boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
+
    boolean isAtSameLevelInTestClassHierarchy(@NotNull TestedField another)
    {
       return getDeclaringTestClass() == another.getDeclaringTestClass();

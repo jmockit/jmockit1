@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.internal;
@@ -140,7 +140,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFields(@NotNull Object target)
+   protected static void createInstancesForTestedFields(@NotNull Object target, boolean beforeSetup)
    {
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
@@ -151,7 +151,7 @@ public class TestRunnerDecorator
             TestRun.enterNoMockingZone();
 
             try {
-               testedClasses.assignNewInstancesToTestedFields(target);
+               testedClasses.assignNewInstancesToTestedFields(target, beforeSetup);
             }
             finally {
                TestRun.exitNoMockingZone();

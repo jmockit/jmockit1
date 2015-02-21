@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -9,6 +9,13 @@ import org.junit.*;
 
 public final class TestedClassWithFieldDITest
 {
+   static final class UtilityClass
+   {
+      String name;
+      int id;
+      Runnable action;
+   }
+
    public static class TestedClass
    {
       static Runnable globalAction;
@@ -24,8 +31,18 @@ public final class TestedClassWithFieldDITest
 
    static class Dependency { int doSomething() { return -1; } }
 
+   @Tested(availableDuringSetup = true) UtilityClass util;
+   @Injectable("util") String utilName;
+
    @Tested TestedClass tested;
    @Injectable Dependency dependency;
+
+   @Before
+   public void setUp()
+   {
+      assertNotNull(util);
+      assertEquals("util", util.name);
+   }
 
    @Test
    public void exerciseTestedObjectWithFieldInjectedByType()
@@ -43,6 +60,7 @@ public final class TestedClassWithFieldDITest
    @Test
    public void exerciseTestedObjectCreatedThroughConstructorAndFieldInjection(@Injectable("123") int value)
    {
+      assertEquals(0, util.id);
       assertEquals(123, tested.i);
       assertSame(dependency, tested.dependency);
    }
@@ -50,6 +68,7 @@ public final class TestedClassWithFieldDITest
    @Test
    public void ignoreStaticFieldsWhenDoingFieldInjection(@Injectable Runnable action)
    {
+      assertNull(util.action);
       assertNull(TestedClass.globalAction);
    }
 }

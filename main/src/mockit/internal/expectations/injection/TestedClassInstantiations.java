@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -94,25 +94,27 @@ public final class TestedClassInstantiations
       return fieldAnnotation.annotationType().getAnnotation(Tested.class);
    }
 
-   public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance)
+   public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance, boolean beforeSetup)
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 
       TestedField previousField = null;
 
       for (TestedField testedField : testedFields) {
-         if (previousField != null && !testedField.isAtSameLevelInTestClassHierarchy(previousField)) {
-            injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
-         }
+         if (beforeSetup == testedField.isAvailableDuringSetup()) {
+            if (previousField != null && !testedField.isAtSameLevelInTestClassHierarchy(previousField)) {
+               injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
+            }
 
-         try {
-            testedField.instantiateWithInjectableValues(testClassInstance);
-         }
-         finally {
-            injectionState.resetConsumedInjectables();
-         }
+            try {
+               testedField.instantiateWithInjectableValues(testClassInstance);
+            }
+            finally {
+               injectionState.resetConsumedInjectables();
+            }
 
-         previousField = testedField;
+            previousField = testedField;
+         }
       }
    }
 

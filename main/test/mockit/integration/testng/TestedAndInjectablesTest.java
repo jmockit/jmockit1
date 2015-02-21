@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.testng;
@@ -11,6 +11,13 @@ import mockit.*;
 
 public final class TestedAndInjectablesTest
 {
+   static final class UtilityClass
+   {
+      String name;
+      Collaborator collaborator1;
+      Collaborator collaborator2;
+   }
+
    static class Collaborator { void doSomething() {} }
 
    static class SUT
@@ -27,6 +34,9 @@ public final class TestedAndInjectablesTest
       }
    }
 
+   @Tested(availableDuringSetup = true) UtilityClass util;
+   @Injectable("util") String utilName;
+
    @Tested SUT tested1;
    @Injectable Collaborator collaborator1;
 
@@ -41,12 +51,18 @@ public final class TestedAndInjectablesTest
    @BeforeMethod
    public void setUp()
    {
+      assertNotNull(util);
+      assertEquals(util.name, "util");
+      assertSame(collaborator1, util.collaborator1);
       tested2 = new SUT(new Collaborator());
    }
 
    @Test
    public void firstTest(@Injectable final Collaborator collaborator2)
    {
+      assertSame(collaborator1, util.collaborator1);
+      assertNull(util.collaborator2);
+
       assertNotNull(tested1);
       firstTestedObject = tested1;
 
@@ -83,6 +99,9 @@ public final class TestedAndInjectablesTest
    @Test(dependsOnMethods = "firstTest")
    public void secondTest(@Injectable Collaborator collaborator2)
    {
+      assertSame(collaborator1, util.collaborator1);
+      assertNull(util.collaborator2);
+
       assertNotSame(collaborator2, secondMockedObject);
       assertSame(collaborator1, firstMockedObject);
       assertNotSame(tested1, firstTestedObject);
