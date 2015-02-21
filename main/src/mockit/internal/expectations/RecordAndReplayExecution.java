@@ -9,6 +9,7 @@ import java.util.concurrent.locks.*;
 
 import mockit.*;
 import mockit.integration.junit4.internal.*;
+import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -252,11 +253,14 @@ public final class RecordAndReplayExecution
       }
 
       String returnTypeDesc = DefaultValues.getReturnTypeDesc(nameAndDesc);
-      Object cascadedInstance =
-         MockedTypeCascade.getMock(classDesc, nameAndDesc, mock, returnTypeDesc, genericSignature, args);
 
-      if (cascadedInstance != null) {
-         return cascadedInstance;
+      if (returnTypeDesc.charAt(0) == 'L') {
+         ExpectedInvocation invocation = new ExpectedInvocation(mock, classDesc, nameAndDesc, genericSignature, args);
+         Object cascadedInstance = invocation.getDefaultValueForReturnType(null);
+
+         if (cascadedInstance != null) {
+            return cascadedInstance;
+         }
       }
 
       return Void.class;

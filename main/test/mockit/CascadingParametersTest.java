@@ -8,8 +8,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
-import java.util.Map.*;
-import java.util.concurrent.*;
 
 import org.junit.*;
 import org.junit.runners.*;
@@ -31,11 +29,6 @@ public final class CascadingParametersTest
       int getIntValue() { return 1; }
       private Boolean getBooleanValue() { return true; }
       final List<Integer> getList() { return null; }
-      Callable<?> returnTypeWithWildcard() { return null; }
-      <RT extends Baz> RT returnTypeWithBoundedTypeVariable() { return null; }
-
-      <T1 extends Baz, T2 extends List<? extends Number>> Entry<T1, T2> returnTypeWithMultipleTypeVariables()
-      { return null; }
 
       HashMap<?, ?> getMap() { return null; }
    }
@@ -82,11 +75,6 @@ public final class CascadingParametersTest
       assertEquals(0, foo.getIntValue());
       assertFalse(foo.getBooleanValue());
       assertTrue(foo.getList().isEmpty());
-      assertNotNull(foo.returnTypeWithWildcard());
-      assertNotNull(foo.returnTypeWithBoundedTypeVariable());
-
-      Entry<Baz, List<Integer>> x = foo.returnTypeWithMultipleTypeVariables();
-      assertNotNull(x);
 
       HashMap<?, ?> map = foo.getMap();
       assertNotNull(map);
@@ -160,7 +148,7 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void cascadeOneLevelDuringRecord(@Mocked final Callable<String> action, @Mocked final Foo mockFoo)
+   public void cascadeOneLevelDuringRecord(@Mocked final Foo mockFoo)
    {
       final List<Integer> list = Arrays.asList(1, 2, 3);
 
@@ -171,7 +159,6 @@ public final class CascadingParametersTest
          mockFoo.getBooleanValue(); result = true;
          mockFoo.getIntValue(); result = -1;
          mockFoo.getList(); result = list;
-         mockFoo.returnTypeWithWildcard(); result = action;
       }};
 
       Foo foo = new Foo();
@@ -182,7 +169,6 @@ public final class CascadingParametersTest
       assertTrue(foo.getBooleanValue());
       assertEquals(-1, foo.getIntValue());
       assertSame(list, foo.getList());
-      assertSame(action, foo.returnTypeWithWildcard());
    }
 
    @Test
@@ -219,15 +205,11 @@ public final class CascadingParametersTest
    @Test
    public void cascadeTwoLevelsDuringRecord(@Mocked final Foo mockFoo)
    {
-      final Date now = new Date();
-
       new Expectations() {{
          mockFoo.getBar().doSomething(); result = 1;
          Foo.globalBar().doSomething(); result = 2;
 
          mockFoo.getBar().getBaz().runIt(); times = 2;
-
-         mockFoo.returnTypeWithBoundedTypeVariable().getDate(); result = now;
       }};
 
       Foo foo = new Foo();
@@ -237,24 +219,6 @@ public final class CascadingParametersTest
       Baz baz = foo.getBar().getBaz();
       baz.runIt();
       baz.runIt();
-
-      assertSame(now, foo.returnTypeWithBoundedTypeVariable().getDate());
-   }
-
-   static class GenericFoo<T, U extends Bar>
-   {
-      T returnTypeWithUnboundedTypeVariable() { return null; }
-      U returnTypeWithBoundedTypeVariable() { return null; }
-   }
-
-   @Test
-   public void cascadeGenericMethods(@Mocked GenericFoo<Baz, SubBar> foo)
-   {
-      Baz t = foo.returnTypeWithUnboundedTypeVariable();
-      assertNotNull(t);
-
-      SubBar u = foo.returnTypeWithBoundedTypeVariable();
-      assertNotNull(u);
    }
 
    @Test
@@ -472,8 +436,7 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void overrideCascadedMockAndRecordExpectationOnIt(
-      @Mocked final Foo foo, @Mocked final Bar mockBar)
+   public void overrideCascadedMockAndRecordExpectationOnIt(@Mocked final Foo foo, @Mocked final Bar mockBar)
    {
       new Expectations() {{
          foo.getBar(); result = mockBar;
@@ -632,19 +595,6 @@ public final class CascadingParametersTest
       assertSame(mockDate, new Foo().getBar().getBaz().getDate());
       assertEquals(123, newDate.getTime());
       assertEquals(0, mockDate.getTime());
-   }
-
-   static class A { B<?> getB() { return null; } }
-   static class B<T> { T getValue() { return null; } }
-
-   @Test
-   public void cascadeOnMethodReturningAParameterizedClassWithAGenericMethod(@Mocked final A a)
-   {
-      new Expectations() {{
-         a.getB().getValue(); result = "test";
-      }};
-
-      assertEquals("test", a.getB().getValue());
    }
 
    static class Factory { static Factory create() { return null; } }

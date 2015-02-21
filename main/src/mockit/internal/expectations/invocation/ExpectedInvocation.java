@@ -28,6 +28,16 @@ public final class ExpectedInvocation
    @Nullable private Object defaultReturnValue;
 
    public ExpectedInvocation(
+      @Nullable Object mock, @NotNull String mockedClassDesc, @NotNull String mockNameAndDesc,
+      @Nullable String genericSignature, @NotNull Object[] args)
+   {
+      instance = mock;
+      arguments = new InvocationArguments(0, mockedClassDesc, mockNameAndDesc, genericSignature, args);
+      invocationCause = null;
+      defaultReturnValue = determineDefaultReturnValueFromMethodSignature();
+   }
+
+   public ExpectedInvocation(
       @Nullable Object mock, int access, @NotNull String mockedClassDesc, @NotNull String mockNameAndDesc,
       boolean matchInstance, @Nullable String genericSignature, @NotNull Object[] args)
    {
@@ -364,6 +374,22 @@ public final class ExpectedInvocation
    public Object getDefaultValueForReturnType(@Nullable TestOnlyPhase phase)
    {
       if (defaultReturnValue == UNDEFINED_DEFAULT_RETURN) {
+         Class<?> resolvedReturnType = getReturnTypeAsResolvedFromClassArgument();
+
+         if (resolvedReturnType != null) {
+            defaultReturnValue = DefaultValues.computeForType(resolvedReturnType);
+
+            if (defaultReturnValue == null) {
+               String returnTypeDesc = 'L' + resolvedReturnType.getName().replace('.', '/') + ';';
+               String mockedTypeDesc = getClassDesc();
+               Object cascadedMock = MockedTypeCascade.getMock(
+                  mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, resolvedReturnType);
+               useCascadedMock(phase, cascadedMock);
+            }
+
+            return defaultReturnValue;
+         }
+
          String returnTypeDesc = DefaultValues.getReturnTypeDesc(arguments.methodNameAndDesc);
          defaultReturnValue = DefaultValues.computeForType(returnTypeDesc);
 
@@ -375,14 +401,39 @@ public final class ExpectedInvocation
       return defaultReturnValue;
    }
 
+   @Nullable
+   private Class<?> getReturnTypeAsResolvedFromClassArgument()
+   {
+      String genericSignature = arguments.genericSignature;
+
+      if (genericSignature != null) {
+         int returnTypePos = genericSignature.lastIndexOf(')') + 1;
+         char c = genericSignature.charAt(returnTypePos);
+
+         if (c == 'T') {
+            for (Object arg : arguments.getValues()) {
+               if (arg instanceof Class<?>) {
+                  return (Class<?>) arg;
+               }
+            }
+         }
+      }
+
+      return null;
+   }
+
    private void produceCascadedInstanceIfApplicable(
       @Nullable TestOnlyPhase phase, @NotNull String returnTypeDesc, @Nullable String genericSignature)
    {
       String mockedTypeDesc = getClassDesc();
       Object cascadedMock = MockedTypeCascade.getMock(
-         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericSignature,
-         arguments.getValues());
+         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericSignature);
 
+      useCascadedMock(phase, cascadedMock);
+   }
+
+   private void useCascadedMock(@Nullable TestOnlyPhase phase, @Nullable Object cascadedMock)
+   {
       if (cascadedMock != null) {
          if (phase != null) {
             phase.setNextInstanceToMatch(cascadedMock);
