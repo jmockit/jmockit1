@@ -6,6 +6,7 @@ package mockit.coverage;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 import org.jetbrains.annotations.*;
 
@@ -15,13 +16,15 @@ final class CoverageCheck
 {
    private static final class Threshold
    {
+      private static final Pattern PARAMETER_SEPARATORS = Pattern.compile(":|=");
+
       @Nullable private final String sourceFilePrefix;
       @NotNull private final String scopeDescription;
       @NotNull private final int[] minPercentages;
 
       Threshold(@NotNull String configurationParameter)
       {
-         String[] sourceFilePrefixAndMinPercentages = configurationParameter.split(":");
+         String[] sourceFilePrefixAndMinPercentages = PARAMETER_SEPARATORS.split(configurationParameter);
          String csvPercentages;
 
          if (sourceFilePrefixAndMinPercentages.length == 1) {
@@ -32,7 +35,7 @@ final class CoverageCheck
          else {
             String scope = sourceFilePrefixAndMinPercentages[0].trim();
 
-            if ("perFile".equals(scope)) {
+            if (isPerFile(scope)) {
                sourceFilePrefix = scope;
                scopeDescription = " for some source files";
             }
@@ -47,6 +50,8 @@ final class CoverageCheck
          minPercentages = new int[Metrics.values().length];
          parseMinimumPercentages(csvPercentages);
       }
+
+      private static boolean isPerFile(@Nullable String scope) { return "perFile".equalsIgnoreCase(scope); }
 
       private void parseMinimumPercentages(@NotNull String csvPercentages)
       {
@@ -64,7 +69,7 @@ final class CoverageCheck
          CoverageData coverageData = CoverageData.instance();
          int percentage;
 
-         if ("perFile".equals(sourceFilePrefix)) {
+         if (isPerFile(sourceFilePrefix)) {
             percentage = coverageData.getSmallestPerFilePercentage(metric);
          }
          else {
