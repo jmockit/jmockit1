@@ -109,4 +109,5 @@ public final class TestRun
    }
 
    static void terminate() { terminated = true; }
+   public static boolean isTerminated() { return terminated; }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.data;
@@ -38,6 +38,8 @@ public final class FileCoverageData implements Serializable
    // Used to track the last time the ".class" file was modified, to decide if merging can be done:
    long lastModified;
 
+   private final boolean loadedAfterTestCompletion;
+
    public FileCoverageData(int index, @Nullable String kindOfTopLevelType)
    {
       this.index = index;
@@ -45,7 +47,10 @@ public final class FileCoverageData implements Serializable
       lineCoverageInfo = Metrics.LineCoverage.active ? new PerFileLineCoverage() : NO_LINE_INFO;
       pathCoverageInfo = Metrics.PathCoverage.active ? new PerFilePathCoverage() : NO_PATH_INFO;
       dataCoverageInfo = Metrics.DataCoverage.active ? new PerFileDataCoverage() : NO_DATA_INFO;
+      loadedAfterTestCompletion = TestRun.isTerminated();
    }
+
+   public boolean wasLoadedAfterTestCompletion() { return loadedAfterTestCompletion; }
 
    @NotNull
    public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }

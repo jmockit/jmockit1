@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.data;
@@ -118,9 +118,14 @@ public final class CoverageData implements Serializable
       int minPercentage = Integer.MAX_VALUE;
 
       for (FileCoverageData fileData : fileToFileData.values()) {
-         PerFileCoverage coverageInfo = fileData.getPerFileCoverage(metric);
-         int percentage = coverageInfo.getCoveragePercentage();
-         if (percentage >= 0 && percentage < minPercentage) minPercentage = percentage;
+         if (!fileData.wasLoadedAfterTestCompletion()) {
+            PerFileCoverage coverageInfo = fileData.getPerFileCoverage(metric);
+            int percentage = coverageInfo.getCoveragePercentage();
+
+            if (percentage >= 0 && percentage < minPercentage) {
+               minPercentage = percentage;
+            }
+         }
       }
 
       return minPercentage;
