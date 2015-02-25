@@ -101,7 +101,7 @@ public final class TestedClassInstantiations
       TestedField previousField = null;
 
       for (TestedField testedField : testedFields) {
-         if (beforeSetup == testedField.isAvailableDuringSetup()) {
+         if (!beforeSetup || testedField.isAvailableDuringSetup()) {
             if (previousField != null && !testedField.isAtSameLevelInTestClassHierarchy(previousField)) {
                injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
             }

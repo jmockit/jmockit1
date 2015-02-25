@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -36,6 +36,7 @@ public final class TestedClassWithConstructorDI3Test
       int doSomething() { return -1; }
    }
 
+   @Tested(availableDuringSetup = true) TestedClass support;
    @Tested TestedClass tested;
    @Injectable Dependency mock1;
    @Injectable Runnable task;
@@ -44,6 +45,8 @@ public final class TestedClassWithConstructorDI3Test
    @Test
    public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughVarargsConstructorParameter()
    {
+      assertNotNull(support);
+
       new Expectations() {{
          mock1.doSomething(); result = 23;
          mock2.doSomething(); result = 5;
@@ -56,6 +59,8 @@ public final class TestedClassWithConstructorDI3Test
    public void exerciseTestedObjectWithDependenciesProvidedByMockFieldsAndMockParameter(
       @Injectable final Dependency mock3)
    {
+      assertNotNull(support);
+
       new Expectations() {{
          mock1.doSomething(); result = 2;
          mock2.doSomething(); result = 3;

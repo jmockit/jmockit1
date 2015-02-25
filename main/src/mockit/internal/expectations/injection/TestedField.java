@@ -9,7 +9,7 @@ import java.util.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import mockit.internal.util.*;
+import static mockit.internal.util.FieldReflection.*;
 
 import org.jetbrains.annotations.*;
 
@@ -42,10 +42,14 @@ final class TestedField
 
    void instantiateWithInjectableValues(@NotNull Object testClassInstance)
    {
+      if (isAvailableDuringSetup() && getFieldValue(testedField, testClassInstance) != null) {
+         return;
+      }
+
       Object testedObject = null;
 
       if (!createAutomatically) {
-         testedObject = FieldReflection.getFieldValue(testedField, testClassInstance);
+         testedObject = getFieldValue(testedField, testClassInstance);
          createAutomatically = testedObject == null && !isFinal(testedField.getModifiers());
       }
 
@@ -56,7 +60,7 @@ final class TestedField
       if (createAutomatically) {
          testedClass = testedField.getType();
          testedObject = testedObjectCreation.create();
-         FieldReflection.setFieldValue(testedField, testClassInstance, testedObject);
+         setFieldValue(testedField, testClassInstance, testedObject);
       }
       else {
          testedClass = testedObject == null ? null : testedObject.getClass();
@@ -83,7 +87,7 @@ final class TestedField
          injectionState.clearInstantiatedDependencies();
 
          Object testClassInstance = injectionState.getCurrentTestClassInstance();
-         FieldReflection.setFieldValue(testedField, testClassInstance, null);
+         setFieldValue(testedField, testClassInstance, null);
       }
    }
 }
