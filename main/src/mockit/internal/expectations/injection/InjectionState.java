@@ -6,6 +6,7 @@ package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.inject.*;
 
@@ -20,10 +21,11 @@ import org.jetbrains.annotations.*;
  */
 final class InjectionState
 {
+   @NotNull private static final Map<Object, Object> globalDependencies = new ConcurrentHashMap<Object, Object>(2);
+
    @NotNull private List<MockedType> injectables;
    @NotNull private List<MockedType> consumedInjectables;
    @NotNull private final Map<Object, Object> instantiatedDependencies;
-   @NotNull private final Map<Object, Object> globalDependencies;
    @NotNull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
@@ -34,7 +36,6 @@ final class InjectionState
       injectables = Collections.emptyList();
       consumedInjectables = new ArrayList<MockedType>();
       instantiatedDependencies = new HashMap<Object, Object>();
-      globalDependencies = new HashMap<Object, Object>();
       lifecycleMethods = new LifecycleMethods();
    }
 
