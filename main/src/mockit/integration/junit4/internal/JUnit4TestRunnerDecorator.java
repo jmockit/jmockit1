@@ -35,7 +35,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       // A @Before/@After method:
       if (it.getAnnotation(Test.class) == null) {
          if (shouldPrepareForNextTest && it.getAnnotation(Before.class) != null) {
-            executeSetupMethod(target);
+            prepareToExecuteSetupMethod(target);
          }
 
          TestRun.setRunningIndividualTest(target);
@@ -87,7 +87,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       return method.invokeExplosively(null, params);
    }
 
-   private void executeSetupMethod(@NotNull Object target)
+   private void prepareToExecuteSetupMethod(@NotNull Object target)
    {
       discardTestLevelMockedTypes();
       prepareForNextTest();
