@@ -32,7 +32,7 @@ public final class StandardDITest
       public TestedClass(Collaborator collaborator, int anotherValue) { throw new RuntimeException("Must not occur"); }
    }
 
-   class Collaborator { boolean b = true; }
+   static class Collaborator { boolean b = true; }
 
    @Tested TestedClass tested1;
    @Injectable Collaborator collaborator; // for constructor injection
