@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -39,6 +39,22 @@ public final class MisusingMockupsAPITest
       final int value;
       SomeMockUp(int value) { this.value = value; }
       @Mock(invocations = 1) int doSomething() { return value; }
+   }
+
+   public static final class ProceedingMockUp extends MockUp<Collaborator> {
+      @Mock public static int doSomething(Invocation inv) { return inv.proceed(); }
+   }
+
+   @Test
+   public void applySameMockClassTwiceWithCallsToProceedingMockMethod()
+   {
+      Collaborator col = new Collaborator();
+
+      new ProceedingMockUp();
+      col.doSomething();
+
+      new ProceedingMockUp(); // causes StackOverflow if applied
+      col.doSomething();
    }
 
    @Test

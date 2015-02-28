@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -161,11 +161,13 @@ public abstract class MockUp<T>
       MockUpInstances mockUpInstances = TestRun.getMockClasses().findPreviouslyAppliedMockUps(this);
 
       if (mockUpInstances != null) {
+         MockUp<?> previousMockUp = mockUpInstances.initialMockUp;
+
          if (mockUpInstances.hasMockUpsForSingleInstances()) {
-            return mockUpInstances.initialMockUp;
+            return previousMockUp;
          }
 
-         tearDown();
+         previousMockUp.tearDown();
       }
 
       return null;
@@ -248,8 +250,9 @@ public abstract class MockUp<T>
     * @see #MockUp()
     * @see #MockUp(Object)
     */
-   protected MockUp(@SuppressWarnings("NullableProblems") Class<?> classToMock)
+   protected MockUp(Class<?> classToMock)
    {
+      //noinspection ConstantConditions
       if (classToMock == null) {
          throw new IllegalArgumentException("Null reference when expecting the class to mock");
       }
@@ -297,6 +300,7 @@ public abstract class MockUp<T>
     */
    protected MockUp(T instanceToMock)
    {
+      //noinspection ConstantConditions
       if (instanceToMock == null) {
          throw new IllegalArgumentException("Null reference when expecting the instance to mock");
       }
