@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -125,6 +125,24 @@ public final class MockUpTest
       assertTrue(main.increment());
    }
 
+   @Test
+   public void attemptToMockGivenClassButPassNull()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Null reference");
+
+      new MockUp<Collaborator>((Class<?>) null) {};
+   }
+
+   @Test
+   public void attemptToMockGivenInstanceButPassNull()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Null reference");
+
+      new MockUp<Collaborator>((Collaborator) null) {};
+   }
+
    @SuppressWarnings("rawtypes")
    static class MockForGivenClass extends MockUp
    {
@@ -204,7 +222,7 @@ public final class MockUpTest
       SomeInterface proxy1 = new MockUp<SomeInterface>(){}.getMockInstance();
       SomeInterface proxy2 = new MockUp<SomeInterface>(){}.getMockInstance();
 
-      //noinspection SimplifiableJUnitAssertion
+      //noinspection SimplifiableJUnitAssertion,EqualsWithItself
       assertTrue(proxy1.equals(proxy1));
       assertFalse(proxy1.equals(proxy2));
       assertFalse(proxy2.equals(proxy1));
