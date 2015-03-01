@@ -27,7 +27,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.16-beta1</jmockit.version>
+      <jmockit.version>1.16-beta2</jmockit.version>
    </properties>
 
    <profiles>
@@ -100,10 +100,7 @@
       </dependency>
 
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.8</version>
-         <exclusions>
-            <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
-         </exclusions>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.17</version>
          <scope>test</scope>
       </dependency>
 
