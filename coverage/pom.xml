@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.16-beta1</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.16-beta2</version>
    <packaging>jar</packaging>
 
    <name>JMockit Coverage</name>
@@ -41,6 +41,10 @@
       <sourceDirectory>src</sourceDirectory>
       <outputDirectory>classes</outputDirectory>
       <resources>
+         <resource>
+            <directory>.</directory>
+            <includes><include>META-INF/services/org.testng.ITestNGListener</include></includes>
+         </resource>
          <resource>
             <directory>src</directory>
             <includes>
@@ -169,6 +173,10 @@
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
          <scope>test</scope><optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.17</version>
+         <optional>true</optional>
       </dependency>
    </dependencies>
 </project>
