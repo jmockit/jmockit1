@@ -189,13 +189,6 @@
       </plugins>
    </build>
 
-   <distributionManagement>
-      <repository>
-         <id>sonatype-nexus-staging</id>
-         <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
-   </distributionManagement>
-
    <dependencies>
       <dependency>
          <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
