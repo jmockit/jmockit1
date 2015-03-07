@@ -28,6 +28,8 @@ public final class CascadingWithGenericsTest
 
       <T1 extends Baz, T2 extends List<? extends Number>> Entry<T1, T2> returnTypeWithMultipleTypeVariables()
       { return null; }
+
+      Callable<Baz> returnGenericTypeWithTypeArgument() { return null; }
    }
 
    static class Bar
@@ -138,5 +140,22 @@ public final class CascadingWithGenericsTest
       SubBar subBar = foo.genericMethodWithBoundedTypeVariableAndClassParameter(SubBar.class);
 
       assertNotNull(subBar);
+   }
+
+   @Test
+   public void cascadeFromGenericMethodWhoseReturnTypeComesFromParameterOnOwnerType(
+      @Mocked Foo foo, @Mocked final Baz cascadedBaz) throws Exception
+   {
+      final Date date = new Date();
+
+      new Expectations() {{
+         cascadedBaz.getDate(); result = date;
+      }};
+
+      Callable<Baz> callable = foo.returnGenericTypeWithTypeArgument();
+      Baz baz = callable.call();
+
+      assertSame(cascadedBaz, baz);
+      assertSame(date, baz.getDate());
    }
 }

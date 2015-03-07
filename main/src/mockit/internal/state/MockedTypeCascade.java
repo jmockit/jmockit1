@@ -103,24 +103,33 @@ public final class MockedTypeCascade
          return getGenericReturnTypeWithTypeArguments(genericSignature, (ParameterizedType) cascadingType);
       }
 
-      return getReturnTypeIfCascadingSupportedForIt(genericSignature);
+      String returnTypeName = getInternalReturnTypeCodeAndName(genericSignature);
+      return isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
    }
 
    @NotNull
    private static String getInternalTypeName(@NotNull String typeDesc)
    {
-      int p = typeDesc.indexOf('(');
-      return typeDesc.substring(p + 2, typeDesc.length() - 1);
+      return typeDesc.substring(1, typeDesc.length() - 1);
+   }
+
+   @NotNull
+   private static String getInternalReturnTypeCodeAndName(@NotNull String genericSignature)
+   {
+      int p = genericSignature.indexOf(')');
+      return genericSignature.substring(p + 1, genericSignature.length() - 1);
    }
 
    @Nullable
    private static String getGenericReturnTypeWithTypeArguments(
       @NotNull String genericSignature, @NotNull ParameterizedType mockedGenericType)
    {
-      String typeName = getInternalTypeName(genericSignature);
+      String typeCodeAndName = getInternalReturnTypeCodeAndName(genericSignature);
+      char typeCode = typeCodeAndName.charAt(0);
+      String typeName = typeCodeAndName.substring(1);
 
-      if (typeName.charAt(0) == 'T') {
-         typeName = typeName.substring(1);
+      if (typeCode == 'L') {
+         return isTypeSupportedForCascading(typeName) ? typeName : null;
       }
 
       TypeVariable<?>[] typeParameters = ((GenericDeclaration) mockedGenericType.getRawType()).getTypeParameters();
