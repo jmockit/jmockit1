@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2011 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.loginExample.domain.userLogin;
@@ -47,18 +47,21 @@ public final class LoginService
 
    private void handleFailedLoginAttempt(String accountId)
    {
-      if (previousAccountId == null || accountId.equals(previousAccountId)) {
+      if (previousAccountId == null) {
          loginAttemptsRemaining--;
+         previousAccountId = accountId;
+      }
+      else if (accountId.equals(previousAccountId)) {
+         loginAttemptsRemaining--;
+
+         if (loginAttemptsRemaining == 0) {
+            account.setRevoked(true);
+            loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
+         }
       }
       else {
          loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
-      }
-
-      previousAccountId = accountId;
-
-      if (loginAttemptsRemaining == 0) {
-         account.setRevoked(true);
-         loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
+         previousAccountId = accountId;
       }
    }
 }

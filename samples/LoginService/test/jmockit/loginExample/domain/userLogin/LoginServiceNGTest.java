@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package jmockit.loginExample.domain.userLogin;
@@ -25,6 +25,11 @@ public final class LoginServiceNGTest
       new NonStrictExpectations() {{ UserAccount.find("john"); result = account; }};
    }
 
+   /**
+    * This test is redundant, as it exercises the same path as the last test.
+    * It cannot simply be removed, because the last test does not perform the "account.setLoggedIn(true)" verification;
+    * if said verification is added there, however, then this test could be removed without weakening the test suite.
+    */
    @Test
    public void setAccountToLoggedInWhenPasswordMatches() throws Exception
    {
@@ -52,6 +57,11 @@ public final class LoginServiceNGTest
       new Verifications() {{ account.setRevoked(true); }};
    }
 
+   /**
+    * This test is also redundant, as it exercises the same path as the previous one.
+    * Again, it cannot simply be removed since the previous test does not verify that "account.setLoggedIn(true)" is
+    * never called; if said verification is added there, however, this test could safely be removed.
+    */
    @Test
    public void notSetAccountLoggedInIfPasswordDoesNotMatch() throws Exception
    {
@@ -103,7 +113,7 @@ public final class LoginServiceNGTest
    {
       new Expectations() {{ UserAccount.find("roger"); result = null; }};
 
-      new LoginService().login("roger", "password");
+      service.login("roger", "password");
    }
 
    @Test(expectedExceptions = UserAccountRevokedException.class)
