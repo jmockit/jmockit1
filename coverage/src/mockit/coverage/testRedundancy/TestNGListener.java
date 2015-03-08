@@ -4,6 +4,8 @@
  */
 package mockit.coverage.testRedundancy;
 
+import java.lang.reflect.*;
+
 import org.testng.*;
 
 public final class TestNGListener implements IInvokedMethodListener
@@ -12,7 +14,8 @@ public final class TestNGListener implements IInvokedMethodListener
    public void beforeInvocation(IInvokedMethod method, ITestResult testResult)
    {
       if (method.isTestMethod()) {
-
+         Method testMethod = method.getTestMethod().getConstructorOrMethod().getMethod();
+         TestCoverage.INSTANCE.setCurrentTestMethod(testMethod);
       }
    }
 
@@ -20,7 +23,7 @@ public final class TestNGListener implements IInvokedMethodListener
    public void afterInvocation(IInvokedMethod method, ITestResult testResult)
    {
       if (method.isTestMethod()) {
-
+         TestCoverage.INSTANCE.setCurrentTestMethod(null);
       }
    }
 }

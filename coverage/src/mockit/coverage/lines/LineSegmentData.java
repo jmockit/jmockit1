@@ -34,13 +34,15 @@ public class LineSegmentData implements Serializable
       return callPoints == null || callPoints.size() < MAX_CALL_POINTS;
    }
 
-   final void registerExecution(@Nullable CallPoint callPoint)
+   final int registerExecution(@Nullable CallPoint callPoint)
    {
-      executionCount++;
+      int previousExecutionCount = executionCount++;
 
       if (callPoint != null) {
          addCallPoint(callPoint);
       }
+
+      return previousExecutionCount;
    }
 
    private void addCallPoint(@NotNull CallPoint callPoint)

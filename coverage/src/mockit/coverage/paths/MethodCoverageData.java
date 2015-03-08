@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -35,10 +35,10 @@ public final class MethodCoverageData implements Serializable
       previousNodeIndex = new ThreadLocal<Integer>();
    }
 
-   public void buildPaths(int lastLine, @NotNull NodeBuilder nodeBuilder)
+   public void buildPaths(int lastExecutableLine, @NotNull NodeBuilder nodeBuilder)
    {
       firstLine = nodeBuilder.firstLine;
-      this.lastLine = lastLine;
+      lastLine = lastExecutableLine;
 
       nodes = nodeBuilder.nodes;
       paths = new PathBuilder().buildPaths(nodes);
@@ -59,7 +59,7 @@ public final class MethodCoverageData implements Serializable
    public int getFirstLineInBody() { return firstLine; }
    public int getLastLineInBody() { return lastLine; }
 
-   public void markNodeAsReached(int nodeIndex)
+   public int markNodeAsReached(int nodeIndex)
    {
       if (nodeIndex == 0) {
          clearNodes();
@@ -78,11 +78,15 @@ public final class MethodCoverageData implements Serializable
          Exit exitNode = (Exit) node;
 
          for (Path path : exitNode.paths) {
-            if (path.countExecutionIfAllNodesWereReached(currentNodesReached)) {
-               return;
+            int previousExecutionCount = path.countExecutionIfAllNodesWereReached(currentNodesReached);
+
+            if (previousExecutionCount >= 0) {
+               return previousExecutionCount;
             }
          }
       }
+
+      return -1;
    }
 
    private void clearNodes()

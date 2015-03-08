@@ -4,10 +4,11 @@
  */
 package mockit.coverage;
 
-import org.jetbrains.annotations.*;
-
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
+import mockit.coverage.testRedundancy.*;
+
+import org.jetbrains.annotations.*;
 
 @SuppressWarnings("unused")
 public final class TestRun
@@ -29,7 +30,8 @@ public final class TestRun
             callPoint = CallPoint.create(new Throwable());
          }
 
-         fileData.registerExecution(line, callPoint);
+         int previousExecutionCount = fileData.registerExecution(line, callPoint);
+         TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
       }
    }
 
@@ -48,7 +50,8 @@ public final class TestRun
                callPoint = CallPoint.create(new Throwable());
             }
 
-            fileData.registerExecution(line, branchIndex, callPoint);
+            int previousExecutionCount = fileData.registerExecution(line, branchIndex, callPoint);
+            TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
          }
       }
    }
@@ -60,7 +63,9 @@ public final class TestRun
       synchronized (TestRun.class) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
-         fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
+
+         int previousExecutionCount = fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
+         TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
       }
    }
 

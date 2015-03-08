@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -37,13 +37,15 @@ public final class PerFilePathCoverage implements PerFileCoverage
       firstLineToMethodData.put(methodData.getFirstLineInBody(), methodData);
    }
 
-   public void registerExecution(int firstLineInMethodBody, int node)
+   public int registerExecution(int firstLineInMethodBody, int node)
    {
       MethodCoverageData methodData = firstLineToMethodData.get(firstLineInMethodBody);
 
       if (methodData != null) {
-         methodData.markNodeAsReached(node);
+         return methodData.markNodeAsReached(node);
       }
+
+      return -1;
    }
 
    @Override

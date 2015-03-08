@@ -101,18 +101,20 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.acceptsAdditionalCallPoints();
    }
 
-   public void registerExecution(int line, @Nullable CallPoint callPoint)
+   public int registerExecution(int line, @Nullable CallPoint callPoint)
    {
       if (executionCounts == NO_EXECUTIONS_YET) {
          executionCounts = new int[lastLine + 1];
       }
 
-      executionCounts[line]++;
+      int previousExecutionCount = executionCounts[line]++;
 
       if (callPoint != null) {
          LineCoverageData lineData = getOrCreateLineData(line);
          lineData.registerExecution(callPoint);
       }
+
+      return previousExecutionCount;
    }
 
    public boolean hasValidBranch(int line, int branchIndex)
@@ -127,10 +129,10 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
-   public void registerExecution(int line, int branchIndex, @Nullable CallPoint callPoint)
+   public int registerExecution(int line, int branchIndex, @Nullable CallPoint callPoint)
    {
       LineCoverageData lineData = getOrCreateLineData(line);
-      lineData.registerExecution(branchIndex, callPoint);
+      return lineData.registerExecution(branchIndex, callPoint);
    }
 
    public int getLineCount() { return lastLine; }

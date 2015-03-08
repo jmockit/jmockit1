@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -34,15 +34,15 @@ public final class Path implements Serializable
 
    void addNode(@NotNull Node node) { nodes.add(node); }
 
-   boolean countExecutionIfAllNodesWereReached(@NotNull List<Node> nodesReached)
+   int countExecutionIfAllNodesWereReached(@NotNull List<Node> nodesReached)
    {
       boolean allNodesReached = nodes.equals(nodesReached);
 
       if (allNodesReached) {
-         executionCount.getAndIncrement();
+         return executionCount.getAndIncrement();
       }
 
-      return allNodesReached;
+      return -1;
    }
 
    public boolean isShadowed() { return shadowed; }

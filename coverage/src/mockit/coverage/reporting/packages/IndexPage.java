@@ -1,17 +1,19 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
-import mockit.coverage.reporting.OutputFile;
+import mockit.coverage.reporting.*;
+import mockit.coverage.testRedundancy.*;
+
+import org.jetbrains.annotations.*;
 
 public final class IndexPage extends ListWithFilesAndPercentages
 {
@@ -46,8 +48,10 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
          List<String> packages = new ArrayList<String>(packageToFiles.keySet());
          writeMetricsForEachFile(null, packages);
-
          writeLineWithCoverageTotals();
+         output.println("  </table>");
+
+         writeListOfRedundantTestsIfAny();
          writeFooter();
       }
       finally {
@@ -57,9 +61,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeHeader()
    {
-      ((OutputFile) output).writeCommonHeader("JMockit Coverage Report");
+      ((OutputFile) output).writeCommonHeader("Code Coverage Report");
 
-      output.println("  <h1>JMockit Coverage Report</h1>");
       output.println("  <table id='packages'>");
 
       writeTableCaption();
@@ -144,17 +147,6 @@ public final class IndexPage extends ListWithFilesAndPercentages
       int percentage = CoveragePercentage.calculate(covered, total);
 
       printCoveragePercentage(metric, covered, total, percentage);
-   }
-
-   private void writeFooter()
-   {
-      output.println("  </table>");
-      output.println("  <p>");
-      output.println("    <a href='http://jmockit.org'><img src='logo.png'></a>");
-      output.write("    Generated on ");
-      output.println(new Date());
-      output.println("  </p>");
-      ((OutputFile) output).writeCommonFooter();
    }
 
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
@@ -256,5 +248,41 @@ public final class IndexPage extends ListWithFilesAndPercentages
    protected void writeClassAttributeForCoveragePercentageCell()
    {
       output.write("class='pt' ");
+   }
+
+   private void writeListOfRedundantTestsIfAny()
+   {
+      List<Method> redundantTests = TestCoverage.INSTANCE.getRedundantTests();
+
+      if (!redundantTests.isEmpty()) {
+         output.println("  <br/>Redundant tests:");
+         output.println(
+            "  <ol title=\"Tests are regarded as redundant when they don't cover any additional line " +
+            "segments or paths that haven't already been covered by a previous test.\n" +
+            "Note this means the list of redundant tests depends on the order of test execution.\n" +
+            "Such a test can be removed without weakening the test suite, as long as another test " +
+            "for the same scenario performs its assertions.\">");
+
+         for (Method testMethod : redundantTests) {
+            String testDescription = testMethod.getDeclaringClass().getSimpleName() + '.' + testMethod.getName();
+
+            output.append("");
+            output.write("    <li>");
+            output.write(testDescription);
+            output.println("</li>");
+         }
+
+         output.println("  </ol>");
+      }
+   }
+
+   private void writeFooter()
+   {
+      output.println("  <p>");
+      output.println("    <a href='http://jmockit.org'><img src='logo.png'></a>");
+      output.write("    Generated on ");
+      output.println(new Date());
+      output.println("  </p>");
+      ((OutputFile) output).writeCommonFooter();
    }
 }

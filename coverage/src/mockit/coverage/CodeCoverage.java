@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -7,11 +7,11 @@ package mockit.coverage;
 import java.lang.instrument.*;
 import java.security.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.coverage.data.*;
 import mockit.coverage.modification.*;
 import mockit.coverage.standalone.*;
+
+import org.jetbrains.annotations.*;
 
 public final class CodeCoverage implements ClassFileTransformer
 {

@@ -53,10 +53,10 @@ public final class LineCoverageData extends LineSegmentData
       return data.acceptsAdditionalCallPoints();
    }
 
-   void registerExecution(int branchIndex, @Nullable CallPoint callPoint)
+   int registerExecution(int branchIndex, @Nullable CallPoint callPoint)
    {
       BranchCoverageData data = branches.get(branchIndex);
-      data.registerExecution(callPoint);
+      return data.registerExecution(callPoint);
    }
 
    public boolean containsBranches() { return !noBranchesYet(); }
@@ -64,12 +64,6 @@ public final class LineCoverageData extends LineSegmentData
    @NotNull public List<BranchCoverageData> getBranches() { return branches; }
 
    public boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
-
-   public void invalidateBranchingPoint(int targetBranchIndex)
-   {
-      branches.set(targetBranchIndex, BranchCoverageData.INVALID);
-      branches.set(targetBranchIndex - 1, BranchCoverageData.INVALID);
-   }
 
    public int getNumberOfSegments()
    {
