@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -18,14 +18,14 @@ public final class OutputFile extends PrintWriter
 
    public OutputFile(@NotNull File file) throws IOException
    {
-      super(new FileWriter(file));
+      super(file, "UTF-8");
       relPathToOutDir = "";
       withPrettyPrint = false;
    }
 
    public OutputFile(@NotNull String outputDir, @NotNull String sourceFilePath) throws IOException
    {
-      super(new FileWriter(getOutputFileCreatingDirIfNeeded(outputDir, sourceFilePath)));
+      super(getOutputFileCreatingDirIfNeeded(outputDir, sourceFilePath));
       relPathToOutDir = getRelativeSubPathToOutputDir(sourceFilePath);
       withPrettyPrint = true;
    }
@@ -53,7 +53,8 @@ public final class OutputFile extends PrintWriter
       return outputFile;
    }
 
-   @NotNull private static String getRelativeSubPathToOutputDir(@NotNull String filePath)
+   @NotNull
+   private static String getRelativeSubPathToOutputDir(@NotNull String filePath)
    {
       StringBuilder cssRelPath = new StringBuilder();
       int n = PATH_SEPARATOR.split(filePath).length;
