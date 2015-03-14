@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.standalone;
@@ -24,22 +24,12 @@ public final class Startup
       instrumentation = inst;
       discoverOptionalDependenciesThatAreAvailableInClassPath();
 
-      String startupMessage;
-
-      if (inATestRun) {
-         startupMessage = "JMockit Coverage tool loaded";
-      }
-      else {
-         startupMessage = "JMockit Coverage tool loaded; connect with a JMX client to control operation";
+      if (!inATestRun) {
          CoverageControl.create();
       }
 
       ClassFileTransformer coverageTransformer = CodeCoverage.create(inATestRun);
       inst.addTransformer(coverageTransformer);
-
-      System.out.println();
-      System.out.println(startupMessage);
-      System.out.println();
 
       if (jmockitAvailable) {
          mockit.internal.startup.Startup.initialize(inst);
@@ -65,7 +55,8 @@ public final class Startup
       }
    }
 
-   @NotNull public static Instrumentation instrumentation()
+   @NotNull
+   public static Instrumentation instrumentation()
    {
       if (instrumentation == null) {
          instrumentation = mockit.internal.startup.Startup.instrumentation();
