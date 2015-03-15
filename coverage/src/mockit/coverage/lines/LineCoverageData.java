@@ -132,6 +132,60 @@ public final class LineCoverageData extends LineSegmentData
       return segmentsCovered;
    }
 
+   public int getNumberOfBranchingSourcesAndTargets()
+   {
+      int n = branches.size();
+
+      if (n == 0) {
+         return 0;
+      }
+
+      int count = 0;
+
+      for (int sourceBranchIndex = 0; sourceBranchIndex < n; sourceBranchIndex += 2) {
+         BranchCoverageData sourceBranch = branches.get(sourceBranchIndex);
+         BranchCoverageData targetBranch = branches.get(sourceBranchIndex + 1);
+
+         if (!sourceBranch.isEmpty()) {
+            count++;
+         }
+
+         count++;
+      }
+
+      return count;
+   }
+
+   public int getNumberOfCoveredBranchingSourcesAndTargets()
+   {
+      int n = branches.size();
+
+      if (n == 0) {
+         return 0;
+      }
+
+      int sourcesAndTargetsCovered = 0;
+
+      for (int sourceBranchIndex = 0; sourceBranchIndex < n; sourceBranchIndex += 2) {
+         BranchCoverageData sourceBranch = branches.get(sourceBranchIndex);
+         BranchCoverageData targetBranch = branches.get(sourceBranchIndex + 1);
+
+         if (sourceBranch.isCovered()) {
+            sourcesAndTargetsCovered++;
+         }
+
+         if (targetBranch.isCovered()) {
+            int targetLine = targetBranch.getLine();
+
+            if (targetLine == sourceBranch.getLine()) {
+               sourcesAndTargetsCovered++;
+            }
+         }
+      }
+
+      return sourcesAndTargetsCovered;
+   }
+
    void addCountsFromPreviousTestRun(@NotNull LineCoverageData previousData)
    {
       addExecutionCountAndCallPointsFromPreviousTestRun(previousData);

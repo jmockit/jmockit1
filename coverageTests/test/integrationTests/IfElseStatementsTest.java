@@ -22,6 +22,9 @@ public final class IfElseStatementsTest extends CoverageTest
       assertLine(9, 1, 1, 1);
       assertLine(11, 1, 1, 2);
 
+      assertBranchingPoints(8, 2, 2);
+      assertBranchingPoints(9, 0, 0);
+
       findMethodData(8);
       assertPaths(2, 2, 2);
       assertMethodLines(8, 11);

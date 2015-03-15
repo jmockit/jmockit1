@@ -219,6 +219,17 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData == null ? 1 : lineData.getNumberOfSegments();
    }
 
+   public int getNumberOfBranchingSourcesAndTargets(int line)
+   {
+      LineCoverageData lineData = lineToLineData.get(line);
+
+      if (lineData == null) {
+         return 0;
+      }
+
+      return lineData.getNumberOfBranchingSourcesAndTargets();
+   }
+
    public void reset()
    {
       for (int i = 1; i < executionCounts.length; i++) {

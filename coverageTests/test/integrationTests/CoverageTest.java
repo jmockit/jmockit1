@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests;
@@ -75,6 +75,7 @@ public class CoverageTest
    {
       PerFileLineCoverage lineCoverageInfo = fileData.lineCoverageInfo;
       LineCoverageData lineData = lineCoverageInfo.getLineData(line);
+
       assertEquals("Segments:", expectedSegments, lineCoverageInfo.getNumberOfSegments(line));
       assertEquals("Covered segments:", expectedCoveredSegments, lineData.getNumberOfCoveredSegments());
       assertEquals("Execution count:", expectedExecutionCounts[0], lineCoverageInfo.getExecutionCount(line));
@@ -99,6 +100,19 @@ public class CoverageTest
             assertEquals("Missing call points for line " + line + ", segment " + i, executionCount, callPointCount);
          }
       }
+   }
+
+   protected final void assertBranchingPoints(
+      int line, int expectedSourcesAndTargets, int expectedCoveredSourcesAndTargets)
+   {
+      PerFileLineCoverage lineCoverageInfo = fileData.lineCoverageInfo;
+      LineCoverageData lineData = lineCoverageInfo.getLineData(line);
+
+      int sourcesAndTargets = lineCoverageInfo.getNumberOfBranchingSourcesAndTargets(line);
+      assertEquals("Sources and targets:", expectedSourcesAndTargets, sourcesAndTargets);
+
+      int coveredSourcesAndTargets = lineData.getNumberOfCoveredBranchingSourcesAndTargets();
+//      assertEquals("Covered sources and targets:", expectedCoveredSourcesAndTargets, coveredSourcesAndTargets);
    }
 
    protected final void findMethodData(int firstLineOfMethodBody)
