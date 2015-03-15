@@ -90,7 +90,7 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nullable protected final Object executeMethodToInvoke(@NotNull Object[] args)
    {
-      ReentrantLock reentrantLock = RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK;
+      ReentrantLock reentrantLock = RecordAndReplayExecution.RECORD_OR_REPLAY_LOCKS.get();
 
       if (!reentrantLock.isHeldByCurrentThread()) {
          return MethodReflection.invoke(targetObject, methodToInvoke, args);

@@ -132,7 +132,7 @@ public final class ExecutingTest
       }
 
       //noinspection LockAcquiredButNotSafelyReleased
-      RecordAndReplayExecution.TEST_ONLY_PHASE_LOCK.lock();
+      RecordAndReplayExecution.TEST_ONLY_PHASE_LOCKS.get().lock();
 
       return currentRecordAndReplay;
    }
