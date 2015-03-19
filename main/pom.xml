@@ -21,7 +21,7 @@
    <url>http://www.jmockit.org</url>
    <licenses>
       <license>
-         <name>MIT LICENSE</name>
+         <name>The MIT License</name>
          <url>http://www.opensource.org/licenses/mit-license.php</url>
          <distribution>repo</distribution>
       </license>
@@ -148,18 +148,45 @@
          <plugin>
             <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
             <configuration>
+               <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
-               <testNGArtifactName>none:none</testNGArtifactName>
                <runOrder>alphabetical</runOrder>
-               <excludes>
-                  <exclude>**/*$*</exclude>
-                  <exclude>**/Base*Test.class</exclude>
-                  <exclude>**/JUnit4DecoratorTest.class</exclude>
-                  <exclude>**/testng/*Test.class</exclude>
-                  <exclude>**/MockStateBetweenTestMethodsNGTest.class</exclude>
-                  <exclude>**/mockit/integration/TestedClass.class</exclude>
-               </excludes>
             </configuration>
+            <executions>
+               <execution>
+                  <id>JUnit-tests</id>
+                  <phase>test</phase>
+                  <goals><goal>test</goal></goals>
+                  <configuration>
+                     <skipTests>false</skipTests>
+                     <testNGArtifactName>none:none</testNGArtifactName>
+                     <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Base*Test.class</exclude>
+                        <exclude>**/JUnit4DecoratorTest.class</exclude>
+                        <exclude>**/testng/*Test.class</exclude>
+                        <exclude>**/MockStateBetweenTestMethodsNGTest.class</exclude>
+                        <exclude>**/mockit/integration/TestedClass.class</exclude>
+                     </excludes>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>TestNG-tests</id>
+                  <phase>test</phase>
+                  <goals><goal>test</goal></goals>
+                  <configuration>
+                     <skipTests>false</skipTests>
+                     <junitArtifactName>none:none</junitArtifactName>
+                     <includes>
+                        <include>**/testng/*Test.class</include>
+                        <include>**/MockStateBetweenTestMethodsNGTest.class</include>
+                     </includes>
+                     <excludes>
+                        <exclude>**/TestNGViolatedExpectationsTest.class</exclude>
+                     </excludes>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
          <plugin>
             <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
@@ -203,7 +230,6 @@
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
-            <exclusion><groupId>com.beust</groupId><artifactId>jcommander</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
