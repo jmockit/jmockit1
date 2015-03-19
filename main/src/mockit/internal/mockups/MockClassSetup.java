@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
@@ -15,7 +15,6 @@ import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
-import static mockit.internal.util.Utilities.*;
 
 import org.jetbrains.annotations.*;
 
@@ -106,10 +105,6 @@ public final class MockClassSetup
    private byte[] modifyRealClass(@NotNull Class<?> classToModify)
    {
       if (rcReader == null) {
-         if (!HOTSPOT_VM && classToModify == System.class) {
-            return null;
-         }
-
          rcReader = createClassReaderForRealClass(classToModify);
       }
 
