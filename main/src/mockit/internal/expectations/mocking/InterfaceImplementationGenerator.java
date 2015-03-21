@@ -36,16 +36,17 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
    }
 
    @Override
-   @SuppressWarnings("AssignmentToMethodParameter")
    protected void generateMethodBody(
       int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
+      String resolvedSignature = signature;
+
       if (signature != null) {
-         signature = mockedTypeInfo.genericTypeMap.resolveReturnType(signature);
+         resolvedSignature = mockedTypeInfo.genericTypeMap.resolveReturnType(signature);
       }
 
-      mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
-      generateDirectCallToHandler(mw, interfaceName, access, name, desc, signature);
+      mw = cw.visitMethod(ACC_PUBLIC, name, desc, resolvedSignature, exceptions);
+      generateDirectCallToHandler(mw, interfaceName, access, name, desc, resolvedSignature);
       generateReturnWithObjectAtTopOfTheStack(desc);
       mw.visitMaxs(1, 0);
    }
