@@ -158,4 +158,18 @@ public final class CascadingWithGenericsTest
       assertSame(cascadedBaz, baz);
       assertSame(date, baz.getDate());
    }
+
+   public interface GenericInterface<T> { <S extends T> S save(S entity); }
+   public interface ConcreteInterface extends GenericInterface<Foo> {}
+
+   @Test
+   public void cascadingFromGenericMethodWhoseTypeParameterExtendsAnother(@Mocked ConcreteInterface mock)
+   {
+      Foo value = new Foo();
+
+      Foo saved = mock.save(value);
+
+      assertNotNull(saved);
+      assertNotSame(value, saved);
+   }
 }

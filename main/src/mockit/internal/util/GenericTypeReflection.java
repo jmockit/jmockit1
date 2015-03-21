@@ -371,6 +371,10 @@ public final class GenericTypeReflection
 
       if (typeArgument == null) {
          typeArgument = genericReturnType.getBounds()[0];
+
+         if (typeArgument instanceof TypeVariable<?>) {
+            typeArgument = resolveReturnType((TypeVariable<?>) typeArgument);
+         }
       }
 
       return typeArgument;
