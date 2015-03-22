@@ -38,6 +38,7 @@ public final class CascadingParametersTest
       Bar() { throw new RuntimeException(); }
       int doSomething() { return 1; }
       Baz getBaz() { return null; }
+      Baz getBaz(@SuppressWarnings("unused") int i) { return null; }
       AnEnum getEnum() { return null; }
       static String staticMethod() { return "notMocked"; }
    }
@@ -631,5 +632,16 @@ public final class CascadingParametersTest
    {
       Runnable foo = mock.getFoo();
       assertNotNull(foo);
+   }
+
+   @Test
+   public void produceDifferentCascadedInstancesOfSameInterfaceFromDifferentInvocations(@Mocked Bar bar)
+   {
+      Baz cascaded1 = bar.getBaz(1);
+      Baz cascaded2 = bar.getBaz(2);
+      Baz cascaded3 = bar.getBaz(1);
+
+      assertSame(cascaded1, cascaded3);
+      assertNotSame(cascaded1, cascaded2);
    }
 }
