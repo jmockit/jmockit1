@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
@@ -36,7 +36,7 @@ public final class MockInvocation extends BaseInvocation
       return new MockInvocation(invokedInstance, args, mockState, mockedClassDesc, mockedMethodName, mockedMethodDesc);
    }
 
-   public MockInvocation(
+   MockInvocation(
       @Nullable Object invokedInstance, @NotNull Object[] invokedArguments, @NotNull MockState mockState,
       @NotNull String mockedClassDesc, @NotNull String mockedMethodName, @NotNull String mockedMethodDesc)
    {
@@ -47,18 +47,6 @@ public final class MockInvocation extends BaseInvocation
       this.mockedClassDesc = mockedClassDesc;
       this.mockedMethodName = mockedMethodName;
       this.mockedMethodDesc = mockedMethodDesc;
-   }
-
-   public MockInvocation(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments, @NotNull MockState mockState)
-   {
-      super(
-         invokedInstance, invokedArguments,
-         mockState.getTimesInvoked(), mockState.getMinInvocations(), mockState.getMaxInvocations());
-      this.mockState = mockState;
-      mockedClassDesc = "";
-      mockedMethodName = "";
-      mockedMethodDesc = "";
    }
 
    @NotNull @Override
