@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -51,13 +51,10 @@ public abstract class BaseInvocation extends Invocation
          }
 
          prepareToProceed();
-
          return null;
       }
 
-      if (!prepareToProceed()) {
-         return null;
-      }
+      prepareToProceed();
 
       Method realMethod = (Method) memberToInvoke;
       Object[] actualArgs = getInvokedArguments();
@@ -89,7 +86,7 @@ public abstract class BaseInvocation extends Invocation
       return actualArgs;
    }
 
-   public abstract boolean prepareToProceed();
+   public abstract void prepareToProceed();
    protected abstract void cleanUpAfterProceed();
 
    @Nullable public final BaseInvocation getPreviousInvocation() { return previousInvocation; }

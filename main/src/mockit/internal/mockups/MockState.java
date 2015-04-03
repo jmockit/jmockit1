@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
@@ -162,7 +162,7 @@ final class MockState
       return false;
    }
 
-   boolean prepareToProceed(@NotNull MockInvocation invocation)
+   void prepareToProceed(@NotNull MockInvocation invocation)
    {
       if (proceeding == null) {
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
@@ -179,7 +179,6 @@ final class MockState
       }
 
       proceeding.set(invocation);
-      return true;
    }
 
    void clearProceedIndicator()

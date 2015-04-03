@@ -66,14 +66,10 @@ public final class MockInvocation extends BaseInvocation
    }
 
    @Override
-   public boolean prepareToProceed()
+   public void prepareToProceed()
    {
-      if (mockState.prepareToProceed(this)) {
-         proceeding = true;
-         return true;
-      }
-
-      return false;
+      mockState.prepareToProceed(this);
+      proceeding = true;
    }
 
    @Override
