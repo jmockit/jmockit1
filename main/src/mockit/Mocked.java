@@ -98,14 +98,4 @@ public @interface Mocked
     * {@code NullPointerException}'s to occur.
     */
    boolean stubOutClassInitialization() default false;
-
-   /**
-    * Indicates whether the mocked type is <em>cascading</em> or not, ie, whether its non-void methods should return
-    * mocked instances or {@code null}; {@code true} by default.
-    *
-    * @deprecated Simply remove existing uses of this attribute. If really needed, an expectation can be recorded with
-    * "{@code result = null}", in order to disable cascading from a particular method.
-    */
-   @Deprecated
-   boolean cascading() default true;
 }

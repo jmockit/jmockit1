@@ -619,12 +619,6 @@ public final class CascadingParametersTest
       assertNotNull(mock.getFoo());
    }
 
-   @Test
-   public void noCascadingWhenExplicitlyDisabled(@Mocked(cascading = false) Foo foo)
-   {
-      assertNull(foo.getBar());
-   }
-
    public abstract class AbstractClass implements LevelZero {}
 
    @Test

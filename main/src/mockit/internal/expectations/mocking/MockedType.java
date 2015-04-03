@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -81,12 +81,8 @@ public final class MockedType
 
    private void registerCascadingAsNeeded()
    {
-      if (isMockableType()) {
-         boolean shouldCascade = mocked == null || mocked.cascading();
-
-         if (shouldCascade && !(declaredType instanceof TypeVariable)) {
-            TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
-         }
+      if (isMockableType() && !(declaredType instanceof TypeVariable)) {
+         TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
       }
    }
 
