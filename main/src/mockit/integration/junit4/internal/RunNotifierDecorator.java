@@ -9,7 +9,7 @@ import org.junit.runner.notification.*;
 
 import mockit.*;
 import mockit.integration.internal.*;
-import mockit.internal.*;
+import mockit.internal.mockups.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
@@ -31,7 +31,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
          it.addListener(coverageListener);
       }
 
-      ((BaseInvocation) invocation).prepareToProceed();
+      ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
       it.fireTestRunStarted(description);
    }
 
@@ -44,7 +44,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
          TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
 
          RunNotifier it = invocation.getInvokedInstance();
-         ((BaseInvocation) invocation).prepareToProceed();
+         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          it.fireTestRunFinished(result);
       }
       finally {

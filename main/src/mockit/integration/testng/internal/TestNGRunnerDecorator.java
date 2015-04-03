@@ -10,7 +10,7 @@ import org.testng.annotations.*;
 
 import mockit.*;
 import mockit.integration.internal.*;
-import mockit.internal.*;
+import mockit.internal.mockups.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
@@ -42,7 +42,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          @NotNull Invocation invocation, Class<?> c, @Nullable Method method,
          ITestContext context, ITestResult testResult)
       {
-         ((BaseInvocation) invocation).prepareToProceed();
+         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
 
          if (value != null) {

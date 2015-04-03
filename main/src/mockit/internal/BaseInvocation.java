@@ -91,7 +91,7 @@ public abstract class BaseInvocation extends Invocation
 
    @Nullable public final BaseInvocation getPreviousInvocation() { return previousInvocation; }
 
-   public final void setPreviousInvocation(@Nullable BaseInvocation previousInvocation)
+   public final void setPreviousInvocation(@NotNull BaseInvocation previousInvocation)
    {
       this.previousInvocation = previousInvocation;
    }

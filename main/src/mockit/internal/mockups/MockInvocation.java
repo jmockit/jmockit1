@@ -72,6 +72,12 @@ public final class MockInvocation extends BaseInvocation
       proceeding = true;
    }
 
+   public void prepareToProceedFromNonRecursiveMock()
+   {
+      mockState.prepareToProceedFromNonRecursiveMock(this);
+      proceeding = true;
+   }
+
    @Override
    public void cleanUpAfterProceed()
    {

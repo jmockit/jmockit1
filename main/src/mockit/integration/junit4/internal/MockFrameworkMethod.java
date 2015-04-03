@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit4.internal;
@@ -12,7 +12,6 @@ import org.jetbrains.annotations.*;
 import org.junit.runners.model.*;
 
 import mockit.*;
-import mockit.internal.*;
 import mockit.internal.mockups.*;
 import mockit.internal.util.*;
 
@@ -50,7 +49,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
          it.validatePublicVoid(false, errors);
       }
       else {
-         ((BaseInvocation) invocation).prepareToProceed();
+         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          it.validatePublicVoidNoArg(isStatic, errors);
       }
 

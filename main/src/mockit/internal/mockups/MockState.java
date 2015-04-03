@@ -26,7 +26,7 @@ final class MockState
 
    // Current mock invocation state:
    private int invocationCount;
-   @Nullable private ThreadLocal<MockInvocation> proceeding;
+   @Nullable private ThreadLocal<MockInvocation> proceedingInvocation;
 
    // Helper field just for synchronization:
    @NotNull private final Object invocationCountLock;
@@ -49,14 +49,14 @@ final class MockState
       maxExpectedInvocations = mockState.maxExpectedInvocations;
       invocationCountLock = new Object();
 
-      if (mockState.proceeding != null) {
+      if (mockState.proceedingInvocation != null) {
          makeReentrant();
       }
    }
 
    @NotNull Class<?> getRealClass() { return mockMethod.getRealClass(); }
 
-   void makeReentrant() { proceeding = new ThreadLocal<MockInvocation>(); }
+   void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
 
    boolean isWithExpectations()
    {
@@ -65,8 +65,8 @@ final class MockState
 
    boolean update()
    {
-      if (proceeding != null) {
-         MockInvocation invocation = proceeding.get();
+      if (proceedingInvocation != null) {
+         MockInvocation invocation = proceedingInvocation.get();
 
          if (invocation != null && invocation.proceeding) {
             invocation.proceeding = false;
@@ -151,8 +151,8 @@ final class MockState
 
    public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @NotNull String classDesc)
    {
-      if (proceeding != null) {
-         MockInvocation pendingInvocation = proceeding.get();
+      if (proceedingInvocation != null) {
+         MockInvocation pendingInvocation = proceedingInvocation.get();
 
          if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(mock, classDesc)) {
             return true;
@@ -164,7 +164,7 @@ final class MockState
 
    void prepareToProceed(@NotNull MockInvocation invocation)
    {
-      if (proceeding == null) {
+      if (proceedingInvocation == null) {
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
       }
 
@@ -172,23 +172,35 @@ final class MockState
          throw new UnsupportedOperationException("Cannot proceed into real implementation of native method");
       }
 
-      MockInvocation previousInvocation = proceeding.get();
+      MockInvocation previousInvocation = proceedingInvocation.get();
 
       if (previousInvocation != null) {
          invocation.setPreviousInvocation(previousInvocation);
       }
 
-      proceeding.set(invocation);
+      proceedingInvocation.set(invocation);
+   }
+
+   void prepareToProceedFromNonRecursiveMock(@NotNull MockInvocation invocation)
+   {
+      assert proceedingInvocation != null;
+      proceedingInvocation.set(invocation);
    }
 
    void clearProceedIndicator()
    {
-      assert proceeding != null;
-      MockInvocation currentInvocation = proceeding.get();
-      proceeding.set((MockInvocation) currentInvocation.getPreviousInvocation());
+      assert proceedingInvocation != null;
+      MockInvocation currentInvocation = proceedingInvocation.get();
+      MockInvocation previousInvocation = (MockInvocation) currentInvocation.getPreviousInvocation();
+      proceedingInvocation.set(previousInvocation);
    }
 
-   @NotNull Method getMockMethod() { assert actualMockMethod != null; return actualMockMethod; }
+   @NotNull
+   Method getMockMethod()
+   {
+      assert actualMockMethod != null;
+      return actualMockMethod;
+   }
 
    @NotNull
    Method getMockMethod(@NotNull Class<?> mockUpClass, @NotNull Class<?>[] parameterTypes)

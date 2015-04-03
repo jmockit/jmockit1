@@ -41,7 +41,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
          TestRun.setRunningIndividualTest(target);
 
          try {
-            invocation.prepareToProceed();
+            invocation.prepareToProceedFromNonRecursiveMock();
             return it.invokeExplosively(target, params);
          }
          catch (Throwable t) {
@@ -82,7 +82,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       handleMockingOutsideTests(method);
 
       TestRun.setRunningIndividualTest(null);
-      inv.prepareToProceed();
+      inv.prepareToProceedFromNonRecursiveMock();
 
       return method.invokeExplosively(null, params);
    }
@@ -151,7 +151,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
          Object[] mockParameters = createInstancesForMockParameters(testMethod, parameters);
          createInstancesForTestedFields(target, false);
 
-         invocation.prepareToProceed();
+         invocation.prepareToProceedFromNonRecursiveMock();
 
          Object[] params = mockParameters == null ? parameters : mockParameters;
          it.invokeExplosively(target, params);
