@@ -91,7 +91,7 @@ public final class Startup
    {
       if (!inst.isRedefineClassesSupported()) {
          throw new UnsupportedOperationException(
-            "This JRE must be started with -javaagent:<proper path>jmockit.jar, or in debug mode");
+            "This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
       initialize(false, inst);
@@ -125,7 +125,8 @@ public final class Startup
       try { applyStartupMocks(); } catch (IOException e) { throw new RuntimeException(e); }
    }
 
-   @NotNull public static Instrumentation instrumentation()
+   @NotNull
+   public static Instrumentation instrumentation()
    {
       verifyInitialization();
       assert instrumentation != null;
@@ -169,15 +170,17 @@ public final class Startup
    public static void verifyInitialization()
    {
       if (getInstrumentation() == null) {
-         initializedOnDemand = AgentInitialization.loadAgentFromLocalJarFile();
+         AgentInitialization.loadAgentFromLocalJarFile();
+         initializedOnDemand = true;
       }
    }
 
-   @Nullable private static Instrumentation getInstrumentation()
+   @Nullable
+   private static Instrumentation getInstrumentation()
    {
       if (instrumentation == null) {
-         Class<?> initialStartupClass =
-            ClassLoad.loadClass(ClassLoader.getSystemClassLoader(), Startup.class.getName());
+         ClassLoader systemCL = ClassLoader.getSystemClassLoader();
+         Class<?> initialStartupClass = ClassLoad.loadClass(systemCL, Startup.class.getName());
 
          if (initialStartupClass != null) {
             instrumentation = FieldReflection.getField(initialStartupClass, "instrumentation", null);
@@ -203,11 +206,15 @@ public final class Startup
          }
 
          try {
-            boolean initialized = AgentInitialization.loadAgentFromLocalJarFile();
+            AgentInitialization.loadAgentFromLocalJarFile();
 
-            if (initialized && !usingCustomCL) {
+            if (!usingCustomCL) {
                applyStartupMocks();
             }
+         }
+         catch (IllegalStateException e) {
+            StackTrace.filterStackTrace(e);
+            throw e;
          }
          catch (RuntimeException e) {
             e.printStackTrace(); // makes sure the exception gets printed at least once

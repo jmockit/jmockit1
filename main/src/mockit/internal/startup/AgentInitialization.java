@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -19,14 +19,14 @@ final class AgentInitialization
 
    private AgentInitialization() {}
 
-   static boolean loadAgentFromLocalJarFile()
+   static void loadAgentFromLocalJarFile()
    {
       if (!JAVA6 && !JAVA7 && !JAVA8) {
          throw new IllegalStateException("JMockit requires a Java 6+ VM");
       }
 
       String jarFilePath = discoverPathToJarFile();
-      return new AgentLoader(jarFilePath).loadAgent();
+      new AgentLoader(jarFilePath).loadAgent();
    }
 
    @NotNull
