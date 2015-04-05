@@ -9,28 +9,16 @@ import java.net.*;
 import java.security.*;
 import java.util.regex.*;
 
-import static mockit.internal.util.Utilities.*;
-
 import org.jetbrains.annotations.*;
 
-final class AgentInitialization
+final class PathToAgentJar
 {
    private static final Pattern JAR_REGEX = Pattern.compile(".*jmockit[-.\\d]*.jar");
 
-   private AgentInitialization() {}
-
-   static void loadAgentFromLocalJarFile()
-   {
-      if (!JAVA6 && !JAVA7 && !JAVA8) {
-         throw new IllegalStateException("JMockit requires a Java 6+ VM");
-      }
-
-      String jarFilePath = discoverPathToJarFile();
-      new AgentLoader(jarFilePath).loadAgent();
-   }
+   private URL thisClassLocation;
 
    @NotNull
-   private static String discoverPathToJarFile()
+   String getPathToJarFile()
    {
       String jarFilePath = findPathToJarFileFromClasspath();
 
@@ -63,31 +51,31 @@ final class AgentInitialization
    }
 
    @Nullable
-   private static String getPathToJarFileContainingThisClass()
+   private String getPathToJarFileContainingThisClass()
    {
-      CodeSource codeSource = AgentInitialization.class.getProtectionDomain().getCodeSource();
+      CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
 
       if (codeSource == null) {
          return null;
       }
 
-      URL location = codeSource.getLocation();
-      String locationPath = location.getPath();
+      thisClassLocation = codeSource.getLocation();
       String jarFilePath;
 
-      if (locationPath.endsWith("/main/classes/")) {
-         jarFilePath = findLocalJarOrZipFileFromLocationOfCurrentClassFile(locationPath);
+      if (thisClassLocation.getPath().endsWith("/main/classes/")) {
+         jarFilePath = findLocalJarOrZipFileFromThisClassLocation();
       }
       else {
-         jarFilePath = findJarFileContainingCurrentClass(location);
+         jarFilePath = findJarFileContainingThisClass();
       }
 
       return jarFilePath;
    }
 
    @NotNull
-   private static String findLocalJarOrZipFileFromLocationOfCurrentClassFile(@NotNull String locationPath)
+   private String findLocalJarOrZipFileFromThisClassLocation()
    {
+      String locationPath = thisClassLocation.getPath();
       File localJarFile = new File(locationPath.replace("main/classes/", "jmockit.jar"));
 
       if (localJarFile.exists()) {
@@ -99,15 +87,15 @@ final class AgentInitialization
    }
 
    @NotNull
-   private static String findJarFileContainingCurrentClass(@NotNull URL location)
+   private String findJarFileContainingThisClass()
    {
       // URI is used to deal with spaces and non-ASCII characters.
       URI jarFileURI;
-      try { jarFileURI = location.toURI(); } catch (URISyntaxException e) { throw new RuntimeException(e); }
+      try { jarFileURI = thisClassLocation.toURI(); } catch (URISyntaxException e) { throw new RuntimeException(e); }
 
       // Certain environments (JBoss) use something other than "file:", which is not accepted by File.
       if (!"file".equals(jarFileURI.getScheme())) {
-         String locationPath = location.toExternalForm();
+         String locationPath = thisClassLocation.toExternalForm();
          int p = locationPath.indexOf(':');
          return locationPath.substring(p + 2);
       }

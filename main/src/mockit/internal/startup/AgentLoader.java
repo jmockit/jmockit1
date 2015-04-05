@@ -6,17 +6,17 @@ package mockit.internal.startup;
 
 import java.io.*;
 import java.lang.management.*;
+import java.lang.reflect.*;
 import java.util.*;
-
-import mockit.internal.util.*;
 
 import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
 import org.jetbrains.annotations.*;
 import sun.tools.attach.*;
 
-final class AgentLoader
+public final class AgentLoader
 {
+   private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
    private static final AttachProvider ATTACH_PROVIDER = new AttachProvider() {
       @Override @Nullable public String name() { return null; }
       @Override @Nullable public String type() { return null; }
@@ -25,9 +25,17 @@ final class AgentLoader
    };
 
    @NotNull private final String jarFilePath;
-   AgentLoader(@NotNull String jarFilePath) { this.jarFilePath = jarFilePath; }
 
-   void loadAgent()
+   AgentLoader()
+   {
+      if (JAVA_VERSION < 1.6F) {
+         throw new IllegalStateException("JMockit requires a Java 6+ VM");
+      }
+
+      jarFilePath = new PathToAgentJar().getPathToJarFile();
+   }
+
+   public void loadAgent()
    {
       VirtualMachine vm;
 
@@ -43,10 +51,10 @@ final class AgentLoader
          }
       }
       else {
-         vm = attachToThisVM();
+         vm = attachToRunningVM();
       }
 
-      loadAgentAndDetachFromThisVM(vm);
+      loadAgentAndDetachFromRunningVM(vm);
    }
 
    @NotNull
@@ -54,13 +62,18 @@ final class AgentLoader
    {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
       Class<?>[] parameterTypes = {AttachProvider.class, String.class};
-      String pid = discoverProcessIdForRunningVM();
+      String pid = getProcessIdForRunningVM();
 
       try {
          // This is only done with Reflection to avoid the JVM pre-loading all the XyzVirtualMachine classes.
-         VirtualMachine newVM = ConstructorReflection.newInstance(vmClass, parameterTypes, ATTACH_PROVIDER, pid);
+         Constructor<? extends VirtualMachine> vmConstructor = vmClass.getConstructor(parameterTypes);
+         VirtualMachine newVM = vmConstructor.newInstance(ATTACH_PROVIDER, pid);
          return newVM;
       }
+      catch (NoSuchMethodException e)     { throw new RuntimeException(e); }
+      catch (InvocationTargetException e) { throw new RuntimeException(e); }
+      catch (InstantiationException e)    { throw new RuntimeException(e); }
+      catch (IllegalAccessException e)    { throw new RuntimeException(e); }
       catch (UnsatisfiedLinkError e) {
          throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
       }
@@ -89,16 +102,15 @@ final class AgentLoader
    }
 
    @NotNull
-   private static String discoverProcessIdForRunningVM()
+   private static String getProcessIdForRunningVM()
    {
       String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
       int p = nameOfRunningVM.indexOf('@');
-
       return nameOfRunningVM.substring(0, p);
    }
 
    @NotNull
-   private static String getHelpMessageForNonHotSpotVM(@NotNull String vmName)
+   private String getHelpMessageForNonHotSpotVM(@NotNull String vmName)
    {
       String helpMessage = "To run on " + vmName;
 
@@ -106,13 +118,13 @@ final class AgentLoader
          helpMessage += ", add <IBM SDK>/lib/tools.jar to the runtime classpath (before jmockit), or";
       }
 
-      return helpMessage + " use -javaagent:<proper path>/jmockit.jar";
+      return helpMessage + " use -javaagent:" + jarFilePath;
    }
 
    @NotNull
-   private static VirtualMachine attachToThisVM()
+   private static VirtualMachine attachToRunningVM()
    {
-      String pid = discoverProcessIdForRunningVM();
+      String pid = getProcessIdForRunningVM();
 
       try {
          return VirtualMachine.attach(pid);
@@ -125,7 +137,7 @@ final class AgentLoader
       }
    }
 
-   private void loadAgentAndDetachFromThisVM(@NotNull VirtualMachine vm)
+   private void loadAgentAndDetachFromRunningVM(@NotNull VirtualMachine vm)
    {
       try {
          vm.loadAgent(jarFilePath, null);

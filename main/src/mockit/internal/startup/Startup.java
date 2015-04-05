@@ -170,7 +170,7 @@ public final class Startup
    public static void verifyInitialization()
    {
       if (getInstrumentation() == null) {
-         AgentInitialization.loadAgentFromLocalJarFile();
+         new AgentLoader().loadAgent();
          initializedOnDemand = true;
       }
    }
@@ -206,7 +206,7 @@ public final class Startup
          }
 
          try {
-            AgentInitialization.loadAgentFromLocalJarFile();
+            new AgentLoader().loadAgent();
 
             if (!usingCustomCL) {
                applyStartupMocks();
