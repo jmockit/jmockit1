@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -19,15 +19,13 @@ public final class Utilities
    @NotNull public static final Object[] NO_ARGS = {};
 
    public static final boolean JAVA6;
-   public static final boolean JAVA7;
    public static final boolean JAVA8;
    public static final boolean HOTSPOT_VM;
    static {
       HOTSPOT_VM = System.getProperty("java.vm.name").contains("HotSpot");
-      String javaVersion = System.getProperty("java.specification.version");
-      JAVA8 = "1.8".equals(javaVersion);
-      JAVA7 = "1.7".equals(javaVersion);
-      JAVA6 = "1.6".equals(javaVersion);
+      Float javaVersion = Float.valueOf(System.getProperty("java.specification.version"));
+      JAVA6 = javaVersion.equals(1.6F);
+      JAVA8 = javaVersion >= 1.8F;
    }
 
    private Utilities() {}
