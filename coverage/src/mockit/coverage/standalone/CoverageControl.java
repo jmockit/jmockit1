@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.standalone;
@@ -35,13 +35,13 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
       load();
    }
 
-   @Override @NotNull
+   @NotNull @Override
    protected String getDescription(MBeanInfo info)
    {
       return CoverageControlMBean.class.getAnnotation(Description.class).value();
    }
 
-   @Override @NotNull
+   @NotNull @Override
    protected String getParameterName(MBeanOperationInfo op, MBeanParameterInfo param, int sequence)
    {
       return "resetState";
@@ -50,12 +50,14 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
    @Override
    protected String getDescription(@NotNull MBeanAttributeInfo info) { return getDescription("get" + info.getName()); }
 
-   @NotNull private String getDescription(@NotNull String methodName)
+   @NotNull
+   private static String getDescription(@NotNull String methodName)
    {
       return getMethod(methodName).getAnnotation(Description.class).value();
    }
 
-   @NotNull private Method getMethod(@NotNull String methodName)
+   @NotNull
+   private static Method getMethod(@NotNull String methodName)
    {
       for (Method method : CoverageControlMBean.class.getDeclaredMethods()) {
          if (method.getName().equals(methodName)) {
@@ -80,7 +82,7 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
    @Override
    protected int getImpact(MBeanOperationInfo info) { return MBeanOperationInfo.ACTION; }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getOutput() { return getProperty("output", "html").replace("-nocp", ""); }
 
    @Override
@@ -93,7 +95,7 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
    }
 
    @NotNull
-   private String validateNewPropertyValue(
+   private static String validateNewPropertyValue(
       @NotNull String propertyName, @NotNull String validValues, @NotNull String newValue)
    {
       String valueWithNoSpaces = newValue.replace(" ", "");
@@ -105,35 +107,35 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
       throw new IllegalArgumentException("Invalid value for \"" + propertyName + "\" property: " + newValue);
    }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getWorkingDir() { return new File(".").getAbsoluteFile().getParent(); }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getOutputDir() { return getProperty("outputDir"); }
 
    @Override
    public void setOutputDir(@NotNull String outputDir) { modifyConfigurationProperty("outputDir", outputDir); }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getSrcDirs() { return getProperty("srcDirs"); }
 
    @Override
    public void setSrcDirs(@NotNull String srcDirs) { modifyConfigurationProperty("srcDirs", srcDirs); }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getClasses() { return getProperty("classes"); }
 
    @Override
    public void setClasses(@NotNull String classes) { modifyConfigurationProperty("classes", classes); }
 
-   @Override @NotNull
+   @NotNull @Override
    public String getExcludes() { return getProperty("excludes"); }
 
    @Override
    public void setExcludes(@NotNull String excludes) { modifyConfigurationProperty("excludes", excludes); }
 
-   @Override @NotNull
-   public String getMetrics() { return getProperty("metrics", "all"); }
+   @NotNull @Override
+   public String getMetrics() { return getProperty("metrics", "line"); }
 
    @Override
    public void setMetrics(@NotNull String metrics)
@@ -146,14 +148,17 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
       modifyConfigurationProperty("metrics", metrics);
    }
 
-   @NotNull private String getProperty(@NotNull String property) { return getProperty(property, ""); }
+   @NotNull
+   private static String getProperty(@NotNull String property) { return getProperty(property, ""); }
 
-   @NotNull private String getProperty(@NotNull String property, @NotNull String defaultValue)
+   @NotNull
+   private static String getProperty(@NotNull String property, @NotNull String defaultValue)
    {
       return Configuration.getProperty(propertyNameSuffix(property), defaultValue);
    }
 
-   @NotNull private String propertyNameSuffix(@NotNull String name)
+   @NotNull
+   private static String propertyNameSuffix(@NotNull String name)
    {
       return Character.toLowerCase(name.charAt(0)) + name.substring(1);
    }
@@ -165,7 +170,7 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
       store();
    }
 
-   private void setConfigurationProperty(@NotNull String name, @NotNull String value)
+   private static void setConfigurationProperty(@NotNull String name, @NotNull String value)
    {
       Configuration.setProperty(propertyNameSuffix(name), value);
    }
