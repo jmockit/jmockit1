@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.17-beta1</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.17-beta2</version>
    <packaging>jar</packaging>
    <prerequisites>
       <maven>3.2.1</maven>
@@ -27,10 +27,7 @@
       </license>
    </licenses>
    <developers>
-      <developer>
-         <name>Rogério Liesenfeld</name>
-         <email>rliesenfeld@gmail.com</email>
-      </developer>
+      <developer><name>Rogério Liesenfeld</name></developer>
    </developers>
    <inceptionYear>2006</inceptionYear>
    <scm>
