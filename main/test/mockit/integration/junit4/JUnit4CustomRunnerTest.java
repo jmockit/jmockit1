@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit4;
@@ -20,11 +20,26 @@ public final class JUnit4CustomRunnerTest
 {
    public static final class CustomRunner extends BlockJUnit4ClassRunner
    {
-      public CustomRunner(Class<?> klass) throws InitializationError { super(klass); }
+      public CustomRunner(Class<?> testClass) throws InitializationError { super(testClass); }
 
       @Override
       protected void validatePublicVoidNoArgMethods(
          Class<? extends Annotation> annotation, boolean isStatic, List<Throwable> errors) {}
+
+      @Override
+      protected Object createTest() throws Exception
+      {
+         testCount++;
+         return super.createTest();
+      }
+   }
+
+   static int testCount;
+
+   @Before
+   public void setUp()
+   {
+      assertTrue("Unexpected test count: " + testCount, testCount == 1 || testCount == 2);
    }
 
    @Test

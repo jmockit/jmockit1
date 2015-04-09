@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit4.internal;
@@ -60,7 +60,7 @@ public final class BlockJUnit4ClassRunnerDecorator extends MockUp<BlockJUnit4Cla
             TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
          }
 
-         return invocation.proceed();
+         return junitTestClass.getOnlyConstructor().newInstance();
       }
       catch (InvocationTargetException e) {
          Throwable cause = e.getCause();
