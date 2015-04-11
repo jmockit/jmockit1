@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.capturing;
@@ -48,7 +48,7 @@ final class CapturedType
       @Nullable ClassLoader loader, @Nullable ProtectionDomain protectionDomain, @NotNull String classNameOrDesc)
    {
       if (
-         loader == null || protectionDomain == null || protectionDomain.getClassLoader() == null ||
+         loader == null && classNameOrDesc.startsWith("java") ||
          protectionDomain == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc)
       ) {
          return true;

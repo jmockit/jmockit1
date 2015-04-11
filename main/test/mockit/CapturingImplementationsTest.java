@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
+
+import java.lang.reflect.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -124,5 +126,26 @@ public final class CapturingImplementationsTest
       }};
 
       assertEquals(15, service2.doSomething());
+   }
+
+   @Test
+   public void captureDynamicallyGeneratedProxyClass()
+   {
+      new Expectations() {{ mockService1.doSomething(); result = 123; }};
+
+      ClassLoader loader = Service1.class.getClassLoader();
+      Class<?>[] interfacesToImplement = {Service1.class};
+      Service1 service = (Service1) Proxy.newProxyInstance(loader, interfacesToImplement, new InvocationHandler() {
+         @Override
+         public Object invoke(Object proxy, Method method, Object[] args)
+         {
+            fail("Should be mocked out");
+            return null;
+         }
+      });
+
+      int value = service.doSomething();
+
+      assertEquals(123, value);
    }
 }
