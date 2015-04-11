@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -13,6 +13,7 @@ public final class RealMethodOrConstructor
    @NotNull public final Member member;
 
    public RealMethodOrConstructor(@NotNull String classDesc, @NotNull String methodName, @NotNull String methodDesc)
+      throws NoSuchMethodException
    {
       ClassLoader cl = getClass().getClassLoader();
       Class<?> realClass = ClassLoad.loadFromLoader(cl, classDesc.replace('/', '.'));
@@ -26,11 +27,13 @@ public final class RealMethodOrConstructor
    }
 
    public RealMethodOrConstructor(@NotNull String className, @NotNull String methodNameAndDesc)
+      throws NoSuchMethodException
    {
       this(ClassLoad.loadFromLoader(RealMethodOrConstructor.class.getClassLoader(), className), methodNameAndDesc);
    }
 
    public RealMethodOrConstructor(@NotNull Class<?> realClass, @NotNull String methodNameAndDesc)
+      throws NoSuchMethodException
    {
       int p = methodNameAndDesc.indexOf('(');
       String memberDesc = methodNameAndDesc.substring(p);
@@ -53,6 +56,7 @@ public final class RealMethodOrConstructor
 
    @NotNull
    private static Method findMethod(@NotNull Class<?> realClass, @NotNull String methodName, @NotNull String methodDesc)
+      throws NoSuchMethodException
    {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
       Class<?> ownerClass = realClass;
@@ -66,7 +70,7 @@ public final class RealMethodOrConstructor
                Method interfaceMethod = findInterfaceMethod(ownerClass, methodName, parameterTypes);
 
                if (interfaceMethod == null) {
-                  throw new RuntimeException(e);
+                  throw e;
                }
 
                return interfaceMethod;
@@ -76,7 +80,7 @@ public final class RealMethodOrConstructor
             }
 
             if (ownerClass == Object.class) {
-               throw new RuntimeException(e);
+               throw e;
             }
          }
       }
@@ -93,7 +97,8 @@ public final class RealMethodOrConstructor
       return null;
    }
 
-   @NotNull public <M extends Member> M getMember()
+   @NotNull
+   public <M extends Member> M getMember()
    {
       //noinspection unchecked
       return (M) member;

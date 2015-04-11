@@ -135,8 +135,11 @@ final class MockState
    {
       if (realMethodOrConstructor == null) {
          String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
-         RealMethodOrConstructor realMember =
-            new RealMethodOrConstructor(mockedClassDesc, memberName, mockedMethodDesc);
+
+         RealMethodOrConstructor realMember;
+         try { realMember = new RealMethodOrConstructor(mockedClassDesc, memberName, mockedMethodDesc); }
+         catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+
          Member member = realMember.getMember();
 
          if (mockMethod.isAdvice) {

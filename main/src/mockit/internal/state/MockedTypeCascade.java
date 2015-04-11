@@ -209,7 +209,11 @@ public final class MockedTypeCascade
 
       if (returnType == null) {
          Class<?> cascadingClass = getClassWithCalledMethod();
-         Type genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc);
+
+         Type genericReturnType;
+         try { genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc); }
+         catch (NoSuchMethodException ignore) { return null; }
+
          Class<?> resolvedReturnType = getClassType(genericReturnType);
 
          if (resolvedReturnType.isAssignableFrom(cascadingClass)) {
@@ -260,6 +264,7 @@ public final class MockedTypeCascade
 
    @NotNull
    private Type getGenericReturnType(@NotNull Class<?> cascadingClass, @NotNull String methodNameAndDesc)
+      throws NoSuchMethodException
    {
       Method cascadingMethod = new RealMethodOrConstructor(cascadingClass, methodNameAndDesc).getMember();
       Type genericReturnType = cascadingMethod.getGenericReturnType();
