@@ -111,10 +111,13 @@
             <include name="mockit/internal/state/TestRun.class"/>
             <include name="mockit/internal/state/MockFixture.class"/>
             <include name="mockit/internal/startup/Startup.class"/>
+            <include name="com/sun/tools/attach/**/*.class"/>
+            <include name="sun/tools/attach/*.class"/>
          </fileset>
          <manifest>
             <attribute name="Main-Class" value="mockit.coverage.CodeCoverage"/>
             <attribute name="Premain-Class" value="mockit.coverage.standalone.Startup"/>
+            <attribute name="Agent-Class" value="mockit.coverage.standalone.Startup"/>
             <attribute name="Can-Redefine-Classes" value="true"/>
             <attribute name="Can-Retransform-Classes" value="true"/>
             <attribute name="Implementation-Version" value="${version}"/>

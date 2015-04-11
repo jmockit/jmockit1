@@ -23,6 +23,17 @@ public final class CodeCoverage implements ClassFileTransformer
 
    public static void main(String[] args)
    {
+      if (args.length == 1) {
+         String pid = args[0];
+
+         try {
+            Integer.parseInt(pid);
+            new AgentLoader(pid).loadAgent();
+            return;
+         }
+         catch (NumberFormatException ignore) {}
+      }
+
       OutputFileGenerator generator = createOutputFileGenerator(null);
       generator.generateAggregateReportFromInputFiles(args);
    }

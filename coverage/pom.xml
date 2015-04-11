@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.17-beta1</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.17-beta2</version>
    <packaging>jar</packaging>
 
    <name>JMockit Coverage</name>
@@ -23,10 +23,7 @@
       </license>
    </licenses>
    <developers>
-      <developer>
-         <name>Rogério Liesenfeld</name>
-         <email>rliesenfeld@gmail.com</email>
-      </developer>
+      <developer><name>Rogério Liesenfeld</name></developer>
    </developers>
    <scm>
       <url>https://github.com/jmockit/jmockit1</url>
@@ -63,6 +60,8 @@
                <include>mockit/internal/state/TestRun.class</include>
                <include>mockit/internal/state/MockFixture.class</include>
                <include>mockit/internal/startup/Startup.class</include>
+               <include>com/sun/tools/attach/**/*.class</include>
+               <include>sun/tools/attach/*.class</include>
             </includes>
          </resource>
          <resource>
@@ -90,6 +89,7 @@
                   <manifestEntries>
                      <Main-Class>mockit.coverage.CodeCoverage</Main-Class>
                      <Premain-Class>mockit.coverage.standalone.Startup</Premain-Class>
+                     <Agent-Class>mockit.coverage.standalone.Startup</Agent-Class>
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
                   </manifestEntries>

@@ -36,6 +36,16 @@ public final class Startup
       }
    }
 
+   @SuppressWarnings("unused")
+   public static void agentmain(String agentArgs, @NotNull Instrumentation inst)
+   {
+      instrumentation = inst;
+      inATestRun = false;
+      jmockitAvailable = false;
+      CoverageControl.create();
+      inst.addTransformer(CodeCoverage.create(false));
+   }
+
    private static void discoverOptionalDependenciesThatAreAvailableInClassPath()
    {
       inATestRun = isAvailableInClassPath("org.junit.Assert") || isAvailableInClassPath("org.testng.Assert");
