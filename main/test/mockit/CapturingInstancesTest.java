@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -186,7 +186,7 @@ public final class CapturingInstancesTest
 
    static class Base { boolean doSomething() { return false; } }
    static final class Derived1 extends Base {}
-   static final class Derived2 extends Base {}
+   static final class Derived2 extends Base { Service2 doSomethingElse() { return null; } }
 
    @Test
    public void verifyExpectationsOnlyOnFirstOfTwoCapturedInstances(@Capturing(maxInstances = 1) final Base b)
@@ -229,6 +229,17 @@ public final class CapturingInstancesTest
       assertTrue(new Derived1().doSomething());
       assertFalse(new Derived2().doSomething());
       assertTrue(new Derived1().doSomething());
+   }
+
+   @Test
+   public void captureSubclassAndCascadeFromMethodExclusiveToSubclass(@Capturing Base capturingMock)
+   {
+      Derived2 d = new Derived2();
+      Service2 service2 = d.doSomethingElse();
+
+      // Classes mocked only because they implement/extend a capturing base type do not cascade from methods
+      // that exist only in them.
+      assertNull(service2);
    }
 
    @Test
