@@ -16,24 +16,30 @@ import static org.jmockit.Expectation.*;
 @Ignore("Just for API design, no backing implementation yet")
 public final class ExpectationWithStaticFieldsTest
 {
+   static class Dependency {}
+   static class Value {}
+
    @Mocked List<Object> mockList;
+   @Mocked Dependency dependency;
 
    @Test
    public void recordAndVerifyExpectations(@Mocked Consumer<String> mockAction)
    {
+      Value value = new Value();
+
       record(() -> {
-         mockAction.accept(anyString); result = 1;
-         mockAction.andThen(isNull()); result = new IOException(); times = 1;
+         mockAction.accept(any()); result = 1;
+         mockAction.andThen(null); result = new IOException(); times = 1;
 
          mockList.isEmpty(); result = true;
-         mockList.remove(isSame("test")); result = true;
+         mockList.remove(same(value)); result = true;
 
          mockList.sort(null); action = System.out::println;
 
-         mockList.addAll(anyInt, isNotNull()); advice = Execution::proceed;
+         mockList.addAll(any(), notNull()); advice = Execution::proceed;
       });
 
-      record(mockList, () -> { mockList.addAll(anyInt, null); delegate = args -> args.length > 0; });
+      record(mockList, () -> { mockList.addAll(any(), null); delegate = args -> args.length > 0; });
 
       mockAction.accept("");
       mockAction.andThen(System.out::println);
@@ -41,13 +47,15 @@ public final class ExpectationWithStaticFieldsTest
       mockList.add(1);
       mockList.add(2, "testing");
       mockList.add(2);
+      mockList.remove(value);
 
-      verify(() -> mockList.add(anyInt, null));
+      verify(() -> mockList.add(any(), null));
 
       verify(() -> {
          mockAction.accept(""); minTimes = 1; maxTimes = 2;
-         mockAction.andThen(isNotNull());
-         mockList.add(is(i -> i > 1), isNotNull());
+         mockAction.andThen(notNull());
+         mockList.add(as(i -> i > 1), notNull());
+         mockList.add(as(item -> item instanceof String));
       });
 
       verifyInOrder(() -> {
@@ -56,7 +64,7 @@ public final class ExpectationWithStaticFieldsTest
       });
 
       verifyAll(mockAction, () -> {
-         mockAction.accept(anyString);
+         mockAction.accept(any());
          mockAction.andThen(null);
       });
    }

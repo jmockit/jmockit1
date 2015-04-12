@@ -44,18 +44,8 @@ public final class Expectation
    public static int minTimes;
    public static int maxTimes;
 
-   public static final String anyString = "";
-   public static final Boolean anyBoolean = false;
-   public static final Character anyChar = 0;
-   public static final Byte anyByte = 0;
-   public static final Short anyShort = 0;
-   public static final Integer anyInt = 0;
-   public static final Long anyLong = 0L;
-   public static final Float anyFloat = 0.0F;
-   public static final Double anyDouble = 0.0;
-
-   public static <T> T isNull() { return null; }
-   public static <T> T isNotNull() { return null; }
-   public static <T> T isSame(T instance) { return null; }
-   public static <T> T is(Predicate<? super T> predicate) { return null; }
+   public static <T> T any() { return null; }
+   public static <T> T notNull() { return null; }
+   public static <T> T same(T instance) { return null; }
+   public static <T> T as(Predicate<? super T> predicate) { return null; }
 }
