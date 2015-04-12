@@ -100,7 +100,7 @@
       </dependency>
 
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.17</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.8.21</version>
          <scope>test</scope>
       </dependency>
 
