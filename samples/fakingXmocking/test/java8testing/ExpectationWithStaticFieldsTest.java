@@ -9,8 +9,11 @@ import java.util.*;
 import java.util.function.*;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
-import mockit.Mocked;
+import mockit.*;
+
+import static org.hamcrest.Matchers.*;
 import static org.jmockit.Expectation.*;
 
 @Ignore("Just for API design, no backing implementation yet")
@@ -48,6 +51,9 @@ public final class ExpectationWithStaticFieldsTest
       mockList.add(2, "testing");
       mockList.add(2);
       mockList.remove(value);
+
+      assertThat(mockList, is(not(empty())));
+      assertThat(mockList.get(0), is(any(Object.class)));
 
       verify(() -> mockList.add(any(), null));
 
