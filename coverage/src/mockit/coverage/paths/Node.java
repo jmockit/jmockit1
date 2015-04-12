@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -9,6 +9,7 @@ import java.io.*;
 
 import org.jetbrains.annotations.*;
 
+@SuppressWarnings("ClassReferencesSubclass")
 public class Node implements Serializable
 {
    private static final long serialVersionUID = 7521062699264845946L;
@@ -58,6 +59,7 @@ public class Node implements Serializable
 
       Exit(int exitLine) { super(exitLine); }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
@@ -69,12 +71,14 @@ public class Node implements Serializable
    {
       private static final long serialVersionUID = 2637678937923952603L;
       @Nullable ConditionalSuccessor nextConsecutiveNode;
-      Join nextNodeAfterGoto;
+      @Nullable private Join nextNodeAfterGoto;
 
       BasicBlock(int startingLine) { super(startingLine); }
 
+      @Override @SuppressWarnings("NullableProblems")
       public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
@@ -97,7 +101,7 @@ public class Node implements Serializable
 
       abstract void addNextNode(@NotNull Join nextNode);
 
-      final void createAlternatePath(Path parentPath, Join targetJoin)
+      static void createAlternatePath(@NotNull Path parentPath, @NotNull Join targetJoin)
       {
          Path alternatePath = new Path(parentPath, targetJoin.fromTrivialFork);
          targetJoin.addToPath(alternatePath);
@@ -107,32 +111,40 @@ public class Node implements Serializable
    static final class SimpleFork extends Fork
    {
       private static final long serialVersionUID = -521666665272332763L;
-      ConditionalSuccessor nextConsecutiveNode;
-      Join nextNodeAfterJump;
+      @Nullable ConditionalSuccessor nextConsecutiveNode;
+      @Nullable private Join nextNodeAfterJump;
 
       SimpleFork(int line) { super(line); }
 
       @Override
       void addNextNode(@NotNull Join nextNode) { nextNodeAfterJump = nextNode; }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
-         createAlternatePath(path, nextNodeAfterJump);
-         nextConsecutiveNode.addToPath(path);
+
+         if (nextNodeAfterJump != null) {
+            createAlternatePath(path, nextNodeAfterJump);
+         }
+
+         if (nextConsecutiveNode != null) {
+            nextConsecutiveNode.addToPath(path);
+         }
       }
    }
 
    static final class MultiFork extends Fork
    {
       private static final long serialVersionUID = 1220318686622690670L;
-      @NotNull final List<Join> caseNodes = new ArrayList<Join>();
+      @NotNull private final List<Join> caseNodes = new ArrayList<Join>();
 
       MultiFork(int line) { super(line); }
 
       @Override
       void addNextNode(@NotNull Join nextNode) { caseNodes.add(nextNode); }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
@@ -146,13 +158,15 @@ public class Node implements Serializable
    static final class Join extends Node implements ConditionalSuccessor, GotoSuccessor
    {
       private static final long serialVersionUID = -1983522899831071765L;
-      ConditionalSuccessor nextNode;
+      @Nullable ConditionalSuccessor nextNode;
       transient boolean fromTrivialFork;
 
       Join(int joiningLine) { super(joiningLine); }
 
+      @Override
       public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNode = newJoin; }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
@@ -173,12 +187,14 @@ public class Node implements Serializable
    static final class Goto extends Node implements ConditionalSuccessor, GotoSuccessor
    {
       private static final long serialVersionUID = -4715451134432419220L;
-      Join nextNodeAfterGoto;
+      private Join nextNodeAfterGoto;
 
       Goto(int line) { super(line); }
 
-      public void setNextNodeAfterGoto(@NotNull Join join) { nextNodeAfterGoto = join; }
+      @Override
+      public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
+      @Override
       public void addToPath(@NotNull Path path)
       {
          path.addNode(this);
