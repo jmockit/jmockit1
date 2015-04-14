@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -7,23 +7,25 @@ package mockit.internal;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import mockit.external.asm.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
+@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 final class SuperConstructorCollector extends ClassVisitor
 {
-   @NotNull static final SuperConstructorCollector INSTANCE = new SuperConstructorCollector();
+   @Nonnull static final SuperConstructorCollector INSTANCE = new SuperConstructorCollector();
 
-   @NotNull private final Map<String, String> cache = new HashMap<String, String>();
+   @Nonnull private final Map<String, String> cache = new HashMap<String, String>();
    @Nullable private String constructorDesc;
    private boolean samePackage;
 
    private SuperConstructorCollector() {}
 
-   @NotNull synchronized String findConstructor(@NotNull String classDesc, @NotNull String superClassDesc)
+   @Nonnull
+   synchronized String findConstructor(@Nonnull String classDesc, @Nonnull String superClassDesc)
    {
       constructorDesc = cache.get(superClassDesc);
 
@@ -41,7 +43,7 @@ final class SuperConstructorCollector extends ClassVisitor
       return constructorDesc;
    }
 
-   private void findIfBothClassesAreInSamePackage(@NotNull String classDesc, @NotNull String superClassDesc)
+   private void findIfBothClassesAreInSamePackage(@Nonnull String classDesc, @Nonnull String superClassDesc)
    {
       int p1 = classDesc.lastIndexOf('/');
       int p2 = superClassDesc.lastIndexOf('/');
@@ -50,7 +52,7 @@ final class SuperConstructorCollector extends ClassVisitor
 
    @Override @Nullable
    public MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       if (isAccessible(access) && "<init>".equals(name)) {
          constructorDesc = desc;

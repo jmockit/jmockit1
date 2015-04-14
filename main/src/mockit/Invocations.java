@@ -7,6 +7,7 @@ package mockit;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
@@ -14,7 +15,6 @@ import mockit.internal.startup.*;
 import mockit.internal.util.*;
 
 import org.hamcrest.Matcher;
-import org.jetbrains.annotations.*;
 
 /**
  * Provides common API for use inside {@linkplain mockit.Expectations expectation} and
@@ -279,7 +279,7 @@ abstract class Invocations
     */
    protected CharSequence $;
 
-   @NotNull abstract TestOnlyPhase getCurrentPhase();
+   @Nonnull abstract TestOnlyPhase getCurrentPhase();
 
    /**
     * Calling this method causes the expectation recorded/verified on the given mocked instance to match only those
@@ -389,7 +389,7 @@ abstract class Invocations
       return DefaultValues.computeForWrapperType(parameterType);
    }
 
-   private void addMatcher(@NotNull ArgumentMatcher<?> matcher)
+   private void addMatcher(@Nonnull ArgumentMatcher<?> matcher)
    {
       getCurrentPhase().addArgMatcher(matcher);
    }

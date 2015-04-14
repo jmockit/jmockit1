@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -7,8 +7,7 @@ package mockit.internal;
 import java.lang.instrument.*;
 import java.util.*;
 import java.util.Map.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -16,12 +15,12 @@ import mockit.internal.util.*;
 
 public final class RedefinitionEngine
 {
-   @NotNull private Class<?> realClass;
+   @Nonnull private Class<?> realClass;
 
    public RedefinitionEngine() {}
-   public RedefinitionEngine(@NotNull Class<?> realClass) { this.realClass = realClass; }
+   public RedefinitionEngine(@Nonnull Class<?> realClass) { this.realClass = realClass; }
 
-   public static void redefineClasses(@NotNull ClassDefinition... definitions)
+   public static void redefineClasses(@Nonnull ClassDefinition... definitions)
    {
       Startup.redefineMethods(definitions);
 
@@ -32,24 +31,24 @@ public final class RedefinitionEngine
       }
    }
 
-   public void redefineMethodsWhileRegisteringTheClass(@NotNull byte[] modifiedClassfile)
+   public void redefineMethodsWhileRegisteringTheClass(@Nonnull byte[] modifiedClassfile)
    {
       redefineMethods(modifiedClassfile);
       addToMapOfRedefinedClasses(null, modifiedClassfile);
       TestRun.mockFixture().registerMockedClass(realClass);
    }
 
-   private void addToMapOfRedefinedClasses(@Nullable String mockClassInternalName, @NotNull byte[] modifiedClassfile)
+   private void addToMapOfRedefinedClasses(@Nullable String mockClassInternalName, @Nonnull byte[] modifiedClassfile)
    {
       TestRun.mockFixture().addRedefinedClass(mockClassInternalName, realClass, modifiedClassfile);
    }
 
-   private void redefineMethods(@NotNull byte[] modifiedClassfile)
+   private void redefineMethods(@Nonnull byte[] modifiedClassfile)
    {
       Startup.redefineMethods(realClass, modifiedClassfile);
    }
 
-   public void redefineMethods(@NotNull Map<Class<?>, byte[]> modifiedClassfiles)
+   public void redefineMethods(@Nonnull Map<Class<?>, byte[]> modifiedClassfiles)
    {
       ClassDefinition[] classDefs = new ClassDefinition[modifiedClassfiles.size()];
       int i = 0;
@@ -65,7 +64,7 @@ public final class RedefinitionEngine
       Startup.redefineMethods(classDefs);
    }
 
-   public void restoreDefinition(@NotNull Class<?> aClass, @Nullable byte[] previousDefinition)
+   public void restoreDefinition(@Nonnull Class<?> aClass, @Nullable byte[] previousDefinition)
    {
       if (previousDefinition == null) {
          restoreOriginalDefinition(aClass);
@@ -75,7 +74,7 @@ public final class RedefinitionEngine
       }
    }
 
-   public void restoreOriginalDefinition(@NotNull Class<?> aClass)
+   public void restoreOriginalDefinition(@Nonnull Class<?> aClass)
    {
       if (!GeneratedClasses.isGeneratedImplementationClass(aClass)) {
          realClass = aClass;
@@ -84,7 +83,7 @@ public final class RedefinitionEngine
       }
    }
 
-   public void restoreToDefinition(@NotNull Class<?> aClass, @NotNull byte[] definitionToRestore)
+   public void restoreToDefinition(@Nonnull Class<?> aClass, @Nonnull byte[] definitionToRestore)
    {
       realClass = aClass;
       redefineMethods(definitionToRestore);

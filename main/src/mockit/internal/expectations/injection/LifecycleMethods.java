@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -10,8 +10,6 @@ import javax.annotation.*;
 
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
-
-import org.jetbrains.annotations.*;
 
 final class LifecycleMethods
 {
@@ -26,7 +24,7 @@ final class LifecycleMethods
       objectsWithPreDestroyMethodsToExecute = new ArrayList<Object>();
    }
 
-   private void findLifecycleMethods(@NotNull Class<?> testedClass)
+   private void findLifecycleMethods(@Nonnull Class<?> testedClass)
    {
       boolean isServlet = isServlet(testedClass);
       Method initializationMethod = null;
@@ -49,7 +47,7 @@ final class LifecycleMethods
       terminationMethods.put(testedClass, terminationMethod);
    }
 
-   private static boolean isInitializationMethod(@NotNull Method method, boolean isServlet)
+   private static boolean isInitializationMethod(@Nonnull Method method, boolean isServlet)
    {
       if (method.isAnnotationPresent(PostConstruct.class)) {
          return true;
@@ -58,7 +56,7 @@ final class LifecycleMethods
       return isServlet && "init".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
-   private static boolean isTerminationMethod(@NotNull Method method, boolean isServlet)
+   private static boolean isTerminationMethod(@Nonnull Method method, boolean isServlet)
    {
       if (method.isAnnotationPresent(PreDestroy.class)) {
          return true;
@@ -67,7 +65,7 @@ final class LifecycleMethods
       return isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
-   void executePostConstructMethodIfAny(@NotNull Class<?> testedClass, @NotNull Object testedObject)
+   void executePostConstructMethodIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
       Method postConstructMethod = getLifecycleMethod(testedClass);
 
@@ -83,7 +81,7 @@ final class LifecycleMethods
    }
 
    @Nullable
-   private Method getLifecycleMethod(@NotNull Class<?> testedClass)
+   private Method getLifecycleMethod(@Nonnull Class<?> testedClass)
    {
       if (!initializationMethods.containsKey(testedClass)) {
          findLifecycleMethods(testedClass);
@@ -104,7 +102,7 @@ final class LifecycleMethods
       }
    }
 
-   private void executePreDestroyMethod(@NotNull Object testedObject)
+   private void executePreDestroyMethod(@Nonnull Object testedObject)
    {
       Class<?> testedClass = testedObject.getClass();
       Method preDestroyMethod = terminationMethods.get(testedClass);

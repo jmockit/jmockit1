@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.expectations.*;
@@ -12,16 +13,14 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
 
-import org.jetbrains.annotations.*;
-
 public final class MockedBridge extends MockingBridge
 {
-   @NotNull public static final MockingBridge MB = new MockedBridge();
+   @Nonnull public static final MockingBridge MB = new MockedBridge();
 
    private MockedBridge() { super("$MB"); }
 
    @Nullable @Override
-   public Object invoke(@Nullable Object mocked, Method method, @NotNull Object[] args) throws Throwable
+   public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable
    {
       String mockedClassDesc = (String) args[1];
 

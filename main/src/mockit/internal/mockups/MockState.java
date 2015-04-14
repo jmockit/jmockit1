@@ -6,7 +6,7 @@ package mockit.internal.mockups;
 
 import java.lang.reflect.*;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.util.*;
@@ -14,7 +14,7 @@ import mockit.internal.mockups.MockMethods.MockMethod;
 
 final class MockState
 {
-   @NotNull final MockMethod mockMethod;
+   @Nonnull final MockMethod mockMethod;
    @Nullable private Method actualMockMethod;
    @Nullable private Member realMethodOrConstructor;
 
@@ -29,9 +29,9 @@ final class MockState
    @Nullable private ThreadLocal<MockInvocation> proceedingInvocation;
 
    // Helper field just for synchronization:
-   @NotNull private final Object invocationCountLock;
+   @Nonnull private final Object invocationCountLock;
 
-   MockState(@NotNull MockMethod mockMethod)
+   MockState(@Nonnull MockMethod mockMethod)
    {
       this.mockMethod = mockMethod;
       expectedInvocations = -1;
@@ -39,7 +39,7 @@ final class MockState
       invocationCountLock = new Object();
    }
 
-   MockState(@NotNull MockState mockState)
+   MockState(@Nonnull MockState mockState)
    {
       mockMethod = mockState.mockMethod;
       actualMockMethod = mockState.actualMockMethod;
@@ -54,7 +54,7 @@ final class MockState
       }
    }
 
-   @NotNull Class<?> getRealClass() { return mockMethod.getRealClass(); }
+   @Nonnull Class<?> getRealClass() { return mockMethod.getRealClass(); }
 
    void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
 
@@ -129,9 +129,9 @@ final class MockState
       }
    }
 
-   @NotNull
+   @Nonnull
    Member getRealMethodOrConstructor(
-      @NotNull String mockedClassDesc, @NotNull String mockedMethodName, @NotNull String mockedMethodDesc)
+      @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
       if (realMethodOrConstructor == null) {
          String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
@@ -152,7 +152,7 @@ final class MockState
       return realMethodOrConstructor;
    }
 
-   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @NotNull String classDesc)
+   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
    {
       if (proceedingInvocation != null) {
          MockInvocation pendingInvocation = proceedingInvocation.get();
@@ -165,7 +165,7 @@ final class MockState
       return false;
    }
 
-   void prepareToProceed(@NotNull MockInvocation invocation)
+   void prepareToProceed(@Nonnull MockInvocation invocation)
    {
       if (proceedingInvocation == null) {
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
@@ -178,13 +178,13 @@ final class MockState
       MockInvocation previousInvocation = proceedingInvocation.get();
 
       if (previousInvocation != null) {
-         invocation.setPreviousInvocation(previousInvocation);
+         invocation.setPrevious(previousInvocation);
       }
 
       proceedingInvocation.set(invocation);
    }
 
-   void prepareToProceedFromNonRecursiveMock(@NotNull MockInvocation invocation)
+   void prepareToProceedFromNonRecursiveMock(@Nonnull MockInvocation invocation)
    {
       assert proceedingInvocation != null;
       proceedingInvocation.set(invocation);
@@ -194,19 +194,19 @@ final class MockState
    {
       assert proceedingInvocation != null;
       MockInvocation currentInvocation = proceedingInvocation.get();
-      MockInvocation previousInvocation = (MockInvocation) currentInvocation.getPreviousInvocation();
+      MockInvocation previousInvocation = (MockInvocation) currentInvocation.getPrevious();
       proceedingInvocation.set(previousInvocation);
    }
 
-   @NotNull
+   @Nonnull
    Method getMockMethod()
    {
       assert actualMockMethod != null;
       return actualMockMethod;
    }
 
-   @NotNull
-   Method getMockMethod(@NotNull Class<?> mockUpClass, @NotNull Class<?>[] parameterTypes)
+   @Nonnull
+   Method getMockMethod(@Nonnull Class<?> mockUpClass, @Nonnull Class<?>[] parameterTypes)
    {
       if (actualMockMethod == null) {
          actualMockMethod = MethodReflection.findCompatibleMethod(mockUpClass, mockMethod.name, parameterTypes);
@@ -216,7 +216,7 @@ final class MockState
    }
 
    @Override
-   public boolean equals(@NotNull Object other) { return mockMethod.equals(((MockState) other).mockMethod); }
+   public boolean equals(@Nonnull Object other) { return mockMethod.equals(((MockState) other).mockMethod); }
 
    @Override
    public int hashCode() { return mockMethod.hashCode(); }

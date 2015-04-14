@@ -6,10 +6,10 @@ package mockit.internal;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import mockit.*;
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Base class for encapsulating state and logic needed by both the Expectations and Mockups APIs, but which should not
@@ -21,13 +21,13 @@ public abstract class BaseInvocation extends Invocation
    @Nullable protected BaseInvocation previousInvocation;
 
    protected BaseInvocation(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments,
+      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
       int invocationCount, int minInvocations, int maxInvocations)
    {
       super(invokedInstance, invokedArguments, invocationCount, minInvocations, maxInvocations);
    }
 
-   @NotNull
+   @Nonnull
    public final Member getRealMember()
    {
       if (realMember == null) {
@@ -37,7 +37,7 @@ public abstract class BaseInvocation extends Invocation
       return realMember;
    }
 
-   @NotNull protected abstract Member findRealMember();
+   @Nonnull protected abstract Member findRealMember();
 
    @Nullable
    public final <T> T doProceed(@Nullable Object[] replacementArguments)
@@ -72,8 +72,8 @@ public abstract class BaseInvocation extends Invocation
       }
    }
 
-   @NotNull
-   private static Object[] createArgumentsArrayWithVarargs(int numInvokedArgs, @NotNull Object[] replacementArguments)
+   @Nonnull
+   private static Object[] createArgumentsArrayWithVarargs(int numInvokedArgs, @Nonnull Object[] replacementArguments)
    {
       int m = numInvokedArgs - 1;
       Object[] actualArgs = new Object[numInvokedArgs];
@@ -89,14 +89,10 @@ public abstract class BaseInvocation extends Invocation
    public abstract void prepareToProceed();
    protected abstract void cleanUpAfterProceed();
 
-   @Nullable public final BaseInvocation getPreviousInvocation() { return previousInvocation; }
+   @Nullable public final BaseInvocation getPrevious() { return previousInvocation; }
+   public final void setPrevious(@Nonnull BaseInvocation previous) { previousInvocation = previous; }
 
-   public final void setPreviousInvocation(@NotNull BaseInvocation previousInvocation)
-   {
-      this.previousInvocation = previousInvocation;
-   }
-
-   public final boolean isMethodInSuperclass(@Nullable Object mock, @NotNull String classDesc)
+   public final boolean isMethodInSuperclass(@Nullable Object mock, @Nonnull String classDesc)
    {
       if (mock != null && mock == getInvokedInstance() && getInvokedMember() instanceof Method) {
          Method methodToInvoke = getInvokedMember();

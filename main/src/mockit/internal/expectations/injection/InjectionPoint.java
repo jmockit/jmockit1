@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
@@ -16,8 +16,6 @@ import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.util.MethodReflection.*;
 import static mockit.internal.util.ParameterReflection.*;
 import static mockit.internal.util.Utilities.*;
-
-import org.jetbrains.annotations.*;
 
 final class InjectionPoint
 {
@@ -38,15 +36,15 @@ final class InjectionPoint
       WITH_INJECTION_API_IN_CLASSPATH = INJECT_CLASS != null || PERSISTENCE_UNIT_CLASS != null;
    }
 
-   static boolean isServlet(@NotNull Class<?> aClass)
+   static boolean isServlet(@Nonnull Class<?> aClass)
    {
       return SERVLET_CLASS != null && GenericServlet.class.isAssignableFrom(aClass);
    }
 
    private InjectionPoint() {}
 
-   @NotNull
-   static Object wrapInProviderIfNeeded(@NotNull Type type, @NotNull final Object value)
+   @Nonnull
+   static Object wrapInProviderIfNeeded(@Nonnull Type type, @Nonnull final Object value)
    {
       if (
          INJECT_CLASS != null && type instanceof ParameterizedType && !(value instanceof Provider) &&
@@ -58,8 +56,8 @@ final class InjectionPoint
       return value;
    }
 
-   @NotNull
-   static KindOfInjectionPoint isAnnotated(@NotNull AccessibleObject fieldOrConstructor)
+   @Nonnull
+   static KindOfInjectionPoint isAnnotated(@Nonnull AccessibleObject fieldOrConstructor)
    {
       Annotation[] annotations = fieldOrConstructor.getDeclaredAnnotations();
 
@@ -95,7 +93,7 @@ final class InjectionPoint
    }
 
    private static boolean isAnnotated(
-      @NotNull Annotation[] declaredAnnotations, @NotNull Class<? extends Annotation> annotationOfInterest)
+      @Nonnull Annotation[] declaredAnnotations, @Nonnull Class<? extends Annotation> annotationOfInterest)
    {
       Annotation annotation = getAnnotation(declaredAnnotations, annotationOfInterest);
       return annotation != null;
@@ -103,7 +101,7 @@ final class InjectionPoint
 
    @Nullable
    private static <A extends Annotation> A getAnnotation(
-      @NotNull Annotation[] declaredAnnotations, @NotNull Class<A> annotationOfInterest)
+      @Nonnull Annotation[] declaredAnnotations, @Nonnull Class<A> annotationOfInterest)
    {
       for (Annotation declaredAnnotation : declaredAnnotations) {
          if (declaredAnnotation.annotationType() == annotationOfInterest) {
@@ -115,8 +113,8 @@ final class InjectionPoint
       return null;
    }
 
-   @NotNull
-   private static KindOfInjectionPoint isAutowired(@NotNull Annotation[] declaredAnnotations)
+   @Nonnull
+   private static KindOfInjectionPoint isAutowired(@Nonnull Annotation[] declaredAnnotations)
    {
       for (Annotation declaredAnnotation : declaredAnnotations) {
          Class<? extends Annotation> annotationType = declaredAnnotation.annotationType();
@@ -130,7 +128,7 @@ final class InjectionPoint
       return KindOfInjectionPoint.NotAnnotated;
    }
 
-   private static boolean hasValue(@NotNull Annotation[] declaredAnnotations)
+   private static boolean hasValue(@Nonnull Annotation[] declaredAnnotations)
    {
       for (Annotation declaredAnnotation : declaredAnnotations) {
          Class<? extends Annotation> annotationType = declaredAnnotation.annotationType();
@@ -144,7 +142,7 @@ final class InjectionPoint
    }
 
    @Nullable
-   static Object getValueFromAnnotation(@NotNull Field field)
+   static Object getValueFromAnnotation(@Nonnull Field field)
    {
       String value = null;
 
@@ -161,8 +159,8 @@ final class InjectionPoint
       return convertedValue;
    }
 
-   @NotNull
-   static Type getTypeOfInjectionPointFromVarargsParameter(@NotNull Type[] parameterTypes, int varargsParameterIndex)
+   @Nonnull
+   static Type getTypeOfInjectionPointFromVarargsParameter(@Nonnull Type[] parameterTypes, int varargsParameterIndex)
    {
       Type parameterType = parameterTypes[varargsParameterIndex];
 

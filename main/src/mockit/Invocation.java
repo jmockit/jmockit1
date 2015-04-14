@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 
@@ -40,7 +39,7 @@ public class Invocation
     * For internal use only.
     */
    protected Invocation(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments,
+      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
       int invocationCount, int minInvocations, int maxInvocations)
    {
       this.invokedInstance = invokedInstance;

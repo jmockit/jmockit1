@@ -8,25 +8,24 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.annotation.*;
 import javax.inject.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-import org.jetbrains.annotations.*;
-
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
  */
 final class InjectionState
 {
-   @NotNull private static final Map<Object, Object> globalDependencies = new ConcurrentHashMap<Object, Object>(2);
+   @Nonnull private static final Map<Object, Object> globalDependencies = new ConcurrentHashMap<Object, Object>(2);
 
-   @NotNull private List<MockedType> injectables;
-   @NotNull private List<MockedType> consumedInjectables;
-   @NotNull private final Map<Object, Object> instantiatedDependencies;
-   @NotNull final LifecycleMethods lifecycleMethods;
+   @Nonnull private List<MockedType> injectables;
+   @Nonnull private List<MockedType> consumedInjectables;
+   @Nonnull private final Map<Object, Object> instantiatedDependencies;
+   @Nonnull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
@@ -39,19 +38,19 @@ final class InjectionState
       lifecycleMethods = new LifecycleMethods();
    }
 
-   void buildListsOfInjectables(@NotNull Object testClassInstance, @NotNull List<MockedType> injectableFields)
+   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectableFields)
    {
       currentTestClassInstance = testClassInstance;
       injectables = new ArrayList<MockedType>(injectableFields);
 
-      ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterTypeRedefinitions();
+      ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
 
       if (paramTypeRedefs != null) {
          injectables.addAll(paramTypeRedefs.getInjectableParameters());
       }
    }
 
-   void discardInjectablesFromLowerTestClassHierarchyLevels(@NotNull Class<?> testSuperClass)
+   void discardInjectablesFromLowerTestClassHierarchyLevels(@Nonnull Class<?> testSuperClass)
    {
       Iterator<MockedType> itr = injectables.iterator();
 
@@ -67,19 +66,19 @@ final class InjectionState
 
    public Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
-   void setTestedField(@NotNull Field testedField) { testedTypeReflection = new GenericTypeReflection(testedField); }
+   void setTestedField(@Nonnull Field testedField) { testedTypeReflection = new GenericTypeReflection(testedField); }
 
-   void setTypeOfInjectionPoint(@NotNull Type typeOfInjectionPoint)
+   void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
    {
       this.typeOfInjectionPoint = typeOfInjectionPoint;
    }
 
-   private boolean hasSameTypeAsInjectionPoint(@NotNull MockedType injectable)
+   private boolean hasSameTypeAsInjectionPoint(@Nonnull MockedType injectable)
    {
       return isSameTypeAsInjectionPoint(injectable.declaredType);
    }
 
-   boolean isSameTypeAsInjectionPoint(@NotNull Type injectableType)
+   boolean isSameTypeAsInjectionPoint(@Nonnull Type injectableType)
    {
       if (testedTypeReflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
@@ -110,7 +109,7 @@ final class InjectionState
    }
 
    @Nullable
-   MockedType findInjectableByTypeAndOptionallyName(@NotNull String nameOfInjectionPoint)
+   MockedType findInjectableByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
    {
       MockedType found = null;
 
@@ -130,7 +129,7 @@ final class InjectionState
    }
 
    @Nullable
-   MockedType findInjectableByTypeAndName(@NotNull String nameOfInjectionPoint)
+   MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint)
    {
       for (MockedType injectable : injectables) {
          if (hasSameTypeAsInjectionPoint(injectable) && nameOfInjectionPoint.equals(injectable.mockId)) {
@@ -142,7 +141,7 @@ final class InjectionState
    }
 
    @Nullable
-   Object getValueToInject(@NotNull MockedType injectable)
+   Object getValueToInject(@Nonnull MockedType injectable)
    {
       if (consumedInjectables.contains(injectable)) {
          return null;
@@ -162,7 +161,7 @@ final class InjectionState
       consumedInjectables.clear();
    }
 
-   @NotNull
+   @Nonnull
    List<MockedType> saveConsumedInjectables()
    {
       List<MockedType> previousConsumedInjectables = consumedInjectables;
@@ -170,14 +169,14 @@ final class InjectionState
       return previousConsumedInjectables;
    }
 
-   void restoreConsumedInjectables(@NotNull List<MockedType> previousConsumedInjectables)
+   void restoreConsumedInjectables(@Nonnull List<MockedType> previousConsumedInjectables)
    {
       consumedInjectables = previousConsumedInjectables;
    }
 
    @SuppressWarnings("unchecked")
    @Nullable
-   <D> D getInstantiatedDependency(@NotNull Object dependencyKey)
+   <D> D getInstantiatedDependency(@Nonnull Object dependencyKey)
    {
       Object dependency = instantiatedDependencies.get(dependencyKey);
 
@@ -188,7 +187,7 @@ final class InjectionState
       return (D) dependency;
    }
 
-   void saveInstantiatedDependency(@NotNull Object dependencyKey, @NotNull Object dependency, boolean global)
+   void saveInstantiatedDependency(@Nonnull Object dependencyKey, @Nonnull Object dependency, boolean global)
    {
       Map<Object, Object> dependenciesCache = global ? globalDependencies : instantiatedDependencies;
       dependenciesCache.put(dependencyKey, dependency);

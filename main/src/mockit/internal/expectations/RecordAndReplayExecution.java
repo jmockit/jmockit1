@@ -7,6 +7,8 @@ package mockit.internal.expectations;
 import java.util.*;
 import java.util.concurrent.locks.*;
 
+import javax.annotation.*;
+
 import mockit.*;
 import mockit.integration.junit4.internal.*;
 import mockit.internal.expectations.invocation.*;
@@ -16,8 +18,6 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 public final class RecordAndReplayExecution
 {
    public static final ReentrantLock RECORD_OR_REPLAY_LOCK = new ReentrantLock();
@@ -25,10 +25,10 @@ public final class RecordAndReplayExecution
 
    @Nullable private final DynamicPartialMocking dynamicPartialMocking;
 
-   @NotNull final PhasedExecutionState executionState;
+   @Nonnull final PhasedExecutionState executionState;
    final int lastExpectationIndexInPreviousReplayPhase;
 
-   @NotNull final FailureState failureState;
+   @Nonnull final FailureState failureState;
 
    @Nullable private RecordPhase recordPhase;
    @Nullable private ReplayPhase replayPhase;
@@ -76,7 +76,7 @@ public final class RecordAndReplayExecution
    }
 
    public RecordAndReplayExecution(
-      @NotNull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked)
+      @Nonnull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked)
    {
       validateRecordingContext();
 
@@ -126,7 +126,7 @@ public final class RecordAndReplayExecution
       List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
       List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
 
-      TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
+      TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
       if (paramTypeRedefinitions != null) {
          targetClasses.addAll(paramTypeRedefinitions.getTargetClasses());
@@ -139,7 +139,7 @@ public final class RecordAndReplayExecution
       }
    }
 
-   @Nullable @Contract("!null -> _")
+   @Nullable
    private static DynamicPartialMocking applyDynamicPartialMocking(@Nullable Object... classesOrInstances)
    {
       if (classesOrInstances == null || classesOrInstances.length == 0) {
@@ -151,7 +151,7 @@ public final class RecordAndReplayExecution
       return mocking;
    }
 
-   @NotNull
+   @Nonnull
    public RecordPhase getRecordPhase()
    {
       if (recordPhase == null) {
@@ -169,7 +169,7 @@ public final class RecordAndReplayExecution
     */
    @Nullable
    public static Object recordOrReplay(
-      @Nullable Object mock, int mockAccess, @NotNull String classDesc, @NotNull String mockDesc,
+      @Nullable Object mock, int mockAccess, @Nonnull String classDesc, @Nonnull String mockDesc,
       @Nullable String genericSignature, int executionModeOrdinal, @Nullable Object[] args)
       throws Throwable
    {
@@ -237,8 +237,8 @@ public final class RecordAndReplayExecution
 
    @Nullable
    private static Object defaultReturnValue(
-      @Nullable Object mock, @NotNull String classDesc, @NotNull String nameAndDesc,
-      @Nullable String genericSignature, @NotNull ExecutionMode executionMode, @NotNull Object[] args)
+      @Nullable Object mock, @Nonnull String classDesc, @Nonnull String nameAndDesc,
+      @Nullable String genericSignature, @Nonnull ExecutionMode executionMode, @Nonnull Object[] args)
    {
       if (executionMode.isToExecuteRealImplementation(mock)) {
          return Void.class;
@@ -268,9 +268,9 @@ public final class RecordAndReplayExecution
 
    @Nullable
    private static Object defaultReturnValue(
-      @NotNull ExecutingTest executingTest, @Nullable Object mock,
-      @NotNull String classDesc, @NotNull String nameAndDesc, @Nullable String genericSignature,
-      @NotNull ExecutionMode executionMode, @NotNull Object[] args) throws Throwable
+      @Nonnull ExecutingTest executingTest, @Nullable Object mock,
+      @Nonnull String classDesc, @Nonnull String nameAndDesc, @Nullable String genericSignature,
+      @Nonnull ExecutionMode executionMode, @Nonnull Object[] args) throws Throwable
    {
       RecordAndReplayExecution execution = executingTest.getCurrentRecordAndReplay();
 
@@ -287,10 +287,10 @@ public final class RecordAndReplayExecution
    }
 
    private static boolean handleCallToConstructor(
-      @NotNull RecordAndReplayExecution instance, @NotNull Object mock, @NotNull String classDesc)
+      @Nonnull RecordAndReplayExecution instance, @Nonnull Object mock, @Nonnull String classDesc)
    {
       if (instance.replayPhase != null) {
-         TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterTypeRedefinitions();
+         TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
          if (paramTypeRedefinitions != null) {
             CaptureOfNewInstances paramTypeCaptures = paramTypeRedefinitions.getCaptureOfNewInstances();
@@ -311,7 +311,7 @@ public final class RecordAndReplayExecution
       return isCallToSuperClassConstructor(mock, classDesc);
    }
 
-   private static boolean isCallToSuperClassConstructor(@NotNull Object mock, @NotNull String calledClassDesc)
+   private static boolean isCallToSuperClassConstructor(@Nonnull Object mock, @Nonnull String calledClassDesc)
    {
       Class<?> mockedClass = mock.getClass();
 
@@ -330,7 +330,7 @@ public final class RecordAndReplayExecution
       return !calledClassName.equals(mockedClass.getName());
    }
 
-   @NotNull
+   @Nonnull
    private Phase getCurrentPhase()
    {
       ReplayPhase replay = replayPhase;
@@ -350,7 +350,7 @@ public final class RecordAndReplayExecution
       return replay;
    }
 
-   @NotNull
+   @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder)
    {
       assert replayPhase != null;
@@ -395,7 +395,7 @@ public final class RecordAndReplayExecution
       return error;
    }
 
-   @NotNull
+   @Nonnull
    private ReplayPhase switchFromRecordToReplayIfNotYet()
    {
       if (replayPhase == null) {
@@ -406,7 +406,7 @@ public final class RecordAndReplayExecution
       return replayPhase;
    }
 
-   @NotNull
+   @Nonnull
    public TestOnlyPhase getCurrentTestOnlyPhase()
    {
       if (recordPhase != null) return recordPhase;

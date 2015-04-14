@@ -5,8 +5,7 @@
 package mockit;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.*;
 
@@ -112,7 +111,7 @@ import mockit.internal.expectations.*;
  */
 public abstract class Expectations extends Invocations
 {
-   @NotNull private final RecordAndReplayExecution execution;
+   @Nonnull private final RecordAndReplayExecution execution;
 
    /**
     * A value assigned to this field will be taken as the result for the expectation that is being recorded.
@@ -241,7 +240,7 @@ public abstract class Expectations extends Invocations
       getCurrentPhase().setNumberOfIterations(numberOfIterations);
    }
 
-   @NotNull @Override
+   @Nonnull @Override
    final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**

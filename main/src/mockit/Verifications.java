@@ -5,12 +5,11 @@
 package mockit;
 
 import java.util.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
-
+import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
-import mockit.internal.expectations.*;
 
 /**
  * Used to <em>verify</em> a set of expectations on available {@linkplain mockit.Mocked mocked} types and/or instances,
@@ -52,7 +51,7 @@ import mockit.internal.expectations.*;
  */
 public abstract class Verifications extends Invocations
 {
-   @NotNull final BaseVerificationPhase verificationPhase;
+   @Nonnull final BaseVerificationPhase verificationPhase;
 
    /**
     * Begins a set of unordered expectation verifications, on the available mocked types and/or mocked instances.
@@ -91,8 +90,8 @@ public abstract class Verifications extends Invocations
       verificationPhase = instance.startVerifications(inOrder);
    }
 
-   @Override
-   @NotNull final BaseVerificationPhase getCurrentPhase() { return verificationPhase; }
+   @Nonnull @Override
+   final BaseVerificationPhase getCurrentPhase() { return verificationPhase; }
 
    /**
     * Captures the argument value passed into the associated expectation parameter, for a matching invocation that

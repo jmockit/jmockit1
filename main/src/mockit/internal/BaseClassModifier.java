@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
 
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
@@ -11,16 +12,13 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 
-import org.jetbrains.annotations.*;
-
 public class BaseClassModifier extends ClassVisitor
 {
    private static final int METHOD_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
    protected static final Type VOID_TYPE = Type.getType("Ljava/lang/Void;");
 
-   @NotNull
-   protected final MethodVisitor methodAnnotationsVisitor = new MethodVisitor()
-   {
+   @Nonnull
+   protected final MethodVisitor methodAnnotationsVisitor = new MethodVisitor() {
       @Override
       public AnnotationVisitor visitAnnotation(String desc, boolean visible)
       {
@@ -29,7 +27,7 @@ public class BaseClassModifier extends ClassVisitor
 
       @Override
       public void visitLocalVariable(
-         @NotNull String name, @NotNull String desc, String signature, @NotNull Label start, @NotNull Label end,
+         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
          int index)
       {}
 
@@ -37,7 +35,7 @@ public class BaseClassModifier extends ClassVisitor
       public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) { return null; }
    };
 
-   @NotNull protected final ClassWriter cw;
+   @Nonnull protected final ClassWriter cw;
    protected MethodWriter mw;
    protected boolean useMockingBridge;
    protected String superClassName;
@@ -46,7 +44,7 @@ public class BaseClassModifier extends ClassVisitor
    protected String methodName;
    protected String methodDesc;
 
-   protected BaseClassModifier(@NotNull ClassReader classReader)
+   protected BaseClassModifier(@Nonnull ClassReader classReader)
    {
       super(new ClassWriter(classReader));
       //noinspection ConstantConditions
@@ -60,7 +58,7 @@ public class BaseClassModifier extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       int modifiedVersion = version;
@@ -83,7 +81,7 @@ public class BaseClassModifier extends ClassVisitor
     * Removes any "abstract" or "native" modifiers for the modified version.
     */
    protected final void startModifiedMethodVersion(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       mw = cw.visitMethod(access & METHOD_ACCESS_MASK, name, desc, signature, exceptions);
 
@@ -118,7 +116,7 @@ public class BaseClassModifier extends ClassVisitor
       mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc, false);
    }
 
-   protected final void generateReturnWithObjectAtTopOfTheStack(@NotNull String mockedMethodDesc)
+   protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc)
    {
       // TODO: for #10
       // if (methodName.charAt(0) == '<') {
@@ -136,7 +134,7 @@ public class BaseClassModifier extends ClassVisitor
    }
 
    public static boolean generateCodeToPassThisOrNullIfStaticMethod(
-      @NotNull MethodWriter mw, int access, @SuppressWarnings("unused") @NotNull String name)
+      @Nonnull MethodWriter mw, int access, @SuppressWarnings("unused") @Nonnull String name)
    {
       boolean isStatic = isStatic(access);
 
@@ -150,14 +148,14 @@ public class BaseClassModifier extends ClassVisitor
       return isStatic;
    }
 
-   public static void generateCodeToCreateArrayOfObject(@NotNull MethodWriter mw, int arrayLength)
+   public static void generateCodeToCreateArrayOfObject(@Nonnull MethodWriter mw, int arrayLength)
    {
       mw.visitIntInsn(BIPUSH, arrayLength);
       mw.visitTypeInsn(ANEWARRAY, "java/lang/Object");
    }
 
    public static void generateCodeToFillArrayWithParameterValues(
-      @NotNull MethodWriter mw, @NotNull Type[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
+      @Nonnull MethodWriter mw, @Nonnull Type[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
    {
       int i = initialArrayIndex;
       int j = initialParameterIndex;
@@ -172,7 +170,7 @@ public class BaseClassModifier extends ClassVisitor
       }
    }
 
-   protected final void generateCodeToObtainInstanceOfMockingBridge(@NotNull MockingBridge mockingBridge)
+   protected final void generateCodeToObtainInstanceOfMockingBridge(@Nonnull MockingBridge mockingBridge)
    {
       mw.visitFieldInsn(GETSTATIC, "org/omg/IOP/IORHelper", mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
    }
@@ -200,7 +198,7 @@ public class BaseClassModifier extends ClassVisitor
       mw.visitInsn(AASTORE);
    }
 
-   private void pushDefaultValueForType(@NotNull Type type)
+   private void pushDefaultValueForType(@Nonnull Type type)
    {
       switch (type.getSort()) {
          case Type.VOID: break;
@@ -217,7 +215,7 @@ public class BaseClassModifier extends ClassVisitor
       }
    }
 
-   private void generateCreationOfEmptyArray(@NotNull Type arrayType)
+   private void generateCreationOfEmptyArray(@Nonnull Type arrayType)
    {
       int dimensions = arrayType.getDimensions();
 
@@ -263,7 +261,7 @@ public class BaseClassModifier extends ClassVisitor
          "(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;", true);
    }
 
-   protected final void generateEmptyImplementation(@NotNull String desc)
+   protected final void generateEmptyImplementation(@Nonnull String desc)
    {
       Type returnType = Type.getReturnType(desc);
       pushDefaultValueForType(returnType);
@@ -277,7 +275,8 @@ public class BaseClassModifier extends ClassVisitor
       mw.visitMaxs(1, 0);
    }
 
-   @NotNull protected final MethodVisitor copyOriginalImplementationCode(boolean disregardCallToSuper)
+   @Nonnull
+   protected final MethodVisitor copyOriginalImplementationCode(boolean disregardCallToSuper)
    {
       if (disregardCallToSuper) {
          return new DynamicConstructorModifier();
@@ -297,8 +296,8 @@ public class BaseClassModifier extends ClassVisitor
 
       @Override
       public final void visitLocalVariable(
-         @NotNull String name, @NotNull String desc, @Nullable String signature,
-         @NotNull Label start, @NotNull Label end, int index)
+         @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+         @Nonnull Label start, @Nonnull Label end, int index)
       {
          // For some reason, the start position for "this" gets displaced by bytecode inserted at the beginning,
          // in a method modified by the EMMA tool. If not treated, this causes a ClassFormatError.
@@ -319,7 +318,7 @@ public class BaseClassModifier extends ClassVisitor
       private boolean callToAnotherConstructorAlreadyDisregarded;
 
       @Override
-      public void visitTypeInsn(int opcode, @NotNull String type)
+      public void visitTypeInsn(int opcode, @Nonnull String type)
       {
          if (!callToAnotherConstructorAlreadyDisregarded && opcode == NEW && type.equals(classDesc)) {
             pendingCallToConstructorOfSameClass = true;
@@ -330,7 +329,7 @@ public class BaseClassModifier extends ClassVisitor
 
       @Override
       public void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+         int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
       {
          if (pendingCallToConstructorOfSameClass) {
             if (opcode == INVOKESPECIAL && "<init>".equals(name) && owner.equals(classDesc)) {

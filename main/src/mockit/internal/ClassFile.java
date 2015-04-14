@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -7,12 +7,11 @@ package mockit.internal;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.ClassReader.*;
-
-import org.jetbrains.annotations.*;
 
 public final class ClassFile
 {
@@ -22,21 +21,21 @@ public final class ClassFile
 
    public static final class NotFoundException extends RuntimeException
    {
-      private NotFoundException(@NotNull String classNameOrDesc)
+      private NotFoundException(@Nonnull String classNameOrDesc)
       {
          super("Unable to find class file for " + classNameOrDesc.replace('/', '.'));
       }
    }
 
-   @Contract("null, _ -> fail")
-   private static void verifyClassFileFound(@Nullable InputStream classFile, @NotNull String classNameOrDesc)
+   private static void verifyClassFileFound(@Nullable InputStream classFile, @Nonnull String classNameOrDesc)
    {
       if (classFile == null) {
          throw new NotFoundException(classNameOrDesc);
       }
    }
 
-   @NotNull public static ClassReader createClassFileReader(@NotNull Class<?> aClass)
+   @Nonnull
+   public static ClassReader createClassFileReader(@Nonnull Class<?> aClass)
    {
       byte[] cachedClassfile = CachedClassfiles.getClassfile(aClass);
 
@@ -56,7 +55,8 @@ public final class ClassFile
       }
    }
 
-   @NotNull public static ClassReader createReaderOrGetFromCache(@NotNull Class<?> aClass)
+   @Nonnull
+   public static ClassReader createReaderOrGetFromCache(@Nonnull Class<?> aClass)
    {
       byte[] cachedClassfile = CachedClassfiles.getClassfile(aClass);
 
@@ -75,8 +75,8 @@ public final class ClassFile
       return reader;
    }
 
-   @NotNull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
-   private static InputStream readClassFromClasspath(@NotNull String classDesc)
+   @Nonnull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
+   private static InputStream readClassFromClasspath(@Nonnull String classDesc)
    {
       String classFileName = classDesc + ".class";
       ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -99,10 +99,12 @@ public final class ClassFile
       }
 
       verifyClassFileFound(inputStream, classDesc);
+      //noinspection ConstantConditions
       return inputStream;
    }
 
-   @NotNull public static ClassReader createReaderFromLastRedefinitionIfAny(@NotNull Class<?> aClass)
+   @Nonnull
+   public static ClassReader createReaderFromLastRedefinitionIfAny(@Nonnull Class<?> aClass)
    {
       byte[] classfile = TestRun.mockFixture().getRedefinedClassfile(aClass);
 
@@ -121,8 +123,8 @@ public final class ClassFile
       return reader;
    }
 
-   @NotNull
-   public static ClassReader createClassFileReader(@Nullable ClassLoader loader, @NotNull String internalClassName)
+   @Nonnull
+   public static ClassReader createClassFileReader(@Nullable ClassLoader loader, @Nonnull String internalClassName)
    {
       byte[] cachedClassfile = CachedClassfiles.getClassfile(loader, internalClassName);
 
@@ -133,13 +135,15 @@ public final class ClassFile
       return readFromFile(internalClassName);
    }
 
-   @NotNull public static ClassReader readFromFile(@NotNull Class<?> aClass)
+   @Nonnull
+   public static ClassReader readFromFile(@Nonnull Class<?> aClass)
    {
       String classDesc = aClass.getName().replace('.', '/');
       return readFromFile(classDesc);
    }
 
-   @NotNull public static ClassReader readFromFile(@NotNull String classDesc)
+   @Nonnull
+   public static ClassReader readFromFile(@Nonnull String classDesc)
    {
       InputStream classFile = readClassFromClasspath(classDesc);
 
@@ -151,7 +155,7 @@ public final class ClassFile
       }
    }
 
-   public static void visitClass(@NotNull String classDesc, @NotNull ClassVisitor visitor)
+   public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor)
    {
       InputStream classFile = readClassFromClasspath(classDesc);
 

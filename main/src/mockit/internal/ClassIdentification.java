@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 /**
  * Identifies a class by its loader and name rather than by the {@code Class} object, which isn't available during
@@ -13,15 +13,16 @@ import org.jetbrains.annotations.*;
 public final class ClassIdentification
 {
    @Nullable public final ClassLoader loader;
-   @NotNull public final String name;
+   @Nonnull public final String name;
 
-   public ClassIdentification(@Nullable ClassLoader loader, @NotNull String name)
+   public ClassIdentification(@Nullable ClassLoader loader, @Nonnull String name)
    {
       this.loader = loader;
       this.name = name;
    }
 
-   @NotNull public Class<?> getLoadedClass()
+   @Nonnull
+   public Class<?> getLoadedClass()
    {
       try {
          return Class.forName(name, false, loader);
@@ -37,10 +38,10 @@ public final class ClassIdentification
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
 
-      ClassIdentification that = (ClassIdentification) o;
+      ClassIdentification other = (ClassIdentification) o;
 
-      if (loader != that.loader) return false;
-      return name.equals(that.name);
+      if (loader != other.loader) return false;
+      return name.equals(other.name);
    }
 
    @Override

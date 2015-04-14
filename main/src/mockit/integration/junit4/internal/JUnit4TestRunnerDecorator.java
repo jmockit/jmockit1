@@ -5,6 +5,7 @@
 package mockit.integration.junit4.internal;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import org.junit.*;
 import org.junit.runners.model.*;
@@ -15,12 +16,10 @@ import mockit.internal.mockups.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 
-import org.jetbrains.annotations.*;
-
 final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
 {
    @Nullable
-   Object invokeExplosively(@NotNull MockInvocation invocation, @Nullable Object target, Object... params)
+   Object invokeExplosively(@Nonnull MockInvocation invocation, @Nullable Object target, Object... params)
       throws Throwable
    {
       FrameworkMethod it = invocation.getInvokedInstance();
@@ -76,7 +75,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    @Nullable
-   private static Object executeClassMethod(@NotNull MockInvocation inv, @NotNull Object[] params) throws Throwable
+   private static Object executeClassMethod(@Nonnull MockInvocation inv, @Nonnull Object[] params) throws Throwable
    {
       FrameworkMethod method = inv.getInvokedInstance();
       handleMockingOutsideTests(method);
@@ -87,7 +86,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       return method.invokeExplosively(null, params);
    }
 
-   private void prepareToExecuteSetupMethod(@NotNull Object target)
+   private void prepareToExecuteSetupMethod(@Nonnull Object target)
    {
       discardTestLevelMockedTypes();
       prepareForNextTest();
@@ -95,7 +94,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       createInstancesForTestedFields(target, true);
    }
 
-   private static void handleMockingOutsideTests(@NotNull FrameworkMethod it)
+   private static void handleMockingOutsideTests(@Nonnull FrameworkMethod it)
    {
       Class<?> testClass = it.getMethod().getDeclaringClass();
 
@@ -120,7 +119,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void handleMockingOutsideTestMethods(@NotNull Object target)
+   private static void handleMockingOutsideTestMethods(@Nonnull Object target)
    {
       Class<?> testClass = target.getClass();
 
@@ -135,7 +134,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void executeTestMethod(
-      @NotNull MockInvocation invocation, @NotNull Object target, @Nullable Object... parameters)
+      @Nonnull MockInvocation invocation, @Nonnull Object target, @Nullable Object... parameters)
       throws Throwable
    {
       SavePoint savePoint = new SavePoint();

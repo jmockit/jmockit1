@@ -6,8 +6,7 @@ package mockit.integration.junit4.internal;
 
 import java.lang.annotation.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import org.junit.runners.model.*;
 
@@ -30,17 +29,16 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       return ClassLoad.searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null;
    }
 
-   @NotNull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();
+   @Nonnull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();
 
-   @Mock
-   @Nullable
-   public Object invokeExplosively(@NotNull Invocation invocation, Object target, Object... params) throws Throwable
+   @Nullable @Mock
+   public Object invokeExplosively(@Nonnull Invocation invocation, Object target, Object... params) throws Throwable
    {
       return decorator.invokeExplosively((MockInvocation) invocation, target, params);
    }
 
    @Mock
-   public static void validatePublicVoidNoArg(@NotNull Invocation invocation, boolean isStatic, List<Throwable> errors)
+   public static void validatePublicVoidNoArg(@Nonnull Invocation invocation, boolean isStatic, List<Throwable> errors)
    {
       FrameworkMethod it = invocation.getInvokedInstance();
       int previousErrorCount = errors.size();
@@ -61,7 +59,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       }
    }
 
-   private static boolean eachParameterContainsAMockingAnnotation(@NotNull Annotation[][] parametersAndTheirAnnotations)
+   private static boolean eachParameterContainsAMockingAnnotation(@Nonnull Annotation[][] parametersAndTheirAnnotations)
    {
       if (parametersAndTheirAnnotations.length == 0) {
          return false;
@@ -76,7 +74,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       return true;
    }
 
-   private static boolean containsAMockingAnnotation(@NotNull Annotation[] parameterAnnotations)
+   private static boolean containsAMockingAnnotation(@Nonnull Annotation[] parameterAnnotations)
    {
       if (parameterAnnotations.length == 0) {
          return false;

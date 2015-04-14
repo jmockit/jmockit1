@@ -6,6 +6,7 @@ package mockit;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.classGeneration.*;
@@ -14,8 +15,6 @@ import mockit.internal.startup.*;
 import mockit.internal.state.MockClasses.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * A base class used in the creation of a <em>mock-up</em> for a class or interface.
@@ -95,7 +94,7 @@ public abstract class MockUp<T>
 {
    static { Startup.verifyInitialization(); }
 
-   @NotNull private final Type mockedType;
+   @Nonnull private final Type mockedType;
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T mockInstance;
@@ -173,7 +172,7 @@ public abstract class MockUp<T>
       return null;
    }
 
-   @NotNull
+   @Nonnull
    private Type validateTypeToMock()
    {
       Type typeToMock = getTypeToMock();
@@ -186,7 +185,7 @@ public abstract class MockUp<T>
       return typeToMock;
    }
 
-   @NotNull
+   @Nonnull
    private Type getTypeToMock()
    {
       Class<?> currentClass = getClass();
@@ -207,8 +206,8 @@ public abstract class MockUp<T>
       while (true);
    }
 
-   @NotNull
-   private Class<T> redefineClassOrImplementInterface(@NotNull Class<T> classToMock)
+   @Nonnull
+   private Class<T> redefineClassOrImplementInterface(@Nonnull Class<T> classToMock)
    {
       if (classToMock.isInterface()) {
          return createInstanceOfMockedImplementationClass(classToMock, mockedType);
@@ -224,15 +223,15 @@ public abstract class MockUp<T>
       return classToMock;
    }
 
-   @NotNull
-   private Class<T> createInstanceOfMockedImplementationClass(@NotNull Class<T> classToMock, @Nullable Type typeToMock)
+   @Nonnull
+   private Class<T> createInstanceOfMockedImplementationClass(@Nonnull Class<T> classToMock, @Nullable Type typeToMock)
    {
       return new MockedImplementationClass<T>(this).createImplementation(classToMock, typeToMock);
    }
 
    @Nullable
    private Set<Class<?>> redefineMethods(
-      @NotNull Class<T> realClass, @NotNull Class<T> classToMock, @Nullable Type genericMockedType)
+      @Nonnull Class<T> realClass, @Nonnull Class<T> classToMock, @Nullable Type genericMockedType)
    {
       if (TestRun.mockFixture().isMockedClass(realClass)) {
          throw new IllegalArgumentException("Class already mocked: " + realClass.getName());
@@ -323,7 +322,7 @@ public abstract class MockUp<T>
       setMockInstance(instanceToMock);
    }
 
-   private void setMockInstance(@NotNull T mockInstance)
+   private void setMockInstance(@Nonnull T mockInstance)
    {
       TestRun.getMockClasses().addMock(this, mockInstance);
       this.mockInstance = mockInstance;

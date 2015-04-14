@@ -5,8 +5,7 @@
 package mockit.integration.internal;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.expectations.*;
@@ -33,7 +32,7 @@ public class TestRunnerDecorator
 
    protected TestRunnerDecorator() { shouldPrepareForNextTest = true; }
 
-   protected static void updateTestClassState(@Nullable Object target, @NotNull Class<?> testClass)
+   protected static void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass)
    {
       try {
          handleSwitchToNewTestClassIfApplicable(testClass);
@@ -60,7 +59,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static void handleSwitchToNewTestClassIfApplicable(@NotNull Class<?> testClass)
+   private static void handleSwitchToNewTestClassIfApplicable(@Nonnull Class<?> testClass)
    {
       Class<?> currentTestClass = TestRun.getCurrentTestClass();
 
@@ -125,7 +124,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static void handleMockFieldsForWholeTestClass(@NotNull Object target)
+   private static void handleMockFieldsForWholeTestClass(@Nonnull Object target)
    {
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
@@ -140,7 +139,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFields(@NotNull Object target, boolean beforeSetup)
+   protected static void createInstancesForTestedFields(@Nonnull Object target, boolean beforeSetup)
    {
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
@@ -162,7 +161,7 @@ public class TestRunnerDecorator
 
    @Nullable
    protected static Object[] createInstancesForMockParameters(
-      @NotNull Method testMethod, @Nullable Object[] parameterValues)
+      @Nonnull Method testMethod, @Nullable Object[] parameterValues)
    {
       if (testMethod.getParameterTypes().length == 0) {
          return null;
@@ -172,7 +171,7 @@ public class TestRunnerDecorator
 
       try {
          ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(testMethod, parameterValues);
-         TestRun.getExecutingTest().setParameterTypeRedefinitions(redefinitions);
+         TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
          return redefinitions.getParameterValues();
       }
@@ -182,7 +181,7 @@ public class TestRunnerDecorator
    }
 
    protected static void concludeTestMethodExecution(
-      @NotNull SavePoint savePoint, @Nullable Throwable thrownByTest, boolean thrownAsExpected)
+      @Nonnull SavePoint savePoint, @Nullable Throwable thrownByTest, boolean thrownAsExpected)
       throws Throwable
    {
       TestRun.enterNoMockingZone();
@@ -233,7 +232,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static boolean isUnexpectedOrMissingInvocation(@NotNull Throwable error)
+   private static boolean isUnexpectedOrMissingInvocation(@Nonnull Throwable error)
    {
       Class<?> errorType = error.getClass();
       return errorType == UnexpectedInvocation.class || errorType == MissingInvocation.class;

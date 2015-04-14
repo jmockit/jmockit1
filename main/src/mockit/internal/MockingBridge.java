@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -10,8 +10,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
 import java.util.jar.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.util.*;
 
@@ -56,9 +55,9 @@ public abstract class MockingBridge implements InvocationHandler
     * The instance is stored in a place directly accessible through the Java SE API, so that it can
     * be recovered from any class loader.
     */
-   protected MockingBridge(@NotNull String id) { this.id = id; }
+   protected MockingBridge(@Nonnull String id) { this.id = id; }
 
-   protected static boolean notToBeMocked(@Nullable Object mocked, @NotNull String mockedClassDesc)
+   protected static boolean notToBeMocked(@Nullable Object mocked, @Nonnull String mockedClassDesc)
    {
       Thread currentThread = Thread.currentThread();
 
@@ -76,7 +75,7 @@ public abstract class MockingBridge implements InvocationHandler
          ) && wasCalledDuringClassLoading();
    }
 
-   public static boolean instanceOfClassThatParticipatesInClassLoading(@NotNull Class<?> mockedClass)
+   public static boolean instanceOfClassThatParticipatesInClassLoading(@Nonnull Class<?> mockedClass)
    {
       return
          mockedClass == System.class || mockedClass == File.class || mockedClass == URL.class ||
@@ -112,7 +111,8 @@ public abstract class MockingBridge implements InvocationHandler
       }
    }
 
-   @NotNull protected static Object[] extractMockArguments(int startingIndex, @NotNull Object[] args)
+   @Nonnull
+   protected static Object[] extractMockArguments(int startingIndex, @Nonnull Object[] args)
    {
       if (args.length > startingIndex) {
          Object[] mockArgs = new Object[args.length - startingIndex];

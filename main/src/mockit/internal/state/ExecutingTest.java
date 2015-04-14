@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
 import static mockit.internal.util.Utilities.*;
-
-import org.jetbrains.annotations.*;
 
 @SuppressWarnings("ClassWithTooManyFields")
 public final class ExecutingTest
@@ -19,17 +19,17 @@ public final class ExecutingTest
    @Nullable private RecordAndReplayExecution currentRecordAndReplay;
    @Nullable private RecordAndReplayExecution recordAndReplayForLastTestMethod;
 
-   @NotNull private final ThreadLocal<Boolean> shouldIgnoreMockingCallbacks;
-   @NotNull private final ThreadLocal<BaseInvocation> proceedingInvocation;
+   @Nonnull private final ThreadLocal<Boolean> shouldIgnoreMockingCallbacks;
+   @Nonnull private final ThreadLocal<BaseInvocation> proceedingInvocation;
    private boolean proceeding;
 
    @Nullable private ParameterTypeRedefinitions parameterTypeRedefinitions;
 
-   @NotNull private final List<Object> regularMocks;
-   @NotNull private final List<Object> injectableMocks;
-   @NotNull private final List<Object> strictMocks;
-   @NotNull private final Map<Object, Object> originalToCapturedInstance;
-   @NotNull private final CascadingTypes cascadingTypes;
+   @Nonnull private final List<Object> regularMocks;
+   @Nonnull private final List<Object> injectableMocks;
+   @Nonnull private final List<Object> strictMocks;
+   @Nonnull private final Map<Object, Object> originalToCapturedInstance;
+   @Nonnull private final CascadingTypes cascadingTypes;
 
    ExecutingTest()
    {
@@ -44,7 +44,8 @@ public final class ExecutingTest
       cascadingTypes = new CascadingTypes();
    }
 
-   @NotNull public RecordAndReplayExecution getOrCreateRecordAndReplay()
+   @Nonnull
+   public RecordAndReplayExecution getOrCreateRecordAndReplay()
    {
       if (currentRecordAndReplay == null) {
          setRecordAndReplay(new RecordAndReplayExecution());
@@ -53,7 +54,8 @@ public final class ExecutingTest
       return currentRecordAndReplay;
    }
 
-   @Nullable public RecordAndReplayExecution getPreviousRecordAndReplay()
+   @Nullable
+   public RecordAndReplayExecution getPreviousRecordAndReplay()
    {
       RecordAndReplayExecution previous = currentRecordAndReplay;
       currentRecordAndReplay = null;
@@ -88,19 +90,19 @@ public final class ExecutingTest
 
    @Nullable public BaseInvocation getProceedingInvocation() { return proceedingInvocation.get(); }
 
-   public void markAsProceedingIntoRealImplementation(@NotNull BaseInvocation invocation)
+   public void markAsProceedingIntoRealImplementation(@Nonnull BaseInvocation invocation)
    {
       BaseInvocation previousInvocation = proceedingInvocation.get();
 
       if (previousInvocation != null) {
-         invocation.setPreviousInvocation(previousInvocation);
+         invocation.setPrevious(previousInvocation);
       }
 
       proceedingInvocation.set(invocation);
       proceeding = true;
    }
 
-   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @NotNull String classDesc)
+   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
    {
       BaseInvocation pendingInvocation = proceedingInvocation.get();
 
@@ -114,11 +116,12 @@ public final class ExecutingTest
    public void clearProceedingState()
    {
       BaseInvocation pendingInvocation = proceedingInvocation.get();
-      BaseInvocation previousInvocation = pendingInvocation.getPreviousInvocation();
+      BaseInvocation previousInvocation = pendingInvocation.getPrevious();
       proceedingInvocation.set(previousInvocation);
    }
 
-   @NotNull RecordAndReplayExecution getRecordAndReplayForVerifications()
+   @Nonnull
+   RecordAndReplayExecution getRecordAndReplayForVerifications()
    {
       if (currentRecordAndReplay == null) {
          if (recordAndReplayForLastTestMethod != null) {
@@ -137,10 +140,9 @@ public final class ExecutingTest
       return currentRecordAndReplay;
    }
 
-   @Nullable public ParameterTypeRedefinitions getParameterTypeRedefinitions() { return parameterTypeRedefinitions; }
+   @Nullable public ParameterTypeRedefinitions getParameterRedefinitions() { return parameterTypeRedefinitions; }
 
-   public void setParameterTypeRedefinitions(
-      @SuppressWarnings("NullableProblems") @NotNull ParameterTypeRedefinitions redefinitions)
+   public void setParameterRedefinitions(@Nonnull ParameterTypeRedefinitions redefinitions)
    {
       parameterTypeRedefinitions = redefinitions;
    }
@@ -152,19 +154,19 @@ public final class ExecutingTest
       originalToCapturedInstance.clear();
    }
 
-   public void addInjectableMock(@NotNull Object mock)
+   public void addInjectableMock(@Nonnull Object mock)
    {
       if (!isInjectableMock(mock)) {
          injectableMocks.add(mock);
       }
    }
 
-   public boolean isInjectableMock(@NotNull Object instance)
+   public boolean isInjectableMock(@Nonnull Object instance)
    {
       return containsReference(injectableMocks, instance);
    }
 
-   public boolean isClassWithInjectableMocks(@NotNull Class<?> aClass)
+   public boolean isClassWithInjectableMocks(@Nonnull Class<?> aClass)
    {
       for (int i = 0, n = injectableMocks.size(); i < n; i++) {
          Object injectableMock = injectableMocks.get(i);
@@ -177,18 +179,18 @@ public final class ExecutingTest
       return false;
    }
 
-   public boolean isMockedInstance(@NotNull Object instance)
+   public boolean isMockedInstance(@Nonnull Object instance)
    {
       return containsReference(regularMocks, instance) || isInjectableMock(instance);
    }
 
-   public void addCapturedInstanceForInjectableMock(@Nullable Object originalInstance, @NotNull Object capturedInstance)
+   public void addCapturedInstanceForInjectableMock(@Nullable Object originalInstance, @Nonnull Object capturedInstance)
    {
       injectableMocks.add(capturedInstance);
       addCapturedInstance(originalInstance, capturedInstance);
    }
 
-   public void addCapturedInstance(@Nullable Object originalInstance, @NotNull Object capturedInstance)
+   public void addCapturedInstance(@Nullable Object originalInstance, @Nonnull Object capturedInstance)
    {
       originalToCapturedInstance.put(capturedInstance, originalInstance);
    }
@@ -221,12 +223,12 @@ public final class ExecutingTest
       }
    }
 
-   private boolean containsStrictMock(@NotNull Object mockOrClassDesc)
+   private boolean containsStrictMock(@Nonnull Object mockOrClassDesc)
    {
       return containsReference(strictMocks, mockOrClassDesc);
    }
 
-   public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @NotNull String nameAndDesc)
+   public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc)
    {
       return
          mock != null && nameAndDesc.charAt(0) != '<' &&
@@ -234,7 +236,7 @@ public final class ExecutingTest
           mock instanceof Comparable<?> && nameAndDesc.startsWith("compareTo(L") && nameAndDesc.endsWith(";)I"));
    }
 
-   public void registerMock(@NotNull MockedType typeMetadata, @NotNull Object mock)
+   public void registerMock(@Nonnull MockedType typeMetadata, @Nonnull Object mock)
    {
       if (typeMetadata.injectable) {
          addInjectableMock(mock);
@@ -245,7 +247,7 @@ public final class ExecutingTest
    }
 
    public boolean isStrictInvocation(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc)
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc)
    {
       if (isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc)) {
          return false;
@@ -264,7 +266,7 @@ public final class ExecutingTest
       return false;
    }
 
-   @NotNull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
+   @Nonnull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
    void finishExecution()
    {

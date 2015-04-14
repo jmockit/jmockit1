@@ -5,8 +5,7 @@
 package mockit.integration.junit4.internal;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import org.junit.runners.*;
 import org.junit.runners.model.*;
@@ -43,8 +42,9 @@ public final class BlockJUnit4ClassRunnerDecorator extends MockUp<BlockJUnit4Cla
       }
    }
 
-   @Nullable @Mock
-   public static Object createTest(@NotNull Invocation invocation) throws Throwable
+   @Nullable
+   @Mock
+   public static Object createTest(@Nonnull Invocation invocation) throws Throwable
    {
       TestRun.enterNoMockingZone();
 
