@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -178,12 +178,9 @@ public final class ClassModification
          catch (VisitInterruptedException ignore) {
             // Ignore the class if the modification was refused for some reason.
          }
-         catch (RuntimeException e) {
-            e.printStackTrace();
-         }
-         catch (AssertionError e) {
-            e.printStackTrace();
-         }
+         catch (RuntimeException e) { e.printStackTrace(); }
+         catch (AssertionError e) { e.printStackTrace(); }
+         catch (ClassCircularityError e) { e.printStackTrace(); }
       }
 
       return null;
