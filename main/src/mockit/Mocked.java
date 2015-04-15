@@ -77,7 +77,10 @@ public @interface Mocked
     *
     * @see #stubOutClassInitialization
     * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#staticPartial">Tutorial</a>
+    *
+    * @deprecated Use the {@linkplain Expectations#Expectations(Object...) Expectations(Object...)} constructor instead.
     */
+   @Deprecated
    String[] value() default {};
 
    /**
