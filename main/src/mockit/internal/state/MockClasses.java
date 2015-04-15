@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -7,12 +7,11 @@ package mockit.internal.state;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.mockups.*;
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 public final class MockClasses
 {
@@ -25,10 +24,10 @@ public final class MockClasses
 
    public static final class MockUpInstances
    {
-      @NotNull public final MockUp<?> initialMockUp;
+      @Nonnull public final MockUp<?> initialMockUp;
       int numberOfMockupsForSingleInstance;
 
-      MockUpInstances(@NotNull MockUp<?> initialMockUp)
+      MockUpInstances(@Nonnull MockUp<?> initialMockUp)
       {
          this.initialMockUp = initialMockUp;
          numberOfMockupsForSingleInstance = 0;
@@ -37,10 +36,10 @@ public final class MockClasses
       public boolean hasMockUpsForSingleInstances() { return numberOfMockupsForSingleInstance > 0; }
    }
 
-   @NotNull private final Map<String, MockUp<?>> startupMocks;
-   @NotNull private final Map<Class<?>, MockUpInstances> mockupClassesToMockupInstances;
-   @NotNull private final Map<Object, MockUp<?>> mockedToMockupInstances;
-   @NotNull public final MockStates mockStates;
+   @Nonnull private final Map<String, MockUp<?>> startupMocks;
+   @Nonnull private final Map<Class<?>, MockUpInstances> mockupClassesToMockupInstances;
+   @Nonnull private final Map<Object, MockUp<?>> mockedToMockupInstances;
+   @Nonnull public final MockStates mockStates;
 
    MockClasses()
    {
@@ -50,12 +49,12 @@ public final class MockClasses
       mockStates = new MockStates();
    }
 
-   public void addMock(@NotNull String mockClassDesc, @NotNull MockUp<?> mockUp)
+   public void addMock(@Nonnull String mockClassDesc, @Nonnull MockUp<?> mockUp)
    {
       startupMocks.put(mockClassDesc, mockUp);
    }
 
-   public void addMock(@NotNull MockUp<?> mockUp)
+   public void addMock(@Nonnull MockUp<?> mockUp)
    {
       Class<?> mockUpClass = mockUp.getClass();
       MockUpInstances newData = new MockUpInstances(mockUp);
@@ -63,7 +62,7 @@ public final class MockClasses
       assert previousData == null;
    }
 
-   public void addMock(@NotNull MockUp<?> mockUp, @NotNull Object mockedInstance)
+   public void addMock(@Nonnull MockUp<?> mockUp, @Nonnull Object mockedInstance)
    {
       MockUp<?> previousMockup = mockedToMockupInstances.put(mockedInstance, mockUp);
       assert previousMockup == null;
@@ -73,7 +72,7 @@ public final class MockClasses
    }
 
    @Nullable
-   MockUp<?> getMock(@NotNull String mockUpClassDesc, @Nullable Object mockedInstance)
+   MockUp<?> getMock(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
       if (mockedInstance != null) {
          MockUp<?> mockUpForSingleInstance = mockedToMockupInstances.get(mockedInstance);
@@ -107,7 +106,7 @@ public final class MockClasses
    }
 
    @Nullable
-   public MockUpInstances findPreviouslyAppliedMockUps(@NotNull MockUp<?> newMockUp)
+   public MockUpInstances findPreviouslyAppliedMockUps(@Nonnull MockUp<?> newMockUp)
    {
       Class<?> mockUpClass = newMockUp.getClass();
       MockUpInstances mockUpInstances = mockupClassesToMockupInstances.get(mockUpClass);
@@ -119,8 +118,8 @@ public final class MockClasses
       return mockUpInstances;
    }
 
-   @NotNull
-   public MockUpInstances removeMock(@NotNull MockUp<?> mockUp, @Nullable Object mockedInstance)
+   @Nonnull
+   public MockUpInstances removeMock(@Nonnull MockUp<?> mockUp, @Nullable Object mockedInstance)
    {
       Class<?> mockUpClass = mockUp.getClass();
 
@@ -145,12 +144,12 @@ public final class MockClasses
 
    final class SavePoint
    {
-      @NotNull private final Set<Object> previousMockInstances;
-      @NotNull private final Map<Class<?>, Integer> previousMockUpClassesAndMockupCounts;
+      @Nonnull private final Map<Object, MockUp<?>> previousMockInstances;
+      @Nonnull private final Map<Class<?>, Integer> previousMockUpClassesAndMockupCounts;
 
       SavePoint()
       {
-         previousMockInstances = new HashSet<Object>(mockedToMockupInstances.keySet());
+         previousMockInstances = new IdentityHashMap<Object, MockUp<?>>(mockedToMockupInstances);
          previousMockUpClassesAndMockupCounts = new IdentityHashMap<Class<?>, Integer>();
 
          for (Entry<Class<?>, MockUpInstances> mockUpClassAndData : mockupClassesToMockupInstances.entrySet()) {
@@ -162,7 +161,7 @@ public final class MockClasses
 
       void rollback()
       {
-         mockedToMockupInstances.keySet().retainAll(previousMockInstances);
+         mockedToMockupInstances.entrySet().retainAll(previousMockInstances.entrySet());
 
          for (Entry<Class<?>, Integer> mockUpClassAndCount : previousMockUpClassesAndMockupCounts.entrySet()) {
             Class<?> mockUpClass = mockUpClassAndCount.getKey();

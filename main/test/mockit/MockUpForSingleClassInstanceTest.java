@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -281,5 +281,19 @@ public final class MockUpForSingleClassInstanceTest
       mock.close();
       assertTrue(mock.ready());
       assertSame(mock, mockUp.getMockInstance());
+   }
+
+   static class ClassWithHashCode
+   {
+      private final Object value = "test";
+      @Override public int hashCode() { return value.hashCode(); }
+   }
+
+   @Test // ensures the hashCode method never gets called
+   public void getUninitializedMockInstanceForClassWithHashCodeMethodWhichNeedsInitializedState()
+   {
+      ClassWithHashCode uninitializedMock = new MockUp<ClassWithHashCode>() {}.getMockInstance();
+
+      assertNotNull(uninitializedMock);
    }
 }
