@@ -5,24 +5,21 @@
 package mockit.internal.capturing;
 
 import java.security.*;
-import static java.lang.reflect.Proxy.*;
+import javax.annotation.*;
 
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
-
 import static mockit.internal.util.GeneratedClasses.*;
 
 final class CapturedType
 {
    private static final ProtectionDomain JMOCKIT_DOMAIN = CapturedType.class.getProtectionDomain();
 
-   @NotNull final Class<?> baseType;
+   @Nonnull final Class<?> baseType;
 
-   CapturedType(@NotNull Class<?> baseType) { this.baseType = baseType; }
+   CapturedType(@Nonnull Class<?> baseType) { this.baseType = baseType; }
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
-   boolean isToBeCaptured(@NotNull Class<?> aClass)
+   boolean isToBeCaptured(@Nonnull Class<?> aClass)
    {
       if (baseType == Object.class) {
          if (
@@ -37,7 +34,7 @@ final class CapturedType
          return false;
       }
 
-      if (aClass.isInterface() || isProxyClass(aClass)) {
+      if (aClass.isInterface()) {
          return false;
       }
 
@@ -45,7 +42,7 @@ final class CapturedType
    }
 
    static boolean isNotToBeCaptured(
-      @Nullable ClassLoader loader, @Nullable ProtectionDomain protectionDomain, @NotNull String classNameOrDesc)
+      @Nullable ClassLoader loader, @Nullable ProtectionDomain protectionDomain, @Nonnull String classNameOrDesc)
    {
       if (
          loader == null && classNameOrDesc.startsWith("java") ||
@@ -65,7 +62,7 @@ final class CapturedType
          ClassLoad.isGeneratedSubclass(classNameOrDesc);
    }
 
-   private static boolean hasSubPackage(@NotNull String nameOrDesc, @NotNull String subPackage)
+   private static boolean hasSubPackage(@Nonnull String nameOrDesc, @Nonnull String subPackage)
    {
       return nameOrDesc.regionMatches(4, subPackage, 0, subPackage.length());
    }
