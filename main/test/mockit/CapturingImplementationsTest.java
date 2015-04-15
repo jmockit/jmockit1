@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.io.*;
 import java.lang.reflect.*;
 
 import org.junit.*;
@@ -128,14 +129,17 @@ public final class CapturingImplementationsTest
       assertEquals(15, service2.doSomething());
    }
 
-   @Test
-   public void captureDynamicallyGeneratedProxyClass()
+   @BeforeClass
+   public static void generateDynamicProxyClassBeforeCapturing()
    {
-      new Expectations() {{ mockService1.doSomething(); result = 123; }};
+      proxyInstance = newProxyClassAndInstance(Service1.class, Serializable.class);
+   }
 
+   static Service1 newProxyClassAndInstance(Class<?>... interfacesToImplement)
+   {
       ClassLoader loader = Service1.class.getClassLoader();
-      Class<?>[] interfacesToImplement = {Service1.class};
-      Service1 service = (Service1) Proxy.newProxyInstance(loader, interfacesToImplement, new InvocationHandler() {
+
+      return (Service1) Proxy.newProxyInstance(loader, interfacesToImplement, new InvocationHandler() {
          @Override
          public Object invoke(Object proxy, Method method, Object[] args)
          {
@@ -143,9 +147,20 @@ public final class CapturingImplementationsTest
             return null;
          }
       });
+   }
 
-      int value = service.doSomething();
+   static Service1 proxyInstance;
 
-      assertEquals(123, value);
+   @Test
+   public void captureDynamicallyGeneratedProxyClass() throws Exception
+   {
+      assertEquals(0, proxyInstance.doSomething());
+
+      new Expectations() {{ mockService1.doSomething(); result = 123; }};
+
+      assertEquals(123, proxyInstance.doSomething());
+
+      Service1 anotherProxyInstance = newProxyClassAndInstance(Service1.class);
+      assertEquals(123, anotherProxyInstance.doSomething());
    }
 }
