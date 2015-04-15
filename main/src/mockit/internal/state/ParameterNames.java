@@ -1,15 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
 
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
-
-import org.jetbrains.annotations.*;
 
 public final class ParameterNames
 {
@@ -19,14 +18,14 @@ public final class ParameterNames
 
    private ParameterNames() {}
 
-   public static boolean hasNamesForClass(@NotNull String classDesc)
+   public static boolean hasNamesForClass(@Nonnull String classDesc)
    {
       return classesToMethodsToParameters.containsKey(classDesc);
    }
 
    public static void registerName(
-      @NotNull String classDesc, int methodAccess, @NotNull String methodName, @NotNull String methodDesc,
-      @NotNull String name, int index)
+      @Nonnull String classDesc, int methodAccess, @Nonnull String methodName, @Nonnull String methodDesc,
+      @Nonnull String name, int index)
    {
       if ("this".equals(name)) {
          return;
@@ -59,7 +58,7 @@ public final class ParameterNames
    }
 
    @Nullable
-   public static String getName(@NotNull String classDesc, @NotNull String methodDesc, int index)
+   public static String getName(@Nonnull String classDesc, @Nonnull String methodDesc, int index)
    {
       Map<String, String[]> methodsToParameters = classesToMethodsToParameters.get(classDesc);
 

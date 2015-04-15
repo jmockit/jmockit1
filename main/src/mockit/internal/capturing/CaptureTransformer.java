@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.capturing;
@@ -7,6 +7,7 @@ package mockit.internal.capturing;
 import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -15,19 +16,17 @@ import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.capturing.CapturedType.*;
 
-import org.jetbrains.annotations.*;
-
 public final class CaptureTransformer<M> implements ClassFileTransformer
 {
-   @NotNull private final CapturedType capturedType;
-   @NotNull private final String capturedTypeDesc;
-   @NotNull private final CaptureOfImplementations<M> captureOfImplementations;
-   @NotNull private final Map<ClassIdentification, byte[]> transformedClasses;
+   @Nonnull private final CapturedType capturedType;
+   @Nonnull private final String capturedTypeDesc;
+   @Nonnull private final CaptureOfImplementations<M> captureOfImplementations;
+   @Nonnull private final Map<ClassIdentification, byte[]> transformedClasses;
    @Nullable private final M typeMetadata;
    private boolean inactive;
 
    CaptureTransformer(
-      @NotNull CapturedType capturedType, @NotNull CaptureOfImplementations<M> captureOfImplementations,
+      @Nonnull CapturedType capturedType, @Nonnull CaptureOfImplementations<M> captureOfImplementations,
       boolean registerTransformedClasses, @Nullable M typeMetadata)
    {
       this.capturedType = capturedType;
@@ -55,10 +54,10 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       }
    }
 
-   @Override @Nullable
+   @Nullable @Override
    public byte[] transform(
-      @Nullable ClassLoader loader, @NotNull String classDesc, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
+      @Nullable ClassLoader loader, @Nonnull String classDesc, @Nullable Class<?> classBeingRedefined,
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
    {
       if (classBeingRedefined != null || inactive || isNotToBeCaptured(loader, protectionDomain, classDesc)) {
          return null;
@@ -80,9 +79,9 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       return null;
    }
 
-   @NotNull
+   @Nonnull
    private byte[] modifyAndRegisterClass(
-      @Nullable ClassLoader loader, @NotNull String className, @NotNull ClassReader cr)
+      @Nullable ClassLoader loader, @Nonnull String className, @Nonnull ClassReader cr)
    {
       ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedType.baseType, typeMetadata);
       cr.accept(modifier, SKIP_FRAMES);
@@ -110,7 +109,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
       @Override
       public void visit(
-         int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
          classExtendsCapturedType = false;
@@ -137,7 +136,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    }
 
    @Nullable
-   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@NotNull Class<?> baseType)
+   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> baseType)
    {
       if (baseType == capturedType.baseType && typeMetadata != null) {
          //noinspection unchecked

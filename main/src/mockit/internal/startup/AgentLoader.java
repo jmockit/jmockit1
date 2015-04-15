@@ -8,10 +8,10 @@ import java.io.*;
 import java.lang.management.*;
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
-import org.jetbrains.annotations.*;
 import sun.tools.attach.*;
 
 public final class AgentLoader
@@ -24,7 +24,7 @@ public final class AgentLoader
       @Override @Nullable public List<VirtualMachineDescriptor> listVirtualMachines() { return null; }
    };
 
-   @NotNull private final String jarFilePath;
+   @Nonnull private final String jarFilePath;
 
    AgentLoader()
    {
@@ -57,7 +57,7 @@ public final class AgentLoader
       loadAgentAndDetachFromRunningVM(vm);
    }
 
-   @NotNull
+   @Nonnull
    private static VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
    {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
@@ -79,7 +79,7 @@ public final class AgentLoader
       }
    }
 
-   @NotNull
+   @Nonnull
    private static Class<? extends VirtualMachine> findVirtualMachineClassAccordingToOS()
    {
       if (File.separatorChar == '\\') {
@@ -101,7 +101,7 @@ public final class AgentLoader
       throw new IllegalStateException("Cannot use Attach API on unknown OS: " + osName);
    }
 
-   @NotNull
+   @Nonnull
    private static String getProcessIdForRunningVM()
    {
       String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
@@ -109,8 +109,8 @@ public final class AgentLoader
       return nameOfRunningVM.substring(0, p);
    }
 
-   @NotNull
-   private String getHelpMessageForNonHotSpotVM(@NotNull String vmName)
+   @Nonnull
+   private String getHelpMessageForNonHotSpotVM(@Nonnull String vmName)
    {
       String helpMessage = "To run on " + vmName;
 
@@ -121,7 +121,7 @@ public final class AgentLoader
       return helpMessage + " use -javaagent:" + jarFilePath;
    }
 
-   @NotNull
+   @Nonnull
    private static VirtualMachine attachToRunningVM()
    {
       String pid = getProcessIdForRunningVM();
@@ -137,7 +137,7 @@ public final class AgentLoader
       }
    }
 
-   private void loadAgentAndDetachFromRunningVM(@NotNull VirtualMachine vm)
+   private void loadAgentAndDetachFromRunningVM(@Nonnull VirtualMachine vm)
    {
       try {
          vm.loadAgent(jarFilePath, null);

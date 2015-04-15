@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.capturing;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -13,14 +14,12 @@ import mockit.internal.state.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 public abstract class CaptureOfImplementations<M>
 {
    protected CaptureOfImplementations() {}
 
    public final void makeSureAllSubtypesAreModified(
-      @NotNull Class<?> baseType, boolean registerCapturedClasses, @Nullable M typeMetadata)
+      @Nonnull Class<?> baseType, boolean registerCapturedClasses, @Nullable M typeMetadata)
    {
       if (baseType == TypeVariable.class) {
          throw new IllegalArgumentException("Capturing implementations of multiple base types is not supported");
@@ -32,7 +31,7 @@ public abstract class CaptureOfImplementations<M>
    }
 
    private void redefineClassesAlreadyLoaded(
-      @NotNull CapturedType captureMetadata, @NotNull Class<?> baseType, @Nullable M typeMetadata)
+      @Nonnull CapturedType captureMetadata, @Nonnull Class<?> baseType, @Nullable M typeMetadata)
    {
       Class<?>[] classesLoaded = Startup.instrumentation().getAllLoadedClasses();
 
@@ -43,7 +42,7 @@ public abstract class CaptureOfImplementations<M>
       }
    }
 
-   public void redefineClass(@NotNull Class<?> realClass, @NotNull Class<?> baseType, @Nullable M typeMetadata)
+   public void redefineClass(@Nonnull Class<?> realClass, @Nonnull Class<?> baseType, @Nullable M typeMetadata)
    {
       if (!TestRun.mockFixture().containsRedefinedClass(realClass)) {
          ClassReader classReader;
@@ -67,14 +66,14 @@ public abstract class CaptureOfImplementations<M>
       }
    }
 
-   @NotNull
+   @Nonnull
    protected abstract BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, M typeMetadata);
+      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, M typeMetadata);
 
-   protected abstract void redefineClass(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass);
+   protected abstract void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass);
 
    private void createCaptureTransformer(
-      @NotNull CapturedType captureMetadata, boolean registerCapturedClasses, @Nullable M typeMetadata)
+      @Nonnull CapturedType captureMetadata, boolean registerCapturedClasses, @Nullable M typeMetadata)
    {
       CaptureTransformer<M> transformer =
          new CaptureTransformer<M>(captureMetadata, this, registerCapturedClasses, typeMetadata);

@@ -7,19 +7,18 @@ package mockit.internal.state;
 import java.util.*;
 import java.util.Map.*;
 import java.util.concurrent.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 public final class CascadingTypes
 {
-   @NotNull private final Map<String, MockedTypeCascade> cascadingTypes;
+   @Nonnull private final Map<String, MockedTypeCascade> cascadingTypes;
 
    CascadingTypes() { cascadingTypes = new ConcurrentHashMap<String, MockedTypeCascade>(4); }
 
-   public void add(boolean fromMockField, @NotNull java.lang.reflect.Type mockedType, @Nullable Object cascadedInstance)
+   public void add(boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType, @Nullable Object cascadedInstance)
    {
       Class<?> mockedClass = getClassType(mockedType);
       String mockedTypeDesc = Type.getInternalName(mockedClass);
@@ -27,7 +26,7 @@ public final class CascadingTypes
    }
 
    void add(
-      @NotNull String mockedTypeDesc, boolean fromMockField, @NotNull java.lang.reflect.Type mockedType,
+      @Nonnull String mockedTypeDesc, boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType,
       @Nullable Object cascadedInstance)
    {
       if (!cascadingTypes.containsKey(mockedTypeDesc)) {
@@ -36,7 +35,7 @@ public final class CascadingTypes
    }
 
    @Nullable
-   public MockedTypeCascade getCascade(@NotNull String mockedTypeDesc, @Nullable Object mockInstance)
+   public MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc, @Nullable Object mockInstance)
    {
       if (cascadingTypes.isEmpty()) {
          return null;
@@ -52,7 +51,7 @@ public final class CascadingTypes
    }
 
    @Nullable
-   private MockedTypeCascade getCascade(@NotNull String mockedTypeDesc)
+   private MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc)
    {
       MockedTypeCascade cascade = cascadingTypes.get(mockedTypeDesc);
       if (cascade != null) return cascade;
@@ -70,7 +69,7 @@ public final class CascadingTypes
    }
 
    @Nullable
-   private MockedTypeCascade getCascade(@NotNull String invokedTypeDesc, @NotNull Class<?> mockedClass)
+   private MockedTypeCascade getCascade(@Nonnull String invokedTypeDesc, @Nonnull Class<?> mockedClass)
    {
       Class<?> typeToLookFor = mockedClass;
 

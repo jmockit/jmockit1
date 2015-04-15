@@ -5,7 +5,6 @@
 package mockit.internal.state;
 
 import java.util.*;
-
 import javax.annotation.*;
 
 import mockit.internal.*;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -7,19 +7,18 @@ package mockit.internal.startup;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import java.util.Map.*;
+import java.util.regex.Pattern;
+import javax.annotation.*;
 
 final class StartupConfiguration
 {
-   @NotNull private static final Collection<String> NO_VALUES = Collections.emptyList();
-   @NotNull private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
+   @Nonnull private static final Collection<String> NO_VALUES = Collections.emptyList();
+   @Nonnull private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
 
-   @NotNull private final Properties config;
-   @NotNull final Collection<String> externalTools;
-   @NotNull final Collection<String> mockClasses;
+   @Nonnull private final Properties config;
+   @Nonnull final Collection<String> externalTools;
+   @Nonnull final Collection<String> mockClasses;
 
    StartupConfiguration() throws IOException
    {
@@ -55,7 +54,7 @@ final class StartupConfiguration
    }
 
    @SuppressWarnings("UseOfPropertiesAsHashtable")
-   private void addPropertyValues(@NotNull Map<Object, Object> propertiesToAdd)
+   private void addPropertyValues(@Nonnull Map<Object, Object> propertiesToAdd)
    {
       for (Entry<Object, Object> propertyToAdd : propertiesToAdd.entrySet()) {
          Object key = propertyToAdd.getKey();
@@ -88,8 +87,8 @@ final class StartupConfiguration
       }
    }
 
-   @NotNull
-   private static Collection<String> getMultiValuedProperty(@NotNull String key)
+   @Nonnull
+   private static Collection<String> getMultiValuedProperty(@Nonnull String key)
    {
       String commaOrSpaceSeparatedValues = System.getProperty(key);
       

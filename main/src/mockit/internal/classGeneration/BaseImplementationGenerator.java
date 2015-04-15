@@ -5,26 +5,23 @@
 package mockit.internal.classGeneration;
 
 import java.util.*;
-
-import static java.lang.reflect.Modifier.isStatic;
+import javax.annotation.*;
+import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
-
 import static mockit.external.asm.Opcodes.*;
-
-import org.jetbrains.annotations.*;
 
 @SuppressWarnings("AbstractClassExtendsConcreteClass")
 public abstract class BaseImplementationGenerator extends BaseClassModifier
 {
    private static final int CLASS_ACCESS = ACC_PUBLIC + ACC_FINAL;
 
-   @NotNull private final List<String> implementedMethods;
-   @NotNull private final String implementationClassDesc;
+   @Nonnull private final List<String> implementedMethods;
+   @Nonnull private final String implementationClassDesc;
    @Nullable private String[] initialSuperInterfaces;
 
-   protected BaseImplementationGenerator(@NotNull ClassReader classReader, @NotNull String implementationClassName)
+   protected BaseImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName)
    {
       super(classReader);
       implementedMethods = new ArrayList<String>();
@@ -33,7 +30,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       initialSuperInterfaces = interfaces;
@@ -63,12 +60,12 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    @Override
    public final void visitSource(@Nullable String source, @Nullable String debug) {}
 
-   @Override @Nullable
+   @Nullable @Override
    public final FieldVisitor visitField(
       int access, String name, String desc, @Nullable String signature, @Nullable Object value)
    { return null; }
 
-   @Override @Nullable
+   @Nullable @Override
    public final MethodVisitor visitMethod(
       int access, String name, String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
@@ -87,7 +84,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    protected final void generateMethodImplementation(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       if (!isStatic(access)) {
          String methodNameAndDesc = name + desc;
@@ -100,14 +97,14 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    protected abstract void generateMethodBody(
-      int access, @NotNull String name, @NotNull String desc,
+      int access, @Nonnull String name, @Nonnull String desc,
       @Nullable String signature, @Nullable String[] exceptions);
 
    private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor
    {
       @Nullable private String[] superInterfaces;
 
-      MethodGeneratorForImplementedSuperInterface(@NotNull String interfaceName)
+      MethodGeneratorForImplementedSuperInterface(@Nonnull String interfaceName)
       {
          ClassFile.visitClass(interfaceName, this);
       }

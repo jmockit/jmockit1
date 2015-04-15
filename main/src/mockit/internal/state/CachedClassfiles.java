@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -7,10 +7,9 @@ package mockit.internal.state;
 import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.startup.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Holds a map of internal class names to the corresponding class files (bytecode arrays), for the classes
@@ -27,9 +26,9 @@ import org.jetbrains.annotations.*;
  */
 public final class CachedClassfiles implements ClassFileTransformer
 {
-   @NotNull public static final CachedClassfiles INSTANCE = new CachedClassfiles();
+   @Nonnull public static final CachedClassfiles INSTANCE = new CachedClassfiles();
 
-   @NotNull private final Map<ClassLoader, Map<String, byte[]>> classLoadersAndClassfiles;
+   @Nonnull private final Map<ClassLoader, Map<String, byte[]>> classLoadersAndClassfiles;
    @Nullable private Class<?> classBeingCached;
 
    private CachedClassfiles()
@@ -40,7 +39,7 @@ public final class CachedClassfiles implements ClassFileTransformer
    @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, String classDesc, @Nullable Class<?> classBeingRedefinedOrRetransformed,
-      @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
    {
       if (classDesc != null) { // can be null for Java 8 lambdas
          if (classBeingRedefinedOrRetransformed != null && classBeingRedefinedOrRetransformed == classBeingCached) {
@@ -52,13 +51,13 @@ public final class CachedClassfiles implements ClassFileTransformer
       return null;
    }
 
-   private void addClassfile(@Nullable ClassLoader loader, @NotNull String classDesc, @NotNull byte[] classfile)
+   private void addClassfile(@Nullable ClassLoader loader, @Nonnull String classDesc, @Nonnull byte[] classfile)
    {
       Map<String, byte[]> classfiles = getClassfiles(loader);
       classfiles.put(classDesc, classfile);
    }
 
-   @NotNull
+   @Nonnull
    private Map<String, byte[]> getClassfiles(@Nullable ClassLoader loader)
    {
       Map<String, byte[]> classfiles = classLoadersAndClassfiles.get(loader);
@@ -72,7 +71,7 @@ public final class CachedClassfiles implements ClassFileTransformer
    }
 
    @Nullable
-   private byte[] findClassfile(@NotNull Class<?> aClass)
+   private byte[] findClassfile(@Nonnull Class<?> aClass)
    {
       String className = aClass.getName();
 
@@ -85,14 +84,14 @@ public final class CachedClassfiles implements ClassFileTransformer
    }
 
    @Nullable
-   private synchronized byte[] findClassfile(@Nullable ClassLoader loader, @NotNull String classDesc)
+   private synchronized byte[] findClassfile(@Nullable ClassLoader loader, @Nonnull String classDesc)
    {
       Map<String, byte[]> classfiles = getClassfiles(loader);
       return classfiles.get(classDesc);
    }
 
    @Nullable
-   public static synchronized byte[] getClassfile(@NotNull Class<?> aClass)
+   public static synchronized byte[] getClassfile(@Nonnull Class<?> aClass)
    {
       byte[] cached = INSTANCE.findClassfile(aClass);
       if (cached != null) return cached;
@@ -103,12 +102,12 @@ public final class CachedClassfiles implements ClassFileTransformer
    }
 
    @Nullable
-   public static byte[] getClassfile(@Nullable ClassLoader loader, @NotNull String internalClassName)
+   public static byte[] getClassfile(@Nullable ClassLoader loader, @Nonnull String internalClassName)
    {
       return INSTANCE.findClassfile(loader, internalClassName);
    }
 
-   public static void addClassfile(@NotNull Class<?> aClass, @NotNull byte[] classfile)
+   public static void addClassfile(@Nonnull Class<?> aClass, @Nonnull byte[] classfile)
    {
       INSTANCE.addClassfile(aClass.getClassLoader(), aClass.getName().replace('.', '/'), classfile);
    }

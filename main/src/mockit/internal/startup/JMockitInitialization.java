@@ -5,8 +5,7 @@
 package mockit.internal.startup;
 
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.integration.junit4.internal.*;
@@ -16,7 +15,7 @@ import mockit.internal.util.*;
 
 final class JMockitInitialization
 {
-   @NotNull private final StartupConfiguration config;
+   @Nonnull private final StartupConfiguration config;
 
    JMockitInitialization() throws IOException { config = new StartupConfiguration(); }
 
@@ -65,7 +64,7 @@ final class JMockitInitialization
       }
    }
 
-   private static void setUpStartupMock(@NotNull String mockClassName)
+   private static void setUpStartupMock(@Nonnull String mockClassName)
    {
       try {
          Class<?> mockClass = ClassLoad.loadClassAtStartup(mockClassName);

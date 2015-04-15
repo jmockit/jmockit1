@@ -6,12 +6,11 @@ package mockit.internal.startup;
 
 import java.io.*;
 import java.lang.instrument.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * This is the "agent class" that initializes the JMockit "Java agent". It is not intended for use in client code.
@@ -44,12 +43,12 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void premain(String agentArgs, @NotNull Instrumentation inst) throws IOException
+   public static void premain(String agentArgs, @Nonnull Instrumentation inst) throws IOException
    {
       initialize(true, inst);
    }
 
-   private static void initialize(boolean applyStartupMocks, @NotNull Instrumentation inst) throws IOException
+   private static void initialize(boolean applyStartupMocks, @Nonnull Instrumentation inst) throws IOException
    {
       if (instrumentation == null) {
          instrumentation = inst;
@@ -86,7 +85,7 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void agentmain(@SuppressWarnings("unused") String agentArgs, @NotNull Instrumentation inst)
+   public static void agentmain(@SuppressWarnings("unused") String agentArgs, @Nonnull Instrumentation inst)
       throws IOException
    {
       if (!inst.isRedefineClassesSupported()) {
@@ -103,7 +102,7 @@ public final class Startup
       }
    }
 
-   private static void reinitializeJMockitUnderCustomClassLoader(@NotNull ClassLoader customLoader)
+   private static void reinitializeJMockitUnderCustomClassLoader(@Nonnull ClassLoader customLoader)
    {
       Class<?> startupClass;
 
@@ -125,7 +124,7 @@ public final class Startup
       try { applyStartupMocks(); } catch (IOException e) { throw new RuntimeException(e); }
    }
 
-   @NotNull
+   @Nonnull
    public static Instrumentation instrumentation()
    {
       verifyInitialization();
@@ -137,7 +136,7 @@ public final class Startup
     * Only called from the coverage tool, when it is executed with {@code -javaagent:jmockit-coverage.jar} even though
     * JMockit is in the classpath.
     */
-   public static void initialize(@NotNull Instrumentation inst) throws IOException
+   public static void initialize(@Nonnull Instrumentation inst) throws IOException
    {
       boolean fullJMockit = false;
 
@@ -227,17 +226,17 @@ public final class Startup
       }
    }
 
-   public static void retransformClass(@NotNull Class<?> aClass)
+   public static void retransformClass(@Nonnull Class<?> aClass)
    {
       try { instrumentation().retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
    }
 
-   public static void redefineMethods(@NotNull Class<?> classToRedefine, @NotNull byte[] modifiedClassfile)
+   public static void redefineMethods(@Nonnull Class<?> classToRedefine, @Nonnull byte[] modifiedClassfile)
    {
       redefineMethods(new ClassDefinition(classToRedefine, modifiedClassfile));
    }
 
-   public static void redefineMethods(@NotNull ClassDefinition... classDefs)
+   public static void redefineMethods(@Nonnull ClassDefinition... classDefs)
    {
       try {
          instrumentation().redefineClasses(classDefs);
@@ -261,7 +260,7 @@ public final class Startup
       }
    }
 
-   private static void detectMissingDependenciesIfAny(@NotNull Class<?> mockedClass)
+   private static void detectMissingDependenciesIfAny(@Nonnull Class<?> mockedClass)
    {
       try {
          Class.forName(mockedClass.getName(), false, mockedClass.getClassLoader());

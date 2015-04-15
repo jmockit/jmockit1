@@ -1,41 +1,40 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.classGeneration;
 
 import java.lang.reflect.Type;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
 /**
  * Allows the creation of new implementation classes for interfaces and abstract classes.
  */
 public abstract class ImplementationClass<T>
 {
-   @NotNull protected final Class<?> sourceClass;
-   @NotNull protected String generatedClassName;
+   @Nonnull protected final Class<?> sourceClass;
+   @Nonnull protected String generatedClassName;
    @Nullable private byte[] generatedBytecode;
 
-   protected ImplementationClass(@NotNull Type mockedType) { this(Utilities.getClassType(mockedType)); }
+   protected ImplementationClass(@Nonnull Type mockedType) { this(Utilities.getClassType(mockedType)); }
 
-   protected ImplementationClass(@NotNull Class<?> mockedClass)
+   protected ImplementationClass(@Nonnull Class<?> mockedClass)
    {
       this(mockedClass, GeneratedClasses.getNameForGeneratedClass(mockedClass, null));
    }
 
-   protected ImplementationClass(@NotNull Class<?> sourceClass, @NotNull String desiredClassName)
+   protected ImplementationClass(@Nonnull Class<?> sourceClass, @Nonnull String desiredClassName)
    {
       this.sourceClass = sourceClass;
       generatedClassName = desiredClassName;
    }
 
-   @NotNull
+   @Nonnull
    public final Class<T> generateClass()
    {
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(sourceClass);
@@ -46,11 +45,11 @@ public abstract class ImplementationClass<T>
       return defineNewClass(modifier);
    }
 
-   @NotNull
-   protected abstract ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader);
+   @Nonnull
+   protected abstract ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader);
 
-   @NotNull
-   private Class<T> defineNewClass(@NotNull ClassVisitor modifier)
+   @Nonnull
+   private Class<T> defineNewClass(@Nonnull ClassVisitor modifier)
    {
       ClassLoader parentLoader = sourceClass.getClassLoader();
 

@@ -5,20 +5,19 @@
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
 final class ToolLoader extends ClassVisitor
 {
-   @NotNull private final String toolClassName;
+   @Nonnull private final String toolClassName;
    private boolean loadClassFileTransformer;
 
-   ToolLoader(@NotNull String toolClassName) { this.toolClassName = toolClassName; }
+   ToolLoader(@Nonnull String toolClassName) { this.toolClassName = toolClassName; }
 
    void loadTool()
    {
@@ -45,7 +44,7 @@ final class ToolLoader extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       if (interfaces != null && containsClassFileTransformer(interfaces)) {
@@ -53,7 +52,7 @@ final class ToolLoader extends ClassVisitor
       }
    }
 
-   private static boolean containsClassFileTransformer(@NotNull String[] interfaces)
+   private static boolean containsClassFileTransformer(@Nonnull String[] interfaces)
    {
       for (String anInterface : interfaces) {
          if ("java/lang/instrument/ClassFileTransformer".equals(anInterface)) {

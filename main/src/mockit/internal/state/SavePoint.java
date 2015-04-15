@@ -1,23 +1,22 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
-import static mockit.internal.expectations.RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK;
+import static mockit.internal.expectations.RecordAndReplayExecution.*;
 
 public final class SavePoint
 {
-   @NotNull private final Set<ClassIdentification> previousTransformedClasses;
-   @NotNull private final Map<Class<?>, byte[]> previousRedefinedClasses;
+   @Nonnull private final Set<ClassIdentification> previousTransformedClasses;
+   @Nonnull private final Map<Class<?>, byte[]> previousRedefinedClasses;
    private final int previousCaptureTransformerCount;
-   @NotNull private final List<Class<?>> previousMockedClasses;
-   @NotNull private final MockClasses.SavePoint previousMockClasses;
+   @Nonnull private final List<Class<?>> previousMockedClasses;
+   @Nonnull private final MockClasses.SavePoint previousMockClasses;
 
    public SavePoint()
    {

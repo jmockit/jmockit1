@@ -8,8 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.security.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 final class PathToAgentJar
 {
@@ -17,7 +16,7 @@ final class PathToAgentJar
 
    private URL thisClassLocation;
 
-   @NotNull
+   @Nonnull
    String getPathToJarFile()
    {
       String jarFilePath = findPathToJarFileFromClasspath();
@@ -72,7 +71,7 @@ final class PathToAgentJar
       return jarFilePath;
    }
 
-   @NotNull
+   @Nonnull
    private String findLocalJarOrZipFileFromThisClassLocation()
    {
       String locationPath = thisClassLocation.getPath();
@@ -86,7 +85,7 @@ final class PathToAgentJar
       return localMETAINFFile.getPath();
    }
 
-   @NotNull
+   @Nonnull
    private String findJarFileContainingThisClass()
    {
       // URI is used to deal with spaces and non-ASCII characters.

@@ -4,11 +4,11 @@
  */
 package mockit.internal.state;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
-import mockit.internal.mockups.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.mockups.*;
 import mockit.internal.util.*;
 
 /**
@@ -34,10 +34,10 @@ public final class TestRun
    @Nullable private Object currentTestInstance;
    @Nullable private FieldTypeRedefinitions fieldTypeRedefinitions;
 
-   @NotNull private final MockFixture mockFixture = new MockFixture();
+   @Nonnull private final MockFixture mockFixture = new MockFixture();
 
-   @NotNull private final ExecutingTest executingTest = new ExecutingTest();
-   @NotNull private final MockClasses mockClasses = new MockClasses();
+   @Nonnull private final ExecutingTest executingTest = new ExecutingTest();
+   @Nonnull private final MockClasses mockClasses = new MockClasses();
 
    // Static "getters" for global state ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,21 +53,23 @@ public final class TestRun
    @Nullable
    public static FieldTypeRedefinitions getFieldTypeRedefinitions() { return INSTANCE.fieldTypeRedefinitions; }
 
-   @NotNull public static MockFixture mockFixture() { return INSTANCE.mockFixture; }
+   @Nonnull public static MockFixture mockFixture() { return INSTANCE.mockFixture; }
 
-   @NotNull public static ExecutingTest getExecutingTest() { return INSTANCE.executingTest; }
+   @Nonnull public static ExecutingTest getExecutingTest() { return INSTANCE.executingTest; }
 
    @Nullable public static RecordAndReplayExecution getRecordAndReplayForRunningTest()
    {
       return INSTANCE.executingTest.getCurrentRecordAndReplay();
    }
 
-   @NotNull public static RecordAndReplayExecution getOrCreateRecordAndReplayForRunningTest()
+   @Nonnull
+   public static RecordAndReplayExecution getOrCreateRecordAndReplayForRunningTest()
    {
       return INSTANCE.executingTest.getOrCreateRecordAndReplay();
    }
 
-   @NotNull public static RecordAndReplayExecution getRecordAndReplayForVerifications()
+   @Nonnull
+   public static RecordAndReplayExecution getRecordAndReplayForVerifications()
    {
       if (INSTANCE.fieldTypeRedefinitions == null) {
          IllegalStateException failure = new IllegalStateException("Invalid place to verify expectations");
@@ -78,8 +80,8 @@ public final class TestRun
       return INSTANCE.executingTest.getRecordAndReplayForVerifications();
    }
 
-   @NotNull public static MockClasses getMockClasses() { return INSTANCE.mockClasses; }
-   @NotNull public static MockStates getMockStates() { return INSTANCE.mockClasses.mockStates; }
+   @Nonnull public static MockClasses getMockClasses() { return INSTANCE.mockClasses; }
+   @Nonnull public static MockStates getMockStates() { return INSTANCE.mockClasses.mockStates; }
 
    // Static "mutators" for global state //////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +119,7 @@ public final class TestRun
 
    @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
    public static boolean updateMockState(
-      @NotNull String mockUpClassDesc, @Nullable Object mockedInstance, int mockStateIndex)
+      @Nonnull String mockUpClassDesc, @Nullable Object mockedInstance, int mockStateIndex)
    {
       Object mockUp = getMock(mockUpClassDesc, mockedInstance);
 
@@ -132,7 +134,8 @@ public final class TestRun
       return getMockStates().updateMockState(mockUp, mockStateIndex);
    }
 
-   @Nullable public static Object getMock(@NotNull String mockUpClassDesc, @Nullable Object mockedInstance)
+   @Nullable
+   public static Object getMock(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
       return INSTANCE.mockClasses.getMock(mockUpClassDesc, mockedInstance);
    }

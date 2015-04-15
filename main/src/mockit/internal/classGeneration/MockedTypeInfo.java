@@ -1,22 +1,20 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.classGeneration;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.util.*;
 
 public final class MockedTypeInfo
 {
-   @NotNull public final GenericTypeReflection genericTypeMap;
-   @NotNull public final String implementationSignature;
+   @Nonnull public final GenericTypeReflection genericTypeMap;
+   @Nonnull public final String implementationSignature;
 
-   public MockedTypeInfo(@NotNull Type mockedType)
+   public MockedTypeInfo(@Nonnull Type mockedType)
    {
       Class<?> mockedClass = Utilities.getClassType(mockedType);
       genericTypeMap = new GenericTypeReflection(mockedClass, mockedType);
@@ -26,8 +24,8 @@ public final class MockedTypeInfo
       implementationSignature = 'L' + classDesc + signature;
    }
 
-   @NotNull
-   private static String getGenericClassSignature(@NotNull Type mockedType)
+   @Nonnull
+   private static String getGenericClassSignature(@Nonnull Type mockedType)
    {
       StringBuilder signature = new StringBuilder(100);
 

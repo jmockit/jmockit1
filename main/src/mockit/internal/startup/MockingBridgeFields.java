@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
 import java.security.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -14,7 +15,6 @@ import mockit.internal.mockups.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-import org.jetbrains.annotations.*;
 import org.omg.IOP.*;
 
 final class MockingBridgeFields
@@ -23,7 +23,7 @@ final class MockingBridgeFields
 
    private MockingBridgeFields() {}
 
-   static void createSyntheticFieldsInJREClassToHoldMockingBridges(@NotNull Instrumentation inst)
+   static void createSyntheticFieldsInJREClassToHoldMockingBridges(@Nonnull Instrumentation inst)
    {
       ClassFileTransformer trans = new FieldAdditionTransformer();
       inst.addTransformer(trans);
@@ -42,8 +42,8 @@ final class MockingBridgeFields
    {
       @Nullable @Override
       public byte[] transform(
-         @Nullable ClassLoader loader, @NotNull String className, @Nullable Class<?> classBeingRedefined,
-         @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
+         @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
+         @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
       {
          if (!"org/omg/IOP/IORHelper".equals(className)) {
             return null;
@@ -76,7 +76,7 @@ final class MockingBridgeFields
       }
    }
 
-   private static void setMockingBridgeField(@NotNull MockingBridge mockingBridge)
+   private static void setMockingBridgeField(@Nonnull MockingBridge mockingBridge)
    {
       try {
          IORHelper.class.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
