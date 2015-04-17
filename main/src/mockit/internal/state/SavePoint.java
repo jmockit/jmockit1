@@ -9,7 +9,7 @@ import java.util.*;
 import org.jetbrains.annotations.*;
 
 import mockit.internal.*;
-import static mockit.internal.expectations.RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK;
+import static mockit.internal.expectations.RecordAndReplayExecution.*;
 
 public final class SavePoint
 {
@@ -31,7 +31,7 @@ public final class SavePoint
 
    public synchronized void rollback()
    {
-      RECORD_OR_REPLAY_LOCK.lock();
+      RECORD_OR_REPLAY_LOCKS.get().lock();
 
       try {
          MockFixture mockFixture = TestRun.mockFixture();
@@ -42,7 +42,7 @@ public final class SavePoint
          previousMockClasses.rollback();
       }
       finally {
-         RECORD_OR_REPLAY_LOCK.unlock();
+         RECORD_OR_REPLAY_LOCKS.get().unlock();
       }
    }
 }

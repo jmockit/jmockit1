@@ -20,8 +20,22 @@ import static mockit.internal.util.Utilities.*;
 
 public final class RecordAndReplayExecution
 {
-   public static final ReentrantLock RECORD_OR_REPLAY_LOCK = new ReentrantLock();
-   public static final ReentrantLock TEST_ONLY_PHASE_LOCK = new ReentrantLock();
+//   public static final ReentrantLock RECORD_OR_REPLAY_LOCK = new ReentrantLock();
+//   public static final ReentrantLock TEST_ONLY_PHASE_LOCK = new ReentrantLock();
+
+   public static final ThreadLocal<ReentrantLock> RECORD_OR_REPLAY_LOCKS = new ThreadLocal<ReentrantLock>() {
+    @Override
+    protected ReentrantLock initialValue() {
+        return new ReentrantLock();
+    }
+   };
+
+   public static final ThreadLocal<ReentrantLock> TEST_ONLY_PHASE_LOCKS = new ThreadLocal<ReentrantLock>() {
+      @Override
+      protected ReentrantLock initialValue() {
+          return new ReentrantLock();
+      }
+   };
 
    @Nullable private final DynamicPartialMocking dynamicPartialMocking;
 
@@ -107,7 +121,7 @@ public final class RecordAndReplayExecution
          discoverMockedTypesAndInstancesForMatchingOnInstance();
 
          //noinspection LockAcquiredButNotSafelyReleased
-         TEST_ONLY_PHASE_LOCK.lock();
+         TEST_ONLY_PHASE_LOCKS.get().lock();
       }
       catch (RuntimeException e) {
          executingTest.setRecordAndReplay(null);
@@ -181,8 +195,8 @@ public final class RecordAndReplayExecution
       ExecutionMode executionMode = ExecutionMode.values()[executionModeOrdinal];
 
       if (
-         RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread() ||
-         TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread() ||
+         RECORD_OR_REPLAY_LOCKS.get().isHeldByCurrentThread() ||
+         TEST_ONLY_PHASE_LOCKS.get().isLocked() && !TEST_ONLY_PHASE_LOCKS.get().isHeldByCurrentThread() ||
          !TestRun.mockFixture().isStillMocked(mock, classDesc)
       ) {
          // This occurs if called from a custom argument matching method, in a call to an overridden Object method
@@ -205,7 +219,7 @@ public final class RecordAndReplayExecution
          return Void.class;
       }
 
-      RECORD_OR_REPLAY_LOCK.lock();
+      RECORD_OR_REPLAY_LOCKS.get().lock();
 
       try {
          boolean isConstructor = mock != null && mockDesc.startsWith("<init>");
@@ -231,7 +245,7 @@ public final class RecordAndReplayExecution
          return result;
       }
       finally {
-         RECORD_OR_REPLAY_LOCK.unlock();
+          RECORD_OR_REPLAY_LOCKS.get().unlock();
       }
    }
 
@@ -376,8 +390,8 @@ public final class RecordAndReplayExecution
    @Nullable
    private Error endExecution()
    {
-      if (TEST_ONLY_PHASE_LOCK.isLocked()) {
-         TEST_ONLY_PHASE_LOCK.unlock();
+      if (TEST_ONLY_PHASE_LOCKS.get().isLocked()) {
+         TEST_ONLY_PHASE_LOCKS.get().unlock();
       }
 
       ReplayPhase replay = switchFromRecordToReplayIfNotYet();
@@ -416,7 +430,7 @@ public final class RecordAndReplayExecution
 
    public void endInvocations()
    {
-      TEST_ONLY_PHASE_LOCK.unlock();
+      TEST_ONLY_PHASE_LOCKS.get().unlock();
 
       if (verificationPhase == null) {
          switchFromRecordToReplayIfNotYet();
