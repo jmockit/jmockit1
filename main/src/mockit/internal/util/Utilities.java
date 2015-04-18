@@ -6,17 +6,16 @@ package mockit.internal.util;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Miscellaneous utility constants and methods.
  */
 public final class Utilities
 {
-   @NotNull public static final Object[] NO_ARGS = {};
+   @Nonnull public static final Object[] NO_ARGS = {};
 
    public static final boolean JAVA6;
    public static final boolean JAVA8;
@@ -30,14 +29,14 @@ public final class Utilities
 
    private Utilities() {}
 
-   public static void ensureThatMemberIsAccessible(@NotNull AccessibleObject classMember)
+   public static void ensureThatMemberIsAccessible(@Nonnull AccessibleObject classMember)
    {
       if (!classMember.isAccessible()) {
          classMember.setAccessible(true);
       }
    }
 
-   public static void ensureThatClassIsInitialized(@NotNull Class<?> aClass)
+   public static void ensureThatClassIsInitialized(@Nonnull Class<?> aClass)
    {
       ExecutingTest executingTest = TestRun.getExecutingTest();
       boolean previousFlag = executingTest.setShouldIgnoreMockingCallbacks(true);
@@ -55,8 +54,8 @@ public final class Utilities
       }
    }
 
-   @NotNull
-   public static Class<?> getClassType(@NotNull Type declaredType)
+   @Nonnull
+   public static Class<?> getClassType(@Nonnull Type declaredType)
    {
       while (true) {
          if (declaredType instanceof Class<?>) {
@@ -76,8 +75,8 @@ public final class Utilities
       }
    }
 
-   @NotNull
-   public static Class<?> getClassType(@NotNull GenericArrayType arrayType)
+   @Nonnull
+   public static Class<?> getClassType(@Nonnull GenericArrayType arrayType)
    {
       Type componentType = arrayType.getGenericComponentType();
       int dimensions = 1;
@@ -92,12 +91,12 @@ public final class Utilities
       return emptyArray.getClass();
    }
 
-   public static boolean containsReference(@NotNull List<?> references, @Nullable Object toBeFound)
+   public static boolean containsReference(@Nonnull List<?> references, @Nullable Object toBeFound)
    {
       return indexOfReference(references, toBeFound) >= 0;
    }
 
-   public static int indexOfReference(@NotNull List<?> references, @Nullable Object toBeFound)
+   public static int indexOfReference(@Nonnull List<?> references, @Nullable Object toBeFound)
    {
       for (int i = 0, n = references.size(); i < n; i++) {
          if (references.get(i) == toBeFound) {
@@ -108,7 +107,7 @@ public final class Utilities
       return -1;
    }
 
-   public static int indexOfReference(@NotNull Object[] references, @Nullable Object toBeFound)
+   public static int indexOfReference(@Nonnull Object[] references, @Nullable Object toBeFound)
    {
       for (int i = 0, n = references.length; i < n; i++) {
          if (references[i] == toBeFound) {
@@ -119,7 +118,7 @@ public final class Utilities
       return -1;
    }
 
-   public static boolean isClassAssignableTo(@NotNull List<Class<?>> fromClasses, @NotNull Class<?> toClass)
+   public static boolean isClassAssignableTo(@Nonnull List<Class<?>> fromClasses, @Nonnull Class<?> toClass)
    {
       int n = fromClasses.size();
 
@@ -135,7 +134,7 @@ public final class Utilities
    }
 
    @Nullable
-   public static Class<?> findClassAssignableFrom(@NotNull List<Class<?>> toClasses, @NotNull Class<?> fromClass)
+   public static Class<?> findClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass)
    {
       int n = toClasses.size();
 
@@ -150,13 +149,13 @@ public final class Utilities
       return null;
    }
 
-   public static boolean isClassAssignableFrom(@NotNull List<Class<?>> toClasses, @NotNull Class<?> fromClass)
+   public static boolean isClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass)
    {
       return findClassAssignableFrom(toClasses, fromClass) != null;
    }
 
    @Nullable
-   public static Object convertFromString(@NotNull Class<?> targetType, @Nullable String value)
+   public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)
    {
       if (value != null) {
          if (targetType == String.class) {

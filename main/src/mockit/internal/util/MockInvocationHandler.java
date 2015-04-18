@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
-import java.lang.reflect.*;
 import java.lang.annotation.*;
-
-import org.jetbrains.annotations.*;
+import java.lang.reflect.*;
+import javax.annotation.*;
 
 /**
  * Handles invocations to all kinds of mock implementations created for interfaces and annotation types through any of
@@ -26,8 +25,8 @@ public final class MockInvocationHandler implements InvocationHandler
    public static final InvocationHandler INSTANCE = new MockInvocationHandler();
    private static final Class<?>[] CONSTRUCTOR_PARAMETERS_FOR_PROXY_CLASS = {InvocationHandler.class};
 
-   @NotNull
-   public static Object newMockedInstance(@NotNull Class<?> proxyClass)
+   @Nonnull
+   public static Object newMockedInstance(@Nonnull Class<?> proxyClass)
    {
       Constructor<?> publicConstructor;
       try { publicConstructor = proxyClass.getConstructor(CONSTRUCTOR_PARAMETERS_FOR_PROXY_CLASS); }
@@ -36,8 +35,8 @@ public final class MockInvocationHandler implements InvocationHandler
       return ConstructorReflection.invoke(publicConstructor, INSTANCE);
    }
 
-   @Override @Nullable
-   public Object invoke(@NotNull Object proxy, @NotNull Method method, Object[] args)
+   @Nullable @Override
+   public Object invoke(@Nonnull Object proxy, @Nonnull Method method, @Nonnull Object[] args)
    {
       Class<?> declaringClass = method.getDeclaringClass();
       String methodName = method.getName();

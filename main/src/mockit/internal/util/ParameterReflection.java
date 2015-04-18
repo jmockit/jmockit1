@@ -1,29 +1,28 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class ParameterReflection
 {
-   @NotNull public static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
+   @Nonnull public static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
 
    private ParameterReflection() {}
 
-   @NotNull
-   static String getParameterTypesDescription(@NotNull Type[] paramTypes)
+   @Nonnull
+   static String getParameterTypesDescription(@Nonnull Type[] paramTypes)
    {
       String paramTypesDesc = Arrays.asList(paramTypes).toString();
       return paramTypesDesc.replace("class ", "").replace('[', '(').replace(']', ')');
    }
 
-   @NotNull
-   public static Class<?>[] getArgumentTypesFromArgumentValues(@NotNull Object... args)
+   @Nonnull
+   public static Class<?>[] getArgumentTypesFromArgumentValues(@Nonnull Object... args)
    {
       if (args.length == 0) {
          return NO_PARAMETERS;
@@ -38,8 +37,8 @@ public final class ParameterReflection
       return argTypes;
    }
 
-   @NotNull
-   private static Class<?> getArgumentTypeFromArgumentValue(int i, @NotNull Object[] args)
+   @Nonnull
+   private static Class<?> getArgumentTypeFromArgumentValue(int i, @Nonnull Object[] args)
    {
       Object arg = args[i];
 
@@ -60,8 +59,8 @@ public final class ParameterReflection
       return argType;
    }
 
-   @NotNull
-   public static Object[] argumentsWithExtraFirstValue(@NotNull Object[] args, @NotNull Object firstValue)
+   @Nonnull
+   public static Object[] argumentsWithExtraFirstValue(@Nonnull Object[] args, @Nonnull Object firstValue)
    {
       Object[] args2 = new Object[1 + args.length];
       args2[0] = firstValue;
@@ -69,7 +68,7 @@ public final class ParameterReflection
       return args2;
    }
 
-   static boolean hasMoreSpecificTypes(@NotNull Class<?>[] currentTypes, @NotNull Class<?>[] previousTypes)
+   static boolean hasMoreSpecificTypes(@Nonnull Class<?>[] currentTypes, @Nonnull Class<?>[] previousTypes)
    {
       for (int i = 0; i < currentTypes.length; i++) {
          Class<?> current = wrappedIfPrimitive(currentTypes[i]);
@@ -83,8 +82,8 @@ public final class ParameterReflection
       return false;
    }
 
-   @NotNull
-   private static Class<?> wrappedIfPrimitive(@NotNull Class<?> parameterType)
+   @Nonnull
+   private static Class<?> wrappedIfPrimitive(@Nonnull Class<?> parameterType)
    {
       if (parameterType.isPrimitive()) {
          Class<?> wrapperType = AutoBoxing.getWrapperType(parameterType);
@@ -95,7 +94,7 @@ public final class ParameterReflection
       return parameterType;
    }
 
-   static boolean acceptsArgumentTypes(@NotNull Class<?>[] paramTypes, @NotNull Class<?>[] argTypes, int firstParameter)
+   static boolean acceptsArgumentTypes(@Nonnull Class<?>[] paramTypes, @Nonnull Class<?>[] argTypes, int firstParameter)
    {
       for (int i = firstParameter; i < paramTypes.length; i++) {
          Class<?> parType = paramTypes[i];
@@ -112,7 +111,7 @@ public final class ParameterReflection
       return true;
    }
 
-   static boolean isSameTypeIgnoringAutoBoxing(@NotNull Class<?> firstType, @NotNull Class<?> secondType)
+   static boolean isSameTypeIgnoringAutoBoxing(@Nonnull Class<?> firstType, @Nonnull Class<?> secondType)
    {
       return
          firstType == secondType ||
@@ -120,12 +119,12 @@ public final class ParameterReflection
          secondType.isPrimitive() && isWrapperOfPrimitiveType(secondType, firstType);
    }
 
-   private static boolean isWrapperOfPrimitiveType(@NotNull Class<?> primitiveType, @NotNull Class<?> otherType)
+   private static boolean isWrapperOfPrimitiveType(@Nonnull Class<?> primitiveType, @Nonnull Class<?> otherType)
    {
       return primitiveType == AutoBoxing.getPrimitiveType(otherType);
    }
 
-   static int indexOfFirstRealParameter(@NotNull Class<?>[] mockParameterTypes, @NotNull Class<?>[] realParameterTypes)
+   static int indexOfFirstRealParameter(@Nonnull Class<?>[] mockParameterTypes, @Nonnull Class<?>[] realParameterTypes)
    {
       int extraParameters = mockParameterTypes.length - realParameterTypes.length;
 
@@ -142,7 +141,7 @@ public final class ParameterReflection
    }
 
    static boolean matchesParameterTypes(
-      @NotNull Class<?>[] declaredTypes, @NotNull Class<?>[] specifiedTypes, int firstParameter)
+      @Nonnull Class<?>[] declaredTypes, @Nonnull Class<?>[] specifiedTypes, int firstParameter)
    {
       for (int i = firstParameter; i < declaredTypes.length; i++) {
          Class<?> declaredType = declaredTypes[i];
@@ -159,7 +158,7 @@ public final class ParameterReflection
       return true;
    }
 
-   @NotNull
+   @Nonnull
    static IllegalArgumentException invalidArguments()
    {
       return new IllegalArgumentException("Invalid null value passed as argument");

@@ -5,12 +5,11 @@
 package mockit.internal.mockups;
 
 import java.lang.reflect.*;
-
 import javax.annotation.*;
 
 import mockit.internal.*;
+import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.util.*;
-import mockit.internal.mockups.MockMethods.MockMethod;
 
 final class MockState
 {

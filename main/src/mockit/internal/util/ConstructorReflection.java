@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
-import sun.reflect.*;
+import javax.annotation.*;
 
 import static mockit.internal.util.ParameterReflection.*;
+
+import sun.reflect.*;
 
 public final class ConstructorReflection
 {
@@ -25,9 +25,9 @@ public final class ConstructorReflection
 
    private ConstructorReflection() {}
 
-   @NotNull
+   @Nonnull
    public static <T> T newInstance(
-      @NotNull Class<T> aClass, @NotNull Class<?>[] parameterTypes, @Nullable Object... initArgs)
+      @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
    {
       if (initArgs == null) {
          throw invalidArguments();
@@ -37,8 +37,8 @@ public final class ConstructorReflection
       return invoke(constructor, initArgs);
    }
 
-   @NotNull
-   public static <T> Constructor<T> findSpecifiedConstructor(@NotNull Class<?> theClass, @NotNull Class<?>[] paramTypes)
+   @Nonnull
+   public static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes)
    {
       for (Constructor<?> declaredConstructor : theClass.getDeclaredConstructors()) {
          Class<?>[] declaredParameterTypes = declaredConstructor.getParameterTypes();
@@ -59,8 +59,8 @@ public final class ConstructorReflection
          "Specified constructor not found: " + theClass.getSimpleName() + paramTypesDesc);
    }
 
-   @NotNull
-   public static <T> T invoke(@NotNull Constructor<T> constructor, @NotNull Object... initArgs)
+   @Nonnull
+   public static <T> T invoke(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs)
    {
       Utilities.ensureThatMemberIsAccessible(constructor);
 
@@ -89,9 +89,9 @@ public final class ConstructorReflection
       }
    }
 
-   @NotNull
+   @Nonnull
    public static <T> T newInstance(
-      @NotNull String className, @NotNull Class<?>[] parameterTypes, @Nullable Object... initArgs)
+      @Nonnull String className, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
    {
       if (initArgs == null) {
          throw invalidArguments();
@@ -101,8 +101,8 @@ public final class ConstructorReflection
       return newInstance(theClass, parameterTypes, initArgs);
    }
 
-   @NotNull
-   public static <T> T newInstance(@NotNull String className, @Nullable Object... nonNullArgs)
+   @Nonnull
+   public static <T> T newInstance(@Nonnull String className, @Nullable Object... nonNullArgs)
    {
       if (nonNullArgs == null) {
          throw invalidArguments();
@@ -114,8 +114,8 @@ public final class ConstructorReflection
       return invoke(constructor, nonNullArgs);
    }
 
-   @NotNull
-   private static <T> Constructor<T> findCompatibleConstructor(@NotNull Class<?> theClass, @NotNull Class<?>[] argTypes)
+   @Nonnull
+   private static <T> Constructor<T> findCompatibleConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] argTypes)
    {
       Constructor<T> found = null;
       Class<?>[] foundParameters = null;
@@ -152,8 +152,8 @@ public final class ConstructorReflection
       throw new IllegalArgumentException("No compatible constructor found: " + theClass.getSimpleName() + argTypesDesc);
    }
 
-   @NotNull
-   public static <T> T newInstance(@NotNull Class<? extends T> aClass, @Nullable Object... nonNullArgs)
+   @Nonnull
+   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs)
    {
       if (nonNullArgs == null) {
          throw invalidArguments();
@@ -164,14 +164,14 @@ public final class ConstructorReflection
       return invoke(constructor, nonNullArgs);
    }
 
-   @NotNull
-   public static <T> T newInstance(@NotNull Class<T> aClass)
+   @Nonnull
+   public static <T> T newInstance(@Nonnull Class<T> aClass)
    {
       return newInstance(aClass, NO_PARAMETERS);
    }
 
-   @NotNull
-   public static <T> T newInstanceUsingDefaultConstructor(@NotNull Class<T> aClass)
+   @Nonnull
+   public static <T> T newInstanceUsingDefaultConstructor(@Nonnull Class<T> aClass)
    {
       try {
          //noinspection ClassNewInstance
@@ -186,7 +186,7 @@ public final class ConstructorReflection
    }
 
    @Nullable
-   public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@NotNull Class<T> aClass)
+   public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@Nonnull Class<T> aClass)
    {
       try {
          //noinspection ClassNewInstance
@@ -198,7 +198,7 @@ public final class ConstructorReflection
 
    @Nullable
    public static <T> T newInstanceUsingPublicConstructorIfAvailable(
-      @NotNull Class<T> aClass, @NotNull Class<?>[] parameterTypes, @NotNull Object... initArgs)
+      @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nonnull Object... initArgs)
    {
       Constructor<T> publicConstructor;
       try { publicConstructor = aClass.getConstructor(parameterTypes); }
@@ -207,9 +207,9 @@ public final class ConstructorReflection
       return invoke(publicConstructor, initArgs);
    }
 
-   @NotNull
+   @Nonnull
    public static <T> T newInnerInstance(
-      @NotNull Class<? extends T> innerClass, @NotNull Object outerInstance, @Nullable Object... nonNullArgs)
+      @Nonnull Class<? extends T> innerClass, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
    {
       if (nonNullArgs == null) {
          throw invalidArguments();
@@ -219,9 +219,9 @@ public final class ConstructorReflection
       return newInstance(innerClass, initArgs);
    }
 
-   @NotNull
+   @Nonnull
    public static <T> T newInnerInstance(
-      @NotNull String innerClassName, @NotNull Object outerInstance, @Nullable Object... nonNullArgs)
+      @Nonnull String innerClassName, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
    {
       if (nonNullArgs == null) {
          throw invalidArguments();
@@ -235,8 +235,8 @@ public final class ConstructorReflection
       return newInnerInstance(innerClass, outerInstance, nonNullArgs);
    }
 
-   @NotNull
-   public static <T> T newUninitializedInstance(@NotNull Class<T> aClass)
+   @Nonnull
+   public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass)
    {
       Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
 

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class AutoBoxing
 {
@@ -35,17 +34,19 @@ public final class AutoBoxing
 
    private AutoBoxing() {}
 
-   public static boolean isWrapperOfPrimitiveType(@NotNull Class<?> type)
+   public static boolean isWrapperOfPrimitiveType(@Nonnull Class<?> type)
    {
       return WRAPPER_TO_PRIMITIVE.containsKey(type);
    }
 
-   @Nullable public static Class<?> getPrimitiveType(@NotNull Class<?> wrapperType)
+   @Nullable
+   public static Class<?> getPrimitiveType(@Nonnull Class<?> wrapperType)
    {
       return WRAPPER_TO_PRIMITIVE.get(wrapperType);
    }
 
-   @Nullable public static Class<?> getWrapperType(@NotNull Class<?> primitiveType)
+   @Nullable
+   public static Class<?> getWrapperType(@Nonnull Class<?> primitiveType)
    {
       return PRIMITIVE_TO_WRAPPER.get(primitiveType);
    }

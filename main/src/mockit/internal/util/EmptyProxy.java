@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 /**
  * This marker interface exists only to guarantee that JMockit can get the bytecode definition of
@@ -22,8 +21,10 @@ public interface EmptyProxy
 {
    final class Impl
    {
-      @NotNull
-      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @NotNull Class<E> interfaceToBeProxied)
+      private Impl() {}
+
+      @Nonnull
+      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Class<E> interfaceToBeProxied)
       {
          Class<?>[] interfaces = loader == null ?
             new Class<?>[] {interfaceToBeProxied} : new Class<?>[] {interfaceToBeProxied, EmptyProxy.class};
@@ -32,8 +33,8 @@ public interface EmptyProxy
          return (E) Proxy.newProxyInstance(loader, interfaces, MockInvocationHandler.INSTANCE);
       }
 
-      @NotNull
-      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @NotNull Type... interfacesToBeProxied)
+      @Nonnull
+      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Type... interfacesToBeProxied)
       {
          List<Class<?>> interfaces = new ArrayList<Class<?>>();
 
@@ -56,7 +57,7 @@ public interface EmptyProxy
          return (E) Proxy.newProxyInstance(loader, interfacesArray, MockInvocationHandler.INSTANCE);
       }
 
-      private static void addInterface(@NotNull List<Class<?>> interfaces, @NotNull Type type)
+      private static void addInterface(@Nonnull List<Class<?>> interfaces, @Nonnull Type type)
       {
          if (type instanceof Class<?>) {
             interfaces.add((Class<?>) type);
@@ -71,7 +72,7 @@ public interface EmptyProxy
          }
       }
 
-      private static void addBoundInterfaces(@NotNull List<Class<?>> interfaces, @NotNull Type[] bounds)
+      private static void addBoundInterfaces(@Nonnull List<Class<?>> interfaces, @Nonnull Type[] bounds)
       {
          for (Type bound : bounds) {
             addInterface(interfaces, bound);

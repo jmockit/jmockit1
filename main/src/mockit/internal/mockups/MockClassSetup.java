@@ -7,6 +7,7 @@ package mockit.internal.mockups;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.external.asm.*;
@@ -16,30 +17,28 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
 public final class MockClassSetup
 {
-   @NotNull final Class<?> realClass;
+   @Nonnull final Class<?> realClass;
    @Nullable private ClassReader rcReader;
-   @NotNull private final MockMethods mockMethods;
-   @NotNull final MockUp<?> mockUp;
+   @Nonnull private final MockMethods mockMethods;
+   @Nonnull final MockUp<?> mockUp;
    private final boolean forStartupMock;
 
    public MockClassSetup(
-      @NotNull Class<?> realClass, @NotNull Class<?> classToMock, @Nullable Type mockedType, @NotNull MockUp<?> mockUp)
+      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp)
    {
       this(realClass, classToMock, mockedType, mockUp, null);
    }
 
    public MockClassSetup(
-      @NotNull Class<?> realClass, @Nullable Type mockedType, @NotNull MockUp<?> mockUp, @Nullable byte[] realClassCode)
+      @Nonnull Class<?> realClass, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp, @Nullable byte[] realClassCode)
    {
       this(realClass, realClass, mockedType, mockUp, realClassCode);
    }
 
    private MockClassSetup(
-      @NotNull Class<?> realClass, @NotNull Class<?> classToMock, @Nullable Type mockedType, @NotNull MockUp<?> mockUp,
+      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp,
       @Nullable byte[] realClassCode)
    {
       this.realClass = classToMock;
@@ -71,7 +70,7 @@ public final class MockClassSetup
       }
    }
 
-   @NotNull
+   @Nonnull
    public Set<Class<?>> redefineMethods()
    {
       Set<Class<?>> redefinedClasses = redefineMethodsInClassHierarchy();
@@ -79,7 +78,7 @@ public final class MockClassSetup
       return redefinedClasses;
    }
 
-   @NotNull
+   @Nonnull
    private Set<Class<?>> redefineMethodsInClassHierarchy()
    {
       Set<Class<?>> redefinedClasses = new HashSet<Class<?>>();
@@ -102,7 +101,7 @@ public final class MockClassSetup
    }
 
    @Nullable
-   private byte[] modifyRealClass(@NotNull Class<?> classToModify)
+   private byte[] modifyRealClass(@Nonnull Class<?> classToModify)
    {
       if (rcReader == null) {
          rcReader = createClassReaderForRealClass(classToModify);
@@ -114,14 +113,14 @@ public final class MockClassSetup
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }
 
-   @NotNull
-   BaseClassModifier createClassModifier(@NotNull ClassReader cr)
+   @Nonnull
+   BaseClassModifier createClassModifier(@Nonnull ClassReader cr)
    {
       return new MockupsModifier(cr, realClass, mockUp, mockMethods);
    }
 
-   @NotNull
-   private static ClassReader createClassReaderForRealClass(@NotNull Class<?> classToModify)
+   @Nonnull
+   private static ClassReader createClassReaderForRealClass(@Nonnull Class<?> classToModify)
    {
       if (classToModify.isInterface() || classToModify.isArray()) {
          throw new IllegalArgumentException("Not a modifiable class: " + classToModify.getName());
@@ -130,7 +129,7 @@ public final class MockClassSetup
       return ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
    }
 
-   void applyClassModifications(@NotNull Class<?> classToModify, @NotNull byte[] modifiedClassFile)
+   void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile)
    {
       Startup.redefineMethods(classToModify, modifiedClassFile);
 

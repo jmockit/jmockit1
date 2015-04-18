@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
 
 import java.lang.reflect.Type;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.external.asm.*;
@@ -24,15 +23,15 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
       mockClassSetup = new MockClassSetup(baseClassType, baseType, mockUp, null);
    }
 
-   @NotNull @Override
+   @Nonnull @Override
    protected BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @NotNull ClassReader cr, @NotNull Class<?> baseType, Void typeMetadata)
+      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata)
    {
       return mockClassSetup.createClassModifier(cr);
    }
 
    @Override
-   protected void redefineClass(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)
+   protected void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
    {
       mockClassSetup.applyClassModifications(realClass, modifiedClass);
    }

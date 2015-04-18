@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
@@ -12,16 +13,15 @@ import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-import org.jetbrains.annotations.*;
-
 public final class MockMethodBridge extends MockingBridge
 {
-   @NotNull public static final MockingBridge MB = new MockMethodBridge();
+   @Nonnull public static final MockingBridge MB = new MockMethodBridge();
 
    private MockMethodBridge() { super("$MMB"); }
 
-   @Nullable @Override
-   public Object invoke(@Nullable Object mockedInstance, Method method, @NotNull Object[] args) throws Throwable
+   @Nullable
+   @Override
+   public Object invoke(@Nullable Object mockedInstance, Method method, @Nonnull Object[] args) throws Throwable
    {
       String mockClassDesc = (String) args[0];
       String mockedClassDesc = (String) args[1];
@@ -43,9 +43,9 @@ public final class MockMethodBridge extends MockingBridge
 
    @Nullable
    private static Object callMock(
-      @Nullable Object mockedInstance, @NotNull Object mockUp, @NotNull String mockedClassDesc,
-      @NotNull String mockOrMockedName, @NotNull String mockOrMockedDesc, int mockStateIndex,
-      @NotNull Object[] mockArgs)
+      @Nullable Object mockedInstance, @Nonnull Object mockUp, @Nonnull String mockedClassDesc,
+      @Nonnull String mockOrMockedName, @Nonnull String mockOrMockedDesc, int mockStateIndex,
+      @Nonnull Object[] mockArgs)
       throws Throwable
    {
       Class<?> mockUpClass = mockUp.getClass();
@@ -71,8 +71,8 @@ public final class MockMethodBridge extends MockingBridge
 
    @Nullable
    private static Object executeSimpleMockMethod(
-      @NotNull Class<?> mockUpClass, @Nullable Object mockUp,
-      @NotNull String mockOrMockedName, @NotNull String mockOrMockedDesc, @NotNull Object[] mockArgs)
+      @Nonnull Class<?> mockUpClass, @Nullable Object mockUp,
+      @Nonnull String mockOrMockedName, @Nonnull String mockOrMockedDesc, @Nonnull Object[] mockArgs)
       throws Throwable
    {
       Class<?>[] paramClasses = TypeDescriptor.getParameterTypes(mockOrMockedDesc);
@@ -83,8 +83,8 @@ public final class MockMethodBridge extends MockingBridge
 
    @Nullable
    private static Object executeMockMethodWithoutInvocationArgument(
-      @NotNull MockState mockState, @NotNull Class<?> mockUpClass, @Nullable Object mockUp,
-      @NotNull String mockOrMockedDesc, @NotNull Object[] mockArgs)
+      @Nonnull MockState mockState, @Nonnull Class<?> mockUpClass, @Nullable Object mockUp,
+      @Nonnull String mockOrMockedDesc, @Nonnull Object[] mockArgs)
       throws Throwable
    {
       Class<?>[] paramClasses = TypeDescriptor.getParameterTypes(mockOrMockedDesc);
@@ -95,9 +95,9 @@ public final class MockMethodBridge extends MockingBridge
 
    @Nullable
    private static Object executeMockMethodWithInvocationArgument(
-      @NotNull MockState mockState, @NotNull Class<?> mockUpClass, @Nullable Object mockUp,
-      @Nullable Object mockedInstance, @NotNull String mockedClassDesc, @NotNull String mockedName,
-      @NotNull String mockedDesc, @NotNull Object[] mockArgs)
+      @Nonnull MockState mockState, @Nonnull Class<?> mockUpClass, @Nullable Object mockUp,
+      @Nullable Object mockedInstance, @Nonnull String mockedClassDesc, @Nonnull String mockedName,
+      @Nonnull String mockedDesc, @Nonnull Object[] mockArgs)
       throws Throwable
    {
       Class<?>[] paramClasses;

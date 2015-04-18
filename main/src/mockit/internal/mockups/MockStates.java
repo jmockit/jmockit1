@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
@@ -7,10 +7,9 @@ package mockit.internal.mockups;
 import java.util.*;
 import java.util.Map.*;
 import java.util.regex.*;
+import javax.annotation.*;
 
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Holds state associated with mock class containing {@linkplain mockit.Mock annotated mocks}.
@@ -23,14 +22,14 @@ public final class MockStates
     * For each mockup instance and each {@code @Mock} method containing the {@code Invocation} parameter or an
     * invocation count constraint, a runtime state will be kept here.
     */
-   @NotNull private final Map<Object, List<MockState>> mockUpsToMockStates;
-   @NotNull private final Map<Object, List<MockState>> startupMockUpsToMockStates;
+   @Nonnull private final Map<Object, List<MockState>> mockUpsToMockStates;
+   @Nonnull private final Map<Object, List<MockState>> startupMockUpsToMockStates;
 
    /**
     * For each annotated mock method with at least one invocation expectation, its mock state will
     * also be kept here, as an optimization.
     */
-   @NotNull private final Set<MockState> mockStatesWithExpectations;
+   @Nonnull private final Set<MockState> mockStatesWithExpectations;
 
    public MockStates()
    {
@@ -39,12 +38,12 @@ public final class MockStates
       mockStatesWithExpectations = new LinkedHashSet<MockState>(10);
    }
 
-   void addStartupMockUpAndItsMockStates(@NotNull Object mockUp, @NotNull List<MockState> mockStates)
+   void addStartupMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
    {
       startupMockUpsToMockStates.put(mockUp, mockStates);
    }
 
-   void addMockStates(@NotNull Iterable<MockState> mockStates)
+   void addMockStates(@Nonnull Iterable<MockState> mockStates)
    {
       for (MockState mockState : mockStates) {
          if (mockState.isWithExpectations()) {
@@ -53,12 +52,12 @@ public final class MockStates
       }
    }
 
-   void addMockUpAndItsMockStates(@NotNull Object mockUp, @NotNull List<MockState> mockStates)
+   void addMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
    {
       mockUpsToMockStates.put(mockUp, mockStates);
    }
 
-   public void copyMockStates(@NotNull Object previousMockUp, @NotNull Object newMockUp)
+   public void copyMockStates(@Nonnull Object previousMockUp, @Nonnull Object newMockUp)
    {
       List<MockState> mockStates = mockUpsToMockStates.get(previousMockUp);
 
@@ -73,7 +72,7 @@ public final class MockStates
       }
    }
 
-   public void removeClassState(@NotNull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreMockClasses)
+   public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreMockClasses)
    {
       removeMockStates(redefinedClass);
 
@@ -91,7 +90,7 @@ public final class MockStates
       }
    }
 
-   private void removeMockStates(@NotNull Class<?> redefinedClass)
+   private void removeMockStates(@Nonnull Class<?> redefinedClass)
    {
       for (Iterator<List<MockState>> itr = mockUpsToMockStates.values().iterator(); itr.hasNext(); ) {
          List<MockState> mockStates = itr.next();
@@ -105,7 +104,7 @@ public final class MockStates
       }
    }
 
-   private void removeMockStates(@NotNull String mockClassInternalName)
+   private void removeMockStates(@Nonnull String mockClassInternalName)
    {
       Class<?> mockUpClass = ClassLoad.loadClass(mockClassInternalName.replace('/', '.'));
 
@@ -125,14 +124,14 @@ public final class MockStates
       }
    }
 
-   public boolean updateMockState(@NotNull Object mockUp, int mockStateIndex)
+   public boolean updateMockState(@Nonnull Object mockUp, int mockStateIndex)
    {
       MockState mockState = getMockState(mockUp, mockStateIndex);
       return mockState.update();
    }
 
-   @NotNull
-   MockState getMockState(@NotNull Object mockUp, int mockStateIndex)
+   @Nonnull
+   MockState getMockState(@Nonnull Object mockUp, int mockStateIndex)
    {
       List<MockState> mockStates = startupMockUpsToMockStates.get(mockUp);
 

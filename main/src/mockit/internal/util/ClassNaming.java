@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class ClassNaming
 {
@@ -17,18 +17,18 @@ public final class ClassNaming
     * <p/>
     * This method checks only the given class name, never causing any other classes to be loaded.
     */
-   public static boolean isAnonymousClass(@NotNull Class<?> aClass)
+   public static boolean isAnonymousClass(@Nonnull Class<?> aClass)
    {
       return isAnonymousClass(aClass.getName());
    }
 
-   public static boolean isAnonymousClass(@NotNull String className)
+   public static boolean isAnonymousClass(@Nonnull String className)
    {
       int p = className.lastIndexOf('$');
       return isAllNumeric(className, p);
    }
 
-   public static boolean isAllNumeric(@NotNull String className, int positionJustBefore)
+   public static boolean isAllNumeric(@Nonnull String className, int positionJustBefore)
    {
       if (positionJustBefore <= 0) {
          return false;

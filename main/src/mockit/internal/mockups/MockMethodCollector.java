@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
+
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.external.asm.*;
@@ -12,8 +14,6 @@ import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-import org.jetbrains.annotations.*;
-
 /**
  * Responsible for collecting the signatures of all methods defined in a given mock class which are explicitly annotated
  * as {@link Mock mocks}.
@@ -22,14 +22,14 @@ final class MockMethodCollector extends ClassVisitor
 {
    private static final int INVALID_METHOD_ACCESSES = ACC_BRIDGE + ACC_SYNTHETIC + ACC_ABSTRACT + ACC_NATIVE;
 
-   @NotNull private final MockMethods mockMethods;
+   @Nonnull private final MockMethods mockMethods;
 
    private boolean collectingFromSuperClass;
    @Nullable private String enclosingClassDescriptor;
 
-   MockMethodCollector(@NotNull MockMethods mockMethods) { this.mockMethods = mockMethods; }
+   MockMethodCollector(@Nonnull MockMethods mockMethods) { this.mockMethods = mockMethods; }
 
-   void collectMockMethods(@NotNull Class<?> mockClass)
+   void collectMockMethods(@Nonnull Class<?> mockClass)
    {
       ClassLoad.registerLoadedClass(mockClass);
 
@@ -46,7 +46,7 @@ final class MockMethodCollector extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       if (!collectingFromSuperClass) {
@@ -70,7 +70,7 @@ final class MockMethodCollector extends ClassVisitor
    @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    @Nullable @Override
    public MethodVisitor visitMethod(
-      final int access, @NotNull final String methodName, @NotNull final String methodDesc,
+      final int access, @Nonnull final String methodName, @Nonnull final String methodDesc,
       @Nullable String methodSignature, @Nullable String[] exceptions)
    {
       if ((access & INVALID_METHOD_ACCESSES) != 0) {
@@ -104,8 +104,8 @@ final class MockMethodCollector extends ClassVisitor
 
          @Override
          public void visitLocalVariable(
-            @NotNull String name, @NotNull String desc, @Nullable String signature,
-            @NotNull Label start, @NotNull Label end, int index)
+            @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+            @Nonnull Label start, @Nonnull Label end, int index)
          {
             String classDesc = mockMethods.getMockClassInternalName();
             ParameterNames.registerName(classDesc, access, methodName, methodDesc, name, index);
@@ -115,10 +115,10 @@ final class MockMethodCollector extends ClassVisitor
 
    private final class MockAnnotationVisitor extends AnnotationVisitor
    {
-      @NotNull private final MockMethods.MockMethod mockMethod;
+      @Nonnull private final MockMethods.MockMethod mockMethod;
       @Nullable private MockState mockState;
 
-      private MockAnnotationVisitor(@NotNull MockMethods.MockMethod mockMethod)
+      private MockAnnotationVisitor(@Nonnull MockMethods.MockMethod mockMethod)
       {
          this.mockMethod = mockMethod;
 
@@ -143,7 +143,8 @@ final class MockMethodCollector extends ClassVisitor
          }
       }
 
-      @NotNull private MockState getMockState()
+      @Nonnull
+      private MockState getMockState()
       {
          if (mockState == null) {
             mockState = new MockState(mockMethod);

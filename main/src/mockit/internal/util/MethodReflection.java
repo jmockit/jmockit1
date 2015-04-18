@@ -1,16 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import org.jetbrains.annotations.*;
-
 import mockit.*;
-
 import static mockit.internal.util.ParameterReflection.*;
 
 public final class MethodReflection
@@ -19,8 +17,8 @@ public final class MethodReflection
 
    @Nullable
    public static <T> T invoke(
-      @NotNull Class<?> theClass, @Nullable Object targetInstance, @NotNull String methodName,
-      @NotNull Class<?>[] paramTypes, @Nullable Object... methodArgs)
+      @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
+      @Nonnull Class<?>[] paramTypes, @Nullable Object... methodArgs)
    {
       if (methodArgs == null) {
          throw invalidArguments();
@@ -31,9 +29,9 @@ public final class MethodReflection
       return result;
    }
 
-   @NotNull
+   @Nonnull
    private static Method findSpecifiedMethod(
-      @NotNull Class<?> theClass, @NotNull String methodName, @NotNull Class<?>[] paramTypes)
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] paramTypes)
    {
       while (true) {
          for (Method declaredMethod : theClass.getDeclaredMethods()) {
@@ -64,8 +62,8 @@ public final class MethodReflection
 
    @Nullable
    public static <T> T invokePublicIfAvailable(
-      @NotNull Class<?> aClass, @Nullable Object targetInstance, @NotNull String methodName,
-      @NotNull Class<?>[] parameterTypes, @NotNull Object... methodArgs)
+      @Nonnull Class<?> aClass, @Nullable Object targetInstance, @Nonnull String methodName,
+      @Nonnull Class<?>[] parameterTypes, @Nonnull Object... methodArgs)
    {
       Method publicMethod;
       try { publicMethod = aClass.getMethod(methodName, parameterTypes); }
@@ -77,8 +75,8 @@ public final class MethodReflection
 
    @Nullable
    public static <T> T invokeWithCheckedThrows(
-      @NotNull Class<?> theClass, @Nullable Object targetInstance, @NotNull String methodName,
-      @NotNull Class<?>[] paramTypes, @NotNull Object... methodArgs)
+      @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
+      @Nonnull Class<?>[] paramTypes, @Nonnull Object... methodArgs)
       throws Throwable
    {
       Method method = findSpecifiedMethod(theClass, methodName, paramTypes);
@@ -87,7 +85,7 @@ public final class MethodReflection
    }
 
    @Nullable
-   public static <T> T invoke(@Nullable Object targetInstance, @NotNull Method method, @NotNull Object... methodArgs)
+   public static <T> T invoke(@Nullable Object targetInstance, @Nonnull Method method, @Nonnull Object... methodArgs)
    {
       Utilities.ensureThatMemberIsAccessible(method);
 
@@ -120,7 +118,7 @@ public final class MethodReflection
 
    @Nullable
    public static <T> T invokeWithCheckedThrows(
-      @Nullable Object targetInstance, @NotNull Method method, @NotNull Object... methodArgs)
+      @Nullable Object targetInstance, @Nonnull Method method, @Nonnull Object... methodArgs)
       throws Throwable
    {
       Utilities.ensureThatMemberIsAccessible(method);
@@ -140,7 +138,7 @@ public final class MethodReflection
 
    @Nullable
    public static <T> T invoke(
-      @NotNull Class<?> theClass, @Nullable Object targetInstance, @NotNull String methodName,
+      @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
       @Nullable Object... methodArgs)
    {
       if (methodArgs == null) {
@@ -162,9 +160,9 @@ public final class MethodReflection
       return result;
    }
 
-   @NotNull
+   @Nonnull
    private static Method findCompatibleStaticMethod(
-      @NotNull Class<?> theClass, @NotNull String methodName, @NotNull Class<?>[] argTypes)
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)
    {
       Method methodFound = findCompatibleMethodInClass(theClass, methodName, argTypes);
 
@@ -176,9 +174,9 @@ public final class MethodReflection
       throw new IllegalArgumentException("No compatible static method found: " + methodName + argTypesDesc);
    }
 
-   @NotNull
+   @Nonnull
    public static Method findCompatibleMethod(
-      @NotNull Class<?> theClass, @NotNull String methodName, @NotNull Class<?>[] argTypes)
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)
    {
       Method methodFound = findCompatibleMethodIfAvailable(theClass, methodName, argTypes);
 
@@ -192,7 +190,7 @@ public final class MethodReflection
 
    @Nullable
    private static Method findCompatibleMethodIfAvailable(
-      @NotNull Class<?> theClass, @NotNull String methodName, @NotNull Class<?>[] argTypes)
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)
    {
       Method methodFound = null;
 
@@ -222,7 +220,7 @@ public final class MethodReflection
 
    @Nullable
    private static Method findCompatibleMethodInClass(
-      @NotNull Class<?> theClass, @NotNull String methodName, @NotNull Class<?>[] argTypes)
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)
    {
       Method found = null;
       Class<?>[] foundParamTypes = null;
@@ -247,8 +245,8 @@ public final class MethodReflection
       return found;
    }
 
-   @NotNull
-   public static Method findNonPrivateHandlerMethod(@NotNull Object handler)
+   @Nonnull
+   public static Method findNonPrivateHandlerMethod(@Nonnull Object handler)
    {
       Class<?> handlerClass = handler.getClass();
       Method nonPrivateMethod;
@@ -272,7 +270,7 @@ public final class MethodReflection
    }
 
    @Nullable
-   private static Method findNonPrivateHandlerMethod(@NotNull Class<?> handlerClass)
+   private static Method findNonPrivateHandlerMethod(@Nonnull Class<?> handlerClass)
    {
       Method[] declaredMethods = handlerClass.getDeclaredMethods();
       Method found = null;
@@ -295,8 +293,8 @@ public final class MethodReflection
       return found;
    }
 
-   @NotNull
-   private static String methodSignature(@NotNull Method method)
+   @Nonnull
+   private static String methodSignature(@Nonnull Method method)
    {
       String signature = method.toGenericString().replace("java.lang.", "");
 

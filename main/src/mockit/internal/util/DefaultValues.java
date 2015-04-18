@@ -8,13 +8,12 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
+import javax.annotation.*;
 import static java.util.Collections.*;
 
 import mockit.external.asm.Type;
 import static mockit.Deencapsulation.*;
 import static mockit.internal.util.Utilities.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Provides default values for each type, typically used for returning default values according to
@@ -117,22 +116,22 @@ public final class DefaultValues
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", invoke(DoubleStream.class, "empty"));
    }
 
-   @NotNull
-   public static String getReturnTypeDesc(@NotNull String methodNameAndDesc)
+   @Nonnull
+   public static String getReturnTypeDesc(@Nonnull String methodNameAndDesc)
    {
       int rightParen = methodNameAndDesc.indexOf(')') + 1;
       return methodNameAndDesc.substring(rightParen);
    }
 
    @Nullable
-   public static Object computeForReturnType(@NotNull String methodNameAndDesc)
+   public static Object computeForReturnType(@Nonnull String methodNameAndDesc)
    {
       String typeDesc = getReturnTypeDesc(methodNameAndDesc);
       return computeForType(typeDesc);
    }
 
    @Nullable
-   public static Object computeForType(@NotNull String typeDesc)
+   public static Object computeForType(@Nonnull String typeDesc)
    {
       char typeDescChar = typeDesc.charAt(0);
 
@@ -154,8 +153,8 @@ public final class DefaultValues
       return computeForArrayType(typeDesc);
    }
 
-   @NotNull
-   public static Object computeForArrayType(@NotNull String typeDesc)
+   @Nonnull
+   public static Object computeForArrayType(@Nonnull String typeDesc)
    {
       Object emptyArray = ELEM_TYPE_TO_ONE_D_ARRAY.get(typeDesc);
 
@@ -166,8 +165,8 @@ public final class DefaultValues
       return emptyArray;
    }
 
-   @NotNull
-   private static Object newEmptyArray(@NotNull String typeDesc)
+   @Nonnull
+   private static Object newEmptyArray(@Nonnull String typeDesc)
    {
       Type type = Type.getType(typeDesc);
       Class<?> elementType = TypeDescriptor.getClassForType(type.getElementType());
@@ -176,7 +175,7 @@ public final class DefaultValues
    }
 
    @Nullable
-   public static Object computeForType(@NotNull Class<?> type)
+   public static Object computeForType(@Nonnull Class<?> type)
    {
       if (type.isArray()) {
          return Array.newInstance(type.getComponentType(), 0);
@@ -188,8 +187,8 @@ public final class DefaultValues
       return computeForWrapperType(type);
    }
 
-   @NotNull
-   public static Object defaultValueForPrimitiveType(@NotNull Class<?> type)
+   @Nonnull
+   public static Object defaultValueForPrimitiveType(@Nonnull Class<?> type)
    {
       if (type == int.class) {
          return ZERO_INT;
@@ -219,7 +218,7 @@ public final class DefaultValues
 
    @SuppressWarnings("unchecked")
    @Nullable
-   public static <T> T computeForWrapperType(@NotNull java.lang.reflect.Type type)
+   public static <T> T computeForWrapperType(@Nonnull java.lang.reflect.Type type)
    {
       if (type == Integer.class) {
          return (T) ZERO_INT;

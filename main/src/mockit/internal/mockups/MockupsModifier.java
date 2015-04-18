@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
 
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
@@ -13,8 +14,6 @@ import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.GeneratedClasses.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Responsible for generating all necessary bytecode in the redefined (real) class.
@@ -29,9 +28,9 @@ final class MockupsModifier extends BaseClassModifier
 {
    private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
 
-   @NotNull private final MockMethods mockMethods;
+   @Nonnull private final MockMethods mockMethods;
    private final boolean useMockingBridgeForUpdatingMockState;
-   @NotNull private final Class<?> mockedClass;
+   @Nonnull private final Class<?> mockedClass;
    private MockMethod mockMethod;
    private boolean isConstructor;
 
@@ -52,7 +51,7 @@ final class MockupsModifier extends BaseClassModifier
     * corresponding real method was found for any of its method identifiers
     */
    MockupsModifier(
-      @NotNull ClassReader cr, @NotNull Class<?> realClass, @NotNull MockUp<?> mockUp, @NotNull MockMethods mockMethods)
+      @Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> mockUp, @Nonnull MockMethods mockMethods)
    {
       super(cr);
       mockedClass = realClass;
@@ -63,7 +62,7 @@ final class MockupsModifier extends BaseClassModifier
       inferUseOfMockingBridge(classLoaderOfRealClass, mockUp);
    }
 
-   private void inferUseOfMockingBridge(@Nullable ClassLoader classLoaderOfRealClass, @NotNull Object mock)
+   private void inferUseOfMockingBridge(@Nullable ClassLoader classLoaderOfRealClass, @Nonnull Object mock)
    {
       setUseMockingBridge(classLoaderOfRealClass);
 
@@ -74,7 +73,7 @@ final class MockupsModifier extends BaseClassModifier
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       super.visit(version, access, name, signature, superName, interfaces);
@@ -98,7 +97,7 @@ final class MockupsModifier extends BaseClassModifier
     */
    @Override
    public MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       if ((access & ABSTRACT_OR_SYNTHETIC) != 0) {
          if (isAbstract(access)) {
@@ -132,14 +131,15 @@ final class MockupsModifier extends BaseClassModifier
       return copyOriginalImplementationCode(isConstructor);
    }
 
-   private boolean hasMock(int access, @NotNull String name, @NotNull String desc, @Nullable String signature)
+   private boolean hasMock(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
    {
       String mockName = getCorrespondingMockName(name);
       mockMethod = mockMethods.findMethod(access, mockName, desc, signature);
       return mockMethod != null;
    }
 
-   @NotNull private static String getCorrespondingMockName(@NotNull String name)
+   @Nonnull
+   private static String getCorrespondingMockName(@Nonnull String name)
    {
       if ("<init>".equals(name)) {
          return "$init";
@@ -309,7 +309,7 @@ final class MockupsModifier extends BaseClassModifier
       }
    }
 
-   private void generateCodeToObtainMockUpInstance(@NotNull String mockClassDesc)
+   private void generateCodeToObtainMockUpInstance(@Nonnull String mockClassDesc)
    {
       mw.visitLdcInsn(mockClassDesc);
       generateCodeToPassThisOrNullIfStaticMethod();
@@ -351,7 +351,7 @@ final class MockupsModifier extends BaseClassModifier
       return canProceedIntoConstructor;
    }
 
-   private void generateCallToCreateNewMockInvocation(@NotNull Type[] argTypes, int initialParameterIndex)
+   private void generateCallToCreateNewMockInvocation(@Nonnull Type[] argTypes, int initialParameterIndex)
    {
       generateCodeToPassThisOrNullIfStaticMethod();
 

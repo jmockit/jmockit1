@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 
 public final class MethodFormatter
 {
-   @NotNull private final StringBuilder out;
-   @NotNull private final List<String> parameterTypes;
+   @Nonnull private final StringBuilder out;
+   @Nonnull private final List<String> parameterTypes;
    @Nullable private final String classDesc;
-   @NotNull private String methodDesc;
+   @Nonnull private String methodDesc;
 
    // Auxiliary fields for handling method parameters:
    private int parameterIndex;
@@ -31,7 +30,7 @@ public final class MethodFormatter
       methodDesc = "";
    }
 
-   public MethodFormatter(@NotNull String classDesc, @NotNull String methodNameAndDesc)
+   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc)
    {
       this(classDesc);
       methodDesc = methodNameAndDesc;
@@ -41,9 +40,10 @@ public final class MethodFormatter
    @Override
    public String toString() { return out.toString(); }
 
-   @NotNull public List<String> getParameterTypes() { return parameterTypes; }
+   @Nonnull public List<String> getParameterTypes() { return parameterTypes; }
 
-   @NotNull public String friendlyMethodSignatures(@NotNull Collection<String> methodNamesAndDescs)
+   @Nonnull
+   public String friendlyMethodSignatures(@Nonnull Collection<String> methodNamesAndDescs)
    {
       String sep = "";
 
@@ -84,7 +84,8 @@ public final class MethodFormatter
       }
    }
 
-   @NotNull private String getConstructorName(@NotNull String className)
+   @Nonnull
+   private static String getConstructorName(@Nonnull String className)
    {
       int p = className.lastIndexOf('.');
       String constructorName = p < 0 ? className : className.substring(p + 1);
@@ -99,7 +100,7 @@ public final class MethodFormatter
       return constructorName;
    }
 
-   private void appendFriendlyTypes(@NotNull String typeDescs)
+   private void appendFriendlyTypes(@Nonnull String typeDescs)
    {
       String sep = "";
 
@@ -118,12 +119,13 @@ public final class MethodFormatter
       }
    }
 
-   @NotNull private String friendlyReferenceType(@NotNull String typeDesc)
+   @Nonnull
+   private static String friendlyReferenceType(@Nonnull String typeDesc)
    {
       return typeDesc.substring(1).replace("java/lang/", "").replace('/', '.');
    }
 
-   private void appendParameterType(@NotNull String friendlyTypeDesc)
+   private void appendParameterType(@Nonnull String friendlyTypeDesc)
    {
       out.append(friendlyTypeDesc);
       parameterTypes.add(friendlyTypeDesc);
@@ -161,7 +163,8 @@ public final class MethodFormatter
    }
 
    @SuppressWarnings("OverlyComplexMethod")
-   @NotNull private String getTypeNameForTypeDesc(@NotNull String typeDesc)
+   @Nonnull
+   private String getTypeNameForTypeDesc(@Nonnull String typeDesc)
    {
       String paramType;
 
@@ -187,7 +190,7 @@ public final class MethodFormatter
       return paramType;
    }
 
-   private void advancePastArrayDimensionsIfAny(@NotNull String param)
+   private void advancePastArrayDimensionsIfAny(@Nonnull String param)
    {
       arrayDimensions = 0;
 
@@ -198,7 +201,8 @@ public final class MethodFormatter
       }
    }
 
-   @NotNull private String getArrayBrackets()
+   @Nonnull
+   private String getArrayBrackets()
    {
       @SuppressWarnings("NonConstantStringShouldBeStringBuffer")
       String result = "";

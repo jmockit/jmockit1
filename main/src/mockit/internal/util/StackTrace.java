@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 /**
  * Provides utility methods to extract and filter stack trace information.
  */
 public final class StackTrace
 {
-   @NotNull private final Throwable throwable;
-   @NotNull private final StackTraceElement[] elements;
+   @Nonnull private final Throwable throwable;
+   @Nonnull private final StackTraceElement[] elements;
 
    public StackTrace() { this(new Throwable()); }
 
-   public StackTrace(@NotNull Throwable throwable)
+   public StackTrace(@Nonnull Throwable throwable)
    {
       this.throwable = throwable;
       elements = throwable.getStackTrace();
@@ -24,10 +24,10 @@ public final class StackTrace
 
    public int getDepth() { return elements.length; }
 
-   @NotNull
+   @Nonnull
    public StackTraceElement getElement(int index) { return elements[index]; }
 
-   public static void filterStackTrace(@NotNull Throwable t)
+   public static void filterStackTrace(@Nonnull Throwable t)
    {
       new StackTrace(t).filter();
    }
@@ -59,17 +59,17 @@ public final class StackTrace
       }
    }
 
-   private static boolean isSunMethod(@NotNull StackTraceElement ste)
+   private static boolean isSunMethod(@Nonnull StackTraceElement ste)
    {
       return ste.getClassName().startsWith("sun.") && !ste.isNativeMethod();
    }
 
-   private static boolean isTestFrameworkMethod(@NotNull String where)
+   private static boolean isTestFrameworkMethod(@Nonnull String where)
    {
       return where.startsWith("org.junit.") || where.startsWith("org.testng.");
    }
 
-   private static boolean isJMockitMethod(@NotNull String where)
+   private static boolean isJMockitMethod(@Nonnull String where)
    {
       if (!where.startsWith("mockit.")) {
          return false;

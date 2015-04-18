@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.util.*;
 import java.util.concurrent.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 
@@ -21,19 +20,19 @@ public final class ClassLoad
 
    private ClassLoad() {}
 
-   public static void registerLoadedClass(@NotNull Class<?> aClass)
+   public static void registerLoadedClass(@Nonnull Class<?> aClass)
    {
       LOADED_CLASSES.put(aClass.getName(), aClass);
    }
 
-   @NotNull
-   public static <T> Class<T> loadByInternalName(@NotNull String internalClassName)
+   @Nonnull
+   public static <T> Class<T> loadByInternalName(@Nonnull String internalClassName)
    {
       return loadClass(internalClassName.replace('/', '.'));
    }
 
-   @NotNull
-   public static <T> Class<T> loadClass(@NotNull String className)
+   @Nonnull
+   public static <T> Class<T> loadClass(@Nonnull String className)
    {
       @Nullable Class<?> loadedClass = LOADED_CLASSES.get(className);
 
@@ -71,8 +70,8 @@ public final class ClassLoad
       return (Class<T>) loadedClass;
    }
 
-   @NotNull
-   public static <T> Class<T> loadClassAtStartup(@NotNull String className)
+   @Nonnull
+   public static <T> Class<T> loadClassAtStartup(@Nonnull String className)
    {
       ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
       Class<?> loadedClass;
@@ -98,13 +97,13 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static Class<?> loadClass(@Nullable ClassLoader loader, @NotNull String className)
+   public static Class<?> loadClass(@Nullable ClassLoader loader, @Nonnull String className)
    {
       try { return Class.forName(className, true, loader); } catch (ClassNotFoundException ignore) { return null; }
    }
 
-   @NotNull
-   public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @NotNull String className)
+   @Nonnull
+   public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @Nonnull String className)
    {
       try {
          //noinspection unchecked
@@ -116,13 +115,13 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static <T> Class<? extends T> searchTypeInClasspath(@NotNull String typeName)
+   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName)
    {
        return searchTypeInClasspath(typeName, false);
    }
 
    @Nullable
-   public static <T> Class<? extends T> searchTypeInClasspath(@NotNull String typeName, boolean initializeType)
+   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName, boolean initializeType)
    {
       //noinspection OverlyBroadCatchBlock
       try {
@@ -132,13 +131,13 @@ public final class ClassLoad
       catch (Throwable ignore) { return null; }
    }
 
-   public static void addSuperClass(@NotNull String classInternalName, @NotNull String superClassInternalName)
+   public static void addSuperClass(@Nonnull String classInternalName, @Nonnull String superClassInternalName)
    {
       SUPER_CLASSES.put(classInternalName.intern(), superClassInternalName.intern());
    }
 
-   @NotNull
-   public static String getSuperClass(@NotNull String classInternalName)
+   @Nonnull
+   public static String getSuperClass(@Nonnull String classInternalName)
    {
       String classDesc = classInternalName.intern();
       String superName = SUPER_CLASSES.get(classDesc);
@@ -157,7 +156,7 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static String whichIsSuperClass(@NotNull String internalClassName1, @NotNull String internalClassName2)
+   public static String whichIsSuperClass(@Nonnull String internalClassName1, @Nonnull String internalClassName2)
    {
       String class1 = actualSuperClass(internalClassName1, internalClassName2);
 
@@ -170,7 +169,7 @@ public final class ClassLoad
    }
 
    @Nullable
-   private static String actualSuperClass(@NotNull String candidateSuperClass, @NotNull String candidateSubclass)
+   private static String actualSuperClass(@Nonnull String candidateSuperClass, @Nonnull String candidateSubclass)
    {
       String subclass = candidateSubclass;
 
@@ -189,7 +188,7 @@ public final class ClassLoad
       }
    }
 
-   public static boolean isGeneratedSubclass(@NotNull String className)
+   public static boolean isGeneratedSubclass(@Nonnull String className)
    {
       return className.contains("_$$_javassist_") || className.contains("CGLIB$$");
    }

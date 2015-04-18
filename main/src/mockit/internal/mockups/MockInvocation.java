@@ -5,29 +5,28 @@
 package mockit.internal.mockups;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.Utilities.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * An invocation to a {@code @Mock} method.
  */
 public final class MockInvocation extends BaseInvocation
 {
-   @NotNull private final MockState mockState;
-   @NotNull private final String mockedClassDesc;
-   @NotNull private final String mockedMethodName;
-   @NotNull private final String mockedMethodDesc;
+   @Nonnull private final MockState mockState;
+   @Nonnull private final String mockedClassDesc;
+   @Nonnull private final String mockedMethodName;
+   @Nonnull private final String mockedMethodDesc;
    boolean proceeding;
 
-   @NotNull
+   @Nonnull
    public static MockInvocation create(
       @Nullable Object invokedInstance, @Nullable Object[] invokedArguments,
-      @NotNull String mockClassDesc, int mockStateIndex,
-      @NotNull String mockedClassDesc, @NotNull String mockedMethodName, @NotNull String mockedMethodDesc)
+      @Nonnull String mockClassDesc, int mockStateIndex,
+      @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
       Object mockUp = TestRun.getMock(mockClassDesc, invokedInstance);
       assert mockUp != null;
@@ -37,8 +36,8 @@ public final class MockInvocation extends BaseInvocation
    }
 
    MockInvocation(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments, @NotNull MockState mockState,
-      @NotNull String mockedClassDesc, @NotNull String mockedMethodName, @NotNull String mockedMethodDesc)
+      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnull MockState mockState,
+      @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
       super(
          invokedInstance, invokedArguments,
@@ -49,7 +48,7 @@ public final class MockInvocation extends BaseInvocation
       this.mockedMethodDesc = mockedMethodDesc;
    }
 
-   @NotNull @Override
+   @Nonnull @Override
    protected Member findRealMember()
    {
       return mockState.getRealMethodOrConstructor(mockedClassDesc, mockedMethodName, mockedMethodDesc);

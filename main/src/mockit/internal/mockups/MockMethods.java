@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.*;
@@ -14,37 +15,35 @@ import mockit.internal.util.*;
 import mockit.internal.util.GenericTypeReflection.*;
 import static mockit.internal.util.ObjectMethods.*;
 
-import org.jetbrains.annotations.*;
-
 /**
  * A container for the mock methods "collected" from a mock class, separated in two sets: one with all the mock methods,
  * and another with just the subset of static methods.
  */
 final class MockMethods
 {
-   @NotNull final Class<?> realClass;
+   @Nonnull final Class<?> realClass;
    private final boolean mockedTypeIsAClass;
    private final boolean reentrantRealClass;
-   @NotNull private final List<MockMethod> methods;
+   @Nonnull private final List<MockMethod> methods;
    @Nullable private MockMethod adviceMethod;
-   @NotNull private final GenericTypeReflection typeParametersToTypeArguments;
-   @NotNull private String mockClassInternalName;
+   @Nonnull private final GenericTypeReflection typeParametersToTypeArguments;
+   @Nonnull private String mockClassInternalName;
    @Nullable private List<MockState> mockStates;
 
    final class MockMethod
    {
       private final int access;
-      @NotNull final String name;
-      @NotNull final String desc;
+      @Nonnull final String name;
+      @Nonnull final String desc;
       final boolean isAdvice;
       final boolean hasInvocationParameter;
-      @NotNull final String mockDescWithoutInvocationParameter;
+      @Nonnull final String mockDescWithoutInvocationParameter;
       private boolean hasMatchingRealMethod;
       @Nullable private GenericSignature mockSignature;
       private int indexForMockState;
       private boolean nativeRealMethod;
 
-      private MockMethod(int access, @NotNull String name, @NotNull String desc)
+      private MockMethod(int access, @Nonnull String name, @Nonnull String desc)
       {
          this.access = access;
          this.name = name;
@@ -67,7 +66,7 @@ final class MockMethods
          indexForMockState = -1;
       }
 
-      boolean isMatch(int realAccess, @NotNull String realName, @NotNull String realDesc, @Nullable String signature)
+      boolean isMatch(int realAccess, @Nonnull String realName, @Nonnull String realDesc, @Nullable String signature)
       {
          if (name.equals(realName) && hasMatchingParameters(realDesc, signature)) {
             hasMatchingRealMethod = true;
@@ -78,7 +77,7 @@ final class MockMethods
          return false;
       }
 
-      private boolean hasMatchingParameters(@NotNull String methodDesc, @Nullable String signature)
+      private boolean hasMatchingParameters(@Nonnull String methodDesc, @Nullable String signature)
       {
          boolean sameParametersIgnoringGenerics = mockDescWithoutInvocationParameter.equals(methodDesc);
 
@@ -93,8 +92,8 @@ final class MockMethods
          return mockSignature.satisfiesGenericSignature(signature);
       }
 
-      @NotNull Class<?> getRealClass() { return realClass; }
-      @NotNull String getMockNameAndDesc() { return name + desc; }
+      @Nonnull Class<?> getRealClass() { return realClass; }
+      @Nonnull String getMockNameAndDesc() { return name + desc; }
       int getIndexForMockState() { return indexForMockState; }
 
       boolean isStatic() { return Modifier.isStatic(access); }
@@ -108,7 +107,8 @@ final class MockMethods
          return mockedTypeIsAClass && !nativeRealMethod && (hasInvocationParameter || reentrantRealClass);
       }
 
-      @NotNull String errorMessage(@NotNull String quantifier, int numExpectedInvocations, int timesInvoked)
+      @Nonnull
+      String errorMessage(@Nonnull String quantifier, int numExpectedInvocations, int timesInvoked)
       {
          String nameAndDesc = getMockNameAndDesc();
          return
@@ -130,7 +130,7 @@ final class MockMethods
       }
    }
 
-   MockMethods(@NotNull Class<?> realClass, @Nullable Type mockedType)
+   MockMethods(@Nonnull Class<?> realClass, @Nullable Type mockedType)
    {
       this.realClass = realClass;
 
@@ -148,9 +148,9 @@ final class MockMethods
       mockClassInternalName = "";
    }
 
-   @NotNull Class<?> getRealClass() { return realClass; }
+   @Nonnull Class<?> getRealClass() { return realClass; }
 
-   @Nullable MockMethod addMethod(boolean fromSuperClass, int access, @NotNull String name, @NotNull String desc)
+   @Nullable MockMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
    {
       if (fromSuperClass && isMethodAlreadyAdded(name, desc)) {
          return null;
@@ -168,7 +168,7 @@ final class MockMethods
       return mockMethod;
    }
 
-   private boolean isMethodAlreadyAdded(@NotNull String name, @NotNull String desc)
+   private boolean isMethodAlreadyAdded(@Nonnull String name, @Nonnull String desc)
    {
       int p = desc.lastIndexOf(')');
       String params = desc.substring(0, p + 1);
@@ -182,7 +182,7 @@ final class MockMethods
       return false;
    }
 
-   void addMockState(@NotNull MockState mockState)
+   void addMockState(@Nonnull MockState mockState)
    {
       if (mockStates == null) {
          mockStates = new ArrayList<MockState>(4);
@@ -200,7 +200,7 @@ final class MockMethods
     * method is processed there should be no mock methods left unused in the container.
     */
    @Nullable
-   MockMethod findMethod(int access, @NotNull String name, @NotNull String desc, @Nullable String signature)
+   MockMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
    {
       for (MockMethod mockMethod : methods) {
          if (mockMethod.isMatch(access, name, desc, signature)) {
@@ -218,9 +218,9 @@ final class MockMethods
       return null;
    }
 
-   @NotNull String getMockClassInternalName() { return mockClassInternalName; }
+   @Nonnull String getMockClassInternalName() { return mockClassInternalName; }
 
-   void setMockClassInternalName(@NotNull String mockClassInternalName)
+   void setMockClassInternalName(@Nonnull String mockClassInternalName)
    {
       this.mockClassInternalName = mockClassInternalName.intern();
    }
@@ -236,7 +236,8 @@ final class MockMethods
       return false;
    }
 
-   @NotNull List<String> getUnusedMockSignatures()
+   @Nonnull
+   List<String> getUnusedMockSignatures()
    {
       List<String> signatures = new ArrayList<String>(methods.size());
 
@@ -249,7 +250,7 @@ final class MockMethods
       return signatures;
    }
 
-   void registerMockStates(@NotNull Object mockUp, boolean forStartupMock)
+   void registerMockStates(@Nonnull Object mockUp, boolean forStartupMock)
    {
       if (mockStates != null) {
          MockStates allMockStates = TestRun.getMockStates();

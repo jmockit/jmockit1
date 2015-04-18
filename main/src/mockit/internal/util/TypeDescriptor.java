@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
-import mockit.external.asm.Type;
+import mockit.external.asm.*;
 
 public final class TypeDescriptor
 {
@@ -16,8 +16,8 @@ public final class TypeDescriptor
 
    private TypeDescriptor() {}
 
-   @NotNull
-   public static Class<?>[] getParameterTypes(@NotNull String methodDesc)
+   @Nonnull
+   public static Class<?>[] getParameterTypes(@Nonnull String methodDesc)
    {
       Type[] paramTypes = Type.getArgumentTypes(methodDesc);
 
@@ -34,15 +34,15 @@ public final class TypeDescriptor
       return paramClasses;
    }
 
-   @NotNull
-   public static Class<?> getReturnType(@NotNull String methodDesc)
+   @Nonnull
+   public static Class<?> getReturnType(@Nonnull String methodDesc)
    {
       Type returnType = Type.getReturnType(methodDesc);
       return getClassForType(returnType);
    }
 
-   @NotNull
-   public static Class<?> getClassForType(@NotNull Type type)
+   @Nonnull
+   public static Class<?> getClassForType(@Nonnull Type type)
    {
       int sort = type.getSort();
 

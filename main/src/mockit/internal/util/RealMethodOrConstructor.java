@@ -5,14 +5,13 @@
 package mockit.internal.util;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class RealMethodOrConstructor
 {
-   @NotNull public final Member member;
+   @Nonnull public final Member member;
 
-   public RealMethodOrConstructor(@NotNull String classDesc, @NotNull String methodName, @NotNull String methodDesc)
+   public RealMethodOrConstructor(@Nonnull String classDesc, @Nonnull String methodName, @Nonnull String methodDesc)
       throws NoSuchMethodException
    {
       ClassLoader cl = getClass().getClassLoader();
@@ -26,13 +25,13 @@ public final class RealMethodOrConstructor
       }
    }
 
-   public RealMethodOrConstructor(@NotNull String className, @NotNull String methodNameAndDesc)
+   public RealMethodOrConstructor(@Nonnull String className, @Nonnull String methodNameAndDesc)
       throws NoSuchMethodException
    {
       this(ClassLoad.loadFromLoader(RealMethodOrConstructor.class.getClassLoader(), className), methodNameAndDesc);
    }
 
-   public RealMethodOrConstructor(@NotNull Class<?> realClass, @NotNull String methodNameAndDesc)
+   public RealMethodOrConstructor(@Nonnull Class<?> realClass, @Nonnull String methodNameAndDesc)
       throws NoSuchMethodException
    {
       int p = methodNameAndDesc.indexOf('(');
@@ -47,15 +46,15 @@ public final class RealMethodOrConstructor
       }
    }
 
-   @NotNull
-   private static Constructor<?> findConstructor(@NotNull Class<?> realClass, @NotNull String methodDesc)
+   @Nonnull
+   private static Constructor<?> findConstructor(@Nonnull Class<?> realClass, @Nonnull String methodDesc)
    {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
       return ConstructorReflection.findSpecifiedConstructor(realClass, parameterTypes);
    }
 
-   @NotNull
-   private static Method findMethod(@NotNull Class<?> realClass, @NotNull String methodName, @NotNull String methodDesc)
+   @Nonnull
+   private static Method findMethod(@Nonnull Class<?> realClass, @Nonnull String methodName, @Nonnull String methodDesc)
       throws NoSuchMethodException
    {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
@@ -88,7 +87,7 @@ public final class RealMethodOrConstructor
 
    @Nullable
    private static Method findInterfaceMethod(
-      @NotNull Class<?> anInterface, @NotNull String methodName, @NotNull Class<?>[] parameterTypes)
+      @Nonnull Class<?> anInterface, @Nonnull String methodName, @Nonnull Class<?>[] parameterTypes)
    {
       for (Class<?> superInterface : anInterface.getInterfaces()) {
          try { return superInterface.getMethod(methodName, parameterTypes); } catch (NoSuchMethodException ignore) {}
@@ -97,7 +96,7 @@ public final class RealMethodOrConstructor
       return null;
    }
 
-   @NotNull
+   @Nonnull
    public <M extends Member> M getMember()
    {
       //noinspection unchecked

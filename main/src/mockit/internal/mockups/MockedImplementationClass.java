@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
 
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
@@ -13,18 +14,16 @@ import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
 
-import org.jetbrains.annotations.*;
-
 public final class MockedImplementationClass<T>
 {
-   @NotNull private final MockUp<?> mockUpInstance;
+   @Nonnull private final MockUp<?> mockUpInstance;
    @Nullable private ImplementationClass<T> implementationClass;
-   @NotNull private Class<T> generatedClass;
+   private Class<T> generatedClass;
 
-   public MockedImplementationClass(@NotNull MockUp<?> mockUpInstance) { this.mockUpInstance = mockUpInstance; }
+   public MockedImplementationClass(@Nonnull MockUp<?> mockUpInstance) { this.mockUpInstance = mockUpInstance; }
 
-   @NotNull
-   public Class<T> createImplementation(@NotNull Class<T> interfaceToBeMocked, @Nullable Type typeToMock)
+   @Nonnull
+   public Class<T> createImplementation(@Nonnull Class<T> interfaceToBeMocked, @Nullable Type typeToMock)
    {
       createImplementation(interfaceToBeMocked);
       byte[] generatedBytecode = implementationClass == null ? null : implementationClass.getGeneratedBytecode();
@@ -35,7 +34,8 @@ public final class MockedImplementationClass<T>
       return generatedClass;
    }
 
-   Class<T> createImplementation(@NotNull Class<T> interfaceToBeMocked)
+   @Nonnull
+   Class<T> createImplementation(@Nonnull Class<T> interfaceToBeMocked)
    {
       if (isPublic(interfaceToBeMocked.getModifiers())) {
          generateImplementationForPublicInterface(interfaceToBeMocked);
@@ -48,11 +48,11 @@ public final class MockedImplementationClass<T>
       return generatedClass;
    }
 
-   private void generateImplementationForPublicInterface(@NotNull Class<T> interfaceToBeMocked)
+   private void generateImplementationForPublicInterface(@Nonnull Class<T> interfaceToBeMocked)
    {
       implementationClass = new ImplementationClass<T>(interfaceToBeMocked) {
-         @NotNull @Override
-         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         @Nonnull @Override
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
          {
             return new InterfaceImplementationGenerator(typeReader, generatedClassName);
          }
@@ -61,8 +61,8 @@ public final class MockedImplementationClass<T>
       generatedClass = implementationClass.generateClass();
    }
 
-   @NotNull
-   public Class<T> createImplementation(@NotNull Type[] interfacesToBeMocked)
+   @Nonnull
+   public Class<T> createImplementation(@Nonnull Type[] interfacesToBeMocked)
    {
       Class<?>[] interfacesToMock = new Class<?>[interfacesToBeMocked.length];
 

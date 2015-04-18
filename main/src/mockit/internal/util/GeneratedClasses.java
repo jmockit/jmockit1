@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class GeneratedClasses
 {
@@ -15,8 +14,8 @@ public final class GeneratedClasses
 
    private GeneratedClasses() {}
 
-   @NotNull
-   public static String getNameForGeneratedClass(@NotNull Class<?> aClass, @Nullable String suffix)
+   @Nonnull
+   public static String getNameForGeneratedClass(@Nonnull Class<?> aClass, @Nullable String suffix)
    {
       String prefix = aClass.isInterface() ? IMPLCLASS_PREFIX : SUBCLASS_PREFIX;
       StringBuilder name = new StringBuilder(60).append(prefix).append(aClass.getSimpleName());
@@ -36,27 +35,28 @@ public final class GeneratedClasses
       return name.toString();
    }
 
-   public static boolean isGeneratedImplementationClass(@NotNull Class<?> mockedType)
+   public static boolean isGeneratedImplementationClass(@Nonnull Class<?> mockedType)
    {
       return isGeneratedImplementationClass(mockedType.getName());
    }
 
-   public static boolean isGeneratedSubclass(@NotNull String className)
+   public static boolean isGeneratedSubclass(@Nonnull String className)
    {
       return className.contains(SUBCLASS_PREFIX);
    }
 
-   public static boolean isGeneratedImplementationClass(@NotNull String className)
+   public static boolean isGeneratedImplementationClass(@Nonnull String className)
    {
       return className.contains(IMPLCLASS_PREFIX);
    }
 
-   public static boolean isGeneratedClass(@NotNull String className)
+   public static boolean isGeneratedClass(@Nonnull String className)
    {
       return isGeneratedSubclass(className) || isGeneratedImplementationClass(className);
    }
 
-   @NotNull public static Class<?> getMockedClassOrInterfaceType(@NotNull Class<?> aClass)
+   @Nonnull
+   public static Class<?> getMockedClassOrInterfaceType(@Nonnull Class<?> aClass)
    {
       if (Proxy.isProxyClass(aClass) || isGeneratedImplementationClass(aClass)) {
          return getImplementedInterface(aClass);
@@ -69,18 +69,21 @@ public final class GeneratedClasses
       return aClass;
    }
 
-   @NotNull public static Class<?> getImplementedInterface(@NotNull Class<?> implementationClass)
+   @Nonnull
+   public static Class<?> getImplementedInterface(@Nonnull Class<?> implementationClass)
    {
       // Assumes that a proxy class implements a single interface.
       return implementationClass.getInterfaces()[0];
    }
 
-   @NotNull public static Class<?> getMockedClass(@NotNull Object mock)
+   @Nonnull
+   public static Class<?> getMockedClass(@Nonnull Object mock)
    {
       return getMockedClassOrInterfaceType(mock.getClass());
    }
 
-   @NotNull public static Object newInstance(Class<?> generatedClass)
+   @Nonnull
+   public static Object newInstance(Class<?> generatedClass)
    {
       Constructor<?> publicConstructor;
       try { publicConstructor = generatedClass.getConstructor(); }

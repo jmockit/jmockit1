@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
-
 import static mockit.external.asm.Opcodes.*;
 
 public final class TypeConversion
@@ -26,7 +25,7 @@ public final class TypeConversion
 
    private TypeConversion() {}
 
-   public static void generateCastToObject(@NotNull MethodVisitor mv, @NotNull Type type)
+   public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull Type type)
    {
       int sort = type.getSort();
 
@@ -37,7 +36,7 @@ public final class TypeConversion
       }
    }
 
-   public static void generateCastFromObject(@NotNull MethodVisitor mv, @NotNull Type toType)
+   public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull Type toType)
    {
       int sort = toType.getSort();
 
@@ -54,7 +53,7 @@ public final class TypeConversion
       }
    }
 
-   private static void generateTypeCheck(@NotNull MethodVisitor mv, @NotNull Type toType)
+   private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull Type toType)
    {
       int sort = toType.getSort();
       String typeDesc;
@@ -68,7 +67,7 @@ public final class TypeConversion
       mv.visitTypeInsn(CHECKCAST, typeDesc);
    }
 
-   public static void generateCastOrUnboxing(@NotNull MethodVisitor mv, @NotNull Type parameterType, int opcode)
+   public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull Type parameterType, int opcode)
    {
       if (opcode == ASTORE) {
          generateTypeCheck(mv, parameterType);
@@ -109,17 +108,17 @@ public final class TypeConversion
       mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
    }
 
-   public static boolean isPrimitiveWrapper(@NotNull String typeDesc)
+   public static boolean isPrimitiveWrapper(@Nonnull String typeDesc)
    {
       return PRIMITIVE_WRAPPER_TYPES.contains(typeDesc);
    }
 
-   public static boolean isBoxing(@NotNull String owner, @NotNull String name, @NotNull String desc)
+   public static boolean isBoxing(@Nonnull String owner, @Nonnull String name, @Nonnull String desc)
    {
       return desc.charAt(2) == ')' && "valueOf".equals(name) && isPrimitiveWrapper(owner);
    }
 
-   public static boolean isUnboxing(int opcode, @NotNull String owner, @NotNull String desc)
+   public static boolean isUnboxing(int opcode, @Nonnull String owner, @Nonnull String desc)
    {
       return opcode == INVOKEVIRTUAL && desc.charAt(1) == ')' && isPrimitiveWrapper(owner);
    }
