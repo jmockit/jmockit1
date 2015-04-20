@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 
@@ -19,10 +18,10 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    private int indexIncrement;
 
    OrderedVerificationPhase(
-      @NotNull RecordAndReplayExecution recordAndReplay,
-      @NotNull List<Expectation> expectationsInReplayOrder,
-      @NotNull List<Object> invocationInstancesInReplayOrder,
-      @NotNull List<Object[]> invocationArgumentsInReplayOrder)
+      @Nonnull RecordAndReplayExecution recordAndReplay,
+      @Nonnull List<Expectation> expectationsInReplayOrder,
+      @Nonnull List<Object> invocationInstancesInReplayOrder,
+      @Nonnull List<Object[]> invocationArgumentsInReplayOrder)
    {
       super(
          recordAndReplay, new ArrayList<Expectation>(expectationsInReplayOrder),
@@ -45,7 +44,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
 
    @Override
    protected void findNonStrictExpectation(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, @NotNull Object[] args)
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
       int i = replayIndex;
 
@@ -163,7 +162,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       verifyMaxInvocations(maxInvocations);
    }
 
-   private boolean matchesCurrentVerification(@NotNull Expectation replayExpectation)
+   private boolean matchesCurrentVerification(@Nonnull Expectation replayExpectation)
    {
       ExpectedInvocation invocation = expectationBeingVerified().invocation;
       Object mock = invocation.instance;
@@ -267,7 +266,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    @Override
    boolean shouldDiscardInformationAboutVerifiedInvocationOnceUsed() { return true; }
 
-   public void checkOrderOfVerifiedInvocations(@NotNull BaseVerificationPhase verificationPhase)
+   public void checkOrderOfVerifiedInvocations(@Nonnull BaseVerificationPhase verificationPhase)
    {
       if (verificationPhase instanceof OrderedVerificationPhase) {
          throw new IllegalArgumentException("Invalid use of ordered verification block");
@@ -287,7 +286,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       }
    }
 
-   private void checkForwardOrderOfVerifiedInvocations(@NotNull UnorderedVerificationPhase previousVerification)
+   private void checkForwardOrderOfVerifiedInvocations(@Nonnull UnorderedVerificationPhase previousVerification)
    {
       int maxReplayIndex = replayIndex - 1;
 
@@ -317,7 +316,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       currentExpectation = replayIndex < expectationCount ? expectationsInReplayOrder.get(replayIndex) : null;
    }
 
-   private void checkBackwardOrderOfVerifiedInvocations(@NotNull UnorderedVerificationPhase previousVerification)
+   private void checkBackwardOrderOfVerifiedInvocations(@Nonnull UnorderedVerificationPhase previousVerification)
    {
       int indexOfLastUnverified = indexOfLastUnverifiedExpectation();
 
