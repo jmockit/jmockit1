@@ -195,7 +195,7 @@ public final class ExecutingTest
    }
 
    public boolean isInvokedInstanceEquivalentToCapturedInstance(
-      @Nullable Object invokedInstance, @Nullable Object capturedInstance)
+      @Nonnull Object invokedInstance, @Nonnull Object capturedInstance)
    {
       return
          invokedInstance == originalToCapturedInstance.get(capturedInstance) ||
