@@ -5,8 +5,7 @@
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class MockingFilters
 {
@@ -35,19 +34,18 @@ public final class MockingFilters
    private MockingFilters() {}
 
    @Nullable
-   public static String forClass(@NotNull String internalClassName)
+   public static String forClass(@Nonnull String internalClassName)
    {
       return FILTERS.get(internalClassName);
    }
 
-   public static boolean isUnmockable(@NotNull String owner, @NotNull String name)
+   public static boolean isUnmockable(@Nonnull String owner, @Nonnull String name)
    {
       String mockingFilters = FILTERS.get(owner);
       return isUnmockableInvocation(mockingFilters, name);
    }
 
-   @Contract("null, _ -> false")
-   public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @NotNull String name)
+   public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @Nonnull String name)
    {
       if (mockingFilters == null) {
          return false;

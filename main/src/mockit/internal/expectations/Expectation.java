@@ -1,23 +1,23 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
+import javax.annotation.*;
+
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
-
-import org.jetbrains.annotations.*;
 
 final class Expectation
 {
    @Nullable final RecordPhase recordPhase;
-   @NotNull final ExpectedInvocation invocation;
-   @NotNull final InvocationConstraints constraints;
+   @Nonnull final ExpectedInvocation invocation;
+   @Nonnull final InvocationConstraints constraints;
    @Nullable private InvocationResults results;
    boolean executedRealImplementation;
 
-   Expectation(@NotNull ExpectedInvocation invocation)
+   Expectation(@Nonnull ExpectedInvocation invocation)
    {
       recordPhase = null;
       this.invocation = invocation;
@@ -25,14 +25,15 @@ final class Expectation
    }
 
    Expectation(
-      @Nullable RecordPhase recordPhase, @NotNull ExpectedInvocation invocation, boolean strict, boolean nonStrict)
+      @Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean strict, boolean nonStrict)
    {
       this.recordPhase = recordPhase;
       this.invocation = invocation;
       constraints = new InvocationConstraints(strict, nonStrict);
    }
 
-   @NotNull InvocationResults getResults()
+   @Nonnull
+   InvocationResults getResults()
    {
       if (results == null) {
          results = new InvocationResults(invocation, constraints);
@@ -42,7 +43,7 @@ final class Expectation
    }
 
    @Nullable
-   Object produceResult(@Nullable Object invokedObject, @NotNull Object[] invocationArgs) throws Throwable
+   Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
    {
       if (results == null) {
          return invocation.getDefaultValueForReturnType(null);
@@ -51,7 +52,8 @@ final class Expectation
       return results.produceResult(invokedObject, invocationArgs);
    }
 
-   @NotNull Class<?> getReturnType()
+   @Nonnull
+   Class<?> getReturnType()
    {
       return TypeDescriptor.getReturnType(invocation.getSignatureWithResolvedReturnType());
    }
@@ -110,7 +112,7 @@ final class Expectation
       }
    }
 
-   private boolean isReplacementInstance(@NotNull Object value)
+   private boolean isReplacementInstance(@Nonnull Object value)
    {
       return invocation.isConstructor() && value.getClass().isInstance(invocation.instance);
    }
@@ -119,7 +121,7 @@ final class Expectation
 
    @Nullable
    Error verifyConstraints(
-      @NotNull ExpectedInvocation replayInvocation, @NotNull Object[] replayArgs,
+      @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs,
       int minInvocations, int maxInvocations)
    {
       Error error = verifyConstraints(minInvocations);
@@ -131,13 +133,14 @@ final class Expectation
       return constraints.verifyUpperLimit(replayInvocation, replayArgs, maxInvocations, invocation.customErrorMessage);
    }
 
-   @Nullable Error verifyConstraints(int minInvocations)
+   @Nullable
+   Error verifyConstraints(int minInvocations)
    {
       return constraints.verifyLowerLimit(invocation, minInvocations);
    }
 
    @Nullable
-   Object executeRealImplementation(@NotNull Object replacementInstance, @NotNull Object[] args) throws Throwable
+   Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable
    {
       return getResults().executeRealImplementation(replacementInstance, args);
    }

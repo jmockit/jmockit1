@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 final class FailureState
 {
-   @NotNull private final Thread testThread;
+   @Nonnull private final Thread testThread;
    @Nullable private Error errorThrownInAnotherThread;
 
    /**

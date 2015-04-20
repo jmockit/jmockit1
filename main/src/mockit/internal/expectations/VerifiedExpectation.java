@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
 
 final class VerifiedExpectation
 {
-   @NotNull final Expectation expectation;
-   @NotNull final Object[] arguments;
+   @Nonnull final Expectation expectation;
+   @Nonnull final Object[] arguments;
    @Nullable final List<ArgumentMatcher<?>> argMatchers;
    final int replayIndex;
 
    VerifiedExpectation(
-      @NotNull Expectation expectation, @NotNull Object[] arguments, @Nullable List<ArgumentMatcher<?>> argMatchers,
+      @Nonnull Expectation expectation, @Nonnull Object[] arguments, @Nullable List<ArgumentMatcher<?>> argMatchers,
       int replayIndex)
    {
       this.expectation = expectation;

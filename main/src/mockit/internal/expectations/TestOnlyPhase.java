@@ -1,15 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
-import static mockit.internal.util.Utilities.indexOfReference;
+import static mockit.internal.util.Utilities.*;
 
 public abstract class TestOnlyPhase extends Phase
 {
@@ -19,7 +18,7 @@ public abstract class TestOnlyPhase extends Phase
    @Nullable protected List<ArgumentMatcher<?>> argMatchers;
    @Nullable Expectation currentExpectation;
 
-   TestOnlyPhase(@NotNull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
+   TestOnlyPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
 
    public final void setNumberOfIterations(int numberOfIterations) { this.numberOfIterations = numberOfIterations; }
 
@@ -28,12 +27,12 @@ public abstract class TestOnlyPhase extends Phase
       this.nextInstanceToMatch = nextInstanceToMatch;
    }
 
-   public final void addArgMatcher(@NotNull ArgumentMatcher<?> matcher)
+   public final void addArgMatcher(@Nonnull ArgumentMatcher<?> matcher)
    {
       getArgumentMatchers().add(matcher);
    }
 
-   @NotNull
+   @Nonnull
    private List<ArgumentMatcher<?>> getArgumentMatchers()
    {
       if (argMatchers == null) {
@@ -59,13 +58,13 @@ public abstract class TestOnlyPhase extends Phase
       }
    }
 
-   public final void setExpectedArgumentType(int parameterIndex, @NotNull Class<?> argumentType)
+   public final void setExpectedArgumentType(int parameterIndex, @Nonnull Class<?> argumentType)
    {
       ArgumentMatcher<?> newMatcher = ClassMatcher.create(argumentType);
       getArgumentMatchers().set(parameterIndex, newMatcher);
    }
 
-   @NotNull
+   @Nonnull
    final Expectation getCurrentExpectation()
    {
       if (currentExpectation == null) {
@@ -94,7 +93,7 @@ public abstract class TestOnlyPhase extends Phase
 
    public abstract void setCustomErrorMessage(@Nullable CharSequence customMessage);
 
-   protected static boolean isEnumElement(@NotNull Object mock)
+   protected static boolean isEnumElement(@Nonnull Object mock)
    {
       Class<?> mockedClass = mock.getClass();
       return mockedClass.isEnum() && indexOfReference(mockedClass.getEnumConstants(), mock) >= 0;

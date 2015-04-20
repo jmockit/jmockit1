@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 
 final class UnorderedVerificationPhase extends BaseVerificationPhase
 {
-   @NotNull final List<VerifiedExpectation> verifiedExpectations;
+   @Nonnull final List<VerifiedExpectation> verifiedExpectations;
 
    UnorderedVerificationPhase(
-      @NotNull RecordAndReplayExecution recordAndReplay,
-      @NotNull List<Expectation> expectationsInReplayOrder,
-      @NotNull List<Object> invocationInstancesInReplayOrder,
-      @NotNull List<Object[]> invocationArgumentsInReplayOrder)
+      @Nonnull RecordAndReplayExecution recordAndReplay,
+      @Nonnull List<Expectation> expectationsInReplayOrder,
+      @Nonnull List<Object> invocationInstancesInReplayOrder,
+      @Nonnull List<Object[]> invocationArgumentsInReplayOrder)
    {
       super(
          recordAndReplay, expectationsInReplayOrder,
@@ -28,7 +27,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
 
    @Override
    protected void findNonStrictExpectation(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, @NotNull Object[] args)
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
       if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
          matchInstance = true;
@@ -66,7 +65,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Override
-   void addVerifiedExpectation(@NotNull VerifiedExpectation verifiedExpectation)
+   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation)
    {
       super.addVerifiedExpectation(verifiedExpectation);
       verifiedExpectations.add(verifiedExpectation);

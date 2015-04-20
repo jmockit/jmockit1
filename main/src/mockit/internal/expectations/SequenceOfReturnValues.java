@@ -1,23 +1,22 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 final class SequenceOfReturnValues
 {
-   @NotNull private final Expectation expectation;
-   @NotNull private final Class<?> returnType;
+   @Nonnull private final Expectation expectation;
+   @Nonnull private final Class<?> returnType;
    @Nullable private final Object firstValue;
-   @NotNull private final Object[] remainingValues;
+   @Nonnull private final Object[] remainingValues;
 
    SequenceOfReturnValues(
-      @NotNull Expectation expectation, @Nullable Object firstValue, @NotNull Object[] remainingValues)
+      @Nonnull Expectation expectation, @Nullable Object firstValue, @Nonnull Object[] remainingValues)
    {
       this.expectation = expectation;
       returnType = expectation.getReturnType();
@@ -68,7 +67,7 @@ final class SequenceOfReturnValues
       expectation.getResults().addReturnValue(values);
    }
 
-   private void setArrayElement(Class<?> elementType, Object array, int index, @Nullable Object value)
+   private static void setArrayElement(Class<?> elementType, Object array, int index, @Nullable Object value)
    {
       Object arrayValue = value;
 
@@ -96,7 +95,7 @@ final class SequenceOfReturnValues
       return false;
    }
 
-   private void addAllValues(@NotNull Collection<Object> values)
+   private void addAllValues(@Nonnull Collection<Object> values)
    {
       values.add(firstValue);
       Collections.addAll(values, remainingValues);
@@ -124,7 +123,7 @@ final class SequenceOfReturnValues
       return false;
    }
 
-   private void addReturnValues(@NotNull Collection<Object> values)
+   private void addReturnValues(@Nonnull Collection<Object> values)
    {
       addAllValues(values);
       expectation.getResults().addReturnValue(values);

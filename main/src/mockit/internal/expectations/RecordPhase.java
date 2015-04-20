@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
+
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-
-import static mockit.internal.state.ExecutingTest.isInstanceMethodWithStandardBehavior;
-import static mockit.internal.util.ClassLoad.loadClass;
-
-import org.jetbrains.annotations.*;
+import static mockit.internal.state.ExecutingTest.*;
+import static mockit.internal.util.ClassLoad.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
    private final boolean strict;
    private final boolean nonStrict;
 
-   RecordPhase(@NotNull RecordAndReplayExecution recordAndReplay, boolean strict, boolean nonStrict)
+   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay, boolean strict, boolean nonStrict)
    {
       super(recordAndReplay);
       this.strict = strict;
@@ -38,8 +37,8 @@ public final class RecordPhase extends TestOnlyPhase
 
    @Nullable @Override
    Object handleInvocation(
-      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
+      @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
+      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
       throws Throwable
    {
       //noinspection AssignmentToMethodParameter

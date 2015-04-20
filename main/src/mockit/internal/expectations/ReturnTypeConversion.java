@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -8,23 +8,22 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.MethodReflection.*;
 
-import org.jetbrains.annotations.*;
-
 final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
 
-   @NotNull private final Expectation expectation;
-   @NotNull private final Class<?> returnType;
-   @NotNull private final Object valueToReturn;
+   @Nonnull private final Expectation expectation;
+   @Nonnull private final Class<?> returnType;
+   @Nonnull private final Object valueToReturn;
 
-   ReturnTypeConversion(@NotNull Expectation expectation, @NotNull Class<?> returnType, @NotNull Object value)
+   ReturnTypeConversion(@Nonnull Expectation expectation, @Nonnull Class<?> returnType, @Nonnull Object value)
    {
       this.expectation = expectation;
       this.returnType = returnType;
@@ -93,7 +92,7 @@ final class ReturnTypeConversion
       }
    }
 
-   private void addReturnValue(@NotNull Object returnValue)
+   private void addReturnValue(@Nonnull Object returnValue)
    {
       expectation.getResults().addReturnValueResult(returnValue);
    }
@@ -166,8 +165,8 @@ final class ReturnTypeConversion
       return false;
    }
 
-   @NotNull
-   private Object addArrayElements(@NotNull Collection<Object> values, int elementCount)
+   @Nonnull
+   private Object addArrayElements(@Nonnull Collection<Object> values, int elementCount)
    {
       for (int i = 0; i < elementCount; i++) {
          Object element = Array.get(valueToReturn, i);
@@ -178,7 +177,7 @@ final class ReturnTypeConversion
    }
 
    @Nullable
-   private Object addArrayElements(@NotNull Map<Object, Object> values, int elementPairCount)
+   private Object addArrayElements(@Nonnull Map<Object, Object> values, int elementPairCount)
    {
       for (int i = 0; i < elementPairCount; i++) {
          Object keyAndValue = Array.get(valueToReturn, i);
@@ -229,7 +228,7 @@ final class ReturnTypeConversion
       }
    }
 
-   @NotNull
+   @Nonnull
    private IllegalArgumentException newIncompatibleTypesException()
    {
       ExpectedInvocation invocation = expectation.invocation;
@@ -251,7 +250,7 @@ final class ReturnTypeConversion
       addReturnValue(array);
    }
 
-   private void addCollectionWithSingleElement(@NotNull Collection<Object> container)
+   private void addCollectionWithSingleElement(@Nonnull Collection<Object> container)
    {
       container.add(valueToReturn);
       addReturnValue(container);
@@ -265,9 +264,9 @@ final class ReturnTypeConversion
       addReturnValue(iterator);
    }
 
-   private void addCharSequence(@NotNull CharSequence textualValue)
+   private void addCharSequence(@Nonnull CharSequence textualValue)
    {
-      @NotNull Object convertedValue = textualValue;
+      @Nonnull Object convertedValue = textualValue;
 
       if (returnType.isAssignableFrom(ByteArrayInputStream.class)) {
          convertedValue = new ByteArrayInputStream(textualValue.toString().getBytes());
@@ -314,7 +313,7 @@ final class ReturnTypeConversion
       throw newIncompatibleTypesException();
    }
 
-   private void addPrimitiveValueConvertingAsNeeded(@NotNull Class<?> targetType)
+   private void addPrimitiveValueConvertingAsNeeded(@Nonnull Class<?> targetType)
    {
       Object convertedValue = null;
 
@@ -333,7 +332,7 @@ final class ReturnTypeConversion
    }
 
    @Nullable
-   private static Object convertFromNumber(@NotNull Class<?> targetType, @NotNull Number number)
+   private static Object convertFromNumber(@Nonnull Class<?> targetType, @Nonnull Number number)
    {
       if (targetType == Integer.class) {
          return number.intValue();
@@ -361,7 +360,7 @@ final class ReturnTypeConversion
    }
 
    @Nullable
-   private static Object convertFromChar(@NotNull Class<?> targetType, char c)
+   private static Object convertFromChar(@Nonnull Class<?> targetType, char c)
    {
       if (targetType == Integer.class) {
          return (int) c;

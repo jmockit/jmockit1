@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.state.*;
-
-import org.jetbrains.annotations.*;
 
 public enum ExecutionMode
 {
@@ -33,7 +32,7 @@ public enum ExecutionMode
       }
 
       @Override
-      boolean isToExecuteRealObjectOverride(@NotNull Object instance) { return true; }
+      boolean isToExecuteRealObjectOverride(@Nonnull Object instance) { return true; }
    },
 
    PerInstance
@@ -48,7 +47,7 @@ public enum ExecutionMode
       }
 
       @Override
-      boolean isToExecuteRealObjectOverride(@NotNull Object instance)
+      boolean isToExecuteRealObjectOverride(@Nonnull Object instance)
       {
          return !TestRun.getExecutingTest().isMockedInstance(instance);
       }
@@ -64,5 +63,5 @@ public enum ExecutionMode
 
    boolean isToExecuteRealImplementation(@Nullable Object instance) { return false; }
    boolean isWithRealImplementation(@Nullable Object instance) { return false; }
-   boolean isToExecuteRealObjectOverride(@NotNull Object instance) { return false; }
+   boolean isToExecuteRealObjectOverride(@Nonnull Object instance) { return false; }
 }
