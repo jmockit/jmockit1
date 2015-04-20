@@ -6,9 +6,8 @@ package mockit.internal.expectations.mocking;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
-
-import org.jetbrains.annotations.*;
 
 import mockit.*;
 import mockit.internal.state.*;
@@ -38,12 +37,12 @@ public final class MockedType
    @Nullable private final Mocked mocked;
    @Nullable private final Capturing capturing;
    public final boolean injectable;
-   @NotNull public final Type declaredType;
-   @NotNull public final String mockId;
+   @Nonnull public final Type declaredType;
+   @Nonnull public final String mockId;
    @Nullable MockingConfiguration mockingCfg;
    @Nullable Object providedValue;
 
-   public MockedType(@NotNull Field field)
+   public MockedType(@Nonnull Field field)
    {
       this.field = field;
       fieldFromTestClass = true;
@@ -87,8 +86,8 @@ public final class MockedType
    }
 
    MockedType(
-      @NotNull String testClassDesc, @NotNull String testMethodDesc, int paramIndex, @NotNull Type parameterType,
-      @NotNull Annotation[] annotationsOnParameter)
+      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, int paramIndex, @Nonnull Type parameterType,
+      @Nonnull Annotation[] annotationsOnParameter)
    {
       field = null;
       fieldFromTestClass = false;
@@ -108,7 +107,7 @@ public final class MockedType
 
    @Nullable
    private static <A extends Annotation> A getAnnotation(
-      @NotNull Annotation[] annotations, @NotNull Class<A> annotation)
+      @Nonnull Annotation[] annotations, @Nonnull Class<A> annotation)
    {
       for (Annotation paramAnnotation : annotations) {
          if (paramAnnotation.annotationType() == annotation) {
@@ -120,7 +119,7 @@ public final class MockedType
       return null;
    }
 
-   MockedType(@NotNull String cascadingMethodName, @NotNull Type cascadedType)
+   MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType)
    {
       field = null;
       fieldFromTestClass = false;
@@ -136,7 +135,7 @@ public final class MockedType
     * @return the class object corresponding to the type to be mocked, or {@code TypeVariable.class} in case the
     * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
     */
-   @NotNull
+   @Nonnull
    public Class<?> getClassType()
    {
       if (declaredType instanceof Class) {

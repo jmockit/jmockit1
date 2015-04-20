@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.timing;
@@ -17,17 +17,16 @@ public final class AnimatorSwingTimingSourceTest
    ActionListener timerTarget;
 
    @Test
-   public void timingSourceEventOnSwingTimingSourceForRunningAnimator(
-      @Mocked final TimingTarget timingTarget, @Mocked("nanoTime") System system)
+   public void timingSourceEventOnSwingTimingSourceForRunningAnimator(@Mocked final TimingTarget timingTarget)
    {
       new MockTimer();
 
       Animator animator = new Animator(50);
       animator.addTarget(timingTarget);
 
-      new Expectations() {{
-         System.nanoTime(); returns(0L, 50L * 1000000);
-      }};
+      new MockUp<System>() {
+         @Mock long nanoTime(Invocation inv) { return inv.getInvocationIndex() == 0 ? 0L : 50L * 1000000;}
+      };
 
       animator.start();
       timerTarget.actionPerformed(null);

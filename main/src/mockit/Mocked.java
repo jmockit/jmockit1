@@ -24,7 +24,7 @@ import java.lang.annotation.*;
  * The effect of declaring a {@code @Mocked} type, <em>by default</em>, is that all new instances of that type, as well
  * as those previously created, will also be mocked instances; this will last for the duration of each test where the
  * associated mock field/parameter is in scope.
- * Also, all methods of the mocked type will be mocked, unless a subset is {@linkplain #value explicitly specified}.
+ * Also, all methods of the mocked type will be mocked.
  * <p/>
  * When the mocked type is a class, all super-classes up to but not including {@code java.lang.Object} are also mocked.
  * Additionally, <em>static methods</em> and <em>constructors</em> are mocked as well, just like instance methods.
@@ -50,7 +50,6 @@ import java.lang.annotation.*;
  * Static <em>class initializers</em> (including assignments to {@code static} fields) of a mocked class are not
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
  *
- * @see #value
  * @see #stubOutClassInitialization
  * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#declaration">Tutorial</a>
  */

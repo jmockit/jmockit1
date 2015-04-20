@@ -16,7 +16,6 @@ import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
-import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("deprecation")
 public final class DynamicPartialMockingTest
@@ -882,15 +881,13 @@ public final class DynamicPartialMockingTest
       assertTrue(mockedClass.getDeclaredMethod("nativeMethod").isAnnotationPresent(Deprecated.class));
    }
 
-   @Test // for some reason, this test fails on JDK 1.6 on "normal" execution (it passes on "debug" or on JDK 1.7+)
-   public void mockAnnotatedConstructor(@Mocked("(int)") Collaborator mock) throws Exception
+   @Test
+   public void mockAnnotatedConstructor(@Mocked Collaborator mock) throws Exception
    {
       Constructor<?> mockedConstructor = Collaborator.class.getDeclaredConstructor(int.class);
 
-      if (!JAVA6) {
-         assertTrue(mockedConstructor.isAnnotationPresent(Deprecated.class));
-         assertTrue(mockedConstructor.getParameterAnnotations()[0][0] instanceof Deprecated);
-      }
+      assertTrue(mockedConstructor.isAnnotationPresent(Deprecated.class));
+      assertTrue(mockedConstructor.getParameterAnnotations()[0][0] instanceof Deprecated);
    }
 
    @Test

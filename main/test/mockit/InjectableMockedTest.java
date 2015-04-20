@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -46,11 +46,14 @@ public final class InjectableMockedTest
    }
 
    @Test
-   public void mockConstructorInInjectableMockedClass(@Injectable @Mocked({"(int)", "doSomething"}) Collaborator mock)
+   public void mockConstructorInInjectableMockedClass(@Injectable Collaborator mock)
    {
+      new Expectations(Collaborator.class) {{
+         new Collaborator(anyInt);
+      }};
+
       Collaborator collaborator = new Collaborator(123);
       assertEquals(0, collaborator.value);
-      assertEquals(1, collaborator.doSomething(true));
       assertEquals(0, mock.doSomething(true));
    }
 

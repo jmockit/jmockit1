@@ -150,23 +150,6 @@ public final class CapturingInstancesTest
    }
 
    @Test
-   public void recordExpectationsOnMethodSpecifiedInPartialMockingFilter(
-      @Capturing(maxInstances = 1) @Mocked({"()", "doSomething"}) final Service2 s1,
-      @Capturing(maxInstances = 1) final Service2 s2)
-   {
-      new Expectations() {{
-         s1.doSomething(); result = 1;
-         s2.doSomething(); result = 2;
-      }};
-
-      Service2 first = new Service2Impl();
-      assertEquals(1, first.doSomething());
-
-      Service2 second = new Service2Impl();
-      assertEquals(2, second.doSomething());
-   }
-
-   @Test
    public void recordExpectationsForNextTwoInstancesToBeCreatedUsingMockParameters(
       @Capturing(maxInstances = 1) final Service2 s1, @Capturing(maxInstances = 1) final Service2 s2)
    {

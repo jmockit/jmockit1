@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -8,8 +8,6 @@ import java.nio.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-
-import org.jetbrains.annotations.*;
 
 public final class MockedParametersWithCapturingTest
 {
@@ -23,7 +21,6 @@ public final class MockedParametersWithCapturingTest
    {
       final String str;
 
-      ServiceImpl() { str = ""; }
       ServiceImpl(String str) { this.str = str; }
 
       @Override public int doSomething() { return 1; }
@@ -49,43 +46,18 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void captureInstancesWithoutMockingAnyMethods(@Capturing(maxInstances = 2) @Mocked("") Service service)
+   public void captureInstancesUpToAMaximumQuantity(@Capturing(maxInstances = 2) Service service)
    {
       assertEquals(0, service.doSomething());
 
       TestedUnit unit = new TestedUnit();
-      assertEquals(3, unit.businessOperation());
+      assertEquals(0, unit.businessOperation());
 
       assertTrue(ServiceImpl.staticMethod());
 
       ServiceImpl service1 = (ServiceImpl) unit.service1;
       assertTrue(service1.privateMethod());
-      assertEquals("test", service1.str);
-   }
-
-   @Test(expected = IllegalMonitorStateException.class)
-   public void mockStrictlyOnlySpecifiedMethod(@Capturing @Mocked("doSomething") final Service service)
-   {
-      new StrictExpectations() {{ service.doSomething(); returns(3, 4); }};
-
-      assertEquals(7, new TestedUnit().businessOperation());
-
-      // Not mocked, so it will throw an exception:
-      new ServiceImpl().doSomethingElse(1);
-   }
-
-   @Test
-   public void mockNonStrictlyOnlySpecifiedMethod(@Mocked("doSomethingElse") @Capturing final Service service)
-   {
-      ServiceImpl impl = new ServiceImpl();
-      impl.doSomethingElse(5);
-      impl.doSomethingElse(-1);
-
-      assertEquals(1, impl.doSomething());
-      assertEquals(1, new ServiceImpl().doSomething());
-      assertEquals(3, new TestedUnit().businessOperation());
-
-      new Verifications() {{ service.doSomethingElse(anyInt); times = 2; }};
+      assertNull(service1.str);
    }
 
    static class BaseClass
@@ -118,15 +90,7 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void captureDerivedClassButWithoutMockingAnything(@Capturing @Mocked("") BaseClass mock)
-   {
-      assertNull(mock.str);
-      assertEquals("test", new DerivedClass("test").str);
-   }
-
-   @Test
-   public void captureImplementationsOfDifferentInterfacesWithPartialMockingFiltersForEach(
-      @Capturing @Mocked("run") Runnable mock1, @Capturing @Mocked("read") Readable mock2)
+   public void captureImplementationsOfDifferentInterfaces(@Capturing Runnable mock1, @Capturing Readable mock2)
       throws Exception
    {
       Runnable runnable = new Runnable() {
@@ -137,7 +101,7 @@ public final class MockedParametersWithCapturingTest
 
       Readable readable = new Readable() {
          @Override
-         public int read(@NotNull CharBuffer cb) { throw new RuntimeException("read"); }
+         public int read(CharBuffer cb) { throw new RuntimeException("read"); }
       };
       readable.read(CharBuffer.wrap("test"));
    }

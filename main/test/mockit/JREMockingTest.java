@@ -7,7 +7,7 @@ package mockit;
 import java.awt.*;
 import java.io.*;
 import java.lang.annotation.*;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
 import java.util.List;
@@ -15,11 +15,13 @@ import java.util.logging.*;
 
 import org.junit.*;
 import org.junit.rules.*;
+import org.junit.runners.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings({
    "WaitWhileNotSynced", "UnconditionalWait", "WaitWithoutCorrespondingNotify", "WaitNotInLoop",
    "WaitOrAwaitWithoutTimeout", "deprecation"})
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class JREMockingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -129,14 +131,14 @@ public final class JREMockingTest
 
    // First mocking: puts mocked class in cache, knowing it has native methods to re-register.
    @Test
-   public void firstMockingOfNativeMethods(@Mocked("sleep") Thread unused) throws Exception
+   public void firstMockingOfNativeMethods(@Mocked Thread unused) throws Exception
    {
       Thread.sleep(5000);
    }
 
    // Second mocking: retrieves from cache, no longer knowing it has native methods to re-register.
    @Test
-   public void secondMockingOfNativeMethods(@Mocked("isAlive") final Thread mock)
+   public void secondMockingOfNativeMethods(@Mocked final Thread mock)
    {
       new Expectations() {{
          mock.isAlive(); result = true;
@@ -169,8 +171,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void interruptibleThreadShouldResetItsInterruptStatusWhenInterrupted(
-      @Mocked({"sleep", "interrupt"}) Thread unused) throws Exception
+   public void interruptibleThreadShouldResetItsInterruptStatusWhenInterrupted(@Mocked Thread unused) throws Exception
    {
       final InterruptibleThread t = new InterruptibleThread();
 
@@ -270,9 +271,10 @@ public final class JREMockingTest
    }
 
    @Test
-   public void mockingOfAnnotatedNativeMethod(@Mocked("countStackFrames") Thread mock) throws Exception
+   public void mockingOfAnnotatedNativeMethod(@Mocked Thread mock) throws Exception
    {
-      assertTrue(Thread.class.getDeclaredMethod("countStackFrames").isAnnotationPresent(Deprecated.class));
+      Method countStackFrames = Thread.class.getDeclaredMethod("countStackFrames");
+      assertTrue(countStackFrames.isAnnotationPresent(Deprecated.class));
    }
 
    static final class SomeTask extends Thread { boolean doSomething() { return false; } }

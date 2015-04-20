@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -55,17 +55,5 @@ public final class MockedAnnotationsTest
          a.value(); times = 2;
          a.values();
       }};
-   }
-
-   @Test
-   public void mockASingleAnnotationAttribute(@Mocked("value") final MyAnnotation a)
-   {
-      new Expectations() {{
-         a.value(); result = "test";
-      }};
-
-      assertFalse(a.flag());
-      assertEquals("test", a.value());
-      assertEquals(0, a.values().length);
    }
 }

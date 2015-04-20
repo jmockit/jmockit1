@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package integrationTests;
@@ -96,9 +96,9 @@ public final class SubclassTest
    }
 
    @Test
-   public void partiallyMockSubclassFilteringInASingleConstructor(@Mocked("(String)") SubClass mock)
+   public void partiallyMockSubclassByMockingASingleConstructor()
    {
-      new Expectations() {{
+      new Expectations(SubClass.class) {{
          new SubClass("test");
       }};
 

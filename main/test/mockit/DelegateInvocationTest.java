@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -262,10 +262,11 @@ public final class DelegateInvocationTest
 
    @SuppressWarnings("deprecation")
    @Test
-   public void useOfContextParametersForJREMethods(@Mocked({"runFinalizersOnExit", "exec"}) final Runtime rt)
-      throws Exception
+   public void useOfContextParametersForJREMethods() throws Exception
    {
-      new Expectations() {{
+      final Runtime rt = Runtime.getRuntime();
+
+      new Expectations(Runtime.class) {{
          Runtime.runFinalizersOnExit(anyBoolean); minTimes = 1;
          result = new Delegate() {
             @Mock
@@ -284,7 +285,7 @@ public final class DelegateInvocationTest
             @Mock
             void exec(Invocation inv, String command, String[] envp)
             {
-               assertSame(Runtime.getRuntime(), inv.getInvokedInstance());
+               assertSame(rt, inv.getInvokedInstance());
                assertEquals(0, inv.getInvocationIndex());
                assertEquals(1, inv.getMinInvocations());
                assertEquals(1, inv.getMaxInvocations());
@@ -295,6 +296,6 @@ public final class DelegateInvocationTest
       }};
 
       Runtime.runFinalizersOnExit(true);
-      assertNull(Runtime.getRuntime().exec("test", null));
+      assertNull(rt.exec("test", null));
    }
 }

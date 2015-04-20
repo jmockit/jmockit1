@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -50,9 +50,9 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void mockOnlyOneConstructor(@Mocked("(int)") Collaborator unused)
+   public void mockOnlyOneConstructor()
    {
-      new Expectations() {{
+      new Expectations(Collaborator.class) {{
          new Collaborator(123);
       }};
 
@@ -61,13 +61,17 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void mockOnlyNoArgsConstructor(@Mocked("()") Collaborator unused)
+   @Ignore("Used static partial mocking originally; dynamic partial mocking will need enhancements if this is to work")
+   public void mockOnlyNoArgsConstructor()
    {
-      new Expectations() {{
+      new Expectations(Collaborator.class) {{
          new Collaborator();
       }};
 
+      // Constructors in the base class are not mocked, but probably should.
       assertEquals(0, new Collaborator().value);
+
+      // The non-mocked constructor gets redefined to call a different super; should probably keep calling the original.
       assertEquals(123, new Collaborator(123).value);
    }
 
@@ -80,9 +84,11 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void partiallyMockSubclass(@Mocked("add") final Collaborator mock)
+   public void partiallyMockSubclass()
    {
-      new Expectations() {{
+      final Collaborator mock = new Collaborator();
+
+      new Expectations(BaseCollaborator.class) {{
          mock.add(5); result = false;
       }};
 

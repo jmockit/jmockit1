@@ -5,15 +5,14 @@
 package mockit;
 
 /**
- * Used to record <em>strict</em> expectations on {@linkplain mockit.Mocked mocked} types and their instances.
+ * Used to record <em>strict</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
  * During replay, invocations matching strictly recorded expectations must occur in the same number <em>and</em> the
  * same order.
  * Any invocation that doesn't match a recorded expectation will cause an {@code UnexpectedInvocation} error to be
  * thrown, failing the test.
  * <p/>
- * Strict expectations do not allow the use of {@linkplain mockit.Verifications verification blocks} for explicit
- * verification.
+ * Strict expectations do not allow the use of {@linkplain Verifications verification blocks} for explicit verification.
  * Instead, one or more strict expectation blocks are meant to fully specify <em>all</em> the invocations to mocked
  * types/instances that are expected and allowed to occur from the code under test.
  *
@@ -35,26 +34,20 @@ public abstract class StrictExpectations extends Expectations
 
    /**
     * Same as {@link #StrictExpectations()}, except that one or more classes will be partially mocked according to the
-    * expectations recorded in the expectation block; this feature is known as <em>dynamic</em> partial mocking, in
-    * contrast with <em>static</em> partial mocking as specified with the {@link mockit.Mocked#value} annotation
-    * attribute.
+    * expectations recorded in the expectation block.
     * <p/>
     * The classes to be partially mocked are those directly specified through their {@code Class} objects as well as
     * those to which any given objects belong.
     * During replay, any invocations to one of these classes or objects will execute real production code, unless a
     * matching expectation was recorded.
     * <p/>
-    * For a given {@code Class} object, all constructors and methods will be considered for mocking, from the specified
-    * class up to but not including {@code java.lang.Object}.
-    * <p/>
-    * For a given <em>object</em>, all methods will be considered for mocking, from the concrete class of the given
-    * object up to but not including {@code java.lang.Object}.
-    * The constructors of those classes will <em>not</em> be considered.
-    * During replay, invocations to instance methods will only match expectations recorded on the given instance
-    * (or instances, if more than one was given).
+    * For a given {@code Class} object, all constructors and methods can be mocked, from the specified class up to but
+    * not including {@code java.lang.Object}.
+    * For a given <em>object</em>, only methods can be mocked, not constructors; also, during replay, invocations to
+    * instance methods will only match expectations recorded on the given instance (or instances, if more than one was
+    * given).
     *
-    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be considered for
-    * partial mocking
+    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
     * @throws IllegalArgumentException if given a class literal for an interface, an annotation, an array, a
     * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
@@ -77,8 +70,7 @@ public abstract class StrictExpectations extends Expectations
     *
     * @param numberOfIterations the positive number of iterations for the whole sequence of invocations recorded inside
     * the block; when not specified, 1 (one) iteration is assumed
-    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be considered for
-    * partial mocking
+    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
     * @see #StrictExpectations()
     * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#iteratedExpectations">Tutorial</a>
