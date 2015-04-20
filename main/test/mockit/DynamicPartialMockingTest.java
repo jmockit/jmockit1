@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -923,12 +923,10 @@ public final class DynamicPartialMockingTest
       new Expectations(TestedClass.class) {};
 
       assertTrue(new TestedClass(true).value);
-
-      final TestedClass t = new TestedClass(false);
-      assertFalse(t.value);
+      assertFalse(new TestedClass(false).value);
 
       new Verifications() {{
-         new TestedClass(anyBoolean); times = 2;
+         TestedClass t = new TestedClass(anyBoolean); times = 2;
          t.initialize(anyBoolean); times = 2;
       }};
    }

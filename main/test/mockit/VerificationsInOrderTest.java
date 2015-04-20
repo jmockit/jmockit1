@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -488,6 +488,22 @@ public final class VerificationsInOrderTest
       new VerificationsInOrder() {{
          mock.setSomething(3);
          mock.setSomething(4); times = 1;
+      }};
+   }
+
+   @Test
+   public void verifyMethodInvokedOnOneOfTwoNewInstancesOfSameTypeWhenInvokedOnWrongInstance()
+   {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("save()");
+
+      new Dependency();
+      new Dependency().save();
+
+      new VerificationsInOrder() {{
+         Dependency d1 = new Dependency();
+         new Dependency();
+         d1.save();
       }};
    }
 }

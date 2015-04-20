@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -230,7 +230,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
          onInstance(col2).getValue(); times = 1;
          onInstance(col2).isPositive(); times = 1;
 
-         col1.doSomething(anyString); times = 7;
+         col1.doSomething(anyString); times = 6;
          onInstance(col1).doSomething(anyString); times = 4;
          onInstance(col2).doSomething(anyString); times = 1;
       }};

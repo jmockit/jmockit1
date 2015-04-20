@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
@@ -15,21 +14,21 @@ import mockit.internal.util.*;
 
 public abstract class BaseVerificationPhase extends TestOnlyPhase
 {
-   @NotNull final List<Expectation> expectationsInReplayOrder;
-   @NotNull final List<Object> invocationInstancesInReplayOrder;
-   @NotNull final List<Object[]> invocationArgumentsInReplayOrder;
+   @Nonnull final List<Expectation> expectationsInReplayOrder;
+   @Nonnull final List<Object> invocationInstancesInReplayOrder;
+   @Nonnull final List<Object[]> invocationArgumentsInReplayOrder;
    private boolean allMockedInvocationsDuringReplayMustBeVerified;
    @Nullable private Object[] mockedTypesAndInstancesToFullyVerify;
-   @NotNull private final List<VerifiedExpectation> currentVerifiedExpectations;
+   @Nonnull private final List<VerifiedExpectation> currentVerifiedExpectations;
    @Nullable private Expectation currentVerification;
    protected int replayIndex;
    @Nullable protected Error pendingError;
 
    protected BaseVerificationPhase(
-      @NotNull RecordAndReplayExecution recordAndReplay,
-      @NotNull List<Expectation> expectationsInReplayOrder,
-      @NotNull List<Object> invocationInstancesInReplayOrder,
-      @NotNull List<Object[]> invocationArgumentsInReplayOrder)
+      @Nonnull RecordAndReplayExecution recordAndReplay,
+      @Nonnull List<Expectation> expectationsInReplayOrder,
+      @Nonnull List<Object> invocationInstancesInReplayOrder,
+      @Nonnull List<Object[]> invocationArgumentsInReplayOrder)
    {
       super(recordAndReplay);
       this.expectationsInReplayOrder = expectationsInReplayOrder;
@@ -40,12 +39,12 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    public final void setAllInvocationsMustBeVerified() { allMockedInvocationsDuringReplayMustBeVerified = true; }
 
-   public final void setMockedTypesToFullyVerify(@NotNull Object[] mockedTypesAndInstancesToFullyVerify)
+   public final void setMockedTypesToFullyVerify(@Nonnull Object[] mockedTypesAndInstancesToFullyVerify)
    {
       this.mockedTypesAndInstancesToFullyVerify = mockedTypesAndInstancesToFullyVerify;
    }
 
-   @NotNull
+   @Nonnull
    protected final Expectation expectationBeingVerified()
    {
       if (currentVerification == null) {
@@ -57,10 +56,10 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return currentVerification;
    }
 
-   @Override
-   @Nullable final Object handleInvocation(
-      @Nullable Object mock, int mockAccess, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc,
-      @Nullable String genericSignature, boolean withRealImpl, @NotNull Object[] args)
+   @Nullable @Override
+   final Object handleInvocation(
+      @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
+      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
    {
       if (pendingError != null) {
          recordAndReplay.setErrorThrown(pendingError);
@@ -102,32 +101,47 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    abstract void findNonStrictExpectation(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, @NotNull Object[] args);
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args);
 
    final boolean matches(
-      @Nullable Object mock, @NotNull String mockClassDesc, @NotNull String mockNameAndDesc, @NotNull Object[] args,
-      @NotNull Expectation replayExpectation, @Nullable Object replayInstance, @NotNull Object[] replayArgs)
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args,
+      @Nonnull Expectation replayExpectation, @Nullable Object replayInstance, @Nonnull Object[] replayArgs)
    {
       ExpectedInvocation invocation = replayExpectation.invocation;
-      Map<Object, Object> instanceMap = getInstanceMap();
+      boolean constructor = invocation.isConstructor();
       Map<Object, Object> replacementMap = getReplacementMap();
 
-      if (
-         invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, replacementMap) &&
-         (!matchInstance || recordAndReplay.executionState.isEquivalentInstance(invocation.instance, mock))
-      ) {
-         InvocationArguments invocationArguments = invocation.arguments;
-         Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);
-         boolean argumentsMatch = invocationArguments.isMatch(replayArgs, instanceMap);
-         invocationArguments.setValuesWithNoMatchers(originalArgs);
+      if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, replacementMap)) {
+         boolean matching;
 
-         if (argumentsMatch) {
-            if (invocation.isConstructor()) {
-               instanceMap.put(replayInstance, mock);
+         if (mock == null || invocation.instance == null) {
+            matching = true;
+         }
+         else if (matchInstance) {
+            matching = recordAndReplay.executionState.isEquivalentInstance(invocation.instance, mock);
+         }
+         else if (constructor) {
+            matching = true;
+         }
+         else {
+            matching = !recordAndReplay.executionState.areInDifferentEquivalenceSets(invocation.instance, mock);
+         }
+
+         if (matching) {
+            InvocationArguments invocationArguments = invocation.arguments;
+            Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);
+            Map<Object, Object> instanceMap = getInstanceMap();
+            boolean argumentsMatch = invocationArguments.isMatch(replayArgs, instanceMap);
+            invocationArguments.setValuesWithNoMatchers(originalArgs);
+
+            if (argumentsMatch) {
+               if (constructor) {
+                  instanceMap.put(replayInstance, mock);
+               }
+
+               addVerifiedExpectation(replayExpectation, replayArgs, argMatchers);
+               return true;
             }
-
-            addVerifiedExpectation(replayExpectation, replayArgs, argMatchers);
-            return true;
          }
       }
 
@@ -135,13 +149,13 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    private void addVerifiedExpectation(
-      @NotNull Expectation expectation, @NotNull Object[] args, @Nullable List<ArgumentMatcher<?>> matchers)
+      @Nonnull Expectation expectation, @Nonnull Object[] args, @Nullable List<ArgumentMatcher<?>> matchers)
    {
       int i = expectationsInReplayOrder.indexOf(expectation);
       addVerifiedExpectation(new VerifiedExpectation(expectation, args, matchers, i));
    }
 
-   void addVerifiedExpectation(@NotNull VerifiedExpectation verifiedExpectation)
+   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation)
    {
       recordAndReplay.executionState.verifiedExpectations.add(verifiedExpectation);
       currentVerifiedExpectations.add(verifiedExpectation);
@@ -149,7 +163,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    final void mapNewInstanceToReplacementIfApplicable(@Nullable Object mock)
    {
-      if (!matchInstance) {
+      if (mock != null && !matchInstance) {
          assert currentExpectation != null;
          ExpectedInvocation invocation = currentExpectation.invocation;
 
@@ -229,12 +243,12 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return null;
    }
 
-   private static boolean isEligibleForFullVerification(@NotNull Expectation replayExpectation)
+   private static boolean isEligibleForFullVerification(@Nonnull Expectation replayExpectation)
    {
       return !replayExpectation.executedRealImplementation && replayExpectation.constraints.minInvocations <= 0;
    }
 
-   private boolean wasVerified(@NotNull Expectation replayExpectation, @NotNull Object[] replayArgs)
+   private boolean wasVerified(@Nonnull Expectation replayExpectation, @Nonnull Object[] replayArgs)
    {
       InvocationArguments invokedArgs = replayExpectation.invocation.arguments;
       List<VerifiedExpectation> expectationsVerified = recordAndReplay.executionState.verifiedExpectations;
@@ -264,7 +278,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    boolean shouldDiscardInformationAboutVerifiedInvocationOnceUsed() { return false; }
 
    @Nullable
-   private Error validateThatUnverifiedInvocationsAreAllowed(@NotNull List<Expectation> unverified)
+   private Error validateThatUnverifiedInvocationsAreAllowed(@Nonnull List<Expectation> unverified)
    {
       for (Expectation expectation : unverified) {
          ExpectedInvocation invocation = expectation.invocation;
@@ -277,7 +291,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return null;
    }
 
-   private boolean isInvocationToBeVerified(@NotNull ExpectedInvocation unverifiedInvocation)
+   private boolean isInvocationToBeVerified(@Nonnull ExpectedInvocation unverifiedInvocation)
    {
       String invokedClassName = unverifiedInvocation.getClassName();
       Object invokedInstance = unverifiedInvocation.instance;
@@ -343,7 +357,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       }
    }
 
-   @NotNull
+   @Nonnull
    public final <T> List<T> getNewInstancesMatchingVerifiedConstructorInvocation()
    {
       List<T> newInstances = new ArrayList<T>();
