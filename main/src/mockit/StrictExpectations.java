@@ -54,7 +54,7 @@ public abstract class StrictExpectations extends Expectations
     * interface, or if given a value/instance of such a type
     *
     * @see #StrictExpectations(Integer, Object...)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#partial">Tutorial</a>
     */
    protected StrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {

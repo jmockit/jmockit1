@@ -51,7 +51,7 @@ public abstract class NonStrictExpectations extends Expectations
     * interface, or if given a value/instance of such a type
     *
     * @see #NonStrictExpectations(Integer, Object...)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#dynamicPartial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#partial">Tutorial</a>
     */
    protected NonStrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {

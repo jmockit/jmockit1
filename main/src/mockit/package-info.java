@@ -14,12 +14,11 @@
  * (ie, after the replay phase).
  * <p/>
  * The {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} generic class (where {@code T} is the mocked type) allows
- * the definition of fake implementations for arbitrary classes.
+ * the definition of fake implementations for arbitrary classes or interfaces.
  * <p/>
  * For a description with examples of the <em>Expectations</em> API, see the
- * "<a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html">Writing behavior-based tests</a>" chapter in the
- * Tutorial.
- * For the <em>Mockups</em> API, see the "<a href="http://jmockit.org/tutorial/StateBasedTesting.html">Writing
- * state-based tests and fakes</a>" chapter.
+ * "<a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html">Behavior-based testing</a>" chapter in the Tutorial.
+ * For the <em>Mockups</em> API, see the "<a href="http://jmockit.org/tutorial/StateBasedTesting.html">Fakes and
+ * state-based testing</a>" chapter.
  */
 package mockit;

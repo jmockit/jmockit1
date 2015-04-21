@@ -75,7 +75,6 @@ public @interface Mocked
     * this can be used to obtain a mocked instance where no executable code is actually mocked.
     *
     * @see #stubOutClassInitialization
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#staticPartial">Tutorial</a>
     *
     * @deprecated Simply remove any mock filters, or if partial mocking is still needed, use
     * {@linkplain Expectations#Expectations(Object...) Expectations(Object...)} or a {@linkplain MockUp}.
