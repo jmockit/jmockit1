@@ -1,16 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
 
 import java.util.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
-
+import mockit.internal.expectations.transformation.InvocationBlockModifier.*;
 import static mockit.external.asm.Opcodes.*;
-
-import mockit.internal.expectations.transformation.InvocationBlockModifier.Capture;
 
 final class ArgumentCapturing
 {
@@ -19,7 +17,7 @@ final class ArgumentCapturing
    @Nullable private String capturedTypeDesc;
    private boolean capturesFound;
 
-   boolean registerMatcher(boolean withCaptureMethod, @NotNull String methodDesc)
+   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc)
    {
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
@@ -29,7 +27,7 @@ final class ArgumentCapturing
       return true;
    }
 
-   void registerTypeToCaptureIfApplicable(int opcode, @NotNull String type)
+   void registerTypeToCaptureIfApplicable(int opcode, @Nonnull String type)
    {
       if (opcode == CHECKCAST && parameterForCapture) {
          capturedTypeDesc = type;
@@ -37,7 +35,7 @@ final class ArgumentCapturing
    }
 
    void registerAssignmentToCaptureVariableIfApplicable(
-      @NotNull InvocationBlockModifier modifier, int opcode, int varIndex)
+      @Nonnull InvocationBlockModifier modifier, int opcode, int varIndex)
    {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
          Capture capture = modifier.createCapture(opcode, varIndex, capturedTypeDesc);
@@ -47,7 +45,7 @@ final class ArgumentCapturing
       }
    }
 
-   private void addCapture(@NotNull Capture capture)
+   private void addCapture(@Nonnull Capture capture)
    {
       if (captures == null) {
          captures = new ArrayList<Capture>();

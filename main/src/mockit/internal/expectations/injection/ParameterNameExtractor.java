@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
+
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -10,15 +12,13 @@ import mockit.internal.state.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-import org.jetbrains.annotations.*;
-
 final class ParameterNameExtractor extends ClassVisitor
 {
    private final boolean forMethods;
-   @NotNull private String classDesc;
+   @Nonnull private String classDesc;
    private int methodAccess;
-   @NotNull private String methodName;
-   @NotNull private String methodDesc;
+   @Nonnull private String methodName;
+   @Nonnull private String methodDesc;
 
    ParameterNameExtractor(boolean forMethods)
    {
@@ -26,7 +26,8 @@ final class ParameterNameExtractor extends ClassVisitor
       classDesc = methodName = methodDesc = "";
    }
 
-   @NotNull String extractNames(@NotNull Class<?> classOfInterest)
+   @Nonnull
+   String extractNames(@Nonnull Class<?> classOfInterest)
    {
       String className = classOfInterest.getName();
       classDesc = className.replace('.', '/');
@@ -40,9 +41,9 @@ final class ParameterNameExtractor extends ClassVisitor
       return classDesc;
    }
 
-   @Override @Nullable
+   @Nullable @Override
    public MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       if ((access & ACC_SYNTHETIC) == 0) {
          boolean visitingAMethod = name.charAt(0) != '<';
@@ -65,8 +66,8 @@ final class ParameterNameExtractor extends ClassVisitor
 
       @Override
       public void visitLocalVariable(
-         @NotNull String name, @NotNull String desc, @Nullable String signature,
-         @NotNull Label start, @NotNull Label end, int index)
+         @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+         @Nonnull Label start, @Nonnull Label end, int index)
       {
          int parameterIndex = index;
 

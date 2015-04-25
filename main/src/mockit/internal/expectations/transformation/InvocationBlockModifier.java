@@ -4,13 +4,13 @@
  */
 package mockit.internal.expectations.transformation;
 
+import javax.annotation.*;
+
 import mockit.external.asm.*;
 import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
-
-import org.jetbrains.annotations.*;
 
 @SuppressWarnings("OverlyComplexClass")
 final class InvocationBlockModifier extends MethodVisitor
@@ -19,23 +19,23 @@ final class InvocationBlockModifier extends MethodVisitor
    private static final Type[] NO_PARAMETERS = new Type[0];
    private static final MockFixture MOCK_FIXTURE = TestRun.mockFixture();
 
-   @NotNull private final MethodWriter mw;
+   @Nonnull private final MethodWriter mw;
 
    // Input data:
-   @NotNull private final String blockOwner;
+   @Nonnull private final String blockOwner;
    private final boolean callEndInvocations;
 
    // Takes care of "withCapture()" matchers, if any:
    private final boolean verifications;
    private boolean justAfterWithCaptureInvocation;
-   @NotNull private final ArgumentCapturing argumentCapturing;
+   @Nonnull private final ArgumentCapturing argumentCapturing;
 
    // Helper fields that allow argument matchers to be moved to the correct positions of their
    // corresponding parameters:
-   @NotNull private final int[] matcherStacks;
+   @Nonnull private final int[] matcherStacks;
    private int matcherCount;
    private int stackSize;
-   @NotNull private Type[] parameterTypes;
+   @Nonnull private Type[] parameterTypes;
 
    Capture createCapture(int opcode, int varIndex, @Nullable String typeToCapture)
    {
@@ -75,7 +75,7 @@ final class InvocationBlockModifier extends MethodVisitor
          mw.visitVarInsn(opcode, varIndex);
       }
 
-      @NotNull private Type getArgumentType()
+      @Nonnull private Type getArgumentType()
       {
          if (typeToCapture == null) {
             return parameterTypes[parameterIndex];
@@ -108,7 +108,7 @@ final class InvocationBlockModifier extends MethodVisitor
          }
       }
 
-      private boolean isTypeToCaptureSameAsParameterType(@NotNull String typeDesc)
+      private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc)
       {
          Type parameterType = parameterTypes[parameterIndex];
          int sort = parameterType.getSort();
@@ -122,7 +122,7 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    InvocationBlockModifier(
-      @NotNull MethodWriter mw, @NotNull String blockOwner, boolean callEndInvocations, boolean verifications)
+      @Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations, boolean verifications)
    {
       super(mw);
       this.mw = mw;
@@ -134,7 +134,7 @@ final class InvocationBlockModifier extends MethodVisitor
       parameterTypes = NO_PARAMETERS;
    }
 
-   private void generateCallToActiveInvocationsMethod(@NotNull String name, @NotNull String desc)
+   private void generateCallToActiveInvocationsMethod(@Nonnull String name, @Nonnull String desc)
    {
       visitMethodInstruction(INVOKESTATIC, CLASS_DESC, name, desc, false);
    }
@@ -165,7 +165,7 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }
 
-   private boolean isFieldDefinedByInvocationBlock(@NotNull String fieldOwner)
+   private boolean isFieldDefinedByInvocationBlock(@Nonnull String fieldOwner)
    {
       return
          blockOwner.equals(fieldOwner) ||
@@ -174,7 +174,7 @@ final class InvocationBlockModifier extends MethodVisitor
           "mockit/FullVerifications mockit/FullVerificationsInOrder").contains(fieldOwner);
    }
 
-   private boolean generateCodeThatReplacesAssignmentToSpecialField(@NotNull String fieldName)
+   private boolean generateCodeThatReplacesAssignmentToSpecialField(@Nonnull String fieldName)
    {
       if ("result".equals(fieldName)) {
          generateCallToActiveInvocationsMethod("addResult", "(Ljava/lang/Object;)V");
@@ -195,14 +195,14 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    private void generateCodeToAddArgumentMatcherForAnyField(
-      @NotNull String fieldOwner, @NotNull String name, @NotNull String desc)
+      @Nonnull String fieldOwner, @Nonnull String name, @Nonnull String desc)
    {
       mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
       generateCallToActiveInvocationsMethod(name, "()V");
       matcherStacks[matcherCount++] = stackSize;
    }
 
-   private static int stackSizeVariationForFieldAccess(int opcode, @NotNull String fieldType)
+   private static int stackSizeVariationForFieldAccess(int opcode, @Nonnull String fieldType)
    {
       char c = fieldType.charAt(0);
       boolean twoByteType = c == 'D' || c == 'J';
@@ -255,7 +255,7 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   private boolean isAccessMethod(@NotNull String methodOwner, @NotNull String name)
+   private boolean isAccessMethod(@Nonnull String methodOwner, @Nonnull String name)
    {
       return !methodOwner.equals(blockOwner) && name.startsWith("access$");
    }
@@ -273,7 +273,7 @@ final class InvocationBlockModifier extends MethodVisitor
       mw.visitMethodInsn(opcode, owner, name, desc, itf);
    }
 
-   private void generateCodeToReplaceNullWithZeroOnTopOfStack(@NotNull String unboxingMethodDesc)
+   private void generateCodeToReplaceNullWithZeroOnTopOfStack(@Nonnull String unboxingMethodDesc)
    {
       char primitiveTypeCode = unboxingMethodDesc.charAt(2);
       visitInsn(POP);
@@ -289,7 +289,7 @@ final class InvocationBlockModifier extends MethodVisitor
       visitInsn(zeroOpcode);
    }
 
-   private void checkForInvocationThatIsNotMockable(@NotNull String owner, @NotNull String name)
+   private void checkForInvocationThatIsNotMockable(@Nonnull String owner, @Nonnull String name)
    {
       if (MockingFilters.isUnmockable(owner, name) && isMockedClass(owner)) {
          generateCodeToThrowException(
@@ -298,7 +298,7 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   private boolean handleInvocationParameters(@NotNull String desc)
+   private boolean handleInvocationParameters(@Nonnull String desc)
    {
       parameterTypes = Type.getArgumentTypes(desc);
       int stackAfter = stackSize - sumOfParameterSizes();
@@ -362,7 +362,7 @@ final class InvocationBlockModifier extends MethodVisitor
 
    @Override
    public void visitLocalVariable(
-      @NotNull String name, @NotNull String desc, @Nullable String signature, @NotNull Label start, @NotNull Label end,
+      @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
       int index)
    {
       // In classes instrumented with EMMA some local variable information can be lost, so we discard it entirely to
@@ -383,7 +383,7 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
-   public void visitTypeInsn(int opcode, @NotNull String type)
+   public void visitTypeInsn(int opcode, @Nonnull String type)
    {
       argumentCapturing.registerTypeToCaptureIfApplicable(opcode, type);
 
@@ -492,12 +492,12 @@ final class InvocationBlockModifier extends MethodVisitor
       mw.visitTryCatchBlock(start, end, handler, type);
    }
 
-   private void generateCodeToThrowExceptionReportingInvalidSyntax(@NotNull String description)
+   private void generateCodeToThrowExceptionReportingInvalidSyntax(@Nonnull String description)
    {
       generateCodeToThrowException("Invalid " + description + " statement inside expectation block");
    }
 
-   private void generateCodeToThrowException(@NotNull String message)
+   private void generateCodeToThrowException(@Nonnull String message)
    {
       mw.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
       mw.visitInsn(DUP);

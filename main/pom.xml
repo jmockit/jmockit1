@@ -7,7 +7,7 @@
    <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.17</version>
    <packaging>jar</packaging>
    <prerequisites>
-      <maven>3.2.1</maven>
+      <maven>3.2.5</maven>
       <!-- Must run on JDK 1.8 -->
    </prerequisites>
 
@@ -214,10 +214,6 @@
    </build>
 
    <dependencies>
-      <dependency>
-         <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
-         <optional>true</optional>
-      </dependency>
       <dependency>
          <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.0</version>
          <optional>true</optional>

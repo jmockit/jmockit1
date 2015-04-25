@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -7,6 +7,7 @@ package mockit.internal.expectations.transformation;
 import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
@@ -15,13 +16,11 @@ import mockit.internal.startup.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
 public final class ExpectationsTransformer implements ClassFileTransformer
 {
-   @NotNull private final List<String> baseSubclasses;
+   @Nonnull private final List<String> baseSubclasses;
 
-   public ExpectationsTransformer(@NotNull Instrumentation instrumentation)
+   public ExpectationsTransformer(@Nonnull Instrumentation instrumentation)
    {
       baseSubclasses = new ArrayList<String>();
       baseSubclasses.add("mockit/Expectations");
@@ -37,7 +36,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       modifyFinalSubclasses(alreadyLoaded);
    }
 
-   private void findAndModifyOtherBaseSubclasses(@NotNull Class<?>[] alreadyLoaded)
+   private void findAndModifyOtherBaseSubclasses(@Nonnull Class<?>[] alreadyLoaded)
    {
       for (Class<?> aClass : alreadyLoaded) {
          if (
@@ -49,12 +48,12 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       }
    }
 
-   private static boolean isFinalClass(@NotNull Class<?> aClass)
+   private static boolean isFinalClass(@Nonnull Class<?> aClass)
    {
       return isFinal(aClass.getModifiers()) || ClassNaming.isAnonymousClass(aClass);
    }
 
-   private static boolean isExpectationsOrVerificationsSubclassFromUserCode(@NotNull Class<?> aClass)
+   private static boolean isExpectationsOrVerificationsSubclassFromUserCode(@Nonnull Class<?> aClass)
    {
       if (isExpectationsOrVerificationsAPIClass(aClass)) {
          return false;
@@ -73,7 +72,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       return false;
    }
 
-   private static boolean isExpectationsOrVerificationsAPIClass(@NotNull Class<?> aClass)
+   private static boolean isExpectationsOrVerificationsAPIClass(@Nonnull Class<?> aClass)
    {
       return
          ("mockit.Expectations mockit.StrictExpectations mockit.NonStrictExpectations " +
@@ -81,7 +80,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
           "mockit.VerificationsInOrder mockit.FullVerificationsInOrder").contains(aClass.getName());
    }
 
-   private void modifyFinalSubclasses(@NotNull Class<?>[] alreadyLoaded)
+   private void modifyFinalSubclasses(@Nonnull Class<?>[] alreadyLoaded)
    {
       for (Class<?> aClass : alreadyLoaded) {
          if (
@@ -93,7 +92,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       }
    }
 
-   private void modifyInvocationsSubclass(@NotNull Class<?> aClass, boolean isFinalClass)
+   private void modifyInvocationsSubclass(@Nonnull Class<?> aClass, boolean isFinalClass)
    {
       ClassReader cr = ClassFile.createClassFileReader(aClass);
       byte[] modifiedClassfile = modifyInvocationsSubclass(cr, aClass.getClassLoader(), isFinalClass);
@@ -104,7 +103,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    }
 
    @Nullable
-   private byte[] modifyInvocationsSubclass(@NotNull ClassReader cr, ClassLoader loader, boolean finalClass)
+   private byte[] modifyInvocationsSubclass(@Nonnull ClassReader cr, ClassLoader loader, boolean finalClass)
    {
       EndOfBlockModifier modifier = new EndOfBlockModifier(cr, loader, finalClass);
 
@@ -118,10 +117,10 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       return null;
    }
 
-   @Override @Nullable
+   @Nullable @Override
    public byte[] transform(
-      @Nullable ClassLoader loader, @NotNull String className, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @NotNull byte[] classfileBuffer)
+      @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
    {
       if (classBeingRedefined == null && protectionDomain != null) {
          ClassReader cr = new ClassReader(classfileBuffer);
@@ -143,13 +142,13 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
    private final class EndOfBlockModifier extends ClassVisitor
    {
-      @NotNull private final ClassWriter cw;
+      @Nonnull private final ClassWriter cw;
       @Nullable private final ClassLoader loader;
       private boolean isFinalClass;
-      @NotNull private String classDesc;
+      @Nonnull private String classDesc;
       private boolean isVerificationsSubclass;
 
-      EndOfBlockModifier(@NotNull ClassReader cr, @Nullable ClassLoader loader, boolean isFinalClass)
+      EndOfBlockModifier(@Nonnull ClassReader cr, @Nullable ClassLoader loader, boolean isFinalClass)
       {
          super(new ClassWriter(cr));
          assert cv != null;
@@ -161,7 +160,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
       @Override
       public void visit(
-         int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
          if (isFinal(access)) {
@@ -177,7 +176,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
          }
       }
 
-      private boolean isClassWhichShouldBeModified(@NotNull String name, @Nullable String superName)
+      private boolean isClassWhichShouldBeModified(@Nonnull String name, @Nullable String superName)
       {
          if (baseSubclasses.contains(name)) {
             return false;
@@ -219,7 +218,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
       @Override
       public MethodVisitor visitMethod(
-         int access, @NotNull String name, @NotNull String desc,
+         int access, @Nonnull String name, @Nonnull String desc,
          @Nullable String signature, @Nullable String[] exceptions)
       {
          MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
@@ -250,7 +249,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
 
       @Override
       public void visit(
-         int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
          classExtendsBaseSubclass = baseSubclasses.contains(superName);

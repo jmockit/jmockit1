@@ -6,24 +6,23 @@ package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import static mockit.internal.util.FieldReflection.*;
 
-import org.jetbrains.annotations.*;
-
 final class TestedField
 {
-   @NotNull final InjectionState injectionState;
-   @NotNull private final Field testedField;
-   @NotNull private final Tested metadata;
-   @NotNull private final TestedObjectCreation testedObjectCreation;
+   @Nonnull final InjectionState injectionState;
+   @Nonnull private final Field testedField;
+   @Nonnull private final Tested metadata;
+   @Nonnull private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
    boolean requireDIAnnotation;
 
-   TestedField(@NotNull InjectionState injectionState, @NotNull Field field, @NotNull Tested metadata)
+   TestedField(@Nonnull InjectionState injectionState, @Nonnull Field field, @Nonnull Tested metadata)
    {
       this.injectionState = injectionState;
       testedField = field;
@@ -33,14 +32,14 @@ final class TestedField
 
    boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
 
-   boolean isAtSameLevelInTestClassHierarchy(@NotNull TestedField another)
+   boolean isAtSameLevelInTestClassHierarchy(@Nonnull TestedField another)
    {
       return getDeclaringTestClass() == another.getDeclaringTestClass();
    }
 
-   @NotNull Class<?> getDeclaringTestClass() { return testedField.getDeclaringClass(); }
+   @Nonnull Class<?> getDeclaringTestClass() { return testedField.getDeclaringClass(); }
 
-   void instantiateWithInjectableValues(@NotNull Object testClassInstance)
+   void instantiateWithInjectableValues(@Nonnull Object testClassInstance)
    {
       if (isAvailableDuringSetup() && getFieldValue(testedField, testClassInstance) != null) {
          return;

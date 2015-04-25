@@ -4,7 +4,7 @@
  */
 package mockit.internal.expectations.transformation;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
@@ -27,7 +27,7 @@ public final class ActiveInvocations
    public static void anyDouble()  { addArgMatcher(AlwaysTrueMatcher.ANY_DOUBLE); }
    public static void any()        { addArgMatcher(AlwaysTrueMatcher.ANY_VALUE); }
 
-   private static void addArgMatcher(@NotNull ArgumentMatcher<?> argumentMatcher)
+   private static void addArgMatcher(@Nonnull ArgumentMatcher<?> argumentMatcher)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
@@ -47,7 +47,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void setExpectedArgumentType(int parameterIndex, @NotNull String typeDesc)
+   public static void setExpectedArgumentType(int parameterIndex, @Nonnull String typeDesc)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 

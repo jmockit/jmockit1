@@ -7,17 +7,16 @@ package mockit.internal.expectations.injection;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.mocking.*;
 
-import org.jetbrains.annotations.*;
-
 public final class TestedClassInstantiations
 {
-   @NotNull private final List<TestedField> testedFields;
-   @NotNull private final List<MockedType> injectableFields;
-   @NotNull private final InjectionState injectionState;
+   @Nonnull private final List<TestedField> testedFields;
+   @Nonnull private final List<MockedType> injectableFields;
+   @Nonnull private final InjectionState injectionState;
 
    public TestedClassInstantiations()
    {
@@ -26,7 +25,7 @@ public final class TestedClassInstantiations
       injectionState = new InjectionState();
    }
 
-   public boolean findTestedAndInjectableFields(@NotNull Class<?> testClass)
+   public boolean findTestedAndInjectableFields(@Nonnull Class<?> testClass)
    {
       boolean foundTestedFields = findAllTestedAndInjectableFieldsInTestClassHierarchy(testClass);
 
@@ -37,7 +36,7 @@ public final class TestedClassInstantiations
       return foundTestedFields;
    }
 
-   private boolean findAllTestedAndInjectableFieldsInTestClassHierarchy(@NotNull Class<?> testClass)
+   private boolean findAllTestedAndInjectableFieldsInTestClassHierarchy(@Nonnull Class<?> testClass)
    {
       Class<?> classWithFields = testClass;
 
@@ -51,14 +50,14 @@ public final class TestedClassInstantiations
       return !testedFields.isEmpty();
    }
 
-   private void findTestedAndInjectableFields(@NotNull Field[] fieldsDeclaredInTestClass)
+   private void findTestedAndInjectableFields(@Nonnull Field[] fieldsDeclaredInTestClass)
    {
       for (Field field : fieldsDeclaredInTestClass) {
          addAsTestedOrInjectableFieldIfApplicable(field);
       }
    }
 
-   private void addAsTestedOrInjectableFieldIfApplicable(@NotNull Field fieldFromTestClass)
+   private void addAsTestedOrInjectableFieldIfApplicable(@Nonnull Field fieldFromTestClass)
    {
       boolean testedAnnotationFound = false;
       boolean injectableAnnotationFound = false;
@@ -85,7 +84,7 @@ public final class TestedClassInstantiations
    }
 
    @Nullable
-   private static Tested getTestedAnnotationIfPresent(@NotNull Annotation fieldAnnotation)
+   private static Tested getTestedAnnotationIfPresent(@Nonnull Annotation fieldAnnotation)
    {
       if (fieldAnnotation instanceof Tested) {
          return (Tested) fieldAnnotation;
@@ -94,7 +93,7 @@ public final class TestedClassInstantiations
       return fieldAnnotation.annotationType().getAnnotation(Tested.class);
    }
 
-   public void assignNewInstancesToTestedFields(@NotNull Object testClassInstance, boolean beforeSetup)
+   public void assignNewInstancesToTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 

@@ -1,29 +1,28 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
-import mockit.internal.expectations.mocking.SubclassGenerationModifier;
+import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 
-import org.jetbrains.annotations.*;
-
 final class TestedObjectCreation
 {
-   @NotNull private final InjectionState injectionState;
-   @NotNull private final Class<?> declaredTestedClass;
-   @NotNull private final Class<?> actualTestedClass;
+   @Nonnull private final InjectionState injectionState;
+   @Nonnull private final Class<?> declaredTestedClass;
+   @Nonnull private final Class<?> actualTestedClass;
    boolean constructorIsAnnotated;
 
-   TestedObjectCreation(@NotNull InjectionState injectionState, @NotNull Field testedField)
+   TestedObjectCreation(@Nonnull InjectionState injectionState, @Nonnull Field testedField)
    {
       this.injectionState = injectionState;
       declaredTestedClass = testedField.getType();
@@ -32,12 +31,12 @@ final class TestedObjectCreation
             generateSubclass(testedField.getGenericType()) : declaredTestedClass;
    }
 
-   @NotNull
-   private Class<?> generateSubclass(@NotNull final Type testedType)
+   @Nonnull
+   private Class<?> generateSubclass(@Nonnull final Type testedType)
    {
       Class<?> generatedSubclass = new ImplementationClass<Object>(declaredTestedClass) {
-         @NotNull @Override
-         protected ClassVisitor createMethodBodyGenerator(@NotNull ClassReader typeReader)
+         @Nonnull @Override
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
          {
             return new SubclassGenerationModifier(declaredTestedClass, testedType, typeReader, generatedClassName);
          }
@@ -47,7 +46,7 @@ final class TestedObjectCreation
       return generatedSubclass;
    }
 
-   @NotNull
+   @Nonnull
    Object create()
    {
       ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, actualTestedClass);

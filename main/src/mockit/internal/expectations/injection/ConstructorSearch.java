@@ -6,6 +6,7 @@ package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.expectations.mocking.*;
@@ -13,20 +14,18 @@ import mockit.internal.state.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
-import org.jetbrains.annotations.*;
-
 final class ConstructorSearch
 {
    private static final int CONSTRUCTOR_ACCESS = PUBLIC + PROTECTED + PRIVATE;
 
-   @NotNull private final InjectionState injectionState;
-   @NotNull private final Class<?> testedClass;
-   @NotNull private final String testedClassDesc;
+   @Nonnull private final InjectionState injectionState;
+   @Nonnull private final Class<?> testedClass;
+   @Nonnull private final String testedClassDesc;
    private List<MockedType> injectablesForConstructor;
    private Constructor<?> constructor;
    private StringBuilder searchResults;
 
-   ConstructorSearch(@NotNull InjectionState injectionState, @NotNull Class<?> testedClass)
+   ConstructorSearch(@Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass)
    {
       this.injectionState = injectionState;
       this.testedClass = testedClass;
@@ -48,7 +47,7 @@ final class ConstructorSearch
       return constructor;
    }
 
-   private boolean findSingleAnnotatedConstructor(@NotNull Constructor<?>[] constructors)
+   private boolean findSingleAnnotatedConstructor(@Nonnull Constructor<?>[] constructors)
    {
       for (Constructor<?> c : constructors) {
          if (isAnnotated(c) != KindOfInjectionPoint.NotAnnotated) {
@@ -66,7 +65,7 @@ final class ConstructorSearch
       return false;
    }
 
-   private void findSatisfiedConstructorWithMostParameters(@NotNull Constructor<?>[] constructors)
+   private void findSatisfiedConstructorWithMostParameters(@Nonnull Constructor<?>[] constructors)
    {
       if (constructors.length > 1) {
          Arrays.sort(constructors, new Comparator<Constructor<?>>() {
@@ -101,10 +100,10 @@ final class ConstructorSearch
       }
    }
 
-   private static int constructorModifiers(@NotNull Constructor<?> c) { return CONSTRUCTOR_ACCESS & c.getModifiers(); }
+   private static int constructorModifiers(@Nonnull Constructor<?> c) { return CONSTRUCTOR_ACCESS & c.getModifiers(); }
 
    @Nullable
-   private List<MockedType> findAvailableInjectablesForConstructor(@NotNull Constructor<?> candidate)
+   private List<MockedType> findAvailableInjectablesForConstructor(@Nonnull Constructor<?> candidate)
    {
       Type[] parameterTypes = candidate.getGenericParameterTypes();
       int n = parameterTypes.length;
@@ -145,7 +144,7 @@ final class ConstructorSearch
       return injectablesFound;
    }
 
-   private void printCandidateConstructorNameIfRequested(@NotNull Constructor<?> candidate)
+   private void printCandidateConstructorNameIfRequested(@Nonnull Constructor<?> candidate)
    {
       if (searchResults != null) {
          String constructorDesc = candidate.toGenericString().replace("java.lang.", "");
@@ -173,14 +172,14 @@ final class ConstructorSearch
    }
 
    @Nullable
-   private MockedType hasInjectedValuesForVarargsParameter(@NotNull Type[] parameterTypes, int varargsParameterIndex)
+   private MockedType hasInjectedValuesForVarargsParameter(@Nonnull Type[] parameterTypes, int varargsParameterIndex)
    {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterTypes, varargsParameterIndex);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
       return injectionState.findNextInjectableForInjectionPoint();
    }
 
-   @NotNull
+   @Nonnull
    List<MockedType> getInjectables() { return injectablesForConstructor; }
 
    @Override

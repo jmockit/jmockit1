@@ -6,12 +6,12 @@ package mockit.internal.expectations.injection;
 
 import java.io.*;
 import java.lang.annotation.*;
+import javax.annotation.*;
 import javax.persistence.*;
 import javax.xml.parsers.*;
 
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 
-import org.jetbrains.annotations.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -22,13 +22,13 @@ import org.xml.sax.helpers.*;
 final class JPADependencies
 {
    @Nullable
-   static JPADependencies createIfAvailableInClasspath(@NotNull InjectionState injectionState)
+   static JPADependencies createIfAvailableInClasspath(@Nonnull InjectionState injectionState)
    {
       return PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
    @Nullable
-   static String getDependencyIdIfAvailable(@NotNull Annotation annotation)
+   static String getDependencyIdIfAvailable(@Nonnull Annotation annotation)
    {
       Class<? extends Annotation> annotationType = annotation.annotationType();
 
@@ -42,13 +42,13 @@ final class JPADependencies
       return null;
    }
 
-   @NotNull private final InjectionState injectionState;
+   @Nonnull private final InjectionState injectionState;
    @Nullable private String defaultPersistenceUnitName;
 
-   private JPADependencies(@NotNull InjectionState injectionState) { this.injectionState = injectionState; }
+   private JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
-   Object newInstanceIfApplicable(@NotNull Class<?> dependencyType, @NotNull Object dependencyKey)
+   Object newInstanceIfApplicable(@Nonnull Class<?> dependencyType, @Nonnull Object dependencyKey)
    {
       if (dependencyType == EntityManagerFactory.class) {
          String persistenceUnitName;
@@ -72,14 +72,14 @@ final class JPADependencies
       return null;
    }
 
-   @NotNull
-   private static String extractIdFromDependencyKey(@NotNull String dependencyKey)
+   @Nonnull
+   private static String extractIdFromDependencyKey(@Nonnull String dependencyKey)
    {
       int p = dependencyKey.indexOf(':');
       return dependencyKey.substring(p + 1);
    }
 
-   @NotNull
+   @Nonnull
    private String discoverNameOfDefaultPersistenceUnit()
    {
       if (defaultPersistenceUnitName != null) {
@@ -112,7 +112,7 @@ final class JPADependencies
    }
 
    @Nullable
-   private EntityManager findOrCreateEntityManager(@NotNull Object dependencyKey)
+   private EntityManager findOrCreateEntityManager(@Nonnull Object dependencyKey)
    {
       String persistenceUnitName;
       Object emFactoryKey;

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
@@ -13,21 +14,19 @@ import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 final class ConstructorInjection
 {
-   @NotNull private final InjectionState injectionState;
-   @NotNull private final Constructor<?> constructor;
+   @Nonnull private final InjectionState injectionState;
+   @Nonnull private final Constructor<?> constructor;
 
-   ConstructorInjection(@NotNull InjectionState injectionState, @NotNull Constructor<?> constructor)
+   ConstructorInjection(@Nonnull InjectionState injectionState, @Nonnull Constructor<?> constructor)
    {
       this.injectionState = injectionState;
       this.constructor = constructor;
    }
 
-   @NotNull
-   Object instantiate(@NotNull List<MockedType> injectablesForConstructor)
+   @Nonnull
+   Object instantiate(@Nonnull List<MockedType> injectablesForConstructor)
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
@@ -51,8 +50,8 @@ final class ConstructorInjection
       return invoke(constructor, arguments);
    }
 
-   @NotNull
-   private Object obtainInjectedVarargsArray(@NotNull Type[] parameterTypes, int varargsParameterIndex)
+   @Nonnull
+   private Object obtainInjectedVarargsArray(@Nonnull Type[] parameterTypes, int varargsParameterIndex)
    {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterTypes, varargsParameterIndex);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
@@ -79,8 +78,8 @@ final class ConstructorInjection
       return varargArray;
    }
 
-   @NotNull
-   private Object getArgumentValueToInject(@NotNull MockedType injectable)
+   @Nonnull
+   private Object getArgumentValueToInject(@Nonnull MockedType injectable)
    {
       Object argument = injectionState.getValueToInject(injectable);
 
@@ -92,8 +91,8 @@ final class ConstructorInjection
       return argument;
    }
 
-   @NotNull
-   private String missingInjectableDescription(@NotNull String name)
+   @Nonnull
+   private String missingInjectableDescription(@Nonnull String name)
    {
       String classDesc = mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass());
       String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);

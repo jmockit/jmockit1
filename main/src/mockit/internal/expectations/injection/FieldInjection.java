@@ -7,22 +7,21 @@ package mockit.internal.expectations.injection;
 import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 
-import org.jetbrains.annotations.*;
-
 final class FieldInjection
 {
-   @NotNull private final TestedField testedField;
+   @Nonnull private final TestedField testedField;
    @Nullable private final ProtectionDomain protectionDomainOfTestedClass;
-   @NotNull private final String nameOfTestedClass;
+   @Nonnull private final String nameOfTestedClass;
    @Nullable final FullInjection fullInjection;
 
-   FieldInjection(@NotNull TestedField testedField, @NotNull Class<?> testedClass, boolean fullInjection)
+   FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
    {
       this.testedField = testedField;
       protectionDomainOfTestedClass = testedClass.getProtectionDomain();
@@ -30,8 +29,8 @@ final class FieldInjection
       this.fullInjection = fullInjection ? new FullInjection(testedField.injectionState) : null;
    }
 
-   @NotNull
-   List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@NotNull Class<?> testedClass)
+   @Nonnull
+   List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> testedClass)
    {
       testedField.requireDIAnnotation = false;
 
@@ -54,7 +53,7 @@ final class FieldInjection
       return targetFields;
    }
 
-   private boolean isEligibleForInjection(@NotNull Field field)
+   private boolean isEligibleForInjection(@Nonnull Field field)
    {
       int modifiers = field.getModifiers();
 
@@ -72,7 +71,7 @@ final class FieldInjection
       return !isStatic(modifiers);
    }
 
-   boolean isClassFromSameModuleOrSystemAsTestedClass(@NotNull Class<?> anotherClass)
+   boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass)
    {
       if (anotherClass.getClassLoader() == null) {
          return false;
@@ -96,7 +95,7 @@ final class FieldInjection
       return p1 == p2 && p1 > 0 && nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
    }
 
-   void injectIntoEligibleFields(@NotNull List<Field> targetFields, @NotNull Object testedObject)
+   void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
    {
       for (Field field : targetFields) {
          if (notAssignedByConstructor(field, testedObject)) {
@@ -110,7 +109,7 @@ final class FieldInjection
       }
    }
 
-   private static boolean notAssignedByConstructor(@NotNull Field field, @NotNull Object testedObject)
+   private static boolean notAssignedByConstructor(@Nonnull Field field, @Nonnull Object testedObject)
    {
       if (isAnnotated(field) != KindOfInjectionPoint.NotAnnotated) {
          return true;
@@ -134,7 +133,7 @@ final class FieldInjection
    }
 
    @Nullable
-   private Object getValueForFieldIfAvailable(@NotNull List<Field> targetFields, @NotNull Field fieldToBeInjected)
+   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
    {
       InjectionState injectionState = testedField.injectionState;
       injectionState.setTypeOfInjectionPoint(fieldToBeInjected.getGenericType());
@@ -179,7 +178,7 @@ final class FieldInjection
    }
 
    private boolean withMultipleTargetFieldsOfSameType(
-      @NotNull List<Field> targetFields, @NotNull Field fieldToBeInjected)
+      @Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
    {
       InjectionState injectionState = testedField.injectionState;
 
@@ -195,7 +194,7 @@ final class FieldInjection
       return false;
    }
 
-   void fillOutDependenciesRecursively(@NotNull Object dependency)
+   void fillOutDependenciesRecursively(@Nonnull Object dependency)
    {
       Class<?> dependencyClass = dependency.getClass();
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass);

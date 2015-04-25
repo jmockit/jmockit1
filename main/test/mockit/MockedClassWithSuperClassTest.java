@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.io.*;
+import javax.annotation.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-
-import org.jetbrains.annotations.*;
 
 public final class MockedClassWithSuperClassTest
 {
    static class SubclassOfJREClass extends Writer
    {
-      @Override public void write(@NotNull char[] cbuf, int off, int len) {}
+      @Override public void write(@Nonnull char[] cbuf, int off, int len) {}
       @Override public void flush() {}
       @Override public void close() { throw new UnsupportedOperationException(); }
    }
@@ -38,7 +37,7 @@ public final class MockedClassWithSuperClassTest
 
       // Not mocked:
       Writer w = new Writer() {
-         @Override public void write(@NotNull char[] cbuf, int off, int len) {}
+         @Override public void write(@Nonnull char[] cbuf, int off, int len) {}
          @Override public void flush() {}
          @Override public void close() {}
       };

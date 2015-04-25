@@ -6,14 +6,13 @@ package mockit.internal.expectations.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import javax.annotation.*;
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
-
-import org.jetbrains.annotations.*;
 
 /**
  * Responsible for recursive injection of dependencies as requested by a {@code @Tested(fullyInitialized = true)} field.
@@ -22,10 +21,10 @@ final class FullInjection
 {
    private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
 
-   @NotNull private final InjectionState injectionState;
+   @Nonnull private final InjectionState injectionState;
    @Nullable private final JPADependencies jpaDependencies;
 
-   FullInjection(@NotNull InjectionState injectionState)
+   FullInjection(@Nonnull InjectionState injectionState)
    {
       this.injectionState = injectionState;
       jpaDependencies = JPADependencies.createIfAvailableInClasspath(injectionState);
@@ -33,7 +32,7 @@ final class FullInjection
 
    @Nullable
    Object newInstanceCreatedWithNoArgsConstructorIfAvailable(
-      @NotNull FieldInjection fieldInjection, @NotNull Field fieldToBeInjected)
+      @Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected)
    {
       Class<?> fieldType = fieldToBeInjected.getType();
 
@@ -67,7 +66,7 @@ final class FullInjection
       return dependency;
    }
 
-   private static boolean isInstantiableType(@NotNull Class<?> type)
+   private static boolean isInstantiableType(@Nonnull Class<?> type)
    {
       if (type.isPrimitive() || type.isArray()) {
          return false;
@@ -84,8 +83,8 @@ final class FullInjection
       return true;
    }
 
-   @NotNull
-   private Object getDependencyKey(@NotNull Field fieldToBeInjected)
+   @Nonnull
+   private Object getDependencyKey(@Nonnull Field fieldToBeInjected)
    {
       Class<?> dependencyClass = fieldToBeInjected.getType();
 
@@ -102,8 +101,8 @@ final class FullInjection
       return dependencyClass;
    }
 
-   @NotNull
-   private Object createProviderInstance(@NotNull Field fieldToBeInjected, @NotNull final Object dependencyKey)
+   @Nonnull
+   private Object createProviderInstance(@Nonnull Field fieldToBeInjected, @Nonnull final Object dependencyKey)
    {
       ParameterizedType genericType = (ParameterizedType) fieldToBeInjected.getGenericType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -135,7 +134,7 @@ final class FullInjection
    }
 
    @Nullable
-   private Object getOrCreateInstance(@NotNull Class<?> dependencyClass, @NotNull Object dependencyKey)
+   private Object getOrCreateInstance(@Nonnull Class<?> dependencyClass, @Nonnull Object dependencyKey)
    {
       if (!dependencyClass.isInterface()) {
          return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);

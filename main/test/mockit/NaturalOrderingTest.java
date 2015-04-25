@@ -1,15 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.util.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
-
-import static org.junit.Assert.*;
 import org.junit.*;
+import static org.junit.Assert.*;
 
 public final class NaturalOrderingTest
 {
@@ -33,7 +32,7 @@ public final class NaturalOrderingTest
    {
       final String value;
       ComparableClass(String value) { this.value = value; }
-      @Override public int compareTo(@NotNull String s) { return value.compareTo(s); }
+      @Override public int compareTo(@Nonnull String s) { return value.compareTo(s); }
    }
 
    @Test
