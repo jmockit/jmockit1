@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.pathCoverage;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.paths.*;
 
 public final class PathCoverageOutput
 {
-   @NotNull private final PrintWriter output;
-   @NotNull private final PathCoverageFormatter pathFormatter;
-   @NotNull private final Iterator<MethodCoverageData> nextMethod;
+   @Nonnull private final PrintWriter output;
+   @Nonnull private final PathCoverageFormatter pathFormatter;
+   @Nonnull private final Iterator<MethodCoverageData> nextMethod;
 
    // Helper fields:
    @Nullable private MethodCoverageData currentMethod;
 
-   public PathCoverageOutput(@NotNull PrintWriter output, @NotNull Collection<MethodCoverageData> methods)
+   public PathCoverageOutput(@Nonnull PrintWriter output, @Nonnull Collection<MethodCoverageData> methods)
    {
       this.output = output;
       pathFormatter = new PathCoverageFormatter(output);
@@ -42,7 +41,7 @@ public final class PathCoverageOutput
       }
    }
 
-   private void writePathCoverageInformationForMethod(@NotNull MethodCoverageData methodData)
+   private void writePathCoverageInformationForMethod(@Nonnull MethodCoverageData methodData)
    {
       List<Path> paths = methodData.getPaths();
 
@@ -53,7 +52,7 @@ public final class PathCoverageOutput
       }
    }
 
-   private void writeHeaderForAllPaths(@NotNull MethodCoverageData methodData)
+   private void writeHeaderForAllPaths(@Nonnull MethodCoverageData methodData)
    {
       int coveredPaths = methodData.getCoveredPaths();
       int totalPaths = methodData.getTotalPaths();

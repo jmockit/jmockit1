@@ -6,17 +6,16 @@ package mockit.coverage.reporting;
 
 import java.util.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 
 public final class ListOfCallPoints
 {
-   @NotNull private static final String EOL = System.getProperty("line.separator");
+   @Nonnull private static final String EOL = System.getProperty("line.separator");
    private static final Pattern LESS_THAN_CHAR = Pattern.compile("<");
 
-   @NotNull private final StringBuilder content;
+   @Nonnull private final StringBuilder content;
 
    public ListOfCallPoints() { content = new StringBuilder(100); }
 
@@ -58,7 +57,7 @@ public final class ListOfCallPoints
       content.append("</li>").append(EOL).append("        </ol>").append(EOL).append("      ");
    }
 
-   private void appendTestMethod(@NotNull StackTraceElement current)
+   private void appendTestMethod(@Nonnull StackTraceElement current)
    {
       content.append("          <li>");
       content.append(current.getClassName()).append('#');
@@ -66,7 +65,7 @@ public final class ListOfCallPoints
       content.append(current.getLineNumber());
    }
 
-   private void appendRepetitionCountIfNeeded(@NotNull CallPoint callPoint)
+   private void appendRepetitionCountIfNeeded(@Nonnull CallPoint callPoint)
    {
       int repetitionCount = callPoint.getRepetitionCount();
 
@@ -75,7 +74,7 @@ public final class ListOfCallPoints
       }
    }
 
-   @NotNull
+   @Nonnull
    public String getContents()
    {
       String result = content.toString();

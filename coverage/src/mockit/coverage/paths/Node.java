@@ -6,21 +6,20 @@ package mockit.coverage.paths;
 
 import java.util.*;
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 @SuppressWarnings("ClassReferencesSubclass")
 public class Node implements Serializable
 {
    private static final long serialVersionUID = 7521062699264845946L;
 
-   @NotNull private final transient ThreadLocal<Boolean> reached = new ThreadLocal<Boolean>();
+   @Nonnull private final transient ThreadLocal<Boolean> reached = new ThreadLocal<Boolean>();
    public final int line;
    protected int segment;
 
    private Node(int line) { this.line = line; }
 
-   void setSegmentAccordingToPrecedingNode(@NotNull Node precedingNode)
+   void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode)
    {
       int currentSegment = precedingNode.segment;
       segment = precedingNode instanceof Fork ? currentSegment + 1 : currentSegment;
@@ -44,23 +43,23 @@ public class Node implements Serializable
 
    interface ConditionalSuccessor extends Serializable
    {
-      void addToPath(@NotNull Path path);
+      void addToPath(@Nonnull Path path);
    }
 
    interface GotoSuccessor extends Serializable
    {
-      void setNextNodeAfterGoto(@NotNull Join newJoin);
+      void setNextNodeAfterGoto(@Nonnull Join newJoin);
    }
 
    static final class Exit extends Node implements ConditionalSuccessor
    {
       private static final long serialVersionUID = -4801498566218642509L;
-      @NotNull final List<Path> paths = new ArrayList<Path>(4);
+      @Nonnull final List<Path> paths = new ArrayList<Path>(4);
 
       Exit(int exitLine) { super(exitLine); }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
          paths.add(path);
@@ -76,10 +75,10 @@ public class Node implements Serializable
       BasicBlock(int startingLine) { super(startingLine); }
 
       @Override @SuppressWarnings("NullableProblems")
-      public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNodeAfterGoto = newJoin; }
+      public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
 
@@ -99,9 +98,9 @@ public class Node implements Serializable
 
       Fork(int line) { super(line); }
 
-      abstract void addNextNode(@NotNull Join nextNode);
+      abstract void addNextNode(@Nonnull Join nextNode);
 
-      static void createAlternatePath(@NotNull Path parentPath, @NotNull Join targetJoin)
+      static void createAlternatePath(@Nonnull Path parentPath, @Nonnull Join targetJoin)
       {
          Path alternatePath = new Path(parentPath, targetJoin.fromTrivialFork);
          targetJoin.addToPath(alternatePath);
@@ -117,10 +116,10 @@ public class Node implements Serializable
       SimpleFork(int line) { super(line); }
 
       @Override
-      void addNextNode(@NotNull Join nextNode) { nextNodeAfterJump = nextNode; }
+      void addNextNode(@Nonnull Join nextNode) { nextNodeAfterJump = nextNode; }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
 
@@ -137,15 +136,15 @@ public class Node implements Serializable
    static final class MultiFork extends Fork
    {
       private static final long serialVersionUID = 1220318686622690670L;
-      @NotNull private final List<Join> caseNodes = new ArrayList<Join>();
+      @Nonnull private final List<Join> caseNodes = new ArrayList<Join>();
 
       MultiFork(int line) { super(line); }
 
       @Override
-      void addNextNode(@NotNull Join nextNode) { caseNodes.add(nextNode); }
+      void addNextNode(@Nonnull Join nextNode) { caseNodes.add(nextNode); }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
 
@@ -164,10 +163,10 @@ public class Node implements Serializable
       Join(int joiningLine) { super(joiningLine); }
 
       @Override
-      public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNode = newJoin; }
+      public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNode = newJoin; }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
 
@@ -178,7 +177,7 @@ public class Node implements Serializable
       }
 
       @Override
-      void setSegmentAccordingToPrecedingNode(@NotNull Node precedingNode)
+      void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode)
       {
          segment = precedingNode.segment + 1;
       }
@@ -192,10 +191,10 @@ public class Node implements Serializable
       Goto(int line) { super(line); }
 
       @Override
-      public void setNextNodeAfterGoto(@NotNull Join newJoin) { nextNodeAfterGoto = newJoin; }
+      public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
       @Override
-      public void addToPath(@NotNull Path path)
+      public void addToPath(@Nonnull Path path)
       {
          path.addNode(this);
          nextNodeAfterGoto.addToPath(path);

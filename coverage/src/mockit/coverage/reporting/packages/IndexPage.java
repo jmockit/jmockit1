@@ -7,25 +7,24 @@ package mockit.coverage.reporting.packages;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.reporting.*;
 import mockit.coverage.testRedundancy.*;
 
-import org.jetbrains.annotations.*;
-
 public final class IndexPage extends ListWithFilesAndPercentages
 {
    @Nullable private final List<File> sourceDirs;
-   @NotNull private final Map<String, List<String>> packageToFiles;
-   @NotNull private final Map<String, int[]> packageToPackagePercentages;
-   @NotNull private final PackageCoverageReport packageReport;
+   @Nonnull private final Map<String, List<String>> packageToFiles;
+   @Nonnull private final Map<String, int[]> packageToPackagePercentages;
+   @Nonnull private final PackageCoverageReport packageReport;
    private final int totalFileCount;
 
    public IndexPage(
-      @NotNull File outputFile, @Nullable List<File> sourceDirs, @Nullable Collection<String> sourceFilesNotFound,
-      @NotNull Map<String, List<String>> packageToFiles, @NotNull Map<String, FileCoverageData> fileToFileData)
+      @Nonnull File outputFile, @Nullable List<File> sourceDirs, @Nullable Collection<String> sourceFilesNotFound,
+      @Nonnull Map<String, List<String>> packageToFiles, @Nonnull Map<String, FileCoverageData> fileToFileData)
       throws IOException
    {
       super(new OutputFile(outputFile), "    ");
@@ -36,7 +35,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       totalFileCount = totalNumberOfSourceFilesWithCoverageData(fileToFileData.values());
    }
 
-   private static int totalNumberOfSourceFilesWithCoverageData(@NotNull Collection<FileCoverageData> fileData)
+   private static int totalNumberOfSourceFilesWithCoverageData(@Nonnull Collection<FileCoverageData> fileData)
    {
       return fileData.size() - Collections.frequency(fileData, null);
    }
@@ -81,8 +80,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   @NotNull
-   private static String getCommaSeparatedListOfSourceDirs(@NotNull String concatenatedSourceDirs)
+   @Nonnull
+   private static String getCommaSeparatedListOfSourceDirs(@Nonnull String concatenatedSourceDirs)
    {
       String prefixToRemove = ".." + File.separatorChar;
       String commaSepDirs = concatenatedSourceDirs.replace(prefixToRemove, "");
@@ -106,13 +105,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
          int tableColumn = 1;
 
          @Override
-         public void perform(@NotNull Metrics metric)
+         public void perform(@Nonnull Metrics metric)
          {
             writeHeaderCellWithMetricNameAndDescription(metric);
             tableColumn++;
          }
 
-         private void writeHeaderCellWithMetricNameAndDescription(@NotNull Metrics metric)
+         private void writeHeaderCellWithMetricNameAndDescription(@Nonnull Metrics metric)
          {
             output.write("      <th onclick='sortTables(");
             output.print(tableColumn);
@@ -134,13 +133,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
       Metrics.performAction(new Metrics.Action() {
          @Override
-         public void perform(@NotNull Metrics metric) { writeLineWithCoverageTotals(metric); }
+         public void perform(@Nonnull Metrics metric) { writeLineWithCoverageTotals(metric); }
       });
 
       output.println("    </tr>");
    }
 
-   private void writeLineWithCoverageTotals(@NotNull Metrics metric)
+   private void writeLineWithCoverageTotals(@Nonnull Metrics metric)
    {
       int covered = coveredItems[metric.ordinal()];
       int total = totalItems[metric.ordinal()];
@@ -150,7 +149,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
-   protected void writeMetricsForFile(String unused, @NotNull final String packageName)
+   protected void writeMetricsForFile(String unused, @Nonnull final String packageName)
    {
       writeRowStart();
       writeTableCellWithPackageName(packageName);
@@ -158,13 +157,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
       Metrics.performAction(new Metrics.Action() {
          @Override
-         public void perform(@NotNull Metrics metric) { writeCoveragePercentageForPackage(packageName, metric); }
+         public void perform(@Nonnull Metrics metric) { writeCoveragePercentageForPackage(packageName, metric); }
       });
 
       writeRowClose();
    }
 
-   private void writeTableCellWithPackageName(@NotNull String packageName)
+   private void writeTableCellWithPackageName(@Nonnull String packageName)
    {
       printIndent();
       output.write("  <td class='package");
@@ -180,7 +179,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeInternalTableForSourceFiles(@NotNull final String packageName)
+   private void writeInternalTableForSourceFiles(@Nonnull final String packageName)
    {
       printIndent();
       output.println("  <td>");
@@ -193,7 +192,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
       Metrics.performAction(new Metrics.Action() {
          @Override
-         public void perform(@NotNull Metrics metric) { recordCoverageInformationForPackage(packageName, metric); }
+         public void perform(@Nonnull Metrics metric) { recordCoverageInformationForPackage(packageName, metric); }
       });
 
       printIndent();
@@ -204,7 +203,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("  </td>");
    }
 
-   private void recordCoverageInformationForPackage(@NotNull String packageName, @NotNull Metrics metric)
+   private void recordCoverageInformationForPackage(@Nonnull String packageName, @Nonnull Metrics metric)
    {
       int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
       int totalInPackage = packageReport.totalItems[metric.ordinal()];
@@ -216,7 +215,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       coveredItems[metric.ordinal()] += coveredInPackage;
    }
 
-   private void setPackageCoveragePercentage(@NotNull String packageName, @NotNull Metrics metric, int percentage)
+   private void setPackageCoveragePercentage(@Nonnull String packageName, @Nonnull Metrics metric, int percentage)
    {
       int[] percentages = packageToPackagePercentages.get(packageName);
 
@@ -235,7 +234,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println(" source files)</span>");
    }
 
-   private void writeCoveragePercentageForPackage(@NotNull String packageName, @NotNull Metrics metric)
+   private void writeCoveragePercentageForPackage(@Nonnull String packageName, @Nonnull Metrics metric)
    {
       int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
       int totalInPackage = packageReport.totalItems[metric.ordinal()];

@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.reporting.parsing.LineElement.*;
 
@@ -18,7 +18,7 @@ public final class LineParser
    private static final String SEPARATORS = ".,;()";
 
    private int lineNum;
-   @NotNull private String line;
+   @Nonnull private String line;
    @Nullable private LineElement initialElement;
    private boolean inComments;
 
@@ -49,9 +49,9 @@ public final class LineParser
       return true;
    }
 
-   @NotNull public LineElement getInitialElement() { assert initialElement != null; return initialElement; }
+   @Nonnull public LineElement getInitialElement() { assert initialElement != null; return initialElement; }
 
-   boolean parse(@NotNull String lineToParse)
+   boolean parse(@Nonnull String lineToParse)
    {
       lineNum++;
       initialElement = null;
@@ -198,7 +198,7 @@ public final class LineParser
       addElement(text);
    }
 
-   private void addElement(@NotNull String text)
+   private void addElement(@Nonnull String text)
    {
       ElementType type;
 

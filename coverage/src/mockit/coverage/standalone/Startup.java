@@ -6,8 +6,7 @@ package mockit.coverage.standalone;
 
 import java.io.*;
 import java.lang.instrument.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 
@@ -19,7 +18,7 @@ public final class Startup
 
    private Startup() {}
 
-   public static void premain(String agentArgs, @NotNull Instrumentation inst) throws IOException
+   public static void premain(String agentArgs, @Nonnull Instrumentation inst) throws IOException
    {
       instrumentation = inst;
       discoverOptionalDependenciesThatAreAvailableInClassPath();
@@ -37,7 +36,7 @@ public final class Startup
    }
 
    @SuppressWarnings("unused")
-   public static void agentmain(String agentArgs, @NotNull Instrumentation inst)
+   public static void agentmain(String agentArgs, @Nonnull Instrumentation inst)
    {
       instrumentation = inst;
       inATestRun = false;
@@ -52,7 +51,7 @@ public final class Startup
       jmockitAvailable = isAvailableInClassPath("mockit.Invocations");
    }
 
-   private static boolean isAvailableInClassPath(@NotNull String className)
+   private static boolean isAvailableInClassPath(@Nonnull String className)
    {
       ClassLoader currentLoader = Startup.class.getClassLoader();
 
@@ -65,7 +64,7 @@ public final class Startup
       }
    }
 
-   @NotNull
+   @Nonnull
    public static Instrumentation instrumentation()
    {
       if (instrumentation == null) {

@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.dataCoverage;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.dataItems.*;
 import mockit.coverage.reporting.parsing.*;
 
 public final class DataCoverageOutput
 {
-   @NotNull private final StringBuilder openingTag;
-   @NotNull private final PerFileDataCoverage coverageInfo;
+   @Nonnull private final StringBuilder openingTag;
+   @Nonnull private final PerFileDataCoverage coverageInfo;
    private int nextField;
    @Nullable private String classAndFieldNames;
    @Nullable private String className;
    @Nullable private String fieldName;
 
-   public DataCoverageOutput(@NotNull PerFileDataCoverage coverageInfo)
+   public DataCoverageOutput(@Nonnull PerFileDataCoverage coverageInfo)
    {
       openingTag = new StringBuilder(50);
       this.coverageInfo = coverageInfo;
@@ -42,7 +42,7 @@ public final class DataCoverageOutput
       fieldName = classAndFieldNames.substring(p + 1);
    }
 
-   public void writeCoverageInfoIfLineStartsANewFieldDeclaration(@NotNull FileParser fileParser)
+   public void writeCoverageInfoIfLineStartsANewFieldDeclaration(@Nonnull FileParser fileParser)
    {
       if (classAndFieldNames != null) {
          assert className != null;
@@ -84,7 +84,7 @@ public final class DataCoverageOutput
       openingTag.append("'>");
    }
 
-   private void appendAccessCounts(@NotNull FieldData fieldData)
+   private void appendAccessCounts(@Nonnull FieldData fieldData)
    {
       openingTag.append("Reads: ").append(fieldData.getReadCount());
       openingTag.append(" Writes: ").append(fieldData.getWriteCount());

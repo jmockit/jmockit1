@@ -6,8 +6,7 @@ package mockit.coverage.lines;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 
@@ -45,7 +44,7 @@ public class LineSegmentData implements Serializable
       return previousExecutionCount;
    }
 
-   private void addCallPoint(@NotNull CallPoint callPoint)
+   private void addCallPoint(@Nonnull CallPoint callPoint)
    {
       if (callPoints == null) {
          callPoints = new ArrayList<CallPoint>(MAX_CALL_POINTS);
@@ -71,7 +70,7 @@ public class LineSegmentData implements Serializable
 
    public final boolean isCovered() { return unreachable || !empty && executionCount > 0; }
 
-   final void addExecutionCountAndCallPointsFromPreviousTestRun(@NotNull LineSegmentData previousData)
+   final void addExecutionCountAndCallPointsFromPreviousTestRun(@Nonnull LineSegmentData previousData)
    {
       executionCount += previousData.executionCount;
 

@@ -6,22 +6,21 @@ package mockit.coverage;
 
 import java.lang.instrument.*;
 import java.security.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 import mockit.coverage.modification.*;
 import mockit.coverage.standalone.*;
 
-import org.jetbrains.annotations.*;
-
 public final class CodeCoverage implements ClassFileTransformer
 {
    private static CodeCoverage instance;
 
-   @NotNull private final ClassModification classModification;
-   @NotNull private final OutputFileGenerator outputGenerator;
+   @Nonnull private final ClassModification classModification;
+   @Nonnull private final OutputFileGenerator outputGenerator;
    private boolean inactive;
 
-   public static void main(String[] args)
+   public static void main(@Nonnull String[] args)
    {
       if (args.length == 1) {
          String pid = args[0];
@@ -38,7 +37,7 @@ public final class CodeCoverage implements ClassFileTransformer
       generator.generateAggregateReportFromInputFiles(args);
    }
 
-   @NotNull
+   @Nonnull
    private static OutputFileGenerator createOutputFileGenerator(@Nullable ClassModification classModification)
    {
       OutputFileGenerator generator = new OutputFileGenerator(classModification);
@@ -86,7 +85,7 @@ public final class CodeCoverage implements ClassFileTransformer
       });
    }
 
-   @NotNull
+   @Nonnull
    public static CodeCoverage create(boolean generateOutputOnShutdown)
    {
       instance = new CodeCoverage(false, generateOutputOnShutdown);
@@ -111,8 +110,8 @@ public final class CodeCoverage implements ClassFileTransformer
 
    @Nullable @Override
    public byte[] transform(
-      @Nullable ClassLoader loader, @NotNull String internalClassName, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @NotNull byte[] originalClassfile)
+      @Nullable ClassLoader loader, @Nonnull String internalClassName, @Nullable Class<?> classBeingRedefined,
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] originalClassfile)
    {
       if (loader == null || classBeingRedefined != null || protectionDomain == null || inactive) {
          return null;

@@ -1,30 +1,29 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.pathCoverage;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.paths.*;
 
 final class PathCoverageFormatter
 {
-   @NotNull private final PrintWriter output;
-   @NotNull private final StringBuilder lineSegmentIds;
+   @Nonnull private final PrintWriter output;
+   @Nonnull private final StringBuilder lineSegmentIds;
    private char pathId1;
    private char pathId2;
 
-   PathCoverageFormatter(@NotNull PrintWriter output)
+   PathCoverageFormatter(@Nonnull PrintWriter output)
    {
       this.output = output;
       lineSegmentIds = new StringBuilder(100);
    }
 
-   void writeInformationForEachPath(@NotNull List<Path> paths)
+   void writeInformationForEachPath(@Nonnull List<Path> paths)
    {
       pathId1 = 'A';
       pathId2 = '\0';
@@ -49,7 +48,7 @@ final class PathCoverageFormatter
       }
    }
 
-   private void writeCoverageInfoForIndividualPath(@NotNull Path path)
+   private void writeCoverageInfoForIndividualPath(@Nonnull Path path)
    {
       int executionCount = path.getExecutionCount();
       String lineSegmentIdsForPath = getIdsForLineSegmentsBelongingToThePath(path);
@@ -65,7 +64,8 @@ final class PathCoverageFormatter
       output.println("</span>");
    }
 
-   @NotNull private String getIdsForLineSegmentsBelongingToThePath(@NotNull Path path)
+   @Nonnull
+   private String getIdsForLineSegmentsBelongingToThePath(@Nonnull Path path)
    {
       lineSegmentIds.setLength(0);
 

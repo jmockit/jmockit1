@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
 
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public abstract class FieldData implements Serializable
 {
@@ -16,7 +15,7 @@ public abstract class FieldData implements Serializable
    int writeCount;
    @Nullable Boolean covered;
 
-   private void writeObject(@NotNull ObjectOutputStream out) throws IOException
+   private void writeObject(@Nonnull ObjectOutputStream out) throws IOException
    {
       isCovered();
       out.defaultWriteObject();
@@ -37,7 +36,7 @@ public abstract class FieldData implements Serializable
 
    abstract void markAsCoveredIfNoUnreadValuesAreLeft();
 
-   final void addCountsFromPreviousTestRun(@NotNull FieldData previousInfo)
+   final void addCountsFromPreviousTestRun(@Nonnull FieldData previousInfo)
    {
       readCount += previousInfo.readCount;
       writeCount += previousInfo.writeCount;

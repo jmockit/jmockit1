@@ -6,8 +6,7 @@ package mockit.coverage.lines;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
@@ -17,12 +16,12 @@ public final class PerFileLineCoverage implements PerFileCoverage
    private static final long serialVersionUID = 6318915843739466316L;
    private static final int[] NO_EXECUTIONS_YET = new int[0];
 
-   @NotNull private final Map<Integer, LineCoverageData> lineToLineData = new HashMap<Integer, LineCoverageData>(128);
+   @Nonnull private final Map<Integer, LineCoverageData> lineToLineData = new HashMap<Integer, LineCoverageData>(128);
 
    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
-   @NotNull private int[] executionCounts = NO_EXECUTIONS_YET;
+   @Nonnull private int[] executionCounts = NO_EXECUTIONS_YET;
 
-   @NotNull private transient LineCoverageData sharedLineData;
+   @Nonnull private transient LineCoverageData sharedLineData;
 
    // Computed on demand:
    private int lastLine;
@@ -37,7 +36,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
 
    private void initializeCache() { totalSegments = coveredSegments = -1; }
 
-   private void readObject(@NotNull ObjectInputStream in) throws IOException, ClassNotFoundException
+   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException
    {
       sharedLineData = new LineCoverageData();
       initializeCache();
@@ -69,7 +68,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   @NotNull
+   @Nonnull
    public LineCoverageData getOrCreateLineData(int line)
    {
       LineCoverageData lineData = lineToLineData.get(line);
@@ -82,7 +81,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData;
    }
 
-   @NotNull
+   @Nonnull
    public BranchCoverageData getBranchData(int line, int index)
    {
       LineCoverageData lineData = lineToLineData.get(line);
@@ -143,7 +142,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return executionCounts != NO_EXECUTIONS_YET && lineToLineData.containsKey(line);
    }
 
-   @NotNull
+   @Nonnull
    public LineCoverageData getLineData(int line)
    {
       LineCoverageData data = lineToLineData.get(line);
@@ -245,7 +244,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       initializeCache();
    }
 
-   public void mergeInformation(@NotNull PerFileLineCoverage previousCoverage)
+   public void mergeInformation(@Nonnull PerFileLineCoverage previousCoverage)
    {
       Map<Integer, LineCoverageData> previousInfo = previousCoverage.lineToLineData;
       boolean previousRunHadLinesExecuted = previousCoverage.executionCounts.length > 0;
@@ -286,7 +285,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   private void createExecutionCountsArrayIfNeeded(@NotNull PerFileLineCoverage previousCoverage)
+   private void createExecutionCountsArrayIfNeeded(@Nonnull PerFileLineCoverage previousCoverage)
    {
       if (executionCounts == NO_EXECUTIONS_YET) {
          executionCounts = new int[previousCoverage.executionCounts.length];

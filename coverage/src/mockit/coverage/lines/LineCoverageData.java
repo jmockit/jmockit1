@@ -5,8 +5,7 @@
 package mockit.coverage.lines;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.external.asm.*;
@@ -19,12 +18,12 @@ public final class LineCoverageData extends LineSegmentData
    private static final long serialVersionUID = -6233980722802474992L;
 
    // Static data:
-   @NotNull private List<BranchCoverageData> branches;
+   @Nonnull private List<BranchCoverageData> branches;
    private transient int segments;
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
-   public int addBranchingPoint(@NotNull Label jumpSource, @NotNull Label jumpTarget)
+   public int addBranchingPoint(@Nonnull Label jumpSource, @Nonnull Label jumpTarget)
    {
       int initialIndex = branches.size();
 
@@ -45,7 +44,7 @@ public final class LineCoverageData extends LineSegmentData
 
    public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
 
-   @NotNull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
+   @Nonnull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
 
    boolean acceptsAdditionalCallPoints(int branchIndex)
    {
@@ -61,7 +60,7 @@ public final class LineCoverageData extends LineSegmentData
 
    public boolean containsBranches() { return !noBranchesYet(); }
 
-   @NotNull public List<BranchCoverageData> getBranches() { return branches; }
+   @Nonnull public List<BranchCoverageData> getBranches() { return branches; }
 
    public boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
 
@@ -186,7 +185,7 @@ public final class LineCoverageData extends LineSegmentData
       return sourcesAndTargetsCovered;
    }
 
-   void addCountsFromPreviousTestRun(@NotNull LineCoverageData previousData)
+   void addCountsFromPreviousTestRun(@Nonnull LineCoverageData previousData)
    {
       addExecutionCountAndCallPointsFromPreviousTestRun(previousData);
 

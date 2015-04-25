@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 
@@ -14,10 +13,10 @@ public final class InstanceFieldData extends FieldData
 {
    private static final long serialVersionUID = 6991762113575259754L;
 
-   @NotNull private final transient Map<Integer, List<Integer>> testIdsToAssignments =
-      new HashMap<Integer, List<Integer>>();
+   @Nonnull
+   private final transient Map<Integer, List<Integer>> testIdsToAssignments = new HashMap<Integer, List<Integer>>();
 
-   void registerAssignment(@NotNull Object instance)
+   void registerAssignment(@Nonnull Object instance)
    {
       List<Integer> dataForRunningTest = getDataForRunningTest();
       Integer instanceId = System.identityHashCode(instance);
@@ -29,7 +28,7 @@ public final class InstanceFieldData extends FieldData
       writeCount++;
    }
 
-   void registerRead(@NotNull Object instance)
+   void registerRead(@Nonnull Object instance)
    {
       List<Integer> dataForRunningTest = getDataForRunningTest();
       Integer instanceId = System.identityHashCode(instance);
@@ -38,7 +37,8 @@ public final class InstanceFieldData extends FieldData
       readCount++;
    }
 
-   @NotNull private List<Integer> getDataForRunningTest()
+   @Nonnull
+   private List<Integer> getDataForRunningTest()
    {
       int testId = TestRun.getTestId();
       List<Integer> fieldData = testIdsToAssignments.get(testId);
@@ -62,7 +62,8 @@ public final class InstanceFieldData extends FieldData
       }
    }
 
-   @NotNull public List<Integer> getOwnerInstancesWithUnreadAssignments()
+   @Nonnull
+   public List<Integer> getOwnerInstancesWithUnreadAssignments()
    {
       if (isCovered()) {
          return Collections.emptyList();

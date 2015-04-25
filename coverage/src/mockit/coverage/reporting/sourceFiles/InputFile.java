@@ -1,22 +1,21 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class InputFile
 {
-   @NotNull final String filePath;
-   @NotNull private final File sourceFile;
-   @NotNull private final BufferedReader input;
+   @Nonnull final String filePath;
+   @Nonnull private final File sourceFile;
+   @Nonnull private final BufferedReader input;
 
    @Nullable
-   public static InputFile createIfFileExists(@NotNull List<File> sourceDirs, @NotNull String filePath)
+   public static InputFile createIfFileExists(@Nonnull List<File> sourceDirs, @Nonnull String filePath)
       throws FileNotFoundException
    {
       File sourceFile = findSourceFile(sourceDirs, filePath);
@@ -24,7 +23,7 @@ public final class InputFile
    }
 
    @Nullable
-   private static File findSourceFile(@NotNull List<File> sourceDirs, @NotNull String filePath)
+   private static File findSourceFile(@Nonnull List<File> sourceDirs, @Nonnull String filePath)
    {
       int p = filePath.indexOf('/');
       String topLevelPackage = p < 0 ? "" : filePath.substring(0, p);
@@ -46,7 +45,7 @@ public final class InputFile
 
    @Nullable
    private static File getSourceFile(
-      @NotNull File sourceDir, @NotNull final String topLevelPackage, @NotNull String filePath)
+      @Nonnull File sourceDir, @Nonnull final String topLevelPackage, @Nonnull String filePath)
    {
       File file = new File(sourceDir, filePath);
 
@@ -75,7 +74,7 @@ public final class InputFile
       return null;
    }
 
-   private static void giveCurrentSourceDirHighestPriority(@NotNull List<File> sourceDirs, int currentSourceDirIndex)
+   private static void giveCurrentSourceDirHighestPriority(@Nonnull List<File> sourceDirs, int currentSourceDirIndex)
    {
       if (currentSourceDirIndex > 0) {
          File firstSourceDir = sourceDirs.get(0);
@@ -89,7 +88,7 @@ public final class InputFile
    }
 
    private static void addRootSourceDirIfNew(
-      @NotNull List<File> sourceDirs, @NotNull String filePath, @NotNull File sourceFile)
+      @Nonnull List<File> sourceDirs, @Nonnull String filePath, @Nonnull File sourceFile)
    {
       String sourceFilePath = sourceFile.getPath();
       String sourceRootDir = sourceFilePath.substring(0, sourceFilePath.length() - filePath.length());
@@ -100,16 +99,16 @@ public final class InputFile
       }
    }
 
-   private InputFile(@NotNull String filePath, @NotNull File sourceFile) throws FileNotFoundException
+   private InputFile(@Nonnull String filePath, @Nonnull File sourceFile) throws FileNotFoundException
    {
       this.filePath = filePath;
       this.sourceFile = sourceFile;
       input = new BufferedReader(new FileReader(sourceFile));
    }
 
-   @NotNull String getSourceFileName() { return sourceFile.getName(); }
+   @Nonnull String getSourceFileName() { return sourceFile.getName(); }
 
-   @NotNull
+   @Nonnull
    String getSourceFilePath()
    {
       String path = sourceFile.getPath();

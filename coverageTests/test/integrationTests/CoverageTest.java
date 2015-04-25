@@ -6,10 +6,10 @@ package integrationTests;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import org.junit.*;
-
 import static org.junit.Assert.*;
 
 import mockit.coverage.*;
@@ -17,8 +17,6 @@ import mockit.coverage.data.*;
 import mockit.coverage.dataItems.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
-
-import org.jetbrains.annotations.*;
 
 public class CoverageTest
 {
@@ -134,7 +132,7 @@ public class CoverageTest
       assertEquals(endingLine, methodData.getLastLineInBody());
    }
 
-   @NotNull
+   @Nonnull
    protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount)
    {
       int i = currentPathIndex + 1;
@@ -170,7 +168,7 @@ public class CoverageTest
       }
    }
 
-   protected final void assertFieldIgnored(@NotNull String fieldName)
+   protected final void assertFieldIgnored(@Nonnull String fieldName)
    {
       String fieldId = testedClassSimpleName + '.' + fieldName;
       assertFalse(
@@ -181,12 +179,12 @@ public class CoverageTest
          fileData.dataCoverageInfo.instanceFieldsData.containsKey(fieldId));
    }
 
-   protected static void assertStaticFieldCovered(@NotNull String fieldName)
+   protected static void assertStaticFieldCovered(@Nonnull String fieldName)
    {
       assertTrue("Static field " + fieldName + " should be covered", isStaticFieldCovered(fieldName));
    }
 
-   private static boolean isStaticFieldCovered(@NotNull String fieldName)
+   private static boolean isStaticFieldCovered(@Nonnull String fieldName)
    {
       String classAndFieldNames = testedClassSimpleName + '.' + fieldName;
       StaticFieldData staticFieldData = fileData.dataCoverageInfo.staticFieldsData.get(classAndFieldNames);
@@ -194,33 +192,33 @@ public class CoverageTest
       return staticFieldData.isCovered();
    }
 
-   protected static void assertStaticFieldUncovered(@NotNull String fieldName)
+   protected static void assertStaticFieldUncovered(@Nonnull String fieldName)
    {
       assertFalse("Static field " + fieldName + " should not be covered", isStaticFieldCovered(fieldName));
    }
 
-   protected static void assertInstanceFieldCovered(@NotNull String fieldName)
+   protected static void assertInstanceFieldCovered(@Nonnull String fieldName)
    {
       assertTrue("Instance field " + fieldName + " should be covered", isInstanceFieldCovered(fieldName));
    }
 
-   private static boolean isInstanceFieldCovered(@NotNull String fieldName)
+   private static boolean isInstanceFieldCovered(@Nonnull String fieldName)
    {
       return getInstanceFieldData(fieldName).isCovered();
    }
 
-   private static InstanceFieldData getInstanceFieldData(@NotNull String fieldName)
+   private static InstanceFieldData getInstanceFieldData(@Nonnull String fieldName)
    {
       String classAndFieldNames = testedClassSimpleName + '.' + fieldName;
       return fileData.dataCoverageInfo.instanceFieldsData.get(classAndFieldNames);
    }
 
-   protected static void assertInstanceFieldUncovered(@NotNull String fieldName)
+   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName)
    {
       assertFalse("Instance field " + fieldName + " should not be covered", isInstanceFieldCovered(fieldName));
    }
 
-   protected static void assertInstanceFieldUncovered(@NotNull String fieldName, @NotNull Object... uncoveredInstances)
+   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName, @Nonnull Object... uncoveredInstances)
    {
       String msg = "Instance field " + fieldName + " should not be covered";
       InstanceFieldData fieldData = getInstanceFieldData(fieldName);

@@ -6,32 +6,31 @@ package mockit.coverage.reporting;
 
 import java.io.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class OutputFile extends PrintWriter
 {
    private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
 
-   @NotNull private final String relPathToOutDir;
+   @Nonnull private final String relPathToOutDir;
    private final boolean withPrettyPrint;
 
-   public OutputFile(@NotNull File file) throws IOException
+   public OutputFile(@Nonnull File file) throws IOException
    {
       super(file, "UTF-8");
       relPathToOutDir = "";
       withPrettyPrint = false;
    }
 
-   public OutputFile(@NotNull String outputDir, @NotNull String sourceFilePath) throws IOException
+   public OutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath) throws IOException
    {
       super(getOutputFileCreatingDirIfNeeded(outputDir, sourceFilePath));
       relPathToOutDir = getRelativeSubPathToOutputDir(sourceFilePath);
       withPrettyPrint = true;
    }
 
-   @NotNull
-   private static File getOutputFileCreatingDirIfNeeded(@NotNull String outputDir, @NotNull String sourceFilePath)
+   @Nonnull
+   private static File getOutputFileCreatingDirIfNeeded(@Nonnull String outputDir, @Nonnull String sourceFilePath)
    {
       File outputFile = getOutputFile(outputDir, sourceFilePath);
       File parentDir = outputFile.getParentFile();
@@ -44,8 +43,8 @@ public final class OutputFile extends PrintWriter
       return outputFile;
    }
 
-   @NotNull
-   static File getOutputFile(@NotNull String outputDir, @NotNull String sourceFilePath)
+   @Nonnull
+   static File getOutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath)
    {
       int p = sourceFilePath.lastIndexOf('.');
       String outputFileName = sourceFilePath.substring(0, p) + ".html";
@@ -53,8 +52,8 @@ public final class OutputFile extends PrintWriter
       return outputFile;
    }
 
-   @NotNull
-   private static String getRelativeSubPathToOutputDir(@NotNull String filePath)
+   @Nonnull
+   private static String getRelativeSubPathToOutputDir(@Nonnull String filePath)
    {
       StringBuilder cssRelPath = new StringBuilder();
       int n = PATH_SEPARATOR.split(filePath).length;
@@ -66,7 +65,7 @@ public final class OutputFile extends PrintWriter
       return cssRelPath.toString();
    }
 
-   public void writeCommonHeader(@NotNull String pageTitle)
+   public void writeCommonHeader(@Nonnull String pageTitle)
    {
       println("<!DOCTYPE html>");
       println("<html>");

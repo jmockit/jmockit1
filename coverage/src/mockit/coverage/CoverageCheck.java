@@ -7,8 +7,7 @@ package mockit.coverage;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 
@@ -19,10 +18,10 @@ final class CoverageCheck
       private static final Pattern PARAMETER_SEPARATORS = Pattern.compile(":|=");
 
       @Nullable private final String sourceFilePrefix;
-      @NotNull private final String scopeDescription;
-      @NotNull private final int[] minPercentages;
+      @Nonnull private final String scopeDescription;
+      @Nonnull private final int[] minPercentages;
 
-      Threshold(@NotNull String configurationParameter)
+      Threshold(@Nonnull String configurationParameter)
       {
          String[] sourceFilePrefixAndMinPercentages = PARAMETER_SEPARATORS.split(configurationParameter);
          String csvPercentages;
@@ -53,7 +52,7 @@ final class CoverageCheck
 
       private static boolean isPerFile(@Nullable String scope) { return "perFile".equalsIgnoreCase(scope); }
 
-      private void parseMinimumPercentages(@NotNull String csvPercentages)
+      private void parseMinimumPercentages(@Nonnull String csvPercentages)
       {
          String[] textualPercentages = csvPercentages.split(",");
          int n = Math.min(textualPercentages.length, minPercentages.length);
@@ -64,7 +63,7 @@ final class CoverageCheck
          }
       }
 
-      boolean verifyMinimum(@NotNull Metrics metric)
+      boolean verifyMinimum(@Nonnull Metrics metric)
       {
          CoverageData coverageData = CoverageData.instance();
          int percentage;
@@ -79,7 +78,7 @@ final class CoverageCheck
          return percentage < 0 || verifyMinimum(metric, percentage);
       }
 
-      private boolean verifyMinimum(@NotNull Metrics metric, int percentage)
+      private boolean verifyMinimum(@Nonnull Metrics metric, int percentage)
       {
          int minPercentage = minPercentages[metric.ordinal()];
 
@@ -123,7 +122,7 @@ final class CoverageCheck
       for (final Threshold threshold : thresholds) {
          Metrics.performAction(new Metrics.Action() {
             @Override
-            public void perform(@NotNull Metrics metric)
+            public void perform(@Nonnull Metrics metric)
             {
                allThresholdsSatisfied &= threshold.verifyMinimum(metric);
             }

@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
 
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 
 final class AccretionFile
 {
-   @NotNull private final File outputFile;
-   @NotNull private final CoverageData newData;
+   @Nonnull private final File outputFile;
+   @Nonnull private final CoverageData newData;
 
-   AccretionFile(@NotNull String outputDir, @NotNull CoverageData newData)
+   AccretionFile(@Nonnull String outputDir, @Nonnull CoverageData newData)
    {
       String parentDir = outputDir.isEmpty() ? null : outputDir;
       outputFile = new File(parentDir, "coverage.ser");

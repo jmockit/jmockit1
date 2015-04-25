@@ -7,16 +7,16 @@ package mockit.coverage.standalone;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import javax.annotation.*;
 
 import com.sun.tools.attach.*;
-import org.jetbrains.annotations.*;
 
 public final class AgentLoader
 {
    private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
-   @NotNull private final String processIdForTargetVM;
+   @Nonnull private final String processIdForTargetVM;
 
-   public AgentLoader(@NotNull String processIdForTargetVM)
+   public AgentLoader(@Nonnull String processIdForTargetVM)
    {
       if (JAVA_VERSION < 1.6F) {
          throw new IllegalStateException("JMockit Coverage requires a Java 6+ VM");
@@ -40,7 +40,7 @@ public final class AgentLoader
       catch (IOException e) { throw new RuntimeException(e); }
    }
 
-   @NotNull
+   @Nonnull
    private String getPathToJarFile()
    {
       CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();

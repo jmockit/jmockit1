@@ -7,8 +7,7 @@ package mockit.coverage.reporting;
 import java.io.*;
 import java.util.*;
 import java.util.Map.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 import mockit.coverage.reporting.packages.*;
@@ -16,17 +15,17 @@ import mockit.coverage.reporting.sourceFiles.*;
 
 class CoverageReport
 {
-   @NotNull private final String outputDir;
+   @Nonnull private final String outputDir;
    private boolean outputDirCreated;
    @Nullable private final List<File> sourceDirs;
-   @NotNull private final Map<String, FileCoverageData> fileToFileData;
-   @NotNull private final Map<String, List<String>> packageToFiles;
+   @Nonnull private final Map<String, FileCoverageData> fileToFileData;
+   @Nonnull private final Map<String, List<String>> packageToFiles;
    private final boolean withCallPoints;
    @Nullable private final Collection<String> sourceFilesNotFound;
 
    protected CoverageReport(
-      @NotNull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs,
-      @NotNull CoverageData coverageData, boolean withCallPoints)
+      @Nonnull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs,
+      @Nonnull CoverageData coverageData, boolean withCallPoints)
    {
       this.outputDir = getOrChooseOutputDirectory(outputDir);
       this.outputDirCreated = outputDirCreated;
@@ -37,8 +36,8 @@ class CoverageReport
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
    }
 
-   @NotNull
-   private static String getOrChooseOutputDirectory(@NotNull String outputDir)
+   @Nonnull
+   private static String getOrChooseOutputDirectory(@Nonnull String outputDir)
    {
       if (!outputDir.isEmpty()) {
          return outputDir;
@@ -102,7 +101,7 @@ class CoverageReport
       }
    }
 
-   private void generateFileCoverageReport(@NotNull String sourceFile, @NotNull FileCoverageData fileData)
+   private void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData)
       throws IOException
    {
       if (sourceDirs == null) {
@@ -126,7 +125,7 @@ class CoverageReport
       }
    }
 
-   private void addFileToPackageFileList(@NotNull String file)
+   private void addFileToPackageFileList(@Nonnull String file)
    {
       int p = file.lastIndexOf('/');
       String filePackage = p < 0 ? "" : file.substring(0, p);
@@ -140,7 +139,7 @@ class CoverageReport
       filesInPackage.add(file.substring(p + 1));
    }
 
-   private void deleteOutdatedHTMLFileIfExists(@NotNull String filePath)
+   private void deleteOutdatedHTMLFileIfExists(@Nonnull String filePath)
    {
       if (!outputDirCreated) {
          File outputFile = OutputFile.getOutputFile(outputDir, filePath);

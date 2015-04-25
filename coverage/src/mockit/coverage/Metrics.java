@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.standalone.*;
 
@@ -34,19 +34,19 @@ public enum Metrics
       "number of fully exercised fields.",
       Startup.isTestRun() && Startup.isJMockitAvailable() && isActive("data"));
 
-   private static boolean isActive(@NotNull String name)
+   private static boolean isActive(@Nonnull String name)
    {
       String metrics = Configuration.getProperty("metrics", "line");
       boolean all = "all".equals(metrics);
       return all || metrics.contains(name);
    }
 
-   @NotNull private final String name;
-   @NotNull public final String itemName;
-   @NotNull public final String htmlDescription;
+   @Nonnull private final String name;
+   @Nonnull public final String itemName;
+   @Nonnull public final String htmlDescription;
    public final boolean active;
 
-   Metrics(@NotNull String name, @NotNull String itemName, @NotNull String htmlDescription, boolean active)
+   Metrics(@Nonnull String name, @Nonnull String itemName, @Nonnull String htmlDescription, boolean active)
    {
       this.name = name;
       this.itemName = itemName;
@@ -56,9 +56,9 @@ public enum Metrics
 
    @Override public String toString() { return name; }
 
-   public interface Action { void perform(@NotNull Metrics metric); }
+   public interface Action { void perform(@Nonnull Metrics metric); }
 
-   public static void performAction(@NotNull Action action)
+   public static void performAction(@Nonnull Action action)
    {
       for (Metrics metric : values()) {
          if (metric.active) {

@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
@@ -24,16 +23,16 @@ import mockit.coverage.reporting.pathCoverage.*;
  */
 public final class FileCoverageReport
 {
-   @NotNull private final InputFile inputFile;
-   @NotNull private final OutputFile output;
-   @NotNull private final FileParser fileParser;
-   @NotNull private final NeutralOutput neutralOutput;
-   @NotNull private final LineCoverageOutput lineCoverage;
+   @Nonnull private final InputFile inputFile;
+   @Nonnull private final OutputFile output;
+   @Nonnull private final FileParser fileParser;
+   @Nonnull private final NeutralOutput neutralOutput;
+   @Nonnull private final LineCoverageOutput lineCoverage;
    @Nullable private final PathCoverageOutput pathCoverage;
    @Nullable private final DataCoverageOutput dataCoverage;
 
    public FileCoverageReport(
-      @NotNull String outputDir, @NotNull InputFile inputFile, @NotNull FileCoverageData fileData,
+      @Nonnull String outputDir, @Nonnull InputFile inputFile, @Nonnull FileCoverageData fileData,
       boolean withCallPoints)
       throws IOException
    {
@@ -47,7 +46,7 @@ public final class FileCoverageReport
    }
 
    @Nullable
-   private PathCoverageOutput createPathCoverageOutput(@NotNull FileCoverageData fileData)
+   private PathCoverageOutput createPathCoverageOutput(@Nonnull FileCoverageData fileData)
    {
       if (Metrics.PathCoverage.active) {
          Collection<MethodCoverageData> methods = fileData.getMethods();
@@ -58,7 +57,7 @@ public final class FileCoverageReport
    }
 
    @Nullable
-   private static DataCoverageOutput createDataCoverageOutput(@NotNull FileCoverageData fileData)
+   private static DataCoverageOutput createDataCoverageOutput(@Nonnull FileCoverageData fileData)
    {
       if (Metrics.DataCoverage.active) {
          PerFileDataCoverage dataCoverageInfo = fileData.dataCoverageInfo;
@@ -126,7 +125,7 @@ public final class FileCoverageReport
       output.write("</td>");
    }
 
-   private void writeLineWithoutCoverageInfo(@NotNull LineElement initialElement)
+   private void writeLineWithoutCoverageInfo(@Nonnull LineElement initialElement)
    {
       output.println("<td>&nbsp;</td>");
       output.write("      <td><pre class='");

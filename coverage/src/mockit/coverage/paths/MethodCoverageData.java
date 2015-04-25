@@ -6,8 +6,7 @@ package mockit.coverage.paths;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.paths.Node.*;
 
@@ -15,16 +14,16 @@ public final class MethodCoverageData implements Serializable
 {
    private static final long serialVersionUID = -5073393714435522417L;
 
-   @NotNull private List<Node> nodes;
+   @Nonnull private List<Node> nodes;
    private int firstLine;
    private int lastLine;
 
    // Helper fields used during node building and path execution:
-   @NotNull private final transient ThreadLocal<List<Node>> nodesReached;
-   @NotNull private final transient ThreadLocal<Integer> previousNodeIndex;
+   @Nonnull private final transient ThreadLocal<List<Node>> nodesReached;
+   @Nonnull private final transient ThreadLocal<Integer> previousNodeIndex;
 
-   @NotNull public List<Path> paths;
-   @NotNull private List<Path> nonShadowedPaths;
+   @Nonnull public List<Path> paths;
+   @Nonnull private List<Path> nonShadowedPaths;
 
    public MethodCoverageData()
    {
@@ -35,13 +34,13 @@ public final class MethodCoverageData implements Serializable
       previousNodeIndex = new ThreadLocal<Integer>();
    }
 
-   public void buildPaths(int lastExecutableLine, @NotNull NodeBuilder nodeBuilder)
+   public void buildPaths(int lastExecutableLine, @Nonnull NodeBuilder nodeBuilder)
    {
       firstLine = nodeBuilder.firstLine;
       lastLine = lastExecutableLine;
 
       nodes = nodeBuilder.nodes;
-      paths = new PathBuilder().buildPaths(nodes);
+      paths = PathBuilder.buildPaths(nodes);
       buildListOfNonShadowedPaths();
    }
 
@@ -99,7 +98,7 @@ public final class MethodCoverageData implements Serializable
       previousNodeIndex.set(0);
    }
 
-   @NotNull public List<Path> getPaths() { return nonShadowedPaths; }
+   @Nonnull public List<Path> getPaths() { return nonShadowedPaths; }
 
    public int getExecutionCount()
    {

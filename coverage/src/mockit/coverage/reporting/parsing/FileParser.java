@@ -1,30 +1,29 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class FileParser
 {
    private static final class PendingClass
    {
-      @NotNull final String className;
+      @Nonnull final String className;
       int braceBalance;
-      PendingClass(@NotNull String className) { this.className = className; }
+      PendingClass(@Nonnull String className) { this.className = className; }
    }
 
-   @NotNull public final LineParser lineParser = new LineParser();
-   @NotNull public final List<PendingClass> currentClasses = new ArrayList<PendingClass>(2);
+   @Nonnull public final LineParser lineParser = new LineParser();
+   @Nonnull public final List<PendingClass> currentClasses = new ArrayList<PendingClass>(2);
 
    @Nullable private PendingClass currentClass;
    private boolean openingBraceForClassFound;
    private int currentBraceBalance;
 
-   public boolean parseCurrentLine(@NotNull String line)
+   public boolean parseCurrentLine(@Nonnull String line)
    {
       if (!lineParser.parse(line)) {
          return false;
@@ -60,7 +59,7 @@ public final class FileParser
       return null;
    }
 
-   private void registerStartOfClassDeclaration(@NotNull LineElement elementWithClassName)
+   private void registerStartOfClassDeclaration(@Nonnull LineElement elementWithClassName)
    {
       String className = elementWithClassName.getText();
 
@@ -73,7 +72,7 @@ public final class FileParser
       currentBraceBalance = 0;
    }
 
-   private void detectPotentialEndOfClassDeclaration(@NotNull LineElement firstElement)
+   private void detectPotentialEndOfClassDeclaration(@Nonnull LineElement firstElement)
    {
       // TODO: how to deal with classes defined entirely in one line?
       currentBraceBalance += firstElement.getBraceBalanceUntilEndOfLine();

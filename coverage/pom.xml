@@ -6,6 +6,10 @@
 
    <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.17</version>
    <packaging>jar</packaging>
+   <prerequisites>
+      <maven>3.2.5</maven>
+      <!-- Must run on JDK 1.8 -->
+   </prerequisites>
 
    <name>JMockit Coverage</name>
    <description>
@@ -17,7 +21,7 @@
    <url>http://www.jmockit.org</url>
    <licenses>
       <license>
-         <name>MIT LICENSE</name>
+         <name>The MIT LICENSE</name>
          <url>http://www.opensource.org/licenses/mit-license.php</url>
          <distribution>repo</distribution>
       </license>
@@ -25,10 +29,22 @@
    <developers>
       <developer><name>Rogério Liesenfeld</name></developer>
    </developers>
+   <inceptionYear>2006</inceptionYear>
    <scm>
       <url>https://github.com/jmockit/jmockit1</url>
       <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
    </scm>
+   <issueManagement>
+      <system>GitHub Issues</system>
+      <url>https://github.com/jmockit/jmockit1/issues</url>
+   </issueManagement>
+   <mailingLists>
+      <mailingList>
+         <name>JMockit Users</name>
+         <archive>http://groups.google.com/group/jmockit-users</archive>
+         <post>jmockit-users@googlegroups.com</post>
+      </mailingList>
+   </mailingLists>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -171,7 +187,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.jetbrains</groupId><artifactId>annotations</artifactId><version>13.0</version>
+         <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.0</version>
          <optional>true</optional>
       </dependency>
       <dependency>

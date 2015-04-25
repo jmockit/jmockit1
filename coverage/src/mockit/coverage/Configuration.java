@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class Configuration
 {
@@ -13,13 +13,13 @@ public final class Configuration
 
    private Configuration() {}
 
-   @Nullable public static String getProperty(@NotNull String nameSuffix)
+   @Nullable
+   public static String getProperty(@Nonnull String nameSuffix)
    {
       return getProperty(nameSuffix, null);
    }
 
-   @Contract("_, !null -> !null")
-   public static String getProperty(@NotNull String nameSuffix, @Nullable String defaultValue)
+   public static String getProperty(@Nonnull String nameSuffix, @Nullable String defaultValue)
    {
       String property = System.getProperty(COVERAGE_PREFIX1 + nameSuffix);
 
@@ -30,7 +30,7 @@ public final class Configuration
       return System.getProperty(COVERAGE_PREFIX2 + nameSuffix, defaultValue);
    }
 
-   public static void setProperty(@NotNull String name, @NotNull String value)
+   public static void setProperty(@Nonnull String name, @Nonnull String value)
    {
       String prefixToUse = COVERAGE_PREFIX1;
 

@@ -6,8 +6,7 @@ package mockit.coverage.data;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.dataItems.*;
@@ -21,13 +20,13 @@ public final class FileCoverageData implements Serializable
 {
    private static final long serialVersionUID = 3508572808457541012L;
 
-   @NotNull private static final PerFileLineCoverage NO_LINE_INFO = new PerFileLineCoverage();
-   @NotNull private static final PerFilePathCoverage NO_PATH_INFO = new PerFilePathCoverage();
-   @NotNull private static final PerFileDataCoverage NO_DATA_INFO = new PerFileDataCoverage();
+   @Nonnull private static final PerFileLineCoverage NO_LINE_INFO = new PerFileLineCoverage();
+   @Nonnull private static final PerFilePathCoverage NO_PATH_INFO = new PerFilePathCoverage();
+   @Nonnull private static final PerFileDataCoverage NO_DATA_INFO = new PerFileDataCoverage();
 
-   @NotNull public PerFileLineCoverage lineCoverageInfo;
-   @NotNull public PerFilePathCoverage pathCoverageInfo;
-   @NotNull public PerFileDataCoverage dataCoverageInfo;
+   @Nonnull public PerFileLineCoverage lineCoverageInfo;
+   @Nonnull public PerFilePathCoverage pathCoverageInfo;
+   @Nonnull public PerFileDataCoverage dataCoverageInfo;
 
    // Used for fast indexed access.
    public final int index;
@@ -52,16 +51,16 @@ public final class FileCoverageData implements Serializable
 
    public boolean wasLoadedAfterTestCompletion() { return loadedAfterTestCompletion; }
 
-   @NotNull
+   @Nonnull
    public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }
 
-   public void addMethod(@NotNull MethodCoverageData methodData) { pathCoverageInfo.addMethod(methodData); }
+   public void addMethod(@Nonnull MethodCoverageData methodData) { pathCoverageInfo.addMethod(methodData); }
 
-   @NotNull
+   @Nonnull
    public Collection<MethodCoverageData> getMethods() { return pathCoverageInfo.firstLineToMethodData.values(); }
 
-   @NotNull
-   public PerFileCoverage getPerFileCoverage(@NotNull Metrics metric)
+   @Nonnull
+   public PerFileCoverage getPerFileCoverage(@Nonnull Metrics metric)
    {
       switch (metric) {
          case LineCoverage: return lineCoverageInfo;
@@ -89,7 +88,7 @@ public final class FileCoverageData implements Serializable
       return totalItems;
    }
 
-   void mergeWithDataFromPreviousTestRun(@NotNull FileCoverageData previousInfo)
+   void mergeWithDataFromPreviousTestRun(@Nonnull FileCoverageData previousInfo)
    {
       if (lineCoverageInfo == NO_LINE_INFO) {
          lineCoverageInfo = previousInfo.lineCoverageInfo;

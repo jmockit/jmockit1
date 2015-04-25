@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.lineCoverage;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.lines.*;
@@ -15,8 +14,8 @@ import mockit.coverage.reporting.parsing.*;
 
 final class LineCoverageFormatter
 {
-   @NotNull private final StringBuilder formattedLine;
-   @NotNull private final LineSegmentsFormatter segmentsFormatter;
+   @Nonnull private final StringBuilder formattedLine;
+   @Nonnull private final LineSegmentsFormatter segmentsFormatter;
    @Nullable private final ListOfCallPoints listOfCallPoints;
 
    LineCoverageFormatter(boolean withCallPoints)
@@ -26,7 +25,7 @@ final class LineCoverageFormatter
       listOfCallPoints = withCallPoints ? new ListOfCallPoints() : null;
    }
 
-   String format(@NotNull LineParser lineParser, @NotNull PerFileLineCoverage lineCoverageData)
+   String format(@Nonnull LineParser lineParser, @Nonnull PerFileLineCoverage lineCoverageData)
    {
       formattedLine.setLength(0);
       formattedLine.append("<pre class='prettyprint");
@@ -44,13 +43,13 @@ final class LineCoverageFormatter
       return formattedLine.toString();
    }
 
-   private void formatLineWithMultipleSegments(@NotNull LineParser lineParser, @NotNull LineCoverageData lineData)
+   private void formatLineWithMultipleSegments(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData)
    {
       formattedLine.append(" jmp'>");
       segmentsFormatter.formatSegments(lineParser, lineData);
    }
 
-   private void formatLineWithSingleSegment(@NotNull LineParser lineParser, @NotNull LineCoverageData lineData)
+   private void formatLineWithSingleSegment(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData)
    {
       formattedLine.append(lineData.isCovered() ? " covered" : " uncovered");
 

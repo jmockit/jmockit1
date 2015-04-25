@@ -1,23 +1,27 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class CoveragePercentage
 {
+   private CoveragePercentage() {}
+
    public static int calculate(int coveredCount, int totalCount)
    {
       if (totalCount <= 0) {
          return -1;
       }
 
+      //noinspection NumericCastThatLosesPrecision
       return (int) (100.0 * coveredCount / totalCount + 0.5);
    }
 
-   @NotNull public static String percentageColor(int coveredCount, int totalCount)
+   @Nonnull
+   public static String percentageColor(int coveredCount, int totalCount)
    {
       if (coveredCount == 0) {
          return "ff0000";
@@ -27,6 +31,7 @@ public final class CoveragePercentage
       }
 
       double percentage = 100.0 * coveredCount / totalCount;
+      //noinspection NumericCastThatLosesPrecision
       int green = (int) (0xFF * percentage / 100 + 0.5);
       int red = 0xFF - green;
 
@@ -38,7 +43,7 @@ public final class CoveragePercentage
       return color.toString();
    }
 
-   private static void appendColorInHexadecimal(@NotNull StringBuilder colorInHexa, int rgb)
+   private static void appendColorInHexadecimal(@Nonnull StringBuilder colorInHexa, int rgb)
    {
       String hex = Integer.toHexString(rgb);
 

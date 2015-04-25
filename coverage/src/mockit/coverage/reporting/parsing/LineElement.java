@@ -4,11 +4,10 @@
  */
 package mockit.coverage.reporting.parsing;
 
-import static java.util.Arrays.*;
 import java.util.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
+import static java.util.Arrays.*;
 
 public final class LineElement implements Iterable<LineElement>
 {
@@ -22,11 +21,11 @@ public final class LineElement implements Iterable<LineElement>
    {
       IF("if"), FOR("for"), WHILE("while");
 
-      @NotNull private final String keyword;
-      ConditionalStatement(@NotNull String keyword) { this.keyword = keyword; }
+      @Nonnull private final String keyword;
+      ConditionalStatement(@Nonnull String keyword) { this.keyword = keyword; }
 
       @Nullable
-      static ConditionalStatement find(@NotNull String keyword)
+      static ConditionalStatement find(@Nonnull String keyword)
       {
          for (ConditionalStatement statement : values()) {
             if (statement.keyword.equals(keyword)) {
@@ -38,8 +37,8 @@ public final class LineElement implements Iterable<LineElement>
       }
    }
 
-   @NotNull private final ElementType type;
-   @NotNull private final String text;
+   @Nonnull private final ElementType type;
+   @Nonnull private final String text;
    @Nullable private String openingTag;
    @Nullable private String closingTag;
    @Nullable private LineElement next;
@@ -47,7 +46,7 @@ public final class LineElement implements Iterable<LineElement>
    @Nullable private ConditionalStatement conditionalStatement;
    private int parenthesesBalance;
 
-   LineElement(@NotNull ElementType type, @NotNull String text)
+   LineElement(@Nonnull ElementType type, @Nonnull String text)
    {
       this.type = type;
       this.text = OPEN_TAG.matcher(text).replaceAll("&lt;");
@@ -56,7 +55,7 @@ public final class LineElement implements Iterable<LineElement>
    public boolean isCode() { return type == ElementType.CODE; }
    public boolean isComment() { return type == ElementType.COMMENT; }
 
-   public boolean isKeyword(@NotNull String keyword)
+   public boolean isKeyword(@Nonnull String keyword)
    {
       return isCode() && text.equals(keyword);
    }
@@ -66,7 +65,7 @@ public final class LineElement implements Iterable<LineElement>
       return type == ElementType.SEPARATOR && text.charAt(0) == '.';
    }
 
-   @NotNull public String getText() { return text; }
+   @Nonnull public String getText() { return text; }
 
    @Nullable public LineElement getNext() { return next; }
    void setNext(@Nullable LineElement next) { this.next = next; }
@@ -85,14 +84,14 @@ public final class LineElement implements Iterable<LineElement>
       return null;
    }
 
-   public void wrapText(@NotNull String desiredOpeningTag, @NotNull String desiredClosingTag)
+   public void wrapText(@Nonnull String desiredOpeningTag, @Nonnull String desiredClosingTag)
    {
       openingTag = desiredOpeningTag;
       closingTag = desiredClosingTag;
    }
 
    @Nullable
-   public LineElement appendUntilNextCodeElement(@NotNull StringBuilder line)
+   public LineElement appendUntilNextCodeElement(@Nonnull StringBuilder line)
    {
       LineElement element = this;
 
@@ -110,13 +109,13 @@ public final class LineElement implements Iterable<LineElement>
       return element;
    }
 
-   private void copyConditionalTrackingState(@NotNull LineElement destination)
+   private void copyConditionalTrackingState(@Nonnull LineElement destination)
    {
       destination.conditionalStatement = conditionalStatement;
       destination.parenthesesBalance = parenthesesBalance;
    }
 
-   private void appendText(@NotNull StringBuilder line)
+   private void appendText(@Nonnull StringBuilder line)
    {
       if (openingTag == null) {
          line.append(text);
@@ -192,7 +191,7 @@ public final class LineElement implements Iterable<LineElement>
    }
 
    @Nullable
-   public LineElement findWord(@NotNull String word)
+   public LineElement findWord(@Nonnull String word)
    {
       for (LineElement element : this) {
          if (element.isCode() && word.equals(element.text)) {
@@ -230,7 +229,7 @@ public final class LineElement implements Iterable<LineElement>
       return 0;
    }
 
-   public void appendAllBefore(@NotNull StringBuilder line, @Nullable LineElement elementToStopBefore)
+   public void appendAllBefore(@Nonnull StringBuilder line, @Nullable LineElement elementToStopBefore)
    {
       LineElement elementToPrint = this;
 
@@ -241,7 +240,7 @@ public final class LineElement implements Iterable<LineElement>
       while (elementToPrint != null && elementToPrint != elementToStopBefore);
    }
 
-   @NotNull @Override
+   @Nonnull @Override
    public Iterator<LineElement> iterator()
    {
       return new Iterator<LineElement>() {
@@ -249,7 +248,7 @@ public final class LineElement implements Iterable<LineElement>
 
          @Override public boolean hasNext() { return current != null; }
 
-         @NotNull @Override
+         @Nonnull @Override
          public LineElement next()
          {
             if (current == null) {

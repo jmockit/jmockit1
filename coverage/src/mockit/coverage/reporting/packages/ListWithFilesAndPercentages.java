@@ -1,30 +1,29 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 
 abstract class ListWithFilesAndPercentages
 {
-   @NotNull protected final PrintWriter output;
-   @NotNull private final String baseIndent;
-   @NotNull final int[] totalItems = new int[Metrics.values().length];
-   @NotNull final int[] coveredItems = new int[Metrics.values().length];
+   @Nonnull protected final PrintWriter output;
+   @Nonnull private final String baseIndent;
+   @Nonnull final int[] totalItems = new int[Metrics.values().length];
+   @Nonnull final int[] coveredItems = new int[Metrics.values().length];
 
-   protected ListWithFilesAndPercentages(@NotNull PrintWriter output, @NotNull String baseIndent)
+   protected ListWithFilesAndPercentages(@Nonnull PrintWriter output, @Nonnull String baseIndent)
    {
       this.output = output;
       this.baseIndent = baseIndent;
    }
 
-   final void writeMetricsForEachFile(@Nullable String packageName, @NotNull List<String> fileNames)
+   final void writeMetricsForEachFile(@Nullable String packageName, @Nonnull List<String> fileNames)
    {
       if (fileNames.isEmpty()) {
          return;
@@ -53,9 +52,9 @@ abstract class ListWithFilesAndPercentages
 
    final void printIndent() { output.write(baseIndent); }
 
-   protected abstract void writeMetricsForFile(@Nullable String packageName, @NotNull String fileName);
+   protected abstract void writeMetricsForFile(@Nullable String packageName, @Nonnull String fileName);
 
-   final void printCoveragePercentage(@NotNull Metrics metric, int covered, int total, int percentage)
+   final void printCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage)
    {
       printIndent();
       output.write("  <td ");
@@ -70,7 +69,7 @@ abstract class ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeRowCellWithCoveragePercentage(@NotNull Metrics metric, int covered, int total, int percentage)
+   private void writeRowCellWithCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage)
    {
       writeClassAttributeForCoveragePercentageCell();
       output.write("style='background-color:#");

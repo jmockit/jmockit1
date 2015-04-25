@@ -6,6 +6,7 @@ package mockit.coverage.modification;
 
 import java.io.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
@@ -15,8 +16,6 @@ import static mockit.coverage.Metrics.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-import org.jetbrains.annotations.*;
-
 final class CoverageModifier extends ClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
@@ -25,20 +24,20 @@ final class CoverageModifier extends ClassVisitor
    private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
    @Nullable
-   static byte[] recoverModifiedByteCodeIfAvailable(@NotNull String innerClassName)
+   static byte[] recoverModifiedByteCodeIfAvailable(@Nonnull String innerClassName)
    {
       CoverageModifier modifier = INNER_CLASS_MODIFIERS.remove(innerClassName);
       return modifier == null ? null : modifier.toByteArray();
    }
 
    @Nullable
-   static ClassReader createClassReader(@NotNull Class<?> aClass)
+   static ClassReader createClassReader(@Nonnull Class<?> aClass)
    {
       return createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
    }
 
    @Nullable
-   private static ClassReader createClassReader(@NotNull ClassLoader cl, @NotNull String internalClassName)
+   private static ClassReader createClassReader(@Nonnull ClassLoader cl, @Nonnull String internalClassName)
    {
       String classFileName = internalClassName + ".class";
       //noinspection IOResourceOpenedButNotSafelyClosed
@@ -52,10 +51,10 @@ final class CoverageModifier extends ClassVisitor
       try { return new ClassReader(classFile); } catch (IOException ignore) { return null; }
    }
 
-   @NotNull private final ClassWriter cw;
+   @Nonnull private final ClassWriter cw;
    @Nullable private String internalClassName;
    @Nullable private String simpleClassName;
-   @NotNull private String sourceFileName;
+   @Nonnull private String sourceFileName;
    @Nullable private FileCoverageData fileData;
    private boolean cannotModify;
    private final boolean forInnerClass;
@@ -63,20 +62,20 @@ final class CoverageModifier extends ClassVisitor
    @Nullable private String kindOfTopLevelType;
    private int currentLine;
 
-   CoverageModifier(@NotNull ClassReader cr)
+   CoverageModifier(@Nonnull ClassReader cr)
    {
       this(cr, false);
       sourceFileName = "";
    }
 
-   private CoverageModifier(@NotNull ClassReader cr, boolean forInnerClass)
+   private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass)
    {
       super(new ClassWriter(cr));
       cw = (ClassWriter) cv;
       this.forInnerClass = forInnerClass;
    }
 
-   private CoverageModifier(@NotNull ClassReader cr, @NotNull CoverageModifier other, @Nullable String simpleClassName)
+   private CoverageModifier(@Nonnull ClassReader cr, @Nonnull CoverageModifier other, @Nullable String simpleClassName)
    {
       this(cr, true);
       sourceFileName = other.sourceFileName;
@@ -87,7 +86,7 @@ final class CoverageModifier extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, String superName,
       @Nullable String[] interfaces)
    {
       if ((access & ACC_SYNTHETIC) != 0) {
@@ -125,8 +124,8 @@ final class CoverageModifier extends ClassVisitor
       cw.visit(version, access, name, signature, superName, interfaces);
    }
 
-   @NotNull
-   private static String getKindOfJavaType(int typeModifiers, @NotNull String superName)
+   @Nonnull
+   private static String getKindOfJavaType(int typeModifiers, @Nonnull String superName)
    {
       if ((typeModifiers & ACC_ANNOTATION) != 0) return "annotation";
       else if ((typeModifiers & ACC_INTERFACE) != 0) return "interface";
@@ -157,7 +156,7 @@ final class CoverageModifier extends ClassVisitor
 
    @Override
    public void visitInnerClass(
-      @NotNull String internalName, @Nullable String outerName, @Nullable String innerName, int access)
+      @Nonnull String internalName, @Nullable String outerName, @Nullable String innerName, int access)
    {
       cw.visitInnerClass(internalName, outerName, innerName, access);
 
@@ -199,7 +198,7 @@ final class CoverageModifier extends ClassVisitor
 
    @Override
    public FieldVisitor visitField(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable Object value)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value)
    {
       if (
          fileData != null && simpleClassName != null &&
@@ -213,7 +212,7 @@ final class CoverageModifier extends ClassVisitor
 
    @Override
    public MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
 
@@ -238,11 +237,11 @@ final class CoverageModifier extends ClassVisitor
    {
       static final String DATA_RECORDING_CLASS = "mockit/coverage/TestRun";
 
-      @NotNull protected final MethodWriter mw;
-      @NotNull protected final List<Label> visitedLabels;
-      @NotNull private final List<Label> jumpTargetsForCurrentLine;
-      @NotNull private final List<Integer> pendingBranches;
-      @NotNull private final PerFileLineCoverage lineCoverageInfo;
+      @Nonnull protected final MethodWriter mw;
+      @Nonnull protected final List<Label> visitedLabels;
+      @Nonnull private final List<Label> jumpTargetsForCurrentLine;
+      @Nonnull private final List<Integer> pendingBranches;
+      @Nonnull private final PerFileLineCoverage lineCoverageInfo;
       private int lineExpectingInstructionAfterJump;
       protected boolean assertFoundInCurrentLine;
       protected boolean ignoreUntilNextLabel;
@@ -250,7 +249,7 @@ final class CoverageModifier extends ClassVisitor
       private int foundPotentialBooleanExpressionValue;
       protected int ignoreUntilNextSwitch;
 
-      BaseMethodModifier(@NotNull MethodWriter mw)
+      BaseMethodModifier(@Nonnull MethodWriter mw)
       {
          super(mw);
          this.mw = mw;
@@ -263,7 +262,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitLineNumber(int line, @NotNull Label start)
+      public void visitLineNumber(int line, @Nonnull Label start)
       {
          if (!pendingBranches.isEmpty()) {
             pendingBranches.clear();
@@ -298,7 +297,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitJumpInsn(int opcode, @NotNull Label label)
+      public void visitJumpInsn(int opcode, @Nonnull Label label)
       {
          if (
             currentLine == 0 || ignoreUntilNextLabel || ignoreUntilNextSwitch > 0 ||
@@ -375,7 +374,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitLabel(@NotNull Label label)
+      public void visitLabel(@Nonnull Label label)
       {
          if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
             mw.visitLabel(label);
@@ -427,14 +426,14 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitTypeInsn(int opcode, @NotNull String desc)
+      public void visitTypeInsn(int opcode, @Nonnull String desc)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTypeInsn(opcode, desc);
       }
 
       @Override
-      public void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitFieldInsn(opcode, owner, name, desc);
@@ -449,7 +448,7 @@ final class CoverageModifier extends ClassVisitor
 
       @Override
       public void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+         int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMethodInsn(opcode, owner, name, desc, itf);
@@ -463,7 +462,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public void visitLdcInsn(@NotNull Object cst)
+      public void visitLdcInsn(@Nonnull Object cst)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitLdcInsn(cst);
@@ -478,14 +477,14 @@ final class CoverageModifier extends ClassVisitor
 
       @Override
       public void visitTryCatchBlock(
-         @NotNull Label start, @NotNull Label end, @NotNull Label handler, @Nullable String type)
+         @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTryCatchBlock(start, end, handler, type);
       }
 
       @Override
-      public void visitLookupSwitchInsn(@NotNull Label dflt, @NotNull int[] keys, @NotNull Label[] labels)
+      public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitLookupSwitchInsn(dflt, keys, labels);
@@ -512,14 +511,14 @@ final class CoverageModifier extends ClassVisitor
       @Nullable private Label entryPoint;
       private int jumpCount;
 
-      MethodOrConstructorModifier(@NotNull MethodWriter mw)
+      MethodOrConstructorModifier(@Nonnull MethodWriter mw)
       {
          super(mw);
          nodeBuilder = new NodeBuilder();
       }
 
       @Override
-      public final void visitLabel(@NotNull Label label)
+      public final void visitLabel(@Nonnull Label label)
       {
          if (nodeBuilder == null || ignoreUntilNextSwitch > 0) {
             super.visitLabel(label);
@@ -554,7 +553,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitJumpInsn(int opcode, @NotNull Label label)
+      public final void visitJumpInsn(int opcode, @Nonnull Label label)
       {
          if (
             nodeBuilder == null || entryPoint == null || ignoreUntilNextSwitch > 0 ||
@@ -616,14 +615,14 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitLdcInsn(@NotNull Object cst)
+      public final void visitLdcInsn(@Nonnull Object cst)
       {
          super.visitLdcInsn(cst);
          handleRegularInstruction(LDC);
       }
 
       @Override
-      public final void visitTypeInsn(int opcode, @NotNull String desc)
+      public final void visitTypeInsn(int opcode, @Nonnull String desc)
       {
          super.visitTypeInsn(opcode, desc);
          handleRegularInstruction(opcode);
@@ -637,7 +636,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc)
+      public final void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc)
       {
          if (!DataCoverage.active) {
             super.visitFieldInsn(opcode, owner, name, desc);
@@ -693,7 +692,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       private void generateCallToRegisterFieldCoverage(
-         boolean getField, boolean isStatic, boolean size2, @NotNull String classAndFieldNames)
+         boolean getField, boolean isStatic, boolean size2, @Nonnull String classAndFieldNames)
       {
          if (!isStatic && getField) {
             if (size2) {
@@ -719,7 +718,7 @@ final class CoverageModifier extends ClassVisitor
 
       @Override
       public final void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+         int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
       {
          super.visitMethodInsn(opcode, owner, name, desc, itf);
          handleRegularInstruction(opcode);
@@ -727,14 +726,14 @@ final class CoverageModifier extends ClassVisitor
 
       @Override
       public final void visitTryCatchBlock(
-         @NotNull Label start, @NotNull Label end, @NotNull Label handler, @Nullable String type)
+         @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type)
       {
          super.visitTryCatchBlock(start, end, handler, type);
          handleRegularInstruction(0);
       }
 
       @Override
-      public final void visitLookupSwitchInsn(@NotNull Label dflt, @NotNull int[] keys, @NotNull Label[] labels)
+      public final void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels)
       {
          if (ignoreUntilNextSwitch == 1) {
             ignoreUntilNextSwitch = 2;
@@ -749,7 +748,7 @@ final class CoverageModifier extends ClassVisitor
       }
 
       @Override
-      public final void visitTableSwitchInsn(int min, int max, @NotNull Label dflt, @NotNull Label... labels)
+      public final void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels)
       {
          if (nodeBuilder != null && ignoreUntilNextSwitch == 0) {
             int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
@@ -779,10 +778,10 @@ final class CoverageModifier extends ClassVisitor
 
    private final class MethodModifier extends MethodOrConstructorModifier
    {
-      MethodModifier(@NotNull MethodWriter mw) { super(mw); }
+      MethodModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
-      public AnnotationVisitor visitAnnotation(@NotNull String desc, boolean visible)
+      public AnnotationVisitor visitAnnotation(@Nonnull String desc, boolean visible)
       {
          boolean isTestMethod = desc.startsWith("Lorg/junit/") || desc.startsWith("Lorg/testng/");
 
@@ -796,16 +795,16 @@ final class CoverageModifier extends ClassVisitor
 
    private final class ConstructorModifier extends MethodOrConstructorModifier
    {
-      ConstructorModifier(@NotNull MethodWriter mw) { super(mw); }
+      ConstructorModifier(@Nonnull MethodWriter mw) { super(mw); }
    }
 
    private final class StaticBlockModifier extends BaseMethodModifier
    {
-      StaticBlockModifier(@NotNull MethodWriter mw) { super(mw); }
+      StaticBlockModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
       public void visitMethodInsn(
-         int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc, boolean itf)
+         int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
       {
          // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by
          // the Java compiler when the class contains at least one "assert" statement. Otherwise, that line of code

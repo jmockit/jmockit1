@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 
@@ -14,7 +13,7 @@ public final class StaticFieldData extends FieldData
 {
    private static final long serialVersionUID = -6596622341651601060L;
 
-   @NotNull private final transient Map<Integer, Boolean> testIdsToAssignments = new HashMap<Integer, Boolean>();
+   @Nonnull private final transient Map<Integer, Boolean> testIdsToAssignments = new HashMap<Integer, Boolean>();
 
    void registerAssignment()
    {

@@ -1,26 +1,25 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
 
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.reporting.parsing.*;
 
 final class NeutralOutput
 {
-   @NotNull private final PrintWriter output;
+   @Nonnull private final PrintWriter output;
    private boolean previousLineInImports;
    private boolean previousLineInComments;
    @Nullable private String lineIndentation;
    private boolean blankLinesPending;
 
-   NeutralOutput(@NotNull PrintWriter output) { this.output = output; }
+   NeutralOutput(@Nonnull PrintWriter output) { this.output = output; }
 
-   boolean writeLineWithoutCoverageInfo(@NotNull LineParser lineParser)
+   boolean writeLineWithoutCoverageInfo(@Nonnull LineParser lineParser)
    {
       if (previousLineInComments || !previousLineInImports) {
          if (writeLineInComments(lineParser) || writeLineInImports(lineParser)) {
@@ -40,7 +39,7 @@ final class NeutralOutput
       return false;
    }
 
-   private boolean writeLineInComments(@NotNull LineParser lineParser)
+   private boolean writeLineInComments(@Nonnull LineParser lineParser)
    {
       LineElement initialElement = lineParser.getInitialElement();
 
@@ -87,7 +86,7 @@ final class NeutralOutput
       }
    }
 
-   private void extractLineIndentation(@NotNull String lineText)
+   private void extractLineIndentation(@Nonnull String lineText)
    {
       int indentationSize = 0;
 
@@ -98,7 +97,7 @@ final class NeutralOutput
       lineIndentation = lineText.substring(0, indentationSize);
    }
 
-   private boolean writeLineInImports(@NotNull LineParser lineParser)
+   private boolean writeLineInImports(@Nonnull LineParser lineParser)
    {
       LineElement initialElement = lineParser.getInitialElement();
       boolean isImport = initialElement.isKeyword("import");

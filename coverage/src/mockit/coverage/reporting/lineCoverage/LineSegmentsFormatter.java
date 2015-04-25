@@ -5,6 +5,7 @@
 package mockit.coverage.reporting.lineCoverage;
 
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.Character.*;
 
 import mockit.coverage.*;
@@ -12,12 +13,10 @@ import mockit.coverage.lines.*;
 import mockit.coverage.reporting.*;
 import mockit.coverage.reporting.parsing.*;
 
-import org.jetbrains.annotations.*;
-
 final class LineSegmentsFormatter
 {
    @Nullable private final ListOfCallPoints listOfCallPoints;
-   @NotNull private final StringBuilder formattedLine;
+   @Nonnull private final StringBuilder formattedLine;
 
    // Helper fields:
    private int lineNumber;
@@ -25,13 +24,13 @@ final class LineSegmentsFormatter
    private LineSegmentData segmentData;
    @Nullable private LineElement element;
 
-   LineSegmentsFormatter(boolean withCallPoints, @NotNull StringBuilder formattedLine)
+   LineSegmentsFormatter(boolean withCallPoints, @Nonnull StringBuilder formattedLine)
    {
       listOfCallPoints = withCallPoints ? new ListOfCallPoints() : null;
       this.formattedLine = formattedLine;
    }
 
-   void formatSegments(@NotNull LineParser lineParser, @NotNull LineCoverageData lineData)
+   void formatSegments(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData)
    {
       lineNumber = lineParser.getNumber();
 
@@ -76,7 +75,7 @@ final class LineSegmentsFormatter
       }
    }
 
-   private void appendToFormattedLine(@NotNull LineElement firstElement)
+   private void appendToFormattedLine(@Nonnull LineElement firstElement)
    {
       if (firstElement != element) {
          appendStartTag();

@@ -1,18 +1,20 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.paths.Node.*;
 
 final class PathBuilder
 {
-   @NotNull List<Path> buildPaths(@NotNull List<Node> nodes)
+   private PathBuilder() {}
+
+   @Nonnull
+   static List<Path> buildPaths(@Nonnull List<Node> nodes)
    {
       if (nodes.size() == 1) {
          return Collections.emptyList();
@@ -32,7 +34,8 @@ final class PathBuilder
       return getAllPathsFromExitNodes(nodes);
    }
 
-   @NotNull private List<Path> getAllPathsFromExitNodes(@NotNull List<Node> nodes)
+   @Nonnull
+   private static List<Path> getAllPathsFromExitNodes(@Nonnull List<Node> nodes)
    {
       List<Path> paths = new ArrayList<Path>();
 

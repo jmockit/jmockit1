@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
 
 import java.io.*;
 import java.security.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 final class StaticFiles
 {
-   @NotNull private final String outputDir;
+   @Nonnull private final String outputDir;
    private long lastModifiedTimeOfCoverageJar;
 
-   StaticFiles(@NotNull String outputDir) { this.outputDir = outputDir; }
+   StaticFiles(@Nonnull String outputDir) { this.outputDir = outputDir; }
 
    void copyToOutputDir(boolean forSourceFilePages) throws IOException
    {
@@ -34,7 +33,7 @@ final class StaticFiles
       }
    }
 
-   private void copyFile(@NotNull String fileName) throws IOException
+   private void copyFile(@Nonnull String fileName) throws IOException
    {
       File outputFile = new File(outputDir, fileName);
 

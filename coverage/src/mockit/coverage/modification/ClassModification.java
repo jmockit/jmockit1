@@ -7,20 +7,19 @@ package mockit.coverage.modification;
 import java.lang.instrument.*;
 import java.security.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.coverage.standalone.*;
 import mockit.external.asm.*;
 import static mockit.external.asm.ClassReader.*;
 
-import org.jetbrains.annotations.*;
-
 public final class ClassModification
 {
    private static final Class<?>[] NO_CLASSES = {};
 
-   @NotNull private final Set<String> modifiedClasses;
-   @NotNull final List<ProtectionDomain> protectionDomains;
-   @NotNull private final ClassSelection classSelection;
+   @Nonnull private final Set<String> modifiedClasses;
+   @Nonnull final List<ProtectionDomain> protectionDomains;
+   @Nonnull private final ClassSelection classSelection;
 
    public ClassModification()
    {
@@ -43,7 +42,7 @@ public final class ClassModification
       }
    }
 
-   private void redefineClassesForCoverage(@NotNull Class<?>[] previousClasses, @NotNull Class<?>[] newClasses)
+   private void redefineClassesForCoverage(@Nonnull Class<?>[] previousClasses, @Nonnull Class<?>[] newClasses)
    {
       int m = previousClasses.length;
 
@@ -60,7 +59,7 @@ public final class ClassModification
       }
    }
 
-   private void redefineClassForCoverage(@NotNull Class<?> loadedClass)
+   private void redefineClassForCoverage(@Nonnull Class<?> loadedClass)
    {
       byte[] modifiedClassfile = readAndModifyClassForCoverage(loadedClass);
 
@@ -70,7 +69,7 @@ public final class ClassModification
       }
    }
 
-   private void registerModifiedClass(@NotNull String className, @NotNull ProtectionDomain pd)
+   private void registerModifiedClass(@Nonnull String className, @Nonnull ProtectionDomain pd)
    {
       modifiedClasses.add(className);
 
@@ -79,7 +78,7 @@ public final class ClassModification
       }
    }
 
-   private void addProtectionDomainIfHasUniqueNewPath(@NotNull ProtectionDomain newPD)
+   private void addProtectionDomainIfHasUniqueNewPath(@Nonnull ProtectionDomain newPD)
    {
       String newPath = newPD.getCodeSource().getLocation().getPath();
 
@@ -100,7 +99,7 @@ public final class ClassModification
    }
 
    @Nullable
-   private static byte[] readAndModifyClassForCoverage(@NotNull Class<?> aClass)
+   private static byte[] readAndModifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       try {
          return modifyClassForCoverage(aClass);
@@ -119,7 +118,7 @@ public final class ClassModification
    }
 
    @Nullable
-   private static byte[] modifyClassForCoverage(@NotNull Class<?> aClass)
+   private static byte[] modifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       String className = aClass.getName();
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
@@ -133,15 +132,15 @@ public final class ClassModification
       return cr == null ? null : modifyClassForCoverage(cr);
    }
 
-   @NotNull
-   private static byte[] modifyClassForCoverage(@NotNull ClassReader cr)
+   @Nonnull
+   private static byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
    {
       CoverageModifier modifier = new CoverageModifier(cr);
       cr.accept(modifier, SKIP_FRAMES);
       return modifier.toByteArray();
    }
 
-   private static void redefineClassForCoverage(@NotNull Class<?> loadedClass, @NotNull byte[] modifiedClassfile)
+   private static void redefineClassForCoverage(@Nonnull Class<?> loadedClass, @Nonnull byte[] modifiedClassfile)
    {
       ClassDefinition[] classDefs = {new ClassDefinition(loadedClass, modifiedClassfile)};
 
@@ -158,14 +157,14 @@ public final class ClassModification
 
    public boolean shouldConsiderClassesNotLoaded() { return !classSelection.loadedOnly; }
 
-   boolean isToBeConsideredForCoverage(@NotNull String className, @NotNull ProtectionDomain protectionDomain)
+   boolean isToBeConsideredForCoverage(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
       return !modifiedClasses.contains(className) && classSelection.isSelected(className, protectionDomain);
    }
 
    @Nullable
    public byte[] modifyClass(
-      @NotNull String className, @NotNull ProtectionDomain protectionDomain, @NotNull byte[] originalClassfile)
+      @Nonnull String className, @Nonnull ProtectionDomain protectionDomain, @Nonnull byte[] originalClassfile)
    {
       boolean modifyClassForCoverage = isToBeConsideredForCoverage(className, protectionDomain);
 
@@ -186,8 +185,8 @@ public final class ClassModification
       return null;
    }
 
-   @NotNull
-   private static byte[] modifyClassForCoverage(@NotNull String className, @NotNull byte[] classBytecode)
+   @Nonnull
+   private static byte[] modifyClassForCoverage(@Nonnull String className, @Nonnull byte[] classBytecode)
    {
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
 

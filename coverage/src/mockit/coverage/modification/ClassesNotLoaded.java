@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -7,18 +7,17 @@ package mockit.coverage.modification;
 import java.io.*;
 import java.security.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 /**
  * Finds and loads all classes that should also be measured, but were not loaded until now.
  */
 public final class ClassesNotLoaded
 {
-   @NotNull private final ClassModification classModification;
+   @Nonnull private final ClassModification classModification;
    private int firstPosAfterParentDir;
 
-   public ClassesNotLoaded(@NotNull ClassModification classModification) { this.classModification = classModification; }
+   public ClassesNotLoaded(@Nonnull ClassModification classModification) { this.classModification = classModification; }
 
    public void gatherCoverageData()
    {
@@ -34,7 +33,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private void loadAdditionalClasses(@NotNull File classPathEntry, @NotNull ProtectionDomain protectionDomain)
+   private void loadAdditionalClasses(@Nonnull File classPathEntry, @Nonnull ProtectionDomain protectionDomain)
    {
       File[] filesInDir = classPathEntry.listFiles();
 
@@ -50,7 +49,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private void loadAdditionalClass(@NotNull String filePath, @NotNull ProtectionDomain protectionDomain)
+   private void loadAdditionalClass(@Nonnull String filePath, @Nonnull ProtectionDomain protectionDomain)
    {
       int p = filePath.lastIndexOf(".class");
 
@@ -64,7 +63,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private static void loadClass(@NotNull String className, @NotNull ProtectionDomain protectionDomain)
+   private static void loadClass(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
       try {
          Class.forName(className, false, protectionDomain.getClassLoader());

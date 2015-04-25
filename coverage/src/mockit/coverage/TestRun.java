@@ -4,11 +4,11 @@
  */
 package mockit.coverage;
 
+import javax.annotation.*;
+
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.testRedundancy.*;
-
-import org.jetbrains.annotations.*;
 
 @SuppressWarnings("unused")
 public final class TestRun
@@ -56,7 +56,7 @@ public final class TestRun
       }
    }
 
-   public static void nodeReached(@NotNull String file, int firstLineInMethodBody, int node)
+   public static void nodeReached(@Nonnull String file, int firstLineInMethodBody, int node)
    {
       if (terminated) return;
 
@@ -69,7 +69,7 @@ public final class TestRun
       }
    }
 
-   public static void fieldAssigned(@NotNull String file, @NotNull String classAndFieldNames)
+   public static void fieldAssigned(@Nonnull String file, @Nonnull String classAndFieldNames)
    {
       if (terminated) return;
 
@@ -80,7 +80,7 @@ public final class TestRun
       }
    }
 
-   public static void fieldRead(@NotNull String file, @NotNull String classAndFieldNames)
+   public static void fieldRead(@Nonnull String file, @Nonnull String classAndFieldNames)
    {
       if (terminated) return;
 
@@ -91,7 +91,7 @@ public final class TestRun
       }
    }
 
-   public static void fieldAssigned(@NotNull Object instance, @NotNull String file, @NotNull String classAndFieldNames)
+   public static void fieldAssigned(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames)
    {
       if (terminated) return;
 
@@ -102,7 +102,7 @@ public final class TestRun
       }
    }
 
-   public static void fieldRead(@NotNull Object instance, @NotNull String file, @NotNull String classAndFieldNames)
+   public static void fieldRead(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames)
    {
       if (terminated) return;
 

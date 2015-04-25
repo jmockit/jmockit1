@@ -7,34 +7,33 @@ package mockit.coverage.paths;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class Path implements Serializable
 {
    private static final long serialVersionUID = 8895491272907955543L;
 
-   @NotNull final List<Node> nodes = new ArrayList<Node>(4);
-   @NotNull private final AtomicInteger executionCount = new AtomicInteger();
+   @Nonnull final List<Node> nodes = new ArrayList<Node>(4);
+   @Nonnull private final AtomicInteger executionCount = new AtomicInteger();
    private final boolean shadowed;
    @Nullable private Path shadowPath;
 
-   Path(@NotNull Node.Entry entryNode)
+   Path(@Nonnull Node.Entry entryNode)
    {
       shadowed = false;
       addNode(entryNode);
    }
 
-   Path(@NotNull Path sharedSubPath, boolean shadowed)
+   Path(@Nonnull Path sharedSubPath, boolean shadowed)
    {
       this.shadowed = shadowed;
       sharedSubPath.shadowPath = shadowed ? this : null;
       nodes.addAll(sharedSubPath.nodes);
    }
 
-   void addNode(@NotNull Node node) { nodes.add(node); }
+   void addNode(@Nonnull Node node) { nodes.add(node); }
 
-   int countExecutionIfAllNodesWereReached(@NotNull List<Node> nodesReached)
+   int countExecutionIfAllNodesWereReached(@Nonnull List<Node> nodesReached)
    {
       boolean allNodesReached = nodes.equals(nodesReached);
 
@@ -46,7 +45,7 @@ public final class Path implements Serializable
    }
 
    public boolean isShadowed() { return shadowed; }
-   @NotNull public List<Node> getNodes() { return nodes; }
+   @Nonnull public List<Node> getNodes() { return nodes; }
 
    public int getExecutionCount()
    {
@@ -59,7 +58,7 @@ public final class Path implements Serializable
       return count;
    }
 
-   void addCountFromPreviousTestRun(@NotNull Path previousPath)
+   void addCountFromPreviousTestRun(@Nonnull Path previousPath)
    {
       int currentExecutionCount = executionCount.get();
       int previousExecutionCount = previousPath.executionCount.get();

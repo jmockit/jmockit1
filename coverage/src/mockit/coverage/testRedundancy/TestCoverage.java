@@ -7,14 +7,13 @@ package mockit.coverage.testRedundancy;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class TestCoverage
 {
-   @NotNull public static final TestCoverage INSTANCE = new TestCoverage();
+   @Nonnull public static final TestCoverage INSTANCE = new TestCoverage();
 
-   @NotNull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<Method, Integer>();
+   @Nonnull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<Method, Integer>();
    @Nullable private Method currentTestMethod;
 
    private TestCoverage() {}
@@ -36,7 +35,7 @@ public final class TestCoverage
       }
    }
 
-   @NotNull
+   @Nonnull
    public List<Method> getRedundantTests()
    {
       List<Method> redundantTests = new ArrayList<Method>();

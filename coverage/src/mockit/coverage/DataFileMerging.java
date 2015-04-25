@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 
 final class DataFileMerging
 {
-   @NotNull private final List<File> inputFiles;
+   @Nonnull private final List<File> inputFiles;
 
-   DataFileMerging(@NotNull String[] inputPaths)
+   DataFileMerging(@Nonnull String[] inputPaths)
    {
       inputFiles = new ArrayList<File>(inputPaths.length);
 
@@ -24,7 +23,7 @@ final class DataFileMerging
       }
    }
 
-   private void addInputFileToList(@NotNull String path)
+   private void addInputFileToList(@Nonnull String path)
    {
       if (!path.isEmpty()) {
          File inputFile = new File(path);
@@ -37,7 +36,7 @@ final class DataFileMerging
       }
    }
 
-   @NotNull CoverageData merge() throws IOException
+   @Nonnull CoverageData merge() throws IOException
    {
       CoverageData mergedData = null;
 

@@ -7,8 +7,7 @@ package mockit.coverage.modification;
 import java.net.*;
 import java.security.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.standalone.*;
@@ -37,7 +36,7 @@ final class ClassSelection
    }
 
    @Nullable
-   private static Matcher newMatcherForClassSelection(@NotNull String specification)
+   private static Matcher newMatcherForClassSelection(@Nonnull String specification)
    {
       if (specification.isEmpty()) {
          return null;
@@ -67,7 +66,7 @@ final class ClassSelection
       return finalRegex.isEmpty() ? null : Pattern.compile(finalRegex).matcher("");
    }
 
-   boolean isSelected(@NotNull String className, @NotNull ProtectionDomain protectionDomain)
+   boolean isSelected(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
       CodeSource codeSource = protectionDomain.getCodeSource();
 
@@ -98,7 +97,7 @@ final class ClassSelection
       return selected;
    }
 
-   private boolean canAccessJMockitFromClassToBeMeasured(@NotNull ClassLoader loaderOfClassToBeMeasured)
+   private boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ClassLoader loaderOfClassToBeMeasured)
    {
       try {
          Class<?> thisClass = loaderOfClassToBeMeasured.loadClass(THIS_CLASS_NAME);
@@ -109,7 +108,7 @@ final class ClassSelection
       }
    }
 
-   private boolean isClassFromExternalLibrary(@NotNull String location)
+   private boolean isClassFromExternalLibrary(@Nonnull String location)
    {
       return
          location.endsWith(".jar") || location.endsWith("/.cp/") ||

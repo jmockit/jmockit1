@@ -5,8 +5,7 @@
 package mockit.coverage;
 
 import java.io.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.data.*;
 import mockit.coverage.modification.*;
@@ -19,8 +18,8 @@ final class OutputFileGenerator
    private static final String[] ALL_SOURCE_DIRS = new String[0];
 
    @Nullable private final ClassModification classModification;
-   @NotNull private final String[] outputFormats;
-   @NotNull private final String outputDir;
+   @Nonnull private final String[] outputFormats;
+   @Nonnull private final String outputDir;
    @Nullable private final String[] sourceDirs;
 
    OutputFileGenerator(@Nullable ClassModification classModification)
@@ -42,7 +41,7 @@ final class OutputFileGenerator
       }
    }
 
-   @NotNull private static String[] getOutputFormat()
+   @Nonnull private static String[] getOutputFormat()
    {
       String format = Configuration.getProperty("output", "");
       return format.isEmpty() ? new String[] {"html-nocp"} : format.trim().split("\\s*,\\s*|\\s+");
@@ -65,7 +64,7 @@ final class OutputFileGenerator
          isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
    }
 
-   private boolean hasOutputFormat(@NotNull String format)
+   private boolean hasOutputFormat(@Nonnull String format)
    {
       for (String outputFormat : outputFormats) {
          if (format.equals(outputFormat)) {
@@ -117,7 +116,7 @@ final class OutputFileGenerator
       }
    }
 
-   void generateAggregateReportFromInputFiles(@NotNull String[] inputPaths)
+   void generateAggregateReportFromInputFiles(@Nonnull String[] inputPaths)
    {
       boolean outputDirCreated = createOutputDirIfSpecifiedButNotExists();
 
@@ -141,7 +140,7 @@ final class OutputFileGenerator
       return dirCreated;
    }
 
-   private void generateAccretionDataFileIfRequested(@NotNull CoverageData newData) throws IOException
+   private void generateAccretionDataFileIfRequested(@Nonnull CoverageData newData) throws IOException
    {
       if (hasOutputFormat("serial")) {
          new AccretionFile(outputDir, newData).generate();
@@ -153,7 +152,7 @@ final class OutputFileGenerator
       }
    }
 
-   private void generateHTMLReportIfRequested(@NotNull CoverageData coverageData, boolean outputDirCreated)
+   private void generateHTMLReportIfRequested(@Nonnull CoverageData coverageData, boolean outputDirCreated)
       throws IOException
    {
       if (hasOutputFormat("html-nocp")) {

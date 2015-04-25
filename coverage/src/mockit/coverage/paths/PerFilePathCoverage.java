@@ -6,8 +6,7 @@ package mockit.coverage.paths;
 
 import java.io.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.data.*;
@@ -16,7 +15,8 @@ public final class PerFilePathCoverage implements PerFileCoverage
 {
    private static final long serialVersionUID = 6075064821486644269L;
 
-   @NotNull public final Map<Integer, MethodCoverageData> firstLineToMethodData =
+   @Nonnull
+   public final Map<Integer, MethodCoverageData> firstLineToMethodData =
       new LinkedHashMap<Integer, MethodCoverageData>();
 
    // Computed on demand:
@@ -26,13 +26,13 @@ public final class PerFilePathCoverage implements PerFileCoverage
    public PerFilePathCoverage() { initializeCache(); }
    private void initializeCache() { totalPaths = coveredPaths = -1; }
 
-   private void readObject(@NotNull ObjectInputStream in) throws IOException, ClassNotFoundException
+   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException
    {
       initializeCache();
       in.defaultReadObject();
    }
 
-   public void addMethod(@NotNull MethodCoverageData methodData)
+   public void addMethod(@Nonnull MethodCoverageData methodData)
    {
       firstLineToMethodData.put(methodData.getFirstLineInBody(), methodData);
    }
@@ -90,7 +90,7 @@ public final class PerFilePathCoverage implements PerFileCoverage
       initializeCache();
    }
 
-   public void mergeInformation(@NotNull PerFilePathCoverage previousCoverage)
+   public void mergeInformation(@Nonnull PerFilePathCoverage previousCoverage)
    {
       Map<Integer, MethodCoverageData> previousInfo = previousCoverage.firstLineToMethodData;
 
