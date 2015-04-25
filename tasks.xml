@@ -3,7 +3,7 @@
   ~ Copyright (c) 2006-2015 Rogério Liesenfeld
   ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
   -->
-<project name="jmockit" basedir="." default="printDirections">
+<project name="jmockit" basedir=".">
    <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
    <taskdef
       name="jacocoReport" classname="org.jacoco.ant.ReportTask"
@@ -15,16 +15,7 @@
       <fileset dir="lib" includes="*.jar"/>
    </path>
 
-   <target name="printDirections">
-      <echo>
-         Please use main/pom.xml for building the main library (jmockit.jar, with the mocking APIs).
-         For the coverage tool (jmockit-coverage.jar), use coverage/pom.xml.
-         For the sample test suites, use samples/pom.xml.
-         In any case, the Maven build must run on JDK 1.8.
-      </echo>
-   </target>
-
-   <target name="createjavadocs">
+   <target name="createJavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
       <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
       <delete dir="${api}/resources" includes="*.gif" quiet="true"/>
@@ -77,8 +68,8 @@
       </replace>
    </target>
 
-   <target name="createjars" depends="createjar-main, createjar-coverage"/>
-   <target name="createjar-main">
+   <target name="createJars" depends="createJar-main, createJar-coverage"/>
+   <target name="createJar-main">
       <delete file="jmockit.jar"/>
       <jar destfile="jmockit.jar">
          <fileset file="LICENSE.txt"/>
@@ -96,7 +87,7 @@
             type="org.testng.ITestNGListener" provider="mockit.integration.testng.internal.TestNGRunnerDecorator"/>
       </jar>
    </target>
-   <target name="createjar-coverage">
+   <target name="createJar-coverage">
       <delete file="jmockit-coverage.jar"/>
       <jar destfile="jmockit-coverage.jar">
          <fileset file="LICENSE.txt"/>
@@ -125,7 +116,7 @@
       </jar>
    </target>
 
-   <target name="createzip">
+   <target name="createZip">
       <zip
          destfile="../artifacts1x/jmockit-${version}.zip"
          basedir=".." includes="jmockit1.org/**, jmockit.github.io/**"
@@ -182,6 +173,22 @@
             excludes="mockit/integration/testng/BaseTestNGDecoratorTest.class
                       mockit/integration/testng/TestNGViolatedExpectationsTest.class"/>
       </testng>
+   </target>
+
+   <target name="coverageTests">
+      <junit fork="yes" forkmode="once" dir="coverageTests" showoutput="true" printsummary="true">
+         <classpath path="jmockit.jar"/>
+         <classpath path="jmockit-coverage.jar"/>
+         <classpath refid="common.classpath"/>
+         <classpath location="coverageTests/test-classes"/>
+         <classpath location="coverageTests/classes"/>
+         <sysproperty key="coverage-metrics" value="all"/>
+         <batchtest>
+            <fileset dir="coverageTests/test-classes" includes="**/*Test.class" excludes="**/CoverageTest.class"/>
+         </batchtest>
+         <formatter type="xml"/>
+      </junit>
+      <testReport name="coverageTests/CoverageTests"/>
    </target>
 
    <target name="sampleTests">
