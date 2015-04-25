@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 abstract class SubstringMatcher implements ArgumentMatcher<SubstringMatcher>
 {
-   @NotNull final String substring;
+   @Nonnull final String substring;
 
-   SubstringMatcher(@NotNull CharSequence substring) { this.substring = substring.toString(); }
+   SubstringMatcher(@Nonnull CharSequence substring) { this.substring = substring.toString(); }
 
    @Override
-   public boolean same(@NotNull SubstringMatcher other) { return substring.equals(other.substring); }
+   public boolean same(@Nonnull SubstringMatcher other) { return substring.equals(other.substring); }
 }

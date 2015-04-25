@@ -1,30 +1,30 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
+
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.expectations.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.BaseClassModifier.*;
 
-import org.jetbrains.annotations.*;
-
 final class MockedTypeModifier
 {
    private MockedTypeModifier() {}
 
    static void generateDirectCallToHandler(
-      @NotNull MethodWriter mw, @NotNull String className, int access, @NotNull String name, @NotNull String desc,
+      @Nonnull MethodWriter mw, @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc,
       @Nullable String genericSignature)
    {
       generateDirectCallToHandler(mw, className, access, name, desc, genericSignature, ExecutionMode.Regular);
    }
 
    static void generateDirectCallToHandler(
-      @NotNull MethodWriter mw, @NotNull String className, int access, @NotNull String name, @NotNull String desc,
-      @Nullable String genericSignature, @NotNull ExecutionMode executionMode)
+      @Nonnull MethodWriter mw, @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc,
+      @Nullable String genericSignature, @Nonnull ExecutionMode executionMode)
    {
       // First argument: the mock instance, if any.
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, access, name);
@@ -62,7 +62,7 @@ final class MockedTypeModifier
          "Ljava/lang/Object;", false);
    }
 
-   private static void generateInstructionToLoadNullableString(@NotNull MethodWriter mw, @Nullable String text)
+   private static void generateInstructionToLoadNullableString(@Nonnull MethodWriter mw, @Nullable String text)
    {
       if (text == null) {
          mw.visitInsn(ACONST_NULL);

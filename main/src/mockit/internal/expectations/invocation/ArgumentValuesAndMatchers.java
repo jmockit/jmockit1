@@ -5,33 +5,32 @@
 package mockit.internal.expectations.invocation;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.util.*;
 
 abstract class ArgumentValuesAndMatchers
 {
-   @NotNull final InvocationArguments signature;
-   @NotNull Object[] values;
+   @Nonnull final InvocationArguments signature;
+   @Nonnull Object[] values;
    @Nullable List<ArgumentMatcher<?>> matchers;
 
-   ArgumentValuesAndMatchers(@NotNull InvocationArguments signature, @NotNull Object[] values)
+   ArgumentValuesAndMatchers(@Nonnull InvocationArguments signature, @Nonnull Object[] values)
    {
       this.signature = signature;
       this.values = values;
    }
 
-   final void setValuesWithNoMatchers(@NotNull Object[] argsToVerify)
+   final void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify)
    {
       values = argsToVerify;
       matchers = null;
    }
 
-   @NotNull
+   @Nonnull
    final Object[] prepareForVerification(
-      @NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchersToUse)
+      @Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchersToUse)
    {
       Object[] replayArgs = values;
       values = argsToVerify;
@@ -39,7 +38,8 @@ abstract class ArgumentValuesAndMatchers
       return replayArgs;
    }
 
-   @Nullable final ArgumentMatcher<?> getArgumentMatcher(int parameterIndex)
+   @Nullable
+   final ArgumentMatcher<?> getArgumentMatcher(int parameterIndex)
    {
       if (matchers == null) {
          return null;
@@ -54,11 +54,11 @@ abstract class ArgumentValuesAndMatchers
       return matcher;
    }
 
-   abstract boolean isMatch(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap);
+   abstract boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap);
 
    static boolean areEqual(
-      @NotNull Object[] expectedValues, @NotNull Object[] actualValues, int count,
-      @NotNull Map<Object, Object> instanceMap)
+      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, int count,
+      @Nonnull Map<Object, Object> instanceMap)
    {
       for (int i = 0; i < count; i++) {
          if (isNotEqual(expectedValues[i], actualValues[i], instanceMap)) {
@@ -70,7 +70,7 @@ abstract class ArgumentValuesAndMatchers
    }
 
    private static boolean isNotEqual(
-      @Nullable Object expected, @Nullable Object actual, @NotNull Map<Object, Object> instanceMap)
+      @Nullable Object expected, @Nullable Object actual, @Nonnull Map<Object, Object> instanceMap)
    {
       return
          actual == null && expected != null ||
@@ -81,13 +81,13 @@ abstract class ArgumentValuesAndMatchers
 
    @Nullable
    abstract Error assertMatch(
-      @NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap,
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap,
       @Nullable CharSequence errorMessagePrefix);
 
    @Nullable
    final Error assertEquals(
-      @NotNull Object[] expectedValues, @NotNull Object[] actualValues, int count,
-      @NotNull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, int count,
+      @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
    {
       for (int i = 0; i < count; i++) {
          Object expected = expectedValues[i];
@@ -101,11 +101,11 @@ abstract class ArgumentValuesAndMatchers
       return null;
    }
 
-   abstract boolean hasEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other);
+   abstract boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other);
 
    static boolean equivalentMatches(
-      @NotNull ArgumentMatcher<?> matcher1, @Nullable Object arg1,
-      @NotNull ArgumentMatcher<?> matcher2, @Nullable Object arg2)
+      @Nonnull ArgumentMatcher<?> matcher1, @Nullable Object arg1,
+      @Nonnull ArgumentMatcher<?> matcher2, @Nullable Object arg2)
    {
       boolean matcher1MatchesArg2 = matcher1.matches(arg2);
       boolean matcher2MatchesArg1 = matcher2.matches(arg1);
@@ -127,7 +127,7 @@ abstract class ArgumentValuesAndMatchers
 
    @SuppressWarnings("unchecked")
    final <M1 extends ArgumentMatcher<M1>, M2 extends ArgumentMatcher<M2>> int indexOfFirstValueAfterEquivalentMatchers(
-      @NotNull ArgumentValuesAndMatchers other)
+      @Nonnull ArgumentValuesAndMatchers other)
    {
       List<ArgumentMatcher<?>> otherMatchers = other.matchers;
 
@@ -170,7 +170,8 @@ abstract class ArgumentValuesAndMatchers
       return i;
    }
 
-   @NotNull final String toString(@NotNull MethodFormatter methodFormatter)
+   @Nonnull
+   final String toString(@Nonnull MethodFormatter methodFormatter)
    {
       ArgumentMismatch desc = new ArgumentMismatch();
       desc.append(":\n").append(methodFormatter.toString());

@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
 import java.util.concurrent.locks.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.*;
@@ -18,12 +17,12 @@ abstract class DynamicInvocationResult extends InvocationResult
 {
    private static final Object[] NO_ARGS = {};
 
-   @NotNull private final Object targetObject;
-   @NotNull final Method methodToInvoke;
+   @Nonnull private final Object targetObject;
+   @Nonnull final Method methodToInvoke;
    private int numberOfRegularParameters;
    private boolean hasInvocationParameter;
 
-   DynamicInvocationResult(@NotNull Object targetObject, @NotNull Method methodToInvoke)
+   DynamicInvocationResult(@Nonnull Object targetObject, @Nonnull Method methodToInvoke)
    {
       this.targetObject = targetObject;
       this.methodToInvoke = methodToInvoke;
@@ -51,8 +50,8 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nullable
    public final Object invokeMethodOnTargetObject(
-      @Nullable Object mockOrRealObject, @NotNull ExpectedInvocation invocation,
-      @NotNull InvocationConstraints constraints, @NotNull Object[] args)
+      @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation invocation,
+      @Nonnull InvocationConstraints constraints, @Nonnull Object[] args)
    {
       Object[] delegateArgs = numberOfRegularParameters == 0 ? NO_ARGS : args;
       Object result;
@@ -69,8 +68,8 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nullable
    private Object invokeMethodWithContext(
-      @Nullable Object mockOrRealObject, @NotNull ExpectedInvocation expectedInvocation,
-      @NotNull InvocationConstraints constraints, @NotNull Object[] invokedArgs, @NotNull Object[] delegateArgs)
+      @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation expectedInvocation,
+      @Nonnull InvocationConstraints constraints, @Nonnull Object[] invokedArgs, @Nonnull Object[] delegateArgs)
    {
       DelegateInvocation invocation =
          new DelegateInvocation(mockOrRealObject, invokedArgs, expectedInvocation, constraints);
@@ -88,7 +87,8 @@ abstract class DynamicInvocationResult extends InvocationResult
       }
    }
 
-   @Nullable protected final Object executeMethodToInvoke(@NotNull Object[] args)
+   @Nullable
+   protected final Object executeMethodToInvoke(@Nonnull Object[] args)
    {
       ReentrantLock reentrantLock = RecordAndReplayExecution.RECORD_OR_REPLAY_LOCK;
 

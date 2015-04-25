@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.*;
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 public class TypeRedefinitions
 {
-   @NotNull private final List<Class<?>> targetClasses;
+   @Nonnull private final List<Class<?>> targetClasses;
    @Nullable protected CaptureOfNewInstances captureOfNewInstances;
 
    protected TypeRedefinitions() { targetClasses = new ArrayList<Class<?>>(2); }
 
-   protected final void addTargetClass(@NotNull MockedType mockedType)
+   protected final void addTargetClass(@Nonnull MockedType mockedType)
    {
       Class<?> targetClass = mockedType.getClassType();
 
@@ -30,7 +29,7 @@ public class TypeRedefinitions
    }
 
    private void addDuplicateTargetClassRepresentingMultipleCapturedSetsOfClasses(
-      @NotNull MockedType mockedType, @NotNull Class<?> targetClass)
+      @Nonnull MockedType mockedType, @Nonnull Class<?> targetClass)
    {
       int maxInstancesToCapture = mockedType.getMaxInstancesToCapture();
 
@@ -39,10 +38,10 @@ public class TypeRedefinitions
       }
    }
 
-   @NotNull public final List<Class<?>> getTargetClasses() { return targetClasses; }
+   @Nonnull public final List<Class<?>> getTargetClasses() { return targetClasses; }
    @Nullable public final CaptureOfNewInstances getCaptureOfNewInstances() { return captureOfNewInstances; }
 
-   protected static void registerMock(@NotNull MockedType mockedType, @NotNull Object mock)
+   protected static void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
    {
       TestRun.getExecutingTest().registerMock(mockedType, mock);
    }

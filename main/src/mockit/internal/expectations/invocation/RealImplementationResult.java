@@ -5,15 +5,14 @@
 package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 final class RealImplementationResult extends DynamicInvocationResult
 {
-   RealImplementationResult(@NotNull Object instanceToInvoke, @NotNull String methodToInvoke)
+   RealImplementationResult(@Nonnull Object instanceToInvoke, @Nonnull String methodToInvoke)
       throws NoSuchMethodException
    {
       super(
@@ -22,7 +21,7 @@ final class RealImplementationResult extends DynamicInvocationResult
    }
 
    @Nullable @Override
-   Object produceResult(@NotNull Object[] args)
+   Object produceResult(@Nonnull Object[] args)
    {
       TestRun.getExecutingTest().markAsProceedingIntoRealImplementation();
       return executeMethodToInvoke(args);

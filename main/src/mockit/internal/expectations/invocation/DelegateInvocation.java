@@ -5,19 +5,18 @@
 package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.state.*;
 
-import org.jetbrains.annotations.*;
-
 final class DelegateInvocation extends BaseInvocation
 {
-   @NotNull private final InvocationArguments invocationArguments;
+   @Nonnull private final InvocationArguments invocationArguments;
 
    DelegateInvocation(
-      @Nullable Object invokedInstance, @NotNull Object[] invokedArguments,
-      @NotNull ExpectedInvocation expectedInvocation, @NotNull InvocationConstraints constraints)
+      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
+      @Nonnull ExpectedInvocation expectedInvocation, @Nonnull InvocationConstraints constraints)
    {
       super(
          invokedInstance, invokedArguments,
@@ -25,7 +24,7 @@ final class DelegateInvocation extends BaseInvocation
       invocationArguments = expectedInvocation.arguments;
    }
 
-   @NotNull @Override
+   @Nonnull @Override
    protected Member findRealMember()
    {
       return invocationArguments.getRealMethodOrConstructor();

@@ -1,18 +1,17 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.lang.reflect.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.util.*;
 
 public final class ArgumentMismatch
 {
-   @NotNull private final StringBuilder out = new StringBuilder(50);
+   @Nonnull private final StringBuilder out = new StringBuilder(50);
    @Nullable private String parameterType;
    private boolean finished;
 
@@ -25,10 +24,10 @@ public final class ArgumentMismatch
    @Override
    public String toString() { return out.toString(); }
 
-   @NotNull public ArgumentMismatch append(char c) { out.append(c); return this; }
-   @NotNull public ArgumentMismatch append(int i) { out.append(i); return this; }
-   @NotNull public ArgumentMismatch append(double d) { out.append(d); return this; }
-   @NotNull public ArgumentMismatch append(@Nullable CharSequence str) { out.append(str); return this; }
+   @Nonnull public ArgumentMismatch append(char c) { out.append(c); return this; }
+   @Nonnull public ArgumentMismatch append(int i) { out.append(i); return this; }
+   @Nonnull public ArgumentMismatch append(double d) { out.append(d); return this; }
+   @Nonnull public ArgumentMismatch append(@Nullable CharSequence str) { out.append(str); return this; }
 
    public void appendFormatted(
       @Nullable String parameterTypeName, @Nullable Object argumentValue, @Nullable ArgumentMatcher<?> matcher)
@@ -82,7 +81,7 @@ public final class ArgumentMismatch
       }
    }
 
-   private void appendArray(@NotNull Object array)
+   private void appendArray(@Nonnull Object array)
    {
       out.append('[');
       String separator = "";
@@ -97,7 +96,7 @@ public final class ArgumentMismatch
       out.append(']');
    }
 
-   private void appendCharacters(@NotNull CharSequence characters)
+   private void appendCharacters(@Nonnull CharSequence characters)
    {
       out.append('"');
 
@@ -129,7 +128,7 @@ public final class ArgumentMismatch
       }
    }
 
-   private void appendArbitraryArgument(@NotNull Object value)
+   private void appendArbitraryArgument(@Nonnull Object value)
    {
       Class<?> valueClass = value.getClass();
 
@@ -152,7 +151,7 @@ public final class ArgumentMismatch
       }
    }
 
-   public void appendFormatted(@NotNull Object[] values)
+   public void appendFormatted(@Nonnull Object[] values)
    {
       String separator = "";
 

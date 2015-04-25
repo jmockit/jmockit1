@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 /**
  * Matches a decimal argument against another within a given margin of error.
@@ -22,7 +22,7 @@ public final class NumericEqualityMatcher implements ArgumentMatcher<NumericEqua
 
    @SuppressWarnings("FloatingPointEquality")
    @Override
-   public boolean same(@NotNull NumericEqualityMatcher other) { return value == other.value && delta == other.delta; }
+   public boolean same(@Nonnull NumericEqualityMatcher other) { return value == other.value && delta == other.delta; }
 
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    public boolean matches(@Nullable Object decimalValue)
@@ -30,13 +30,13 @@ public final class NumericEqualityMatcher implements ArgumentMatcher<NumericEqua
       return decimalValue instanceof Number && actualDelta((Number) decimalValue) <= delta;
    }
 
-   private double actualDelta(@NotNull Number decimalValue)
+   private double actualDelta(@Nonnull Number decimalValue)
    {
       return Math.abs(decimalValue.doubleValue() - value);
    }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("a numeric value within ").append(delta).append(" of ").append(value);
    }

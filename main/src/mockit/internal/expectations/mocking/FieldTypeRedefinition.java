@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
-
-import org.jetbrains.annotations.*;
 
 final class FieldTypeRedefinition extends TypeRedefinition
 {
    private boolean usePartialMocking;
 
-   FieldTypeRedefinition(@NotNull MockedType typeMetadata) { super(typeMetadata); }
+   FieldTypeRedefinition(@Nonnull MockedType typeMetadata) { super(typeMetadata); }
 
    boolean redefineTypeForTestedField()
    {
@@ -23,7 +22,7 @@ final class FieldTypeRedefinition extends TypeRedefinition
    }
 
    @Override
-   void configureClassModifier(@NotNull ExpectationsModifier modifier)
+   void configureClassModifier(@Nonnull ExpectationsModifier modifier)
    {
       if (usePartialMocking) {
          modifier.useDynamicMocking(true);

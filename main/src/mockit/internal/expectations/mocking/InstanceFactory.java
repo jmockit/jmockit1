@@ -4,18 +4,18 @@
  */
 package mockit.internal.expectations.mocking;
 
-import mockit.internal.util.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
+import mockit.internal.util.*;
 
 public abstract class InstanceFactory
 {
-   @NotNull final Class<?> concreteClass;
+   @Nonnull final Class<?> concreteClass;
    @Nullable Object lastInstance;
 
-   InstanceFactory(@NotNull Class<?> concreteClass) { this.concreteClass = concreteClass; }
+   InstanceFactory(@Nonnull Class<?> concreteClass) { this.concreteClass = concreteClass; }
 
-   @NotNull public abstract Object create();
+   @Nonnull public abstract Object create();
 
    @Nullable public final Object getLastInstance() { return lastInstance; }
    public abstract void clearLastInstance();
@@ -24,13 +24,13 @@ public abstract class InstanceFactory
    {
       @Nullable private Object emptyProxy;
 
-      InterfaceInstanceFactory(@NotNull Object emptyProxy)
+      InterfaceInstanceFactory(@Nonnull Object emptyProxy)
       {
          super(emptyProxy.getClass());
          this.emptyProxy = emptyProxy;
       }
 
-      @Override @NotNull
+      @Nonnull @Override
       public Object create()
       {
          if (emptyProxy == null) {
@@ -51,9 +51,9 @@ public abstract class InstanceFactory
 
    static final class ClassInstanceFactory extends InstanceFactory
    {
-      ClassInstanceFactory(@NotNull Class<?> concreteClass) { super(concreteClass); }
+      ClassInstanceFactory(@Nonnull Class<?> concreteClass) { super(concreteClass); }
 
-      @Override @NotNull
+      @Override @Nonnull
       public Object create()
       {
          lastInstance = ConstructorReflection.newUninitializedInstance(concreteClass);

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.util.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.state.*;
@@ -12,13 +13,11 @@ import static mockit.internal.util.AutoBoxing.*;
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
-import org.jetbrains.annotations.*;
-
 public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
-   @NotNull public final List<Object> targetInstances;
-   @NotNull private final Map<Class<?>, byte[]> modifiedClassfiles;
-   @NotNull private final List<Class<?>> classesPartiallyMocked;
+   @Nonnull public final List<Object> targetInstances;
+   @Nonnull private final Map<Class<?>, byte[]> modifiedClassfiles;
+   @Nonnull private final List<Class<?>> classesPartiallyMocked;
    private boolean methodsOnly;
 
    public DynamicPartialMocking()
@@ -28,7 +27,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       classesPartiallyMocked = new ArrayList<Class<?>>();
    }
 
-   public void redefineTypes(@NotNull Object[] classesOrInstancesToBePartiallyMocked)
+   public void redefineTypes(@Nonnull Object[] classesOrInstancesToBePartiallyMocked)
    {
       for (Object classOrInstance : classesOrInstancesToBePartiallyMocked) {
          redefineClassHierarchy(classOrInstance);
@@ -40,7 +39,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       }
    }
 
-   private void redefineClassHierarchy(@NotNull Object classOrInstance)
+   private void redefineClassHierarchy(@Nonnull Object classOrInstance)
    {
       Object mockInstance;
 
@@ -77,7 +76,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       redefineMethodsAndConstructorsInTargetType();
    }
 
-   private void applyPartialMockingToGivenInstance(@NotNull Object instance)
+   private void applyPartialMockingToGivenInstance(@Nonnull Object instance)
    {
       validateTargetClassType();
       methodsOnly = true;
@@ -106,13 +105,13 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    }
 
    @Override
-   void configureClassModifier(@NotNull ExpectationsModifier modifier)
+   void configureClassModifier(@Nonnull ExpectationsModifier modifier)
    {
       modifier.useDynamicMocking(methodsOnly);
    }
 
    @Override
-   void applyClassRedefinition(@NotNull Class<?> realClass, @NotNull byte[] modifiedClass)
+   void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
    {
       modifiedClassfiles.put(realClass, modifiedClass);
 

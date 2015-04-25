@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
 {
@@ -33,8 +32,8 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
       PRIMITIVE_MATCHERS.put(double.class, new ClassMatcher(double.class, Double.class));
    }
 
-   @NotNull
-   public static ClassMatcher create(@NotNull Class<?> expectedClass)
+   @Nonnull
+   public static ClassMatcher create(@Nonnull Class<?> expectedClass)
    {
       ClassMatcher matcher = PRIMITIVE_MATCHERS.get(expectedClass);
 
@@ -45,29 +44,29 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
       return matcher;
    }
 
-   @NotNull private final String nameOfExpectedClass;
-   @NotNull private final Class<?> matchableClass;
+   @Nonnull private final String nameOfExpectedClass;
+   @Nonnull private final Class<?> matchableClass;
 
-   private ClassMatcher(@NotNull Class<?> expectedClass)
+   private ClassMatcher(@Nonnull Class<?> expectedClass)
    {
       nameOfExpectedClass = expectedClass.getName();
       matchableClass = expectedClass;
    }
 
-   private ClassMatcher(@NotNull Class<?> primitiveClass, @NotNull Class<?> primitiveWrapperClass)
+   private ClassMatcher(@Nonnull Class<?> primitiveClass, @Nonnull Class<?> primitiveWrapperClass)
    {
       nameOfExpectedClass = primitiveClass.getName();
       matchableClass = primitiveWrapperClass;
    }
 
    @Override
-   public boolean same(@NotNull ClassMatcher other) { return matchableClass == other.matchableClass; }
+   public boolean same(@Nonnull ClassMatcher other) { return matchableClass == other.matchableClass; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return matchableClass.isInstance(argValue); }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("an instance of ").append(nameOfExpectedClass);
    }

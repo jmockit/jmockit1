@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 abstract class InvocationResult
 {
    InvocationResult next;
 
    @Nullable
-   Object produceResult(@NotNull Object[] args) throws Throwable { return null; }
+   Object produceResult(@Nonnull Object[] args) throws Throwable { return null; }
 
    @Nullable
    Object produceResult(
-      @Nullable Object invokedObject, @NotNull ExpectedInvocation invocation,
-      @NotNull InvocationConstraints constraints, @NotNull Object[] args)
+      @Nullable Object invokedObject, @Nonnull ExpectedInvocation invocation,
+      @Nonnull InvocationConstraints constraints, @Nonnull Object[] args)
       throws Throwable
    {
       return produceResult(args);
@@ -30,20 +29,18 @@ abstract class InvocationResult
 
       ReturnValueResult(@Nullable Object returnValue) { this.returnValue = returnValue; }
 
-      @Override
-      @Nullable
-      Object produceResult(@NotNull Object[] args) { return returnValue; }
+      @Nullable @Override
+      Object produceResult(@Nonnull Object[] args) { return returnValue; }
    }
 
    static final class ThrowableResult extends InvocationResult
    {
-      @NotNull private final Throwable throwable;
+      @Nonnull private final Throwable throwable;
 
-      ThrowableResult(@NotNull Throwable throwable) { this.throwable = throwable; }
+      ThrowableResult(@Nonnull Throwable throwable) { this.throwable = throwable; }
 
-      @Override
-      @NotNull
-      Object produceResult(@NotNull Object[] args) throws Throwable
+      @Nonnull @Override
+      Object produceResult(@Nonnull Object[] args) throws Throwable
       {
          throwable.fillInStackTrace();
          throw throwable;
@@ -52,13 +49,12 @@ abstract class InvocationResult
 
    static final class DeferredReturnValues extends InvocationResult
    {
-      @NotNull private final Iterator<?> values;
+      @Nonnull private final Iterator<?> values;
 
-      DeferredReturnValues(@NotNull Iterator<?> values) { this.values = values; }
+      DeferredReturnValues(@Nonnull Iterator<?> values) { this.values = values; }
 
-      @Override
-      @Nullable
-      Object produceResult(@NotNull Object[] args)
+      @Nullable @Override
+      Object produceResult(@Nonnull Object[] args)
       {
          return values.hasNext() ? values.next() : null;
       }
@@ -66,13 +62,12 @@ abstract class InvocationResult
 
    static final class DeferredResults extends InvocationResult
    {
-      @NotNull private final Iterator<?> values;
+      @Nonnull private final Iterator<?> values;
 
-      DeferredResults(@NotNull Iterator<?> values) { this.values = values; }
+      DeferredResults(@Nonnull Iterator<?> values) { this.values = values; }
 
-      @Override
-      @Nullable
-      Object produceResult(@NotNull Object[] args) throws Throwable
+      @Nullable @Override
+      Object produceResult(@Nonnull Object[] args) throws Throwable
       {
          Object nextValue = values.hasNext() ? values.next() : null;
 

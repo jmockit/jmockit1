@@ -1,18 +1,17 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class LenientEqualityMatcher extends EqualityMatcher
 {
-   @NotNull private final Map<Object, Object> instanceMap;
+   @Nonnull private final Map<Object, Object> instanceMap;
 
-   public LenientEqualityMatcher(@Nullable Object equalArg, @NotNull Map<Object, Object> instanceMap)
+   public LenientEqualityMatcher(@Nullable Object equalArg, @Nonnull Map<Object, Object> instanceMap)
    {
       super(equalArg);
       this.instanceMap = instanceMap;

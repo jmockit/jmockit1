@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class StringContainmentMatcher extends SubstringMatcher
 {
-   public StringContainmentMatcher(@NotNull CharSequence substring) { super(substring); }
+   public StringContainmentMatcher(@Nonnull CharSequence substring) { super(substring); }
 
    @Override
    public boolean matches(@Nullable Object argValue)
@@ -17,7 +17,7 @@ public final class StringContainmentMatcher extends SubstringMatcher
    }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("a string containing ").appendFormatted(substring);
    }

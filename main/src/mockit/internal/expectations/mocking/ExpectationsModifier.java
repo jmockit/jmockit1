@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.util.*;
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
@@ -15,8 +16,6 @@ import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.MockingFilters.isUnmockableInvocation;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.Utilities.*;
-
-import org.jetbrains.annotations.*;
 
 final class ExpectationsModifier extends BaseClassModifier
 {
@@ -36,7 +35,7 @@ final class ExpectationsModifier extends BaseClassModifier
    @Nullable List<String> enumSubclasses;
 
    ExpectationsModifier(
-      @Nullable ClassLoader classLoader, @NotNull ClassReader classReader, @Nullable MockedType typeMetadata)
+      @Nullable ClassLoader classLoader, @Nonnull ClassReader classReader, @Nullable MockedType typeMetadata)
    {
       super(classReader);
 
@@ -53,7 +52,7 @@ final class ExpectationsModifier extends BaseClassModifier
       }
    }
 
-   private void useInstanceBasedMockingIfApplicable(@NotNull MockedType typeMetadata)
+   private void useInstanceBasedMockingIfApplicable(@Nonnull MockedType typeMetadata)
    {
       if (typeMetadata.injectable) {
          ignoreConstructors = typeMetadata.getMaxInstancesToCapture() <= 0;
@@ -61,7 +60,7 @@ final class ExpectationsModifier extends BaseClassModifier
       }
    }
 
-   public void setClassNameForCapturedInstanceMethods(@NotNull String internalClassName)
+   public void setClassNameForCapturedInstanceMethods(@Nonnull String internalClassName)
    {
       baseClassNameForCapturedInstanceMethods = internalClassName;
    }
@@ -74,7 +73,7 @@ final class ExpectationsModifier extends BaseClassModifier
 
    @Override
    public void visit(
-      int version, int access, @NotNull String name, @Nullable String signature, @Nullable String superName,
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
       if (name.startsWith("java/")) {
@@ -111,7 +110,7 @@ final class ExpectationsModifier extends BaseClassModifier
    }
 
    @Override
-   public void visitInnerClass(@NotNull String name, @Nullable String outerName, @Nullable String innerName, int access)
+   public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access)
    {
       cw.visitInnerClass(name, outerName, innerName, access);
 
@@ -124,9 +123,9 @@ final class ExpectationsModifier extends BaseClassModifier
       }
    }
 
-   @Override
-   @Nullable public MethodVisitor visitMethod(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+   @Nullable @Override
+   public MethodVisitor visitMethod(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       boolean syntheticOrAbstractMethod = (access & METHOD_ACCESS_MASK) != 0;
 
@@ -182,14 +181,14 @@ final class ExpectationsModifier extends BaseClassModifier
       return copyOriginalImplementationCode(visitingConstructor);
    }
 
-   @Nullable
+   @Nonnull
    private MethodVisitor unmodifiedBytecode(
-      int access, @NotNull String name, @NotNull String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       return cw.visitMethod(access, name, desc, signature, exceptions);
    }
 
-   private static boolean isConstructorOrSystemMethodNotToBeMocked(@NotNull String name, @NotNull String desc)
+   private static boolean isConstructorOrSystemMethodNotToBeMocked(@Nonnull String name, @Nonnull String desc)
    {
       return
          "<init>".equals(name) || ObjectMethods.isMethodFromObject(name, desc) ||
@@ -209,7 +208,7 @@ final class ExpectationsModifier extends BaseClassModifier
       return mw;
    }
 
-   private boolean stubOutFinalizeMethod(int access, @NotNull String name, @NotNull String desc)
+   private boolean stubOutFinalizeMethod(int access, @Nonnull String name, @Nonnull String desc)
    {
       if ("finalize".equals(name) && "()V".equals(desc)) {
          startModifiedMethodVersion(access, name, desc, null, null);
@@ -225,7 +224,7 @@ final class ExpectationsModifier extends BaseClassModifier
       return baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_OR_STATIC) != 0;
    }
 
-   private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @NotNull String name)
+   private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @Nonnull String name)
    {
       if (visitingConstructor) {
          return ignoreConstructors || isUnmockableInvocation(defaultFilters, name);
@@ -240,7 +239,7 @@ final class ExpectationsModifier extends BaseClassModifier
       return executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
    }
 
-   @NotNull
+   @Nonnull
    private ExecutionMode determineAppropriateExecutionMode(boolean visitingConstructor)
    {
       if (executionMode == ExecutionMode.PerInstance) {
@@ -256,9 +255,9 @@ final class ExpectationsModifier extends BaseClassModifier
       return executionMode;
    }
 
-   @NotNull
+   @Nonnull
    private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @NotNull String internalClassName, @NotNull ExecutionMode actualExecutionMode)
+      @Nullable String genericSignature, @Nonnull String internalClassName, @Nonnull ExecutionMode actualExecutionMode)
    {
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 

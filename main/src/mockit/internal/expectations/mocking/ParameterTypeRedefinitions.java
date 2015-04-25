@@ -7,20 +7,19 @@ package mockit.internal.expectations.mocking;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.state.*;
 
 public final class ParameterTypeRedefinitions extends TypeRedefinitions
 {
-   @NotNull private final Type[] paramTypes;
-   @NotNull private final Annotation[][] paramAnnotations;
-   @NotNull private final Object[] paramValues;
-   @NotNull private final MockedType[] mockParameters;
-   @NotNull private final List<MockedType> injectableParameters;
+   @Nonnull private final Type[] paramTypes;
+   @Nonnull private final Annotation[][] paramAnnotations;
+   @Nonnull private final Object[] paramValues;
+   @Nonnull private final MockedType[] mockParameters;
+   @Nonnull private final List<MockedType> injectableParameters;
 
-   public ParameterTypeRedefinitions(@NotNull Method testMethod, @Nullable Object[] parameterValues)
+   public ParameterTypeRedefinitions(@Nonnull Method testMethod, @Nullable Object[] parameterValues)
    {
       TestRun.enterNoMockingZone();
 
@@ -49,7 +48,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    private void getMockedTypeFromMockParameterDeclaration(
-      @NotNull String testClassDesc, @NotNull String testMethodDesc, int paramIndex)
+      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, int paramIndex)
    {
       Type paramType = paramTypes[paramIndex];
       Annotation[] annotationsOnParameter = paramAnnotations[paramIndex];
@@ -64,7 +63,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       }
    }
 
-   @NotNull
+   @Nonnull
    private InstanceFactory[] redefineMockedTypes()
    {
       int n = mockParameters.length;
@@ -82,7 +81,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nullable
-   private InstanceFactory redefineMockedType(@NotNull MockedType mockedType)
+   private InstanceFactory redefineMockedType(@Nonnull MockedType mockedType)
    {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
       InstanceFactory instanceFactory = typeRedefinition.redefineType();
@@ -94,7 +93,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       return instanceFactory;
    }
 
-   private void registerCaptureOfNewInstances(@NotNull MockedType mockedType, @NotNull Object originalInstance)
+   private void registerCaptureOfNewInstances(@Nonnull MockedType mockedType, @Nonnull Object originalInstance)
    {
       if (captureOfNewInstances == null) {
          captureOfNewInstances = new CaptureOfNewInstances();
@@ -104,7 +103,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       captureOfNewInstances.makeSureAllSubtypesAreModified(mockedType);
    }
 
-   private void instantiateMockedTypes(@NotNull InstanceFactory[] instanceFactories)
+   private void instantiateMockedTypes(@Nonnull InstanceFactory[] instanceFactories)
    {
       for (int i = 0; i < instanceFactories.length; i++) {
          InstanceFactory instanceFactory = instanceFactories[i];
@@ -118,8 +117,8 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       }
    }
 
-   @NotNull
-   private Object instantiateMockedType(@NotNull MockedType mockedType, @NotNull InstanceFactory instanceFactory)
+   @Nonnull
+   private Object instantiateMockedType(@Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory)
    {
       Object mock = instanceFactory.create();
       registerMock(mockedType, mock);
@@ -131,6 +130,6 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       return mock;
    }
 
-   @NotNull public List<MockedType> getInjectableParameters() { return injectableParameters; }
-   @NotNull public Object[] getParameterValues() { return paramValues; }
+   @Nonnull public List<MockedType> getInjectableParameters() { return injectableParameters; }
+   @Nonnull public Object[] getParameterValues() { return paramValues; }
 }

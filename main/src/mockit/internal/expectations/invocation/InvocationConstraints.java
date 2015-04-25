@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
-import mockit.internal.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
+import mockit.internal.*;
 
 public final class InvocationConstraints
 {
@@ -51,7 +51,7 @@ public final class InvocationConstraints
    }
 
    @Nullable
-   public Error verifyLowerLimit(@NotNull ExpectedInvocation invocation, int lowerLimit)
+   public Error verifyLowerLimit(@Nonnull ExpectedInvocation invocation, int lowerLimit)
    {
       if (invocationCount < lowerLimit) {
          int missingInvocations = lowerLimit - invocationCount;
@@ -63,7 +63,7 @@ public final class InvocationConstraints
 
    @Nullable
    public Error verifyUpperLimit(
-      @NotNull ExpectedInvocation invocation, @NotNull Object[] replayArgs, int upperLimit,
+      @Nonnull ExpectedInvocation invocation, @Nonnull Object[] replayArgs, int upperLimit,
       @Nullable CharSequence customErrorMessage)
    {
       if (upperLimit >= 0) {
@@ -80,8 +80,8 @@ public final class InvocationConstraints
       return null;
    }
 
-   @NotNull
-   public Error errorForMissingExpectations(@NotNull ExpectedInvocation invocation)
+   @Nonnull
+   public Error errorForMissingExpectations(@Nonnull ExpectedInvocation invocation)
    {
       return invocation.errorForMissingInvocations(minInvocations - invocationCount) ;
    }

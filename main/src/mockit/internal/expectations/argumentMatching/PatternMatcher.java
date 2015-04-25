@@ -1,21 +1,20 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class PatternMatcher implements ArgumentMatcher<PatternMatcher>
 {
-   @NotNull private final Pattern pattern;
+   @Nonnull private final Pattern pattern;
 
-   public PatternMatcher(@NotNull String regex) { pattern = Pattern.compile(regex); }
+   public PatternMatcher(@Nonnull String regex) { pattern = Pattern.compile(regex); }
 
    @Override
-   public boolean same(@NotNull PatternMatcher other) { return pattern == other.pattern; }
+   public boolean same(@Nonnull PatternMatcher other) { return pattern == other.pattern; }
 
    @Override
    public boolean matches(@Nullable Object argValue)
@@ -24,7 +23,7 @@ public final class PatternMatcher implements ArgumentMatcher<PatternMatcher>
    }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("a string matching \"").append(pattern.toString()).append('"');
    }

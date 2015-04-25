@@ -6,8 +6,7 @@ package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -17,17 +16,17 @@ import mockit.internal.util.*;
 
 public final class InvocationArguments
 {
-   @NotNull private static final String EOL = System.getProperty("line.separator");
+   @Nonnull private static final String EOL = System.getProperty("line.separator");
 
-   @NotNull final String classDesc;
-   @NotNull final String methodNameAndDesc;
+   @Nonnull final String classDesc;
+   @Nonnull final String methodNameAndDesc;
    @Nullable final String genericSignature;
-   @NotNull private final ArgumentValuesAndMatchers valuesAndMatchers;
+   @Nonnull private final ArgumentValuesAndMatchers valuesAndMatchers;
    @Nullable private Member realMethodOrConstructor;
 
    InvocationArguments(
-      int access, @NotNull String classDesc, @NotNull String methodNameAndDesc, @Nullable String genericSignature,
-      @NotNull Object[] args)
+      int access, @Nonnull String classDesc, @Nonnull String methodNameAndDesc, @Nullable String genericSignature,
+      @Nonnull Object[] args)
    {
       this.classDesc = classDesc;
       this.methodNameAndDesc = methodNameAndDesc;
@@ -38,14 +37,14 @@ public final class InvocationArguments
             new ArgumentValuesAndMatchersWithVarargs(this, args);
    }
 
-   @NotNull String getClassName() { return classDesc.replace('/', '.'); }
+   @Nonnull String getClassName() { return classDesc.replace('/', '.'); }
 
    boolean isForConstructor() { return methodNameAndDesc.charAt(0) == '<'; }
 
-   @NotNull public Object[] getValues() { return valuesAndMatchers.values; }
-   void setValues(@NotNull Object[] values) { valuesAndMatchers.values = values; }
+   @Nonnull public Object[] getValues() { return valuesAndMatchers.values; }
+   void setValues(@Nonnull Object[] values) { valuesAndMatchers.values = values; }
 
-   public void setValuesWithNoMatchers(@NotNull Object[] argsToVerify)
+   public void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify)
    {
       valuesAndMatchers.setValuesWithNoMatchers(argsToVerify);
    }
@@ -53,13 +52,13 @@ public final class InvocationArguments
    @Nullable public List<ArgumentMatcher<?>> getMatchers() { return valuesAndMatchers.matchers; }
    public void setMatchers(@Nullable List<ArgumentMatcher<?>> matchers) { valuesAndMatchers.matchers = matchers; }
 
-   @NotNull
-   public Object[] prepareForVerification(@NotNull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers)
+   @Nonnull
+   public Object[] prepareForVerification(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers)
    {
       return valuesAndMatchers.prepareForVerification(argsToVerify, matchers);
    }
 
-   public boolean isMatch(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap)
+   public boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       TestRun.enterNoMockingZone();
       ExecutingTest executingTest = TestRun.getExecutingTest();
@@ -76,12 +75,12 @@ public final class InvocationArguments
 
    @Nullable
    public Error assertMatch(
-      @NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
    {
       return valuesAndMatchers.assertMatch(replayArgs, instanceMap, errorMessagePrefix);
    }
 
-   @NotNull
+   @Nonnull
    Error argumentMismatchMessage(
       int paramIndex, @Nullable Object expected, @Nullable Object actual, @Nullable CharSequence errorMessagePrefix)
    {
@@ -118,7 +117,7 @@ public final class InvocationArguments
    }
 
    private static void appendWarningMessageAboutLackOfEqualsMethod(
-      @NotNull ArgumentMismatch message, @NotNull Object value)
+      @Nonnull ArgumentMismatch message, @Nonnull Object value)
    {
       Class<?> argClass = value.getClass();
 
@@ -146,12 +145,12 @@ public final class InvocationArguments
       return valuesAndMatchers.toString(methodFormatter);
    }
 
-   public boolean hasEquivalentMatchers(@NotNull InvocationArguments other)
+   public boolean hasEquivalentMatchers(@Nonnull InvocationArguments other)
    {
       return valuesAndMatchers.hasEquivalentMatchers(other.valuesAndMatchers);
    }
 
-   @NotNull
+   @Nonnull
    Member getRealMethodOrConstructor()
    {
       if (realMethodOrConstructor == null) {

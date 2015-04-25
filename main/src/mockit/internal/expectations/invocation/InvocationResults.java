@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.invocation.InvocationResult.*;
@@ -15,13 +14,13 @@ import mockit.internal.util.*;
 
 public final class InvocationResults
 {
-   @NotNull private final ExpectedInvocation invocation;
-   @NotNull private final InvocationConstraints constraints;
+   @Nonnull private final ExpectedInvocation invocation;
+   @Nonnull private final InvocationConstraints constraints;
    @Nullable private InvocationResult currentResult;
    private InvocationResult lastResult;
    private int resultCount;
 
-   public InvocationResults(@NotNull ExpectedInvocation invocation, @NotNull InvocationConstraints constraints)
+   public InvocationResults(@Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints)
    {
       this.invocation = invocation;
       this.constraints = constraints;
@@ -37,7 +36,7 @@ public final class InvocationResults
       }
    }
 
-   public void addDelegatedResult(@NotNull Delegate<?> delegate)
+   public void addDelegatedResult(@Nonnull Delegate<?> delegate)
    {
       InvocationResult result = new DelegatedResult(delegate);
       addResult(result);
@@ -49,7 +48,7 @@ public final class InvocationResults
       addResult(result);
    }
 
-   public void addReturnValues(@NotNull Object array)
+   public void addReturnValues(@Nonnull Object array)
    {
       int n = validateMultiValuedResult(array);
 
@@ -59,7 +58,7 @@ public final class InvocationResults
       }
    }
 
-   private int validateMultiValuedResult(@NotNull Object array)
+   private int validateMultiValuedResult(@Nonnull Object array)
    {
       int n = Array.getLength(array);
 
@@ -76,7 +75,7 @@ public final class InvocationResults
       throw new IllegalArgumentException("Invalid return value for method returning " + returnType);
    }
 
-   public void addReturnValues(@NotNull Iterable<?> values)
+   public void addReturnValues(@Nonnull Iterable<?> values)
    {
       validateMultiValuedResult(values.iterator());
 
@@ -92,14 +91,14 @@ public final class InvocationResults
       }
    }
 
-   public void addReturnValues(@NotNull Object... values)
+   public void addReturnValues(@Nonnull Object... values)
    {
       for (Object value : values) {
          addReturnValue(value);
       }
    }
 
-   public void addResults(@NotNull Object array)
+   public void addResults(@Nonnull Object array)
    {
       int n = validateMultiValuedResult(array);
 
@@ -119,7 +118,7 @@ public final class InvocationResults
       }
    }
 
-   public void addResults(@NotNull Iterable<?> values)
+   public void addResults(@Nonnull Iterable<?> values)
    {
       validateMultiValuedResult(values.iterator());
 
@@ -128,7 +127,7 @@ public final class InvocationResults
       }
    }
 
-   public void addDeferredReturnValues(@NotNull Iterator<?> values)
+   public void addDeferredReturnValues(@Nonnull Iterator<?> values)
    {
       validateMultiValuedResult(values);
 
@@ -137,7 +136,7 @@ public final class InvocationResults
       constraints.setUnlimitedMaxInvocations();
    }
 
-   public void addDeferredResults(@NotNull Iterator<?> values)
+   public void addDeferredResults(@Nonnull Iterator<?> values)
    {
       validateMultiValuedResult(values);
 
@@ -147,7 +146,7 @@ public final class InvocationResults
    }
 
    @Nullable
-   public Object executeRealImplementation(@NotNull Object instanceToInvoke, @NotNull Object[] invocationArgs)
+   public Object executeRealImplementation(@Nonnull Object instanceToInvoke, @Nonnull Object[] invocationArgs)
       throws Throwable
    {
       if (currentResult == null) {
@@ -157,12 +156,12 @@ public final class InvocationResults
       return currentResult.produceResult(invocationArgs);
    }
 
-   public void addThrowable(@NotNull Throwable t)
+   public void addThrowable(@Nonnull Throwable t)
    {
       addResult(new ThrowableResult(t));
    }
 
-   private void addResult(InvocationResult result)
+   private void addResult(@Nonnull InvocationResult result)
    {
       resultCount++;
       constraints.adjustMaxInvocations(resultCount);
@@ -178,7 +177,7 @@ public final class InvocationResults
    }
 
    @Nullable
-   public Object produceResult(@Nullable Object invokedObject, @NotNull Object[] invocationArgs) throws Throwable
+   public Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
    {
       InvocationResult resultToBeProduced = currentResult;
       assert resultToBeProduced != null;

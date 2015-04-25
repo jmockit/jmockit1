@@ -1,26 +1,25 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
-import org.jetbrains.annotations.*;
-
-import mockit.Delegate;
+import mockit.*;
 import mockit.internal.util.*;
 
 public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatcher>
 {
-   @NotNull private final Delegate<?> delegate;
+   @Nonnull private final Delegate<?> delegate;
    @Nullable private Method handlerMethod;
    @Nullable private Object matchedValue;
 
-   public ReflectiveMatcher(@NotNull Delegate<?> delegate) { this.delegate = delegate; }
+   public ReflectiveMatcher(@Nonnull Delegate<?> delegate) { this.delegate = delegate; }
 
    @Override
-   public boolean same(@NotNull ReflectiveMatcher other) { return delegate == other.delegate; }
+   public boolean same(@Nonnull ReflectiveMatcher other) { return delegate == other.delegate; }
 
    @Override
    public boolean matches(@Nullable Object argValue)
@@ -36,7 +35,7 @@ public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatche
    }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       if (handlerMethod != null) {
          argumentMismatch.append(handlerMethod.getName()).append('(');

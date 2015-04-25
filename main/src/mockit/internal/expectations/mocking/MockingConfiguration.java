@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.util.*;
 import java.util.regex.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 
 final class MockingConfiguration
 {
-   @NotNull private final List<RegexMockFilter> filtersToApply;
+   @Nonnull private final List<RegexMockFilter> filtersToApply;
 
-   MockingConfiguration(@NotNull String[] filters)
+   MockingConfiguration(@Nonnull String[] filters)
    {
       filtersToApply = parseMockFilters(filters);
    }
 
-   @NotNull
-   private static List<RegexMockFilter> parseMockFilters(@NotNull String[] mockFilters)
+   @Nonnull
+   private static List<RegexMockFilter> parseMockFilters(@Nonnull String[] mockFilters)
    {
       List<RegexMockFilter> filters = new ArrayList<RegexMockFilter>(mockFilters.length);
 
@@ -32,7 +31,7 @@ final class MockingConfiguration
       return filters;
    }
 
-   boolean matchesFilters(@NotNull String name, @NotNull String desc)
+   boolean matchesFilters(@Nonnull String name, @Nonnull String desc)
    {
       for (RegexMockFilter filter : filtersToApply) {
          if (filter.matches(name, desc)) {
@@ -49,10 +48,10 @@ final class MockingConfiguration
       private static final Pattern COMMA_SEPARATOR_REGEX = Pattern.compile(",");
       private static final String[] ANY_PARAMS = {};
 
-      @NotNull private final Pattern nameRegex;
+      @Nonnull private final Pattern nameRegex;
       @Nullable private final String[] paramTypeNames;
 
-      private RegexMockFilter(@NotNull String filter)
+      private RegexMockFilter(@Nonnull String filter)
       {
          int lp = filter.indexOf('(');
          int rp = filter.indexOf(')');
@@ -72,7 +71,7 @@ final class MockingConfiguration
       }
 
       @Nullable
-      private static String[] parseParameterTypes(@NotNull String filter, int lp, int rp)
+      private static String[] parseParameterTypes(@Nonnull String filter, int lp, int rp)
       {
          if (lp < 0) {
             return ANY_PARAMS;
@@ -90,7 +89,7 @@ final class MockingConfiguration
          return typeNames;
       }
 
-      boolean matches(@NotNull String name, @NotNull String desc)
+      boolean matches(@Nonnull String name, @Nonnull String desc)
       {
          if (!nameRegex.matcher(name).matches()) {
             return false;

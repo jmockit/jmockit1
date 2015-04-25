@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
 
 import java.lang.reflect.Type;
+import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
@@ -12,23 +13,21 @@ import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
-import org.jetbrains.annotations.*;
-
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
    @Nullable private final MockingConfiguration mockingCfg;
 
    public SubclassGenerationModifier(
-      @NotNull Class<?> baseClass, @NotNull Type mockedType,
-      @NotNull ClassReader classReader, @NotNull String subclassName)
+      @Nonnull Class<?> baseClass, @Nonnull Type mockedType,
+      @Nonnull ClassReader classReader, @Nonnull String subclassName)
    {
       super(baseClass, classReader, mockedType, subclassName, true);
       mockingCfg = null;
    }
 
    SubclassGenerationModifier(
-      @NotNull Class<?> baseClass, @Nullable MockingConfiguration mockingConfiguration, @NotNull Type mockedType,
-      @NotNull ClassReader classReader, @NotNull String subclassName)
+      @Nonnull Class<?> baseClass, @Nullable MockingConfiguration mockingConfiguration, @Nonnull Type mockedType,
+      @Nonnull ClassReader classReader, @Nonnull String subclassName)
    {
       super(baseClass, classReader, mockedType, subclassName, false);
       mockingCfg = mockingConfiguration;
@@ -37,7 +36,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
    @Override
    @SuppressWarnings("AssignmentToMethodParameter")
    protected void generateMethodImplementation(
-      String className, int access, @NotNull String name, @NotNull String desc,
+      @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc,
       @Nullable String signature, @Nullable String[] exceptions)
    {
       if (signature != null && mockedTypeInfo != null) {

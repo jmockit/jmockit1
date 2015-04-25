@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
 
 final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMatchers
 {
-   ArgumentValuesAndMatchersWithoutVarargs(@NotNull InvocationArguments signature, @NotNull Object[] values)
+   ArgumentValuesAndMatchersWithoutVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values)
    {
       super(signature, values);
    }
 
    @Override
-   boolean isMatch(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap)
+   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       if (matchers == null) {
          return areEqual(values, replayArgs, replayArgs.length, instanceMap);
@@ -42,10 +41,9 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
       return true;
    }
 
-   @Override
-   @Nullable
+   @Nullable @Override
    Error assertMatch(
-      @NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
    {
       if (matchers == null) {
          return assertEquals(values, replayArgs, replayArgs.length, instanceMap, errorMessagePrefix);
@@ -70,7 +68,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
    }
 
    @Override
-   boolean hasEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other)
+   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
    {
       int i = indexOfFirstValueAfterEquivalentMatchers(other);
 

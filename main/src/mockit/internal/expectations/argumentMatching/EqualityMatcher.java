@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
 import java.lang.reflect.Array;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
 {
@@ -15,13 +14,13 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
    EqualityMatcher(@Nullable Object equalArg) { object = equalArg; }
 
    @Override
-   public boolean same(@NotNull EqualityMatcher other) { return object == other.object; }
+   public boolean same(@Nonnull EqualityMatcher other) { return object == other.object; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return areEqual(argValue, object); }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.appendFormatted(object);
    }
@@ -41,7 +40,7 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
       return areEqualWhenNonNull(o1, o2);
    }
 
-   public static boolean areEqualWhenNonNull(@NotNull Object o1, @NotNull Object o2)
+   public static boolean areEqualWhenNonNull(@Nonnull Object o1, @Nonnull Object o2)
    {
       if (isArray(o1)) {
          return isArray(o2) && areArraysEqual(o1, o2);
@@ -50,9 +49,9 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
       return o1.equals(o2);
    }
 
-   private static boolean isArray(@NotNull Object o) { return o.getClass().isArray(); }
+   private static boolean isArray(@Nonnull Object o) { return o.getClass().isArray(); }
 
-   private static boolean areArraysEqual(@NotNull Object array1, @NotNull Object array2)
+   private static boolean areArraysEqual(@Nonnull Object array1, @Nonnull Object array2)
    {
       int length1 = Array.getLength(array1);
 

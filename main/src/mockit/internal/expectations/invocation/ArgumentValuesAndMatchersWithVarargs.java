@@ -1,26 +1,25 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
 import java.util.*;
-
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
 
 final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatchers
 {
-   ArgumentValuesAndMatchersWithVarargs(@NotNull InvocationArguments signature, @NotNull Object[] values)
+   ArgumentValuesAndMatchersWithVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values)
    {
       super(signature, values);
    }
 
    @Override
-   boolean isMatch(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap)
+   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       if (matchers == null) {
          return areEqual(replayArgs, instanceMap);
@@ -51,7 +50,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       return true;
    }
 
-   private boolean areEqual(@NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap)
+   private boolean areEqual(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       int argCount = replayArgs.length;
 
@@ -68,10 +67,9 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          areEqual(expectedValues, actualValues, expectedValues.length, instanceMap);
    }
 
-   @Override
-   @Nullable
+   @Nullable @Override
    Error assertMatch(
-      @NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
    {
       if (matchers == null) {
          return assertEquality(replayArgs, instanceMap, errorMessagePrefix);
@@ -105,7 +103,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
    @Nullable
    private Error assertEquality(
-      @NotNull Object[] replayArgs, @NotNull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
    {
       int argCount = replayArgs.length;
       Error nonVarargsError = assertEquals(values, replayArgs, argCount - 1, instanceMap, errorMessagePrefix);
@@ -133,7 +131,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    }
 
    @Override
-   boolean hasEquivalentMatchers(@NotNull ArgumentValuesAndMatchers other)
+   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
    {
       int i = indexOfFirstValueAfterEquivalentMatchers(other);
 
@@ -166,12 +164,12 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
    private final class VarargsComparison
    {
-      @NotNull private final Object[] otherValues;
+      @Nonnull private final Object[] otherValues;
       @Nullable private final Object[] thisVarArgs;
       @Nullable private final Object[] otherVarArgs;
       private final int regularArgCount;
 
-      VarargsComparison(@NotNull Object[] otherValues)
+      VarargsComparison(@Nonnull Object[] otherValues)
       {
          this.otherValues = otherValues;
          thisVarArgs = getVarArgs(values);
@@ -179,10 +177,11 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          regularArgCount = values.length - 1;
       }
 
-      @NotNull Object[] getThisVarArgs()  { return thisVarArgs  == null ? NULL_VARARGS : thisVarArgs; }
-      @NotNull Object[] getOtherVarArgs() { return otherVarArgs == null ? NULL_VARARGS : otherVarArgs; }
+      @Nonnull Object[] getThisVarArgs()  { return thisVarArgs  == null ? NULL_VARARGS : thisVarArgs; }
+      @Nonnull Object[] getOtherVarArgs() { return otherVarArgs == null ? NULL_VARARGS : otherVarArgs; }
 
-      @Nullable private Object[] getVarArgs(@NotNull Object[] args)
+      @Nullable
+      private Object[] getVarArgs(@Nonnull Object[] args)
       {
          Object lastArg = args[args.length - 1];
 
@@ -218,7 +217,8 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
       boolean sameVarargArrayLength() { return getThisVarArgs().length == getOtherVarArgs().length; }
 
-      @Nullable Object getThisArgument(int parameter)
+      @Nullable
+      Object getThisArgument(int parameter)
       {
          if (parameter < regularArgCount) return values[parameter];
          int p = parameter - regularArgCount;
@@ -226,7 +226,8 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          return thisVarArgs[p];
       }
 
-      @Nullable Object getOtherArgument(int parameter)
+      @Nullable
+      Object getOtherArgument(int parameter)
       {
          if (parameter < regularArgCount) return otherValues[parameter];
          int p = parameter - regularArgCount;
@@ -234,7 +235,8 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          return otherVarArgs[p];
       }
 
-      @NotNull Error errorForVarargsArraysOfDifferentLengths()
+      @Nonnull
+      Error errorForVarargsArraysOfDifferentLengths()
       {
          int n = getThisVarArgs().length;
          int m = getOtherVarArgs().length;

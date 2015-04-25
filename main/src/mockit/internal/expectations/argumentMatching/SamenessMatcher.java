@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class SamenessMatcher implements ArgumentMatcher<SamenessMatcher>
 {
@@ -13,13 +13,13 @@ public final class SamenessMatcher implements ArgumentMatcher<SamenessMatcher>
    public SamenessMatcher(@Nullable Object object) { this.object = object; }
 
    @Override
-   public boolean same(@NotNull SamenessMatcher other) { return object == other.object; }
+   public boolean same(@Nonnull SamenessMatcher other) { return object == other.object; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return argValue == object; }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("same instance as ").appendFormatted(object);
    }

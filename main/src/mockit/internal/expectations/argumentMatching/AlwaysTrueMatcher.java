@@ -4,7 +4,7 @@
  */
 package mockit.internal.expectations.argumentMatching;
 
-import org.jetbrains.annotations.*;
+import javax.annotation.*;
 
 public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatcher>
 {
@@ -19,11 +19,11 @@ public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatche
    public static final ArgumentMatcher<?> ANY_DOUBLE  = new AlwaysTrueMatcher(Double.class);
    public static final ArgumentMatcher<?> ANY_VALUE   = new AlwaysTrueMatcher(Object.class);
 
-   @NotNull private final Class<?> expectedType;
-   private AlwaysTrueMatcher(@NotNull Class<?> expectedType) { this.expectedType = expectedType; }
+   @Nonnull private final Class<?> expectedType;
+   private AlwaysTrueMatcher(@Nonnull Class<?> expectedType) { this.expectedType = expectedType; }
 
    @Override
-   public boolean same(@NotNull AlwaysTrueMatcher other)
+   public boolean same(@Nonnull AlwaysTrueMatcher other)
    {
       return expectedType == other.expectedType;
    }
@@ -35,7 +35,7 @@ public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatche
    }
 
    @Override
-   public void writeMismatchPhrase(@NotNull ArgumentMismatch argumentMismatch)
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
       argumentMismatch.append("any ").append(argumentMismatch.getParameterType());
    }
