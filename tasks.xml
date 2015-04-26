@@ -141,7 +141,7 @@
    </macrodef>
 
    <target name="tests">
-      <junit fork="yes" forkmode="once" dir="main">
+      <junit fork="yes" forkmode="once" dir="main" showoutput="true" printsummary="true">
          <assertions><enable/></assertions>
          <jvmarg value="-javaagent:../jmockit.jar"/>
          <classpath refid="common.classpath"/>
