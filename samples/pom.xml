@@ -20,6 +20,7 @@
       <module>tourdemock</module>
       <module>LoginService</module>
       <module>javax.inject-tck</module>
+      <module>java8testing</module>
    </modules>
 
    <name>The JMockit Testing Toolkit Samples</name>
