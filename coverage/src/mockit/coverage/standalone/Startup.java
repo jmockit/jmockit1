@@ -36,13 +36,21 @@ public final class Startup
    }
 
    @SuppressWarnings("unused")
-   public static void agentmain(String agentArgs, @Nonnull Instrumentation inst)
+   public static void agentmain(String agentArgs, @Nonnull Instrumentation inst) throws IOException
    {
       instrumentation = inst;
       inATestRun = false;
       jmockitAvailable = false;
-      CoverageControl.create();
-      inst.addTransformer(CodeCoverage.create(false));
+
+      try {
+         CoverageControl.create();
+         inst.addTransformer(CodeCoverage.create(false));
+      }
+      catch (Throwable t) {
+         PrintWriter out = new PrintWriter("coverage-failure.txt");
+         t.printStackTrace(out);
+         out.close();
+      }
    }
 
    private static void discoverOptionalDependenciesThatAreAvailableInClassPath()
