@@ -97,15 +97,17 @@ final class ClassSelection
       return selected;
    }
 
-   private boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ClassLoader loaderOfClassToBeMeasured)
+   private boolean canAccessJMockitFromClassToBeMeasured(@Nullable ClassLoader loaderOfClassToBeMeasured)
    {
-      try {
-         Class<?> thisClass = loaderOfClassToBeMeasured.loadClass(THIS_CLASS_NAME);
-         return thisClass == getClass();
+      if (loaderOfClassToBeMeasured != null) {
+         try {
+            Class<?> thisClass = loaderOfClassToBeMeasured.loadClass(THIS_CLASS_NAME);
+            return thisClass == getClass();
+         }
+         catch (ClassNotFoundException ignore) {}
       }
-      catch (ClassNotFoundException ignore) {
-         return false;
-      }
+
+      return false;
    }
 
    private boolean isClassFromExternalLibrary(@Nonnull String location)
