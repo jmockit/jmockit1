@@ -1,12 +1,15 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.naming.*;
+import javax.sql.*;
 import static java.util.Arrays.*;
 import static org.junit.Assert.*;
 import org.junit.*;
@@ -15,6 +18,7 @@ public final class TestedClassWithConstructorDI4Test
 {
    static class GenericClass<T> { T doSomething() { return null; } }
 
+   @SuppressWarnings("FieldMayBeFinal")
    public static final class TestedClass
    {
       final GenericClass<String> go;
@@ -22,6 +26,7 @@ public final class TestedClassWithConstructorDI4Test
       final Callable<Number> action1;
       private Callable<Number> action2;
       private Callable<Number> action3;
+      private DataSource database;
 
       public TestedClass(GenericClass<String> go, List<Integer> values, Callable<Number>... actions)
       {
@@ -30,6 +35,14 @@ public final class TestedClassWithConstructorDI4Test
          action1 = actions[0];
          if (actions.length > 1) action2 = actions[1];
          if (actions.length > 2) action3 = actions[2];
+
+         try {
+            //noinspection JNDIResourceOpenedButNotSafelyClosed
+            InitialContext context = new InitialContext();
+            database = (DataSource) context.lookup("testDB");
+            context.close();
+         }
+         catch (NamingException e) { throw new RuntimeException(e); }
       }
    }
 
@@ -37,11 +50,14 @@ public final class TestedClassWithConstructorDI4Test
    @Injectable Callable<Number> action1;
    @Injectable final GenericClass<String> mockGO = new GenericClass<String>(); // still mocked
    @Injectable final List<Integer> numbers = asList(1, 2, 3); // not mocked when interface
+   @Mocked InitialContext jndiContext;
+   @Mocked DataSource testDB;
 
    @Before
-   public void recordCommonExpectations()
+   public void recordCommonExpectations() throws Exception
    {
       new NonStrictExpectations() {{ mockGO.doSomething(); result = "test"; }};
+      new NonStrictExpectations() {{ jndiContext.lookup("testDB"); result = testDB; }};
    }
 
    @After
@@ -71,5 +87,12 @@ public final class TestedClassWithConstructorDI4Test
       assertSame(action3, tested.action3);
       assertEquals("test", mockGO.doSomething());
       assertNull(new GenericClass().doSomething());
+   }
+
+   @Test
+   public void useMockedJREClassesDuringTestedObjectCreation(@Mocked File fileMock)
+   {
+      assertNotNull(tested.database);
+      mockGO.doSomething();
    }
 }

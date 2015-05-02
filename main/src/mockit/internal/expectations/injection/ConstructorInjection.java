@@ -9,6 +9,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
@@ -47,7 +48,14 @@ final class ConstructorInjection
          arguments[n] = obtainInjectedVarargsArray(parameterTypes, n);
       }
 
-      return invoke(constructor, arguments);
+      TestRun.exitNoMockingZone();
+
+      try {
+         return invoke(constructor, arguments);
+      }
+      finally {
+         TestRun.enterNoMockingZone();
+      }
    }
 
    @Nonnull
