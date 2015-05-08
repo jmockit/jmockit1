@@ -227,6 +227,10 @@ final class MockMethods
 
    boolean hasUnusedMocks()
    {
+      if (adviceMethod != null) {
+         return true;
+      }
+
       for (MockMethod method : methods) {
          if (!method.hasMatchingRealMethod) {
             return true;

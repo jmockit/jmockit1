@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -79,6 +79,21 @@ public final class MockingUpEverythingTest
          "Exited TargetClass#performAction with [null] on TargetClass1"
       );
       assertEquals(expectedTraces, traces);
+   }
+
+   @Test
+   public void mockEveryMethodInSingleClassWithAdviceOnly()
+   {
+      new MockUp<TargetClass>() {
+         @Mock
+         Object $advice(Invocation inv)
+         {
+            Integer i = inv.proceed();
+            return i + 2;
+         }
+      };
+
+      assertEquals(1, new TargetClass().doSomething("", false));
    }
 
    @Test
