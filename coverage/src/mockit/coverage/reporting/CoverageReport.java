@@ -7,6 +7,7 @@ package mockit.coverage.reporting;
 import java.io.*;
 import java.util.*;
 import java.util.Map.*;
+
 import javax.annotation.*;
 
 import mockit.coverage.data.*;
@@ -37,7 +38,7 @@ class CoverageReport
    }
 
    @Nonnull
-   private static String getOrChooseOutputDirectory(@Nonnull String outputDir)
+   public static String getOrChooseOutputDirectory(@Nonnull String outputDir)
    {
       if (!outputDir.isEmpty()) {
          return outputDir;
@@ -47,7 +48,7 @@ class CoverageReport
       return mavenBaseDir == null ? "coverage-report" : "target/coverage-report";
    }
 
-   public final void generate() throws IOException
+   public void generate() throws IOException
    {
       createReportOutputDirIfNotExists();
 
@@ -65,11 +66,16 @@ class CoverageReport
 
       generateFileCoverageReportsWhileBuildingPackageLists();
 
-      new IndexPage(outputFile, sourceDirs, sourceFilesNotFound, packageToFiles, fileToFileData).generate();
-      new StaticFiles(outputDir).copyToOutputDir(withSourceFilePages);
+      generateIndexPage(outputFile, withSourceFilePages);
 
       System.out.println("JMockit: Coverage report written to " + outputFile.getParentFile().getCanonicalPath());
    }
+
+	protected void generateIndexPage(File outputFile, boolean withSourceFilePages) throws IOException 
+	{
+		new IndexPage(outputFile, sourceDirs, sourceFilesNotFound, packageToFiles, fileToFileData).generate();
+		new StaticFiles(outputDir).copyToOutputDir(withSourceFilePages);
+	}
 
    private void createReportOutputDirIfNotExists()
    {
@@ -92,7 +98,7 @@ class CoverageReport
       return outputFile;
    }
 
-   private void generateFileCoverageReportsWhileBuildingPackageLists() throws IOException
+   protected void generateFileCoverageReportsWhileBuildingPackageLists() throws IOException
    {
       Set<Entry<String, FileCoverageData>> files = fileToFileData.entrySet();
 
@@ -101,7 +107,7 @@ class CoverageReport
       }
    }
 
-   private void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData)
+   protected void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData)
       throws IOException
    {
       if (sourceDirs == null) {

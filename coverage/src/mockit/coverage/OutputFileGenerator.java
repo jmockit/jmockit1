@@ -4,15 +4,20 @@
  */
 package mockit.coverage;
 
-import java.io.*;
-import javax.annotation.*;
+import java.io.File;
+import java.io.IOException;
 
-import mockit.coverage.data.*;
-import mockit.coverage.modification.*;
-import mockit.coverage.reporting.*;
-import mockit.coverage.standalone.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-@SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
+import mockit.coverage.data.CoverageData;
+import mockit.coverage.modification.ClassModification;
+import mockit.coverage.modification.ClassesNotLoaded;
+import mockit.coverage.reporting.BasicCoverageReport;
+import mockit.coverage.reporting.FullCoverageReport;
+import mockit.coverage.reporting.XmlCoverageReport;
+import mockit.coverage.standalone.Startup;
+
 final class OutputFileGenerator
 {
    private static final String[] ALL_SOURCE_DIRS = new String[0];
@@ -50,7 +55,7 @@ final class OutputFileGenerator
 
    boolean isOutputToBeGenerated()
    {
-      return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp");
+      return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp") || hasOutputFormat("sonarxml");
    }
 
    private boolean isOutputWithCallPointsToBeGenerated()
@@ -111,10 +116,19 @@ final class OutputFileGenerator
       try {
          generateAccretionDataFileIfRequested(coverageData);
          generateHTMLReportIfRequested(coverageData, outputDirCreated);
+         generateSonarXmlReportIfRequested(coverageData);
       }
       catch (IOException e) {
          throw new RuntimeException(e);
       }
+   }
+
+   // http://docs.sonarqube.org/display/SONAR/Generic+Test+Coverage
+   private void generateSonarXmlReportIfRequested(CoverageData coverageData) throws IOException 
+   {
+	    if (hasOutputFormat("sonarxml")) {
+			new XmlCoverageReport(outputDir, coverageData).generate();
+	    }
    }
 
    void generateAggregateReportFromInputFiles(@Nonnull String[] inputPaths)
