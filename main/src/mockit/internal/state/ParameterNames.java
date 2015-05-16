@@ -6,7 +6,6 @@ package mockit.internal.state;
 
 import java.util.*;
 import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
 
@@ -24,8 +23,7 @@ public final class ParameterNames
    }
 
    public static void registerName(
-      @Nonnull String classDesc, int methodAccess, @Nonnull String methodName, @Nonnull String methodDesc,
-      @Nonnull String name, int index)
+      @Nonnull String classDesc, @Nonnull String methodName, @Nonnull String methodDesc, @Nonnull String name)
    {
       if ("this".equals(name)) {
          return;
@@ -47,13 +45,11 @@ public final class ParameterNames
          methodsToParameters.put(methodKey, parameterNames);
       }
 
-      if (!isStatic(methodAccess)) {
-         //noinspection AssignmentToMethodParameter
-         index--;
-      }
-
-      if (index < parameterNames.length) {
-         parameterNames[index] = name;
+      for (int i = 0, n = parameterNames.length; i < n; i++) {
+         if (parameterNames[i] == null) {
+            parameterNames[i] = name;
+            break;
+         }
       }
    }
 

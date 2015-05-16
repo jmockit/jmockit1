@@ -70,8 +70,7 @@ final class MockMethodCollector extends ClassVisitor
    @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    @Nullable @Override
    public MethodVisitor visitMethod(
-      final int access, @Nonnull final String methodName, @Nonnull final String methodDesc,
-      @Nullable String methodSignature, @Nullable String[] exceptions)
+      int access, @Nonnull String methodName, @Nonnull String methodDesc, String methodSignature, String[] exceptions)
    {
       if ((access & INVALID_METHOD_ACCESSES) != 0) {
          return null;
@@ -85,32 +84,44 @@ final class MockMethodCollector extends ClassVisitor
          return null;
       }
 
-      return new MethodVisitor()
+      return new MockMethodVisitor(access, methodName, methodDesc);
+   }
+
+   private final class MockMethodVisitor extends MethodVisitor
+   {
+      private final int access;
+      @Nonnull private final String methodName;
+      @Nonnull private final String methodDesc;
+
+      MockMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc)
       {
-         @Override
-         @Nullable public AnnotationVisitor visitAnnotation(String desc, boolean visible)
-         {
-            if ("Lmockit/Mock;".equals(desc)) {
-               MockMethods.MockMethod mockMethod =
-                  mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+         this.access = access;
+         this.methodName = methodName;
+         this.methodDesc = methodDesc;
+      }
 
-               if (mockMethod != null) {
-                  return new MockAnnotationVisitor(mockMethod);
-               }
+      @Nullable @Override
+      public AnnotationVisitor visitAnnotation(@Nullable String desc, boolean visible)
+      {
+         if ("Lmockit/Mock;".equals(desc)) {
+            MockMethods.MockMethod mockMethod =
+               mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+
+            if (mockMethod != null) {
+               return new MockAnnotationVisitor(mockMethod);
             }
-
-            return null;
          }
 
-         @Override
-         public void visitLocalVariable(
-            @Nonnull String name, @Nonnull String desc, @Nullable String signature,
-            @Nonnull Label start, @Nonnull Label end, int index)
-         {
-            String classDesc = mockMethods.getMockClassInternalName();
-            ParameterNames.registerName(classDesc, access, methodName, methodDesc, name, index);
-         }
-      };
+         return null;
+      }
+
+      @Override
+      public void visitLocalVariable(
+         @Nonnull String name, String desc, String signature, Label start, Label end, int index)
+      {
+         String classDesc = mockMethods.getMockClassInternalName();
+         ParameterNames.registerName(classDesc, methodName, methodDesc, name);
+      }
    }
 
    private final class MockAnnotationVisitor extends AnnotationVisitor

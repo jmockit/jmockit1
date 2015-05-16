@@ -16,7 +16,6 @@ final class ParameterNameExtractor extends ClassVisitor
 {
    private final boolean forMethods;
    @Nonnull private String classDesc;
-   private int methodAccess;
    @Nonnull private String methodName;
    @Nonnull private String methodDesc;
 
@@ -49,7 +48,6 @@ final class ParameterNameExtractor extends ClassVisitor
          boolean visitingAMethod = name.charAt(0) != '<';
 
          if (visitingAMethod == forMethods) {
-            methodAccess = access;
             methodName = name;
             methodDesc = desc;
             return new MethodOrConstructorVisitor();
@@ -61,23 +59,11 @@ final class ParameterNameExtractor extends ClassVisitor
 
    private final class MethodOrConstructorVisitor extends MethodVisitor
    {
-      @Nullable private String previousDesc;
-      private int previousIndex;
-
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, @Nullable String signature,
-         @Nonnull Label start, @Nonnull Label end, int index)
+         @Nonnull String name, String desc, String signature, Label start, Label end, int index)
       {
-         int parameterIndex = index;
-
-         if ("J".equals(previousDesc) || "D".equals(previousDesc)) {
-            parameterIndex = previousIndex + 1;
-         }
-
-         ParameterNames.registerName(classDesc, methodAccess, methodName, methodDesc, name, parameterIndex);
-         previousIndex = parameterIndex;
-         previousDesc = desc;
+         ParameterNames.registerName(classDesc, methodName, methodDesc, name);
       }
    }
 }

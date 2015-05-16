@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -66,12 +66,23 @@ public final class TestedClassWithConstructorDI0Test
       }
    }
 
+   public static final class TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters
+   {
+      public TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters(long l1, char c, String s)
+      {
+         assertEquals(1, l1);
+         assertEquals('X', c);
+         assertEquals("test", s);
+      }
+   }
+
    @Tested TestedClassWithConstructorHavingPrimitiveParameter tested0;
    @Tested TestedClassWithConstructorHavingStringParameter tested1;
    @Tested TestedClassWithConstructorHavingArrayParameter tested2;
    @Tested TestedClassWithConstructorHavingLongParameters tested3;
    @Tested TestedClassWithConstructorHavingDoubleParameters tested4;
    @Tested TestedClassWithConstructorHavingVarargsParameter tested5;
+   @Tested TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters tested6;
 
    @Injectable int i = 123;
    @Injectable int unused;
@@ -99,5 +110,6 @@ public final class TestedClassWithConstructorDI0Test
       assertNotNull(tested3);
       assertNotNull(tested4);
       assertNotNull(tested5);
+      assertNotNull(tested6);
    }
 }
