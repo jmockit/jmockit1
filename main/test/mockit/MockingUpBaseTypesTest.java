@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -131,6 +131,28 @@ public final class MockingUpBaseTypesTest
       ActionImpl2 impl2 = new ActionImpl2();
       assertEquals(3, impl2.perform(2));
       assertTrue(impl2.notToBeMocked());
+   }
+
+   public interface TestInterface { String getData(); }
+
+   public static final class MockTestInterface<T extends TestInterface> extends MockUp<T>
+   {
+      @Mock
+      public String getData(Invocation inv) { return "mocked" + inv.proceed(); }
+   }
+
+   @Test
+   public void mockAllClassesImplementingAnInterfaceUsingNamedMockUpWithInvocationParameter()
+   {
+      TestInterface impl1 = new TestInterface() { @Override public String getData() { return "1"; } };
+      TestInterface impl2 = new TestInterface() { @Override public String getData() { return "2"; } };
+      new MockTestInterface();
+
+      String mocked1 = impl1.getData();
+      String mocked2 = impl2.getData();
+
+      assertEquals("mocked1", mocked1);
+      assertEquals("mocked2", mocked2);
    }
 
    abstract static class BaseAction

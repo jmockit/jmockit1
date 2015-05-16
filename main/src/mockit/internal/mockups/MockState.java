@@ -16,6 +16,7 @@ final class MockState
    @Nonnull final MockMethod mockMethod;
    @Nullable private Method actualMockMethod;
    @Nullable private Member realMethodOrConstructor;
+   @Nullable private String realClassDesc;
 
    // Expectations on the number of invocations of the mock as specified by the @Mock annotation,
    // initialized with the default values as specified in the annotation's definition.
@@ -132,7 +133,7 @@ final class MockState
    Member getRealMethodOrConstructor(
       @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
-      if (realMethodOrConstructor == null) {
+      if (realMethodOrConstructor == null || !mockedClassDesc.equals(realClassDesc)) {
          String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
 
          RealMethodOrConstructor realMember;
@@ -146,6 +147,7 @@ final class MockState
          }
 
          realMethodOrConstructor = member;
+         realClassDesc = mockedClassDesc;
       }
 
       return realMethodOrConstructor;
