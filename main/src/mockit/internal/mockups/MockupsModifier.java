@@ -79,7 +79,7 @@ final class MockupsModifier extends BaseClassModifier
       super.visit(version, access, name, signature, superName, interfaces);
 
       if (isGeneratedImplementationClass(name)) {
-         classDesc = name.replace(IMPLCLASS_PREFIX, "");
+         classDesc = name.substring(IMPLCLASS_PREFIX.length());
       }
    }
 
