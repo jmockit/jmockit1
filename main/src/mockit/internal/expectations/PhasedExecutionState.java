@@ -33,7 +33,6 @@ final class PhasedExecutionState
       replacementMap = new IdentityHashMap<Object, Object>();
    }
 
-   @SuppressWarnings("NullableProblems")
    void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch)
    {
       this.dynamicMockInstancesToMatch = dynamicMockInstancesToMatch;
@@ -164,24 +163,14 @@ final class PhasedExecutionState
             continue;
          }
 
-         ExpectedInvocation invocation = expectation.invocation;
-
-         if (
-            invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
-            (constructorInvocation || mock == null || isMatchingInstance(mock, expectation)) &&
-            invocation.arguments.isMatch(args, instanceMap)
-         ) {
+         if (isMatchingInvocation(mock, mockClassDesc, mockNameAndDesc, args, constructorInvocation, expectation)) {
             if (expectation.recordPhase == null) {
                replayExpectationFound = expectation;
                continue;
             }
 
             if (constructorInvocation) {
-               Object replacementInstance = invocation.replacementInstance;
-
-               if (replacementInstance != null && replacementInstance != invocation.instance) {
-                  replacementMap.put(mock, replacementInstance);
-               }
+               registerReplacementInstanceIfApplicable(mock, expectation.invocation);
             }
 
             return expectation;
@@ -189,6 +178,26 @@ final class PhasedExecutionState
       }
 
       return replayExpectationFound;
+   }
+
+   private boolean isMatchingInvocation(
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args,
+      boolean constructorInvocation, @Nonnull Expectation expectation)
+   {
+      ExpectedInvocation invocation = expectation.invocation;
+      return
+         invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
+         (constructorInvocation || mock == null || isMatchingInstance(mock, expectation)) &&
+         invocation.arguments.isMatch(args, instanceMap);
+   }
+
+   private void registerReplacementInstanceIfApplicable(@Nullable Object mock, @Nonnull ExpectedInvocation invocation)
+   {
+      Object replacementInstance = invocation.replacementInstance;
+
+      if (replacementInstance != null && replacementInstance != invocation.instance) {
+         replacementMap.put(mock, replacementInstance);
+      }
    }
 
    private boolean isMatchingInstance(@Nonnull Object invokedInstance, @Nonnull Expectation expectation)
@@ -248,18 +257,20 @@ final class PhasedExecutionState
          return true;
       }
 
+      return instanceMapHasMocksInSeparateEntries(mock1, mock2);
+   }
+
+   private boolean instanceMapHasMocksInSeparateEntries(@Nonnull Object mock1, @Nonnull Object mock2)
+   {
       boolean found1 = false;
       boolean found2 = false;
 
       for (Entry<Object, Object> entry : instanceMap.entrySet()) {
-         Object key = entry.getKey();
-         Object value = entry.getValue();
-
-         if (!found1 && (key == mock1 || value == mock1)) {
+         if (!found1 && isInMapEntry(entry, mock1)) {
             found1 = true;
          }
 
-         if (!found2 && (key == mock2 || value == mock2)) {
+         if (!found2 && isInMapEntry(entry, mock2)) {
             found2 = true;
          }
 
@@ -269,6 +280,11 @@ final class PhasedExecutionState
       }
 
       return false;
+   }
+
+   private static boolean isInMapEntry(@Nonnull Entry<Object, Object> mapEntry, @Nonnull Object mock)
+   {
+      return mapEntry.getKey() == mock || mapEntry.getValue() == mock;
    }
 
    @Nullable
