@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -184,7 +184,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Date now = new Date();
 
-      new Expectations() {{
+      new StrictExpectations() {{
          mock.simpleOperation(anyInt, null, null);
          mock.simpleOperation(anyInt, "test", null);
          mock.simpleOperation(3, "test2", null);

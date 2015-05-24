@@ -93,9 +93,11 @@ public final class ExpectationsUsingResultFieldTest
       assertEquals("test", Collaborator.doInternal());
    }
 
-   @Test(expected = ArithmeticException.class)
+   @Test
    public void recordThrownException(@Mocked final Collaborator mock)
    {
+      thrown.expect(ArithmeticException.class);
+
       new Expectations() {{
          mock.provideSomeService(); result = new ArithmeticException("test");
       }};
@@ -103,9 +105,11 @@ public final class ExpectationsUsingResultFieldTest
       mock.provideSomeService();
    }
 
-   @Test(expected = LinkageError.class)
+   @Test
    public void recordThrownError(@Mocked final Collaborator mock)
    {
+      thrown.expect(LinkageError.class);
+
       new Expectations() {{
          mock.provideSomeService(); result = new LinkageError("test");
       }};
@@ -320,6 +324,7 @@ public final class ExpectationsUsingResultFieldTest
 
       assertArrayEquals(new int[] {1, 2}, (int[]) collaborator.getObject());
       assertArrayEquals(new Object[] {"test", 'X'}, (Object[]) collaborator.getObject());
+      //noinspection AssertEqualsBetweenInconvertibleTypes
       assertEquals(asList(5L, 67L), collaborator.getObject());
       assertNull(collaborator.getObject());
       assertNull(collaborator.getObject());
@@ -414,15 +419,27 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsValueOfIncompatibleTypeForMethodReturningIterator(@Mocked final Collaborator mock)
+   public void attemptToReturnValueOfTypeSetFromMethodReturningIterator(@Mocked final Collaborator mock)
    {
+      thrown.expect(ClassCastException.class);
+
       new Expectations() {{
          mock.getIterator(); result = Collections.emptySet();
+      }};
+
+      mock.getIterator();
+   }
+
+   @Test
+   public void attemptToReturnValueOfTypeListFromMethodReturningIterator(@Mocked final Collaborator mock)
+   {
+      thrown.expect(ClassCastException.class);
+
+      new Expectations() {{
          mock.getIterator(); result = asList("a", true, 123);
       }};
 
-      try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
+      mock.getIterator();
    }
 
    @Test
@@ -532,9 +549,11 @@ public final class ExpectationsUsingResultFieldTest
       new Collaborator().provideSomeService();
    }
 
-   @Test(expected = UnknownError.class)
+   @Test
    public void recordNullReturnValueForVoidMethodAndThenAThrownError(@Mocked final Collaborator mock)
    {
+      thrown.expect(UnknownError.class);
+
       new Expectations() {{
          mock.provideSomeService();
          result = null;
@@ -551,9 +570,11 @@ public final class ExpectationsUsingResultFieldTest
       mock.provideSomeService();
    }
 
-   @Test(expected = NoSuchElementException.class)
+   @Test
    public void throwExceptionFromSecondInvocationOfConstructor(@Mocked Collaborator mock)
    {
+      thrown.expect(NoSuchElementException.class);
+
       new Expectations() {{
          new Collaborator();
          result = null; result = new NoSuchElementException();

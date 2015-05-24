@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -254,11 +254,9 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithNoVarArgs(@Mocked final VarArgs varargs)
    {
-      new Expectations() {{
-         varargs.varsOnly();
-         varargs.varsOnly(null);
-         varargs.mixed("abcd");
-         varargs.mixed("abcd", null);
+      new StrictExpectations() {{
+         varargs.varsOnly(); times = 2;
+         varargs.mixed("abcd"); times = 2;
       }};
 
       varargs.varsOnly();
@@ -310,7 +308,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       final String[] strings1 = new String[0];
       final String[] strings2 = {"efgh", "ijkl"};
 
-      new Expectations() {{
+      new StrictExpectations() {{
          varargs.varsOnly(1, 2, 3);
          varargs.varsOnly(null);
          varargs.mixed("abcd", null, 4, 5, 6);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -92,7 +92,7 @@ public final class ExpectationsUsingReflectionTest
    @Test
    public void expectInstanceMethodInvocationsWithAnyArguments(@Mocked final Collaborator mock)
    {
-      new Expectations() {{
+      new StrictExpectations() {{
          invoke(mock, "setValue", anyInt);
          invoke(mock, "setValue", withAny(1));
          invoke(mock, "setValue", anyByte);

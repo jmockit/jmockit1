@@ -139,7 +139,7 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void recordStrictExpectationAfterInvokingSameMethodInReplayPhase() throws Exception
+   public void recordStrictExpectationAfterInvokingSameMethodInReplayPhase()
    {
       assertEquals(0, mock.value());
 
