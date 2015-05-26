@@ -111,22 +111,6 @@ public final class JREMockingTest
       ctx.checkPermission(null);
    }
 
-   @Ignore @Test
-   public void recordExpectationOnNativeMethodForPartiallyMockedClass()
-   {
-      new Expectations(System.class) {{
-         System.currentTimeMillis();
-         result = 123;
-      }};
-
-      long t0 = System.nanoTime();
-      long timeMillis = System.currentTimeMillis();
-      long t1 = System.nanoTime();
-
-      assertEquals(123, timeMillis);
-      assertNotEquals(t0, t1);
-   }
-
    // Mocking of java.lang.Thread and native methods //////////////////////////////////////////////////////////////////
 
    // First mocking: puts mocked class in cache, knowing it has native methods to re-register.

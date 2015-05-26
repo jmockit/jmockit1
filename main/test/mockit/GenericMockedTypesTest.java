@@ -197,21 +197,6 @@ public final class GenericMockedTypesTest
       foo.run();
    }
 
-   public interface InterfaceWithMultiBoundedTypeParameter<T extends Runnable & Callable<?>> { T getFoo(); }
-
-   @Test @Ignore
-   public void createCascadedMockFromGenericInterfaceMethodWhichReturnsMultiBoundedTypeParameter(
-      @Mocked InterfaceWithMultiBoundedTypeParameter<?> mock) throws Exception
-   {
-      Runnable fooAsRunnable = mock.getFoo();
-      assertNotNull(fooAsRunnable);
-      fooAsRunnable.run();
-
-      Callable<?> fooAsCallable = mock.getFoo();
-      assertSame(fooAsRunnable, fooAsCallable);
-      fooAsCallable.call();
-   }
-
    static class Abc {}
    static class GenericBase<T> { T doSomething() { return null; } }
    static class GenericSubclass<T> extends GenericBase<T> { T getAbc() { return null; } }

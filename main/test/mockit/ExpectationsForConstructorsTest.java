@@ -61,21 +61,6 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   @Ignore("Used static partial mocking originally; dynamic partial mocking will need enhancements if this is to work")
-   public void mockOnlyNoArgsConstructor()
-   {
-      new Expectations(Collaborator.class) {{
-         new Collaborator();
-      }};
-
-      // Constructors in the base class are not mocked, but probably should.
-      assertEquals(0, new Collaborator().value);
-
-      // The non-mocked constructor gets redefined to call a different super; should probably keep calling the original.
-      assertEquals(123, new Collaborator(123).value);
-   }
-
-   @Test
    public void partiallyMockAbstractClass(@Mocked final AbstractCollaborator mock)
    {
       new Expectations() {{ mock.doSomething(); }};

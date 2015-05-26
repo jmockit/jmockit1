@@ -594,7 +594,7 @@ public final class DynamicPartialMockingTest
       assertInvalidTypeForDynamicPartialMocking(mockInstance);
    }
 
-   private void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)
+   void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)
    {
       try {
          new StrictExpectations(classOrObject) {};
@@ -816,45 +816,6 @@ public final class DynamicPartialMockingTest
       }};
 
       f.writeToFile("test");
-   }
-
-   static class Base { Base(boolean b) { if (!b) throw new IllegalAccessError(); } }
-   static class Derived extends Base { Derived() { super(true); } }
-
-   @Ignore @Test
-   public void mockConstructorsInClassHierarchyWithMockedCallToSuperWhichChecksArgumentReceived()
-   {
-      new StrictExpectations(Derived.class) {};
-
-      new Derived();
-   }
-
-   static class Base2 { final int i; Base2(int i) { this.i = i; } }
-   static class Derived2 extends Base2 { Derived2(int i) { super(i); } }
-
-   @Ignore @Test
-   public void mockConstructorsInClassHierarchyWithMockedCallToSuper()
-   {
-      new Expectations(Derived2.class) {};
-
-      Derived2 d = new Derived2(123);
-
-      assertEquals(123, d.i);
-   }
-
-   static class AClass {
-      static int i = -1;
-      AClass() { this(123); }
-      AClass(int i) { AClass.i = i; }
-   }
-
-   @Ignore @Test
-   public void mockConstructorsInSingleClassWithMockedCallToThis()
-   {
-      new Expectations(AClass.class) {};
-
-      new AClass();
-      assertEquals(123, AClass.i);
    }
 
    @Test

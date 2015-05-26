@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -461,20 +461,6 @@ public final class InvocationProceedTest
       MyVector() { this(10); }
       MyVector(int capacity) { this.capacity = capacity; }
       int capacity() { return capacity; }
-   }
-
-   @Ignore("Mocked constructor proceeding into another: not supported yet") @Test
-   public void proceedFromDelegateMethodIntoConstructorWhichCallsAnotherInTheSameClass()
-   {
-      new Expectations(MyVector.class) {{
-         new MyVector();
-         result = new Delegate() {
-            void init(Invocation inv) { inv.proceed(); }
-         };
-      }};
-
-      assertEquals(1, new MyVector(1).capacity());
-      assertEquals(10, new MyVector().capacity());
    }
 
    @Test

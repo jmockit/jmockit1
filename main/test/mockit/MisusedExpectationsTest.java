@@ -234,7 +234,6 @@ public final class MisusedExpectationsTest
    {
       @Override String doSomething(boolean b) { return "overridden"; }
       void doSomethingElse(Object o) {}
-      Blah getBlah() { return null; }
    }
 
    @SuppressWarnings("UnnecessarySuperQualifier")
@@ -414,21 +413,6 @@ public final class MisusedExpectationsTest
       String name = mock.getName();
 
       assertEquals("test cut=0", name);
-   }
-
-   @Test @Ignore("because Blah is mocked, the result gets confused")
-   public void recordResultByInstantiatingMockedClass(@Mocked final BlahBlah mock2)
-   {
-      final Blah[] blahs = new Blah[1];
-
-      new NonStrictExpectations() {{
-         mock2.getBlah();
-         result = blahs[0] = new Blah();
-      }};
-
-      Blah blah = mock2.getBlah();
-
-      assertSame(blahs[0], blah);
    }
 
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
