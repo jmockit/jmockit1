@@ -74,6 +74,9 @@ public final class AgentLoader
       catch (InvocationTargetException e) { throw new RuntimeException(e); }
       catch (InstantiationException e)    { throw new RuntimeException(e); }
       catch (IllegalAccessException e)    { throw new RuntimeException(e); }
+      catch (NoClassDefFoundError e) {
+         throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
+      }
       catch (UnsatisfiedLinkError e) {
          throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
       }

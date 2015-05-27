@@ -334,8 +334,9 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    @Override
    public void onExecutionStart()
    {
-      Startup.initializeIfPossible();
-      new MockParameters();
+      if (Startup.initializeIfPossible()) {
+         new MockParameters();
+      }
    }
 
    @Override

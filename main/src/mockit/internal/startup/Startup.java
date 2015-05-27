@@ -193,7 +193,7 @@ public final class Startup
       return instrumentation;
    }
 
-   public static void initializeIfPossible()
+   public static boolean initializeIfPossible()
    {
       if (getInstrumentation() == null) {
          ClassLoader currentCL = Startup.class.getClassLoader();
@@ -210,20 +210,20 @@ public final class Startup
             if (!usingCustomCL) {
                applyStartupMocks();
             }
+
+            return true;
          }
          catch (IllegalStateException e) {
             StackTrace.filterStackTrace(e);
-            throw e;
+            e.printStackTrace();
          }
-         catch (RuntimeException e) {
-            e.printStackTrace(); // makes sure the exception gets printed at least once
-            throw e;
-         }
-         catch (IOException e) {
-            e.printStackTrace(); // makes sure the exception gets printed at least once
-            throw new RuntimeException(e);
-         }
+         catch (RuntimeException e) { e.printStackTrace(); }
+         catch (IOException e) { e.printStackTrace(); }
+
+         return false;
       }
+
+      return true;
    }
 
    public static void retransformClass(@Nonnull Class<?> aClass)
