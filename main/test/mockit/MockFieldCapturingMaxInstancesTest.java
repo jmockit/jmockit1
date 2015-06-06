@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -19,13 +19,6 @@ public final class MockFieldCapturingMaxInstancesTest
       preexistingInstance = new DerivedClass();
       assertEquals("", preexistingInstance.getStr());
       assertEquals("test1", new DerivedClass("test1").getStr());
-   }
-
-   // TODO: fix IllegalStateException @AfterClass
-   public static void createAndUseInstancesAfterCapturingWasInEffect()
-   {
-      assertEquals(1, new ServiceImpl().doSomething());
-      assertEquals("test2", new DerivedClass("test2").getStr());
    }
 
    public interface Service { int doSomething(); }

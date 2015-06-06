@@ -104,7 +104,6 @@ public final class GenericTypeReflection
             if (withSignatures) {
                String intermediateTypeArg = 'T' + ((TypeVariable<?>) typeArg).getName();
                mappedTypeArgName = typeParametersToTypeArgumentNames.get(intermediateTypeArg);
-               // TODO: assert mappedTypeArgName != null : "Intermediate type argument not found: " + typeArg;
             }
          }
          else {

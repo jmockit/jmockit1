@@ -118,11 +118,6 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc)
    {
-      // TODO: for #10
-      // if (methodName.charAt(0) == '<') {
-      //    generateCallToSuperConstructor();
-      // }
-
       Type returnType = Type.getReturnType(mockedMethodDesc);
       TypeConversion.generateCastFromObject(mw, returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
@@ -138,7 +133,7 @@ public class BaseClassModifier extends ClassVisitor
    {
       boolean isStatic = isStatic(access);
 
-      if (isStatic/* || name.charAt(0) == '<'*/) { // TODO: for #10
+      if (isStatic) {
          mw.visitInsn(ACONST_NULL);
       }
       else {
