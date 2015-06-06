@@ -19,8 +19,7 @@ public final class MockMethodBridge extends MockingBridge
 
    private MockMethodBridge() { super("$MMB"); }
 
-   @Nullable
-   @Override
+   @Nullable @Override
    public Object invoke(@Nullable Object mockedInstance, Method method, @Nonnull Object[] args) throws Throwable
    {
       String mockClassDesc = (String) args[0];
@@ -30,8 +29,7 @@ public final class MockMethodBridge extends MockingBridge
       Object mockUp = TestRun.getMock(mockClassDesc, mockedInstance);
 
       if (mockUp == null || notToBeMocked(mockedInstance, mockedClassDesc)) {
-         Integer mockedAccess = (Integer) args[2];
-         return isNative(mockedAccess) ? DefaultValues.computeForReturnType(mockDesc) : Void.class;
+         return DefaultValues.computeForReturnType(mockDesc);
       }
 
       String mockName = (String) args[3];
@@ -51,7 +49,6 @@ public final class MockMethodBridge extends MockingBridge
       Class<?> mockUpClass = mockUp.getClass();
 
       if (mockStateIndex < 0) {
-         // TODO: optimize by storing Methods in a Map with key = name+desc
          return executeSimpleMockMethod(mockUpClass, mockUp, mockOrMockedName, mockOrMockedDesc, mockArgs);
       }
 

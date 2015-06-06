@@ -8,6 +8,8 @@ import java.lang.reflect.*;
 import java.sql.*;
 import java.util.concurrent.atomic.*;
 
+import javax.swing.*;
+
 import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
@@ -520,5 +522,22 @@ public final class MockUpTest
       ClassWithConstructorCallingAnother a = new ClassWithConstructorCallingAnother();
 
       assertNull(a.value);
+   }
+
+   @Test
+   public void callMockMethodFromAWTEventDispatchingThread() throws Exception
+   {
+      new MockUp<Collaborator>() {
+         @Mock boolean doSomethingElse() { return true; }
+      };
+
+      SwingUtilities.invokeAndWait(new Runnable() {
+         @Override
+         public void run()
+         {
+            boolean hasAccess = Collaborator.doSomethingElse();
+            assertTrue(hasAccess);
+         }
+      });
    }
 }

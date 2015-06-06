@@ -24,7 +24,7 @@ public final class MockedBridge extends MockingBridge
    {
       String mockedClassDesc = (String) args[1];
 
-      if (notToBeMocked(mocked, mockedClassDesc)) {
+      if (calledFromSpecialThread() || notToBeMocked(mocked, mockedClassDesc)) {
          return Void.class;
       }
 
