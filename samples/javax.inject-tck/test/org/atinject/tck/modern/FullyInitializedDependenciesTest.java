@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.atinject.tck.modern;
@@ -60,8 +60,6 @@ public final class FullyInitializedDependenciesTest
    @Test
    public void fieldInjectedProviderYieldsDistinctValues()
    {
-      // TODO: add support for finding subclasses according to applied qualifier annotations
-      // assertNotSame(car.fieldDriversSeatProvider.get(), car.fieldDriversSeatProvider.get());
       assertNotSame(car.fieldPlainTireProvider.get(), car.fieldPlainTireProvider.get());
       assertNotSame(car.fieldSpareTireProvider.get(), car.fieldSpareTireProvider.get());
    }
