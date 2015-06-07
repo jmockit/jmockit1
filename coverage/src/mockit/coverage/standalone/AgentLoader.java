@@ -30,8 +30,7 @@ public final class AgentLoader
       try {
          VirtualMachine vm = VirtualMachine.attach(processIdForTargetVM);
          String jarFilePath = getPathToJarFile();
-         vm.loadAgent(jarFilePath, null); // TODO: use "options" parameter to pass "coverage-xyz" system properties
-         // TODO: maybe use vm.getAgentProperties() to obtain port number for server socket opened inside target VM
+         vm.loadAgent(jarFilePath, null);
          vm.detach();
       }
       catch (AttachNotSupportedException e) { throw new RuntimeException(e); }
