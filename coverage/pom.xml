@@ -160,7 +160,7 @@
          <plugin>
             <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
             <configuration>
-               <executable>/gnupg/pub/gpg.exe</executable>
+               <executable>/gnupg/pub/gpg</executable>
                <homedir>/gnupg/mykey</homedir>
                <useAgent>true</useAgent>
             </configuration>
