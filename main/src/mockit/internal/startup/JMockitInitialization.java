@@ -9,7 +9,6 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.integration.junit4.internal.*;
-import mockit.integration.robolectric.internal.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 
@@ -26,12 +25,6 @@ final class JMockitInitialization
       if (MockFrameworkMethod.hasDependenciesInClasspath()) {
          loadInternalStartupMocksForJUnitIntegration();
       }
-
-      try {
-         new MockRobolectricSetup();
-         new MockJREClass();
-      }
-      catch (ClassNotFoundException ignore) {}
 
       loadExternalToolsIfAny();
       setUpStartupMocksIfAny();
