@@ -5,9 +5,6 @@
   -->
 <project name="jmockit" basedir=".">
    <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
-   <taskdef
-      name="jacocoReport" classname="org.jacoco.ant.ReportTask"
-      classpath="../../Java/jacoco-0.7.3/lib/jacocoant.jar"/>
 
    <loadfile property="version" srcFile="version.txt"/>
 
@@ -23,7 +20,7 @@
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
          classpathref="common.classpath" classpath="main/classes"
-         nodeprecated="false" noindex="true" notree="true" nohelp="true" breakiterator="yes"
+         nodeprecated="true" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API"
          encoding="UTF-8" charset="UTF-8" locale="en">
          <arg line="-notimestamp -quiet -Xdoclint:none"/>
@@ -124,7 +121,7 @@
                    jmockit1.org/*.zip, jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/build.xml,
                    jmockit1.org/**/target/**, jmockit1.org/**/classes/**, jmockit1.org/**/test-classes/**,
                    jmockit1.org/**/test-output/**, jmockit1.org/samples/javax.inject-tck/**,
-                   jmockit1.org/**/coverage-report/**, jmockit1.org/**/jacoco.exec, jmockit1.org/**/*.html"
+                   jmockit1.org/**/coverage-report/**, jmockit1.org/**/*.html"
          encoding="UTF-8"/>
    </target>
 
@@ -241,24 +238,5 @@
       </java>
       <delete file="samples/coverage.ser"/>
       <delete file="samples/LoginService/coverage.ser"/>
-   </target>
-
-   <target name="jacoco-report">
-      <property name="moduleDir" value="samples/mockito"/>
-      <jacocoReport>
-         <executiondata>
-            <file file="${moduleDir}/jacoco.exec"/>
-         </executiondata>
-         <structure name="JaCoCo Ant Example">
-            <classfiles>
-               <fileset dir="${moduleDir}/classes"/>
-            </classfiles>
-            <sourcefiles encoding="UTF-8">
-               <fileset dir="${moduleDir}/src"/>
-            </sourcefiles>
-         </structure>
-         <html destdir="${moduleDir}/jacoco-report"/>
-      </jacocoReport>
-      <delete file="${moduleDir}/jacoco.exec"/>
    </target>
 </project>
