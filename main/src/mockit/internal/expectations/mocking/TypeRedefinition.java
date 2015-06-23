@@ -14,8 +14,6 @@ class TypeRedefinition extends BaseTypeRedefinition
    final InstanceFactory redefineType()
    {
       //noinspection ConstantConditions
-      typeMetadata.buildMockingConfiguration();
-
       return redefineType(typeMetadata.declaredType);
    }
 }

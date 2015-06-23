@@ -24,7 +24,6 @@ final class ExpectationsModifier extends BaseClassModifier
    private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
 
-   @Nullable private final MockingConfiguration mockingCfg;
    private String className;
    @Nullable private String baseClassNameForCapturedInstanceMethods;
    private boolean stubOutClassInitialization;
@@ -42,11 +41,7 @@ final class ExpectationsModifier extends BaseClassModifier
       setUseMockingBridge(classLoader);
       executionMode = ExecutionMode.Regular;
 
-      if (typeMetadata == null) {
-         mockingCfg = null;
-      }
-      else {
-         mockingCfg = typeMetadata.mockingCfg;
+      if (typeMetadata != null) {
          stubOutClassInitialization = typeMetadata.isClassInitializationToBeStubbedOut();
          useInstanceBasedMockingIfApplicable(typeMetadata);
       }
@@ -133,11 +128,8 @@ final class ExpectationsModifier extends BaseClassModifier
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
       }
 
-      boolean noFiltersToMatch = mockingCfg == null;
-      boolean matchesFilters = noFiltersToMatch || mockingCfg.matchesFilters(name, desc);
-
       if ("<clinit>".equals(name)) {
-         return stubOutClassInitializationIfApplicable(access, noFiltersToMatch, matchesFilters);
+         return stubOutClassInitializationIfApplicable(access);
       }
 
       if (stubOutFinalizeMethod(access, name, desc)) {
@@ -147,9 +139,8 @@ final class ExpectationsModifier extends BaseClassModifier
       boolean visitingConstructor = "<init>".equals(name);
 
       if (
-         !matchesFilters ||
          isMethodFromCapturedClassNotToBeMocked(access) ||
-         noFiltersToMatch && isMethodOrConstructorNotToBeMocked(access, visitingConstructor, name)
+         isMethodOrConstructorNotToBeMocked(access, visitingConstructor, name)
       ) {
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
       }
@@ -196,11 +187,11 @@ final class ExpectationsModifier extends BaseClassModifier
    }
 
    @Nullable
-   private MethodVisitor stubOutClassInitializationIfApplicable(int access, boolean noFilters, boolean matchesFilters)
+   private MethodVisitor stubOutClassInitializationIfApplicable(int access)
    {
       startModifiedMethodVersion(access, "<clinit>", "()V", null, null);
 
-      if (!noFilters && matchesFilters || stubOutClassInitialization) {
+      if (stubOutClassInitialization) {
          generateEmptyImplementation();
          return null;
       }

@@ -320,8 +320,7 @@ class BaseTypeRedefinition
          @Nonnull @Override
          protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
          {
-            MockingConfiguration mockingCfg = typeMetadata == null ? null : typeMetadata.mockingCfg;
-            return new SubclassGenerationModifier(targetClass, mockingCfg, typeToMock, typeReader, subclassName);
+            return new SubclassGenerationModifier(targetClass, typeToMock, typeReader, subclassName, false);
          }
       }.generateClass();
 

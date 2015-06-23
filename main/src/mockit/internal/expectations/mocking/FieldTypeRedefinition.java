@@ -41,8 +41,6 @@ final class FieldTypeRedefinition extends TypeRedefinition
 
    private boolean redefineTypeForFieldNotSet()
    {
-      //noinspection ConstantConditions
-      typeMetadata.buildMockingConfiguration();
       boolean redefined = redefineMethodsAndConstructorsInTargetType();
 
       if (redefined) {

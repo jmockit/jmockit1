@@ -38,7 +38,8 @@ final class TestedObjectCreation
          @Nonnull @Override
          protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
          {
-            return new SubclassGenerationModifier(declaredTestedClass, testedType, typeReader, generatedClassName);
+            return
+               new SubclassGenerationModifier(declaredTestedClass, testedType, typeReader, generatedClassName, true);
          }
       }.generateClass();
 

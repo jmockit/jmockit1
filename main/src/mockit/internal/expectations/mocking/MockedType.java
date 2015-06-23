@@ -39,7 +39,6 @@ public final class MockedType
    public final boolean injectable;
    @Nonnull public final Type declaredType;
    @Nonnull public final String mockId;
-   @Nullable MockingConfiguration mockingCfg;
    @Nullable Object providedValue;
 
    public MockedType(@Nonnull Field field)
@@ -178,19 +177,6 @@ public final class MockedType
    }
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
-
-   void buildMockingConfiguration()
-   {
-      if (mocked == null) {
-         return;
-      }
-
-      String[] filters = mocked.value();
-
-      if (filters.length > 0) {
-         mockingCfg = new MockingConfiguration(filters);
-      }
-   }
 
    boolean isClassInitializationToBeStubbedOut() { return mocked != null && mocked.stubOutClassInitialization(); }
 

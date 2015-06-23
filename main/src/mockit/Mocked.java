@@ -58,31 +58,6 @@ import java.lang.annotation.*;
 public @interface Mocked
 {
    /**
-    * One or more <em>mock filters</em>.
-    * Given a target class for mocking, only those methods and constructors which match at least one filter will be
-    * mocked.
-    * <p/>
-    * Each mock filter must follow the syntax <strong>{@code [nameRegex][(paramTypeName...)]}</strong>, where
-    * {@code nameRegex} is a {@linkplain java.util.regex.Pattern regular expression} for matching method names, and
-    * {@code paramTypeName} is the name of a primitive or reference parameter type (actually, any suffix of the type
-    * name is enough, like "String" instead of the full class name "java.lang.String").
-    * If {@code nameRegex} is omitted the filter matches only constructors.
-    * If {@code (paramTypeName...)} is omitted the filter matches methods with any parameters.
-    * <p/>
-    * If no filters are specified, then all methods and constructors declared in the target class are mocked.
-    * <p/>
-    * A filter containing just the empty string matches <em>no</em> methods or constructors of the target class;
-    * this can be used to obtain a mocked instance where no executable code is actually mocked.
-    *
-    * @see #stubOutClassInitialization
-    *
-    * @deprecated Simply remove any mock filters, or if partial mocking is still needed, use
-    * {@linkplain Expectations#Expectations(Object...) Expectations(Object...)} or a {@linkplain MockUp}.
-    */
-   @Deprecated
-   String[] value() default {};
-
-   /**
     * Indicates whether <em>static initialization code</em> in the mocked class should be stubbed out or not.
     * Static initialization includes the execution of assignments to static fields of the class and the execution of
     * static initialization blocks, if any.

@@ -15,22 +15,11 @@ import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
-   @Nullable private final MockingConfiguration mockingCfg;
-
    public SubclassGenerationModifier(
       @Nonnull Class<?> baseClass, @Nonnull Type mockedType,
-      @Nonnull ClassReader classReader, @Nonnull String subclassName)
+      @Nonnull ClassReader classReader, @Nonnull String subclassName, boolean copyConstructors)
    {
-      super(baseClass, classReader, mockedType, subclassName, true);
-      mockingCfg = null;
-   }
-
-   SubclassGenerationModifier(
-      @Nonnull Class<?> baseClass, @Nullable MockingConfiguration mockingConfiguration, @Nonnull Type mockedType,
-      @Nonnull ClassReader classReader, @Nonnull String subclassName)
-   {
-      super(baseClass, classReader, mockedType, subclassName, false);
-      mockingCfg = mockingConfiguration;
+      super(baseClass, classReader, mockedType, subclassName, copyConstructors);
    }
 
    @Override
@@ -45,18 +34,13 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
 
       mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
 
-      boolean noFiltersToMatch = mockingCfg == null;
-
-      if (
-         noFiltersToMatch && !ObjectMethods.isMethodFromObject(name, desc) ||
-         !noFiltersToMatch && mockingCfg.matchesFilters(name, desc)
-      ) {
+      if (ObjectMethods.isMethodFromObject(name, desc)) {
+         generateEmptyImplementation(desc);
+      }
+      else {
          generateDirectCallToHandler(mw, className, access, name, desc, signature);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxs(1, 0);
-      }
-      else {
-         generateEmptyImplementation(desc);
       }
    }
 }
