@@ -190,6 +190,7 @@ public abstract class Expectations extends Invocations
     * those to which any given objects belong.
     * During replay, any invocations to one of these classes or objects will execute real production code, unless a
     * matching expectation was recorded.
+    * This mechanism, however, does not apply to {@code native} methods, which are not supported for partial mocking.
     * <p/>
     * For a given {@code Class} object, all constructors and methods can be mocked, from the specified class up to but
     * not including {@code java.lang.Object}.
