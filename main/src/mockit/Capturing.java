@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -21,7 +21,7 @@ import java.lang.annotation.*;
  * In turn, this allows different expectations to be recorded and/or verified for each grouping of future instances,
  * with each expectation using a different mock field/parameter.
  *
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#capturing">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#capturing">Tutorial</a>
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

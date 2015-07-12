@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -43,7 +43,7 @@ package mockit;
  * Finally, note that a {@code static} method in the mocked type can have a delegate as well.
  * The same is true for {@code private}, {@code final}, and {@code native} methods.
  *
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#delegates">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial</a>
  *
  * @param <T> the type of the argument to be matched, when used with the {@code with(Delegate)} method
  */

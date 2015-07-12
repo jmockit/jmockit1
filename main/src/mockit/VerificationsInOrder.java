@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -26,7 +26,7 @@ import mockit.internal.expectations.*;
  * @see #VerificationsInOrder(int)
  * @see #unverifiedInvocations()
  * @see #verifiedInvocations(Verifications)
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#verificationInOrder">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder">Tutorial</a>
  */
 public abstract class VerificationsInOrder extends Verifications
 {
@@ -47,7 +47,7 @@ public abstract class VerificationsInOrder extends Verifications
     *
     * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#iterations">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#iterations">Tutorial</a>
     */
    protected VerificationsInOrder(int numberOfIterations)
    {
@@ -86,7 +86,7 @@ public abstract class VerificationsInOrder extends Verifications
     * The unordered block should not come before, however, since it would "consume" the verified invocations.
     *
     * @see #verifiedInvocations(Verifications)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#partiallyOrdered">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered">Tutorial</a>
     */
    protected final void unverifiedInvocations()
    {
@@ -102,7 +102,7 @@ public abstract class VerificationsInOrder extends Verifications
     * @throws IllegalArgumentException if the given verifications are ordered
     *
     * @see #unverifiedInvocations()
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#partiallyOrdered">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered">Tutorial</a>
     */
    protected final void verifiedInvocations(Verifications alreadyVerified)
    {

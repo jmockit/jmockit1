@@ -12,7 +12,7 @@ import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 
 /**
- * Used to <em>verify</em> a set of expectations on available {@linkplain mockit.Mocked mocked} types and/or instances,
+ * Used to <em>verify</em> a set of expectations on available {@linkplain Mocked mocked} types and/or instances,
  * against the invocations which actually occurred during the test.
  * As such, these verifications can only appear <em>after</em> having exercised the code under test.
  * <p/>
@@ -36,18 +36,18 @@ import mockit.internal.state.*;
  * }};
  * </pre>
  * The relative order between the invocations that match two or more verifications is not taken into consideration; when
- * that is desired, the {@link mockit.VerificationsInOrder} class should be used instead.
+ * that is desired, the {@link VerificationsInOrder} class should be used instead.
  * <p/>
  * Naturally, not all invocations that occurred during the execution of code under test need to be explicitly verified
  * in a verification block.
  * If desired, however, we can make sure that <em>all</em> such invocations are verified, by using the
- * {@link mockit.FullVerifications} class instead.
+ * {@link FullVerifications} class instead.
  *
  * @see #Verifications()
  * @see #Verifications(int)
  * @see #withCapture()
- * @see mockit.Expectations
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#verification">Tutorial</a>
+ * @see Expectations
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#verification">Tutorial</a>
  */
 public abstract class Verifications extends Invocations
 {
@@ -76,7 +76,7 @@ public abstract class Verifications extends Invocations
     * @see #times
     * @see #minTimes
     * @see #maxTimes
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#iterations">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#iterations">Tutorial</a>
     */
    protected Verifications(int numberOfIterations)
    {
@@ -113,9 +113,9 @@ public abstract class Verifications extends Invocations
     *
     * @return the captured argument value
     *
-    * @see #withCapture(java.util.List)
+    * @see #withCapture(List)
     * @see #withCapture(Object)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withCapture">Tutorial</a>
     */
    protected final <T> T withCapture()
    {
@@ -149,8 +149,8 @@ public abstract class Verifications extends Invocations
     * @return a list with the (zero, one, or more) captured new instances that match the verified constructor invocation
     *
     * @see #withCapture()
-    * @see #withCapture(java.util.List)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
+    * @see #withCapture(List)
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withCapture">Tutorial</a>
     */
    protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification)
    {

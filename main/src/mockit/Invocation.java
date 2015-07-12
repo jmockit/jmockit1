@@ -24,7 +24,7 @@ import mockit.internal.*;
  * @see #getMinInvocations()
  * @see #getMaxInvocations()
  * @see #proceed(Object...)
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#delegates">Tutorial (expectations)</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial (expectations)</a>
  * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#invocation">Tutorial (mockups)</a>
  */
 public class Invocation

@@ -17,8 +17,8 @@ import mockit.internal.util.*;
 import org.hamcrest.Matcher;
 
 /**
- * Provides common API for use inside {@linkplain mockit.Expectations expectation} and
- * {@linkplain mockit.Verifications verification} blocks.
+ * Provides common API for use inside {@linkplain Expectations expectation} and {@linkplain Verifications verification}
+ * blocks.
  */
 @SuppressWarnings({"ConstantConditions", "ClassWithTooManyFields"})
 abstract class Invocations
@@ -50,7 +50,7 @@ abstract class Invocations
     * @see #anyLong
     * @see #anyShort
     * @see #anyString
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Object any = null;
 
@@ -69,7 +69,7 @@ abstract class Invocations
     * @see #anyLong
     * @see #anyShort
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    // This is intentional: the empty string causes the compiler to not generate a field read,
    // while the null reference is inconvenient with the invoke(...) methods:
@@ -90,7 +90,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Long anyLong = 0L;
 
@@ -109,7 +109,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Integer anyInt = 0;
 
@@ -128,7 +128,7 @@ abstract class Invocations
     * @see #anyLong
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Short anyShort = 0;
 
@@ -147,7 +147,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Byte anyByte = 0;
 
@@ -166,7 +166,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Boolean anyBoolean = false;
 
@@ -185,7 +185,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Character anyChar = '\0';
 
@@ -204,7 +204,7 @@ abstract class Invocations
     * @see #anyShort
     * @see #anyString
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Double anyDouble = 0.0;
 
@@ -223,7 +223,7 @@ abstract class Invocations
     * @see #anyString
     * @see #anyShort
     * @see #any
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#matcherFields">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#matcherFields">Tutorial</a>
     */
    protected final Float anyFloat = 0.0F;
 
@@ -233,7 +233,7 @@ abstract class Invocations
     *
     * @see #minTimes
     * @see #maxTimes
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#constraints">Tutorial</a>
     */
    protected int times;
 
@@ -248,7 +248,7 @@ abstract class Invocations
     *
     * @see #times
     * @see #maxTimes
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#constraints">Tutorial</a>
     */
    protected int minTimes;
 
@@ -262,7 +262,7 @@ abstract class Invocations
     *
     * @see #times
     * @see #minTimes
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#constraints">Tutorial</a>
     */
    protected int maxTimes;
 
@@ -311,7 +311,7 @@ abstract class Invocations
     * @return the given mocked instance, allowing the invocation being recorded/verified to immediately follow the call
     * to this method
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#onInstance">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#onInstance">Tutorial</a>
     */
    protected final <T> T onInstance(T mockedInstance)
    {
@@ -365,7 +365,7 @@ abstract class Invocations
     * otherwise
     *
     * @see #withArgThat(org.hamcrest.Matcher)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T with(Delegate<? super T> objectWithDelegateMethod)
    {
@@ -408,7 +408,7 @@ abstract class Invocations
     *
     * @return the input argument
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withAny(T arg)
    {
@@ -440,7 +440,7 @@ abstract class Invocations
     *
     * @see Verifications#withCapture()
     * @see Verifications#withCapture(Object)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withCapture">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withCapture">Tutorial</a>
     */
    protected final <T> T withCapture(List<T> valueHolderForMultipleInvocations)
    {
@@ -464,7 +464,7 @@ abstract class Invocations
     *
     * @return the given argument
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withEqual(T arg)
    {
@@ -482,7 +482,7 @@ abstract class Invocations
     *
     * @return the given {@code value}
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final double withEqual(double value, double delta)
    {
@@ -499,7 +499,7 @@ abstract class Invocations
     *
     * @return the given {@code value}
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final float withEqual(float value, double delta)
    {
@@ -518,7 +518,7 @@ abstract class Invocations
     *
     * @return the given instance
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withInstanceLike(T object)
    {
@@ -534,7 +534,7 @@ abstract class Invocations
     *
     * @return always {@code null}; if you need a specific return value, use {@link #withInstanceLike(Object)}
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withInstanceOf(Class<T> argClass)
    {
@@ -550,7 +550,7 @@ abstract class Invocations
     *
     * @return the given argument value
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withNotEqual(T arg)
    {
@@ -563,7 +563,7 @@ abstract class Invocations
     *
     * @return always {@code null}
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withNull()
    {
@@ -577,7 +577,7 @@ abstract class Invocations
     *
     * @return always {@code null}
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withNotNull()
    {
@@ -593,7 +593,7 @@ abstract class Invocations
 
     * @return the given object
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T> T withSameInstance(T object)
    {
@@ -611,7 +611,7 @@ abstract class Invocations
     *
     * @return the given text
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T extends CharSequence> T withSubstring(T text)
    {
@@ -627,7 +627,7 @@ abstract class Invocations
     *
     * @return the given text
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T extends CharSequence> T withPrefix(T text)
    {
@@ -643,7 +643,7 @@ abstract class Invocations
     *
     * @return the given text
     *
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T extends CharSequence> T withSuffix(T text)
    {
@@ -663,7 +663,7 @@ abstract class Invocations
     * @return the given regex
     *
     * @see Pattern#compile(String, int)
-    * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#withMethods">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods">Tutorial</a>
     */
    protected final <T extends CharSequence> T withMatch(T regex)
    {

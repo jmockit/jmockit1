@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -23,7 +23,7 @@ import java.lang.annotation.*;
  * used for injection.
  *
  * @see #value
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#injectable">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#injectable">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

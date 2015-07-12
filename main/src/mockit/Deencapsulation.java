@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -18,7 +18,7 @@ import mockit.internal.util.*;
  * @see #invoke(Object, String, Object...)
  * @see #newInstance(String, Object...)
  * @see <a href="http://jmockit.org/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#deencapsulation">Tutorial (expectations)</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#deencapsulation">Tutorial (expectations)</a>
  */
 @SuppressWarnings("ConstantConditions")
 public final class Deencapsulation

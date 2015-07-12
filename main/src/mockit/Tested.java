@@ -57,7 +57,7 @@ import java.lang.annotation.*;
  * eligible fields in the tested object get initialized with a suitable instance, which itself is recursively
  * initialized in the same way.
  *
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#tested">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#tested">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})

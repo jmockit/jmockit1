@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -23,7 +23,7 @@ package mockit;
  * @see #FullVerificationsInOrder(int)
  * @see #FullVerificationsInOrder(Object...)
  * @see #FullVerificationsInOrder(Integer, Object...)
- * @see <a href="http://jmockit.org/tutorial/BehaviorBasedTesting.html#fullVerificationInOrder">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerificationInOrder">Tutorial</a>
  */
 public abstract class FullVerificationsInOrder extends Verifications
 {

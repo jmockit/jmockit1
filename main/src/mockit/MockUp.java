@@ -18,8 +18,7 @@ import mockit.internal.util.*;
 
 /**
  * A base class used in the creation of a <em>mock-up</em> for a class or interface.
- * Such mock-ups can be used in <em>state-based</em> unit tests or as <em>fake</em> implementations for use in
- * integration tests.
+ * Such mock-ups can be used as <em>fake</em> implementations for use in integration or unit tests.
  * <pre>
  *
  * // Define and apply one or more mock-ups:
