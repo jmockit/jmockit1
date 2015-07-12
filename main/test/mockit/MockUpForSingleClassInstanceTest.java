@@ -103,18 +103,34 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void getMockInstanceFromInsideMockMethodForStaticMockedMethod()
+   public void getMockInstanceFromInsideMockMethodForNonStaticMockedMethod()
+   {
+      new MockUp<AClass>() {
+         @Mock
+         String getTextValue()
+         {
+            assertNotNull(getMockInstance());
+            return "mock";
+         }
+      };
+
+      assertEquals("mock", new AClass(123).getTextValue());
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void attemptToGetMockInstanceFromInsideMockMethodForStaticMockedMethod()
    {
       new MockUp<AClass>() {
          @Mock
          boolean doSomething()
          {
-            assertNull(getMockInstance());
+            getMockInstance(); // not valid because "doSomething" is static
+            fail("Must not get here");
             return true;
          }
       };
 
-      assertTrue(AClass.doSomething());
+      AClass.doSomething();
    }
 
    @Test

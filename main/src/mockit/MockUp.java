@@ -339,13 +339,14 @@ public abstract class MockUp<T>
     * <p/>
     * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
+    * @throws IllegalStateException if called from a mock method for a static method
+    *
     * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
     */
    public final T getMockInstance()
    {
       if (invokedInstance == Void.class) {
-         //noinspection ReturnOfNull
-         return null;
+         throw new IllegalStateException("Invalid attempt to get mock instance from inside static mocked method");
       }
 
       if (invokedInstance != null) {
