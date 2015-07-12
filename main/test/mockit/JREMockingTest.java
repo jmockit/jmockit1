@@ -277,6 +277,17 @@ public final class JREMockingTest
       assertTrue(task.doSomething());
    }
 
+   @Test
+   public void attemptToMockThreadLocal(@Mocked ThreadLocal<String> tl)
+   {
+      // All ThreadLocal methods are excluded from mocking, avoiding potential StackOverflowError's.
+      assertNull(tl.get());
+      tl.set("test");
+      assertEquals("test", tl.get());
+      tl.remove();
+      assertNull(tl.get());
+   }
+
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
 
    @Injectable FileOutputStream stream;

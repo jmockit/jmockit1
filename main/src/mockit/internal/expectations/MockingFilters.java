@@ -20,6 +20,7 @@ public final class MockingFilters
       FILTERS.put("java/lang/Exception", "<init> ");
       FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace ");
       FILTERS.put("java/lang/Thread", "currentThread getName interrupted isInterrupted ");
+      FILTERS.put("java/lang/ThreadLocal", "");
       FILTERS.put("java/util/AbstractCollection", "<init> ");
       FILTERS.put("java/util/AbstractSet", "<init> ");
       FILTERS.put("java/util/ArrayList", "");
