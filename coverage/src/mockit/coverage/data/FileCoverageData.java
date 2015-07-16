@@ -12,6 +12,7 @@ import mockit.coverage.*;
 import mockit.coverage.dataItems.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
+import static mockit.coverage.Metrics.*;
 
 /**
  * Coverage data gathered for the lines and branches of a single source file.
@@ -31,10 +32,10 @@ public final class FileCoverageData implements Serializable
    // Used for fast indexed access.
    public final int index;
 
-   // Used for output styling in the HTML report:
+   // Used for output styling in the HTML report.
    @Nullable public String kindOfTopLevelType;
 
-   // Used to track the last time the ".class" file was modified, to decide if merging can be done:
+   // Used to track the last time the ".class" file was modified, to decide if merging can be done.
    long lastModified;
 
    private final boolean loadedAfterTestCompletion;
@@ -43,9 +44,9 @@ public final class FileCoverageData implements Serializable
    {
       this.index = index;
       this.kindOfTopLevelType = kindOfTopLevelType;
-      lineCoverageInfo = Metrics.LineCoverage.active ? new PerFileLineCoverage() : NO_LINE_INFO;
-      pathCoverageInfo = Metrics.PathCoverage.active ? new PerFilePathCoverage() : NO_PATH_INFO;
-      dataCoverageInfo = Metrics.DataCoverage.active ? new PerFileDataCoverage() : NO_DATA_INFO;
+      lineCoverageInfo = LineCoverage.active ? new PerFileLineCoverage() : NO_LINE_INFO;
+      pathCoverageInfo = PathCoverage.active ? new PerFilePathCoverage() : NO_PATH_INFO;
+      dataCoverageInfo = DataCoverage.active ? new PerFileDataCoverage() : NO_DATA_INFO;
       loadedAfterTestCompletion = TestRun.isTerminated();
    }
 
