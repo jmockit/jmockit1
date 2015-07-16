@@ -31,7 +31,10 @@ public final class PerFileDataCoverage implements PerFileCoverage
    public void addField(@Nonnull String className, @Nonnull String fieldName, boolean isStatic)
    {
       String classAndField = className + '.' + fieldName;
-      allFields.add(classAndField);
+
+      if (!allFields.contains(classAndField)) {
+         allFields.add(classAndField);
+      }
 
       if (isStatic) {
          staticFieldsData.put(classAndField, new StaticFieldData());

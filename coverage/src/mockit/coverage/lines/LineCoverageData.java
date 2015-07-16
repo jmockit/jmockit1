@@ -23,6 +23,11 @@ public final class LineCoverageData extends LineSegmentData
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
+   void clearBranches()
+   {
+      branches = Collections.emptyList();
+   }
+
    public int addBranchingPoint(@Nonnull Label jumpSource, @Nonnull Label jumpTarget)
    {
       int initialIndex = branches.size();
@@ -143,7 +148,6 @@ public final class LineCoverageData extends LineSegmentData
 
       for (int sourceBranchIndex = 0; sourceBranchIndex < n; sourceBranchIndex += 2) {
          BranchCoverageData sourceBranch = branches.get(sourceBranchIndex);
-         BranchCoverageData targetBranch = branches.get(sourceBranchIndex + 1);
 
          if (!sourceBranch.isEmpty()) {
             count++;

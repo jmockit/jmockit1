@@ -8,6 +8,7 @@ import java.net.*;
 import java.security.*;
 import java.util.regex.*;
 import javax.annotation.*;
+import static java.util.regex.Pattern.*;
 
 import mockit.coverage.*;
 import mockit.coverage.standalone.*;
@@ -16,7 +17,11 @@ import mockit.internal.util.*;
 final class ClassSelection
 {
    private static final String THIS_CLASS_NAME = ClassSelection.class.getName();
-   private static final Pattern CSV = Pattern.compile(",");
+   private static final ClassLoader THIS_CLASS_LOADER = ClassSelection.class.getClassLoader();
+   private static final Pattern CSV = compile(",");
+   private static final Pattern DOT = compile("\\.");
+   private static final Pattern STAR = compile("\\*");
+   private static final Pattern TEST_CLASS_NAME = compile(".+Test(\\$.+)?");
 
    final boolean loadedOnly;
    @Nullable private final Matcher classesToInclude;
@@ -32,7 +37,7 @@ final class ClassSelection
       String excludes = Configuration.getProperty("excludes", "");
       classesToExclude = newMatcherForClassSelection(excludes);
 
-      testCode = Startup.isTestRun() ? Pattern.compile(".+Test(\\$.+)?").matcher("") : null;
+      testCode = Startup.isTestRun() ? TEST_CLASS_NAME.matcher("") : null;
    }
 
    @Nullable
@@ -53,7 +58,9 @@ final class ClassSelection
             regex = spec;
          }
          else if (!spec.isEmpty()) {
-            regex = spec.replace(".", "\\.").replace("*", ".*").replace('?', '.');
+            regex = DOT.matcher(spec).replaceAll("\\.");
+            regex = STAR.matcher(regex).replaceAll(".*");
+            regex = regex.replace('?', '.');
          }
 
          if (regex != null) {
@@ -63,38 +70,50 @@ final class ClassSelection
       }
 
       String finalRegex = finalRegexBuilder.toString();
-      return finalRegex.isEmpty() ? null : Pattern.compile(finalRegex).matcher("");
+      return finalRegex.isEmpty() ? null : compile(finalRegex).matcher("");
    }
 
    boolean isSelected(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
       CodeSource codeSource = protectionDomain.getCodeSource();
 
-      if (
-         codeSource == null || className.charAt(0) == '[' || className.startsWith("mockit.") ||
-         className.startsWith("org.junit.") || className.startsWith("junit.") || className.startsWith("org.testng.") ||
-         ClassLoad.isGeneratedSubclass(className)
-      ) {
+      if (codeSource == null || isIneligibleForSelection(className)) {
          return false;
       }
 
-      if (!canAccessJMockitFromClassToBeMeasured(protectionDomain.getClassLoader())) {
-         return false;
-      }
+      ClassLoader loaderOfClassToBeMeasured = protectionDomain.getClassLoader();
 
       if (
-         classesToExclude != null && classesToExclude.reset(className).matches() ||
-         testCode != null && testCode.reset(className).matches()
+         !canAccessJMockitFromClassToBeMeasured(loaderOfClassToBeMeasured) ||
+         !isClassAllowedByIncludesAndExcludes(className)
       ) {
          return false;
-      }
-      else if (classesToInclude != null) {
-         return classesToInclude.reset(className).matches();
       }
 
       URL codeSourceLocation = codeSource.getLocation();
-      boolean selected = codeSourceLocation != null && !isClassFromExternalLibrary(codeSourceLocation.getPath());
-      return selected;
+
+      if (codeSourceLocation == null) {
+         if (loaderOfClassToBeMeasured == THIS_CLASS_LOADER) {
+            return false; // it's likely a dynamically generated class
+         }
+
+         // It's from a custom class loader, so it may exist in the classpath.
+         String classFileName = className.replace('.', '/') + ".class";
+         URL classFile = THIS_CLASS_LOADER.getResource(classFileName);
+         return classFile != null;
+      }
+
+      return !isClassFromExternalLibrary(codeSourceLocation.getPath());
+   }
+
+   private static boolean isIneligibleForSelection(@Nonnull String className)
+   {
+      return
+         className.charAt(0) == '[' ||
+         className.startsWith("mockit.") ||
+         className.startsWith("org.junit.") || className.startsWith("junit.") ||
+         className.startsWith("org.testng.") ||
+         ClassLoad.isGeneratedSubclass(className);
    }
 
    private boolean canAccessJMockitFromClassToBeMeasured(@Nullable ClassLoader loaderOfClassToBeMeasured)
@@ -108,6 +127,21 @@ final class ClassSelection
       }
 
       return false;
+   }
+
+   private boolean isClassAllowedByIncludesAndExcludes(@Nonnull String className)
+   {
+      if (
+         classesToExclude != null && classesToExclude.reset(className).matches() ||
+         testCode != null && testCode.reset(className).matches()
+      ) {
+         return false;
+      }
+      else if (classesToInclude != null) {
+         return classesToInclude.reset(className).matches();
+      }
+
+      return true;
    }
 
    private boolean isClassFromExternalLibrary(@Nonnull String location)

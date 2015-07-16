@@ -56,28 +56,30 @@ final class CoverageModifier extends ClassVisitor
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
    @Nullable private FileCoverageData fileData;
+   @Nullable private final BitSet linesReprocessed;
    private boolean cannotModify;
    private final boolean forInnerClass;
    private boolean forEnumClass;
    @Nullable private String kindOfTopLevelType;
    private int currentLine;
 
-   CoverageModifier(@Nonnull ClassReader cr)
+   CoverageModifier(@Nonnull ClassReader cr, boolean forReloadedClass)
    {
-      this(cr, false);
-      sourceFileName = "";
+      this(cr, false, forReloadedClass ? new BitSet(65536) : null);
    }
 
-   private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass)
+   private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass, @Nullable BitSet linesReprocessed)
    {
       super(new ClassWriter(cr));
       cw = (ClassWriter) cv;
+      sourceFileName = "";
+      this.linesReprocessed = linesReprocessed;
       this.forInnerClass = forInnerClass;
    }
 
    private CoverageModifier(@Nonnull ClassReader cr, @Nonnull CoverageModifier other, @Nullable String simpleClassName)
    {
-      this(cr, true);
+      this(cr, true, other.linesReprocessed);
       sourceFileName = other.sourceFileName;
       fileData = other.fileData;
       internalClassName = other.internalClassName;
@@ -245,7 +247,7 @@ final class CoverageModifier extends ClassVisitor
       private int lineExpectingInstructionAfterJump;
       protected boolean assertFoundInCurrentLine;
       protected boolean ignoreUntilNextLabel;
-      private boolean foundPotentialAssertFalse;
+      @SuppressWarnings("unused") private boolean foundPotentialAssertFalse;
       private int foundPotentialBooleanExpressionValue;
       protected int ignoreUntilNextSwitch;
 
@@ -268,7 +270,14 @@ final class CoverageModifier extends ClassVisitor
             pendingBranches.clear();
          }
 
-         lineCoverageInfo.addLine(line);
+         boolean reprocessing = false;
+
+         if (linesReprocessed != null && !linesReprocessed.get(line)) {
+            linesReprocessed.set(line);
+            reprocessing = true;
+         }
+
+         lineCoverageInfo.addLine(line, reprocessing);
          currentLine = line;
 
          jumpTargetsForCurrentLine.clear();

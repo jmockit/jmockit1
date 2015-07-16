@@ -183,4 +183,17 @@ public final class IfElseStatements
          System.gc();
       }
    }
+
+   ClassLoader methodToBeCalledFromCustomRunnerTest(String s)
+   {
+      instanceField = s;
+
+      if (s.isEmpty()) {
+         return null;
+      }
+
+      return getClass().getClassLoader();
+   }
+
+   String instanceField;
 }

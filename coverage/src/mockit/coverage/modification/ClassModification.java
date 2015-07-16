@@ -17,14 +17,15 @@ public final class ClassModification
 {
    private static final Class<?>[] NO_CLASSES = {};
 
-   @Nonnull private final Set<String> modifiedClasses;
-   @Nonnull final List<ProtectionDomain> protectionDomains;
+   @Nonnull private final Map<String, ProtectionDomain> protectionDomainPerModifiedClass;
+   @Nonnull final List<ProtectionDomain> protectionDomainsWithUniqueLocations;
    @Nonnull private final ClassSelection classSelection;
+   private boolean reprocessing;
 
    public ClassModification()
    {
-      modifiedClasses = new HashSet<String>();
-      protectionDomains = new ArrayList<ProtectionDomain>();
+      protectionDomainPerModifiedClass = new HashMap<String, ProtectionDomain>();
+      protectionDomainsWithUniqueLocations = new ArrayList<ProtectionDomain>();
       classSelection = new ClassSelection();
       redefineClassesAlreadyLoadedForCoverage();
    }
@@ -71,7 +72,9 @@ public final class ClassModification
 
    private void registerModifiedClass(@Nonnull String className, @Nonnull ProtectionDomain pd)
    {
-      modifiedClasses.add(className);
+      if (!protectionDomainPerModifiedClass.containsKey(className)) {
+         protectionDomainPerModifiedClass.put(className, pd);
+      }
 
       if (pd.getClassLoader() != null && pd.getCodeSource() != null && pd.getCodeSource().getLocation() != null) {
          addProtectionDomainIfHasUniqueNewPath(pd);
@@ -82,24 +85,24 @@ public final class ClassModification
    {
       String newPath = newPD.getCodeSource().getLocation().getPath();
 
-      for (int i = protectionDomains.size() - 1; i >= 0; i--) {
-         ProtectionDomain previousPD = protectionDomains.get(i);
+      for (int i = protectionDomainsWithUniqueLocations.size() - 1; i >= 0; i--) {
+         ProtectionDomain previousPD = protectionDomainsWithUniqueLocations.get(i);
          String previousPath = previousPD.getCodeSource().getLocation().getPath();
 
          if (previousPath.startsWith(newPath)) {
             return;
          }
          else if (newPath.startsWith(previousPath)) {
-            protectionDomains.set(i, newPD);
+            protectionDomainsWithUniqueLocations.set(i, newPD);
             return;
          }
       }
 
-      protectionDomains.add(newPD);
+      protectionDomainsWithUniqueLocations.add(newPD);
    }
 
    @Nullable
-   private static byte[] readAndModifyClassForCoverage(@Nonnull Class<?> aClass)
+   private byte[] readAndModifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       try {
          return modifyClassForCoverage(aClass);
@@ -118,7 +121,7 @@ public final class ClassModification
    }
 
    @Nullable
-   private static byte[] modifyClassForCoverage(@Nonnull Class<?> aClass)
+   private byte[] modifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       String className = aClass.getName();
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
@@ -133,9 +136,9 @@ public final class ClassModification
    }
 
    @Nonnull
-   private static byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
+   private byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
    {
-      CoverageModifier modifier = new CoverageModifier(cr);
+      CoverageModifier modifier = new CoverageModifier(cr, reprocessing);
       cr.accept(modifier, SKIP_FRAMES);
       return modifier.toByteArray();
    }
@@ -159,7 +162,23 @@ public final class ClassModification
 
    boolean isToBeConsideredForCoverage(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
-      return !modifiedClasses.contains(className) && classSelection.isSelected(className, protectionDomain);
+      ProtectionDomain originalDomain = protectionDomainPerModifiedClass.get(className);
+
+      if (originalDomain == null) {
+         reprocessing = false;
+         return classSelection.isSelected(className, protectionDomain);
+      }
+
+      boolean reloaded = protectionDomain != originalDomain;
+      reprocessing = reloaded;
+      return reloaded;
+   }
+
+   boolean isToBeConsideredForCoverageAsNotLoaded(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
+   {
+      return
+         !protectionDomainPerModifiedClass.containsKey(className) &&
+         classSelection.isSelected(className, protectionDomain);
    }
 
    @Nullable
@@ -186,7 +205,7 @@ public final class ClassModification
    }
 
    @Nonnull
-   private static byte[] modifyClassForCoverage(@Nonnull String className, @Nonnull byte[] classBytecode)
+   private byte[] modifyClassForCoverage(@Nonnull String className, @Nonnull byte[] classBytecode)
    {
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
 

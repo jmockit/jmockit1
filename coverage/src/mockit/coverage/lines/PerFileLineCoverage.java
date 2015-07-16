@@ -47,9 +47,18 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public void addLine(int line)
+   public void addLine(int line, boolean reprocessing)
    {
-      if (!lineToLineData.containsKey(line)) {
+      if (lineToLineData.containsKey(line)) {
+         if (reprocessing) {
+            LineCoverageData lineData = lineToLineData.get(line);
+
+            if (lineData != null) {
+               lineData.clearBranches();
+            }
+         }
+      }
+      else {
          lineToLineData.put(line, null);
       }
 
@@ -109,7 +118,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       int previousExecutionCount = executionCounts[line]++;
 
       if (callPoint != null) {
-         LineCoverageData lineData = getOrCreateLineData(line);
+         LineCoverageData lineData = lineToLineData.get(line);
          lineData.registerExecution(callPoint);
       }
 
@@ -118,19 +127,19 @@ public final class PerFileLineCoverage implements PerFileCoverage
 
    public boolean hasValidBranch(int line, int branchIndex)
    {
-      LineCoverageData lineData = getOrCreateLineData(line);
+      LineCoverageData lineData = lineToLineData.get(line);
       return lineData.isValidBranch(branchIndex);
    }
 
    public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
    {
-      LineCoverageData lineData = getOrCreateLineData(line);
+      LineCoverageData lineData = lineToLineData.get(line);
       return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
    public int registerExecution(int line, int branchIndex, @Nullable CallPoint callPoint)
    {
-      LineCoverageData lineData = getOrCreateLineData(line);
+      LineCoverageData lineData = lineToLineData.get(line);
       return lineData.registerExecution(branchIndex, callPoint);
    }
 

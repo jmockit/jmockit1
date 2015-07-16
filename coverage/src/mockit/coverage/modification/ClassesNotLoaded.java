@@ -21,7 +21,8 @@ public final class ClassesNotLoaded
 
    public void gatherCoverageData()
    {
-      Set<ProtectionDomain> protectionDomainsSoFar = new HashSet<ProtectionDomain>(classModification.protectionDomains);
+      Set<ProtectionDomain> protectionDomainsSoFar =
+         new HashSet<ProtectionDomain>(classModification.protectionDomainsWithUniqueLocations);
 
       for (ProtectionDomain pd : protectionDomainsSoFar) {
          File classPathEntry = new File(pd.getCodeSource().getLocation().getPath());
@@ -57,7 +58,7 @@ public final class ClassesNotLoaded
          String relativePath = filePath.substring(firstPosAfterParentDir, p);
          String className = relativePath.replace(File.separatorChar, '.');
 
-         if (classModification.isToBeConsideredForCoverage(className, protectionDomain)) {
+         if (classModification.isToBeConsideredForCoverageAsNotLoaded(className, protectionDomain)) {
             loadClass(className, protectionDomain);
          }
       }
