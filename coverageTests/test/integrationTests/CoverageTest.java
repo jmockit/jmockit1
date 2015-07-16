@@ -20,9 +20,9 @@ import mockit.coverage.paths.*;
 
 public class CoverageTest
 {
-   protected static FileCoverageData fileData;
-   private static String testedClassSimpleName;
-   protected MethodCoverageData methodData;
+   @Nullable protected static FileCoverageData fileData;
+   @Nullable private static String testedClassSimpleName;
+   @Nullable protected MethodCoverageData methodData;
    private int currentPathIndex = -1;
 
    @Before
@@ -37,7 +37,7 @@ public class CoverageTest
       }
    }
 
-   private void findFileDate(Class<?> testedClass)
+   private void findFileDate(@Nonnull Class<?> testedClass)
    {
       testedClassSimpleName = testedClass.getSimpleName();
 
@@ -48,7 +48,7 @@ public class CoverageTest
       assertNotNull("FileCoverageData not found for " + classFilePath, fileData);
    }
 
-   private void setTestedFieldToNewInstanceIfApplicable(Field testedField) throws Exception
+   private void setTestedFieldToNewInstanceIfApplicable(@Nonnull Field testedField) throws Exception
    {
       Class<?> testedClass = testedField.getType();
 
@@ -64,6 +64,7 @@ public class CoverageTest
       }
    }
 
+   @Nonnull
    private FileCoverageData fileData()
    {
       if (fileData == null) {
