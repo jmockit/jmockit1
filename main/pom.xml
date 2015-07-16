@@ -13,8 +13,8 @@
 
    <name>Main</name>
    <description>
-      JMockit is a Java toolkit for developer (unit/integration) testing.
-      It contains mocking APIs and other tools, supporting both JUnit and TestNG.
+      JMockit is a Java toolkit for automated developer testing.
+      It contains mocking/faking APIs and a code coverage tool, supporting both JUnit and TestNG.
       The mocking APIs allow all kinds of Java code, without testability restrictions, to be tested
       in isolation from selected dependencies.
    </description>
@@ -80,7 +80,7 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.1</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.3</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.6</source><target>1.6</target>
@@ -90,7 +90,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-jar-plugin</artifactId><version>2.4</version>
+            <artifactId>maven-jar-plugin</artifactId><version>2.6</version>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -104,7 +104,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>2.2.1</version>
+            <artifactId>maven-source-plugin</artifactId><version>2.4</version>
             <executions>
                <execution>
                   <id>attach-sources</id>
@@ -113,7 +113,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>2.9.1</version>
+            <artifactId>maven-javadoc-plugin</artifactId><version>2.10.3</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -143,7 +143,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.17</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
             <configuration>
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
@@ -186,7 +186,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId><version>1.4</version>
+            <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
             <configuration>
                <executable>/gnupg/pub/gpg</executable>
                <homedir>/gnupg/mykey</homedir>
