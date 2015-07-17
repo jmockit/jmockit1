@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package integrationTests.serviceA;
+package otherTests.serviceA;
 
 import java.util.*;
 import static java.util.Arrays.*;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 import mockit.*;
 
-import integrationTests.serviceB.*;
+import otherTests.serviceB.*;
 
 public final class ServiceATest
 {

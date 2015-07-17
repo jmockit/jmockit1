@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2011 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package integrationTests.textFile;
+package otherTests.textFile;
 
 import java.io.*;
 import java.util.*;
@@ -109,11 +109,13 @@ public final class TextFile
          reader = new FileReader(fileName);
       }
 
+      @Override
       public long skip(long n) throws IOException
       {
          return reader.skip(n);
       }
 
+      @Override
       public String readLine() throws IOException
       {
          StringBuilder buf = new StringBuilder();
@@ -131,6 +133,7 @@ public final class TextFile
          return buf.toString();
       }
 
+      @Override
       public void close() throws IOException
       {
          reader.close();

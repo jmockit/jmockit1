@@ -95,7 +95,7 @@ public final class ExpectationsForConstructorsTest
    }
 
    @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UnusedParameters"})
-   static class D extends integrationTests.serviceA.ServiceA { D(String s) {} }
+   static class D extends otherTests.serviceA.ServiceA { D(String s) {} }
 
    @Test
    public void mockClassHierarchyWhereFirstConstructorInBaseClassOnAnotherPackageIsPackagePrivate(@Mocked D mock)

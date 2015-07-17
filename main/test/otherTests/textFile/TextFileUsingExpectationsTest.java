@@ -1,29 +1,28 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package integrationTests.textFile;
+package otherTests.textFile;
 
 import java.io.*;
 import java.util.*;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import mockit.*;
 
-import integrationTests.textFile.TextFile.*;
-import static org.junit.Assert.*;
+import otherTests.textFile.TextFile.*;
 
-public final class TextFileUsingVerificationsTest
+public final class TextFileUsingExpectationsTest
 {
    @Test
    public void createTextFile(@Mocked DefaultTextReader reader) throws Exception
    {
-      assertNotNull(reader);
+      // Records TextFile#TextFile(String, int):
+      new Expectations() {{ new DefaultTextReader("file"); }};
 
       new TextFile("file", 0);
-
-      new Verifications() {{ new DefaultTextReader("file"); }};
    }
 
    @Test
@@ -37,15 +36,16 @@ public final class TextFileUsingVerificationsTest
    public void parseTextFileUsingConcreteClass(@Mocked final DefaultTextReader reader) throws Exception
    {
       new Expectations() {{
+         // From TextFile#parse():
+         reader.skip(200); result = 200L;
          reader.readLine(); returns("line1", "another,line", null);
+         reader.close();
       }};
 
       TextFile textFile = new TextFile("file", 200);
       List<String[]> result = textFile.parse();
 
       assertResultFromTextFileParsing(result);
-
-      new Verifications() {{ reader.close(); }};
    }
 
    void assertResultFromTextFileParsing(List<String[]> result)
@@ -63,34 +63,40 @@ public final class TextFileUsingVerificationsTest
    @Test
    public void parseTextFileUsingInterface(@Mocked final TextReader reader) throws Exception
    {
+      // Records TextFile#parse():
       new Expectations() {{
+         reader.skip(200); result = 200L;
          reader.readLine(); returns("line1", "another,line", null);
-      }};
-
-      TextFile textFile = new TextFile(reader, 100);
-      List<String[]> result = textFile.parse();
-
-      assertResultFromTextFileParsing(result);
-
-      new VerificationsInOrder() {{
-         reader.skip(100);
          reader.close();
       }};
+
+      // Replays recorded invocations while verifying expectations:
+      TextFile textFile = new TextFile(reader, 200);
+      List<String[]> result = textFile.parse();
+
+      // Verifies result:
+      assertResultFromTextFileParsing(result);
    }
 
    @Test
-   public void parseTextFileUsingBufferedReader(@Mocked final BufferedReader reader, @Mocked FileReader fileReader)
+   public void parseTextFileUsingBufferedReader(@Mocked FileReader fileReader, @Mocked final BufferedReader reader)
       throws Exception
    {
+      // Records TextFile#TextFile(String):
       new Expectations() {{
-         reader.readLine(); returns("line1", "another,line", null);
+         new BufferedReader(new FileReader("file"));
+      }};
+
+      // Records TextFile#parse():
+      new Expectations() {{
+         reader.skip(0); result = 0L;
+         reader.readLine(); result = "line1"; result = "another,line"; result = null;
+         reader.close();
       }};
 
       TextFile textFile = new TextFile("file");
       List<String[]> result = textFile.parse();
 
       assertResultFromTextFileParsing(result);
-
-      new Verifications() {{ reader.close(); }};
    }
 }

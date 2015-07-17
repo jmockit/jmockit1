@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package integrationTests.multicast;
+package otherTests.multicast;
 
 import java.io.*;
 import java.net.*;

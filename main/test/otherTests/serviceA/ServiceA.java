@@ -1,12 +1,8 @@
-/*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
-package integrationTests.serviceA;
+package otherTests.serviceA;
 
 import java.util.*;
 
-import integrationTests.serviceB.*;
+import otherTests.serviceB.*;
 
 public class ServiceA
 {

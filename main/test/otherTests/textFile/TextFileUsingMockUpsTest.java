@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2006-2013 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package integrationTests.textFile;
+package otherTests.textFile;
 
 import java.io.*;
 import java.util.*;
 
 import org.junit.*;
+import static org.junit.Assert.*;
 
 import mockit.*;
 
-import integrationTests.textFile.TextFile.*;
-import static org.junit.Assert.*;
+import otherTests.textFile.TextFile.*;
 
 public final class TextFileUsingMockUpsTest
 {
