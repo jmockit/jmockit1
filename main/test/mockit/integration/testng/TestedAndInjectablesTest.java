@@ -51,10 +51,21 @@ public final class TestedAndInjectablesTest
    @BeforeMethod
    public void setUp()
    {
+      assertUtilObjectIsAvailable();
+      tested2 = new SUT(new Collaborator());
+   }
+
+   void assertUtilObjectIsAvailable()
+   {
       assertNotNull(util);
       assertEquals(util.name, "util");
       assertSame(collaborator1, util.collaborator1);
-      tested2 = new SUT(new Collaborator());
+   }
+
+   @AfterMethod
+   public void tearDown()
+   {
+      assertUtilObjectIsAvailable();
    }
 
    @Test

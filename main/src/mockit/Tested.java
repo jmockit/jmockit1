@@ -84,6 +84,7 @@ public @interface Tested
     * initialization of other objects.
     * Another potential use is to affect the initialization of other tested objects in the same test class, during their
     * creation <em>after</em> setup.
+    * Finally, objects made available during setup are also available during the execution of any tear-down methods.
     * <p/>
     * In order to be made available during test setup, a tested object won't be injected from {@code @Injectable}
     * test method parameters, only from injectable fields.

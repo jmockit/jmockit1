@@ -85,8 +85,10 @@ final class TestedField
       if (createAutomatically) {
          injectionState.clearInstantiatedDependencies();
 
-         Object testClassInstance = injectionState.getCurrentTestClassInstance();
-         setFieldValue(testedField, testClassInstance, null);
+         if (!isAvailableDuringSetup()) {
+            Object testClassInstance = injectionState.getCurrentTestClassInstance();
+            setFieldValue(testedField, testClassInstance, null);
+         }
       }
    }
 }

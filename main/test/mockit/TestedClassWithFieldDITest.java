@@ -4,8 +4,8 @@
  */
 package mockit;
 
-import static org.junit.Assert.*;
 import org.junit.*;
+import static org.junit.Assert.*;
 
 public final class TestedClassWithFieldDITest
 {
@@ -14,6 +14,7 @@ public final class TestedClassWithFieldDITest
       String name;
       int id;
       Runnable action;
+      Collaborator collaborator;
    }
 
    public static class TestedClass
@@ -30,8 +31,10 @@ public final class TestedClassWithFieldDITest
    }
 
    static class Dependency { int doSomething() { return -1; } }
+   public static class Collaborator {}
 
    @Tested(availableDuringSetup = true) UtilityClass util;
+   @Tested(availableDuringSetup = true, fullyInitialized = true) UtilityClass util2;
    @Injectable("util") String utilName;
 
    @Tested TestedClass tested;
@@ -40,8 +43,24 @@ public final class TestedClassWithFieldDITest
    @Before
    public void setUp()
    {
+      assertUtilObjectsAreAvailable();
+   }
+
+   void assertUtilObjectsAreAvailable()
+   {
       assertNotNull(util);
       assertEquals("util", util.name);
+      assertNull(util.collaborator);
+
+      assertNotNull(util2);
+      assertEquals("util", util2.name);
+      assertNotNull(util2.collaborator);
+   }
+
+   @After
+   public void tearDown()
+   {
+      assertUtilObjectsAreAvailable();
    }
 
    @Test
