@@ -18,7 +18,20 @@ import mockit.coverage.*;
 public final class CoverageData implements Serializable
 {
    private static final long serialVersionUID = -4860004226098360259L;
-   @Nonnull private static final CoverageData instance = new CoverageData();
+   @Nonnull private static final CoverageData instance;
+
+   static
+   {
+      ClassLoader classLoader = CoverageData.class.getClassLoader();
+
+      if (classLoader != ClassLoader.getSystemClassLoader()) {
+         throw new IllegalAccessError(
+            "JMockit Coverage got reloaded through custom class loader " +
+            classLoader.getClass().getName() + ";\r\nplease configure it to ignore classes from JMockit.");
+      }
+
+      instance = new CoverageData();
+   }
 
    @Nonnull public static CoverageData instance() { return instance; }
 
