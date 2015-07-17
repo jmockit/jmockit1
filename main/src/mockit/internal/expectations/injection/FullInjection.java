@@ -10,6 +10,7 @@ import javax.annotation.*;
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.internal.startup.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
@@ -68,7 +69,7 @@ final class FullInjection
 
    private static boolean isInstantiableType(@Nonnull Class<?> type)
    {
-      if (type.isPrimitive() || type.isArray()) {
+      if (type.isPrimitive() || type.isArray() || type.isAnnotation()) {
          return false;
       }
 
@@ -141,7 +142,32 @@ final class FullInjection
       }
 
       if (jpaDependencies != null) {
-         return jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
+         Object newInstance = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
+
+         if (newInstance != null) {
+            return newInstance;
+         }
+      }
+
+      ClassLoader dependencyLoader = dependencyClass.getClassLoader();
+
+      if (dependencyLoader != null) {
+         Class<?>[] loadedClasses = Startup.instrumentation().getInitiatedClasses(dependencyLoader);
+         Class<?> implementationClass = null;
+
+         for (Class<?> loadedClass : loadedClasses) {
+            if (loadedClass != dependencyClass && dependencyClass.isAssignableFrom(loadedClass)) {
+               if (implementationClass != null) {
+                  return null;
+               }
+
+               implementationClass = loadedClass;
+            }
+         }
+
+         if (implementationClass != null) {
+            return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
+         }
       }
 
       return null;

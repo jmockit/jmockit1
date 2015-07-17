@@ -70,7 +70,8 @@ public @interface Tested
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.
     * For this attempt to succeed, the type of the field must either be a concrete class having a public no-args
-    * constructor, or a known interface for which a real instance can be created.
+    * constructor, an interface for which a single implementation class is loaded, or a known interface for which a real
+    * instance can be created.
     * Currently, the {@code javax.persistence.EntityManagerFactory} and {@code javax.persistence.EntityManager}
     * interfaces are supported.
     */

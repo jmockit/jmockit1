@@ -7,8 +7,10 @@ package mockit.internal.expectations.injection;
 import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
+import java.util.regex.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
+import static java.util.regex.Pattern.compile;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
@@ -16,6 +18,8 @@ import static mockit.internal.expectations.injection.InjectionPoint.*;
 
 final class FieldInjection
 {
+   private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
+
    @Nonnull private final TestedField testedField;
    @Nullable private final ProtectionDomain protectionDomainOfTestedClass;
    @Nonnull private final String nameOfTestedClass;
@@ -159,7 +163,11 @@ final class FieldInjection
             return null;
          }
 
-         return fullInjection.newInstanceCreatedWithNoArgsConstructorIfAvailable(this, fieldToBeInjected);
+         Object newInstance = fullInjection.newInstanceCreatedWithNoArgsConstructorIfAvailable(this, fieldToBeInjected);
+
+         if (newInstance != null) {
+            return newInstance;
+         }
       }
 
       if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
@@ -168,10 +176,12 @@ final class FieldInjection
 
       if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
          String fieldType = fieldToBeInjected.getGenericType().toString();
+         fieldType = TYPE_NAME.matcher(fieldType).replaceAll("");
+         String kindOfInjectable = fullInjection == null ? "@Injectable" : "instantiable class";
          throw new IllegalStateException(
-            "Missing @Injectable for field " +
-            fieldToBeInjected.getDeclaringClass().getSimpleName() + '#' + fieldToBeInjected.getName() + ", of type " +
-            fieldType.replace("class ", "").replace("interface ", "").replace("java.lang.", ""));
+            "Missing " + kindOfInjectable + " for field " +
+            fieldToBeInjected.getDeclaringClass().getSimpleName() + '#' + fieldToBeInjected.getName() +
+            ", of type " + fieldType);
       }
 
       return null;
