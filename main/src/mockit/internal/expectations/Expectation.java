@@ -69,18 +69,27 @@ final class Expectation
    {
       InvocationResults sequence = getResults();
 
-      if (remainingValues == null || remainingValues.length == 0) {
-         if (firstValue == null) {
-            sequence.addReturnValueResult(null);
-         }
-         else {
-            Class<?> returnType = getReturnType();
-            new ReturnTypeConversion(this, returnType, firstValue).addConvertedValueOrValues();
-         }
+      if (remainingValues == null) {
+         addFirstReturnValue(firstValue);
+         sequence.addReturnValue(null);
+      }
+      else if (remainingValues.length == 0) {
+         addFirstReturnValue(firstValue);
       }
       else if (!new SequenceOfReturnValues(this, firstValue, remainingValues).addResultWithSequenceOfValues()) {
          sequence.addReturnValue(firstValue);
          sequence.addReturnValues(remainingValues);
+      }
+   }
+
+   private void addFirstReturnValue(@Nullable Object firstValue)
+   {
+      if (firstValue == null) {
+         getResults().addReturnValueResult(null);
+      }
+      else {
+         Class<?> returnType = getReturnType();
+         new ReturnTypeConversion(this, returnType, firstValue).addConvertedValueOrValues();
       }
    }
 

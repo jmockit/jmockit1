@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -260,6 +260,20 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
+   public void returnsNonNullValueFollowedByNullUsingVarargs(@Mocked final Collaborator collaborator)
+   {
+      new Expectations() {{
+         collaborator.getString();
+         //noinspection NullArgumentToVariableArgMethod
+         returns("non-null", null);
+      }};
+
+      assertEquals("non-null", collaborator.getString());
+      assertNull(collaborator.getString());
+      assertNull(collaborator.getString());
+   }
+
+   @Test
    public void returnsMultipleValuesInSequenceUsingArray()
    {
       final Collaborator collaborator = new Collaborator();
@@ -367,6 +381,7 @@ public final class ExpectationsWithValuesToReturnTest
       assertArrayEquals(new int[] {1, 2}, (int[]) collaborator.getObject());
       assertEquals("test", collaborator.getObject());
       assertEquals('X', collaborator.getObject());
+      //noinspection AssertEqualsBetweenInconvertibleTypes
       assertEquals(asList(5L, 67L), collaborator.getObject());
    }
 
