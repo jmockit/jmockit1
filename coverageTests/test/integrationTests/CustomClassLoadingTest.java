@@ -4,9 +4,15 @@
  */
 package integrationTests;
 
+import java.util.*;
+
 import org.junit.*;
 import org.junit.runner.*;
 import static org.junit.Assert.*;
+
+import mockit.coverage.data.*;
+
+import org.hamcrest.*;
 
 @RunWith(CustomRunner.class)
 public final class CustomClassLoadingTest extends CoverageTest
@@ -58,5 +64,14 @@ public final class CustomClassLoadingTest extends CoverageTest
       findMethodData(9);
       assertPaths(1, 1, 1);
       assertPath(2, 1);
+   }
+
+   @Test
+   public void exerciseClassFromNonJREJarFile()
+   {
+      CoreMatchers.anything();
+
+      Map<String, FileCoverageData> fileToFileData = CoverageData.instance().getRawFileToFileData();
+      assertFalse(fileToFileData.containsKey("org/hamcrest/CoreMatchers.java"));
    }
 }

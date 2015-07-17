@@ -99,11 +99,14 @@ final class ClassSelection
 
          // It's from a custom class loader, so it may exist in the classpath.
          String classFileName = className.replace('.', '/') + ".class";
-         URL classFile = THIS_CLASS_LOADER.getResource(classFileName);
-         return classFile != null;
+         codeSourceLocation = THIS_CLASS_LOADER.getResource(classFileName);
+
+         if (codeSourceLocation == null) {
+            return false;
+         }
       }
 
-      return !isClassFromExternalLibrary(codeSourceLocation.getPath());
+      return !isClassFromExternalLibrary(codeSourceLocation);
    }
 
    private static boolean isIneligibleForSelection(@Nonnull String className)
@@ -144,10 +147,16 @@ final class ClassSelection
       return true;
    }
 
-   private boolean isClassFromExternalLibrary(@Nonnull String location)
+   private boolean isClassFromExternalLibrary(@Nonnull URL location)
    {
+      if ("jar".equals(location.getProtocol())) {
+         return true;
+      }
+
+      String path = location.getPath();
+
       return
-         location.endsWith(".jar") || location.endsWith("/.cp/") ||
-         testCode != null && (location.endsWith("/test-classes/") || location.endsWith("/jmockit1.org/main/classes/"));
+         path.endsWith(".jar") || path.endsWith("/.cp/") ||
+         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"));
    }
 }

@@ -26,7 +26,7 @@ public class CoverageTest
    private int currentPathIndex = -1;
 
    @Before
-   public void findCoverageData() throws Exception
+   public final void findCoverageData() throws Exception
    {
       Field testedField = getClass().getDeclaredField("tested");
       Class<?> testedClass = testedField.getType();
@@ -252,7 +252,7 @@ public class CoverageTest
       assertFalse("Instance field " + fieldName + " should not be covered", isInstanceFieldCovered(fieldName));
    }
 
-   protected void assertInstanceFieldUncovered(@Nonnull String fieldName, @Nonnull Object... uncoveredInstances)
+   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName, @Nonnull Object... uncoveredInstances)
    {
       String msg = "Instance field " + fieldName + " should not be covered";
       InstanceFieldData fieldData = getInstanceFieldData(fieldName);
