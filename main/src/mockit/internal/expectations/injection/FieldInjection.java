@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.injection;
 
+import java.io.*;
 import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
@@ -21,7 +22,8 @@ final class FieldInjection
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
    @Nonnull private final TestedField testedField;
-   @Nullable private final ProtectionDomain protectionDomainOfTestedClass;
+   @Nonnull private final ProtectionDomain protectionDomainOfTestedClass;
+   @Nullable private final String codeLocationParentPath;
    @Nonnull private final String nameOfTestedClass;
    @Nullable final FullInjection fullInjection;
 
@@ -29,6 +31,8 @@ final class FieldInjection
    {
       this.testedField = testedField;
       protectionDomainOfTestedClass = testedClass.getProtectionDomain();
+      CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
+      codeLocationParentPath = codeSource == null ? null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = testedClass.getName();
       this.fullInjection = fullInjection ? new FullInjection(testedField.injectionState) : null;
    }
@@ -81,22 +85,54 @@ final class FieldInjection
          return false;
       }
 
-      if (anotherClass.getProtectionDomain() == protectionDomainOfTestedClass) {
+      ProtectionDomain anotherProtectionDomain = anotherClass.getProtectionDomain();
+
+      if (anotherProtectionDomain == null) {
+         return false;
+      }
+
+      if (anotherProtectionDomain == protectionDomainOfTestedClass) {
          return true;
       }
 
+      CodeSource anotherCodeSource = anotherProtectionDomain.getCodeSource();
+
+      if (anotherCodeSource == null || anotherCodeSource.getLocation() == null) {
+         return false;
+      }
+
+      if (codeLocationParentPath != null) {
+         String anotherClassPath = anotherCodeSource.getLocation().getPath();
+         String anotherClassParentPath = new File(anotherClassPath).getParent();
+
+         if (anotherClassParentPath.equals(codeLocationParentPath)) {
+            return true;
+         }
+      }
+
+      return isInSameSubpackageAsTestedClass(anotherClass);
+   }
+
+   private boolean isInSameSubpackageAsTestedClass(@Nonnull Class<?> anotherClass)
+   {
       String nameOfAnotherClass = anotherClass.getName();
       int p1 = nameOfAnotherClass.indexOf('.');
       int p2 = nameOfTestedClass.indexOf('.');
+      boolean differentPackages = p1 != p2 || p1 == -1;
 
-      if (p1 != p2 || p1 == -1) {
+      if (differentPackages) {
          return false;
       }
 
       p1 = nameOfAnotherClass.indexOf('.', p1 + 1);
       p2 = nameOfTestedClass.indexOf('.', p2 + 1);
+      boolean differentSubpackages = p1 != p2 || p1 == -1;
 
-      return p1 == p2 && p1 > 0 && nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
+      if (differentSubpackages) {
+         return false;
+      }
+
+      return nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
    }
 
    void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
