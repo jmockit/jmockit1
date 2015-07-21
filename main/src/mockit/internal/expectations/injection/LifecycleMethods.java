@@ -29,19 +29,28 @@ final class LifecycleMethods
       boolean isServlet = isServlet(testedClass);
       Method initializationMethod = null;
       Method terminationMethod = null;
+      boolean bothMethodsFound = false;
+      Class<?> classWithMethods = testedClass;
 
-      for (Method method : testedClass.getDeclaredMethods()) {
-         if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
-            initializationMethod = method;
-         }
-         else if (terminationMethod == null && isTerminationMethod(method, isServlet)) {
-            terminationMethod = method;
+      do {
+         for (Method method : classWithMethods.getDeclaredMethods()) {
+            if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
+               initializationMethod = method;
+            }
+            else if (terminationMethod == null && isTerminationMethod(method, isServlet)) {
+               terminationMethod = method;
+            }
+
+            bothMethodsFound = initializationMethod != null && terminationMethod != null;
+
+            if (bothMethodsFound) {
+               break;
+            }
          }
 
-         if (initializationMethod != null && terminationMethod != null) {
-            break;
-         }
+         classWithMethods = classWithMethods.getSuperclass();
       }
+      while (!bothMethodsFound && classWithMethods != Object.class);
 
       initializationMethods.put(testedClass, initializationMethod);
       terminationMethods.put(testedClass, terminationMethod);
