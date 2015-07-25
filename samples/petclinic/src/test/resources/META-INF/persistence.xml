@@ -1,0 +1,43 @@
+<persistence
+   xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+   version="2.1">
+
+   <persistence-unit name="default">
+      <!-- Persistent classes; explicit listing needed for Java SE environment -->
+      <class>petclinic.owners.Owner</class>
+      <class>petclinic.pets.Pet</class>
+      <class>petclinic.pets.PetType</class>
+      <class>petclinic.vets.Vet</class>
+      <class>petclinic.vets.Specialty</class>
+      <class>petclinic.visits.Visit</class>
+
+      <properties>
+         <!-- JDBC connection parameters -->
+         <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>
+         <property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:testDb"/>
+         <property name="javax.persistence.jdbc.user" value="sa"/>
+         <property name="javax.persistence.jdbc.password" value=""/>
+
+         <!-- Hibernate-specific configuration -->
+         <property name="hibernate.show_sql" value="true"/>
+
+         <!--
+            The following properties cause an in-memory database to be created for every test run.
+            In a real-world project, however, this is not recommended since real databases tend to be much larger;
+            also, they typically don't have a single SQL creation script, but instead an open-ended list of
+            incremental scripts which are manually updated as the database evolves over time.
+            A more realistic approach is to use a development/test database, either running locally or in a
+            shared server; normally, such a database would also be used for manual testing of the application.
+         -->
+
+         <!-- Schema generation -->
+         <property name="javax.persistence.schema-generation.database.action" value="create"/>
+         <property name="javax.persistence.schema-generation.create-script-source" value="db/initDB.sql"/>
+
+         <!-- Needed for multi-line SQL statements -->
+         <property name="hibernate.hbm2ddl.import_files_sql_extractor"
+                   value="org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor"/>
+      </properties>
+   </persistence-unit>
+</persistence>
