@@ -9,7 +9,8 @@ import java.lang.annotation.*;
 /**
  * Indicates a class to be tested, with optional automatic instantiation and/or automatic injection of dependencies.
  * This annotation is applicable to instance fields of a test class; alternatively, it can be used as a meta-annotation
- * on a user-defined annotation which, in turn, needs to have runtime retention and be applicable to fields.
+ * on a user-defined annotation which, in turn, needs to have {@linkplain RetentionPolicy#RUNTIME runtime}
+ * {@linkplain Retention retention} and be {@linkplain Target applicable} to {@linkplain ElementType#FIELD fields}.
  * <p/>
  * If the tested field is not {@code final}, then it is eligible for automatic instantiation and initialization.
  * By default, automatic creation occurs just before a test method is executed, provided the tested field remains
@@ -52,10 +53,8 @@ import java.lang.annotation.*;
  * The abstract method implementations are automatically <em>mocked</em> so that expectations can be recorded or
  * verified on them.
  * <p/>
- * This annotation is not only intended for <em>unit</em> tests, but also for <em>integration</em> tests.
- * In the second case, the {@link #fullyInitialized} attribute will normally be specified as {@code true}, so that all
- * eligible fields in the tested object get initialized with a suitable instance, which itself is recursively
- * initialized in the same way.
+ * When the {@link #fullyInitialized} attribute is {@code true}, all eligible fields in the tested object will get
+ * initialized with a suitable instance, which itself is recursively initialized in the same way.
  *
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#tested">Tutorial</a>
  */
@@ -72,8 +71,10 @@ public @interface Tested
     * For this attempt to succeed, the type of the field must either be a concrete class having a public no-args
     * constructor, an interface for which a single implementation class is loaded, or a known interface for which a real
     * instance can be created.
-    * Currently, the {@code javax.persistence.EntityManagerFactory} and {@code javax.persistence.EntityManager}
-    * interfaces are supported.
+    * <p/>
+    * Currently, the JPA interfaces {@code javax.persistence.EntityManagerFactory} and
+    * {@code javax.persistence.EntityManager} are supported, provided a {@code META-INF/persistence.xml} file is
+    * available in the runtime classpath.
     */
    boolean fullyInitialized() default false;
 
