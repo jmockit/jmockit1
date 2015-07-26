@@ -8,6 +8,9 @@ import javax.persistence.*;
 import static org.junit.Assert.*;
 
 /**
+ * Base test utility class for domain-specific "EntityXData" classes, which allow each test to create
+ * the required data in the test database.
+ * <p/>
  * Ensures that tests execute in a database transaction which is always rolled back at the end.
  */
 public class TestDatabase
@@ -35,17 +38,25 @@ public class TestDatabase
       }
    }
 
+   /**
+    * Refreshes the persistent state of a given entity from the database, so that a test can verify
+    * that persistent state was modified as expected.
+    */
    public final void refresh(BaseEntity entity)
    {
       em.flush();
       em.refresh(entity);
    }
 
-   public final <E extends BaseEntity> E findOne(Class<E> entityClass)
-   {
-      return findOne("select e from " + entityClass.getSimpleName() + " e");
-   }
-
+   /**
+    * Finds one entity of the desired type.
+    *
+    * @param qlStatement a JPA-QL statement for finding a list of entities of which the first gets returned
+    * @param qlArgs zero or more arguments for positional parameters in the JPA-QL statement
+    * @param <E> specifies the desired entity type
+    *
+    * @return the first entity found, if any, or {@code null} if none
+    */
    @SuppressWarnings("unchecked")
    public final <E extends BaseEntity> E findOne(String qlStatement, Object... qlArgs)
    {
@@ -53,6 +64,17 @@ public class TestDatabase
       return entities.isEmpty() ? null : (E) entities.get(0);
    }
 
+   /**
+    * Verifies that a given entity was properly inserted into the database, including the generation of its integer
+    * identifier.
+    *
+    * @param newEntity an entity just persisted
+    * @param qlStatement a JPA-QL statement for finding a set of entities which must contain the new entity
+    * @param qlArgs zero or more arguments for positional parameters in the JPA-QL statement
+    *
+    * @throws AssertionError if the new entity as a null or negative id, or if it is not among the entities found
+    * by executing the given JPA-QL statement
+    */
    public final void assertCreated(BaseEntity newEntity, String qlStatement, Object... qlArgs)
    {
       Integer newId = newEntity.getId();
