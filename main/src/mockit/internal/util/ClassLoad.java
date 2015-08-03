@@ -190,6 +190,8 @@ public final class ClassLoad
 
    public static boolean isGeneratedSubclass(@Nonnull String className)
    {
-      return className.contains("_$$_javassist_") || className.contains("CGLIB$$");
+      return
+         className.indexOf('$') > 0 &&
+         (className.contains("_$$_javassist_") || className.contains("_$$_jvst") || className.contains("CGLIB$$"));
    }
 }
