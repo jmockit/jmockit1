@@ -51,8 +51,8 @@ public class TestDatabase
    /**
     * Finds one entity of the desired type.
     *
-    * @param qlStatement a JPA-QL statement for finding a list of entities of which the first gets returned
-    * @param qlArgs zero or more arguments for positional parameters in the JPA-QL statement
+    * @param qlStatement a JPQL statement for finding a list of entities of which the first gets returned
+    * @param qlArgs zero or more arguments for positional parameters in the JPQL statement
     * @param <E> specifies the desired entity type
     *
     * @return the first entity found, if any, or {@code null} if none
@@ -69,11 +69,11 @@ public class TestDatabase
     * identifier.
     *
     * @param newEntity an entity just persisted
-    * @param qlStatement a JPA-QL statement for finding a set of entities which must contain the new entity
-    * @param qlArgs zero or more arguments for positional parameters in the JPA-QL statement
+    * @param qlStatement a JPQL statement for finding a set of entities which must contain the new entity
+    * @param qlArgs zero or more arguments for positional parameters in the JPQL statement
     *
-    * @throws AssertionError if the new entity as a null or negative id, or if it is not among the entities found
-    * by executing the given JPA-QL statement
+    * @throws AssertionError if the new entity has a null or negative id, or if it is not among the entities found
+    * by executing the given JPQL statement
     */
    public final void assertCreated(BaseEntity newEntity, String qlStatement, Object... qlArgs)
    {
