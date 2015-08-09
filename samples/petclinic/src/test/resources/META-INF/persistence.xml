@@ -9,13 +9,8 @@
    version="2.1">
 
    <persistence-unit name="default">
-      <!-- Persistent classes; explicit listing needed for Java SE environment -->
-      <class>petclinic.owners.Owner</class>
-      <class>petclinic.pets.Pet</class>
-      <class>petclinic.pets.PetType</class>
-      <class>petclinic.vets.Vet</class>
-      <class>petclinic.vets.Specialty</class>
-      <class>petclinic.visits.Visit</class>
+      <!-- Directory where entity classes are to be found -->
+      <jar-file>target/classes</jar-file>
 
       <properties>
          <!-- JDBC connection parameters -->
