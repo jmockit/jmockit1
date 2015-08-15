@@ -10,13 +10,14 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
+import static mockit.internal.util.Utilities.*;
+
 import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
 import sun.tools.attach.*;
 
 public final class AgentLoader
 {
-   private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
    private static final AttachProvider ATTACH_PROVIDER = new AttachProvider() {
       @Override @Nullable public String name() { return null; }
       @Override @Nullable public String type() { return null; }
@@ -40,13 +41,11 @@ public final class AgentLoader
       VirtualMachine vm;
 
       if (AttachProvider.providers().isEmpty()) {
-         String vmName = System.getProperty("java.vm.name");
-
-         if (vmName.contains("HotSpot")) {
+         if (HOTSPOT_VM) {
             vm = getVirtualMachineImplementationFromEmbeddedOnes();
          }
          else {
-            String helpMessage = getHelpMessageForNonHotSpotVM(vmName);
+            String helpMessage = getHelpMessageForNonHotSpotVM();
             throw new IllegalStateException(helpMessage);
          }
       }
@@ -113,8 +112,9 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private String getHelpMessageForNonHotSpotVM(@Nonnull String vmName)
+   private String getHelpMessageForNonHotSpotVM()
    {
+      String vmName = System.getProperty("java.vm.name");
       String helpMessage = "To run on " + vmName;
 
       if (vmName.contains("J9")) {

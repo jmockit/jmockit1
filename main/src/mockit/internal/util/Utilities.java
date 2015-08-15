@@ -16,13 +16,16 @@ import mockit.internal.state.*;
 public final class Utilities
 {
    @Nonnull public static final Object[] NO_ARGS = {};
-
+   public static final float JAVA_VERSION;
    public static final boolean JAVA8;
    public static final boolean HOTSPOT_VM;
-   static {
-      HOTSPOT_VM = System.getProperty("java.vm.name").contains("HotSpot");
-      Float javaVersion = Float.valueOf(System.getProperty("java.specification.version"));
-      JAVA8 = javaVersion >= 1.8F;
+
+   static
+   {
+      JAVA_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
+      JAVA8 = JAVA_VERSION >= 1.8F;
+      String vmName = System.getProperty("java.vm.name");
+      HOTSPOT_VM = vmName.contains("HotSpot") || vmName.contains("OpenJDK");
    }
 
    private Utilities() {}
