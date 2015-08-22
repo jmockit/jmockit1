@@ -10,6 +10,10 @@
    <description>Examples of different mocking APIs used for testing a common target.</description>
    <url>http://coffeaelectronica.com/blog/2009/07/tour-de-mock-spring</url>
 
+   <properties>
+      <spring.version>4.2.0.RELEASE</spring.version>
+   </properties>
+
    <dependencies>
       <dependency>
          <groupId>javax.servlet</groupId><artifactId>javax.servlet-api</artifactId><version>3.1.0</version>
@@ -18,10 +22,11 @@
          <groupId>javax.inject</groupId><artifactId>javax.inject</artifactId><version>1</version>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>4.0.5.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId>
+         <version>${spring.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-tx</artifactId><version>4.0.5.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-tx</artifactId><version>${spring.version}</version>
       </dependency>
 
       <!-- Mocking tools used in the test suite -->
@@ -35,7 +40,7 @@
 
       <!-- Spring Test -->
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-test</artifactId><version>4.0.5.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-test</artifactId><version>${spring.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -43,7 +48,7 @@
          <scope>runtime</scope>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-core</artifactId><version>4.0.5.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-core</artifactId><version>${spring.version}</version>
          <scope>test</scope>
       </dependency>
 
