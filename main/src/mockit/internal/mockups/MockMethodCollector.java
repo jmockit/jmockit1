@@ -117,10 +117,10 @@ final class MockMethodCollector extends ClassVisitor
 
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, String desc, String signature, Label start, Label end, int index)
+         @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
       {
          String classDesc = mockMethods.getMockClassInternalName();
-         ParameterNames.registerName(classDesc, methodName, methodDesc, name);
+         ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
       }
    }
 

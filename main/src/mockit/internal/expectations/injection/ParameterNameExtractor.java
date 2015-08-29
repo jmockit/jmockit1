@@ -16,13 +16,14 @@ final class ParameterNameExtractor extends ClassVisitor
 {
    private final boolean forMethods;
    @Nonnull private String classDesc;
-   @Nonnull private String methodName;
-   @Nonnull private String methodDesc;
+   @Nonnegative private int memberAccess;
+   @Nonnull private String memberName;
+   @Nonnull private String memberDesc;
 
    ParameterNameExtractor(boolean forMethods)
    {
       this.forMethods = forMethods;
-      classDesc = methodName = methodDesc = "";
+      classDesc = memberName = memberDesc = "";
    }
 
    @Nonnull
@@ -48,8 +49,9 @@ final class ParameterNameExtractor extends ClassVisitor
          boolean visitingAMethod = name.charAt(0) != '<';
 
          if (visitingAMethod == forMethods) {
-            methodName = name;
-            methodDesc = desc;
+            memberAccess = access;
+            memberName = name;
+            memberDesc = desc;
             return new MethodOrConstructorVisitor();
          }
       }
@@ -61,9 +63,9 @@ final class ParameterNameExtractor extends ClassVisitor
    {
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, String desc, String signature, Label start, Label end, int index)
+         @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
       {
-         ParameterNames.registerName(classDesc, methodName, methodDesc, name);
+         ParameterNames.registerName(classDesc, memberAccess, memberName, memberDesc, desc, name, index);
       }
    }
 }
