@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.util.logging.*;
 import javax.annotation.*;
 import javax.ejb.*;
 import javax.inject.*;
@@ -19,6 +20,8 @@ public final class TestedClassWithFullAnnotatedDITest
       @Autowired ItfWithSingleLoadedImpl dependency1;
       @Resource ItfWithSingleLoadedImpl dependency2;
       @Inject ItfWithTwoImplsButOnlyOneLoaded anotherDependency;
+      @Inject private Logger log1;
+      @Inject private Logger log2;
    }
 
    public interface ItfWithSingleLoadedImpl {}
@@ -55,5 +58,12 @@ public final class TestedClassWithFullAnnotatedDITest
       assertSame(tested.dependency1, tested.dependency2);
       assertTrue(tested.anotherDependency instanceof AnotherImpl2);
       assertSame(ejb, ((SingleLoadedImpl) tested.dependency1).ejb);
+   }
+
+   @Test
+   public void injectLoggerFieldsWithLoggerCreatedWithTestedClassName()
+   {
+      assertEquals(TestedClass.class.getName(), tested.log1.getName());
+      assertSame(tested.log2, tested.log1);
    }
 }

@@ -6,6 +6,7 @@ package mockit.internal.expectations.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.util.logging.*;
 import javax.annotation.*;
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
@@ -32,10 +33,13 @@ final class FullInjection
    }
 
    @Nullable
-   Object newInstanceCreatedWithNoArgsConstructorIfAvailable(
-      @Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected)
+   Object newInstance(@Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected)
    {
       Class<?> fieldType = fieldToBeInjected.getType();
+
+      if (fieldType == Logger.class) {
+         return Logger.getLogger(fieldInjection.nameOfTestedClass);
+      }
 
       if (!isInstantiableType(fieldType)) {
          return null;
@@ -49,17 +53,10 @@ final class FullInjection
             dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
          }
          else {
-            dependency = getOrCreateInstance(fieldType, dependencyKey);
+            dependency = createNewInstance(fieldType, dependencyKey);
 
             if (dependency != null) {
-               Class<?> instantiatedClass = dependency.getClass();
-
-               if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
-                  fieldInjection.fillOutDependenciesRecursively(dependency);
-                  injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
-               }
-
-               injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
+               registerNewInstance(fieldInjection, dependencyKey, dependency);
             }
          }
       }
@@ -116,7 +113,7 @@ final class FullInjection
             public synchronized Object get()
             {
                if (dependency == null) {
-                  dependency = getOrCreateInstance(providedClass, dependencyKey);
+                  dependency = createNewInstance(providedClass, dependencyKey);
                }
 
                return dependency;
@@ -128,14 +125,14 @@ final class FullInjection
          @Override
          public Object get()
          {
-            Object dependency = getOrCreateInstance(providedClass, dependencyKey);
+            Object dependency = createNewInstance(providedClass, dependencyKey);
             return dependency;
          }
       };
    }
 
    @Nullable
-   private Object getOrCreateInstance(@Nonnull Class<?> dependencyClass, @Nonnull Object dependencyKey)
+   private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull Object dependencyKey)
    {
       if (!dependencyClass.isInterface()) {
          return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
@@ -149,11 +146,23 @@ final class FullInjection
          }
       }
 
+      Class<?> implementationClass = findImplementationClassInClasspathIfUnique(dependencyClass);
+
+      if (implementationClass != null) {
+         return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
+      }
+
+      return null;
+   }
+
+   @Nullable
+   private static Class<?> findImplementationClassInClasspathIfUnique(@Nonnull Class<?> dependencyClass)
+   {
       ClassLoader dependencyLoader = dependencyClass.getClassLoader();
+      Class<?> implementationClass = null;
 
       if (dependencyLoader != null) {
          Class<?>[] loadedClasses = Startup.instrumentation().getInitiatedClasses(dependencyLoader);
-         Class<?> implementationClass = null;
 
          for (Class<?> loadedClass : loadedClasses) {
             if (loadedClass != dependencyClass && dependencyClass.isAssignableFrom(loadedClass)) {
@@ -164,12 +173,21 @@ final class FullInjection
                implementationClass = loadedClass;
             }
          }
-
-         if (implementationClass != null) {
-            return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
-         }
       }
 
-      return null;
+      return implementationClass;
+   }
+
+   private void registerNewInstance(
+      @Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey, @Nonnull Object dependency)
+   {
+      Class<?> instantiatedClass = dependency.getClass();
+
+      if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
+         fieldInjection.fillOutDependenciesRecursively(dependency);
+         injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
+      }
+
+      injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
    }
 }

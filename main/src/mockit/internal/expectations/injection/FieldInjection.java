@@ -24,7 +24,7 @@ final class FieldInjection
    @Nonnull private final TestedField testedField;
    @Nonnull private final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable private final String codeLocationParentPath;
-   @Nonnull private final String nameOfTestedClass;
+   @Nonnull final String nameOfTestedClass;
    @Nullable final FullInjection fullInjection;
 
    FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
@@ -199,7 +199,7 @@ final class FieldInjection
             return null;
          }
 
-         Object newInstance = fullInjection.newInstanceCreatedWithNoArgsConstructorIfAvailable(this, fieldToBeInjected);
+         Object newInstance = fullInjection.newInstance(this, fieldToBeInjected);
 
          if (newInstance != null) {
             return newInstance;
