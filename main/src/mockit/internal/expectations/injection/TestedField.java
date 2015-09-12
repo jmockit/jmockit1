@@ -70,6 +70,7 @@ final class TestedField
 
          if (targetFields == null) {
             targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(testedClass);
+            requireDIAnnotation = fieldInjection.requireDIAnnotation;
          }
 
          fieldInjection.injectIntoEligibleFields(targetFields, testedObject);

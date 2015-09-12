@@ -21,26 +21,28 @@ final class FieldInjection
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
-   @Nonnull private final TestedField testedField;
+   @Nonnull private final InjectionState injectionState;
+   boolean requireDIAnnotation;
    @Nonnull private final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable private final String codeLocationParentPath;
    @Nonnull final String nameOfTestedClass;
-   @Nullable final FullInjection fullInjection;
+   @Nullable private final FullInjection fullInjection;
 
    FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
    {
-      this.testedField = testedField;
+      injectionState = testedField.injectionState;
+      requireDIAnnotation = testedField.requireDIAnnotation;
       protectionDomainOfTestedClass = testedClass.getProtectionDomain();
       CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
       codeLocationParentPath = codeSource == null ? null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = testedClass.getName();
-      this.fullInjection = fullInjection ? new FullInjection(testedField.injectionState) : null;
+      this.fullInjection = fullInjection ? new FullInjection(injectionState) : null;
    }
 
    @Nonnull
    List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> testedClass)
    {
-      testedField.requireDIAnnotation = false;
+      requireDIAnnotation = false;
 
       List<Field> targetFields = new ArrayList<Field>();
       Class<?> classWithFields = testedClass;
@@ -72,7 +74,7 @@ final class FieldInjection
       boolean annotated = isAnnotated(field) != KindOfInjectionPoint.NotAnnotated;
 
       if (annotated) {
-         testedField.requireDIAnnotation = true;
+         requireDIAnnotation = true;
          return true;
       }
 
@@ -175,7 +177,6 @@ final class FieldInjection
    @Nullable
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
    {
-      InjectionState injectionState = testedField.injectionState;
       injectionState.setTypeOfInjectionPoint(fieldToBeInjected.getGenericType());
 
       String targetFieldName = fieldToBeInjected.getName();
@@ -195,7 +196,7 @@ final class FieldInjection
       KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(fieldToBeInjected);
 
       if (fullInjection != null) {
-         if (testedField.requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
+         if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
             return null;
          }
 
@@ -226,8 +227,6 @@ final class FieldInjection
    private boolean withMultipleTargetFieldsOfSameType(
       @Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
    {
-      InjectionState injectionState = testedField.injectionState;
-
       for (Field targetField : targetFields) {
          if (
             targetField != fieldToBeInjected &&
@@ -243,13 +242,17 @@ final class FieldInjection
    void fillOutDependenciesRecursively(@Nonnull Object dependency)
    {
       Class<?> dependencyClass = dependency.getClass();
+      boolean previousRequireDIAnnotation = requireDIAnnotation;
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass);
 
       if (!targetFields.isEmpty()) {
-         InjectionState injectionState = testedField.injectionState;
          List<MockedType> currentlyConsumedInjectables = injectionState.saveConsumedInjectables();
+
          injectIntoEligibleFields(targetFields, dependency);
+
          injectionState.restoreConsumedInjectables(currentlyConsumedInjectables);
       }
+
+      requireDIAnnotation = previousRequireDIAnnotation;
    }
 }

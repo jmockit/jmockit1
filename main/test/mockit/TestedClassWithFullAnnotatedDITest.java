@@ -22,7 +22,11 @@ public final class TestedClassWithFullAnnotatedDITest
       @Inject ItfWithTwoImplsButOnlyOneLoaded anotherDependency;
       @Inject private Logger log1;
       @Inject private Logger log2;
+      Logger log3;
+      Value value;
    }
+
+   static final class Value {}
 
    public interface ItfWithSingleLoadedImpl {}
    public static final class SingleLoadedImpl implements ItfWithSingleLoadedImpl { @EJB ItfWithTwoLoadedImpls ejb; }
@@ -65,5 +69,12 @@ public final class TestedClassWithFullAnnotatedDITest
    {
       assertEquals(TestedClass.class.getName(), tested.log1.getName());
       assertSame(tested.log2, tested.log1);
+   }
+
+   @Test
+   public void leaveNonAnnotatedFieldsUninitialized()
+   {
+      assertNull(tested.value);
+      assertNull(tested.log3);
    }
 }
