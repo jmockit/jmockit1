@@ -7,6 +7,7 @@ package mockit;
 import java.util.logging.*;
 import javax.annotation.*;
 import javax.ejb.*;
+import javax.enterprise.context.*;
 import javax.inject.*;
 
 import org.junit.*;
@@ -24,6 +25,7 @@ public final class TestedClassWithFullAnnotatedDITest
       @Inject private Logger log2;
       Logger log3;
       Value value;
+      @Inject Conversation conversation;
    }
 
    static final class Value {}
@@ -76,5 +78,31 @@ public final class TestedClassWithFullAnnotatedDITest
    {
       assertNull(tested.value);
       assertNull(tested.log3);
+   }
+
+   @Test
+   public void manageConversationContext()
+   {
+      Conversation conversation = tested.conversation;
+      assertNotNull(conversation);
+      assertTrue(conversation.isTransient());
+
+      assertEquals(0, conversation.getTimeout());
+      conversation.setTimeout(1500);
+      assertEquals(1500, conversation.getTimeout());
+
+      assertNull(conversation.getId());
+
+      conversation.begin();
+      assertFalse(conversation.isTransient());
+      assertNotNull(conversation.getId());
+
+      conversation.end();
+      assertTrue(conversation.isTransient());
+      assertNull(conversation.getId());
+
+      conversation.begin("test");
+      assertFalse(conversation.isTransient());
+      assertEquals("test", conversation.getId());
    }
 }

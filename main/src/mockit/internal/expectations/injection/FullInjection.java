@@ -8,6 +8,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.logging.*;
 import javax.annotation.*;
+import javax.enterprise.context.*;
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
@@ -51,6 +52,9 @@ final class FullInjection
       if (dependency == null) {
          if (INJECT_CLASS != null && fieldType == Provider.class) {
             dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
+         }
+         else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
+            dependency = createConversationInstance();
          }
          else {
             dependency = createNewInstance(fieldType, dependencyKey);
@@ -176,6 +180,45 @@ final class FullInjection
       }
 
       return implementationClass;
+   }
+
+   @Nonnull
+   private Object createConversationInstance()
+   {
+      return new Conversation() {
+         private boolean currentlyTransient = true;
+         private int counter;
+         private String currentId;
+         private long currentTimeout;
+
+         @Override
+         public void begin()
+         {
+            counter++;
+            currentId = String.valueOf(counter);
+            currentlyTransient = false;
+         }
+
+         @Override
+         public void begin(String id)
+         {
+            counter++;
+            currentId = id;
+            currentlyTransient = false;
+         }
+
+         @Override
+         public void end()
+         {
+            currentlyTransient = true;
+            currentId = null;
+         }
+
+         @Override public String getId() { return currentId; }
+         @Override public long getTimeout() { return currentTimeout; }
+         @Override public void setTimeout(long milliseconds) { currentTimeout = milliseconds; }
+         @Override public boolean isTransient() { return currentlyTransient; }
+      };
    }
 
    private void registerNewInstance(
