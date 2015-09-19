@@ -24,6 +24,8 @@ public final class TestedClassWithFullDITest
       final Integer number = null;
       boolean flag = true;
       Thread.State threadState;
+      AnotherTestedClass subObj;
+      YetAnotherTestedClass subObj2;
    }
 
    public static class FirstLevelDependency
@@ -41,6 +43,9 @@ public final class TestedClassWithFullDITest
    @Retention(RetentionPolicy.RUNTIME)
    @Target(ElementType.FIELD)
    public @interface IntegrationTested {}
+
+   public static class YetAnotherTestedClass {}
+   @IntegrationTested YetAnotherTestedClass tested3;
 
    @IntegrationTested TestedClass tested;
    @Injectable Runnable mockedDependency;
@@ -72,5 +77,16 @@ public final class TestedClassWithFullDITest
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
       assertSame(mockedDependency, tested.dependency2.dependencyToBeMocked);
       assertSame(mockedDependency, tested.dependency3.dependencyToBeMocked);
+   }
+
+   public static class AnotherTestedClass { YetAnotherTestedClass subObj; }
+   @IntegrationTested AnotherTestedClass tested2;
+
+   @Test
+   public void verifyOtherTestedObjectsGetInjectedIntoFirstOne()
+   {
+      assertSame(tested2, tested.subObj);
+      assertSame(tested3, tested.subObj2);
+      assertSame(tested3, tested.subObj.subObj);
    }
 }
