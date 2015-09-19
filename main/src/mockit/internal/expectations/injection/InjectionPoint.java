@@ -24,7 +24,7 @@ final class InjectionPoint
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
-   @Nullable private static final Class<?> SERVLET_CLASS;
+   @Nullable static final Class<?> SERVLET_CLASS;
    @Nullable static final Class<?> CONVERSATION_CLASS;
    static final boolean WITH_INJECTION_API_IN_CLASSPATH;
 

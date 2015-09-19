@@ -27,6 +27,11 @@ final class JPADependencies
       return PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
+   static boolean isApplicable(@Nonnull Class<?> dependencyType)
+   {
+      return dependencyType == EntityManager.class || dependencyType == EntityManagerFactory.class;
+   }
+
    @Nullable
    static String getDependencyIdIfAvailable(@Nonnull Annotation annotation)
    {

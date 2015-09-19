@@ -25,11 +25,13 @@ final class FullInjection
    private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
 
    @Nonnull private final InjectionState injectionState;
+   @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
 
    FullInjection(@Nonnull InjectionState injectionState)
    {
       this.injectionState = injectionState;
+      servletDependencies = ServletDependencies.createIfAvailableInClasspath(injectionState);
       jpaDependencies = JPADependencies.createIfAvailableInClasspath(injectionState);
    }
 
@@ -53,15 +55,14 @@ final class FullInjection
          if (INJECT_CLASS != null && fieldType == Provider.class) {
             dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
          }
+         else if (servletDependencies != null && ServletDependencies.isApplicable(fieldType)) {
+            dependency = servletDependencies.createAndRegisterDependency(fieldType);
+         }
          else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
             dependency = createConversationInstance();
          }
          else {
-            dependency = createNewInstance(fieldType, dependencyKey);
-
-            if (dependency != null) {
-               registerNewInstance(fieldInjection, dependencyKey, dependency);
-            }
+            dependency = createAndRegisterNewInstance(fieldInjection, fieldType, dependencyKey);
          }
       }
 
@@ -90,7 +91,7 @@ final class FullInjection
    {
       Class<?> dependencyClass = fieldToBeInjected.getType();
 
-      if (jpaDependencies != null) {
+      if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
          for (Annotation annotation : fieldToBeInjected.getDeclaredAnnotations()) {
             String id = JPADependencies.getDependencyIdIfAvailable(annotation);
 
@@ -232,5 +233,18 @@ final class FullInjection
       }
 
       injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
+   }
+
+   @Nullable
+   private Object createAndRegisterNewInstance(
+      @Nonnull FieldInjection fieldInjection, @Nonnull Class<?> fieldType, @Nonnull Object dependencyKey)
+   {
+      Object dependency = createNewInstance(fieldType, dependencyKey);
+
+      if (dependency != null) {
+         registerNewInstance(fieldInjection, dependencyKey, dependency);
+      }
+
+      return dependency;
    }
 }

@@ -6,9 +6,11 @@ package mockit;
 
 import java.io.*;
 import javax.annotation.*;
-import javax.ejb.EJB;
+import javax.ejb.*;
 import javax.inject.*;
 import javax.persistence.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 import org.junit.*;
 import org.junit.runners.*;
@@ -45,6 +47,8 @@ public final class TestedClassWithFullStandardDITest
    static final class AnotherTestedClass
    {
       @PersistenceContext EntityManager em;
+      @Inject HttpSession session;
+      @Inject ServletContext applicationContext;
    }
 
    public static class FirstLevelDependency
@@ -60,6 +64,8 @@ public final class TestedClassWithFullStandardDITest
    {
       @Inject CommonDependency commonDependency;
       @PersistenceContext private EntityManager em;
+      @Inject ServletContext servletContext;
+      @Inject HttpSession httpSession;
       boolean initialized;
       static boolean terminated;
 
@@ -179,6 +185,63 @@ public final class TestedClassWithFullStandardDITest
    public void useFullyInitializedTestedObjectAgain()
    {
       assertNull(tested.text);
+   }
+
+   @Test
+   public void verifyEmulatedHttpSession()
+   {
+      HttpSession session = tested2.session;
+      assertFalse(session.isNew());
+      assertFalse(session.getId().isEmpty());
+      assertTrue(session.getCreationTime() > 0);
+      assertTrue(session.getLastAccessedTime() > 0);
+      assertFalse(session.getAttributeNames().hasMoreElements());
+
+      session.setMaxInactiveInterval(600);
+      assertEquals(600, session.getMaxInactiveInterval());
+
+      session.setAttribute("test", 123);
+      assertEquals(123, session.getAttribute("test"));
+      assertEquals("test", session.getAttributeNames().nextElement());
+
+      session.removeAttribute("test");
+      assertNull(session.getAttribute("test"));
+
+      session.setAttribute("test2", "abc");
+      session.invalidate();
+
+      try { session.isNew(); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.getCreationTime(); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.getLastAccessedTime(); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.getAttributeNames(); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.getAttribute("test2"); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.setAttribute("x", ""); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.removeAttribute("x"); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+      try { session.invalidate(); fail(); } catch (IllegalStateException invalidatedSession) { /* ok */ }
+
+      assertSame(tested2.applicationContext, session.getServletContext());
+      assertSame(session, tested.dependency3.dependency.httpSession);
+   }
+
+   @Test
+   public void verifyEmulatedServletContext()
+   {
+      ServletContext ctx = tested2.applicationContext;
+
+      assertFalse(ctx.getAttributeNames().hasMoreElements());
+
+      ctx.setInitParameter("test", "abc");
+      assertEquals("abc", ctx.getInitParameter("test"));
+      assertEquals("test", ctx.getInitParameterNames().nextElement());
+
+      ctx.setAttribute("test", 123);
+      assertEquals(123, ctx.getAttribute("test"));
+      assertEquals("test", ctx.getAttributeNames().nextElement());
+
+      ctx.removeAttribute("test");
+      assertNull(ctx.getAttribute("test"));
+
+      assertSame(ctx, tested.dependency2.dependency.servletContext);
    }
 
    @After
