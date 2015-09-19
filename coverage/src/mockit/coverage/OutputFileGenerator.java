@@ -37,11 +37,12 @@ final class OutputFileGenerator
          sourceDirs = null;
       }
       else {
-         sourceDirs = commaSeparatedDirs.split(",");
+         sourceDirs = commaSeparatedDirs.split("\\s*,\\s*");
       }
    }
 
-   @Nonnull private static String[] getOutputFormat()
+   @Nonnull
+   private static String[] getOutputFormat()
    {
       String format = Configuration.getProperty("output", "");
       return format.isEmpty() ? new String[] {"html-nocp"} : format.trim().split("\\s*,\\s*|\\s+");
