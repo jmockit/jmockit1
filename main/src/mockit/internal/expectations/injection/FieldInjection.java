@@ -128,7 +128,13 @@ final class FieldInjection
 
       p1 = nameOfAnotherClass.indexOf('.', p1 + 1);
       p2 = nameOfTestedClass.indexOf('.', p2 + 1);
-      boolean differentSubpackages = p1 != p2 || p1 == -1;
+      boolean eitherClassDirectlyInFirstPackageLevel = p1 == -1 || p2 == -1;
+
+      if (eitherClassDirectlyInFirstPackageLevel) {
+         return true;
+      }
+
+      boolean differentSubpackages = p1 != p2;
 
       if (differentSubpackages) {
          return false;
