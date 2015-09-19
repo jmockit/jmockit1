@@ -27,7 +27,7 @@ final class TestedObjectCreation
       this.injectionState = injectionState;
       declaredTestedClass = testedField.getType();
       actualTestedClass =
-         isAbstract(declaredTestedClass.getModifiers()) ?
+         !declaredTestedClass.isInterface() && isAbstract(declaredTestedClass.getModifiers()) ?
             generateSubclass(testedField.getGenericType()) : declaredTestedClass;
    }
 
