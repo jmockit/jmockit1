@@ -155,7 +155,7 @@
                   <phase>test</phase>
                   <goals><goal>test</goal></goals>
                   <configuration>
-                     <skipTests>false</skipTests>
+                     <skipTests>${skipTests}</skipTests>
                      <testNGArtifactName>none:none</testNGArtifactName>
                      <excludes>
                         <exclude>**/*$*</exclude>
@@ -172,7 +172,7 @@
                   <phase>test</phase>
                   <goals><goal>test</goal></goals>
                   <configuration>
-                     <skipTests>false</skipTests>
+                     <skipTests>${skipTests}</skipTests>
                      <junitArtifactName>none:none</junitArtifactName>
                      <includes>
                         <include>**/testng/*Test.class</include>
@@ -228,7 +228,6 @@
          <exclusions>
             <exclusion><groupId>com.google.inject</groupId><artifactId>guice</artifactId></exclusion>
             <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
-            <exclusion><groupId>com.beust</groupId><artifactId>jcommander</artifactId></exclusion>
             <exclusion><groupId>org.apache.ant</groupId><artifactId>ant</artifactId></exclusion>
             <exclusion><groupId>org.yaml</groupId><artifactId>snakeyaml</artifactId></exclusion>
          </exclusions>
