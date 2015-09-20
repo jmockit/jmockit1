@@ -19,12 +19,6 @@
          <scope>provided</scope>
       </dependency>
 
-      <!-- Database: HSQLDB -->
-      <dependency>
-         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.3.3</version>
-         <scope>runtime</scope>
-      </dependency>
-
       <!-- HIBERNATE -->
       <dependency>
          <groupId>org.hibernate</groupId><artifactId>hibernate-entitymanager</artifactId><version>4.3.10.Final</version>
@@ -35,16 +29,21 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.19</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.20</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.19</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.20</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
          <scope>test</scope>
+      </dependency>
+      <dependency>
+         <!-- Test database: HSQLDB -->
+         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.3.3</version>
+         <scope>runtime</scope>
       </dependency>
    </dependencies>
 
