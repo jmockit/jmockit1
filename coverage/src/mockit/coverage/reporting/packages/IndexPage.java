@@ -75,17 +75,46 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
       else {
          output.write("    <caption>All Packages and Files<div style='font-size: smaller'>");
-         output.write(getCommaSeparatedListOfSourceDirs(sourceDirs.toString()));
+         output.write(getCommaSeparatedListOfSourceDirs());
          output.println("</div></caption>");
       }
    }
 
    @Nonnull
-   private static String getCommaSeparatedListOfSourceDirs(@Nonnull String concatenatedSourceDirs)
+   private String getCommaSeparatedListOfSourceDirs()
    {
+      List<File> dirs = sourceDirs;
+      assert dirs != null;
+      removeRedundantSourceDirectories(dirs);
+
+      String concatenatedSourceDirs = dirs.toString();
       String prefixToRemove = ".." + File.separatorChar;
       String commaSepDirs = concatenatedSourceDirs.replace(prefixToRemove, "");
       return commaSepDirs.substring(1, commaSepDirs.length() - 1);
+   }
+
+   private void removeRedundantSourceDirectories(@Nonnull List<File> dirs)
+   {
+      for (int i = 0; i < dirs.size(); i++) {
+         String dir1 = dirs.get(i).getPath();
+         int j = i + 1;
+
+         while (j < dirs.size()) {
+            String dir2 = dirs.get(j).getPath();
+
+            if (dir1.startsWith(dir2)) {
+               dirs.remove(j);
+            }
+            else if (dir2.startsWith(dir1)) {
+               dirs.remove(i);
+               i--;
+               break;
+            }
+            else {
+               j++;
+            }
+         }
+      }
    }
 
    private void writeTableFirstRowWithColumnTitles()
