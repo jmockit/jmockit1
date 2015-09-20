@@ -7,13 +7,14 @@ package mockit.internal.expectations.injection;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
-
 import javax.annotation.*;
 import javax.inject.*;
+import javax.servlet.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.expectations.injection.InjectionPoint.*;
 
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
@@ -47,6 +48,20 @@ final class InjectionState
 
       if (paramTypeRedefs != null) {
          injectables.addAll(paramTypeRedefs.getInjectableParameters());
+      }
+
+      getServletConfigForInitMethodsIfAny(testClassInstance);
+   }
+
+   private void getServletConfigForInitMethodsIfAny(@Nonnull Object testClassInstance)
+   {
+      if (SERVLET_CLASS != null) {
+         for (MockedType injectable : injectables) {
+            if (injectable.declaredType == ServletConfig.class) {
+               lifecycleMethods.servletConfig = injectable.getValueToInject(testClassInstance);
+               break;
+            }
+         }
       }
    }
 
@@ -84,7 +99,7 @@ final class InjectionState
          return true;
       }
 
-      if (InjectionPoint.INJECT_CLASS != null && typeOfInjectionPoint instanceof ParameterizedType) {
+      if (INJECT_CLASS != null && typeOfInjectionPoint instanceof ParameterizedType) {
          ParameterizedType parameterizedType = (ParameterizedType) typeOfInjectionPoint;
 
          if (parameterizedType.getRawType() == Provider.class) {
@@ -106,6 +121,20 @@ final class InjectionState
       }
 
       return null;
+   }
+
+   @Nonnull
+   List<MockedType> findInjectablesByType()
+   {
+      List<MockedType> found = new ArrayList<MockedType>();
+
+      for (MockedType injectable : injectables) {
+         if (hasSameTypeAsInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
+            found.add(injectable);
+         }
+      }
+
+      return found;
    }
 
    @Nullable
