@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import javax.servlet.*;
-import javax.servlet.http.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
 public final class TestedClassWithConstructorDI2Test
 {
-   public static final class TestedClass extends HttpServlet
+   public static final class TestedClass implements Servlet
    {
       static int counter;
+
+      private ServletConfig config;
       private final Dependency dependency1;
       private final Dependency dependency2;
       private final Dependency dependency3;
@@ -32,7 +33,11 @@ public final class TestedClassWithConstructorDI2Test
          return dependency1.doSomething() + dependency2.doSomething();
       }
 
-      @Override public void init() { counter++; }
+      @Override public ServletConfig getServletConfig() { return config; }
+      @Override public void service(ServletRequest req, ServletResponse res) {}
+      @Override public String getServletInfo() { return null; }
+
+      @Override public void init(ServletConfig cfg) { config = cfg; counter++; }
       @Override public void destroy() { counter++; }
    }
 
