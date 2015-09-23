@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -13,7 +13,14 @@ import org.junit.*;
 
 public final class TestedClassWithConstructorDI1Test
 {
-   public static final class TestedClass
+   public static class BaseTestedClass
+   {
+      static int baseCounter;
+      @PostConstruct void initializeBase() { baseCounter++; }
+      @PreDestroy void destroyBase() { baseCounter++; }
+   }
+
+   public static final class TestedClass extends BaseTestedClass
    {
       static int counter;
       private final Dependency dependency;
@@ -110,17 +117,20 @@ public final class TestedClassWithConstructorDI1Test
    @Before
    public void resetCounter()
    {
+      BaseTestedClass.baseCounter = 0;
       TestedClass.counter = 0;
    }
 
    void assertTestedObjectWasInitialized()
    {
+      assertEquals(1, BaseTestedClass.baseCounter);
       assertEquals(1, TestedClass.counter);
    }
 
    @After
    public void verifyTestedObjectAfterEveryTest()
    {
+      assertEquals(2, BaseTestedClass.baseCounter);
       assertEquals(2, TestedClass.counter);
    }
 }

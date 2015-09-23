@@ -222,19 +222,6 @@ final class FullInjection
       };
    }
 
-   private void registerNewInstance(
-      @Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey, @Nonnull Object dependency)
-   {
-      Class<?> instantiatedClass = dependency.getClass();
-
-      if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
-         fieldInjection.fillOutDependenciesRecursively(dependency);
-         injectionState.lifecycleMethods.executePostConstructMethodIfAny(instantiatedClass, dependency);
-      }
-
-      injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
-   }
-
    @Nullable
    private Object createAndRegisterNewInstance(
       @Nonnull FieldInjection fieldInjection, @Nonnull Class<?> fieldType, @Nonnull Object dependencyKey)
@@ -246,5 +233,19 @@ final class FullInjection
       }
 
       return dependency;
+   }
+
+   private void registerNewInstance(
+      @Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey, @Nonnull Object dependency)
+   {
+      Class<?> instantiatedClass = dependency.getClass();
+
+      if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
+         fieldInjection.fillOutDependenciesRecursively(dependency);
+         injectionState.lifecycleMethods.findLifecycleMethods(instantiatedClass);
+         injectionState.lifecycleMethods.executeInitializationMethodsIfAny(instantiatedClass, dependency);
+      }
+
+      injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
    }
 }

@@ -28,6 +28,7 @@ final class TestedField
       testedField = field;
       this.metadata = metadata;
       testedObjectCreation = new TestedObjectCreation(injectionState, field);
+      injectionState.lifecycleMethods.findLifecycleMethods(field.getType());
    }
 
    boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
@@ -109,7 +110,7 @@ final class TestedField
    private void executeInitializationMethodIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
       if (createAutomatically) {
-         injectionState.lifecycleMethods.executePostConstructMethodIfAny(testedClass, testedObject);
+         injectionState.lifecycleMethods.executeInitializationMethodsIfAny(testedClass, testedObject);
       }
    }
 
