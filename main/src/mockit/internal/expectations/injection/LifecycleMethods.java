@@ -96,24 +96,23 @@ final class LifecycleMethods
 
    void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
-      Class<?> classWithLifecycleMethods = testedClass;
+      Class<?> superclass = testedClass.getSuperclass();
 
-      do {
-         Method postConstructMethod = initializationMethods.get(classWithLifecycleMethods);
-
-         if (postConstructMethod != null) {
-            executeInitializationMethod(testedObject, postConstructMethod);
-         }
-
-         Method preDestroyMethod = terminationMethods.get(classWithLifecycleMethods);
-
-         if (preDestroyMethod != null) {
-            objectsWithTerminationMethodsToExecute.put(classWithLifecycleMethods, testedObject);
-         }
-
-         classWithLifecycleMethods = classWithLifecycleMethods.getSuperclass();
+      if (superclass != Object.class) {
+         executeInitializationMethodsIfAny(superclass, testedObject);
       }
-      while (classWithLifecycleMethods != Object.class);
+
+      Method postConstructMethod = initializationMethods.get(testedClass);
+
+      if (postConstructMethod != null) {
+         executeInitializationMethod(testedObject, postConstructMethod);
+      }
+
+      Method preDestroyMethod = terminationMethods.get(testedClass);
+
+      if (preDestroyMethod != null) {
+         objectsWithTerminationMethodsToExecute.put(testedClass, testedObject);
+      }
    }
 
    private void executeInitializationMethod(@Nonnull Object testedObject, @Nonnull Method initializationMethod)
