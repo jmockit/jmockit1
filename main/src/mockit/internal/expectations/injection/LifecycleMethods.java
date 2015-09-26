@@ -32,7 +32,7 @@ final class LifecycleMethods
 
    void findLifecycleMethods(@Nonnull Class<?> testedClass)
    {
-      if (classesSearched.contains(testedClass)) {
+      if (testedClass.isInterface() || classesSearched.contains(testedClass)) {
          return;
       }
 
@@ -40,35 +40,39 @@ final class LifecycleMethods
       Class<?> classWithLifecycleMethods = testedClass;
 
       do {
-         Method initializationMethod = null;
-         Method terminationMethod = null;
-         int methodsFoundInSameClass = 0;
-
-         for (Method method : classWithLifecycleMethods.getDeclaredMethods()) {
-            if (method.isSynthetic()) {
-               continue;
-            }
-            else if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
-               initializationMethods.put(classWithLifecycleMethods, method);
-               initializationMethod = method;
-               methodsFoundInSameClass++;
-            }
-            else if (terminationMethod == null && isTerminationMethod(method, isServlet)) {
-               terminationMethods.put(classWithLifecycleMethods, method);
-               terminationMethod = method;
-               methodsFoundInSameClass++;
-            }
-
-            if (methodsFoundInSameClass == 2) {
-               break;
-            }
-         }
-
+         findLifecycleMethodsInSingleClass(isServlet, classWithLifecycleMethods);
          classWithLifecycleMethods = classWithLifecycleMethods.getSuperclass();
       }
       while (classWithLifecycleMethods != Object.class);
 
       classesSearched.add(testedClass);
+   }
+
+   private void findLifecycleMethodsInSingleClass(boolean isServlet, @Nonnull Class<?> classWithLifecycleMethods)
+   {
+      Method initializationMethod = null;
+      Method terminationMethod = null;
+      int methodsFoundInSameClass = 0;
+
+      for (Method method : classWithLifecycleMethods.getDeclaredMethods()) {
+         if (method.isSynthetic()) {
+            continue;
+         }
+         else if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
+            initializationMethods.put(classWithLifecycleMethods, method);
+            initializationMethod = method;
+            methodsFoundInSameClass++;
+         }
+         else if (terminationMethod == null && isTerminationMethod(method, isServlet)) {
+            terminationMethods.put(classWithLifecycleMethods, method);
+            terminationMethod = method;
+            methodsFoundInSameClass++;
+         }
+
+         if (methodsFoundInSameClass == 2) {
+            break;
+         }
+      }
    }
 
    private static boolean isInitializationMethod(@Nonnull Method method, boolean isServlet)
