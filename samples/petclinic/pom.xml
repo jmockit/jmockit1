@@ -2,11 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.springframework.samples</groupId>
+   <groupId>org.jmockit</groupId>
    <artifactId>petclinic</artifactId>
    <version>1.0</version>
 
    <packaging>war</packaging>
+   <description>
+      A recreation of the Spring PetClinic Sample Application, using Java EE 7 for UI controllers and business classes.
+      JMockit is used for integration testing, instead of the Spring Test Context.
+   </description>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
