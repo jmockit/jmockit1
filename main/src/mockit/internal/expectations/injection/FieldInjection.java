@@ -27,6 +27,7 @@ final class FieldInjection
    @Nullable private final String codeLocationParentPath;
    @Nonnull final String nameOfTestedClass;
    @Nullable private final FullInjection fullInjection;
+   private Field targetField;
 
    FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
    {
@@ -146,8 +147,10 @@ final class FieldInjection
    void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
    {
       for (Field field : targetFields) {
-         if (notAssignedByConstructor(field, testedObject)) {
-            Object injectableValue = getValueForFieldIfAvailable(targetFields, field);
+         targetField = field;
+
+         if (targetFieldWasNotAssignedByConstructor(testedObject)) {
+            Object injectableValue = getValueForFieldIfAvailable(targetFields);
 
             if (injectableValue != null) {
                injectableValue = wrapInProviderIfNeeded(field.getGenericType(), injectableValue);
@@ -157,19 +160,19 @@ final class FieldInjection
       }
    }
 
-   private static boolean notAssignedByConstructor(@Nonnull Field field, @Nonnull Object testedObject)
+   private boolean targetFieldWasNotAssignedByConstructor(@Nonnull Object testedObject)
    {
-      if (isAnnotated(field) != KindOfInjectionPoint.NotAnnotated) {
+      if (isAnnotated(targetField) != KindOfInjectionPoint.NotAnnotated) {
          return true;
       }
 
-      Object fieldValue = FieldReflection.getFieldValue(field, testedObject);
+      Object fieldValue = FieldReflection.getFieldValue(targetField, testedObject);
 
       if (fieldValue == null) {
          return true;
       }
 
-      Class<?> fieldType = field.getType();
+      Class<?> fieldType = targetField.getType();
 
       if (!fieldType.isPrimitive()) {
          return false;
@@ -181,14 +184,14 @@ final class FieldInjection
    }
 
    @Nullable
-   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
+   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
-      injectionState.setTypeOfInjectionPoint(fieldToBeInjected.getGenericType());
+      injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
 
-      String targetFieldName = fieldToBeInjected.getName();
+      String targetFieldName = targetField.getName();
       MockedType mockedType;
 
-      if (withMultipleTargetFieldsOfSameType(targetFields, fieldToBeInjected)) {
+      if (withMultipleTargetFieldsOfSameType(targetFields)) {
          mockedType = injectionState.findInjectableByTypeAndName(targetFieldName);
       }
       else {
@@ -199,14 +202,14 @@ final class FieldInjection
          return injectionState.getValueToInject(mockedType);
       }
 
-      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(fieldToBeInjected);
+      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(targetField);
 
       if (fullInjection != null) {
          if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
             return null;
          }
 
-         Object newInstance = fullInjection.newInstance(this, fieldToBeInjected);
+         Object newInstance = fullInjection.newInstance(this, targetField);
 
          if (newInstance != null) {
             return newInstance;
@@ -214,35 +217,38 @@ final class FieldInjection
       }
 
       if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
-         return getValueFromAnnotation(fieldToBeInjected);
+         return getValueFromAnnotation(targetField);
       }
 
-      if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
-         String fieldType = fieldToBeInjected.getGenericType().toString();
-         fieldType = TYPE_NAME.matcher(fieldType).replaceAll("");
-         String kindOfInjectable = fullInjection == null ? "@Injectable" : "instantiable class";
-         throw new IllegalStateException(
-            "Missing " + kindOfInjectable + " for field " +
-            fieldToBeInjected.getDeclaringClass().getSimpleName() + '#' + fieldToBeInjected.getName() +
-            ", of type " + fieldType);
-      }
-
+      throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint);
       return null;
    }
 
-   private boolean withMultipleTargetFieldsOfSameType(
-      @Nonnull List<Field> targetFields, @Nonnull Field fieldToBeInjected)
+   private boolean withMultipleTargetFieldsOfSameType(@Nonnull List<Field> targetFields)
    {
-      for (Field targetField : targetFields) {
+      for (Field anotherTargetField : targetFields) {
          if (
-            targetField != fieldToBeInjected &&
-            injectionState.isSameTypeAsInjectionPoint(targetField.getGenericType())
+            anotherTargetField != targetField &&
+            injectionState.isSameTypeAsInjectionPoint(anotherTargetField.getGenericType())
          ) {
             return true;
          }
       }
 
       return false;
+   }
+
+   private void throwExceptionIfUnableToInjectRequiredTargetField(@Nonnull KindOfInjectionPoint kindOfInjectionPoint)
+   {
+      if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
+         String fieldType = targetField.getGenericType().toString();
+         fieldType = TYPE_NAME.matcher(fieldType).replaceAll("");
+         String kindOfInjectable = fullInjection == null ? "@Injectable" : "instantiable class";
+
+         throw new IllegalStateException(
+            "Missing " + kindOfInjectable + " for field " + targetField.getDeclaringClass().getSimpleName() +
+            '#' + targetField.getName() + ", of type " + fieldType);
+      }
    }
 
    void fillOutDependenciesRecursively(@Nonnull Object dependency)
