@@ -80,11 +80,13 @@ public final class TestedClassWithFullAnnotatedDITest
       assertNull(tested.log3);
    }
 
+   @Tested Conversation conversation;
+
    @Test
    public void manageConversationContext()
    {
-      Conversation conversation = tested.conversation;
       assertNotNull(conversation);
+      assertSame(tested.conversation, conversation);
       assertTrue(conversation.isTransient());
 
       assertEquals(0, conversation.getTimeout());
