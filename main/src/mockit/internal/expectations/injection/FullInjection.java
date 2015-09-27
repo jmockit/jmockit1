@@ -59,7 +59,7 @@ final class FullInjection
             dependency = servletDependencies.createAndRegisterDependency(fieldType);
          }
          else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
-            dependency = createConversationInstance();
+            dependency = createAndRegisterConversationInstance();
          }
          else {
             dependency = createAndRegisterNewInstance(fieldInjection, fieldType, dependencyKey);
@@ -184,9 +184,9 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object createConversationInstance()
+   private Object createAndRegisterConversationInstance()
    {
-      return new Conversation() {
+      Conversation conversation = new Conversation() {
          private boolean currentlyTransient = true;
          private int counter;
          private String currentId;
@@ -220,6 +220,9 @@ final class FullInjection
          @Override public void setTimeout(long milliseconds) { currentTimeout = milliseconds; }
          @Override public boolean isTransient() { return currentlyTransient; }
       };
+
+      injectionState.saveInstantiatedDependency(Conversation.class, conversation, false);
+      return conversation;
    }
 
    @Nullable
