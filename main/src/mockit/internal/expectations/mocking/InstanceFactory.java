@@ -34,7 +34,7 @@ public abstract class InstanceFactory
       public Object create()
       {
          if (emptyProxy == null) {
-            emptyProxy = ConstructorReflection.newInstanceUsingDefaultConstructor(concreteClass);
+            emptyProxy = ConstructorReflection.newUninitializedInstance(concreteClass);
          }
 
          lastInstance = emptyProxy;
