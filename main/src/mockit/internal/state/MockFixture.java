@@ -177,8 +177,15 @@ public final class MockFixture
    @Nullable
    public InstanceFactory findInstanceFactory(@Nonnull Type mockedType)
    {
-      Class<?> mockedClass = getClassType(mockedType);
       InstanceFactory instanceFactory = mockedTypesAndInstances.get(mockedType);
+
+      if (instanceFactory != null) {
+         return instanceFactory;
+      }
+
+      Class<?> mockedClass = getClassType(mockedType);
+      //noinspection ReuseOfLocalVariable
+      instanceFactory = mockedTypesAndInstances.get(mockedClass);
 
       if (instanceFactory != null) {
          return instanceFactory;
