@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -36,7 +36,7 @@ import java.lang.annotation.*;
  * @see #invocations invocations
  * @see #minInvocations minInvocations
  * @see #maxInvocations maxInvocations
- * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#mocks">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks">Tutorial</a>
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
@@ -52,7 +52,7 @@ public @interface Mock
     * A non-negative value is equivalent to setting {@link #minInvocations minInvocations} and
     * {@link #maxInvocations maxInvocations} to that same value.
     *
-    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
     */
    int invocations() default -1;
 
@@ -61,7 +61,7 @@ public @interface Mock
     * 
     * @see #invocations invocations
     * @see #maxInvocations maxInvocations
-    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
     */
    int minInvocations() default 0;
 
@@ -72,7 +72,7 @@ public @interface Mock
     * 
     * @see #invocations invocations
     * @see #minInvocations minInvocations
-    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#constraints">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
     */
    int maxInvocations() default -1;
 }

@@ -87,7 +87,7 @@ import mockit.internal.util.*;
  * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #tearDown()
- * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#setUp">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
 {
@@ -340,7 +340,7 @@ public abstract class MockUp<T>
     *
     * @throws IllegalStateException if called from a mock method for a static method
     *
-    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#interfaces">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces">Tutorial</a>
     */
    public final T getMockInstance()
    {

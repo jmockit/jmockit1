@@ -25,7 +25,7 @@ import mockit.internal.*;
  * @see #getMaxInvocations()
  * @see #proceed(Object...)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial (expectations)</a>
- * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#invocation">Tutorial (mockups)</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation">Tutorial (mockups)</a>
  */
 public class Invocation
 {
@@ -135,7 +135,7 @@ public class Invocation
     * partially mocked type}, into a {@code native} method, or into a mocked constructor while passing replacement
     * arguments
     *
-    * @see <a href="http://jmockit.org/tutorial/StateBasedTesting.html#proceed">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed">Tutorial</a>
     */
    public final <T> T proceed(Object... replacementArguments)
    {
