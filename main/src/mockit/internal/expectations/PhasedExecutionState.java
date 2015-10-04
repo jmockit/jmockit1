@@ -122,30 +122,76 @@ final class PhasedExecutionState
    @Nullable
    private Expectation findPreviousNotStrictExpectation(@Nonnull ExpectedInvocation newInvocation)
    {
+      int n = notStrictExpectations.size();
+
+      if (n == 0) {
+         return null;
+      }
+
       Object mock = newInvocation.instance;
       String mockClassDesc = newInvocation.getClassDesc();
       String mockNameAndDesc = newInvocation.getMethodNameAndDescription();
-      InvocationArguments arguments = newInvocation.arguments;
-      Object[] argValues = arguments.getValues();
-
       boolean constructorInvocation = newInvocation.isConstructor();
-      boolean newInvocationWithMatchers = arguments.getMatchers() != null;
 
-      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
+      for (int i = 0; i < n; i++) {
          Expectation previousExpectation = notStrictExpectations.get(i);
-         ExpectedInvocation previousInvocation = previousExpectation.invocation;
 
          if (
-            previousInvocation.isMatch(mockClassDesc, mockNameAndDesc) &&
-            (constructorInvocation || mock == null || isMatchingInstance(mock, previousExpectation)) &&
-            (newInvocationWithMatchers && arguments.hasEquivalentMatchers(previousInvocation.arguments) ||
-             !newInvocationWithMatchers && previousInvocation.arguments.isMatch(argValues, instanceMap))
+            isMatchingInvocation(mock, mockClassDesc, mockNameAndDesc, constructorInvocation, previousExpectation) &&
+            isWithMatchingArguments(newInvocation, previousExpectation.invocation)
          ) {
             return previousExpectation;
          }
       }
 
       return null;
+   }
+
+   private boolean isMatchingInvocation(
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
+      boolean constructorInvocation, @Nonnull Expectation expectation)
+   {
+      ExpectedInvocation invocation = expectation.invocation;
+      return
+         invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
+         isSameMockedClass(mock, invocation.instance) &&
+         (constructorInvocation || mock == null || isMatchingInstance(mock, expectation));
+   }
+
+   private boolean isSameMockedClass(@Nullable Object mock1, @Nullable Object mock2)
+   {
+      if (mock1 == mock2) {
+         return true;
+      }
+
+      if (mock1 != null && mock2 != null) {
+         Class<?> mockedClass1 = mock1.getClass();
+         Class<?> mockedClass2 = mock2.getClass();
+
+         if (
+            mockedClass1 == mockedClass2 ||
+            TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(mock1, mock2)
+         ) {
+            return true;
+         }
+
+         return TestRun.mockFixture().areCapturedClasses(mockedClass1, mockedClass2);
+      }
+
+      return false;
+   }
+
+   private boolean isWithMatchingArguments(
+      @Nonnull ExpectedInvocation newInvocation, @Nonnull ExpectedInvocation previousInvocation)
+   {
+      InvocationArguments newArguments = newInvocation.arguments;
+      InvocationArguments previousArguments = previousInvocation.arguments;
+
+      if (newArguments.getMatchers() == null) {
+         return previousArguments.isMatch(newArguments.getValues(), instanceMap);
+      }
+
+      return newArguments.hasEquivalentMatchers(previousArguments);
    }
 
    @Nullable
@@ -163,7 +209,10 @@ final class PhasedExecutionState
             continue;
          }
 
-         if (isMatchingInvocation(mock, mockClassDesc, mockNameAndDesc, args, constructorInvocation, expectation)) {
+         if (
+            isMatchingInvocation(mock, mockClassDesc, mockNameAndDesc, constructorInvocation, expectation) &&
+            expectation.invocation.arguments.isMatch(args, instanceMap)
+         ) {
             if (expectation.recordPhase == null) {
                replayExpectationFound = expectation;
                continue;
@@ -178,17 +227,6 @@ final class PhasedExecutionState
       }
 
       return replayExpectationFound;
-   }
-
-   private boolean isMatchingInvocation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args,
-      boolean constructorInvocation, @Nonnull Expectation expectation)
-   {
-      ExpectedInvocation invocation = expectation.invocation;
-      return
-         invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
-         (constructorInvocation || mock == null || isMatchingInstance(mock, expectation)) &&
-         invocation.arguments.isMatch(args, instanceMap);
    }
 
    private void registerReplacementInstanceIfApplicable(@Nullable Object mock, @Nonnull ExpectedInvocation invocation)

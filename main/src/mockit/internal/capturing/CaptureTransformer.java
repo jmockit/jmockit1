@@ -145,4 +145,10 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
       return null;
    }
+
+   public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2)
+   {
+      Class<?> baseType = capturedType.baseType;
+      return baseType.isAssignableFrom(mockedClass1) && baseType.isAssignableFrom(mockedClass2);
+   }
 }

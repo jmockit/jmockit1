@@ -516,7 +516,7 @@ public final class DynamicPartialMockingTest
       }};
 
       assertEquals("", collaborator.overridableMethod());
-      assertEquals("mocked overridden", new SubCollaborator().overridableMethod());
+      assertEquals("base overridden", new SubCollaborator().overridableMethod());
    }
 
    @Test
