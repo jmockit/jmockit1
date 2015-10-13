@@ -31,6 +31,7 @@ public final class CascadingWithGenericsTest
       { return null; }
 
       Callable<Baz> returnGenericTypeWithTypeArgument() { return null; }
+      Bar bar() { return null; }
    }
 
    static class Bar
@@ -148,10 +149,7 @@ public final class CascadingWithGenericsTest
       @Mocked Foo foo, @Mocked final Baz cascadedBaz) throws Exception
    {
       final Date date = new Date();
-
-      new Expectations() {{
-         cascadedBaz.getDate(); result = date;
-      }};
+      new Expectations() {{ cascadedBaz.getDate(); result = date; }};
 
       Callable<Baz> callable = foo.returnGenericTypeWithTypeArgument();
       Baz baz = callable.call();
@@ -187,5 +185,15 @@ public final class CascadingWithGenericsTest
 
       assertEquals("test", mock.get(1));
       assertNull(mock.get(2));
+   }
+
+   static class TypeWithUnusedTypeParameterInGenericMethod { @SuppressWarnings("unused") <U> Foo foo() {return null;} }
+
+   @Test
+   public void cascadeFromMethodHavingUnusedTypeParameter(@Mocked TypeWithUnusedTypeParameterInGenericMethod mock)
+   {
+      Foo foo = mock.foo();
+      Bar bar = foo.bar();
+      assertNotNull(bar);
    }
 }

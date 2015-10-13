@@ -60,7 +60,7 @@ public final class CascadingTypes
           String cascadingTypeDesc = cascadeEntry.getKey();
           int p = cascadingTypeDesc.indexOf('<');
 
-          if (p > 0 && cascadingTypeDesc.regionMatches(1, mockedTypeDesc, 0, p - 1)) {
+          if (p > 0 && cascadingTypeDesc.regionMatches(0, mockedTypeDesc, 0, p - 1)) {
             return cascadeEntry.getValue();
          }
       }

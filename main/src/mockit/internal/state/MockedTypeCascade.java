@@ -102,7 +102,9 @@ public final class MockedTypeCascade
          return getGenericReturnTypeWithTypeArguments(genericSignature, (ParameterizedType) cascadingType);
       }
 
-      String returnTypeName = getInternalReturnTypeCodeAndName(genericSignature);
+      int p = genericSignature.indexOf(')');
+      String returnTypeName = genericSignature.substring(p + 2, genericSignature.length() - 1);
+
       return isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
    }
 
