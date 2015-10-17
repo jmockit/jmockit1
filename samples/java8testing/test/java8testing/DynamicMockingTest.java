@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package java8testing;
 
+import java.util.*;
 import java.util.function.*;
 
 import org.junit.*;
@@ -68,5 +69,21 @@ public final class DynamicMockingTest
 
       assertEquals("test2", s.get());
 //      new Verifications() {{ s.get(); }};
+   }
+
+   final List<String> aList = new ArrayList<>();
+
+   @Ignore(
+      "Fails with VerifyError because the JVM tries to load a non-existent class of name $$Lambda$1;" +
+      "apparently, the JVM wants to load an 'owner' object which doesn't exist.")
+   @Test
+   public void dynamicallyMockLambdaObjectWithCapturedField()
+   {
+      LongSupplier s = () -> aList.stream().count();
+
+//      Startup.retransformClass(s.getClass());
+      new Expectations(s) {{ s.getAsLong(); result = 2; }};
+
+      assertEquals(2, s.getAsLong());
    }
 }
