@@ -70,6 +70,23 @@
             </configuration>
          </plugin>
          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId><version>1.4.1</version>
+            <executions>
+               <execution>
+                  <id>coverage.check</id>
+                  <goals><goal>enforce</goal></goals>
+                  <phase>test</phase>
+                  <configuration>
+                     <rules>
+                        <requireFilesDontExist>
+                           <files><file>coverage.check.failed</file></files>
+                        </requireFilesDontExist>
+                     </rules>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
             <artifactId>maven-war-plugin</artifactId><version>2.3</version>
             <configuration>
                <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
