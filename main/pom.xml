@@ -6,10 +6,6 @@
 
    <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.20</version>
    <packaging>jar</packaging>
-   <prerequisites>
-      <maven>3.2.5</maven>
-      <!-- Must run on JDK 1.8 -->
-   </prerequisites>
 
    <name>Main</name>
    <description>
@@ -79,6 +75,21 @@
          </testResource>
       </testResources>
       <plugins>
+         <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId><version>1.4.1</version>
+            <executions>
+               <execution>
+                  <goals><goal>enforce</goal></goals>
+                  <configuration>
+                     <rules>
+                        <requireJavaVersion><version>1.8</version></requireJavaVersion>
+                        <requireMavenVersion><version>3.2.5</version></requireMavenVersion>
+                        <dependencyConvergence/>
+                     </rules>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.3</version>
             <configuration>
@@ -230,6 +241,7 @@
             <exclusion><groupId>org.beanshell</groupId><artifactId>bsh</artifactId></exclusion>
             <exclusion><groupId>org.apache.ant</groupId><artifactId>ant</artifactId></exclusion>
             <exclusion><groupId>org.yaml</groupId><artifactId>snakeyaml</artifactId></exclusion>
+            <exclusion><groupId>junit</groupId><artifactId>junit</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
