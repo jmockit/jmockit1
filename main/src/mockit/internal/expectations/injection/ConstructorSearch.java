@@ -119,11 +119,30 @@ final class ConstructorSearch
       String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(candidate);
 
       for (int i = 0; i < n; i++) {
-         injectionState.setTypeOfInjectionPoint(parameterTypes[i]);
+         Type parameterType = parameterTypes[i];
+         injectionState.setTypeOfInjectionPoint(parameterType);
 
          String parameterName = ParameterNames.getName(testedClassDesc, constructorDesc, i);
          MockedType injectable =
             parameterName == null ? null : injectionState.findInjectableByTypeAndOptionallyName(parameterName);
+
+         // TODO: for issue #203
+//         if (injectable == null && parameterType instanceof ParameterizedType) {
+//            ParameterizedType genericParameterType = (ParameterizedType) parameterType;
+//            Class<?> parameterClass = (Class<?>) genericParameterType.getRawType();
+//
+//            if (Iterable.class.isAssignableFrom(parameterClass)) {
+//               Type elementType = genericParameterType.getActualTypeArguments()[0];
+//               injectionState.setTypeOfInjectionPoint(elementType);
+//
+//               List<MockedType> injectablesOfSameType = injectionState.findInjectablesByType();
+//
+//               if (!injectablesOfSameType.isEmpty()) {
+//                  injectablesFound.addAll(injectablesOfSameType);
+//                  continue;
+//               }
+//            }
+//         }
 
          if (injectable == null || injectablesFound.contains(injectable)) {
             printParameterOfCandidateConstructorIfRequested(parameterName, injectable);
