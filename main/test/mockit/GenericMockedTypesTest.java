@@ -9,6 +9,8 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static java.util.Arrays.asList;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -249,5 +251,24 @@ public final class GenericMockedTypesTest
       Number[] result = mock.doSomething();
 
       assertEquals(0, result.length);
+   }
+
+   public interface BaseGenericInterface<V> { V doSomething(); }
+   public interface DerivedGenericInterface<V> extends BaseGenericInterface<List<V>> {}
+
+   @Test @Ignore("for issue #218")
+   public void recordGenericInterfaceMethodWithReturnTypeGivenByTypeParameterDependentOnAnotherTypeParameterOfSameName(
+      @Mocked final DerivedGenericInterface<String> dep) throws Exception
+   {
+      Method mockedMethod = dep.getClass().getDeclaredMethod("doSomething");
+      Type rt = mockedMethod.getGenericReturnType();
+      assertNotSame(String.class, rt);
+
+      final List<String> values = asList("a", "b");
+      new Expectations() {{ dep.doSomething(); result = values; }};
+
+      List<String> result = dep.doSomething();
+
+      assertSame(values, result);
    }
 }
