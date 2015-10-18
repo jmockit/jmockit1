@@ -23,20 +23,14 @@ final class ClassSelection
    private static final Pattern STAR = compile("\\*");
    private static final Pattern TEST_CLASS_NAME = compile(".+Test(\\$.+)?");
 
-   final boolean loadedOnly;
-   @Nullable private final Matcher classesToInclude;
-   @Nullable private final Matcher classesToExclude;
+   boolean loadedOnly;
+   @Nullable private Matcher classesToInclude;
+   @Nullable private Matcher classesToExclude;
    @Nullable private final Matcher testCode;
+   private boolean configurationRead;
 
    ClassSelection()
    {
-      String classes = Configuration.getProperty("classes", "");
-      loadedOnly = "loaded".equals(classes);
-      classesToInclude = loadedOnly ? null : newMatcherForClassSelection(classes);
-
-      String excludes = Configuration.getProperty("excludes", "");
-      classesToExclude = newMatcherForClassSelection(excludes);
-
       testCode = Startup.isTestRun() ? TEST_CLASS_NAME.matcher("") : null;
    }
 
@@ -81,32 +75,15 @@ final class ClassSelection
          return false;
       }
 
-      ClassLoader loaderOfClassToBeMeasured = protectionDomain.getClassLoader();
-
       if (
-         !canAccessJMockitFromClassToBeMeasured(loaderOfClassToBeMeasured) ||
-         !isClassAllowedByIncludesAndExcludes(className)
+         !canAccessJMockitFromClassToBeMeasured(protectionDomain) ||
+         !hasLocationInCodeSource(className, protectionDomain) ||
+         configurationRead && !isClassAllowedByIncludesAndExcludes(className)
       ) {
          return false;
       }
 
-      URL codeSourceLocation = codeSource.getLocation();
-
-      if (codeSourceLocation == null) {
-         if (loaderOfClassToBeMeasured == THIS_CLASS_LOADER) {
-            return false; // it's likely a dynamically generated class
-         }
-
-         // It's from a custom class loader, so it may exist in the classpath.
-         String classFileName = className.replace('.', '/') + ".class";
-         codeSourceLocation = THIS_CLASS_LOADER.getResource(classFileName);
-
-         if (codeSourceLocation == null) {
-            return false;
-         }
-      }
-
-      return !isClassFromExternalLibrary(codeSourceLocation);
+      return !isClassFromExternalLibrary(codeSource);
    }
 
    private static boolean isIneligibleForSelection(@Nonnull String className)
@@ -114,13 +91,17 @@ final class ClassSelection
       return
          className.charAt(0) == '[' ||
          className.startsWith("mockit.") ||
+         className.startsWith("org.hamcrest.") ||
          className.startsWith("org.junit.") || className.startsWith("junit.") ||
          className.startsWith("org.testng.") ||
+         className.startsWith("org.apache.maven.surefire.") ||
          ClassLoad.isGeneratedSubclass(className);
    }
 
-   private boolean canAccessJMockitFromClassToBeMeasured(@Nullable ClassLoader loaderOfClassToBeMeasured)
+   private boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain)
    {
+      ClassLoader loaderOfClassToBeMeasured = protectionDomain.getClassLoader();
+
       if (loaderOfClassToBeMeasured != null) {
          try {
             Class<?> thisClass = loaderOfClassToBeMeasured.loadClass(THIS_CLASS_NAME);
@@ -130,6 +111,24 @@ final class ClassSelection
       }
 
       return false;
+   }
+
+   private boolean hasLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
+   {
+      if (protectionDomain.getCodeSource().getLocation() == null) {
+         if (protectionDomain.getClassLoader() == THIS_CLASS_LOADER) {
+            return false; // it's likely a dynamically generated class
+         }
+
+         // It's from a custom class loader, so it may exist in the classpath.
+         String classFileName = className.replace('.', '/') + ".class";
+
+         if (THIS_CLASS_LOADER.getResource(classFileName) == null) {
+            return false;
+         }
+      }
+
+      return true;
    }
 
    private boolean isClassAllowedByIncludesAndExcludes(@Nonnull String className)
@@ -147,16 +146,38 @@ final class ClassSelection
       return true;
    }
 
-   private boolean isClassFromExternalLibrary(@Nonnull URL location)
+   private boolean isClassFromExternalLibrary(@Nonnull CodeSource codeSource)
    {
+      URL location = codeSource.getLocation();
+
       if ("jar".equals(location.getProtocol())) {
          return true;
       }
 
       String path = location.getPath();
 
-      return
+      if (
          path.endsWith(".jar") || path.endsWith("/.cp/") ||
-         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"));
+         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"))
+      ) {
+         return true;
+      }
+
+      if (!configurationRead) {
+         readConfiguration();
+         configurationRead = true;
+      }
+
+      return false;
+   }
+
+   private void readConfiguration()
+   {
+      String classes = Configuration.getProperty("classes", "");
+      loadedOnly = "loaded".equals(classes);
+      classesToInclude = loadedOnly ? null : newMatcherForClassSelection(classes);
+
+      String excludes = Configuration.getProperty("excludes", "");
+      classesToExclude = newMatcherForClassSelection(excludes);
    }
 }
