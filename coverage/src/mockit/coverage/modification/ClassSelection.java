@@ -71,16 +71,21 @@ final class ClassSelection
    {
       CodeSource codeSource = protectionDomain.getCodeSource();
 
-      if (codeSource == null || isIneligibleForSelection(className)) {
+      if (
+         codeSource == null || isIneligibleForSelection(className) ||
+         !canAccessJMockitFromClassToBeMeasured(protectionDomain) ||
+         !hasLocationInCodeSource(className, protectionDomain)
+      ) {
          return false;
       }
 
-      if (
-         !canAccessJMockitFromClassToBeMeasured(protectionDomain) ||
-         !hasLocationInCodeSource(className, protectionDomain) ||
-         configurationRead && !isClassAllowedByIncludesAndExcludes(className)
-      ) {
-         return false;
+      if (configurationRead) {
+         if (isClassExcludedFromCoverage(className)) {
+            return false;
+         }
+         else if (classesToInclude != null) {
+            return classesToInclude.reset(className).matches();
+         }
       }
 
       return !isClassFromExternalLibrary(codeSource);
@@ -131,19 +136,11 @@ final class ClassSelection
       return true;
    }
 
-   private boolean isClassAllowedByIncludesAndExcludes(@Nonnull String className)
+   private boolean isClassExcludedFromCoverage(@Nonnull String className)
    {
-      if (
+      return
          classesToExclude != null && classesToExclude.reset(className).matches() ||
-         testCode != null && testCode.reset(className).matches()
-      ) {
-         return false;
-      }
-      else if (classesToInclude != null) {
-         return classesToInclude.reset(className).matches();
-      }
-
-      return true;
+         testCode != null && testCode.reset(className).matches();
    }
 
    private boolean isClassFromExternalLibrary(@Nonnull CodeSource codeSource)

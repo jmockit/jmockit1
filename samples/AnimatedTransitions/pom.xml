@@ -8,6 +8,20 @@
    <artifactId>animatedtransitions</artifactId>
    <name>Animated Transitions Sample</name>
 
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <systemPropertyVariables>
+                  <coverage-classes>org.jdesktop.animation.*</coverage-classes>
+                  <coverage-srcDirs>src,../TimingFramework/src</coverage-srcDirs>
+               </systemPropertyVariables>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
    <dependencies>
       <dependency>
          <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
