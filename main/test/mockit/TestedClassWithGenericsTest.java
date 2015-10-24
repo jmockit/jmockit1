@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -137,5 +137,18 @@ public final class TestedClassWithGenericsTest
       assertNull(tested3.action);
       assertNull(tested4.action);
       assertNull(tested5.action);
+   }
+
+   static class Base<B> { B dep; }
+   static class Derived<D> extends Base<D> {}
+   static final class Concrete extends Derived<Dep> {}
+   public interface Dep {}
+   @Injectable final Dep dep = new Dep() {};
+   @Tested Concrete sut;
+
+   @Test
+   public void useSUTClassExtendingGenericBaseClassWhichExtendsAnotherGenericBaseClassContainingAGenericDependency()
+   {
+      assertSame(dep, sut.dep);
    }
 }

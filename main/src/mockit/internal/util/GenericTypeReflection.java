@@ -119,10 +119,23 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   private static Class<?> getClassType(@Nonnull Type type)
+   private Class<?> getClassType(@Nonnull Type type)
    {
       if (type instanceof ParameterizedType) {
-         return (Class<?>) ((ParameterizedType) type).getRawType();
+         ParameterizedType parameterizedType = (ParameterizedType) type;
+         return (Class<?>) parameterizedType.getRawType();
+      }
+      else if (type instanceof TypeVariable<?>) {
+         TypeVariable<?> typeVar = (TypeVariable<?>) type;
+         String typeVarName = typeVar.getName();
+         Type typeArg = typeParametersToTypeArguments.get(typeVarName);
+
+         if (typeArg == null) {
+            throw new IllegalArgumentException("Unable to resolve type variable \"" + typeVarName + '"');
+         }
+
+         //noinspection TailRecursion
+         return getClassType(typeArg);
       }
 
       return (Class<?>) type;
@@ -401,7 +414,8 @@ public final class GenericTypeReflection
 
    private boolean areMatchingTypes(@Nonnull TypeVariable<?> declarationType, @Nonnull Type realizationType)
    {
-      Type resolvedType = typeParametersToTypeArguments.get(declarationType.getName());
+      String typeVarName = declarationType.getName();
+      Type resolvedType = typeParametersToTypeArguments.get(typeVarName);
       return resolvedType.equals(realizationType) || typeSatisfiesResolvedTypeVariable(resolvedType, realizationType);
    }
 
@@ -470,20 +484,19 @@ public final class GenericTypeReflection
       return false;
    }
 
-   private static boolean typeSatisfiesResolvedTypeVariable(@Nonnull Type resolvedType, @Nonnull Type realizationType)
+   private boolean typeSatisfiesResolvedTypeVariable(@Nonnull Type resolvedType, @Nonnull Type realizationType)
    {
       Class<?> realizationClass = getClassType(realizationType);
       return typeSatisfiesResolvedTypeVariable(resolvedType, realizationClass);
    }
 
-   private static boolean typeSatisfiesResolvedTypeVariable(
-      @Nonnull Type resolvedType, @Nonnull Class<?> realizationType)
+   private boolean typeSatisfiesResolvedTypeVariable(@Nonnull Type resolvedType, @Nonnull Class<?> realizationType)
    {
       Class<?> resolvedClass = getClassType(resolvedType);
       return resolvedClass.isAssignableFrom(realizationType);
    }
 
-   private static boolean typeSatisfiesUpperBounds(@Nonnull Type type, @Nonnull Type[] upperBounds)
+   private boolean typeSatisfiesUpperBounds(@Nonnull Type type, @Nonnull Type[] upperBounds)
    {
       Class<?> classType = getClassType(type);
 
