@@ -18,6 +18,7 @@ public final class CodeCoverage implements ClassFileTransformer
 
    @Nonnull private final ClassModification classModification;
    @Nonnull private final OutputFileGenerator outputGenerator;
+   private boolean outputPendingForShutdown;
    private boolean inactive;
 
    public static void main(@Nonnull String[] args)
@@ -48,12 +49,13 @@ public final class CodeCoverage implements ClassFileTransformer
    @SuppressWarnings("unused")
    public CodeCoverage() { this(true, true); }
 
-   private CodeCoverage(boolean checkIfAlreadyInitialized, final boolean generateOutputOnShutdown)
+   private CodeCoverage(boolean checkIfAlreadyInitialized, boolean generateOutputOnShutdown)
    {
       if (checkIfAlreadyInitialized && Startup.isInitialized()) {
          throw new IllegalStateException("JMockit: coverage tool already initialized");
       }
-      else if (
+
+      if (
          generateOutputOnShutdown &&
          ("none".equals(Configuration.getProperty("output")) ||
           "none".equals(Configuration.getProperty("classes")) ||
@@ -64,6 +66,7 @@ public final class CodeCoverage implements ClassFileTransformer
 
       classModification = new ClassModification();
       outputGenerator = createOutputFileGenerator(classModification);
+      outputPendingForShutdown = true;
       instance = this;
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -72,7 +75,7 @@ public final class CodeCoverage implements ClassFileTransformer
          {
             TestRun.terminate();
 
-            if (generateOutputOnShutdown) {
+            if (outputPendingForShutdown) {
                if (outputGenerator.isOutputToBeGenerated()) {
                   outputGenerator.generate(CodeCoverage.this);
                }
@@ -97,11 +100,13 @@ public final class CodeCoverage implements ClassFileTransformer
       Startup.instrumentation().removeTransformer(instance);
       CoverageData.instance().clear();
       Startup.instrumentation().addTransformer(create(false));
+      instance.outputPendingForShutdown = false;
    }
 
    public static void generateOutput(boolean resetState)
    {
       instance.outputGenerator.generate(null);
+      instance.outputPendingForShutdown = false;
 
       if (resetState) {
          CoverageData.instance().reset();
