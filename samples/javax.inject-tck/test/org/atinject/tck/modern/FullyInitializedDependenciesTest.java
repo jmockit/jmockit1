@@ -15,6 +15,8 @@ import org.atinject.tck.modern.accessories.*;
 
 public final class FullyInitializedDependenciesTest
 {
+   static { V8Engine.class.getName(); }
+
    @Tested(fullyInitialized = true) Convertible car;
 
    @Test
@@ -24,7 +26,7 @@ public final class FullyInitializedDependenciesTest
       assertNotNull(car.spareTire);
    }
 
-   @Test @Ignore("Engine is abstract, but has a concrete V8Engine class to be found in classpath and instantiated")
+   @Test @Ignore("Engine is abstract, but has a concrete V8Engine class to be instantiated")
    public void providerReturnedValues()
    {
       assertNotNull(car.engineProvider.get());
