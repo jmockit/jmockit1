@@ -73,9 +73,14 @@ final class ClassSelection
 
       if (
          codeSource == null || isIneligibleForSelection(className) ||
-         !canAccessJMockitFromClassToBeMeasured(protectionDomain) ||
-         !hasLocationInCodeSource(className, protectionDomain)
+         !canAccessJMockitFromClassToBeMeasured(protectionDomain)
       ) {
+         return false;
+      }
+
+      URL location = findLocationInCodeSource(className, protectionDomain);
+
+      if (location == null) {
          return false;
       }
 
@@ -88,7 +93,7 @@ final class ClassSelection
          }
       }
 
-      return !isClassFromExternalLibrary(codeSource);
+      return !isClassFromExternalLibrary(location);
    }
 
    private static boolean isIneligibleForSelection(@Nonnull String className)
@@ -118,22 +123,22 @@ final class ClassSelection
       return false;
    }
 
-   private boolean hasLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
+   @Nullable
+   private URL findLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
-      if (protectionDomain.getCodeSource().getLocation() == null) {
+      URL location = protectionDomain.getCodeSource().getLocation();
+
+      if (location == null) {
          if (protectionDomain.getClassLoader() == THIS_CLASS_LOADER) {
-            return false; // it's likely a dynamically generated class
+            return null; // it's likely a dynamically generated class
          }
 
          // It's from a custom class loader, so it may exist in the classpath.
          String classFileName = className.replace('.', '/') + ".class";
-
-         if (THIS_CLASS_LOADER.getResource(classFileName) == null) {
-            return false;
-         }
+         location = THIS_CLASS_LOADER.getResource(classFileName);
       }
 
-      return true;
+      return location;
    }
 
    private boolean isClassExcludedFromCoverage(@Nonnull String className)
@@ -143,10 +148,8 @@ final class ClassSelection
          testCode != null && testCode.reset(className).matches();
    }
 
-   private boolean isClassFromExternalLibrary(@Nonnull CodeSource codeSource)
+   private boolean isClassFromExternalLibrary(@Nonnull URL location)
    {
-      URL location = codeSource.getLocation();
-
       if ("jar".equals(location.getProtocol())) {
          return true;
       }
