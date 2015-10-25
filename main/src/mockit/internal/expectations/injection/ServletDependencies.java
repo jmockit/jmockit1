@@ -13,27 +13,20 @@ import javax.servlet.descriptor.*;
 import javax.servlet.http.*;
 import static java.util.Collections.enumeration;
 
-import static mockit.internal.expectations.injection.InjectionPoint.SERVLET_CLASS;
-
 /**
  * Detects and resolves dependencies belonging to the {@code javax.servlet} API, namely {@code ServletContext}
  * and {@code HttpSession}.
  */
 final class ServletDependencies
 {
-   @Nullable
-   static ServletDependencies createIfAvailableInClasspath(@Nonnull InjectionState injectionState)
-   {
-      return SERVLET_CLASS == null ? null : new ServletDependencies(injectionState);
-   }
-
    static boolean isApplicable(@Nonnull Class<?> dependencyType)
    {
       return dependencyType == HttpSession.class || dependencyType == ServletContext.class;
    }
 
    @Nonnull private final InjectionState injectionState;
-   private ServletDependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
+
+   ServletDependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nonnull
    Object createAndRegisterDependency(@Nonnull Class<?> dependencyType)

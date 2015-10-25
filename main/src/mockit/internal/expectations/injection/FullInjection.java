@@ -31,8 +31,8 @@ final class FullInjection
    FullInjection(@Nonnull InjectionState injectionState)
    {
       this.injectionState = injectionState;
-      servletDependencies = ServletDependencies.createIfAvailableInClasspath(injectionState);
-      jpaDependencies = JPADependencies.createIfAvailableInClasspath(injectionState);
+      servletDependencies = SERVLET_CLASS == null ? null : new ServletDependencies(injectionState);
+      jpaDependencies = PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
    @Nullable

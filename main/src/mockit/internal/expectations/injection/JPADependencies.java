@@ -10,8 +10,6 @@ import javax.annotation.*;
 import javax.persistence.*;
 import javax.xml.parsers.*;
 
-import static mockit.internal.expectations.injection.InjectionPoint.*;
-
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -21,12 +19,6 @@ import org.xml.sax.helpers.*;
  */
 final class JPADependencies
 {
-   @Nullable
-   static JPADependencies createIfAvailableInClasspath(@Nonnull InjectionState injectionState)
-   {
-      return PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
-   }
-
    static boolean isApplicable(@Nonnull Class<?> dependencyType)
    {
       return dependencyType == EntityManager.class || dependencyType == EntityManagerFactory.class;
@@ -50,7 +42,7 @@ final class JPADependencies
    @Nonnull private final InjectionState injectionState;
    @Nullable private String defaultPersistenceUnitName;
 
-   private JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
+   JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
    Object newInstanceIfApplicable(@Nonnull Class<?> dependencyType, @Nonnull Object dependencyKey)
