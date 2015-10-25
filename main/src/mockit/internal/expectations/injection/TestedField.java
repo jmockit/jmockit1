@@ -57,25 +57,22 @@ final class TestedField
       injectionState.setTestedField(testedField);
 
       Object testedObject = getTestedObjectFromFieldInTestClassIfApplicable(testClassInstance);
-      Class<?> testedClass = null;
+      Class<?> testedClass = testedField.getType();
 
       if (testedObject == null && createAutomatically) {
-         testedClass = testedField.getType();
-
-         if (reusePreviouslyCreatedTestedObject(testClassInstance, testedClass)) {
+         if (reusePreviouslyCreatedInstance(testClassInstance, testedClass)) {
             return;
          }
 
          if (testedObjectCreation != null) {
             testedObject = testedObjectCreation.create();
             setFieldValue(testedField, testClassInstance, testedObject);
-
-            if (metadata.fullyInitialized()) {
-               injectionState.saveInstantiatedDependency(testedClass, testedObject, false);
-            }
+            injectionState.saveTestedObject(testedClass, testedObject);
          }
       }
       else if (testedObject != null) {
+         String dependencyKey = InjectionPoint.dependencyKey(testedClass, testedField.getName());
+         injectionState.saveTestedObject(dependencyKey, testedObject);
          testedClass = testedObject.getClass();
       }
 
@@ -98,12 +95,12 @@ final class TestedField
       return testedObject;
    }
 
-   private boolean reusePreviouslyCreatedTestedObject(@Nonnull Object testClassInstance, @Nonnull Class<?> testedClass)
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull Class<?> testedClass)
    {
-      Object testedObject = injectionState.getInstantiatedDependency(testedClass);
+      Object previousInstance = injectionState.getTestedInstance(testedClass);
 
-      if (testedObject != null) {
-         setFieldValue(testedField, testClassInstance, testedObject);
+      if (previousInstance != null) {
+         setFieldValue(testedField, testClassInstance, previousInstance);
          return true;
       }
 
@@ -132,7 +129,7 @@ final class TestedField
    void clearIfAutomaticCreation()
    {
       if (createAutomatically) {
-         injectionState.clearInstantiatedDependencies();
+         injectionState.clearTestedObjectsAndInstantiatedDependencies();
 
          if (!isAvailableDuringSetup()) {
             Object testClassInstance = injectionState.getCurrentTestClassInstance();

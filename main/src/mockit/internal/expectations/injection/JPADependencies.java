@@ -66,7 +66,7 @@ final class JPADependencies
          }
 
          EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
-         injectionState.saveInstantiatedDependency(dependencyKey, emFactory, true);
+         injectionState.saveGlobalDependency(dependencyKey, emFactory);
          return emFactory;
       }
 
@@ -131,7 +131,7 @@ final class JPADependencies
          emFactoryKey = EntityManagerFactory.class;
       }
 
-      EntityManagerFactory emFactory = injectionState.getInstantiatedDependency(emFactoryKey);
+      EntityManagerFactory emFactory = injectionState.getGlobalDependency(emFactoryKey);
 
       if (emFactory == null) {
          if (persistenceUnitName == null) {
@@ -139,7 +139,7 @@ final class JPADependencies
          }
 
          emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
-         injectionState.saveInstantiatedDependency(emFactoryKey, emFactory, true);
+         injectionState.saveGlobalDependency(emFactoryKey, emFactory);
       }
 
       return emFactory.createEntityManager();

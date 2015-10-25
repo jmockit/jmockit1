@@ -114,7 +114,7 @@ final class ServletDependencies
          @Override public String getVirtualServerName() { return null; }
       };
 
-      injectionState.saveInstantiatedDependency(ServletContext.class, context, true);
+      injectionState.saveGlobalDependency(ServletContext.class, context);
       return context;
    }
 
@@ -160,7 +160,7 @@ final class ServletDependencies
          @Override
          public ServletContext getServletContext()
          {
-            ServletContext context = injectionState.getInstantiatedDependency(ServletContext.class);
+            ServletContext context = injectionState.getGlobalDependency(ServletContext.class);
 
             if (context == null) {
                context = createAndRegisterServletContext();
@@ -177,7 +177,7 @@ final class ServletDependencies
          @SuppressWarnings("deprecation") @Override public HttpSessionContext getSessionContext() { return null; }
       };
 
-      injectionState.saveInstantiatedDependency(HttpSession.class, session, false);
+      injectionState.saveInstantiatedDependency(HttpSession.class, session);
       return session;
    }
 }

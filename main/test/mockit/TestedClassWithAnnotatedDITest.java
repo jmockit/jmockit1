@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -32,11 +32,11 @@ public final class TestedClassWithAnnotatedDITest
       final Runnable action;
       @Resource Runnable anotherAction;
       String text;
-      @Inject @Named("anotherName") String anotherText;
+      @Inject String anotherText;
       @Autowired(required = false) Runnable optionalAction;
 
       @Autowired
-      TestedClass2(int someValue, Runnable action, @Named("testName") String textValue)
+      TestedClass2(int someValue, Runnable action, String textValue)
       {
          this.someValue = someValue;
          this.action = action;

@@ -5,6 +5,7 @@
 package mockit.internal.expectations.injection;
 
 import java.io.*;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
@@ -16,6 +17,8 @@ import static java.util.regex.Pattern.compile;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
+import static mockit.internal.util.MethodReflection.invokePublicIfAvailable;
+import static mockit.internal.util.ParameterReflection.NO_PARAMETERS;
 
 final class FieldInjection
 {
@@ -188,14 +191,21 @@ final class FieldInjection
    {
       injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
 
-      String targetFieldName = targetField.getName();
+      String qualifiedTargetFieldName = getQualifiedTargetFieldName();
       MockedType mockedType;
 
-      if (withMultipleTargetFieldsOfSameType(targetFields)) {
-         mockedType = injectionState.findInjectableByTypeAndName(targetFieldName);
+      if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
+         mockedType = injectionState.findInjectableByTypeAndName(qualifiedTargetFieldName);
       }
       else {
-         mockedType = injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
+         String targetFieldName = targetField.getName();
+
+         if (withMultipleTargetFieldsOfSameType(targetFields)) {
+            mockedType = injectionState.findInjectableByTypeAndName(targetFieldName);
+         }
+         else {
+            mockedType = injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
+         }
       }
 
       if (mockedType != null) {
@@ -209,7 +219,7 @@ final class FieldInjection
             return null;
          }
 
-         Object newInstance = fullInjection.newInstance(this, targetField);
+         Object newInstance = fullInjection.newInstance(this, targetField, qualifiedTargetFieldName);
 
          if (newInstance != null) {
             return newInstance;
@@ -221,6 +231,22 @@ final class FieldInjection
       }
 
       throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint);
+      return null;
+   }
+
+   @Nullable
+   private String getQualifiedTargetFieldName()
+   {
+      for (Annotation annotation : targetField.getDeclaredAnnotations()) {
+         Class<? extends Annotation> annotationType = annotation.annotationType();
+         String annotationName = annotationType.getName();
+
+         if (annotationName.endsWith(".Named") || annotationName.endsWith(".Qualifier")) {
+            String qualifiedName = invokePublicIfAvailable(annotationType, annotation, "value", NO_PARAMETERS);
+            return qualifiedName;
+         }
+      }
+
       return null;
    }
 

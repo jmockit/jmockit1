@@ -177,4 +177,10 @@ final class InjectionPoint
          return ((GenericArrayType) parameterType).getGenericComponentType();
       }
    }
+
+   @Nonnull
+   static String dependencyKey(@Nonnull Class<?> dependencyClass, @Nonnull String dependencyId)
+   {
+      return dependencyClass.getName() + ':' + dependencyId;
+   }
 }

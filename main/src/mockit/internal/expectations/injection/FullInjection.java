@@ -36,8 +36,16 @@ final class FullInjection
    }
 
    @Nullable
-   Object newInstance(@Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected)
+   Object newInstance(
+      @Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected, @Nullable String qualifiedName)
    {
+      Object dependencyKey = getDependencyKey(fieldToBeInjected, qualifiedName);
+      Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
+
+      if (dependency != null) {
+         return dependency;
+      }
+
       Class<?> fieldType = fieldToBeInjected.getType();
 
       if (fieldType == Logger.class) {
@@ -48,22 +56,17 @@ final class FullInjection
          return null;
       }
 
-      Object dependencyKey = getDependencyKey(fieldToBeInjected);
-      Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
-
-      if (dependency == null) {
-         if (INJECT_CLASS != null && fieldType == Provider.class) {
-            dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
-         }
-         else if (servletDependencies != null && ServletDependencies.isApplicable(fieldType)) {
-            dependency = servletDependencies.createAndRegisterDependency(fieldType);
-         }
-         else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
-            dependency = createAndRegisterConversationInstance();
-         }
-         else {
-            dependency = createAndRegisterNewInstance(fieldInjection, fieldType, dependencyKey);
-         }
+      if (INJECT_CLASS != null && fieldType == Provider.class) {
+         dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
+      }
+      else if (servletDependencies != null && ServletDependencies.isApplicable(fieldType)) {
+         dependency = servletDependencies.createAndRegisterDependency(fieldType);
+      }
+      else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
+         dependency = createAndRegisterConversationInstance();
+      }
+      else {
+         dependency = createAndRegisterNewInstance(fieldInjection, fieldType, dependencyKey);
       }
 
       return dependency;
@@ -87,16 +90,20 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object getDependencyKey(@Nonnull Field fieldToBeInjected)
+   private Object getDependencyKey(@Nonnull Field fieldToBeInjected, @Nullable String qualifiedName)
    {
       Class<?> dependencyClass = fieldToBeInjected.getType();
+
+      if (qualifiedName != null && !qualifiedName.isEmpty()) {
+         return dependencyKey(dependencyClass, qualifiedName);
+      }
 
       if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
          for (Annotation annotation : fieldToBeInjected.getDeclaredAnnotations()) {
             String id = JPADependencies.getDependencyIdIfAvailable(annotation);
 
             if (id != null && !id.isEmpty()) {
-               return dependencyClass.getName() + ':' + id;
+               return dependencyKey(dependencyClass, id);
             }
          }
       }
@@ -221,7 +228,7 @@ final class FullInjection
          @Override public boolean isTransient() { return currentlyTransient; }
       };
 
-      injectionState.saveInstantiatedDependency(Conversation.class, conversation, false);
+      injectionState.saveInstantiatedDependency(Conversation.class, conversation);
       return conversation;
    }
 
@@ -249,6 +256,6 @@ final class FullInjection
          injectionState.lifecycleMethods.executeInitializationMethodsIfAny(instantiatedClass, dependency);
       }
 
-      injectionState.saveInstantiatedDependency(dependencyKey, dependency, false);
+      injectionState.saveInstantiatedDependency(dependencyKey, dependency);
    }
 }
