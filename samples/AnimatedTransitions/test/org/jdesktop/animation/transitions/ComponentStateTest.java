@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions;
@@ -56,7 +56,7 @@ public final class ComponentStateTest
    @Test
    public void paintHierarchySingleBuffered(@Mocked final Graphics graphics)
    {
-      JComponent container = new JPanel();
+      final JComponent container = new JPanel();
       container.setOpaque(true);
       container.setBounds(10, 5, 120, 90);
 
@@ -64,9 +64,7 @@ public final class ComponentStateTest
       component.setBounds(15, 12, 80, 60);
       container.add(component);
 
-      new Expectations(JComponent.class) {{
-         component.print(graphics); times = 1;
-      }};
+      new Expectations(container) {{ container.print(graphics); times = 1; }};
 
       ComponentState.paintHierarchySingleBuffered(component, graphics);
 

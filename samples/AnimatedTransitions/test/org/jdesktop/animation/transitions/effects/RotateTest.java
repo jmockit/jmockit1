@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions.effects;
@@ -21,8 +21,7 @@ public final class RotateTest
    @Test
    public void callsSuperOnInit(@Injectable JComponent component)
    {
-      final Effect base = new Effect() {};
-      new Expectations(Effect.class) {{ base.init(animator, null); times = 1; }};
+      new EffectInitVerification(animator);
 
       new Rotate(30, component).init(animator, null);
    }
@@ -51,10 +50,7 @@ public final class RotateTest
    @Test
    public void rotatesComponentByCurrentAngleOnSetup(@Injectable final Graphics2D g2D)
    {
-      final Effect base = new Unchanging();
-
-      new Expectations(Effect.class) {{ base.setup(g2D); times = 1; }};
-
+      new EffectSetupVerification(g2D);
       Rotate rotate = new Rotate(90, new JButton());
       rotate.setRadians(0.2);
 

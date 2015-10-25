@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package org.jdesktop.animation.transitions.effects;
 
-import org.jdesktop.animation.timing.*;
-import org.jdesktop.animation.transitions.*;
-
 import org.junit.*;
 
 import mockit.*;
+
+import org.jdesktop.animation.timing.*;
+import org.jdesktop.animation.transitions.*;
 
 public final class MoveTest
 {
@@ -21,8 +21,7 @@ public final class MoveTest
    @Test
    public void callsSuperOnInit()
    {
-      final Effect base = new Effect() {};
-      new Expectations(Effect.class) {{ base.init(animator, null); times = 1; }};
+      new EffectInitVerification(animator);
 
       move.init(animator, null);
    }
