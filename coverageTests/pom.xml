@@ -9,7 +9,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.20</jmockit.version>
+      <jmockit.version>1.21-SNAPSHOT</jmockit.version>
    </properties>
 
    <build>
@@ -28,11 +28,12 @@
          <plugin>
             <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
             <configuration>
-               <disableXmlReport>true</disableXmlReport>
+               <disableXmlReport>false</disableXmlReport>
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
                <argLine>
-                  -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
                   -Dcoverage-metrics=all
+		  -Dcoverage-output=sonarxml,html
                </argLine>
             </configuration>
          </plugin>
