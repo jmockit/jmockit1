@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.20</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.21</version>
    <packaging>jar</packaging>
 
    <name>JMockit Coverage</name>
@@ -170,22 +170,17 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId><version>1.5</version>
-            <configuration>
-               <executable>/gnupg/pub/gpg</executable>
-               <homedir>/gnupg/mykey</homedir>
-               <useAgent>true</useAgent>
-            </configuration>
+            <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
             <executions>
                <execution>
                   <id>sign-artifacts</id>
+                  <phase>deploy</phase>
                   <goals><goal>sign</goal></goals>
                </execution>
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId>
             <version>1.6.5</version>
             <extensions>true</extensions>
             <configuration>
