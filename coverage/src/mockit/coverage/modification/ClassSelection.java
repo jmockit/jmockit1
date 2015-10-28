@@ -31,7 +31,13 @@ final class ClassSelection
 
    ClassSelection()
    {
-      testCode = Startup.isTestRun() ? TEST_CLASS_NAME.matcher("") : null;
+      if (Startup.isTestRun()) {
+         testCode = TEST_CLASS_NAME.matcher("");
+      }
+      else {
+         testCode = null;
+         readConfiguration();
+      }
    }
 
    @Nullable
@@ -165,7 +171,6 @@ final class ClassSelection
 
       if (!configurationRead) {
          readConfiguration();
-         configurationRead = true;
       }
 
       return false;
@@ -179,5 +184,7 @@ final class ClassSelection
 
       String excludes = Configuration.getProperty("excludes", "");
       classesToExclude = newMatcherForClassSelection(excludes);
+
+      configurationRead = true;
    }
 }
