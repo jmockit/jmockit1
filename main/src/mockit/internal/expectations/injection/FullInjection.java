@@ -13,9 +13,11 @@ import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.startup.*;
+import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
+import static mockit.internal.util.Utilities.*;
 
 /**
  * Responsible for recursive injection of dependencies as requested by a {@code @Tested(fullyInitialized = true)} field.
@@ -36,9 +38,9 @@ final class FullInjection
    }
 
    @Nullable
-   Object newInstance(
-      @Nonnull FieldInjection fieldInjection, @Nonnull Field fieldToBeInjected, @Nullable String qualifiedName)
+   Object newInstance(@Nonnull FieldInjection fieldInjection, @Nullable String qualifiedName)
    {
+      @Nonnull Field fieldToBeInjected = fieldInjection.targetField;
       Object dependencyKey = getDependencyKey(fieldToBeInjected, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
 
@@ -66,7 +68,7 @@ final class FullInjection
          dependency = createAndRegisterConversationInstance();
       }
       else {
-         dependency = createAndRegisterNewInstance(fieldInjection, fieldType, dependencyKey);
+         dependency = createAndRegisterNewInstance(fieldInjection, dependencyKey);
       }
 
       return dependency;
@@ -108,7 +110,7 @@ final class FullInjection
          }
       }
 
-      return dependencyClass;
+      return injectionState.typeOfInjectionPoint;
    }
 
    @Nonnull
@@ -233,16 +235,31 @@ final class FullInjection
    }
 
    @Nullable
-   private Object createAndRegisterNewInstance(
-      @Nonnull FieldInjection fieldInjection, @Nonnull Class<?> fieldType, @Nonnull Object dependencyKey)
+   private Object createAndRegisterNewInstance(@Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey)
    {
-      Object dependency = createNewInstance(fieldType, dependencyKey);
+      Class<?> fieldClass = getFieldClass(fieldInjection);
+      Object dependency = createNewInstance(fieldClass, dependencyKey);
 
       if (dependency != null) {
          registerNewInstance(fieldInjection, dependencyKey, dependency);
       }
 
       return dependency;
+   }
+
+   @Nonnull
+   private Class<?> getFieldClass(@Nonnull FieldInjection fieldInjection)
+   {
+      Field targetField = fieldInjection.targetField;
+      Type fieldType = targetField.getGenericType();
+
+      if (fieldType instanceof TypeVariable<?>) {
+         GenericTypeReflection typeReflection = new GenericTypeReflection(fieldInjection.targetClass);
+         Type resolvedType = typeReflection.resolveReturnType((TypeVariable<?>) fieldType);
+         return getClassType(resolvedType);
+      }
+
+      return targetField.getType();
    }
 
    private void registerNewInstance(

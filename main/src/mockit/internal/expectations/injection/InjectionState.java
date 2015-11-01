@@ -29,7 +29,7 @@ final class InjectionState
    @Nonnull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
-   private Type typeOfInjectionPoint;
+   Type typeOfInjectionPoint;
 
    InjectionState()
    {

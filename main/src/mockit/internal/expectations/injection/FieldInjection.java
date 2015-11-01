@@ -30,7 +30,8 @@ final class FieldInjection
    @Nullable private final String codeLocationParentPath;
    @Nonnull final String nameOfTestedClass;
    @Nullable private final FullInjection fullInjection;
-   private Field targetField;
+   @Nonnull Class<?> targetClass;
+   Field targetField;
 
    FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
    {
@@ -41,6 +42,7 @@ final class FieldInjection
       codeLocationParentPath = codeSource == null ? null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = testedClass.getName();
       this.fullInjection = fullInjection ? new FullInjection(injectionState) : null;
+      targetClass = testedClass;
    }
 
    @Nonnull
@@ -149,6 +151,8 @@ final class FieldInjection
 
    void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
    {
+      targetClass = testedObject.getClass();
+
       for (Field field : targetFields) {
          targetField = field;
 
@@ -189,24 +193,8 @@ final class FieldInjection
    @Nullable
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
-      injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
-
       String qualifiedTargetFieldName = getQualifiedTargetFieldName();
-      MockedType mockedType;
-
-      if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
-         mockedType = injectionState.findInjectableByTypeAndName(qualifiedTargetFieldName);
-      }
-      else {
-         String targetFieldName = targetField.getName();
-
-         if (withMultipleTargetFieldsOfSameType(targetFields)) {
-            mockedType = injectionState.findInjectableByTypeAndName(targetFieldName);
-         }
-         else {
-            mockedType = injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
-         }
-      }
+      MockedType mockedType = findAvailableInjectableIfAny(targetFields, qualifiedTargetFieldName);
 
       if (mockedType != null) {
          return injectionState.getValueToInject(mockedType);
@@ -219,7 +207,7 @@ final class FieldInjection
             return null;
          }
 
-         Object newInstance = fullInjection.newInstance(this, targetField, qualifiedTargetFieldName);
+         Object newInstance = fullInjection.newInstance(this, qualifiedTargetFieldName);
 
          if (newInstance != null) {
             return newInstance;
@@ -232,6 +220,23 @@ final class FieldInjection
 
       throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint);
       return null;
+   }
+
+   @Nullable
+   private MockedType findAvailableInjectableIfAny(
+      @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName)
+   {
+      injectionState.typeOfInjectionPoint = targetField.getGenericType();
+
+      if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
+         return injectionState.findInjectableByTypeAndName(qualifiedTargetFieldName);
+      }
+
+      String targetFieldName = targetField.getName();
+
+      return withMultipleTargetFieldsOfSameType(targetFields) ?
+         injectionState.findInjectableByTypeAndName(targetFieldName) :
+         injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
    }
 
    @Nullable

@@ -151,4 +151,25 @@ public final class TestedClassWithGenericsTest
    {
       assertSame(dep, sut.dep);
    }
+
+   public static class AnotherDep {}
+   static class Concrete2 extends Base<AnotherDep> {}
+   @Tested(fullyInitialized = true) Concrete2 sut2;
+
+   @Test
+   public void useFullyInitializedSUTClassExtendingGenericBaseClass()
+   {
+      AnotherDep anotherDep = sut2.dep;
+      assertNotNull(anotherDep);
+   }
+
+   static class Concrete3 extends Derived<AnotherDep> {}
+   @Tested(fullyInitialized = true) Concrete3 sut3;
+
+   @Test
+   public void useFullyInitializedSUTClassExtendingGenericClassWhichExtendsAnotherGenericClass()
+   {
+      AnotherDep anotherDep = sut3.dep;
+      assertNotNull(anotherDep);
+   }
 }

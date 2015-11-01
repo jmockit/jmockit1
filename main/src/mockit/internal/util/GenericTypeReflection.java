@@ -24,6 +24,14 @@ public final class GenericTypeReflection
       discoverTypeMappings(realClass, mockedType);
    }
 
+   public GenericTypeReflection(@Nonnull Class<?> realClass)
+   {
+      typeParametersToTypeArguments = new HashMap<String, Type>(4);
+      typeParametersToTypeArgumentNames = emptyMap();
+      withSignatures = false;
+      addGenericTypeMappingsForSuperTypes(realClass);
+   }
+
    public GenericTypeReflection(@Nonnull Field field)
    {
       typeParametersToTypeArguments = new HashMap<String, Type>(4);
@@ -376,16 +384,16 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   public Type resolveReturnType(@Nonnull TypeVariable<?> genericReturnType)
+   public Type resolveReturnType(@Nonnull TypeVariable<?> typeVariable)
    {
-      Type typeArgument = typeParametersToTypeArguments.get(genericReturnType.getName());
+      Type typeArgument = typeParametersToTypeArguments.get(typeVariable.getName());
 
       if (typeArgument == null) {
-         typeArgument = genericReturnType.getBounds()[0];
+         typeArgument = typeVariable.getBounds()[0];
+      }
 
-         if (typeArgument instanceof TypeVariable<?>) {
-            typeArgument = resolveReturnType((TypeVariable<?>) typeArgument);
-         }
+      if (typeArgument instanceof TypeVariable<?>) {
+         typeArgument = resolveReturnType((TypeVariable<?>) typeArgument);
       }
 
       return typeArgument;
