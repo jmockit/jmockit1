@@ -1,18 +1,19 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-import static mockit.Deencapsulation.*;
-import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.*;
+import static org.junit.Assert.*;
 
 import mockit.internal.util.*;
+import static mockit.Deencapsulation.*;
 
 @SuppressWarnings("unused")
 public final class DeencapsulationTest
@@ -710,5 +711,14 @@ public final class DeencapsulationTest
          fail();
       }
       catch (NullPointerException ignore) {}
+   }
+
+   @Test
+   public void newUninitializedInstanceOfInterface() throws Exception
+   {
+      Callable<?> callable = newUninitializedInstance(Callable.class);
+
+      assertNotNull(callable);
+      assertNull(callable.call());
    }
 }

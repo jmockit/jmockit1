@@ -8,6 +8,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
+import mockit.internal.util.EmptyProxy.*;
 
 /**
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields, methods, and
@@ -402,8 +403,8 @@ public final class Deencapsulation
 
    /**
     * Creates a new instance of a given class, without invoking any constructor.
-    * If the class is {@code abstract}, a concrete subclass is created, with empty implementations for the
-    * {@code abstract} methods.
+    * If the given class is {@code abstract} or an {@code interface}, then a concrete class is created, with empty
+    * implementations for the {@code abstract}/{@code interface} methods.
     *
     * @param classToInstantiate the class to be instantiated
     * @param <T> type to which the returned instance should be assignable
@@ -416,7 +417,11 @@ public final class Deencapsulation
     */
    public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate)
    {
-      if (isAbstract(classToInstantiate.getModifiers())) {
+      if (classToInstantiate.isInterface()) {
+         T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
+         return instance;
+      }
+      else if (isAbstract(classToInstantiate.getModifiers())) {
          classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
       }
 
