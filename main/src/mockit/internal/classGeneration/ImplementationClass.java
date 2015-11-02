@@ -51,25 +51,31 @@ public abstract class ImplementationClass<T>
    @Nonnull
    private Class<T> defineNewClass(@Nonnull ClassVisitor modifier)
    {
-      ClassLoader parentLoader = sourceClass.getClassLoader();
-
-      if (parentLoader == null) {
-         parentLoader = ImplementationClass.class.getClassLoader();
-      }
-
+      ClassLoader sourceClassLoader = sourceClass.getClassLoader();
+      final ClassLoader parentLoader =
+         sourceClassLoader != null ? sourceClassLoader : ImplementationClass.class.getClassLoader();
       final byte[] modifiedClassfile = modifier.toByteArray();
 
-      @SuppressWarnings("unchecked")
-      Class<T> generatedClass = (Class<T>) new ClassLoader(parentLoader) {
-         @Override
-         protected Class<?> findClass(String name)
-         {
-            return defineClass(name, modifiedClassfile, 0, modifiedClassfile.length);
-         }
-      }.findClass(generatedClassName);
+      try {
+         @SuppressWarnings("unchecked")
+         Class<T> generatedClass = (Class<T>) new ClassLoader(parentLoader) {
+            @Override
+            protected Class<?> findClass(String name) throws ClassNotFoundException
+            {
+               if (!name.equals(generatedClassName)) {
+                  return parentLoader.loadClass(name);
+               }
 
-      generatedBytecode = modifiedClassfile;
-      return generatedClass;
+               return defineClass(name, modifiedClassfile, 0, modifiedClassfile.length);
+            }
+         }.findClass(generatedClassName);
+
+         generatedBytecode = modifiedClassfile;
+         return generatedClass;
+      }
+      catch (ClassNotFoundException e) {
+         throw new RuntimeException("Unable to define class: " + generatedClassName, e);
+      }
    }
 
    @Nullable

@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.beans.*;
 import java.util.*;
 
 import org.junit.*;
@@ -461,5 +462,15 @@ public final class ExpectationsUsingReflectionTest
             assertEquals("test", c2.s);
          }
       };
+   }
+
+   @Test
+   public void getBeanInfoFromMockedInterface(@Mocked BusinessInterface mock) throws Exception
+   {
+      Class<? extends BusinessInterface> mockClass = mock.getClass();
+
+      BeanInfo info = Introspector.getBeanInfo(mockClass);
+
+      assertNotNull(info);
    }
 }
