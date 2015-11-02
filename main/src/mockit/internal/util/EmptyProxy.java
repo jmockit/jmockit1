@@ -24,16 +24,6 @@ public interface EmptyProxy
       private Impl() {}
 
       @Nonnull
-      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Class<E> interfaceToBeProxied)
-      {
-         Class<?>[] interfaces = loader == null ?
-            new Class<?>[] {interfaceToBeProxied} : new Class<?>[] {interfaceToBeProxied, EmptyProxy.class};
-
-         //noinspection unchecked
-         return (E) Proxy.newProxyInstance(loader, interfaces, MockInvocationHandler.INSTANCE);
-      }
-
-      @Nonnull
       public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Type... interfacesToBeProxied)
       {
          List<Class<?>> interfaces = new ArrayList<Class<?>>();
