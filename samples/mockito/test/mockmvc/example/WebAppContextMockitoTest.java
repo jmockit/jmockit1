@@ -25,19 +25,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p/>
  * This version loads a Spring application context, which defines the beans on which the controller under test
  * depends.
+ * <p/>
  * Using a configured context is significantly more complex than just letting Mockito instantiate the controller and its
- * mock dependencies, as it adds several unique requirements: a) use of {@link SpringJUnit4ClassRunner} (or equivalent
- * mechanism), b) addition of {@code @WebAppConfiguration} <em>and</em> {@code @ContextConfiguration} to the test class,
- * c) addition of a {@link WebApplicationContext} field to the test class,
- * d) creation of an XML or Java configuration with a suitable bean for each dependency, and
- * e) a necessary call to {@link org.mockito.Mockito#reset(Object[])} in a test setup method.
- * All the above disadvantages, for all we know, come with <em>no</em> discernible gain.
+ * mock dependencies, as it adds several unique requirements:
+ * <ol type="a">
+ *     <li>use of {@link SpringJUnit4ClassRunner} (or equivalent mechanism),
+ *     <li>addition of {@code @WebAppConfiguration} <em>and</em> {@code @ContextConfiguration} to the test class,
+ *     <li>addition of a {@link WebApplicationContext} field to the test class,
+ *     <li>creation of an XML or Java configuration with a suitable bean for each dependency, and
+ *     <li>a necessary call to {@link org.mockito.Mockito#reset(Object[])} in a test setup method.
+ * </ol>
+ * For all this hard work, you get a real Spring context that can handle, if so configured, annotations such as
+ * {@code @Transactional} and {@code @Cached}. To prevent Spring from instantiating all (transitive) dependencies
+ * (even of your mocks), you need to put a {@code FactoryBean<MyMock>} into the context instead of a {@code MyMock}.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration @ContextConfiguration
+@WebAppConfiguration
+@ContextConfiguration(classes = WebAppContextMockitoTest.WebAppConfig.class)
 public final class WebAppContextMockitoTest
 {
-   @Configuration @ComponentScan
+   @Configuration
+   @ComponentScan(excludeFilters = @ComponentScan.Filter(value = Configuration.class, type = FilterType.ANNOTATION))
    static class WebAppConfig
    {
       @Bean RequestService requestService() { return mock(RequestService.class); }

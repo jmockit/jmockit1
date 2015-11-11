@@ -23,10 +23,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * {@link MockMvcBuilders#standaloneSetup(Object...)}.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration @ContextConfiguration
+@WebAppConfiguration
+@ContextConfiguration(classes = WebAppContextJMockitTest.WebAppConfig.class)
 public final class WebAppContextJMockitTest
 {
-   @Configuration @ComponentScan
+   @Configuration
+   @ComponentScan(excludeFilters = @ComponentScan.Filter(value = Configuration.class, type = FilterType.ANNOTATION))
    static class WebAppConfig
    {
       @Bean
