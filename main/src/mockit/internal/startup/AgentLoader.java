@@ -38,11 +38,17 @@ public final class AgentLoader
 
    public void loadAgent()
    {
-      VirtualMachine vm;
+      String processId = getProcessIdForRunningVM();
+      VirtualMachine vm = connectToVirtualMachine(processId);
 
-      if (AttachProvider.providers().isEmpty()) {
+      loadAgentAndDetachFromRunningVM(vm);
+   }
+
+   VirtualMachine connectToVirtualMachine(String processId) {
+       VirtualMachine vm;
+       if (AttachProvider.providers().isEmpty()) {
          if (HOTSPOT_VM) {
-            vm = getVirtualMachineImplementationFromEmbeddedOnes();
+            vm = getVirtualMachineImplementationFromEmbeddedOnes(processId);
          }
          else {
             String helpMessage = getHelpMessageForNonHotSpotVM();
@@ -50,23 +56,19 @@ public final class AgentLoader
          }
       }
       else {
-         vm = attachToRunningVM();
+         vm = attachToRunningVM(processId);
       }
+       return vm;
+    }
 
-      loadAgentAndDetachFromRunningVM(vm);
-   }
-
-   @Nonnull
-   private static VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
-   {
+   static VirtualMachine getVirtualMachine(String processId) {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
       Class<?>[] parameterTypes = {AttachProvider.class, String.class};
-      String pid = getProcessIdForRunningVM();
 
       try {
          // This is only done with Reflection to avoid the JVM pre-loading all the XyzVirtualMachine classes.
          Constructor<? extends VirtualMachine> vmConstructor = vmClass.getConstructor(parameterTypes);
-         VirtualMachine newVM = vmConstructor.newInstance(ATTACH_PROVIDER, pid);
+         VirtualMachine newVM = vmConstructor.newInstance(ATTACH_PROVIDER, processId);
          return newVM;
       }
       catch (NoSuchMethodException e)     { throw new RuntimeException(e); }
@@ -79,6 +81,12 @@ public final class AgentLoader
       catch (UnsatisfiedLinkError e) {
          throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
       }
+   }
+
+   @Nonnull
+   private static VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes(String processId)
+   {
+       return getVirtualMachine(processId);
    }
 
    @Nonnull
@@ -125,10 +133,8 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private static VirtualMachine attachToRunningVM()
+   private static VirtualMachine attachToRunningVM(String pid)
    {
-      String pid = getProcessIdForRunningVM();
-
       try {
          return VirtualMachine.attach(pid);
       }
