@@ -278,6 +278,24 @@ public final class MisusedExpectationsTest
    }
 
    @Test
+   public void expectationBlockWithMethodContainingATryCatchStatement()
+   {
+      new Expectations() {
+         {
+            recordSomething();
+         }
+
+         void recordSomething()
+         {
+            // Allowed, although not recommended in Java code.
+            try { mock.doSomething(anyBoolean); } catch (RuntimeException ignore) {}
+         }
+      };
+
+      mock.doSomething(true);
+   }
+
+   @Test
    public void expectationBlockContainingATryFinallyStatement()
    {
       thrown.expect(IllegalArgumentException.class);

@@ -494,7 +494,9 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private void generateCodeToThrowExceptionReportingInvalidSyntax(@Nonnull String description)
    {
-      generateCodeToThrowException("Invalid " + description + " statement inside expectation block");
+      if (callEndInvocations) {
+         generateCodeToThrowException("Invalid " + description + " statement inside expectation block");
+      }
    }
 
    private void generateCodeToThrowException(@Nonnull String message)
