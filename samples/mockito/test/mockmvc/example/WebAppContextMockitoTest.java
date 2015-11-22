@@ -26,12 +26,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This version loads a Spring application context, which defines the beans on which the controller under test
  * depends.
  * Using a configured context is significantly more complex than just letting Mockito instantiate the controller and its
- * mock dependencies, as it adds several unique requirements: a) use of {@link SpringJUnit4ClassRunner} (or equivalent
- * mechanism), b) addition of {@code @WebAppConfiguration} <em>and</em> {@code @ContextConfiguration} to the test class,
- * c) addition of a {@link WebApplicationContext} field to the test class,
- * d) creation of an XML or Java configuration with a suitable bean for each dependency, and
- * e) a necessary call to {@link org.mockito.Mockito#reset(Object[])} in a test setup method.
- * All the above disadvantages, for all we know, come with <em>no</em> discernible gain.
+ * mock dependencies, as it adds several unique requirements:
+ * <ol>
+ *    <li>Use of {@link SpringJUnit4ClassRunner} (or equivalent mechanism).</li>
+ *    <li>Addition of {@code @WebAppConfiguration} <em>and</em> {@code @ContextConfiguration} to the test class.</li>
+ *    <li>Addition of a {@link WebApplicationContext} field to the test class.</li>
+ *    <li>Creation of an XML or Java configuration with a suitable bean for each dependency.</li>
+ *    <li>A necessary call to {@link org.mockito.Mockito#reset(Object[])} in a test setup method.</li>
+ * </ol>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration @ContextConfiguration
