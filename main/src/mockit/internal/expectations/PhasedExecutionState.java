@@ -169,7 +169,7 @@ final class PhasedExecutionState
          Class<?> mockedClass2 = mock2.getClass();
 
          if (
-            mockedClass1 == mockedClass2 ||
+            mockedClass2.isAssignableFrom(mockedClass1) ||
             TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(mock1, mock2)
          ) {
             return true;

@@ -56,8 +56,8 @@ public final class MockedClassWithSuperClassTest
       assertEquals(45, mock.doSomething());
       assertEquals(45, new Subclass().doSomething());
 
-      // Mocked, but not matching recorded expectations:
-      assertEquals(0, new Subclass() {}.doSomething());
+      // Mocked and matching the recorded expectation:
+      assertEquals(45, new Subclass() {}.doSomething());
 
       // Not mocked:
       BaseClass b1 = new BaseClass();
@@ -163,5 +163,15 @@ public final class MockedClassWithSuperClassTest
 
       assertEquals(1, mock1.doSomething());
       assertEquals(2, mock2.doSomething());
+   }
+
+   @Test
+   public void recordMethodOnMockedBaseClassButReplayOnSubclassInstance(@Mocked final BaseClass baseMock)
+   {
+      new Expectations() {{ baseMock.doSomething(); result = 45; }};
+
+      Subclass derived = new Subclass();
+      assertEquals(45, derived.doSomething());
+      assertEquals(45, baseMock.doSomething());
    }
 }

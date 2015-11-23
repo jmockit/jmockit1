@@ -105,7 +105,7 @@ public final class MultipleMockedTypesTest
          mock2.getValue(); result = -50;
       }};
 
-      assertFalse(new TestedUnit().validate(mock1, new SubDependencyThatInherits()));
+      assertTrue(new TestedUnit().validate(mock1, new SubDependencyThatInherits()));
       assertEquals(-50, mock2.getValue());
    }
 
