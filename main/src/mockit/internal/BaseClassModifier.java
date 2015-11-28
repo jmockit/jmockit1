@@ -98,22 +98,24 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void generateCallToSuperConstructor()
    {
-      mw.visitVarInsn(ALOAD, 0);
+      if (superClassName != null) {
+         mw.visitVarInsn(ALOAD, 0);
 
-      String constructorDesc;
+         String constructorDesc;
 
-      if ("java/lang/Object".equals(superClassName)) {
-         constructorDesc = "()V";
-      }
-      else {
-         constructorDesc = SuperConstructorCollector.INSTANCE.findConstructor(classDesc, superClassName);
-
-         for (Type paramType : Type.getArgumentTypes(constructorDesc)) {
-            pushDefaultValueForType(paramType);
+         if ("java/lang/Object".equals(superClassName)) {
+            constructorDesc = "()V";
          }
-      }
+         else {
+            constructorDesc = SuperConstructorCollector.INSTANCE.findConstructor(classDesc, superClassName);
 
-      mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc, false);
+            for (Type paramType : Type.getArgumentTypes(constructorDesc)) {
+               pushDefaultValueForType(paramType);
+            }
+         }
+
+         mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc, false);
+      }
    }
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc)
@@ -328,7 +330,7 @@ public class BaseClassModifier extends ClassVisitor
       {
          if (pendingCallToConstructorOfSameClass) {
             if (opcode == INVOKESPECIAL && "<init>".equals(name) && owner.equals(classDesc)) {
-               mw.visitMethodInsn(opcode, owner, name, desc, itf);
+               mw.visitMethodInsn(INVOKESPECIAL, owner, name, desc, itf);
                pendingCallToConstructorOfSameClass = false;
             }
          }

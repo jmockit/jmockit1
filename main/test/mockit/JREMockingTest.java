@@ -42,16 +42,15 @@ public final class JREMockingTest
    {
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
+      new Expectations(Calendar.class) {{ Calendar.getInstance(tzCST); result = calCST; }};
 
-      new Expectations(Calendar.class) {{
-         Calendar.getInstance(tzCST); result = calCST;
-      }};
+      Calendar cal1 = Calendar.getInstance(tzCST);
+      assertSame(calCST, cal1);
+      assertEquals(2010, cal1.get(Calendar.YEAR));
 
-      Calendar cal = Calendar.getInstance(tzCST);
-      assertSame(calCST, cal);
-      assertEquals(2010, cal.get(Calendar.YEAR));
-
-      assertNotSame(calCST, Calendar.getInstance(TimeZone.getTimeZone("PST")));
+      TimeZone tzPST = TimeZone.getTimeZone("PST");
+      Calendar cal2 = Calendar.getInstance(tzPST);
+      assertNotSame(calCST, cal2);
    }
 
    @Test
@@ -290,9 +289,21 @@ public final class JREMockingTest
 
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
 
+   // These would interfere with the test runner if regular mocking was applied.
    @Injectable FileOutputStream stream;
+   @Injectable Writer writer;
+   @Injectable FileWriter fw;
+   @Injectable PrintWriter pw;
+   @Injectable DataInputStream dis;
+   @Injectable FileInputStream fis;
 
-   // This interferes with the test runner if regular mocking is applied.
+   // These apparently don't interfere with the test runner.
+   @Mocked OutputStream os;
+   @Mocked FileReader fr;
+   @Mocked InputStream is;
+   @Mocked Reader reader;
+   @Mocked InputStreamReader isr;
+
    @Test
    public void dynamicMockingOfFileOutputStreamThroughMockField() throws Exception
    {
@@ -302,6 +313,19 @@ public final class JREMockingTest
       }};
 
       stream.write("Hello world".getBytes());
+      writer.append('x');
+
+      new Verifications() {{ writer.append('x'); }};
+   }
+
+   @Test @Ignore("Find a way to avoid NPE from superclass constructor")
+   public void mockConstructorsInFileWriterClass() throws Exception
+   {
+      new Expectations(FileWriter.class) {{
+         new FileWriter("no.file");
+      }};
+
+      new FileWriter("no.file"); // TODO: throws NPE
    }
 
    // Mocking of java.lang.Object methods /////////////////////////////////////////////////////////////////////////////

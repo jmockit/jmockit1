@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -285,17 +284,6 @@ public final class StrictExpectationsTest
       }};
 
       assertEquals(".", System.getenv("envVar"));
-   }
-
-   @Test
-   public void mockConstructorsInJREClassHierarchies(@Mocked FileWriter fileWriter)
-      throws Exception
-   {
-      new StrictExpectations() {{
-         new FileWriter("no.file");
-      }};
-
-      new FileWriter("no.file");
    }
 
    @Test

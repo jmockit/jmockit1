@@ -24,9 +24,9 @@ final class ExpectationsModifier extends BaseClassModifier
    private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
 
+   @Nullable private final MockedType mockedType;
    private String className;
    @Nullable private String baseClassNameForCapturedInstanceMethods;
-   private boolean stubOutClassInitialization;
    private boolean ignoreConstructors;
    private ExecutionMode executionMode;
    private boolean isProxy;
@@ -37,20 +37,16 @@ final class ExpectationsModifier extends BaseClassModifier
       @Nullable ClassLoader classLoader, @Nonnull ClassReader classReader, @Nullable MockedType typeMetadata)
    {
       super(classReader);
-
+      mockedType = typeMetadata;
       setUseMockingBridge(classLoader);
       executionMode = ExecutionMode.Regular;
-
-      if (typeMetadata != null) {
-         stubOutClassInitialization = typeMetadata.isClassInitializationToBeStubbedOut();
-         useInstanceBasedMockingIfApplicable(typeMetadata);
-      }
+      useInstanceBasedMockingIfApplicable();
    }
 
-   private void useInstanceBasedMockingIfApplicable(@Nonnull MockedType typeMetadata)
+   private void useInstanceBasedMockingIfApplicable()
    {
-      if (typeMetadata.injectable) {
-         ignoreConstructors = typeMetadata.getMaxInstancesToCapture() <= 0;
+      if (mockedType != null && mockedType.injectable) {
+         ignoreConstructors = mockedType.getMaxInstancesToCapture() <= 0;
          executionMode = ExecutionMode.PerInstance;
       }
    }
@@ -71,20 +67,7 @@ final class ExpectationsModifier extends BaseClassModifier
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
-      if (name.startsWith("java/")) {
-         if ("java/lang/Class".equals(name) || "java/lang/ClassLoader".equals(name)) {
-            throw new IllegalArgumentException("Class " + name.replace('/', '.') + " is not mockable");
-         }
-
-         if (
-            executionMode == ExecutionMode.Regular &&
-            ("java/io/FileOutputStream".equals(name) || "java/io/PrintWriter".equals(name))
-         ) {
-            throw new IllegalArgumentException(
-               "Class " + name.replace('/', '.') + " cannot be @Mocked fully; " +
-               "instead, use @Injectable or partial mocking");
-         }
-      }
+      validateMockingOfJREClass(name);
 
       super.visit(version, access, name, signature, superName, interfaces);
       isProxy = "java/lang/reflect/Proxy".equals(superName);
@@ -102,6 +85,34 @@ final class ExpectationsModifier extends BaseClassModifier
             throw VisitInterruptedException.INSTANCE;
          }
       }
+   }
+
+   private void validateMockingOfJREClass(@Nonnull String internalName)
+   {
+      if (internalName.startsWith("java/")) {
+         if ("java/lang/Class".equals(internalName) || "java/lang/ClassLoader".equals(internalName)) {
+            throw new IllegalArgumentException("Class " + internalName.replace('/', '.') + " is not mockable");
+         }
+
+         if (executionMode == ExecutionMode.Regular && mockedType != null && isDisallowedJREClass(internalName)) {
+            String modifyingClassName = internalName.replace('/', '.');
+
+            if (modifyingClassName.equals(mockedType.getClassType().getName())) {
+               throw new IllegalArgumentException(
+                  "Class " + internalName.replace('/', '.') + " cannot be @Mocked fully; " +
+                  "instead, use @Injectable or partial mocking");
+            }
+         }
+      }
+   }
+
+   private static boolean isDisallowedJREClass(@Nonnull String internalName)
+   {
+      return internalName.startsWith("java/io/") && (
+         "java/io/FileOutputStream".equals(internalName) || "java/io/FileInputStream".equals(internalName) ||
+         "java/io/FileWriter".equals(internalName) ||
+         "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(internalName)
+      );
    }
 
    @Override
@@ -122,40 +133,43 @@ final class ExpectationsModifier extends BaseClassModifier
    public MethodVisitor visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      boolean syntheticOrAbstractMethod = (access & METHOD_ACCESS_MASK) != 0;
-
-      if (syntheticOrAbstractMethod || isProxy && isConstructorOrSystemMethodNotToBeMocked(name, desc)) {
+      if ((access & METHOD_ACCESS_MASK) != 0) {
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
-      }
-
-      if ("<clinit>".equals(name)) {
-         return stubOutClassInitializationIfApplicable(access);
-      }
-
-      if (stubOutFinalizeMethod(access, name, desc)) {
-         return null;
       }
 
       boolean visitingConstructor = "<init>".equals(name);
-
-      if (
-         isMethodFromCapturedClassNotToBeMocked(access) ||
-         isMethodOrConstructorNotToBeMocked(access, visitingConstructor, name)
-      ) {
-         return unmodifiedBytecode(access, name, desc, signature, exceptions);
-      }
-
-      // Otherwise, replace original implementation with redirect to JMockit.
-      startModifiedMethodVersion(access, name, desc, signature, exceptions);
-
-      if (visitingConstructor && superClassName != null) {
-         generateCallToSuperConstructor();
-      }
-
       String internalClassName = className;
 
-      if (!visitingConstructor && baseClassNameForCapturedInstanceMethods != null) {
-         internalClassName = baseClassNameForCapturedInstanceMethods;
+      if (visitingConstructor) {
+         if (isConstructorNotAllowedByMockingFilters(name)) {
+            return unmodifiedBytecode(access, name, desc, signature, exceptions);
+         }
+
+         startModifiedMethodVersion(access, name, desc, signature, exceptions);
+         generateCallToSuperConstructor();
+      }
+      else {
+         if (isMethodNotToBeMocked(access, name, desc)) {
+            return unmodifiedBytecode(access, name, desc, signature, exceptions);
+         }
+
+         if ("<clinit>".equals(name)) {
+            return stubOutClassInitializationIfApplicable(access);
+         }
+
+         if (stubOutFinalizeMethod(access, name, desc)) {
+            return null;
+         }
+
+         if (isMethodNotAllowedByMockingFilters(access, name)) {
+            return unmodifiedBytecode(access, name, desc, signature, exceptions);
+         }
+
+         startModifiedMethodVersion(access, name, desc, signature, exceptions);
+
+         if (baseClassNameForCapturedInstanceMethods != null) {
+            internalClassName = baseClassNameForCapturedInstanceMethods;
+         }
       }
 
       ExecutionMode actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
@@ -172,6 +186,23 @@ final class ExpectationsModifier extends BaseClassModifier
       return copyOriginalImplementationCode(visitingConstructor);
    }
 
+   private boolean isConstructorNotAllowedByMockingFilters(@Nonnull String name)
+   {
+      return isProxy || ignoreConstructors || isUnmockableInvocation(defaultFilters, name);
+   }
+
+   private boolean isMethodNotToBeMocked(int access, @Nonnull String name, @Nonnull String desc)
+   {
+      if (isNative(access) && (NATIVE_UNSUPPORTED || (access & PUBLIC_OR_PROTECTED) == 0)) {
+         return true;
+      }
+
+      return isProxy && (
+         ObjectMethods.isMethodFromObject(name, desc) ||
+         "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
+      );
+   }
+
    @Nonnull
    private MethodVisitor unmodifiedBytecode(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
@@ -179,19 +210,12 @@ final class ExpectationsModifier extends BaseClassModifier
       return cw.visitMethod(access, name, desc, signature, exceptions);
    }
 
-   private static boolean isConstructorOrSystemMethodNotToBeMocked(@Nonnull String name, @Nonnull String desc)
-   {
-      return
-         "<init>".equals(name) || ObjectMethods.isMethodFromObject(name, desc) ||
-         "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc);
-   }
-
    @Nullable
    private MethodVisitor stubOutClassInitializationIfApplicable(int access)
    {
       startModifiedMethodVersion(access, "<clinit>", "()V", null, null);
 
-      if (stubOutClassInitialization) {
+      if (mockedType != null && mockedType.isClassInitializationToBeStubbedOut()) {
          generateEmptyImplementation();
          return null;
       }
@@ -206,28 +230,15 @@ final class ExpectationsModifier extends BaseClassModifier
          generateEmptyImplementation();
          return true;
       }
-      
+
       return false;
    }
-   
-   private boolean isMethodFromCapturedClassNotToBeMocked(int access)
+
+   private boolean isMethodNotAllowedByMockingFilters(int access, @Nonnull String name)
    {
-      return baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_OR_STATIC) != 0;
-   }
-
-   private boolean isMethodOrConstructorNotToBeMocked(int access, boolean visitingConstructor, @Nonnull String name)
-   {
-      if (visitingConstructor) {
-         return ignoreConstructors || isUnmockableInvocation(defaultFilters, name);
-      }
-
-      boolean notPublicNorProtected = (access & PUBLIC_OR_PROTECTED) == 0;
-
-      if (isNative(access) && (notPublicNorProtected || NATIVE_UNSUPPORTED)) {
-         return true;
-      }
-
-      return executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
+      return
+         baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_OR_STATIC) != 0 ||
+         executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
    }
 
    @Nonnull
