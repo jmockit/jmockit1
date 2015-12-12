@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006-2015 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -63,7 +63,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertNull(tested2.text2);
    }
 
-   private void assertFieldsSetByTheConstructor()
+   void assertFieldsSetByTheConstructor()
    {
       assertEquals(123, tested1.i);
       assertEquals("test", tested1.name);
@@ -75,7 +75,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertNotSame(action, tested2.action1);
    }
 
-   private void assertFieldsSetThroughFieldInjectionFromInjectableFields()
+   void assertFieldsSetThroughFieldInjectionFromInjectableFields()
    {
       assertSame(action, tested1.action2);
       assertEquals(-67, tested1.i2);
@@ -116,4 +116,12 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertEquals("three", tested2.text3);
       assertTrue(tested3.flag);
    }
+
+   static class ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar
+   {
+      @SuppressWarnings("unused")
+      ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar(String s) { long var = 1; }
+   }
+
+   @Tested ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar sut;
 }

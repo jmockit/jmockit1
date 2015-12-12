@@ -72,6 +72,7 @@ public final class ParameterNames
 
          if (c == 'L') {
             while (memberDesc.charAt(i) != ';') i++;
+            i++;
             sum++;
          }
          else if (c == '[') {
