@@ -4,54 +4,45 @@
  */
 package mockit.internal.expectations.injection;
 
-import java.io.*;
-import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.security.*;
 import java.util.*;
 import java.util.regex.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
-import static java.util.regex.Pattern.compile;
+import static java.util.regex.Pattern.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
-import static mockit.internal.util.MethodReflection.invokePublicIfAvailable;
-import static mockit.internal.util.ParameterReflection.NO_PARAMETERS;
 
-final class FieldInjection
+final class FieldInjection implements Injector
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
+   @Nonnull private final TestedClass testedClass;
    @Nonnull private final InjectionState injectionState;
    boolean requireDIAnnotation;
-   @Nonnull private final ProtectionDomain protectionDomainOfTestedClass;
-   @Nullable private final String codeLocationParentPath;
-   @Nonnull final String nameOfTestedClass;
    @Nullable private final FullInjection fullInjection;
    @Nonnull Class<?> targetClass;
    Field targetField;
 
-   FieldInjection(@Nonnull TestedField testedField, @Nonnull Class<?> testedClass, boolean fullInjection)
+   FieldInjection(
+      @Nonnull TestedField testedField, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection)
    {
       injectionState = testedField.injectionState;
       requireDIAnnotation = testedField.requireDIAnnotation;
-      protectionDomainOfTestedClass = testedClass.getProtectionDomain();
-      CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
-      codeLocationParentPath = codeSource == null ? null : new File(codeSource.getLocation().getPath()).getParent();
-      nameOfTestedClass = testedClass.getName();
-      this.fullInjection = fullInjection ? new FullInjection(injectionState) : null;
-      targetClass = testedClass;
+      this.testedClass = testedClass;
+      this.fullInjection = fullInjection;
+      targetClass = testedClass.targetClass;
    }
 
    @Nonnull
-   List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> testedClass)
+   List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> actualTestedClass)
    {
       requireDIAnnotation = false;
 
       List<Field> targetFields = new ArrayList<Field>();
-      Class<?> classWithFields = testedClass;
+      Class<?> classWithFields = actualTestedClass;
 
       do {
          Field[] fields = classWithFields.getDeclaredFields();
@@ -64,7 +55,7 @@ final class FieldInjection
 
          classWithFields = classWithFields.getSuperclass();
       }
-      while (isClassFromSameModuleOrSystemAsTestedClass(classWithFields) || isServlet(classWithFields));
+      while (testedClass.isClassFromSameModuleOrSystemAsTestedClass(classWithFields) || isServlet(classWithFields));
 
       return targetFields;
    }
@@ -85,68 +76,6 @@ final class FieldInjection
       }
 
       return !isStatic(modifiers);
-   }
-
-   boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass)
-   {
-      if (anotherClass.getClassLoader() == null) {
-         return false;
-      }
-
-      ProtectionDomain anotherProtectionDomain = anotherClass.getProtectionDomain();
-
-      if (anotherProtectionDomain == null) {
-         return false;
-      }
-
-      if (anotherProtectionDomain == protectionDomainOfTestedClass) {
-         return true;
-      }
-
-      CodeSource anotherCodeSource = anotherProtectionDomain.getCodeSource();
-
-      if (anotherCodeSource == null || anotherCodeSource.getLocation() == null) {
-         return false;
-      }
-
-      if (codeLocationParentPath != null) {
-         String anotherClassPath = anotherCodeSource.getLocation().getPath();
-         String anotherClassParentPath = new File(anotherClassPath).getParent();
-
-         if (anotherClassParentPath.equals(codeLocationParentPath)) {
-            return true;
-         }
-      }
-
-      return isInSameSubpackageAsTestedClass(anotherClass);
-   }
-
-   private boolean isInSameSubpackageAsTestedClass(@Nonnull Class<?> anotherClass)
-   {
-      String nameOfAnotherClass = anotherClass.getName();
-      int p1 = nameOfAnotherClass.indexOf('.');
-      int p2 = nameOfTestedClass.indexOf('.');
-      boolean differentPackages = p1 != p2 || p1 == -1;
-
-      if (differentPackages) {
-         return false;
-      }
-
-      p1 = nameOfAnotherClass.indexOf('.', p1 + 1);
-      p2 = nameOfTestedClass.indexOf('.', p2 + 1);
-      boolean eitherClassDirectlyInFirstPackageLevel = p1 == -1 || p2 == -1;
-
-      if (eitherClassDirectlyInFirstPackageLevel) {
-         return true;
-      }
-
-      boolean differentSubpackages = p1 != p2;
-
-      if (differentSubpackages) {
-         return false;
-      }
-
-      return nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
    }
 
    void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
@@ -193,7 +122,7 @@ final class FieldInjection
    @Nullable
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
-      String qualifiedTargetFieldName = getQualifiedTargetFieldName();
+      String qualifiedTargetFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
       MockedType mockedType = findAvailableInjectableIfAny(targetFields, qualifiedTargetFieldName);
 
       if (mockedType != null) {
@@ -207,7 +136,8 @@ final class FieldInjection
             return null;
          }
 
-         Object newInstance = fullInjection.newInstance(this, qualifiedTargetFieldName);
+         FieldToInject fieldToInject = new FieldToInject(targetField);
+         Object newInstance = fullInjection.newInstance(testedClass, this, fieldToInject, qualifiedTargetFieldName);
 
          if (newInstance != null) {
             return newInstance;
@@ -226,7 +156,7 @@ final class FieldInjection
    private MockedType findAvailableInjectableIfAny(
       @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName)
    {
-      injectionState.typeOfInjectionPoint = targetField.getGenericType();
+      injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
          return injectionState.findInjectableByTypeAndName(qualifiedTargetFieldName);
@@ -237,22 +167,6 @@ final class FieldInjection
       return withMultipleTargetFieldsOfSameType(targetFields) ?
          injectionState.findInjectableByTypeAndName(targetFieldName) :
          injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
-   }
-
-   @Nullable
-   private String getQualifiedTargetFieldName()
-   {
-      for (Annotation annotation : targetField.getDeclaredAnnotations()) {
-         Class<? extends Annotation> annotationType = annotation.annotationType();
-         String annotationName = annotationType.getName();
-
-         if (annotationName.endsWith(".Named") || annotationName.endsWith(".Qualifier")) {
-            String qualifiedName = invokePublicIfAvailable(annotationType, annotation, "value", NO_PARAMETERS);
-            return qualifiedName;
-         }
-      }
-
-      return null;
    }
 
    private boolean withMultipleTargetFieldsOfSameType(@Nonnull List<Field> targetFields)
@@ -282,7 +196,8 @@ final class FieldInjection
       }
    }
 
-   void fillOutDependenciesRecursively(@Nonnull Object dependency)
+   @Override
+   public void fillOutDependenciesRecursively(@Nonnull Object dependency)
    {
       Class<?> dependencyClass = dependency.getClass();
       boolean previousRequireDIAnnotation = requireDIAnnotation;

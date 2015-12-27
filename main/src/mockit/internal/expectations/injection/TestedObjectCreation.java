@@ -18,17 +18,22 @@ import static mockit.internal.expectations.injection.InjectionPoint.*;
 final class TestedObjectCreation
 {
    @Nonnull private final InjectionState injectionState;
+   @Nullable private final FullInjection fullInjection;
    @Nonnull private final Class<?> declaredTestedClass;
    @Nonnull private final Class<?> actualTestedClass;
+   @Nonnull private final TestedClass testedClass;
    boolean constructorIsAnnotated;
 
-   TestedObjectCreation(@Nonnull InjectionState injectionState, @Nonnull Field testedField)
+   TestedObjectCreation(
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Field testedField)
    {
       this.injectionState = injectionState;
+      this.fullInjection = fullInjection;
       declaredTestedClass = testedField.getType();
       actualTestedClass =
          isAbstract(declaredTestedClass.getModifiers()) ?
             generateSubclass(testedField.getGenericType()) : declaredTestedClass;
+      testedClass = new TestedClass(declaredTestedClass);
    }
 
    @Nonnull
@@ -50,7 +55,8 @@ final class TestedObjectCreation
    @Nonnull
    Object create()
    {
-      ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, actualTestedClass);
+      ConstructorSearch constructorSearch =
+         new ConstructorSearch(injectionState, actualTestedClass, fullInjection != null);
       Constructor<?> constructor = constructorSearch.findConstructorAccordingToAccessibilityAndAvailableInjectables();
 
       if (constructor == null) {
@@ -60,7 +66,9 @@ final class TestedObjectCreation
 
       constructorIsAnnotated = isAnnotated(constructor) != KindOfInjectionPoint.NotAnnotated;
 
-      ConstructorInjection constructorInjection = new ConstructorInjection(injectionState, constructor);
-      return constructorInjection.instantiate(constructorSearch.getInjectables());
+      ConstructorInjection constructorInjection =
+         new ConstructorInjection(testedClass, injectionState, fullInjection, constructor);
+
+      return constructorInjection.instantiate(constructorSearch.parameterProviders);
    }
 }

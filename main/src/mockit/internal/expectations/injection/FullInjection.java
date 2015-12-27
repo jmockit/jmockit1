@@ -38,37 +38,38 @@ final class FullInjection
    }
 
    @Nullable
-   Object newInstance(@Nonnull FieldInjection fieldInjection, @Nullable String qualifiedName)
+   Object newInstance(
+      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
+      @Nullable String qualifiedName)
    {
-      @Nonnull Field fieldToBeInjected = fieldInjection.targetField;
-      Object dependencyKey = getDependencyKey(fieldToBeInjected, qualifiedName);
+      Object dependencyKey = getDependencyKey(injectionProvider, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(dependencyKey);
 
       if (dependency != null) {
          return dependency;
       }
 
-      Class<?> fieldType = fieldToBeInjected.getType();
+      Class<?> typeToInject = injectionProvider.getClassOfDeclaredType();
 
-      if (fieldType == Logger.class) {
-         return Logger.getLogger(fieldInjection.nameOfTestedClass);
+      if (typeToInject == Logger.class) {
+         return Logger.getLogger(testedClass.nameOfTestedClass);
       }
 
-      if (!isInstantiableType(fieldType)) {
+      if (!isInstantiableType(typeToInject)) {
          return null;
       }
 
-      if (INJECT_CLASS != null && fieldType == Provider.class) {
-         dependency = createProviderInstance(fieldToBeInjected, dependencyKey);
+      if (INJECT_CLASS != null && typeToInject == Provider.class) {
+         dependency = createProviderInstance(injectionProvider, dependencyKey);
       }
-      else if (servletDependencies != null && ServletDependencies.isApplicable(fieldType)) {
-         dependency = servletDependencies.createAndRegisterDependency(fieldType);
+      else if (servletDependencies != null && ServletDependencies.isApplicable(typeToInject)) {
+         dependency = servletDependencies.createAndRegisterDependency(typeToInject);
       }
-      else if (CONVERSATION_CLASS != null && fieldType == Conversation.class) {
+      else if (CONVERSATION_CLASS != null && typeToInject == Conversation.class) {
          dependency = createAndRegisterConversationInstance();
       }
       else {
-         dependency = createAndRegisterNewInstance(fieldInjection, dependencyKey);
+         dependency = createAndRegisterNewInstance(testedClass, injector, injectionProvider, dependencyKey);
       }
 
       return dependency;
@@ -92,16 +93,16 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object getDependencyKey(@Nonnull Field fieldToBeInjected, @Nullable String qualifiedName)
+   private Object getDependencyKey(@Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
    {
-      Class<?> dependencyClass = fieldToBeInjected.getType();
+      Class<?> dependencyClass = injectionProvider.getClassOfDeclaredType();
 
       if (qualifiedName != null && !qualifiedName.isEmpty()) {
          return dependencyKey(dependencyClass, qualifiedName);
       }
 
       if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
-         for (Annotation annotation : fieldToBeInjected.getDeclaredAnnotations()) {
+         for (Annotation annotation : injectionProvider.getAnnotations()) {
             String id = JPADependencies.getDependencyIdIfAvailable(annotation);
 
             if (id != null && !id.isEmpty()) {
@@ -114,9 +115,10 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object createProviderInstance(@Nonnull Field fieldToBeInjected, @Nonnull final Object dependencyKey)
+   private Object createProviderInstance(
+      @Nonnull InjectionPointProvider injectionProvider, @Nonnull final Object dependencyKey)
    {
-      ParameterizedType genericType = (ParameterizedType) fieldToBeInjected.getGenericType();
+      ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
 
       if (providedClass.isAnnotationPresent(Singleton.class)) {
@@ -235,40 +237,43 @@ final class FullInjection
    }
 
    @Nullable
-   private Object createAndRegisterNewInstance(@Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey)
+   private Object createAndRegisterNewInstance(
+      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
+      @Nonnull Object dependencyKey)
    {
-      Class<?> fieldClass = getFieldClass(fieldInjection);
-      Object dependency = createNewInstance(fieldClass, dependencyKey);
+      Class<?> classToInstantiate = getClassToInstantiate(testedClass.targetClass, injectionProvider);
+      Object dependency = createNewInstance(classToInstantiate, dependencyKey);
 
       if (dependency != null) {
-         registerNewInstance(fieldInjection, dependencyKey, dependency);
+         registerNewInstance(testedClass, injector, dependencyKey, dependency);
       }
 
       return dependency;
    }
 
    @Nonnull
-   private Class<?> getFieldClass(@Nonnull FieldInjection fieldInjection)
+   private Class<?> getClassToInstantiate(
+      @Nonnull Class<?> targetClass, @Nonnull InjectionPointProvider injectionProvider)
    {
-      Field targetField = fieldInjection.targetField;
-      Type fieldType = targetField.getGenericType();
+      Type declaredType = injectionProvider.getDeclaredType();
 
-      if (fieldType instanceof TypeVariable<?>) {
-         GenericTypeReflection typeReflection = new GenericTypeReflection(fieldInjection.targetClass);
-         Type resolvedType = typeReflection.resolveReturnType((TypeVariable<?>) fieldType);
+      if (declaredType instanceof TypeVariable<?>) {
+         GenericTypeReflection typeReflection = new GenericTypeReflection(targetClass);
+         Type resolvedType = typeReflection.resolveReturnType((TypeVariable<?>) declaredType);
          return getClassType(resolvedType);
       }
 
-      return targetField.getType();
+      return injectionProvider.getClassOfDeclaredType();
    }
 
    private void registerNewInstance(
-      @Nonnull FieldInjection fieldInjection, @Nonnull Object dependencyKey, @Nonnull Object dependency)
+      @Nonnull TestedClass testedClass, @Nonnull Injector injector,
+      @Nonnull Object dependencyKey, @Nonnull Object dependency)
    {
       Class<?> instantiatedClass = dependency.getClass();
 
-      if (fieldInjection.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
-         fieldInjection.fillOutDependenciesRecursively(dependency);
+      if (testedClass.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
+         injector.fillOutDependenciesRecursively(dependency);
          injectionState.lifecycleMethods.findLifecycleMethods(instantiatedClass);
          injectionState.lifecycleMethods.executeInitializationMethodsIfAny(instantiatedClass, dependency);
       }

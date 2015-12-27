@@ -17,6 +17,7 @@ final class TestedField
    @Nonnull final InjectionState injectionState;
    @Nonnull private final Field testedField;
    @Nonnull private final Tested metadata;
+   @Nullable private final FullInjection fullInjection;
    @Nullable private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
@@ -27,6 +28,7 @@ final class TestedField
       this.injectionState = injectionState;
       testedField = field;
       this.metadata = metadata;
+      fullInjection = metadata.fullyInitialized() ? new FullInjection(injectionState) : null;
 
       Class<?> fieldType = field.getType();
 
@@ -34,7 +36,7 @@ final class TestedField
          testedObjectCreation = null;
       }
       else {
-         testedObjectCreation = new TestedObjectCreation(injectionState, field);
+         testedObjectCreation = new TestedObjectCreation(injectionState, fullInjection, field);
          injectionState.lifecycleMethods.findLifecycleMethods(fieldType);
       }
    }
@@ -109,7 +111,8 @@ final class TestedField
 
    private void performFieldInjection(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
-      FieldInjection fieldInjection = new FieldInjection(this, testedClass, metadata.fullyInitialized());
+      // TODO: reuse TestedClass object previously created for constructor injection
+      FieldInjection fieldInjection = new FieldInjection(this, new TestedClass(testedClass), fullInjection);
 
       if (targetFields == null) {
          targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(testedClass);

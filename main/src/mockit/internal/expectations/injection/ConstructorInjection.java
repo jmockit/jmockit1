@@ -15,19 +15,25 @@ import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
-final class ConstructorInjection
+final class ConstructorInjection implements Injector
 {
+   @Nonnull private final TestedClass testedClass;
    @Nonnull private final InjectionState injectionState;
+   @Nullable private final FullInjection fullInjection;
    @Nonnull private final Constructor<?> constructor;
 
-   ConstructorInjection(@Nonnull InjectionState injectionState, @Nonnull Constructor<?> constructor)
+   ConstructorInjection(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
+      @Nonnull Constructor<?> constructor)
    {
+      this.testedClass = testedClass;
       this.injectionState = injectionState;
+      this.fullInjection = fullInjection;
       this.constructor = constructor;
    }
 
    @Nonnull
-   Object instantiate(@Nonnull List<MockedType> injectablesForConstructor)
+   Object instantiate(@Nonnull List<InjectionPointProvider> parameterProviders)
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
@@ -39,13 +45,32 @@ final class ConstructorInjection
       }
 
       for (int i = 0; i < n; i++) {
-         MockedType injectable = injectablesForConstructor.get(i);
-         Object value = getArgumentValueToInject(injectable);
-         arguments[i] = wrapInProviderIfNeeded(parameterTypes[i], value);
+         Type parameterType = parameterTypes[i];
+         InjectionPointProvider parameterProvider = parameterProviders.get(i);
+         Object value;
+
+         if (parameterProvider instanceof MockedType) {
+            value = getArgumentValueToInject((MockedType) parameterProvider);
+         }
+         else {
+            assert fullInjection != null;
+            injectionState.setTypeOfInjectionPoint(parameterProvider.getDeclaredType());
+            String qualifiedParameterName = getQualifiedName(parameterProvider.getAnnotations());
+            value = fullInjection.newInstance(testedClass, this, parameterProvider, qualifiedParameterName);
+
+            if (value == null) {
+               throw new IllegalArgumentException(
+                  "Unable to instantiate argument for constructor parameter: " +
+                  parameterType + ' ' + parameterProvider.getName());
+            }
+         }
+
+         arguments[i] = wrapInProviderIfNeeded(parameterType, value);
       }
 
       if (varArgs) {
-         arguments[n] = obtainInjectedVarargsArray(parameterTypes, n);
+         Type parameterType = parameterTypes[n];
+         arguments[n] = obtainInjectedVarargsArray(parameterType);
       }
 
       TestRun.exitNoMockingZone();
@@ -59,9 +84,9 @@ final class ConstructorInjection
    }
 
    @Nonnull
-   private Object obtainInjectedVarargsArray(@Nonnull Type[] parameterTypes, int varargsParameterIndex)
+   private Object obtainInjectedVarargsArray(@Nonnull Type parameterType)
    {
-      Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterTypes, varargsParameterIndex);
+      Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
       List<Object> varargValues = new ArrayList<Object>();
@@ -107,5 +132,11 @@ final class ConstructorInjection
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
 
       return " for parameter \"" + name + "\" in constructor " + constructorDescription.replace("java.lang.", "");
+   }
+
+   @Override
+   public void fillOutDependenciesRecursively(@Nonnull Object dependency)
+   {
+      // TODO: implement/redesign
    }
 }

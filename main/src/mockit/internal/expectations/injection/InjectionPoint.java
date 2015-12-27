@@ -166,10 +166,8 @@ final class InjectionPoint
    }
 
    @Nonnull
-   static Type getTypeOfInjectionPointFromVarargsParameter(@Nonnull Type[] parameterTypes, int varargsParameterIndex)
+   static Type getTypeOfInjectionPointFromVarargsParameter(@Nonnull Type parameterType)
    {
-      Type parameterType = parameterTypes[varargsParameterIndex];
-
       if (parameterType instanceof Class<?>) {
          return ((Class<?>) parameterType).getComponentType();
       }
@@ -182,5 +180,21 @@ final class InjectionPoint
    static String dependencyKey(@Nonnull Class<?> dependencyClass, @Nonnull String dependencyId)
    {
       return dependencyClass.getName() + ':' + dependencyId;
+   }
+
+   @Nullable
+   static String getQualifiedName(@Nonnull Annotation[] annotationsOnInjectionPoint)
+   {
+      for (Annotation annotation : annotationsOnInjectionPoint) {
+         Class<? extends Annotation> annotationType = annotation.annotationType();
+         String annotationName = annotationType.getName();
+
+         if (annotationName.endsWith(".Named") || annotationName.endsWith(".Qualifier")) {
+            String qualifiedName = invokePublicIfAvailable(annotationType, annotation, "value", NO_PARAMETERS);
+            return qualifiedName;
+         }
+      }
+
+      return null;
    }
 }

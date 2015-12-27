@@ -10,11 +10,12 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
+import mockit.internal.expectations.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings("EqualsAndHashcode")
-public final class MockedType
+public final class MockedType implements InjectionPointProvider
 {
    @Mocked private static final Object DUMMY = null;
    private static final int DUMMY_HASHCODE;
@@ -130,6 +131,16 @@ public final class MockedType
       mockId = cascadingMethodName;
    }
 
+   @Nonnull @Override public Type getDeclaredType() { return declaredType; }
+   @Nonnull @Override public Class<?> getClassOfDeclaredType() { return getClassType(); }
+   @Nonnull @Override public String getName() { return mockId; }
+
+   @Nonnull @Override
+   public Annotation[] getAnnotations()
+   {
+      throw new UnsupportedOperationException("Annotations on injectable: not supported yet");
+   }
+
    /**
     * @return the class object corresponding to the type to be mocked, or {@code TypeVariable.class} in case the
     * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
@@ -161,8 +172,11 @@ public final class MockedType
          return true;
       }
 
-      Class<?> classType = (Class<?>) declaredType;
+      return isMockableType((Class<?>) declaredType);
+   }
 
+   private boolean isMockableType(@Nonnull  Class<?> classType)
+   {
       if (classType.isPrimitive() || classType.isArray() || classType == Integer.class) {
          return false;
       }
@@ -177,15 +191,10 @@ public final class MockedType
    }
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
-
    boolean isClassInitializationToBeStubbedOut() { return mocked != null && mocked.stubOutClassInitialization(); }
 
    boolean withInstancesToCapture() { return getMaxInstancesToCapture() > 0; }
-
-   int getMaxInstancesToCapture()
-   {
-      return capturing == null ? 0 : capturing.maxInstances();
-   }
+   int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
 
    @Nullable
    public Object getValueToInject(@Nullable Object objectWithFields)
