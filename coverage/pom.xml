@@ -68,10 +68,16 @@
             <includes>
                <include>mockit/external/asm/*.class</include>
                <include>mockit/internal/util/ClassLoad.class</include>
+               <include>mockit/internal/util/FieldReflection.class</include>
                <include>mockit/internal/util/StackTrace.class</include>
-               <include>mockit/internal/state/TestRun.class</include>
+               <include>mockit/internal/mockups/MockStates.class</include>
+               <include>mockit/internal/state/CascadingTypes.class</include>
+               <include>mockit/internal/state/ExecutingTest*.class</include>
+               <include>mockit/internal/state/MockClasses.class</include>
+               <include>mockit/internal/state/TestRun*.class</include>
                <include>mockit/internal/state/MockFixture.class</include>
                <include>mockit/internal/startup/Startup.class</include>
+               <include>mockit/MockUp.class</include>
                <include>com/sun/tools/attach/**/*.class</include>
                <include>sun/tools/attach/*.class</include>
             </includes>

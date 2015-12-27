@@ -95,10 +95,16 @@
          <fileset dir="main/classes">
             <include name="mockit/external/asm/*.class"/>
             <include name="mockit/internal/util/ClassLoad.class"/>
+            <include name="mockit/internal/util/FieldReflection.class"/>
             <include name="mockit/internal/util/StackTrace.class"/>
-            <include name="mockit/internal/state/TestRun.class"/>
+            <include name="mockit/internal/mockups/MockStates.class"/>
+            <include name="mockit/internal/state/CascadingTypes.class"/>
+            <include name="mockit/internal/state/ExecutingTest*.class"/>
+            <include name="mockit/internal/state/MockClasses.class"/>
+            <include name="mockit/internal/state/TestRun*.class"/>
             <include name="mockit/internal/state/MockFixture.class"/>
             <include name="mockit/internal/startup/Startup.class"/>
+            <include name="mockit/MockUp.class"/>
             <include name="com/sun/tools/attach/**/*.class"/>
             <include name="sun/tools/attach/*.class"/>
          </fileset>
