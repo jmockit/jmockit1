@@ -119,11 +119,11 @@ public final class TestedClassWithFullConstructorDITest
       DependencyWithConstructorParameter(String par1) { par = par1; }
    }
 
-   /*@Tested(fullyInitialized = true)*/ TestedClassWithDependencyHavingConstructorParameter tested4;
+   @Tested(fullyInitialized = true) TestedClassWithDependencyHavingConstructorParameter tested4;
 
-   @Test @Ignore("Recursive construction injection not supported yet")
-   public void verifyRecursiveInstantiationOfDependencyWithConstructorParameter(@Injectable("test") String param)
+   @Test
+   public void verifyRecursiveInstantiationOfDependencyWithConstructorParameter()
    {
-      assertEquals("test", tested4.dependency.par);
+      assertEquals("", tested4.dependency.par);
    }
 }

@@ -13,7 +13,6 @@ import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
 
 final class TestedObjectCreation
 {
@@ -22,7 +21,6 @@ final class TestedObjectCreation
    @Nonnull private final Class<?> declaredTestedClass;
    @Nonnull private final Class<?> actualTestedClass;
    @Nonnull private final TestedClass testedClass;
-   boolean constructorIsAnnotated;
 
    TestedObjectCreation(
       @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Field testedField)
@@ -52,6 +50,17 @@ final class TestedObjectCreation
       return generatedSubclass;
    }
 
+   TestedObjectCreation(
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
+      @Nonnull Class<?> implementationClass)
+   {
+      this.injectionState = injectionState;
+      this.fullInjection = fullInjection;
+      declaredTestedClass = implementationClass;
+      actualTestedClass = implementationClass;
+      testedClass = new TestedClass(implementationClass);
+   }
+
    @Nonnull
    Object create()
    {
@@ -63,8 +72,6 @@ final class TestedObjectCreation
          throw new IllegalArgumentException(
             "No constructor in tested class that can be satisfied by available injectables" + constructorSearch);
       }
-
-      constructorIsAnnotated = isAnnotated(constructor) != KindOfInjectionPoint.NotAnnotated;
 
       ConstructorInjection constructorInjection =
          new ConstructorInjection(testedClass, injectionState, fullInjection, constructor);

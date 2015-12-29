@@ -150,22 +150,29 @@ final class FullInjection
    @Nullable
    private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull Object dependencyKey)
    {
-      if (!dependencyClass.isInterface()) {
-         return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
-      }
+      Class<?> implementationClass;
 
-      if (jpaDependencies != null) {
-         Object newInstance = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
+      if (dependencyClass.isInterface()) {
+         if (jpaDependencies != null) {
+            Object newInstance = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
 
-         if (newInstance != null) {
-            return newInstance;
+            if (newInstance != null) {
+               return newInstance;
+            }
          }
-      }
 
-      Class<?> implementationClass = findImplementationClassInClasspathIfUnique(dependencyClass);
+         implementationClass = findImplementationClassInClasspathIfUnique(dependencyClass);
+      }
+      else {
+         implementationClass = dependencyClass;
+      }
 
       if (implementationClass != null) {
-         return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
+         if (implementationClass.getClassLoader() == null) {
+            return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
+         }
+
+         return new TestedObjectCreation(injectionState, this, implementationClass).create();
       }
 
       return null;
