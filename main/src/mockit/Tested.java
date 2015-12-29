@@ -68,9 +68,9 @@ public @interface Tested
     * <p/>
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.
-    * For this attempt to succeed, the type of the field must either be a concrete class having a public no-args
-    * constructor, an interface for which a single implementation class is loaded, or a known interface for which a real
-    * instance can be created.
+    * For this attempt to succeed, the type of the field must either be a concrete class having a constructor that can
+    * be satisfied by available injectables and/or by recursively created dependencies, an interface for which a single
+    * implementation class is loaded, or a known interface (see below) for which a real instance can be created.
     * <p/>
     * Currently, the JPA interfaces {@code javax.persistence.EntityManagerFactory} and
     * {@code javax.persistence.EntityManager} are supported, provided a {@code META-INF/persistence.xml} file is
