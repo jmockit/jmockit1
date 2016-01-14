@@ -20,7 +20,7 @@ final class TestedClass
       this.targetClass = targetClass;
       protectionDomainOfTestedClass = targetClass.getProtectionDomain();
       CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
-      codeLocationParentPath = codeSource == null ? null : new File(codeSource.getLocation().getPath()).getParent();
+      codeLocationParentPath = codeSource == null || codeSource.getLocation() == null ? null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = targetClass.getName();
    }
 
