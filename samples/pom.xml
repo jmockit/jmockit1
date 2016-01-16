@@ -117,16 +117,6 @@
          <scope>test</scope>
       </dependency>
 
-      <dependency>
-         <groupId>org.unitils</groupId><artifactId>unitils-mock</artifactId><version>3.4.2</version>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>commons-logging</groupId><artifactId>commons-logging</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-
       <!-- Code coverage tool -->
       <dependency>
          <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>

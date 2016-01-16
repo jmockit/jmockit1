@@ -36,7 +36,6 @@
       <dependency><groupId>org.jmockit</groupId><artifactId>jmockit</artifactId></dependency>
       <dependency><groupId>org.easymock</groupId><artifactId>easymock</artifactId></dependency>
       <dependency><groupId>org.mockito</groupId><artifactId>mockito-core</artifactId></dependency>
-      <dependency><groupId>org.unitils</groupId><artifactId>unitils-mock</artifactId></dependency>
 
       <!-- Spring Test -->
       <dependency>
