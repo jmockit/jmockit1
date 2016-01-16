@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Rogério Liesenfeld
+ * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package orderMngr.domain.order;
@@ -19,7 +19,7 @@ public class Order
    private String customerId;
 
    @OneToMany
-   private List<OrderItem> items = new LinkedList<OrderItem>();
+   private final List<OrderItem> items = new LinkedList<>();
 
    public Order() {}
 
