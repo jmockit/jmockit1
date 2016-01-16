@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2006-2015 Rogério Liesenfeld
+  ~ Copyright (c) 2006 Rogério Liesenfeld
   ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
   -->
 <project name="jmockit" basedir=".">
@@ -126,8 +126,7 @@
          excludes="jmockit1.org/**/*.i*, jmockit.github.io/*.i*,
                    jmockit1.org/*.zip, jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/build.xml,
                    jmockit1.org/**/target/**, jmockit1.org/**/classes/**, jmockit1.org/**/test-classes/**,
-                   jmockit1.org/**/test-output/**, jmockit1.org/samples/javax.inject-tck/**,
-                   jmockit1.org/**/coverage-report/**, jmockit1.org/**/*.html"
+                   jmockit1.org/**/test-output/**, jmockit1.org/**/coverage-report/**, jmockit1.org/**/*.html"
          encoding="UTF-8"/>
    </target>
 
@@ -209,15 +208,8 @@
             </dirset>
          </classpath>
          <batchtest>
-            <fileset dir="samples/easymock/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/jmock/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/mockito/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/unitils/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/powermock/test-classes" includes="**/*Test.class"/>
             <fileset dir="samples/orderMngmntWebapp/test-classes" includes="**/*Test.class"/>
             <fileset dir="samples/tutorial/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/TimingFramework/test-classes" includes="**/*Test.class" excludes="end2end/*"/>
-            <fileset dir="samples/AnimatedTransitions/test-classes" includes="**/*Test.class"/>
             <fileset dir="samples/tourdemock/test-classes" includes="**/*Test.class"/>
          </batchtest>
          <formatter type="xml"/>

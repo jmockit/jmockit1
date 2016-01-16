@@ -9,17 +9,9 @@
 
    <modules>
       <module>tutorial</module>
-      <module>easymock</module>
-      <module>jmock</module>
-      <module>mockito</module>
-      <module>unitils</module>
-      <module>powermock</module>
-      <module>TimingFramework</module>
-      <module>AnimatedTransitions</module>
       <module>orderMngmntWebapp</module>
       <module>tourdemock</module>
       <module>LoginService</module>
-      <module>javax.inject-tck</module>
       <module>java8testing</module>
    </modules>
 
@@ -141,15 +133,6 @@
 
       <dependency>
          <groupId>org.unitils</groupId><artifactId>unitils-mock</artifactId><version>3.4</version>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>commons-logging</groupId><artifactId>commons-logging</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.unitils</groupId><artifactId>unitils-inject</artifactId><version>3.4</version>
          <scope>test</scope>
          <exclusions>
             <exclusion>
