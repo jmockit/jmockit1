@@ -25,6 +25,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
 
    @Nullable private final MockedType mockedType;
+   private final boolean classFromNonBootstrapClassLoader;
    private String className;
    @Nullable private String baseClassNameForCapturedInstanceMethods;
    private boolean ignoreConstructors;
@@ -38,6 +39,7 @@ final class ExpectationsModifier extends BaseClassModifier
    {
       super(classReader);
       mockedType = typeMetadata;
+      classFromNonBootstrapClassLoader = classLoader != null;
       setUseMockingBridge(classLoader);
       executionMode = ExecutionMode.Regular;
       useInstanceBasedMockingIfApplicable();
@@ -175,7 +177,8 @@ final class ExpectationsModifier extends BaseClassModifier
       ExecutionMode actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
 
       if (useMockingBridge) {
-         return generateCallToHandlerThroughMockingBridge(signature, internalClassName, actualExecutionMode);
+         return generateCallToHandlerThroughMockingBridge(
+            signature, internalClassName, visitingConstructor, actualExecutionMode);
       }
 
       generateDirectCallToHandler(mw, internalClassName, access, name, desc, signature, actualExecutionMode);
@@ -259,7 +262,8 @@ final class ExpectationsModifier extends BaseClassModifier
 
    @Nonnull
    private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @Nonnull String internalClassName, @Nonnull ExecutionMode actualExecutionMode)
+      @Nullable String genericSignature, @Nonnull String internalClassName, boolean visitingConstructor,
+      @Nonnull ExecutionMode actualExecutionMode)
    {
       generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
 
@@ -286,8 +290,8 @@ final class ExpectationsModifier extends BaseClassModifier
 
       // Copies the entire original implementation even for a constructor, in which case the complete bytecode inside
       // the constructor fails the strict verification activated by "-Xfuture". However, this is necessary to allow the
-      // full execution of a JRE constructor when the call was not meant to be mocked.
-      return copyOriginalImplementationCode(false);
+      // full execution of a bootstrap class constructor when the call was not meant to be mocked.
+      return copyOriginalImplementationCode(visitingConstructor && classFromNonBootstrapClassLoader);
    }
 
    private void generateDecisionBetweenReturningOrContinuingToRealImplementation()

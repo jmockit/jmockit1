@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2015 Rogério Liesenfeld
+ * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.mockups;
@@ -58,7 +58,7 @@ final class MockupsModifier extends BaseClassModifier
       this.mockMethods = mockMethods;
 
       ClassLoader classLoaderOfRealClass = realClass.getClassLoader();
-      useMockingBridgeForUpdatingMockState = classLoaderOfRealClass == null;
+      useMockingBridgeForUpdatingMockState = isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
       inferUseOfMockingBridge(classLoaderOfRealClass, mockUp);
    }
 

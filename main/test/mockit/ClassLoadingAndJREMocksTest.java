@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2014 Rogério Liesenfeld
+ * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -13,6 +13,8 @@ import static java.util.Arrays.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+
+import javafx.util.*;
 
 public final class ClassLoadingAndJREMocksTest
 {
@@ -347,5 +349,28 @@ public final class ClassLoadingAndJREMocksTest
    @Test(expected = IllegalArgumentException.class)
    public void attemptToMockJREClassThatIsNeverMockable(@Mocked Class<?> mockClass)
    {
+   }
+
+   public static class DurationMockUp extends MockUp<Duration> { @Mock public double toMillis() { return 123; } }
+
+   @Test
+   public void mockUpClassFromJREExtensionClassLoader()
+   {
+      new DurationMockUp();
+
+      Duration oneSec = new Duration(1000);
+      double millis = oneSec.toMillis();
+
+      assertEquals(123, millis, 0);
+   }
+
+   @Test
+   public void mockClassFromJREExtensionClassLoader(@Mocked final Duration mock)
+   {
+      new Expectations() {{ mock.toMillis(); result = 123; }};
+
+      double millis = mock.toMillis();
+
+      assertEquals(123, millis, 0);
    }
 }
