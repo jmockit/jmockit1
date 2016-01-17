@@ -436,7 +436,7 @@ public final class ExpectedInvocation
    private void useCascadedMock(@Nullable TestOnlyPhase phase, @Nullable Object cascadedMock)
    {
       if (cascadedMock != null) {
-         if (phase != null) {
+         if (phase != null && !TestRun.getExecutingTest().isRegularMockedInstance(cascadedMock)) {
             phase.setNextInstanceToMatch(cascadedMock);
          }
 

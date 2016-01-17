@@ -178,6 +178,11 @@ public final class ExecutingTest
       return false;
    }
 
+   public boolean isRegularMockedInstance(@Nonnull Object instance)
+   {
+      return containsReference(regularMocks, instance);
+   }
+
    public boolean isMockedInstance(@Nonnull Object instance)
    {
       return containsReference(regularMocks, instance) || isInjectableMock(instance);

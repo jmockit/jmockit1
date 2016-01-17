@@ -219,6 +219,7 @@ public final class StrictExpectationsTest
       double getDouble() { return 1.0; }
       Object getObject() { return new Object(); }
       Enumeration<?> getElements() { return null; }
+      ClassWithMethodsOfEveryReturnType returnSameType() { return null; }
    }
 
    @Test
@@ -360,5 +361,19 @@ public final class StrictExpectationsTest
       };
 
       assertEquals(123, mock.getValue());
+   }
+
+   @Test
+   public void recordExpectationsOnMethodReturningOwnType(@Mocked final ClassWithMethodsOfEveryReturnType mock)
+   {
+      ClassWithMethodsOfEveryReturnType nonMock = new ClassWithMethodsOfEveryReturnType();
+
+      new StrictExpectations() {{
+         mock.returnSameType();
+         mock.returnSameType();
+      }};
+
+      assertSame(mock, mock.returnSameType());
+      assertSame(mock, nonMock.returnSameType());
    }
 }
