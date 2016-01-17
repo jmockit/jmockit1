@@ -210,7 +210,6 @@
          <batchtest>
             <fileset dir="samples/orderMngmntWebapp/test-classes" includes="**/*Test.class"/>
             <fileset dir="samples/tutorial/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/tourdemock/test-classes" includes="**/*Test.class"/>
          </batchtest>
          <formatter type="xml"/>
       </junit>
