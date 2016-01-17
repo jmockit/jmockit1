@@ -10,7 +10,6 @@
    <modules>
       <module>tutorial</module>
       <module>orderMngmntWebapp</module>
-      <module>tourdemock</module>
       <module>LoginService</module>
       <module>java8testing</module>
    </modules>
@@ -22,40 +21,6 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <jmockit.version>1.21</jmockit.version>
    </properties>
-
-   <profiles>
-      <profile>
-         <id>unit-tests</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
-                  <configuration>
-                     <includes><include>**/*Test.java</include></includes>
-                     <excludes>
-                        <exclude>**/*IntegrationTest.java</exclude>
-                     </excludes>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>integration-tests</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
-                  <configuration>
-                     <includes>
-                        <include>**/*IntegrationTest.java</include>
-                     </includes>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
 
    <build>
       <sourceDirectory>src</sourceDirectory>
@@ -104,16 +69,6 @@
       <dependency>
          <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
          <version>${jmockit.version}</version>
-         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>org.easymock</groupId><artifactId>easymock</artifactId><version>3.4</version>
-         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>org.mockito</groupId><artifactId>mockito-core</artifactId><version>1.10.19</version>
          <scope>test</scope>
       </dependency>
 
