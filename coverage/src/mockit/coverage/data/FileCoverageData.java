@@ -58,7 +58,28 @@ public final class FileCoverageData implements Serializable
    public void addMethod(@Nonnull MethodCoverageData methodData) { pathCoverageInfo.addMethod(methodData); }
 
    @Nonnull
-   public Collection<MethodCoverageData> getMethods() { return pathCoverageInfo.firstLineToMethodData.values(); }
+   public Collection<MethodCoverageData> getMethods()
+   {
+      List<MethodCoverageData> methods =
+         new ArrayList<MethodCoverageData>(pathCoverageInfo.firstLineToMethodData.values());
+
+      Collections.sort(methods, new Comparator<MethodCoverageData>() {
+         @Override
+         public int compare(MethodCoverageData m1, MethodCoverageData m2)
+         {
+            int l1 = m1.getFirstLineInBody();
+            int l2 = m2.getFirstLineInBody();
+
+            if (l1 == l2) {
+               return 0;
+            }
+
+            return l1 < l2 ? -1 : 1;
+         }
+      });
+
+      return methods;
+   }
 
    @Nonnull
    public PerFileCoverage getPerFileCoverage(@Nonnull Metrics metric)

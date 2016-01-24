@@ -16,8 +16,7 @@ public final class PerFilePathCoverage implements PerFileCoverage
    private static final long serialVersionUID = 6075064821486644269L;
 
    @Nonnull
-   public final Map<Integer, MethodCoverageData> firstLineToMethodData =
-      new LinkedHashMap<Integer, MethodCoverageData>();
+   public final Map<Integer, MethodCoverageData> firstLineToMethodData = new HashMap<Integer, MethodCoverageData>();
 
    // Computed on demand:
    private transient int totalPaths;
@@ -34,7 +33,8 @@ public final class PerFilePathCoverage implements PerFileCoverage
 
    public void addMethod(@Nonnull MethodCoverageData methodData)
    {
-      firstLineToMethodData.put(methodData.getFirstLineInBody(), methodData);
+      int firstLineInBody = methodData.getFirstLineInBody();
+      firstLineToMethodData.put(firstLineInBody, methodData);
    }
 
    public int registerExecution(int firstLineInMethodBody, int node)
@@ -93,7 +93,12 @@ public final class PerFilePathCoverage implements PerFileCoverage
    public void mergeInformation(@Nonnull PerFilePathCoverage previousCoverage)
    {
       Map<Integer, MethodCoverageData> previousInfo = previousCoverage.firstLineToMethodData;
+      addExecutionCountsFromPreviousTestRun(previousInfo);
+      addPathInfoFromPreviousTestRunForMethodsNotExecutedInCurrentTestRun(previousInfo);
+   }
 
+   private void addExecutionCountsFromPreviousTestRun(@Nonnull Map<Integer, MethodCoverageData> previousInfo)
+   {
       for (Map.Entry<Integer, MethodCoverageData> firstLineAndInfo : firstLineToMethodData.entrySet()) {
          Integer firstLine = firstLineAndInfo.getKey();
          MethodCoverageData previousPathInfo = previousInfo.get(firstLine);
@@ -103,12 +108,17 @@ public final class PerFilePathCoverage implements PerFileCoverage
             pathInfo.addCountsFromPreviousTestRun(previousPathInfo);
          }
       }
+   }
 
+   private void addPathInfoFromPreviousTestRunForMethodsNotExecutedInCurrentTestRun(
+      @Nonnull Map<Integer, MethodCoverageData> previousInfo)
+   {
       for (Map.Entry<Integer, MethodCoverageData> firstLineAndInfo : previousInfo.entrySet()) {
          Integer firstLine = firstLineAndInfo.getKey();
 
          if (!firstLineToMethodData.containsKey(firstLine)) {
-            firstLineToMethodData.put(firstLine, firstLineAndInfo.getValue());
+            MethodCoverageData pathInfo = firstLineAndInfo.getValue();
+            firstLineToMethodData.put(firstLine, pathInfo);
          }
       }
    }

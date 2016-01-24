@@ -25,5 +25,10 @@ public class ClassWithNestedClasses
    public static void doSomething()
    {
       new NestedClass.DeeplyNestedClass().print("test");
+
+      // Just so we have two paths:
+      if (System.out != null) {
+         System.out.println("Test");
+      }
    }
 }
