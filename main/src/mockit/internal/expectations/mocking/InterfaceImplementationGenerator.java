@@ -41,7 +41,7 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
       String resolvedSignature = signature;
 
       if (signature != null) {
-         resolvedSignature = mockedTypeInfo.genericTypeMap.resolveReturnType(signature);
+         resolvedSignature = mockedTypeInfo.genericTypeMap.resolveReturnType(interfaceName, signature);
       }
 
       mw = cw.visitMethod(ACC_PUBLIC, name, desc, resolvedSignature, exceptions);

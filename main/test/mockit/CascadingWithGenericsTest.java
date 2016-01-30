@@ -108,6 +108,17 @@ public final class CascadingWithGenericsTest
       assertEquals("test", a.getB().getValue());
    }
 
+   @SuppressWarnings("unused") static class C<T> {}
+   static class D extends C<Foo> { <T extends Bar> T doSomething() { return null; } }
+
+   @Test
+   public void cascadeFromGenericMethodUsingTypeParameterOfSameNameAsTypeParameterFromBaseClass(@Mocked D mock)
+   {
+      Bar cascaded = mock.doSomething();
+
+      assertNotNull(cascaded);
+   }
+
    static class Factory
    {
       static <T extends Bar> T bar() { return null; }

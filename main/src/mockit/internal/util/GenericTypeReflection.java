@@ -83,6 +83,7 @@ public final class GenericTypeReflection
    private void addMappingsFromTypeParametersToTypeArguments(
       @Nonnull Class<?> mockedClass, @Nonnull ParameterizedType mockedType)
    {
+      String ownerTypeDesc = mockedClass.getName().replace('.', '/');
       TypeVariable<?>[] typeParameters = mockedClass.getTypeParameters();
       Type[] typeArguments = mockedType.getActualTypeArguments();
       int n = typeParameters.length;
@@ -91,7 +92,7 @@ public final class GenericTypeReflection
          TypeVariable<?> typeParam = typeParameters[i];
          String typeVarName = typeParam.getName();
 
-         if (typeParametersToTypeArguments.containsKey(typeVarName)) {
+         if (typeParametersToTypeArguments.containsKey(ownerTypeDesc + ':' + typeVarName)) {
             continue;
          }
 
@@ -110,7 +111,9 @@ public final class GenericTypeReflection
             mappedTypeArg = typeArg;
 
             if (withSignatures) {
-               String intermediateTypeArg = 'T' + ((TypeVariable<?>) typeArg).getName();
+               TypeVariable<?> typeVar = (TypeVariable<?>) typeArg;
+               String ownerClassDesc = getOwnerClassDesc(typeVar);
+               String intermediateTypeArg = ownerClassDesc + ":T" + typeVar.getName();
                mappedTypeArgName = typeParametersToTypeArgumentNames.get(intermediateTypeArg);
             }
          }
@@ -122,7 +125,7 @@ public final class GenericTypeReflection
             }
          }
 
-         addTypeMapping(typeVarName, mappedTypeArg, mappedTypeArgName);
+         addTypeMapping(ownerTypeDesc, typeVarName, mappedTypeArg, mappedTypeArgName);
       }
    }
 
@@ -135,11 +138,11 @@ public final class GenericTypeReflection
       }
       else if (type instanceof TypeVariable<?>) {
          TypeVariable<?> typeVar = (TypeVariable<?>) type;
-         String typeVarName = typeVar.getName();
-         Type typeArg = typeParametersToTypeArguments.get(typeVarName);
+         String typeVarKey = getTypeVariableKey(typeVar);
+         Type typeArg = typeParametersToTypeArguments.get(typeVarKey);
 
          if (typeArg == null) {
-            throw new IllegalArgumentException("Unable to resolve type variable \"" + typeVarName + '"');
+            throw new IllegalArgumentException("Unable to resolve type variable \"" + typeVar.getName() + '"');
          }
 
          //noinspection TailRecursion
@@ -150,18 +153,21 @@ public final class GenericTypeReflection
    }
 
    private void addTypeMapping(
-      @Nonnull String typeVarName, @Nonnull Type mappedTypeArg, @Nullable String mappedTypeArgName)
+      @Nonnull String ownerTypeDesc, @Nonnull String typeVarName,
+      @Nonnull Type mappedTypeArg, @Nullable String mappedTypeArgName)
    {
-      typeParametersToTypeArguments.put(typeVarName, mappedTypeArg);
+      typeParametersToTypeArguments.put(ownerTypeDesc + ':' + typeVarName, mappedTypeArg);
 
       if (mappedTypeArgName != null) {
-         addTypeMapping(typeVarName, mappedTypeArgName);
+         addTypeMapping(ownerTypeDesc, typeVarName, mappedTypeArgName);
       }
    }
 
-   private void addTypeMapping(@Nonnull String typeVarName, @Nonnull String mappedTypeArgName)
+   private void addTypeMapping(
+      @Nonnull String ownerTypeDesc, @Nonnull String typeVarName, @Nonnull String mappedTypeArgName)
    {
-      typeParametersToTypeArgumentNames.put('T' + typeVarName, mappedTypeArgName);
+      String typeMappingKey = ownerTypeDesc + ":T" + typeVarName;
+      typeParametersToTypeArgumentNames.put(typeMappingKey, mappedTypeArgName);
    }
 
    public final class GenericSignature
@@ -297,8 +303,21 @@ public final class GenericTypeReflection
          do { i++; c = param1.charAt(i); } while (c == '[');
          if (c != 'T') return false;
 
-         String typeArg1 = typeParametersToTypeArgumentNames.get(param1.substring(i));
-         return param2.substring(i).equals(typeArg1);
+         String typeVarName1 = param1.substring(i);
+         String typeVarName2 = param2.substring(i);
+         String typeArg1 = null;
+
+         for (Entry<String, String> typeParamAndArgName : typeParametersToTypeArgumentNames.entrySet()) {
+            String typeMappingKey = typeParamAndArgName.getKey();
+            String typeVarName = typeMappingKey.substring(typeMappingKey.indexOf(':') + 1);
+
+            if (typeVarName.equals(typeVarName1)) {
+               typeArg1 = typeParamAndArgName.getValue();
+               break;
+            }
+         }
+
+         return typeVarName2.equals(typeArg1);
       }
    }
 
@@ -309,21 +328,21 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   public String resolveReturnType(@Nonnull String signature)
+   public String resolveReturnType(@Nonnull String ownerTypeDesc, @Nonnull String signature)
    {
-      addTypeArgumentsIfAvailable(signature);
+      addTypeArgumentsIfAvailable(ownerTypeDesc, signature);
 
       int p = signature.lastIndexOf(')') + 1;
       int q = signature.length();
       String returnType = signature.substring(p, q);
-      String resolvedReturnType = replaceTypeParametersWithActualTypes(returnType);
+      String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, returnType);
 
       StringBuilder finalSignature = new StringBuilder(signature);
       finalSignature.replace(p, q, resolvedReturnType);
       return finalSignature.toString();
    }
 
-   private void addTypeArgumentsIfAvailable(@Nonnull String signature)
+   private void addTypeArgumentsIfAvailable(@Nonnull String ownerTypeDesc, @Nonnull String signature)
    {
       int firstParen = signature.indexOf('(');
       if (firstParen == 0) return;
@@ -353,16 +372,16 @@ public final class GenericTypeReflection
          }
 
          String typeArg = signature.substring(q, r);
-         addTypeMapping(typeVar, typeArg);
+         addTypeMapping(ownerTypeDesc, typeVar, typeArg);
       }
    }
 
    @Nonnull
-   private String replaceTypeParametersWithActualTypes(@Nonnull String typeDesc)
+   private String replaceTypeParametersWithActualTypes(@Nonnull String ownerTypeDesc, @Nonnull String typeDesc)
    {
       if (typeDesc.charAt(0) == 'T') {
          String typeParameter = typeDesc.substring(0, typeDesc.length() - 1);
-         String typeArg = typeParametersToTypeArgumentNames.get(typeParameter);
+         String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
          return typeArg == null ? typeDesc : typeArg + ';';
       }
 
@@ -375,7 +394,8 @@ public final class GenericTypeReflection
       String resolvedTypeDesc = typeDesc;
 
       for (Entry<String, String> paramAndArg : typeParametersToTypeArgumentNames.entrySet()) {
-         String typeParam = paramAndArg.getKey() + ';';
+         String typeMappingKey = paramAndArg.getKey();
+         String typeParam = typeMappingKey.substring(typeMappingKey.indexOf(':') + 1) + ';';
          String typeArg = paramAndArg.getValue() + ';';
          resolvedTypeDesc = resolvedTypeDesc.replace(typeParam, typeArg);
       }
@@ -386,7 +406,8 @@ public final class GenericTypeReflection
    @Nonnull
    public Type resolveReturnType(@Nonnull TypeVariable<?> typeVariable)
    {
-      Type typeArgument = typeParametersToTypeArguments.get(typeVariable.getName());
+      String typeVarKey = getTypeVariableKey(typeVariable);
+      Type typeArgument = typeParametersToTypeArguments.get(typeVarKey);
 
       if (typeArgument == null) {
          typeArgument = typeVariable.getBounds()[0];
@@ -397,6 +418,21 @@ public final class GenericTypeReflection
       }
 
       return typeArgument;
+   }
+
+   @Nonnull
+   private String getTypeVariableKey(@Nonnull TypeVariable<?> typeVariable)
+   {
+      String ownerClassDesc = getOwnerClassDesc(typeVariable);
+      return ownerClassDesc + ':' + typeVariable.getName();
+   }
+
+   @Nonnull
+   private String getOwnerClassDesc(@Nonnull TypeVariable<?> typeVariable)
+   {
+      GenericDeclaration owner = typeVariable.getGenericDeclaration();
+      Class<?> ownerClass = owner instanceof Member ? ((Member) owner).getDeclaringClass() : (Class<?>) owner;
+      return ownerClass.getName().replace('.', '/');
    }
 
    public boolean areMatchingTypes(@Nonnull Type declarationType, @Nonnull Type realizationType)
@@ -422,8 +458,8 @@ public final class GenericTypeReflection
 
    private boolean areMatchingTypes(@Nonnull TypeVariable<?> declarationType, @Nonnull Type realizationType)
    {
-      String typeVarName = declarationType.getName();
-      Type resolvedType = typeParametersToTypeArguments.get(typeVarName);
+      String typeVarKey = getTypeVariableKey(declarationType);
+      Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
       return resolvedType.equals(realizationType) || typeSatisfiesResolvedTypeVariable(resolvedType, realizationType);
    }
 
@@ -464,7 +500,8 @@ public final class GenericTypeReflection
 
    private boolean areMatchingTypeArguments(@Nonnull TypeVariable<?> declaredType, @Nonnull Type concreteType)
    {
-      Type resolvedType = typeParametersToTypeArguments.get(declaredType.getName());
+      String typeVarKey = getTypeVariableKey(declaredType);
+      Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
 
       if (resolvedType != null) {
          if (resolvedType.equals(concreteType)) {
