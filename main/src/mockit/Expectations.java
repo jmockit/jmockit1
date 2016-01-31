@@ -151,9 +151,10 @@ public abstract class Expectations extends Invocations
     * second the values.
     * Yet another conversion is from a single value to a container type holding that value.
     * <p/>
-    * Additionally, if the value assigned to the field is an array or is of a type assignable to {@link Iterable} or
-    * {@link Iterator}, and the return type is single-valued, then the assigned multi-valued result is taken as a
-    * sequence of <em>consecutive results</em> for the expectation.
+    * A sequence of <em>consecutive results</em> can be recorded simply by assigning the field multiple times for the
+    * same expectation.
+    * Alternatively, the desired sequence of results for a single-valued return type can be recorded by assigning an
+    * array, an {@link Iterable}, or an {@link Iterator} containing the individual results in order.
     * <p/>
     * Results that depend on some programming logic can be provided through a {@linkplain Delegate} object assigned to
     * the field.
