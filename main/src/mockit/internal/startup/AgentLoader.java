@@ -93,7 +93,7 @@ public final class AgentLoader
       if (osName.startsWith("Linux") || osName.startsWith("LINUX")) {
          return LinuxVirtualMachine.class;
       }
-      else if (osName.startsWith("Mac OS X")) {
+      else if (osName.contains("FreeBSD") || osName.startsWith("Mac OS X")) {
          return BsdVirtualMachine.class;
       }
       else if (osName.startsWith("Solaris")) {
