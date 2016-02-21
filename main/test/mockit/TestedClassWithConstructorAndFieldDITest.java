@@ -30,7 +30,7 @@ class BaseTest
    {
       assertEquals(-1, tested1.i);
       assertSame(dependency, tested1.dependency);
-      assertNotNull(tested1.action);
+      assertNull(tested1.action);
    }
 }
 
@@ -64,7 +64,7 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
    @Injectable Runnable anotherAction;
    @Injectable Dependency dependency2;
 
-//   @Test
+   @Test
    public void exerciseTestedSubclassObjectWithFieldsInjectedByTypeAndName()
    {
       verifyTestedObjectFromBaseTestClass();
@@ -97,7 +97,7 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
       assertFalse(tested2.doSomeOperation());
    }
 
-//   @Test
+   @Test
    public void exerciseTestedSubclassObjectUsingConstructorAndFieldInjection(
       @Injectable("45") int value, @Injectable Dependency dependency1)
    {
