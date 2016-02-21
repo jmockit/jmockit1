@@ -32,7 +32,7 @@ final class ConstructorSearch
       this.injectionState = injectionState;
       this.testedClass = testedClass;
       Class<?> declaredClass = isGeneratedClass(testedClass.getName()) ? testedClass.getSuperclass() : testedClass;
-      testedClassDesc = new ParameterNameExtractor(false).extractNames(declaredClass);
+      testedClassDesc = new ParameterNameExtractor().extractNames(declaredClass);
       parameterProviders = new ArrayList<InjectionPointProvider>();
       this.withFullInjection = withFullInjection;
    }

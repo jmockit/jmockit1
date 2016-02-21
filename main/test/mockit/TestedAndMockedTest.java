@@ -7,6 +7,7 @@ package mockit;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+import mockit.internal.*;
 import static mockit.Deencapsulation.*;
 
 public final class TestedAndMockedTest
@@ -69,5 +70,13 @@ public final class TestedAndMockedTest
    {
       assertEquals(123, testedAndInjected.doSomething());
       assertEquals(100, tested.doAnotherOperation());
+   }
+
+   @Test(expected = MissingInvocation.class)
+   public void mockTestedClass(@Mocked final ClassToBeTested mock)
+   {
+      new Expectations() {{
+         mock.doSomethingElse("");
+      }};
    }
 }

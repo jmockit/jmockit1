@@ -14,15 +14,13 @@ import static mockit.external.asm.Opcodes.*;
 
 final class ParameterNameExtractor extends ClassVisitor
 {
-   private final boolean forMethods;
    @Nonnull private String classDesc;
    @Nonnegative private int memberAccess;
    @Nonnull private String memberName;
    @Nonnull private String memberDesc;
 
-   ParameterNameExtractor(boolean forMethods)
+   ParameterNameExtractor()
    {
-      this.forMethods = forMethods;
       classDesc = memberName = memberDesc = "";
    }
 
@@ -46,14 +44,10 @@ final class ParameterNameExtractor extends ClassVisitor
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       if ((access & ACC_SYNTHETIC) == 0) {
-         boolean visitingAMethod = name.charAt(0) != '<';
-
-         if (visitingAMethod == forMethods) {
-            memberAccess = access;
-            memberName = name;
-            memberDesc = desc;
-            return new MethodOrConstructorVisitor();
-         }
+         memberAccess = access;
+         memberName = name;
+         memberDesc = desc;
+         return new MethodOrConstructorVisitor();
       }
 
       return null;
