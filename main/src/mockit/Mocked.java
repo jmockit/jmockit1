@@ -27,7 +27,8 @@ import java.lang.annotation.*;
  * Also, all methods of the mocked type will be mocked.
  * <p/>
  * When the mocked type is a class, all super-classes up to but not including {@code java.lang.Object} are also mocked.
- * Additionally, <em>static methods</em> and <em>constructors</em> are mocked as well, just like instance methods.
+ * Additionally, <em>static methods</em> and <em>constructors</em> are mocked as well, just like instance methods;
+ * <em>native</em> methods are also mocked, provided they are {@code public} or {@code protected}.
  * <p/>
  * When mocking an {@code enum} type, the {@code java.lang.Enum} base class is <em>not</em> mocked by default.
  * If needed, however, base types like {@code Object} and {@code Enum} can be mocked by explicitly declaring a mock

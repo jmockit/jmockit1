@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  * For the duration of each test where the mock field/parameter is in scope, <em>only one</em> injectable instance is
  * mocked; other instances of the same mocked type are not affected.
  * For an injectable mocked <em>class</em>, <em>static methods</em> and <em>constructors</em> are <em>not</em> mocked;
- * only instance methods are.
+ * only <em>non-native</em> instance methods are.
  * <p/>
  * When used in combination with {@linkplain Tested @Tested}, the values of injectable fields and parameters will be
  * used for automatic injection into the tested object.
