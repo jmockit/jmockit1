@@ -10,6 +10,7 @@ import java.util.Map.*;
 import javax.annotation.*;
 import javax.servlet.*;
 
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
 import static mockit.internal.util.Utilities.NO_ARGS;
@@ -127,7 +128,14 @@ final class LifecycleMethods
          args = new Object[] {servletConfig};
       }
 
-      MethodReflection.invoke(testedObject, initializationMethod, args);
+      TestRun.exitNoMockingZone();
+
+      try {
+         MethodReflection.invoke(testedObject, initializationMethod, args);
+      }
+      finally {
+         TestRun.enterNoMockingZone();
+      }
    }
 
    void executeTerminationMethodsIfAny()
@@ -145,9 +153,15 @@ final class LifecycleMethods
    private void executeTerminationMethod(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
       Method terminationMethod = terminationMethods.get(testedClass);
+      TestRun.exitNoMockingZone();
 
-      try { MethodReflection.invoke(testedObject, terminationMethod); }
+      try {
+         MethodReflection.invoke(testedObject, terminationMethod);
+      }
       catch (RuntimeException ignore) {}
       catch (AssertionError ignore) {}
+      finally {
+         TestRun.enterNoMockingZone();
+      }
    }
 }

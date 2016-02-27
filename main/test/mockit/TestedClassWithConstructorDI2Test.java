@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.net.*;
 import javax.servlet.*;
 
 import org.junit.*;
@@ -26,6 +27,17 @@ public final class TestedClassWithConstructorDI2Test
          this.dependency2 = dependency2;
          this.dependency3 = dependency3;
          r.run();
+
+         int i = dependency1.doSomething();
+         assert i == 123;
+
+         try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            assert localHost.getHostName() == null;
+         }
+         catch (UnknownHostException e) {
+            throw new IllegalStateException("InetAddress should be mocked", e);
+         }
       }
 
       public int doSomeOperation()
@@ -37,8 +49,35 @@ public final class TestedClassWithConstructorDI2Test
       @Override public void service(ServletRequest req, ServletResponse res) {}
       @Override public String getServletInfo() { return null; }
 
-      @Override public void init(ServletConfig cfg) { config = cfg; counter++; }
-      @Override public void destroy() { counter++; }
+      @Override
+      public void init(ServletConfig cfg)
+      {
+         config = cfg;
+         counter++;
+
+         int i = dependency1.doSomething();
+         assert i == 123;
+
+         checkInetAddressMocking();
+      }
+
+      private void checkInetAddressMocking()
+      {
+         try {
+            InetAddress inetAddress = InetAddress.getByName("testHost");
+            assert inetAddress.getHostName() == null;
+         }
+         catch (UnknownHostException ignore) {
+            counter = -1;
+         }
+      }
+
+      @Override
+      public void destroy()
+      {
+         counter++;
+         checkInetAddressMocking();
+      }
    }
 
    static class Dependency { int doSomething() { return -1; } }
@@ -48,6 +87,14 @@ public final class TestedClassWithConstructorDI2Test
    @Injectable Dependency dependency1;
    @Injectable Dependency dependency2;
    @Injectable ServletConfig config;
+   @Mocked InetAddress testHost;
+
+   @Before
+   public void resetCounter()
+   {
+      TestedClass.counter = 0;
+      new NonStrictExpectations() {{ dependency1.doSomething(); result = 123; }};
+   }
 
    @Test
    public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughConstructor(
@@ -72,12 +119,6 @@ public final class TestedClassWithConstructorDI2Test
       assertSame(dependency1, tested.dependency1);
       assertSame(dependency2, tested.dependency2);
       assertSame(dependency3, tested.dependency3);
-   }
-
-   @Before
-   public void resetCounter()
-   {
-      TestedClass.counter = 0;
    }
 
    void assertTestedObjectWasInitialized()
