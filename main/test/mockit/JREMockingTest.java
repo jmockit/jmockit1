@@ -414,17 +414,39 @@ public final class JREMockingTest
    // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void attemptToDynamicallyMockJREClassThatIsNeverMockable() throws Exception
+   public void attemptToMockJREClassThatIsNeverMockable()
    {
-      try {
-         new Expectations(ClassLoader.class) {{
-            String.class.getClassLoader().getResourceAsStream("resource");
-         }};
-         fail();
-      }
-      catch (IllegalArgumentException e) {
-         assertTrue(e.getMessage().contains("java.lang.ClassLoader"));
-      }
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("java.lang.ClassLoader is not mockable");
+
+      new Expectations(ClassLoader.class) {};
+   }
+
+   @Test
+   public void attemptToMockClassClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("java.lang.Class is not mockable");
+
+      new Expectations(Class.class) {};
+   }
+
+   @Test
+   public void attemptToMockMathClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("java.lang.Math is not mockable");
+
+      new Expectations(Math.class) {};
+   }
+
+   @Test
+   public void attemptToMockStrictMathClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("java.lang.StrictMath is not mockable");
+
+      new Expectations(StrictMath.class) {};
    }
 
    // Un-mockable JRE methods/constructors ////////////////////////////////////////////////////////////////////////////

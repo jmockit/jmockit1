@@ -92,7 +92,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private void validateMockingOfJREClass(@Nonnull String internalName)
    {
       if (internalName.startsWith("java/")) {
-         if ("java/lang/Class".equals(internalName) || "java/lang/ClassLoader".equals(internalName)) {
+         if ("java/lang/ClassLoader java/lang/Math java/lang/StrictMath".contains(internalName)) {
             throw new IllegalArgumentException("Class " + internalName.replace('/', '.') + " is not mockable");
          }
 
