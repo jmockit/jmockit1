@@ -45,11 +45,11 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.22</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.23</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.22</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.23</version>
          <scope>runtime</scope>
       </dependency>
       <dependency>
