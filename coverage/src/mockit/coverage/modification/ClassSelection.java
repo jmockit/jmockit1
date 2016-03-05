@@ -90,13 +90,15 @@ final class ClassSelection
          return false;
       }
 
-      if (configurationRead) {
-         if (isClassExcludedFromCoverage(className)) {
-            return false;
-         }
-         else if (classesToInclude != null) {
-            return classesToInclude.reset(className).matches();
-         }
+      if (!configurationRead) {
+         readConfiguration();
+      }
+
+      if (isClassExcludedFromCoverage(className)) {
+         return false;
+      }
+      else if (classesToInclude != null) {
+         return classesToInclude.reset(className).matches();
       }
 
       return !isClassFromExternalLibrary(location);
@@ -162,18 +164,9 @@ final class ClassSelection
 
       String path = location.getPath();
 
-      if (
+      return
          path.endsWith(".jar") || path.endsWith("/.cp/") ||
-         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"))
-      ) {
-         return true;
-      }
-
-      if (!configurationRead) {
-         readConfiguration();
-      }
-
-      return false;
+         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"));
    }
 
    private void readConfiguration()
