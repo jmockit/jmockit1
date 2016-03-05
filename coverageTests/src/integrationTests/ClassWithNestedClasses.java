@@ -31,4 +31,10 @@ public class ClassWithNestedClasses
          System.out.println("Test");
       }
    }
+
+   public static boolean methodContainingAnonymousClass(int i)
+   {
+      new Cloneable() {};
+      return i > 0;
+   }
 }

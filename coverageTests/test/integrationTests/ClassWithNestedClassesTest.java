@@ -15,11 +15,12 @@ public final class ClassWithNestedClassesTest extends CoverageTest
    public void exerciseNestedClasses()
    {
       ClassWithNestedClasses.doSomething();
+      ClassWithNestedClasses.methodContainingAnonymousClass(1);
 
-      assertEquals(10, fileData.lineCoverageInfo.getExecutableLineCount());
-      assertEquals(60, fileData.lineCoverageInfo.getCoveragePercentage());
-      assertEquals(10, fileData.lineCoverageInfo.getTotalItems());
-      assertEquals( 6, fileData.lineCoverageInfo.getCoveredItems());
+      assertEquals(12, fileData.lineCoverageInfo.getExecutableLineCount());
+      assertEquals(64, fileData.lineCoverageInfo.getCoveragePercentage());
+      assertEquals(14, fileData.lineCoverageInfo.getTotalItems());
+      assertEquals( 9, fileData.lineCoverageInfo.getCoveredItems());
 
       findMethodData(27);
       assertMethodLines(27, 33);
@@ -27,9 +28,9 @@ public final class ClassWithNestedClassesTest extends CoverageTest
       assertPath(4, 0);
       assertPath(5, 1);
 
-      assertEquals( 5, fileData.pathCoverageInfo.firstLineToMethodData.size());
-      assertEquals(50, fileData.pathCoverageInfo.getCoveragePercentage());
-      assertEquals( 6, fileData.pathCoverageInfo.getTotalItems());
-      assertEquals( 3, fileData.pathCoverageInfo.getCoveredItems());
+      assertEquals( 6, fileData.pathCoverageInfo.firstLineToMethodData.size());
+      assertEquals(57, fileData.pathCoverageInfo.getCoveragePercentage());
+      assertEquals( 7, fileData.pathCoverageInfo.getTotalItems());
+      assertEquals( 4, fileData.pathCoverageInfo.getCoveredItems());
    }
 }

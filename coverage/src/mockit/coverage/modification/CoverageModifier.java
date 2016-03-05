@@ -162,7 +162,11 @@ final class CoverageModifier extends ClassVisitor
    {
       cw.visitInnerClass(internalName, outerName, innerName, access);
 
-      if (forInnerClass || isSyntheticOrEnumClass(access) || !isNestedInsideClassBeingModified(outerName)) {
+      if (
+         forInnerClass ||
+         isSyntheticOrEnumClass(access) ||
+         !isNestedInsideClassBeingModified(internalName, outerName)
+      ) {
          return;
       }
 
@@ -186,14 +190,11 @@ final class CoverageModifier extends ClassVisitor
       return (access & ACC_SYNTHETIC) != 0 || access == ACC_STATIC + ACC_ENUM;
    }
 
-   private boolean isNestedInsideClassBeingModified(@Nullable String outerName)
+   private boolean isNestedInsideClassBeingModified(@Nonnull String internalName, @Nullable String outerName)
    {
-      if (outerName == null) {
-         return false;
-      }
-
-      int p = outerName.indexOf('$');
-      String outerClassName = p < 0 ? outerName : outerName.substring(0, p);
+      String className = outerName == null ? internalName : outerName;
+      int p = className.indexOf('$');
+      String outerClassName = p < 0 ? className : className.substring(0, p);
 
       return outerClassName.equals(internalClassName);
    }
