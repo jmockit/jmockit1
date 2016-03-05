@@ -21,7 +21,6 @@ public final class DelegateInvocationTest
       static boolean staticMethod() { return true; }
       static boolean staticMethod(int i) { return i > 0; }
       public long publicMethod(boolean b) { return b ? 0L : -1L; }
-      private float privateMethod() { return 1.2F; }
    }
 
    @Test
@@ -163,21 +162,6 @@ public final class DelegateInvocationTest
       }};
 
       assertEquals(123, mock.publicMethod(true));
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void delegateClassWithTwoPrivateMethods(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.privateMethod(); minTimes = 0;
-         result = new Delegate() {
-            @SuppressWarnings("unused")
-            private float privateMethod(Invocation invocation) { return 1.0F; }
-
-            @SuppressWarnings("unused")
-            private void someOtherMethod() {}
-         };
-      }};
    }
 
    @Test

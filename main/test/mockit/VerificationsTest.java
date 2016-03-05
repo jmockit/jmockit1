@@ -10,8 +10,6 @@ import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
-import static mockit.Deencapsulation.*;
-
 public final class VerificationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -19,18 +17,12 @@ public final class VerificationsTest
    @SuppressWarnings("UnusedParameters")
    public static class Dependency
    {
-      public Dependency() {}
-      private Dependency(int i) {}
-
       public void setSomething(int value) {}
       public void setSomethingElse(String value) {}
       public void editABunchMoreStuff() {}
       public void notifyBeforeSave() {}
       public void prepare() {}
       public void save() {}
-
-      private void privateMethod() {}
-      private static void privateStaticMethod(String s, boolean b) {}
    }
 
    @Mocked Dependency mock;
@@ -327,19 +319,6 @@ public final class VerificationsTest
          mock.setSomething(anyInt); minTimes = 2;
          mock.editABunchMoreStuff(); minTimes = 0; maxTimes = 5;
          mock.save(); times = 1;
-      }};
-   }
-
-   @Test
-   public void verifyInvocationsToPrivateMethodsAndConstructors()
-   {
-      new Dependency(9).privateMethod();
-      Dependency.privateStaticMethod("test", true);
-
-      new Verifications() {{
-         newInstance(Dependency.class.getName(), 9);
-         invoke(mock, "privateMethod");
-         invoke(Dependency.class, "privateStaticMethod", "test", true);
       }};
    }
 

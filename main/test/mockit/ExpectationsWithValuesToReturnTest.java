@@ -23,7 +23,7 @@ public final class ExpectationsWithValuesToReturnTest
 
    static class Collaborator
    {
-      private static String doInternal() { return "123"; }
+      static String doInternal() { return "123"; }
 
       void provideSomeService() { throw new RuntimeException("Should not occur"); }
 

@@ -22,7 +22,7 @@ public final class CascadingFieldTest
 
       void doSomething(String s) { throw new RuntimeException(s); }
       int getIntValue() { return 1; }
-      private Boolean getBooleanValue() { return true; }
+      Boolean getBooleanValue() { return true; }
       String getStringValue() { return "abc"; }
       public final Date getDate() { return null; }
       final List<Integer> getList() { return null; }

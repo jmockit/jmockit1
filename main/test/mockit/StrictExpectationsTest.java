@@ -26,7 +26,7 @@ public final class StrictExpectationsTest
       Collaborator() {}
       Collaborator(int value) { this.value = value; }
 
-      private static String doInternal() { return "123"; }
+      static String doInternal() { return "123"; }
 
       void provideSomeService() {}
       protected native boolean nativeMethod();

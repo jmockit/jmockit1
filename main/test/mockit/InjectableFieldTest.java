@@ -21,7 +21,7 @@ public final class InjectableFieldTest
    {
       void doSomething(String s) { throw new RuntimeException(s); }
       int getAnotherValue() { return 2; }
-      private Boolean getBooleanValue() { return true; }
+      Boolean getBooleanValue() { return true; }
       final List<Integer> getList() { return null; }
       static String doSomethingElse() { return ""; }
    }

@@ -30,7 +30,7 @@ public final class TestedAndMockedTest
 
       static void validateInput(int i, String s) { if (i <= 0 || s == null) throw new IllegalArgumentException(); }
       int doSomething() { return -1; }
-      private void doSomethingElse(String s) { outputData = "output data: " + s; }
+      void doSomethingElse(String s) { outputData = "output data: " + s; }
 
       int doAnotherOperation()
       {
@@ -60,9 +60,7 @@ public final class TestedAndMockedTest
       assertTrue(result);
       assertEquals("output data: testing", tested.outputData);
 
-      new Verifications() {{
-         invoke(tested, "doSomethingElse", anyString); times = 1;
-      }};
+      new Verifications() {{ tested.doSomethingElse(anyString); times = 1; }};
    }
 
    @Test

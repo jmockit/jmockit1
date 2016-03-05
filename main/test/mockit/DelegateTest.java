@@ -10,8 +10,6 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-import static mockit.Deencapsulation.*;
-
 @SuppressWarnings("unused")
 public final class DelegateTest
 {
@@ -28,7 +26,6 @@ public final class DelegateTest
       static boolean staticMethod(int i) { return i > 0; }
       protected native long nativeMethod(boolean b);
       final char finalMethod() { return 's'; }
-      private float privateMethod() { return 1.2F; }
       void addElements(List<String> elements) { elements.add("one element"); }
       Foo getFoo() { return null; }
    }
@@ -231,17 +228,6 @@ public final class DelegateTest
       }};
 
       assertEquals('M', new Collaborator().finalMethod());
-   }
-
-   @Test
-   public void delegateForPrivateMethod(@Mocked final Collaborator collaborator)
-   {
-      new Expectations() {{
-         invoke(collaborator, "privateMethod");
-         result = new Delegate() { float privateMethod() { return 0.5F; } };
-      }};
-
-      assertEquals(0.5F, collaborator.privateMethod(), 0);
    }
 
    @Test

@@ -36,7 +36,7 @@ public final class InvocationProceedTest
       @Override
       protected int methodToBeMocked(int i) throws IOException { return super.methodToBeMocked(i); }
 
-      private int methodToBeMocked(int i, Object... args)
+      int methodToBeMocked(int i, Object... args)
       {
          int result = i;
 

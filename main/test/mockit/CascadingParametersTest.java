@@ -27,7 +27,7 @@ public final class CascadingParametersTest
 
       void doSomething(String s) { throw new RuntimeException(s); }
       int getIntValue() { return 1; }
-      private Boolean getBooleanValue() { return true; }
+      Boolean getBooleanValue() { return true; }
       final List<Integer> getList() { return null; }
 
       HashMap<?, ?> getMap() { return null; }

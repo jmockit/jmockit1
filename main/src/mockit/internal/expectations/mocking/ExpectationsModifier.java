@@ -20,8 +20,7 @@ import static mockit.internal.util.Utilities.*;
 final class ExpectationsModifier extends BaseClassModifier
 {
    private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
-   private static final int METHOD_ACCESS_MASK = ACC_SYNTHETIC + ACC_ABSTRACT;
-   private static final int PRIVATE_OR_STATIC = ACC_PRIVATE + ACC_STATIC;
+   private static final int METHOD_ACCESS_MASK = ACC_PRIVATE + ACC_SYNTHETIC + ACC_ABSTRACT;
    private static final int PUBLIC_OR_PROTECTED = ACC_PUBLIC + ACC_PROTECTED;
 
    @Nullable private final MockedType mockedType;
@@ -240,7 +239,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private boolean isMethodNotAllowedByMockingFilters(int access, @Nonnull String name)
    {
       return
-         baseClassNameForCapturedInstanceMethods != null && (access & PRIVATE_OR_STATIC) != 0 ||
+         baseClassNameForCapturedInstanceMethods != null && (access & ACC_STATIC) != 0 ||
          executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
    }
 

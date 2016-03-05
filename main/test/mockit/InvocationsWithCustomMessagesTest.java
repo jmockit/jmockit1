@@ -24,7 +24,7 @@ public final class InvocationsWithCustomMessagesTest
       @SuppressWarnings("RedundantNoArgConstructor")
       Collaborator() {}
 
-      private static String doInternal() { return "123"; }
+      static String doInternal() { return "123"; }
 
       void provideSomeService() {}
 

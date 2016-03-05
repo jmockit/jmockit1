@@ -24,7 +24,7 @@ import java.lang.annotation.*;
  * The effect of declaring a {@code @Mocked} type, <em>by default</em>, is that all new instances of that type, as well
  * as those previously created, will also be mocked instances; this will last for the duration of each test where the
  * associated mock field/parameter is in scope.
- * Also, all methods of the mocked type will be mocked.
+ * Also, all non-<code>private</code> methods of the mocked type will be mocked.
  * <p/>
  * When the mocked type is a class, all super-classes up to but not including {@code java.lang.Object} are also mocked.
  * Additionally, <em>static methods</em> and <em>constructors</em> are mocked as well, just like instance methods;
@@ -39,8 +39,8 @@ import java.lang.annotation.*;
  * {@linkplain Expectations#result result} (or with a {@linkplain Expectations#times constraint} violation, if the
  * invocation is deemed to be unexpected).
  * <p/>
- * Mocking will automatically <em>cascade</em> into the return types of all non-void methods belonging to the mocked
- * type, except for non-eligible ones (primitive wrappers, {@code String}, and collections/maps).
+ * Mocking will automatically <em>cascade</em> into the return types of all non-<code>void</code> methods belonging to
+ * the mocked type, except for non-eligible ones (primitive wrappers, {@code String}, and collections/maps).
  * When needed, such cascaded returns can be overridden by explicitly recording a return value for the mocked method.
  * If there is a mock field/parameter with the same type (or a subtype) of some cascaded type, then the original
  * instance from that mock field/parameter will be used as the cascaded instance, rather than a new one being created;

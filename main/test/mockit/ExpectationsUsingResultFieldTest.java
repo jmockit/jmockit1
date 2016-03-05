@@ -20,7 +20,7 @@ public final class ExpectationsUsingResultFieldTest
    @SuppressWarnings("ClassWithTooManyMethods")
    static class Collaborator
    {
-      private static String doInternal() { return "123"; }
+      static String doInternal() { return "123"; }
 
       void provideSomeService() {}
 

@@ -15,8 +15,6 @@ import static org.junit.Assert.*;
 
 import mockit.*;
 
-import static mockit.Deencapsulation.*;
-
 public final class OrderFindersTest
 {
    @Mocked final Database db = null;
@@ -75,11 +73,6 @@ public final class OrderFindersTest
 
          rs.next(); result = new boolean[] {true, false};
          rs.getInt(1); result = order.getNumber();
-      }};
-
-      // Causes an already tested private method to do nothing:
-      new Expectations() {{
-         invoke(repository, "loadOrderItems", order);
       }};
 
       List<Order> found = repository.findByCustomer(customerId);

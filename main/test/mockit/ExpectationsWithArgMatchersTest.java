@@ -27,14 +27,14 @@ public final class ExpectationsWithArgMatchersTest
    @SuppressWarnings("unused")
    static class Collaborator
    {
-      private void setValue(int value) {}
+      void setValue(int value) {}
       void setValue(double value) {}
       void setValue(float value) {}
       void setValue(String value) {}
       void setValues(char c, boolean b) {}
       void setValues(String[] values) {}
       void setTextualValues(Collection<String> values) {}
-      private void doSomething(Integer i) {}
+      void doSomething(Integer i) {}
       boolean doSomething(String s) { return false; }
 
       List<?> complexOperation(Object input1, Object... otherInputs)

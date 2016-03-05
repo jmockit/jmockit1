@@ -43,7 +43,7 @@ public final class ExpectationsUsingReflectionTest
          this.value = value; this.value2 = value2; this.value3 = value3;
       }
 
-      private static String doInternal() { return "123"; }
+      static String doInternal() { return "123"; }
 
       static void staticMethod(int i, Object o, Character c) {}
       static void staticMethod(int i, String s, char c) {}
@@ -59,8 +59,8 @@ public final class ExpectationsUsingReflectionTest
       void setValue(Object value) { value3 = String.valueOf(value); }
 
       void doBusinessOperation(BusinessInterface operation) { operation.doOperation(); }
-      private int doSomething(int i, Class<?> aClass) { return i; }
-      private int doSomething(int i, String s) { return -i; }
+      int doSomething(int i, Class<?> aClass) { return i; }
+      int doSomething(int i, String s) { return -i; }
       static int doSomething(Class<?> cls) { return -1; }
 
       private final class Inner
