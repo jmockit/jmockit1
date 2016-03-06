@@ -57,14 +57,6 @@ public abstract class MockingBridge implements InvocationHandler
     */
    protected MockingBridge(@Nonnull String id) { this.id = id; }
 
-   protected static boolean calledFromSpecialThread()
-   {
-      Thread currentThread = Thread.currentThread();
-      return
-         "java.awt.EventDispatchThread".equals(currentThread.getClass().getName()) ||
-         "Finalizer".equals(currentThread.getName());
-   }
-
    protected static boolean notToBeMocked(@Nullable Object mocked, @Nonnull String mockedClassDesc)
    {
       return

@@ -12,6 +12,7 @@ import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
+import static mockit.internal.util.Utilities.calledFromSpecialThread;
 
 public final class MockedBridge extends MockingBridge
 {

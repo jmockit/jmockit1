@@ -173,6 +173,10 @@ public final class RecordAndReplayExecution
       @Nullable String genericSignature, int executionModeOrdinal, @Nullable Object[] args)
       throws Throwable
    {
+      if (calledFromSpecialThread()) {
+         return Void.class;
+      }
+
       if (args == null) {
          //noinspection AssignmentToMethodParameter
          args = NO_ARGS;

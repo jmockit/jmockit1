@@ -180,4 +180,12 @@ public final class Utilities
 
       return null;
    }
+
+   public static boolean calledFromSpecialThread()
+   {
+      Thread currentThread = Thread.currentThread();
+      return
+         "java.awt.EventDispatchThread".equals(currentThread.getClass().getName()) ||
+         "system".equals(currentThread.getThreadGroup().getName());
+   }
 }
