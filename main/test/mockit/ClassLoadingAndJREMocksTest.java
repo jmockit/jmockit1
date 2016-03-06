@@ -14,8 +14,9 @@ import static java.util.Arrays.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import javafx.util.*;
+import sun.net.spi.nameservice.dns.*;
 
+@SuppressWarnings("UseOfSunClasses")
 public final class ClassLoadingAndJREMocksTest
 {
    static class Foo1 {}
@@ -351,26 +352,27 @@ public final class ClassLoadingAndJREMocksTest
    {
    }
 
-   public static class DurationMockUp extends MockUp<Duration> { @Mock public double toMillis() { return 123; } }
-
-   @Test
-   public void mockUpClassFromJREExtensionClassLoader()
-   {
-      new DurationMockUp();
-
-      Duration oneSec = new Duration(1000);
-      double millis = oneSec.toMillis();
-
-      assertEquals(123, millis, 0);
+   public static class ExtensionClassMockUp extends MockUp<DNSNameService> {
+      @Mock public String getHostByAddr(byte[] addr) { return "mock-up"; }
    }
 
    @Test
-   public void mockClassFromJREExtensionClassLoader(@Mocked final Duration mock)
+   public void mockUpClassFromJREExtensionClassLoader() throws Exception
    {
-      new Expectations() {{ mock.toMillis(); result = 123; }};
+      new ExtensionClassMockUp();
 
-      double millis = mock.toMillis();
+      String host = new DNSNameService().getHostByAddr(null);
 
-      assertEquals(123, millis, 0);
+      assertEquals("mock-up", host);
+   }
+
+   @Test
+   public void mockClassFromJREExtensionClassLoader(@Mocked final DNSNameService mock) throws Exception
+   {
+      new Expectations() {{ mock.getHostByAddr(null); result = "test"; }};
+
+      String host = mock.getHostByAddr(null);
+
+      assertEquals("test", host);
    }
 }
