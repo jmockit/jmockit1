@@ -96,7 +96,7 @@ public final class AgentLoader
       else if (osName.contains("FreeBSD") || osName.startsWith("Mac OS X")) {
          return BsdVirtualMachine.class;
       }
-      else if (osName.startsWith("Solaris")) {
+      else if (osName.startsWith("Solaris") || osName.contains("SunOS")) {
          return SolarisVirtualMachine.class;
       }
 
