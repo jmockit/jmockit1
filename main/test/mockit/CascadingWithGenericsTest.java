@@ -207,4 +207,12 @@ public final class CascadingWithGenericsTest
       Bar bar = foo.bar();
       assertNotNull(bar);
    }
+
+   @Test @Ignore("Not supported yet")
+   public void cascadeFromGenericMethodWhoseReturnTypeResolvesToAnotherGenericType(@Mocked B<C<?>> mock)
+   {
+      C<?> c = mock.getValue();
+
+      assertNotNull(c);
+   }
 }
