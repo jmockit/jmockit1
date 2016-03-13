@@ -21,7 +21,7 @@ final class ExpectationError extends AssertionError
       StackTrace.filterStackTrace(this);
    }
 
-   void defineCause(@Nonnull String title, @Nonnull Error error)
+   void defineCause(@Nonnull String title, @Nonnull Throwable error)
    {
       prepareForDisplay(title);
       error.initCause(this);

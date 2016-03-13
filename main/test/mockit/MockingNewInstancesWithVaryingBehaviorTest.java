@@ -157,7 +157,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    {
       new Expectations() {{
          new Collaborator(5); result = mock;
-         onInstance(mock).getValue(); result = 123;
+         onInstance(mock).getValue(); result = 123; minTimes = 0;
       }};
 
       assertEquals(0, new Collaborator().getValue());

@@ -68,7 +68,6 @@ public final class FullVerificationsTest
          mock.prepare();
          mock.setSomething(anyInt);
          mock.setSomethingElse(anyChar);
-         mock.editABunchMoreStuff();
          mock.notifyBeforeSave();
          mock.save();
       }};

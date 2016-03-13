@@ -126,7 +126,6 @@ public class ComplexVerificationsTest
       new FullVerifications(a) {{
          // Meets requirement 6a.
          a.process(input);
-         a.result();
       }};
 
       new FullVerifications(input.length, b, c) {{

@@ -50,7 +50,7 @@ public final class MockedClassWithSuperClassTest
    @Test
    public void mockedClassExtendingNonJREClass(@Mocked final Subclass mock)
    {
-      new Expectations() {{ mock.doSomething(); result = 45; }};
+      new Expectations() {{ mock.doSomething(); result = 45; times = 3; }};
 
       // Mocked:
       assertEquals(45, mock.doSomething());
@@ -64,8 +64,6 @@ public final class MockedClassWithSuperClassTest
       BaseClass b2 = new BaseClass() { @Override int doSomething() { return super.doSomething() - 23; } };
       assertEquals(123, b1.doSomething());
       assertEquals(100, b2.doSomething());
-
-      new Verifications() {{ mock.doSomething(); times = 3; }};
    }
 
    @Test

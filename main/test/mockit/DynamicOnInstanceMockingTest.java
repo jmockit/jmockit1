@@ -194,7 +194,6 @@ public final class DynamicOnInstanceMockingTest
       assertFalse(foo3.doItAgain());
 
       new Verifications() {{
-         assertFalse(foo1.doIt()); times = 1;
          assertFalse(foo2.doIt()); times = 1;
          assertFalse(foo1.doItAgain()); times = 1;
          assertFalse(foo3.doItAgain()); times = 2;

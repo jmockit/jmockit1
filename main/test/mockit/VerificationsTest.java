@@ -105,7 +105,7 @@ public final class VerificationsTest
    @Test
    public void verifyRecordedInvocationWithExactInvocationCountUsingArgumentMatchers()
    {
-      new Expectations() {{ mock.setSomething(anyInt); }};
+      new Expectations() {{ mock.setSomething(anyInt); minTimes = 0; }};
 
       mock.setSomething(1);
       mock.setSomething(2);
@@ -188,13 +188,11 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyRecordedInvocationThatShouldNotOccurButDid()
+   public void verifyInvocationThatShouldNotOccurButDid()
    {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("2 unexpected invocations");
       thrown.expectMessage("with arguments: 123");
-
-      new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(5);
       mock.setSomething(123);
@@ -370,7 +368,7 @@ public final class VerificationsTest
       new Verifications() {{ mock.prepare(); times = 1; }};
 
       // Previous replay state is discarded, with a new empty one being created:
-      new Expectations() {{ mock.prepare(); }};
+      new Expectations() {{ mock.prepare(); minTimes = 0; }};
       new Verifications() {{ mock.prepare(); times = 0; }};
 
       // Second replay, but counts again as first since the previous one was discarded:

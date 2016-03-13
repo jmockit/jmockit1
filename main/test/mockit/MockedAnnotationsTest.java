@@ -37,7 +37,7 @@ public final class MockedAnnotationsTest
    public void verifyUsesOfAnnotationAttributes(@Mocked final MyAnnotation a)
    {
       new Expectations() {{
-         a.value(); result = "test";
+         a.value(); result = "test"; times = 2;
          a.values(); returns("abc", "dEf");
       }};
 
@@ -52,8 +52,6 @@ public final class MockedAnnotationsTest
       new FullVerifications() {{
          // Mocked methods called here always return the default value according to return type.
          a.flag();
-         a.value(); times = 2;
-         a.values();
       }};
    }
 }

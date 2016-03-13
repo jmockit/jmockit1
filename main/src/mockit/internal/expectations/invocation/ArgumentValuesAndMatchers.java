@@ -24,8 +24,7 @@ abstract class ArgumentValuesAndMatchers
 
    final void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify)
    {
-      values = argsToVerify;
-      matchers = null;
+      setValuesAndMatchers(argsToVerify, null);
    }
 
    @Nonnull
@@ -33,9 +32,14 @@ abstract class ArgumentValuesAndMatchers
       @Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchersToUse)
    {
       Object[] replayArgs = values;
+      setValuesAndMatchers(argsToVerify, matchersToUse);
+      return replayArgs;
+   }
+
+   final void setValuesAndMatchers(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchersToUse)
+   {
       values = argsToVerify;
       matchers = matchersToUse;
-      return replayArgs;
    }
 
    @Nullable

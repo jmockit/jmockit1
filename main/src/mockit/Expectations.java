@@ -88,26 +88,21 @@ import mockit.internal.expectations.*;
  * {@link FullVerifications}, and {@link FullVerificationsInOrder}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
  * <p/>
- * Finally, note that this class has two specialized subclasses: {@link StrictExpectations} and
- * {@link NonStrictExpectations}.
- * The first one differs in that 1) each recorded expectation has, by default, a maximum allowed number of invocations
+ * Finally, note that this class has a specialized subclass: {@link StrictExpectations}.
+ * That one differs in that 1) each recorded expectation has, by default, a maximum allowed number of invocations
  * of {@code 1} (one); 2) matching invocations must occur in the <em>same order</em> as recorded; 3) <em>only</em>
  * matching invocations are allowed, with any occurrence of unmatched invocations causing the test to fail with an
  * {@code UnexpectedInvocation} error; and 4) use of verification blocks is not supported, since all invocations are
  * implicitly verified through the strictly recorded sequence of expectations.
- * The second one is a smaller variation, in which recorded expectations have a minimum expected number of invocations
- * of {@code 0} (zero), that is, they are allowed to have no matching invocations at all by default.
  * Most tests can and should only use {@code Expectations}; {@code StrictExpectations} are meant for users who prefer a
  * mocking style where all expectations are specified before exercising the code under test, or for situations where
  * the recording of a strict sequence of expectations produces a test that is more succinct or that fails as early as
- * an unexpected invocation occurs; {@code NonStrictExpectations} are mainly useful for test setup methods
- * (a {@code @Before} method in JUnit, or {@code @BeforeMethod} in TestNG), where we often end up recording expectations
- * that get replayed by <em>some</em> tests, but not all.
+ * an unexpected invocation occurs.
  *
  * @see #Expectations()
  * @see #Expectations(Object...)
  * @see #Expectations(Integer, Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#strictness">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation">Tutorial</a>
  */
 public abstract class Expectations extends Invocations
 {

@@ -264,8 +264,6 @@ public final class CascadingFieldTest
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingInterface(
       @Mocked final ConcreteSubclass2 mock)
    {
-      new Expectations() {{ mock.getValue().getB().getC(); }};
-
       Ab value = mock.getValue();
       assertNotNull(value);
       value.getB().getC();

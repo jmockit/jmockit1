@@ -62,26 +62,21 @@ public final class TestNGExpectationsTest
    @BeforeMethod
    void setUpTestMethod1()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock2.doSomethingElse(anyInt);
          result = true;
+         minTimes = 0;
       }};
    }
 
    @BeforeMethod
    void setUpTestMethod2()
    {
-      new NonStrictExpectations() {{ dependency.getValue(); result = "mocked"; }};
+      new Expectations() {{ dependency.getValue(); result = "mocked"; minTimes = 0; }};
    }
 
    @AfterMethod
-   void tearDownTestMethod1()
-   {
-      new Verifications() {{ dependency.doSomething(anyInt); }};
-   }
-
-   @AfterMethod
-   public void tearDownTestMethod2()
+   public void tearDownTestMethod()
    {
       new Verifications() {{ mock2.doSomethingElse(6); }};
    }
@@ -122,7 +117,7 @@ public final class TestNGExpectationsTest
    public void testSomething()
    {
       new Expectations() {{
-         dependency.doSomething(anyInt); result = true;
+         dependency.doSomething(anyInt); result = true; times = 2;
       }};
 
       assertTrue(dependency.doSomething(5));
@@ -131,7 +126,6 @@ public final class TestNGExpectationsTest
       assertTrue(mock2.doSomethingElse(6));
 
       new FullVerifications(dependency) {{
-         dependency.doSomething(anyInt); times = 2;
          dependency.getValue();
       }};
    }

@@ -6,17 +6,17 @@ package mockit;
 
 /**
  * Used to record <em>non-strict</em> expectations on {@linkplain Mocked mocked} types and their instances.
- * The difference from {@linkplain Expectations regular expectations} is that a non-strict recorded expectation
- * is allowed to have <em>no</em> matching invocations (unless otherwise specified).
- * This property makes them particularly useful for test setup methods such as a JUnit {@code @Before} method, or a
- * {@code @BeforeMethod} in a TestNG test class, since such expectations may be used by some tests only, but not all in
- * the test class.
+ * The only difference from {@linkplain Expectations regular expectations} is that a non-strict recorded expectation
+ * has a default value of {@code 0} (zero) for the {@link #minTimes} constraint, while a regular expectation has a
+ * default of {@code 1} (one).
  *
+ * @deprecated Use {@link Expectations} instead.
  * @see #NonStrictExpectations()
  * @see #NonStrictExpectations(Object...)
  * @see #NonStrictExpectations(Integer, Object...)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation">Tutorial</a>
  */
+@Deprecated
 public abstract class NonStrictExpectations extends Expectations
 {
    /**

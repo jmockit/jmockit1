@@ -66,7 +66,7 @@ public final class TestedClassWithNoDITest
 
       assertTrue(tested2.doSomeOperation());
 
-      new FullVerifications() {{ mock.doSomething(); }};
+      new FullVerifications() {};
    }
 
    @Test

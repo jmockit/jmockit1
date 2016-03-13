@@ -47,6 +47,9 @@ public final class ExpectedInvocation
       defaultReturnValue = determineDefaultReturnValueFromMethodSignature();
    }
 
+   @Nullable
+   public AssertionError getInvocationCause() { return invocationCause; }
+
    @Nonnull
    private Object determineDefaultReturnValueFromMethodSignature()
    {
@@ -237,7 +240,7 @@ public final class ExpectedInvocation
       return customErrorMessage == null ? initialMessage : customErrorMessage + "\n" + initialMessage;
    }
 
-   private void setErrorAsInvocationCause(@Nonnull String titleForCause, @Nonnull Error error)
+   private void setErrorAsInvocationCause(@Nonnull String titleForCause, @Nonnull Throwable error)
    {
       if (invocationCause != null) {
          invocationCause.defineCause(titleForCause, error);
@@ -336,6 +339,14 @@ public final class ExpectedInvocation
    public UnexpectedInvocation errorForUnexpectedInvocationAfterAnother(@Nonnull ExpectedInvocation another)
    {
       return newUnexpectedInvocationWithCause("Unexpected invocation" + this, "Unexpected invocation after" + another);
+   }
+
+   public IllegalStateException exceptionForRedundantExpectation()
+   {
+      IllegalStateException exception = new IllegalStateException(
+         "Identical expectation already recorded; please remove this verification or adjust the recording");
+      setErrorAsInvocationCause("Redundant expectation", exception);
+      return exception;
    }
 
    @Nonnull @Override

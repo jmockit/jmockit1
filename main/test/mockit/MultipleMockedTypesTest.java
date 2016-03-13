@@ -70,8 +70,6 @@ public final class MultipleMockedTypesTest
       }};
 
       assertTrue(new TestedUnit().validateWithDifferentValue(mock1));
-
-      new Verifications() {{ mock1.getValue(); }};
    }
 
    @Test
@@ -122,7 +120,6 @@ public final class MultipleMockedTypesTest
       assertFalse(new TestedUnit().validate(mock1, new SubDependencyThatOverrides()));
 
       new FullVerifications() {{
-         mock1.getValue();
          mock2.getValue(); times = 0;
       }};
    }
@@ -137,8 +134,6 @@ public final class MultipleMockedTypesTest
       }};
 
       assertTrue(new TestedUnit().validate(mock1, new SubDependencyThatInherits()));
-
-      new Verifications() {{ mock1.getValue(); }};
    }
 
    @Test

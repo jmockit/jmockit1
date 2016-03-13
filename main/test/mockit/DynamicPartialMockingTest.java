@@ -131,7 +131,7 @@ public final class DynamicPartialMockingTest
       // Applies partial mocking to all instances.
       new Expectations(File.class) {{
          File anyFutureFileWithPath1 = new File(path1);
-         anyFutureFileWithPath1.exists(); result = true;
+         anyFutureFileWithPath1.exists(); result = true; times = 2;
       }};
 
       // Mocked:
@@ -145,12 +145,6 @@ public final class DynamicPartialMockingTest
       // Also mocked:
       File f3 = new File(path1);
       assertTrue(f3.exists());
-
-      // Full verification applies only to mocked instances.
-      new FullVerifications() {{
-         File anyPastFileWithPath1 = new File(path1);
-         anyPastFileWithPath1.exists(); times = 2;
-      }};
 
       // Invocations to non-mocked instances can also be verified (excluding those existing before mocking was applied).
       new Verifications() {{
@@ -318,9 +312,9 @@ public final class DynamicPartialMockingTest
       collaborator.setValue(1);
       collaborator.setValue(2);
 
-      // Verifies all the *mocked* (recorded) invocations, ignoring those not mocked:
+      // Verifies all the *mocked* invocations that would be left unverified; ignores those not mocked:
       new FullVerifications() {{
-         collaborator.setValue(1);
+         // No need to verify "setValue(1)" since it was recorded and implicitly verified.
          // No need to verify "setValue(2)" since it was not recorded.
       }};
    }
@@ -422,7 +416,6 @@ public final class DynamicPartialMockingTest
       catch (IllegalStateException ignore) {}
 
       new Verifications() {{
-         Collaborator.doSomething(anyBoolean, "test");
          collaborator.getValue(); times = 1;
       }};
    }
@@ -543,8 +536,6 @@ public final class DynamicPartialMockingTest
       assertNull(dependency.doSomethingElse(3));
 
       new FullVerifications() {{
-         dependency.doSomething();
-         collaborator.getValue();
          dependency.doSomethingElse(anyInt);
          collaborator.simpleOperation(0, null, null);
       }};
@@ -679,11 +670,6 @@ public final class DynamicPartialMockingTest
 
       assertEquals(2, mock2.getValue());
       assertEquals(1, mock1.getValue());
-
-      new FullVerifications() {{
-         mock1.getValue(); times = 1;
-         mock2.getValue(); times = 1;
-      }};
    }
 
    @Test

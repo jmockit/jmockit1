@@ -204,8 +204,6 @@ public final class InjectableMockedTest
 
       new FullVerifications() {{
          anotherMock1.doSomething(anyBoolean); times = 2;
-         anotherMock2.doSomething(true);
-         anotherMock2.doSomething(false);
       }};
    }
 }

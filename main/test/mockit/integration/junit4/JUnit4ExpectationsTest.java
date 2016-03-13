@@ -19,23 +19,17 @@ public final class JUnit4ExpectationsTest
    @Before
    public void setUp1()
    {
-      new NonStrictExpectations() {{ mock2.doSomethingElse(anyInt); result = true; }};
+      new Expectations() {{ mock2.doSomethingElse(anyInt); result = true; minTimes = 0; }};
    }
 
    @Before
    public void setUp2()
    {
-      new NonStrictExpectations() {{ dependency.getValue(); result = "mocked"; }};
+      new Expectations() {{ dependency.getValue(); result = "mocked"; minTimes = 0; }};
    }
 
    @After
-   public void tearDown1()
-   {
-      new Verifications() {{ dependency.doSomething(anyInt); }};
-   }
-
-   @After
-   public void tearDown2()
+   public void tearDown()
    {
       new Verifications() {{ mock2.doSomethingElse(6); times = 1; }};
    }
@@ -44,7 +38,7 @@ public final class JUnit4ExpectationsTest
    public void testSomething()
    {
       new Expectations() {{
-         dependency.doSomething(anyInt); result = true;
+         dependency.doSomething(anyInt); result = true; times = 2;
       }};
 
       assertTrue(dependency.doSomething(5));
@@ -53,7 +47,6 @@ public final class JUnit4ExpectationsTest
       assertTrue(mock2.doSomethingElse(6));
 
       new FullVerifications(dependency) {{
-         dependency.doSomething(anyInt); times = 2;
          dependency.getValue();
       }};
    }

@@ -19,7 +19,7 @@ package mockit;
  * @see #StrictExpectations()
  * @see #StrictExpectations(Object...)
  * @see #StrictExpectations(Integer, Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#strictness">Tutorial</a>
  */
 public abstract class StrictExpectations extends Expectations
 {

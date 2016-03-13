@@ -19,7 +19,7 @@ public final class DynamicMockingInBeforeMethodTest
       assertTrue(anInstance.doSomething(56));
 
       new Expectations(anInstance) {{
-         anInstance.doSomething(anyInt); result = true;
+         anInstance.doSomething(anyInt); result = true; minTimes = 0;
       }};
 
       assertTrue(anInstance.doSomething(-56));

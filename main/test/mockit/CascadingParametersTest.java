@@ -351,8 +351,6 @@ public final class CascadingParametersTest
       }};
 
       assertSame(out, sf.createSocket().getOutputStream());
-
-      new FullVerifications() {{ sf.createSocket().getOutputStream(); }};
    }
 
    @Test
@@ -392,11 +390,11 @@ public final class CascadingParametersTest
       assertEquals(3, sf.createSocket("second", 80).getPort());
       assertEquals(4, sf.createSocket("third", 81).getPort());
 
-      new Verifications() {{
-         sf.createSocket("first", 80).getPort();
+      new VerificationsInOrder() {{
          sf.createSocket().getPort(); times = 1;
-         sf.createSocket(anyString, 81).getPort(); maxTimes = 1;
+         sf.createSocket("first", 80).getPort();
          sf.createSocket("second", 80).getPort();
+         sf.createSocket(anyString, 81).getPort(); maxTimes = 1;
          sf.createSocket("fourth", -1); times = 0;
       }};
    }

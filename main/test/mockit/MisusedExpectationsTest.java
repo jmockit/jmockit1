@@ -201,6 +201,32 @@ public final class MisusedExpectationsTest
       }};
    }
 
+   @Before
+   public void recordCommonExpectations()
+   {
+      // A "non-strict" expectation.
+      new Expectations() {{
+         mock.doSomething(anyBoolean); minTimes = 0;
+      }};
+   }
+
+   @Test
+   public void verifiedExpectationWithDuplicateRecordedExpectation()
+   {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Identical expectation");
+
+      new Expectations() {{
+         mock.doSomething(anyBoolean); // not allowed unless recorded with minTimes = 0
+      }};
+
+      mock.doSomething(true);
+
+      new Verifications() {{
+         mock.doSomething(anyBoolean);
+      }};
+   }
+
    @BeforeClass
    public static void recordExpectationsInStaticContext()
    {
@@ -312,7 +338,7 @@ public final class MisusedExpectationsTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("try/catch");
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          try { mock.doSomething(anyBoolean); } catch (RuntimeException ignore) {}
          finally { System.out.println(); }
       }};

@@ -75,7 +75,6 @@ public final class MockFieldCapturingMaxInstancesTest
       assertNull(service2.getStr());
 
       new Verifications() {{
-         mock2.getStr(); times = 1;
          preexistingInstance.getStr(); times = 1;
       }};
    }

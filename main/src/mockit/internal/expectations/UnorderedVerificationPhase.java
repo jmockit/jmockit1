@@ -41,8 +41,14 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
          Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
 
          if (matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs)) {
+            Expectation verification = expectationBeingVerified();
+
+            if (replayExpectation.isRedundantRecordedExpectation(verification)) {
+               throw replayExpectation.invocation.exceptionForRedundantExpectation();
+            }
+
             replayIndex = i;
-            expectationBeingVerified().constraints.invocationCount++;
+            verification.constraints.invocationCount++;
             currentExpectation = replayExpectation;
             mapNewInstanceToReplacementIfApplicable(mock);
          }

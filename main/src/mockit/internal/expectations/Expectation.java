@@ -4,8 +4,10 @@
  */
 package mockit.internal.expectations;
 
+import java.util.*;
 import javax.annotation.*;
 
+import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
 
@@ -152,5 +154,40 @@ final class Expectation
    Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable
    {
       return getResults().executeRealImplementation(replacementInstance, args);
+   }
+
+   boolean isRedundantRecordedExpectation(@Nonnull Expectation verification)
+   {
+      if (recordPhase == null || constraints.minInvocations <= 0) {
+         return false;
+      }
+
+      List<ArgumentMatcher<?>> recordingMatchers = invocation.arguments.getMatchers();
+      List<ArgumentMatcher<?>> verificationMatchers = verification.invocation.arguments.getMatchers();
+
+      if (recordingMatchers == verificationMatchers) {
+         return true;
+      }
+
+      if (recordingMatchers == null || verificationMatchers == null) {
+         return false;
+      }
+
+      int n = recordingMatchers.size();
+
+      if (verificationMatchers.size() != n) {
+         return false;
+      }
+
+      for (int i = 0; i < n; i++) {
+         ArgumentMatcher<?> recordedMatcher = recordingMatchers.get(i);
+         ArgumentMatcher<?> verificationMatcher = verificationMatchers.get(i);
+
+         if (recordedMatcher != verificationMatcher && !recordedMatcher.equals(verificationMatcher)) {
+            return false;
+         }
+      }
+
+      return true;
    }
 }

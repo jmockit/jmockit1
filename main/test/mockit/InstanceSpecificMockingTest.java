@@ -77,7 +77,7 @@ public final class InstanceSpecificMockingTest
    {
       new Expectations() {{
          mock.simpleOperation(1, "", null); result = false;
-         mock.getValue(); result = 123;
+         mock.getValue(); result = 123; times = 1;
       }};
 
       assertFalse(mock.simpleOperation(1, "", null));
@@ -90,8 +90,6 @@ public final class InstanceSpecificMockingTest
          fail();
       }
       catch (IllegalStateException ignore) {}
-
-      new Verifications() {{ mock.getValue(); times = 1; }};
    }
 
    @Test
@@ -110,11 +108,6 @@ public final class InstanceSpecificMockingTest
       assertEquals(2, mock2.getValue());
       assertEquals(3, mock.getValue());
 
-      new FullVerifications() {{
-         mock.getValue(); times = 3;
-         mock2.getValue(); times = 2;
-      }};
-      
       assertThatPreviouslyCreatedInstanceIsNotMocked();
       assertThatNewlyCreatedInstanceIsNotMocked();
    }
@@ -124,12 +117,10 @@ public final class InstanceSpecificMockingTest
    @Test
    public void allowInjectableMockOfInterfaceType(@Injectable final Runnable runnable)
    {
-      new Expectations() {{ runnable.run(); minTimes = 1; }};
-      
       runnable.run();
       runnable.run();
 
-      new Verifications() {{ runnable.run(); maxTimes = 2; }};
+      new Verifications() {{ runnable.run(); minTimes = 1; maxTimes = 2; }};
    }
 
    @Test

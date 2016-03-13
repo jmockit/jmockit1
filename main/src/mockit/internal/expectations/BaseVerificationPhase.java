@@ -129,10 +129,11 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
          if (matching) {
             InvocationArguments invocationArguments = invocation.arguments;
+            List<ArgumentMatcher<?>> originalMatchers = invocationArguments.getMatchers();
             Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);
             Map<Object, Object> instanceMap = getInstanceMap();
             boolean argumentsMatch = invocationArguments.isMatch(replayArgs, instanceMap);
-            invocationArguments.setValuesWithNoMatchers(originalArgs);
+            invocationArguments.setValuesAndMatchers(originalArgs, originalMatchers);
 
             if (argumentsMatch) {
                if (constructor) {

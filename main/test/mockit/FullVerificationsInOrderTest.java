@@ -37,12 +37,6 @@ public final class FullVerificationsInOrderTest
       mock.save();
    }
 
-   @After
-   public void verifyCommonExpectedInvocation()
-   {
-      new Verifications() {{ mock.setSomething(anyInt); }};
-   }
-
    @Test
    public void verifyAllInvocations()
    {
