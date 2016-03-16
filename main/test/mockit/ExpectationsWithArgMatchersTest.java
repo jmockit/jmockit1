@@ -52,6 +52,8 @@ public final class ExpectationsWithArgMatchersTest
 
    @Mocked Collaborator mock;
 
+   // "Unexpected invocations" which can only occur with strict expectations //////////////////////////////////////////
+
    @Test
    public void replayWithUnexpectedMethodArgument()
    {
@@ -119,6 +121,42 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
+   public void expectInvocationWithEqualFloatArgumentButWithDifferentReplayValue()
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage(" within 0.01 of 3.0, got 3.02F");
+
+      new StrictExpectations() {{ mock.setValue(withEqual(3.0F, 0.01)); }};
+
+      mock.setValue(3.02F);
+   }
+
+   @Test
+   public void expectInvocationWithMatchForRegexButWithNonMatchingArgument()
+   {
+      thrown.expect(UnexpectedInvocation.class);
+
+      new StrictExpectations() {{ mock.complexOperation(withMatch("test")); }};
+
+      mock.complexOperation("otherValue");
+   }
+
+   @Test
+   public void replayWithDifferentArgumentOfClassLackingEqualsMethod()
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("argument class java.lang.RuntimeException has no \"equals\" method");
+
+      new StrictExpectations() {{
+         mock.setValue(new RuntimeException("Recorded"));
+      }};
+
+      mock.setValue(new RuntimeException("Replayed"));
+   }
+
+   // Successful strict expectations //////////////////////////////////////////////////////////////////////////////////
+
+   @Test
    public void expectInvocationWithAnyArgumentUsingField()
    {
       new StrictExpectations() {{ mock.setValue(anyInt); }};
@@ -179,17 +217,6 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void expectInvocationWithEqualFloatArgumentButWithDifferentReplayValue()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage(" within 0.01 of 3.0, got 3.02F");
-
-      new StrictExpectations() {{ mock.setValue(withEqual(3.0F, 0.01)); }};
-
-      mock.setValue(3.02F);
-   }
-
-   @Test
    public void expectInvocationWithNotEqualArgument()
    {
       new StrictExpectations() {{ mock.setValue(withNotEqual(3)); }};
@@ -242,52 +269,6 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void expectInvocationWithSameMockInstanceButReplayWithNull(
-      // This class defines an abstract "toString" override, which initially was erroneously
-      // mocked, causing a new expectation to be created during replay:
-      @Mocked final Certificate cert)
-   {
-      thrown.expect(MissingInvocation.class);
-
-      new Expectations() {{
-         mock.setValue(withSameInstance(cert)); times = 1;
-      }};
-
-      mock.setValue((Certificate) null);
-   }
-
-   @Test
-   public void expectNotStrictInvocationWithMatcherWhichInvokesMockedMethod()
-   {
-      thrown.expect(MissingInvocation.class);
-
-      new Expectations() {{
-         mock.setValue(with(new Delegate<Integer>() {
-            @Mock boolean validateAsPositive(int value)
-            {
-               // Invoking mocked method caused ConcurrentModificationException (bug fixed):
-               mock.simpleOperation(1, "b", null);
-               return value > 0;
-            }
-         }));
-      }};
-
-      mock.setValue(-3);
-   }
-
-   @Test
-   public void expectStrictInvocationWithCustomMatcherButNeverReplay()
-   {
-      thrown.expect(MissingInvocation.class);
-
-      new StrictExpectations() {{
-         mock.doSomething(with(new Delegate<Integer>() {
-            @Mock boolean test(Integer i) { return true; }
-         }));
-      }};
-   }
-
-   @Test
    public void expectInvocationWithSubstring()
    {
       new StrictExpectations() {{ mock.complexOperation(withSubstring("sub")); }};
@@ -321,16 +302,6 @@ public final class ExpectationsWithArgMatchersTest
 
       mock.complexOperation("abcsub123");
       mock.complexOperation("abcSuB123");
-   }
-
-   @Test
-   public void expectInvocationWithMatchForRegexButWithNonMatchingArgument()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new StrictExpectations() {{ mock.complexOperation(withMatch("test")); }};
-
-      mock.complexOperation("otherValue");
    }
 
    @Test
@@ -419,16 +390,16 @@ public final class ExpectationsWithArgMatchersTest
       mock.setTextualValues(values2);
    }
 
-   static final class Delegates
-   {
-      static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<T>(item); }
-   }
-
    static final class CollectionElementDelegate<T> implements Delegate<Collection<T>>
    {
       private final T item;
       CollectionElementDelegate(T item) { this.item = item; }
       @SuppressWarnings("unused") boolean hasItem(Collection<T> items) { return items.contains(item); }
+   }
+
+   static final class Delegates
+   {
+      static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<T>(item); }
    }
 
    @Test
@@ -461,22 +432,6 @@ public final class ExpectationsWithArgMatchersTest
       mock.setValue(3);
    }
 
-   class ReusableMatcher implements Delegate<Integer> {
-      @Mock final boolean isPositive(int i) { return i > 0; }
-   }
-
-   @Test
-   public void extendingAReusableArgumentMatcher()
-   {
-      mock.setValue(5);
-      mock.setValue(123);
-
-      new Verifications() {{
-         mock.setValue(with(new ReusableMatcher() {}));
-         times = 2;
-      }};
-   }
-
    @Test
    public void useMockedMethodBeforeRecordingExpectationWithArgumentMatcher()
    {
@@ -489,19 +444,6 @@ public final class ExpectationsWithArgMatchersTest
 
       assertTrue(mock.doSomething("xyz"));
       assertTrue(mock.doSomething("abc"));
-   }
-
-   @Test
-   public void replayWithDifferentArgumentOfClassLackingEqualsMethod()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("argument class java.lang.RuntimeException has no \"equals\" method");
-
-      new StrictExpectations() {{
-         mock.setValue(new RuntimeException("Recorded"));
-      }};
-
-      mock.setValue(new RuntimeException("Replayed"));
    }
 
    @Test
@@ -556,5 +498,71 @@ public final class ExpectationsWithArgMatchersTest
       }};
 
       assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject();
+   }
+
+   // "Missing invocations" for regular/strict expectations ///////////////////////////////////////////////////////////
+
+   @Test
+   public void expectInvocationWithSameMockInstanceButReplayWithNull(
+      // This class defines an abstract "toString" override, which initially was erroneously
+      // mocked, causing a new expectation to be created during replay:
+      @Mocked final Certificate cert)
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations() {{
+         mock.setValue(withSameInstance(cert)); times = 1;
+      }};
+
+      mock.setValue((Certificate) null);
+   }
+
+   @Test
+   public void expectNotStrictInvocationWithMatcherWhichInvokesMockedMethod()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations() {{
+         mock.setValue(with(new Delegate<Integer>() {
+            @Mock boolean validateAsPositive(int value)
+            {
+               // Invoking mocked method caused ConcurrentModificationException (bug fixed):
+               mock.simpleOperation(1, "b", null);
+               return value > 0;
+            }
+         }));
+      }};
+
+      mock.setValue(-3);
+   }
+
+   @Test
+   public void expectStrictInvocationWithCustomMatcherButNeverReplay()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new StrictExpectations() {{
+         mock.doSomething(with(new Delegate<Integer>() {
+            @Mock boolean test(Integer i) { return true; }
+         }));
+      }};
+   }
+
+   // Verifications ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+   class ReusableMatcher implements Delegate<Integer> {
+      @Mock final boolean isPositive(int i) { return i > 0; }
+   }
+
+   @Test
+   public void extendingAReusableArgumentMatcher()
+   {
+      mock.setValue(5);
+      mock.setValue(123);
+
+      new Verifications() {{
+         mock.setValue(with(new ReusableMatcher() {}));
+         times = 2;
+      }};
    }
 }
