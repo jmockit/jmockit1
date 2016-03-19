@@ -313,10 +313,10 @@ public final class DynamicPartialMockingTest
       collaborator.setValue(2);
 
       // Verifies all the *mocked* invocations that would be left unverified; ignores those not mocked:
-      new FullVerifications() {{
+      new FullVerifications() {
          // No need to verify "setValue(1)" since it was recorded and implicitly verified.
          // No need to verify "setValue(2)" since it was not recorded.
-      }};
+      };
    }
 
    @Test
@@ -873,5 +873,13 @@ public final class DynamicPartialMockingTest
          TestedClass t = new TestedClass(anyBoolean); times = 2;
          t.initialize(anyBoolean); times = 2;
       }};
+   }
+
+   static class Action implements Runnable { @Override public void run() {} }
+
+   @Test
+   public void partiallyMockAClassImplementingAMockedInterface(@Mocked Runnable mock)
+   {
+      new Expectations(Action.class) {};
    }
 }
