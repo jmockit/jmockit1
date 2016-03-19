@@ -57,10 +57,6 @@
             <includes><include>META-INF/services/org.testng.ITestNGListener</include></includes>
          </resource>
          <resource>
-            <directory>src</directory>
-            <includes><include>mockit/*.java</include></includes>
-         </resource>
-         <resource>
             <directory>..</directory>
             <includes>
                <include>LICENSE.txt</include>
