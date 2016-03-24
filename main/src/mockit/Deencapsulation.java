@@ -18,8 +18,6 @@ import mockit.internal.util.EmptyProxy.*;
  * @see #setField(Object, String, Object)
  * @see #invoke(Object, String, Object...)
  * @see #newInstance(String, Object...)
- * @see <a href="http://jmockit.org/tutorial/ReflectionUtilities.html">Tutorial (general)</a>
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#deencapsulation">Tutorial (expectations)</a>
  */
 @SuppressWarnings("ConstantConditions")
 public final class Deencapsulation
