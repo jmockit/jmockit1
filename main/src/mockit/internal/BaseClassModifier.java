@@ -179,7 +179,9 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void generateCodeToObtainInstanceOfMockingBridge(@Nonnull MockingBridge mockingBridge)
    {
-      mw.visitFieldInsn(GETSTATIC, "org/omg/IOP/IORHelper", mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
+      mw.visitFieldInsn(
+         GETSTATIC, "java/nio/charset/CharacterCodingException", mockingBridge.id,
+         "Ljava/lang/reflect/InvocationHandler;");
    }
 
    protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value)
