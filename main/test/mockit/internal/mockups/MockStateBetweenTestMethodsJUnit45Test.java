@@ -4,7 +4,6 @@
  */
 package mockit.internal.mockups;
 
-import java.io.*;
 import java.sql.*;
 
 import org.junit.*;
@@ -77,37 +76,13 @@ public final class MockStateBetweenTestMethodsJUnit45Test
       TheMockClass.assertMockState(0);
       assertEquals(2, new RealClass().doSomething());
       TheMockClass.assertMockState(1);
-
-      new FileIOMockUp();
-      new FileIO().writeToFile("test.txt");
-   }
-
-   public static final class FileIOMockUp extends MockUp<FileIO>
-   {
-      @Mock
-      public static void writeToFile(String fileName)
-      {
-         assertNotNull(fileName);
-      }
    }
 
    @After
    public void verifyThatTestMethodMockUpsAreNoLongerInEffectWhileOthersStillAre() throws Exception
    {
-      assertThatClassMockedInTestMethodWasRestored();
-
       assertTrue(mockDriver1.acceptsURL("url1"));
       assertTrue(mockDriver2.acceptsURL("url2"));
-   }
-
-   static void assertThatClassMockedInTestMethodWasRestored()
-   {
-      try {
-         new FileIO().writeToFile(null);
-         fail();
-      }
-      catch (NullPointerException ignore) {}
-      catch (IOException ignore) {}
    }
 
    @AfterClass
