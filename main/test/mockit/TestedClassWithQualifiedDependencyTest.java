@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2006 Rogério Liesenfeld
+ * This file is subject to the terms of the MIT license (see LICENSE.txt).
+ */
 package mockit;
 
+import java.io.*;
 import java.lang.annotation.*;
 import javax.inject.*;
-import javax.xml.bind.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -18,23 +22,21 @@ public final class TestedClassWithQualifiedDependencyTest
    public static class Dependency1
    {
       @Named("action1") private Runnable action;
-      @Qualifier("foo") private JAXBContext jaxb;
+      @Qualifier("foo") private Serializable qualifiedDep;
    }
 
    public static class Dependency2
    {
       @Qualifier("action2") private Runnable action;
-      @Named("bar") private JAXBContext jaxb;
+      @Named("bar") private Serializable qualifiedDep;
    }
 
-   static final class Empty {}
-
-   @Tested JAXBContext foo;
+   @Tested Serializable foo;
 
    @Before
-   public void createJAXBContexts() throws Exception
+   public void createQualifiedDependency()
    {
-      foo = JAXBContext.newInstance(Empty.class);
+      foo = "foo";
    }
 
    @Tested Dependency2 dependency2;
@@ -47,8 +49,8 @@ public final class TestedClassWithQualifiedDependencyTest
       assertSame(action2, dependency2.action);
       assertSame(dependency2, tested.dep2);
       assertSame(action1, tested.dep1.action);
-      assertSame(foo, tested.dep1.jaxb);
-      assertNull(tested.dep2.jaxb);
+      assertSame(foo, tested.dep1.qualifiedDep);
+      assertNull(tested.dep2.qualifiedDep);
    }
 }
 
