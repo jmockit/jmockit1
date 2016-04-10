@@ -12,9 +12,7 @@ public final class ReusableNestedExpectationsTest
    static class Collaborator { int doSomething(String s) { return s.length(); } }
    @Mocked Collaborator mock;
 
-   static class BaseExpectations extends Expectations {}
-
-   static class Nested1Expectations extends BaseExpectations
+   static class Nested1Expectations extends Expectations
    {
       Nested1Expectations(Collaborator c)
       {
