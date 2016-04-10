@@ -14,9 +14,6 @@ import static java.util.Arrays.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import sun.net.spi.nameservice.dns.*;
-
-@SuppressWarnings("UseOfSunClasses")
 public final class ClassLoadingAndJREMocksTest
 {
    static class Foo1 {}
@@ -273,7 +270,7 @@ public final class ClassLoadingAndJREMocksTest
          new ZipFile("another-non-existent");
          fail();
       }
-      catch (FileNotFoundException ignore) {}
+      catch (IOException ignore) {}
 
       assertEquals("test", readFromZipFile(existentZipFileName));
    }
@@ -350,29 +347,5 @@ public final class ClassLoadingAndJREMocksTest
    @Test(expected = IllegalArgumentException.class)
    public void attemptToMockJREClassThatIsNeverMockable(@Mocked Class<?> mockClass)
    {
-   }
-
-   public static class ExtensionClassMockUp extends MockUp<DNSNameService> {
-      @Mock public String getHostByAddr(byte[] addr) { return "mock-up"; }
-   }
-
-   @Test
-   public void mockUpClassFromJREExtensionClassLoader() throws Exception
-   {
-      new ExtensionClassMockUp();
-
-      String host = new DNSNameService().getHostByAddr(null);
-
-      assertEquals("mock-up", host);
-   }
-
-   @Test
-   public void mockClassFromJREExtensionClassLoader(@Mocked final DNSNameService mock) throws Exception
-   {
-      new Expectations() {{ mock.getHostByAddr(null); result = "test"; }};
-
-      String host = mock.getHostByAddr(null);
-
-      assertEquals("test", host);
    }
 }
