@@ -6,7 +6,6 @@ package mockit;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.sax.*;
@@ -237,39 +236,6 @@ public final class MockingUpEverythingTest
 
       timingAspect.assertTimes("getSystemId", 20, 20, 20);
       timingAspect.assertTimes("setSystemId", 30, 30);
-   }
-
-   @Test
-   public <O> void mockEveryMethodInEveryNonJREClass()
-   {
-      class TestRunnable implements Runnable {
-         @Override public void run() { throw new RuntimeException("test2"); }
-      }
-
-      final List<String> exceptionMessages = new ArrayList<String>();
-
-      new MockUp<O>() {
-         @Mock
-         Object $advice(Invocation inv) throws Throwable
-         {
-            try {
-               return inv.proceed();
-            }
-            catch (Throwable t) {
-               exceptionMessages.add(t.getMessage());
-               return null;
-            }
-         }
-      };
-
-      new TargetSubclass(1).validateSomething();
-      TargetClass t2 = new TargetClass(2);
-      t2.performAction(new TestRunnable());
-      new Callable() {
-         @Override public Object call() { throw new IllegalAccessError("test3"); }
-      }.call();
-
-      assertEquals(asList("Invalid something", "test2", "test3"), exceptionMessages);
    }
 }
 
