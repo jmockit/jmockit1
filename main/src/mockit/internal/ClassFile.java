@@ -145,6 +145,12 @@ public final class ClassFile
    @Nonnull
    public static ClassReader readFromFile(@Nonnull String classDesc)
    {
+      byte[] classfile = CachedClassfiles.getClassfile(classDesc);
+
+      if (classfile != null) {
+         return new ClassReader(classfile);
+      }
+
       InputStream classFile = readClassFromClasspath(classDesc);
 
       try {
@@ -157,14 +163,13 @@ public final class ClassFile
 
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor)
    {
-      InputStream classFile = readClassFromClasspath(classDesc);
+      byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 
-      try {
-         ClassReader cr = new ClassReader(classFile);
-         cr.accept(visitor, SKIP_DEBUG + SKIP_FRAMES);
+      if (classfile == null) {
+         throw new NotFoundException(classDesc);
       }
-      catch (IOException e) {
-         throw new RuntimeException(e);
-      }
+
+      ClassReader cr = new ClassReader(classfile);
+      cr.accept(visitor, SKIP_DEBUG + SKIP_FRAMES);
    }
 }

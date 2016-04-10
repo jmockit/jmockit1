@@ -272,4 +272,20 @@ public final class Startup
          // Shouldn't happen since the mocked class would already have been found in the classpath.
       }
    }
+
+   @Nullable
+   public static Class<?> getClassIfLoaded(@Nonnull String classDescOrName)
+   {
+      if (instrumentation != null) {
+         String className = classDescOrName.replace('/', '.');
+
+         for (Class<?> aClass : instrumentation.getAllLoadedClasses()) {
+            if (aClass.getName().equals(className)) {
+               return aClass;
+            }
+         }
+      }
+
+      return null;
+   }
 }

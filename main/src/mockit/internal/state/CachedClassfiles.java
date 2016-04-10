@@ -16,8 +16,8 @@ import mockit.internal.startup.*;
  * that have already been loaded during the test run.
  * These classfiles are not necessarily the same as those stored in the corresponding ".class" files
  * available from the runtime classpath.
- * If any third-party {@link java.lang.instrument.ClassFileTransformer}s are active, those original classfiles
- * may have been modified before being loaded by the JVM.
+ * If any third-party {@link ClassFileTransformer}s are active, those original classfiles may have been modified before
+ * being loaded by the JVM.
  * JMockit installs a {@code ClassFileTransformer} of its own which saves all potentially modified classfiles
  * here.
  * <p/>
@@ -81,6 +81,37 @@ public final class CachedClassfiles implements ClassFileTransformer
 
       Map<String, byte[]> classfiles = getClassfiles(aClass.getClassLoader());
       return classfiles.get(className.replace('.', '/'));
+   }
+
+   @Nullable
+   public static synchronized byte[] getClassfile(@Nonnull String classDesc)
+   {
+      return INSTANCE.findClassfile(classDesc);
+   }
+
+   @Nullable
+   private byte[] findClassfile(@Nonnull String classDesc)
+   {
+      byte[] classfile = null;
+
+      for (Map<String, byte[]> classfiles : classLoadersAndClassfiles.values()) {
+         classfile = classfiles.get(classDesc);
+
+         if (classfile != null) {
+            return classfile;
+         }
+      }
+
+      Class<?> desiredClass = Startup.getClassIfLoaded(classDesc);
+
+      if (desiredClass != null) {
+         classBeingCached = desiredClass;
+         Startup.retransformClass(desiredClass);
+         ClassLoader classLoader = desiredClass.getClassLoader();
+         classfile = INSTANCE.findClassfile(classLoader, classDesc);
+      }
+
+      return classfile;
    }
 
    @Nullable
