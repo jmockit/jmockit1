@@ -792,18 +792,6 @@ public final class DynamicPartialMockingTest
       }};
    }
 
-   @Test // with FileIO compiled with "target 1.1", this produced a VerifyError
-   public void mockClassCompiledForJava11() throws Exception
-   {
-      final FileIO f = new FileIO();
-
-      new Expectations(f) {{
-         f.writeToFile("test");
-      }};
-
-      f.writeToFile("test");
-   }
-
    @Test
    public void mockedClassWithAnnotatedElements() throws Exception
    {
