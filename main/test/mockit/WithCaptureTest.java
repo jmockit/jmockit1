@@ -573,4 +573,26 @@ public final class WithCaptureTest
          assertEquals("...", p.getName());
       }};
    }
+
+   static class ClassWithVarargsMethod { @SuppressWarnings("unused") void varargsMethod(String s, String... values) {} }
+
+   @Test
+   public void captureVarargsValuesFromAllInvocations(@Mocked final ClassWithVarargsMethod mock)
+   {
+      final String[] expectedValues1 = {"a", "b"};
+      final String[] expectedValues2 = {"1", "2"};
+      mock.varargsMethod("First", expectedValues1);
+      mock.varargsMethod("Second", expectedValues2);
+
+      new Verifications() {{
+         List<String> capturedNames = new ArrayList<String>();
+         List<String[]> capturedValues = new ArrayList<String[]>();
+
+         mock.varargsMethod(withCapture(capturedNames), withCapture(capturedValues));
+
+         assertEquals(asList("First", "Second"), capturedNames);
+         assertArrayEquals(expectedValues1, capturedValues.get(0));
+         assertArrayEquals(expectedValues2, capturedValues.get(1));
+      }};
+   }
 }

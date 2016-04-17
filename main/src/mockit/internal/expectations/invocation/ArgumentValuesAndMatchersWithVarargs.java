@@ -26,13 +26,14 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       }
 
       VarargsComparison varargsComparison = new VarargsComparison(replayArgs);
-      int n = varargsComparison.getTotalArgumentCountWhenDifferent();
+      int totalArgCount = varargsComparison.getTotalArgumentCountWhenDifferent();
+      int regularArgCount = varargsComparison.regularArgCount;
 
-      if (n < 0) {
+      if (totalArgCount < 0) {
          return false;
       }
 
-      for (int i = 0; i < n; i++) {
+      for (int i = 0; i < totalArgCount; i++) {
          Object actual = varargsComparison.getOtherArgument(i);
          ArgumentMatcher<?> expected = getArgumentMatcher(i);
 
@@ -40,6 +41,10 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
             Object arg = varargsComparison.getThisArgument(i);
             if (arg == null) continue;
             expected = new LenientEqualityMatcher(arg, instanceMap);
+         }
+         else if (i == regularArgCount && expected instanceof CaptureMatcher<?>) {
+            actual = varargsComparison.getOtherVarArgs();
+            i = totalArgCount;
          }
 
          if (!expected.matches(actual)) {
@@ -133,7 +138,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    @Override
    boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
    {
-      int i = indexOfFirstValueAfterEquivalentMatchers(other);
+      @SuppressWarnings("unchecked") int i = indexOfFirstValueAfterEquivalentMatchers(other);
 
       if (i < 0) {
          return false;
@@ -167,7 +172,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       @Nonnull private final Object[] otherValues;
       @Nullable private final Object[] thisVarArgs;
       @Nullable private final Object[] otherVarArgs;
-      private final int regularArgCount;
+      final int regularArgCount;
 
       VarargsComparison(@Nonnull Object[] otherValues)
       {
