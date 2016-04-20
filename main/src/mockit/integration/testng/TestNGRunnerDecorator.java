@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.testng.internal;
+package mockit.integration.testng;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
