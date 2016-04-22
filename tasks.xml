@@ -80,8 +80,7 @@
             <attribute name="Can-Retransform-Classes" value="true"/>
             <attribute name="Implementation-Version" value="${version}"/>
          </manifest>
-         <service
-            type="org.testng.ITestNGListener" provider="mockit.integration.testng.internal.TestNGRunnerDecorator"/>
+         <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.TestNGRunnerDecorator"/>
       </jar>
    </target>
    <target name="createJar-coverage">
