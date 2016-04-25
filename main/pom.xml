@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.23</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.24</version>
    <packaging>jar</packaging>
 
    <name>Main</name>
@@ -19,7 +19,6 @@
       <license>
          <name>The MIT License</name>
          <url>http://www.opensource.org/licenses/mit-license.php</url>
-         <distribution>repo</distribution>
       </license>
    </licenses>
    <developers>
