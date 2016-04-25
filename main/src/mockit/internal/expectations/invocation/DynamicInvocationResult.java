@@ -71,20 +71,14 @@ abstract class DynamicInvocationResult extends InvocationResult
       @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation expectedInvocation,
       @Nonnull InvocationConstraints constraints, @Nonnull Object[] invokedArgs, @Nonnull Object[] delegateArgs)
    {
-      DelegateInvocation invocation =
-         new DelegateInvocation(mockOrRealObject, invokedArgs, expectedInvocation, constraints);
+      Invocation invocation = new DelegateInvocation(mockOrRealObject, invokedArgs, expectedInvocation, constraints);
       Object[] delegateArgsWithInvocation = ParameterReflection.argumentsWithExtraFirstValue(delegateArgs, invocation);
 
-      try {
-         Object result = executeMethodToInvoke(delegateArgsWithInvocation);
-         return
-            expectedInvocation.isConstructor() &&
-            TestRun.getExecutingTest().isProceedingIntoRealImplementation() ?
-               Void.class : result;
-      }
-      finally {
-         constraints.setLimits(invocation.getMinInvocations(), invocation.getMaxInvocations());
-      }
+      Object result = executeMethodToInvoke(delegateArgsWithInvocation);
+
+      return
+         expectedInvocation.isConstructor() &&
+         TestRun.getExecutingTest().isProceedingIntoRealImplementation() ? Void.class : result;
    }
 
    @Nullable

@@ -35,8 +35,6 @@ public final class DelegateInvocationTest
                assertNull(context.getInvokedInstance());
                assertEquals(0, context.getInvokedArguments().length);
                assertEquals(context.getInvocationCount() - 1, context.getInvocationIndex());
-               assertEquals(1, context.getMinInvocations());
-               assertEquals(-1, context.getMaxInvocations());
                return context.getInvocationCount() > 0;
             }
          };
@@ -140,8 +138,6 @@ public final class DelegateInvocationTest
             @Mock
             boolean staticMethod(Invocation invocation, Number i)
             {
-               assertEquals(1, invocation.getMinInvocations());
-               assertEquals(1, invocation.getMaxInvocations());
                return i.intValue() > 0;
             }
          };
@@ -195,8 +191,6 @@ public final class DelegateInvocationTest
                int delegate(Invocation invocation)
                {
                   assertSame(mock, invocation.getInvokedInstance());
-                  assertEquals(1, invocation.getMinInvocations());
-                  assertEquals(3, invocation.getMaxInvocations());
                   return invocation.getInvocationCount();
                }
             },
@@ -244,13 +238,13 @@ public final class DelegateInvocationTest
       assertEquals(Callable.class.getName(), s);
    }
 
-   @SuppressWarnings("deprecation")
    @Test
    public void useOfContextParametersForJREMethods() throws Exception
    {
       final Runtime rt = Runtime.getRuntime();
 
       new Expectations(Runtime.class) {{
+         //noinspection deprecation
          Runtime.runFinalizersOnExit(anyBoolean); minTimes = 1;
          result = new Delegate() {
             @Mock
@@ -258,8 +252,6 @@ public final class DelegateInvocationTest
             {
                assertNull(inv.getInvokedInstance());
                assertEquals(1, inv.getInvocationCount());
-               assertEquals(1, inv.getMinInvocations());
-               assertEquals(-1, inv.getMaxInvocations());
                assertTrue(b);
             }
          };
@@ -271,14 +263,13 @@ public final class DelegateInvocationTest
             {
                assertSame(rt, inv.getInvokedInstance());
                assertEquals(0, inv.getInvocationIndex());
-               assertEquals(1, inv.getMinInvocations());
-               assertEquals(1, inv.getMaxInvocations());
                assertNotNull(command);
                assertNull(envp);
             }
          };
       }};
 
+      //noinspection deprecation
       Runtime.runFinalizersOnExit(true);
       assertNull(rt.exec("test", null));
    }

@@ -32,8 +32,6 @@ public final class MockInvocationTest
       {
          assertNotNull(context);
          assertNull(context.getInvokedInstance());
-         assertEquals(0, context.getMinInvocations());
-         assertEquals(-1, context.getMaxInvocations());
          assertEquals(1, context.getInvocationCount());
          return false;
       }
@@ -42,8 +40,6 @@ public final class MockInvocationTest
       int getValue(Invocation context)
       {
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
-         assertEquals(1, context.getMinInvocations());
-         assertEquals(2, context.getMaxInvocations());
          assertEquals(0, context.getInvocationIndex());
          return 123;
       }
@@ -66,8 +62,6 @@ public final class MockInvocationTest
          {
             assertNull(context.getInvokedInstance());
             assertEquals(context.getInvocationCount() - 1, context.getInvocationIndex());
-            assertEquals(2, context.getMinInvocations());
-            assertEquals(2, context.getMaxInvocations());
             return context.getInvocationCount() <= 0;
          }
       };
@@ -115,8 +109,6 @@ public final class MockInvocationTest
       @Mock(invocations = 1)
       void $init(Invocation context, int i)
       {
-         assertEquals(1, context.getMinInvocations());
-         assertEquals(1, context.getMaxInvocations());
          capturedArgument = i + context.getInvocationCount();
          assertNull(mockedInstance);
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
@@ -126,8 +118,6 @@ public final class MockInvocationTest
       @Mock(invocations = 2)
       void setValue(Invocation context, int i)
       {
-         assertEquals(2, context.getMinInvocations());
-         assertEquals(2, context.getMaxInvocations());
          assertEquals(i, context.getInvocationIndex());
          assertSame(mockedInstance, context.getInvokedInstance());
          assertEquals(1, context.getInvokedArguments().length);
@@ -147,7 +137,6 @@ public final class MockInvocationTest
       col.setValue(1);
    }
 
-   @SuppressWarnings("deprecation")
    @Test
    public void useOfContextParametersForJREMethods() throws Exception
    {
@@ -157,8 +146,6 @@ public final class MockInvocationTest
          {
             assertNull(inv.getInvokedInstance());
             assertEquals(1, inv.getInvocationCount());
-            assertEquals(1, inv.getMinInvocations());
-            assertEquals(-1, inv.getMaxInvocations());
             assertTrue(b);
          }
 
@@ -167,14 +154,13 @@ public final class MockInvocationTest
          {
             assertSame(Runtime.getRuntime(), inv.getInvokedInstance());
             assertEquals(0, inv.getInvocationIndex());
-            assertEquals(0, inv.getMinInvocations());
-            assertEquals(1, inv.getMaxInvocations());
             assertNotNull(command);
             assertNull(envp);
             return null;
          }
       };
 
+      //noinspection deprecation
       Runtime.runFinalizersOnExit(true);
       assertNull(Runtime.getRuntime().exec("test", null));
    }

@@ -21,11 +21,9 @@ import mockit.internal.*;
  * @see #getInvokedArguments()
  * @see #getInvocationCount()
  * @see #getInvocationIndex()
- * @see #getMinInvocations()
- * @see #getMaxInvocations()
  * @see #proceed(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial (expectations)</a>
- * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation">Tutorial (mockups)</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial (mocking)</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation">Tutorial (faking)</a>
  */
 public class Invocation
 {
@@ -93,7 +91,11 @@ public class Invocation
     * if not, the value will be {@code 1} for a regular or strict expectation, or {@code 0} for a non-strict one.
     * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
     * or {@linkplain Mock#minInvocations minInvocations} attribute, or {@code 0} if none.
+    *
+    * @deprecated This method is unlikely to be useful in real tests, and will be removed from the API in the next
+    * release, without any direct replacement.
     */
+   @Deprecated
    public final int getMinInvocations() { return minInvocations; }
 
    /**
@@ -105,7 +107,11 @@ public class Invocation
     * if not, the value will be {@code -1} for a regular or non-strict expectation, or {@code 1} for a strict one.
     * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
     * or {@linkplain Mock#maxInvocations maxInvocations} attribute, or {@code -1} if none.
+    *
+    * @deprecated This method is unlikely to be useful in real tests, and will be removed from the API in the next
+    * release, without any direct replacement.
     */
+   @Deprecated
    public final int getMaxInvocations() { return maxInvocations; }
 
    /**
