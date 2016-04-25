@@ -122,8 +122,8 @@
       <zip
          destfile="../artifacts1x/jmockit-${version}.zip"
          basedir=".." includes="jmockit1.org/**, jmockit.github.io/**"
-         excludes="jmockit1.org/**/*.i*, jmockit.github.io/*.i*,
-                   jmockit1.org/*.zip, jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/build.xml,
+         excludes="jmockit1.org/**/*.i*, jmockit.github.io/*.i*, jmockit1.org/ISSUE_TEMPLATE.txt, jmockit1.org/*.zip,
+                   jmockit1.org/**/*.ser, jmockit1.org/**/lib/**, jmockit1.org/*/**/*.jar, jmockit1.org/.shelf/**,
                    jmockit1.org/**/target/**, jmockit1.org/**/classes/**, jmockit1.org/**/test-classes/**,
                    jmockit1.org/**/test-output/**, jmockit1.org/**/coverage-report/**, jmockit1.org/**/*.html"
          encoding="UTF-8"/>
