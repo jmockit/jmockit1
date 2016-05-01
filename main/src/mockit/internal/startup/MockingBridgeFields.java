@@ -5,7 +5,6 @@
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
-import java.nio.charset.*;
 import java.security.*;
 import javax.annotation.*;
 
@@ -28,7 +27,7 @@ final class MockingBridgeFields
       inst.addTransformer(trans);
 
       try {
-         CharacterCodingException.class.getName(); // loads a JRE class expected to not be loaded initially by the JVM
+         NegativeArraySizeException.class.getName(); // loads a JRE class expected to not be loaded initially by the JVM
       }
       finally {
          inst.removeTransformer(trans);
@@ -44,7 +43,7 @@ final class MockingBridgeFields
          @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
          @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
       {
-         if (!"java/nio/charset/CharacterCodingException".equals(className)) {
+         if (!"java/lang/NegativeArraySizeException".equals(className)) {
             return null;
          }
 
@@ -78,7 +77,7 @@ final class MockingBridgeFields
    private static void setMockingBridgeField(@Nonnull MockingBridge mockingBridge)
    {
       try {
-         CharacterCodingException.class.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
+         NegativeArraySizeException.class.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
       }
       catch (NoSuchFieldException ignore) {}
       catch (IllegalAccessException e) { throw new RuntimeException(e); }
