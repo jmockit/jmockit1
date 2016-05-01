@@ -8,7 +8,6 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.*;
 import javax.xml.bind.annotation.*;
 
 import org.junit.*;
@@ -685,74 +684,6 @@ public final class DynamicPartialMockingTest
       new FullVerifications() {{
          collaborator.getValue(); times = 2;
       }};
-   }
-
-   static final class TaskWithConsoleInput
-   {
-      boolean finished;
-
-      void doIt()
-      {
-         int input = '\0';
-
-         while (input != 'A') {
-            try {
-               input = System.in.read();
-            }
-            catch (IOException e) {
-               throw new RuntimeException(e);
-            }
-
-            if (input == 'Z') {
-               finished = true;
-               break;
-            }
-         }
-      }
-   }
-
-   private boolean runTaskWithTimeout(long timeoutInMillis) throws InterruptedException, ExecutionException
-   {
-      final TaskWithConsoleInput task = new TaskWithConsoleInput();
-      Runnable asynchronousTask = new Runnable() { @Override public void run() { task.doIt(); } };
-      ExecutorService executor = Executors.newSingleThreadExecutor();
-
-      while (!task.finished) {
-         Future<?> worker = executor.submit(asynchronousTask);
-
-         try {
-            worker.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-         }
-         catch (TimeoutException ignore) {
-            executor.shutdownNow();
-            return false;
-         }
-      }
-
-      return true;
-   }
-
-   @Test
-   public void taskWithConsoleInputTerminatingNormally() throws Exception
-   {
-      new Expectations(System.in) {{
-         System.in.read(); returns((int) 'A', (int) 'x', (int) 'Z');
-      }};
-
-      assertTrue(runTaskWithTimeout(5000));
-   }
-
-   @Test
-   public void taskWithConsoleInputTerminatingOnTimeout() throws Exception
-   {
-      new Expectations(System.in) {{
-         System.in.read();
-         result = new Delegate() {
-            @Mock void takeTooLong() throws InterruptedException { Thread.sleep(5000); }
-         };
-      }};
-
-      assertFalse("no timeout", runTaskWithTimeout(10));
    }
 
    static class ClassWithStaticInitializer
