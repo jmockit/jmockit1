@@ -76,7 +76,7 @@ public final class ExpectedInvocation
       steIndex += "mockit.internal.expectations.mocking.MockedBridge".equals(firstCaller) ? 2 : 1;
       String secondCaller = st.getElement(steIndex).getClassName();
 
-      if (secondCaller.startsWith("sun.reflect.")) { // called through Reflection
+      if (secondCaller.contains(".reflect.")) { // called through Reflection
          steIndex += 3;
 
          while (true) {
