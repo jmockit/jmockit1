@@ -145,10 +145,12 @@ public final class ClassFile
    @Nonnull
    public static ClassReader readFromFile(@Nonnull String classDesc)
    {
-      byte[] classfile = CachedClassfiles.getClassfile(classDesc);
+      if (classDesc.startsWith("java/")) {
+         byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 
-      if (classfile != null) {
-         return new ClassReader(classfile);
+         if (classfile != null) {
+            return new ClassReader(classfile);
+         }
       }
 
       InputStream classFile = readClassFromClasspath(classDesc);
