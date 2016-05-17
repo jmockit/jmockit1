@@ -14,11 +14,12 @@ import static org.junit.Assert.*;
 
 import mockit.internal.util.*;
 import static mockit.Deencapsulation.*;
+import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("unused")
 public final class DeencapsulationTest
 {
-   @Rule public ExpectedException thrown = ExpectedException.none();
+   @Rule public final ExpectedException thrown = ExpectedException.none();
 
    static final class Subclass extends BaseClass
    {
@@ -317,16 +318,19 @@ public final class DeencapsulationTest
    @Test
    public void setStaticFinalFields()
    {
-      setField(Subclass.class, "constantField", 54);
-      setField(Subclass.class, "changed");
-      setField(Subclass.class, true);
+      // Not supported in JDK 9.
+      if (!JAVA9) {
+         setField(Subclass.class, "constantField", 54);
+         setField(Subclass.class, "changed");
+         setField(Subclass.class, true);
 
-      assertEquals(54, getField(Subclass.class, "constantField"));
-      assertEquals("changed", getField(Subclass.class, String.class));
-      assertTrue(getField(Subclass.class, boolean.class));
+         assertEquals(54, getField(Subclass.class, "constantField"));
+         assertEquals("changed", getField(Subclass.class, String.class));
+         assertTrue(getField(Subclass.class, boolean.class));
 
-      //noinspection ConstantJUnitAssertArgument
-      assertFalse(Subclass.FLAG); // in this case, the compile-time constant gets embedded in client code
+         //noinspection ConstantJUnitAssertArgument
+         assertFalse(Subclass.FLAG); // in this case, the compile-time constant gets embedded in client code
+      }
    }
 
    @Test
@@ -487,7 +491,8 @@ public final class DeencapsulationTest
    @Test
    public void newInstanceUsingNoArgsConstructorFromSpecifiedParameterTypes()
    {
-      Subclass instance = newInstance(Subclass.class.getName(), new Class<?>[] {});
+      Class<?>[] parameterTypes = {};
+      Subclass instance = newInstance(Subclass.class.getName(), (Object[]) parameterTypes);
 
       assertNotNull(instance);
       assertEquals(-1, instance.getIntField());
