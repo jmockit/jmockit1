@@ -26,7 +26,8 @@ public final class StandardDITest
       String nonAnnotatedField;
       Callable<String> nonAnnotatedGenericField;
 
-      @Inject public TestedClass(Collaborator collaborator) { this.collaborator = collaborator; }
+      @Inject
+      public TestedClass(Collaborator collaborator) { this.collaborator = collaborator; }
 
       @SuppressWarnings("UnusedParameters")
       public TestedClass(Collaborator collaborator, int anotherValue) { throw new RuntimeException("Must not occur"); }
@@ -113,7 +114,8 @@ public final class StandardDITest
       @Inject Provider<String> user;
       @Inject Provider<String> password;
 
-      @Inject TestedClassWithProviders(Provider<Integer> port, Collaborator collaborator)
+      @Inject
+      TestedClassWithProviders(Provider<Integer> port, Collaborator collaborator)
       {
          this.port = port.get();
          this.collaborator = collaborator;
@@ -141,7 +143,8 @@ public final class StandardDITest
       final List<Collaborator> optionalCollaborators = new ArrayList<Collaborator>();
       @Inject Provider<String> nameProvider;
 
-      @Inject TestedClassWithVarargsParameterForProviders(Provider<Collaborator>... collaborators)
+      @Inject
+      TestedClassWithVarargsParameterForProviders(Provider<Collaborator>... collaborators)
       {
          int n = collaborators.length;
          assertTrue(n > 1);
@@ -166,7 +169,7 @@ public final class StandardDITest
    @Before
    public void configureProviderUsedByConstructorOfTestedClass()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          collaboratorProvider.get(); result = col3; result = null;
       }};
    }

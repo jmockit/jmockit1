@@ -8,7 +8,6 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 import mockit.internal.*;
-import static mockit.Deencapsulation.*;
 
 public final class TestedAndMockedTest
 {
