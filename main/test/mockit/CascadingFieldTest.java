@@ -58,8 +58,9 @@ public final class CascadingFieldTest
    @Before
    public void recordCommonExpectations()
    {
-      new NonStrictExpectations() {{
-         foo.getBar().isDone(); result = true;
+      new Expectations() {{
+         Bar bar = foo.getBar(); minTimes = 0;
+         bar.isDone(); result = true; minTimes = 0;
       }};
    }
 

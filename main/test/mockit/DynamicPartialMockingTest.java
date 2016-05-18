@@ -210,8 +210,6 @@ public final class DynamicPartialMockingTest
    @Test
    public void expectTwoInvocationsOnStrictDynamicMockButReplayOnce()
    {
-      thrown.expect(MissingInvocation.class);
-
       final Collaborator collaborator = new Collaborator();
 
       new StrictExpectations(collaborator) {{
@@ -219,6 +217,7 @@ public final class DynamicPartialMockingTest
       }};
 
       assertEquals(0, collaborator.getValue());
+      thrown.expect(MissingInvocation.class);
    }
 
    @Test
@@ -257,8 +256,6 @@ public final class DynamicPartialMockingTest
    @Test
    public void expectTwoOrderedInvocationsOnStrictDynamicMockButReplayOutOfOrder()
    {
-      thrown.expect(MissingInvocation.class);
-
       final Collaborator collaborator = new Collaborator(1);
 
       new StrictExpectations(collaborator) {{
@@ -275,22 +272,23 @@ public final class DynamicPartialMockingTest
       assertEquals(2, collaborator.value);
 
       // The recorded call to "setValue(2)" is missing at this point.
+      thrown.expect(MissingInvocation.class);
    }
 
    @Test
    public void dynamicMockFullyVerified_verifyOnlyOneOfMultipleRecordedInvocations()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
       final Collaborator collaborator = new Collaborator(0);
 
-      new NonStrictExpectations(collaborator) {{
-         collaborator.setValue(1);
-         collaborator.setValue(2);
+      new Expectations(collaborator) {{
+         collaborator.setValue(1); minTimes = 0;
+         collaborator.setValue(2); minTimes = 0;
       }};
 
       collaborator.setValue(2);
       collaborator.setValue(1);
+
+      thrown.expect(UnexpectedInvocation.class);
 
       // Verifies all the *mocked* (recorded) invocations, ignoring those not mocked:
       new FullVerifications() {{
@@ -360,8 +358,6 @@ public final class DynamicPartialMockingTest
    @Test
    public void expectTwoInvocationsOnDynamicMockButReplayOnce()
    {
-      thrown.expect(MissingInvocation.class);
-
       final Collaborator collaborator = new Collaborator();
 
       new Expectations(collaborator) {{
@@ -369,13 +365,12 @@ public final class DynamicPartialMockingTest
       }};
 
       assertEquals(0, collaborator.getValue());
+      thrown.expect(MissingInvocation.class);
    }
 
    @Test
    public void expectOneInvocationOnDynamicMockButReplayTwice()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
       final Collaborator collaborator = new Collaborator(1);
 
       new Expectations(collaborator) {{
@@ -386,6 +381,7 @@ public final class DynamicPartialMockingTest
       assertEquals(0, collaborator.getValue());
 
       // Still mocked because it's not strict:
+      thrown.expect(UnexpectedInvocation.class);
       assertEquals(0, collaborator.getValue());
    }
 

@@ -29,7 +29,7 @@ public final class LoginServiceIntegrationTest
       userPassword = "password";
       account = new UserAccount(userId, userPassword);
 
-      new NonStrictExpectations(UserAccount.class) {{ UserAccount.find(userId); result = account; }};
+      new Expectations(UserAccount.class) {{ UserAccount.find(userId); result = account; minTimes = 0; }};
    }
 
    @Test

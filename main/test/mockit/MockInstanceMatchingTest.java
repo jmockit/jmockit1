@@ -268,7 +268,7 @@ public final class MockInstanceMatchingTest
    public void recordNonStrictExpectationsOnOneInstanceWhileStrictOnAnother(
       @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
    {
-      new NonStrictExpectations() {{ mock2.getValue(); result = 123; }};
+      new Expectations() {{ mock2.getValue(); result = 123; minTimes = 0; }};
       new StrictExpectations() {{ mock1.setValue(5); }};
 
       // mock1 is strict, mock2 is not
@@ -294,7 +294,7 @@ public final class MockInstanceMatchingTest
    public void unexpectedConstructorInvocationForMockedTypeWithBothStrictAndNonStrictExpectations(
       @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
    {
-      new NonStrictExpectations() {{ mock1.getValue(); result = 1; }};
+      new Expectations() {{ mock1.getValue(); result = 1; minTimes = 0; }};
       new StrictExpectations() {{ mock2.getValue(); result = 2; }};
 
       assertEquals(2, mock2.getValue());

@@ -51,7 +51,7 @@ public final class TestNGSharedMockFieldTest
    @BeforeMethod
    public void preventAllWritesToMockedBufferedWritersFromSUT() throws Exception
    {
-      new NonStrictExpectations() {{ writer.write(anyString, anyInt, anyInt); result = new IOException(); }};
+      new Expectations() {{ writer.write(anyString, anyInt, anyInt); result = new IOException(); minTimes = 0; }};
    }
 
    @Test

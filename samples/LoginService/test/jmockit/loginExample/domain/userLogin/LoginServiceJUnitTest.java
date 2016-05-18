@@ -22,7 +22,7 @@ public final class LoginServiceJUnitTest
    @Before
    public void init()
    {
-      new NonStrictExpectations() {{ UserAccount.find("john"); result = account; }};
+      new Expectations() {{ UserAccount.find("john"); result = account; minTimes = 0; }};
    }
 
    @Test

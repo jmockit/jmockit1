@@ -31,7 +31,7 @@ public final class InjectableFieldTest
    @Before
    public void recordCommonExpectations()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          foo.getValue(); result = 12;
          foo.getAnotherValue(); result = 123;
       }};

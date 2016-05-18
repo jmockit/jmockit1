@@ -93,7 +93,7 @@ public final class TestedClassWithConstructorDI2Test
    public void resetCounter()
    {
       TestedClass.counter = 0;
-      new NonStrictExpectations() {{ dependency1.doSomething(); result = 123; }};
+      new Expectations() {{ dependency1.doSomething(); result = 123; }};
    }
 
    @Test

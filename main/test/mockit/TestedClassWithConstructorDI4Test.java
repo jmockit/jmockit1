@@ -56,8 +56,8 @@ public final class TestedClassWithConstructorDI4Test
    @Before
    public void recordCommonExpectations() throws Exception
    {
-      new NonStrictExpectations() {{ mockGO.doSomething(); result = "test"; }};
-      new NonStrictExpectations() {{ jndiContext.lookup("testDB"); result = testDB; }};
+      new Expectations() {{ mockGO.doSomething(); result = "test"; minTimes = 0; }};
+      new Expectations() {{ jndiContext.lookup("testDB"); result = testDB; }};
    }
 
    @After
