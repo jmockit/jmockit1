@@ -26,7 +26,6 @@ final class InjectionPoint
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
    @Nullable static final Class<?> SERVLET_CLASS;
    @Nullable static final Class<?> CONVERSATION_CLASS;
-   static final boolean WITH_INJECTION_API_IN_CLASSPATH;
 
    static
    {
@@ -35,7 +34,6 @@ final class InjectionPoint
       PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
       SERVLET_CLASS = searchTypeInClasspath("javax.servlet.Servlet");
       CONVERSATION_CLASS = searchTypeInClasspath("javax.enterprise.context.Conversation");
-      WITH_INJECTION_API_IN_CLASSPATH = INJECT_CLASS != null || PERSISTENCE_UNIT_CLASS != null;
    }
 
    static boolean isServlet(@Nonnull Class<?> aClass)
