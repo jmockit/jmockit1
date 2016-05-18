@@ -103,10 +103,11 @@ public final class TestedClassWithGenericsTest
    @Tested SUTWithBoundedTypeParameter<Number, CharSequence> tested3;
    @Tested SUTWithBoundedTypeParameter<?, ?> tested4;
    @Tested SUTWithBoundedTypeParameter<Long, StringBuilder> tested5;
-   @Injectable GenericClass<? extends Number> collaborator;
 
    @Test
-   public void useSUTDeclaredWithTypeBound(@Injectable("test") String name, @Injectable Callable<String> textAction)
+   public void useSUTDeclaredWithTypeBound(
+      @Injectable("test") String name, @Injectable Callable<String> textAction,
+      @Injectable GenericClass<? extends Number> collaborator)
    {
       assertSame(numberToInject, tested2.numberValue);
       assertSame(name, tested2.textValue);
@@ -171,5 +172,19 @@ public final class TestedClassWithGenericsTest
    {
       AnotherDep anotherDep = sut3.dep;
       assertNotNull(anotherDep);
+   }
+
+   static class TestedClassWithConstructorParameterOfGenericType
+   {
+      private final GenericClass<?> dependency;
+      TestedClassWithConstructorParameterOfGenericType(GenericClass<?> dependency) { this.dependency = dependency; }
+   }
+
+   @Tested(fullyInitialized = true) TestedClassWithConstructorParameterOfGenericType tested6;
+
+   @Test
+   public void verifyInstantiationOfClassWithConstructorParameterOfGenericType()
+   {
+      assertNotNull(tested6.dependency);
    }
 }
