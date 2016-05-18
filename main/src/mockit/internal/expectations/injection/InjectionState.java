@@ -80,7 +80,7 @@ final class InjectionState
       }
    }
 
-   public Object getCurrentTestClassInstance() { return currentTestClassInstance; }
+   Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
    void setTestedField(@Nonnull Field testedField) { testedTypeReflection = new GenericTypeReflection(testedField); }
 
