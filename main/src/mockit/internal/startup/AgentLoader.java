@@ -16,7 +16,7 @@ import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
 import sun.tools.attach.*;
 
-public final class AgentLoader
+final class AgentLoader
 {
    private static final AttachProvider ATTACH_PROVIDER = new AttachProvider() {
       @Override @Nullable public String name() { return null; }
@@ -36,7 +36,7 @@ public final class AgentLoader
       jarFilePath = new PathToAgentJar().getPathToJarFile();
    }
 
-   public void loadAgent()
+   void loadAgent()
    {
       VirtualMachine vm;
 
