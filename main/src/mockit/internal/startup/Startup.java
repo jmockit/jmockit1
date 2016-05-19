@@ -85,8 +85,8 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void agentmain(@SuppressWarnings("unused") String agentArgs, @Nonnull Instrumentation inst)
-      throws IOException
+   @SuppressWarnings({"unused", "WeakerAccess"})
+   public static void agentmain(String agentArgs, @Nonnull Instrumentation inst) throws IOException
    {
       if (!inst.isRedefineClassesSupported()) {
          throw new UnsupportedOperationException(
