@@ -8,8 +8,18 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
+import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
+
 public final class FieldReflection
 {
+   private static final Field MODIFIERS_FIELD;
+   static
+   {
+      try { MODIFIERS_FIELD = Field.class.getDeclaredField("modifiers"); }
+      catch (NoSuchFieldException e) { throw new RuntimeException(e); }
+      MODIFIERS_FIELD.setAccessible(true);
+   }
+
    private FieldReflection() {}
 
    @Nullable
@@ -40,7 +50,7 @@ public final class FieldReflection
    @Nullable
    public static <T> T getFieldValue(@Nonnull Field field, @Nullable Object targetObject)
    {
-      Utilities.ensureThatMemberIsAccessible(field);
+      ensureThatMemberIsAccessible(field);
 
       try {
          //noinspection unchecked
@@ -186,7 +196,7 @@ public final class FieldReflection
             setStaticFinalField(field, value);
          }
          else {
-            Utilities.ensureThatMemberIsAccessible(field);
+            ensureThatMemberIsAccessible(field);
             field.set(targetObject, value);
          }
       }
@@ -197,22 +207,10 @@ public final class FieldReflection
 
    private static void setStaticFinalField(@Nonnull Field field, @Nullable Object value) throws IllegalAccessException
    {
-      Field modifiersField;
+      int nonFinalModifiers = MODIFIERS_FIELD.getInt(field) - FINAL;
+      MODIFIERS_FIELD.setInt(field, nonFinalModifiers);
 
-      try {
-         modifiersField = Field.class.getDeclaredField("modifiers");
-      }
-      catch (NoSuchFieldException e) {
-         throw new RuntimeException(e);
-      }
-
-      modifiersField.setAccessible(true);
-      int nonFinalModifiers = modifiersField.getInt(field) - FINAL;
-      modifiersField.setInt(field, nonFinalModifiers);
-
-      //noinspection UnnecessaryFullyQualifiedName,UseOfSunClasses
-      sun.reflect.FieldAccessor accessor =
-         sun.reflect.ReflectionFactory.getReflectionFactory().newFieldAccessor(field, false);
-      accessor.set(null, value);
+      ensureThatMemberIsAccessible(field);
+      field.set(null, value);
    }
 }
