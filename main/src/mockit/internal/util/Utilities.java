@@ -4,11 +4,13 @@
  */
 package mockit.internal.util;
 
-import java.lang.reflect.*;
-import java.util.*;
-import javax.annotation.*;
+import mockit.internal.state.ExecutingTest;
+import mockit.internal.state.TestRun;
 
-import mockit.internal.state.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.*;
+import java.util.List;
 
 /**
  * Miscellaneous utility constants and methods.
@@ -35,7 +37,22 @@ public final class Utilities
    public static void ensureThatMemberIsAccessible(@Nonnull AccessibleObject classMember)
    {
       if (!classMember.isAccessible()) {
-         classMember.setAccessible(true);
+         classMember.setAccessible(true) ;
+      }
+   }
+
+   static void ensureThatMemberIsAccessible(@Nonnull Field field)
+   {
+      if (field.isAccessible()) return;
+      try {
+         field.setAccessible(true);
+         Field modifiers = Field.class.getDeclaredField("modifiers");
+         modifiers.setAccessible(true);
+         modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+      } catch (NoSuchFieldException e) {
+         throw new RuntimeException(e);
+      } catch (IllegalAccessException e) {
+         throw new RuntimeException(e);
       }
    }
 
