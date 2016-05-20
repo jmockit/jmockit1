@@ -4,9 +4,12 @@
  */
 package mockit.internal.util;
 
-import java.lang.reflect.*;
-import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+
+import static java.lang.reflect.Modifier.isStatic;
 
 public final class FieldReflection
 {
@@ -182,37 +185,12 @@ public final class FieldReflection
    public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value)
    {
       try {
-         if (isStatic(field.getModifiers()) && isFinal(field.getModifiers())) {
-            setStaticFinalField(field, value);
-         }
-         else {
-            Utilities.ensureThatMemberIsAccessible(field);
-            field.set(targetObject, value);
-         }
+         Utilities.ensureThatMemberIsAccessible(field);
+         field.set(targetObject, value);
       }
       catch (IllegalAccessException e) {
          throw new RuntimeException(e);
       }
    }
 
-   private static void setStaticFinalField(@Nonnull Field field, @Nullable Object value) throws IllegalAccessException
-   {
-      Field modifiersField;
-
-      try {
-         modifiersField = Field.class.getDeclaredField("modifiers");
-      }
-      catch (NoSuchFieldException e) {
-         throw new RuntimeException(e);
-      }
-
-      modifiersField.setAccessible(true);
-      int nonFinalModifiers = modifiersField.getInt(field) - FINAL;
-      modifiersField.setInt(field, nonFinalModifiers);
-
-      //noinspection UnnecessaryFullyQualifiedName,UseOfSunClasses
-      sun.reflect.FieldAccessor accessor =
-         sun.reflect.ReflectionFactory.getReflectionFactory().newFieldAccessor(field, false);
-      accessor.set(null, value);
-   }
 }
