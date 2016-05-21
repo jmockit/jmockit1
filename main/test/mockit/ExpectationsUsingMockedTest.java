@@ -26,7 +26,11 @@ public final class ExpectationsUsingMockedTest
       final void simpleOperation(int a, String b, Date c) {}
    }
 
-   public abstract static class AbstractBase { protected abstract boolean add(Integer i); }
+   public abstract static class AbstractBase {
+      protected abstract boolean add(Integer i);
+      final int doSomething() { return -1; }
+   }
+
    @Mocked AbstractBase base;
 
    @Test
@@ -102,7 +106,7 @@ public final class ExpectationsUsingMockedTest
       static int initialized() { return initialized ? 1 : -1; }
    }
 
-   @Test
+   @Test @SuppressWarnings("DefaultAnnotationParam")
    public void avoidStubbingStaticInitializersThroughSpecificAnnotationAttribute(
       @Mocked(stubOutClassInitialization = false) AnotherClassWithStaticInitializer2 unused)
    {
@@ -122,5 +126,17 @@ public final class ExpectationsUsingMockedTest
       }};
 
       assertEquals(123, new InnerClass().getValue());
+   }
+
+   static final class SubClass extends AbstractBase { @Override protected boolean add(Integer i) { return false; } }
+
+   @Test
+   public void recordMethodFromAbstractBaseClassAndReplayOnSubclass()
+   {
+      new Expectations() {{ base.doSomething(); result = 1; }};
+
+      int i = new SubClass().doSomething();
+
+      assertEquals(1, i);
    }
 }

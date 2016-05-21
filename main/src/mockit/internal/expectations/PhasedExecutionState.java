@@ -53,7 +53,7 @@ final class PhasedExecutionState
       }
    }
 
-   void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType)
+   private void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType)
    {
       if (mockedTypesToMatchOnInstances == null) {
          mockedTypesToMatchOnInstances = new LinkedList<Class<?>>();
@@ -166,7 +166,7 @@ final class PhasedExecutionState
 
       if (mock1 != null && mock2 != null) {
          Class<?> mockedClass1 = mock1.getClass();
-         Class<?> mockedClass2 = mock2.getClass();
+         Class<?> mockedClass2 = GeneratedClasses.getMockedClass(mock2);
 
          if (
             mockedClass2.isAssignableFrom(mockedClass1) ||
