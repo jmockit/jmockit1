@@ -77,7 +77,7 @@ public class TestRunnerDecorator
    }
 
    public static void cleanUpMocksFromPreviousTestClass() { cleanUpMocks(true); }
-   public static void cleanUpMocksFromPreviousTest() { cleanUpMocks(false); }
+   protected static void cleanUpMocksFromPreviousTest() { cleanUpMocks(false); }
 
    private static void cleanUpMocks(boolean forTestClassAsWell)
    {
@@ -87,12 +87,7 @@ public class TestRunnerDecorator
          rollbackForTestClass();
       }
 
-      TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
-
-      if (fieldTypeRedefinitions != null) {
-         fieldTypeRedefinitions.cleanUp();
-         TestRun.setFieldTypeRedefinitions(null);
-      }
+      clearFieldTypeRedefinitions();
    }
 
    private static void rollbackForTestClass()
@@ -102,6 +97,16 @@ public class TestRunnerDecorator
       if (savePoint != null) {
          savePoint.rollback();
          savePointForTestClass = null;
+      }
+   }
+
+   protected static void clearFieldTypeRedefinitions()
+   {
+      TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+
+      if (fieldTypeRedefinitions != null) {
+         fieldTypeRedefinitions.cleanUp();
+         TestRun.setFieldTypeRedefinitions(null);
       }
    }
 
@@ -124,7 +129,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static void handleMockFieldsForWholeTestClass(@Nonnull Object target)
+   protected static void handleMockFieldsForWholeTestClass(@Nonnull Object target)
    {
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
@@ -219,7 +224,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static void clearTestedFieldsIfAny()
+   protected static void clearTestedFieldsIfAny()
    {
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 

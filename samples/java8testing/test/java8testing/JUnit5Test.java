@@ -5,7 +5,6 @@
 package java8testing;
 
 import org.junit.gen5.api.*;
-import org.junit.gen5.api.Test;
 import org.junit.gen5.junit4.runner.*;
 import org.junit.runner.*;
 import static org.junit.gen5.api.Assertions.*;
@@ -15,16 +14,31 @@ import mockit.*;
 @RunWith(JUnit5.class)
 public final class JUnit5Test
 {
-   @Test
-   void basicExample(TestInfo testInfo)
+   @Tested(availableDuringSetup = true) TestUtils utils;
+
+   @Tested BusinessService cut;
+   @Injectable Collaborator collaborator;
+
+   @BeforeEach
+   void checkMockFields()
    {
-      assertNotNull(testInfo);
-      System.out.println(testInfo.getDisplayName());
+      assertNotNull(utils);
+      assertNotNull(collaborator);
+      assertNull(cut);
    }
 
-//   @Test
-   void testWithMockedParameter(@Mocked Runnable mock)
+   @Test
+   void withParameterProvidedByJUnit(TestInfo testInfo)
    {
-      assertNull(mock);
+      assertNotNull(testInfo);
+   }
+
+   @Test
+   void withMockParameters(@Mocked Runnable mock, @Injectable("test") String text)
+   {
+      assertNotNull(mock);
+      assertEquals("test", text);
+      assertNotNull(collaborator);
+      assertSame(collaborator, cut.getCollaborator());
    }
 }

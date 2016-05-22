@@ -8,11 +8,14 @@ import java.io.*;
 import java.util.*;
 import java.util.function.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.gen5.api.*;
+import org.junit.gen5.junit4.runner.JUnit5;
+import org.junit.runner.RunWith;
+import static org.junit.gen5.api.Assertions.*;
 
 import mockit.*;
 
+@RunWith(JUnit5.class)
 public final class InterfacesWithMethodBodiesTest
 {
    @FunctionalInterface
@@ -29,7 +32,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockInterfaceWithDefaultMethods(@Mocked InterfaceWithDefaultMethods mock)
+   void mockInterfaceWithDefaultMethods(@Mocked InterfaceWithDefaultMethods mock)
    {
       new Expectations() {{
          mock.defaultMethod(); result = 2;
@@ -41,7 +44,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockClassWithOverriddenDefaultMethod(@Mocked ClassWhichOverridesDefaultMethodFromInterface mock)
+   void mockClassWithOverriddenDefaultMethod(@Mocked ClassWhichOverridesDefaultMethodFromInterface mock)
    {
       new Expectations() {{
          mock.defaultMethod(); result = 2;
@@ -58,7 +61,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock)
+   void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock)
    {
       new Expectations() {{
          mock.defaultMethod();
@@ -81,7 +84,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockClassInheritingFromInterfaceHierarchy(@Injectable ClassInheritingFromInterfaceHierarchy mock)
+   void mockClassInheritingFromInterfaceHierarchy(@Injectable ClassInheritingFromInterfaceHierarchy mock)
    {
       new Expectations() {{
          mock.defaultMethod(); result = 123;
@@ -108,7 +111,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() throws Exception
+   void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() throws Exception
    {
       ClassInheritingMultipleDefaultMethods obj = new ClassInheritingMultipleDefaultMethods();
 
@@ -133,7 +136,7 @@ public final class InterfacesWithMethodBodiesTest
    public interface InterfaceWithStaticMethod { static InterfaceWithStaticMethod newInstance() { return null; } }
 
    @Test
-   public void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
+   void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
    {
       new Expectations() {{
          InterfaceWithStaticMethod.newInstance();
@@ -145,7 +148,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockFunctionalInterfaceFromJRE(@Mocked Consumer<String> mockConsumer)
+   void mockFunctionalInterfaceFromJRE(@Mocked Consumer<String> mockConsumer)
    {
       StringBuilder concatenated = new StringBuilder();
 
@@ -176,7 +179,7 @@ public final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   public void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(
+   void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(
       @Mocked NonPublicBase base, @Mocked NonPublicDerived derived)
    {
       new Expectations() {{

@@ -10,8 +10,8 @@
    <name>Main</name>
    <description>
       JMockit is a Java toolkit for automated developer testing.
-      It contains mocking/faking APIs and a code coverage tool, supporting both JUnit and TestNG.
-      The mocking APIs allow all kinds of Java code, without testability restrictions, to be tested
+      It contains mocking and faking APIs and a code coverage tool, supporting both JUnit and TestNG.
+      The mocking API allows all kinds of Java code, without testability restrictions, to be tested
       in isolation from selected dependencies.
    </description>
    <url>http://www.jmockit.org</url>
@@ -53,7 +53,10 @@
       <resources>
          <resource>
             <directory>.</directory>
-            <includes><include>META-INF/services/org.testng.ITestNGListener</include></includes>
+            <includes>
+               <include>META-INF/services/org.junit.gen5.engine.TestEngine</include>
+               <include>META-INF/services/org.testng.ITestNGListener</include>
+            </includes>
          </resource>
          <resource>
             <directory>..</directory>
@@ -78,7 +81,7 @@
                   <configuration>
                      <rules>
                         <requireJavaVersion><version>1.8</version></requireJavaVersion>
-                        <requireMavenVersion><version>3.2.5</version></requireMavenVersion>
+                        <requireMavenVersion><version>3.3.1</version></requireMavenVersion>
                         <dependencyConvergence/>
                      </rules>
                   </configuration>
@@ -86,11 +89,10 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.3</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.6</source><target>1.6</target>
-               <fork>true</fork>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
@@ -110,7 +112,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>2.4</version>
+            <artifactId>maven-source-plugin</artifactId><version>3.0.0</version>
             <executions>
                <execution>
                   <id>attach-sources</id>
@@ -139,7 +141,7 @@
                <quiet>true</quiet>
                <sourcepath>${basedir}/src</sourcepath>
                <subpackages>none</subpackages>
-               <additionalparam>-Xdoclint:none mockit mockit.integration.junit4 mockit.integration.testng</additionalparam>
+               <additionalparam>-Xdoclint:none mockit mockit.integration.junit4</additionalparam>
             </configuration>
             <executions>
                <execution>
@@ -149,7 +151,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
             <configuration>
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
@@ -203,7 +205,7 @@
          </plugin>
          <plugin>
             <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.5</version>
+            <version>1.6.7</version>
             <extensions>true</extensions>
             <configuration>
                <serverId>sonatype-nexus-staging</serverId>
@@ -221,6 +223,10 @@
       </dependency>
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.junit</groupId><artifactId>junit5-engine</artifactId><version>5.0.0-SNAPSHOT</version>
          <optional>true</optional>
       </dependency>
       <dependency>

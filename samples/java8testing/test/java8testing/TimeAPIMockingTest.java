@@ -6,15 +6,18 @@ package java8testing;
 
 import java.time.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.gen5.api.*;
+import org.junit.gen5.junit4.runner.*;
+import org.junit.runner.*;
+import static org.junit.gen5.api.Assertions.*;
 
 import mockit.*;
 
+@RunWith(JUnit5.class)
 public final class TimeAPIMockingTest
 {
    @Test
-   public void mockClock()
+   void mockClock()
    {
       // Create a test clock with a fixed instant.
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T10:15:30");
@@ -29,7 +32,7 @@ public final class TimeAPIMockingTest
    }
 
    @Test
-   public void mockLocalDateTime()
+   void mockLocalDateTime()
    {
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T09:35:12");
 
@@ -41,7 +44,7 @@ public final class TimeAPIMockingTest
    }
 
    @Test
-   public void mockInstant()
+   void mockInstant()
    {
       Instant testInstant = Instant.parse("2014-05-10T09:35:12Z");
 
