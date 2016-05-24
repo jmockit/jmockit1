@@ -59,6 +59,14 @@
             </includes>
          </resource>
          <resource>
+            <directory>src</directory>
+            <includes>
+               <include>**/*.css</include>
+               <include>**/*.js</include>
+               <include>**/*.png</include>
+            </includes>
+         </resource>
+         <resource>
             <directory>..</directory>
             <includes>
                <include>LICENSE.txt</include>
@@ -103,6 +111,7 @@
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
                   <manifestEntries>
+                     <Main-Class>mockit.coverage.CodeCoverage</Main-Class>
                      <Premain-Class>mockit.internal.startup.Startup</Premain-Class>
                      <Agent-Class>mockit.internal.startup.Startup</Agent-Class>
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
@@ -113,6 +122,13 @@
          </plugin>
          <plugin>
             <artifactId>maven-source-plugin</artifactId><version>3.0.0</version>
+            <configuration>
+               <excludes>
+                  <exclude>*</exclude>
+                  <exclude>**/*.css</exclude>
+                  <exclude>**/*.js</exclude>
+               </excludes>
+            </configuration>
             <executions>
                <execution>
                   <id>attach-sources</id>
