@@ -12,7 +12,7 @@ import mockit.*;
 
 import jmockit.tutorial.persistence.*;
 
-public final class MyBusinessService_ExpectationsAPI_Test
+public final class MyBusinessServiceTest
 {
    @Mocked(stubOutClassInitialization = true) final Database unused = null;
    @Mocked SimpleEmail anyEmail;
