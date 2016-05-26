@@ -5,9 +5,11 @@
 package mockit.internal.startup;
 
 import java.io.*;
+import java.lang.instrument.*;
 import javax.annotation.*;
 
 import mockit.*;
+import mockit.coverage.*;
 import mockit.integration.junit4.internal.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
@@ -18,7 +20,7 @@ final class JMockitInitialization
 
    JMockitInitialization() throws IOException { config = new StartupConfiguration(); }
 
-   void initialize()
+   void initialize(@Nonnull Instrumentation instrumentation)
    {
       MockingBridge.preventEventualClassLoadingConflicts();
 
@@ -28,6 +30,10 @@ final class JMockitInitialization
 
       loadExternalToolsIfAny();
       setUpStartupMocksIfAny();
+
+      if (CodeCoverage.active()) {
+         instrumentation.addTransformer(new CodeCoverage());
+      }
    }
 
    private static void loadInternalStartupMocksForJUnitIntegration()

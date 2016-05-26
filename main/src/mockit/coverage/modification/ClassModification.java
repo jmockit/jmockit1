@@ -9,8 +9,8 @@ import java.security.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.coverage.standalone.*;
 import mockit.external.asm.*;
+import mockit.internal.startup.*;
 import static mockit.external.asm.ClassReader.*;
 
 public final class ClassModification

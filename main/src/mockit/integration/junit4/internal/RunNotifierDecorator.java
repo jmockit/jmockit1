@@ -8,10 +8,11 @@ import org.junit.runner.*;
 import org.junit.runner.notification.*;
 
 import mockit.*;
+import mockit.coverage.*;
+import mockit.coverage.testRedundancy.JUnitListener;
 import mockit.integration.internal.*;
 import mockit.internal.mockups.*;
-import mockit.internal.state.*;
-import mockit.internal.util.*;
+import mockit.internal.state.TestRun;
 
 /**
  * Startup mock which works in conjunction with {@link JUnit4TestRunnerDecorator} to provide JUnit 4.5+ integration.
@@ -24,11 +25,9 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
    public static void fireTestRunStarted(Invocation invocation, Description description) throws Exception
    {
       RunNotifier it = invocation.getInvokedInstance();
-      Class<?> coverageListenerClass = ClassLoad.searchTypeInClasspath("mockit.coverage.testRedundancy.JUnitListener");
 
-      if (coverageListenerClass != null) {
-         RunListener coverageListener = (RunListener) coverageListenerClass.getConstructor().newInstance();
-         it.addListener(coverageListener);
+      if (CodeCoverage.active()) {
+         it.addListener(new JUnitListener());
       }
 
       ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();

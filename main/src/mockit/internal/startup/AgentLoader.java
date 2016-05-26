@@ -16,7 +16,7 @@ import com.sun.tools.attach.*;
 import com.sun.tools.attach.spi.*;
 import sun.tools.attach.*;
 
-final class AgentLoader
+public final class AgentLoader
 {
    private static final AttachProvider ATTACH_PROVIDER = new AttachProvider() {
       @Override @Nullable public String name() { return null; }
@@ -26,6 +26,7 @@ final class AgentLoader
    };
 
    @Nonnull private final String jarFilePath;
+   @Nullable private String pidForTargetVM;
 
    AgentLoader()
    {
@@ -36,7 +37,13 @@ final class AgentLoader
       jarFilePath = new PathToAgentJar().getPathToJarFile();
    }
 
-   void loadAgent()
+   public AgentLoader(@Nonnull String pid)
+   {
+      this();
+      pidForTargetVM = pid;
+   }
+
+   public void loadAgent()
    {
       VirtualMachine vm;
 
@@ -57,11 +64,11 @@ final class AgentLoader
    }
 
    @Nonnull
-   private static VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
+   private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
    {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
       Class<?>[] parameterTypes = {AttachProvider.class, String.class};
-      String pid = getProcessIdForRunningVM();
+      String pid = pidForTargetVM != null ? pidForTargetVM : getProcessIdForRunningVM();
 
       try {
          // This is only done with Reflection to avoid the JVM pre-loading all the XyzVirtualMachine classes.

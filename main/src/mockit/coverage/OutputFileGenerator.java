@@ -60,9 +60,7 @@ final class OutputFileGenerator
 
    boolean isWithCallPoints()
    {
-      return
-         Startup.isTestRun() && Startup.isJMockitAvailable() &&
-         isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
+      return Startup.isTestRun() && isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
    }
 
    private boolean hasOutputFormat(@Nonnull String format)

@@ -57,19 +57,19 @@ public final class Startup
          inst.addTransformer(CachedClassfiles.INSTANCE, true);
 
          if (applyStartupMocks) {
-            applyStartupMocks();
+            applyStartupMocks(inst);
          }
 
          inst.addTransformer(new ExpectationsTransformer(inst));
       }
    }
 
-   private static void applyStartupMocks() throws IOException
+   private static void applyStartupMocks(@Nonnull Instrumentation inst) throws IOException
    {
       initializing = true;
 
       try {
-         new JMockitInitialization().initialize();
+         new JMockitInitialization().initialize(inst);
       }
       finally {
          initializing = false;
@@ -118,10 +118,10 @@ public final class Startup
       MethodReflection.invoke(startupClass, (Object) null, "reapplyStartupMocks");
    }
 
-   private static void reapplyStartupMocks()
+   private static void reapplyStartupMocks(@Nonnull Instrumentation inst)
    {
       MockingBridgeFields.setMockingBridgeFields();
-      try { applyStartupMocks(); } catch (IOException e) { throw new RuntimeException(e); }
+      try { applyStartupMocks(inst); } catch (IOException e) { throw new RuntimeException(e); }
    }
 
    @Nonnull
@@ -153,7 +153,7 @@ public final class Startup
          initializing = true;
 
          try {
-            new JMockitInitialization().initialize();
+            new JMockitInitialization().initialize(inst);
          }
          finally {
             initializing = false;
@@ -185,7 +185,7 @@ public final class Startup
             instrumentation = FieldReflection.getField(initialStartupClass, "instrumentation", null);
 
             if (instrumentation != null) {
-               reapplyStartupMocks();
+               reapplyStartupMocks(instrumentation);
             }
          }
       }
@@ -208,7 +208,8 @@ public final class Startup
             new AgentLoader().loadAgent();
 
             if (!usingCustomCL) {
-               applyStartupMocks();
+               assert instrumentation != null;
+               applyStartupMocks(instrumentation);
             }
 
             return true;

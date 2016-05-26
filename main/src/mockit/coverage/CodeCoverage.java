@@ -10,7 +10,7 @@ import javax.annotation.*;
 
 import mockit.coverage.data.*;
 import mockit.coverage.modification.*;
-import mockit.coverage.standalone.*;
+import mockit.internal.startup.*;
 
 public final class CodeCoverage implements ClassFileTransformer
 {
@@ -46,24 +46,8 @@ public final class CodeCoverage implements ClassFileTransformer
       return generator;
    }
 
-   @SuppressWarnings("unused")
-   public CodeCoverage() { this(true, true); }
-
-   private CodeCoverage(boolean checkIfAlreadyInitialized, boolean generateOutputOnShutdown)
+   public CodeCoverage()
    {
-      if (checkIfAlreadyInitialized && Startup.isInitialized()) {
-         throw new IllegalStateException("JMockit: coverage tool already initialized");
-      }
-
-      if (
-         generateOutputOnShutdown &&
-         ("none".equals(Configuration.getProperty("output")) ||
-          "none".equals(Configuration.getProperty("classes")) ||
-          "none".equals(Configuration.getProperty("metrics")))
-      ) {
-         throw new IllegalStateException("JMockit: coverage tool disabled");
-      }
-
       classModification = new ClassModification();
       outputGenerator = createOutputFileGenerator(classModification);
       outputPendingForShutdown = true;
@@ -88,10 +72,28 @@ public final class CodeCoverage implements ClassFileTransformer
       });
    }
 
+   public static boolean active()
+   {
+      String coverageOutput = Configuration.getProperty("output");
+      String coverageClasses = Configuration.getProperty("classes");
+      String coverageMetrics = Configuration.getProperty("metrics");
+
+      if ("none".equals(coverageOutput) || "none".equals(coverageClasses) || "none".equals(coverageMetrics)) {
+         return false;
+      }
+
+      return coverageOutput != null || coverageClasses != null || coverageMetrics != null;
+   }
+
    @Nonnull
    public static CodeCoverage create(boolean generateOutputOnShutdown)
    {
-      instance = new CodeCoverage(false, generateOutputOnShutdown);
+      if (generateOutputOnShutdown && !active()) {
+         throw new IllegalStateException("JMockit: coverage tool disabled");
+      }
+
+      instance = new CodeCoverage();
+      instance.outputPendingForShutdown = generateOutputOnShutdown;
       return instance;
    }
 
