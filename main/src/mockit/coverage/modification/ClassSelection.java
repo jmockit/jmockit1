@@ -11,7 +11,6 @@ import javax.annotation.*;
 import static java.util.regex.Pattern.*;
 
 import mockit.coverage.*;
-import mockit.coverage.standalone.*;
 import mockit.internal.util.*;
 
 final class ClassSelection
@@ -31,7 +30,7 @@ final class ClassSelection
 
    ClassSelection()
    {
-      if (Startup.isTestRun()) {
+      if (CodeCoverage.isTestRun()) {
          testCode = TEST_CLASS_NAME.matcher("");
       }
       else {

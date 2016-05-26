@@ -15,6 +15,7 @@ import mockit.internal.startup.*;
 public final class CodeCoverage implements ClassFileTransformer
 {
    private static CodeCoverage instance;
+   private static boolean inATestRun = true;
 
    @Nonnull private final ClassModification classModification;
    @Nonnull private final OutputFileGenerator outputGenerator;
@@ -28,7 +29,7 @@ public final class CodeCoverage implements ClassFileTransformer
 
          try {
             Integer.parseInt(pid);
-            new AgentLoader(pid).loadAgent();
+            new AgentLoader(pid).loadAgent("coverage");
             return;
          }
          catch (NumberFormatException ignore) {}
@@ -45,6 +46,8 @@ public final class CodeCoverage implements ClassFileTransformer
       CoverageData.instance().setWithCallPoints(generator.isWithCallPoints());
       return generator;
    }
+
+   public static boolean isTestRun() { return inATestRun; }
 
    public CodeCoverage()
    {
@@ -88,10 +91,7 @@ public final class CodeCoverage implements ClassFileTransformer
    @Nonnull
    public static CodeCoverage create(boolean generateOutputOnShutdown)
    {
-      if (generateOutputOnShutdown && !active()) {
-         throw new IllegalStateException("JMockit: coverage tool disabled");
-      }
-
+      inATestRun = false;
       instance = new CodeCoverage();
       instance.outputPendingForShutdown = generateOutputOnShutdown;
       return instance;
@@ -101,7 +101,9 @@ public final class CodeCoverage implements ClassFileTransformer
    {
       Startup.instrumentation().removeTransformer(instance);
       CoverageData.instance().clear();
-      Startup.instrumentation().addTransformer(create(false));
+
+      CodeCoverage coverage = create(false);
+      Startup.instrumentation().addTransformer(coverage);
       instance.outputPendingForShutdown = false;
    }
 

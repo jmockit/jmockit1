@@ -10,7 +10,6 @@ import javax.annotation.*;
 import mockit.coverage.data.*;
 import mockit.coverage.modification.*;
 import mockit.coverage.reporting.*;
-import mockit.coverage.standalone.*;
 
 @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
 final class OutputFileGenerator
@@ -31,7 +30,7 @@ final class OutputFileGenerator
       String commaSeparatedDirs = Configuration.getProperty("srcDirs");
 
       if (commaSeparatedDirs == null) {
-         sourceDirs = Startup.isTestRun() ? ALL_SOURCE_DIRS : null;
+         sourceDirs = CodeCoverage.isTestRun() ? ALL_SOURCE_DIRS : null;
       }
       else if (commaSeparatedDirs.isEmpty()) {
          sourceDirs = null;
@@ -60,7 +59,7 @@ final class OutputFileGenerator
 
    boolean isWithCallPoints()
    {
-      return Startup.isTestRun() && isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
+      return CodeCoverage.isTestRun() && isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
    }
 
    private boolean hasOutputFormat(@Nonnull String format)

@@ -15,7 +15,7 @@ import mockit.coverage.*;
 
 public final class CoverageControl extends StandardMBean implements CoverageControlMBean, PersistentMBean
 {
-   static void create()
+   public static void create()
    {
       MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
