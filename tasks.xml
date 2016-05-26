@@ -65,15 +65,16 @@
       </replace>
    </target>
 
-   <target name="createJars" depends="createJar-main, createJar-coverage"/>
-   <target name="createJar-main">
+   <target name="createJar">
       <delete file="jmockit.jar"/>
       <jar destfile="jmockit.jar">
          <fileset file="LICENSE.txt"/>
          <fileset file="NOTICE.txt"/>
          <fileset dir="main/src" includes="mockit/**/*.java **/attach/**/*.java org/junit/**/*.java"/>
+         <fileset dir="main/src" includes="**/*.css **/*.js **/*.png"/>
          <fileset dir="main/classes" includes="mockit/**/*.class **/attach/**/*.class org/junit/**/*.class"/>
          <manifest>
+            <attribute name="Main-Class" value="mockit.coverage.CodeCoverage"/>
             <attribute name="Premain-Class" value="mockit.internal.startup.Startup"/>
             <attribute name="Agent-Class" value="mockit.internal.startup.Startup"/>
             <attribute name="Can-Redefine-Classes" value="true"/>
@@ -81,40 +82,6 @@
             <attribute name="Implementation-Version" value="${version}"/>
          </manifest>
          <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.TestNGRunnerDecorator"/>
-      </jar>
-   </target>
-   <target name="createJar-coverage">
-      <delete file="jmockit-coverage.jar"/>
-      <jar destfile="jmockit-coverage.jar">
-         <fileset file="LICENSE.txt"/>
-         <fileset file="NOTICE.txt"/>
-         <fileset dir="coverage/src" includes="mockit/coverage/**/*.java"/>
-         <fileset
-            dir="coverage/classes" includes="jmockit.properties mockit/coverage/**/*.class **/*.css **/*.js **/*.png"/>
-         <fileset dir="main/classes">
-            <include name="mockit/external/asm/*.class"/>
-            <include name="mockit/internal/util/ClassLoad.class"/>
-            <include name="mockit/internal/util/FieldReflection.class"/>
-            <include name="mockit/internal/util/StackTrace.class"/>
-            <include name="mockit/internal/mockups/MockStates.class"/>
-            <include name="mockit/internal/state/CascadingTypes.class"/>
-            <include name="mockit/internal/state/ExecutingTest*.class"/>
-            <include name="mockit/internal/state/MockClasses.class"/>
-            <include name="mockit/internal/state/TestRun*.class"/>
-            <include name="mockit/internal/state/MockFixture.class"/>
-            <include name="mockit/internal/startup/Startup.class"/>
-            <include name="mockit/MockUp.class"/>
-            <include name="com/sun/tools/attach/**/*.class"/>
-            <include name="sun/tools/attach/*.class"/>
-         </fileset>
-         <manifest>
-            <attribute name="Main-Class" value="mockit.coverage.CodeCoverage"/>
-            <attribute name="Premain-Class" value="mockit.coverage.standalone.Startup"/>
-            <attribute name="Agent-Class" value="mockit.coverage.standalone.Startup"/>
-            <attribute name="Can-Redefine-Classes" value="true"/>
-            <attribute name="Can-Retransform-Classes" value="true"/>
-            <attribute name="Implementation-Version" value="${version}"/>
-         </manifest>
       </jar>
    </target>
 
@@ -179,7 +146,6 @@
    <target name="coverageTests">
       <junit fork="yes" forkmode="once" dir="coverageTests" showoutput="true" printsummary="true">
          <classpath path="jmockit.jar"/>
-         <classpath path="jmockit-coverage.jar"/>
          <classpath refid="common.classpath"/>
          <classpath location="coverageTests/test-classes"/>
          <classpath location="coverageTests/classes"/>
@@ -196,7 +162,6 @@
       <junit fork="yes" forkmode="once" dir="samples" showoutput="true" printsummary="true">
          <assertions><enable/></assertions>
          <classpath path="jmockit.jar"/>
-         <classpath path="jmockit-coverage.jar"/>
          <sysproperty key="coverage-output" value="serial"/>
          <classpath refid="common.classpath"/>
          <classpath>
@@ -218,7 +183,6 @@
       <testng workingdir="${sampleDir}">
          <classpath refid="common.classpath"/>
          <classpath path="jmockit.jar"/>
-         <classpath path="jmockit-coverage.jar"/>
          <sysproperty key="coverage-output" value="serial"/>
          <classpath>
             <fileset dir="samples" includes="lib/*.jar"/>
@@ -228,8 +192,8 @@
          <classfileset dir="${sampleDir}/test-classes" includes="**/*Test.class"/>
       </testng>
 
-      <java fork="yes" dir="samples" jar="jmockit-coverage.jar">
-         <jvmarg line="-Djmockit-coverage-output=html"/>
+      <java fork="yes" dir="samples" jar="jmockit.jar">
+         <jvmarg line="-Dcoverage-output=html"/>
          <arg line=". LoginService"/>
       </java>
       <delete file="samples/coverage.ser"/>
