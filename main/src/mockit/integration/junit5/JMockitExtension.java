@@ -5,6 +5,7 @@
 package mockit.integration.junit5;
 
 import java.lang.reflect.*;
+import java.util.*;
 import javax.annotation.*;
 
 import org.junit.gen5.api.extension.*;
@@ -19,12 +20,13 @@ import static mockit.internal.util.StackTrace.*;
 @SuppressWarnings("Since15")
 final class JMockitExtension extends TestRunnerDecorator implements
    BeforeAllCallback, AfterAllCallback,
-   InstancePostProcessor, BeforeEachCallback, AfterEachCallback, BeforeTestMethodCallback, AfterTestMethodCallback,
-   MethodParameterResolver, ExceptionHandler
+   TestInstancePostProcessor, BeforeEachCallback, AfterEachCallback,
+   BeforeTestExecutionCallback, AfterTestExecutionCallback,
+   ParameterResolver, TestExecutionExceptionHandler
 {
    @Nullable private SavePoint savePointForTestClass;
    @Nullable private SavePoint savePointForTest;
-   @Nullable private SavePoint savePoint;
+   @Nullable private SavePoint savePointForTestMethod;
    @Nullable private Throwable thrownByTest;
    @Nullable private Object[] mockParameters;
 
@@ -33,7 +35,8 @@ final class JMockitExtension extends TestRunnerDecorator implements
    {
       savePointForTestClass = new SavePoint();
 
-      Class<?> testClass = context.getTestClass();
+      //noinspection OptionalGetWithoutIsPresent
+      Class<?> testClass = context.getTestClass().get();
       TestRun.setCurrentTestClass(testClass);
    }
 
@@ -70,15 +73,16 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void beforeTestMethod(TestExtensionContext context)
+   public void beforeTestExecution(TestExtensionContext context)
    {
-      Method method = context.getTestMethod();
+      //noinspection OptionalGetWithoutIsPresent
+      Method method = context.getTestMethod().get();
       Object testInstance = context.getTestInstance();
 
       TestRun.enterNoMockingZone();
 
       try {
-         savePoint = new SavePoint();
+         savePointForTestMethod = new SavePoint();
          mockParameters = createInstancesForMockParameters(method, null);
          createInstancesForTestedFields(testInstance, false);
       }
@@ -89,7 +93,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    @Override
    public boolean supports(
-      Parameter parameter, MethodInvocationContext methodInvocationContext, ExtensionContext extensionContext)
+      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
    {
       return
          parameter.isAnnotationPresent(Mocked.class) ||
@@ -99,27 +103,28 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    @Override @SuppressWarnings("ConstantConditions")
    public Object resolve(
-      Parameter parameter, MethodInvocationContext methodInvocationContext, ExtensionContext extensionContext)
+      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
    {
       int parameterIndex = Deencapsulation.getField(parameter, "index"); // somehow, "index" is not exposed by Java API
       return mockParameters[parameterIndex];
    }
 
    @Override
-   public void handleException(TestExtensionContext context, Throwable throwable) throws Throwable
+   public void handleTestExecutionException(TestExtensionContext context, Throwable throwable) throws Throwable
    {
       thrownByTest = throwable;
       throw throwable;
    }
 
    @Override
-   public void afterTestMethod(TestExtensionContext context) throws Exception
+   public void afterTestExecution(TestExtensionContext context)
    {
       TestRun.enterNoMockingZone();
 
       try {
-         assert savePoint != null;
-         savePoint.rollback();
+         assert savePointForTestMethod != null;
+         savePointForTestMethod.rollback();
+         savePointForTestMethod = null;
 
          if (thrownByTest != null) {
             filterStackTrace(thrownByTest);
