@@ -12,7 +12,6 @@ import javax.annotation.*;
 import static java.util.Collections.*;
 
 import mockit.external.asm.Type;
-import static mockit.Deencapsulation.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
@@ -110,10 +109,13 @@ public final class DefaultValues
       });
 
       // These are static interface methods, which can't be compiled on "-source 1.6".
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", invoke(Stream.class, "empty"));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", invoke(IntStream.class, "empty"));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", invoke(LongStream.class, "empty"));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", invoke(DoubleStream.class, "empty"));
+      //noinspection OverlyBroadCatchBlock
+      try {
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", Stream.class.getMethod("empty").invoke(null));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", IntStream.class.getMethod("empty").invoke(null));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", LongStream.class.getMethod("empty").invoke(null));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", DoubleStream.class.getMethod("empty").invoke(null));
+      } catch (Exception ignore) {}
    }
 
    @Nonnull
