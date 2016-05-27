@@ -93,10 +93,6 @@ public final class ConstructorReflection
    public static <T> T newInstance(
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
    {
-      if (initArgs == null) {
-         throw invalidArguments();
-      }
-
       Class<T> theClass = ClassLoad.loadClass(className);
       return newInstance(theClass, parameterTypes, initArgs);
    }
@@ -167,7 +163,7 @@ public final class ConstructorReflection
    @Nonnull
    public static <T> T newInstance(@Nonnull Class<T> aClass)
    {
-      return newInstance(aClass, NO_PARAMETERS);
+      return newInstance(aClass, (Object[]) NO_PARAMETERS);
    }
 
    @Nonnull
@@ -215,6 +211,10 @@ public final class ConstructorReflection
          throw invalidArguments();
       }
 
+      if (Modifier.isStatic(innerClass.getModifiers())) {
+         throw new IllegalArgumentException(innerClass.getSimpleName() + " is not an inner class");
+      }
+
       Object[] initArgs = argumentsWithExtraFirstValue(nonNullArgs, outerInstance);
       return newInstance(innerClass, initArgs);
    }
@@ -223,10 +223,6 @@ public final class ConstructorReflection
    public static <T> T newInnerInstance(
       @Nonnull String innerClassName, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
    {
-      if (nonNullArgs == null) {
-         throw invalidArguments();
-      }
-
       Class<?> outerClass = outerInstance.getClass();
       ClassLoader loader = outerClass.getClassLoader();
       String className = outerClass.getName() + '$' + innerClassName;

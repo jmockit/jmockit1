@@ -118,8 +118,7 @@ public final class DeencapsulationTest
       assertSame(anInstance.baseSet, listValue);
    }
 
-   @SuppressWarnings("unchecked")
-   @Test
+   @Test @SuppressWarnings("unchecked")
    public void getInstanceFieldByType()
    {
       anInstance.setStringField("by type");
@@ -154,8 +153,7 @@ public final class DeencapsulationTest
       getField(anInstance, int.class);
    }
 
-   @SuppressWarnings("unchecked")
-   @Test
+   @Test @SuppressWarnings("unchecked")
    public void getInheritedInstanceFieldByType()
    {
       Set<Boolean> fieldValueOnInstance = new HashSet<Boolean>();
@@ -658,6 +656,15 @@ public final class DeencapsulationTest
       Object innerInstance = newInnerInstance(innerClass, anInstance, aList);
 
       assertTrue(innerClass.isInstance(innerInstance));
+   }
+
+   @Test
+   public void attemptToInstantiateNestedClassAsIfItWasInnerClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Subclass is not an inner class");
+
+      newInnerInstance(Subclass.class, this);
    }
 
    @Test(expected = InstantiationException.class)

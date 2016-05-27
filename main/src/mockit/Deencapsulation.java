@@ -368,7 +368,8 @@ public final class Deencapsulation
     *
     * @return a newly created instance of the specified inner class, initialized with the given arguments
     *
-    * @throws IllegalArgumentException if a null reference was provided for a parameter
+    * @throws IllegalArgumentException if a {@code null} reference was provided for a parameter, or the class given to
+    * instantiate is not an inner class, or a matching constructor is not found
     *
     * @see #newInnerInstance(Class, Object, Object...)
     */
@@ -389,7 +390,8 @@ public final class Deencapsulation
     *
     * @return a newly created instance of the specified inner class, initialized with the given arguments
     *
-    * @throws IllegalArgumentException if a null reference was provided for a parameter
+    * @throws IllegalArgumentException if a {@code null} reference was provided for a parameter, or the class given to
+    * instantiate is not an inner class, or a matching constructor is not found
     *
     * @see #newInnerInstance(String, Object, Object...)
     */
