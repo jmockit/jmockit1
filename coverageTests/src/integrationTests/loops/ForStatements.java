@@ -72,4 +72,15 @@ public class ForStatements
          }
       }
    }
+
+   boolean forWithNestedIfWhichReturns(int valueToSearch, int... values)
+   {
+      for (int value : values) {
+         if (value == valueToSearch) {
+            return true;
+         }
+      }
+
+      return false;
+   }
 }

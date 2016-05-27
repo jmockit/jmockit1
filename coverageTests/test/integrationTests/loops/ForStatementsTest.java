@@ -92,4 +92,10 @@ public final class ForStatementsTest extends CoverageTest
       assertLine(48, 1, 1, 3);
       assertLine(49, 1, 1, 1);
    }
+
+   @Test @Ignore("for issue #254")
+   public void forWithNestedIfWhichReturns()
+   {
+      tested.forWithNestedIfWhichReturns(2, 1, 2, 3);
+   }
 }
