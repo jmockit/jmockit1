@@ -176,10 +176,11 @@ public final class TestedClassWithGenericsTest
 
    static class TestedClassWithConstructorParameterOfGenericType
    {
-      private final GenericClass<?> dependency;
-      TestedClassWithConstructorParameterOfGenericType(GenericClass<?> dependency) { this.dependency = dependency; }
+      private final Class<?> dependency;
+      TestedClassWithConstructorParameterOfGenericType(Class<?> dependency) { this.dependency = dependency; }
    }
 
+   @Tested final Class<?> dependency = Long.class;
    @Tested(fullyInitialized = true) TestedClassWithConstructorParameterOfGenericType tested6;
 
    @Test

@@ -69,12 +69,11 @@ final class TestedField
          if (testedObjectCreation != null) {
             testedObject = testedObjectCreation.create();
             setFieldValue(testedField, testClassInstance, testedObject);
-            injectionState.saveTestedObject(testedClass, testedObject);
+            registerTestedObject(testedObject);
          }
       }
       else if (testedObject != null) {
-         String dependencyKey = InjectionPoint.dependencyKey(testedClass, testedField.getName());
-         injectionState.saveTestedObject(dependencyKey, testedObject);
+         registerTestedObject(testedObject);
          testedClass = testedObject.getClass();
       }
 
@@ -107,6 +106,15 @@ final class TestedField
       }
 
       return false;
+   }
+
+   private void registerTestedObject(@Nonnull Object testedObject)
+   {
+      String dependencyKey = InjectionPoint.dependencyKey(testedField.getType(), testedField.getName());
+      injectionState.saveTestedObject(dependencyKey, testedObject);
+
+      Type testedType = testedField.getGenericType();
+      injectionState.saveTestedObject(testedType, testedObject);
    }
 
    private void performFieldInjection(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)

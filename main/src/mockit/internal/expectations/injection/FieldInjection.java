@@ -24,7 +24,7 @@ final class FieldInjection implements Injector
    boolean requireDIAnnotation;
    @Nullable private final FullInjection fullInjection;
    @Nonnull Class<?> targetClass;
-   Field targetField;
+   private Field targetField;
 
    FieldInjection(
       @Nonnull TestedField testedField, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection)
@@ -122,8 +122,8 @@ final class FieldInjection implements Injector
    @Nullable
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
-      String qualifiedTargetFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
-      MockedType mockedType = findAvailableInjectableIfAny(targetFields, qualifiedTargetFieldName);
+      String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
+      MockedType mockedType = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
 
       if (mockedType != null) {
          return injectionState.getValueToInject(mockedType);
@@ -136,8 +136,8 @@ final class FieldInjection implements Injector
             return null;
          }
 
-         FieldToInject fieldToInject = new FieldToInject(targetField);
-         Object newInstance = fullInjection.newInstance(testedClass, this, fieldToInject, qualifiedTargetFieldName);
+         InjectionPointProvider fieldToInject = new FieldToInject(targetField);
+         Object newInstance = fullInjection.newInstance(testedClass, this, fieldToInject, qualifiedFieldName);
 
          if (newInstance != null) {
             return newInstance;

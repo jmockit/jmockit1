@@ -5,6 +5,7 @@
 package mockit.internal.expectations.injection;
 
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
@@ -217,7 +218,7 @@ final class InjectionState
    <D> D getGlobalDependency(@Nonnull Object key) { return (D) globalDependencies.get(key); }
 
    @Nullable
-   Object getInstantiatedDependency(@Nonnull Object dependencyKey)
+   Object getInstantiatedDependency(@Nonnull InjectionPointProvider injectionProvider, @Nonnull Object dependencyKey)
    {
       Object testedObject = testedObjects.get(dependencyKey);
 
@@ -228,7 +229,14 @@ final class InjectionState
       Object dependency = instantiatedDependencies.get(dependencyKey);
 
       if (dependency == null) {
-         dependency = globalDependencies.get(dependencyKey);
+         if (dependencyKey instanceof Type) {
+            Class<?> dependencyClass = injectionProvider.getClassOfDeclaredType();
+            dependency = instantiatedDependencies.get(dependencyClass);
+         }
+
+         if (dependency == null) {
+            dependency = globalDependencies.get(dependencyKey);
+         }
       }
 
       return dependency;
