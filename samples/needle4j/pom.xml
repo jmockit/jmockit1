@@ -45,12 +45,8 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.23</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.24</version>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId><version>1.23</version>
-         <scope>runtime</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
@@ -65,17 +61,20 @@
    <build>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.3</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>
             <configuration>
                <source>1.7</source>
                <target>1.7</target>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.18.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <argLine>-Xint</argLine>
+               <systemPropertyVariables>
+                  <coverage-metrics>all</coverage-metrics>
+               </systemPropertyVariables>
             </configuration>
          </plugin>
       </plugins>

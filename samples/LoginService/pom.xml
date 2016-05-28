@@ -32,8 +32,5 @@
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit-coverage</artifactId>
-      </dependency>
    </dependencies>
 </project>
