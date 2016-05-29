@@ -36,7 +36,7 @@ final class MockMethodCollector extends ClassVisitor
       Class<?> classToCollectMocksFrom = mockClass;
 
       do {
-         ClassReader mcReader = ClassFile.createReaderOrGetFromCache(classToCollectMocksFrom);
+         ClassReader mcReader = ClassFile.readFromFile(classToCollectMocksFrom);
          mcReader.accept(this, SKIP_CODE + SKIP_FRAMES);
          classToCollectMocksFrom = classToCollectMocksFrom.getSuperclass();
          collectingFromSuperClass = true;
