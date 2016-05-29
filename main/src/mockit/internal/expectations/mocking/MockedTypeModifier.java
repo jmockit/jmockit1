@@ -27,7 +27,7 @@ final class MockedTypeModifier
       @Nullable String genericSignature, @Nonnull ExecutionMode executionMode)
    {
       // First argument: the mock instance, if any.
-      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, access, name);
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(mw, access);
 
       // Second argument: method access flags.
       mw.visitLdcInsn(access);

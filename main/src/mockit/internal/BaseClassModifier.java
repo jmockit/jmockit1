@@ -137,11 +137,10 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final boolean generateCodeToPassThisOrNullIfStaticMethod()
    {
-      return generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess, methodName);
+      return generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
    }
 
-   public static boolean generateCodeToPassThisOrNullIfStaticMethod(
-      @Nonnull MethodWriter mw, int access, @SuppressWarnings("unused") @Nonnull String name)
+   public static boolean generateCodeToPassThisOrNullIfStaticMethod(@Nonnull MethodWriter mw, int access)
    {
       boolean isStatic = isStatic(access);
 
