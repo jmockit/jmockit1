@@ -237,6 +237,33 @@ public final class MockingUpEverythingTest
       timingAspect.assertTimes("getSystemId", 20, 20, 20);
       timingAspect.assertTimes("setSystemId", 30, 30);
    }
+
+   public static final class PublicMockUp extends MockUp<TargetClass>
+   {
+      @Mock
+      public static Object $advice(Invocation inv)
+      {
+         Object[] args = inv.getInvokedArguments();
+
+         if (args.length > 0) {
+            Integer i = (Integer) args[0];
+            return -i;
+         }
+
+         return null;
+      }
+   }
+
+   @Test
+   public void publicAdviceMethodInPublicMockUpClass()
+   {
+      new PublicMockUp();
+
+      new TargetClass().validateSomething();
+      int i = TargetClass.staticMethod(123);
+
+      assertEquals(-123, i);
+   }
 }
 
 class TargetClass
