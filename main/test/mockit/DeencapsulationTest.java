@@ -15,6 +15,8 @@ import static org.junit.Assert.*;
 import mockit.internal.util.*;
 import static mockit.Deencapsulation.*;
 
+import static org.hamcrest.CoreMatchers.*;
+
 @SuppressWarnings("unused")
 public final class DeencapsulationTest
 {
@@ -26,8 +28,6 @@ public final class DeencapsulationTest
       final int initialValue = -1;
 
       private static final Integer constantField = 123;
-      private static final String compileTimeConstantField = "test";
-      static final boolean FLAG = false;
 
       private static StringBuilder buffer;
       private static char static1;
@@ -313,18 +313,11 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void setStaticFinalFields() throws Exception
+   public void attemptToSetAStaticFinalField()
    {
+      thrown.expectCause(isA(IllegalAccessException.class));
+
       setField(Subclass.class, "constantField", 54);
-      setField(Subclass.class, "changed");
-      setField(Subclass.class, true);
-
-      assertEquals(54, getField(Subclass.class, "constantField"));
-      assertEquals("changed", getField(Subclass.class, String.class));
-      assertTrue(getField(Subclass.class, boolean.class));
-
-      //noinspection ConstantJUnitAssertArgument
-      assertFalse(Subclass.FLAG); // in this case, the compile-time constant gets embedded in client code
    }
 
    @Test
