@@ -47,9 +47,10 @@ public final class TestedClassInjectedFromMockParametersTest
    {
    }
 
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToInstantiateTestedClassWithInjectablePrimitiveHavingNoValue(@Injectable boolean b)
+   @Test
+   public void instantiateTestedClassWithInjectablePrimitiveHavingNoValue(@Injectable boolean b)
    {
+      assertFalse(tested.b);
    }
 
    @Test
