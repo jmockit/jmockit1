@@ -20,11 +20,9 @@ public abstract class BaseInvocation extends Invocation
    @Nullable protected Member realMember;
    @Nullable protected BaseInvocation previousInvocation;
 
-   protected BaseInvocation(
-      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
-      int invocationCount, int minInvocations, int maxInvocations)
+   protected BaseInvocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, int invocationCount)
    {
-      super(invokedInstance, invokedArguments, invocationCount, minInvocations, maxInvocations);
+      super(invokedInstance, invokedArguments, invocationCount);
    }
 
    @Nonnull

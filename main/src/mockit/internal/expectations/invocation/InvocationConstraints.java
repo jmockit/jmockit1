@@ -11,7 +11,7 @@ import mockit.internal.*;
 public final class InvocationConstraints
 {
    public int minInvocations;
-   int maxInvocations;
+   private int maxInvocations;
    public int invocationCount;
 
    public InvocationConstraints(boolean strictInvocation, boolean nonStrictInvocation)

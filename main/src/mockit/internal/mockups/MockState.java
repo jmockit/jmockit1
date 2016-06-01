@@ -112,9 +112,6 @@ final class MockState
       }
    }
 
-   int getMinInvocations() { return expectedInvocations >= 0 ? expectedInvocations : minExpectedInvocations; }
-   int getMaxInvocations() { return expectedInvocations >= 0 ? expectedInvocations : maxExpectedInvocations; }
-
    int getTimesInvoked()
    {
       synchronized (invocationCountLock) {

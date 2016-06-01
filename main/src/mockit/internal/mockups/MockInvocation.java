@@ -39,9 +39,7 @@ public final class MockInvocation extends BaseInvocation
       @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnull MockState mockState,
       @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
-      super(
-         invokedInstance, invokedArguments,
-         mockState.getTimesInvoked(), mockState.getMinInvocations(), mockState.getMaxInvocations());
+      super(invokedInstance, invokedArguments, mockState.getTimesInvoked());
       this.mockState = mockState;
       this.mockedClassDesc = mockedClassDesc;
       this.mockedMethodName = mockedMethodName;

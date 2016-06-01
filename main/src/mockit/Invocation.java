@@ -30,21 +30,15 @@ public class Invocation
    @Nullable private final Object invokedInstance;
    private final Object[] invokedArguments;
    private final int invocationCount;
-   private final int minInvocations;
-   private final int maxInvocations;
 
    /**
     * For internal use only.
     */
-   protected Invocation(
-      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
-      int invocationCount, int minInvocations, int maxInvocations)
+   protected Invocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, int invocationCount)
    {
       this.invokedInstance = invokedInstance;
       this.invokedArguments = invokedArguments;
       this.invocationCount = invocationCount;
-      this.minInvocations = minInvocations;
-      this.maxInvocations = maxInvocations;
    }
 
    /**
@@ -82,37 +76,6 @@ public class Invocation
     * Note that this is equivalent to {@link #getInvocationCount()} - 1.
     */
    public final int getInvocationIndex() { return invocationCount - 1; }
-
-   /**
-    * Returns the current value of the minimum invocation count associated with the matching expectation or mock method.
-    * <p/>
-    * For an expectation, this call will return the value specified through the
-    * {@linkplain Invocations#times times} or {@linkplain Invocations#minTimes minTimes} field, if that was the case;
-    * if not, the value will be {@code 1} for a regular or strict expectation, or {@code 0} for a non-strict one.
-    * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
-    * or {@linkplain Mock#minInvocations minInvocations} attribute, or {@code 0} if none.
-    *
-    * @deprecated This method is unlikely to be useful in real tests, and will be removed from the API in the next
-    * release, without any direct replacement.
-    */
-   @Deprecated
-   public final int getMinInvocations() { return minInvocations; }
-
-   /**
-    * Returns the current value of the maximum invocation count for the matching expectation or mock method
-    * (<code>-1</code> indicates that it's unlimited).
-    * <p/>
-    * For an expectation, this call will return the value specified through the
-    * {@linkplain Invocations#times times} or {@linkplain Invocations#maxTimes maxTimes} field, if that was the case;
-    * if not, the value will be {@code -1} for a regular or non-strict expectation, or {@code 1} for a strict one.
-    * For a {@code @Mock} method, it will return the value specified for the {@linkplain Mock#invocations invocations}
-    * or {@linkplain Mock#maxInvocations maxInvocations} attribute, or {@code -1} if none.
-    *
-    * @deprecated This method is unlikely to be useful in real tests, and will be removed from the API in the next
-    * release, without any direct replacement.
-    */
-   @Deprecated
-   public final int getMaxInvocations() { return maxInvocations; }
 
    /**
     * Allows execution to proceed into the real implementation of the mocked method/constructor.

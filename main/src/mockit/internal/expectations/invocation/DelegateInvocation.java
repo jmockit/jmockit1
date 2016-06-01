@@ -18,9 +18,7 @@ final class DelegateInvocation extends BaseInvocation
       @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments,
       @Nonnull ExpectedInvocation expectedInvocation, @Nonnull InvocationConstraints constraints)
    {
-      super(
-         invokedInstance, invokedArguments,
-         constraints.invocationCount, constraints.minInvocations, constraints.maxInvocations);
+      super(invokedInstance, invokedArguments, constraints.invocationCount);
       invocationArguments = expectedInvocation.arguments;
    }
 
