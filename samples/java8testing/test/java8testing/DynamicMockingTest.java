@@ -65,7 +65,7 @@ public final class DynamicMockingTest
       Supplier<String> s = () -> toBeCaptured.doSomething();
 
       Startup.retransformClass(s.getClass());
-//      new NonStrictExpectations(s) {};
+//      new Expectations(s) {};
 
       assertEquals("test2", s.get());
 //      new Verifications() {{ s.get(); }};

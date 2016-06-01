@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-public final class NonStrictExpectationsWithDuplicateRecordingsTest
+public final class ExpectationsWithDuplicateRecordingsTest
 {
    @SuppressWarnings({"unused", "NumericCastThatLosesPrecision"})
    static class Blah
@@ -29,7 +29,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithDisjunctiveArgumentMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(withEqual(1)); result = false;
          mock.doSomething(withNotEqual(1)); result = true;
       }};
@@ -43,9 +43,9 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordAmbiguousExpectationsUsingConstantArgumentValueAndArgumentMatcher()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.setValue(1);
-         mock.setValue(anyInt); result = new UnknownError();
+         mock.setValue(anyInt); result = new UnknownError(); minTimes = 0;
       }};
 
       mock.setValue(1);
@@ -55,7 +55,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordAmbiguousExpectationsUsingArgumentMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(withNotEqual('x')); result = 1;
          mock.doSomething(anyChar); result = 2;
       }};
@@ -67,7 +67,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithIdenticalArgumentMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(anyInt); result = false;
          mock.doSomething(anyInt); result = true; // overrides the previous expectation
 
@@ -85,7 +85,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithOverlappingArgumentMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(withEqual(0)); result = false;
          mock.doSomething(anyInt); result = true;
 
@@ -103,10 +103,10 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithOverlappingArgumentMatchersButInTheWrongOrder()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          // Invalid, since the least specific expectation is recorded first:
          mock.doSomething((String) any); result = "";
-         mock.doSomething(withEqual("str")); result = null;
+         mock.doSomething(withEqual("str")); result = null; minTimes = 0;
       }};
 
       assertEquals("", mock.doSomething((String) null)); // ok, matches only one expectation
@@ -116,7 +116,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithExactArgumentAndArgMatcherButInWrongOrderOfSpecificity()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(anyInt); result = false;
          mock.doSomething(1); result = true; // overrides the previous one (most specific should come first)
       }};
@@ -128,7 +128,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithArgumentsOrMatchersOfVaryingSpecificity()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(true); result = null;
          mock.doSomething(anyBoolean); result = "a";
 
@@ -161,7 +161,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordSameMethodWithOpposingMatchers()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(this.<String>withNull()); result = "null";
          mock.doSomething(this.<String>withNotNull()); result = "non-null";
       }};
@@ -173,7 +173,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test
    public void recordAmbiguousExpectationsUsingTheSameMatcherButWithDifferentArguments()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(withNotEqual('A')); result = 1;
          mock.doSomething(withNotEqual('B')); result = 2; // overrides the previous expectation
 
@@ -193,7 +193,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    @Test @SuppressWarnings("unused")
    public void recordUnambiguousExpectationsUsingTheSameMatcherButWithDifferentArguments()
    {
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(withEqual("abc")); result = "first";
          mock.doSomething(withEqual("XYZ")); result = "second";
 
@@ -281,7 +281,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    {
       Blah b = new Blah();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(anyLong, "A"); result = 1L;
          mock.doSomething(anyLong, "B"); result = 2L;
       }};
@@ -299,7 +299,7 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    {
       Blah b = new Blah();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(anyLong, "A"); result = 1L;
          mock.doSomething(anyLong, null); result = 2L;
       }};
@@ -317,9 +317,9 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
    {
       Blah b = new Blah();
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(anyLong, null); result = 2L;
-         mock.doSomething(anyLong, "A"); result = 1L; // most specific should come first
+         mock.doSomething(anyLong, "A"); result = 1L; minTimes = 0; // most specific should come first
       }};
 
       assertEquals(2L, b.doSomething(1L, "A"));
@@ -338,13 +338,13 @@ public final class NonStrictExpectationsWithDuplicateRecordingsTest
          boolean matches(String arg) { return !arg.isEmpty(); }
       };
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(with(delegate)); result = "first";
       }};
 
       assertEquals("first", mock.doSomething("test1"));
 
-      new NonStrictExpectations() {{
+      new Expectations() {{
          mock.doSomething(with(delegate)); result = "second";
       }};
 

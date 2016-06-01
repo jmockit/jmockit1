@@ -8,9 +8,9 @@ import java.util.*;
 
 import mockit.*;
 
-public final class CollaboratorNonStrictExpectations extends NonStrictExpectations
+public final class CollaboratorExpectations extends Expectations
 {
-   public CollaboratorNonStrictExpectations(Collaborator mock)
+   public CollaboratorExpectations(Collaborator mock)
    {
       new Collaborator(); maxTimes = 1;
 

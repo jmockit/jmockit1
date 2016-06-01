@@ -31,7 +31,7 @@ public final class TestNGViolatedExpectationsTest
    @Test
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict1(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
    }
 
    // Tests that fail with the exception thrown by tested code ////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ public final class TestNGViolatedExpectationsTest
    @Test
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict2(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
@@ -82,7 +82,7 @@ public final class TestNGViolatedExpectationsTest
    @Test
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict3(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
 
       new Collaborator();
       new Collaborator();
@@ -109,7 +109,7 @@ public final class TestNGViolatedExpectationsTest
    @Test(expectedExceptions = IllegalFormatCodePointException.class)
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict4(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
@@ -135,7 +135,7 @@ public final class TestNGViolatedExpectationsTest
    @Test(expectedExceptions = AssertionError.class)
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict5(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
@@ -157,6 +157,6 @@ public final class TestNGViolatedExpectationsTest
    @Test(expectedExceptions = AssertionError.class)
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict6(Collaborator mock)
    {
-      new CollaboratorNonStrictExpectations(mock);
+      new CollaboratorExpectations(mock);
    }
 }

@@ -25,7 +25,6 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       baseSubclasses = new ArrayList<String>();
       baseSubclasses.add("mockit/Expectations");
       baseSubclasses.add("mockit/StrictExpectations");
-      baseSubclasses.add("mockit/NonStrictExpectations");
       baseSubclasses.add("mockit/Verifications");
       baseSubclasses.add("mockit/FullVerifications");
       baseSubclasses.add("mockit/VerificationsInOrder");
@@ -75,8 +74,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    private static boolean isExpectationsOrVerificationsAPIClass(@Nonnull Class<?> aClass)
    {
       return
-         ("mockit.Expectations mockit.StrictExpectations mockit.NonStrictExpectations " +
-          "mockit.Verifications mockit.FullVerifications " +
+         ("mockit.Expectations mockit.StrictExpectations mockit.Verifications mockit.FullVerifications " +
           "mockit.VerificationsInOrder mockit.FullVerificationsInOrder").contains(aClass.getName());
    }
 
@@ -185,7 +183,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
          int i = baseSubclasses.indexOf(superName);
          boolean superClassIsKnownInvocationsSubclass = i >= 0;
 
-         if (i >= 3 && (i <= 6 || superName != null && superName.endsWith("Verifications"))) {
+         if (i >= 2 && (i <= 5 || superName != null && superName.endsWith("Verifications"))) {
             isVerificationsSubclass = true;
          }
 

@@ -99,8 +99,7 @@ public final class RecordAndReplayExecution
          failureState = new FailureState();
 
          boolean strict = targetObject instanceof StrictExpectations;
-         boolean nonStrict = targetObject instanceof NonStrictExpectations;
-         recordPhase = new RecordPhase(this, strict, nonStrict);
+         recordPhase = new RecordPhase(this, strict);
 
          executingTest.setRecordAndReplay(this);
          dynamicPartialMocking = applyDynamicPartialMocking(classesOrInstancesToBePartiallyMocked);

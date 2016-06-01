@@ -16,13 +16,11 @@ import static mockit.internal.util.ClassLoad.*;
 public final class RecordPhase extends TestOnlyPhase
 {
    private final boolean strict;
-   private final boolean nonStrict;
 
-   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay, boolean strict, boolean nonStrict)
+   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay, boolean strict)
    {
       super(recordAndReplay);
       this.strict = strict;
-      this.nonStrict = nonStrict;
    }
 
    public void addResult(@Nullable Object result)
@@ -59,7 +57,7 @@ public final class RecordPhase extends TestOnlyPhase
             getReplacementMap().put(mock, mock);
          }
          else {
-            nonStrictInvocation = nonStrict || isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
+            nonStrictInvocation = isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
          }
 
          currentExpectation = new Expectation(this, invocation, strict, nonStrictInvocation);
