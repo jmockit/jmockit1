@@ -13,7 +13,7 @@ import javax.servlet.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.injection.InjectionPoint.*;
-import static mockit.internal.util.Utilities.NO_ARGS;
+import static mockit.internal.util.Utilities.*;
 
 final class LifecycleMethods
 {
@@ -92,11 +92,9 @@ final class LifecycleMethods
 
    private static boolean isTerminationMethod(@Nonnull Method method, boolean isServlet)
    {
-      if (method.isAnnotationPresent(PreDestroy.class)) {
-         return true;
-      }
-
-      return isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
+      return
+         method.isAnnotationPresent(PreDestroy.class) ||
+         isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
    void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
