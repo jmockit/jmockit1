@@ -26,11 +26,11 @@ class BaseTest
    @Tested TestedClass tested1;
    @Injectable Dependency dependency;
 
-   final void verifyTestedObjectFromBaseTestClass()
+   final void verifyTestedObjectFromBaseTestClass(int expectedValueForIntField)
    {
-      assertEquals(-1, tested1.i);
+      assertEquals(expectedValueForIntField, tested1.i);
       assertSame(dependency, tested1.dependency);
-      assertNull(tested1.action);
+      assertNotNull(tested1.action);
    }
 }
 
@@ -67,7 +67,7 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
    @Test
    public void exerciseTestedSubclassObjectWithFieldsInjectedByTypeAndName()
    {
-      verifyTestedObjectFromBaseTestClass();
+      verifyTestedObjectFromBaseTestClass(-1);
 
       assertEquals(-2, tested2.i);
       assertSame(anotherAction, tested2.anotherAction);
@@ -83,11 +83,11 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
       }};
    }
 
-   @Test @Ignore("in progress")
+   @Test
    public void exerciseTestedSubclassObjectWithFieldsInjectedFromMockFieldsAndMockParameter(
       @Injectable Dependency dependency3)
    {
-      verifyTestedObjectFromBaseTestClass();
+      verifyTestedObjectFromBaseTestClass(-1);
 
       assertEquals(-2, tested2.i);
       assertSame(dependency, tested2.dependency);
@@ -101,7 +101,7 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
    public void exerciseTestedSubclassObjectUsingConstructorAndFieldInjection(
       @Injectable("45") int value, @Injectable Dependency dependency1)
    {
-      verifyTestedObjectFromBaseTestClass();
+      verifyTestedObjectFromBaseTestClass(45);
 
       assertEquals(45, tested2.i);
       assertSame(dependency1, tested2.dependency);

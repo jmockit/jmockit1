@@ -42,9 +42,9 @@ public final class TestedAndMockedTest
       int doSomething() { return 123; }
    }
 
-   @Tested @Mocked ClassToBeTested tested;
+   @Tested AnotherClassToBeTested testedAndInjected;
+   @Tested(fullyInitialized = true) @Mocked ClassToBeTested tested;
    @Injectable final String testData = "test data";
-   @Tested @Injectable AnotherClassToBeTested testedAndInjected;
 
    @Test
    public void exercisePublicMethodWhileHavingHelperMethodsMocked()

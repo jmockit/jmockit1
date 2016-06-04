@@ -27,7 +27,9 @@ public final class TestedClassInstantiations
 
    public boolean findTestedAndInjectableFields(@Nonnull Class<?> testClass)
    {
-      boolean foundTestedFields = findAllTestedAndInjectableFieldsInTestClassHierarchy(testClass);
+      findAllTestedAndInjectableFieldsInTestClassHierarchy(testClass);
+
+      boolean foundTestedFields = !testedFields.isEmpty();
 
       if (foundTestedFields) {
          new ParameterNameExtractor().extractNames(testClass);
@@ -36,48 +38,32 @@ public final class TestedClassInstantiations
       return foundTestedFields;
    }
 
-   private boolean findAllTestedAndInjectableFieldsInTestClassHierarchy(@Nonnull Class<?> testClass)
+   private void findAllTestedAndInjectableFieldsInTestClassHierarchy(@Nonnull Class<?> testClass)
    {
-      Class<?> classWithFields = testClass;
+      Class<?> superclass = testClass.getSuperclass();
 
-      do {
-         Field[] fields = classWithFields.getDeclaredFields();
-         findTestedAndInjectableFields(fields);
-         classWithFields = classWithFields.getSuperclass();
+      if (superclass.getClassLoader() != null) {
+         findAllTestedAndInjectableFieldsInTestClassHierarchy(superclass);
       }
-      while (classWithFields.getClassLoader() != null);
 
-      return !testedFields.isEmpty();
-   }
-
-   private void findTestedAndInjectableFields(@Nonnull Field[] fieldsDeclaredInTestClass)
-   {
-      for (Field field : fieldsDeclaredInTestClass) {
+      for (Field field : testClass.getDeclaredFields()) {
          addAsTestedOrInjectableFieldIfApplicable(field);
       }
    }
 
    private void addAsTestedOrInjectableFieldIfApplicable(@Nonnull Field fieldFromTestClass)
    {
-      boolean testedAnnotationFound = false;
-      boolean injectableAnnotationFound = false;
-
       for (Annotation fieldAnnotation : fieldFromTestClass.getDeclaredAnnotations()) {
-         Tested testedMetadata = testedAnnotationFound ? null : getTestedAnnotationIfPresent(fieldAnnotation);
+         Tested testedMetadata = getTestedAnnotationIfPresent(fieldAnnotation);
 
          if (testedMetadata != null) {
             TestedField testedField = new TestedField(injectionState, fieldFromTestClass, testedMetadata);
             testedFields.add(testedField);
-            testedAnnotationFound = true;
+            break;
          }
          else if (fieldAnnotation instanceof Injectable) {
             MockedType mockedType = new MockedType(fieldFromTestClass);
             injectableFields.add(mockedType);
-            injectableAnnotationFound = true;
-         }
-
-         if (testedAnnotationFound && injectableAnnotationFound) {
-            Collections.swap(testedFields, 0, testedFields.size() - 1);
             break;
          }
       }
@@ -97,22 +83,14 @@ public final class TestedClassInstantiations
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 
-      TestedField previousField = null;
-
       for (TestedField testedField : testedFields) {
          if (!beforeSetup || testedField.isAvailableDuringSetup()) {
-            if (previousField != null && !testedField.isAtSameLevelInTestClassHierarchy(previousField)) {
-               injectionState.discardInjectablesFromLowerTestClassHierarchyLevels(testedField.getDeclaringTestClass());
-            }
-
             try {
                testedField.instantiateWithInjectableValues(testClassInstance);
             }
             finally {
                injectionState.resetConsumedInjectables();
             }
-
-            previousField = testedField;
          }
       }
    }

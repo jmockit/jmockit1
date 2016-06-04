@@ -68,20 +68,6 @@ final class InjectionState
       }
    }
 
-   void discardInjectablesFromLowerTestClassHierarchyLevels(@Nonnull Class<?> testSuperClass)
-   {
-      Iterator<MockedType> itr = injectables.iterator();
-
-      while (itr.hasNext()) {
-         MockedType injectable = itr.next();
-         Field injectableField = injectable.field;
-
-         if (injectableField == null || !injectableField.getDeclaringClass().isAssignableFrom(testSuperClass)) {
-            itr.remove();
-         }
-      }
-   }
-
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
    void setTestedField(@Nonnull Field testedField) { testedTypeReflection = new GenericTypeReflection(testedField); }

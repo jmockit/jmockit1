@@ -43,13 +43,6 @@ final class TestedField
 
    boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
 
-   boolean isAtSameLevelInTestClassHierarchy(@Nonnull TestedField another)
-   {
-      return getDeclaringTestClass() == another.getDeclaringTestClass();
-   }
-
-   @Nonnull Class<?> getDeclaringTestClass() { return testedField.getDeclaringClass(); }
-
    void instantiateWithInjectableValues(@Nonnull Object testClassInstance)
    {
       if (isAvailableDuringSetup() && getFieldValue(testedField, testClassInstance) != null) {
