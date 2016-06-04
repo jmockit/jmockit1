@@ -19,7 +19,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.24</jmockit.version>
+      <jmockit.version>1.25</jmockit.version>
    </properties>
 
    <build>
