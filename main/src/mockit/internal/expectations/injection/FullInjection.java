@@ -43,7 +43,7 @@ final class FullInjection
       @Nullable String qualifiedName)
    {
       Object dependencyKey = getDependencyKey(injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(injectionProvider, dependencyKey);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, dependencyKey);
 
       if (dependency != null) {
          return dependency;

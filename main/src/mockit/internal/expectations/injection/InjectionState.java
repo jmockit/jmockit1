@@ -7,6 +7,7 @@ package mockit.internal.expectations.injection;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.Map.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 import javax.inject.*;
@@ -218,12 +219,26 @@ final class InjectionState
    <D> D getGlobalDependency(@Nonnull Object key) { return (D) globalDependencies.get(key); }
 
    @Nullable
-   Object getInstantiatedDependency(@Nonnull InjectionPointProvider injectionProvider, @Nonnull Object dependencyKey)
+   Object getInstantiatedDependency(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
+      @Nonnull Object dependencyKey)
    {
       Object testedObject = testedObjects.get(dependencyKey);
 
       if (testedObject != null) {
          return testedObject;
+      }
+
+      GenericTypeReflection genType = testedClass.genericType;
+
+      if (genType != null && dependencyKey instanceof Type) {
+         for (Entry<Object, Object> testedTypeAndObject : testedObjects.entrySet()) {
+            Object testedType = testedTypeAndObject.getKey();
+
+            if (testedType instanceof Type && genType.areMatchingTypes((Type) dependencyKey, (Type) testedType)) {
+               return testedTypeAndObject.getValue();
+            }
+         }
       }
 
       Object dependency = instantiatedDependencies.get(dependencyKey);

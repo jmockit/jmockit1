@@ -59,10 +59,11 @@ final class TestedField
       injectionState.setTestedField(testedField);
 
       Object testedObject = getTestedObjectFromFieldInTestClassIfApplicable(testClassInstance);
+      Type testedType = testedField.getGenericType();
       Class<?> testedClass = testedField.getType();
 
       if (testedObject == null && createAutomatically) {
-         if (reusePreviouslyCreatedInstance(testClassInstance, testedClass)) {
+         if (reusePreviouslyCreatedInstance(testClassInstance, testedType)) {
             return;
          }
 
@@ -77,8 +78,8 @@ final class TestedField
          testedClass = testedObject.getClass();
       }
 
-      if (testedObject != null) {
-         performFieldInjection(testedClass, testedObject);
+      if (testedObject != null && testedClass.getClassLoader() != null) {
+         performFieldInjection(testedType, testedClass, testedObject);
          executeInitializationMethodsIfAny(testedClass, testedObject);
       }
    }
@@ -96,7 +97,7 @@ final class TestedField
       return testedObject;
    }
 
-   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull Class<?> testedClass)
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull Type testedClass)
    {
       Object previousInstance = injectionState.getTestedInstance(testedClass);
 
@@ -117,13 +118,19 @@ final class TestedField
       injectionState.saveTestedObject(testedType, testedObject);
    }
 
-   private void performFieldInjection(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
+   private void performFieldInjection(
+      @Nonnull Type testedType, @Nonnull Class<?> targetClass, @Nonnull Object testedObject)
    {
-      // TODO: reuse TestedClass object previously created for constructor injection
-      FieldInjection fieldInjection = new FieldInjection(this, new TestedClass(testedClass), fullInjection);
+      TestedClass testedClass = testedObjectCreation == null ? null : testedObjectCreation.testedClass;
+
+      if (testedClass == null || targetClass != testedClass.targetClass) {
+         testedClass = new TestedClass(testedType, targetClass);
+      }
+
+      FieldInjection fieldInjection = new FieldInjection(this, testedClass, fullInjection);
 
       if (targetFields == null) {
-         targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(testedClass);
+         targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(targetClass);
          requireDIAnnotation = fieldInjection.requireDIAnnotation;
       }
 

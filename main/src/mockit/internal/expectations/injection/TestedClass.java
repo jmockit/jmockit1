@@ -5,22 +5,30 @@
 package mockit.internal.expectations.injection;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.security.*;
 import javax.annotation.*;
 
+import mockit.internal.util.*;
+
 final class TestedClass
 {
+   @Nonnull final Type declaredType;
    @Nonnull final Class<?> targetClass;
+   @Nullable final GenericTypeReflection genericType;
    @Nonnull final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable final String codeLocationParentPath;
    @Nonnull final String nameOfTestedClass;
 
-   TestedClass(@Nonnull Class<?> targetClass)
+   TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass)
    {
+      this.declaredType = declaredType;
       this.targetClass = targetClass;
+      genericType = declaredType == targetClass ? null : new GenericTypeReflection(targetClass, declaredType);
       protectionDomainOfTestedClass = targetClass.getProtectionDomain();
       CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
-      codeLocationParentPath = codeSource == null || codeSource.getLocation() == null ? null : new File(codeSource.getLocation().getPath()).getParent();
+      codeLocationParentPath = codeSource == null || codeSource.getLocation() == null ?
+         null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = targetClass.getName();
    }
 
@@ -79,10 +87,6 @@ final class TestedClass
 
       boolean differentSubpackages = p1 != p2;
 
-      if (differentSubpackages) {
-         return false;
-      }
-
-      return nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
+      return !differentSubpackages && nameOfAnotherClass.substring(0, p1).equals(nameOfTestedClass.substring(0, p2));
    }
 }

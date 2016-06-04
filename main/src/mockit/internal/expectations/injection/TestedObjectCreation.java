@@ -20,7 +20,7 @@ final class TestedObjectCreation
    @Nullable private final FullInjection fullInjection;
    @Nonnull private final Class<?> declaredTestedClass;
    @Nonnull private final Class<?> actualTestedClass;
-   @Nonnull private final TestedClass testedClass;
+   @Nonnull final TestedClass testedClass;
 
    TestedObjectCreation(
       @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Field testedField)
@@ -28,10 +28,10 @@ final class TestedObjectCreation
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
       declaredTestedClass = testedField.getType();
-      actualTestedClass =
-         isAbstract(declaredTestedClass.getModifiers()) ?
-            generateSubclass(testedField.getGenericType()) : declaredTestedClass;
-      testedClass = new TestedClass(declaredTestedClass);
+      Type declaredType = testedField.getGenericType();
+      actualTestedClass = isAbstract(declaredTestedClass.getModifiers()) ?
+         generateSubclass(declaredType) : declaredTestedClass;
+      testedClass = new TestedClass(declaredType, declaredTestedClass);
    }
 
    @Nonnull
@@ -58,7 +58,7 @@ final class TestedObjectCreation
       this.fullInjection = fullInjection;
       declaredTestedClass = implementationClass;
       actualTestedClass = implementationClass;
-      testedClass = new TestedClass(implementationClass);
+      testedClass = new TestedClass(implementationClass, implementationClass);
    }
 
    @Nonnull

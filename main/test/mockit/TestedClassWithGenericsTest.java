@@ -176,16 +176,29 @@ public final class TestedClassWithGenericsTest
 
    static class TestedClassWithConstructorParameterOfGenericType
    {
-      private final Class<?> dependency;
-      TestedClassWithConstructorParameterOfGenericType(Class<?> dependency) { this.dependency = dependency; }
+      private final Class<?> aClass;
+      TestedClassWithConstructorParameterOfGenericType(Class<?> aClass) { this.aClass = aClass; }
    }
 
-   @Tested final Class<?> dependency = Long.class;
+   @Tested final Class<?> aClass = Long.class;
    @Tested(fullyInitialized = true) TestedClassWithConstructorParameterOfGenericType tested6;
 
    @Test
    public void verifyInstantiationOfClassWithConstructorParameterOfGenericType()
    {
-      assertNotNull(tested6.dependency);
+      assertSame(aClass, tested6.aClass);
+   }
+
+   static class GenericClassWithDependencyUsingTypeParameter<T> {
+      GenericClass<T> dependency;
+   }
+
+   @Tested final GenericClass<String> dependency = new GenericClass<String>();
+   @Tested(fullyInitialized = true) GenericClassWithDependencyUsingTypeParameter<String> tested7;
+
+   @Test
+   public void verifyInstantiationOfGenericClassWithDependencyUsingTypeParameter()
+   {
+      assertSame(dependency, tested7.dependency);
    }
 }
