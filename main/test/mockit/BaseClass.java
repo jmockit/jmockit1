@@ -15,11 +15,5 @@ public class BaseClass
    @SuppressWarnings({"FieldCanBeLocal", "unused"})
    private long longField;
 
-   public static void doStatic1() { throw new RuntimeException("Real method 1 called"); }
-   public static void doStatic2() { throw new RuntimeException("Real method 2 called"); }
-
-   public void doSomething1() { throw new RuntimeException("Real method 1 called"); }
-   public void doSomething2() { throw new RuntimeException("Real method 2 called"); }
-
    void setLongField(long value) { longField = value; }
 }
