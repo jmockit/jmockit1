@@ -26,7 +26,7 @@
             The following properties cause an in-memory database to be created for every test run.
             In a real-world project, however, this is not recommended since real databases tend to be much larger;
             also, they typically don't have a single SQL creation script, but instead an open-ended list of
-            incremental scripts which are manually updated as the database evolves over time.
+            incremental scripts which are manually updated as the database schema evolves over time.
             A more realistic approach is to use a development/test database, either running locally or in a
             shared server; normally, such a database would also be used for manual testing of the application.
          -->

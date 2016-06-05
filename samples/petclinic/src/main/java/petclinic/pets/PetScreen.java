@@ -7,6 +7,9 @@ import javax.transaction.*;
 
 import petclinic.owners.*;
 
+/**
+ * An application service class that handles {@link Pet}-related operations from the pet screen.
+ */
 @Named @Transactional @ViewScoped
 public class PetScreen
 {

@@ -7,6 +7,9 @@ import javax.inject.*;
 import petclinic.owners.*;
 import petclinic.util.*;
 
+/**
+ * Utility class for creation of {@link Pet} data in the test database, to be used in integration tests.
+ */
 public final class PetData extends TestDatabase
 {
    @Inject private OwnerData ownerData;

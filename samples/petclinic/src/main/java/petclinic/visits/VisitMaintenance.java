@@ -7,6 +7,9 @@ import javax.transaction.*;
 import petclinic.pets.*;
 import petclinic.util.*;
 
+/**
+ * A domain service class for {@link Visit}-related business operations.
+ */
 @Transactional
 public class VisitMaintenance
 {

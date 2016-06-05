@@ -6,7 +6,7 @@ import javax.validation.constraints.*;
 import petclinic.util.*;
 
 /**
- * A {@linkplain Vet Vet's} specialty (for example, dentistry).
+ * A {@linkplain Vet Vet's} specialty (for example, "Dentistry").
  */
 @Entity
 @Table

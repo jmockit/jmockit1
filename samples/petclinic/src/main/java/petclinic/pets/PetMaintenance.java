@@ -8,6 +8,9 @@ import javax.validation.*;
 import petclinic.owners.*;
 import petclinic.util.*;
 
+/**
+ * A domain service class for {@link Pet}-related business operations.
+ */
 @Transactional
 public class PetMaintenance
 {

@@ -8,6 +8,10 @@ import static org.junit.Assert.*;
 
 import petclinic.util.*;
 
+/**
+ * Integration tests for {@link Vet}-related operations, at the application service level.
+ * Each test runs in a database transaction that is rolled back at the end of the test.
+ */
 public final class VetScreenTest
 {
    @TestUtil VetData vetData;

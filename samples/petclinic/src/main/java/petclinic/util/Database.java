@@ -4,23 +4,55 @@ import java.util.*;
 import javax.persistence.*;
 import javax.transaction.*;
 
+/**
+ * Provides access to the application database, allowing transient instances of entity classes to be persisted, and
+ * persistent instances to be recovered or removed from the database.
+ */
 @Transactional
 public class Database
 {
    @PersistenceContext private EntityManager em;
 
+   /**
+    * Finds an entity in the application database given its class and unique id.
+
+    * @return the persistent entity if found, or {@code null} if not found
+    */
    public <E extends BaseEntity> E findById(Class<E> entityClass, int id)
    {
       E entity = em.find(entityClass, id);
       return entity;
    }
 
+   /**
+    * Finds one or more persistent entities of a certain type in the application database.
+    *
+    * @param qlStatement a JPQL "select" statement that locates entities of the same type
+    * @param qlArgs zero or more argument values for the positional query parameters specified in the JPQL statement,
+    *               in the same order as the parameter positions
+    *
+    * @return the list of zero or more entities found, in an arbitrary order or in the order specified by an "order by"
+    * clause (if any)
+    *
+    * @see #find(int, String, Object...)
+    */
    public <E extends BaseEntity> List<E> find(String qlStatement, Object... qlArgs)
    {
       return find(0, qlStatement, qlArgs);
    }
 
-   @SuppressWarnings("unchecked")
+   /**
+    * Finds one or more persistent entities of a certain type in the application database, up to a given maximum number
+    * of entities.
+    *
+    * @param maxResults the maximum number of resulting entities to be returned, or {@code 0} if there is no limit
+    * @param qlStatement a JPQL "select" statement that locates entities of the same type
+    * @param qlArgs zero or more argument values for the positional query parameters specified in the JPQL statement,
+    *               in the same order as the parameter positions
+    *
+    * @return the list of zero or more entities found, in an arbitrary order or in the order specified by an "order by"
+    * clause (if any)
+    */
    public <E extends BaseEntity> List<E> find(int maxResults, String qlStatement, Object... qlArgs)
    {
       Query query = em.createQuery(qlStatement);
@@ -30,13 +62,20 @@ public class Database
          query.setParameter(i + 1, qlArgs[i]);
       }
 
-      List<E> resultList = query.getResultList();
+      @SuppressWarnings("unchecked") List<E> resultList = query.getResultList();
       return resultList;
    }
 
+   /**
+    * Saves the state of a given entity to the application database, whether it is new (still transient, with no id) or
+    * already persisted (with an id).
+    * <p/>
+    * In the case of an already persisted entity, the persistence context is synchronized to the application database,
+    * so that any pending "inserts", "updates" or "deletes" get executed at this time.
+    */
    public void save(BaseEntity entity)
    {
-      if (entity.getId() == null) {
+      if (entity.isNew()) {
          em.persist(entity);
       }
       else {
@@ -46,5 +85,13 @@ public class Database
 
          em.flush();
       }
+   }
+
+   /**
+    * Removes a given persistent entity from the application database.
+    */
+   public void remove(BaseEntity entity)
+   {
+      em.remove(entity);
    }
 }

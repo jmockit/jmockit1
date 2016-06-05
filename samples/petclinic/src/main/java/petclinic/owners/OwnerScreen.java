@@ -5,6 +5,9 @@ import javax.faces.view.*;
 import javax.inject.*;
 import javax.transaction.*;
 
+/**
+ * An application service class that handles {@link Owner}-related operations from the owner screen.
+ */
 @Named @Transactional @ViewScoped
 public class OwnerScreen
 {

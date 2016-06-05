@@ -6,6 +6,9 @@ import javax.transaction.*;
 
 import petclinic.util.*;
 
+/**
+ * A domain service class for {@link Owner}-related business operations.
+ */
 @Transactional
 public class OwnerMaintenance
 {

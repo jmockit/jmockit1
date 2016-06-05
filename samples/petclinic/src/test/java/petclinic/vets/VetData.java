@@ -2,6 +2,9 @@ package petclinic.vets;
 
 import petclinic.util.*;
 
+/**
+ * Utility class for creation of {@link Vet} data in the test database, to be used in integration tests.
+ */
 public final class VetData extends TestDatabase
 {
    public Vet create(String fullName, String... specialtyNames)

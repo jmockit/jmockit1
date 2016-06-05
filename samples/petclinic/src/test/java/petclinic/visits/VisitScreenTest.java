@@ -9,6 +9,10 @@ import static org.junit.Assert.*;
 import petclinic.pets.*;
 import petclinic.util.*;
 
+/**
+ * Integration tests for {@link Visit}-related operations, at the application service level.
+ * Each test runs in a database transaction that is rolled back at the end of the test.
+ */
 public final class VisitScreenTest
 {
    @TestUtil PetData petData;

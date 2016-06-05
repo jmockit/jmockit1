@@ -5,6 +5,9 @@ import javax.validation.constraints.*;
 
 import petclinic.util.*;
 
+/**
+ * The type of a {@link Pet} (for example, "Dog").
+ */
 @Entity
 public class PetType extends BaseEntity
 {

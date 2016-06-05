@@ -2,6 +2,9 @@ package petclinic.owners;
 
 import petclinic.util.*;
 
+/**
+ * Utility class for creation of {@link Owner} data in the test database, to be used in integration tests.
+ */
 public final class OwnerData extends TestDatabase
 {
    public Owner create(String fullName)
