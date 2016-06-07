@@ -17,20 +17,17 @@ final class StartupConfiguration
    @Nonnull private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
 
    @Nonnull private final Properties config;
-   @Nonnull final Collection<String> externalTools;
    @Nonnull final Collection<String> mockClasses;
 
    StartupConfiguration() throws IOException
    {
       config = new Properties();
-
       loadJMockitPropertiesFilesFromClasspath();
       loadJMockitPropertiesIntoSystemProperties();
-
-      externalTools = getMultiValuedProperty("jmockit-tools");
       mockClasses = getMultiValuedProperty("jmockit-mocks");
    }
 
+   @SuppressWarnings("ThrowFromFinallyBlock")
    private void loadJMockitPropertiesFilesFromClasspath() throws IOException
    {
       Enumeration<URL> allFiles = Thread.currentThread().getContextClassLoader().getResources("jmockit.properties");
