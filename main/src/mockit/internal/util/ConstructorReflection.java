@@ -140,7 +140,7 @@ public final class ConstructorReflection
       Class<?> declaringClass = theClass.getDeclaringClass();
       Class<?>[] paramTypes = declaredConstructors[0].getParameterTypes();
 
-      if (paramTypes[0] == declaringClass && paramTypes.length > argTypes.length) {
+      if (paramTypes.length > argTypes.length && paramTypes[0] == declaringClass) {
          throw new IllegalArgumentException("Invalid instantiation of inner class; use newInnerInstance instead");
       }
 
