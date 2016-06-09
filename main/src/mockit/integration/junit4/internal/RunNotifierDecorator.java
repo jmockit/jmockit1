@@ -40,7 +40,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       TestRun.enterNoMockingZone();
 
       try {
-         TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
+         TestRunnerDecorator.cleanUpAllMocks();
 
          RunNotifier it = invocation.getInvokedInstance();
          ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();

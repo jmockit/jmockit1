@@ -79,6 +79,12 @@ public class TestRunnerDecorator
    public static void cleanUpMocksFromPreviousTestClass() { cleanUpMocks(true); }
    protected static void cleanUpMocksFromPreviousTest() { cleanUpMocks(false); }
 
+   public static void cleanUpAllMocks()
+   {
+      cleanUpMocks(true);
+      TestRun.getMockClasses().discardStartupMocks();
+   }
+
    private static void cleanUpMocks(boolean forTestClassAsWell)
    {
       discardTestLevelMockedTypes();

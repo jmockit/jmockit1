@@ -356,7 +356,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       TestRun.enterNoMockingZone();
 
       try {
-         TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
+         TestRunnerDecorator.cleanUpAllMocks();
       }
       finally {
          // Maven Surefire, somehow, runs these methods twice per test run.

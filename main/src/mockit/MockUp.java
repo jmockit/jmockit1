@@ -87,13 +87,18 @@ import mockit.internal.util.*;
  * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #tearDown()
+ * @see #onTearDown()
  * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
 {
    static { Startup.verifyInitialization(); }
 
-   @Nonnull private final Type mockedType;
+   /**
+    * Holds the class or generic type targeted by this mockup instance.
+    */
+   protected final Type mockedType;
+
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T mockInstance;
@@ -379,6 +384,8 @@ public abstract class MockUp<T>
     * <p/>
     * Note that JMockit will automatically restore classes mocked by a test at the end of its execution, as well as
     * classes mocked for the whole test class before the first test in the next test class is executed.
+    *
+    * @see #onTearDown()
     */
    public final void tearDown()
    {
@@ -389,4 +396,12 @@ public abstract class MockUp<T>
          classesToRestore = null;
       }
    }
+
+   /**
+    * An empty method that can be overridden in a mock-up subclass wanting to be notified on tear down; this happens
+    * through <em>automatic</em> tear down, but not if {@link #tearDown()} is called.
+    * <p/>
+    * By default, this method does nothing.
+    */
+   protected void onTearDown() {}
 }
