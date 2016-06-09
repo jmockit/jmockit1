@@ -53,11 +53,24 @@ final class JMockitInitialization
 
    private static void applyStartupMock(@Nonnull String mockClassName)
    {
+      String argument = null;
+      int p = mockClassName.indexOf('=');
+
+      if (p > 0) {
+         argument = mockClassName.substring(p + 1);
+         mockClassName = mockClassName.substring(0, p);
+      }
+
       try {
          Class<?> mockClass = ClassLoad.loadClassAtStartup(mockClassName);
 
          if (MockUp.class.isAssignableFrom(mockClass)) {
-            ConstructorReflection.newInstanceUsingDefaultConstructor(mockClass);
+            if (argument == null) {
+               ConstructorReflection.newInstanceUsingDefaultConstructor(mockClass);
+            }
+            else {
+               ConstructorReflection.newInstance(mockClass, argument);
+            }
          }
       }
       catch (UnsupportedOperationException ignored) {}
