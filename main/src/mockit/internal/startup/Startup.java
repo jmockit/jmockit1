@@ -64,13 +64,13 @@ public final class Startup
 
    private static void applyStartupMocks(@Nonnull Instrumentation inst) throws IOException
    {
-      JMockitInitialization initialization = new JMockitInitialization();
-
       initializing = true;
-      try { initialization.applyStartupMocks(); } finally { initializing = false; }
 
-      if (CodeCoverage.active()) {
-         inst.addTransformer(new CodeCoverage());
+      try {
+         new JMockitInitialization().initialize(inst);
+      }
+      finally {
+         initializing = false;
       }
    }
 
