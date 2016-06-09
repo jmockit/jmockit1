@@ -24,7 +24,7 @@ final class StartupConfiguration
       config = new Properties();
       loadJMockitPropertiesFilesFromClasspath();
       loadJMockitPropertiesIntoSystemProperties();
-      mockClasses = getMultiValuedProperty("jmockit-mocks");
+      mockClasses = getMultiValuedProperty("mockups");
    }
 
    @SuppressWarnings("ThrowFromFinallyBlock")
