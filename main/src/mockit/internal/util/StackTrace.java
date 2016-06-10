@@ -41,7 +41,7 @@ public final class StackTrace
          if (ste.getFileName() != null) {
             String where = ste.getClassName();
 
-            if (!isSunMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
+            if (!isJDKInternalMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
                filteredST[i] = ste;
                i++;
             }
@@ -59,9 +59,10 @@ public final class StackTrace
       }
    }
 
-   private static boolean isSunMethod(@Nonnull StackTraceElement ste)
+   private static boolean isJDKInternalMethod(@Nonnull StackTraceElement ste)
    {
-      return ste.getClassName().startsWith("sun.") && !ste.isNativeMethod();
+      String className = ste.getClassName();
+      return className.startsWith("sun.") && !ste.isNativeMethod() || className.startsWith("jdk.");
    }
 
    private static boolean isTestFrameworkMethod(@Nonnull String where)
