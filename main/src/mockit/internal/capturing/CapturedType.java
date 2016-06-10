@@ -34,16 +34,15 @@ final class CapturedType
          return false;
       }
 
-      if (aClass.isInterface()) {
-         return false;
-      }
-
-      return !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
+      return
+         !aClass.isInterface() &&
+         !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
    }
 
    static boolean isNotToBeCaptured(
       @Nullable ClassLoader loader, @Nullable ProtectionDomain protectionDomain, @Nonnull String classNameOrDesc)
    {
+      //noinspection SimplifiableIfStatement
       if (
          loader == null && classNameOrDesc.startsWith("java") ||
          protectionDomain == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc)
@@ -53,17 +52,21 @@ final class CapturedType
 
       return
          classNameOrDesc.endsWith("Test") ||
-         classNameOrDesc.startsWith("junit") || classNameOrDesc.startsWith("sun") ||
+         classNameOrDesc.startsWith("junit") ||
+         classNameOrDesc.startsWith("sun") && !hasSubPackage(classNameOrDesc, 4, "management") ||
          classNameOrDesc.startsWith("org") && (
-            hasSubPackage(classNameOrDesc, "junit") || hasSubPackage(classNameOrDesc, "testng") ||
-            hasSubPackage(classNameOrDesc, "hamcrest")
+            hasSubPackage(classNameOrDesc, 4, "junit") || hasSubPackage(classNameOrDesc, 4, "testng") ||
+            hasSubPackage(classNameOrDesc, 4, "hamcrest")
          ) ||
-         classNameOrDesc.startsWith("com") && hasSubPackage(classNameOrDesc, "intellij") ||
+         classNameOrDesc.startsWith("com") && (
+            hasSubPackage(classNameOrDesc, 4, "sun") && !hasSubPackage(classNameOrDesc, 8, "proxy") ||
+            hasSubPackage(classNameOrDesc, 4, "intellij")
+         ) ||
          ClassLoad.isGeneratedSubclass(classNameOrDesc);
    }
 
-   private static boolean hasSubPackage(@Nonnull String nameOrDesc, @Nonnull String subPackage)
+   private static boolean hasSubPackage(@Nonnull String nameOrDesc, int offset, @Nonnull String subPackage)
    {
-      return nameOrDesc.regionMatches(4, subPackage, 0, subPackage.length());
+      return nameOrDesc.regionMatches(offset, subPackage, 0, subPackage.length());
    }
 }

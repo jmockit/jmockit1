@@ -116,19 +116,31 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
          if (capturedTypeDesc.equals(superName)) {
             classExtendsCapturedType = true;
+            throw VisitInterruptedException.INSTANCE;
          }
-         else if (interfaces != null && interfaces.length > 0) {
+
+         boolean haveInterfaces = interfaces != null && interfaces.length > 0;
+
+         if (haveInterfaces) {
             for (String implementedInterface : interfaces) {
                if (capturedTypeDesc.equals(implementedInterface)) {
                   classExtendsCapturedType = true;
-                  break;
+                  throw VisitInterruptedException.INSTANCE;
                }
             }
          }
 
-         if (superName != null && !classExtendsCapturedType && !"java/lang/Object mockit/MockUp".contains(superName)) {
-            ClassReader cr = ClassFile.createClassFileReader(loader, superName);
-            cr.accept(this, SKIP_DEBUG);
+         if (superName != null) {
+            if (!"java/lang/Object mockit/MockUp".contains(superName)) {
+               ClassReader cr = ClassFile.createClassFileReader(loader, superName);
+               cr.accept(this, SKIP_DEBUG);
+            }
+            else if (haveInterfaces) {
+               for (String implementedInterface : interfaces) {
+                  ClassReader cr = ClassFile.createClassFileReader(loader, implementedInterface);
+                  cr.accept(this, SKIP_DEBUG);
+               }
+            }
          }
 
          throw VisitInterruptedException.INSTANCE;

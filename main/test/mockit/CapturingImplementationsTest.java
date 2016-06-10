@@ -5,6 +5,7 @@
 package mockit;
 
 import java.io.*;
+import java.lang.management.*;
 import java.lang.reflect.*;
 
 import org.junit.*;
@@ -162,5 +163,25 @@ public final class CapturingImplementationsTest
 
       Service1 anotherProxyInstance = newProxyClassAndInstance(Service1.class);
       assertEquals(123, anotherProxyInstance.doSomething());
+   }
+
+   interface Interface { void op(); }
+   interface SubInterface extends Interface {}
+   static class Implementation implements SubInterface { @Override public void op() { throw new RuntimeException(); } }
+
+   @Test
+   public void captureClassImplementingSubInterfaceOfCapturedInterface(@Capturing Interface base)
+   {
+      Interface impl = new Implementation();
+      impl.op();
+   }
+
+   @Test
+   public void captureClassesFromTheJavaManagementAPI(@Capturing ThreadMXBean anyThreadMXBean)
+   {
+      ThreadMXBean threadingBean = ManagementFactory.getThreadMXBean();
+      int threadCount = threadingBean.getThreadCount();
+
+      assertEquals(0, threadCount);
    }
 }
