@@ -169,10 +169,6 @@ public final class InvocationProceedTest
    @Test
    public void cannotProceedFromMockMethodIntoNativeMethod()
    {
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot proceed");
-      thrown.expectMessage("native method");
-
       new MockUp<ClassToBeMocked>() {
          @Mock
          void nativeMethod(Invocation inv)
@@ -181,6 +177,10 @@ public final class InvocationProceedTest
             fail("Should not get here");
          }
       };
+
+      thrown.expect(UnsupportedOperationException.class);
+      thrown.expectMessage("Cannot proceed");
+      thrown.expectMessage("native method");
 
       ClassToBeMocked.nativeMethod();
    }
@@ -221,13 +221,13 @@ public final class InvocationProceedTest
    @Test
    public void cannotProceedFromMockMethodIntoConstructorWithNewArguments()
    {
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot replace arguments");
-      thrown.expectMessage("constructor");
-
       new MockUp<ClassToBeMocked>() {
          @Mock void $init(Invocation inv, String name) { inv.proceed("mock"); }
       };
+
+      thrown.expect(UnsupportedOperationException.class);
+      thrown.expectMessage("Cannot replace arguments");
+      thrown.expectMessage("constructor");
 
       new ClassToBeMocked("will fail");
    }
@@ -404,16 +404,16 @@ public final class InvocationProceedTest
    @Test
    public void cannotProceedFromDelegateMethodIntoConstructorWithNewArguments()
    {
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot replace arguments");
-      thrown.expectMessage("constructor");
-
       new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
             void init(Invocation inv, String name) { inv.proceed("mock"); }
          };
       }};
+
+      thrown.expect(UnsupportedOperationException.class);
+      thrown.expectMessage("Cannot replace arguments");
+      thrown.expectMessage("constructor");
 
       new ClassToBeMocked("will fail");
    }
@@ -548,5 +548,21 @@ public final class InvocationProceedTest
 
          assertEquals(123, c2.methodToBeMocked(1));
       }
+   }
+
+   @Test
+   public void cannotProceedWhenPassingInvokedArgumentsAsReplacement(@Mocked final ClassToBeMocked mocked)
+   {
+      new Expectations() {{
+         mocked.anotherMethodToBeMocked("test", true, null);
+         result = new Delegate() {
+            void delegate(Invocation inv) { inv.proceed(inv.getInvokedArguments()); }
+         };
+      }};
+
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Redundant replacement arguments");
+
+      mocked.anotherMethodToBeMocked("test", true, null);
    }
 }

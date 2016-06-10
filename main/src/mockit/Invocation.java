@@ -103,11 +103,17 @@ public class Invocation
     * {@linkplain Injectable injectable mocked type} nor to a {@linkplain Expectations#Expectations(Object...) dynamic
     * partially mocked type}, into a {@code native} method, or into a mocked constructor while passing replacement
     * arguments
+    * @throws IllegalArgumentException if replacement arguments were given but they are the same as the invoked
+    * arguments
     *
     * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed">Tutorial</a>
     */
    public final <T> T proceed(Object... replacementArguments)
    {
+      if (replacementArguments == invokedArguments) {
+         throw new IllegalArgumentException("Redundant replacement arguments");
+      }
+
       //noinspection ClassReferencesSubclass
       return ((BaseInvocation) this).doProceed(replacementArguments);
    }
