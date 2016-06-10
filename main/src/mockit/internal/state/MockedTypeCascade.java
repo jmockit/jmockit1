@@ -173,12 +173,13 @@ public final class MockedTypeCascade
 
    private static boolean isTypeSupportedForCascading(@Nonnull String typeName)
    {
+      //noinspection SimplifiableIfStatement
       if (typeName.contains("/Process") || typeName.endsWith("/Runnable")) {
          return true;
       }
 
       return
-         !typeName.startsWith("java/lang/") &&
+         (!typeName.startsWith("java/lang/") || typeName.contains("management")) &&
          !typeName.startsWith("java/math/") &&
          !typeName.startsWith("java/util/concurrent/atomic/");
    }

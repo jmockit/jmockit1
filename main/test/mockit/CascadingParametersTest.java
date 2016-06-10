@@ -5,6 +5,7 @@
 package mockit;
 
 import java.io.*;
+import java.lang.management.*;
 import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
@@ -16,6 +17,7 @@ import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
+@SuppressWarnings("ConstantConditions")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class CascadingParametersTest
 {
@@ -657,5 +659,14 @@ public final class CascadingParametersTest
       int result = impl.doSomething(1);
 
       assertEquals(2, result);
+   }
+
+   @Test
+   public void cascadeFromJavaManagementAPI(@Mocked ManagementFactory mngmntFactory)
+   {
+      CompilationMXBean compilation = ManagementFactory.getCompilationMXBean();
+
+      assertNotNull(compilation);
+      assertNull(compilation.getName());
    }
 }
