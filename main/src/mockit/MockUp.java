@@ -34,11 +34,13 @@ import mockit.internal.util.*;
  * Each {@code @Mock} method should have a matching method or constructor in the mocked class/interface.
  * At runtime, the execution of a mocked method/constructor will get redirected to the corresponding mock method.
  * <p/>
- * When mocking an interface, an implementation class is generated where all methods are empty, with non-void methods
- * returning a default value according to the return type: {@literal 0} for {@code int}, {@literal null} for a reference
- * type, and so on.
+ * When the faked type is an interface, an implementation class is generated where all methods are empty, with non-void
+ * methods returning a default value according to the return type: {@code 0} for {@code int}, {@code null} for a
+ * reference type, and so on.
+ * In this case, an instance of the generated implementation class should be obtained by calling
+ * {@link #getMockInstance()}.
  * <p/>
- * When the type to be mocked is specified indirectly through a {@linkplain TypeVariable type variable}, there are two
+ * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, there are two
  * other possible outcomes:
  * <ol>
  * <li>If the type variable "<code>extends</code>" two or more interfaces, a mocked proxy class that implements all
@@ -76,11 +78,11 @@ import mockit.internal.util.*;
  * </li>
  * </ol>
  *
- * @param <T> specifies the type (class, interface, etc.) to be mocked; multiple interfaces can be mocked by defining
- * a <em>type variable</em> in the test class or test method, and using it as the type argument;
- * if a type variable is used but it extends a single type, then all implementation classes extending/implementing that
- * base type are also mocked;
- * if the type argument itself is a parameterized type, then only its raw type is considered for mocking
+ * @param <T> specifies the type (class, interface, etc.) to be faked; multiple interfaces can be faked by defining a
+ * <em>type variable</em> in the test class or test method, and using it as the type argument;
+ * if a type variable is used and it extends a <em>single</em> type, then all implementation classes extending or
+*  implementing that base type are also faked;
+ * if the type argument itself is a parameterized type, then only its raw type is considered
  *
  * @see #MockUp()
  * @see #MockUp(Class)
@@ -108,10 +110,11 @@ public abstract class MockUp<T>
     * Applies the {@linkplain Mock mock methods} defined in the concrete subclass to the class or interface specified
     * through the type parameter.
     *
-    * @throws IllegalArgumentException if no type to be mocked was specified;
+    * @throws IllegalArgumentException if no type to be faked was specified;
     * or if multiple types were specified through a type variable but not all of them are interfaces;
-    * or if there is a mock method for which no corresponding real method or constructor is found;
-    * or if the real method matching a mock method is {@code abstract}
+    * or there is a mock method for which no corresponding real method or constructor is found;
+    * or the real method matching a mock method is {@code abstract};
+    * or if an <em>unbounded</em> type variable was used as the base type to be faked
     *
     * @see #MockUp(Class)
     * @see #MockUp(Object)
@@ -184,6 +187,14 @@ public abstract class MockUp<T>
       if (typeToMock instanceof WildcardType || typeToMock instanceof GenericArrayType) {
          String errorMessage = "Argument " + typeToMock + " for type parameter T of an unsupported kind";
          throw new UnsupportedOperationException(errorMessage);
+      }
+      else if (typeToMock instanceof TypeVariable<?>) {
+         TypeVariable<?> typeVar = (TypeVariable<?>) typeToMock;
+         Type[] bounds = typeVar.getBounds();
+
+         if (bounds.length == 1 && bounds[0] == Object.class) {
+            throw new IllegalArgumentException("Unbounded base type specified by type variable \"" + typeVar + '"');
+         }
       }
 
       return typeToMock;
@@ -295,7 +306,7 @@ public abstract class MockUp<T>
     * If {@link #getMockInstance()} later gets called on this mock-up instance, it will return the instance that was
     * given here.
     *
-    * @param instanceToMock a real instance of the type to be mocked, meant to be the only one of that type that should
+    * @param instanceToMock a real instance of the type to be faked, meant to be the only one of that type that should
     * be affected by this mock-up instance; must not be {@code null}
     *
     * @see #MockUp()
@@ -337,13 +348,14 @@ public abstract class MockUp<T>
     * If the mocked type was an interface, then said instance is the one that was automatically created when the mock-up
     * was applied.
     * If it was a class, and no such instance is currently associated with this mock-up object, then a new
-    * <em>uninitialized</em> instance of the mocked class is created and returned, becoming associated with the mock-up.
+    * <em>uninitialized</em> instance of the faked class is created and returned, becoming associated with the mock-up.
     * If a regular <em>initialized</em> instance was desired, then the {@link #MockUp(Object)} constructor should have
     * been used instead.
     * <p/>
     * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
-    * @throws IllegalStateException if called from a mock method for a static method
+    * @throws IllegalStateException if called from a mock method for a static method, or if called on a mock-up whose
+    * base type was specified by a type variable
     *
     * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces">Tutorial</a>
     */
@@ -351,6 +363,10 @@ public abstract class MockUp<T>
    {
       if (invokedInstance == Void.class) {
          throw new IllegalStateException("Invalid attempt to get mock instance from inside static mocked method");
+      }
+
+      if (mockedType instanceof TypeVariable<?> && ((TypeVariable<?>) mockedType).getBounds().length == 1) {
+         throw new IllegalStateException("No single instance applicable when faking all classes from a base type");
       }
 
       if (invokedInstance != null) {
@@ -379,11 +395,12 @@ public abstract class MockUp<T>
    }
 
    /**
-    * Discards the mock methods originally set up by instantiating this mock-up object, restoring mocked methods to
+    * Discards the mock methods originally applied by instantiating this mock-up object, restoring faked methods to
     * their original behaviors.
     * <p/>
-    * Note that JMockit will automatically restore classes mocked by a test at the end of its execution, as well as
-    * classes mocked for the whole test class before the first test in the next test class is executed.
+    * This method should rarely, if ever, be used, since tear-down is <em>automatic</em>: all classes faked by a test
+    * will automatically be restored at the end of the test; the same for classes faked for the whole test class in a
+    * "before class" method.
     *
     * @see #onTearDown()
     */

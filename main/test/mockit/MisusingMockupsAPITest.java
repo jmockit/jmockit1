@@ -8,6 +8,8 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
+import mockit.MockUpTest.SomeInterface;
+
 public final class MisusingMockupsAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -129,5 +131,26 @@ public final class MisusingMockupsAPITest
       new MockUp<Collaborator>() {
          @Mock void methodWithParameters(int i, String s, Invocation inv) {}
       };
+   }
+
+   @Test
+   public <X> void attemptToApplyMockUpFromUnboundedTypeParameter()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Unbounded base type");
+      thrown.expectMessage("\"X\"");
+
+      new MockUp<X>() {};
+   }
+
+   @Test
+   public <BI extends SomeInterface> void attemptToGetMockInstanceFromMockUpForAllClassesImplementingBaseInterface()
+   {
+      MockUp<BI> mockUp = new MockUp<BI>() {};
+
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("No single instance");
+
+      mockUp.getMockInstance();
    }
 }

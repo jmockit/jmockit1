@@ -56,34 +56,6 @@ public final class MockingUpBaseTypesTest
 
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   static class ClassWithObjectOverrides
-   {
-      @Override public boolean equals(Object obj) { return false; }
-      @Override public int hashCode() { return 123; }
-      @Override public String toString() { return "Tested"; }
-   }
-
-   @Test
-   public <T> void test1_mockUpBaseTypeUsingTypeVariableWithDefaultBoundOfJavaLangObject()
-   {
-      new MockUp<T>() {
-         @Mock public boolean equals(Object o) { return true; }
-         @Mock public int hashCode() { return 1; }
-         @Mock public String toString() { return "Mocked"; }
-      };
-
-      Object obj1 = new StringBuilder("TEST");
-      assertNotEquals(1, obj1.hashCode());
-      assertFalse(obj1.equals("test"));
-      assertNotEquals("Mocked", obj1.toString());
-
-      Object obj2 = new ClassWithObjectOverrides();
-      assertEquals("Mocked", obj2.toString());
-      assertEquals(1, obj2.hashCode());
-      //noinspection SimplifiableJUnitAssertion
-      assertTrue(obj2.equals("test"));
-   }
-
    @Test
    public <T extends Runnable> void test2_attemptToMockUpBaseTypeHavingMockMethodWithNoRealMethod()
    {

@@ -363,6 +363,7 @@ public final class MockUpTest
       assertTrue(new Collaborator(true).b);
       assertFalse(new Collaborator(true).b);
       assertEquals(45L, col.genericMethod(45L).longValue());
+      //noinspection UnnecessaryUnboxing
       assertEquals(4.5F, col.genericMethod(4.5F).floatValue(), 0);
       assertNull(col.genericMethod(null));
    }
@@ -536,6 +537,7 @@ public final class MockUpTest
          public void run()
          {
             boolean hasAccess = Collaborator.doSomethingElse();
+            //noinspection ConstantConditions
             assertTrue(hasAccess);
          }
       });
