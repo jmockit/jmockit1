@@ -184,4 +184,18 @@ public final class CapturingImplementationsTest
 
       assertEquals(0, threadCount);
    }
+
+   interface Interface2 { int doSomething(); }
+   interface SubInterface2 extends Interface2 {}
+   static class ClassImplementingSubInterfaceAndExtendingUnrelatedBase extends Implementation implements SubInterface2 {
+      @Override public int doSomething() { return 123; }
+   }
+
+   @Test
+   public void captureClassWhichImplementsCapturedBaseInterfaceAndExtendsUnrelatedBase(@Capturing Interface2 captured)
+   {
+      int i = new ClassImplementingSubInterfaceAndExtendingUnrelatedBase().doSomething();
+
+      assertEquals(0, i);
+   }
 }
