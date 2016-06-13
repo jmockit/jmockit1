@@ -18,7 +18,6 @@ final class TestedObjectCreation
 {
    @Nonnull private final InjectionState injectionState;
    @Nullable private final FullInjection fullInjection;
-   @Nonnull private final Class<?> declaredTestedClass;
    @Nonnull private final Class<?> actualTestedClass;
    @Nonnull final TestedClass testedClass;
 
@@ -27,22 +26,21 @@ final class TestedObjectCreation
    {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      declaredTestedClass = testedField.getType();
+      Class<?> declaredTestedClass = testedField.getType();
       Type declaredType = testedField.getGenericType();
       actualTestedClass = isAbstract(declaredTestedClass.getModifiers()) ?
-         generateSubclass(declaredType) : declaredTestedClass;
+         generateSubclass(declaredType, declaredTestedClass) : declaredTestedClass;
       testedClass = new TestedClass(declaredType, declaredTestedClass);
    }
 
    @Nonnull
-   private Class<?> generateSubclass(@Nonnull final Type testedType)
+   private Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass)
    {
-      Class<?> generatedSubclass = new ImplementationClass<Object>(declaredTestedClass) {
+      Class<?> generatedSubclass = new ImplementationClass<Object>(abstractClass) {
          @Nonnull @Override
          protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
          {
-            return
-               new SubclassGenerationModifier(declaredTestedClass, testedType, typeReader, generatedClassName, true);
+            return new SubclassGenerationModifier(abstractClass, testedType, typeReader, generatedClassName, true);
          }
       }.generateClass();
 
@@ -56,7 +54,6 @@ final class TestedObjectCreation
    {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      declaredTestedClass = implementationClass;
       actualTestedClass = implementationClass;
       testedClass = new TestedClass(implementationClass, implementationClass);
    }
