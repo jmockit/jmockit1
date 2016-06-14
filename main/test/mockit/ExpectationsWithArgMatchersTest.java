@@ -165,6 +165,19 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
+   public void expectInvocationWithSpecificArgumentUsingAnyField()
+   {
+      new StrictExpectations() {
+         String anyone = "anyone";
+         {
+            mock.setValue(anyone);
+         }
+      };
+
+      mock.setValue("anyone");
+   }
+
+   @Test
    public void expectInvocationToPrivateInstanceMethodUsingAnyFieldMatcher()
    {
       new StrictExpectations() {{ mock.doSomething(anyInt); }};
