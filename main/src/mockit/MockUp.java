@@ -19,17 +19,7 @@ import mockit.internal.util.*;
 /**
  * A base class used in the creation of a <em>mock-up</em> for a class or interface.
  * Such mock-ups can be used as <em>fake</em> implementations for use in integration or unit tests.
- * <pre>
- *
- * // Define and apply one or more mock-ups:
- * new MockUp&lt;<strong>SomeClass</strong>>() {
- *    &#64;Mock int someMethod(int i) { assertTrue(i > 0); return 123; }
- *    &#64;Mock(maxInvocations = 2) void anotherMethod(int i, String s) { &#47;* validate arguments *&#47; }
- * };
- *
- * // Exercise code under test:
- * codeUnderTest.doSomething();
- * </pre>
+ * <p/>
  * One or more <em>mock methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
  * Each {@code @Mock} method should have a matching method or constructor in the mocked class/interface.
  * At runtime, the execution of a mocked method/constructor will get redirected to the corresponding mock method.
