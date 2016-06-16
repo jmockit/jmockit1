@@ -80,6 +80,7 @@ import mockit.internal.util.*;
  * @see #getMockInstance()
  * @see #tearDown()
  * @see #onTearDown()
+ * @see #mockedType
  * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
@@ -87,7 +88,7 @@ public abstract class MockUp<T>
    static { Startup.verifyInitialization(); }
 
    /**
-    * Holds the class or generic type targeted by this mockup instance.
+    * Holds the class or generic type targeted by this mock-up instance.
     */
    protected final Type mockedType;
 
