@@ -110,6 +110,17 @@ public abstract class Verifications extends Invocations
     * }};
     * </pre>
     * If there is more than one matching invocation, then only the last one to have occurred is considered.
+    * Apart from capturing received argument values, this method has the same effect as the {@link #any} argument
+    * matcher.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @return the captured argument value
     *
@@ -142,6 +153,7 @@ public abstract class Verifications extends Invocations
     *    assertSame(newPerson, personCreated);
     * }};
     * </pre>
+    * Note this is not meant be used as an argument matcher.
     *
     * @param constructorVerification a new instance of the desired mocked class, created through a regular constructor
     *                                verification

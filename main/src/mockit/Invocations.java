@@ -31,15 +31,21 @@ abstract class Invocations
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
     * <p/>
-    * The use of this field will usually require a cast to the specific parameter type.
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
+    * <p/>
+    * Notice the use of this field will usually require a cast to the specific parameter type.
     * However, if there is any other parameter for which an argument matching constraint is specified, passing the
     * {@code null} reference instead will have the same effect.
     * <p/>
-    * When the parameter to be matched is a <em>varargs</em> parameter of element type {@code V}, the use of
-    * {@code any} should be cast to {@code V[]}.
-    * <p/>
-    * In invocations to <em>non-accessible</em> methods or constructors (for example, with
-    * {@link Deencapsulation#invoke(Object, String, Object...)}), use {@link #withAny} instead.
+    * To match an entire <em>varargs</em> parameter of element type {@code V} (ie, all arguments in the array), cast it
+    * to the parameter type: "{@code (V[]) any}".
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -59,6 +65,15 @@ abstract class Invocations
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -76,10 +91,19 @@ abstract class Invocations
    protected final String anyString = new String();
 
    /**
-    * Matches any {@code long} or {@code Long} value received by a parameter of one of these types.
+    * Matches any {@code long} or {@code Long} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -95,10 +119,19 @@ abstract class Invocations
    protected final Long anyLong = 0L;
 
    /**
-    * Matches any {@code int} or {@code Integer} value received by a parameter of one of these types.
+    * Matches any {@code int} or {@code Integer} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -114,10 +147,19 @@ abstract class Invocations
    protected final Integer anyInt = 0;
 
    /**
-    * Matches any {@code short} or {@code Short} value received by a parameter of one of these types.
+    * Matches any {@code short} or {@code Short} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -133,10 +175,19 @@ abstract class Invocations
    protected final Short anyShort = 0;
 
    /**
-    * Matches any {@code byte} or {@code Byte} value received by a parameter of one of these types.
+    * Matches any {@code byte} or {@code Byte} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyChar
@@ -152,10 +203,19 @@ abstract class Invocations
    protected final Byte anyByte = 0;
 
    /**
-    * Matches any {@code boolean} or {@code Boolean} value received by a parameter of one of these types.
+    * Matches any {@code boolean} or {@code Boolean} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyByte
     * @see #anyChar
@@ -171,10 +231,19 @@ abstract class Invocations
    protected final Boolean anyBoolean = false;
 
    /**
-    * Matches any {@code char} or {@code Character} value received by a parameter of one of these types.
+    * Matches any {@code char} or {@code Character} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -190,10 +259,19 @@ abstract class Invocations
    protected final Character anyChar = '\0';
 
    /**
-    * Matches any {@code double} or {@code Double} value received by a parameter of one of these types.
+    * Matches any {@code double} or {@code Double} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -209,10 +287,19 @@ abstract class Invocations
    protected final Double anyDouble = 0.0;
 
    /**
-    * Matches any {@code float} or {@code Float} value received by a parameter of one of these types.
+    * Matches any {@code float} or {@code Float} value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -327,6 +414,15 @@ abstract class Invocations
 
    /**
     * Applies a <em>Hamcrest</em> argument matcher for a parameter in the current expectation.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param argumentMatcher any {@code org.hamcrest.Matcher} object
     *
@@ -358,6 +454,15 @@ abstract class Invocations
     * argument at replay time, while a return of {@code false} will fail to match the invocation.
     * In the case of a {@code void} return type, the actual invocation argument should be validated through a suitable
     * JUnit/TestNG assertion.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param objectWithDelegateMethod an instance of a class defining a single non-<code>private</code> delegate method
     *
@@ -401,6 +506,15 @@ abstract class Invocations
     * {@link #anyBoolean}, {@link #anyByte}, {@link #anyChar}, {@link #anyDouble}, {@link #anyFloat}, {@link #anyInt},
     * {@link #anyLong}, {@link #anyShort}, {@link #anyString}, or {@link #any} for other reference types.
     * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
+    * <p/>
     * Note: when using {@link Deencapsulation#invoke(Object, String, Object...)}, etc., it's valid to pass
     * {@code withAny(ParameterType.class)} if an actual instance of the parameter type cannot be created.
     *
@@ -432,7 +546,18 @@ abstract class Invocations
     * Captures the argument value passed into the associated expectation parameter, for each invocation that matches the
     * expectation when the tested code is exercised.
     * As each such value is captured, it gets added to the given list so that it can be inspected later.
-    * 
+    * Apart from capturing received argument values, this method has the same effect as the {@link #any} argument
+    * matcher.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
+    *
     * @param valueHolderForMultipleInvocations list into which the arguments received by matching invocations will be
     *                                          added
     *
@@ -455,8 +580,17 @@ abstract class Invocations
     * The matcher is added to the end of the list of argument matchers for the invocation being recorded/verified.
     * It cannot be reused for a different parameter.
     * <p/>
-    * Usually, this particular method should <em>not</em> be used. Instead, simply pass the desired argument value
-    * directly, without any matcher.
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
+    * <p/>
+    * Usually, this particular method should <em>not</em> be used.
+    * Instead, simply pass the desired argument value directly, without any matcher.
     * Only when specifying values for a <em>varargs</em> method it's useful, and even then only when some other argument
     * matcher is also used.
     *
@@ -476,6 +610,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a numeric invocation argument in the replay phase is
     * sufficiently close to the given value.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
@@ -493,6 +636,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a numeric invocation argument in the replay phase is
     * sufficiently close to the given value.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
@@ -513,6 +665,15 @@ abstract class Invocations
     * <p/>
     * Equivalent to a <code>withInstanceOf(object.getClass())</code> call, except that it returns {@code object} instead
     * of {@code null}.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param object an instance of the desired class
     *
@@ -529,6 +690,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is an instance of
     * the given class.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param argClass the desired class
     *
@@ -545,6 +715,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that the invocation argument in the replay phase is different
     * from the given value.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param arg an arbitrary value, but different from the ones expected to occur during replay
     *
@@ -560,6 +739,15 @@ abstract class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is {@code null}.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @return always {@code null}
     *
@@ -574,6 +762,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is not
     * {@code null}.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @return always {@code null}
     *
@@ -588,6 +785,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is the exact same
     * instance as the one in the recorded/verified invocation.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param object the desired instance
 
@@ -606,6 +812,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase contains
     * the given text as a substring.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param text an arbitrary non-null textual value
     *
@@ -622,6 +837,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase starts
     * with the given text.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param text an arbitrary non-null textual value
     *
@@ -638,6 +862,15 @@ abstract class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase ends with
     * the given text.
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param text an arbitrary non-null textual value
     *
@@ -657,6 +890,15 @@ abstract class Invocations
     * <p/>
     * Note that this can be used for any string comparison, including case insensitive ones (with {@code "(?i)"} in the
     * regex).
+    * <p/>
+    * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
+    * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
+    * So, it's valid to mix the use of matchers with given values.
+    * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
+    * {@link #withEqual(Object)} had been used.
+    * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
+    * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
+    * parameter and varargs element.
     *
     * @param regex an arbitrary (non-null) regular expression against which textual argument values will be matched
     *
