@@ -11,26 +11,46 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
 
 /**
- * enerates a xml file for Sonar Cube's Generic Test Coverage.
+ * Generates an xml file for Sonar Cube's Generic Test Coverage.
  * http://docs.sonarqube.org/display/SONAR/Generic+Test+Coverage
  */
 public class XmlFile
 {
+   private static final String XML_FORMAT_VERSION="1";
+
    @Nonnull private final File outputFile;
    @Nonnull private final CoverageData coverageData;
-
-	private static final String XML_FORMAT_VERSION="1";
+   private final List<String> srcDirs;
 
    public XmlFile(String outputDir, CoverageData coverageData)
 	{
       this.outputFile = new File(outputDir.isEmpty() ? null: outputDir, "coverage.xml");
 
-		coverageData.fillLastModifiedTimesForAllClassFiles();
+      coverageData.fillLastModifiedTimesForAllClassFiles();
       this.coverageData = coverageData;
+      this.srcDirs = sourceDirectories();
 	}
-   
+
+   private static List<String> sourceDirectories() {
+      String srcDirs = Configuration.getProperty("srcDirs");
+      if (srcDirs == null) {
+         return Arrays.asList(System.getProperty("user.dir"));
+      } else {
+         List<String> srcDirList = Arrays.asList(srcDirs.split("\\s*,\\s*"));
+         for (String dir : srcDirList) {
+            File d = new File(dir);
+            if (!d.getAbsoluteFile().isDirectory()) {
+               throw new IllegalArgumentException("Directory " + dir + " doesn't exist");
+            }
+         }
+         return srcDirList;
+      }
+   }
+
    /** Generates a report of the format:
     * <pre>
     * &lt;coverage version="1">
@@ -51,7 +71,8 @@ public class XmlFile
 			xmlOut.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	      xmlOut.printf("<coverage version=\"%s\">\n", XML_FORMAT_VERSION);
 	      for (Map.Entry<String, FileCoverageData> entry : this.coverageData.getFileToFileDataMap().entrySet()) {
-	         xmlOut.printf("<file path=\"src/%s\">\n", entry.getKey());
+            String srcFile = findSrcFile(entry.getKey());
+	         xmlOut.printf("<file path=\"%s\">\n", srcFile);
 	         PerFileLineCoverage lcinfo = entry.getValue().lineCoverageInfo;
 	         int maxlines = lcinfo.getLineCount();
 	         for (int i = 0; i <= maxlines; i++) {
@@ -72,4 +93,14 @@ public class XmlFile
 	      }
 	   }
 	}
+
+   private String findSrcFile(String file) {
+      for (String srcDir : srcDirs) {
+         File f = new File(srcDir, file);
+         if (f.exists()) {
+            return f.getPath();
+         }
+      }
+      return file;
+   }
 }
