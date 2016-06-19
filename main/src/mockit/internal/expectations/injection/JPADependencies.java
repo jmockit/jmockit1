@@ -24,56 +24,33 @@ final class JPADependencies
       return dependencyType == EntityManager.class || dependencyType == EntityManagerFactory.class;
    }
 
-   @Nullable
-   static String getDependencyIdIfAvailable(@Nonnull Annotation annotation)
-   {
-      Class<? extends Annotation> annotationType = annotation.annotationType();
-
-      if (annotationType == PersistenceUnit.class) {
-         return ((PersistenceUnit) annotation).unitName();
-      }
-      else if (annotationType == PersistenceContext.class) {
-         return  ((PersistenceContext) annotation).unitName();
-      }
-
-      return null;
-   }
-
    @Nonnull private final InjectionState injectionState;
    @Nullable private String defaultPersistenceUnitName;
 
    JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
-   Object newInstanceIfApplicable(@Nonnull Class<?> dependencyType, @Nonnull Object dependencyKey)
+   String getDependencyIdIfAvailable(@Nonnull Annotation annotation)
    {
-      if (dependencyType == EntityManagerFactory.class) {
-         String persistenceUnitName;
+      Class<? extends Annotation> annotationType = annotation.annotationType();
 
-         if (dependencyKey instanceof String) {
-            persistenceUnitName = extractIdFromDependencyKey((String) dependencyKey);
-         }
-         else {
-            persistenceUnitName = discoverNameOfDefaultPersistenceUnit();
-         }
-
-         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
-         injectionState.saveGlobalDependency(dependencyKey, emFactory);
-         return emFactory;
+      if (annotationType == PersistenceUnit.class) {
+         String unitName = ((PersistenceUnit) annotation).unitName();
+         return getNameOfPersistentUnit(unitName);
       }
-
-      if (dependencyType == EntityManager.class) {
-         return findOrCreateEntityManager(dependencyKey);
+      else if (annotationType == PersistenceContext.class) {
+         String unitName = ((PersistenceContext) annotation).unitName();
+         return getNameOfPersistentUnit(unitName);
       }
 
       return null;
    }
 
    @Nonnull
-   private static String extractIdFromDependencyKey(@Nonnull String dependencyKey)
+   private String getNameOfPersistentUnit(@Nullable String injectionPointName)
    {
-      int p = dependencyKey.indexOf(':');
-      return dependencyKey.substring(p + 1);
+      return injectionPointName != null && !injectionPointName.isEmpty() ?
+         injectionPointName : discoverNameOfDefaultPersistenceUnit();
    }
 
    @Nonnull
@@ -109,27 +86,31 @@ final class JPADependencies
    }
 
    @Nullable
-   private EntityManager findOrCreateEntityManager(@Nonnull Object dependencyKey)
+   Object newInstanceIfApplicable(@Nonnull Class<?> dependencyType, @Nonnull InjectionPoint dependencyKey)
    {
-      String persistenceUnitName;
-      Object emFactoryKey;
-
-      if (dependencyKey instanceof String) {
-         persistenceUnitName = extractIdFromDependencyKey((String) dependencyKey);
-         emFactoryKey = EntityManagerFactory.class.getName() + ':' + persistenceUnitName;
-      }
-      else {
-         persistenceUnitName = null;
-         emFactoryKey = EntityManagerFactory.class;
+      if (dependencyType == EntityManagerFactory.class) {
+         String persistenceUnitName = getNameOfPersistentUnit(dependencyKey.name);
+         InjectionPoint injectionPoint = new InjectionPoint(dependencyType, persistenceUnitName);
+         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+         injectionState.saveGlobalDependency(injectionPoint, emFactory);
+         return emFactory;
       }
 
+      if (dependencyType == EntityManager.class) {
+         return findOrCreateEntityManager(dependencyKey);
+      }
+
+      return null;
+   }
+
+   @Nullable
+   private EntityManager findOrCreateEntityManager(@Nonnull InjectionPoint dependencyKey)
+   {
+      String persistenceUnitName = getNameOfPersistentUnit(dependencyKey.name);
+      InjectionPoint emFactoryKey = new InjectionPoint(EntityManagerFactory.class, persistenceUnitName);
       EntityManagerFactory emFactory = injectionState.getGlobalDependency(emFactoryKey);
 
       if (emFactory == null) {
-         if (persistenceUnitName == null) {
-            persistenceUnitName = discoverNameOfDefaultPersistenceUnit();
-         }
-
          emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
          injectionState.saveGlobalDependency(emFactoryKey, emFactory);
       }

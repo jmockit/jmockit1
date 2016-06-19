@@ -104,11 +104,8 @@ final class TestedField
 
    private void registerTestedObject(@Nonnull Object testedObject)
    {
-      String dependencyKey = InjectionPoint.dependencyKey(testedField.getType(), testedField.getName());
-      injectionState.saveTestedObject(dependencyKey, testedObject);
-
-      Type testedType = testedField.getGenericType();
-      injectionState.saveTestedObject(testedType, testedObject);
+      InjectionPoint injectionPoint = new InjectionPoint(testedField.getGenericType(), testedField.getName());
+      injectionState.saveTestedObject(injectionPoint, testedObject);
    }
 
    private void performFieldInjection(

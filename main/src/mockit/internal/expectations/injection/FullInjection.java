@@ -42,7 +42,7 @@ final class FullInjection
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
       @Nullable String qualifiedName)
    {
-      Object dependencyKey = getDependencyKey(injectionProvider, qualifiedName);
+      InjectionPoint dependencyKey = getDependencyKey(injectionProvider, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, dependencyKey);
 
       if (dependency != null) {
@@ -93,30 +93,30 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object getDependencyKey(@Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
+   private InjectionPoint getDependencyKey(@Nonnull InjectionPointProvider provider, @Nullable String qualifiedName)
    {
-      Class<?> dependencyClass = injectionProvider.getClassOfDeclaredType();
+      Class<?> dependencyClass = provider.getClassOfDeclaredType();
 
       if (qualifiedName != null && !qualifiedName.isEmpty()) {
-         return dependencyKey(dependencyClass, qualifiedName);
+         return new InjectionPoint(dependencyClass, qualifiedName);
       }
 
       if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
-         for (Annotation annotation : injectionProvider.getAnnotations()) {
-            String id = JPADependencies.getDependencyIdIfAvailable(annotation);
+         for (Annotation annotation : provider.getAnnotations()) {
+            String id = jpaDependencies.getDependencyIdIfAvailable(annotation);
 
-            if (id != null && !id.isEmpty()) {
-               return dependencyKey(dependencyClass, id);
+            if (id != null) {
+               return new InjectionPoint(dependencyClass, id);
             }
          }
       }
 
-      return injectionState.typeOfInjectionPoint;
+      return new InjectionPoint(injectionState.typeOfInjectionPoint);
    }
 
    @Nonnull
    private Object createProviderInstance(
-      @Nonnull InjectionPointProvider injectionProvider, @Nonnull final Object dependencyKey)
+      @Nonnull InjectionPointProvider injectionProvider, @Nonnull final InjectionPoint dependencyKey)
    {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -148,7 +148,7 @@ final class FullInjection
    }
 
    @Nullable
-   private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull Object dependencyKey)
+   private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull InjectionPoint dependencyKey)
    {
       Class<?> implementationClass;
 
@@ -239,14 +239,15 @@ final class FullInjection
          @Override public boolean isTransient() { return currentlyTransient; }
       };
 
-      injectionState.saveInstantiatedDependency(Conversation.class, conversation);
+      InjectionPoint injectionPoint = new InjectionPoint(Conversation.class);
+      injectionState.saveInstantiatedDependency(injectionPoint, conversation);
       return conversation;
    }
 
    @Nullable
    private Object createAndRegisterNewInstance(
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
-      @Nonnull Object dependencyKey)
+      @Nonnull InjectionPoint dependencyKey)
    {
       Class<?> classToInstantiate = getClassToInstantiate(testedClass.targetClass, injectionProvider);
       Object dependency = createNewInstance(classToInstantiate, dependencyKey);
@@ -275,7 +276,7 @@ final class FullInjection
 
    private void registerNewInstance(
       @Nonnull TestedClass testedClass, @Nonnull Injector injector,
-      @Nonnull Object dependencyKey, @Nonnull Object dependency)
+      @Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       Class<?> instantiatedClass = dependency.getClass();
 

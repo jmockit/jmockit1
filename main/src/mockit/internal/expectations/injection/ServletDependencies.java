@@ -107,7 +107,8 @@ final class ServletDependencies
          @Override public String getVirtualServerName() { return null; }
       };
 
-      injectionState.saveGlobalDependency(ServletContext.class, context);
+      InjectionPoint injectionPoint = new InjectionPoint(ServletContext.class);
+      injectionState.saveGlobalDependency(injectionPoint, context);
       return context;
    }
 
@@ -153,7 +154,7 @@ final class ServletDependencies
          @Override
          public ServletContext getServletContext()
          {
-            ServletContext context = injectionState.getGlobalDependency(ServletContext.class);
+            ServletContext context = injectionState.getGlobalDependency(new InjectionPoint(ServletContext.class));
 
             if (context == null) {
                context = createAndRegisterServletContext();
@@ -170,7 +171,8 @@ final class ServletDependencies
          @SuppressWarnings("deprecation") @Override public HttpSessionContext getSessionContext() { return null; }
       };
 
-      injectionState.saveInstantiatedDependency(HttpSession.class, session);
+      InjectionPoint injectionPoint = new InjectionPoint(HttpSession.class);
+      injectionState.saveInstantiatedDependency(injectionPoint, session);
       return session;
    }
 }

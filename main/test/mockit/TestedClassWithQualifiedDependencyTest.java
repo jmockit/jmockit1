@@ -52,6 +52,19 @@ public final class TestedClassWithQualifiedDependencyTest
       assertSame(foo, tested.dep1.qualifiedDep);
       assertNull(tested.dep2.qualifiedDep);
    }
+
+   @Tested DependencyImpl dep1;
+   @Tested(fullyInitialized = true) ClassWithQualifiedDependencyOfAbstractType tested2;
+
+   public interface Dependency {}
+   static class DependencyImpl implements Dependency {}
+   static class ClassWithQualifiedDependencyOfAbstractType { @Named("dep1") Dependency dependency; }
+
+   @Test
+   public void useTestedObjectOfSubtypeForQualifiedAbstractDependencyTypeInAnotherTestedObject()
+   {
+      assertSame(dep1, tested2.dependency);
+   }
 }
 
 @Retention(RetentionPolicy.RUNTIME)

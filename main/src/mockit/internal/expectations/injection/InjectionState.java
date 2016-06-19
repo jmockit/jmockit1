@@ -23,9 +23,11 @@ import static mockit.internal.expectations.injection.InjectionPoint.*;
  */
 final class InjectionState
 {
-   @Nonnull private static final Map<Object, Object> globalDependencies = new ConcurrentHashMap<Object, Object>(2);
-   @Nonnull private final Map<Object, Object> testedObjects;
-   @Nonnull private final Map<Object, Object> instantiatedDependencies;
+   @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
+      new ConcurrentHashMap<InjectionPoint, Object>(2);
+
+   @Nonnull private final Map<InjectionPoint, Object> testedObjects;
+   @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
    @Nonnull private List<MockedType> injectables;
    @Nonnull private List<MockedType> consumedInjectables;
    @Nonnull final LifecycleMethods lifecycleMethods;
@@ -35,8 +37,8 @@ final class InjectionState
 
    InjectionState()
    {
-      testedObjects = new HashMap<Object, Object>();
-      instantiatedDependencies = new HashMap<Object, Object>();
+      testedObjects = new HashMap<InjectionPoint, Object>();
+      instantiatedDependencies = new HashMap<InjectionPoint, Object>();
       injectables = Collections.emptyList();
       consumedInjectables = new ArrayList<MockedType>();
       lifecycleMethods = new LifecycleMethods();
@@ -192,63 +194,75 @@ final class InjectionState
       consumedInjectables = previousConsumedInjectables;
    }
 
-   @Nullable
-   Object getTestedObject(@Nonnull Object key) { return testedObjects.get(key); }
+   void saveTestedObject(@Nonnull InjectionPoint key, @Nonnull Object testedObject)
+   {
+      testedObjects.put(key, testedObject);
+   }
 
-   void saveTestedObject(@Nonnull Object key, @Nonnull Object testedObject) { testedObjects.put(key, testedObject); }
-
    @Nullable
-   Object getTestedInstance(@Nonnull Object key) { return instantiatedDependencies.get(key); }
+   Object getTestedInstance(@Nonnull Type testedType)
+   {
+      InjectionPoint injectionPoint = new InjectionPoint(testedType);
+      return instantiatedDependencies.get(injectionPoint);
+   }
 
-   @SuppressWarnings("unchecked")
-   @Nullable
-   <D> D getGlobalDependency(@Nonnull Object key) { return (D) globalDependencies.get(key); }
+   @Nullable @SuppressWarnings("unchecked")
+   <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
 
    @Nullable
    Object getInstantiatedDependency(
       @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
-      @Nonnull Object dependencyKey)
+      @Nonnull InjectionPoint dependencyKey)
    {
-      Object testedObject = testedObjects.get(dependencyKey);
-
-      if (testedObject != null) {
-         return testedObject;
-      }
-
-      GenericTypeReflection genType = testedClass.genericType;
-
-      if (genType != null && dependencyKey instanceof Type) {
-         for (Entry<Object, Object> testedTypeAndObject : testedObjects.entrySet()) {
-            Object testedType = testedTypeAndObject.getKey();
-
-            if (testedType instanceof Type && genType.areMatchingTypes((Type) dependencyKey, (Type) testedType)) {
-               return testedTypeAndObject.getValue();
-            }
-         }
-      }
-
-      Object dependency = instantiatedDependencies.get(dependencyKey);
+      Object dependency = testedObjects.get(dependencyKey);
 
       if (dependency == null) {
-         if (dependencyKey instanceof Type) {
-            Class<?> dependencyClass = injectionProvider.getClassOfDeclaredType();
-            dependency = instantiatedDependencies.get(dependencyClass);
-         }
+         dependency = findMatchingObject(testedObjects, testedClass.genericType, dependencyKey);
 
          if (dependency == null) {
-            dependency = globalDependencies.get(dependencyKey);
+            dependency = instantiatedDependencies.get(dependencyKey);
+
+            if (dependency == null) {
+               dependency = findMatchingObject(instantiatedDependencies, null, dependencyKey);
+
+               if (dependency == null) {
+                  dependency = findMatchingObject(globalDependencies, null, dependencyKey);
+               }
+            }
          }
       }
 
       return dependency;
    }
 
-   void saveInstantiatedDependency(@Nonnull Object dependencyKey, @Nonnull Object dependency)
+   @Nullable
+   private Object findMatchingObject(
+      @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable GenericTypeReflection reflection,
+      @Nonnull InjectionPoint injectionPoint)
+   {
+      Type dependencyType = injectionPoint.type;
+
+      for (Entry<InjectionPoint, Object> injectionPointAndObject : availableObjects.entrySet()) {
+         InjectionPoint dependencyIP = injectionPointAndObject.getKey();
+         Object dependencyObject = injectionPointAndObject.getValue();
+
+         if (
+            injectionPoint.equals(dependencyIP) ||
+            reflection != null && reflection.areMatchingTypes(dependencyType, dependencyIP.type)
+         ) {
+            return dependencyObject;
+         }
+      }
+
+      return null;
+   }
+
+   void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       instantiatedDependencies.put(dependencyKey, dependency);
    }
 
-   void saveGlobalDependency(@Nonnull Object dependencyKey, @Nonnull Object dependency)
+   void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       globalDependencies.put(dependencyKey, dependency);
    }

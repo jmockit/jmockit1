@@ -89,4 +89,17 @@ public final class TestedClassWithFullDITest
       assertSame(tested3, tested.subObj2);
       assertSame(tested3, tested.subObj.subObj);
    }
+
+   @Tested DependencyImpl concreteDependency;
+   @IntegrationTested ClassWithDependencyOfAbstractType tested4;
+
+   public interface Dependency {}
+   static class DependencyImpl implements Dependency {}
+   static class ClassWithDependencyOfAbstractType { Dependency dependency; }
+
+   @Test
+   public void useTestedObjectOfSubtypeForAbstractDependencyTypeInAnotherTestedObject()
+   {
+      assertSame(concreteDependency, tested4.dependency);
+   }
 }

@@ -36,12 +36,48 @@ final class InjectionPoint
       CONVERSATION_CLASS = searchTypeInClasspath("javax.enterprise.context.Conversation");
    }
 
+   @Nonnull final Type type;
+   @Nullable final String name;
+
+   InjectionPoint(@Nonnull Type type) { this(type, null); }
+
+   InjectionPoint(@Nonnull Type type, @Nullable String name)
+   {
+      this.type = type;
+      this.name = name;
+   }
+
+   @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+   public boolean equals(Object other)
+   {
+      if (this == other) return true;
+
+      InjectionPoint otherIP = (InjectionPoint) other;
+
+      if (type instanceof TypeVariable<?> || otherIP.type instanceof TypeVariable<?>) {
+         return false;
+      }
+
+      String thisName = name;
+      String otherName = otherIP.name;
+
+      if (thisName != null && !thisName.equals(otherName)) {
+         return false;
+      }
+
+      Class<?> thisClass = getClassType(type);
+      Class<?> otherClass = getClassType(otherIP.type);
+
+      return thisClass.isAssignableFrom(otherClass);
+   }
+
+   @Override
+   public int hashCode() { return 31 * type.hashCode() + (name != null ? name.hashCode() : 0); }
+
    static boolean isServlet(@Nonnull Class<?> aClass)
    {
       return SERVLET_CLASS != null && Servlet.class.isAssignableFrom(aClass);
    }
-
-   private InjectionPoint() {}
 
    @Nonnull
    static Object wrapInProviderIfNeeded(@Nonnull Type type, @Nonnull final Object value)
@@ -172,12 +208,6 @@ final class InjectionPoint
       else {
          return ((GenericArrayType) parameterType).getGenericComponentType();
       }
-   }
-
-   @Nonnull
-   static String dependencyKey(@Nonnull Class<?> dependencyClass, @Nonnull String dependencyId)
-   {
-      return dependencyClass.getName() + ':' + dependencyId;
    }
 
    @Nullable
