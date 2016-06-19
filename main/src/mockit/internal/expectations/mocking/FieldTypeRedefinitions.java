@@ -10,7 +10,6 @@ import java.util.Map.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.expectations.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
@@ -21,24 +20,17 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
 {
    private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
 
-   @Nullable private TestedClassInstantiations testedClassInstantiations;
    @Nonnull private final Map<MockedType, InstanceFactory> mockInstanceFactories;
    @Nonnull private final List<MockedType> mockFieldsNotSet;
 
-   public FieldTypeRedefinitions(@Nonnull Object objectWithMockFields)
+   public FieldTypeRedefinitions(@Nonnull Class<?> testClass)
    {
-      Class<?> testClass = objectWithMockFields.getClass();
+      mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
+      mockFieldsNotSet = new ArrayList<MockedType>();
+
       TestRun.enterNoMockingZone();
 
       try {
-         testedClassInstantiations = new TestedClassInstantiations();
-
-         if (!testedClassInstantiations.findTestedAndInjectableFields(testClass)) {
-            testedClassInstantiations = null;
-         }
-
-         mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
-         mockFieldsNotSet = new ArrayList<MockedType>();
          redefineFieldTypes(testClass);
       }
       finally {
@@ -192,9 +184,6 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
          }
       }
    }
-
-   @Nullable
-   public TestedClassInstantiations getTestedClassInstantiations() { return testedClassInstantiations; }
 
    /**
     * Returns true iff the mock instance concrete class is not mocked in some test, ie it's a class

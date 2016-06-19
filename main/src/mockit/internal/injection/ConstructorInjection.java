@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.injection;
+package mockit.internal.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -11,7 +11,7 @@ import javax.annotation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
+import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 

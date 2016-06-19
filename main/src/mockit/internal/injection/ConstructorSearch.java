@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.injection;
+package mockit.internal.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
@@ -12,7 +12,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
+import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
 final class ConstructorSearch

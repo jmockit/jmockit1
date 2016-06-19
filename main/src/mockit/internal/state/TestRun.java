@@ -7,6 +7,7 @@ package mockit.internal.state;
 import javax.annotation.*;
 
 import mockit.internal.expectations.*;
+import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
 import mockit.internal.util.*;
@@ -33,6 +34,7 @@ public final class TestRun
    @Nullable private Class<?> currentTestClass;
    @Nullable private Object currentTestInstance;
    @Nullable private FieldTypeRedefinitions fieldTypeRedefinitions;
+   @Nullable private TestedClassInstantiations testedClassInstantiations;
 
    @Nonnull private final MockFixture mockFixture = new MockFixture();
 
@@ -52,6 +54,9 @@ public final class TestRun
 
    @Nullable
    public static FieldTypeRedefinitions getFieldTypeRedefinitions() { return INSTANCE.fieldTypeRedefinitions; }
+
+   @Nullable
+   public static TestedClassInstantiations getTestedClassInstantiations() { return INSTANCE.testedClassInstantiations; }
 
    @Nonnull public static MockFixture mockFixture() { return INSTANCE.mockFixture; }
 
@@ -108,6 +113,11 @@ public final class TestRun
    public static void setFieldTypeRedefinitions(@Nullable FieldTypeRedefinitions redefinitions)
    {
       INSTANCE.fieldTypeRedefinitions = redefinitions;
+   }
+
+   public static void setTestedClassInstantiations(@Nullable TestedClassInstantiations testedClassInstantiations)
+   {
+      INSTANCE.testedClassInstantiations = testedClassInstantiations;
    }
 
    public static void finishCurrentTestExecution()

@@ -9,7 +9,7 @@ import javax.annotation.*;
 
 import mockit.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.expectations.injection.*;
+import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
 import mockit.internal.state.*;
@@ -137,11 +137,20 @@ public class TestRunnerDecorator
 
    protected static void handleMockFieldsForWholeTestClass(@Nonnull Object target)
    {
+      Class<?> testClass = target.getClass();
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions == null) {
-         fieldTypeRedefinitions = new FieldTypeRedefinitions(target);
+         fieldTypeRedefinitions = new FieldTypeRedefinitions(testClass);
          TestRun.setFieldTypeRedefinitions(fieldTypeRedefinitions);
+
+         TestedClassInstantiations testedClassInstantiations = new TestedClassInstantiations();
+
+         if (!testedClassInstantiations.findTestedAndInjectableFields(testClass)) {
+            testedClassInstantiations = null;
+         }
+
+         TestRun.setTestedClassInstantiations(testedClassInstantiations);
       }
 
       //noinspection ObjectEquality
@@ -152,20 +161,16 @@ public class TestRunnerDecorator
 
    protected static void createInstancesForTestedFields(@Nonnull Object target, boolean beforeSetup)
    {
-      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
-      if (fieldTypeRedefinitions != null) {
-         TestedClassInstantiations testedClasses = fieldTypeRedefinitions.getTestedClassInstantiations();
+      if (testedClasses != null) {
+         TestRun.enterNoMockingZone();
 
-         if (testedClasses != null) {
-            TestRun.enterNoMockingZone();
-
-            try {
-               testedClasses.assignNewInstancesToTestedFields(target, beforeSetup);
-            }
-            finally {
-               TestRun.exitNoMockingZone();
-            }
+         try {
+            testedClasses.assignNewInstancesToTestedFields(target, beforeSetup);
+         }
+         finally {
+            TestRun.exitNoMockingZone();
          }
       }
    }
@@ -232,14 +237,10 @@ public class TestRunnerDecorator
 
    protected static void clearTestedFieldsIfAny()
    {
-      FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
-      if (fieldTypeRedefinitions != null) {
-         TestedClassInstantiations testedClasses = fieldTypeRedefinitions.getTestedClassInstantiations();
-
-         if (testedClasses != null) {
-            testedClasses.clearTestedFields();
-         }
+      if (testedClasses != null) {
+         testedClasses.clearTestedFields();
       }
    }
 

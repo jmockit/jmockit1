@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.injection;
+package mockit.internal.injection;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -13,7 +13,7 @@ import static java.util.regex.Pattern.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
+import static mockit.internal.injection.InjectionPoint.*;
 
 final class FieldInjection implements Injector
 {

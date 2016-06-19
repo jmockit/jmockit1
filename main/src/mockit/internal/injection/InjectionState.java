@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.injection;
+package mockit.internal.injection;
 
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
@@ -16,12 +16,12 @@ import javax.servlet.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.injection.InjectionPoint.*;
+import static mockit.internal.injection.InjectionPoint.*;
 
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
  */
-final class InjectionState
+final class InjectionState implements BeanExporter
 {
    @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
       new ConcurrentHashMap<InjectionPoint, Object>(2);
@@ -271,5 +271,35 @@ final class InjectionState
    {
       testedObjects.clear();
       instantiatedDependencies.clear();
+   }
+
+   @Override
+   public Object getBean(@Nonnull String name)
+   {
+      Object bean = findByName(testedObjects, name);
+
+      if (bean == null) {
+         bean = findByName(instantiatedDependencies, name);
+
+         if (bean == null) {
+            bean = findByName(globalDependencies, name);
+         }
+      }
+
+      return bean;
+   }
+
+   @Nullable
+   private Object findByName(@Nonnull Map<InjectionPoint, Object> injectionPointsAndObjects, @Nonnull String name)
+   {
+      for (Entry<InjectionPoint, Object> injectionPointAndObject : injectionPointsAndObjects.entrySet()) {
+         InjectionPoint injectionPoint = injectionPointAndObject.getKey();
+
+         if (name.equals(injectionPoint.name)) {
+            return injectionPointAndObject.getValue();
+         }
+      }
+
+      return null;
    }
 }
