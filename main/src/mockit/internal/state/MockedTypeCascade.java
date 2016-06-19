@@ -21,6 +21,7 @@ public final class MockedTypeCascade
    final boolean fromMockField;
    @Nonnull private final Type mockedType;
    @Nullable Class<?> mockedClass;
+   @Nullable GenericTypeReflection genericReflection;
    @Nullable private final Object cascadedInstance;
    @Nonnull private final Map<String, Type> cascadedTypesAndMocks;
 
@@ -92,76 +93,22 @@ public final class MockedTypeCascade
    @Nullable
    private String getGenericReturnType(@Nonnull String genericSignature)
    {
-      Type cascadingType = mockedType;
-
-      if (!(cascadingType instanceof ParameterizedType)) {
-         cascadingType = ((Class<?>) cascadingType).getGenericSuperclass();
-      }
-
-      if (cascadingType instanceof ParameterizedType) {
-         return getGenericReturnTypeWithTypeArguments(genericSignature, (ParameterizedType) cascadingType);
-      }
-
-      int p = genericSignature.indexOf(')');
-      String returnTypeName = genericSignature.substring(p + 2, genericSignature.length() - 1);
-
-      return isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
+      String returnTypeName = getGenericReflection().resolveReturnType(genericSignature);
+      return returnTypeName.charAt(0) == '[' || isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
    }
 
    @Nonnull
-   private static String getInternalTypeName(@Nonnull String typeDesc)
+   private synchronized GenericTypeReflection getGenericReflection()
    {
-      return typeDesc.substring(1, typeDesc.length() - 1);
-   }
+      GenericTypeReflection reflection = genericReflection;
 
-   @Nonnull
-   private static String getInternalReturnTypeCodeAndName(@Nonnull String genericSignature)
-   {
-      int p = genericSignature.indexOf(')');
-      return genericSignature.substring(p + 1, genericSignature.length() - 1);
-   }
-
-   @Nullable
-   private static String getGenericReturnTypeWithTypeArguments(
-      @Nonnull String genericSignature, @Nonnull ParameterizedType mockedGenericType)
-   {
-      String typeCodeAndName = getInternalReturnTypeCodeAndName(genericSignature);
-      char typeCode = typeCodeAndName.charAt(0);
-      String typeName = typeCodeAndName.substring(1);
-
-      if (typeCode == 'L') {
-         return isTypeSupportedForCascading(typeName) ? typeName : null;
+      if (reflection == null) {
+         Class<?> ownerClass = getClassWithCalledMethod();
+         reflection = new GenericTypeReflection(ownerClass, mockedType);
+         genericReflection = reflection;
       }
 
-      TypeVariable<?>[] typeParameters = ((GenericDeclaration) mockedGenericType.getRawType()).getTypeParameters();
-      Type[] actualTypeArguments = mockedGenericType.getActualTypeArguments();
-
-      for (int i = 0; i < typeParameters.length; i++) {
-         TypeVariable<?> typeParameter = typeParameters[i];
-
-         if (typeName.equals(typeParameter.getName())) {
-            Type actualType = actualTypeArguments[i];
-            Class<?> actualClass;
-
-            if (actualType instanceof Class<?>) {
-               actualClass = (Class<?>) actualType;
-            }
-            else if (actualType instanceof WildcardType) {
-               actualClass = (Class<?>) ((WildcardType) actualType).getUpperBounds()[0];
-            }
-            else if (actualType instanceof GenericArrayType) {
-               Class<?> componentClass = getClassType((GenericArrayType) actualType);
-               return getInternalName(componentClass);
-            }
-            else {
-               return null;
-            }
-
-            return getReturnTypeIfCascadingSupportedForIt(actualClass);
-         }
-      }
-
-      return null;
+      return reflection;
    }
 
    @Nullable
@@ -187,7 +134,7 @@ public final class MockedTypeCascade
    @Nullable
    private static String getReturnTypeIfCascadingSupportedForIt(@Nonnull String typeDesc)
    {
-      String typeName = getInternalTypeName(typeDesc);
+      String typeName = typeDesc.substring(1, typeDesc.length() - 1);
       return isTypeSupportedForCascading(typeName) ? typeName : null;
    }
 
@@ -272,8 +219,8 @@ public final class MockedTypeCascade
       Type genericReturnType = cascadingMethod.getGenericReturnType();
 
       if (genericReturnType instanceof TypeVariable<?>) {
-         GenericTypeReflection typeReflection = new GenericTypeReflection(cascadingClass, mockedType);
-         genericReturnType = typeReflection.resolveReturnType((TypeVariable<?>) genericReturnType);
+         //noinspection ConstantConditions
+         genericReturnType = genericReflection.resolveReturnType((TypeVariable<?>) genericReturnType);
       }
 
       return genericReturnType;

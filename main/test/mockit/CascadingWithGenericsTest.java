@@ -208,11 +208,22 @@ public final class CascadingWithGenericsTest
       assertNotNull(bar);
    }
 
-   @Test @Ignore("Not supported yet")
+   @Test
    public void cascadeFromGenericMethodWhoseReturnTypeResolvesToAnotherGenericType(@Mocked B<C<?>> mock)
    {
       C<?> c = mock.getValue();
 
       assertNotNull(c);
+   }
+
+   public interface BaseGenericInterface<B> { B genericMethod(); }
+   public interface GenericSubInterface<S> extends BaseGenericInterface<S> {}
+   public interface NonGenericInterface extends GenericSubInterface<Bar> {}
+
+   @Test
+   public void cascadeFromGenericMethodDefinedTwoLevelsDeepInInheritanceHierarchy(@Mocked NonGenericInterface mock) {
+      Bar cascadedResult = mock.genericMethod();
+
+      assertNotNull(cascadedResult);
    }
 }

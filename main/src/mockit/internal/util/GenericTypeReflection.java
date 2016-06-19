@@ -14,78 +14,89 @@ public final class GenericTypeReflection
 {
    @Nonnull private final Map<String, Type> typeParametersToTypeArguments;
    @Nonnull private final Map<String, String> typeParametersToTypeArgumentNames;
+   @Nonnull private final Class<?> ownerType;
    private final boolean withSignatures;
 
-   public GenericTypeReflection(@Nonnull Class<?> realClass, @Nullable Type mockedType)
+   public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType)
    {
       typeParametersToTypeArguments = new HashMap<String, Type>(4);
       typeParametersToTypeArgumentNames = new HashMap<String, String>(4);
+      ownerType = ownerClass;
       withSignatures = true;
-      discoverTypeMappings(realClass, mockedType);
+      discoverTypeMappings(ownerClass, genericType);
    }
 
-   public GenericTypeReflection(@Nonnull Class<?> realClass)
+   public GenericTypeReflection(@Nonnull Class<?> ownerClass)
    {
       typeParametersToTypeArguments = new HashMap<String, Type>(4);
       typeParametersToTypeArgumentNames = emptyMap();
+      ownerType = ownerClass;
       withSignatures = false;
-      addGenericTypeMappingsForSuperTypes(realClass);
+      addGenericTypeMappingsForSuperTypes(ownerClass);
    }
 
    public GenericTypeReflection(@Nonnull Field field)
    {
       typeParametersToTypeArguments = new HashMap<String, Type>(4);
       typeParametersToTypeArgumentNames = emptyMap();
+      ownerType = field.getType();
       withSignatures = false;
-      discoverTypeMappings(field.getType(), field.getGenericType());
+      discoverTypeMappings(ownerType, field.getGenericType());
    }
 
-   private void discoverTypeMappings(@Nonnull Class<?> realClass, @Nullable Type mockedType)
+   private void discoverTypeMappings(@Nonnull Class<?> rawType, @Nullable Type genericType)
    {
-      if (mockedType instanceof ParameterizedType) {
-         addMappingsFromTypeParametersToTypeArguments(realClass, (ParameterizedType) mockedType);
+      if (genericType instanceof ParameterizedType) {
+         addMappingsFromTypeParametersToTypeArguments(rawType, (ParameterizedType) genericType);
       }
 
-      addGenericTypeMappingsForSuperTypes(realClass);
+      addGenericTypeMappingsForSuperTypes(rawType);
    }
 
-   private void addGenericTypeMappingsForSuperTypes(@Nonnull Class<?> realClass)
+   private void addGenericTypeMappingsForSuperTypes(@Nonnull Class<?> rawType)
    {
-      Type superType = realClass;
+      Type superType = rawType;
 
       while (superType instanceof Class<?> && superType != Object.class) {
          Class<?> superClass = (Class<?>) superType;
          superType = superClass.getGenericSuperclass();
 
-         if (superType != null) {
-            superType = addGenericTypeMappingsIfParameterized(superType);
+         if (superType != null && superType != Object.class) {
+            superClass = addGenericTypeMappingsIfParameterized(superType);
+            superType = superClass;
          }
 
-         for (Type implementedInterface : superClass.getGenericInterfaces()) {
-            addGenericTypeMappingsIfParameterized(implementedInterface);
-         }
+         addGenericTypeMappingsForInterfaces(superClass);
       }
    }
 
    @Nonnull
-   private Type addGenericTypeMappingsIfParameterized(@Nonnull Type superType)
+   private Class<?> addGenericTypeMappingsIfParameterized(@Nonnull Type superType)
    {
       if (superType instanceof ParameterizedType) {
-         ParameterizedType mockedSuperType = (ParameterizedType) superType;
-         Type rawType = mockedSuperType.getRawType();
-         addMappingsFromTypeParametersToTypeArguments((Class<?>) rawType, mockedSuperType);
+         ParameterizedType genericSuperType = (ParameterizedType) superType;
+         Class<?> rawType = (Class<?>) genericSuperType.getRawType();
+         addMappingsFromTypeParametersToTypeArguments(rawType, genericSuperType);
          return rawType;
       }
 
-      return superType;
+      return (Class<?>) superType;
+   }
+
+   private void addGenericTypeMappingsForInterfaces(@Nonnull Class<?> classOrInterface)
+   {
+      for (Type implementedInterface : classOrInterface.getGenericInterfaces()) {
+         Class<?> implementedType = addGenericTypeMappingsIfParameterized(implementedInterface);
+         addGenericTypeMappingsForInterfaces(implementedType);
+      }
    }
 
    private void addMappingsFromTypeParametersToTypeArguments(
-      @Nonnull Class<?> mockedClass, @Nonnull ParameterizedType mockedType)
+      @Nonnull Class<?> rawType, @Nonnull ParameterizedType genericType)
    {
-      String ownerTypeDesc = mockedClass.getName().replace('.', '/');
-      TypeVariable<?>[] typeParameters = mockedClass.getTypeParameters();
-      Type[] typeArguments = mockedType.getActualTypeArguments();
+      String ownerTypeDesc = getOwnerClassDesc(rawType);
+      TypeVariable<?>[] typeParameters = rawType.getTypeParameters();
+      Type[] typeArguments = genericType.getActualTypeArguments();
       int n = typeParameters.length;
 
       for (int i = 0; i < n; i++) {
@@ -104,7 +115,7 @@ public final class GenericTypeReflection
             mappedTypeArg = typeArg;
 
             if (withSignatures) {
-               mappedTypeArgName = 'L' + ((Class<?>) typeArg).getName().replace('.', '/');
+               mappedTypeArgName = 'L' + getOwnerClassDesc((Class<?>) typeArg);
             }
          }
          else if (typeArg instanceof TypeVariable<?>) {
@@ -117,17 +128,38 @@ public final class GenericTypeReflection
                mappedTypeArgName = typeParametersToTypeArgumentNames.get(intermediateTypeArg);
             }
          }
+         else if (typeArg instanceof ParameterizedType) {
+            mappedTypeArg = typeArg;
+
+            if (withSignatures) {
+               Class<?> classType = getClassType(typeArg);
+               mappedTypeArgName = 'L' + getOwnerClassDesc(classType);
+            }
+         }
+         else if (typeArg instanceof GenericArrayType) {
+            mappedTypeArg = typeArg;
+
+            if (withSignatures) {
+               Type componentType = ((GenericArrayType) typeArg).getGenericComponentType();
+               Class<?> classType = getClassType(componentType);
+               mappedTypeArgName = "[L" + getOwnerClassDesc(classType);
+            }
+         }
          else {
             mappedTypeArg = typeParam.getBounds()[0];
 
             if (withSignatures) {
-               mappedTypeArgName = 'L' + getClassType(mappedTypeArg).getName().replace('.', '/');
+               Class<?> classType = getClassType(mappedTypeArg);
+               mappedTypeArgName = 'L' + getOwnerClassDesc(classType);
             }
          }
 
          addTypeMapping(ownerTypeDesc, typeVarName, mappedTypeArg, mappedTypeArgName);
       }
    }
+
+   @Nonnull
+   private String getOwnerClassDesc(@Nonnull Class<?> rawType) { return rawType.getName().replace('.', '/'); }
 
    @Nonnull
    private Class<?> getClassType(@Nonnull Type type)
@@ -322,22 +354,22 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   public GenericSignature parseSignature(@Nonnull String signature)
+   public GenericSignature parseSignature(@Nonnull String genericSignature)
    {
-      return new GenericSignature(signature);
+      return new GenericSignature(genericSignature);
    }
 
    @Nonnull
-   public String resolveReturnType(@Nonnull String ownerTypeDesc, @Nonnull String signature)
+   public String resolveReturnType(@Nonnull String ownerTypeDesc, @Nonnull String genericSignature)
    {
-      addTypeArgumentsIfAvailable(ownerTypeDesc, signature);
+      addTypeArgumentsIfAvailable(ownerTypeDesc, genericSignature);
 
-      int p = signature.lastIndexOf(')') + 1;
-      int q = signature.length();
-      String returnType = signature.substring(p, q);
+      int p = genericSignature.lastIndexOf(')') + 1;
+      int q = genericSignature.length();
+      String returnType = genericSignature.substring(p, q);
       String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, returnType);
 
-      StringBuilder finalSignature = new StringBuilder(signature);
+      StringBuilder finalSignature = new StringBuilder(genericSignature);
       finalSignature.replace(p, q, resolvedReturnType);
       return finalSignature.toString();
    }
@@ -379,7 +411,7 @@ public final class GenericTypeReflection
    @Nonnull
    private String replaceTypeParametersWithActualTypes(@Nonnull String ownerTypeDesc, @Nonnull String typeDesc)
    {
-      if (typeDesc.charAt(0) == 'T') {
+      if (typeDesc.charAt(0) == 'T' && !typeParametersToTypeArgumentNames.isEmpty()) {
          String typeParameter = typeDesc.substring(0, typeDesc.length() - 1);
          String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
          return typeArg == null ? typeDesc : typeArg + ';';
@@ -432,7 +464,65 @@ public final class GenericTypeReflection
    {
       GenericDeclaration owner = typeVariable.getGenericDeclaration();
       Class<?> ownerClass = owner instanceof Member ? ((Member) owner).getDeclaringClass() : (Class<?>) owner;
-      return ownerClass.getName().replace('.', '/');
+      return getOwnerClassDesc(ownerClass);
+   }
+
+   @Nonnull
+   public String resolveReturnType(@Nonnull String genericSignature)
+   {
+      int p = genericSignature.lastIndexOf(')') + 1;
+      int q = genericSignature.length();
+
+      if (typeParametersToTypeArgumentNames.isEmpty() && genericSignature.charAt(0) != '<') {
+         return genericSignature.substring(p + 1, q - 1);
+      }
+
+      String returnType = genericSignature.substring(p, q);
+      String resolvedReturnType = resolveReturnType(ownerType, returnType);
+      String resolvedSignature;
+
+
+      if (resolvedReturnType == null) {
+         resolvedSignature = returnType;
+      }
+      else if (resolvedReturnType.charAt(0) == '[') {
+         return resolvedReturnType;
+      }
+      else {
+         StringBuilder finalSignature = new StringBuilder(genericSignature);
+         finalSignature.replace(p, q, resolvedReturnType);
+         resolvedSignature = finalSignature.toString();
+      }
+
+      p = resolvedSignature.indexOf(')');
+      q = resolvedSignature.length();
+      return resolvedSignature.substring(p + 2, q - 1);
+   }
+
+   @Nullable
+   private String resolveReturnType(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType)
+   {
+      String ownerTypeDesc = getOwnerClassDesc(ownerType);
+      String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, genericReturnType);
+
+      if (!resolvedReturnType.equals(genericReturnType)) {
+         return resolvedReturnType;
+      }
+
+      if (ownerType.isInterface()) {
+         for (Class<?> superInterface: ownerType.getInterfaces()) {
+            resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
+
+            if (resolvedReturnType != null) {
+               return resolvedReturnType;
+            }
+         }
+
+         return null;
+      }
+
+      Class<?> superClass = ownerType.getSuperclass();
+      return superClass == Object.class ? null : resolveReturnType(superClass, genericReturnType);
    }
 
    public boolean areMatchingTypes(@Nonnull Type declarationType, @Nonnull Type realizationType)
@@ -466,11 +556,9 @@ public final class GenericTypeReflection
    private boolean areMatchingTypes(
       @Nonnull ParameterizedType declarationType, @Nonnull ParameterizedType realizationType)
    {
-      if (!declarationType.getRawType().equals(realizationType.getRawType())) {
-         return false;
-      }
-
-      return haveMatchingActualTypeArguments(declarationType, realizationType);
+      return
+         declarationType.getRawType().equals(realizationType.getRawType()) &&
+         haveMatchingActualTypeArguments(declarationType, realizationType);
    }
 
    private boolean haveMatchingActualTypeArguments(
