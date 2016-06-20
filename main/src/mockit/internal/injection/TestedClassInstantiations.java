@@ -103,4 +103,7 @@ public final class TestedClassInstantiations
          testedField.clearIfAutomaticCreation();
       }
    }
+
+   @Nonnull
+   public BeanExporter getBeanExporter() { return injectionState; }
 }
