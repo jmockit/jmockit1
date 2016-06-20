@@ -93,19 +93,19 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    @Override
    public boolean supports(
-      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
+      ParameterContext parameterContext, ExtensionContext extensionContext)
    {
       return
-         parameter.isAnnotationPresent(Mocked.class) ||
-         parameter.isAnnotationPresent(Injectable.class) ||
-         parameter.isAnnotationPresent(Capturing.class);
+         parameterContext.getParameter().isAnnotationPresent(Mocked.class) ||
+         parameterContext.getParameter().isAnnotationPresent(Injectable.class) ||
+         parameterContext.getParameter().isAnnotationPresent(Capturing.class);
    }
 
    @Override @SuppressWarnings("ConstantConditions")
    public Object resolve(
-      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
+      ParameterContext parameterContext, ExtensionContext extensionContext)
    {
-      int parameterIndex = Deencapsulation.getField(parameter, "index"); // somehow, "index" is not exposed by Java API
+      int parameterIndex = Deencapsulation.getField(parameterContext.getParameter(), "index"); // somehow, "index" is not exposed by Java API
       return mockParameters[parameterIndex];
    }
 
