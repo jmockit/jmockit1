@@ -11,6 +11,7 @@ import mockit.external.asm.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
+import static mockit.internal.startup.MockingBridgeFields.*;
 
 public class BaseClassModifier extends ClassVisitor
 {
@@ -179,7 +180,7 @@ public class BaseClassModifier extends ClassVisitor
    protected final void generateCodeToObtainInstanceOfMockingBridge(@Nonnull MockingBridge mockingBridge)
    {
       mw.visitFieldInsn(
-         GETSTATIC, "java/lang/NegativeArraySizeException", mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
+         GETSTATIC, getMockingBridgeFieldsHolderClassName(), mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
    }
 
    protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value)
