@@ -18,7 +18,26 @@ public final class ParameterReflection
    static String getParameterTypesDescription(@Nonnull Type[] paramTypes)
    {
       String paramTypesDesc = Arrays.asList(paramTypes).toString();
-      return paramTypesDesc.replace("class ", "").replace('[', '(').replace(']', ')');
+      paramTypesDesc = paramTypesDesc
+              .replace("class ", "")
+              .replaceAll("\\[L([^;]*);", "$1[]")
+              .replace("[Z", "boolean[]")
+              .replace("[B", "byte[]")
+              .replace("[C", "char[]")
+              .replace("[D", "double[]")
+              .replace("[F", "float[]")
+              .replace("[I", "int[]")
+              .replace("[J", "long[]")
+              .replace("[S", "short[]")
+              .replaceFirst("\\[", "(")
+              .replaceFirst("\\]$", ")");
+      return replaceMultiDimensionArrays(paramTypesDesc);
+   }
+
+   @Nonnull
+   private static String replaceMultiDimensionArrays(@Nonnull String paramTypesDesc) {
+      String result = paramTypesDesc.replaceAll("\\[([^\\[\\] ]+)\\[", "$1[][");
+      return paramTypesDesc.equals(result) ? result : replaceMultiDimensionArrays(result);
    }
 
    @Nonnull
