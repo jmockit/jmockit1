@@ -203,7 +203,13 @@ final class InjectionState implements BeanExporter
    Object getTestedInstance(@Nonnull Type testedType)
    {
       InjectionPoint injectionPoint = new InjectionPoint(testedType);
-      return instantiatedDependencies.get(injectionPoint);
+      Object dependency = instantiatedDependencies.get(injectionPoint);
+
+      if (dependency == null) {
+         dependency = findMatchingObject(instantiatedDependencies, null, injectionPoint);
+      }
+
+      return dependency;
    }
 
    @Nullable @SuppressWarnings("unchecked")

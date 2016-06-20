@@ -253,6 +253,10 @@ final class FullInjection
       Object dependency = createNewInstance(classToInstantiate, dependencyKey);
 
       if (dependency != null) {
+         if (dependencyKey.name == null) {
+            dependencyKey = new InjectionPoint(dependencyKey.type, injectionProvider.getName());
+         }
+
          registerNewInstance(testedClass, injector, dependencyKey, dependency);
       }
 
