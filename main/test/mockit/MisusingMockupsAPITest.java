@@ -43,7 +43,8 @@ public final class MisusingMockupsAPITest
       @Mock(invocations = 1) int doSomething() { return value; }
    }
 
-   public static final class ProceedingMockUp extends MockUp<Collaborator> {
+   public static final class ProceedingMockUp extends MockUp<Collaborator>
+   {
       @Mock public static int doSomething(Invocation inv) { return inv.proceed(); }
    }
 
@@ -152,5 +153,22 @@ public final class MisusingMockupsAPITest
       thrown.expectMessage("No single instance");
 
       mockUp.getMockInstance();
+   }
+
+   public interface AnInterface { void doSomething(); }
+
+   @Test
+   public void attemptToProceedIntoEmptyMethodOfPublicInterface()
+   {
+      thrown.expect(UnsupportedOperationException.class);
+      thrown.expectMessage("Cannot proceed");
+      thrown.expectMessage("interface method");
+
+      AnInterface mock = new MockUp<AnInterface>() {
+         @Mock
+         void doSomething(Invocation invocation) { invocation.proceed(); }
+      }.getMockInstance();
+
+      mock.doSomething();
    }
 }

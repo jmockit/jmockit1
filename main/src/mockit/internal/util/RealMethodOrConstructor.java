@@ -46,6 +46,17 @@ public final class RealMethodOrConstructor
       }
    }
 
+   public RealMethodOrConstructor(@Nonnull Class<?> realClass, @Nonnull String methodName, @Nonnull String memberDesc)
+      throws NoSuchMethodException
+   {
+      if (methodName.charAt(0) == '<') {
+         member = findConstructor(realClass, memberDesc);
+      }
+      else {
+         member = findMethod(realClass, methodName, memberDesc);
+      }
+   }
+
    @Nonnull
    private static Constructor<?> findConstructor(@Nonnull Class<?> realClass, @Nonnull String methodDesc)
    {

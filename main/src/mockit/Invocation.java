@@ -101,8 +101,8 @@ public class Invocation
     *
     * @throws UnsupportedOperationException if attempting to proceed into a mocked method which does not belong to an
     * {@linkplain Injectable injectable mocked type} nor to a {@linkplain Expectations#Expectations(Object...) dynamic
-    * partially mocked type}, into a {@code native} method, or into a mocked constructor while passing replacement
-    * arguments
+    * partially mocked type}, into a {@code native} method, into a mocked constructor while passing replacement
+    * arguments, or into an interface or abstract method
     * @throws IllegalArgumentException if replacement arguments were given but they are the same as the invoked
     * arguments
     *

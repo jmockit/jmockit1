@@ -16,7 +16,7 @@ final class MockState
    @Nonnull final MockMethod mockMethod;
    @Nullable private Method actualMockMethod;
    @Nullable private Member realMethodOrConstructor;
-   @Nullable private String realClassDesc;
+   @Nullable private Object realClass;
 
    // Expectations on the number of invocations of the mock as specified by the @Mock annotation,
    // initialized with the default values as specified in the annotation's definition.
@@ -130,7 +130,7 @@ final class MockState
    Member getRealMethodOrConstructor(
       @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
-      if (realMethodOrConstructor == null || !mockedClassDesc.equals(realClassDesc)) {
+      if (realMethodOrConstructor == null || !mockedClassDesc.equals(realClass)) {
          String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
 
          RealMethodOrConstructor realMember;
@@ -144,7 +144,31 @@ final class MockState
          }
 
          realMethodOrConstructor = member;
-         realClassDesc = mockedClassDesc;
+         realClass = mockedClassDesc;
+      }
+
+      return realMethodOrConstructor;
+   }
+
+   @Nonnull
+   Member getRealMethodOrConstructor(
+      @Nonnull Class<?> mockedClass, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
+   {
+      if (realMethodOrConstructor == null || !mockedClass.equals(realClass)) {
+         String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
+
+         RealMethodOrConstructor realMember;
+         try { realMember = new RealMethodOrConstructor(mockedClass, memberName, mockedMethodDesc); }
+         catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+
+         Member member = realMember.getMember();
+
+         if (mockMethod.isAdvice) {
+            return member;
+         }
+
+         realMethodOrConstructor = member;
+         realClass = mockedClass;
       }
 
       return realMethodOrConstructor;
@@ -213,7 +237,7 @@ final class MockState
       return actualMockMethod;
    }
 
-   @Override
+   @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
    public boolean equals(@Nonnull Object other) { return mockMethod.equals(((MockState) other).mockMethod); }
 
    @Override

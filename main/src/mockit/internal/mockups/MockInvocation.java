@@ -49,6 +49,13 @@ public final class MockInvocation extends BaseInvocation
    @Nonnull @Override
    protected Member findRealMember()
    {
+      Object invokedInstance = getInvokedInstance();
+
+      if (invokedInstance != null) {
+         Class<?> mockedClass = invokedInstance.getClass();
+         return mockState.getRealMethodOrConstructor(mockedClass, mockedMethodName, mockedMethodDesc);
+      }
+
       return mockState.getRealMethodOrConstructor(mockedClassDesc, mockedMethodName, mockedMethodDesc);
    }
 
