@@ -282,6 +282,12 @@ final class InjectionState implements BeanExporter
    @Override
    public Object getBean(@Nonnull String name)
    {
+      for (MockedType injectable : injectables) {
+         if (name.equals(injectable.getName())) {
+            return injectable.getValueToInject(currentTestClassInstance);
+         }
+      }
+
       Object bean = findByName(testedObjects, name);
 
       if (bean == null) {

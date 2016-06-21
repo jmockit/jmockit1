@@ -33,10 +33,11 @@ public final class SpringIntegrationTest
 
    public interface Dependency {}
    static final class DependencyImpl implements Dependency {}
-   static class Collaborator {}
+   static class Collaborator { @Autowired Runnable action; }
 
    @Tested DependencyImpl dependency;
    @Tested(fullyInitialized = true) ExampleSUT exampleSUT;
+   @Injectable Runnable action;
 
    @Test
    public void lookupTestedObjectsAndInjectedDependenciesThroughTheBeanFactory()
@@ -57,6 +58,9 @@ public final class SpringIntegrationTest
 
       ExampleSUT sut = (ExampleSUT) beanFactory.getBean("exampleSUT");
       assertSame(exampleSUT, sut);
+
+      Runnable mockAction = (Runnable) beanFactory.getBean("action");
+      assertSame(action, mockAction);
 
       thrown.expect(NoSuchBeanDefinitionException.class);
       beanFactory.getBean("undefined");
