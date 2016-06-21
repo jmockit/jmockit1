@@ -4,22 +4,25 @@
  */
 package mockit.integration.springframework;
 
-import mockit.*;
 import mockit.internal.injection.*;
 import mockit.internal.state.*;
 
 import org.springframework.beans.factory.*;
-import org.springframework.beans.factory.support.*;
+import org.springframework.web.context.support.*;
 
-public final class BeanFactoryMockUp extends MockUp<AbstractBeanFactory>
+/**
+ * A {@link org.springframework.web.context.WebApplicationContext} implementation which exposes the {@link @Tested}
+ * objects and their injected dependencies declared in the current test class.
+ */
+public final class TestWebApplicationContext extends StaticWebApplicationContext
 {
-   @Mock
-   public static Object getBean(Invocation invocation, String name)
+   @Override
+   public Object getBean(String name)
    {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
-         return invocation.proceed();
+         throw new BeanDefinitionStoreException("Test class does not define any @Tested fields");
       }
 
       Object bean = testedClasses.getBeanExporter().getBean(name);

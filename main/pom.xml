@@ -116,6 +116,8 @@
                      <Agent-Class>mockit.internal.startup.Startup</Agent-Class>
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                     <Implementation-Version>${version}</Implementation-Version>
+                     <Built-By/>
                   </manifestEntries>
                </archive>
             </configuration>
@@ -281,7 +283,7 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-beans</artifactId><version>4.2.0.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>4.2.0.RELEASE</version>
          <optional>true</optional>
       </dependency>
    </dependencies>
