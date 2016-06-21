@@ -13,7 +13,6 @@ import mockit.internal.*;
 import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.Opcodes.*;
-import static mockit.internal.util.GeneratedClasses.*;
 
 /**
  * Responsible for generating all necessary bytecode in the redefined (real) class.
@@ -68,18 +67,6 @@ final class MockupsModifier extends BaseClassModifier
 
       if (!useMockingBridge && !isPublic(mock.getClass().getModifiers())) {
          useMockingBridge = true;
-      }
-   }
-
-   @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces)
-   {
-      super.visit(version, access, name, signature, superName, interfaces);
-
-      if (isGeneratedImplementationClass(name)) {
-         classDesc = name.substring(IMPLCLASS_PREFIX.length());
       }
    }
 
