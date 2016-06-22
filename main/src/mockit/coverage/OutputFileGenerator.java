@@ -54,7 +54,7 @@ final class OutputFileGenerator
 
    private boolean isOutputWithCallPointsToBeGenerated()
    {
-      return hasOutputFormat("html") || hasOutputFormat("serial") || hasOutputFormat("serial-append") || hasOutputFormat("xml");
+      return hasOutputFormat("html") || hasOutputFormat("serial") || hasOutputFormat("serial-append");
    }
 
    boolean isWithCallPoints()

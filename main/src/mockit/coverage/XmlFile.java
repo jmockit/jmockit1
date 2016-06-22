@@ -26,20 +26,32 @@ public class XmlFile
    @Nonnull private final CoverageData coverageData;
    private final List<String> srcDirs;
 
+   /**
+    * This constructor is used by the OutputFileGenerator.
+    */
    public XmlFile(String outputDir, CoverageData coverageData)
 	{
-      this.outputFile = new File(outputDir.isEmpty() ? null: outputDir, "coverage.xml");
-
-      coverageData.fillLastModifiedTimesForAllClassFiles();
-      this.coverageData = coverageData;
-      this.srcDirs = sourceDirectories();
+      this(new File(outputDir.isEmpty() ? null: outputDir, "coverage.xml"), null, coverageData);
 	}
 
-   private static List<String> sourceDirectories() {
+   /**
+    * This constructor can be used in test cases.
+    */
+   protected XmlFile(File outputFile, List<String> srcDirs, CoverageData coverageData)
+   {
+      this.outputFile = outputFile;
+      this.srcDirs = srcDirs == null ? sourceDirectories() : srcDirs;
+      coverageData.fillLastModifiedTimesForAllClassFiles();
+      this.coverageData = coverageData;
+   }
+
+   private static List<String> sourceDirectories()
+   {
       String srcDirs = Configuration.getProperty("srcDirs");
       if (srcDirs == null) {
          return Arrays.asList(System.getProperty("user.dir"));
-      } else {
+      }
+      else {
          List<String> srcDirList = Arrays.asList(srcDirs.split("\\s*,\\s*"));
          for (String dir : srcDirList) {
             File d = new File(dir);
