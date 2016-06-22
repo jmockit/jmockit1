@@ -123,6 +123,64 @@
             </configuration>
          </plugin>
          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId><version>1.8</version>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals><goal>run</goal></goals>
+                  <configuration>
+                     <target>
+                        <!-- write the list of files in the final JAR to a file -->
+                        <pathconvert dirsep="/" pathsep="&#10;" property="jar.contents">
+                           <map from="${project.build.directory}/${project.build.finalName}.jar:" to=""/>
+                           <zipfileset src="${project.build.directory}/${project.build.finalName}.jar" defaultexcludes="no">
+                              <exclude name="META-INF/jmockit-jar-contents.txt"/>
+                              <exclude name="META-INF/jmockit-jar-checksums.properties"/>
+                           </zipfileset>
+                        </pathconvert>
+                        <echo message="META-INF/jmockit-jar-contents.txt&#10;" file="${project.build.directory}/jmockit-jar-contents.txt" level="error"/>
+                        <echo message="META-INF/jmockit-jar-checksums.properties&#10;" file="${project.build.directory}/jmockit-jar-contents.txt" append="true" level="error"/>
+                        <echo message="${jar.contents}" file="${project.build.directory}/jmockit-jar-contents.txt" append="true" level="error"/>
+
+                        <!-- extract JAR contents to calculate checksums -->
+                        <delete dir="${project.build.directory}/jar-contents"/>
+                        <unzip src="${project.build.directory}/${project.build.finalName}.jar" dest="${project.build.directory}/jar-contents"/>
+                        <copy file="${project.build.directory}/jmockit-jar-contents.txt" todir="${project.build.directory}/jar-contents/META-INF"/>
+
+                        <!-- generate checksums -->
+                        <delete dir="${project.build.directory}/checksums"/>
+                        <checksum todir="${project.build.directory}/checksums" pattern="{4} = {0}" forceoverwrite="yes">
+                           <fileset dir="${project.build.directory}/jar-contents" defaultexcludes="no">
+                              <exclude name="META-INF/jmockit-jar-checksums.properties"/>
+                           </fileset>
+                        </checksum>
+
+                        <!-- aggregate checksums into one properties file -->
+                        <concat destfile="${project.build.directory}/jmockit-jar-checksums.properties">
+                           <fileset dir="${project.build.directory}/checksums" defaultexcludes="no"/>
+                           <filterchain>
+                              <replaceregex pattern="^\Q${project.build.directory}\E" replace=""/>
+                              <replaceregex pattern="\\" replace="/" flags="g"/>
+                              <replaceregex pattern="^/jar-contents/" replace=""/>
+                           </filterchain>
+                        </concat>
+
+                        <!-- add the generated files to the final JAR -->
+                        <zip destfile="${project.build.directory}/${project.build.finalName}.jar" update="yes">
+                           <mappedresources>
+                              <fileset dir="${project.build.directory}">
+                                 <include name="jmockit-jar-contents.txt"/>
+                                 <include name="jmockit-jar-checksums.properties"/>
+                              </fileset>
+                              <globmapper from="*" to="META-INF/*"/>
+                           </mappedresources>
+                        </zip>
+                     </target>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
             <artifactId>maven-source-plugin</artifactId><version>3.0.0</version>
             <configuration>
                <excludes>
