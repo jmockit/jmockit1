@@ -185,13 +185,23 @@ final class FieldInjection implements Injector
    private void throwExceptionIfUnableToInjectRequiredTargetField(@Nonnull KindOfInjectionPoint kindOfInjectionPoint)
    {
       if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
-         String fieldType = targetField.getGenericType().toString();
-         fieldType = TYPE_NAME.matcher(fieldType).replaceAll("");
-         String kindOfInjectable = fullInjection == null ? "@Injectable" : "instantiable class";
+         Type fieldType = targetField.getGenericType();
+         String fieldTypeName = fieldType.toString();
+         fieldTypeName = TYPE_NAME.matcher(fieldTypeName).replaceAll("");
+         String kindOfInjectable = "@Injectable";
+
+         if (fullInjection != null) {
+            if (targetField.getType().isInterface()) {
+               kindOfInjectable = "@Tested instance of an implementation class";
+            }
+            else {
+               kindOfInjectable = "@Tested object";
+            }
+         }
 
          throw new IllegalStateException(
             "Missing " + kindOfInjectable + " for field " + targetField.getDeclaringClass().getSimpleName() +
-            '#' + targetField.getName() + ", of type " + fieldType);
+            '#' + targetField.getName() + " (declared as type " + fieldTypeName + ')');
       }
    }
 

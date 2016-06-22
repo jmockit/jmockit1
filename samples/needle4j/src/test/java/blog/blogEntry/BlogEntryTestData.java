@@ -8,8 +8,8 @@ import blog.user.*;
 
 public final class BlogEntryTestData extends BaseTestData<BlogEntry>
 {
-   // Loads implementation classes for injection points having an interface type, so that JMockit can instantiate them.
-   static { BlogEntryDaoBean.class.getName(); }
+   // Injects implementation class instance for injection points having an interface type.
+   @Inject private BlogEntryDaoBean dao;
 
    @Inject private UserTestData userData;
    @Inject private BlogEntry currentBlogEntry;

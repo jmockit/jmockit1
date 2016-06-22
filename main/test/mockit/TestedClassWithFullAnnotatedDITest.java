@@ -31,30 +31,21 @@ public final class TestedClassWithFullAnnotatedDITest
    static final class Value {}
 
    public interface ItfWithSingleLoadedImpl {}
-   public static final class SingleLoadedImpl implements ItfWithSingleLoadedImpl { @EJB ItfWithTwoLoadedImpls ejb; }
+   public static final class SingleLoadedImpl implements ItfWithSingleLoadedImpl { @EJB ItfToBeMocked ejb; }
 
    public interface ItfWithTwoImplsButOnlyOneLoaded {}
    @SuppressWarnings("unused")
    public static final class AnotherImpl1 implements ItfWithTwoImplsButOnlyOneLoaded {}
    public static final class AnotherImpl2 implements ItfWithTwoImplsButOnlyOneLoaded {}
 
-   public interface ItfWithTwoLoadedImpls {}
-   public static final class YetAnotherImpl1 implements ItfWithTwoLoadedImpls {}
-   public static final class YetAnotherImpl2 implements ItfWithTwoLoadedImpls {}
+   public interface ItfToBeMocked {}
 
-   @BeforeClass
-   public static void loadImplementationClasses()
-   {
-      SingleLoadedImpl.class.getName();
-      AnotherImpl2.class.getName();
-      YetAnotherImpl1.class.getName();
-      YetAnotherImpl2.class.getName();
-   }
-
+   @Tested SingleLoadedImpl dep1;
+   @Tested AnotherImpl2 anotherDep;
    @Tested(fullyInitialized = true) TestedClass tested;
    // Without these injectables, a "missing @Injectable" exception occurs for each unresolved field.
    @Injectable Runnable action;
-   @Injectable ItfWithTwoLoadedImpls ejb;
+   @Injectable ItfToBeMocked ejb;
 
    @Test
    public void injectInitializedDependenciesForInterfacesHavingASingleLoadedImplementationClass()

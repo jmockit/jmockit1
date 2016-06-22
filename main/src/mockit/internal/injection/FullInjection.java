@@ -12,7 +12,6 @@ import javax.enterprise.context.*;
 import javax.inject.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.startup.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.injection.InjectionPoint.*;
@@ -150,8 +149,6 @@ final class FullInjection
    @Nullable
    private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull InjectionPoint dependencyKey)
    {
-      Class<?> implementationClass;
-
       if (dependencyClass.isInterface()) {
          if (jpaDependencies != null) {
             Object newInstance = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
@@ -161,44 +158,14 @@ final class FullInjection
             }
          }
 
-         implementationClass = findImplementationClassInClasspathIfUnique(dependencyClass);
-      }
-      else {
-         implementationClass = dependencyClass;
+         return null;
       }
 
-      if (implementationClass != null) {
-         if (implementationClass.getClassLoader() == null) {
-            return newInstanceUsingDefaultConstructorIfAvailable(implementationClass);
-         }
-
-         return new TestedObjectCreation(injectionState, this, implementationClass).create();
+      if (dependencyClass.getClassLoader() == null) {
+         return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
       }
 
-      return null;
-   }
-
-   @Nullable
-   private static Class<?> findImplementationClassInClasspathIfUnique(@Nonnull Class<?> dependencyClass)
-   {
-      ClassLoader dependencyLoader = dependencyClass.getClassLoader();
-      Class<?> implementationClass = null;
-
-      if (dependencyLoader != null) {
-         Class<?>[] loadedClasses = Startup.instrumentation().getInitiatedClasses(dependencyLoader);
-
-         for (Class<?> loadedClass : loadedClasses) {
-            if (loadedClass != dependencyClass && dependencyClass.isAssignableFrom(loadedClass)) {
-               if (implementationClass != null) {
-                  return null;
-               }
-
-               implementationClass = loadedClass;
-            }
-         }
-      }
-
-      return implementationClass;
+      return new TestedObjectCreation(injectionState, this, dependencyClass).create();
    }
 
    @Nonnull

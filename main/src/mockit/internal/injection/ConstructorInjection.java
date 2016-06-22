@@ -56,7 +56,7 @@ final class ConstructorInjection implements Injector
 
             if (value == null) {
                throw new IllegalArgumentException(
-                  "Unable to instantiate argument for constructor parameter: " +
+                  "Missing @Tested object for constructor parameter: " +
                   parameterType + ' ' + parameterProvider.getName());
             }
          }

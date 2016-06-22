@@ -11,8 +11,6 @@ import static org.junit.Assert.*;
 
 public final class TestedClassWithFullConstructorDITest
 {
-   static { DependencyImpl.class.getName(); }
-
    public interface Dependency {}
    public static final class DependencyImpl implements Dependency {}
    public static class Collaborator {}
@@ -37,6 +35,7 @@ public final class TestedClassWithFullConstructorDITest
       }
    }
 
+   @Tested DependencyImpl dep;
    @Tested(fullyInitialized = true) TestedClassWithSinglePublicConstructor tested1;
 
    @Test
