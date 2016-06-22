@@ -15,13 +15,13 @@ import mockit.internal.expectations.mocking.*;
 public final class TestedClassInstantiations
 {
    @Nonnull private final List<TestedField> testedFields;
-   @Nonnull private final List<MockedType> injectableFields;
+   @Nonnull private final List<InjectionPointProvider> injectableFields;
    @Nonnull private final InjectionState injectionState;
 
    public TestedClassInstantiations()
    {
       testedFields = new LinkedList<TestedField>();
-      injectableFields = new ArrayList<MockedType>();
+      injectableFields = new ArrayList<InjectionPointProvider>();
       injectionState = new InjectionState();
    }
 
@@ -62,7 +62,7 @@ public final class TestedClassInstantiations
             break;
          }
          else if (fieldAnnotation instanceof Injectable) {
-            MockedType mockedType = new MockedType(fieldFromTestClass);
+            InjectionPointProvider mockedType = new MockedType(fieldFromTestClass);
             injectableFields.add(mockedType);
             break;
          }

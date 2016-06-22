@@ -43,7 +43,7 @@ public class TypeRedefinitions
 
    protected static void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
    {
-      TestRun.getExecutingTest().registerMock(mockedType, mock);
+      TestRun.getExecutingTest().registerMock(mockedType.injectable, mock);
    }
 
    protected final void ensureThatTargetClassesAreInitialized()

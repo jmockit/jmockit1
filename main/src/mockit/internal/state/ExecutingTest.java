@@ -105,6 +105,7 @@ public final class ExecutingTest
    {
       BaseInvocation pendingInvocation = proceedingInvocation.get();
 
+      //noinspection SimplifiableIfStatement
       if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(mock, classDesc)) {
          return true;
       }
@@ -240,9 +241,9 @@ public final class ExecutingTest
           mock instanceof Comparable<?> && nameAndDesc.startsWith("compareTo(L") && nameAndDesc.endsWith(";)I"));
    }
 
-   public void registerMock(@Nonnull MockedType typeMetadata, @Nonnull Object mock)
+   public void registerMock(boolean injectable, @Nonnull Object mock)
    {
-      if (typeMetadata.injectable) {
+      if (injectable) {
          addInjectableMock(mock);
       }
       else if (!containsReference(regularMocks, mock)) {

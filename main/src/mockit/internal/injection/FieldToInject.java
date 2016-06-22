@@ -14,15 +14,9 @@ final class FieldToInject implements InjectionPointProvider
 
    FieldToInject(@Nonnull Field targetField) { this.targetField = targetField; }
 
-   @Nonnull @Override
-   public Type getDeclaredType() { return targetField.getGenericType(); }
-
-   @Nonnull @Override
-   public Class<?> getClassOfDeclaredType() { return targetField.getType(); }
-
-   @Nonnull @Override
-   public String getName() { return targetField.getName(); }
-
-   @Nonnull @Override
-   public Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
+   @Nonnull @Override public Type getDeclaredType() { return targetField.getGenericType(); }
+   @Nonnull @Override public Class<?> getClassOfDeclaredType() { return targetField.getType(); }
+   @Nonnull @Override public String getName() { return targetField.getName(); }
+   @Nonnull @Override public Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
+   @Nullable @Override public Object getValue(@Nullable Object owner) { return null; }
 }

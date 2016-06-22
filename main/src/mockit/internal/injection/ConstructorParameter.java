@@ -29,4 +29,5 @@ final class ConstructorParameter implements InjectionPointProvider
    @Nonnull @Override public Class<?> getClassOfDeclaredType() { return classOfDeclaredType; }
    @Nonnull @Override public String getName() { return name; }
    @Nonnull @Override public Annotation[] getAnnotations() { return annotations; }
+   @Nullable @Override public Object getValue(@Nullable Object owner) { return null; }
 }

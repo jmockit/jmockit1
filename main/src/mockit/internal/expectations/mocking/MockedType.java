@@ -238,6 +238,9 @@ public final class MockedType implements InjectionPointProvider
       return value.equals(defaultValue) ? providedValue : value;
    }
 
+   @Nullable @Override
+   public Object getValue(@Nullable Object owner) { return getValueToInject(owner); }
+
    @Override
    public int hashCode()
    {

@@ -8,7 +8,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
@@ -49,10 +48,7 @@ final class ConstructorInjection implements Injector
          InjectionPointProvider parameterProvider = parameterProviders.get(i);
          Object value;
 
-         if (parameterProvider instanceof MockedType) {
-            value = getArgumentValueToInject((MockedType) parameterProvider);
-         }
-         else {
+         if (parameterProvider instanceof ConstructorParameter) {
             assert fullInjection != null;
             injectionState.setTypeOfInjectionPoint(parameterProvider.getDeclaredType());
             String qualifiedName = getQualifiedName(parameterProvider.getAnnotations());
@@ -63,6 +59,9 @@ final class ConstructorInjection implements Injector
                   "Unable to instantiate argument for constructor parameter: " +
                   parameterType + ' ' + parameterProvider.getName());
             }
+         }
+         else {
+            value = getArgumentValueToInject(parameterProvider);
          }
 
          arguments[i] = wrapInProviderIfNeeded(parameterType, value);
@@ -90,7 +89,7 @@ final class ConstructorInjection implements Injector
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
       List<Object> varargValues = new ArrayList<Object>();
-      MockedType injectable;
+      InjectionPointProvider injectable;
 
       while ((injectable = injectionState.findNextInjectableForInjectionPoint()) != null) {
          Object value = injectionState.getValueToInject(injectable);
@@ -112,13 +111,13 @@ final class ConstructorInjection implements Injector
    }
 
    @Nonnull
-   private Object getArgumentValueToInject(@Nonnull MockedType injectable)
+   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable)
    {
       Object argument = injectionState.getValueToInject(injectable);
 
       if (argument == null) {
          throw new IllegalArgumentException(
-            "No injectable value available" + missingInjectableDescription(injectable.mockId));
+            "No injectable value available" + missingInjectableDescription(injectable.getName()));
       }
 
       return argument;

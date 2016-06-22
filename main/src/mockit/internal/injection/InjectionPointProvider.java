@@ -18,4 +18,5 @@ public interface InjectionPointProvider
    @Nonnull Class<?> getClassOfDeclaredType();
    @Nonnull String getName();
    @Nonnull Annotation[] getAnnotations();
+   @Nullable Object getValue(@Nullable Object owner);
 }

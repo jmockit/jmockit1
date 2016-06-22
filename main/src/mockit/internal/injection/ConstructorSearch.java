@@ -10,7 +10,6 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.GeneratedClasses.*;
@@ -144,7 +143,7 @@ final class ConstructorSearch
 //               Type elementType = genericParameterType.getActualTypeArguments()[0];
 //               injectionState.setTypeOfInjectionPoint(elementType);
 //
-//               List<MockedType> injectablesOfSameType = injectionState.findInjectablesByType();
+//               List<InjectionPointProvider> injectablesOfSameType = injectionState.findInjectablesByType();
 //
 //               if (!injectablesOfSameType.isEmpty()) {
 //                  providersFound.addAll(injectablesOfSameType);
@@ -167,7 +166,7 @@ final class ConstructorSearch
 
       if (varArgs) {
          Type parameterType = parameterTypes[n];
-         MockedType injectable = hasInjectedValuesForVarargsParameter(parameterType);
+         InjectionPointProvider injectable = hasInjectedValuesForVarargsParameter(parameterType);
 
          if (injectable != null) {
             providersFound.add(injectable);
@@ -205,7 +204,7 @@ final class ConstructorSearch
    }
 
    @Nullable
-   private MockedType hasInjectedValuesForVarargsParameter(@Nonnull Type parameterType)
+   private InjectionPointProvider hasInjectedValuesForVarargsParameter(@Nonnull Type parameterType)
    {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);

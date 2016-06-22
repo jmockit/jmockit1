@@ -11,7 +11,6 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.regex.Pattern.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 
@@ -123,7 +122,7 @@ final class FieldInjection implements Injector
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
       String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
-      MockedType mockedType = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
+      InjectionPointProvider mockedType = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
 
       if (mockedType != null) {
          return injectionState.getValueToInject(mockedType);
@@ -153,7 +152,7 @@ final class FieldInjection implements Injector
    }
 
    @Nullable
-   private MockedType findAvailableInjectableIfAny(
+   private InjectionPointProvider findAvailableInjectableIfAny(
       @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName)
    {
       injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
@@ -204,7 +203,7 @@ final class FieldInjection implements Injector
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass);
 
       if (!targetFields.isEmpty()) {
-         List<MockedType> currentlyConsumedInjectables = injectionState.saveConsumedInjectables();
+         List<InjectionPointProvider> currentlyConsumedInjectables = injectionState.saveConsumedInjectables();
 
          injectIntoEligibleFields(targetFields, dependency);
 
