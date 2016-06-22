@@ -48,7 +48,8 @@ public class CoverageXmlTest extends CoverageTest
    }
 
    @Test
-   public void verifyXmlFile() throws IOException {
+   public void verifyXmlFile() throws IOException
+   {
       File outputFile = File.createTempFile("coverage_", ".xml", new File("target"));
       outputFile.deleteOnExit();
 
