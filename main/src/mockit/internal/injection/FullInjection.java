@@ -111,7 +111,7 @@ final class FullInjection
          }
       }
 
-      return new InjectionPoint(injectionState.typeOfInjectionPoint);
+      return new InjectionPoint(provider.getDeclaredType());
    }
 
    @Nonnull

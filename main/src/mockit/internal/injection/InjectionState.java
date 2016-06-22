@@ -33,7 +33,7 @@ final class InjectionState implements BeanExporter
    @Nonnull final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
-   Type typeOfInjectionPoint;
+   private Type typeOfInjectionPoint;
 
    InjectionState()
    {
