@@ -28,6 +28,7 @@ final class FullInjection
    @Nonnull private final InjectionState injectionState;
    @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
+   private Class<?> dependencyClass;
 
    FullInjection(@Nonnull InjectionState injectionState)
    {
@@ -41,14 +42,14 @@ final class FullInjection
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
       @Nullable String qualifiedName)
    {
-      InjectionPoint dependencyKey = getDependencyKey(injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, dependencyKey);
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
 
       if (dependency != null) {
          return dependency;
       }
 
-      Class<?> typeToInject = injectionProvider.getClassOfDeclaredType();
+      Class<?> typeToInject = dependencyClass;
 
       if (typeToInject == Logger.class) {
          return Logger.getLogger(testedClass.nameOfTestedClass);
@@ -59,7 +60,7 @@ final class FullInjection
       }
 
       if (INJECT_CLASS != null && typeToInject == Provider.class) {
-         dependency = createProviderInstance(injectionProvider, dependencyKey);
+         dependency = createProviderInstance(injectionProvider, injectionPoint);
       }
       else if (servletDependencies != null && ServletDependencies.isApplicable(typeToInject)) {
          dependency = servletDependencies.createAndRegisterDependency(typeToInject);
@@ -68,7 +69,7 @@ final class FullInjection
          dependency = createAndRegisterConversationInstance();
       }
       else {
-         dependency = createAndRegisterNewInstance(testedClass, injector, injectionProvider, dependencyKey);
+         dependency = createAndRegisterNewInstance(testedClass, injector, injectionProvider, injectionPoint);
       }
 
       return dependency;
@@ -92,16 +93,26 @@ final class FullInjection
    }
 
    @Nonnull
-   private InjectionPoint getDependencyKey(@Nonnull InjectionPointProvider provider, @Nullable String qualifiedName)
+   private InjectionPoint getInjectionPoint(
+      @Nonnull GenericTypeReflection reflection, @Nonnull InjectionPointProvider injectionProvider,
+      @Nullable String qualifiedName)
    {
-      Class<?> dependencyClass = provider.getClassOfDeclaredType();
+      Type dependencyType = injectionProvider.getDeclaredType();
+
+      if (dependencyType instanceof TypeVariable<?>) {
+         dependencyType = reflection.resolveTypeVariable((TypeVariable<?>) dependencyType);
+         dependencyClass = getClassType(dependencyType);
+      }
+      else {
+         dependencyClass = injectionProvider.getClassOfDeclaredType();
+      }
 
       if (qualifiedName != null && !qualifiedName.isEmpty()) {
          return new InjectionPoint(dependencyClass, qualifiedName);
       }
 
       if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
-         for (Annotation annotation : provider.getAnnotations()) {
+         for (Annotation annotation : injectionProvider.getAnnotations()) {
             String id = jpaDependencies.getDependencyIdIfAvailable(annotation);
 
             if (id != null) {
@@ -110,7 +121,7 @@ final class FullInjection
          }
       }
 
-      return new InjectionPoint(provider.getDeclaredType());
+      return new InjectionPoint(dependencyType);
    }
 
    @Nonnull
@@ -216,8 +227,7 @@ final class FullInjection
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
       @Nonnull InjectionPoint dependencyKey)
    {
-      Class<?> classToInstantiate = getClassToInstantiate(testedClass.targetClass, injectionProvider);
-      Object dependency = createNewInstance(classToInstantiate, dependencyKey);
+      Object dependency = createNewInstance(dependencyClass, dependencyKey);
 
       if (dependency != null) {
          if (dependencyKey.name == null) {
@@ -228,21 +238,6 @@ final class FullInjection
       }
 
       return dependency;
-   }
-
-   @Nonnull
-   private Class<?> getClassToInstantiate(
-      @Nonnull Class<?> targetClass, @Nonnull InjectionPointProvider injectionProvider)
-   {
-      Type declaredType = injectionProvider.getDeclaredType();
-
-      if (declaredType instanceof TypeVariable<?>) {
-         GenericTypeReflection typeReflection = new GenericTypeReflection(targetClass);
-         Type resolvedType = typeReflection.resolveReturnType((TypeVariable<?>) declaredType);
-         return getClassType(resolvedType);
-      }
-
-      return injectionProvider.getClassOfDeclaredType();
    }
 
    private void registerNewInstance(

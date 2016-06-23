@@ -8,7 +8,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.*;
 import javax.annotation.*;
-import static java.util.Collections.*;
 
 public final class GenericTypeReflection
 {
@@ -19,29 +18,17 @@ public final class GenericTypeReflection
 
    public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType)
    {
+      this(ownerClass, genericType, true);
+   }
+
+   public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType, boolean withSignatures)
+   {
       typeParametersToTypeArguments = new HashMap<String, Type>(4);
-      typeParametersToTypeArgumentNames = new HashMap<String, String>(4);
+      typeParametersToTypeArgumentNames =
+         withSignatures ? new HashMap<String, String>(4) : Collections.<String, String>emptyMap();
       ownerType = ownerClass;
-      withSignatures = true;
+      this.withSignatures = withSignatures;
       discoverTypeMappings(ownerClass, genericType);
-   }
-
-   public GenericTypeReflection(@Nonnull Class<?> ownerClass)
-   {
-      typeParametersToTypeArguments = new HashMap<String, Type>(4);
-      typeParametersToTypeArgumentNames = emptyMap();
-      ownerType = ownerClass;
-      withSignatures = false;
-      addGenericTypeMappingsForSuperTypes(ownerClass);
-   }
-
-   public GenericTypeReflection(@Nonnull Field field)
-   {
-      typeParametersToTypeArguments = new HashMap<String, Type>(4);
-      typeParametersToTypeArgumentNames = emptyMap();
-      ownerType = field.getType();
-      withSignatures = false;
-      discoverTypeMappings(ownerType, field.getGenericType());
    }
 
    private void discoverTypeMappings(@Nonnull Class<?> rawType, @Nullable Type genericType)
@@ -436,7 +423,7 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   public Type resolveReturnType(@Nonnull TypeVariable<?> typeVariable)
+   public Type resolveTypeVariable(@Nonnull TypeVariable<?> typeVariable)
    {
       String typeVarKey = getTypeVariableKey(typeVariable);
       Type typeArgument = typeParametersToTypeArguments.get(typeVarKey);
@@ -446,7 +433,7 @@ public final class GenericTypeReflection
       }
 
       if (typeArgument instanceof TypeVariable<?>) {
-         typeArgument = resolveReturnType((TypeVariable<?>) typeArgument);
+         typeArgument = resolveTypeVariable((TypeVariable<?>) typeArgument);
       }
 
       return typeArgument;

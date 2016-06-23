@@ -189,9 +189,7 @@ public final class TestedClassWithGenericsTest
       assertSame(aClass, tested6.aClass);
    }
 
-   static class GenericClassWithDependencyUsingTypeParameter<T> {
-      GenericClass<T> dependency;
-   }
+   static class GenericClassWithDependencyUsingTypeParameter<T> { GenericClass<T> dependency; }
 
    @Tested final GenericClass<String> dependency = new GenericClass<String>();
    @Tested(fullyInitialized = true) GenericClassWithDependencyUsingTypeParameter<String> tested7;
@@ -200,5 +198,18 @@ public final class TestedClassWithGenericsTest
    public void verifyInstantiationOfGenericClassWithDependencyUsingTypeParameter()
    {
       assertSame(dependency, tested7.dependency);
+   }
+
+   public interface Interface {}
+   static class Implementation implements Interface {}
+   static class Derived2 extends Base<Interface> {}
+
+   @Tested Implementation impl;
+   @Tested(fullyInitialized = true) Derived2 tested;
+
+   @Test
+   public void useTestedObjectOfImplementationTypeForTypeVariableInGenericBaseClass()
+   {
+      assertSame(impl, tested.dep);
    }
 }

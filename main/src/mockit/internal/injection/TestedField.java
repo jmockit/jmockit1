@@ -18,6 +18,7 @@ final class TestedField
    @Nonnull private final Field testedField;
    @Nonnull private final Tested metadata;
    @Nullable private final FullInjection fullInjection;
+   @Nonnull private TestedClass testedClass;
    @Nullable private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
@@ -34,9 +35,11 @@ final class TestedField
 
       if (fieldType.isInterface()) {
          testedObjectCreation = null;
+         testedClass = new TestedClass(field.getGenericType(), field.getType());
       }
       else {
          testedObjectCreation = new TestedObjectCreation(injectionState, fullInjection, field);
+         testedClass = testedObjectCreation.testedClass;
          injectionState.lifecycleMethods.findLifecycleMethods(fieldType);
       }
    }
@@ -49,7 +52,7 @@ final class TestedField
          return;
       }
 
-      injectionState.setTestedField(testedField);
+      injectionState.setTestedTypeReflection(testedClass.reflection);
 
       Object testedObject = getTestedObjectFromFieldInTestClassIfApplicable(testClassInstance);
       Type testedType = testedField.getGenericType();

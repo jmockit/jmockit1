@@ -72,7 +72,7 @@ final class InjectionState implements BeanExporter
 
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
-   void setTestedField(@Nonnull Field testedField) { testedTypeReflection = new GenericTypeReflection(testedField); }
+   void setTestedTypeReflection(@Nonnull GenericTypeReflection reflection) { testedTypeReflection = reflection; }
 
    void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
    {
@@ -223,7 +223,7 @@ final class InjectionState implements BeanExporter
       Object dependency = testedObjects.get(dependencyKey);
 
       if (dependency == null) {
-         dependency = findMatchingObject(testedObjects, testedClass.genericType, dependencyKey);
+         dependency = findMatchingObject(testedObjects, testedClass.reflection, dependencyKey);
 
          if (dependency == null) {
             dependency = instantiatedDependencies.get(dependencyKey);

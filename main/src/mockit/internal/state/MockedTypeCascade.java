@@ -220,7 +220,7 @@ public final class MockedTypeCascade
 
       if (genericReturnType instanceof TypeVariable<?>) {
          //noinspection ConstantConditions
-         genericReturnType = genericReflection.resolveReturnType((TypeVariable<?>) genericReturnType);
+         genericReturnType = genericReflection.resolveTypeVariable((TypeVariable<?>) genericReturnType);
       }
 
       return genericReturnType;

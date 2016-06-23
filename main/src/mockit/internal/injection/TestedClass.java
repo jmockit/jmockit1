@@ -15,7 +15,7 @@ final class TestedClass
 {
    @Nonnull final Type declaredType;
    @Nonnull final Class<?> targetClass;
-   @Nullable final GenericTypeReflection genericType;
+   @Nonnull final GenericTypeReflection reflection;
    @Nonnull final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable final String codeLocationParentPath;
    @Nonnull final String nameOfTestedClass;
@@ -24,7 +24,7 @@ final class TestedClass
    {
       this.declaredType = declaredType;
       this.targetClass = targetClass;
-      genericType = declaredType == targetClass ? null : new GenericTypeReflection(targetClass, declaredType);
+      reflection = new GenericTypeReflection(targetClass, declaredType, false);
       protectionDomainOfTestedClass = targetClass.getProtectionDomain();
       CodeSource codeSource = protectionDomainOfTestedClass.getCodeSource();
       codeLocationParentPath = codeSource == null || codeSource.getLocation() == null ?
