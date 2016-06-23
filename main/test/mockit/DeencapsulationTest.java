@@ -385,6 +385,17 @@ public final class DeencapsulationTest
    }
 
    @Test
+   public void invokeInstanceMethodWithNonMatchingParameterTypes()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage(is(equalTo("No compatible method found: instanceMethod(java.util.ArrayList, java.lang.String[], " +
+            "boolean[], byte[][], char[][][], double[], float[], int[], long[], short[], java.lang.Object[][])")));
+
+      invoke(anInstance, "instanceMethod", new ArrayList<String>(), new String[0], new boolean[0], new byte[0][],
+              new char[0][][], new double[0], new float[0], new int[0], new long[0], new short[0], new Object[0][]);
+   }
+
+   @Test
    public void invokeStaticMethodWithoutParameters()
    {
       Boolean result = invoke(Subclass.class, "anStaticMethod");
