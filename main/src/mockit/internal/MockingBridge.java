@@ -18,6 +18,7 @@ public abstract class MockingBridge implements InvocationHandler
 {
    private static final Object[] EMPTY_ARGS = {};
    private static final ReentrantLock LOCK = new ReentrantLock();
+   public static String hostClassName;
 
    public static void preventEventualClassLoadingConflicts()
    {
