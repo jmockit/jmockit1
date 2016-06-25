@@ -7,38 +7,66 @@ package mockit.internal.expectations.transformation;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.external.asm.*;
 import mockit.internal.expectations.transformation.InvocationBlockModifier.*;
 import static mockit.external.asm.Opcodes.*;
 
 final class ArgumentCapturing
 {
+   @Nonnull private final InvocationBlockModifier modifier;
    @Nullable private List<Capture> captures;
    private boolean parameterForCapture;
    @Nullable private String capturedTypeDesc;
    private boolean capturesFound;
 
-   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc)
+   ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
+
+   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc, int lastLoadedVarIndex)
    {
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
       }
 
-      parameterForCapture = withCaptureMethod && !methodDesc.contains("List");
+      if (withCaptureMethod) {
+         if (methodDesc.contains("List")) {
+            if (lastLoadedVarIndex > 0) {
+               Capture capture = modifier.new Capture(lastLoadedVarIndex);
+               addCapture(capture);
+            }
+
+            parameterForCapture = false;
+         }
+         else {
+            parameterForCapture = true;
+         }
+      }
+      else {
+         parameterForCapture = false;
+      }
+
       return true;
    }
 
-   void registerTypeToCaptureIfApplicable(int opcode, @Nonnull String type)
+   void registerTypeToCaptureIfApplicable(int opcode, @Nonnull String typeDesc)
    {
       if (opcode == CHECKCAST && parameterForCapture) {
-         capturedTypeDesc = type;
+         capturedTypeDesc = typeDesc;
       }
    }
 
-   void registerAssignmentToCaptureVariableIfApplicable(
-      @Nonnull InvocationBlockModifier modifier, int opcode, int varIndex)
+   void registerTypeToCaptureIntoListIfApplicable(int varIndex, @Nonnull String signature)
+   {
+      if (signature.startsWith("Ljava/util/List<")) {
+         String typeDesc = signature.substring(16, signature.length() - 2);
+         Type type = Type.getType(typeDesc);
+         ActiveInvocations.varIndexToTypeDesc.put(varIndex, type.getInternalName());
+      }
+   }
+
+   void registerAssignmentToCaptureVariableIfApplicable(int opcode, int varIndex)
    {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
-         Capture capture = modifier.createCapture(opcode, varIndex, capturedTypeDesc);
+         Capture capture = modifier.new Capture(opcode, varIndex, capturedTypeDesc);
          addCapture(capture);
          parameterForCapture = false;
          capturedTypeDesc = null;

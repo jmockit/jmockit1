@@ -58,10 +58,16 @@ public abstract class TestOnlyPhase extends Phase
       }
    }
 
-   public final void setExpectedArgumentType(int parameterIndex, @Nonnull Class<?> argumentType)
+   public final void setExpectedSingleArgumentType(int parameterIndex, @Nonnull Class<?> argumentType)
    {
       ArgumentMatcher<?> newMatcher = ClassMatcher.create(argumentType);
       getArgumentMatchers().set(parameterIndex, newMatcher);
+   }
+
+   public final void setExpectedMultiArgumentType(int parameterIndex, @Nonnull Class<?> argumentType)
+   {
+      CaptureMatcher<?> matcher = (CaptureMatcher<?>) getArgumentMatchers().get(parameterIndex);
+      matcher.setExpectedType(argumentType);
    }
 
    @Nonnull

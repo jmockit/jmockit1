@@ -25,10 +25,13 @@ final class InvocationBlockModifier extends MethodVisitor
    @Nonnull private final String blockOwner;
    private final boolean callEndInvocations;
 
-   // Takes care of "withCapture()" matchers, if any:
+   // Takes care of withCapture() matchers, if any:
    private final boolean verifications;
    private boolean justAfterWithCaptureInvocation;
    @Nonnull private final ArgumentCapturing argumentCapturing;
+
+   // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
+   private int lastLoadedVarIndex;
 
    // Helper fields that allow argument matchers to be moved to the correct positions of their
    // corresponding parameters:
@@ -37,16 +40,11 @@ final class InvocationBlockModifier extends MethodVisitor
    private int stackSize;
    @Nonnull private Type[] parameterTypes;
 
-   Capture createCapture(int opcode, int varIndex, @Nullable String typeToCapture)
-   {
-      return new Capture(opcode, varIndex, typeToCapture);
-   }
-
    final class Capture
    {
       final int opcode;
-      private final int varIndex;
-      @Nullable private final String typeToCapture;
+      final int varIndex;
+      @Nullable String typeToCapture;
       private int parameterIndex;
       private boolean parameterIndexFixed;
 
@@ -58,6 +56,13 @@ final class InvocationBlockModifier extends MethodVisitor
          parameterIndex = matcherCount - 1;
       }
 
+      Capture(int varIndex)
+      {
+         opcode = ALOAD;
+         this.varIndex = varIndex;
+         parameterIndex = matcherCount;
+      }
+
       /**
        * Generates bytecode that will be responsible for performing the following steps:
        * 1. Get the argument value (an Object) for the last matched invocation.
@@ -66,16 +71,19 @@ final class InvocationBlockModifier extends MethodVisitor
        */
       void generateCodeToStoreCapturedValue()
       {
-         mw.visitIntInsn(SIPUSH, parameterIndex);
-         generateCallToActiveInvocationsMethod("matchedArgument", "(I)Ljava/lang/Object;");
+         if (opcode != ALOAD) {
+            mw.visitIntInsn(SIPUSH, parameterIndex);
+            generateCallToActiveInvocationsMethod("matchedArgument", "(I)Ljava/lang/Object;");
 
-         Type argType = getArgumentType();
-         generateCastOrUnboxing(mw, argType, opcode);
+            Type argType = getArgumentType();
+            generateCastOrUnboxing(mw, argType, opcode);
 
-         mw.visitVarInsn(opcode, varIndex);
+            mw.visitVarInsn(opcode, varIndex);
+         }
       }
 
-      @Nonnull private Type getArgumentType()
+      @Nonnull
+      private Type getArgumentType()
       {
          if (typeToCapture == null) {
             return parameterTypes[parameterIndex];
@@ -101,7 +109,12 @@ final class InvocationBlockModifier extends MethodVisitor
 
       void generateCallToSetArgumentTypeIfNeeded()
       {
-         if (typeToCapture != null && !isTypeToCaptureSameAsParameterType(typeToCapture)) {
+         if (opcode == ALOAD) {
+            mw.visitIntInsn(SIPUSH, parameterIndex);
+            mw.visitLdcInsn(varIndex);
+            generateCallToActiveInvocationsMethod("setExpectedArgumentType", "(II)V");
+         }
+         else if (typeToCapture != null && !isTypeToCaptureSameAsParameterType(typeToCapture)) {
             mw.visitIntInsn(SIPUSH, parameterIndex);
             mw.visitLdcInsn(typeToCapture);
             generateCallToActiveInvocationsMethod("setExpectedArgumentType", "(ILjava/lang/String;)V");
@@ -130,7 +143,7 @@ final class InvocationBlockModifier extends MethodVisitor
       this.callEndInvocations = callEndInvocations;
       matcherStacks = new int[40];
       this.verifications = verifications;
-      argumentCapturing = new ArgumentCapturing();
+      argumentCapturing = new ArgumentCapturing(this);
       parameterTypes = NO_PARAMETERS;
    }
 
@@ -226,7 +239,7 @@ final class InvocationBlockModifier extends MethodVisitor
 
          boolean withCaptureMethod = "withCapture".equals(name);
 
-         if (argumentCapturing.registerMatcher(withCaptureMethod, desc)) {
+         if (argumentCapturing.registerMatcher(withCaptureMethod, desc, lastLoadedVarIndex)) {
             justAfterWithCaptureInvocation = withCaptureMethod;
             matcherStacks[matcherCount++] = stackSize;
          }
@@ -360,18 +373,6 @@ final class InvocationBlockModifier extends MethodVisitor
    }
 
    @Override
-   public void visitLocalVariable(
-      @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
-      int index)
-   {
-      // In classes instrumented with EMMA some local variable information can be lost, so we discard it entirely to
-      // avoid a ClassFormatError.
-      if (end.position > 0) {
-         mw.visitLocalVariable(name, desc, signature, start, end, index);
-      }
-   }
-
-   @Override
    public void visitLabel(Label label)
    {
       mw.visitLabel(label);
@@ -406,7 +407,11 @@ final class InvocationBlockModifier extends MethodVisitor
    @Override
    public void visitVarInsn(int opcode, @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter") int varIndex)
    {
-      argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(this, opcode, varIndex);
+      if (opcode == ALOAD) {
+         lastLoadedVarIndex = varIndex;
+      }
+
+      argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(opcode, varIndex);
 
       if (opcode != RET) {
          stackSize += Frame.SIZE[opcode];
@@ -505,5 +510,21 @@ final class InvocationBlockModifier extends MethodVisitor
       mw.visitLdcInsn(message);
       mw.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
       mw.visitInsn(ATHROW);
+   }
+
+   @Override
+   public void visitLocalVariable(
+      @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
+      int index)
+   {
+      if (signature != null) {
+         argumentCapturing.registerTypeToCaptureIntoListIfApplicable(index, signature);
+      }
+
+      // In classes instrumented with EMMA some local variable information can be lost, so we discard it entirely to
+      // avoid a ClassFormatError.
+      if (end.position > 0) {
+         mw.visitLocalVariable(name, desc, signature, start, end, index);
+      }
    }
 }

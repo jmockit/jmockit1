@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.transformation;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.*;
@@ -14,6 +15,8 @@ import mockit.internal.util.*;
 @SuppressWarnings("unused")
 public final class ActiveInvocations
 {
+   static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
+
    private ActiveInvocations() {}
 
    public static void anyString()  { addArgMatcher(AlwaysTrueMatcher.ANY_STRING); }
@@ -37,7 +40,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void moveArgMatcher(int originalMatcherIndex, int toIndex)
+   public static void moveArgMatcher(@Nonnegative int originalMatcherIndex, @Nonnegative int toIndex)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
@@ -47,19 +50,34 @@ public final class ActiveInvocations
       }
    }
 
-   public static void setExpectedArgumentType(int parameterIndex, @Nonnull String typeDesc)
+   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, @Nonnull String typeDesc)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
          Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
-         currentPhase.setExpectedArgumentType(parameterIndex, argumentType);
+         currentPhase.setExpectedSingleArgumentType(parameterIndex, argumentType);
+      }
+   }
+
+   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, int varIndex)
+   {
+      RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
+
+      if (instance != null) {
+         String typeDesc = varIndexToTypeDesc.remove(varIndex);
+
+         if (typeDesc != null) {
+            TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
+            Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
+            currentPhase.setExpectedMultiArgumentType(parameterIndex, argumentType);
+         }
       }
    }
 
    @Nullable
-   public static Object matchedArgument(int parameterIndex)
+   public static Object matchedArgument(@Nonnegative int parameterIndex)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 

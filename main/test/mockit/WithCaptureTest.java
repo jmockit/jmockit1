@@ -7,6 +7,7 @@ package mockit;
 import java.math.*;
 import java.util.*;
 import static java.util.Arrays.*;
+import static java.util.Collections.singletonList;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -14,6 +15,7 @@ import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
+@SuppressWarnings("ConstantConditions")
 public final class WithCaptureTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -38,6 +40,7 @@ public final class WithCaptureTest
       public void doSomething(Integer i) {}
       public void doSomething(boolean b) {}
       public void doSomething(Number n) {}
+      public void doSomethingElse(Number n) {}
       public void doSomething(Number[] nums) {}
       public void doSomething(
          String s1, boolean b, String s2, double d, float f, long l, Object o, char c, byte bt, short sh) {}
@@ -441,7 +444,7 @@ public final class WithCaptureTest
 
          {
             dao.create("", withCapture(ages));
-            assertEquals(asList(56), ages);
+            assertEquals(singletonList(56), ages);
 
             dao.create(withCapture(created));
             assertEquals(2, created.size());
@@ -526,7 +529,7 @@ public final class WithCaptureTest
          assertEquals(asList(p2, p3), persons1);
 
          List<Person> persons2 = withCapture(new Person());
-         assertEquals(asList(p1), persons2);
+         assertEquals(singletonList(p1), persons2);
       }};
    }
 
@@ -593,6 +596,21 @@ public final class WithCaptureTest
          assertEquals(asList("First", "Second"), capturedNames);
          assertArrayEquals(expectedValues1, capturedValues.get(0));
          assertArrayEquals(expectedValues2, capturedValues.get(1));
+      }};
+   }
+
+   @Test
+   public void captureArgumentsIntoAListOfASubtypeOfTheCapturedParameterType() {
+      final List<Integer> expectedValues = asList(1, 3);
+
+      dao.doSomethingElse(1);
+      dao.doSomethingElse(2.0);
+      dao.doSomethingElse(3);
+
+      new Verifications() {{
+         List<Integer> onlyIntegers = new ArrayList<Integer>();
+         dao.doSomethingElse(withCapture(onlyIntegers));
+         assertEquals(expectedValues, onlyIntegers);
       }};
    }
 }

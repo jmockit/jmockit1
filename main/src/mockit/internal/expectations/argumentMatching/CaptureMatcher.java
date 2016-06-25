@@ -10,8 +10,11 @@ import javax.annotation.*;
 public final class CaptureMatcher<T> implements ArgumentMatcher<CaptureMatcher<T>>
 {
    @Nonnull private final List<T> valueHolder;
+   @Nullable private Class<?> expectedType;
 
    public CaptureMatcher(@Nonnull List<T> valueHolder) { this.valueHolder = valueHolder; }
+
+   public void setExpectedType(@Nonnull Class<?> expectedType) { this.expectedType = expectedType; }
 
    @Override
    public boolean same(@Nonnull CaptureMatcher<T> other) { return false; }
@@ -19,8 +22,11 @@ public final class CaptureMatcher<T> implements ArgumentMatcher<CaptureMatcher<T
    @Override
    public boolean matches(@Nullable Object argValue)
    {
-      //noinspection unchecked
-      valueHolder.add((T) argValue);
+      if (expectedType == null || expectedType.isInstance(argValue)) {
+         //noinspection unchecked
+         valueHolder.add((T) argValue);
+      }
+
       return true;
    }
 
