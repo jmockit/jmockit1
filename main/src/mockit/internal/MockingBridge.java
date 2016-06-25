@@ -20,36 +20,6 @@ public abstract class MockingBridge implements InvocationHandler
    private static final ReentrantLock LOCK = new ReentrantLock();
    public static String hostClassName;
 
-   public static void preventEventualClassLoadingConflicts()
-   {
-      // Pre-load certain JMockit classes to avoid NoClassDefFoundError's or re-entrancy loops during class loading
-      // when certain JRE classes are mocked, such as ArrayList or Thread.
-      try {
-         Class.forName("mockit.Capturing");
-         Class.forName("mockit.Delegate");
-         Class.forName("mockit.Injectable");
-         Class.forName("mockit.Invocation");
-         Class.forName("mockit.Mocked");
-         Class.forName("mockit.MockUp");
-         Class.forName("mockit.Tested");
-         Class.forName("mockit.internal.RedefinitionEngine");
-         Class.forName("mockit.internal.util.GeneratedClasses");
-         Class.forName("mockit.internal.util.MethodReflection");
-         Class.forName("mockit.internal.util.ObjectMethods");
-         Class.forName("mockit.internal.util.TypeDescriptor");
-         Class.forName("mockit.internal.state.MockedTypeCascade");
-         Class.forName("mockit.internal.expectations.RecordAndReplayExecution");
-         Class.forName("mockit.internal.expectations.invocation.InvocationResults");
-         Class.forName("mockit.internal.expectations.mocking.BaseTypeRedefinition$MockedClass");
-         Class.forName("mockit.internal.expectations.mocking.FieldTypeRedefinitions");
-         Class.forName("mockit.internal.expectations.argumentMatching.EqualityMatcher");
-      }
-      catch (ClassNotFoundException ignore) {}
-
-      wasCalledDuringClassLoading();
-      DefaultValues.computeForReturnType("()J");
-   }
-
    public final String id;
 
    /**

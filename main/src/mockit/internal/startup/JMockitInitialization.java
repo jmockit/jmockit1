@@ -11,7 +11,6 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.coverage.*;
 import mockit.integration.junit4.internal.*;
-import mockit.internal.*;
 import mockit.internal.util.*;
 
 final class JMockitInitialization
@@ -21,7 +20,6 @@ final class JMockitInitialization
    JMockitInitialization() throws IOException
    {
       config = new StartupConfiguration();
-      MockingBridge.preventEventualClassLoadingConflicts();
    }
 
    void initialize(@Nonnull Instrumentation inst)
