@@ -81,7 +81,7 @@
             <attribute name="Can-Retransform-Classes" value="true"/>
             <attribute name="Implementation-Version" value="${version}"/>
          </manifest>
-         <service type="org.junit.gen5.engine.TestEngine" provider="mockit.integration.junit5.JMockitTestEngine"/>
+         <service type="org.junit.platform.engine.TestEngine" provider="mockit.integration.junit5.JMockitTestEngine"/>
          <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.TestNGRunnerDecorator"/>
       </jar>
    </target>

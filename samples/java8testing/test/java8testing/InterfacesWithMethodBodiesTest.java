@@ -8,14 +8,14 @@ import java.io.*;
 import java.util.*;
 import java.util.function.*;
 
-import org.junit.gen5.api.*;
-import org.junit.gen5.junit4.runner.JUnit5;
-import org.junit.runner.RunWith;
-import static org.junit.gen5.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import org.junit.platform.runner.*;
+import org.junit.runner.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-@RunWith(JUnit5.class)
+@RunWith(JUnitPlatform.class)
 public final class InterfacesWithMethodBodiesTest
 {
    @FunctionalInterface

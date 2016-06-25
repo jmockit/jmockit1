@@ -4,14 +4,14 @@
  */
 package java8testing;
 
-import org.junit.gen5.api.*;
-import org.junit.gen5.junit4.runner.*;
+import org.junit.jupiter.api.*;
+import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.*;
-import static org.junit.gen5.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-@RunWith(JUnit5.class)
+@RunWith(JUnitPlatform.class)
 public final class JUnit5Test
 {
    @Tested(availableDuringSetup = true) TestUtils utils;

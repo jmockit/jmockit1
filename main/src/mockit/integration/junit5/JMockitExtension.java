@@ -5,16 +5,16 @@
 package mockit.integration.junit5;
 
 import java.lang.reflect.*;
-import java.util.*;
 import javax.annotation.*;
 
-import org.junit.gen5.api.extension.*;
+import org.junit.jupiter.api.extension.*;
 
 import mockit.*;
 import mockit.integration.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.mockups.*;
 import mockit.internal.state.*;
+import mockit.internal.util.*;
 import static mockit.internal.util.StackTrace.*;
 
 @SuppressWarnings("Since15")
@@ -24,11 +24,19 @@ final class JMockitExtension extends TestRunnerDecorator implements
    BeforeTestExecutionCallback, AfterTestExecutionCallback,
    ParameterResolver, TestExecutionExceptionHandler
 {
+   @Nonnull private final Field indexField;
    @Nullable private SavePoint savePointForTestClass;
    @Nullable private SavePoint savePointForTest;
    @Nullable private SavePoint savePointForTestMethod;
    @Nullable private Throwable thrownByTest;
    @Nullable private Object[] mockParameters;
+
+   JMockitExtension()
+   {
+      // Somehow, "Parameter#index" is not exposed in the Java API.
+      try { indexField = Parameter.class.getDeclaredField("index"); }
+      catch (NoSuchFieldException e) { throw new RuntimeException(e); }
+   }
 
    @Override
    public void beforeAll(ContainerExtensionContext context)
@@ -92,20 +100,21 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public boolean supports(
-      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
+   public boolean supports(ParameterContext parameterContext, ExtensionContext extensionContext)
    {
+      Parameter parameter = parameterContext.getParameter();
       return
          parameter.isAnnotationPresent(Mocked.class) ||
          parameter.isAnnotationPresent(Injectable.class) ||
          parameter.isAnnotationPresent(Capturing.class);
    }
 
-   @Override @SuppressWarnings("ConstantConditions")
-   public Object resolve(
-      Parameter parameter, Optional<Object> methodInvocationContext, ExtensionContext extensionContext)
+   @Override
+   public Object resolve(ParameterContext parameterContext, ExtensionContext extensionContext)
    {
-      int parameterIndex = Deencapsulation.getField(parameter, "index"); // somehow, "index" is not exposed by Java API
+      Parameter parameter = parameterContext.getParameter();
+      Integer parameterIndex = FieldReflection.getFieldValue(indexField, parameter);
+      //noinspection ConstantConditions
       return mockParameters[parameterIndex];
    }
 

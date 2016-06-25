@@ -4,10 +4,10 @@
  */
 package mockit.integration.junit5;
 
-import org.junit.gen5.api.extension.*;
-import org.junit.gen5.engine.*;
-import org.junit.gen5.engine.junit5.extension.*;
-import org.junit.gen5.engine.support.descriptor.*;
+import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.engine.extension.*;
+import org.junit.platform.engine.*;
+import org.junit.platform.engine.support.descriptor.*;
 
 import mockit.*;
 import mockit.internal.startup.*;
