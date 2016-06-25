@@ -30,7 +30,13 @@ final class StartupConfiguration
    @SuppressWarnings("ThrowFromFinallyBlock")
    private void loadJMockitPropertiesFilesFromClasspath() throws IOException
    {
-      Enumeration<URL> allFiles = Thread.currentThread().getContextClassLoader().getResources("jmockit.properties");
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+
+      if (loader == null) {
+         loader = getClass().getClassLoader();
+      }
+
+      Enumeration<URL> allFiles = loader.getResources("jmockit.properties");
       int numFiles = 0;
 
       while (allFiles.hasMoreElements()) {

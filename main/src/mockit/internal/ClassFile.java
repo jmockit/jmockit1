@@ -80,7 +80,11 @@ public final class ClassFile
    {
       String classFileName = classDesc + ".class";
       ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-      InputStream inputStream = contextClassLoader.getResourceAsStream(classFileName);
+      InputStream inputStream = null;
+
+      if (contextClassLoader != null) {
+         inputStream = contextClassLoader.getResourceAsStream(classFileName);
+      }
 
       if (inputStream == null) {
          ClassLoader thisClassLoader = ClassFile.class.getClassLoader();
