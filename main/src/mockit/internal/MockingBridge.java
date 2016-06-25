@@ -12,14 +12,16 @@ import java.util.concurrent.locks.*;
 import java.util.jar.*;
 import javax.annotation.*;
 
+import mockit.internal.expectations.mocking.*;
+import mockit.internal.mockups.*;
 import mockit.internal.util.*;
 
 public abstract class MockingBridge implements InvocationHandler
 {
    private static final Object[] EMPTY_ARGS = {};
    private static final ReentrantLock LOCK = new ReentrantLock();
-   public static String hostClassName;
-
+   private static String hostClassName;
+   private static boolean fieldsSet;
    public final String id;
 
    /**
@@ -82,5 +84,35 @@ public abstract class MockingBridge implements InvocationHandler
       }
 
       return EMPTY_ARGS;
+   }
+
+   public static void setHostClassName(@Nonnull String className) { hostClassName = className; }
+
+   public static void setMockingBridgeFields()
+   {
+      Class<?> hostClass = ClassLoad.loadByInternalName(hostClassName);
+      setMockingBridgeField(hostClass, MockedBridge.MB);
+      setMockingBridgeField(hostClass, MockupBridge.MB);
+      setMockingBridgeField(hostClass, MockMethodBridge.MB);
+   }
+
+   private static void setMockingBridgeField(@Nonnull Class<?> hostClass, @Nonnull MockingBridge mockingBridge)
+   {
+      try {
+         hostClass.getDeclaredField(mockingBridge.id).set(null, mockingBridge);
+      }
+      catch (NoSuchFieldException ignore) {}
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+   }
+
+   @Nonnull
+   public static String getHostClassName()
+   {
+      if (!fieldsSet) {
+         setMockingBridgeFields();
+         fieldsSet = true;
+      }
+
+      return hostClassName;
    }
 }

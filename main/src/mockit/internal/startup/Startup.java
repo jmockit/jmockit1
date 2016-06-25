@@ -10,6 +10,8 @@ import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.standalone.*;
+import mockit.internal.*;
+import mockit.internal.expectations.mocking.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -126,23 +128,23 @@ public final class Startup
    private static void reinitializeJMockitUnderCustomClassLoader(@Nonnull ClassLoader customLoader)
    {
       Class<?> startupClass;
+      Class<?> mockingBridgeClass;
 
       try {
          startupClass = customLoader.loadClass(Startup.class.getName());
+         mockingBridgeClass = customLoader.loadClass(MockingBridge.class.getName());
       }
-      catch (ClassNotFoundException ignore) {
-         return;
-      }
+      catch (ClassNotFoundException ignore) { return; }
 
       System.out.println("JMockit: Reinitializing under custom class loader " + customLoader);
       FieldReflection.setField(startupClass, null, "instrumentation", instrumentation);
+      FieldReflection.setField(mockingBridgeClass, null, "hostClassName", MockedBridge.getHostClassName());
       MethodReflection.invoke(startupClass, (Object) null, "reapplyStartupMocks");
    }
 
    @SuppressWarnings("ConstantConditions")
    private static void reapplyStartupMocks()
    {
-      MockingBridgeFields.setMockingBridgeFields();
       try { applyStartupMocks(instrumentation); } catch (IOException e) { throw new RuntimeException(e); }
    }
 

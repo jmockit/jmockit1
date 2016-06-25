@@ -178,8 +178,8 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void generateCodeToObtainInstanceOfMockingBridge(@Nonnull MockingBridge mockingBridge)
    {
-      mw.visitFieldInsn(
-         GETSTATIC, MockingBridge.hostClassName, mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
+      String hostClassName = MockingBridge.getHostClassName();
+      mw.visitFieldInsn(GETSTATIC, hostClassName, mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
    }
 
    protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value)
