@@ -458,6 +458,18 @@ public final class DeencapsulationTest
    }
 
    @Test
+   public void invokeMethodWithNonMatchingArrayArguments()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("No compatible method found");
+      thrown.expectMessage("int[]");
+      thrown.expectMessage("String[]");
+      thrown.expectMessage("java.util.List[]");
+
+      invoke(anInstance, "aMethod", "test", 1, 2.0, new int[0], new String[0], new List<?>[0], new ArrayList<Long>());
+   }
+
+   @Test
    public void invokeInstanceMethodAsAnStaticMethod()
    {
       thrown.expect(IllegalArgumentException.class);

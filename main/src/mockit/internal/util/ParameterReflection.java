@@ -4,8 +4,6 @@
  */
 package mockit.internal.util;
 
-import java.lang.reflect.*;
-import java.util.*;
 import javax.annotation.*;
 
 public final class ParameterReflection
@@ -15,10 +13,21 @@ public final class ParameterReflection
    private ParameterReflection() {}
 
    @Nonnull
-   static String getParameterTypesDescription(@Nonnull Type[] paramTypes)
+   static String getParameterTypesDescription(@Nonnull Class<?>[] paramTypes)
    {
-      String paramTypesDesc = Arrays.asList(paramTypes).toString();
-      return paramTypesDesc.replace("class ", "").replace('[', '(').replace(']', ')');
+      StringBuilder paramTypesDesc = new StringBuilder(200);
+      String sep = "";
+
+      paramTypesDesc.append('(');
+
+      for (Class<?> paramType : paramTypes) {
+         String typeName = paramType.getCanonicalName().replace("java.lang.", "");
+         paramTypesDesc.append(sep).append(typeName);
+         sep = ", ";
+      }
+
+      paramTypesDesc.append(')');
+      return paramTypesDesc.toString();
    }
 
    @Nonnull
