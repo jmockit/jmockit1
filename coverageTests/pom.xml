@@ -9,7 +9,6 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.25</jmockit.version>
    </properties>
 
    <build>
@@ -42,7 +41,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>${jmockit.version}</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.25</version>
          <scope>test</scope>
       </dependency>
       <dependency>
