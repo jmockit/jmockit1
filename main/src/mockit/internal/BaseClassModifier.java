@@ -53,17 +53,7 @@ public class BaseClassModifier extends ClassVisitor
 
    protected final void setUseMockingBridge(@Nullable ClassLoader classLoader)
    {
-      useMockingBridge = isClassLoaderWithNoDirectAccess(classLoader);
-   }
-
-   protected final boolean isClassLoaderWithNoDirectAccess(@Nullable ClassLoader classLoader)
-   {
-      if (classLoader == null) {
-         return true;
-      }
-
-      ClassLoader thisCL = getClass().getClassLoader();
-      return classLoader != thisCL && classLoader.getParent() != thisCL;
+      useMockingBridge = ClassLoad.isClassLoaderWithNoDirectAccess(classLoader);
    }
 
    @Override

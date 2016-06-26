@@ -12,6 +12,7 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.state.*;
+import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 
 /**
@@ -57,7 +58,7 @@ final class MockupsModifier extends BaseClassModifier
       this.mockMethods = mockMethods;
 
       ClassLoader classLoaderOfRealClass = realClass.getClassLoader();
-      useMockingBridgeForUpdatingMockState = isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
+      useMockingBridgeForUpdatingMockState = ClassLoad.isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
       inferUseOfMockingBridge(classLoaderOfRealClass, mockUp);
    }
 

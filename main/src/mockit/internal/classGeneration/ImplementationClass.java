@@ -51,9 +51,7 @@ public abstract class ImplementationClass<T>
    @Nonnull
    private Class<T> defineNewClass(@Nonnull ClassVisitor modifier)
    {
-      ClassLoader sourceClassLoader = sourceClass.getClassLoader();
-      final ClassLoader parentLoader =
-         sourceClassLoader != null ? sourceClassLoader : ImplementationClass.class.getClassLoader();
+      final ClassLoader parentLoader = ClassLoad.getClassLoaderWithAccess(sourceClass);
       final byte[] modifiedClassfile = modifier.toByteArray();
 
       try {

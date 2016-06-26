@@ -173,6 +173,7 @@ public final class MockInstanceMatchingTest
 
       new Verifications() {{
          Collaborator mock2 = null;
+         //noinspection ConstantConditions
          onInstance(mock2).getValue();
       }};
    }
@@ -238,7 +239,7 @@ public final class MockInstanceMatchingTest
       r2.run();
    }
 
-   @Test
+   @Test @SuppressWarnings("ConstantConditions")
    public void verifyExpectationsMatchingOnMultipleMockParametersButReplayedOutOfOrder(
       @Mocked final AbstractExecutorService es1, @Mocked final AbstractExecutorService es2)
    {

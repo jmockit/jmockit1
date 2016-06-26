@@ -192,10 +192,22 @@ public final class ClassLoad
    {
       int p = className.indexOf('$') + 1;
 
+      //noinspection SimplifiableIfStatement
       if (p < 2 || p == className.length() || className.charAt(p) != '$') {
          return false;
       }
 
       return className.contains("_$$_javassist_") || className.contains("_$$_jvst") || className.contains("CGLIB$$");
+   }
+
+   public static boolean isClassLoaderWithNoDirectAccess(@Nullable ClassLoader classLoader)
+   {
+      return classLoader == null || classLoader != THIS_CL && classLoader.getParent() != THIS_CL;
+   }
+
+   public static ClassLoader getClassLoaderWithAccess(@Nonnull Class<?> classToBeAccessed)
+   {
+      ClassLoader cl = classToBeAccessed.getClassLoader();
+      return isClassLoaderWithNoDirectAccess(cl) ? THIS_CL : cl;
    }
 }
