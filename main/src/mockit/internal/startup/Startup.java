@@ -24,8 +24,10 @@ import mockit.internal.util.*;
  */
 public final class Startup
 {
+   private static final String VERSION = "1.25";
    public static boolean initializing;
    @Nullable private static Instrumentation instrumentation;
+   private static String version;
    private static boolean initializedOnDemand;
 
    private Startup() {}
@@ -51,6 +53,7 @@ public final class Startup
    {
       if (instrumentation == null) {
          instrumentation = inst;
+         version = VERSION;
 
          MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
          inst.addTransformer(CachedClassfiles.INSTANCE, true);
@@ -138,6 +141,7 @@ public final class Startup
 
       System.out.println("JMockit: Reinitializing under custom class loader " + customLoader);
       FieldReflection.setField(startupClass, null, "instrumentation", instrumentation);
+      FieldReflection.setField(startupClass, null, "version", version);
       FieldReflection.setField(mockingBridgeClass, null, "hostClassName", MockedBridge.getHostClassName());
       MethodReflection.invoke(startupClass, (Object) null, "reapplyStartupMocks");
    }
@@ -163,6 +167,8 @@ public final class Startup
       if (getInstrumentation() == null) {
          new AgentLoader().loadAgent(null);
          initializedOnDemand = true;
+      } else if (!VERSION.equals(version)) {
+         throw new RuntimeException("JMockit with version '" + version + "' is already loaded in this JVM, JMockit with version '" + VERSION + "' could not be loaded!");
       }
    }
 
@@ -175,6 +181,7 @@ public final class Startup
 
          if (initialStartupClass != null) {
             instrumentation = FieldReflection.getField(initialStartupClass, "instrumentation", null);
+            version = FieldReflection.getField(initialStartupClass, "version", null);
 
             if (instrumentation != null) {
                reapplyStartupMocks();
@@ -214,6 +221,8 @@ public final class Startup
          catch (IOException e) { e.printStackTrace(); }
 
          return false;
+      } else if (!VERSION.equals(version)) {
+         throw new RuntimeException("JMockit with version '" + version + "' is already loaded in this JVM, JMockit with version '" + VERSION + "' could not be loaded!");
       }
 
       return true;
