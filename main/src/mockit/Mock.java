@@ -29,13 +29,7 @@ import java.lang.annotation.*;
  * <p/>
  * Yet another special mock method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will
  * match <em>every</em> method in the mocked class hierarchy.
- * <p/>
- * A mock method can specify <em>constraints</em> on the number of invocations it should receive while in effect
- * (ie, from the time a real method/constructor is mocked to the time it is restored to its original definition).
  *
- * @see #invocations invocations
- * @see #minInvocations minInvocations
- * @see #maxInvocations maxInvocations
  * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks">Tutorial</a>
  */
 @Inherited
@@ -52,8 +46,10 @@ public @interface Mock
     * A non-negative value is equivalent to setting {@link #minInvocations minInvocations} and
     * {@link #maxInvocations maxInvocations} to that same value.
     *
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
+    * @deprecated This attribute will be removed in a future release; tests using it should instead take advantage of
+    * the Expectations API.
     */
+   @Deprecated
    int invocations() default -1;
 
    /**
@@ -61,8 +57,11 @@ public @interface Mock
     * 
     * @see #invocations invocations
     * @see #maxInvocations maxInvocations
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
+    *
+    * @deprecated This attribute will be removed in a future release; tests using it should instead take advantage of
+    * the Expectations API.
     */
+   @Deprecated
    int minInvocations() default 0;
 
    /**
@@ -72,7 +71,10 @@ public @interface Mock
     * 
     * @see #invocations invocations
     * @see #minInvocations minInvocations
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#constraints">Tutorial</a>
+    *
+    * @deprecated This attribute will be removed in a future release; tests using it should instead take advantage of
+    * the Expectations API.
     */
+   @Deprecated
    int maxInvocations() default -1;
 }
