@@ -146,6 +146,7 @@ public final class MockClasses
          return mockUpInstances;
       }
 
+      // TODO: no test gets here; review and (probably) remove
       MockUp<?> previousMockUpForMockedInstance = mockedToMockupInstances.remove(mockedInstance);
       assert previousMockUpForMockedInstance == mockUp;
 
