@@ -78,7 +78,6 @@ import mockit.internal.util.*;
  * @see #MockUp(Class)
  * @see #MockUp(Object)
  * @see #getMockInstance()
- * @see #tearDown()
  * @see #onTearDown()
  * @see #mockedType
  * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
@@ -155,7 +154,8 @@ public abstract class MockUp<T>
    @Nullable
    private MockUp<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
    {
-      MockUpInstances mockUpInstances = TestRun.getMockClasses().findPreviouslyAppliedMockUps(this);
+      MockClasses mockClasses = TestRun.getMockClasses();
+      MockUpInstances mockUpInstances = mockClasses.findPreviouslyAppliedMockUps(this);
 
       if (mockUpInstances != null) {
          MockUp<?> previousMockUp = mockUpInstances.initialMockUp;
@@ -164,7 +164,12 @@ public abstract class MockUp<T>
             return previousMockUp;
          }
 
-         previousMockUp.tearDown();
+         mockClasses.removeMock(previousMockUp, previousMockUp.mockInstance);
+
+         if (previousMockUp.classesToRestore != null) {
+            TestRun.mockFixture().restoreAndRemoveRedefinedClasses(previousMockUp.classesToRestore);
+            previousMockUp.classesToRestore = null;
+         }
       }
 
       return null;
@@ -390,11 +395,13 @@ public abstract class MockUp<T>
     * their original behaviors.
     * <p/>
     * This method should rarely, if ever, be used, since tear-down is <em>automatic</em>: all classes faked by a test
-    * will automatically be restored at the end of the test; the same for classes faked for the whole test class in a
-    * "before class" method.
+    * will automatically be restored at the end of the test; the same for classes faked for all tests or the whole test
+    * class in a "before" or "before class" method.
     *
     * @see #onTearDown()
+    * @deprecated Do not use, as this method will be removed in a future release; see preceding paragraph.
     */
+   @Deprecated
    public final void tearDown()
    {
       MockUpInstances mockUpInstances = TestRun.getMockClasses().removeMock(this, mockInstance);
