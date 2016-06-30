@@ -9,6 +9,7 @@ import java.lang.reflect.*;
 import java.net.*;
 import javax.naming.*;
 
+import mockit.internal.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -123,5 +124,24 @@ public final class CustomClassLoadingTest
       currentThread.setContextClassLoader(new CustomCL(new CustomCL(originalCL)));
 
       new Collaborator();
+   }
+
+   @Test
+   public void ensureMockUpOnCustomClassLoaderCanBeInstantiated() throws Exception {
+      ClassLoader customClassLoader = new URLClassLoader(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs(), null);
+
+      Constructor ctor = customClassLoader.loadClass(MockCollaborator.class.getName()).getDeclaredConstructor();
+      ctor.setAccessible(true);
+      ctor.newInstance();
+
+      ctor = customClassLoader.loadClass(Collaborator.class.getName()).getDeclaredConstructor();
+      ctor.setAccessible(true);
+      ctor.newInstance();
+
+      // restore the mocking bridge fields of this class loader as long as
+      // JMockit is not capable of running on multiple class loaders concurrently
+      // after that got fixed, this call can be removed and will additionally test
+      // this capability of JMockit
+      MockingBridge.setMockingBridgeFields();
    }
 }

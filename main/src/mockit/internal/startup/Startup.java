@@ -180,6 +180,12 @@ public final class Startup
                reapplyStartupMocks();
             }
          }
+
+         Class<?> initialMockingBridgeClass = ClassLoad.loadClass(systemCL, MockingBridge.class.getName());
+
+         if ((initialMockingBridgeClass != null) && (instrumentation != null)) {
+            MockingBridge.setHostClassName(FieldReflection.<String>getField(initialMockingBridgeClass, "hostClassName", null));
+         }
       }
 
       return instrumentation;
