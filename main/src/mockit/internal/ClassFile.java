@@ -149,7 +149,7 @@ public final class ClassFile
    @Nonnull
    public static ClassReader readFromFile(@Nonnull String classDesc)
    {
-      if (classDesc.startsWith("java/")) {
+      if (classDesc.startsWith("java/") || classDesc.startsWith("javax/")) {
          byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 
          if (classfile != null) {
@@ -170,12 +170,7 @@ public final class ClassFile
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor)
    {
       byte[] classfile = CachedClassfiles.getClassfile(classDesc);
-
-      if (classfile == null) {
-         throw new NotFoundException(classDesc);
-      }
-
-      ClassReader cr = new ClassReader(classfile);
+      ClassReader cr = classfile != null ? new ClassReader(classfile) : readFromFile(classDesc);
       cr.accept(visitor, SKIP_DEBUG + SKIP_FRAMES);
    }
 }
