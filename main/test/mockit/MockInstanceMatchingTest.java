@@ -13,6 +13,8 @@ import org.junit.rules.*;
 
 import mockit.internal.*;
 
+import org.w3c.dom.*;
+
 public final class MockInstanceMatchingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -26,8 +28,6 @@ public final class MockInstanceMatchingTest
    }
 
    @Mocked Collaborator mock;
-   @Mocked DataSource mockDS1;
-   @Mocked DataSource mockDS2;
 
    @Test
    public void recordExpectationMatchingOnMockInstance()
@@ -308,7 +308,8 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void recordExpectationsOnTwoInstancesOfSameMockedInterface() throws Exception
+   public void recordExpectationsOnTwoInstancesOfSameMockedInterface(
+      @Mocked final DataSource mockDS1, @Mocked final DataSource mockDS2, @Mocked Attr n) throws Exception
    {
       new Expectations() {{
          mockDS1.getLoginTimeout(); result = 1000;
