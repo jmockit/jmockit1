@@ -123,9 +123,7 @@ public final class Utilities
    @Nullable
    public static Class<?> findClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass)
    {
-      int n = toClasses.size();
-
-      for (int i = 0; i < n; i++) {
+      for (int i = 0; i < toClasses.size(); i++) {
          Class<?> toClass = toClasses.get(i);
 
          if (toClass == fromClass || toClass.isAssignableFrom(fromClass)) {
