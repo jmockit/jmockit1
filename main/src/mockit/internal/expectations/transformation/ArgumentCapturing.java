@@ -58,6 +58,12 @@ final class ArgumentCapturing
    {
       if (signature.startsWith("Ljava/util/List<")) {
          String typeDesc = signature.substring(16, signature.length() - 2);
+         int p = typeDesc.indexOf('<');
+
+         if (p > 0) {
+            typeDesc = typeDesc.substring(0, p) + ';';
+         }
+
          Type type = Type.getType(typeDesc);
          ActiveInvocations.varIndexToTypeDesc.put(varIndex, type.getInternalName());
       }

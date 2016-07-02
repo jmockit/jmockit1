@@ -42,6 +42,7 @@ public final class WithCaptureTest
       public void doSomething(Number n) {}
       public void doSomethingElse(Number n) {}
       public void doSomething(Number[] nums) {}
+      public void doSomething(List<Integer> nums) {}
       public void doSomething(
          String s1, boolean b, String s2, double d, float f, long l, Object o, char c, byte bt, short sh) {}
       void doSomething(String[] names, int[] ages) {}
@@ -611,6 +612,23 @@ public final class WithCaptureTest
          List<Integer> onlyIntegers = new ArrayList<Integer>();
          dao.doSomethingElse(withCapture(onlyIntegers));
          assertEquals(expectedValues, onlyIntegers);
+      }};
+   }
+
+   @Test
+   public void captureListArgumentsFromMultipleInvocations()
+   {
+      final List<Integer> integers1 = asList(1, 2, 3);
+      final List<Integer> integers2 = asList(4, 5);
+
+      dao.doSomething(integers1);
+      dao.doSomething(integers2);
+
+      new Verifications() {{
+         List<List<Integer>> captures = new ArrayList<List<Integer>>();
+         dao.doSomething(withCapture(captures));
+         assertEquals(integers1, captures.get(0));
+         assertEquals(integers2, captures.get(1));
       }};
    }
 }
