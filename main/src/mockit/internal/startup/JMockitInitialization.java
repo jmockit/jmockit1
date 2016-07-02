@@ -4,7 +4,6 @@
  */
 package mockit.internal.startup;
 
-import java.io.*;
 import java.lang.instrument.*;
 import javax.annotation.*;
 
@@ -17,7 +16,7 @@ final class JMockitInitialization
 {
    @Nonnull private final StartupConfiguration config;
 
-   JMockitInitialization() throws IOException
+   JMockitInitialization()
    {
       config = new StartupConfiguration();
    }

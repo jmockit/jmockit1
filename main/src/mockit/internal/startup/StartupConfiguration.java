@@ -4,105 +4,28 @@
  */
 package mockit.internal.startup;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
-import java.util.Map.*;
 import java.util.regex.Pattern;
 import javax.annotation.*;
 
 final class StartupConfiguration
 {
-   @Nonnull private static final Collection<String> NO_VALUES = Collections.emptyList();
-   @Nonnull private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
+   private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
 
-   @Nonnull private final Properties config;
    @Nonnull final Collection<String> mockClasses;
 
-   StartupConfiguration() throws IOException
+   StartupConfiguration()
    {
-      config = new Properties();
-      loadJMockitPropertiesFilesFromClasspath();
-      loadJMockitPropertiesIntoSystemProperties();
-      mockClasses = getMultiValuedProperty("mockups");
-   }
-
-   @SuppressWarnings("ThrowFromFinallyBlock")
-   private void loadJMockitPropertiesFilesFromClasspath() throws IOException
-   {
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-      if (loader == null) {
-         loader = getClass().getClassLoader();
-      }
-
-      Enumeration<URL> allFiles = loader.getResources("jmockit.properties");
-      int numFiles = 0;
-
-      while (allFiles.hasMoreElements()) {
-         URL url = allFiles.nextElement();
-         InputStream propertiesFile = url.openStream();
-
-         if (numFiles == 0) {
-            try { config.load(propertiesFile); } finally { propertiesFile.close(); }
-         }
-         else {
-            Properties properties = new Properties();
-            try { properties.load(propertiesFile); } finally { propertiesFile.close(); }
-            addPropertyValues(properties);
-         }
-
-         numFiles++;
-      }
-   }
-
-   @SuppressWarnings("UseOfPropertiesAsHashtable")
-   private void addPropertyValues(@Nonnull Map<Object, Object> propertiesToAdd)
-   {
-      for (Entry<Object, Object> propertyToAdd : propertiesToAdd.entrySet()) {
-         Object key = propertyToAdd.getKey();
-         String valueToAdd = (String) propertyToAdd.getValue();
-         String existingValue = (String) config.get(key);
-         String newValue;
-
-         if (existingValue == null || existingValue.isEmpty()) {
-            newValue = valueToAdd;
-         }
-         else {
-            newValue = existingValue + ' ' + valueToAdd;
-         }
-
-         config.put(key, newValue);
-      }
-   }
-
-   private void loadJMockitPropertiesIntoSystemProperties()
-   {
-      Map<Object, Object> systemProperties = System.getProperties();
-
-      for (Entry<Object, Object> property : config.entrySet()) {
-         String key = (String) property.getKey();
-         String name = key.startsWith("jmockit-") ? key : "jmockit-" + key;
-
-         if (!systemProperties.containsKey(name)) {
-            systemProperties.put(name, property.getValue());
-         }
-      }
-   }
-
-   @Nonnull
-   private static Collection<String> getMultiValuedProperty(@Nonnull String key)
-   {
-      String commaOrSpaceSeparatedValues = System.getProperty(key);
+      String commaOrSpaceSeparatedValues = System.getProperty("mockups");
       
       if (commaOrSpaceSeparatedValues == null) {
-         return NO_VALUES;
+         mockClasses = Collections.emptyList();
       }
-
-      List<String> allValues = Arrays.asList(COMMA_OR_SPACES.split(commaOrSpaceSeparatedValues));
-      Set<String> uniqueValues = new HashSet<String>(allValues);
-      uniqueValues.remove("");
-
-      return uniqueValues;
+      else {
+         List<String> allValues = Arrays.asList(COMMA_OR_SPACES.split(commaOrSpaceSeparatedValues));
+         Set<String> uniqueValues = new HashSet<String>(allValues);
+         uniqueValues.remove("");
+         mockClasses = uniqueValues;
+      }
    }
 }

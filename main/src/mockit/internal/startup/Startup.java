@@ -45,7 +45,7 @@ public final class Startup
       }
    }
 
-   private static void initialize(boolean applyStartupMocks, @Nonnull Instrumentation inst) throws IOException
+   private static void initialize(boolean applyStartupMocks, @Nonnull Instrumentation inst)
    {
       if (instrumentation == null) {
          instrumentation = inst;
@@ -61,7 +61,7 @@ public final class Startup
       }
    }
 
-   private static void applyStartupMocks(@Nonnull Instrumentation inst) throws IOException
+   private static void applyStartupMocks(@Nonnull Instrumentation inst)
    {
       initializing = true;
 
@@ -148,7 +148,6 @@ public final class Startup
             e.printStackTrace();
          }
          catch (RuntimeException e) { e.printStackTrace(); }
-         catch (IOException e) { e.printStackTrace(); }
 
          return false;
       }
