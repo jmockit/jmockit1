@@ -62,7 +62,7 @@ final class PathToAgentJar
       String jarFilePath;
 
       if (thisClassLocation.getPath().endsWith("/main/classes/")) {
-         jarFilePath = findLocalJarOrZipFileFromThisClassLocation();
+         jarFilePath = findLocalJarFromThisClassLocation();
       }
       else {
          jarFilePath = findJarFileContainingThisClass();
@@ -71,18 +71,12 @@ final class PathToAgentJar
       return jarFilePath;
    }
 
-   @Nonnull
-   private String findLocalJarOrZipFileFromThisClassLocation()
+   @Nullable
+   private String findLocalJarFromThisClassLocation()
    {
       String locationPath = thisClassLocation.getPath();
       File localJarFile = new File(locationPath.replace("main/classes/", "jmockit.jar"));
-
-      if (localJarFile.exists()) {
-         return localJarFile.getPath();
-      }
-
-      File localMETAINFFile = new File(locationPath.replace("classes/", "META-INF.zip"));
-      return localMETAINFFile.getPath();
+      return localJarFile.exists() ? localJarFile.getPath() : null;
    }
 
    @Nonnull

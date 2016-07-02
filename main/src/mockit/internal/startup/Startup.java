@@ -10,8 +10,6 @@ import javax.annotation.*;
 
 import mockit.coverage.*;
 import mockit.coverage.standalone.*;
-import mockit.internal.*;
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -93,13 +91,6 @@ public final class Startup
       }
 
       initialize(false, inst);
-
-      ClassLoader customCL = (ClassLoader) System.getProperties().remove("jmockit-customCL");
-
-      if (customCL != null) {
-         reinitializeJMockitUnderCustomClassLoader(customCL);
-      }
-
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
@@ -125,29 +116,6 @@ public final class Startup
       return false;
    }
 
-   private static void reinitializeJMockitUnderCustomClassLoader(@Nonnull ClassLoader customLoader)
-   {
-      Class<?> startupClass;
-      Class<?> mockingBridgeClass;
-
-      try {
-         startupClass = customLoader.loadClass(Startup.class.getName());
-         mockingBridgeClass = customLoader.loadClass(MockingBridge.class.getName());
-      }
-      catch (ClassNotFoundException ignore) { return; }
-
-      System.out.println("JMockit: Reinitializing under custom class loader " + customLoader);
-      FieldReflection.setField(startupClass, null, "instrumentation", instrumentation);
-      FieldReflection.setField(mockingBridgeClass, null, "hostClassName", MockedBridge.getHostClassName());
-      MethodReflection.invoke(startupClass, (Object) null, "reapplyStartupMocks");
-   }
-
-   @SuppressWarnings("ConstantConditions")
-   private static void reapplyStartupMocks()
-   {
-      try { applyStartupMocks(instrumentation); } catch (IOException e) { throw new RuntimeException(e); }
-   }
-
    @Nonnull
    public static Instrumentation instrumentation()
    {
@@ -160,50 +128,19 @@ public final class Startup
 
    public static void verifyInitialization()
    {
-      if (getInstrumentation() == null) {
+      if (instrumentation == null) {
          new AgentLoader().loadAgent(null);
          initializedOnDemand = true;
       }
    }
 
-   @Nullable
-   private static Instrumentation getInstrumentation()
-   {
-      if (instrumentation == null) {
-         ClassLoader systemCL = ClassLoader.getSystemClassLoader();
-         Class<?> initialStartupClass = ClassLoad.loadClass(systemCL, Startup.class.getName());
-
-         if (initialStartupClass != null) {
-            instrumentation = FieldReflection.getField(initialStartupClass, "instrumentation", null);
-
-            if (instrumentation != null) {
-               reapplyStartupMocks();
-            }
-         }
-      }
-
-      return instrumentation;
-   }
-
    public static boolean initializeIfPossible()
    {
-      if (getInstrumentation() == null) {
-         ClassLoader currentCL = Startup.class.getClassLoader();
-         boolean usingCustomCL = currentCL != ClassLoader.getSystemClassLoader();
-
-         if (usingCustomCL) {
-            //noinspection UseOfPropertiesAsHashtable
-            System.getProperties().put("jmockit-customCL", currentCL);
-         }
-
+      if (instrumentation == null) {
          try {
             new AgentLoader().loadAgent(null);
-
-            if (!usingCustomCL) {
-               assert instrumentation != null;
-               applyStartupMocks(instrumentation);
-            }
-
+            assert instrumentation != null;
+            applyStartupMocks(instrumentation);
             return true;
          }
          catch (IllegalStateException e) {
