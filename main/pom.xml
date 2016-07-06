@@ -174,6 +174,7 @@
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
+               <argLine>-javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.26/jmockit-1.26.jar</argLine>
             </configuration>
             <executions>
                <execution>
