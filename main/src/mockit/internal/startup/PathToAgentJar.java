@@ -14,8 +14,6 @@ final class PathToAgentJar
 {
    private static final Pattern JAR_REGEX = Pattern.compile(".*jmockit[-.\\d]*.jar");
 
-   private URL thisClassLocation;
-
    @Nonnull
    String getPathToJarFile()
    {
@@ -58,29 +56,13 @@ final class PathToAgentJar
          return null;
       }
 
-      thisClassLocation = codeSource.getLocation();
-      String jarFilePath;
-
-      if (thisClassLocation.getPath().endsWith("/main/classes/")) {
-         jarFilePath = findLocalJarFromThisClassLocation();
-      }
-      else {
-         jarFilePath = findJarFileContainingThisClass();
-      }
-
+      URL thisClassLocation = codeSource.getLocation();
+      String jarFilePath = findJarFileContainingThisClass(thisClassLocation);
       return jarFilePath;
    }
 
-   @Nullable
-   private String findLocalJarFromThisClassLocation()
-   {
-      String locationPath = thisClassLocation.getPath();
-      File localJarFile = new File(locationPath.replace("main/classes/", "jmockit.jar"));
-      return localJarFile.exists() ? localJarFile.getPath() : null;
-   }
-
    @Nonnull
-   private String findJarFileContainingThisClass()
+   private String findJarFileContainingThisClass(@Nonnull URL thisClassLocation)
    {
       // URI is used to deal with spaces and non-ASCII characters.
       URI jarFileURI;
