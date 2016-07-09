@@ -38,7 +38,7 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst) throws IOException
+   public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
          initialize(true, inst);
@@ -47,18 +47,16 @@ public final class Startup
 
    private static void initialize(boolean applyStartupMocks, @Nonnull Instrumentation inst)
    {
-      if (instrumentation == null) {
-         instrumentation = inst;
+      instrumentation = inst;
 
-         MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
-         inst.addTransformer(CachedClassfiles.INSTANCE, true);
+      MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+      inst.addTransformer(CachedClassfiles.INSTANCE, true);
 
-         if (applyStartupMocks) {
-            applyStartupMocks(inst);
-         }
-
-         inst.addTransformer(new ExpectationsTransformer(inst));
+      if (applyStartupMocks) {
+         applyStartupMocks(inst);
       }
+
+      inst.addTransformer(new ExpectationsTransformer(inst));
    }
 
    private static void applyStartupMocks(@Nonnull Instrumentation inst)
@@ -83,19 +81,19 @@ public final class Startup
     * @param inst      the instrumentation service provided by the JVM
     */
    @SuppressWarnings({"unused", "WeakerAccess"})
-   public static void agentmain(@Nullable String agentArgs, @Nonnull Instrumentation inst) throws IOException
+   public static void agentmain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!inst.isRedefineClassesSupported()) {
          throw new UnsupportedOperationException(
             "This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
+      InstrumentationHolder.set(inst);
       initialize(false, inst);
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
    private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst)
-      throws FileNotFoundException
    {
       if ("coverage".equals(agentArgs)) {
          try {
@@ -107,9 +105,12 @@ public final class Startup
             return true;
          }
          catch (Throwable t) {
-            PrintWriter out = new PrintWriter("coverage-failure.txt");
-            t.printStackTrace(out);
-            out.close();
+            try {
+               PrintWriter out = new PrintWriter("coverage-failure.txt");
+               t.printStackTrace(out);
+               out.close();
+            }
+            catch (FileNotFoundException ignore) {}
          }
       }
 
@@ -138,9 +139,11 @@ public final class Startup
    {
       if (instrumentation == null) {
          try {
-            new AgentLoader().loadAgent(null);
-            assert instrumentation != null;
-            applyStartupMocks(instrumentation);
+            if (InstrumentationHolder.get() == null) {
+               new AgentLoader().loadAgent(null);
+            }
+
+            initialize(true, InstrumentationHolder.get());
             return true;
          }
          catch (IllegalStateException e) {

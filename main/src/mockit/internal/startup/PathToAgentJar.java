@@ -5,10 +5,11 @@
 package mockit.internal.startup;
 
 import java.io.*;
-import java.net.*;
-import java.security.*;
+import java.util.jar.*;
 import java.util.regex.*;
 import javax.annotation.*;
+
+import mockit.internal.*;
 
 final class PathToAgentJar
 {
@@ -20,8 +21,7 @@ final class PathToAgentJar
       String jarFilePath = findPathToJarFileFromClasspath();
 
       if (jarFilePath == null) {
-         // This can fail for a remote URL, so it is used as a fallback only:
-         jarFilePath = getPathToJarFileContainingThisClass();
+         jarFilePath = createBootstrappingJarFileInTempDir();
       }
 
       if (jarFilePath != null) {
@@ -48,33 +48,31 @@ final class PathToAgentJar
    }
 
    @Nullable
-   private String getPathToJarFileContainingThisClass()
+   private String createBootstrappingJarFileInTempDir()
    {
-      CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
+      Manifest manifest = new Manifest();
+      Attributes attrs = manifest.getMainAttributes();
+      attrs.putValue("Manifest-Version", "1.0");
+      attrs.putValue("Agent-Class", InstrumentationHolder.class.getName());
+      attrs.putValue("Can-Redefine-Classes", "true");
+      attrs.putValue("Can-Retransform-Classes", "true");
 
-      if (codeSource == null) {
-         return null;
+      byte[] classFile = ClassFile.readFromFile(InstrumentationHolder.class).b;
+
+      try {
+         File tempJar = File.createTempFile("jmockit", ".jar");
+         tempJar.deleteOnExit();
+
+         JarOutputStream output = new JarOutputStream(new FileOutputStream(tempJar), manifest);
+         JarEntry classEntry = new JarEntry(InstrumentationHolder.class.getName().replace('.', '/') + ".class");
+         output.putNextEntry(classEntry);
+         output.write(classFile);
+         output.close();
+
+         return tempJar.getPath();
       }
-
-      URL thisClassLocation = codeSource.getLocation();
-      String jarFilePath = findJarFileContainingThisClass(thisClassLocation);
-      return jarFilePath;
-   }
-
-   @Nonnull
-   private String findJarFileContainingThisClass(@Nonnull URL thisClassLocation)
-   {
-      // URI is used to deal with spaces and non-ASCII characters.
-      URI jarFileURI;
-      try { jarFileURI = thisClassLocation.toURI(); } catch (URISyntaxException e) { throw new RuntimeException(e); }
-
-      // Certain environments (JBoss) use something other than "file:", which is not accepted by File.
-      if (!"file".equals(jarFileURI.getScheme())) {
-         String locationPath = thisClassLocation.toExternalForm();
-         int p = locationPath.indexOf(':');
-         return locationPath.substring(p + 2);
+      catch (IOException e) {
+         throw new RuntimeException(e);
       }
-
-      return new File(jarFileURI).getPath();
    }
 }
