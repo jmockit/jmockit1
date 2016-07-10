@@ -16,20 +16,15 @@ public final class InstrumentationHolder implements Instrumentation
    private static Instrumentation wrappedInst;
 
    @SuppressWarnings("unused")
-   public static void agentmain(String agentArgs, Instrumentation inst)
+   public static void agentmain(String agentArgs, Instrumentation instrumentation)
    {
-      InstrumentationHolder.inst = inst;
+      set(instrumentation);
    }
 
    public static Instrumentation get()
    {
       if (inst == null) {
          recoverInstrumentationFromHolderClassInSystemClassLoaderIfAvailable();
-      }
-
-      if (wrappedInst == null && inst != null) {
-         wrappedInst = new InstrumentationHolder();
-         saveWrapperIntoHolderClassInSystemClassLoaderIfNotCurrent();
       }
 
       return wrappedInst;
@@ -42,6 +37,11 @@ public final class InstrumentationHolder implements Instrumentation
       if (regularHolderClass != null) {
          inst = FieldReflection.getField(regularHolderClass, "inst", null);
          wrappedInst = FieldReflection.getField(regularHolderClass, "wrappedInst", null);
+
+         if (inst != null && inst == wrappedInst) {
+            wrappedInst = new InstrumentationHolder();
+            FieldReflection.setField(regularHolderClass, null, "wrappedInst", wrappedInst);
+         }
       }
    }
 
@@ -56,19 +56,10 @@ public final class InstrumentationHolder implements Instrumentation
       return ClassLoad.loadClass(systemCL, InstrumentationHolder.class.getName());
    }
 
-   private static void saveWrapperIntoHolderClassInSystemClassLoaderIfNotCurrent()
-   {
-      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
-
-      if (regularHolderClass != null) {
-         FieldReflection.setField(regularHolderClass, null, "wrappedInst", wrappedInst);
-      }
-   }
-
    static void set(Instrumentation instrumentation)
    {
       inst = instrumentation;
-      wrappedInst = new InstrumentationHolder();
+      wrappedInst = instrumentation;
    }
 
    private final List<ClassFileTransformer> transformers = new ArrayList<ClassFileTransformer>();

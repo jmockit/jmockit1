@@ -23,7 +23,6 @@ import mockit.internal.util.*;
 public final class Startup
 {
    public static boolean initializing;
-   @Nullable private static Instrumentation instrumentation;
    private static boolean initializedOnDemand;
 
    private Startup() {}
@@ -41,21 +40,16 @@ public final class Startup
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         initialize(true, inst);
+         InstrumentationHolder.set(inst);
+         initialize(inst);
       }
    }
 
-   private static void initialize(boolean applyStartupMocks, @Nonnull Instrumentation inst)
+   private static void initialize(@Nonnull Instrumentation inst)
    {
-      instrumentation = inst;
-
       MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
-
-      if (applyStartupMocks) {
-         applyStartupMocks(inst);
-      }
-
+      applyStartupMocks(inst);
       inst.addTransformer(new ExpectationsTransformer(inst));
    }
 
@@ -89,7 +83,6 @@ public final class Startup
       }
 
       InstrumentationHolder.set(inst);
-      initialize(false, inst);
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
@@ -121,15 +114,14 @@ public final class Startup
    public static Instrumentation instrumentation()
    {
       verifyInitialization();
-      assert instrumentation != null;
-      return instrumentation;
+      return InstrumentationHolder.get();
    }
 
    public static boolean wasInitializedOnDemand() { return initializedOnDemand; }
 
    public static void verifyInitialization()
    {
-      if (instrumentation == null) {
+      if (InstrumentationHolder.get() == null) {
          new AgentLoader().loadAgent(null);
          initializedOnDemand = true;
       }
@@ -137,13 +129,10 @@ public final class Startup
 
    public static boolean initializeIfPossible()
    {
-      if (instrumentation == null) {
+      if (InstrumentationHolder.get() == null) {
          try {
-            if (InstrumentationHolder.get() == null) {
-               new AgentLoader().loadAgent(null);
-            }
-
-            initialize(true, InstrumentationHolder.get());
+            new AgentLoader().loadAgent(null);
+            initialize(InstrumentationHolder.get());
             return true;
          }
          catch (IllegalStateException e) {
@@ -208,6 +197,8 @@ public final class Startup
    @Nullable
    public static Class<?> getClassIfLoaded(@Nonnull String classDescOrName)
    {
+      Instrumentation instrumentation = InstrumentationHolder.get();
+
       if (instrumentation != null) {
          String className = classDescOrName.replace('/', '.');
 
