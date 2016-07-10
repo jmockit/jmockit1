@@ -13,9 +13,7 @@
 
    <build>
       <sourceDirectory>src</sourceDirectory>
-      <outputDirectory>classes</outputDirectory>
       <testSourceDirectory>test</testSourceDirectory>
-      <testOutputDirectory>test-classes</testOutputDirectory>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>

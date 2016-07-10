@@ -48,8 +48,6 @@
    <build>
       <sourceDirectory>src</sourceDirectory>
       <testSourceDirectory>test</testSourceDirectory>
-      <outputDirectory>classes</outputDirectory>
-      <testOutputDirectory>test-classes</testOutputDirectory>
       <resources>
          <resource>
             <directory>.</directory>
