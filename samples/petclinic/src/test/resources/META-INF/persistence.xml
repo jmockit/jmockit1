@@ -20,7 +20,7 @@
          <property name="javax.persistence.jdbc.password" value=""/>
 
          <!-- Hibernate-specific configuration -->
-         <property name="hibernate.show_sql" value="true"/>
+         <property name="hibernate.show_sql" value="false"/>
 
          <!--
             The following properties cause an in-memory database to be created for every test run.
