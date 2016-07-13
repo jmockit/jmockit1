@@ -1,11 +1,11 @@
 package petclinic.pets;
 
 import java.util.*;
-
-import static java.util.Arrays.asList;
+import static java.util.Arrays.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import petclinic.owners.*;
 import petclinic.util.*;
@@ -36,21 +36,24 @@ public final class PetScreenTest
    @Test
    public void createPetWithGeneratedId()
    {
+      String petName = "bowser";
       Owner owner = ownerData.create("The Owner");
+      assumeTrue(owner.getPet(petName) == null);
       petScreen.selectOwner(owner.getId());
 
       PetType type = petData.findOrCreatePetType("dog");
 
       petScreen.requestNewPet();
       Pet pet = petScreen.getPet();
-      pet.setName("bowser");
+      pet.setName(petName);
       pet.setType(type);
       pet.setBirthDate(new Date());
       petScreen.createOrUpdatePet();
 
+      assertNotNull(pet.getId());
       assertSame(owner, pet.getOwner());
       assertEquals(1, owner.getPets().size());
-      assertNotNull(pet.getId());
+      assertSame(pet, owner.getPet(petName));
    }
 
    @Test
@@ -68,5 +71,7 @@ public final class PetScreenTest
       Pet petUpdated = petScreen.getPet();
       petData.refresh(petUpdated);
       assertEquals(newName, petUpdated.getName());
+      assertEquals(pet.getBirthDate(), petUpdated.getBirthDate());
+      assertEquals(pet.getType(), petUpdated.getType());
    }
 }

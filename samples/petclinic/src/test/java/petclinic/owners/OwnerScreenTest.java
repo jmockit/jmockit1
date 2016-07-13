@@ -21,11 +21,12 @@ public final class OwnerScreenTest
    {
       Owner davis = ownerData.create("Tom Davis");
 
-      ownerScreen.setLastName("Davis");
+      ownerScreen.setLastName(davis.getLastName());
       ownerScreen.findOwners();
       List<Owner> ownersWithTheGivenLastName = ownerScreen.getOwners();
 
       assertTrue(ownersWithTheGivenLastName.contains(davis));
+      assertEquals(davis.getLastName(), ownerScreen.getLastName());
    }
 
    @Test
@@ -79,5 +80,9 @@ public final class OwnerScreenTest
       Owner modifiedOwner =
          ownerData.findOne("select o from Owner o where o = ?1 and o.lastName = ?2", owner, newLastName);
       assertNotNull(modifiedOwner);
+      assertEquals(owner.getFirstName(), modifiedOwner.getFirstName());
+      assertEquals(owner.getAddress(), modifiedOwner.getAddress());
+      assertEquals(owner.getCity(), modifiedOwner.getCity());
+      assertEquals(owner.getTelephone(), modifiedOwner.getTelephone());
    }
 }
