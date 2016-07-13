@@ -107,7 +107,7 @@ final class ClassSelection
    {
       return
          className.charAt(0) == '[' ||
-         className.startsWith("mockit.") ||
+         className.startsWith("mockit.") || className.contains(".attach.") ||
          className.startsWith("org.hamcrest.") ||
          className.startsWith("org.junit.") || className.startsWith("junit.") ||
          className.startsWith("org.testng.") ||
@@ -162,10 +162,7 @@ final class ClassSelection
       }
 
       String path = location.getPath();
-
-      return
-         path.endsWith(".jar") || path.endsWith("/.cp/") ||
-         testCode != null && (path.endsWith("/test-classes/") || path.endsWith("/jmockit1.org/main/classes/"));
+      return path.endsWith(".jar") || path.endsWith("/.cp/") || testCode != null && path.endsWith("/test-classes/");
    }
 
    private void readConfiguration()
