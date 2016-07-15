@@ -52,7 +52,7 @@ final class ConstructorInjection implements Injector
             assert fullInjection != null;
             injectionState.setTypeOfInjectionPoint(parameterProvider.getDeclaredType());
             String qualifiedName = getQualifiedName(parameterProvider.getAnnotations());
-            value = fullInjection.newInstance(testedClass, this, parameterProvider, qualifiedName);
+            value = fullInjection.createOrReuseInstance(testedClass, this, parameterProvider, qualifiedName);
 
             if (value == null) {
                throw new IllegalArgumentException(

@@ -131,12 +131,14 @@ final class FieldInjection implements Injector
       KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(targetField);
 
       if (fullInjection != null) {
+         InjectionPointProvider fieldToInject = new FieldToInject(targetField);
+
          if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
-            return null;
+            Object existingInstance = fullInjection.reuseInstance(testedClass, fieldToInject, qualifiedFieldName);
+            return existingInstance;
          }
 
-         InjectionPointProvider fieldToInject = new FieldToInject(targetField);
-         Object newInstance = fullInjection.newInstance(testedClass, this, fieldToInject, qualifiedFieldName);
+         Object newInstance = fullInjection.createOrReuseInstance(testedClass, this, fieldToInject, qualifiedFieldName);
 
          if (newInstance != null) {
             return newInstance;

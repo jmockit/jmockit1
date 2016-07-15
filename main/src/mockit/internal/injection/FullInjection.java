@@ -38,7 +38,17 @@ final class FullInjection
    }
 
    @Nullable
-   Object newInstance(
+   Object reuseInstance(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
+      @Nullable String qualifiedName)
+   {
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
+      return dependency;
+   }
+
+   @Nullable
+   Object createOrReuseInstance(
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
       @Nullable String qualifiedName)
    {

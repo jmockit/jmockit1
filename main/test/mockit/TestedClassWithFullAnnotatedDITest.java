@@ -25,10 +25,12 @@ public final class TestedClassWithFullAnnotatedDITest
       @Inject private Logger log2;
       Logger log3;
       Value value;
+      Collaborator collaborator;
       @Inject Conversation conversation;
    }
 
    static final class Value {}
+   static class Collaborator {}
 
    public interface ItfWithSingleLoadedImpl {}
    public static final class SingleLoadedImpl implements ItfWithSingleLoadedImpl { @EJB ItfToBeMocked ejb; }
@@ -42,6 +44,7 @@ public final class TestedClassWithFullAnnotatedDITest
 
    @Tested SingleLoadedImpl dep1;
    @Tested AnotherImpl2 anotherDep;
+   @Tested Collaborator collaborator;
    @Tested(fullyInitialized = true) TestedClass tested;
    // Without these injectables, a "missing @Injectable" exception occurs for each unresolved field.
    @Injectable Runnable action;
@@ -65,10 +68,11 @@ public final class TestedClassWithFullAnnotatedDITest
    }
 
    @Test
-   public void leaveNonAnnotatedFieldsUninitialized()
+   public void leaveNonAnnotatedFieldsUninitializedUnlessThereIsAMatchingTestedField()
    {
       assertNull(tested.value);
       assertNull(tested.log3);
+      assertSame(collaborator, tested.collaborator);
    }
 
    @Tested Conversation conversation;
