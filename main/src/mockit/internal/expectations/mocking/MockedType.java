@@ -149,9 +149,17 @@ public final class MockedType implements InjectionPointProvider
             }
          }
 
-         if (mocked != null && !mocked.stubOutClassInitialization()) {
-            throw new IllegalArgumentException("Redundant application of @Mocked and @Capturing: " + mockId);
-         }
+         validateAgainstAnnotationRedundancy("@Capturing");
+      }
+      else if (injectable) {
+         validateAgainstAnnotationRedundancy("@Injectable");
+      }
+   }
+
+   private void validateAgainstAnnotationRedundancy(@Nonnull String otherAnnotation)
+   {
+      if (mocked != null && !mocked.stubOutClassInitialization()) {
+         throw new IllegalArgumentException("Redundant application of @Mocked and " + otherAnnotation + ": " + mockId);
       }
    }
 

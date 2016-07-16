@@ -475,6 +475,12 @@ public final class MisusedExpectationsTest
       assertNotNull(mock);
    }
 
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToApplyBothMockedAndInjectable(@Mocked @Injectable Blah mock)
+   {
+      fail("Should fail before entering the test");
+   }
+
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
 
    @Test

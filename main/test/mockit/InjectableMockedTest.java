@@ -15,9 +15,8 @@ public final class InjectableMockedTest
       static int doSomething() { return 1; }
    }
 
-   @Test @SuppressWarnings("DefaultAnnotationParam")
-   public void mockClassWithStaticInitializerAsInjectable(
-      @Injectable @Mocked(stubOutClassInitialization = false) ClassWithStaticInitializer1 mock)
+   @Test
+   public void mockClassWithStaticInitializerAsInjectable(@Injectable ClassWithStaticInitializer1 mock)
    {
       assertEquals(1, ClassWithStaticInitializer1.doSomething());
       assertTrue(ClassWithStaticInitializer1.classInitializationExecuted);
