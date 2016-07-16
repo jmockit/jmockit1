@@ -353,6 +353,11 @@ public final class RecordAndReplayExecution
       return replay;
    }
 
+   public boolean isStrictOrDynamic()
+   {
+      return recordPhase != null && recordPhase.strict || dynamicPartialMocking != null;
+   }
+
    @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder)
    {
@@ -373,6 +378,7 @@ public final class RecordAndReplayExecution
    public static Error endCurrentReplayIfAny()
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
+      //noinspection ThrowableResultOfMethodCallIgnored
       return instance == null ? null : instance.endExecution();
    }
 

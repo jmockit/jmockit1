@@ -23,6 +23,7 @@ public final class MisusedExpectationsTest
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
       String getName() { return name.toUpperCase(); }
+      Blah same() { return this; }
    }
 
    @Mocked Blah mock;
@@ -485,6 +486,14 @@ public final class MisusedExpectationsTest
    public void attemptToApplyBothInjectableAndCapturingWithoutMaxInstances(@Capturing @Injectable Blah mock)
    {
       fail("Should fail before entering the test");
+   }
+
+   @Test
+   public void recordExpectationReturningSameMockedInstanceWhichWouldBeAutomaticallyCascaded()
+   {
+      new Expectations() {{ mock.same(); result = mock; }};
+
+      assertSame(mock, mock.same());
    }
 
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////

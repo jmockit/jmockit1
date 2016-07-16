@@ -126,18 +126,6 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void replaceCascadedInstanceWithInjectableInstance(@Mocked final Foo foo, @Injectable final Bar bar)
-   {
-      // This is redundant, but should still work:
-      new Expectations() {{ foo.getBar(); result = bar; }};
-
-      Bar cascadedBar = foo.getBar();
-
-      assertSame(bar, cascadedBar);
-      assertEquals(0, cascadedBar.doSomething());
-   }
-
-   @Test
    public void replaceCascadedInstanceWithFirstOneOfTwoInjectableInstances(
       @Mocked final Foo foo, @Injectable final Bar bar1, @Injectable Bar bar2)
    {
@@ -299,8 +287,6 @@ public final class CascadingParametersTest
       @Mocked Socket anySocket, @Mocked final SocketChannel cascadedChannel, @Mocked InetSocketAddress inetAddr)
       throws Exception
    {
-      new Expectations() {{ cascadedChannel.isConnected(); result = false; }};
-
       Socket sk = new Socket();
       SocketChannel ch = sk.getChannel();
 
@@ -425,10 +411,9 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void overrideCascadedMockAndRecordStrictExpectationOnIt(@Mocked final Foo foo, @Mocked final Bar mockBar)
+   public void recordStrictExpectationOnCascadedMock(@Mocked Foo foo, @Mocked final Bar mockBar)
    {
       new StrictExpectations() {{
-         foo.getBar(); result = mockBar;
          mockBar.doSomething();
       }};
 
@@ -437,10 +422,9 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void overrideCascadedMockAndRecordExpectationOnIt(@Mocked final Foo foo, @Mocked final Bar mockBar)
+   public void recordExpectationOnCascadedMock(@Mocked Foo foo, @Mocked final Bar mockBar)
    {
       new Expectations() {{
-         foo.getBar(); result = mockBar;
          mockBar.doSomething(); times = 1; result = 123;
       }};
 
@@ -467,7 +451,7 @@ public final class CascadingParametersTest
 
    @Test(expected = UnexpectedInvocation.class)
    public void overrideTwoCascadedMocksOfTheSameTypeButReplayInDifferentOrder(
-      @Mocked final Foo foo1, @Mocked final Foo foo2, @Mocked final Bar mockBar1, @Mocked final Bar mockBar2)
+      @Mocked final Foo foo1, @Mocked final Foo foo2, @Injectable final Bar mockBar1, @Mocked final Bar mockBar2)
    {
       new StrictExpectations() {{
          foo1.getBar(); result = mockBar1;
@@ -566,34 +550,27 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void overrideLastCascadedObjectWithMockedInstance(@Mocked final Date mockedDate, @Mocked final Foo foo)
+   public void returnDeclaredMockedInstanceFromMultiLevelCascading(@Mocked Date mockedDate, @Mocked Foo foo)
    {
       Date newDate = new Date(123);
       assertEquals(0, newDate.getTime());
 
-      new Expectations() {{
-         foo.getBar().getBaz().getDate();
-         result = mockedDate;
-      }};
+      Date cascadedDate = new Foo().getBar().getBaz().getDate();
 
-      assertSame(mockedDate, new Foo().getBar().getBaz().getDate());
+      assertSame(mockedDate, cascadedDate);
       assertEquals(0, newDate.getTime());
       assertEquals(0, mockedDate.getTime());
    }
 
    @Test
-   public void overrideLastCascadedObjectWithInjectableMockInstance(
-      @Injectable final Date mockDate, @Mocked final Foo foo)
+   public void returnInjectableMockInstanceFromMultiLevelCascading(@Injectable Date mockDate, @Mocked Foo foo)
    {
       Date newDate = new Date(123);
       assertEquals(123, newDate.getTime());
 
-      new Expectations() {{
-         foo.getBar().getBaz().getDate();
-         result = mockDate;
-      }};
+      Date cascadedDate = new Foo().getBar().getBaz().getDate();
 
-      assertSame(mockDate, new Foo().getBar().getBaz().getDate());
+      assertSame(mockDate, cascadedDate);
       assertEquals(123, newDate.getTime());
       assertEquals(0, mockDate.getTime());
    }

@@ -24,7 +24,7 @@ public final class ExpectedInvocation
    @Nonnull public final InvocationArguments arguments;
    @Nullable public CharSequence customErrorMessage;
    @Nullable private final ExpectationError invocationCause;
-   @Nullable private Object defaultReturnValue;
+   @Nullable Object defaultReturnValue;
 
    public ExpectedInvocation(
       @Nullable Object mock, @Nonnull String mockedClassDesc, @Nonnull String mockNameAndDesc,

@@ -9,7 +9,9 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
+import mockit.internal.expectations.*;
 import mockit.internal.expectations.invocation.InvocationResult.*;
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 public final class InvocationResults
@@ -32,7 +34,7 @@ public final class InvocationResults
          addDelegatedResult((Delegate<?>) value);
       }
       else {
-         addReturnValueResult(value);
+         addNewReturnValueResult(value);
       }
    }
 
@@ -42,10 +44,38 @@ public final class InvocationResults
       addResult(result);
    }
 
-   public void addReturnValueResult(@Nullable Object value)
+   private void addNewReturnValueResult(@Nullable Object value)
    {
       InvocationResult result = new ReturnValueResult(value);
       addResult(result);
+   }
+
+   public void addReturnValueResult(@Nullable Object value)
+   {
+      validateAsNonRedundant(value);
+      addNewReturnValueResult(value);
+   }
+
+   private void validateAsNonRedundant(@Nullable Object value)
+   {
+      if (value != null && value == invocation.defaultReturnValue) {
+         Object defaultValue = DefaultValues.computeForWrapperType(value.getClass());
+
+         if (defaultValue == null) {
+            ExecutingTest executingTest = TestRun.getExecutingTest();
+            RecordAndReplayExecution recordAndReplay = executingTest.getCurrentRecordAndReplay();
+
+            //noinspection ConstantConditions
+            if (
+               !recordAndReplay.isStrictOrDynamic() &&
+               !executingTest.hasOtherMockedInstances(value)
+            ) {
+               Exception warning = new IllegalArgumentException("Redundant recording; remove it to avoid this warning");
+               StackTrace.filterStackTrace(warning);
+               warning.printStackTrace();
+            }
+         }
+      }
    }
 
    public void addReturnValues(@Nonnull Object array)

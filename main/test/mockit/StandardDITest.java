@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.inject.*;
 
+import static java.util.Collections.singletonList;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -170,7 +172,8 @@ public final class StandardDITest
    public void configureProviderUsedByConstructorOfTestedClass()
    {
       new Expectations() {{
-         collaboratorProvider.get(); result = col3; result = null;
+         Collaborator[] collaborators = {col3, null};
+         collaboratorProvider.get(); result = collaborators;
       }};
    }
 
@@ -183,7 +186,7 @@ public final class StandardDITest
       assertSame(collaborator, tested5.collaborator1);
       assertNotNull(tested5.collaborator2);
       assertNotSame(tested5.collaborator1, tested5.collaborator2);
-      assertEquals(Arrays.asList(col3), tested5.optionalCollaborators);
+      assertEquals(singletonList(col3), tested5.optionalCollaborators);
 
       assertEquals(names[0], tested5.nameProvider.get());
       assertEquals(names[1], tested5.nameProvider.get());

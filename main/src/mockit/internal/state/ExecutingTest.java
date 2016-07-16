@@ -179,6 +179,28 @@ public final class ExecutingTest
       return false;
    }
 
+   public boolean hasOtherMockedInstances(@Nonnull Object mockedInstance)
+   {
+      return
+         hasAnotherMockedInstance(regularMocks, mockedInstance) ||
+         hasAnotherMockedInstance(injectableMocks, mockedInstance);
+   }
+
+   private boolean hasAnotherMockedInstance(@Nonnull List<Object> mocks, @Nonnull Object mockedInstance)
+   {
+      Class<?> mockedClass = mockedInstance.getClass();
+
+      for (int i = 0, n = mocks.size(); i < n; i++) {
+         Object mock = mocks.get(i);
+
+         if (mock != mockedInstance && mock.getClass() == mockedClass) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    public boolean isRegularMockedInstance(@Nonnull Object instance)
    {
       return containsReference(regularMocks, instance);

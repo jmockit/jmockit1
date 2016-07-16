@@ -15,7 +15,7 @@ import static mockit.internal.util.ClassLoad.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
-   private final boolean strict;
+   final boolean strict;
 
    RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay, boolean strict)
    {

@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.jar.*;
+import java.util.jar.Attributes.Name;
 import java.util.zip.*;
 import static java.util.Arrays.*;
 
@@ -115,6 +116,7 @@ public final class ClassLoadingAndJREMocksTest
 
       new Expectations(FileOutputStream.class) {{
          OutputStream os = new FileOutputStream(fileName);
+         //noinspection ConstantConditions
          os.write((byte[]) any);
          os.close();
       }};
@@ -170,21 +172,17 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockURLAndURLConnection(@Mocked final URL mockUrl, @Mocked final URLConnection mockConnection)
-      throws Exception
+   public void mockURLAndURLConnection(@Mocked URL mockUrl, @Mocked URLConnection mockConnection) throws Exception
    {
-      new Expectations() {{ mockUrl.openConnection(); result = mockConnection; }};
-
       URLConnection conn = mockUrl.openConnection();
+
       assertSame(mockConnection, conn);
    }
 
    @Test
-   public void mockURLAndHttpURLConnection(@Mocked final URL mockUrl, @Mocked final HttpURLConnection mockConnection)
+   public void mockURLAndHttpURLConnection(@Mocked URL mockUrl, @Mocked HttpURLConnection mockConnection)
       throws Exception
    {
-      new Expectations() {{ mockUrl.openConnection(); result = mockConnection; }};
-
       HttpURLConnection conn = (HttpURLConnection) mockUrl.openConnection();
       assertSame(mockConnection, conn);
    }
@@ -299,7 +297,7 @@ public final class ClassLoadingAndJREMocksTest
 
       Manifest manifest = jarFile.getManifest();
       Attributes mainAttributes = manifest.getMainAttributes();
-      String mainClassName = mainAttributes.getValue(Attributes.Name.MAIN_CLASS);
+      String mainClassName = mainAttributes.getValue(Name.MAIN_CLASS);
 
       Enumeration<JarEntry> jarEntries = jarFile.entries();
 
@@ -323,7 +321,7 @@ public final class ClassLoadingAndJREMocksTest
          new JarFile(testFile);
          mockFile.getManifest(); result = mockManifest;
          mockManifest.getMainAttributes(); result = mockAttributes;
-         mockAttributes.getValue(Attributes.Name.MAIN_CLASS); result = mainClassName;
+         mockAttributes.getValue(Name.MAIN_CLASS); result = mainClassName;
          mockFile.entries(); result = mockEntries;
 
          mockEntries.hasMoreElements(); result = true;

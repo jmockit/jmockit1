@@ -56,14 +56,12 @@ public final class CascadingWithGenericsTest
    }
 
    @Test
-   public void cascadeOneLevelDuringRecord(@Mocked final Callable<String> action, @Mocked final Foo mockFoo)
+   public void cascadeOneLevelDuringRecord(@Mocked Callable<String> action, @Mocked Foo mockFoo)
    {
-      new Expectations() {{
-         mockFoo.returnTypeWithWildcard(); result = action;
-      }};
-
       Foo foo = new Foo();
-      assertSame(action, foo.returnTypeWithWildcard());
+      Callable<?> cascaded = foo.returnTypeWithWildcard();
+
+      assertSame(action, cascaded);
    }
 
    @Test
