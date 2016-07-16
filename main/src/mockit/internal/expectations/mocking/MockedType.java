@@ -147,6 +147,10 @@ public final class MockedType implements InjectionPointProvider
             if (isFinal(modifiers)) {
                throw new IllegalArgumentException("Invalid @Capturing of final " + baseType + ": " + mockId);
             }
+
+            if (injectable) {
+               throw new IllegalArgumentException("Invalid application of @Capturing and @Injectable: " + mockId);
+            }
          }
 
          validateAgainstAnnotationRedundancy("@Capturing");

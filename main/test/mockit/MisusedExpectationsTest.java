@@ -481,6 +481,12 @@ public final class MisusedExpectationsTest
       fail("Should fail before entering the test");
    }
 
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToApplyBothInjectableAndCapturingWithoutMaxInstances(@Capturing @Injectable Blah mock)
+   {
+      fail("Should fail before entering the test");
+   }
+
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
 
    @Test
