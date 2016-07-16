@@ -44,19 +44,23 @@ final class FieldInjection implements Injector
       Class<?> classWithFields = actualTestedClass;
 
       do {
-         Field[] fields = classWithFields.getDeclaredFields();
-
-         for (Field field : fields) {
-            if (isEligibleForInjection(field)) {
-               targetFields.add(field);
-            }
-         }
-
+         addEligibleFields(targetFields, classWithFields);
          classWithFields = classWithFields.getSuperclass();
       }
       while (testedClass.isClassFromSameModuleOrSystemAsTestedClass(classWithFields) || isServlet(classWithFields));
 
       return targetFields;
+   }
+
+   private void addEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Class<?> classWithFields)
+   {
+      Field[] fields = classWithFields.getDeclaredFields();
+
+      for (Field field : fields) {
+         if (isEligibleForInjection(field)) {
+            targetFields.add(field);
+         }
+      }
    }
 
    private boolean isEligibleForInjection(@Nonnull Field field)
