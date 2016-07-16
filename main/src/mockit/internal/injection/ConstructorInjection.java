@@ -49,15 +49,16 @@ final class ConstructorInjection implements Injector
          Object value;
 
          if (parameterProvider instanceof ConstructorParameter) {
-            assert fullInjection != null;
             injectionState.setTypeOfInjectionPoint(parameterProvider.getDeclaredType());
             String qualifiedName = getQualifiedName(parameterProvider.getAnnotations());
+
+            assert fullInjection != null;
             value = fullInjection.createOrReuseInstance(testedClass, this, parameterProvider, qualifiedName);
 
             if (value == null) {
-               throw new IllegalArgumentException(
-                  "Missing @Tested object for constructor parameter: " +
-                  parameterType + ' ' + parameterProvider.getName());
+               String parameterName = parameterProvider.getName();
+               throw new IllegalStateException(
+                  "Missing @Tested or @Injectable" + missingValueDescription(parameterName));
             }
          }
          else {
@@ -100,14 +101,22 @@ final class ConstructorInjection implements Injector
          }
       }
 
-      int elementCount = varargValues.size();
-      Object varargArray = Array.newInstance(getClassType(varargsElementType), elementCount);
+      Object varargArray = newArrayFromList(varargsElementType, varargValues);
+      return varargArray;
+   }
+
+   @Nonnull
+   private static Object newArrayFromList(@Nonnull Type elementType, @Nonnull List<Object> values)
+   {
+      Class<?> componentType = getClassType(elementType);
+      int elementCount = values.size();
+      Object array = Array.newInstance(componentType, elementCount);
 
       for (int i = 0; i < elementCount; i++) {
-         Array.set(varargArray, i, varargValues.get(i));
+         Array.set(array, i, values.get(i));
       }
 
-      return varargArray;
+      return array;
    }
 
    @Nonnull
@@ -116,15 +125,15 @@ final class ConstructorInjection implements Injector
       Object argument = injectionState.getValueToInject(injectable);
 
       if (argument == null) {
-         throw new IllegalArgumentException(
-            "No injectable value available" + missingInjectableDescription(injectable.getName()));
+         String parameterName = injectable.getName();
+         throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
       }
 
       return argument;
    }
 
    @Nonnull
-   private String missingInjectableDescription(@Nonnull String name)
+   private String missingValueDescription(@Nonnull String name)
    {
       String classDesc = mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass());
       String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);
