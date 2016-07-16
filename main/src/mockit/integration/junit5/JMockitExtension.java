@@ -60,7 +60,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
          TestRun.exitNoMockingZone();
       }
 
-      TestRun.setRunningIndividualTest(testInstance);
+      TestRun.setRunningIndividualTest(testInstance, true);
    }
 
    @Override
@@ -97,6 +97,8 @@ final class JMockitExtension extends TestRunnerDecorator implements
       finally {
          TestRun.exitNoMockingZone();
       }
+
+      TestRun.setRunningIndividualTest(testInstance, false);
    }
 
    @Override

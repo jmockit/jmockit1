@@ -113,27 +113,6 @@ public final class FullVerificationsInOrderTest
    }
 
    @Test
-   public void verifyInvocationsWithOneRecordedButNotReplayed()
-   {
-      new Expectations() {{
-         mock.prepare(); result = true;
-         mock.editABunchMoreStuff(); result = 5; minTimes = 0;
-      }};
-
-      mock.prepare();
-      mock.setSomething(123);
-      mock.setSomethingElse('a');
-      mock.save();
-
-      new FullVerificationsInOrder() {{
-         mock.prepare();
-         mock.setSomething(anyInt);
-         mock.setSomethingElse(anyChar);
-         mock.save();
-      }};
-   }
-
-   @Test
    public void verifyAllInvocationsWhenOutOfOrder()
    {
       thrown.expect(MissingInvocation.class);
@@ -162,26 +141,6 @@ public final class FullVerificationsInOrderTest
          mock.setSomethingElse(anyChar);
          mock.notifyBeforeSave();
          mock.save();
-      }};
-   }
-
-   @Test
-   public void verifyAllInvocationsWithExpectationRecordedButOneInvocationUnverified()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 45");
-
-      new Expectations() {{
-         mock.setSomething(anyInt); minTimes = 0;
-      }};
-
-      mock.setSomething(123);
-      mock.editABunchMoreStuff();
-      mock.setSomething(45);
-
-      new FullVerificationsInOrder() {{
-         mock.setSomething(anyInt);
-         mock.editABunchMoreStuff();
       }};
    }
 
@@ -243,10 +202,8 @@ public final class FullVerificationsInOrderTest
    }
 
    @Test
-   public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
+   public void verifyInvocationThatDoesNotHappen()
    {
-      new Expectations() {{ mock.save(); minTimes = 0;}};
-
       mock.prepare();
       mock.setSomething(123);
 

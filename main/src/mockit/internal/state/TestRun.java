@@ -33,6 +33,7 @@ public final class TestRun
 
    @Nullable private Class<?> currentTestClass;
    @Nullable private Object currentTestInstance;
+   private boolean settingUpNextTest;
    @Nullable private FieldTypeRedefinitions fieldTypeRedefinitions;
    @Nullable private TestedClassInstantiations testedClassInstantiations;
 
@@ -48,6 +49,7 @@ public final class TestRun
    @Nullable public static Class<?> getCurrentTestClass() { return INSTANCE.currentTestClass; }
 
    @Nullable public static Object getCurrentTestInstance() { return INSTANCE.currentTestInstance; }
+   public static boolean isSettingUpNextTest() { return INSTANCE.settingUpNextTest; }
 
    public static int getTestId() { return INSTANCE.testId; }
 
@@ -104,9 +106,16 @@ public final class TestRun
    public static void exitNoMockingZone()  { noMockingCount.set(-1); }
    public static void clearNoMockingZone() { noMockingCount.remove(); }
 
-   public static void setRunningIndividualTest(@Nullable Object testInstance)
+   public static void clearCurrentTestInstance()
+   {
+      INSTANCE.currentTestInstance = null;
+      INSTANCE.settingUpNextTest = false;
+   }
+
+   public static void setRunningIndividualTest(@Nonnull Object testInstance, boolean settingUpNextTest)
    {
       INSTANCE.currentTestInstance = testInstance;
+      INSTANCE.settingUpNextTest = settingUpNextTest;
    }
 
    public static void setFieldTypeRedefinitions(@Nullable FieldTypeRedefinitions redefinitions)

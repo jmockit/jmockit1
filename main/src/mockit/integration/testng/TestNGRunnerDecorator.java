@@ -123,7 +123,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
       try {
          updateTestClassState(testInstance, testClass);
-         TestRun.setRunningIndividualTest(testInstance);
+         TestRun.setRunningIndividualTest(testInstance, false);
 
          SavePoint testMethodSavePoint = new SavePoint();
          savePoint.set(testMethodSavePoint);
@@ -170,17 +170,17 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
                createInstancesForTestedFields(testInstance, true);
             }
 
-            TestRun.setRunningIndividualTest(testInstance);
+            TestRun.setRunningIndividualTest(testInstance, true);
          }
          else if (method.isAfterClassConfiguration()) {
             TestRun.getExecutingTest().setRecordAndReplay(null);
             cleanUpMocksFromPreviousTest();
-            TestRun.setRunningIndividualTest(null);
+            TestRun.clearCurrentTestInstance();
          }
          else if (!method.isAfterMethodConfiguration() && !method.isBeforeClassConfiguration()) {
             TestRun.getExecutingTest().setRecordAndReplay(null);
             cleanUpMocksFromPreviousTestClass();
-            TestRun.setRunningIndividualTest(null);
+            TestRun.clearCurrentTestInstance();
             TestRun.setCurrentTestClass(null);
          }
       }

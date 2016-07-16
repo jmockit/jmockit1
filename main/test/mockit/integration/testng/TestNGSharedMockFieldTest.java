@@ -41,7 +41,6 @@ public final class TestNGSharedMockFieldTest
    {
       new Expectations() {{
          mock1.doSomething(); result = true;
-         mock1.doSomethingElse(); minTimes = 0;
       }};
 
       assertTrue(mock1.doSomething());

@@ -68,9 +68,6 @@ public final class OrderFindersTest
       order = new Order(890, customerId);
 
       new Expectations() {{
-         Database.executeQuery(withMatch("select.+from\\s+order.*where.+customer_id\\s*=\\s*\\?"), customerId);
-         result = rs;
-
          rs.next(); result = new boolean[] {true, false};
          rs.getInt(1); result = order.getNumber();
       }};
@@ -79,6 +76,9 @@ public final class OrderFindersTest
 
       assertTrue("Order not found by customer id", found.contains(order));
 
-      new Verifications() {{ Database.closeStatement(rs); }};
+      new Verifications() {{
+         Database.executeQuery(withMatch("select.+from\\s+order.*where.+customer_id\\s*=\\s*\\?"), customerId);
+         Database.closeStatement(rs);
+      }};
    }
 }

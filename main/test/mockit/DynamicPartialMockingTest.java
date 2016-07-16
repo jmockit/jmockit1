@@ -276,28 +276,6 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicMockFullyVerified_verifyOnlyOneOfMultipleRecordedInvocations()
-   {
-      final Collaborator collaborator = new Collaborator(0);
-
-      new Expectations(collaborator) {{
-         collaborator.setValue(1); minTimes = 0;
-         collaborator.setValue(2); minTimes = 0;
-      }};
-
-      collaborator.setValue(2);
-      collaborator.setValue(1);
-
-      thrown.expect(UnexpectedInvocation.class);
-
-      // Verifies all the *mocked* (recorded) invocations, ignoring those not mocked:
-      new FullVerifications() {{
-         collaborator.setValue(1);
-         // Should also verify "setValue(2)" since it was recorded.
-      }};
-   }
-
-   @Test
    public void dynamicMockFullyVerified_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes()
    {
       final Collaborator collaborator = new Collaborator(0);

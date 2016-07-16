@@ -263,17 +263,6 @@ public final class ExpectationsWithInvocationCountsTest
       codeUnderTest.doSomethingElse();
    }
 
-   @Test
-   public void expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
-   {
-      new StrictExpectations() {{
-         mock.provideSomeService(); minTimes = 0; maxTimes = -1;
-         mock.simpleOperation(1, "b", null);
-      }};
-
-      codeUnderTest.doSomethingElse();
-   }
-
    @Test(expected = MissingInvocation.class)
    public void expectAtLeastOneInvocationMatchingStrictExpectationButInvokeNone(@Mocked final Collaborator a)
    {

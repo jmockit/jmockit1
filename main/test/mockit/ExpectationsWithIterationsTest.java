@@ -154,8 +154,7 @@ public final class ExpectationsWithIterationsTest
       mock.save();
    }
 
-   @SuppressWarnings("MethodWithMultipleLoops")
-   @Test
+   @Test @SuppressWarnings("MethodWithMultipleLoops")
    public void recordInvocationsInMultipleIteratingBlocks()
    {
       new StrictExpectations(2) {{

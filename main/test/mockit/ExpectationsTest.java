@@ -63,7 +63,7 @@ public final class ExpectationsTest
    public void recordInvocationThatWillNotOccur()
    {
       new Expectations() {{
-         mock.editABunchMoreStuff(); result = 123; minTimes = 0;
+         mock.editABunchMoreStuff(); result = 123; times = 0;
       }};
 
       mock.setSomething(123);

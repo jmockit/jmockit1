@@ -119,26 +119,6 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyInvocationsWithOneRecordedButNotReplayed()
-   {
-      new Expectations() {{
-         mock.prepare();
-         mock.editABunchMoreStuff(); minTimes = 0;
-      }};
-
-      mock.prepare();
-      mock.setSomething(123);
-      mock.setSomethingElse("a");
-      mock.save();
-
-      new VerificationsInOrder() {{
-         mock.setSomething(anyInt);
-         mock.setSomethingElse(anyString);
-         mock.save();
-      }};
-   }
-
-   @Test
    public void verifyInvocationsWithExactInvocationCountsHavingRecordedMatchingExpectationWithArgumentMatcher()
    {
       new Expectations() {{ mock.setSomething(anyInt); }};
@@ -163,45 +143,6 @@ public final class VerificationsInOrderTest
          mock.prepare();
          mock.setSomething(anyInt);
          mock.save(); minTimes = 0;
-      }};
-   }
-
-   @Test
-   public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
-   {
-      new Expectations() {{ mock.save(); minTimes = 0; }};
-
-      mock.prepare();
-      mock.setSomething(123);
-
-      new VerificationsInOrder() {{
-         mock.prepare();
-         mock.save(); minTimes = 0;
-      }};
-   }
-
-   @Test
-   public void verifyUnrecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
-   {
-      mock.prepare();
-      mock.setSomething(123);
-
-      new VerificationsInOrder() {{
-         mock.setSomething(anyInt);
-         mock.save(); minTimes = 0;
-      }};
-   }
-
-   @Test
-   public void verifyIntermediateUnrecordedInvocationThatDoesNotHappenButCould()
-   {
-      mock.prepare();
-      mock.setSomething(123);
-
-      new VerificationsInOrder() {{
-         mock.prepare();
-         mock.editABunchMoreStuff(); minTimes = 0;
-         mock.setSomething(anyInt);
       }};
    }
 

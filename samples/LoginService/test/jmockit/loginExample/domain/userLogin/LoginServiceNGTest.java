@@ -19,12 +19,6 @@ public final class LoginServiceNGTest
    @Tested LoginService service;
    @Mocked UserAccount account;
 
-   @BeforeMethod
-   public void init()
-   {
-      new Expectations() {{ UserAccount.find("john"); result = account; minTimes = 0; }};
-   }
-
    /**
     * This test is redundant, as it exercises the same path as the last test.
     * It cannot simply be removed, because the last test does not perform the "account.setLoggedIn(true)" verification;
@@ -76,8 +70,6 @@ public final class LoginServiceNGTest
    public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked final UserAccount secondAccount)
       throws Exception
    {
-      willMatchPassword(false);
-
       new Expectations() {{
          UserAccount.find("roger"); result = secondAccount;
          secondAccount.passwordMatches(anyString); result = false;
@@ -90,7 +82,7 @@ public final class LoginServiceNGTest
       new AccountNotRevoked(secondAccount);
    }
 
-   private static final class AccountNotRevoked extends Verifications
+   static final class AccountNotRevoked extends Verifications
    {
       AccountNotRevoked(UserAccount accountToVerify)
       {

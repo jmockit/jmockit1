@@ -11,6 +11,8 @@ import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
+import mockit.internal.*;
+
 public final class MisusedExpectationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -494,6 +496,17 @@ public final class MisusedExpectationsTest
       new Expectations() {{ mock.same(); result = mock; }};
 
       assertSame(mock, mock.same());
+   }
+
+   @Test
+   public void recordExpectationWithMinTimesSetToZero()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations() {{
+         mock.doSomething(true);
+         minTimes = 0; // gets ignored if set to 0 (or negative) in a test method
+      }};
    }
 
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////

@@ -113,7 +113,6 @@ public final class MultipleMockedTypesTest
    {
       new Expectations() {{
          mock1.getValue(); result = 15;
-         mock2.getValue(); result = -50; minTimes = 0;
       }};
 
       // The executed method will be the override, which is not mocked.

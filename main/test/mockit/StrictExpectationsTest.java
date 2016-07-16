@@ -314,17 +314,6 @@ public final class StrictExpectationsTest
    }
 
    @Test
-   public void recordStrictExpectationsAllowingZeroInvocationsAndReplayNone(@Mocked final Collaborator mock)
-   {
-      new StrictExpectations() {{
-         mock.provideSomeService(); minTimes = 0;
-         mock.setValue(1); minTimes = 0;
-      }};
-
-      // Don't exercise anything.
-   }
-
-   @Test
    public void recordingExpectationOnMethodWithOneArgumentButReplayingWithAnotherShouldProduceUsefulErrorMessage(
       @Mocked final Collaborator mock) throws Exception
    {

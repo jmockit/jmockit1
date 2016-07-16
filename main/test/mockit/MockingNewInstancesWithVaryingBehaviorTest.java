@@ -157,7 +157,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    {
       new Expectations() {{
          new Collaborator(5); result = mock;
-         onInstance(mock).getValue(); result = 123; minTimes = 0;
+         onInstance(mock).getValue(); result = 123; times = 2;
       }};
 
       assertEquals(0, new Collaborator().getValue());
@@ -181,7 +181,6 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
          mock.isPositive(); times = 2;
 
          // Verify invocations to mocked instances matching the "mock" instance:
-         onInstance(mock).getValue(); times = 2;
          onInstance(mock).isPositive(); times = 1;
       }};
    }

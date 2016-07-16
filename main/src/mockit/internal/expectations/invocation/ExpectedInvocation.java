@@ -459,4 +459,39 @@ public final class ExpectedInvocation
    {
       defaultReturnValue = other.defaultReturnValue;
    }
+
+   public boolean isRedundant(@Nonnull ExpectedInvocation other)
+   {
+      if (matchInstance != other.matchInstance) {
+         return false;
+      }
+
+      List<ArgumentMatcher<?>> thisMatchers = arguments.getMatchers();
+      List<ArgumentMatcher<?>> otherMatchers = other.arguments.getMatchers();
+
+      if (thisMatchers == otherMatchers) {
+         return true;
+      }
+
+      if (thisMatchers == null || otherMatchers == null) {
+         return false;
+      }
+
+      int n = thisMatchers.size();
+
+      if (otherMatchers.size() != n) {
+         return false;
+      }
+
+      for (int i = 0; i < n; i++) {
+         ArgumentMatcher<?> thisMatcher = thisMatchers.get(i);
+         ArgumentMatcher<?> otherMatcher = otherMatchers.get(i);
+
+         if (thisMatcher != otherMatcher && !thisMatcher.equals(otherMatcher)) {
+            return false;
+         }
+      }
+
+      return true;
+   }
 }

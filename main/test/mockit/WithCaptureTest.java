@@ -66,18 +66,6 @@ public final class WithCaptureTest
    }
 
    @Test
-   public void captureArgumentWhenNoInvocationIsMatched()
-   {
-      dao.create("Mary Jane", 10);
-
-      new Verifications() {{
-         int age;
-         dao.create("", age = withCapture()); minTimes = 0;
-         assertEquals(0, age);
-      }};
-   }
-
-   @Test
    public void captureArgumentOfWrapperTypeToLocalVariableOfPrimitiveType()
    {
       dao.doSomething(45);

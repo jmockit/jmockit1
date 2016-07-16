@@ -174,8 +174,6 @@ public final class FullVerificationsTest
    @Test
    public void verifyRecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
    {
-      new Expectations() {{ mock.save(); minTimes = 0; }};
-
       mock.prepare();
       mock.setSomething(123);
 
@@ -219,26 +217,6 @@ public final class FullVerificationsTest
       mock.setSomething(1);
 
       new FullVerifications() {{ mock.notifyBeforeSave(); }};
-   }
-
-   @Test
-   public void verifyAllInvocationsWithExpectationRecordedButOneInvocationUnverified()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 123");
-
-      new Expectations() {{
-         mock.setSomething(anyInt); minTimes = 0;
-      }};
-
-      mock.setSomething(123);
-      mock.editABunchMoreStuff();
-      mock.setSomething(45);
-
-      new FullVerifications() {{
-         mock.setSomething(withNotEqual(123));
-         mock.editABunchMoreStuff();
-      }};
    }
 
    @Test

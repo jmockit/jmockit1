@@ -41,18 +41,6 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordAmbiguousExpectationsUsingConstantArgumentValueAndArgumentMatcher()
-   {
-      new Expectations() {{
-         mock.setValue(1);
-         mock.setValue(anyInt); result = new UnknownError(); minTimes = 0;
-      }};
-
-      mock.setValue(1);
-      mock.setValue(1); // won't throw an error
-   }
-
-   @Test
    public void recordAmbiguousExpectationsUsingArgumentMatchers()
    {
       new Expectations() {{
@@ -98,19 +86,6 @@ public final class ExpectationsWithDuplicateRecordingsTest
 
       assertEquals(1, mock.doSomething((Long) null));
       assertEquals(2, mock.doSomething(1L));
-   }
-
-   @Test
-   public void recordSameMethodWithOverlappingArgumentMatchersButInTheWrongOrder()
-   {
-      new Expectations() {{
-         // Invalid, since the least specific expectation is recorded first:
-         mock.doSomething((String) any); result = "";
-         mock.doSomething(withEqual("str")); result = null; minTimes = 0;
-      }};
-
-      assertEquals("", mock.doSomething((String) null)); // ok, matches only one expectation
-      assertNotNull(mock.doSomething("str")); // not ok, since the most specific won't be matched
    }
 
    @Test
@@ -308,24 +283,6 @@ public final class ExpectationsWithDuplicateRecordingsTest
       assertEquals(2L, b.doSomething(2L, "B"));
       assertEquals(2L, b.doSomething(1L, "c"));
       assertEquals(1L, b.doSomething(2L, "A"));
-      assertEquals(2L, b.doSomething(0L, "B"));
-      assertEquals(2L, b.doSomething(0L, null));
-   }
-
-   @Test
-   public void recordOverlappingExpectationsWithSameMatcherForOneParameterAndDifferentForAnotherButInWrongOrder()
-   {
-      Blah b = new Blah();
-
-      new Expectations() {{
-         mock.doSomething(anyLong, null); result = 2L;
-         mock.doSomething(anyLong, "A"); result = 1L; minTimes = 0; // most specific should come first
-      }};
-
-      assertEquals(2L, b.doSomething(1L, "A"));
-      assertEquals(2L, b.doSomething(2L, "B"));
-      assertEquals(2L, b.doSomething(1L, "c"));
-      assertEquals(2L, b.doSomething(2L, "A"));
       assertEquals(2L, b.doSomething(0L, "B"));
       assertEquals(2L, b.doSomething(0L, null));
    }

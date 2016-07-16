@@ -89,47 +89,6 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyRecordedInvocationThatIsAllowedToOccurAnyNumberOfTimesAndDoesNotOccur()
-   {
-      new Expectations() {{ mock.save(); minTimes = 0; }};
-
-      mock.prepare();
-      mock.setSomething(123);
-
-      new Verifications() {{
-         mock.prepare();
-         mock.save(); minTimes = 0;
-      }};
-   }
-
-   @Test
-   public void verifyRecordedInvocationWithExactInvocationCountUsingArgumentMatchers()
-   {
-      new Expectations() {{ mock.setSomething(anyInt); minTimes = 0; }};
-
-      mock.setSomething(1);
-      mock.setSomething(2);
-
-      new Verifications() {{
-         mock.setSomething(anyInt);
-         times = 2;
-      }};
-   }
-
-   @Test
-   public void verifyUnrecordedInvocationThatIsAllowedToHappenAnyNoOfTimesAndDoesNotHappen()
-   {
-      mock.prepare();
-      mock.setSomething(123);
-
-      new Verifications() {{
-         mock.prepare();
-         mock.setSomething(anyInt);
-         mock.save(); minTimes = 0;
-      }};
-   }
-
-   @Test
    public void verifyUnrecordedInvocationThatShouldHappenButDoesNot()
    {
       thrown.expect(MissingInvocation.class);
@@ -286,6 +245,7 @@ public final class VerificationsTest
       new Verifications() {{
          String value;
          mock.setSomethingElse(value = withCapture());
+         //noinspection ConstantConditions
          assertEquals("not empty", 0, value.length());
       }};
    }
@@ -358,21 +318,5 @@ public final class VerificationsTest
          dep.editABunchMoreStuff();
          times = 2;
       }};
-   }
-
-   @Test
-   public void verifyInvocationWhichWasReplayedBeforeAndAfterBeingRecorded()
-   {
-      // First "replay":
-      mock.prepare();
-      new Verifications() {{ mock.prepare(); times = 1; }};
-
-      // Previous replay state is discarded, with a new empty one being created:
-      new Expectations() {{ mock.prepare(); minTimes = 0; }};
-      new Verifications() {{ mock.prepare(); times = 0; }};
-
-      // Second replay, but counts again as first since the previous one was discarded:
-      mock.prepare();
-      new Verifications() {{ mock.prepare(); times = 1; }};
    }
 }

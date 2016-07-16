@@ -114,7 +114,15 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.handleInvocationCountConstraint(n, -1);
+
+         if (
+            n > 0 ||
+            TestRun.isSettingUpNextTest() ||
+            instance.isStrictOrDynamic() ||
+            currentPhase instanceof BaseVerificationPhase && ((BaseVerificationPhase) currentPhase).isFullyVerified()
+         ) {
+            currentPhase.handleInvocationCountConstraint(n, -1);
+         }
       }
    }
 

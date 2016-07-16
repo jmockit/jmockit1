@@ -224,17 +224,6 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomethingElse();
    }
 
-   @Test
-   public void strict_expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
-   {
-      new StrictExpectations() {{
-         mock.provideSomeService(); minTimes = 0; maxTimes = -1;
-         mock.simpleOperation(1, "b", null);
-      }};
-
-      codeUnderTest.doSomethingElse();
-   }
-
    // Tests with recorded not-strict expectations /////////////////////////////////////////////////////////////////////
 
    @Test
@@ -372,32 +361,6 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomething();
       codeUnderTest.doSomethingElse();
       codeUnderTest.doSomething();
-   }
-
-   @Test
-   public void expectZeroOrMoreTimesAndReplayTwice()
-   {
-      final Collaborator collaborator = new Collaborator();
-
-      new Expectations(collaborator) {{
-         collaborator.simpleOperation(1, "b", null); minTimes = 0;
-         collaborator.provideSomeService(); minTimes = 0; maxTimes = -1;
-      }};
-
-      codeUnderTest.doSomething();
-      codeUnderTest.doSomethingElse();
-      codeUnderTest.doSomething();
-   }
-
-   @Test
-   public void expectZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.provideSomeService(); minTimes = 0; maxTimes = -1;
-         mock.simpleOperation(1, "b", null);
-      }};
-
-      codeUnderTest.doSomethingElse();
    }
 
    // Tests with ordered verifications ////////////////////////////////////////////////////////////////////////////////
@@ -709,7 +672,6 @@ public final class InvocationBlocksWithTimesFieldsTest
       }};
    }
 
-   @SuppressWarnings("UnusedDeclaration")
    @Test
    public void unordered_verifyZeroOrMoreTimesAndReplayTwice(@Mocked Collaborator mock)
    {
@@ -722,17 +684,6 @@ public final class InvocationBlocksWithTimesFieldsTest
       new Verifications() {{
          collaborator.simpleOperation(1, "b", null);
          collaborator.provideSomeService(); minTimes = 0; maxTimes = -1;
-      }};
-   }
-
-   @Test
-   public void unordered_verifyZeroOrMoreTimesAndReplayNone(@Mocked final Collaborator mock)
-   {
-      codeUnderTest.doSomethingElse();
-
-      new Verifications() {{
-         mock.simpleOperation(1, "b", null);
-         mock.provideSomeService(); minTimes = 0; maxTimes = -1;
       }};
    }
 }

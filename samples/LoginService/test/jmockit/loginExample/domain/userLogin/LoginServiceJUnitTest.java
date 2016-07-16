@@ -19,12 +19,6 @@ public final class LoginServiceJUnitTest
    @Tested LoginService service;
    @Mocked UserAccount account;
 
-   @Before
-   public void init()
-   {
-      new Expectations() {{ UserAccount.find("john"); result = account; minTimes = 0; }};
-   }
-
    @Test
    public void setAccountToLoggedInWhenPasswordMatches() throws Exception
    {

@@ -138,11 +138,6 @@ public final class InterfacesWithMethodBodiesTest
    @Test
    void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
    {
-      new Expectations() {{
-         InterfaceWithStaticMethod.newInstance();
-         result = mock;
-      }};
-
       InterfaceWithStaticMethod actual = InterfaceWithStaticMethod.newInstance();
       assertSame(mock, actual);
    }
