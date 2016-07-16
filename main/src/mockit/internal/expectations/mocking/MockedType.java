@@ -139,12 +139,18 @@ public final class MockedType implements InjectionPointProvider
 
    private void validateAnnotationUsage()
    {
-      if (capturing != null && capturing.maxInstances() == Integer.MAX_VALUE) {
-         Class<?> baseType = getClassType();
-         int modifiers = baseType.getModifiers();
+      if (capturing != null) {
+         if (capturing.maxInstances() == Integer.MAX_VALUE) {
+            Class<?> baseType = getClassType();
+            int modifiers = baseType.getModifiers();
 
-         if (isFinal(modifiers)) {
-            throw new IllegalArgumentException("Invalid @Capturing of final " + baseType);
+            if (isFinal(modifiers)) {
+               throw new IllegalArgumentException("Invalid @Capturing of final " + baseType + ": " + mockId);
+            }
+         }
+
+         if (mocked != null && !mocked.stubOutClassInitialization()) {
+            throw new IllegalArgumentException("Redundant application of @Mocked and @Capturing: " + mockId);
          }
       }
    }

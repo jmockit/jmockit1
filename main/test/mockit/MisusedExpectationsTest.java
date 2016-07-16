@@ -463,6 +463,18 @@ public final class MisusedExpectationsTest
       fail("Should fail before entering the test");
    }
 
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToApplyBothMockedAndCapturing(@Mocked @Capturing Blah mock)
+   {
+      fail("Should fail before entering the test");
+   }
+
+   @Test
+   public void allowMockedWithAttributePlusCapturing(@Mocked(stubOutClassInitialization = true) @Capturing Blah mock)
+   {
+      assertNotNull(mock);
+   }
+
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
 
    @Test
