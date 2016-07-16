@@ -69,13 +69,14 @@ public final class TestedClassWithFullConstructorDITest
 
    @Tested(fullyInitialized = true) TestedClassWithAnnotatedConstructor tested2;
    @Injectable final int number = 123;
+   @Injectable final String text = "text";
 
    @Test
    public void verifyInstantiationOfTestedObjectThroughAnnotatedConstructor()
    {
       assertNotNull(tested2);
       assertEquals(123, tested2.i);
-      assertEquals("", tested2.s);
+      assertEquals("text", tested2.s);
       assertTrue(tested2.dependency instanceof DependencyImpl);
       assertNotNull(tested2.collaborator1);
       assertSame(tested2.collaborator1, tested2.collaborator2);
@@ -123,6 +124,6 @@ public final class TestedClassWithFullConstructorDITest
    @Test
    public void verifyRecursiveInstantiationOfDependencyWithConstructorParameter()
    {
-      assertEquals("", tested4.dependency.par);
+      assertEquals("text", tested4.dependency.par);
    }
 }

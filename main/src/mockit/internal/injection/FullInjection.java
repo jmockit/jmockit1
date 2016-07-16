@@ -97,6 +97,10 @@ final class FullInjection
          if ((typeModifiers & INVALID_TYPES) != 0 || !isStatic(typeModifiers) && type.isMemberClass()) {
             return false;
          }
+
+         if (type.getClassLoader() == null) {
+            return false;
+         }
       }
 
       return true;

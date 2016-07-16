@@ -53,7 +53,7 @@ public final class TestedClassWithFullDITest
    @Test
    public void useFullyInitializedTestedObjectWithNoInjectableForFirstLevelDependency()
    {
-      assertEquals("", tested.name);
+      assertNull(tested.name);
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
    }
 
@@ -61,7 +61,7 @@ public final class TestedClassWithFullDITest
    public void useFullyInitializedTestedObjectWithValueForFirstLevelDependency(@Injectable("test") String id)
    {
       assertEquals("test", tested.name);
-      assertEquals(0, tested.description.length());
+      assertNull(tested.description);
       assertNull(tested.number);
       assertTrue(tested.flag);
       assertNull(tested.threadState);
