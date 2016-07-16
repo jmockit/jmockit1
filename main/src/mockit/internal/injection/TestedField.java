@@ -18,7 +18,7 @@ final class TestedField
    @Nonnull private final Field testedField;
    @Nonnull private final Tested metadata;
    @Nullable private final FullInjection fullInjection;
-   @Nonnull private TestedClass testedClass;
+   @Nonnull private final TestedClass testedClass;
    @Nullable private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    private boolean createAutomatically;
