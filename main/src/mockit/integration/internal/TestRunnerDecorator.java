@@ -141,6 +141,8 @@ public class TestRunnerDecorator
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions == null) {
+         new ParameterNameExtractor().extractNames(testClass);
+
          fieldTypeRedefinitions = new FieldTypeRedefinitions(testClass);
          TestRun.setFieldTypeRedefinitions(fieldTypeRedefinitions);
 

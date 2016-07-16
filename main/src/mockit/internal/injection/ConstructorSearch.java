@@ -11,6 +11,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.state.*;
+import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.GeneratedClasses.*;
 

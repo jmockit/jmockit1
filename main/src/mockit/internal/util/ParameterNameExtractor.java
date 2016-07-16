@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.util;
 
 import javax.annotation.*;
 
@@ -12,20 +12,20 @@ import mockit.internal.state.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-final class ParameterNameExtractor extends ClassVisitor
+public final class ParameterNameExtractor extends ClassVisitor
 {
    @Nonnull private String classDesc;
    @Nonnegative private int memberAccess;
    @Nonnull private String memberName;
    @Nonnull private String memberDesc;
 
-   ParameterNameExtractor()
+   public ParameterNameExtractor()
    {
       classDesc = memberName = memberDesc = "";
    }
 
    @Nonnull
-   String extractNames(@Nonnull Class<?> classOfInterest)
+   public String extractNames(@Nonnull Class<?> classOfInterest)
    {
       String className = classOfInterest.getName();
       classDesc = className.replace('.', '/');

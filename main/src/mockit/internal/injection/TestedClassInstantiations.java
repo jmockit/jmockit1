@@ -28,14 +28,7 @@ public final class TestedClassInstantiations
    public boolean findTestedAndInjectableFields(@Nonnull Class<?> testClass)
    {
       findAllTestedAndInjectableFieldsInTestClassHierarchy(testClass);
-
-      boolean foundTestedFields = !testedFields.isEmpty();
-
-      if (foundTestedFields) {
-         new ParameterNameExtractor().extractNames(testClass);
-      }
-
-      return foundTestedFields;
+      return !testedFields.isEmpty();
    }
 
    private void findAllTestedAndInjectableFieldsInTestClassHierarchy(@Nonnull Class<?> testClass)
