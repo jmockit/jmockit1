@@ -15,7 +15,7 @@ public final class InjectableMockedTest
       static int doSomething() { return 1; }
    }
 
-   @Test
+   @Test @SuppressWarnings("DefaultAnnotationParam")
    public void mockClassWithStaticInitializerAsInjectable(
       @Injectable @Mocked(stubOutClassInitialization = false) ClassWithStaticInitializer1 mock)
    {
@@ -77,26 +77,6 @@ public final class InjectableMockedTest
       assertEquals(101, notMocked.value);
       assertEquals(-1, notMocked.doSomething(false));
       assertEquals(1, notMocked.doSomething(true));
-   }
-
-   final class SubCollaborator1 extends Collaborator {}
-
-   final class SubCollaborator2 extends Collaborator
-   {
-      int doSomething()
-      {
-         new SubCollaborator1().doSomething(true);
-         return doSomething(true);
-      }
-   }
-
-   @Test
-   public void mockInheritedMethodInCapturedInstanceOfOneSubclassButNotInAnother(
-      @Capturing @Injectable final SubCollaborator1 capturedInstance)
-   {
-      new StrictExpectations() {{ capturedInstance.doSomething(true); }};
-
-      assertEquals(1, new SubCollaborator2().doSomething());
    }
 
    @Test

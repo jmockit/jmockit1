@@ -183,22 +183,6 @@ public final class CapturingInstancesTest
    }
 
    @Test
-   public void verifyExpectationsOnlyOnOneOfTwoSubclassesForAnyNumberOfCapturedInstances(
-      @Capturing final Derived1 anyCapture)
-   {
-      new Expectations() {{
-         new Derived1(); minTimes = 1;
-         anyCapture.doSomething(); result = true; times = 3;
-      }};
-
-      assertTrue(new Derived1().doSomething());
-      assertFalse(new Derived2().doSomething());
-      Derived1 d1b = new Derived1();
-      assertTrue(d1b.doSomething());
-      assertTrue(d1b.doSomething());
-   }
-
-   @Test
    public void verifyExpectationsOnlyOnOneOfTwoSubclassesForTwoCapturedInstances(
       @Capturing(maxInstances = 1) final Derived1 firstCapture,
       @Capturing(maxInstances = 1) final Derived1 secondCapture)
@@ -222,6 +206,7 @@ public final class CapturingInstancesTest
 
       // Classes mocked only because they implement/extend a capturing base type do not cascade from methods
       // that exist only in them.
+      //noinspection ConstantConditions
       assertNull(service2);
    }
 

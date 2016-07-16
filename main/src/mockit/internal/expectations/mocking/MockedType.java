@@ -25,7 +25,9 @@ public final class MockedType implements InjectionPointProvider
       int h = 0;
 
       try {
-         h = MockedType.class.getDeclaredField("DUMMY").getAnnotation(Mocked.class).hashCode();
+         Field dummy = MockedType.class.getDeclaredField("DUMMY");
+         Mocked mocked = dummy.getAnnotation(Mocked.class);
+         h = mocked.hashCode();
       }
       catch (NoSuchFieldException ignore) {}
 
@@ -53,6 +55,9 @@ public final class MockedType implements InjectionPointProvider
       injectable = injectableAnnotation != null;
       declaredType = field.getGenericType();
       mockId = field.getName();
+
+      validateAnnotationUsage();
+
       providedValue = getDefaultInjectableValue(injectableAnnotation);
       registerCascadingAsNeeded();
    }
@@ -81,7 +86,9 @@ public final class MockedType implements InjectionPointProvider
    private void registerCascadingAsNeeded()
    {
       if (isMockableType() && !(declaredType instanceof TypeVariable<?>)) {
-         TestRun.getExecutingTest().getCascadingTypes().add(fieldFromTestClass, declaredType, null);
+         ExecutingTest executingTest = TestRun.getExecutingTest();
+         CascadingTypes types = executingTest.getCascadingTypes();
+         types.add(fieldFromTestClass, declaredType, null);
       }
    }
 
@@ -100,6 +107,8 @@ public final class MockedType implements InjectionPointProvider
 
       String parameterName = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
       mockId = parameterName == null ? "param" + paramIndex : parameterName;
+
+      validateAnnotationUsage();
 
       providedValue = getDefaultInjectableValue(injectableAnnotation);
 
@@ -126,6 +135,18 @@ public final class MockedType implements InjectionPointProvider
       }
 
       return null;
+   }
+
+   private void validateAnnotationUsage()
+   {
+      if (capturing != null && capturing.maxInstances() == Integer.MAX_VALUE) {
+         Class<?> baseType = getClassType();
+         int modifiers = baseType.getModifiers();
+
+         if (isFinal(modifiers)) {
+            throw new IllegalArgumentException("Invalid @Capturing of final " + baseType);
+         }
+      }
    }
 
    MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType)

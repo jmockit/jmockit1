@@ -256,14 +256,13 @@ public final class MisusedExpectationsTest
    }
 
    @SuppressWarnings("UnusedParameters")
-   static class BlahBlah extends Blah
+   static final class BlahBlah extends Blah
    {
       @Override String doSomething(boolean b) { return "overridden"; }
       void doSomethingElse(Object o) {}
    }
 
-   @SuppressWarnings("UnnecessarySuperQualifier")
-   @Test
+   @Test @SuppressWarnings("UnnecessarySuperQualifier")
    public void accessSpecialFieldsInExpectationBlockThroughSuper(@Mocked final BlahBlah mock2)
    {
       new Expectations() {{
@@ -280,8 +279,7 @@ public final class MisusedExpectationsTest
       mock2.setValue(1);
    }
 
-   @SuppressWarnings("UnnecessarySuperQualifier")
-   @Test
+   @Test @SuppressWarnings("UnnecessarySuperQualifier")
    public void accessSpecialFieldsInVerificationBlockThroughSuper(@Mocked final BlahBlah mock2)
    {
       assertNull(mock2.doSomething(true));
@@ -457,6 +455,12 @@ public final class MisusedExpectationsTest
       String name = mock.getName();
 
       assertEquals("test cut=0", name);
+   }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToApplyCapturingOnFinalClass(@Capturing BlahBlah mock)
+   {
+      fail("Should fail before entering the test");
    }
 
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
