@@ -16,6 +16,8 @@ import mockit.internal.util.*;
 
 public final class MockedImplementationClass<T>
 {
+   private static final ClassLoader THIS_CL = MockedImplementationClass.class.getClassLoader();
+
    @Nonnull private final MockUp<?> mockUpInstance;
    @Nullable private ImplementationClass<T> implementationClass;
    private Class<T> generatedClass;
@@ -71,7 +73,7 @@ public final class MockedImplementationClass<T>
       }
 
       //noinspection unchecked
-      generatedClass = (Class<T>) Proxy.getProxyClass(ClassLoader.getSystemClassLoader(), interfacesToMock);
+      generatedClass = (Class<T>) Proxy.getProxyClass(THIS_CL, interfacesToMock);
       new MockClassSetup(generatedClass, null, mockUpInstance, null).redefineMethods();
 
       return generatedClass;
