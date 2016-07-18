@@ -8,6 +8,7 @@ import java.security.cert.*;
 import java.util.*;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.singletonList;
 
 import org.hamcrest.*;
 
@@ -57,10 +58,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithUnexpectedMethodArgument()
    {
+      new StrictExpectations() {{ mock.simpleOperation(2, "test", null); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage(" expected \"test\", got \"other\"");
-
-      new StrictExpectations() {{ mock.simpleOperation(2, "test", null); }};
 
       mock.simpleOperation(2, "other", null);
    }
@@ -68,10 +69,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithMultipleUnexpectedMethodArguments()
    {
+      new StrictExpectations() {{ mock.setValues('a', true); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage(" expected \"a\", got \"b\"");
-
-      new StrictExpectations() {{ mock.setValues('a', true); }};
 
       mock.setValues('b', false);
    }
@@ -79,10 +80,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithUnexpectedSecondMethodArgument()
    {
+      new StrictExpectations() {{ mock.setValues('a', true); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage(" expected true, got false");
-
-      new StrictExpectations() {{ mock.setValues('a', true); }};
 
       mock.setValues('a', false);
    }
@@ -90,10 +91,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithUnexpectedNullArgument()
    {
+      new StrictExpectations() {{ mock.simpleOperation(2, "test", null); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("expected \"test\", got null");
-
-      new StrictExpectations() {{ mock.simpleOperation(2, "test", null); }};
 
       mock.simpleOperation(2, null, null);
    }
@@ -101,10 +102,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithUnexpectedMethodArgumentUsingMatcher()
    {
+      new StrictExpectations() {{ mock.setValue(withEqual(-1)); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("expected -1, got 1");
-
-      new StrictExpectations() {{ mock.setValue(withEqual(-1)); }};
 
       mock.setValue(1);
    }
@@ -112,10 +113,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void expectInvocationWithDifferentThanExpectedProxyArgument(@Mocked final Runnable mock2)
    {
+      new StrictExpectations() {{ mock.complexOperation(mock2); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("got null");
-
-      new StrictExpectations() {{ mock.complexOperation(mock2); }};
 
       mock.complexOperation(null);
    }
@@ -123,10 +124,10 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void expectInvocationWithEqualFloatArgumentButWithDifferentReplayValue()
    {
+      new StrictExpectations() {{ mock.setValue(withEqual(3.0F, 0.01)); }};
+
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage(" within 0.01 of 3.0, got 3.02F");
-
-      new StrictExpectations() {{ mock.setValue(withEqual(3.0F, 0.01)); }};
 
       mock.setValue(3.02F);
    }
@@ -134,9 +135,9 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void expectInvocationWithMatchForRegexButWithNonMatchingArgument()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
       new StrictExpectations() {{ mock.complexOperation(withMatch("test")); }};
+
+      thrown.expect(UnexpectedInvocation.class);
 
       mock.complexOperation("otherValue");
    }
@@ -144,12 +145,12 @@ public final class ExpectationsWithArgMatchersTest
    @Test
    public void replayWithDifferentArgumentOfClassLackingEqualsMethod()
    {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("argument class java.lang.RuntimeException has no \"equals\" method");
-
       new StrictExpectations() {{
          mock.setValue(new RuntimeException("Recorded"));
       }};
+
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("argument class java.lang.RuntimeException has no \"equals\" method");
 
       mock.setValue(new RuntimeException("Replayed"));
    }
@@ -500,6 +501,50 @@ public final class ExpectationsWithArgMatchersTest
       assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject();
    }
 
+   @Test
+   public void declareFieldInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingField()
+   {
+      new Expectations() {
+         final Integer anyValue = 1;
+
+         {
+            mock.setValue(anyValue);
+         }
+      };
+
+      mock.setValue(1);
+   }
+
+   @Test
+   public void declareMethodInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingMethod()
+   {
+      final List<Integer> values = new ArrayList<Integer>();
+
+      new Expectations() {
+         {
+            mock.setValues(withEqual('c'), anyBoolean);
+            mock.setValue(withCapture(values));
+         }
+
+         char withEqual(char c) { return c; }
+      };
+
+      mock.setValues('c', true);
+      final Collaborator col = new Collaborator();
+      col.setValue(1);
+
+      assertEquals(singletonList(1), values);
+
+      new Verifications() {{
+         int i;
+         mock.setValue(i = withCapture());
+         assertEquals(1, i);
+
+         List<Collaborator> collaborators = withCapture(new Collaborator());
+         assertSame(col, collaborators.get(0));
+      }};
+   }
+
    // "Missing invocations" for regular/strict expectations ///////////////////////////////////////////////////////////
 
    @Test
@@ -508,20 +553,18 @@ public final class ExpectationsWithArgMatchersTest
       // mocked, causing a new expectation to be created during replay:
       @Mocked final Certificate cert)
    {
-      thrown.expect(MissingInvocation.class);
-
       new Expectations() {{
          mock.setValue(withSameInstance(cert)); times = 1;
       }};
 
       mock.setValue((Certificate) null);
+
+      thrown.expect(MissingInvocation.class);
    }
 
    @Test
    public void expectNotStrictInvocationWithMatcherWhichInvokesMockedMethod()
    {
-      thrown.expect(MissingInvocation.class);
-
       new Expectations() {{
          mock.setValue(with(new Delegate<Integer>() {
             @Mock boolean validateAsPositive(int value)
@@ -534,18 +577,20 @@ public final class ExpectationsWithArgMatchersTest
       }};
 
       mock.setValue(-3);
+
+      thrown.expect(MissingInvocation.class);
    }
 
    @Test
    public void expectStrictInvocationWithCustomMatcherButNeverReplay()
    {
-      thrown.expect(MissingInvocation.class);
-
       new StrictExpectations() {{
          mock.doSomething(with(new Delegate<Integer>() {
             @Mock boolean test(Integer i) { return true; }
          }));
       }};
+
+      thrown.expect(MissingInvocation.class);
    }
 
    // Verifications ///////////////////////////////////////////////////////////////////////////////////////////////////

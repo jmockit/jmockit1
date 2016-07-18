@@ -18,6 +18,24 @@ final class InvocationBlockModifier extends MethodVisitor
    private static final String CLASS_DESC = Type.getInternalName(ActiveInvocations.class);
    private static final Type[] NO_PARAMETERS = new Type[0];
    private static final MockFixture MOCK_FIXTURE = TestRun.mockFixture();
+   private static final String ANY_FIELDS =
+      "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
+   private static final String WITH_METHODS =
+      "withArgThat(Lorg/hamcrest/Matcher;)Ljava/lang/Object; " +
+      "with(Lmockit/Delegate;)Ljava/lang/Object; " +
+      "withAny(Ljava/lang/Object;)Ljava/lang/Object; " +
+      "withCapture()Ljava/lang/Object; withCapture(Ljava/util/List;)Ljava/lang/Object; " +
+      "withCapture(Ljava/lang/Object;)Ljava/util/List; " +
+      "withEqual(Ljava/lang/Object;)Ljava/lang/Object; withEqual(DD)D withEqual(FD)F " +
+      "withInstanceLike(Ljava/lang/Object;)Ljava/lang/Object; " +
+      "withInstanceOf(Ljava/lang/Class;)Ljava/lang/Object; " +
+      "withNotEqual(Ljava/lang/Object;)Ljava/lang/Object; " +
+      "withNull()Ljava/lang/Object; withNotNull()Ljava/lang/Object; " +
+      "withSameInstance(Ljava/lang/Object;)Ljava/lang/Object; " +
+      "withSubstring(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
+      "withPrefix(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
+      "withSuffix(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
+      "withMatch(Ljava/lang/CharSequence;)Ljava/lang/CharSequence;";
 
    @Nonnull private final MethodWriter mw;
 
@@ -166,7 +184,7 @@ final class InvocationBlockModifier extends MethodVisitor
                return;
             }
          }
-         else if (name.startsWith("any")) {
+         else if (name.startsWith("any") && ANY_FIELDS.contains(name)) {
             generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
             return;
          }
@@ -234,7 +252,7 @@ final class InvocationBlockModifier extends MethodVisitor
          // It's an invocation to a primitive boxing method or to a synthetic method for private access, just ignore it.
          visitMethodInstruction(INVOKESTATIC, owner, name, desc, itf);
       }
-      else if (opcode == INVOKEVIRTUAL && owner.equals(blockOwner) && name.startsWith("with")) {
+      else if (isCallToArgumentMatcher(opcode, owner, name, desc)) {
          visitMethodInstruction(INVOKEVIRTUAL, owner, name, desc, itf);
 
          boolean withCaptureMethod = "withCapture".equals(name);
@@ -255,15 +273,7 @@ final class InvocationBlockModifier extends MethodVisitor
       }
       else {
          checkForInvocationThatIsNotMockable(owner, name);
-
-         if (matcherCount == 0) {
-            visitMethodInstruction(opcode, owner, name, desc, itf);
-         }
-         else {
-            boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
-            visitMethodInstruction(opcode, owner, name, desc, itf);
-            handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
-         }
+         handleMockedOrNonMockedInvocation(opcode, owner, name, desc, itf);
       }
    }
 
@@ -272,7 +282,8 @@ final class InvocationBlockModifier extends MethodVisitor
       return !methodOwner.equals(blockOwner) && name.startsWith("access$");
    }
 
-   private void visitMethodInstruction(int opcode, String owner, String name, String desc, boolean itf)
+   private void visitMethodInstruction(
+      @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
    {
       int argSize = Type.getArgumentsAndReturnSizes(desc);
       int sizeVariation = (argSize & 0x03) - (argSize >> 2);
@@ -283,6 +294,14 @@ final class InvocationBlockModifier extends MethodVisitor
 
       stackSize += sizeVariation;
       mw.visitMethodInsn(opcode, owner, name, desc, itf);
+   }
+
+   private boolean isCallToArgumentMatcher(
+      @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc)
+   {
+      return
+         opcode == INVOKEVIRTUAL && owner.equals(blockOwner) &&
+         name.startsWith("with") && WITH_METHODS.contains(name + desc);
    }
 
    private void generateCodeToReplaceNullWithZeroOnTopOfStack(@Nonnull String unboxingMethodDesc)
@@ -310,6 +329,19 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
+   private void handleMockedOrNonMockedInvocation(
+      @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
+   {
+      if (matcherCount == 0) {
+         visitMethodInstruction(opcode, owner, name, desc, itf);
+      }
+      else {
+         boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
+         visitMethodInstruction(opcode, owner, name, desc, itf);
+         handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
+      }
+   }
+
    private boolean handleInvocationParameters(@Nonnull String desc)
    {
       parameterTypes = Type.getArgumentTypes(desc);
@@ -325,6 +357,7 @@ final class InvocationBlockModifier extends MethodVisitor
       return mockedInvocationUsingTheMatchers;
    }
 
+   @Nonnegative
    private int sumOfParameterSizes()
    {
       int sum = 0;
@@ -336,7 +369,7 @@ final class InvocationBlockModifier extends MethodVisitor
       return sum;
    }
 
-   private void generateCallsToMoveArgMatchers(int initialStack)
+   private void generateCallsToMoveArgMatchers(@Nonnegative int initialStack)
    {
       int stack = initialStack;
       int nextMatcher = 0;
@@ -356,7 +389,7 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   private void generateCallToMoveArgMatcher(int originalMatcherIndex, int toIndex)
+   private void generateCallToMoveArgMatcher(@Nonnegative int originalMatcherIndex, @Nonnegative int toIndex)
    {
       mw.visitIntInsn(SIPUSH, originalMatcherIndex);
       mw.visitIntInsn(SIPUSH, toIndex);
