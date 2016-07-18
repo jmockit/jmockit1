@@ -413,8 +413,10 @@ public abstract class MockUp<T>
    }
 
    /**
-    * An empty method that can be overridden in a mock-up subclass wanting to be notified on tear down; this happens
-    * through <em>automatic</em> tear down, but not if {@link #tearDown()} is called.
+    * An empty method that can be overridden in a mock-up subclass that wants to be notified whenever the mock-up is
+    * automatically torn down.
+    * Tear down happens when the mock-up goes out of scope: at the end of the test when applied inside a test, or at the
+    * end of the test class when applied before the test class.
     * <p/>
     * By default, this method does nothing.
     */
