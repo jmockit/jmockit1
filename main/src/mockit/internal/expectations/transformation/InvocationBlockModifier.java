@@ -4,7 +4,9 @@
  */
 package mockit.internal.expectations.transformation;
 
+import java.util.*;
 import javax.annotation.*;
+import static java.util.Arrays.*;
 
 import mockit.external.asm.*;
 import mockit.internal.expectations.*;
@@ -18,6 +20,9 @@ final class InvocationBlockModifier extends MethodVisitor
    private static final String CLASS_DESC = Type.getInternalName(ActiveInvocations.class);
    private static final Type[] NO_PARAMETERS = new Type[0];
    private static final MockFixture MOCK_FIXTURE = TestRun.mockFixture();
+   private static final List<String> anyHandlerMethods = asList(
+         "anyString", "anyBoolean", "anyChar", "anyByte", "anyShort",
+         "anyInt", "anyFloat", "anyLong", "anyDouble", "any");
 
    @Nonnull private final MethodWriter mw;
 
@@ -166,7 +171,7 @@ final class InvocationBlockModifier extends MethodVisitor
                return;
             }
          }
-         else if (name.startsWith("any")) {
+         else if (anyHandlerMethods.contains(name)) {
             generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
             return;
          }
