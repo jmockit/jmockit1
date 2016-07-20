@@ -7,7 +7,7 @@ package mockit;
 import java.lang.annotation.*;
 
 /**
- * Used inside a {@linkplain MockUp mock-up} class to indicate a <em>mock method</em> whose implementation will
+ * Used inside a {@linkplain MockUp mock-up} class to indicate a <em>mock (fake) method</em> whose implementation will
  * temporarily replace the implementation of a matching "real" method.
  * <p/>
  * The mock method must have the same name and the same parameters as the matching real method, except for an optional
@@ -25,10 +25,10 @@ import java.lang.annotation.*;
  * except for the name of the mock method which must be "<strong><code>$init</code></strong>".
  * <p/>
  * Another special mock method, "<strong><code>void $clinit()</code></strong>", will target the {@code static}
- * initializers of the mocked class, if present in the mock-up class.
+ * initializers of the faked class, if present in the mock-up class.
  * <p/>
  * Yet another special mock method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will
- * match <em>every</em> method in the mocked class hierarchy.
+ * match <em>every</em> method in the target class hierarchy.
  *
  * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks">Tutorial</a>
  */

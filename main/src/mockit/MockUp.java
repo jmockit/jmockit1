@@ -17,12 +17,19 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 /**
- * A base class used in the creation of a <em>mock-up</em> for a class or interface.
- * Such mock-ups can be used as <em>fake</em> implementations for use in integration or unit tests.
+ * A base class used in the creation of a <em>mock-up</em> for a class, an interface, etc.
+ * Such mock-ups can be used as <em>fake</em> implementations for use in unit or integration tests.
+ * For example:
+ * <pre>
+ *
+ * public final class FakeSystem <strong>extends MockUp&lt;System></strong> {
+ *    <strong>&#64;Mock</strong> public static long nanoTime() { return 123L; }
+ * }
+ * </pre>
  * <p/>
  * One or more <em>mock methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
- * Each {@code @Mock} method should have a matching method or constructor in the mocked class/interface.
- * At runtime, the execution of a mocked method/constructor will get redirected to the corresponding mock method.
+ * Each {@code @Mock} method should have a matching method or constructor in the faked class/interface.
+ * At runtime, the execution of a faked method/constructor will get redirected to the corresponding mock method.
  * <p/>
  * When the faked type is an interface, an implementation class is generated where all methods are empty, with non-void
  * methods returning a default value according to the return type: {@code 0} for {@code int}, {@code null} for a
@@ -33,7 +40,7 @@ import mockit.internal.util.*;
  * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, there are two
  * other possible outcomes:
  * <ol>
- * <li>If the type variable "<code>extends</code>" two or more interfaces, a mocked proxy class that implements all
+ * <li>If the type variable "<code>extends</code>" two or more interfaces, a mock proxy class that implements all
  * interfaces is created, with the proxy instance made available through a call to {@link #getMockInstance()}.
  * Example:
  * <pre>
@@ -50,8 +57,8 @@ import mockit.internal.util.*;
  * }
  * </pre>
  * </li>
- * <li>If the type variable extends a <em>single</em> type (either an interface or a class), then that type is taken
- * as a <em>base</em> type whose concrete implementation classes should <em>also</em> get mocked.
+ * <li>If the type variable extends a <em>single</em> type (either an interface or a non-<code>final</code> class), then
+ * that type is taken as a <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
  * <pre>
  *
@@ -79,7 +86,7 @@ import mockit.internal.util.*;
  * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #onTearDown()
- * @see #mockedType
+ * @see #targetType
  * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
  */
 public abstract class MockUp<T>
@@ -89,7 +96,7 @@ public abstract class MockUp<T>
    /**
     * Holds the class or generic type targeted by this mock-up instance.
     */
-   protected final Type mockedType;
+   protected final Type targetType;
 
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
@@ -116,24 +123,24 @@ public abstract class MockUp<T>
       MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
-         mockedType = previousMockUp.mockedType;
+         targetType = previousMockUp.targetType;
          mockedClass = previousMockUp.mockedClass;
          return;
       }
 
-      mockedType = validateTypeToMock();
+      targetType = validateTypeToMock();
 
-      if (mockedType instanceof Class<?>) {
-         @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) mockedType;
+      if (targetType instanceof Class<?>) {
+         @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) targetType;
          mockedClass = redefineClassOrImplementInterface(classToMock);
       }
-      else if (mockedType instanceof ParameterizedType) {
-         ParameterizedType parameterizedType = (ParameterizedType) mockedType;
+      else if (targetType instanceof ParameterizedType) {
+         ParameterizedType parameterizedType = (ParameterizedType) targetType;
          @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) parameterizedType.getRawType();
          mockedClass = redefineClassOrImplementInterface(classToMock);
       }
       else {
-         Type[] typesToMock = ((TypeVariable<?>) mockedType).getBounds();
+         Type[] typesToMock = ((TypeVariable<?>) targetType).getBounds();
 
          if (typesToMock.length > 1) {
             mockedClass = new MockedImplementationClass<T>(this).createImplementation(typesToMock);
@@ -221,7 +228,7 @@ public abstract class MockUp<T>
    private Class<T> redefineClassOrImplementInterface(@Nonnull Class<T> classToMock)
    {
       if (classToMock.isInterface()) {
-         return createInstanceOfMockedImplementationClass(classToMock, mockedType);
+         return createInstanceOfMockedImplementationClass(classToMock, targetType);
       }
 
       Class<T> realClass = classToMock;
@@ -230,7 +237,7 @@ public abstract class MockUp<T>
          classToMock = new ConcreteSubclass<T>(classToMock).generateClass();
       }
 
-      classesToRestore = redefineMethods(realClass, classToMock, mockedType);
+      classesToRestore = redefineMethods(realClass, classToMock, targetType);
       return classToMock;
    }
 
@@ -255,21 +262,21 @@ public abstract class MockUp<T>
     * Applies the {@linkplain Mock mock methods} defined in the mock-up subclass to the given class/interface.
     * <p/>
     * In most cases, the constructor with no parameters can be used.
-    * This variation should be used only when the type to be mocked is not accessible or known to the test.
+    * This variation should be used only when the type to be faked is not accessible or known from the test code.
     *
     * @see #MockUp()
     * @see #MockUp(Object)
     */
-   protected MockUp(Class<?> classToMock)
+   protected MockUp(Class<?> targetClass)
    {
       //noinspection ConstantConditions
-      if (classToMock == null) {
-         throw new IllegalArgumentException("Null reference when expecting the class to mock");
+      if (targetClass == null) {
+         throw new IllegalArgumentException("Null reference when expecting the target class");
       }
 
       validateMockingAllowed();
 
-      mockedType = classToMock;
+      targetType = targetClass;
       MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
@@ -277,14 +284,14 @@ public abstract class MockUp<T>
          return;
       }
 
-      if (classToMock.isInterface()) {
+      if (targetClass.isInterface()) {
          //noinspection unchecked
-         mockedClass = createInstanceOfMockedImplementationClass((Class<T>) classToMock, classToMock);
+         mockedClass = createInstanceOfMockedImplementationClass((Class<T>) targetClass, targetClass);
       }
       else {
-         mockedClass = classToMock;
+         mockedClass = targetClass;
          //noinspection unchecked
-         Class<T> realClass = (Class<T>) classToMock;
+         Class<T> realClass = (Class<T>) targetClass;
          classesToRestore = redefineMethods(realClass, realClass, null);
          mockInstance = null;
       }
@@ -297,22 +304,22 @@ public abstract class MockUp<T>
     * In most cases, the constructor with no parameters should be adequate.
     * This variation can be used when mock data or behavior is desired only for a particular instance, with other
     * instances remaining unaffected; or when multiple mock-up objects carrying different states are desired, with one
-    * mock-up instance per real instance to be mocked.
+    * mock-up instance per real instance.
     * <p/>
     * If {@link #getMockInstance()} later gets called on this mock-up instance, it will return the instance that was
     * given here.
     *
-    * @param instanceToMock a real instance of the type to be faked, meant to be the only one of that type that should
+    * @param targetInstance a real instance of the type to be faked, meant to be the only one of that type that should
     * be affected by this mock-up instance; must not be {@code null}
     *
     * @see #MockUp()
     * @see #MockUp(Class)
     */
-   protected MockUp(T instanceToMock)
+   protected MockUp(T targetInstance)
    {
       //noinspection ConstantConditions
-      if (instanceToMock == null) {
-         throw new IllegalArgumentException("Null reference when expecting the instance to mock");
+      if (targetInstance == null) {
+         throw new IllegalArgumentException("Null reference when expecting the target instance");
       }
 
       validateMockingAllowed();
@@ -320,17 +327,17 @@ public abstract class MockUp<T>
       MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
-         mockedType = previousMockUp.mockedType;
+         targetType = previousMockUp.targetType;
          mockedClass = previousMockUp.mockedClass;
          return;
       }
 
-      @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) instanceToMock.getClass();
-      mockedType = classToMock;
+      @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) targetInstance.getClass();
+      targetType = classToMock;
       mockedClass = classToMock;
       classesToRestore = redefineMethods(classToMock, classToMock, classToMock);
 
-      setMockInstance(instanceToMock);
+      setMockInstance(targetInstance);
    }
 
    private void setMockInstance(@Nonnull T mockInstance)
@@ -361,7 +368,7 @@ public abstract class MockUp<T>
          throw new IllegalStateException("Invalid attempt to get mock instance from inside static mocked method");
       }
 
-      if (mockedType instanceof TypeVariable<?> && ((TypeVariable<?>) mockedType).getBounds().length == 1) {
+      if (targetType instanceof TypeVariable<?> && ((TypeVariable<?>) targetType).getBounds().length == 1) {
          throw new IllegalStateException("No single instance applicable when faking all classes from a base type");
       }
 
@@ -415,8 +422,9 @@ public abstract class MockUp<T>
    /**
     * An empty method that can be overridden in a mock-up subclass that wants to be notified whenever the mock-up is
     * automatically torn down.
-    * Tear down happens when the mock-up goes out of scope: at the end of the test when applied inside a test, or at the
-    * end of the test class when applied before the test class.
+    * Tear down happens when the mock-up goes out of scope: at the end of the test when applied inside a test, at the
+    * end of the test class when applied before the test class, or at the end of the test run when applied through the
+    * "<code>mockups</code>" system property.
     * <p/>
     * By default, this method does nothing.
     */
