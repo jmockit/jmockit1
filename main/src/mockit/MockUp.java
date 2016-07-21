@@ -171,7 +171,7 @@ public abstract class MockUp<T>
             return previousMockUp;
          }
 
-         mockClasses.removeMock(previousMockUp, previousMockUp.mockInstance);
+         mockClasses.removeMock(previousMockUp);
 
          if (previousMockUp.classesToRestore != null) {
             TestRun.mockFixture().restoreAndRemoveRedefinedClasses(previousMockUp.classesToRestore);
@@ -411,9 +411,9 @@ public abstract class MockUp<T>
    @Deprecated
    public final void tearDown()
    {
-      MockUpInstances mockUpInstances = TestRun.getMockClasses().removeMock(this, mockInstance);
+      TestRun.getMockClasses().removeMock(this);
 
-      if (!mockUpInstances.hasMockUpsForSingleInstances() && classesToRestore != null) {
+      if (classesToRestore != null) {
          TestRun.mockFixture().restoreAndRemoveRedefinedClasses(classesToRestore);
          classesToRestore = null;
       }

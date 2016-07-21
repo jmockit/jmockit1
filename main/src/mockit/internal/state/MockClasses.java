@@ -136,27 +136,10 @@ public final class MockClasses
    }
 
    @Nonnull
-   public MockUpInstances removeMock(@Nonnull MockUp<?> mockUp, @Nullable Object mockedInstance)
+   public MockUpInstances removeMock(@Nonnull MockUp<?> mockUp)
    {
       Class<?> mockUpClass = mockUp.getClass();
-
-      if (mockedInstance == null) {
-         MockUpInstances mockUpInstances = mockupClassesToMockupInstances.remove(mockUpClass);
-         assert !mockUpInstances.hasMockUpsForSingleInstances();
-         return mockUpInstances;
-      }
-
-      // TODO: no test gets here; review and (probably) remove
-      MockUp<?> previousMockUpForMockedInstance = mockedToMockupInstances.remove(mockedInstance);
-      assert previousMockUpForMockedInstance == mockUp;
-
-      MockUpInstances mockUpInstances = mockupClassesToMockupInstances.get(mockUpClass);
-      int decrementedNumberOfMockupsForSingleInstance = --mockUpInstances.numberOfMockupsForSingleInstance;
-
-      if (decrementedNumberOfMockupsForSingleInstance == 0) {
-         mockupClassesToMockupInstances.remove(mockUpClass);
-      }
-
+      MockUpInstances mockUpInstances = mockupClassesToMockupInstances.remove(mockUpClass);
       return mockUpInstances;
    }
 
