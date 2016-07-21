@@ -165,18 +165,11 @@ public abstract class MockUp<T>
       MockUpInstances mockUpInstances = mockClasses.findPreviouslyAppliedMockUps(this);
 
       if (mockUpInstances != null) {
-         MockUp<?> previousMockUp = mockUpInstances.initialMockUp;
-
          if (mockUpInstances.hasMockUpsForSingleInstances()) {
-            return previousMockUp;
+            return mockUpInstances.initialMockUp;
          }
 
-         mockClasses.removeMock(previousMockUp);
-
-         if (previousMockUp.classesToRestore != null) {
-            TestRun.mockFixture().restoreAndRemoveRedefinedClasses(previousMockUp.classesToRestore);
-            previousMockUp.classesToRestore = null;
-         }
+         throw new IllegalStateException("Duplicate application of the same mock-up class");
       }
 
       return null;

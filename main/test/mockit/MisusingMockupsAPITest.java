@@ -23,17 +23,14 @@ public final class MisusingMockupsAPITest
    @Test
    public void applySameMockClassWhilePreviousApplicationStillActive()
    {
-      // Apply then tear-down.
-      new SomeMockUp(0).tearDown();
-      assertEquals(1, new Collaborator().doSomething());
-
-      // Apply again after tear-down: ok.
       new SomeMockUp(2);
       assertEquals(2, new Collaborator().doSomething());
 
-      // Apply again while still active: not ok, but handled by automatically tearing-down the previous mock-up.
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Duplicate application");
+      thrown.expectMessage("same mock-up");
+
       new SomeMockUp(3);
-      assertEquals(3, new Collaborator().doSomething());
    }
 
    static final class SomeMockUp extends MockUp<Collaborator>
@@ -43,34 +40,17 @@ public final class MisusingMockupsAPITest
       @Mock(invocations = 1) int doSomething() { return value; }
    }
 
-   public static final class ProceedingMockUp extends MockUp<Collaborator>
-   {
-      @Mock public static int doSomething(Invocation inv) { return inv.proceed(); }
-   }
-
-   @Test
-   public void applySameMockClassTwiceWithCallsToProceedingMockMethod()
-   {
-      Collaborator col = new Collaborator();
-
-      new ProceedingMockUp();
-      col.doSomething();
-
-      new ProceedingMockUp(); // causes StackOverflow if applied
-      col.doSomething();
-   }
-
    @Test
    public void applySameMockClassUsingSecondaryConstructorWhilePreviousApplicationStillActive()
    {
-      new AnotherMockUp(0).tearDown();
-      assertEquals(1, new Collaborator().doSomething());
-
       new AnotherMockUp(2);
       assertEquals(2, new Collaborator().doSomething());
 
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Duplicate application");
+      thrown.expectMessage("same mock-up");
+
       new AnotherMockUp(3);
-      assertEquals(3, new Collaborator().doSomething());
    }
 
    static final class AnotherMockUp extends MockUp<Collaborator>
