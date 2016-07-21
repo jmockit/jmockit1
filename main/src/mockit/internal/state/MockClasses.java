@@ -135,12 +135,10 @@ public final class MockClasses
       return mockUpInstances;
    }
 
-   @Nonnull
-   public MockUpInstances removeMock(@Nonnull MockUp<?> mockUp)
+   public void removeMock(@Nonnull MockUp<?> mockUp)
    {
       Class<?> mockUpClass = mockUp.getClass();
-      MockUpInstances mockUpInstances = mockupClassesToMockupInstances.remove(mockUpClass);
-      return mockUpInstances;
+      mockupClassesToMockupInstances.remove(mockUpClass);
    }
 
    private void discardMockupInstances(@Nonnull Map<Object, MockUp<?>> previousMockInstances)
