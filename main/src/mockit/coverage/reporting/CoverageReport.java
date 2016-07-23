@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.Map.*;
 import javax.annotation.*;
 
+import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.reporting.packages.*;
 import mockit.coverage.reporting.sourceFiles.*;
@@ -27,24 +28,13 @@ class CoverageReport
       @Nonnull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs,
       @Nonnull CoverageData coverageData, boolean withCallPoints)
    {
-      this.outputDir = getOrChooseOutputDirectory(outputDir);
+      this.outputDir = Configuration.getOrChooseOutputDirectory(outputDir, "coverage-report");
       this.outputDirCreated = outputDirCreated;
       sourceDirs = srcDirs == null ? null : new SourceFiles().buildListOfSourceDirectories(srcDirs);
       fileToFileData = coverageData.getFileToFileDataMap();
       packageToFiles = new HashMap<String, List<String>>();
       this.withCallPoints = withCallPoints;
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
-   }
-
-   @Nonnull
-   private static String getOrChooseOutputDirectory(@Nonnull String outputDir)
-   {
-      if (!outputDir.isEmpty()) {
-         return outputDir;
-      }
-
-      String mavenBaseDir = System.getProperty("basedir");
-      return mavenBaseDir == null ? "coverage-report" : "target/coverage-report";
    }
 
    public final void generate() throws IOException

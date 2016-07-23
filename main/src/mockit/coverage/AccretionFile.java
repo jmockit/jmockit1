@@ -16,7 +16,7 @@ final class AccretionFile
 
    AccretionFile(@Nonnull String outputDir, @Nonnull CoverageData newData)
    {
-      String parentDir = outputDir.isEmpty() ? null : outputDir;
+      String parentDir = Configuration.getOrChooseOutputDirectory(outputDir);
       outputFile = new File(parentDir, "coverage.ser");
 
       newData.fillLastModifiedTimesForAllClassFiles();

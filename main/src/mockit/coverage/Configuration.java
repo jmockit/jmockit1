@@ -40,4 +40,26 @@ public final class Configuration
 
       System.setProperty(prefixToUse + name, value);
    }
+
+   @Nullable
+   public static String getOrChooseOutputDirectory(@Nonnull String outputDir)
+   {
+      if (!outputDir.isEmpty()) {
+         return outputDir;
+      }
+
+      String mavenBaseDir = System.getProperty("basedir");
+      return mavenBaseDir == null ? null : "target";
+   }
+
+   @Nonnull
+   public static String getOrChooseOutputDirectory(@Nonnull String outputDir, @Nonnull String defaultDir)
+   {
+      if (!outputDir.isEmpty()) {
+         return outputDir;
+      }
+
+      String mavenBaseDir = System.getProperty("basedir");
+      return mavenBaseDir == null ? defaultDir : "target/" + defaultDir;
+   }
 }

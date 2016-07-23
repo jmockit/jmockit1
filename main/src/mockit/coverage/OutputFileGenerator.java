@@ -49,7 +49,7 @@ final class OutputFileGenerator
 
    boolean isOutputToBeGenerated()
    {
-      return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp");
+      return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp") || hasOutputFormat("xml");
    }
 
    private boolean isOutputWithCallPointsToBeGenerated()
@@ -107,6 +107,7 @@ final class OutputFileGenerator
 
       try {
          generateAccretionDataFileIfRequested(coverageData);
+         generateXmlDataFileIfRequested(coverageData);
          generateHTMLReportIfRequested(coverageData, outputDirCreated);
       }
       catch (IOException e) {
@@ -147,6 +148,13 @@ final class OutputFileGenerator
          AccretionFile accretionFile = new AccretionFile(outputDir, newData);
          accretionFile.mergeDataFromExistingFileIfAny();
          accretionFile.generate();
+      }
+   }
+
+   private void generateXmlDataFileIfRequested(@Nonnull CoverageData newData) throws IOException
+   {
+      if (hasOutputFormat("xml")) {
+         new XmlFile(outputDir, newData).generate();
       }
    }
 

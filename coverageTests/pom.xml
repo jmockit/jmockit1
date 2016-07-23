@@ -29,6 +29,17 @@
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
                <argLine>-Dcoverage-metrics=all</argLine>
             </configuration>
+            <executions>
+               <execution>
+                  <id>xml</id>
+                  <phase>test</phase>
+                  <goals><goal>test</goal></goals>
+                  <configuration>
+                     <argLine>-Dcoverage-output=xml -Dcoverage-classes=loaded</argLine>
+                     <includes><include>**/XmlFileTest.class</include></includes>
+                  </configuration>
+               </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>
