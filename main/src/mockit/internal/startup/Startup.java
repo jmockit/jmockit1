@@ -16,6 +16,16 @@ import mockit.internal.util.*;
 
 /**
  * This is the "agent class" that initializes the JMockit "Java agent". It is not intended for use in client code.
+ * <p/>
+ * There are several possible initialization scenarios:
+ * <ol>
+ *    <li>Execution with {@code -javaagent:jmockit.jar} and without reloading in a custom class loader.</li>
+ *    <li>Execution from system CL without {@code -javaagent} and without reloading in custom CL.</li>
+ *    <li>Execution with {@code -javaagent} and with reloading in custom CL.</li>
+ *    <li>Execution from system CL without {@code -javaagent} and with reloading in custom CL.</li>
+ *    <li>Execution from custom CL without {@code -javaagent} and without reloading in another custom CL.</li>
+ *    <li>Execution from custom CL without {@code -javaagent} and with reloading in another custom CL.</li>
+ * </ol>
  *
  * @see #premain(String, Instrumentation)
  * @see #agentmain(String, Instrumentation)
@@ -40,14 +50,14 @@ public final class Startup
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         InstrumentationHolder.set(inst);
-         initialize(inst);
+         String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+         Instrumentation wrappedInst = InstrumentationHolder.set(inst, hostJREClassName);
+         initialize(wrappedInst);
       }
    }
 
    private static void initialize(@Nonnull Instrumentation inst)
    {
-      MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
       applyStartupMocks(inst);
       inst.addTransformer(new ExpectationsTransformer(inst));
@@ -82,7 +92,13 @@ public final class Startup
             "This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
-      InstrumentationHolder.set(inst);
+      String hostJREClassName = InstrumentationHolder.hostJREClassName;
+
+      if (hostJREClassName == null) {
+         hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+      }
+
+      InstrumentationHolder.set(inst, hostJREClassName);
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
@@ -129,10 +145,15 @@ public final class Startup
 
    public static boolean initializeIfPossible()
    {
-      if (InstrumentationHolder.get() == null) {
+      InstrumentationHolder wrappedInst = InstrumentationHolder.get();
+
+      if (wrappedInst == null) {
          try {
             new AgentLoader().loadAgent(null);
-            initialize(InstrumentationHolder.get());
+            Instrumentation inst = InstrumentationHolder.get();
+            String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+            InstrumentationHolder.setHostJREClassName(hostJREClassName);
+            initialize(inst);
             return true;
          }
          catch (IllegalStateException e) {
@@ -142,6 +163,9 @@ public final class Startup
          catch (RuntimeException e) { e.printStackTrace(); }
 
          return false;
+      }
+      else if (wrappedInst.wasRecreated()) {
+         initialize(wrappedInst);
       }
 
       return true;

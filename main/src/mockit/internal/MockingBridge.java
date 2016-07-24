@@ -14,13 +14,13 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
+import mockit.internal.startup.*;
 import mockit.internal.util.*;
 
 public abstract class MockingBridge implements InvocationHandler
 {
    private static final Object[] EMPTY_ARGS = {};
    private static final ReentrantLock LOCK = new ReentrantLock();
-   private static String hostClassName;
    private static boolean fieldsSet;
    public final String id;
 
@@ -86,11 +86,9 @@ public abstract class MockingBridge implements InvocationHandler
       return EMPTY_ARGS;
    }
 
-   public static void setHostClassName(@Nonnull String className) { hostClassName = className; }
-
    public static void setMockingBridgeFields()
    {
-      Class<?> hostClass = ClassLoad.loadByInternalName(hostClassName);
+      Class<?> hostClass = ClassLoad.loadByInternalName(InstrumentationHolder.hostJREClassName);
       setMockingBridgeField(hostClass, MockedBridge.MB);
       setMockingBridgeField(hostClass, MockupBridge.MB);
       setMockingBridgeField(hostClass, MockMethodBridge.MB);
@@ -113,6 +111,6 @@ public abstract class MockingBridge implements InvocationHandler
          fieldsSet = true;
       }
 
-      return hostClassName;
+      return InstrumentationHolder.hostJREClassName;
    }
 }

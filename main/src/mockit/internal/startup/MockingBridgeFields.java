@@ -7,6 +7,7 @@ package mockit.internal.startup;
 import java.lang.instrument.*;
 import java.security.*;
 import javax.annotation.*;
+import javax.print.PrintException;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
@@ -20,20 +21,27 @@ final class MockingBridgeFields
 {
    private MockingBridgeFields() {}
 
-   static void createSyntheticFieldsInJREClassToHoldMockingBridges(@Nonnull Instrumentation instrumentation)
+   @Nonnull
+   static String createSyntheticFieldsInJREClassToHoldMockingBridges(@Nonnull Instrumentation instrumentation)
    {
-      instrumentation.addTransformer(new FieldAdditionTransformer(instrumentation));
+      FieldAdditionTransformer fieldAdditionTransformer = new FieldAdditionTransformer(instrumentation);
+      instrumentation.addTransformer(fieldAdditionTransformer);
 
       // Loads some JRE classes expected to not be loaded yet.
       NegativeArraySizeException.class.getName();
-      javax.print.PrintException.class.getName();
+
+      if (fieldAdditionTransformer.hostClassName == null) {
+         PrintException.class.getName();
+      }
+
+      return fieldAdditionTransformer.hostClassName;
    }
 
    private static final class FieldAdditionTransformer implements ClassFileTransformer
    {
       private static final int FIELD_ACCESS = ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC;
       @Nonnull private final Instrumentation instrumentation;
-      private boolean fieldsAdded;
+      String hostClassName;
 
       FieldAdditionTransformer(@Nonnull Instrumentation instrumentation) { this.instrumentation = instrumentation; }
 
@@ -42,13 +50,12 @@ final class MockingBridgeFields
          @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
          @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
       {
-         if (!fieldsAdded && loader == null) { // adds the fields to the first public JRE class to be loaded
+         if (loader == null && hostClassName == null) { // adds the fields to the first public JRE class to be loaded
             ClassReader cr = new ClassReader(classfileBuffer);
 
             if (isPublic(cr.getAccess())) {
-               fieldsAdded = true;
                instrumentation.removeTransformer(this);
-               MockingBridge.setHostClassName(className);
+               hostClassName = className;
                return getModifiedJREClassWithAddedFields(cr);
             }
          }

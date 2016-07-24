@@ -5,23 +5,44 @@
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.jar.*;
 
-import mockit.internal.util.*;
-
 public final class InstrumentationHolder implements Instrumentation
 {
-   private static Instrumentation inst;
-   private static Instrumentation wrappedInst;
+   public static Instrumentation inst;
+   private static InstrumentationHolder wrappedInst;
+   public static String hostJREClassName;
 
    @SuppressWarnings("unused")
    public static void agentmain(String agentArgs, Instrumentation instrumentation)
    {
-      set(instrumentation);
+      set(instrumentation, null);
    }
 
-   public static Instrumentation get()
+   static void setHostJREClassName(String className)
+   {
+      hostJREClassName = className;
+
+      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
+
+      if (regularHolderClass != null) {
+         try {
+            Field field = getField(regularHolderClass, "hostJREClassName");
+            field.set(null, className);
+         }
+         catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      }
+   }
+
+   private static Field getField(Class<?> aClass, String fieldName)
+   {
+      try { return aClass.getDeclaredField(fieldName); }
+      catch (NoSuchFieldException e) { throw new RuntimeException(e); }
+   }
+
+   public static InstrumentationHolder get()
    {
       if (inst == null) {
          recoverInstrumentationFromHolderClassInSystemClassLoaderIfAvailable();
@@ -35,12 +56,12 @@ public final class InstrumentationHolder implements Instrumentation
       Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
 
       if (regularHolderClass != null) {
-         inst = FieldReflection.getField(regularHolderClass, "inst", null);
-         wrappedInst = FieldReflection.getField(regularHolderClass, "wrappedInst", null);
+         inst = readStaticField(regularHolderClass, "inst");
 
-         if (inst != null && inst == wrappedInst) {
+         if (inst != null) {
+            hostJREClassName = readStaticField(regularHolderClass, "hostJREClassName");
+            invokeClearTransformersFromSystemCL(regularHolderClass);
             wrappedInst = new InstrumentationHolder();
-            FieldReflection.setField(regularHolderClass, null, "wrappedInst", wrappedInst);
          }
       }
    }
@@ -53,16 +74,68 @@ public final class InstrumentationHolder implements Instrumentation
          return null;
       }
 
-      return ClassLoad.loadClass(systemCL, InstrumentationHolder.class.getName());
+      try { return Class.forName(InstrumentationHolder.class.getName(), true, systemCL); }
+      catch (ClassNotFoundException e) { return null; }
    }
 
-   static void set(Instrumentation instrumentation)
+   private static <T> T readStaticField(Class<?> aClass, String fieldName)
    {
-      inst = instrumentation;
-      wrappedInst = instrumentation;
+      Field field = getField(aClass, fieldName);
+
+      try {
+         @SuppressWarnings("unchecked") T value = (T) field.get(null);
+         return value;
+      }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 
-   private final List<ClassFileTransformer> transformers = new ArrayList<ClassFileTransformer>();
+   private static void invokeClearTransformersFromSystemCL(Class<?> regularHolderClass)
+   {
+      try {
+         Method method = regularHolderClass.getDeclaredMethod("clearTransformers");
+         method.invoke(null);
+      }
+      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+   }
+
+   public static void clearTransformers()
+   {
+      for (ClassFileTransformer transformer : transformers) {
+         inst.removeTransformer(transformer);
+      }
+
+      transformers.clear();
+   }
+
+   boolean wasRecreated() { return transformers.isEmpty(); }
+
+   static Instrumentation set(Instrumentation instrumentation, String hostJREClassName)
+   {
+      if (wrappedInst != null) {
+         clearTransformers();
+      }
+
+      inst = instrumentation;
+      wrappedInst = instrumentation == null ? null : new InstrumentationHolder();
+      InstrumentationHolder.hostJREClassName = hostJREClassName;
+      return wrappedInst;
+   }
+
+   public static List<ClassFileTransformer> transformers;
+
+   private InstrumentationHolder()
+   {
+      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
+
+      if (regularHolderClass == null) {
+         transformers = new ArrayList<ClassFileTransformer>();
+      }
+      else {
+         transformers = readStaticField(regularHolderClass, "transformers");
+      }
+   }
 
    @Override
    public void addTransformer(ClassFileTransformer transformer, boolean canRetransform)
@@ -82,12 +155,18 @@ public final class InstrumentationHolder implements Instrumentation
 
    private void removePreviouslyAddedTransformersOfSameType(ClassFileTransformer transformer)
    {
-      String transformerName = transformer.getClass().getName();
+      Class<?> transformerClass = transformer.getClass();
+      ClassLoader transformerCL = transformerClass.getClassLoader();
+      String transformerName = transformerClass.getName();
 
       for (Iterator<ClassFileTransformer> itr = transformers.iterator(); itr.hasNext(); ) {
          ClassFileTransformer previouslyAdded = itr.next();
+         Class<?> previousTransformerClass = previouslyAdded.getClass();
 
-         if (previouslyAdded.getClass().getName().equals(transformerName)) {
+         if (
+            previousTransformerClass.getClassLoader() != transformerCL &&
+            previousTransformerClass.getName().equals(transformerName)
+         ) {
             inst.removeTransformer(previouslyAdded);
             itr.remove();
          }
