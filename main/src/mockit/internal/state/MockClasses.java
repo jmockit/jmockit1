@@ -40,15 +40,15 @@ public final class MockClasses
    public static final class MockUpInstances
    {
       @Nonnull public final MockUp<?> initialMockUp;
-      int numberOfMockupsForSingleInstance;
+      boolean hasMockupsForSingleInstances;
 
       MockUpInstances(@Nonnull MockUp<?> initialMockUp)
       {
          this.initialMockUp = initialMockUp;
-         numberOfMockupsForSingleInstance = 0;
+         hasMockupsForSingleInstances = false;
       }
 
-      public boolean hasMockUpsForSingleInstances() { return numberOfMockupsForSingleInstance > 0; }
+      public boolean hasMockUpsForSingleInstances() { return hasMockupsForSingleInstances; }
 
       void notifyMockUpOfTearDown() { notifyOfTearDown(initialMockUp); }
    }
@@ -85,7 +85,7 @@ public final class MockClasses
       assert previousMockup == null;
 
       MockUpInstances mockUpInstances = mockupClassesToMockupInstances.get(mockUp.getClass());
-      mockUpInstances.numberOfMockupsForSingleInstance++;
+      mockUpInstances.hasMockupsForSingleInstances = true;
    }
 
    @Nullable
@@ -128,7 +128,7 @@ public final class MockClasses
       Class<?> mockUpClass = newMockUp.getClass();
       MockUpInstances mockUpInstances = mockupClassesToMockupInstances.get(mockUpClass);
 
-      if (mockUpInstances != null && mockUpInstances.hasMockUpsForSingleInstances()) {
+      if (mockUpInstances != null && mockUpInstances.hasMockupsForSingleInstances) {
          mockStates.copyMockStates(mockUpInstances.initialMockUp, newMockUp);
       }
 
@@ -151,21 +151,29 @@ public final class MockClasses
       }
    }
 
-   private void discardMockupInstancesExceptPreviousOnes(
-      @Nonnull Map<Class<?>, Integer> previousMockupClassesAndMockupCounts)
+   private void discardMockupInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousMockupClasses)
    {
-      updateNumberOfMockupsForSingleInstanceForPreviousMockups(previousMockupClassesAndMockupCounts);
+      updatePreviousMockups(previousMockupClasses);
 
       for (Entry<Class<?>, MockUpInstances> mockupClassAndInstances : mockupClassesToMockupInstances.entrySet()) {
          Class<?> mockupClass = mockupClassAndInstances.getKey();
 
-         if (!previousMockupClassesAndMockupCounts.containsKey(mockupClass)) {
+         if (!previousMockupClasses.containsKey(mockupClass)) {
             MockUpInstances mockUpInstances = mockupClassAndInstances.getValue();
             mockUpInstances.notifyMockUpOfTearDown();
          }
       }
 
-      mockupClassesToMockupInstances.keySet().retainAll(previousMockupClassesAndMockupCounts.keySet());
+      mockupClassesToMockupInstances.keySet().retainAll(previousMockupClasses.keySet());
+   }
+
+   private void updatePreviousMockups(@Nonnull Map<Class<?>, Boolean> previousMockupClasses)
+   {
+      for (Entry<Class<?>, Boolean> mockupClassAndData : previousMockupClasses.entrySet()) {
+         Class<?> mockupClass = mockupClassAndData.getKey();
+         MockUpInstances mockUpData = mockupClassesToMockupInstances.get(mockupClass);
+         mockUpData.hasMockupsForSingleInstances = mockupClassAndData.getValue();
+      }
    }
 
    private void discardAllMockupInstances()
@@ -179,18 +187,6 @@ public final class MockClasses
       }
    }
 
-   private void updateNumberOfMockupsForSingleInstanceForPreviousMockups(
-      @Nonnull Map<Class<?>, Integer> previousMockupClassesAndMockupCounts)
-   {
-      for (Entry<Class<?>, Integer> mockUpClassAndCount : previousMockupClassesAndMockupCounts.entrySet()) {
-         Class<?> mockupClass = mockUpClassAndCount.getKey();
-         Integer mockupCount = mockUpClassAndCount.getValue();
-
-         MockUpInstances mockUpData = mockupClassesToMockupInstances.get(mockupClass);
-         mockUpData.numberOfMockupsForSingleInstance = mockupCount;
-      }
-   }
-
    public void discardStartupMocks()
    {
       for (MockUp<?> startupMockup : startupMocks.values()) {
@@ -201,17 +197,17 @@ public final class MockClasses
    final class SavePoint
    {
       @Nonnull private final Map<Object, MockUp<?>> previousMockInstances;
-      @Nonnull private final Map<Class<?>, Integer> previousMockupClassesAndMockupCounts;
+      @Nonnull private final Map<Class<?>, Boolean> previousMockupClasses;
 
       SavePoint()
       {
          previousMockInstances = new IdentityHashMap<Object, MockUp<?>>(mockedToMockupInstances);
-         previousMockupClassesAndMockupCounts = new IdentityHashMap<Class<?>, Integer>();
+         previousMockupClasses = new IdentityHashMap<Class<?>, Boolean>();
 
          for (Entry<Class<?>, MockUpInstances> mockUpClassAndData : mockupClassesToMockupInstances.entrySet()) {
             Class<?> mockUpClass = mockUpClassAndData.getKey();
             MockUpInstances mockUpData = mockUpClassAndData.getValue();
-            previousMockupClassesAndMockupCounts.put(mockUpClass, mockUpData.numberOfMockupsForSingleInstance);
+            previousMockupClasses.put(mockUpClass, mockUpData.hasMockupsForSingleInstances);
          }
       }
 
@@ -219,8 +215,8 @@ public final class MockClasses
       {
          discardMockupInstances(previousMockInstances);
 
-         if (!previousMockupClassesAndMockupCounts.isEmpty()) {
-            discardMockupInstancesExceptPreviousOnes(previousMockupClassesAndMockupCounts);
+         if (!previousMockupClasses.isEmpty()) {
+            discardMockupInstancesExceptPreviousOnes(previousMockupClasses);
          }
          else {
             discardAllMockupInstances();
