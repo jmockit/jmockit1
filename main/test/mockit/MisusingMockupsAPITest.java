@@ -37,7 +37,7 @@ public final class MisusingMockupsAPITest
    {
       final int value;
       SomeMockUp(int value) { this.value = value; }
-      @Mock(invocations = 1) int doSomething() { return value; }
+      @Mock int doSomething() { return value; }
    }
 
    @Test
@@ -57,7 +57,7 @@ public final class MisusingMockupsAPITest
    {
       final int value;
       AnotherMockUp(int value) { super(Collaborator.class); this.value = value; }
-      @Mock(invocations = 1) int doSomething() { return value; }
+      @Mock int doSomething() { return value; }
    }
 
    @Test
