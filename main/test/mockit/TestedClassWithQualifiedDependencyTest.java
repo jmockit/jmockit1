@@ -5,11 +5,13 @@
 package mockit;
 
 import java.io.*;
-import java.lang.annotation.*;
 import javax.inject.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 public final class TestedClassWithQualifiedDependencyTest
 {
@@ -66,6 +68,3 @@ public final class TestedClassWithQualifiedDependencyTest
       assertSame(dep1, tested2.dependency);
    }
 }
-
-@Retention(RetentionPolicy.RUNTIME)
-@interface Qualifier { String value() default ""; }

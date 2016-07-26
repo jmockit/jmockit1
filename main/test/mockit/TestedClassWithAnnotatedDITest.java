@@ -4,13 +4,14 @@
  */
 package mockit;
 
-import java.lang.annotation.*;
 import javax.annotation.*;
 import javax.inject.*;
 
 import org.junit.*;
 import org.junit.runners.*;
 import static org.junit.Assert.*;
+
+import org.springframework.beans.factory.annotation.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithAnnotatedDITest
@@ -86,9 +87,3 @@ public final class TestedClassWithAnnotatedDITest
       fail("Must fail before starting");
    }
 }
-
-@Retention(RetentionPolicy.RUNTIME)
-@interface Autowired { @SuppressWarnings("unused") boolean required() default true; }
-
-@Retention(RetentionPolicy.RUNTIME)
-@interface Value { String value(); }

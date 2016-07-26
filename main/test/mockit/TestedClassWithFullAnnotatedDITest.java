@@ -13,6 +13,8 @@ import javax.inject.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+import org.springframework.beans.factory.annotation.*;
+
 public final class TestedClassWithFullAnnotatedDITest
 {
    static final class TestedClass

@@ -9,6 +9,8 @@ import javax.inject.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 public final class TestedClassWithFullConstructorDITest
 {
    public interface Dependency {}
