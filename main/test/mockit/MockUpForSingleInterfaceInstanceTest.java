@@ -32,8 +32,8 @@ public final class MockUpForSingleInterfaceInstanceTest
             this.text = text;
          }
 
-         @Mock(minInvocations = 1) int getNumericValue() { return number; }
-         @Mock(maxInvocations = 2) String getTextValue() { return text; }
+         @Mock int getNumericValue() { return number; }
+         @Mock String getTextValue() { return text; }
       }
 
       MockUp<APublicInterface> mockUp1 = new AnInterfaceMockUp(1, "one");
@@ -73,7 +73,7 @@ public final class MockUpForSingleInterfaceInstanceTest
       assertEquals(2, mock2.getNumericValue());
    }
 
-   @Test(timeout = 500)
+   @Test(timeout = 500) @SuppressWarnings("MethodWithMultipleLoops")
    public void instantiateSameMockUpForPublicInterfaceManyTimesButApplyOnlyOnce()
    {
       class InterfaceMockUp extends MockUp<APublicInterface> {
@@ -125,7 +125,7 @@ public final class MockUpForSingleInterfaceInstanceTest
       {
          private final int value;
          AnotherInterfaceMockUp(int value) { this.value = value; }
-         @Override @Mock(invocations = 1) public int getValue() { return value; }
+         @Override @Mock public int getValue() { return value; }
       }
 
       MockUp<ANonPublicInterface> mockUp1 = new AnotherInterfaceMockUp(1);

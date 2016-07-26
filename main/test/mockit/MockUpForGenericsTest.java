@@ -53,7 +53,7 @@ public final class MockUpForGenericsTest
    public void mockGenericClassWithUnspecifiedTypeArguments()
    {
       new MockUp<GenericClass<?, ?>>() {
-         @Mock(minInvocations = 1)
+         @Mock
          void aMethod(Object o)
          {
             StringBuilder s = (StringBuilder) o;
@@ -206,8 +206,7 @@ public final class MockUpForGenericsTest
    public void mockMethodOfSubInterfaceWithGenericTypeArgument()
    {
       NonGenericSubInterface mock = new MockUp<NonGenericSubInterface>() {
-         @Mock(invocations = 1)
-         void method(Long l) { assertTrue(l > 0); }
+         @Mock void method(Long l) { assertTrue(l > 0); }
       }.getMockInstance();
 
       mock.method(123L);

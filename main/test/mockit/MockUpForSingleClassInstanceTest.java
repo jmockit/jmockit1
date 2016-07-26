@@ -65,28 +65,12 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals("two", mock2.getTextValue());
    }
 
-   @Test
-   public void multipleMockUpsOfSameTypeHavingInvocationConstraints()
-   {
-      AClass[] mockInstances = new AClass[2];
-
-      for (int i = 0; i < 2; i++) {
-         final int value = i + 1;
-         mockInstances[i] = new MockUp<AClass>() {
-            @Mock(invocations = 1) String getTextValue() { return String.valueOf(value); }
-         }.getMockInstance();
-      }
-
-      assertEquals("1", mockInstances[0].getTextValue());
-      assertEquals("2", mockInstances[1].getTextValue());
-   }
-
    public static class AClassMockUp extends MockUp<AClass>
    {
       private final String value;
       AClassMockUp(String value) { this.value = value; }
 
-      @Mock(maxInvocations = 1) public String getTextValue() { return value; }
+      @Mock public String getTextValue() { return value; }
       @Mock public static boolean doSomething() { return true; }
    }
 

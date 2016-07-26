@@ -7,6 +7,8 @@ package mockit;
 import java.io.*;
 import java.nio.*;
 
+import javax.annotation.*;
+
 import org.junit.*;
 import org.junit.rules.*;
 import org.junit.runners.*;
@@ -93,7 +95,7 @@ public final class MockingUpBaseTypesTest
       actionI = new ActionImpl1();
 
       new MockUp<T>() {
-         @Mock(minInvocations = 2)
+         @Mock
          int perform(int i) { return i + 1; }
       };
 
@@ -215,7 +217,7 @@ public final class MockingUpBaseTypesTest
 
    static final class BaseClassMockUp<T extends BaseAction> extends MockUp<T>
    {
-      @Mock(invocations = 3)
+      @Mock
       int perform(int i) { return i + 3; }
    }
 
@@ -270,7 +272,7 @@ public final class MockingUpBaseTypesTest
       };
 
       CharBuffer buf = CharBuffer.allocate(10);
-      int r1 = new Readable() { @Override public int read(CharBuffer cb) { return 1; } }.read(buf);
+      int r1 = new Readable() { @Override public int read(@Nonnull CharBuffer cb) { return 1; } }.read(buf);
       assertEquals(123, r1);
 
       int r2 = new StringReader("test").read(buf);

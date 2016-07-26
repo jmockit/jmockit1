@@ -4,13 +4,10 @@
  */
 package mockit.integration.testng;
 
-import javax.security.auth.login.*;
-
 import static org.testng.Assert.*;
 import org.testng.annotations.*;
 
 import mockit.*;
-import mockit.internal.*;
 
 public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
 {
@@ -75,21 +72,5 @@ public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
    public void checkMockingOfParameterWhenNotUsingDataProvider(@Mocked Temp mock)
    {
       assertNotSame(temp, mock);
-   }
-
-   @Test(expectedExceptions = UnexpectedInvocation.class)
-   public void mockMethodWithViolatedInvocationCountConstraint() throws Exception
-   {
-      new MockUp<LoginContext>() {
-         @Mock(minInvocations = 1)
-         void $init(String name) { assertEquals(name, "test"); }
-
-         @Mock(invocations = 1)
-         void login() {}
-      };
-
-      LoginContext context = new LoginContext("test");
-      context.login();
-      context.login();
    }
 }

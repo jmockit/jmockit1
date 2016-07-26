@@ -36,7 +36,7 @@ public final class MockInvocationTest
          return false;
       }
 
-      @Mock(minInvocations = 1, maxInvocations = 2)
+      @Mock
       int getValue(Invocation context)
       {
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
@@ -57,7 +57,7 @@ public final class MockInvocationTest
    public void instanceMockMethodForStaticMethod()
    {
       new MockUp<Collaborator>() {
-         @Mock(invocations = 2)
+         @Mock
          boolean staticMethod(Invocation context)
          {
             assertNull(context.getInvokedInstance());
@@ -76,7 +76,7 @@ public final class MockInvocationTest
       new MockUp<Collaborator>() {
          Collaborator instantiated;
 
-         @Mock(invocations = 1)
+         @Mock
          void $init(Invocation inv, int i)
          {
             assertNotNull(inv.getInvokedInstance());
@@ -106,7 +106,7 @@ public final class MockInvocationTest
       int capturedArgument;
       Collaborator mockedInstance;
 
-      @Mock(invocations = 1)
+      @Mock
       void $init(Invocation context, int i)
       {
          capturedArgument = i + context.getInvocationCount();
@@ -115,7 +115,7 @@ public final class MockInvocationTest
          assertEquals(1, context.getInvokedArguments().length);
       }
 
-      @Mock(invocations = 2)
+      @Mock
       void setValue(Invocation context, int i)
       {
          assertEquals(i, context.getInvocationIndex());
@@ -141,7 +141,7 @@ public final class MockInvocationTest
    public void useOfContextParametersForJREMethods() throws Exception
    {
       new MockUp<Runtime>() {
-         @Mock(minInvocations = 1)
+         @Mock
          void runFinalizersOnExit(Invocation inv, boolean b)
          {
             assertNull(inv.getInvokedInstance());
@@ -149,7 +149,7 @@ public final class MockInvocationTest
             assertTrue(b);
          }
 
-         @Mock(maxInvocations = 1)
+         @Mock
          Process exec(Invocation inv, String command, String[] envp)
          {
             assertSame(Runtime.getRuntime(), inv.getInvokedInstance());

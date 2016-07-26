@@ -89,7 +89,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void attemptToSetUpMockForClassLackingAMatchingRealMethod()
+   public void attemptToApplyMockupForClassLackingAMatchingRealMethod()
    {
       thrown.expect(IllegalArgumentException.class);
 
@@ -110,7 +110,7 @@ public final class MockAnnotationsTest
 
    public static final class MockForNonGenericSubInterface extends MockUp<NonGenericSubInterface>
    {
-      @Mock(invocations = 1)
+      @Mock
       public void method(Long l) { assertTrue(l > 0); }
 
       @Mock
@@ -146,7 +146,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMocksFromInnerMockClassWithMockConstructor()
+   public void applyMockupsFromInnerMockClassWithMockConstructor()
    {
       new MockCollaborator4();
       assertFalse(mockExecuted);
@@ -165,7 +165,7 @@ public final class MockAnnotationsTest
    // Mocks WITH expectations /////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void setUpMocksContainingExpectations()
+   public void applyMockupsContainingExpectations()
    {
       new MockCollaboratorWithExpectations();
 
@@ -201,7 +201,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMockWithMinInvocationsExpectationButFailIt()
+   public void applyMockupWithMinInvocationsExpectationButFailIt()
    {
       thrown.expect(MissingInvocation.class);
 
@@ -215,7 +215,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMockWithMaxInvocationsExpectationButFailIt()
+   public void applyMockupWithMaxInvocationsExpectationButFailIt()
    {
       thrown.expect(UnexpectedInvocation.class);
 
@@ -231,7 +231,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMockWithInvocationsExpectationButFailIt()
+   public void applyMockupWithInvocationsExpectationButFailIt()
    {
       thrown.expect(UnexpectedInvocation.class);
 
@@ -250,7 +250,7 @@ public final class MockAnnotationsTest
    // Reentrant mocks /////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void setUpReentrantMock()
+   public void applyReentrantMockup()
    {
       thrown.expect(RuntimeException.class);
 
@@ -261,17 +261,14 @@ public final class MockAnnotationsTest
 
    static class MockCollaboratorWithReentrantMock extends MockUp<Collaborator>
    {
-      @Mock
-      int getValue() { return 123; }
-
-      @Mock(invocations = 1)
-      void provideSomeService(Invocation inv) { inv.proceed(); }
+      @Mock int getValue() { return 123; }
+      @Mock void provideSomeService(Invocation inv) { inv.proceed(); }
    }
 
    // Mocks for constructors and static methods ///////////////////////////////////////////////////////////////////////
 
    @Test
-   public void setUpMockForConstructor()
+   public void applyMockupForConstructor()
    {
       new MockCollaboratorWithConstructorMock();
 
@@ -280,7 +277,7 @@ public final class MockAnnotationsTest
 
    static class MockCollaboratorWithConstructorMock extends MockUp<Collaborator>
    {
-      @Mock(invocations = 1)
+      @Mock
       void $init(int value)
       {
          assertEquals(5, value);
@@ -288,7 +285,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMockForStaticMethod()
+   public void applyMockupForStaticMethod()
    {
       new MockCollaboratorForStaticMethod();
 
@@ -298,12 +295,12 @@ public final class MockAnnotationsTest
 
    static class MockCollaboratorForStaticMethod extends MockUp<Collaborator>
    {
-      @Mock(invocations = 1)
+      @Mock
       static String doInternal() { return ""; }
    }
 
    @Test
-   public void setUpMockForSubclassConstructor()
+   public void applyMockupForSubclassConstructor()
    {
       new MockSubCollaborator();
 
@@ -320,7 +317,7 @@ public final class MockAnnotationsTest
 
    static class MockSubCollaborator extends MockUp<SubCollaborator>
    {
-      @Mock(invocations = 1)
+      @Mock
       void $init(int i) { assertEquals(31, i); }
 
       @SuppressWarnings("UnusedDeclaration")
@@ -328,7 +325,7 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void setUpMocksForClassHierarchy()
+   public void applyMockupsForClassHierarchy()
    {
       new MockUp<SubCollaborator>() {
          @Mock void $init(Invocation inv, int i)
@@ -362,11 +359,9 @@ public final class MockAnnotationsTest
    @Test
    public void mockNativeMethodInClassWithRegisterNatives()
    {
-      MockSystem mockUp = new MockSystem();
-      assertEquals(0, System.nanoTime());
+      new MockSystem();
 
-      mockUp.tearDown();
-      assertTrue(System.nanoTime() > 0);
+      assertEquals(0, System.nanoTime());
    }
 
    static class MockSystem extends MockUp<System> {
@@ -378,11 +373,9 @@ public final class MockAnnotationsTest
    {
       // For some reason, the native method doesn't get mocked when running on Java 9.
       if (!JAVA9) {
-         MockFloat mockUp = new MockFloat();
-         assertEquals(0.0, Float.intBitsToFloat(2243019), 0.0);
+         new MockFloat();
 
-         mockUp.tearDown();
-         assertTrue(Float.intBitsToFloat(2243019) > 0);
+         assertEquals(0.0, Float.intBitsToFloat(2243019), 0.0);
       }
    }
 
@@ -393,8 +386,15 @@ public final class MockAnnotationsTest
       public static float intBitsToFloat(int bits) { return 0; }
    }
 
+   @After
+   public void checkThatLocalMockUpsHaveBeenTornDown()
+   {
+      assertTrue(System.nanoTime() > 0);
+      assertTrue(Float.intBitsToFloat(2243019) > 0);
+   }
+
    @Test
-   public void setUpMockForJREClass()
+   public void applyMockupForJREClass()
    {
       MockThread mockThread = new MockThread();
 
@@ -407,7 +407,7 @@ public final class MockAnnotationsTest
    {
       boolean interrupted;
 
-      @Mock(invocations = 1)
+      @Mock
       public void interrupt() { interrupted = true; }
    }
 
@@ -434,10 +434,10 @@ public final class MockAnnotationsTest
    }
 
    @Test
-   public void mockStaticInitializer()
+   public void fakeStaticInitializer()
    {
       new MockUp<ClassWithStaticInitializers>() {
-         @Mock(invocations = 1) void $clinit() {}
+         @Mock void $clinit() {}
       };
 
       ClassWithStaticInitializers.doSomething();
@@ -463,9 +463,7 @@ public final class MockAnnotationsTest
    static class MockForClassWithInitializer extends MockUp<AnotherClassWithStaticInitializers>
    {
       @Mock void $clinit() {}
-
-      @Mock(minInvocations = 1, maxInvocations = 1)
-      void doSomething() {}
+      @Mock void doSomething() {}
    }
 
    static class YetAnotherClassWithStaticInitializer
@@ -499,7 +497,7 @@ public final class MockAnnotationsTest
 
    public static class MockCallbackHandler extends MockUp<CallbackHandler>
    {
-      @Mock(invocations = 1)
+      @Mock
       public void handle(Callback[] callbacks)
       {
          assertEquals(1, callbacks.length);
@@ -511,7 +509,7 @@ public final class MockAnnotationsTest
    public void mockJREInterfaceWithMockUp() throws Exception
    {
       CallbackHandler callbackHandler = new MockUp<CallbackHandler>() {
-         @Mock(invocations = 1)
+         @Mock
          void handle(Callback[] callbacks)
          {
             assertEquals(1, callbacks.length);
@@ -650,7 +648,7 @@ public final class MockAnnotationsTest
       @Mock void provideSomeService() {}
    }
 
-   @Test
+   @Test @SuppressWarnings("MethodWithMultipleLoops")
    public void concurrentMock() throws Exception
    {
       new MockUp<Collaborator>() {

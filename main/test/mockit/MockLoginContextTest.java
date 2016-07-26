@@ -30,7 +30,7 @@ public final class MockLoginContextTest
 
    public static class MockLoginContext extends MockUp<LoginContext>
    {
-      @Mock(invocations = 1)
+      @Mock
       public void $init(String name, CallbackHandler callbackHandler)
       {
          assertEquals("test", name);
@@ -40,7 +40,7 @@ public final class MockLoginContextTest
       @Mock
       public void login() {}
 
-      @Mock(maxInvocations = 1)
+      @Mock
       public Subject getSubject() { return null; }
    }
 
@@ -77,7 +77,7 @@ public final class MockLoginContextTest
    {
       @Mock void $init(String s) {}
       @Mock void logout() {}
-      @Mock(invocations = 1) void login() {}
+      @Mock void login() {}
    }
 
    @Test
@@ -86,7 +86,7 @@ public final class MockLoginContextTest
       final Subject testSubject = new Subject();
 
       new MockUp<LoginContext>() {
-         @Mock(invocations = 1)
+         @Mock
          void $init(Invocation inv, String name, Subject subject)
          {
             LoginContext it = inv.getInvokedInstance();
@@ -96,7 +96,7 @@ public final class MockLoginContextTest
             setField(it, subject); // forces setting of private field, since no setter is available
          }
 
-         @Mock(invocations = 1)
+         @Mock
          void login(Invocation inv)
          {
             LoginContext it = inv.getInvokedInstance();
@@ -105,7 +105,7 @@ public final class MockLoginContextTest
             setField(it, "loginSucceeded", true); // private field set to true when login succeeds
          }
 
-         @Mock(invocations = 1)
+         @Mock
          void logout(Invocation inv)
          {
             LoginContext it = inv.getInvokedInstance();

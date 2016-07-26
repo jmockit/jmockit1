@@ -12,7 +12,6 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("unused")
 public final class InvocationProceedTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -61,7 +60,7 @@ public final class InvocationProceedTest
    public void proceedFromMockMethodWithoutParameters()
    {
       new MockUp<ClassToBeMocked>() {
-         @Mock(invocations = 1) boolean methodToBeMocked(Invocation inv) { return inv.proceed(); }
+         @Mock boolean methodToBeMocked(Invocation inv) { return inv.proceed(); }
       };
 
       assertTrue(new ClassToBeMocked().methodToBeMocked());
@@ -73,7 +72,7 @@ public final class InvocationProceedTest
       new MockUp<ClassToBeMocked>() {
          @Mock int methodToBeMocked(Invocation inv, int i) { Integer j = inv.proceed(); return j + 1; }
 
-         @Mock(maxInvocations = 1)
+         @Mock
          private int methodToBeMocked(Invocation inv, int i, Object... args)
          {
             args[2] = "mock";
@@ -118,10 +117,10 @@ public final class InvocationProceedTest
    }
 
    @Test
-   public void proceedFromMockMethodWhichThrowsCheckedException()
+   public void proceedFromMockMethodWhichThrowsCheckedException() throws Exception
    {
       new MockUp<ClassToBeMocked>() {
-         @Mock(minInvocations = 1)
+         @Mock
          boolean staticMethodToBeMocked(Invocation inv) throws Exception
          {
             if (inv.getInvocationIndex() == 0) {
@@ -134,15 +133,8 @@ public final class InvocationProceedTest
 
       try { ClassToBeMocked.staticMethodToBeMocked(); fail(); } catch (FileNotFoundException ignored) {}
 
-      //noinspection OverlyBroadCatchBlock
-      try {
-         ClassToBeMocked.staticMethodToBeMocked();
-         fail();
-      }
-      catch (Exception e) {
-         //noinspection ConstantConditions,InstanceofCatchParameter
-         assertTrue(e instanceof InterruptedException);
-      }
+      thrown.expect(InterruptedException.class);
+      ClassToBeMocked.staticMethodToBeMocked();
    }
 
    @Test
@@ -266,7 +258,7 @@ public final class InvocationProceedTest
       new Expectations() {{
          mocked.methodToBeMocked();
          result = new Delegate() {
-            boolean delegate(Invocation inv) { return inv.proceed(); }
+            @Mock boolean delegate(Invocation inv) { return inv.proceed(); }
          };
       }};
 
@@ -279,7 +271,7 @@ public final class InvocationProceedTest
       new Expectations() {{
          mocked.methodToBeMocked();
          result = new Delegate() {
-            boolean delegate(Invocation inv) { return inv.proceed(); }
+            @Mock boolean delegate(Invocation inv) { return inv.proceed(); }
          };
       }};
 
@@ -293,10 +285,13 @@ public final class InvocationProceedTest
 
       new Expectations(mocked) {{
          mocked.methodToBeMocked(anyInt);
-         result = new Delegate() { int delegate(Invocation inv, int i) { Integer j = inv.proceed(); return j + 1; } };
+         result = new Delegate() {
+            @Mock int delegate(Invocation inv, int i) { Integer j = inv.proceed(); return j + 1; }
+         };
 
          mocked.methodToBeMocked(anyInt, (Object[]) any); maxTimes = 1;
          result = new Delegate() {
+            @Mock
             Integer delegate(Invocation inv, int i, Object... args)
             {
                args[2] = "mock";
@@ -318,6 +313,7 @@ public final class InvocationProceedTest
       new Expectations(mocked) {{
          mocked.anotherMethodToBeMocked(anyString, anyBoolean, null);
          result = new Delegate() {
+            @Mock
             String delegate(Invocation inv, String s, boolean b, List<Number> ints)
             {
                if (!b) {
@@ -349,12 +345,12 @@ public final class InvocationProceedTest
       new Expectations(ClassToBeMocked.class) {{
          mocked.methodToBeMocked(anyInt);
          result = new Delegate() {
-            Integer delegate1(Invocation invocation, int i) { return invocation.proceed(i + 2); }
+            @Mock Integer delegate1(Invocation invocation, int i) { return invocation.proceed(i + 2); }
          };
 
          mocked.methodToBeMocked(anyInt, (Object[]) any);
          result = new Delegate() {
-            Integer delegate2(Invocation inv, int i, Object... args) { return inv.proceed(1, 2, "3"); }
+            @Mock Integer delegate2(Invocation inv, int i, Object... args) { return inv.proceed(1, 2, "3"); }
          };
       }};
 
@@ -368,6 +364,7 @@ public final class InvocationProceedTest
       new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked();
          result = new Delegate() {
+            @Mock
             void init(Invocation inv)
             {
                assertNotNull(inv.getInvokedInstance());
@@ -386,6 +383,7 @@ public final class InvocationProceedTest
       new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
+            @Mock
             void init(Invocation inv, String name)
             {
                assertNotNull(inv.getInvokedInstance());
@@ -407,7 +405,7 @@ public final class InvocationProceedTest
       new Expectations(ClassToBeMocked.class) {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
-            void init(Invocation inv, String name) { inv.proceed("mock"); }
+            @Mock void init(Invocation inv, String name) { inv.proceed("mock"); }
          };
       }};
 
@@ -424,6 +422,7 @@ public final class InvocationProceedTest
       new Expectations(File.class) {{
          new File(anyString);
          result = new Delegate() {
+            @Mock
             void init(Invocation inv, String name)
             {
                if ("proceed".equals(name)) {
@@ -447,20 +446,12 @@ public final class InvocationProceedTest
       new Expectations(Vector.class) {{
          new Vector<String>(anyInt);
          result = new Delegate() {
-            void init(Invocation inv, int i) { inv.proceed(); }
+            @Mock void init(Invocation inv, int i) { inv.proceed(); }
          };
       }};
 
       assertEquals(1, new Vector<String>(1).capacity());
       assertEquals(10, new Vector<String>().capacity());
-   }
-
-   static class MyVector
-   {
-      private final int capacity;
-      MyVector() { this(10); }
-      MyVector(int capacity) { this.capacity = capacity; }
-      int capacity() { return capacity; }
    }
 
    @Test
@@ -471,7 +462,7 @@ public final class InvocationProceedTest
       new Expectations(obj) {{
          obj.baseMethod(anyInt);
          result = new Delegate() {
-            int baseMethod(Invocation inv, int i) { return inv.proceed(i + 1); }
+            @Mock int baseMethod(Invocation inv, int i) { return inv.proceed(i + 1); }
          };
       }};
 
@@ -485,7 +476,7 @@ public final class InvocationProceedTest
       new Expectations() {{
          mocked.methodToBeMocked(1);
          result = new Delegate() {
-            int delegate(Invocation inv) { return inv.proceed(); }
+            @Mock int delegate(Invocation inv) { return inv.proceed(); }
          };
       }};
 
@@ -500,12 +491,12 @@ public final class InvocationProceedTest
          mockedBase.methodToBeMocked(1);
          result = new Delegate() {
             // Will not execute when calling on subclass instance.
-            int delegate(Invocation inv) { int i = inv.proceed(); return i + 1; }
+            @Mock int delegate(Invocation inv) { int i = inv.proceed(); return i + 1; }
          };
 
          mocked.methodToBeMocked(1);
          result = new Delegate() {
-            int delegate(Invocation inv) { return inv.proceed(); }
+            @Mock int delegate(Invocation inv) { return inv.proceed(); }
          };
       }};
 
@@ -533,7 +524,7 @@ public final class InvocationProceedTest
       new Expectations() {{
          c1.submit((Runnable) any);
          result = new Delegate() {
-            void delegate(Invocation inv) { inv.proceed(); }
+            @Mock void delegate(Invocation inv) { inv.proceed(); }
          };
       }};
 
@@ -556,7 +547,7 @@ public final class InvocationProceedTest
       new Expectations() {{
          mocked.anotherMethodToBeMocked("test", true, null);
          result = new Delegate() {
-            void delegate(Invocation inv) { inv.proceed(inv.getInvokedArguments()); }
+            @Mock void delegate(Invocation inv) { inv.proceed(inv.getInvokedArguments()); }
          };
       }};
 

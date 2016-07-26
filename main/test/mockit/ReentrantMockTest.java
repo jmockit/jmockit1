@@ -76,7 +76,7 @@ public final class ReentrantMockTest
    {
       private int runFinalizationCount;
 
-      @Mock(minInvocations = 3)
+      @Mock
       public void runFinalization(Invocation inv)
       {
          if (runFinalizationCount < 2) {
@@ -97,7 +97,7 @@ public final class ReentrantMockTest
          return inv.proceed(hook);
       }
 
-      @Mock(invocations = 1)
+      @Mock
       public void runFinalizersOnExit(boolean value)
       {
          assertTrue(value);

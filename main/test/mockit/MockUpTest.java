@@ -58,13 +58,13 @@ public final class MockUpTest
    public void mockUpClass() throws Exception
    {
       new MockUp<Collaborator>() {
-         @Mock(invocations = 1)
+         @Mock
          void $init(boolean b)
          {
             assertTrue(b);
          }
 
-         @Mock(minInvocations = 1)
+         @Mock
          int doSomething(String s)
          {
             assertEquals("test", s);
@@ -108,7 +108,7 @@ public final class MockUpTest
       new MockUp<AtomicIntegerFieldUpdater<?>>(atomicCount.getClass()) {
          boolean second;
 
-         @Mock(invocations = 2)
+         @Mock
          public boolean compareAndSet(Object obj, int expect, int update)
          {
             assertSame(main, obj);
@@ -181,7 +181,7 @@ public final class MockUpTest
    public void mockUpGivenInterface()
    {
       Runnable r = new MockUp<Runnable>(Runnable.class) {
-         @Mock(minInvocations = 1)
+         @Mock
          public void run() {}
       }.getMockInstance();
 
@@ -192,7 +192,7 @@ public final class MockUpTest
    public <M extends Runnable & ResultSet> void mockUpTwoInterfacesAtOnce() throws Exception
    {
       M mock = new MockUp<M>() {
-         @Mock(invocations = 1)
+         @Mock
          void run() {}
 
          @Mock
@@ -254,7 +254,7 @@ public final class MockUpTest
    public void mockUpUsingInvocationParameters()
    {
       new MockUp<Collaborator>() {
-         @Mock(invocations = 1)
+         @Mock
          void $init(Invocation inv, boolean b)
          {
             Collaborator it = inv.getInvokedInstance();
@@ -509,7 +509,7 @@ public final class MockUpTest
    static class ClassWithConstructorCallingAnother
    {
       final Number value;
-      ClassWithConstructorCallingAnother() { this(123); }
+      @SuppressWarnings("unused") ClassWithConstructorCallingAnother() { this(123); }
       ClassWithConstructorCallingAnother(long l) { value = l; }
    }
 
