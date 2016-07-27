@@ -60,6 +60,7 @@
             <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
             <configuration>
                <systemPropertyVariables>
+                  <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
                   <coverage-output>html</coverage-output>
                   <coverage-metrics>all</coverage-metrics>
                   <coverage-check>85</coverage-check>
