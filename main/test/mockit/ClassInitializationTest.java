@@ -78,19 +78,10 @@ public final class ClassInitializationTest
    public void useClassWithStaticInitializerNeverStubbedOutAndNotMockedNow()
    {
       // Allows the class to be initialized without throwing the exception.
-      MockUp<?> mockUp = new MockUp<ClassWithStaticInitializer2>() { @Mock void doSomething() {} };
+      new MockUp<ClassWithStaticInitializer2>() { @Mock void doSomething() {} };
 
       // Initializes the class:
       assertNotNull(ClassWithStaticInitializer2.CONSTANT);
-
-      // Restore the now initialized class:
-      mockUp.tearDown();
-
-      try {
-         ClassWithStaticInitializer2.doSomething();
-         fail();
-      }
-      catch (UnsupportedOperationException ignore) {}
    }
 
    static class AnotherClassWithStaticInitializer1
@@ -108,31 +99,6 @@ public final class ClassInitializationTest
       assertNull(AnotherClassWithStaticInitializer1.CONSTANT);
       AnotherClassWithStaticInitializer1.doSomething();
       assertEquals(0, mockAnother.getValue());
-   }
-
-   static class AnotherClassWithStaticInitializer2
-   {
-      static final String CONSTANT = new String("not a compile-time constant");
-      static { doSomething(); }
-      static void doSomething() { throw new UnsupportedOperationException("must not execute"); }
-      int getValue() { return -1; }
-   }
-
-   @Test
-   public void useClassWithStaticInitializerPreviouslyStubbedOutButNotMockedNow()
-   {
-      // Stubs out the static initializer, initializes the class, and then restores it:
-      MockUp<?> mockUp = new MockUp<AnotherClassWithStaticInitializer2>() { @Mock void $clinit() {} };
-      assertNull(AnotherClassWithStaticInitializer2.CONSTANT);
-      mockUp.tearDown();
-
-      try {
-         AnotherClassWithStaticInitializer2.doSomething();
-         fail();
-      }
-      catch (UnsupportedOperationException ignore) {}
-
-      assertEquals(-1, new AnotherClassWithStaticInitializer2().getValue());
    }
 
    static class ClassWhichCallsStaticMethodFromInitializer
