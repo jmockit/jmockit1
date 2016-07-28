@@ -63,18 +63,45 @@ import java.lang.annotation.*;
 public @interface Tested
 {
    /**
-    * Indicates that each and every field of the tested object should be assigned a value, either an
-    * {@linkplain Injectable @Injectable} or a real (unmocked) instance of the field type.
+    * Indicates that each and every field of the tested object should be assigned a value, which can be an
+    * {@linkplain Injectable @Injectable}, another {@code @Tested} field of a type assignable to the field type, or a
+    * real (unmocked) instance of the field type.
     * <p/>
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.
     * For this attempt to succeed, the type of the field must either be a concrete class having a constructor that can
-    * be satisfied by available injectables and/or by recursively created dependencies, an interface for which a single
-    * implementation class is loaded, or a known interface (see below) for which a real instance can be created.
+    * be satisfied by available injectables and/or by recursively created dependencies, or a known interface (see below)
+    * for which a real instance can be created.
     * <p/>
-    * Currently, the JPA interfaces {@code javax.persistence.EntityManagerFactory} and
-    * {@code javax.persistence.EntityManager} are supported, provided a {@code META-INF/persistence.xml} file is
-    * available in the runtime classpath.
+    * Constructor injection is also supported.
+    * In this case, the same rules used for injected fields apply to the parameters of the constructor that gets chosen
+    * for automatic instantiation.
+    * <p/>
+    * Currently, the following standard types (mostly Java EE interfaces) have special support:
+    * <ul>
+    *    <li>
+    *       {@link java.util.logging.Logger}: a logger is automatically
+    *       {@linkplain java.util.logging.Logger#getLogger(String) created} with the name of the tested class.
+    *    </li>
+    *    <li>
+    *       {@link javax.inject.Provider javax.inject.Provider&lt;T>}: a provider which produces an instance of type
+    *       {@code T} is injected.
+    *    </li>
+    *    <li>
+    *       JPA interfaces {@link javax.persistence.EntityManagerFactory} and {@link javax.persistence.EntityManager}:
+    *       created through calls to {@link javax.persistence.Persistence#createEntityManagerFactory(String)} and
+    *       {@link javax.persistence.EntityManagerFactory#createEntityManager()}, provided a suitable
+    *       {@code META-INF/persistence.xml} file is available in the runtime classpath.
+    *    </li>
+    *    <li>
+    *       Servlet interfaces {@link javax.servlet.ServletContext} and {@link javax.servlet.http.HttpSession}:
+    *       objects that emulate the servlet context and HTTP session are automatically created for use in tests.
+    *    </li>
+    *    <li>
+    *       {@link javax.enterprise.context.Conversation}: an object that emulates an web application's conversation
+    *       context is created.
+    *    </li>
+    * </ul>
     */
    boolean fullyInitialized() default false;
 
