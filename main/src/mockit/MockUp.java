@@ -21,12 +21,10 @@ import mockit.internal.util.*;
  * Such mock-ups can be used as <em>fake</em> implementations for use in unit or integration tests.
  * For example:
  * <pre>
- *
  * public final class FakeSystem <strong>extends MockUp&lt;System></strong> {
  *    <strong>&#64;Mock</strong> public static long nanoTime() { return 123L; }
  * }
  * </pre>
- * <p/>
  * One or more <em>mock methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
  * Each {@code @Mock} method should have a matching method or constructor in the faked class/interface.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding mock method.
@@ -44,7 +42,6 @@ import mockit.internal.util.*;
  * interfaces is created, with the proxy instance made available through a call to {@link #getMockInstance()}.
  * Example:
  * <pre>
- *
  * &#64;Test
  * public &lt;<strong>M extends Runnable & ResultSet</strong>> void someTest() {
  *     M mock = new MockUp&lt;<strong>M</strong>>() {
@@ -61,7 +58,6 @@ import mockit.internal.util.*;
  * that type is taken as a <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
  * <pre>
- *
  * &#64;Test
  * public &lt;<strong>BC extends SomeBaseClass</strong>> void someTest() {
  *     new MockUp&lt;<strong>BC</strong>>() {
@@ -142,12 +138,9 @@ public abstract class MockUp<T>
       else {
          Type[] typesToMock = ((TypeVariable<?>) targetType).getBounds();
 
-         if (typesToMock.length > 1) {
-            mockedClass = new MockedImplementationClass<T>(this).createImplementation(typesToMock);
-         }
-         else {
-            mockedClass = new CaptureOfMockedUpImplementations(this, typesToMock[0]).apply();
-         }
+         mockedClass = typesToMock.length > 1 ?
+            new MockedImplementationClass<T>(this).createImplementation(typesToMock) :
+            new CaptureOfMockedUpImplementations(this, typesToMock[0]).apply();
       }
    }
 
@@ -184,7 +177,8 @@ public abstract class MockUp<T>
          String errorMessage = "Argument " + typeToMock + " for type parameter T of an unsupported kind";
          throw new UnsupportedOperationException(errorMessage);
       }
-      else if (typeToMock instanceof TypeVariable<?>) {
+
+      if (typeToMock instanceof TypeVariable<?>) {
          TypeVariable<?> typeVar = (TypeVariable<?>) typeToMock;
          Type[] bounds = typeVar.getBounds();
 
