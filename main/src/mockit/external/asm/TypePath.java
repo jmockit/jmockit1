@@ -36,31 +36,31 @@ package mockit.external.asm;
  *
  * @author Eric Bruneton
  */
-public class TypePath {
+final class TypePath {
 
     /**
      * A type path step that steps into the element type of an array type. See
      * {@link #getStep getStep}.
      */
-    public final static int ARRAY_ELEMENT = 0;
+    static final int ARRAY_ELEMENT = 0;
 
     /**
      * A type path step that steps into the nested type of a class type. See
      * {@link #getStep getStep}.
      */
-    public final static int INNER_TYPE = 1;
+    static final int INNER_TYPE = 1;
 
     /**
      * A type path step that steps into the bound of a wildcard type. See
      * {@link #getStep getStep}.
      */
-    public final static int WILDCARD_BOUND = 2;
+    static final int WILDCARD_BOUND = 2;
 
     /**
      * A type path step that steps into a type argument of a generic type. See
      * {@link #getStep getStep}.
      */
-    public final static int TYPE_ARGUMENT = 3;
+    static final int TYPE_ARGUMENT = 3;
 
     /**
      * The byte array where the path is stored, in Java class file format.
@@ -91,7 +91,7 @@ public class TypePath {
      *
      * @return the length of this path.
      */
-    public int getLength() {
+    int getLength() {
         return b[offset];
     }
 
@@ -104,7 +104,7 @@ public class TypePath {
      *         INNER_TYPE}, {@link #WILDCARD_BOUND WILDCARD_BOUND}, or
      *         {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
      */
-    public int getStep(int index) {
+    int getStep(int index) {
         return b[offset + 2 * index + 1];
     }
 
@@ -118,45 +118,8 @@ public class TypePath {
      * @return the index of the type argument that the given step is stepping
      *         into.
      */
-    public int getStepArgument(int index) {
+    int getStepArgument(int index) {
         return b[offset + 2 * index + 2];
-    }
-
-    /**
-     * Converts a type path in string form, in the format used by
-     * {@link #toString()}, into a TypePath object.
-     *
-     * @param typePath
-     *            a type path in string form, in the format used by
-     *            {@link #toString()}. May be null or empty.
-     * @return the corresponding TypePath object, or null if the path is empty.
-     */
-    public static TypePath fromString(final String typePath) {
-        if (typePath == null || typePath.length() == 0) {
-            return null;
-        }
-        int n = typePath.length();
-        ByteVector out = new ByteVector(n);
-        out.putByte(0);
-        for (int i = 0; i < n;) {
-            char c = typePath.charAt(i++);
-            if (c == '[') {
-                out.put11(ARRAY_ELEMENT, 0);
-            } else if (c == '.') {
-                out.put11(INNER_TYPE, 0);
-            } else if (c == '*') {
-                out.put11(WILDCARD_BOUND, 0);
-            } else if (c >= '0' && c <= '9') {
-                int typeArg = c - '0';
-                while (i < n && (c = typePath.charAt(i)) >= '0' && c <= '9') {
-                    typeArg = typeArg * 10 + c - '0';
-                    i += 1;
-                }
-                out.put11(TYPE_ARGUMENT, typeArg);
-            }
-        }
-        out.data[0] = (byte) (out.length / 2);
-        return new TypePath(out.data, 0);
     }
 
     /**

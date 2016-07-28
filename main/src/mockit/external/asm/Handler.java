@@ -34,7 +34,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-class Handler {
+final class Handler {
 
     /**
      * Beginning of the exception handler's scope (inclusive).
@@ -83,9 +83,9 @@ class Handler {
     static Handler remove(Handler h, Label start, Label end) {
         if (h == null) {
             return null;
-        } else {
-            h.next = remove(h.next, start, end);
         }
+
+        h.next = remove(h.next, start, end);
         int hstart = h.start.position;
         int hend = h.end.position;
         int s = start.position;

@@ -43,17 +43,8 @@ package mockit.external.asm;
  */
 public interface Opcodes {
 
-    // ASM API versions
-
-    int ASM4 = 4 << 16 | 0 << 8 | 0;
-    int ASM5 = 5 << 16 | 0 << 8 | 0;
-
     // versions
 
-    int V1_1 = 3 << 16 | 45;
-    int V1_2 = 0 << 16 | 46;
-    int V1_3 = 0 << 16 | 47;
-    int V1_4 = 0 << 16 | 48;
     int V1_5 = 0 << 16 | 49;
     int V1_6 = 0 << 16 | 50;
     int V1_7 = 0 << 16 | 51;
@@ -146,13 +137,13 @@ public interface Opcodes {
      */
     int F_SAME1 = 4;
 
-    Integer TOP = new Integer(0);
-    Integer INTEGER = new Integer(1);
-    Integer FLOAT = new Integer(2);
-    Integer DOUBLE = new Integer(3);
-    Integer LONG = new Integer(4);
-    Integer NULL = new Integer(5);
-    Integer UNINITIALIZED_THIS = new Integer(6);
+    Integer TOP = 0;
+    Integer INTEGER = 1;
+    Integer FLOAT = 2;
+    Integer DOUBLE = 3;
+    Integer LONG = 4;
+    Integer NULL = 5;
+    Integer UNINITIALIZED_THIS = 6;
 
     // opcodes // visit method (- = idem)
 

@@ -29,8 +29,7 @@
  */
 package mockit.external.asm;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
@@ -149,7 +148,7 @@ public final class ClassReader {
      * @param b
      *            the bytecode of the class to be read.
      */
-    public ClassReader(final byte[] b) {
+    public ClassReader(byte[] b) {
         this(b, 0, b.length);
     }
 
@@ -163,7 +162,7 @@ public final class ClassReader {
      * @param len
      *            the length of the class data.
      */
-    public ClassReader(final byte[] b, final int off, final int len) {
+    public ClassReader(byte[] b, int off, int len) {
         this.b = b;
 
         // parses the constant pool
@@ -282,7 +281,7 @@ public final class ClassReader {
      * @param classWriter
      *            the {@link ClassWriter} to copy constant pool into.
      */
-    void copyPool(final ClassWriter classWriter) {
+    void copyPool(ClassWriter classWriter) {
         char[] buf = new char[maxStringLength];
         int ll = items.length;
         Item[] items2 = new Item[ll];
@@ -370,8 +369,7 @@ public final class ClassReader {
      * @param classWriter
      *            the {@link ClassWriter} to copy bootstrap methods into.
      */
-    private void copyBootstrapMethods(final ClassWriter classWriter,
-            final Item[] items, final char[] c) {
+    private void copyBootstrapMethods(ClassWriter classWriter, Item[] items, char[] c) {
         // finds the "BootstrapMethods" attribute
         int u = getAttributes();
         boolean found = false;
@@ -417,7 +415,7 @@ public final class ClassReader {
      * @throws IOException
      *             if a problem occurs during reading.
      */
-    public ClassReader(final InputStream is) throws IOException {
+    public ClassReader(InputStream is) throws IOException {
         this(readClass(is, true));
     }
 
@@ -429,7 +427,7 @@ public final class ClassReader {
      * @throws IOException
      *             if an exception occurs during reading.
      */
-    public ClassReader(final String name) throws IOException {
+    public ClassReader(String name) throws IOException {
         this(readClass(
                 ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
                         + ".class"), true));
@@ -446,7 +444,7 @@ public final class ClassReader {
      * @throws IOException
      *             if a problem occurs during reading.
      */
-    private static byte[] readClass(final InputStream is, boolean close)
+    private static byte[] readClass(InputStream is, boolean close)
             throws IOException {
         if (is == null) {
             throw new IOException("Class not found");
@@ -499,7 +497,7 @@ public final class ClassReader {
      *            of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}
      *            , {@link #SKIP_FRAMES}, {@link #SKIP_CODE}.
      */
-    public void accept(final ClassVisitor classVisitor, final int flags) {
+    public void accept(ClassVisitor classVisitor, int flags) {
         accept(classVisitor, new Attribute[0], flags);
     }
 
@@ -524,8 +522,7 @@ public final class ClassReader {
      *            of this class. See {@link #SKIP_DEBUG}, {@link #EXPAND_FRAMES}
      *            , {@link #SKIP_FRAMES}, {@link #SKIP_CODE}.
      */
-    public void accept(final ClassVisitor classVisitor,
-            final Attribute[] attrs, final int flags) {
+    public void accept(ClassVisitor classVisitor, Attribute[] attrs, int flags) {
         int u = header; // current offset in the class file
         char[] c = new char[maxStringLength]; // buffer used to read strings
 
@@ -705,8 +702,7 @@ public final class ClassReader {
      *            the start offset of the field in the class file.
      * @return the offset of the first byte following the field in the class.
      */
-    private int readField(final ClassVisitor classVisitor,
-            final Context context, int u) {
+    private int readField(ClassVisitor classVisitor, Context context, int u) {
         // reads the field declaration
         char[] c = context.buffer;
         int access = readUnsignedShort(u);
@@ -823,8 +819,7 @@ public final class ClassReader {
      *            the start offset of the method in the class file.
      * @return the offset of the first byte following the method in the class.
      */
-    private int readMethod(final ClassVisitor classVisitor,
-            final Context context, int u) {
+    private int readMethod(ClassVisitor classVisitor, Context context, int u) {
         // reads the method declaration
         char[] c = context.buffer;
         context.access = readUnsignedShort(u);
@@ -1030,7 +1025,7 @@ public final class ClassReader {
      * @param u
      *            the start offset of the code attribute in the class file.
      */
-    private void readCode(final MethodVisitor mv, final Context context, int u) {
+    private void readCode(MethodVisitor mv, Context context, int u) {
         // reads the header
         byte[] b = this.b;
         char[] c = context.buffer;
@@ -1220,8 +1215,8 @@ public final class ClassReader {
             } else {
                 for (int j = 0; j < context.attrs.length; ++j) {
                     if (context.attrs[j].type.equals(attrName)) {
-                        Attribute attr = context.attrs[j].read(this, u + 8,
-                                readInt(u + 4), c, codeStart - 8, labels);
+                        Attribute attr = context.attrs[j].read(this, u + 8, readInt(u + 4));
+
                         if (attr != null) {
                             attr.next = attributes;
                             attributes = attr;
@@ -2233,15 +2228,14 @@ public final class ClassReader {
      * @return the attribute that has been read, or <tt>null</tt> to skip this
      *         attribute.
      */
-    private Attribute readAttribute(final Attribute[] attrs, final String type,
-            final int off, final int len, final char[] buf, final int codeOff,
-            final Label[] labels) {
+    private Attribute readAttribute(Attribute[] attrs, String type, int off, int len, char[] buf, int codeOff,
+                                    Label[] labels) {
         for (int i = 0; i < attrs.length; ++i) {
             if (attrs[i].type.equals(type)) {
-                return attrs[i].read(this, off, len, buf, codeOff, labels);
+                return attrs[i].read(this, off, len);
             }
         }
-        return new Attribute(type).read(this, off, len, null, -1, null);
+        return new Attribute(type).read(this, off, len);
     }
 
     // ------------------------------------------------------------------------

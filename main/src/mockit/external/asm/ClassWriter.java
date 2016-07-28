@@ -902,7 +902,7 @@ public final class ClassWriter extends ClassVisitor {
         }
         if (attrs != null) {
             attributeCount += attrs.getCount();
-            size += attrs.getSize(this, null, 0, -1, -1);
+            size += attrs.getSize(this);
         }
         size += pool.length;
         // allocates a byte vector of this size, in order to avoid unnecessary
@@ -982,7 +982,7 @@ public final class ClassWriter extends ClassVisitor {
             itanns.put(out);
         }
         if (attrs != null) {
-            attrs.put(this, null, 0, -1, -1, out);
+            attrs.put(this, out);
         }
         if (invalidFrames) {
             anns = null;

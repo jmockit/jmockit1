@@ -34,7 +34,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-class Edge {
+final class Edge {
 
     /**
      * Denotes a normal control flow graph edge.
@@ -46,7 +46,7 @@ class Edge {
      * More precisely any {@link Edge} whose {@link #info} is strictly positive
      * corresponds to an exception handler. The actual value of {@link #info} is
      * the index, in the {@link ClassWriter} type table, of the exception that
-     * is catched.
+     * is caught.
      */
     static final int EXCEPTION = 0x7FFFFFFF;
 

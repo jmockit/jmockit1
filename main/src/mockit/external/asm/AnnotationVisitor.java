@@ -39,45 +39,10 @@ package mockit.external.asm;
  */
 public abstract class AnnotationVisitor {
 
-
-
-
-
-
-
-    /**
-     * The annotation visitor to which this visitor must delegate method calls.
-     * May be null.
-     */
-    protected AnnotationVisitor av;
-
     /**
      * Constructs a new {@link AnnotationVisitor}.
-     * 
-     *
-     *
-     *
      */
-    public AnnotationVisitor() {
-        this(null);
-    }
-
-    /**
-     * Constructs a new {@link AnnotationVisitor}.
-     * 
-     *
-     *
-     *
-     * @param av
-     *            the annotation visitor to which this visitor must delegate
-     *            method calls. May be null.
-     */
-    public AnnotationVisitor(final AnnotationVisitor av) {
-
-
-
-
-        this.av = av;
+    protected AnnotationVisitor() {
     }
 
     /**
@@ -96,9 +61,6 @@ public abstract class AnnotationVisitor {
      *            in turn, but is more convenient).
      */
     public void visit(String name, Object value) {
-        if (av != null) {
-            av.visit(name, value);
-        }
     }
 
     /**
@@ -112,9 +74,6 @@ public abstract class AnnotationVisitor {
      *            the actual enumeration value.
      */
     public void visitEnum(String name, String desc, String value) {
-        if (av != null) {
-            av.visitEnum(name, desc, value);
-        }
     }
 
     /**
@@ -131,9 +90,6 @@ public abstract class AnnotationVisitor {
      *         visitor</i>.
      */
     public AnnotationVisitor visitAnnotation(String name, String desc) {
-        if (av != null) {
-            return av.visitAnnotation(name, desc);
-        }
         return null;
     }
 
@@ -152,9 +108,6 @@ public abstract class AnnotationVisitor {
      *         before calling other methods on this annotation visitor</i>.
      */
     public AnnotationVisitor visitArray(String name) {
-        if (av != null) {
-            return av.visitArray(name);
-        }
         return null;
     }
 
@@ -162,8 +115,5 @@ public abstract class AnnotationVisitor {
      * Visits the end of the annotation.
      */
     public void visitEnd() {
-        if (av != null) {
-            av.visitEnd();
-        }
     }
 }

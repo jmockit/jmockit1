@@ -36,15 +36,15 @@ package mockit.external.asm;
  * @author Remi Forax
  * @author Eric Bruneton
  */
-public final class Handle {
+final class Handle {
 
     /**
      * The kind of field or method designated by this Handle. Should be
-     * {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
-     * {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
-     * {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL}, {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
-     * {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL}, {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
-     * {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
+     * {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     * {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     * {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC},
+     * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or
+     * {@link Opcodes#H_INVOKEINTERFACE}.
      */
     final int tag;
 
@@ -69,13 +69,13 @@ public final class Handle {
      * 
      * @param tag
      *            the kind of field or method designated by this Handle. Must be
-     *            {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
-     *            {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
-     *            {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL},
-     *            {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
-     *            {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL},
-     *            {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
-     *            {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
+     *            {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
+     *            {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
+     *            {@link Opcodes#H_INVOKEVIRTUAL},
+     *            {@link Opcodes#H_INVOKESTATIC},
+     *            {@link Opcodes#H_INVOKESPECIAL},
+     *            {@link Opcodes#H_NEWINVOKESPECIAL} or
+     *            {@link Opcodes#H_INVOKEINTERFACE}.
      * @param owner
      *            the internal name of the class that owns the field or method
      *            designated by this handle.
@@ -85,25 +85,11 @@ public final class Handle {
      *            the descriptor of the field or method designated by this
      *            handle.
      */
-    public Handle(int tag, String owner, String name, String desc) {
+    Handle(int tag, String owner, String name, String desc) {
         this.tag = tag;
         this.owner = owner;
         this.name = name;
         this.desc = desc;
-    }
-
-    /**
-     * Returns the kind of field or method designated by this handle.
-     * 
-     * @return {@link mockit.external.asm.Opcodes#H_GETFIELD}, {@link mockit.external.asm.Opcodes#H_GETSTATIC},
-     *         {@link mockit.external.asm.Opcodes#H_PUTFIELD}, {@link mockit.external.asm.Opcodes#H_PUTSTATIC},
-     *         {@link mockit.external.asm.Opcodes#H_INVOKEVIRTUAL}, {@link mockit.external.asm.Opcodes#H_INVOKESTATIC},
-     *         {@link mockit.external.asm.Opcodes#H_INVOKESPECIAL},
-     *         {@link mockit.external.asm.Opcodes#H_NEWINVOKESPECIAL} or
-     *         {@link mockit.external.asm.Opcodes#H_INVOKEINTERFACE}.
-     */
-    public int getTag() {
-        return tag;
     }
 
     /**
@@ -113,7 +99,7 @@ public final class Handle {
      * @return the internal name of the class that owns the field or method
      *         designated by this handle.
      */
-    public String getOwner() {
+    String getOwner() {
         return owner;
     }
 
@@ -122,7 +108,7 @@ public final class Handle {
      * 
      * @return the name of the field or method designated by this handle.
      */
-    public String getName() {
+    String getName() {
         return name;
     }
 
@@ -131,7 +117,7 @@ public final class Handle {
      * 
      * @return the descriptor of the field or method designated by this handle.
      */
-    public String getDesc() {
+    String getDesc() {
         return desc;
     }
 

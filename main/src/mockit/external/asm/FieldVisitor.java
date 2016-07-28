@@ -38,12 +38,6 @@ package mockit.external.asm;
  */
 public abstract class FieldVisitor {
 
-
-
-
-
-
-
     /**
      * The field visitor to which this visitor must delegate method calls. May
      * be null.
@@ -52,31 +46,8 @@ public abstract class FieldVisitor {
 
     /**
      * Constructs a new {@link FieldVisitor}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    public FieldVisitor(final int api) {
-        this(api, null);
-    }
-
-    /**
-     * Constructs a new {@link FieldVisitor}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param fv
-     *            the field visitor to which this visitor must delegate method
-     *            calls. May be null.
-     */
-    public FieldVisitor(final int api, final FieldVisitor fv) {
-
-
-
-
-        this.fv = fv;
+    protected FieldVisitor() {
     }
 
     /**
@@ -114,11 +85,7 @@ public abstract class FieldVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-
-
-
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         if (fv != null) {
             return fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         }

@@ -146,7 +146,7 @@ public final class Label {
     private int referenceCount;
 
     /**
-     * Informations about forward references. Each forward reference is
+     * Information about forward references. Each forward reference is
      * described by two consecutive integers in this array: the first one is the
      * position of the first byte of the bytecode instruction that contains the
      * forward reference, while the second is the position of the first byte of
@@ -246,16 +246,6 @@ public final class Label {
     Label next;
 
     // ------------------------------------------------------------------------
-    // Constructor
-    // ------------------------------------------------------------------------
-
-    /**
-     * Constructs a new label.
-     */
-    public Label() {
-    }
-
-    // ------------------------------------------------------------------------
     // Methods to compute offsets and to manage forward references
     // ------------------------------------------------------------------------
 
@@ -296,8 +286,7 @@ public final class Label {
      * @throws IllegalArgumentException
      *             if this label has not been created by the given code writer.
      */
-    void put(final MethodWriter owner, final ByteVector out, final int source,
-            final boolean wideOffset) {
+    void put(MethodWriter owner, ByteVector out, int source, boolean wideOffset) {
         if ((status & RESOLVED) == 0) {
             if (wideOffset) {
                 addReference(-1 - source, out.length);
@@ -328,8 +317,7 @@ public final class Label {
      *            the position where the offset for this forward reference must
      *            be stored.
      */
-    private void addReference(final int sourcePosition,
-            final int referencePosition) {
+    private void addReference(int sourcePosition, int referencePosition) {
         if (srcAndRefPositions == null) {
             srcAndRefPositions = new int[6];
         }
@@ -366,10 +354,9 @@ public final class Label {
      *             if this label has already been resolved, or if it has not
      *             been created by the given code writer.
      */
-    boolean resolve(final MethodWriter owner, final int position,
-            final byte[] data) {
+    boolean resolve(MethodWriter owner, int position, byte[] data) {
         boolean needUpdate = false;
-        this.status |= RESOLVED;
+        status |= RESOLVED;
         this.position = position;
         int i = 0;
         while (i < referenceCount) {
@@ -420,7 +407,7 @@ public final class Label {
      * @return the first label of the series to which this label belongs.
      */
     Label getFirst() {
-        return !ClassReader.FRAMES || frame == null ? this : frame.owner;
+        return frame == null ? this : frame.owner;
     }
 
     // ------------------------------------------------------------------------
@@ -434,8 +421,9 @@ public final class Label {
      *            a subroutine id.
      * @return true is this basic block belongs to the given subroutine.
      */
-    boolean inSubroutine(final long id) {
-        if ((status & Label.VISITED) != 0) {
+    boolean inSubroutine(long id) {
+        //noinspection SimplifiableIfStatement
+        if ((status & VISITED) != 0) {
             return (srcAndRefPositions[(int) (id >>> 32)] & (int) id) != 0;
         }
         return false;
@@ -450,7 +438,7 @@ public final class Label {
      * @return true if this basic block and the given one belong to a common
      *         subroutine.
      */
-    boolean inSameSubroutine(final Label block) {
+    boolean inSameSubroutine(Label block) {
         if ((status & VISITED) == 0 || (block.status & VISITED) == 0) {
             return false;
         }
@@ -470,7 +458,7 @@ public final class Label {
      * @param nbSubroutines
      *            the total number of subroutines in the method.
      */
-    void addToSubroutine(final long id, final int nbSubroutines) {
+    void addToSubroutine(long id, int nbSubroutines) {
         if ((status & VISITED) == 0) {
             status |= VISITED;
             srcAndRefPositions = new int[nbSubroutines / 32 + 1];
@@ -493,7 +481,8 @@ public final class Label {
      * @param nbSubroutines
      *            the total number of subroutines in the method.
      */
-    void visitSubroutine(final Label JSR, final long id, final int nbSubroutines) {
+    @SuppressWarnings({"ConstantConditions", "MethodWithMultipleLoops", "OverlyComplexMethod"})
+    void visitSubroutine(Label JSR, long id, int nbSubroutines) {
         // user managed stack of labels, to avoid using a recursive method
         // (recursivity can lead to stack overflow with very large methods)
         Label stack = this;
@@ -545,7 +534,7 @@ public final class Label {
     }
 
     // ------------------------------------------------------------------------
-    // Overriden Object methods
+    // Overridden Object methods
     // ------------------------------------------------------------------------
 
     /**

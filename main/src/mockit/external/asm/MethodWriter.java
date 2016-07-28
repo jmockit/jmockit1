@@ -2063,8 +2063,7 @@ public final class MethodWriter extends MethodVisitor {
                 size += 8 + ictanns.getSize();
             }
             if (cattrs != null) {
-                size += cattrs.getSize(cw, code.data, code.length, maxStack,
-                        maxLocals);
+                size += cattrs.getSize(cw);
             }
         }
         if (exceptionCount > 0) {
@@ -2126,7 +2125,7 @@ public final class MethodWriter extends MethodVisitor {
             }
         }
         if (attrs != null) {
-            size += attrs.getSize(cw, null, 0, -1, -1);
+            size += attrs.getSize(cw);
         }
         return size;
     }
@@ -2216,8 +2215,7 @@ public final class MethodWriter extends MethodVisitor {
                 size += 8 + ictanns.getSize();
             }
             if (cattrs != null) {
-                size += cattrs.getSize(cw, code.data, code.length, maxStack,
-                        maxLocals);
+                size += cattrs.getSize(cw);
             }
             out.putShort(cw.newUTF8("Code")).putInt(size);
             out.putShort(maxStack).putShort(maxLocals);
@@ -2284,7 +2282,7 @@ public final class MethodWriter extends MethodVisitor {
                 ictanns.put(out);
             }
             if (cattrs != null) {
-                cattrs.put(cw, code.data, code.length, maxLocals, maxStack, out);
+                cattrs.put(cw, out);
             }
         }
         if (exceptionCount > 0) {
@@ -2344,7 +2342,7 @@ public final class MethodWriter extends MethodVisitor {
             AnnotationWriter.put(ipanns, synthetics, out);
         }
         if (attrs != null) {
-            attrs.put(cw, null, 0, -1, -1, out);
+            attrs.put(cw, out);
         }
     }
 
@@ -2369,6 +2367,7 @@ public final class MethodWriter extends MethodVisitor {
      * to construct the method are no longer valid after this method has been
      * called.
      */
+    @SuppressWarnings("MethodWithMultipleLoops")
     private void resizeInstructions() {
         byte[] b = code.data; // bytecode of the method
         int u, v, label; // indexes in b

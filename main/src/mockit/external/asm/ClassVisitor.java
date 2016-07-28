@@ -41,12 +41,6 @@ package mockit.external.asm;
  */
 public abstract class ClassVisitor {
 
-
-
-
-
-
-
     /**
      * The class visitor to which this visitor must delegate method calls. May
      * be null.
@@ -55,30 +49,18 @@ public abstract class ClassVisitor {
 
     /**
      * Constructs a new {@link ClassVisitor}.
-     * 
-     *
-     *
-     *
      */
-    public ClassVisitor() {
-        this(null);
+    protected ClassVisitor() {
     }
 
     /**
      * Constructs a new {@link ClassVisitor}.
      * 
-     *
-     *
-     *
      * @param cv
      *            the class visitor to which this visitor must delegate method
      *            calls. May be null.
      */
-    public ClassVisitor(final ClassVisitor cv) {
-
-
-
-
+    protected ClassVisitor(ClassVisitor cv) {
         this.cv = cv;
     }
 
@@ -121,7 +103,7 @@ public abstract class ClassVisitor {
      *            the name of the source file from which the class was compiled.
      *            May be <tt>null</tt>.
      * @param debug
-     *            additional debug information to compute the correspondance
+     *            additional debug information to compute the correspondence
      *            between source and compiled elements of the class. May be
      *            <tt>null</tt>.
      */
@@ -191,11 +173,7 @@ public abstract class ClassVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-
-
-
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         if (cv != null) {
             return cv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         }
@@ -232,8 +210,7 @@ public abstract class ClassVisitor {
      *            the access flags of the inner class as originally declared in
      *            the enclosing class.
      */
-    public void visitInnerClass(String name, String outerName,
-            String innerName, int access) {
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
         if (cv != null) {
             cv.visitInnerClass(name, outerName, innerName, access);
         }
@@ -266,8 +243,7 @@ public abstract class ClassVisitor {
      *         <tt>null</tt> if this class visitor is not interested in visiting
      *         these annotations and attributes.
      */
-    public FieldVisitor visitField(int access, String name, String desc,
-            String signature, Object value) {
+    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         if (cv != null) {
             return cv.visitField(access, name, desc, signature, value);
         }
@@ -299,8 +275,7 @@ public abstract class ClassVisitor {
      *         if this class visitor is not interested in visiting the code of
      *         this method.
      */
-    public MethodVisitor visitMethod(int access, String name, String desc,
-            String signature, String[] exceptions) {
+    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if (cv != null) {
             return cv.visitMethod(access, name, desc, signature, exceptions);
         }

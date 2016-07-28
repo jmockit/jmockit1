@@ -35,7 +35,7 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-class Context {
+final class Context {
 
     /**
      * Prototypes of the attributes that must be parsed for this class.
