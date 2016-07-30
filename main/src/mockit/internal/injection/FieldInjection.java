@@ -206,8 +206,8 @@ final class FieldInjection implements Injector
          }
 
          throw new IllegalStateException(
-            "Missing " + kindOfInjectable + " for field " + targetField.getDeclaringClass().getSimpleName() +
-            '#' + targetField.getName() + " (declared as type " + fieldTypeName + ')');
+            "Missing " + kindOfInjectable + " for field \"" + fieldTypeName + ' ' + targetField.getName() + "\" in " +
+            targetField.getDeclaringClass().getSimpleName());
       }
    }
 
