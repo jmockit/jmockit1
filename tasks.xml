@@ -19,7 +19,7 @@
       <delete file="${api}/stylesheet.css"/>
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
-         classpathref="common.classpath" classpath="main/classes"
+         classpathref="common.classpath" classpath="main/target/classes"
          nodeprecated="true" noindex="true" notree="true" nohelp="true" breakiterator="yes"
          windowtitle="JMockit Toolkit API"
          encoding="UTF-8" charset="UTF-8" locale="en">
@@ -72,7 +72,7 @@
          <fileset file="NOTICE.txt"/>
          <fileset dir="main/src" includes="mockit/**/*.java **/attach/**/*.java org/junit/**/*.java"/>
          <fileset dir="main/src" includes="**/*.css **/*.js **/*.png"/>
-         <fileset dir="main/classes" includes="mockit/**/*.class **/attach/**/*.class org/junit/**/*.class"/>
+         <fileset dir="main/target/classes" includes="mockit/**/*.class **/attach/**/*.class org/junit/**/*.class"/>
          <manifest>
             <attribute name="Main-Class" value="mockit.coverage.CodeCoverage"/>
             <attribute name="Premain-Class" value="mockit.internal.startup.Startup"/>
@@ -114,10 +114,10 @@
          <assertions><enable/></assertions>
          <jvmarg value="-javaagent:../jmockit.jar"/>
          <classpath refid="common.classpath"/>
-         <classpath location="main/test-classes"/>
-         <classpath location="main/classes"/>
+         <classpath location="main/target/test-classes"/>
+         <classpath location="main/target/classes"/>
          <batchtest>
-            <fileset dir="main/test-classes">
+            <fileset dir="main/target/test-classes">
                <include name="**/*Test.class"/>
                <exclude name="**/*CodeUnderTest.class"/>
                <exclude name="**/Base*Test.class"/>
@@ -134,10 +134,10 @@
          <classpath refid="common.classpath"/>
          <classpath path="jmockit.jar"/>
          <classpath>
-            <pathelement location="main/test-classes"/>
+            <pathelement location="main/target/test-classes"/>
          </classpath>
          <classfileset
-            dir="main/test-classes"
+            dir="main/target/test-classes"
             includes="mockit/integration/testng/*Test.class"
             excludes="mockit/integration/testng/BaseTestNGDecoratorTest.class
                       mockit/integration/testng/TestNGViolatedExpectationsTest.class"/>
@@ -148,11 +148,12 @@
       <junit fork="yes" forkmode="once" dir="coverageTests" showoutput="true" printsummary="true">
          <classpath path="jmockit.jar"/>
          <classpath refid="common.classpath"/>
-         <classpath location="coverageTests/test-classes"/>
-         <classpath location="coverageTests/classes"/>
+         <classpath location="coverageTests/target/test-classes"/>
+         <classpath location="coverageTests/target/classes"/>
          <sysproperty key="coverage-metrics" value="all"/>
          <batchtest>
-            <fileset dir="coverageTests/test-classes" includes="**/*Test.class" excludes="**/CoverageTest.class"/>
+            <fileset
+               dir="coverageTests/target/test-classes" includes="**/*Test.class" excludes="**/CoverageTest.class"/>
          </batchtest>
          <formatter type="xml"/>
       </junit>
@@ -168,13 +169,13 @@
          <classpath>
             <fileset dir="samples" includes="**/lib/*.jar"/>
             <dirset dir="samples">
-               <include name="*/classes"/>
-               <include name="*/test-classes"/>
+               <include name="*/target/classes"/>
+               <include name="*/target/test-classes"/>
             </dirset>
          </classpath>
          <batchtest>
-            <fileset dir="samples/orderMngmntWebapp/test-classes" includes="**/*Test.class"/>
-            <fileset dir="samples/tutorial/test-classes" includes="**/*Test.class"/>
+            <fileset dir="samples/orderMngmntWebapp/target/test-classes" includes="**/*Test.class"/>
+            <fileset dir="samples/tutorial/target/test-classes" includes="**/*Test.class"/>
          </batchtest>
          <formatter type="xml"/>
       </junit>
@@ -187,10 +188,10 @@
          <sysproperty key="coverage-output" value="serial"/>
          <classpath>
             <fileset dir="samples" includes="lib/*.jar"/>
-            <pathelement location="${sampleDir}/classes"/>
-            <pathelement location="${sampleDir}/test-classes"/>
+            <pathelement location="${sampleDir}/target/classes"/>
+            <pathelement location="${sampleDir}/target/test-classes"/>
          </classpath>
-         <classfileset dir="${sampleDir}/test-classes" includes="**/*Test.class"/>
+         <classfileset dir="${sampleDir}/target/test-classes" includes="**/*Test.class"/>
       </testng>
 
       <java fork="yes" dir="samples" jar="jmockit.jar">
