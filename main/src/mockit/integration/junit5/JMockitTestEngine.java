@@ -14,10 +14,14 @@ import mockit.internal.startup.*;
 
 public final class JMockitTestEngine implements TestEngine
 {
-   private final TestDescriptor descriptor;
+   private static TestDescriptor descriptor;
 
    public JMockitTestEngine()
    {
+      if (descriptor != null) {
+         return; // already created in same test run
+      }
+
       descriptor = new EngineDescriptor(UniqueId.forEngine("jmockit"), "JMockit engine for JUnit 5");
 
       if (Startup.initializeIfPossible()) {
