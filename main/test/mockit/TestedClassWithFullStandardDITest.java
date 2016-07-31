@@ -97,6 +97,7 @@ public final class TestedClassWithFullStandardDITest
          @Mock
          EntityManager createEntityManager()
          {
+            assertNull("Named EM already created", namedEM);
             namedEM = namedEMMockUp.getMockInstance();
             return namedEM;
          }
@@ -105,6 +106,7 @@ public final class TestedClassWithFullStandardDITest
          @Mock
          EntityManager createEntityManager()
          {
+            assertNull("Default EM already created", defaultEM);
             defaultEM = defaultEMMockUp.getMockInstance();
             return defaultEM;
          }
@@ -119,7 +121,8 @@ public final class TestedClassWithFullStandardDITest
                namedEMFactory = namedEMFactoryMockUp.getMockInstance();
                return namedEMFactory;
             }
-            else if ("default".equals(persistenceUnitName)) {
+
+            if ("default".equals(persistenceUnitName)) {
                assertNull("Default EM factory already created", defaultEMFactory);
                defaultEMFactory = defaultEMFactoryMockUp.getMockInstance();
                return defaultEMFactory;
@@ -251,5 +254,12 @@ public final class TestedClassWithFullStandardDITest
       assertNull(tested2);
       assertTrue(TestedClass.destroyed);
       assertTrue(SecondLevelDependency.terminated);
+   }
+
+   @After
+   public void clearEntityManagers()
+   {
+      namedEM = null;
+      defaultEM = null;
    }
 }

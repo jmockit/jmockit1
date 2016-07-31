@@ -151,7 +151,7 @@ final class FullInjection
          dependency = servletDependencies.createAndRegisterDependency(typeToInject);
       }
       else if (jpaDependencies != null && JPADependencies.isApplicable(typeToInject)) {
-         dependency = jpaDependencies.newInstanceIfApplicable(typeToInject, injectionPoint);
+         dependency = jpaDependencies.createAndRegisterDependency(typeToInject, injectionPoint);
       }
 
       return dependency;
