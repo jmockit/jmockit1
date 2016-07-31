@@ -29,8 +29,8 @@ public final class XmlFileTest
       new ClassInRegularPackage().doSomething(NestedEnum.Second);
       CodeCoverage.generateOutput(false);
 
-      String basedir = Configuration.getOrChooseOutputDirectory("", "");
-      InputStream xmlFile = new FileInputStream(basedir + "/coverage.xml");
+      String parentDir = Configuration.getOrChooseOutputDirectory("");
+      InputStream xmlFile = new FileInputStream(new File(parentDir, "coverage.xml"));
       xmlReader = XMLInputFactory.newFactory().createXMLStreamReader(xmlFile);
 
       assertEquals("UTF-8", xmlReader.getCharacterEncodingScheme());
