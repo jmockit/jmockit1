@@ -74,6 +74,23 @@ public final class MethodReflection
    }
 
    @Nullable
+   public static <T> T readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName)
+   {
+      T result = null;
+
+      try {
+         Method publicMethod = annotationInstance.getClass().getMethod(attributeName, NO_PARAMETERS);
+         //noinspection unchecked
+         result = (T) publicMethod.invoke(annotationInstance);
+      }
+      catch (NoSuchMethodException ignore) {}
+      catch (IllegalAccessException ignore) {}
+      catch (InvocationTargetException ignore) {}
+
+      return result;
+   }
+
+   @Nullable
    public static <T> T invokeWithCheckedThrows(
       @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
       @Nonnull Class<?>[] paramTypes, @Nonnull Object... methodArgs)

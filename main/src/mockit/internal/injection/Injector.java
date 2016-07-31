@@ -6,7 +6,18 @@ package mockit.internal.injection;
 
 import javax.annotation.*;
 
-interface Injector
+abstract class Injector
 {
-   void fillOutDependenciesRecursively(@Nonnull Object dependency);
+   @Nonnull final TestedClass testedClass;
+   @Nonnull final InjectionState injectionState;
+   @Nullable final FullInjection fullInjection;
+
+   Injector(@Nonnull TestedClass testedClass, @Nonnull InjectionState state, @Nullable FullInjection injection)
+   {
+      this.testedClass = testedClass;
+      injectionState = state;
+      fullInjection = injection;
+   }
+
+   abstract void fillOutDependenciesRecursively(@Nonnull Object dependency);
 }

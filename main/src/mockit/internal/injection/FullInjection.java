@@ -10,6 +10,7 @@ import java.util.logging.*;
 import javax.annotation.*;
 import javax.enterprise.context.*;
 import javax.inject.*;
+import javax.sql.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.util.*;
@@ -47,65 +48,6 @@ final class FullInjection
       return dependency;
    }
 
-   @Nullable
-   Object createOrReuseInstance(
-      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
-      @Nullable String qualifiedName)
-   {
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
-
-      if (dependency != null) {
-         return dependency;
-      }
-
-      Class<?> typeToInject = dependencyClass;
-
-      if (typeToInject == Logger.class) {
-         return Logger.getLogger(testedClass.nameOfTestedClass);
-      }
-
-      if (!isInstantiableType(typeToInject)) {
-         return null;
-      }
-
-      if (INJECT_CLASS != null && typeToInject == Provider.class) {
-         dependency = createProviderInstance(injectionProvider, injectionPoint);
-      }
-      else if (servletDependencies != null && ServletDependencies.isApplicable(typeToInject)) {
-         dependency = servletDependencies.createAndRegisterDependency(typeToInject);
-      }
-      else if (CONVERSATION_CLASS != null && typeToInject == Conversation.class) {
-         dependency = createAndRegisterConversationInstance();
-      }
-      else {
-         dependency = createAndRegisterNewInstance(testedClass, injector, injectionProvider, injectionPoint);
-      }
-
-      return dependency;
-   }
-
-   private static boolean isInstantiableType(@Nonnull Class<?> type)
-   {
-      if (type.isPrimitive() || type.isArray() || type.isAnnotation()) {
-         return false;
-      }
-
-      if (!type.isInterface()) {
-         int typeModifiers = type.getModifiers();
-
-         if ((typeModifiers & INVALID_TYPES) != 0 || !isStatic(typeModifiers) && type.isMemberClass()) {
-            return false;
-         }
-
-         if (type.getClassLoader() == null) {
-            return false;
-         }
-      }
-
-      return true;
-   }
-
    @Nonnull
    private InjectionPoint getInjectionPoint(
       @Nonnull GenericTypeReflection reflection, @Nonnull InjectionPointProvider injectionProvider,
@@ -138,9 +80,98 @@ final class FullInjection
       return new InjectionPoint(dependencyType);
    }
 
+   @Nullable
+   Object createOrReuseInstance(
+      @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
+   {
+      TestedClass testedClass = injector.testedClass;
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
+
+      if (dependency != null) {
+         return dependency;
+      }
+
+      Class<?> typeToInject = dependencyClass;
+
+      if (typeToInject == Logger.class) {
+         return Logger.getLogger(testedClass.nameOfTestedClass);
+      }
+
+      if (!isInstantiableType(typeToInject)) {
+         return null;
+      }
+
+      dependency = typeToInject.isInterface() ?
+         createInstanceOfSupportedInterfaceIfApplicable(testedClass, injectionProvider, injectionPoint) :
+         createAndRegisterNewInstance(injector, injectionProvider, injectionPoint);
+
+      return dependency;
+   }
+
+   private static boolean isInstantiableType(@Nonnull Class<?> type)
+   {
+      if (type.isPrimitive() || type.isArray() || type.isAnnotation()) {
+         return false;
+      }
+
+      if (!type.isInterface()) {
+         int typeModifiers = type.getModifiers();
+
+         if ((typeModifiers & INVALID_TYPES) != 0 || !isStatic(typeModifiers) && type.isMemberClass()) {
+            return false;
+         }
+
+         if (type.getClassLoader() == null) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   @Nullable
+   private Object createInstanceOfSupportedInterfaceIfApplicable(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
+      @Nonnull InjectionPoint injectionPoint)
+   {
+      Class<?> typeToInject = dependencyClass;
+      Object dependency = null;
+
+      if (CommonDataSource.class.isAssignableFrom(typeToInject)) {
+         dependency = createAndRegisterDataSource(testedClass, injectionPoint);
+      }
+      else if (INJECT_CLASS != null && typeToInject == Provider.class) {
+         dependency = createProviderInstance(injectionProvider);
+      }
+      else if (CONVERSATION_CLASS != null && typeToInject == Conversation.class) {
+         dependency = createAndRegisterConversationInstance();
+      }
+      else if (servletDependencies != null && ServletDependencies.isApplicable(typeToInject)) {
+         dependency = servletDependencies.createAndRegisterDependency(typeToInject);
+      }
+      else if (jpaDependencies != null && JPADependencies.isApplicable(typeToInject)) {
+         dependency = jpaDependencies.newInstanceIfApplicable(typeToInject, injectionPoint);
+      }
+
+      return dependency;
+   }
+
+   @Nullable
+   private Object createAndRegisterDataSource(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
+   {
+      TestDataSource dsCreation = new TestDataSource(injectionPoint);
+      CommonDataSource dataSource = dsCreation.createIfDataSourceDefinitionAvailable(testedClass);
+
+      if (dataSource != null) {
+         injectionState.saveInstantiatedDependency(injectionPoint, dataSource);
+      }
+
+      return dataSource;
+   }
+
    @Nonnull
-   private Object createProviderInstance(
-      @Nonnull InjectionPointProvider injectionProvider, @Nonnull final InjectionPoint dependencyKey)
+   private Object createProviderInstance(@Nonnull InjectionPointProvider injectionProvider)
    {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -153,7 +184,7 @@ final class FullInjection
             public synchronized Object get()
             {
                if (dependency == null) {
-                  dependency = createNewInstance(providedClass, dependencyKey);
+                  dependency = createNewInstance(providedClass);
                }
 
                return dependency;
@@ -165,24 +196,16 @@ final class FullInjection
          @Override
          public Object get()
          {
-            Object dependency = createNewInstance(providedClass, dependencyKey);
+            Object dependency = createNewInstance(providedClass);
             return dependency;
          }
       };
    }
 
    @Nullable
-   private Object createNewInstance(@Nonnull Class<?> dependencyClass, @Nonnull InjectionPoint dependencyKey)
+   private Object createNewInstance(@Nonnull Class<?> dependencyClass)
    {
       if (dependencyClass.isInterface()) {
-         if (jpaDependencies != null) {
-            Object newInstance = jpaDependencies.newInstanceIfApplicable(dependencyClass, dependencyKey);
-
-            if (newInstance != null) {
-               return newInstance;
-            }
-         }
-
          return null;
       }
 
@@ -196,40 +219,7 @@ final class FullInjection
    @Nonnull
    private Object createAndRegisterConversationInstance()
    {
-      Conversation conversation = new Conversation() {
-         private boolean currentlyTransient = true;
-         private int counter;
-         private String currentId;
-         private long currentTimeout;
-
-         @Override
-         public void begin()
-         {
-            counter++;
-            currentId = String.valueOf(counter);
-            currentlyTransient = false;
-         }
-
-         @Override
-         public void begin(String id)
-         {
-            counter++;
-            currentId = id;
-            currentlyTransient = false;
-         }
-
-         @Override
-         public void end()
-         {
-            currentlyTransient = true;
-            currentId = null;
-         }
-
-         @Override public String getId() { return currentId; }
-         @Override public long getTimeout() { return currentTimeout; }
-         @Override public void setTimeout(long milliseconds) { currentTimeout = milliseconds; }
-         @Override public boolean isTransient() { return currentlyTransient; }
-      };
+      Conversation conversation = new TestConversation();
 
       InjectionPoint injectionPoint = new InjectionPoint(Conversation.class);
       injectionState.saveInstantiatedDependency(injectionPoint, conversation);
@@ -238,34 +228,33 @@ final class FullInjection
 
    @Nullable
    private Object createAndRegisterNewInstance(
-      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
-      @Nonnull InjectionPoint dependencyKey)
+      @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
+      @Nonnull InjectionPoint injectionPoint)
    {
-      Object dependency = createNewInstance(dependencyClass, dependencyKey);
+      Object dependency = createNewInstance(dependencyClass);
 
       if (dependency != null) {
-         if (dependencyKey.name == null) {
-            dependencyKey = new InjectionPoint(dependencyKey.type, injectionProvider.getName());
+         if (injectionPoint.name == null) {
+            injectionPoint = new InjectionPoint(injectionPoint.type, injectionProvider.getName());
          }
 
-         registerNewInstance(testedClass, injector, dependencyKey, dependency);
+         registerNewInstance(injector, injectionPoint, dependency);
       }
 
       return dependency;
    }
 
    private void registerNewInstance(
-      @Nonnull TestedClass testedClass, @Nonnull Injector injector,
-      @Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
+      @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint, @Nonnull Object dependency)
    {
       Class<?> instantiatedClass = dependency.getClass();
 
-      if (testedClass.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
+      if (injector.testedClass.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
          injector.fillOutDependenciesRecursively(dependency);
          injectionState.lifecycleMethods.findLifecycleMethods(instantiatedClass);
          injectionState.lifecycleMethods.executeInitializationMethodsIfAny(instantiatedClass, dependency);
       }
 
-      injectionState.saveInstantiatedDependency(dependencyKey, dependency);
+      injectionState.saveInstantiatedDependency(injectionPoint, dependency);
    }
 }

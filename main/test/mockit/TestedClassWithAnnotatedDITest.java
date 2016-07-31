@@ -47,7 +47,7 @@ public final class TestedClassWithAnnotatedDITest
 
    @Tested TestedClass1 tested1;
    @Tested TestedClass2 tested2;
-   @Injectable Runnable action1;
+   @Injectable Runnable firstAction;
    @Injectable final int someValue = 1;
    @Injectable Runnable action;
    @Injectable String textValue = "test";
@@ -55,11 +55,11 @@ public final class TestedClassWithAnnotatedDITest
 
    @Test
    public void injectAllAnnotatedInjectionPoints(
-      @Injectable("2") int anotherValue, @Injectable Runnable action2, @Injectable Runnable anotherAction,
+      @Injectable("2") int anotherValue, @Injectable Runnable secondAction, @Injectable Runnable anotherAction,
       @Injectable("true") boolean unused, @Injectable("propertyValue") String systemProperty)
    {
-      assertSame(action1, tested1.action1);
-      assertSame(action2, tested1.action2);
+      assertSame(firstAction, tested1.action1);
+      assertSame(secondAction, tested1.action2);
       assertEquals(1, tested1.someValue);
       assertEquals(2, tested1.anotherValue);
       assertEquals("textValue", tested1.stringFieldWithValue);

@@ -14,24 +14,19 @@ import static java.util.regex.Pattern.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 
-final class FieldInjection implements Injector
+final class FieldInjection extends Injector
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
-   @Nonnull private final TestedClass testedClass;
-   @Nonnull private final InjectionState injectionState;
    boolean requireDIAnnotation;
-   @Nullable private final FullInjection fullInjection;
    @Nonnull Class<?> targetClass;
    private Field targetField;
 
    FieldInjection(
       @Nonnull TestedField testedField, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection)
    {
-      injectionState = testedField.injectionState;
+      super(testedClass, testedField.injectionState, fullInjection);
       requireDIAnnotation = testedField.requireDIAnnotation;
-      this.testedClass = testedClass;
-      this.fullInjection = fullInjection;
       targetClass = testedClass.targetClass;
    }
 
@@ -142,7 +137,7 @@ final class FieldInjection implements Injector
             return existingInstance;
          }
 
-         Object newInstance = fullInjection.createOrReuseInstance(testedClass, this, fieldToInject, qualifiedFieldName);
+         Object newInstance = fullInjection.createOrReuseInstance(this, fieldToInject, qualifiedFieldName);
 
          if (newInstance != null) {
             return newInstance;

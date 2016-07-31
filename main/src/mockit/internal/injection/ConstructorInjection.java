@@ -14,20 +14,15 @@ import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
-final class ConstructorInjection implements Injector
+final class ConstructorInjection extends Injector
 {
-   @Nonnull private final TestedClass testedClass;
-   @Nonnull private final InjectionState injectionState;
-   @Nullable private final FullInjection fullInjection;
    @Nonnull private final Constructor<?> constructor;
 
    ConstructorInjection(
       @Nonnull TestedClass testedClass, @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
       @Nonnull Constructor<?> constructor)
    {
-      this.testedClass = testedClass;
-      this.injectionState = injectionState;
-      this.fullInjection = fullInjection;
+      super(testedClass, injectionState, fullInjection);
       this.constructor = constructor;
    }
 
@@ -53,7 +48,7 @@ final class ConstructorInjection implements Injector
             String qualifiedName = getQualifiedName(parameterProvider.getAnnotations());
 
             assert fullInjection != null;
-            value = fullInjection.createOrReuseInstance(testedClass, this, parameterProvider, qualifiedName);
+            value = fullInjection.createOrReuseInstance(this, parameterProvider, qualifiedName);
 
             if (value == null) {
                String parameterName = parameterProvider.getName();

@@ -217,8 +217,17 @@ final class InjectionPoint
          Class<? extends Annotation> annotationType = annotation.annotationType();
          String annotationName = annotationType.getName();
 
-         if (annotationName.endsWith(".Named") || annotationName.endsWith(".Qualifier")) {
-            String qualifiedName = invokePublicIfAvailable(annotationType, annotation, "value", NO_PARAMETERS);
+         if ("javax.annotation.Resource javax.ejb.EJB".contains(annotationName)) {
+            String name = readAnnotationAttribute(annotation, "name");
+
+            if (name == null || name.isEmpty()) {
+               name = readAnnotationAttribute(annotation, "lookup");
+            }
+
+            return name;
+         }
+         else if ("javax.inject.Named".equals(annotationName) || annotationName.endsWith(".Qualifier")) {
+            String qualifiedName = readAnnotationAttribute(annotation, "value");
             return qualifiedName;
          }
       }

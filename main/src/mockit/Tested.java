@@ -84,6 +84,10 @@ public @interface Tested
     *       {@linkplain java.util.logging.Logger#getLogger(String) created} with the name of the tested class.
     *    </li>
     *    <li>
+    *       {@link javax.sql.DataSource}: a JDBC data source is created and configured according to a matching
+    *       {@link javax.annotation.sql.DataSourceDefinition @DataSourceDefinition} in the tested class.
+    *    </li>
+    *    <li>
     *       {@link javax.inject.Provider javax.inject.Provider&lt;T>}: a provider which produces an instance of type
     *       {@code T} is injected.
     *    </li>
@@ -98,7 +102,7 @@ public @interface Tested
     *       objects that emulate the servlet context and HTTP session are automatically created for use in tests.
     *    </li>
     *    <li>
-    *       {@link javax.enterprise.context.Conversation}: an object that emulates an web application's conversation
+    *       {@link javax.enterprise.context.Conversation}: an object that emulates a web application's conversation
     *       context is created.
     *    </li>
     * </ul>
