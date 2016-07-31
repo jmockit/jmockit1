@@ -26,7 +26,26 @@ final class TestDataSource
          return null;
       }
 
-      for (Annotation annotation : testedClass.targetClass.getDeclaredAnnotations()) {
+      Class<?> targetClass = testedClass.targetClass;
+
+      do {
+         createDataSource(targetClass);
+
+         if (ds != null) {
+            return ds;
+         }
+
+         targetClass = targetClass.getSuperclass();
+      }
+      while (targetClass != Object.class);
+
+      throw new IllegalStateException(
+         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClass.nameOfTestedClass);
+   }
+
+   private void createDataSource(@Nonnull Class<?> targetClass)
+   {
+      for (Annotation annotation : targetClass.getDeclaredAnnotations()) {
          String annotationName = annotation.annotationType().getName();
 
          if ("javax.annotation.sql.DataSourceDefinitions".equals(annotationName)) {
@@ -37,12 +56,9 @@ final class TestDataSource
          }
 
          if (ds != null) {
-            return ds;
+            return;
          }
       }
-
-      throw new IllegalStateException(
-         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClass.nameOfTestedClass);
    }
 
    private void createDataSource(@Nonnull DataSourceDefinitions dsDefs)
