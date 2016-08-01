@@ -7,7 +7,6 @@ package mockit.internal.expectations;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
@@ -184,21 +183,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    {
       if (maxInvocations == 0 || pendingError == null) {
          super.setMaxInvocationCount(maxInvocations);
-      }
-   }
-
-   @Override
-   public final void setCustomErrorMessage(@Nullable CharSequence customMessage)
-   {
-      Expectation expectation = expectationBeingVerified();
-      expectation.setCustomErrorMessage(customMessage);
-
-      if (customMessage != null && pendingError != null) {
-         String finalMessage = customMessage + "\n" + pendingError.getMessage();
-         StackTraceElement[] previousStackTrace = pendingError.getStackTrace();
-         pendingError = pendingError instanceof MissingInvocation ?
-            new MissingInvocation(finalMessage) : new UnexpectedInvocation(finalMessage);
-         pendingError.setStackTrace(previousStackTrace);
       }
    }
 

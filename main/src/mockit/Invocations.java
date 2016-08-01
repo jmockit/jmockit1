@@ -353,22 +353,6 @@ abstract class Invocations
     */
    protected int maxTimes;
 
-   /**
-    * An string assigned to this field will be used as a prefix for the error message shown for the current expectation
-    * if it's found to be violated.
-    * <p/>
-    * Inside an expectation/verification block, the assignment must follow the invocation which records/verifies the
-    * expectation; if there is no current expectation at the point the assignment appears, an
-    * {@code IllegalStateException} is thrown.
-    * <p/>
-    * Notice there are only two different ways in which an expectation can be violated: either an <em>unexpected</em>
-    * invocation occurs during replay, or a <em>missing</em> invocation is detected.
-    *
-    * @deprecated Do not use, as this field will be removed in a future release.
-    */
-   @Deprecated
-   protected CharSequence $;
-
    @Nonnull abstract TestOnlyPhase getCurrentPhase();
 
    /**

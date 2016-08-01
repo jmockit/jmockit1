@@ -22,7 +22,6 @@ public final class ExpectedInvocation
    @Nullable public Object replacementInstance;
    public boolean matchInstance;
    @Nonnull public final InvocationArguments arguments;
-   @Nullable public CharSequence customErrorMessage;
    @Nullable private final ExpectationError invocationCause;
    @Nullable Object defaultReturnValue;
 
@@ -228,16 +227,9 @@ public final class ExpectedInvocation
    private UnexpectedInvocation newUnexpectedInvocationWithCause(
       @Nonnull String titleForCause, @Nonnull String initialMessage)
    {
-      String errorMessage = getErrorMessage(initialMessage);
-      UnexpectedInvocation error = new UnexpectedInvocation(errorMessage);
+      UnexpectedInvocation error = new UnexpectedInvocation(initialMessage);
       setErrorAsInvocationCause(titleForCause, error);
       return error;
-   }
-
-   @Nonnull
-   private String getErrorMessage(@Nonnull String initialMessage)
-   {
-      return customErrorMessage == null ? initialMessage : customErrorMessage + "\n" + initialMessage;
    }
 
    private void setErrorAsInvocationCause(@Nonnull String titleForCause, @Nonnull Throwable error)
@@ -251,8 +243,7 @@ public final class ExpectedInvocation
    private MissingInvocation newMissingInvocationWithCause(
       @Nonnull String titleForCause, @Nonnull String initialMessage)
    {
-      String errorMessage = getErrorMessage(initialMessage);
-      MissingInvocation error = new MissingInvocation(errorMessage);
+      MissingInvocation error = new MissingInvocation(initialMessage);
       setErrorAsInvocationCause(titleForCause, error);
       return error;
    }
@@ -377,7 +368,7 @@ public final class ExpectedInvocation
    @Nullable
    public Error assertThatArgumentsMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
-      return arguments.assertMatch(replayArgs, instanceMap, customErrorMessage);
+      return arguments.assertMatch(replayArgs, instanceMap);
    }
 
    // Default result //////////////////////////////////////////////////////////////////////////////////////////////////

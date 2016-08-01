@@ -42,11 +42,10 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
    }
 
    @Nullable @Override
-   Error assertMatch(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+   Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       if (matchers == null) {
-         return assertEquals(values, replayArgs, replayArgs.length, instanceMap, errorMessagePrefix);
+         return assertEquals(values, replayArgs, replayArgs.length, instanceMap);
       }
 
       for (int i = 0; i < replayArgs.length; i++) {
@@ -60,7 +59,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
          }
 
          if (!expected.matches(actual)) {
-            return signature.argumentMismatchMessage(i, expected, actual, errorMessagePrefix);
+            return signature.argumentMismatchMessage(i, expected, actual);
          }
       }
 
@@ -70,7 +69,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
    @Override
    boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
    {
-      int i = indexOfFirstValueAfterEquivalentMatchers(other);
+      @SuppressWarnings("unchecked") int i = indexOfFirstValueAfterEquivalentMatchers(other);
 
       if (i < 0) {
          return false;

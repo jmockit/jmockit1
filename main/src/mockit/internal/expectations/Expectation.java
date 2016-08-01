@@ -126,8 +126,6 @@ final class Expectation
       return invocation.isConstructor() && value.getClass().isInstance(invocation.instance);
    }
 
-   void setCustomErrorMessage(@Nullable CharSequence message) { invocation.customErrorMessage = message; }
-
    @Nullable
    Error verifyConstraints(
       @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs,
@@ -139,7 +137,7 @@ final class Expectation
          return error;
       }
 
-      return constraints.verifyUpperLimit(replayInvocation, replayArgs, maxInvocations, invocation.customErrorMessage);
+      return constraints.verifyUpperLimit(replayInvocation, replayArgs, maxInvocations);
    }
 
    @Nullable

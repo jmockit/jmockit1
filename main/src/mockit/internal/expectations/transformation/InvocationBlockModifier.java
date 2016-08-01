@@ -175,8 +175,7 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       if (
          (opcode == GETFIELD || opcode == PUTFIELD) &&
-         name.indexOf('$') < 1 &&
-         isFieldDefinedByInvocationBlock(owner)
+         name.indexOf('$') < 0 && isFieldDefinedByInvocationBlock(owner)
       ) {
          if (opcode == PUTFIELD) {
             if (generateCodeThatReplacesAssignmentToSpecialField(name)) {
@@ -193,8 +192,6 @@ final class InvocationBlockModifier extends MethodVisitor
       stackSize += stackSizeVariationForFieldAccess(opcode, desc);
       mw.visitFieldInsn(opcode, owner, name, desc);
    }
-
-   private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }
 
    private boolean isFieldDefinedByInvocationBlock(@Nonnull String fieldOwner)
    {
@@ -213,11 +210,6 @@ final class InvocationBlockModifier extends MethodVisitor
 
       if ("times".equals(fieldName) || "minTimes".equals(fieldName) || "maxTimes".equals(fieldName)) {
          generateCallToActiveInvocationsMethod(fieldName, "(I)V");
-         return true;
-      }
-
-      if ("$".equals(fieldName)) {
-         generateCallToActiveInvocationsMethod("setErrorMessage", "(Ljava/lang/CharSequence;)V");
          return true;
       }
 
@@ -328,6 +320,8 @@ final class InvocationBlockModifier extends MethodVisitor
             " expectation on unmockable " + (name.charAt(0) == '<' ? "constructor" : "method"));
       }
    }
+
+   private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }
 
    private void handleMockedOrNonMockedInvocation(
       @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)

@@ -62,17 +62,13 @@ public final class InvocationConstraints
    }
 
    @Nullable
-   public Error verifyUpperLimit(
-      @Nonnull ExpectedInvocation invocation, @Nonnull Object[] replayArgs, int upperLimit,
-      @Nullable CharSequence customErrorMessage)
+   public Error verifyUpperLimit(@Nonnull ExpectedInvocation invocation, @Nonnull Object[] replayArgs, int upperLimit)
    {
       if (upperLimit >= 0) {
          int unexpectedInvocations = invocationCount - upperLimit;
 
          if (unexpectedInvocations > 0) {
-            invocation.customErrorMessage = customErrorMessage;
             UnexpectedInvocation error = invocation.errorForUnexpectedInvocations(replayArgs, unexpectedInvocations);
-            invocation.customErrorMessage = null;
             return error;
          }
       }

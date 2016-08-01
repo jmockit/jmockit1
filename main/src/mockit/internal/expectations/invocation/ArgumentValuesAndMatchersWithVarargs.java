@@ -74,10 +74,10 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
    @Nullable @Override
    Error assertMatch(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       if (matchers == null) {
-         return assertEquality(replayArgs, instanceMap, errorMessagePrefix);
+         return assertEquality(replayArgs, instanceMap);
       }
 
       VarargsComparison varargsComparison = new VarargsComparison(replayArgs);
@@ -99,7 +99,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
 
          if (!expected.matches(actual)) {
             int paramIndex = i < replayArgs.length ? i : replayArgs.length - 1;
-            return signature.argumentMismatchMessage(paramIndex, expected, actual, errorMessagePrefix);
+            return signature.argumentMismatchMessage(paramIndex, expected, actual);
          }
       }
 
@@ -107,11 +107,10 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    }
 
    @Nullable
-   private Error assertEquality(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+   private Error assertEquality(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
       int argCount = replayArgs.length;
-      Error nonVarargsError = assertEquals(values, replayArgs, argCount - 1, instanceMap, errorMessagePrefix);
+      Error nonVarargsError = assertEquals(values, replayArgs, argCount - 1, instanceMap);
 
       if (nonVarargsError != null) {
          return nonVarargsError;
@@ -125,8 +124,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          return varargsComparison.errorForVarargsArraysOfDifferentLengths();
       }
 
-      Error varargsError =
-         assertEquals(expectedValues, actualValues, expectedValues.length, instanceMap, errorMessagePrefix);
+      Error varargsError = assertEquals(expectedValues, actualValues, expectedValues.length, instanceMap);
 
       if (varargsError != null) {
          return new UnexpectedInvocation("Varargs " + varargsError);
@@ -193,7 +191,8 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          if (lastArg == null) {
             return null;
          }
-         else if (lastArg instanceof Object[]) {
+
+         if (lastArg instanceof Object[]) {
             return (Object[]) lastArg;
          }
 

@@ -79,23 +79,15 @@ public final class InvocationArguments
    }
 
    @Nullable
-   public Error assertMatch(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+   public Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
    {
-      return valuesAndMatchers.assertMatch(replayArgs, instanceMap, errorMessagePrefix);
+      return valuesAndMatchers.assertMatch(replayArgs, instanceMap);
    }
 
    @Nonnull
-   Error argumentMismatchMessage(
-      int paramIndex, @Nullable Object expected, @Nullable Object actual, @Nullable CharSequence errorMessagePrefix)
+   Error argumentMismatchMessage(int paramIndex, @Nullable Object expected, @Nullable Object actual)
    {
       ArgumentMismatch message = new ArgumentMismatch();
-
-      if (errorMessagePrefix != null) {
-         message.append(errorMessagePrefix);
-         message.append('\n');
-      }
-
       message.append("Parameter ");
 
       String parameterName = ParameterNames.getName(classDesc, methodNameAndDesc, paramIndex);

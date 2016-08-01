@@ -84,21 +84,19 @@ abstract class ArgumentValuesAndMatchers
    }
 
    @Nullable
-   abstract Error assertMatch(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap,
-      @Nullable CharSequence errorMessagePrefix);
+   abstract Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap);
 
    @Nullable
    final Error assertEquals(
       @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, int count,
-      @Nonnull Map<Object, Object> instanceMap, @Nullable CharSequence errorMessagePrefix)
+      @Nonnull Map<Object, Object> instanceMap)
    {
       for (int i = 0; i < count; i++) {
          Object expected = expectedValues[i];
          Object actual = actualValues[i];
 
          if (isNotEqual(expected, actual, instanceMap)) {
-            return signature.argumentMismatchMessage(i, expected, actual, errorMessagePrefix);
+            return signature.argumentMismatchMessage(i, expected, actual);
          }
       }
 

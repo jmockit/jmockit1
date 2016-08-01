@@ -116,10 +116,4 @@ public final class RecordPhase extends TestOnlyPhase
 
       getCurrentExpectation().constraints.setLimits(lowerLimit, upperLimit);
    }
-
-   @Override
-   public void setCustomErrorMessage(@Nullable CharSequence customMessage)
-   {
-      getCurrentExpectation().setCustomErrorMessage(customMessage);
-   }
 }

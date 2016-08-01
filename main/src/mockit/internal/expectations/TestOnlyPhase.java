@@ -97,8 +97,6 @@ public abstract class TestOnlyPhase extends Phase
 
    public abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);
 
-   public abstract void setCustomErrorMessage(@Nullable CharSequence customMessage);
-
    protected static boolean isEnumElement(@Nonnull Object mock)
    {
       Class<?> mockedClass = mock.getClass();
