@@ -89,7 +89,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       thrown.expect(MissingInvocation.class);
 
       new Expectations() {{
-         mock2.doSomething("1", "2", "3"); minTimes = 1;
+         mock2.doSomething("1", "2", "3");
       }};
 
       mock2.doSomething("1", "2", "4");

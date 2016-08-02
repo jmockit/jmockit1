@@ -170,7 +170,7 @@ public final class JREMockingTest
    {
       boolean terminatedCleanly;
 
-      @Override
+      @Override @SuppressWarnings("MethodWithMultipleLoops")
       public void run()
       {
          while (true) {
@@ -353,7 +353,7 @@ public final class JREMockingTest
    public void waitingWithMockParameter(@Mocked final Object mockedLock) throws Exception
    {
       new Expectations() {{
-         mockedLock.wait(); minTimes = 1;
+         mockedLock.wait();
       }};
 
       awaitNotification();
@@ -368,6 +368,7 @@ public final class JREMockingTest
    @Test
    public void mockingOfGetAnnotation() throws Exception
    {
+      //noinspection ClassExtendsConcreteCollection
       new MockUp<Field>() {
          final Map<Object, Annotation> annotationsApplied = new HashMap<Object, Annotation>() {{
             put(AnEnum.First, anAnnotation("1"));
@@ -477,7 +478,7 @@ public final class JREMockingTest
 
    @Test
    public void attemptToRecordExpectationOnJREMethodExcludedFromMockingWhenUsingArgumentMatcher(
-      @Mocked final Hashtable<?, ?> map)
+      @SuppressWarnings("UseOfObsoleteCollectionType") @Mocked final Hashtable<?, ?> map)
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("record");

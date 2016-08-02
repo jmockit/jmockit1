@@ -276,7 +276,7 @@ public final class RestrictedFullVerificationsTest
       @Mocked final AnotherDependency mock2)
    {
       new Expectations() {{
-         mock.setSomething(anyInt); minTimes = 1;
+         mock.setSomething(anyInt);
          mock2.doSomething(); times = 1;
       }};
 

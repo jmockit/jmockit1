@@ -257,7 +257,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    public void expectAtLeastOnceAndReplayTwice(@Mocked final Collaborator mock)
    {
       new Expectations() {{
-         mock.provideSomeService(); minTimes = 1;
+         mock.provideSomeService();
          mock.simpleOperation(1, "b", null);
       }};
 
@@ -342,7 +342,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       @Mocked final Collaborator mock)
    {
       new Expectations() {{
-         mock.simpleOperation(1, "", null); minTimes = 1; maxTimes = 2;
+         mock.simpleOperation(1, "", null); maxTimes = 2;
          mock.simpleOperation(2, "", null);
       }};
 
@@ -400,7 +400,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomethingElse();
 
       new VerificationsInOrder() {{
-         mock.provideSomeService(); minTimes = 1;
+         mock.provideSomeService();
          mock.simpleOperation(1, "b", null);
       }};
    }
@@ -486,7 +486,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       mock.simpleOperation(2, "", null);
 
       new VerificationsInOrder() {{
-         mock.simpleOperation(1, "", null); minTimes = 1; maxTimes = 2;
+         mock.simpleOperation(1, "", null); maxTimes = 2;
          mock.simpleOperation(2, "", null);
       }};
    }
@@ -568,7 +568,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomething();
 
       new Verifications() {{
-         mock.provideSomeService(); minTimes = 1;
+         mock.provideSomeService();
          mock.simpleOperation(1, "b", null);
       }};
    }
@@ -654,7 +654,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       mock.simpleOperation(1, "", null);
 
       new Verifications() {{
-         mock.simpleOperation(1, "", null); minTimes = 1; maxTimes = 2;
+         mock.simpleOperation(1, "", null); maxTimes = 2;
          mock.simpleOperation(2, "", null);
       }};
    }

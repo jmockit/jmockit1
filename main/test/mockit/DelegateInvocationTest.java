@@ -245,7 +245,7 @@ public final class DelegateInvocationTest
 
       new Expectations(Runtime.class) {{
          //noinspection deprecation
-         Runtime.runFinalizersOnExit(anyBoolean); minTimes = 1;
+         Runtime.runFinalizersOnExit(anyBoolean);
          result = new Delegate() {
             @Mock
             void delegate(Invocation inv, boolean b)
