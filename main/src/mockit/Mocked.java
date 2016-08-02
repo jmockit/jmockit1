@@ -52,7 +52,7 @@ import java.lang.annotation.*;
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
  *
  * @see #stubOutClassInitialization
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#declaration">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#mocked">Tutorial</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

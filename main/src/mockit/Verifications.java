@@ -76,7 +76,6 @@ public abstract class Verifications extends Invocations
     * @see #times
     * @see #minTimes
     * @see #maxTimes
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#iterations">Tutorial</a>
     */
    protected Verifications(int numberOfIterations)
    {

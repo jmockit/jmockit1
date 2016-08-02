@@ -74,7 +74,6 @@ public abstract class StrictExpectations extends Expectations
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
     * @see #StrictExpectations()
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#iteratedExpectations">Tutorial</a>
     */
    protected StrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {

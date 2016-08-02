@@ -46,8 +46,6 @@ public abstract class VerificationsInOrder extends Verifications
     * paste") the whole sequence of verified expectations.
     *
     * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    *
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#iterations">Tutorial</a>
     */
    protected VerificationsInOrder(int numberOfIterations)
    {
