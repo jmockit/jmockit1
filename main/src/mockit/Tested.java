@@ -88,8 +88,8 @@ public @interface Tested
     *       {@link javax.annotation.sql.DataSourceDefinition @DataSourceDefinition} in the tested class.
     *    </li>
     *    <li>
-    *       {@link javax.inject.Provider javax.inject.Provider&lt;T>}: a provider which produces an instance of type
-    *       {@code T} is injected.
+    *       {@link javax.inject.Provider Provider&lt;T>}: a provider which produces an instance of type {@code T} is
+    *       injected.
     *    </li>
     *    <li>
     *       JPA interfaces {@link javax.persistence.EntityManagerFactory} and {@link javax.persistence.EntityManager}:

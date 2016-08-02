@@ -28,7 +28,8 @@
             <include name="mockit/*.java"/>
             <include name="mockit/integration/junit4/*.java"/>
          </fileset>
-         <link href="http://docs.oracle.com/javase/8/docs/api/" offline="true" packagelistloc="${api}/external"/>
+         <link href="http://docs.oracle.com/javase/8/docs/api/" offline="true" packagelistloc="${api}/javase"/>
+         <link href="http://docs.oracle.com/javaee/7/docs/api/" offline="true" packagelistloc="${api}/javaee"/>
          <doctitle><![CDATA[
             <a href="http://jmockit.org" target="_top"><img src="resources/logo.png" style="vertical-align:middle">
                JMockit</a>
