@@ -325,11 +325,14 @@ abstract class Invocations
    protected int times;
 
    /**
-    * A non-negative value assigned to this field will be taken as the minimum number of times that invocations matching
+    * A positive value assigned to this field will be taken as the minimum number of times that invocations matching
     * the current expectation should occur during replay.
-    * <em>Zero</em> or a <em>negative</em> value implies there is no lower limit.
-    * The <em>maximum</em> number of times is automatically adjusted to allow any number of invocations.
+    * <em>Zero</em> or a <em>negative</em> value means there is no lower limit, but only when applied to an expectation
+    * recorded in a test setup method, to a strict expectation, or to a full verification.
     * <p/>
+    * If not specified, the default value of {@code 1} (one) is used.
+    * <p/>
+    * The <em>maximum</em> number of times is automatically adjusted to allow any number of invocations.
     * Both {@code minTimes} and {@code maxTimes} can be specified for the same expectation, as long as {@code minTimes}
     * is assigned first.
     *
@@ -343,6 +346,9 @@ abstract class Invocations
     * A non-negative value assigned to this field will be taken as the maximum number of times that invocations matching
     * the current expectation should occur during replay.
     * A <em>negative</em> value implies there is no upper limit.
+    * <p/>
+    * If not specified, there is no upper limit by default, except in the case of a strict expectation, where the
+    * default is {@code 1} (one).
     * <p/>
     * Both {@code minTimes} and {@code maxTimes} can be specified for the same expectation, as long as {@code minTimes}
     * is assigned first.
