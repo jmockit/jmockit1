@@ -156,7 +156,7 @@ public final class ExpectationsTest
       new Expectations(1) {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
-         mock.editABunchMoreStuff(); minTimes = 0; maxTimes = 5;
+         mock.editABunchMoreStuff(); maxTimes = 5;
          mock.save(); times = 1;
       }};
 
