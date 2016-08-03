@@ -142,7 +142,7 @@ public final class VerificationsInOrderTest
       new VerificationsInOrder() {{
          mock.prepare();
          mock.setSomething(anyInt);
-         mock.save(); minTimes = 0;
+         mock.save();
       }};
    }
 

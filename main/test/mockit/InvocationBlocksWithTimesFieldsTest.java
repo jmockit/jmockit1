@@ -516,7 +516,7 @@ public final class InvocationBlocksWithTimesFieldsTest
 
       new VerificationsInOrder() {{
          collaborator.simpleOperation(1, "b", null);
-         collaborator.provideSomeService(); minTimes = 0; maxTimes = -1;
+         collaborator.provideSomeService();
       }};
    }
 
@@ -673,7 +673,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    }
 
    @Test
-   public void unordered_verifyZeroOrMoreTimesAndReplayTwice(@Mocked Collaborator mock)
+   public void unordered_verifyOneOrMoreTimesAndReplayTwice(@Mocked Collaborator mock)
    {
       codeUnderTest.doSomething();
       codeUnderTest.doSomethingElse();
@@ -683,7 +683,7 @@ public final class InvocationBlocksWithTimesFieldsTest
 
       new Verifications() {{
          collaborator.simpleOperation(1, "b", null);
-         collaborator.provideSomeService(); minTimes = 0; maxTimes = -1;
+         collaborator.provideSomeService();
       }};
    }
 }

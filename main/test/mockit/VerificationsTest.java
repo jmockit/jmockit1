@@ -76,7 +76,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationThatIsAllowedToHappenAnyNumberOfTimesAndHappensOnce()
+   public void verifyInvocationThatIsAllowedToHappenOnceOrMoreAndHappensOnce()
    {
       mock.prepare();
       mock.setSomething(123);
@@ -84,7 +84,7 @@ public final class VerificationsTest
 
       new Verifications() {{
          mock.setSomething(anyInt);
-         mock.save(); minTimes = 0;
+         mock.save();
       }};
    }
 
@@ -217,7 +217,7 @@ public final class VerificationsTest
       new Verifications(1) {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
-         mock.editABunchMoreStuff(); minTimes = 0; maxTimes = 5;
+         mock.editABunchMoreStuff(); maxTimes = 5;
          mock.save(); times = 1;
       }};
    }
@@ -275,7 +275,7 @@ public final class VerificationsTest
       new Verifications(2) {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
-         mock.editABunchMoreStuff(); minTimes = 0; maxTimes = 5;
+         mock.editABunchMoreStuff(); maxTimes = 5;
          mock.save(); times = 1;
       }};
    }
