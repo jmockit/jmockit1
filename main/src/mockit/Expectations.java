@@ -32,33 +32,8 @@ import mockit.internal.expectations.*;
  * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
  * codeUnderTest.doSomething();
  * </pre>
- * Rather than creating anonymous subclasses, we can also create <em>named</em> subclasses to be reused in multiple
- * tests.
- * Some examples:
- * <pre>
- * public final class MyReusableExpectations extends Expectations {
- *    public MyReusableExpectations(...any parameters...) {
- *       // expectations recorded here
- *    }
- * }
- *
- * public class ReusableBaseExpectations extends Expectations {
- *     protected ReusableBaseExpectations(...) {
- *        // expectations here
- *     }
- * }
- *
- * &#64;Test
- * public void someTest(@Mocked final SomeType aMock, etc.) {
- *     // Record reusable expectations by instantiating a <em>final</em> "...Expectations" class.
- *     new MyReusableExpectations(123, "test", <em>etc.</em>);
- *
- *     // Record and extend reusable expectations by instantiating a <em>non-final</em> base class.
- *     new ReusableBaseExpectations() {{
- *        // additional expectations
- *     }};
- * }
- * </pre>
+ * It is also possible to create <em>named</em> subclasses.
+ * <p/>
  * During replay, invocations matching a recorded expectation must occur at least <em>once</em> (unless specified
  * otherwise);
  * if, by the end of the test, no matching invocation occurred for a given recorded expectation, the test will fail with
