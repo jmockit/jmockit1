@@ -509,6 +509,28 @@ public final class MisusedExpectationsTest
       }};
    }
 
+   @Test
+   public void recordDynamicExpectationWithMinTimesSetToZero()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new Expectations(ProcessBuilder.class) {{
+         new ProcessBuilder();
+         minTimes = 0; // gets ignored
+      }};
+   }
+
+   @Test
+   public void verifyExpectationWithMinTimesSetToZero()
+   {
+      thrown.expect(MissingInvocation.class);
+
+      new Verifications() {{
+         mock.doSomething(true);
+         minTimes = 0; // gets ignored
+      }};
+   }
+
    // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
 
    @Test

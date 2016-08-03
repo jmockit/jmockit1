@@ -118,10 +118,16 @@ public final class ActiveInvocations
          if (
             n > 0 ||
             TestRun.isSettingUpNextTest() ||
-            instance.isStrictOrDynamic() ||
+            instance.isStrict() ||
             currentPhase instanceof BaseVerificationPhase && ((BaseVerificationPhase) currentPhase).isFullyVerified()
          ) {
             currentPhase.handleInvocationCountConstraint(n, -1);
+         }
+         else {
+            Exception warning = new IllegalArgumentException(
+               "\"minTimes = 0\" constraint ignored; remove it to avoid this warning");
+            StackTrace.filterStackTrace(warning);
+            warning.printStackTrace();
          }
       }
    }

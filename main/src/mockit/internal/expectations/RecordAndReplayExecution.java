@@ -353,10 +353,8 @@ public final class RecordAndReplayExecution
       return replay;
    }
 
-   public boolean isStrictOrDynamic()
-   {
-      return recordPhase != null && recordPhase.strict || dynamicPartialMocking != null;
-   }
+   public boolean isStrictOrDynamic() { return isStrict() || dynamicPartialMocking != null; }
+   public boolean isStrict() { return recordPhase != null && recordPhase.strict; }
 
    @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder)
