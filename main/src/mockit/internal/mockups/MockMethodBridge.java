@@ -6,7 +6,6 @@ package mockit.internal.mockups;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.internal.*;
