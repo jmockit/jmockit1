@@ -33,7 +33,7 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.26</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.27</version>
          <scope>test</scope>
       </dependency>
       <dependency>
