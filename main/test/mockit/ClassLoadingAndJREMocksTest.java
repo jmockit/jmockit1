@@ -346,4 +346,13 @@ public final class ClassLoadingAndJREMocksTest
    public void attemptToMockJREClassThatIsNeverMockable(@Mocked Class<?> mockClass)
    {
    }
+
+   @Test // StackOverflowError when run by itself, due to recursive class loading of initial classes
+   public void mockSystemNanoTime() {
+      new MockUp<System>() {
+         @Mock long nanoTime() { return 123; }
+      };
+
+      assertEquals(123, System.nanoTime());
+   }
 }

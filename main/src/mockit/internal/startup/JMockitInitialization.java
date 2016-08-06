@@ -23,6 +23,7 @@ final class JMockitInitialization
 
    void initialize(@Nonnull Instrumentation inst)
    {
+      preventEventualClassLoadingConflicts();
       applyInternalStartupMocksAsNeeded();
 
       if (CodeCoverage.active()) {
@@ -30,6 +31,11 @@ final class JMockitInitialization
       }
 
       applyUserSpecifiedStartupMocksIfAny();
+   }
+
+   private static void preventEventualClassLoadingConflicts()
+   {
+      DefaultValues.computeForReturnType("()J");
    }
 
    private void applyInternalStartupMocksAsNeeded()
