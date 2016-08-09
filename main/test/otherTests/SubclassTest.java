@@ -15,7 +15,6 @@ public final class SubclassTest
 {
    private static boolean superClassConstructorCalled;
    private static boolean subClassConstructorCalled;
-   private static boolean mockConstructorCalled;
 
    public static class SuperClass
    {
@@ -42,7 +41,6 @@ public final class SubclassTest
    {
       superClassConstructorCalled = false;
       subClassConstructorCalled = false;
-      mockConstructorCalled = false;
    }
 
    @Test
@@ -61,25 +59,6 @@ public final class SubclassTest
 
       assertFalse(superClassConstructorCalled);
       assertFalse(subClassConstructorCalled);
-   }
-
-   @Test
-   public void mockSubclassUsingMockUpClass()
-   {
-      new MockUp<SubClass>() {
-         @Mock
-         void $init(String name)
-         {
-            assertNotNull(name);
-            mockConstructorCalled = true;
-         }
-      };
-
-      new SubClass("test");
-
-      assertTrue(superClassConstructorCalled);
-      assertFalse(subClassConstructorCalled);
-      assertTrue(mockConstructorCalled);
    }
 
    @Test
