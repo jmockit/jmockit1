@@ -4,11 +4,12 @@
  */
 package mockit.integration.testng;
 
+import java.applet.*;
+
 import org.testng.annotations.*;
 import static org.testng.Assert.*;
 
 import mockit.*;
-import mockit.integration.*;
 
 public final class TestNGMockupsTest
 {
@@ -37,8 +38,8 @@ public final class TestNGMockupsTest
    {
       assertEquals(System.getenv("BeforeMethod"), "BeforeMethod");
 
-      new MockUp<MockedClass>() {
-         @Mock String getValue() { return "MOCK"; }
+      new MockUp<Applet>() {
+         @Mock String getAppletInfo() { return "MOCK"; }
       };
    }
 
@@ -46,34 +47,34 @@ public final class TestNGMockupsTest
    public void testSomething()
    {
       assertEquals(System.getenv("testMethod"), "testMethod");
-      assertEquals(new MockedClass().getValue(), "MOCK");
+      assertEquals(new Applet().getAppletInfo(), "MOCK");
    }
 
    @AfterMethod
    void tearDownTestMethod()
    {
       assertEquals(System.getenv("AfterMethod"), "AfterMethod");
-      assertEquals(new MockedClass().getValue(), "MOCK");
+      assertEquals(new Applet().getAppletInfo(), "MOCK");
    }
 
    @AfterClass
    void tearDownClass()
    {
       assertEquals(System.getenv("AfterClass"), "AfterClass");
-      assertEquals(new MockedClass().getValue(), "REAL");
+      assertNull(new Applet().getAppletInfo());
    }
 
    @AfterTest
    void tearDownTest()
    {
       assertNull(System.getenv("AfterTest"), "MockUp still in effect");
-      assertEquals(new MockedClass().getValue(), "REAL");
+      assertNull(new Applet().getAppletInfo());
    }
 
    @AfterSuite
    void tearDownSuite()
    {
       assertNull(System.getenv("AfterSuite"));
-      assertEquals(new MockedClass().getValue(), "REAL");
+      assertNull(new Applet().getAppletInfo());
    }
 }

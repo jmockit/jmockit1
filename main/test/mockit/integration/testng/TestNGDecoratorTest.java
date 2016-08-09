@@ -4,6 +4,10 @@
  */
 package mockit.integration.testng;
 
+import java.applet.*;
+
+import javax.naming.*;
+
 import static org.testng.Assert.*;
 import org.testng.annotations.*;
 
@@ -11,45 +15,40 @@ import mockit.*;
 
 public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
 {
-   public static class RealClass2
-   {
-      public String getValue() { return "REAL2"; }
-   }
-
-   public static class MockClass2 extends MockUp<RealClass2>
+   public static class MockClass2 extends MockUp<Reference>
    {
       @Mock
-      public String getValue() { return "TEST2"; }
+      public String getClassName() { return "TEST2"; }
    }
 
    @Test
    public void setUpAndUseSomeMocks()
    {
-      assertEquals(new RealClass1().getValue(), "TEST1");
-      assertEquals(new RealClass2().getValue(), "REAL2");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
+      assertEquals(new Reference("REAL2").getClassName(), "REAL2");
 
       new MockClass2();
 
-      assertEquals(new RealClass2().getValue(), "TEST2");
-      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new Reference("").getClassName(), "TEST2");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 
    @Test
    public void setUpAndUseMocksAgain()
    {
-      assertEquals(new RealClass1().getValue(), "TEST1");
-      assertEquals(new RealClass2().getValue(), "REAL2");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
+      assertEquals(new Reference("REAL2").getClassName(), "REAL2");
 
       new MockClass2();
 
-      assertEquals(new RealClass2().getValue(), "TEST2");
-      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new Reference("").getClassName(), "TEST2");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 
    @AfterMethod
    public void afterTest()
    {
-      assertEquals(new RealClass2().getValue(), "REAL2");
+      assertEquals(new Reference("REAL2").getClassName(), "REAL2");
    }
 
    @SuppressWarnings("ClassMayBeInterface")

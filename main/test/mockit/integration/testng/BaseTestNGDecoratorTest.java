@@ -4,6 +4,8 @@
  */
 package mockit.integration.testng;
 
+import java.applet.*;
+
 import org.testng.*;
 import org.testng.annotations.*;
 import static org.testng.Assert.*;
@@ -19,28 +21,23 @@ public class BaseTestNGDecoratorTest implements IHookable
       callBack.runTestMethod(testResult);
    }
 
-   public static class RealClass1
-   {
-      public String getValue() { return "REAL1"; }
-   }
-
-   public static class MockClass1 extends MockUp<RealClass1>
+   public static class MockClass1 extends MockUp<Applet>
    {
       @Mock
-      public String getValue() { return "TEST1"; }
+      public String getAppletInfo() { return "TEST1"; }
    }
 
    @BeforeMethod
    public final void beforeBase()
    {
-      assertEquals(new RealClass1().getValue(), "REAL1");
+      assertNull(new Applet().getAppletInfo());
       new MockClass1();
-      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 
    @AfterMethod
    public final void afterBase()
    {
-      assertEquals(new RealClass1().getValue(), "TEST1");
+      assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 }
