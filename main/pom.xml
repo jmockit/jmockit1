@@ -242,7 +242,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-M1</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-M2</version>
          <optional>true</optional>
       </dependency>
       <dependency>

@@ -18,7 +18,7 @@
             <dependencies>
                <dependency>
                   <groupId>org.junit.platform</groupId><artifactId>junit-platform-surefire-provider</artifactId>
-                  <version>1.0.0-M1</version>
+                  <version>1.0.0-M2</version>
                </dependency>
             </dependencies>
          </plugin>
@@ -27,15 +27,15 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-api</artifactId><version>5.0.0-M1</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-api</artifactId><version>5.0.0-M2</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.junit.platform</groupId><artifactId>junit-platform-runner</artifactId><version>1.0.0-M1</version>
+         <groupId>org.junit.platform</groupId><artifactId>junit-platform-runner</artifactId><version>1.0.0-M2</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-M1</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-M2</version>
          <scope>runtime</scope>
       </dependency>
       <dependency>
