@@ -23,25 +23,6 @@ public final class ClassInitializationTest
    }
 
    @Test
-   public void usingMockUp()
-   {
-      new MockUp<ClassWhichFailsAtInitialization>() {
-         @Mock void $clinit() {}
-         @Mock int value() { return 1; }
-      };
-
-      assertEquals(1, ClassWhichFailsAtInitialization.value());
-   }
-
-   @Test
-   public void stubbingOutClassInitializerOnly()
-   {
-      new MockUp<ClassWhichFailsAtInitialization>() { @Mock void $clinit() {} };
-
-      assertEquals(0, ClassWhichFailsAtInitialization.value());
-   }
-
-   @Test
    public void usingExpectations(@Mocked(stubOutClassInitialization = true) ClassWhichFailsAtInitialization unused)
    {
       new Expectations() {{
@@ -51,7 +32,7 @@ public final class ClassInitializationTest
       assertEquals(1, ClassWhichFailsAtInitialization.value());
    }
 
-   static class ClassWithStaticInitializer1
+   static class ClassWithStaticInitializer
    {
       static final String CONSTANT = new String("not a compile-time constant");
       static String variable;
@@ -60,31 +41,14 @@ public final class ClassInitializationTest
    }
 
    @Test
-   public void mockClassWithStaticInitializerNotStubbedOut(@Mocked ClassWithStaticInitializer1 mocked)
+   public void mockClassWithStaticInitializerNotStubbedOut(@Mocked ClassWithStaticInitializer mocked)
    {
-      assertNotNull(ClassWithStaticInitializer1.CONSTANT);
-      assertNull(ClassWithStaticInitializer1.doSomething());
-      assertEquals("real value", ClassWithStaticInitializer1.variable);
+      assertNotNull(ClassWithStaticInitializer.CONSTANT);
+      assertNull(ClassWithStaticInitializer.doSomething());
+      assertEquals("real value", ClassWithStaticInitializer.variable);
    }
 
-   static class ClassWithStaticInitializer2
-   {
-      static final String CONSTANT = new String("not a compile-time constant");
-      static { doSomething(); }
-      static void doSomething() { throw new UnsupportedOperationException("must not execute"); }
-   }
-
-   @Test
-   public void useClassWithStaticInitializerNeverStubbedOutAndNotMockedNow()
-   {
-      // Allows the class to be initialized without throwing the exception.
-      new MockUp<ClassWithStaticInitializer2>() { @Mock void doSomething() {} };
-
-      // Initializes the class:
-      assertNotNull(ClassWithStaticInitializer2.CONSTANT);
-   }
-
-   static class AnotherClassWithStaticInitializer1
+   static class AnotherClassWithStaticInitializer
    {
       static final String CONSTANT = new String("not a compile-time constant");
       static { doSomething(); }
@@ -94,10 +58,10 @@ public final class ClassInitializationTest
 
    @Test
    public void mockClassWithStaticInitializerStubbedOut(
-      @Mocked(stubOutClassInitialization = true) AnotherClassWithStaticInitializer1 mockAnother)
+      @Mocked(stubOutClassInitialization = true) AnotherClassWithStaticInitializer mockAnother)
    {
-      assertNull(AnotherClassWithStaticInitializer1.CONSTANT);
-      AnotherClassWithStaticInitializer1.doSomething();
+      assertNull(AnotherClassWithStaticInitializer.CONSTANT);
+      AnotherClassWithStaticInitializer.doSomething();
       assertEquals(0, mockAnother.getValue());
    }
 
