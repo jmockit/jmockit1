@@ -4,17 +4,21 @@
  */
 package mockit;
 
+import java.applet.*;
+import java.awt.*;
 import java.lang.reflect.*;
+import java.net.*;
+import java.rmi.*;
 import java.sql.*;
 import java.util.concurrent.atomic.*;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.*;
 
 import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings("deprecation")
 public final class MockUpTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -30,49 +34,24 @@ public final class MockUpTest
 
    // Mock-ups for classes ////////////////////////////////////////////////////////////////////////////////////////////
 
-   @Deprecated
-   static final class Collaborator
-   {
-      @Deprecated final boolean b;
-
-      @Deprecated Collaborator() { b = true; }
-      Collaborator(boolean b) { this.b = b; }
-
-      @Ignore("test") int doSomething(@Deprecated String s) { return s.length(); }
-
-      <N extends Number> N genericMethod(@SuppressWarnings("unused") N n) { return null; }
-
-      @Deprecated static boolean doSomethingElse() { return false; }
-   }
-
    @Test
    public void attemptToCreateMockUpWithMockMethodLackingCorrespondingRealMethod()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("$init(int");
 
-      new MockUp<Collaborator>() { @Mock void $init(int i) { System.out.println(i); } };
+      new MockUp<Applet>() { @Mock void $init(int i) { System.out.println(i); } };
    }
 
    @Test
-   public void mockUpClass() throws Exception
+   public void mockUpClass()
    {
-      new MockUp<Collaborator>() {
+      new MockUp<Applet>() {
          @Mock
-         void $init(boolean b)
-         {
-            assertTrue(b);
-         }
-
-         @Mock
-         int doSomething(String s)
-         {
-            assertEquals("test", s);
-            return 123;
-         }
+         int getComponentCount() { return 123; }
       };
 
-      assertEquals(123, new Collaborator(true).doSomething("test"));
+      assertEquals(123, new Applet().getComponentCount());
    }
 
    static final class Main
@@ -133,7 +112,7 @@ public final class MockUpTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Null reference");
 
-      new MockUp<Collaborator>((Class<?>) null) {};
+      new MockUp<Applet>((Class<?>) null) {};
    }
 
    @Test
@@ -142,17 +121,17 @@ public final class MockUpTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Null reference");
 
-      new MockUp<Collaborator>((Collaborator) null) {};
+      new MockUp<Applet>((Applet) null) {};
    }
 
    @SuppressWarnings("rawtypes")
    static class MockForGivenClass extends MockUp
    {
       @SuppressWarnings("unchecked")
-      MockForGivenClass() { super(Collaborator.class); }
+      MockForGivenClass() { super(Applet.class); }
 
       @Mock
-      int doSomething(String s) { return s.length() + 1; }
+      String getParameter(String s) { return "mock"; }
    }
 
    @Test
@@ -160,8 +139,9 @@ public final class MockUpTest
    {
       new MockForGivenClass();
 
-      int i = new Collaborator().doSomething("test");
-      assertEquals(5, i);
+      String s = new Applet().getParameter("test");
+
+      assertEquals("mock", s);
    }
 
    // Mock-ups for interfaces /////////////////////////////////////////////////////////////////////////////////////////
@@ -205,13 +185,13 @@ public final class MockUpTest
 
    @SuppressWarnings("TypeParameterExtendsFinalClass")
    @Test
-   public <M extends Collaborator & Runnable> void attemptToMockUpClassAndInterfaceAtOnce() throws Exception
+   public <M extends Applet & Runnable> void attemptToMockUpClassAndInterfaceAtOnce() throws Exception
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Collaborator is not an interface");
+      thrown.expectMessage("java.applet.Applet is not an interface");
 
       new MockUp<M>() {
-         @Mock int doSomething(String s) { return s.length() + 1; }
+         @Mock String getParameter(String s) { return s.toLowerCase(); }
          @Mock void run() {}
       };
    }
@@ -253,119 +233,43 @@ public final class MockUpTest
    @Test
    public void mockUpUsingInvocationParameters()
    {
-      new MockUp<Collaborator>() {
+      new MockUp<Applet>() {
          @Mock
-         void $init(Invocation inv, boolean b)
+         void $init(Invocation inv)
          {
-            Collaborator it = inv.getInvokedInstance();
-            assertFalse(it.b);
-            assertTrue(b);
+            Applet it = inv.getInvokedInstance();
+            assertNotNull(it);
          }
 
          @Mock
-         int doSomething(Invocation inv, String s)
+         int getBaseline(Invocation inv, int w, int h)
          {
-            return inv.proceed(s + ": mocked");
+            return inv.proceed();
          }
       };
 
-      int i = new Collaborator(true).doSomething("test");
+      int i = new Applet().getBaseline(20, 15);
 
-      assertEquals(12, i);
+      assertEquals(-1, i);
    }
 
-   public static class PublicNamedMockUpWithNoInvocationParameters extends MockUp<Collaborator>
+   public static class PublicNamedMockUpWithNoInvocationParameters extends MockUp<Applet>
    {
       boolean executed;
       @Mock public void $init() { executed = true; }
-      @Mock public int doSomething(String s) { return 45; }
+      @Mock public String getParameter(String s) { return "45"; }
    }
 
    @Test
    public void publicNamedMockUpWithNoInvocationParameter()
    {
-      PublicNamedMockUpWithNoInvocationParameters mockUp = new PublicNamedMockUpWithNoInvocationParameters();
+      PublicNamedMockUpWithNoInvocationParameters mockup = new PublicNamedMockUpWithNoInvocationParameters();
 
-      Collaborator col = new Collaborator();
-      assertTrue(mockUp.executed);
-      assertFalse(col.b);
+      Applet applet = new Applet();
+      assertTrue(mockup.executed);
 
-      int i = col.doSomething("test");
-      assertEquals(45, i);
-   }
-
-   public static final class NamedMockUp extends MockUp<Collaborator>
-   {
-      @Mock
-      public void $init(Invocation inv, boolean b)
-      {
-         assertMockMethodCalledDirectlyFromMockedClass();
-         assertTrue(inv.getInvokedInstance() instanceof Collaborator);
-
-         Object[] arguments = inv.getInvokedArguments();
-         assertEquals(1, arguments.length);
-         assertEquals(b, arguments[0]);
-
-         if (inv.getInvocationCount() == 1) {
-            inv.proceed();
-         }
-      }
-
-      @Mock
-      public static int doSomething(Invocation inv, String s)
-      {
-         assertMockMethodCalledDirectlyFromMockedClass();
-         assertTrue(inv.getInvokedInstance() instanceof Collaborator);
-
-         Object[] arguments = inv.getInvokedArguments();
-         assertEquals(1, arguments.length);
-         assertSame(s, arguments[0]);
-
-         if (inv.getInvocationIndex() == 0) return 123;
-         return inv.proceed();
-      }
-
-      private static void assertMockMethodCalledDirectlyFromMockedClass()
-      {
-         StackTraceElement[] callStack = new Throwable().getStackTrace();
-         assertEquals(Collaborator.class.getName(), callStack[2].getClassName());
-      }
-
-      @Mock
-      public static boolean doSomethingElse(Invocation inv)
-      {
-         assertMockMethodCalledDirectlyFromMockedClass();
-         assertNull(inv.getInvokedInstance());
-         assertEquals(0, inv.getInvokedArguments().length);
-         return true;
-      }
-
-      @Mock
-      public <N extends Number> N genericMethod(Invocation inv, N n)
-      {
-         assertMockMethodCalledDirectlyFromMockedClass();
-         if (n == null) return inv.proceed();
-         return n;
-      }
-   }
-
-   @Test
-   public void namedMockUpWithPublicMockMethodsUsingInvocationParameter()
-   {
-      Collaborator col = new Collaborator();
-      assertTrue(col.b);
-
-      new NamedMockUp();
-
-      assertTrue(Collaborator.doSomethingElse());
-      assertEquals(123, col.doSomething("test"));
-      assertEquals(5, col.doSomething("test2"));
-      assertTrue(new Collaborator(true).b);
-      assertFalse(new Collaborator(true).b);
-      assertEquals(45L, col.genericMethod(45L).longValue());
-      //noinspection UnnecessaryUnboxing
-      assertEquals(4.5F, col.genericMethod(4.5F).floatValue(), 0);
-      assertNull(col.genericMethod(null));
+      String parameter = applet.getParameter("test");
+      assertEquals("45", parameter);
    }
 
    @Test
@@ -374,56 +278,42 @@ public final class MockUpTest
       thrown.expect(UnsupportedOperationException.class);
       thrown.expectMessage("Cannot replace arguments when proceeding into constructor");
 
-      new MockUp<Collaborator>() {
-         @Mock void $init(Invocation inv, boolean b) { inv.proceed(true); }
+      new MockUp<Panel>() {
+         @Mock void $init(Invocation inv, LayoutManager lm) { inv.proceed(new BorderLayout()); }
       };
 
-      new Collaborator(false);
+      new Panel(null);
    }
 
+   @SuppressWarnings("deprecation")
    @Test
    public void mockingOfAnnotatedClass() throws Exception
    {
-      new MockUp<Collaborator>() {
-         @Mock void $init() {}
-         @Mock int doSomething(String s) { assertNotNull(s); return 123; }
-         @Mock boolean doSomethingElse(Invocation inv) { return true; }
+      new MockUp<RMISecurityException>() {
+         @Mock void $init(String s) { assertNotNull(s); }
       };
 
-      assertEquals(123, new Collaborator().doSomething(""));
+      assertTrue(RMISecurityException.class.isAnnotationPresent(Deprecated.class));
 
-      assertTrue(Collaborator.class.isAnnotationPresent(Deprecated.class));
-      assertTrue(Collaborator.class.getDeclaredField("b").isAnnotationPresent(Deprecated.class));
-      assertTrue(Collaborator.class.getDeclaredConstructor().isAnnotationPresent(Deprecated.class));
+      Constructor<RMISecurityException> aConstructor = RMISecurityException.class.getDeclaredConstructor(String.class);
+      assertTrue(aConstructor.isAnnotationPresent(Deprecated.class));
 
-      Method mockedMethod = Collaborator.class.getDeclaredMethod("doSomething", String.class);
-      Ignore ignore = mockedMethod.getAnnotation(Ignore.class);
-      assertNotNull(ignore);
-      assertEquals("test", ignore.value());
-      assertTrue(mockedMethod.getParameterAnnotations()[0][0] instanceof Deprecated);
-
-      assertTrue(Collaborator.doSomethingElse());
-      assertTrue(Collaborator.class.getDeclaredMethod("doSomethingElse").isAnnotationPresent(Deprecated.class));
-   }
-
-   static class A
-   {
-      void method1() { throw new RuntimeException("1"); }
-      void method2() { throw new RuntimeException("2"); }
+      Deprecated deprecated = aConstructor.getAnnotation(Deprecated.class);
+      assertNotNull(deprecated);
    }
 
    @Test
    public void mockSameClassTwiceUsingSeparateMockups()
    {
-      A a = new A();
+      Applet a = new Applet();
 
-      class MockUp1 extends MockUp<A> { @Mock void method1() {} }
+      class MockUp1 extends MockUp<Applet> { @Mock void play(URL url) {} }
       new MockUp1();
-      a.method1();
+      a.play(null);
 
-      new MockUp<A>() { @Mock void method2() {} };
-      a.method1(); // still mocked
-      a.method2();
+      new MockUp<Applet>() { @Mock void showStatus(String s) {} };
+      a.play(null); // still mocked
+      a.showStatus("");
    }
 
    interface B
@@ -466,79 +356,49 @@ public final class MockUpTest
       assertEquals(0, c1.method2());
    }
 
-   static class Outer
-   {
-      class Inner
-      {
-         final int value;
-         Inner(int value) { this.value = value; }
-      }
-   }
-
    @Test
    public void mockConstructorOfInnerClass()
    {
-      final Outer outer = new Outer();
+      final BasicColorChooserUI outer = new BasicColorChooserUI();
+      final boolean[] constructed = {false};
 
-      new MockUp<Outer.Inner>() {
-         @Mock void $init(Outer o, int i)
+      new MockUp<BasicColorChooserUI.PropertyHandler>() {
+         @Mock
+         void $init(BasicColorChooserUI o)
          {
             assertSame(outer, o);
-            assertEquals(123, i);
+            constructed[0] = true;
          }
       };
 
-      Outer.Inner inner = outer.new Inner(123);
-      assertEquals(0, inner.value);
+      outer.new PropertyHandler();
+      assertTrue(constructed[0]);
    }
 
-   static class Base { Base(int i) { assert i > 0; } }
-   static class Derived extends Base { Derived() { super(123); } }
-
    @Test
-   public void attemptToMockConstructorNotFoundInMockedClassButFoundInASuperClass()
+   public void attemptToMockConstructorNotFoundInTargetClassButFoundInASuperClass()
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("$init(int");
+      thrown.expectMessage("$init(java.awt.LayoutManager");
 
-      new MockUp<Derived>() {
-         @Mock void $init(int i) {}
+      new MockUp<Applet>() {
+         @Mock void $init(LayoutManager lm) {}
       };
-   }
-
-   static class ClassWithConstructorCallingAnother
-   {
-      final Number value;
-      @SuppressWarnings("unused") ClassWithConstructorCallingAnother() { this(123); }
-      ClassWithConstructorCallingAnother(long l) { value = l; }
-   }
-
-   @Test
-   public void mockConstructorWhichCallsAnotherWhoseLastParameterHasDoubleWordSize()
-   {
-      new MockUp<ClassWithConstructorCallingAnother>() {
-         @Mock void $init() {}
-      };
-
-      ClassWithConstructorCallingAnother a = new ClassWithConstructorCallingAnother();
-
-      assertNull(a.value);
    }
 
    @Test
    public void callMockMethodFromAWTEventDispatchingThread() throws Exception
    {
-      new MockUp<Collaborator>() {
-         @Mock boolean doSomethingElse() { return true; }
+      new MockUp<Panel>() {
+         @Mock int getComponentCount() { return 10; }
       };
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
          public void run()
          {
-            boolean hasAccess = Collaborator.doSomethingElse();
-            //noinspection ConstantConditions
-            assertTrue(hasAccess);
+            int i = new Panel().getComponentCount();
+            assertEquals(10, i);
          }
       });
    }
