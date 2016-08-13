@@ -85,11 +85,11 @@ public final class CustomClassLoadingTest
    public void createAndExecuteTestRunOnIsolatedClassLoader() throws Exception
    {
       Object testClasses = loadIsolatedTestClasses(
-         //CapturingImplementationsTest.class
+         //CapturingImplementationsTest.class,
          CapturingInstancesTest.class, CascadingFieldTest.class, CascadingParametersTest.class,
          ClassInitializationTest.class, //ClassLoadingAndJREMocksTest.class,
          DelegateTest.class, ExpectationsTest.class, FinalMockFieldsTest.class, FullVerificationsTest.class,
-         InjectableMockedTest.class, //InvocationProceedTest.class, //JREMockingTest.class,
+         InjectableMockedTest.class, //DelegateInvocationProceedTest.class, //JREMockingTest.class,
          MockUpTest.class, StandardDITest.class
       );
 
