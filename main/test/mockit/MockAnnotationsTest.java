@@ -8,6 +8,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.accessibility.*;
+import javax.faces.application.*;
 import javax.security.auth.callback.*;
 
 import static mockit.Deencapsulation.*;
@@ -16,8 +18,6 @@ import static mockit.internal.util.Utilities.*;
 import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.*;
-
-import mockit.internal.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 public final class MockAnnotationsTest
@@ -33,21 +33,8 @@ public final class MockAnnotationsTest
 
       void doSomething() { dependency.provideSomeService(); }
       long doSomethingElse(int i) { return dependency.getThreadSpecificValue(i); }
-
-      int performComputation(int a, boolean b)
-      {
-         int i = dependency.getValue();
-         List<?> results = dependency.complexOperation(a, i);
-
-         if (b) {
-            dependency.setValue(i + results.size());
-         }
-
-         return i;
-      }
    }
 
-   @SuppressWarnings("UnusedDeclaration")
    static class Collaborator
    {
       static Object xyz;
@@ -63,11 +50,13 @@ public final class MockAnnotationsTest
       int getValue() { return value; }
       void setValue(int value) { this.value = value; }
 
+      @SuppressWarnings("unused")
       List<?> complexOperation(Object input1, Object... otherInputs)
       {
          return input1 == null ? Collections.emptyList() : Arrays.asList(otherInputs);
       }
 
+      @SuppressWarnings("unused")
       final void simpleOperation(int a, String b, Date c) {}
 
       long getThreadSpecificValue(int i) { return Thread.currentThread().getId() + i; }
@@ -162,91 +151,6 @@ public final class MockAnnotationsTest
       @Mock void provideSomeService() {}
    }
 
-   // Mocks WITH expectations /////////////////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public void applyMockupsContainingExpectations()
-   {
-      new MockCollaboratorWithExpectations();
-
-      int result = codeUnderTest.performComputation(2, true);
-
-      assertEquals(0, result);
-   }
-
-   static class MockCollaboratorWithExpectations extends MockUp<Collaborator>
-   {
-      @Mock(minInvocations = 1)
-      int getValue() { return 0; }
-
-      @Mock(maxInvocations = 2)
-      void setValue(int value)
-      {
-         assertEquals(1, value);
-      }
-
-      @Mock
-      List<?> complexOperation(Object input1, Object... otherInputs)
-      {
-         int i = (Integer) otherInputs[0];
-         assertEquals(0, i);
-
-         List<Integer> values = new ArrayList<Integer>();
-         values.add((Integer) input1);
-         return values;
-      }
-
-      @Mock(invocations = 0)
-      void provideSomeService() {}
-   }
-
-   @Test
-   public void applyMockupWithMinInvocationsExpectationButFailIt()
-   {
-      thrown.expect(MissingInvocation.class);
-
-      new MockCollaboratorWithMinInvocationsExpectation();
-   }
-
-   static class MockCollaboratorWithMinInvocationsExpectation extends MockUp<Collaborator>
-   {
-      @Mock(minInvocations = 2)
-      int getValue() { return 1; }
-   }
-
-   @Test
-   public void applyMockupWithMaxInvocationsExpectationButFailIt()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new MockCollaboratorWithMaxInvocationsExpectation();
-
-      new Collaborator().setValue(23);
-   }
-
-   static class MockCollaboratorWithMaxInvocationsExpectation extends MockUp<Collaborator>
-   {
-      @Mock(maxInvocations = 0)
-      void setValue(int v) { assertEquals(23, v); }
-   }
-
-   @Test
-   public void applyMockupWithInvocationsExpectationButFailIt()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new MockCollaboratorWithInvocationsExpectation();
-
-      codeUnderTest.doSomething();
-      codeUnderTest.doSomething();
-   }
-
-   static class MockCollaboratorWithInvocationsExpectation extends MockUp<Collaborator>
-   {
-      @Mock(invocations = 1)
-      void provideSomeService() {}
-   }
-
    // Reentrant mocks /////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
@@ -272,39 +176,16 @@ public final class MockAnnotationsTest
    {
       new MockCollaboratorWithConstructorMock();
 
-      new Collaborator(5);
+      new FacesMessage("test");
    }
 
-   static class MockCollaboratorWithConstructorMock extends MockUp<Collaborator>
+   static class MockCollaboratorWithConstructorMock extends MockUp<FacesMessage>
    {
       @Mock
-      void $init(int value)
+      void $init(String value)
       {
-         assertEquals(5, value);
+         assertEquals("test", value);
       }
-   }
-
-   @Test
-   public void applyMockupForStaticMethod()
-   {
-      new MockCollaboratorForStaticMethod();
-
-      //noinspection deprecation
-      Collaborator.doInternal();
-   }
-
-   static class MockCollaboratorForStaticMethod extends MockUp<Collaborator>
-   {
-      @Mock
-      static String doInternal() { return ""; }
-   }
-
-   @Test
-   public void applyMockupForSubclassConstructor()
-   {
-      new MockSubCollaborator();
-
-      new SubCollaborator(31);
    }
 
    static class SubCollaborator extends Collaborator
@@ -315,32 +196,26 @@ public final class MockAnnotationsTest
       void provideSomeService() { value = 123; }
    }
 
-   static class MockSubCollaborator extends MockUp<SubCollaborator>
-   {
-      @Mock
-      void $init(int i) { assertEquals(31, i); }
-
-      @SuppressWarnings("UnusedDeclaration")
-      native void doNothing();
-   }
-
    @Test
-   public void applyMockupsForClassHierarchy()
+   public void applyMockupForClassHierarchy()
    {
       new MockUp<SubCollaborator>() {
-         @Mock void $init(Invocation inv, int i)
+         @Mock
+         void $init(Invocation inv, int i)
          {
             assertNotNull(inv.getInvokedInstance());
             assertTrue(i > 0);
          }
 
-         @Mock void provideSomeService(Invocation inv)
+         @Mock
+         void provideSomeService(Invocation inv)
          {
             SubCollaborator it = inv.getInvokedInstance();
             it.value = 45;
          }
 
-         @Mock int getValue(Invocation inv)
+         @Mock
+         int getValue(Invocation inv)
          {
             assertNotNull(inv.getInvokedInstance());
             // The value of "it" is undefined here; it will be null if this is the first mock invocation reaching this
@@ -413,79 +288,17 @@ public final class MockAnnotationsTest
 
    // Stubbing of static class initializers ///////////////////////////////////////////////////////////////////////////
 
-   static class ClassWithStaticInitializers
-   {
-      static String str = "initialized"; // if final it would be a compile-time constant
-      static final Object obj = new Object(); // constant, but only at runtime
-
-      static { System.exit(1); }
-
-      static void doSomething() {}
-
-      static
-      {
-         try {
-            Class.forName("NonExistentClass");
-         }
-         catch (ClassNotFoundException e) {
-            e.printStackTrace();
-         }
-      }
-   }
-
    @Test
    public void fakeStaticInitializer()
    {
-      new MockUp<ClassWithStaticInitializers>() {
+      new MockUp<AccessibleState>() {
          @Mock void $clinit() {}
       };
 
-      ClassWithStaticInitializers.doSomething();
-
-      assertNull(ClassWithStaticInitializers.str);
-      assertNull(ClassWithStaticInitializers.obj);
-   }
-
-   static class AnotherClassWithStaticInitializers
-   {
-      static { System.exit(1); }
-      static void doSomething() { throw new RuntimeException(); }
-   }
-
-   @Test
-   public void stubOutStaticInitializer() throws Exception
-   {
-      new MockForClassWithInitializer();
-
-      AnotherClassWithStaticInitializers.doSomething();
-   }
-
-   static class MockForClassWithInitializer extends MockUp<AnotherClassWithStaticInitializers>
-   {
-      @Mock void $clinit() {}
-      @Mock void doSomething() {}
-   }
-
-   static class YetAnotherClassWithStaticInitializer
-   {
-      static { System.loadLibrary("none.dll"); }
-      static void doSomething() {}
-   }
-
-   static class MockForYetAnotherClassWithInitializer extends MockUp<YetAnotherClassWithStaticInitializer>
-   {
-      @Mock void $clinit() {}
+      assertNull(AccessibleState.ACTIVE);
    }
 
    // Other tests /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public void stubOutStaticInitializerWithEmptyMockClass() throws Exception
-   {
-      new MockForYetAnotherClassWithInitializer();
-
-      YetAnotherClassWithStaticInitializer.doSomething();
-   }
 
    @Test
    public void mockJREInterface() throws Exception
@@ -632,20 +445,6 @@ public final class MockAnnotationsTest
 
       File f = new File("test");
       assertEquals("fixedPrefix/test", f.getPath());
-   }
-
-   @Test
-   public void stubbedOutAnnotatedMethodInMockedClass() throws Exception
-   {
-      new MockCollaborator7();
-
-      assertTrue(Collaborator.class.getDeclaredMethod("doInternal").isAnnotationPresent(Deprecated.class));
-   }
-
-   static class MockCollaborator7 extends MockUp<Collaborator>
-   {
-      @Mock String doInternal() { return null; }
-      @Mock void provideSomeService() {}
    }
 
    @Test @SuppressWarnings("MethodWithMultipleLoops")

@@ -12,7 +12,7 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-public final class InvocationProceedTest
+public final class MockInvocationProceedTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
