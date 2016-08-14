@@ -5,6 +5,9 @@
 package mockit;
 
 import java.awt.*;
+import java.util.concurrent.*;
+
+import javax.swing.*;
 
 import org.junit.*;
 import org.junit.runners.*;
@@ -130,7 +133,7 @@ public final class MultiThreadedExpectationsTest
       static Dependency dependencyCreated;
       static int valueReturnedFromRealImplementation;
 
-      @Override @SuppressWarnings("FinalizeDeclaration")
+      @Override @SuppressWarnings({"FinalizeDeclaration", "FinalizeDoesntCallSuperFinalize"})
       protected void finalize()
       {
          // Calls to mocked methods from a "Finalizer" thread should be ignored, executing the original implementation:
@@ -152,5 +155,47 @@ public final class MultiThreadedExpectationsTest
 
       assertNotNull(ClassWithFinalizeMethod.dependencyCreated);
       assertEquals(-1, ClassWithFinalizeMethod.valueReturnedFromRealImplementation);
+   }
+
+   public interface APublicInterface { boolean doSomething(); }
+
+   @Test
+   public void invokeMethodOnMockedPublicInterfaceFromEDT(@Mocked final APublicInterface mock) throws Exception {
+      new Expectations() {{ mock.doSomething(); result = true; }};
+
+      SwingUtilities.invokeAndWait(new Runnable() {
+         @Override
+         public void run() { assertFalse(mock.doSomething()); }
+      });
+
+      assertTrue(mock.doSomething());
+   }
+
+   public abstract static class AnAbstractClass { public abstract boolean doSomething(); }
+
+   @Test
+   public void invokeMethodOnMockedAbstractClassFromEDT(@Mocked final AnAbstractClass mock) throws Exception {
+      new Expectations() {{ mock.doSomething(); result = true; }};
+
+      SwingUtilities.invokeAndWait(new Runnable() {
+         @Override
+         public void run() { assertFalse(mock.doSomething()); }
+      });
+
+      assertTrue(mock.doSomething());
+   }
+
+   @Test
+   public void invokeMethodOnMockedGenericInterfaceFromEDT(@Mocked final Callable<Boolean> mock) throws Exception {
+      new Expectations() {{ mock.call(); result = true; }};
+
+      SwingUtilities.invokeAndWait(new Runnable() {
+         @Override
+         public void run() {
+            try { assertFalse(mock.call()); } catch (Exception e) { throw new RuntimeException(e); }
+         }
+      });
+
+      assertTrue(mock.call());
    }
 }

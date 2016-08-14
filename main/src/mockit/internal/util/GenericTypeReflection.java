@@ -155,7 +155,8 @@ public final class GenericTypeReflection
          ParameterizedType parameterizedType = (ParameterizedType) type;
          return (Class<?>) parameterizedType.getRawType();
       }
-      else if (type instanceof TypeVariable<?>) {
+
+      if (type instanceof TypeVariable<?>) {
          TypeVariable<?> typeVar = (TypeVariable<?>) type;
          String typeVarKey = getTypeVariableKey(typeVar);
          Type typeArg = typeParametersToTypeArguments.get(typeVarKey);
@@ -458,16 +459,15 @@ public final class GenericTypeReflection
    public String resolveReturnType(@Nonnull String genericSignature)
    {
       int p = genericSignature.lastIndexOf(')') + 1;
-      int q = genericSignature.length();
 
       if (typeParametersToTypeArgumentNames.isEmpty() && genericSignature.charAt(0) != '<') {
-         return genericSignature.substring(p + 1, q - 1);
+         return genericSignature.substring(p);
       }
 
+      int q = genericSignature.length();
       String returnType = genericSignature.substring(p, q);
       String resolvedReturnType = resolveReturnType(ownerType, returnType);
       String resolvedSignature;
-
 
       if (resolvedReturnType == null) {
          resolvedSignature = returnType;
@@ -482,8 +482,7 @@ public final class GenericTypeReflection
       }
 
       p = resolvedSignature.indexOf(')');
-      q = resolvedSignature.length();
-      return resolvedSignature.substring(p + 2, q - 1);
+      return resolvedSignature.substring(p + 1);
    }
 
    @Nullable

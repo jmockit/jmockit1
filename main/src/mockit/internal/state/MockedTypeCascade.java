@@ -93,8 +93,14 @@ public final class MockedTypeCascade
    @Nullable
    private String getGenericReturnType(@Nonnull String genericSignature)
    {
-      String returnTypeName = getGenericReflection().resolveReturnType(genericSignature);
-      return returnTypeName.charAt(0) == '[' || isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
+      String returnTypeDesc = getGenericReflection().resolveReturnType(genericSignature);
+
+      if (returnTypeDesc.charAt(0) == '[') {
+         return returnTypeDesc;
+      }
+
+      String returnTypeName = returnTypeDesc.substring(1, returnTypeDesc.length() - 1);
+      return isTypeSupportedForCascading(returnTypeName) ? returnTypeName : null;
    }
 
    @Nonnull
