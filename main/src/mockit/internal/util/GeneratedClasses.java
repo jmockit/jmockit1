@@ -10,7 +10,7 @@ import javax.annotation.*;
 public final class GeneratedClasses
 {
    private static final String SUBCLASS_PREFIX = "$Subclass_";
-   public static final String IMPLCLASS_PREFIX = "$Impl_";
+   private static final String IMPLCLASS_PREFIX = "$Impl_";
 
    private GeneratedClasses() {}
 
