@@ -22,7 +22,7 @@ public final class JMockitTestEngine implements TestEngine
          return; // already created in same test run
       }
 
-      descriptor = new EngineDescriptor(UniqueId.forEngine("jmockit"), "JMockit engine for JUnit 5");
+      descriptor = new EngineDescriptor(UniqueId.forEngine("jmockit"), "JMockit integration");
 
       if (Startup.initializeIfPossible()) {
          new MockUp<ExtensionRegistry>() {
@@ -47,5 +47,9 @@ public final class JMockitTestEngine implements TestEngine
    public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) { return descriptor; }
 
    @Override
-   public void execute(ExecutionRequest executionRequest) {}
+   public void execute(ExecutionRequest executionRequest)
+   {
+      EngineExecutionListener executionListener = executionRequest.getEngineExecutionListener();
+      executionListener.executionSkipped(descriptor, null);
+   }
 }
