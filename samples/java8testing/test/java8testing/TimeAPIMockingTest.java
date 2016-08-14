@@ -7,14 +7,11 @@ package java8testing;
 import java.time.*;
 
 import org.junit.jupiter.api.*;
-import org.junit.platform.runner.*;
-import org.junit.runner.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-@RunWith(JUnitPlatform.class)
-public final class TimeAPIMockingTest
+final class TimeAPIMockingTest
 {
    @Test
    void mockClock()

@@ -9,14 +9,11 @@ import java.util.*;
 import java.util.function.*;
 
 import org.junit.jupiter.api.*;
-import org.junit.platform.runner.*;
-import org.junit.runner.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-@RunWith(JUnitPlatform.class)
-public final class InterfacesWithMethodBodiesTest
+final class InterfacesWithMethodBodiesTest
 {
    @FunctionalInterface
    public interface InterfaceWithDefaultMethods

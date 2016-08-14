@@ -5,14 +5,11 @@
 package java8testing;
 
 import org.junit.jupiter.api.*;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-@RunWith(JUnitPlatform.class)
-public final class JUnit5Test
+final class JUnit5Test
 {
    @Tested(availableDuringSetup = true) TestUtils utils;
 
