@@ -13,8 +13,6 @@ import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
-import static mockit.Deencapsulation.*;
-
 public final class StrictExpectationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -91,7 +89,7 @@ public final class StrictExpectationsTest
    {
       new StrictExpectations() {{
          c.doSomething(b); result = false;
-         invoke(c, "doSomething", b); result = true;
+         c.doSomething(b); result = true;
       }};
 
       assertFalse(c.doSomething(b));

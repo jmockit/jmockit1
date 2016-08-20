@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import java.beans.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -138,5 +139,17 @@ public final class ExpectationsUsingMockedTest
       int i = new SubClass().doSomething();
 
       assertEquals(1, i);
+   }
+
+   public interface BusinessInterface {}
+
+   @Test
+   public void getBeanInfoFromMockedInterface(@Mocked BusinessInterface mock) throws Exception
+   {
+      Class<? extends BusinessInterface> mockClass = mock.getClass();
+
+      BeanInfo info = Introspector.getBeanInfo(mockClass);
+
+      assertNotNull(info);
    }
 }

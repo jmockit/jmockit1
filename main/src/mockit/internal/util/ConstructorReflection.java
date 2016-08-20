@@ -7,6 +7,7 @@ package mockit.internal.util;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import static mockit.internal.util.MethodReflection.validateNotCalledFromInvocationBlock;
 import static mockit.internal.util.ParameterReflection.*;
 
 import sun.reflect.*;
@@ -32,6 +33,8 @@ public final class ConstructorReflection
       if (initArgs == null) {
          throw invalidArguments();
       }
+
+      validateNotCalledFromInvocationBlock();
 
       Constructor<T> constructor = findSpecifiedConstructor(aClass, parameterTypes);
       return invoke(constructor, initArgs);
@@ -93,6 +96,8 @@ public final class ConstructorReflection
    public static <T> T newInstance(
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
    {
+      validateNotCalledFromInvocationBlock();
+
       Class<T> theClass = ClassLoad.loadClass(className);
       return newInstance(theClass, parameterTypes, initArgs);
    }
@@ -103,6 +108,8 @@ public final class ConstructorReflection
       if (nonNullArgs == null) {
          throw invalidArguments();
       }
+
+      validateNotCalledFromInvocationBlock();
 
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
       Class<T> theClass = ClassLoad.loadClass(className);
@@ -154,6 +161,8 @@ public final class ConstructorReflection
       if (nonNullArgs == null) {
          throw invalidArguments();
       }
+
+      validateNotCalledFromInvocationBlock();
 
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
       Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
@@ -211,6 +220,8 @@ public final class ConstructorReflection
          throw invalidArguments();
       }
 
+      validateNotCalledFromInvocationBlock();
+
       if (Modifier.isStatic(innerClass.getModifiers())) {
          throw new IllegalArgumentException(innerClass.getSimpleName() + " is not an inner class");
       }
@@ -223,6 +234,8 @@ public final class ConstructorReflection
    public static <T> T newInnerInstance(
       @Nonnull String innerClassName, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
    {
+      validateNotCalledFromInvocationBlock();
+
       Class<?> outerClass = outerInstance.getClass();
       ClassLoader loader = outerClass.getClassLoader();
       String className = outerClass.getName() + '$' + innerClassName;

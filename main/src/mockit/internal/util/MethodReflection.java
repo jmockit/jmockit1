@@ -9,6 +9,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
+import static mockit.internal.util.ClassLoad.loadClass;
 import static mockit.internal.util.ParameterReflection.*;
 
 public final class MethodReflection
@@ -23,6 +24,8 @@ public final class MethodReflection
       if (methodArgs == null) {
          throw invalidArguments();
       }
+
+      validateNotCalledFromInvocationBlock();
 
       Method method = findSpecifiedMethod(theClass, methodName, paramTypes);
       T result = invoke(targetInstance, method, methodArgs);
@@ -162,6 +165,8 @@ public final class MethodReflection
          throw invalidArguments();
       }
 
+      validateNotCalledFromInvocationBlock();
+
       boolean staticMethod = targetInstance == null;
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(methodArgs);
       Method method = staticMethod ?
@@ -175,6 +180,27 @@ public final class MethodReflection
 
       T result = invoke(targetInstance, method, methodArgs);
       return result;
+   }
+
+   static void validateNotCalledFromInvocationBlock()
+   {
+      Class<?> callerClass = getCallerClass();
+
+      if (Expectations.class.isAssignableFrom(callerClass)) {
+         throw new IllegalArgumentException("Invalid invocation from expectation block");
+      }
+
+      if (Verifications.class.isAssignableFrom(callerClass)) {
+         throw new IllegalArgumentException("Invalid invocation from verification block");
+      }
+   }
+
+   @Nonnull
+   private static Class<?> getCallerClass()
+   {
+      StackTrace st = new StackTrace();
+      String callerClassName = st.getElement(5).getClassName();
+      return loadClass(callerClassName);
    }
 
    @Nonnull
