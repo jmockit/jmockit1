@@ -88,9 +88,9 @@ public final class CodeCoverage implements ClassFileTransformer
    }
 
    @Nonnull
-   public static CodeCoverage create(boolean generateOutputOnShutdown)
+   public static CodeCoverage create(boolean standalone, boolean generateOutputOnShutdown)
    {
-      inATestRun = false;
+      inATestRun = !standalone;
       instance = new CodeCoverage();
       instance.outputPendingForShutdown = generateOutputOnShutdown;
       return instance;
@@ -101,7 +101,7 @@ public final class CodeCoverage implements ClassFileTransformer
       Startup.instrumentation().removeTransformer(instance);
       CoverageData.instance().clear();
 
-      CodeCoverage coverage = create(false);
+      CodeCoverage coverage = create(true, false);
       Startup.instrumentation().addTransformer(coverage);
       instance.outputPendingForShutdown = false;
    }

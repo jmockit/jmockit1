@@ -104,11 +104,15 @@ public final class Startup
 
    private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
-      if ("coverage".equals(agentArgs)) {
-         try {
-            CoverageControl.create();
+      boolean standalone = "standalone".equals(agentArgs);
 
-            CodeCoverage coverage = CodeCoverage.create(true);
+      if (standalone || "coverage".equals(agentArgs)) {
+         try {
+            if (standalone) {
+               CoverageControl.create();
+            }
+
+            CodeCoverage coverage = CodeCoverage.create(standalone, true);
             inst.addTransformer(coverage);
 
             return true;
@@ -164,7 +168,8 @@ public final class Startup
 
          return false;
       }
-      else if (wrappedInst.wasRecreated()) {
+
+      if (wrappedInst.wasRecreated()) {
          initialize(wrappedInst);
       }
 
