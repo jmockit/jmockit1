@@ -493,7 +493,8 @@ abstract class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type.
+    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type ({@code null}
+    * included).
     * <p/>
     * Consider using instead the "anyXyz" field appropriate to the parameter type:
     * {@link #anyBoolean}, {@link #anyByte}, {@link #anyChar}, {@link #anyDouble}, {@link #anyFloat}, {@link #anyInt},
@@ -507,9 +508,6 @@ abstract class Invocations
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
     * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
     * parameter and varargs element.
-    * <p/>
-    * Note: when using {@link Deencapsulation#invoke(Object, String, Object...)}, etc., it's valid to pass
-    * {@code withAny(ParameterType.class)} if an actual instance of the parameter type cannot be created.
     *
     * @param arg an arbitrary value which will match any argument value in the replay phase
     *
