@@ -96,7 +96,8 @@ final class ClassSelection
       if (isClassExcludedFromCoverage(className)) {
          return false;
       }
-      else if (classesToInclude != null) {
+
+      if (classesToInclude != null) {
          return classesToInclude.reset(className).matches();
       }
 
@@ -115,14 +116,14 @@ final class ClassSelection
          ClassLoad.isGeneratedSubclass(className);
    }
 
-   private boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain)
+   private static boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain)
    {
       ClassLoader loaderOfClassToBeMeasured = protectionDomain.getClassLoader();
 
       if (loaderOfClassToBeMeasured != null) {
          try {
             Class<?> thisClass = loaderOfClassToBeMeasured.loadClass(THIS_CLASS_NAME);
-            return thisClass == getClass();
+            return thisClass == ClassSelection.class;
          }
          catch (ClassNotFoundException ignore) {}
       }
@@ -131,7 +132,7 @@ final class ClassSelection
    }
 
    @Nullable
-   private URL findLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
+   private static URL findLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
       URL location = protectionDomain.getCodeSource().getLocation();
 
