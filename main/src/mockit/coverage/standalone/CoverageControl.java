@@ -7,13 +7,12 @@ package mockit.coverage.standalone;
 import java.io.*;
 import java.lang.management.*;
 import java.lang.reflect.*;
-import java.util.prefs.*;
 import javax.annotation.*;
 import javax.management.*;
 
 import mockit.coverage.*;
 
-public final class CoverageControl extends StandardMBean implements CoverageControlMBean, PersistentMBean
+public final class CoverageControl extends StandardMBean implements CoverageControlMBean
 {
    public static void create()
    {
@@ -28,10 +27,9 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
       }
    }
 
-   public CoverageControl() throws NotCompliantMBeanException, MBeanException
+   public CoverageControl() throws NotCompliantMBeanException
    {
       super(CoverageControlMBean.class);
-      load();
    }
 
    @Nonnull @Override
@@ -166,7 +164,6 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
    {
       setConfigurationProperty(name, value);
       CodeCoverage.resetConfiguration();
-      store();
    }
 
    private static void setConfigurationProperty(@Nonnull String name, @Nonnull String value)
@@ -178,44 +175,5 @@ public final class CoverageControl extends StandardMBean implements CoverageCont
    public void generateOutput(boolean resetState)
    {
       CodeCoverage.generateOutput(resetState);
-   }
-
-   @Override
-   public void load() throws MBeanException
-   {
-      Preferences preferences = Preferences.userNodeForPackage(CoverageControl.class);
-
-      try {
-         for (String property : preferences.keys()) {
-            String commandLineValue = getProperty(property);
-
-            if (commandLineValue.isEmpty()) {
-               String value = preferences.get(property, "");
-               setConfigurationProperty(property, value);
-            }
-         }
-      }
-      catch (BackingStoreException e) {
-         throw new MBeanException(e);
-      }
-   }
-
-   @Override
-   public void store()
-   {
-      Preferences preferences = Preferences.userNodeForPackage(CoverageControl.class);
-
-      for (MBeanAttributeInfo info : getMBeanInfo().getAttributes()) {
-         String property = info.getName();
-         String value = getProperty(property);
-         preferences.put(property, value);
-      }
-
-      try {
-          preferences.flush();
-      }
-      catch (BackingStoreException e) {
-         throw new RuntimeException(e);
-      }
    }
 }
