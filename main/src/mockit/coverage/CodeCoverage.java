@@ -28,6 +28,7 @@ public final class CodeCoverage implements ClassFileTransformer
          String pid = args[0];
 
          try {
+            //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(pid);
             new AgentLoader(pid).loadAgent("coverage");
             return;
@@ -77,15 +78,13 @@ public final class CodeCoverage implements ClassFileTransformer
 
    public static boolean active()
    {
-      String coverageOutput = Configuration.getProperty("output");
+      String coverageOutput  = Configuration.getProperty("output");
       String coverageClasses = Configuration.getProperty("classes");
       String coverageMetrics = Configuration.getProperty("metrics");
 
-      if ("none".equals(coverageOutput) || "none".equals(coverageClasses) || "none".equals(coverageMetrics)) {
-         return false;
-      }
-
-      return coverageOutput != null || coverageClasses != null || coverageMetrics != null;
+      return
+         (coverageOutput != null || coverageClasses != null || coverageMetrics != null) &&
+         !("none".equals(coverageOutput) || "none".equals(coverageClasses) || "none".equals(coverageMetrics));
    }
 
    @Nonnull
@@ -128,7 +127,8 @@ public final class CodeCoverage implements ClassFileTransformer
 
       String className = internalClassName.replace('/', '.');
 
-      return classModification.modifyClass(className, protectionDomain, originalClassfile);
+      byte[] modifiedClassfile = classModification.modifyClass(className, protectionDomain, originalClassfile);
+      return modifiedClassfile;
    }
 
    void deactivate() { inactive = true; }
