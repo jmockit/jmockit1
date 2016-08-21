@@ -26,7 +26,13 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
 
       // A @BeforeClass/@AfterClass method:
       if (target == null) {
-         return executeClassMethod(invocation, params);
+         try {
+            return executeClassMethod(invocation, params);
+         }
+         catch (Throwable t) {
+            filterStackTrace(t);
+            throw t;
+         }
       }
 
       handleMockingOutsideTestMethods(target);
