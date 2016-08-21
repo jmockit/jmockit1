@@ -4,27 +4,26 @@
  */
 package mockit;
 
+import java.applet.*;
+import java.io.*;
+
 import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 import mockit.MockUpTest.SomeInterface;
 
+import otherTests.multicast.*;
+
 public final class MisusingMockupsAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
-
-   public static class Collaborator
-   {
-      int doSomething() { return 1; }
-      @SuppressWarnings("unused") void methodWithParameters(int i, String s) {}
-   }
 
    @Test
    public void applySameMockClassWhilePreviousApplicationStillActive()
    {
       new SomeMockUp(2);
-      assertEquals(2, new Collaborator().doSomething());
+      assertEquals(2, new Applet().getComponentCount());
 
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Duplicate application");
@@ -33,18 +32,18 @@ public final class MisusingMockupsAPITest
       new SomeMockUp(3);
    }
 
-   static final class SomeMockUp extends MockUp<Collaborator>
+   static final class SomeMockUp extends MockUp<Applet>
    {
       final int value;
       SomeMockUp(int value) { this.value = value; }
-      @Mock int doSomething() { return value; }
+      @Mock int getComponentCount() { return value; }
    }
 
    @Test
    public void applySameMockClassUsingSecondaryConstructorWhilePreviousApplicationStillActive()
    {
       new AnotherMockUp(2);
-      assertEquals(2, new Collaborator().doSomething());
+      assertEquals(2, new Applet().getComponentCount());
 
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Duplicate application");
@@ -53,51 +52,51 @@ public final class MisusingMockupsAPITest
       new AnotherMockUp(3);
    }
 
-   static final class AnotherMockUp extends MockUp<Collaborator>
+   static final class AnotherMockUp extends MockUp<Applet>
    {
       final int value;
-      AnotherMockUp(int value) { super(Collaborator.class); this.value = value; }
-      @Mock int doSomething() { return value; }
+      AnotherMockUp(int value) { super(Applet.class); this.value = value; }
+      @Mock int getComponentCount() { return value; }
    }
 
    @Test
    public void mockSameMethodTwiceWithReentrantMocksFromTwoDifferentMockClasses()
    {
-      new MockUp<Collaborator>() {
+      new MockUp<Applet>() {
          @Mock
-         int doSomething(Invocation inv)
+         int getComponentCount(Invocation inv)
          {
             int i = inv.proceed();
             return i + 1;
          }
       };
 
-      int i = new Collaborator().doSomething();
-      assertEquals(2, i);
+      int i = new Applet().getComponentCount();
+      assertEquals(1, i);
 
-      new MockUp<Collaborator>() {
+      new MockUp<Applet>() {
          @Mock
-         int doSomething(Invocation inv)
+         int getComponentCount(Invocation inv)
          {
             int j = inv.proceed();
             return j + 2;
          }
       };
 
-      // Should return 4, but returns 6. Chaining mock methods is not supported.
-      int j = new Collaborator().doSomething();
-      assertEquals(6, j);
+      // Should return 3, but returns 5. Chaining mock methods is not supported.
+      int j = new Applet().getComponentCount();
+      assertEquals(5, j);
    }
 
    @Test
-   public void mockUpMethodInClassWhichIsAlreadyMocked(@Mocked Collaborator col)
+   public void mockUpMethodInClassWhichIsAlreadyMocked(@Mocked Applet applet)
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("already mocked");
-      thrown.expectMessage("Collaborator");
+      thrown.expectMessage("Applet");
 
-      new MockUp<Collaborator>() {
-         @Mock int doSomething() { return 2; }
+      new MockUp<Applet>() {
+         @Mock int getComponentCount() { return 2; }
       };
    }
 
@@ -109,8 +108,8 @@ public final class MisusingMockupsAPITest
       thrown.expectMessage("Invocation parameter");
       thrown.expectMessage("first");
 
-      new MockUp<Collaborator>() {
-         @Mock void methodWithParameters(int i, String s, Invocation inv) {}
+      new MockUp<Applet>() {
+         @Mock void resize(int width, int height, Invocation inv) {}
       };
    }
 
@@ -150,5 +149,52 @@ public final class MisusingMockupsAPITest
       }.getMockInstance();
 
       mock.doSomething();
+   }
+
+   final PrintStream originalOutput = System.err;
+   final OutputStream output = new ByteArrayOutputStream();
+   @Before public void redirectStandardErrorOutput() { System.setErr(new PrintStream(output)); }
+   @After  public void restoreStandardErrorOutput()  { System.setErr(originalOutput); }
+
+   @Test
+   public void attemptToFakeClassFromTestedCodebase()
+   {
+      new MockUp<Client>() {};
+
+      String warningMessage = output.toString();
+      assertTrue(warningMessage.contains("Invalid mock-up for internal class"));
+      assertTrue(warningMessage.contains("Client"));
+   }
+
+   public static class Dependency
+   {
+      private Dependency() {}
+      @SuppressWarnings("unused") int getCount() { return 1; }
+   }
+
+   @Test
+   public void attemptToFakeInternalMethodInClassFromTestedCodebase()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid mock");
+      thrown.expectMessage("getCount()");
+      thrown.expectMessage("package-private method");
+
+      new MockUp<Dependency>() {
+         @Mock int getCount() { return 0; }
+      };
+   }
+
+   @Test
+   public void attemptToFakeInternalConstructorInClassFromTestedCodebase()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid mock");
+      thrown.expectMessage("$init()");
+      thrown.expectMessage("private constructor");
+
+      new MockUp<Dependency>() {
+         @Mock public void $init() {}
+      };
    }
 }

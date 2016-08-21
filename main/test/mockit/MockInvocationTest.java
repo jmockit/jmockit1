@@ -12,17 +12,17 @@ public final class MockInvocationTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   static class Collaborator
+   public static class Collaborator
    {
       int value;
       
       Collaborator() {}
-      Collaborator(int i) { value = i; }
+      public Collaborator(int i) { value = i; }
 
-      int getValue() { return -1; }
-      void setValue(int i) { value = i; }
-      String doSomething(boolean b, int[] i, String s) { return s + b + i[0]; }
-      static boolean staticMethod() { return true; }
+      public int getValue() { return -1; }
+      public void setValue(int i) { value = i; }
+      public String doSomething(boolean b, int[] i, String s) { return s + b + i[0]; }
+      public static boolean staticMethod() { return true; }
    }
 
    static final class MockMethods extends MockUp<Collaborator>

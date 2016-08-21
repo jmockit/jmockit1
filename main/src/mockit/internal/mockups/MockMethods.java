@@ -16,13 +16,14 @@ import mockit.internal.util.GenericTypeReflection.*;
 import static mockit.internal.util.ObjectMethods.*;
 
 /**
- * A container for the mock methods "collected" from a mock class, separated in two sets: one with all the mock methods,
- * and another with just the subset of static methods.
+ * A container for the mock methods "collected" from a mockup class, separated in two sets: one with all the mock
+ * methods, and another with just the subset of static methods.
  */
 final class MockMethods
 {
    @Nonnull final Class<?> realClass;
-   private final boolean mockedTypeIsAClass;
+   private final boolean targetIsInternal;
+   private final boolean targetTypeIsAClass;
    private final boolean reentrantRealClass;
    @Nonnull private final List<MockMethod> methods;
    @Nullable private MockMethod adviceMethod;
@@ -104,7 +105,7 @@ final class MockMethods
 
       boolean canBeReentered()
       {
-         return mockedTypeIsAClass && !nativeRealMethod && (hasInvocationParameter || reentrantRealClass);
+         return targetTypeIsAClass && !nativeRealMethod && (hasInvocationParameter || reentrantRealClass);
       }
 
       @Nonnull
@@ -116,7 +117,7 @@ final class MockMethods
             new MethodFormatter(mockClassInternalName, nameAndDesc) + ", but was invoked " + timesInvoked + " time(s)";
       }
 
-      @Override
+      @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
       public boolean equals(Object obj)
       {
          MockMethod other = (MockMethod) obj;
@@ -128,29 +129,49 @@ final class MockMethods
       {
          return 31 * (31 * realClass.hashCode() + name.hashCode()) + desc.hashCode();
       }
+
+      void validateTargetMemberIsAccessibleFromInternalCodebase(int targetAccess)
+      {
+         if ((targetAccess & (PUBLIC + PROTECTED)) == 0) {
+            StringBuilder msg = new StringBuilder(100);
+            msg.append("Invalid mock method ");
+
+            MethodFormatter mockDesc = new MethodFormatter(mockClassInternalName, getMockNameAndDesc());
+            msg.append(mockDesc);
+
+            msg.append(" for ");
+            msg.append(isPrivate(targetAccess) ? "private " : "package-private ");
+            msg.append(name.charAt(0) == '$' ? "constructor" : "method");
+            msg.append(" of internal class");
+
+            throw new IllegalArgumentException(msg.toString());
+         }
+      }
    }
 
-   MockMethods(@Nonnull Class<?> realClass, @Nullable Type mockedType)
+   MockMethods(@Nonnull Class<?> realClass, @Nullable Type targetType, boolean targetIsInternal)
    {
       this.realClass = realClass;
+      this.targetIsInternal = targetIsInternal;
 
-      if (mockedType == null || realClass == mockedType) {
-         mockedTypeIsAClass = true;
+      if (targetType == null || realClass == targetType) {
+         targetTypeIsAClass = true;
       }
       else {
-         Class<?> mockedClass = Utilities.getClassType(mockedType);
-         mockedTypeIsAClass = !mockedClass.isInterface();
+         Class<?> targetClass = Utilities.getClassType(targetType);
+         targetTypeIsAClass = !targetClass.isInterface();
       }
 
-      reentrantRealClass = mockedTypeIsAClass && MockingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
+      reentrantRealClass = targetTypeIsAClass && MockingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
       methods = new ArrayList<MockMethod>();
-      typeParametersToTypeArguments = new GenericTypeReflection(realClass, mockedType);
+      typeParametersToTypeArguments = new GenericTypeReflection(realClass, targetType);
       mockClassInternalName = "";
    }
 
    @Nonnull Class<?> getRealClass() { return realClass; }
 
-   @Nullable MockMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
+   @Nullable
+   MockMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
    {
       if (fromSuperClass && isMethodAlreadyAdded(name, desc)) {
          return null;
@@ -195,7 +216,7 @@ final class MockMethods
    @Nullable List<MockState> getMockStates() { return mockStates; }
 
    /**
-    * Finds a mock method with the same signature of a given real method, if previously collected from the mock class.
+    * Finds a mock method with the same signature of a given real method, if previously collected from the mockup class.
     * This operation can be performed only once for any given mock method in this container, so that after the last real
     * method is processed there should be no mock methods left unused in the container.
     */
@@ -204,6 +225,10 @@ final class MockMethods
    {
       for (MockMethod mockMethod : methods) {
          if (mockMethod.isMatch(access, name, desc, signature)) {
+            if (targetIsInternal && targetTypeIsAClass) {
+               mockMethod.validateTargetMemberIsAccessibleFromInternalCodebase(access);
+            }
+
             return mockMethod;
          }
       }
@@ -246,8 +271,10 @@ final class MockMethods
       List<String> signatures = new ArrayList<String>(methods.size());
 
       for (MockMethod mockMethod : methods) {
-         if (!"$clinit()V".equals(mockMethod.getMockNameAndDesc()) && !mockMethod.hasMatchingRealMethod) {
-            signatures.add(mockMethod.getMockNameAndDesc());
+         String mockNameAndDesc = mockMethod.getMockNameAndDesc();
+
+         if (!"$clinit()V".equals(mockNameAndDesc) && !mockMethod.hasMatchingRealMethod) {
+            signatures.add(mockNameAndDesc);
          }
       }
 

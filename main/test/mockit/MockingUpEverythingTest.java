@@ -276,7 +276,7 @@ class TargetClass
    public static int staticMethod(int i) { return i; }
    int doSomething(String s, boolean b) { return b ? s.length() : -1; }
    protected void performAction(Runnable action) { if (action != null) action.run(); }
-   void validateSomething() { throw new IllegalArgumentException("Invalid something"); }
+   protected void validateSomething() { throw new IllegalArgumentException("Invalid something"); }
 
    @Override
    public String toString() { return getClass().getSimpleName() + value; }

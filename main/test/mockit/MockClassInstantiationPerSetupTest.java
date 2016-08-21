@@ -14,28 +14,28 @@ import static org.junit.Assert.*;
 
 public final class MockClassInstantiationPerSetupTest
 {
-   static final class RealClass1
+   public static final class RealClass1
    {
-      static void doSomething() { throw new RuntimeException(); }
-      int performComputation(int a, boolean b) { return b ? a : -a; }
+      public static void doSomething() { throw new RuntimeException(); }
+      public int performComputation(int a, boolean b) { return b ? a : -a; }
    }
 
-   static final class RealClass2
+   public static final class RealClass2
    {
-      static void doSomething() { throw new RuntimeException(); }
-      int performComputation(int a, boolean b) { return b ? a : -a; }
+      public static void doSomething() { throw new RuntimeException(); }
+      public int performComputation(int a, boolean b) { return b ? a : -a; }
    }
 
-   static final class RealClass3
+   public static final class RealClass3
    {
-      static void doSomething() { throw new RuntimeException(); }
-      int performComputation(int a, boolean b) { return b ? a : -a; }
+      public static void doSomething() { throw new RuntimeException(); }
+      public int performComputation(int a, boolean b) { return b ? a : -a; }
    }
 
-   static final class RealClass4
+   public static final class RealClass4
    {
-      static void doSomething() { throw new RuntimeException(); }
-      int performComputation(int a, boolean b) { return b ? a : -a; }
+      public static void doSomething() { throw new RuntimeException(); }
+      public int performComputation(int a, boolean b) { return b ? a : -a; }
    }
 
    static final class MockClass1 extends MockUp<RealClass1>

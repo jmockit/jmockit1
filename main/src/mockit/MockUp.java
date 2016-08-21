@@ -4,7 +4,11 @@
  */
 package mockit;
 
+import java.io.*;
 import java.lang.reflect.*;
+import java.lang.reflect.Proxy;
+import java.net.*;
+import java.security.*;
 import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
@@ -17,7 +21,8 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 /**
- * A base class used in the creation of a <em>mock-up</em> for a class, an interface, etc.
+ * A base class used in the creation of a <em>mock-up</em> for an <em>external</em> type, which is usually a class from
+ * some library or component used from the <em>internal</em> codebase of the system under test (SUT).
  * Such mock-ups can be used as <em>fake</em> implementations for use in unit or integration tests.
  * For example:
  * <pre>
@@ -94,10 +99,11 @@ public abstract class MockUp<T>
     */
    protected final Type targetType;
 
+   private boolean targetIsInternal;
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T mockInstance;
-   @Nullable T invokedInstance;
+   @Nullable private T invokedInstance;
 
    /**
     * Applies the {@linkplain Mock mock methods} defined in the concrete subclass to the class or interface specified
@@ -107,16 +113,18 @@ public abstract class MockUp<T>
     * or if multiple types were specified through a type variable but not all of them are interfaces;
     * or there is a mock method for which no corresponding real method or constructor is found;
     * or the real method matching a mock method is {@code abstract};
-    * or if an <em>unbounded</em> type variable was used as the base type to be faked
+    * or if an <em>unbounded</em> type variable was used as the base type to be faked;
+    * or if the mockup class contains a mock method for a {@code private} or package-private method or constructor, when
+    * the type to be faked is a class internal to the SUT
     *
     * @see #MockUp(Class)
     * @see #MockUp(Object)
     */
    protected MockUp()
    {
-      validateMockingAllowed();
+      validateFakingAllowed();
 
-      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      MockUp<?> previousMockUp = findPreviouslyFakedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
          targetType = previousMockUp.targetType;
@@ -124,7 +132,7 @@ public abstract class MockUp<T>
          return;
       }
 
-      targetType = validateTypeToMock();
+      targetType = validateTypeToFake();
 
       if (targetType instanceof Class<?>) {
          @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) targetType;
@@ -144,7 +152,7 @@ public abstract class MockUp<T>
       }
    }
 
-   private static void validateMockingAllowed()
+   private static void validateFakingAllowed()
    {
       if (TestRun.isInsideNoMockingZone()) {
          throw new IllegalStateException("Invalid place to apply a mock-up");
@@ -152,7 +160,7 @@ public abstract class MockUp<T>
    }
 
    @Nullable
-   private MockUp<?> findPreviouslyMockedClassIfMockUpAlreadyApplied()
+   private MockUp<?> findPreviouslyFakedClassIfMockUpAlreadyApplied()
    {
       MockClasses mockClasses = TestRun.getMockClasses();
       MockUpInstances mockUpInstances = mockClasses.findPreviouslyAppliedMockUps(this);
@@ -169,9 +177,9 @@ public abstract class MockUp<T>
    }
 
    @Nonnull
-   private Type validateTypeToMock()
+   private Type validateTypeToFake()
    {
-      Type typeToMock = getTypeToMock();
+      Type typeToMock = getTypeToFake();
 
       if (typeToMock instanceof WildcardType || typeToMock instanceof GenericArrayType) {
          String errorMessage = "Argument " + typeToMock + " for type parameter T of an unsupported kind";
@@ -185,13 +193,75 @@ public abstract class MockUp<T>
          if (bounds.length == 1 && bounds[0] == Object.class) {
             throw new IllegalArgumentException("Unbounded base type specified by type variable \"" + typeVar + '"');
          }
+
+         for (Type targetType : bounds) {
+            Class<?> targetClass = getTargetClass(targetType);
+            validateThatClassToFakeIsExternal(targetClass);
+         }
+      }
+      else {
+         Class<?> targetClass = getTargetClass(typeToMock);
+         validateThatClassToFakeIsExternal(targetClass);
       }
 
       return typeToMock;
    }
 
    @Nonnull
-   private Type getTypeToMock()
+   private static Class<?> getTargetClass(@Nonnull Type targetType)
+   {
+      if (targetType instanceof ParameterizedType) {
+         ParameterizedType parameterizedType = (ParameterizedType) targetType;
+         return (Class<?>) parameterizedType.getRawType();
+      }
+
+      return (Class<?>) targetType;
+   }
+
+   private static final ProtectionDomain THIS_PD = MockUp.class.getProtectionDomain();
+
+   private void validateThatClassToFakeIsExternal(@Nonnull Class<?> targetClass)
+   {
+      if (!targetClass.isInterface()) {
+         ProtectionDomain targetPD = targetClass.getProtectionDomain();
+
+         if (targetPD == THIS_PD) {
+            throw new IllegalArgumentException("Invalid mock-up");
+         }
+
+         CodeSource testSrc = getClass().getProtectionDomain().getCodeSource();
+         CodeSource fakedSrc = targetPD.getCodeSource();
+
+         if (testSrc != null && fakedSrc != null && areClassesFromSameCodebase(testSrc, fakedSrc)) {
+            Exception warning = new IllegalArgumentException(
+               "Invalid mock-up for internal " + targetClass + "; remove it to avoid this warning");
+            StackTrace.filterStackTrace(warning);
+            warning.printStackTrace();
+            targetIsInternal = true;
+         }
+      }
+   }
+
+   private static boolean areClassesFromSameCodebase(@Nonnull CodeSource src1, @Nonnull CodeSource src2)
+   {
+      if (src1 == src2) {
+         return true;
+      }
+
+      URL location1 = src1.getLocation();
+      URL location2 = src2.getLocation();
+
+      if (location1 == null || location2 == null) {
+         return false;
+      }
+
+      String codebase1 = new File(location1.getPath()).getParent();
+      String codebase2 = new File(location2.getPath()).getParent();
+      return codebase1.equals(codebase2);
+   }
+
+   @Nonnull
+   private Type getTypeToFake()
    {
       Class<?> currentClass = getClass();
 
@@ -242,7 +312,7 @@ public abstract class MockUp<T>
          throw new IllegalArgumentException("Class already mocked: " + realClass.getName());
       }
 
-      return new MockClassSetup(realClass, classToMock, genericMockedType, this).redefineMethods();
+      return new MockClassSetup(realClass, classToMock, genericMockedType, this, targetIsInternal).redefineMethods();
    }
 
    /**
@@ -261,10 +331,11 @@ public abstract class MockUp<T>
          throw new IllegalArgumentException("Null reference when expecting the target class");
       }
 
-      validateMockingAllowed();
+      validateFakingAllowed();
+      validateThatClassToFakeIsExternal(targetClass);
 
       targetType = targetClass;
-      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      MockUp<?> previousMockUp = findPreviouslyFakedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
          mockedClass = previousMockUp.mockedClass;
@@ -309,9 +380,9 @@ public abstract class MockUp<T>
          throw new IllegalArgumentException("Null reference when expecting the target instance");
       }
 
-      validateMockingAllowed();
+      validateFakingAllowed();
 
-      MockUp<?> previousMockUp = findPreviouslyMockedClassIfMockUpAlreadyApplied();
+      MockUp<?> previousMockUp = findPreviouslyFakedClassIfMockUpAlreadyApplied();
 
       if (previousMockUp != null) {
          targetType = previousMockUp.targetType;
@@ -320,6 +391,8 @@ public abstract class MockUp<T>
       }
 
       @SuppressWarnings("unchecked") Class<T> classToMock = (Class<T>) targetInstance.getClass();
+      validateThatClassToFakeIsExternal(classToMock);
+
       targetType = classToMock;
       mockedClass = classToMock;
       classesToRestore = redefineMethods(classToMock, classToMock, classToMock);

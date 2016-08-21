@@ -35,19 +35,19 @@ public final class MockAnnotationsTest
       long doSomethingElse(int i) { return dependency.getThreadSpecificValue(i); }
    }
 
-   static class Collaborator
+   public static class Collaborator
    {
       static Object xyz;
       protected int value;
 
-      Collaborator() {}
+      public Collaborator() {}
       Collaborator(int value) { this.value = value; }
 
-      @Deprecated private static String doInternal() { return "123"; }
+      @Deprecated protected static String doInternal() { return "123"; }
 
-      void provideSomeService() { throw new RuntimeException("Real provideSomeService() called"); }
+      public void provideSomeService() { throw new RuntimeException("Real provideSomeService() called"); }
 
-      int getValue() { return value; }
+      public int getValue() { return value; }
       void setValue(int value) { this.value = value; }
 
       @SuppressWarnings("unused")
@@ -59,7 +59,7 @@ public final class MockAnnotationsTest
       @SuppressWarnings("unused")
       final void simpleOperation(int a, String b, Date c) {}
 
-      long getThreadSpecificValue(int i) { return Thread.currentThread().getId() + i; }
+      protected long getThreadSpecificValue(int i) { return Thread.currentThread().getId() + i; }
    }
 
    // Mocks without expectations //////////////////////////////////////////////////////////////////////////////////////
@@ -188,12 +188,12 @@ public final class MockAnnotationsTest
       }
    }
 
-   static class SubCollaborator extends Collaborator
+   public static class SubCollaborator extends Collaborator
    {
-      SubCollaborator(int i) { throw new RuntimeException(String.valueOf(i)); }
+      public SubCollaborator(int i) { throw new RuntimeException(String.valueOf(i)); }
 
       @Override
-      void provideSomeService() { value = 123; }
+      public void provideSomeService() { value = 123; }
    }
 
    @Test
@@ -350,12 +350,12 @@ public final class MockAnnotationsTest
       assertEquals(123, obj.doSomething());
    }
 
-   abstract static class AnAbstractClass { abstract int doSomething(); }
+   abstract static class AnAbstractClass { protected abstract int doSomething(); }
 
    @Test
    public <A extends AnAbstractClass> void mockAbstractClassWithMockForAbstractMethodHavingInvocationParameter()
    {
-      final AnAbstractClass obj = new AnAbstractClass() { @Override int doSomething() { return 0; } };
+      final AnAbstractClass obj = new AnAbstractClass() { @Override protected int doSomething() { return 0; } };
 
       new MockUp<A>() {
          @Mock
@@ -418,7 +418,7 @@ public final class MockAnnotationsTest
       assertEquals("mocked", mock.call());
    }
 
-   static class GenericClass<T> { T doSomething() { return null; } }
+   static class GenericClass<T> { protected T doSomething() { return null; } }
 
    @Test
    public void mockGenericClassWithMockUpHavingInvocationParameter()

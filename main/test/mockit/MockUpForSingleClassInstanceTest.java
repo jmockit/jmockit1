@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public final class MockUpForSingleClassInstanceTest
 {
-   static class AClass
+   public static class AClass
    {
       final int numericValue;
       final String textValue;
@@ -26,9 +26,9 @@ public final class MockUpForSingleClassInstanceTest
       }
 
       public final int getNumericValue() { return numericValue; }
-      String getTextValue() { return textValue; }
-      private int getSomeOtherValue() { return 0; }
-      static boolean doSomething() { return false; }
+      public String getTextValue() { return textValue; }
+      protected final int getSomeOtherValue() { return 0; }
+      public static boolean doSomething() { return false; }
    }
 
    @Test
@@ -180,7 +180,7 @@ public final class MockUpForSingleClassInstanceTest
    static final class ASubClass extends AClass
    {
       ASubClass(int n, String s) { super(n, s); }
-      @Override String getTextValue() { return "subtext"; }
+      @Override public String getTextValue() { return "subtext"; }
    }
 
    @Test

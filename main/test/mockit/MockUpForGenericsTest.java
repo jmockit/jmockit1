@@ -13,9 +13,9 @@ public final class MockUpForGenericsTest
 {
    // Mock-ups for generic classes/methods ////////////////////////////////////////////////////////////////////////////
 
-   static final class Collaborator
+   public static final class Collaborator
    {
-      <N extends Number> N genericMethod(@SuppressWarnings("UnusedParameters") N n) { return null; }
+      public <N extends Number> N genericMethod(@SuppressWarnings("UnusedParameters") N n) { return null; }
    }
 
    @Test
@@ -105,7 +105,7 @@ public final class MockUpForGenericsTest
       };
    }
 
-   static class GenericBaseClass<T, U> { U find(@SuppressWarnings("UnusedParameters") T id) { return null; } }
+   static class GenericBaseClass<T, U> { public U find(@SuppressWarnings("UnusedParameters") T id) { return null; } }
 
    @Test
    public void mockGenericMethodWithMockMethodHavingParameterTypesMatchingTypeArguments()
@@ -164,11 +164,11 @@ public final class MockUpForGenericsTest
    }
 
    @SuppressWarnings("UnusedParameters")
-   static class NonGenericClassWithGenericMethods
+   public static class NonGenericClassWithGenericMethods
    {
-      static <T> T staticMethod(Class<T> cls, String s) { throw new RuntimeException(); }
-      <C> void instanceMethod(Class<C> cls, String s) { throw new RuntimeException(); }
-      <N extends Number> void instanceMethod(Class<N> cls) { throw new RuntimeException(); }
+      public static <T> T staticMethod(Class<T> cls, String s) { throw new RuntimeException(); }
+      public <C> void instanceMethod(Class<C> cls, String s) { throw new RuntimeException(); }
+      public final <N extends Number> void instanceMethod(Class<N> cls) { throw new RuntimeException(); }
    }
 
    @Test

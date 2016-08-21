@@ -15,11 +15,11 @@ public final class ReentrantMockTest
 {
    public static class RealClass
    {
-      String foo() { return "real value"; }
-      static int staticRecursiveMethod(int i) { return i <= 0 ? 0 : 2 + staticRecursiveMethod(i - 1); }
-      int recursiveMethod(int i) { return i <= 0 ? 0 : 2 + recursiveMethod(i - 1); }
-      static int nonRecursiveStaticMethod(int i) { return -i; }
-      int nonRecursiveMethod(int i) { return -i; }
+      public String foo() { return "real value"; }
+      protected static int staticRecursiveMethod(int i) { return i <= 0 ? 0 : 2 + staticRecursiveMethod(i - 1); }
+      public int recursiveMethod(int i) { return i <= 0 ? 0 : 2 + recursiveMethod(i - 1); }
+      protected static int nonRecursiveStaticMethod(int i) { return -i; }
+      public int nonRecursiveMethod(int i) { return -i; }
    }
 
    public static class AnnotatedMockClass extends MockUp<RealClass>
@@ -189,10 +189,10 @@ public final class ReentrantMockTest
       assertEquals("fake value", second.toString());
    }
 
-   static final class RealClass2
+   public static final class RealClass2
    {
-      int firstMethod() { return 1; }
-      int secondMethod() { return 2; }
+      public int firstMethod() { return 1; }
+      public int secondMethod() { return 2; }
    }
 
    @Test
@@ -271,9 +271,9 @@ public final class ReentrantMockTest
       assertTrue(new File("noFile").exists());
    }
 
-   static final class RealClass3
+   public static final class RealClass3
    {
-      RealClass3 newInstance() { return new RealClass3(); }
+      public RealClass3 newInstance() { return new RealClass3(); }
    }
 
    @Test

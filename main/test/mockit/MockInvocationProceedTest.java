@@ -35,7 +35,7 @@ public final class MockInvocationProceedTest
       @Override
       protected int methodToBeMocked(int i) throws IOException { return super.methodToBeMocked(i); }
 
-      int methodToBeMocked(int i, Object... args)
+      protected int methodToBeMocked(int i, Object... args)
       {
          int result = i;
 
@@ -46,12 +46,12 @@ public final class MockInvocationProceedTest
          return result;
       }
 
-      String anotherMethodToBeMocked(String s, boolean b, List<Integer> ints)
+      public String anotherMethodToBeMocked(String s, boolean b, List<Integer> ints)
       { return (b ? s.toUpperCase() : s.toLowerCase()) + ints; }
 
       public static boolean staticMethodToBeMocked() throws FileNotFoundException { throw new FileNotFoundException(); }
 
-      static native void nativeMethod();
+      protected static native void nativeMethod();
    }
 
    /// Tests for "@Mock" methods //////////////////////////////////////////////////////////////////////////////////////

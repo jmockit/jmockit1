@@ -14,9 +14,9 @@ import mockit.internal.state.*;
 
 public final class MockStateBetweenTestMethodsJUnit45Test
 {
-   static final class RealClass
+   public static final class RealClass
    {
-      int doSomething() { throw new RuntimeException("Unexpected execution"); }
+      public int doSomething() { throw new RuntimeException("Unexpected execution"); }
    }
 
    static final class TheMockClass extends MockUp<RealClass>

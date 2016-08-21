@@ -14,7 +14,7 @@
  * (ie, after the replay phase).
  * <p/>
  * The {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} generic class (where {@code T} is the mocked type) allows
- * the definition of fake implementations for arbitrary classes or interfaces.
+ * the definition of fake implementations for external classes or interfaces.
  * <p/>
  * For a description with examples of the <em>Expectations</em> API, see the
  * "<a href="http://jmockit.org/tutorial/Mocking.html">Mocking</a>" chapter in the Tutorial.

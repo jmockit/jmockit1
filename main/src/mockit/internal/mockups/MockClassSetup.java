@@ -26,23 +26,24 @@ public final class MockClassSetup
    private final boolean forStartupMock;
 
    public MockClassSetup(
-      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp)
+      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp,
+      boolean targetIsInternal)
    {
-      this(realClass, classToMock, mockedType, mockUp, null);
+      this(realClass, classToMock, mockedType, mockUp, targetIsInternal, null);
    }
 
    public MockClassSetup(
       @Nonnull Class<?> realClass, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp, @Nullable byte[] realClassCode)
    {
-      this(realClass, realClass, mockedType, mockUp, realClassCode);
+      this(realClass, realClass, mockedType, mockUp, true, realClassCode);
    }
 
    private MockClassSetup(
       @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp,
-      @Nullable byte[] realClassCode)
+      boolean targetIsInternal, @Nullable byte[] realClassCode)
    {
       this.realClass = classToMock;
-      mockMethods = new MockMethods(realClass, mockedType);
+      mockMethods = new MockMethods(realClass, mockedType, targetIsInternal);
       this.mockUp = mockUp;
       forStartupMock = Startup.initializing;
       rcReader = realClassCode == null ? null : new ClassReader(realClassCode);
@@ -52,11 +53,13 @@ public final class MockClassSetup
 
       mockMethods.registerMockStates(mockUp, forStartupMock);
 
+      MockClasses mockClasses = TestRun.getMockClasses();
+
       if (forStartupMock) {
-         TestRun.getMockClasses().addMock(mockMethods.getMockClassInternalName(), mockUp);
+         mockClasses.addMock(mockMethods.getMockClassInternalName(), mockUp);
       }
       else {
-         TestRun.getMockClasses().addMock(mockUp);
+         mockClasses.addMock(mockUp);
       }
    }
 

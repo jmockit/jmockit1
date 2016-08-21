@@ -21,11 +21,11 @@ public final class MockedClassWithSuperClassTest
 
    static class BaseClass
    {
-      int doSomething() { return 123; }
+      protected int doSomething() { return 123; }
       static int staticMethod() { return -1; }
    }
 
-   static class Subclass extends BaseClass { BaseClass getInstance() { return this; } }
+   public static class Subclass extends BaseClass { BaseClass getInstance() { return this; } }
 
    @Test
    public void mockedClassExtendingJREClass(@Mocked SubclassOfJREClass mock) throws Exception
@@ -61,7 +61,7 @@ public final class MockedClassWithSuperClassTest
 
       // Not mocked:
       BaseClass b1 = new BaseClass();
-      BaseClass b2 = new BaseClass() { @Override int doSomething() { return super.doSomething() - 23; } };
+      BaseClass b2 = new BaseClass() { @Override protected int doSomething() { return super.doSomething() - 23; } };
       assertEquals(123, b1.doSomething());
       assertEquals(100, b2.doSomething());
    }
@@ -126,7 +126,7 @@ public final class MockedClassWithSuperClassTest
    static class BaseClassWithConstructor { BaseClassWithConstructor(@SuppressWarnings("unused") boolean b) {} }
    static class DerivedClass extends BaseClassWithConstructor
    {
-      DerivedClass()
+      protected DerivedClass()
       {
          // TRYCATCHBLOCK instruction appears before call to super, which caused a VerifyError.
          super(true);

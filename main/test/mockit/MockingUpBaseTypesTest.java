@@ -17,8 +17,8 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class MockingUpBaseTypesTest
 {
-   static class BeforeClassBaseAction { int perform() { return -1; } }
-   static class BeforeClassAction extends BeforeClassBaseAction { @Override int perform() { return 12; } }
+   static class BeforeClassBaseAction { protected int perform() { return -1; } }
+   static class BeforeClassAction extends BeforeClassBaseAction { @Override protected int perform() { return 12; } }
 
    @BeforeClass
    public static <T extends BeforeClassBaseAction> void applyMockUpForAllTests()
@@ -129,10 +129,10 @@ public final class MockingUpBaseTypesTest
       assertEquals("mocked2", mocked2);
    }
 
-   abstract static class BaseAction
+   public abstract static class BaseAction
    {
-      abstract int perform(int i);
-      int toBeMockedAsWell() { return -1; }
+      protected abstract int perform(int i);
+      public int toBeMockedAsWell() { return -1; }
       int notToBeMocked() { return 1; }
    }
 
@@ -143,15 +143,15 @@ public final class MockingUpBaseTypesTest
 
    static class ConcreteAction2 extends BaseAction
    {
-      @Override int perform(int i) { return i - 2; }
-      @Override int toBeMockedAsWell() { return super.toBeMockedAsWell() - 1; }
+      @Override protected int perform(int i) { return i - 2; }
+      @Override public int toBeMockedAsWell() { return super.toBeMockedAsWell() - 1; }
       @Override int notToBeMocked() { return super.notToBeMocked() + 1; }
    }
 
    static class ConcreteAction3 extends ConcreteAction2
    {
       @Override public int perform(int i) { return i - 3; }
-      @Override int toBeMockedAsWell() { return -3; }
+      @Override public int toBeMockedAsWell() { return -3; }
       @Override final int notToBeMocked() { return 3; }
    }
 
