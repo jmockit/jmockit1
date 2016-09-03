@@ -26,12 +26,16 @@ import mockit.coverage.lines.*;
  */
 final class XmlFile
 {
+   @Nonnull private final String srcDir;
    @Nonnull private final File outputFile;
    @Nonnull private final CoverageData coverageData;
    @Nonnull private Writer output;
 
    XmlFile(@Nonnull String outputDir, @Nonnull CoverageData coverageData)
    {
+      String firstSrcDir = Configuration.getProperty("srcDirs", "").split("\\s*,\\s*")[0];
+      srcDir = firstSrcDir.isEmpty() ? "" : firstSrcDir + '/';
+
       String parentDir = Configuration.getOrChooseOutputDirectory(outputDir);
       outputFile = new File(parentDir, "coverage.xml");
       this.coverageData = coverageData;
@@ -67,6 +71,7 @@ final class XmlFile
    private void writeOpeningXmlElementForSourceFile(@Nonnull String sourceFileName) throws IOException
    {
       output.write("\t<file path=\"");
+      output.write(srcDir);
       output.write(sourceFileName);
       output.write("\">\n");
    }

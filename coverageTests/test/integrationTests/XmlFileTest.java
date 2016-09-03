@@ -25,6 +25,7 @@ public final class XmlFileTest
    {
       assumeTrue("xml".equals(System.getProperty("coverage-output")));
       assumeTrue("loaded".equals(System.getProperty("coverage-classes")));
+      assumeTrue("src".equals(System.getProperty("coverage-srcDirs")));
 
       new ClassInRegularPackage().doSomething(NestedEnum.Second);
       CodeCoverage.generateOutput(false);
@@ -45,7 +46,7 @@ public final class XmlFileTest
       assertEquals("file", xmlReader.getLocalName());
       assertEquals(1, xmlReader.getAttributeCount());
       assertEquals("path", xmlReader.getAttributeLocalName(0));
-      assertEquals("integrationTests/ClassInRegularPackage.java", xmlReader.getAttributeValue(0));
+      assertEquals("src/integrationTests/ClassInRegularPackage.java", xmlReader.getAttributeValue(0));
 
       assertLineToCover(3, true);
       assertLineToCover(7, true);
