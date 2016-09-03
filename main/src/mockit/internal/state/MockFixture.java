@@ -220,25 +220,6 @@ public final class MockFixture
       return instanceFactory;
    }
 
-   public void restoreAndRemoveRedefinedClasses(@Nullable Set<Class<?>> desiredClasses)
-   {
-      Set<Class<?>> classesToRestore = desiredClasses == null ? redefinedClasses.keySet() : desiredClasses;
-      RedefinitionEngine redefinitionEngine = new RedefinitionEngine();
-
-      for (Class<?> redefinedClass : classesToRestore) {
-         redefinitionEngine.restoreOriginalDefinition(redefinedClass);
-         restoreDefinition(redefinedClass);
-         discardStateForCorrespondingMockClassIfAny(redefinedClass);
-      }
-
-      if (desiredClasses == null) {
-         redefinedClasses.clear();
-      }
-      else {
-         redefinedClasses.keySet().removeAll(desiredClasses);
-      }
-   }
-
    private void restoreDefinition(@Nonnull Class<?> redefinedClass)
    {
       if (redefinedClassesWithNativeMethods.contains(redefinedClass.getName())) {

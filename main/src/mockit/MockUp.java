@@ -458,28 +458,6 @@ public abstract class MockUp<T>
    }
 
    /**
-    * Discards the mock methods originally applied by instantiating this mock-up object, restoring faked methods to
-    * their original behaviors.
-    * <p/>
-    * This method should rarely, if ever, be used, since tear-down is <em>automatic</em>: all classes faked by a test
-    * will automatically be restored at the end of the test; the same for classes faked for all tests or the whole test
-    * class in a "before" or "before class" method.
-    *
-    * @see #onTearDown()
-    * @deprecated Do not use, as this method will be removed in a future release; see preceding paragraph.
-    */
-   @Deprecated
-   public final void tearDown()
-   {
-      TestRun.getMockClasses().removeMock(this);
-
-      if (classesToRestore != null) {
-         TestRun.mockFixture().restoreAndRemoveRedefinedClasses(classesToRestore);
-         classesToRestore = null;
-      }
-   }
-
-   /**
     * An empty method that can be overridden in a mock-up subclass that wants to be notified whenever the mock-up is
     * automatically torn down.
     * Tear down happens when the mock-up goes out of scope: at the end of the test when applied inside a test, at the
