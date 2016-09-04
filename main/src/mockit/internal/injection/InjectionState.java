@@ -5,7 +5,6 @@
 package mockit.internal.injection;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.*;
 import java.util.concurrent.*;
