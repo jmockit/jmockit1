@@ -133,29 +133,7 @@ final class ConstructorSearch
 
          String parameterName = ParameterNames.getName(testedClassDesc, constructorDesc, i);
          InjectionPointProvider provider =
-            parameterName == null ? null : injectionState.findInjectableByTypeAndOptionallyName(parameterName);
-
-         // TODO: for issue #203
-//         if (injectable == null && parameterType instanceof ParameterizedType) {
-//            ParameterizedType genericParameterType = (ParameterizedType) parameterType;
-//            Class<?> parameterClass = (Class<?>) genericParameterType.getRawType();
-//
-//            if (Iterable.class.isAssignableFrom(parameterClass)) {
-//               Type elementType = genericParameterType.getActualTypeArguments()[0];
-//               injectionState.setTypeOfInjectionPoint(elementType);
-//
-//               List<InjectionPointProvider> injectablesOfSameType = injectionState.findInjectablesByType();
-//
-//               if (!injectablesOfSameType.isEmpty()) {
-//                  providersFound.addAll(injectablesOfSameType);
-//                  continue;
-//               }
-//            }
-//         }
-
-         if (parameterName != null && provider == null && withFullInjection) {
-            provider = new ConstructorParameter(parameterType, parameterAnnotations[i], parameterName);
-         }
+            findOrCreateInjectionPointProvider(parameterType, parameterName, parameterAnnotations[i]);
 
          if (provider == null || providersFound.contains(provider)) {
             printParameterOfCandidateConstructorIfRequested(parameterName, provider);
@@ -175,6 +153,23 @@ final class ConstructorSearch
       }
 
       return providersFound;
+   }
+
+   @Nullable
+   private InjectionPointProvider findOrCreateInjectionPointProvider(
+      @Nonnull Type parameterType, @Nullable String parameterName, @Nonnull Annotation[] parameterAnnotations)
+   {
+      if (parameterName == null) {
+         return null;
+      }
+
+      InjectionPointProvider provider = injectionState.getProviderByTypeAndOptionallyName(parameterName);
+
+      if (provider == null && withFullInjection) {
+         provider = new ConstructorParameter(parameterType, parameterAnnotations, parameterName);
+      }
+
+      return provider;
    }
 
    private void printCandidateConstructorNameIfRequested(@Nonnull Constructor<?> candidate)

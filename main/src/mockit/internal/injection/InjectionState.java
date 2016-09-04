@@ -80,7 +80,8 @@ final class InjectionState implements BeanExporter
 
    private boolean hasSameTypeAsInjectionPoint(@Nonnull InjectionPointProvider injectable)
    {
-      return isSameTypeAsInjectionPoint(injectable.getDeclaredType());
+      Type declaredType = injectable.getDeclaredType();
+      return isSameTypeAsInjectionPoint(declaredType);
    }
 
    boolean isSameTypeAsInjectionPoint(@Nonnull Type injectableType)
@@ -89,10 +90,14 @@ final class InjectionState implements BeanExporter
          return true;
       }
 
-      if (INJECT_CLASS != null && typeOfInjectionPoint instanceof ParameterizedType) {
+      if (typeOfInjectionPoint instanceof ParameterizedType) {
          ParameterizedType parameterizedType = (ParameterizedType) typeOfInjectionPoint;
+         Class<?> classOfInjectionPoint = (Class<?>) parameterizedType.getRawType();
 
-         if (parameterizedType.getRawType() == Provider.class) {
+         if (
+            Iterable.class.isAssignableFrom(classOfInjectionPoint) ||
+            INJECT_CLASS != null && Provider.class.isAssignableFrom(classOfInjectionPoint)
+         ) {
             Type providedType = parameterizedType.getActualTypeArguments()[0];
             return providedType.equals(injectableType);
          }
@@ -128,7 +133,61 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   InjectionPointProvider findInjectableByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
+   InjectionPointProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
+   {
+      Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
+
+      if (elementTypeOfIterable != null) {
+         return findInjectablesByTypeOnly(elementTypeOfIterable);
+      }
+
+      return findInjectableByTypeAndOptionallyName(nameOfInjectionPoint);
+   }
+
+   @Nullable
+   private static Type getElementTypeIfIterable(@Nonnull Type injectableType)
+   {
+      if (injectableType instanceof ParameterizedType) {
+         ParameterizedType parameterizedType = (ParameterizedType) injectableType;
+         Class<?> classOfInjectionPoint = (Class<?>) parameterizedType.getRawType();
+
+         if (Iterable.class.isAssignableFrom(classOfInjectionPoint)) {
+            return parameterizedType.getActualTypeArguments()[0];
+         }
+      }
+
+      return null;
+   }
+
+   @Nullable
+   private InjectionPointProvider findInjectablesByTypeOnly(@Nonnull Type elementType)
+   {
+      MultiValuedProvider found = null;
+
+      for (InjectionPointProvider injectable : injectables) {
+         Type injectableType = injectable.getDeclaredType();
+         Type elementTypeOfIterable = getElementTypeIfIterable(injectableType);
+
+         if (
+            elementTypeOfIterable != null && testedTypeReflection.areMatchingTypes(elementType, elementTypeOfIterable)
+         ) {
+            return injectable;
+         }
+
+         if (isSameTypeAsInjectionPoint(injectableType)) {
+            if (found == null) {
+               found = new MultiValuedProvider(elementType);
+            }
+
+            found.addInjectable(injectable);
+         }
+      }
+
+      return found;
+   }
+
+   @Nullable
+   private InjectionPointProvider findInjectableByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
    {
       InjectionPointProvider found = null;
 

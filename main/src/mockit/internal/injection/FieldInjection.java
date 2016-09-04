@@ -166,7 +166,7 @@ final class FieldInjection extends Injector
 
       return withMultipleTargetFieldsOfSameType(targetFields) ?
          injectionState.findInjectableByTypeAndName(targetFieldName) :
-         injectionState.findInjectableByTypeAndOptionallyName(targetFieldName);
+         injectionState.getProviderByTypeAndOptionallyName(targetFieldName);
    }
 
    private boolean withMultipleTargetFieldsOfSameType(@Nonnull List<Field> targetFields)

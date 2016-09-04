@@ -6,8 +6,11 @@ package mockit.internal.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.util.*;
 import javax.annotation.*;
 import javax.ejb.*;
+import javax.enterprise.inject.*;
+import javax.enterprise.util.*;
 import javax.inject.*;
 import javax.persistence.*;
 import javax.servlet.*;
@@ -22,6 +25,7 @@ final class InjectionPoint
    enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
 
    @Nullable static final Class<? extends Annotation> INJECT_CLASS;
+   @Nullable private static final Class<? extends Annotation> INSTANCE_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
    @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
    @Nullable static final Class<?> SERVLET_CLASS;
@@ -30,6 +34,7 @@ final class InjectionPoint
    static
    {
       INJECT_CLASS = searchTypeInClasspath("javax.inject.Inject");
+      INSTANCE_CLASS = searchTypeInClasspath("javax.enterprise.inject.Instance");
       EJB_CLASS = searchTypeInClasspath("javax.ejb.EJB");
       PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
       SERVLET_CLASS = searchTypeInClasspath("javax.servlet.Servlet");
@@ -82,14 +87,36 @@ final class InjectionPoint
    @Nonnull
    static Object wrapInProviderIfNeeded(@Nonnull Type type, @Nonnull final Object value)
    {
-      if (
-         INJECT_CLASS != null && type instanceof ParameterizedType && !(value instanceof Provider) &&
-         ((ParameterizedType) type).getRawType() == Provider.class
-      ) {
-         return new Provider<Object>() { @Override public Object get() { return value; } };
+      if (INJECT_CLASS != null && type instanceof ParameterizedType && !(value instanceof Provider)) {
+         Type parameterizedType = ((ParameterizedType) type).getRawType();
+
+         if (parameterizedType == Provider.class) {
+            return new Provider<Object>() { @Override public Object get() { return value; } };
+         }
+
+         if (INSTANCE_CLASS != null && parameterizedType == Instance.class) {
+            @SuppressWarnings("unchecked") List<Object> values = (List<Object>) value;
+            return new Listed(values);
+         }
       }
 
       return value;
+   }
+
+   private static final class Listed implements Instance<Object>
+   {
+      @Nonnull private final List<Object> instances;
+
+      Listed(@Nonnull List<Object> instances) { this.instances = instances; }
+
+      @Override public Instance<Object> select(Annotation... annotations) { return null; }
+      @Override public <U> Instance<U> select(Class<U> uClass, Annotation... annotations) { return null; }
+      @Override public <U> Instance<U> select(TypeLiteral<U> tl, Annotation... annotations) { return null; }
+      @Override public boolean isUnsatisfied() { return false; }
+      @Override public boolean isAmbiguous() { return false; }
+      @Override public void destroy(Object instance) {}
+      @Override public Iterator<Object> iterator() { return instances.iterator(); }
+      @Override public Object get() { throw new RuntimeException("Unexpected"); }
    }
 
    @Nonnull

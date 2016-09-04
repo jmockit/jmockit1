@@ -4,20 +4,18 @@
  */
 package mockit;
 
-import java.lang.annotation.*;
 import java.util.*;
-import javax.enterprise.inject.*;
-import javax.enterprise.util.*;
 import javax.inject.*;
-import static java.util.Arrays.*;
+
+import static java.util.Arrays.asList;
 
 import org.junit.*;
 import static org.junit.Assert.*;
 
-@Ignore("Tests for issue #203")
 public final class IterableDITest
 {
-   static class Collaborator {
+   static class Collaborator
+   {
       final int value;
       Collaborator() { value = 0; }
       Collaborator(int value) { this.value = value; }
@@ -29,10 +27,7 @@ public final class IterableDITest
       @Inject Collection<Collaborator> collaborators;
 
       @Inject
-      TestedClassWithIterableInjectionPoints(List<String> names)
-      {
-         this.names = names;
-      }
+      TestedClassWithIterableInjectionPoints(List<String> names) { this.names = names; }
    }
 
    @Tested TestedClassWithIterableInjectionPoints tested1;
@@ -46,64 +41,15 @@ public final class IterableDITest
       assertSame(colList, tested1.collaborators);
    }
 
-   static final class TestedClassWithInstanceInjectionPoints
-   {
-      final Set<String> names;
-      @Inject Instance<Collaborator> collaborators;
+   static class Dependency {}
+   static class TestedClassWithInjectedList { @Inject List<Dependency> dependencies; }
 
-      @Inject
-      TestedClassWithInstanceInjectionPoints(Instance<String> names)
-      {
-         this.names = new HashSet<String>();
-
-         for (String name : names) {
-            this.names.add(name);
-         }
-      }
-   }
-
-   @Tested TestedClassWithInstanceInjectionPoints tested2;
-
-   static final class Listed<T> implements Instance<T>
-   {
-      final List<T> instances;
-      Listed(T... instances) { this.instances = asList(instances); }
-      @Override public Instance<T> select(Annotation... annotations) { return null; }
-      @Override public <U extends T> Instance<U> select(Class<U> uClass, Annotation... annotations) { return null; }
-      @Override public <U extends T> Instance<U> select(TypeLiteral<U> tl, Annotation... annotations) { return null; }
-      @Override public boolean isUnsatisfied() { return false; }
-      @Override public boolean isAmbiguous() { return false; }
-      @Override public void destroy(T instance) {}
-      @Override public Iterator<T> iterator() { return instances.iterator(); }
-      @Override public T get() { throw new RuntimeException("Unexpected"); }
-   }
-
-   static <T> List<T> toList(Iterable<T> instances)
-   {
-      List<T> list = new ArrayList<T>();
-
-      for (T instance : instances) {
-         list.add(instance);
-      }
-
-      return list;
-   }
-
-   @Injectable Collaborator col1;
-   @Injectable Collaborator col2;
-   @Injectable final String first = "Abc";
-   @Injectable("Test") String second;
+   @Tested TestedClassWithInjectedList tested2;
+   @Injectable Dependency dependency;
 
    @Test
-   public void allowMultipleInjectablesOfSameTypeToBeObtainedFromInstanceInjectionPoint(@Injectable("123") String third)
+   public void injectMockedInstanceIntoList()
    {
-      assertEquals(asList("Abc", "Test", "123"), tested2.names);
-
-      Instance<Collaborator> collaborators = tested2.collaborators;
-      assertFalse(collaborators.isAmbiguous());
-      assertFalse(collaborators.isUnsatisfied());
-
-      List<Collaborator> collaboratorInstances = toList(collaborators);
-      assertEquals(asList(col1, col2), collaboratorInstances);
+      assertTrue(tested2.dependencies.contains(dependency));
    }
 }
