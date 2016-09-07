@@ -146,7 +146,7 @@ public class BaseClassModifier extends ClassVisitor
 
    public static void generateCodeToCreateArrayOfObject(@Nonnull MethodWriter mw, int arrayLength)
    {
-      mw.visitIntInsn(BIPUSH, arrayLength);
+      mw.visitIntInsn(SIPUSH, arrayLength);
       mw.visitTypeInsn(ANEWARRAY, "java/lang/Object");
    }
 
@@ -158,7 +158,7 @@ public class BaseClassModifier extends ClassVisitor
 
       for (Type parameterType : parameterTypes) {
          mw.visitInsn(DUP);
-         mw.visitIntInsn(BIPUSH, i++);
+         mw.visitIntInsn(SIPUSH, i++);
          mw.visitVarInsn(parameterType.getOpcode(ILOAD), j);
          TypeConversion.generateCastToObject(mw, parameterType);
          mw.visitInsn(AASTORE);
@@ -175,7 +175,7 @@ public class BaseClassModifier extends ClassVisitor
    protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value)
    {
       mw.visitInsn(DUP);
-      mw.visitIntInsn(BIPUSH, arrayIndex);
+      mw.visitIntInsn(SIPUSH, arrayIndex);
 
       if (value == null) {
          mw.visitInsn(ACONST_NULL);
