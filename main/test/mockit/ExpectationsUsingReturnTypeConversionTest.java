@@ -127,7 +127,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals(-50, mock.getLongWrapper().longValue());
       assertEquals(1234.0F, mock.getFloat(), 0);
       assertEquals('a', mock.getFloat(), 0);
-      assertEquals(-123.0F, mock.getFloatWrapper().floatValue(), 0);
+      assertEquals(-123.0F, mock.getFloatWrapper(), 0);
       assertEquals(54321.0, mock.getDouble(), 0);
       assertEquals('á', mock.getDouble(), 0);
       assertEquals(-10203.0, mock.getDoubleWrapper(), 0);
@@ -159,7 +159,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals(123, mock.getInt());
       assertEquals(12345, mock.getInteger().intValue());
       assertEquals(1234.0F, mock.getFloat(), 0);
-      assertEquals(-123.45F, mock.getFloatWrapper().floatValue(), 0);
+      assertEquals(-123.45F, mock.getFloatWrapper(), 0);
       assertEquals('B', mock.getChar());
       assertEquals('0', mock.getCharacter().charValue());
    }
@@ -188,7 +188,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals((int) -12300000000L, mock.getInt());
       assertEquals((int) 12345678901L, mock.getInteger().intValue());
       assertEquals(1234543212345.67890123F, mock.getFloat(), 0);
-      assertEquals(-1234567890.9876543210F, mock.getFloatWrapper().floatValue(), 0);
+      assertEquals(-1234567890.9876543210F, mock.getFloatWrapper(), 0);
       assertEquals((char) 66000000, mock.getChar());
       assertEquals(0, mock.getCharacter().charValue());
    }
