@@ -32,6 +32,7 @@ public final class MethodCoverageData implements Serializable
       nonShadowedPaths = Collections.emptyList();
       nodesReached = new ThreadLocal<List<Node>>();
       previousNodeIndex = new ThreadLocal<Integer>();
+      clearNodes();
    }
 
    public void buildPaths(int lastExecutableLine, @Nonnull NodeBuilder nodeBuilder)
