@@ -124,10 +124,7 @@ public final class ActiveInvocations
             currentPhase.handleInvocationCountConstraint(n, -1);
          }
          else {
-            Exception warning = new IllegalArgumentException(
-               "\"minTimes = 0\" constraint ignored; remove it to avoid this warning");
-            StackTrace.filterStackTrace(warning);
-            warning.printStackTrace();
+            Warning.display("\"minTimes = 0\" constraint ignored");
          }
       }
    }

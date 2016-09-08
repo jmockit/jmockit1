@@ -233,10 +233,7 @@ public abstract class MockUp<T>
          CodeSource fakedSrc = targetPD.getCodeSource();
 
          if (testSrc != null && fakedSrc != null && areClassesFromSameCodebase(testSrc, fakedSrc)) {
-            Exception warning = new IllegalArgumentException(
-               "Invalid mock-up for internal " + targetClass + "; remove it to avoid this warning");
-            StackTrace.filterStackTrace(warning);
-            warning.printStackTrace();
+            Warning.display("Invalid mock-up for internal " + targetClass);
             targetIsInternal = true;
          }
       }

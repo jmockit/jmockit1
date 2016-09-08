@@ -70,9 +70,7 @@ public final class InvocationResults
                !recordAndReplay.isStrictOrDynamic() &&
                !executingTest.hasOtherMockedInstances(value)
             ) {
-               Exception warning = new IllegalArgumentException("Redundant recording; remove it to avoid this warning");
-               StackTrace.filterStackTrace(warning);
-               warning.printStackTrace();
+               Warning.display("Redundant recording");
             }
          }
       }
