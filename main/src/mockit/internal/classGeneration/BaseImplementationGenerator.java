@@ -20,6 +20,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    @Nonnull private final List<String> implementedMethods;
    @Nonnull private final String implementationClassDesc;
    @Nullable private String[] initialSuperInterfaces;
+   protected String methodOwner;
 
    protected BaseImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName)
    {
@@ -33,7 +34,9 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
+      methodOwner = name;
       initialSuperInterfaces = interfaces;
+
       String[] implementedInterfaces = {name};
       super.visit(version, CLASS_ACCESS, implementationClassDesc, signature, superName, implementedInterfaces);
 
@@ -102,7 +105,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor
    {
-      @Nullable private String[] superInterfaces;
+      private String[] superInterfaces;
 
       MethodGeneratorForImplementedSuperInterface(@Nonnull String interfaceName)
       {
@@ -114,6 +117,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
          int version, int access, String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
+         methodOwner = name;
          superInterfaces = interfaces;
       }
 
@@ -133,8 +137,6 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       @Override
       public void visitEnd()
       {
-         assert superInterfaces != null;
-
          for (String superInterface : superInterfaces) {
             new MethodGeneratorForImplementedSuperInterface(superInterface);
          }

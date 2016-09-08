@@ -254,21 +254,32 @@ public final class GenericMockedTypesTest
    }
 
    public interface BaseGenericInterface<V> { V doSomething(); }
-   public interface DerivedGenericInterface<V> extends BaseGenericInterface<List<V>> {}
+   public interface DerivedGenericInterface<V> extends BaseGenericInterface<List<V>> { V doSomethingElse(); }
 
-   @Test @Ignore("for issue #218")
+   @Test
    public void recordGenericInterfaceMethodWithReturnTypeGivenByTypeParameterDependentOnAnotherTypeParameterOfSameName(
       @Mocked final DerivedGenericInterface<String> dep) throws Exception
    {
-      Method mockedMethod = dep.getClass().getDeclaredMethod("doSomething");
-      Type rt = mockedMethod.getGenericReturnType();
-      assertNotSame(String.class, rt);
+      Class<?> generatedClass = dep.getClass();
+      Method mockedBaseMethod = generatedClass.getDeclaredMethod("doSomething");
+      Type rt = mockedBaseMethod.getGenericReturnType();
+      assertSame(List.class, rt);
+
+      Method mockedSubInterfaceMethod = generatedClass.getDeclaredMethod("doSomethingElse");
+      rt = mockedSubInterfaceMethod.getGenericReturnType();
+      assertSame(String.class, rt);
 
       final List<String> values = asList("a", "b");
-      new Expectations() {{ dep.doSomething(); result = values; }};
 
-      List<String> result = dep.doSomething();
+      new Expectations() {{
+         dep.doSomething(); result = values;
+         dep.doSomethingElse(); result = "Abc";
+      }};
 
-      assertSame(values, result);
+      List<String> resultFromBase = dep.doSomething();
+      String resultFromSub = dep.doSomethingElse();
+
+      assertSame(values, resultFromBase);
+      assertEquals("Abc", resultFromSub);
    }
 }
