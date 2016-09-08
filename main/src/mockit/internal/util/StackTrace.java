@@ -63,7 +63,14 @@ public final class StackTrace
    private static boolean isJDKInternalMethod(@Nonnull StackTraceElement ste)
    {
       String className = ste.getClassName();
-      return className.startsWith("sun.") && !ste.isNativeMethod() || className.startsWith("jdk.");
+
+      return
+         className.startsWith("sun.") && !ste.isNativeMethod() ||
+         className.startsWith("jdk.") ||
+         className.contains(".reflect.") ||
+         className.contains(".surefire.") ||
+         className.contains(".intellij.") ||
+         className.contains(".jdt.");
    }
 
    private static boolean isTestFrameworkMethod(@Nonnull String where)
