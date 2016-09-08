@@ -79,8 +79,8 @@ public final class CascadingParametersTest
       assertFalse(foo.getBooleanValue());
       assertTrue(foo.getList().isEmpty());
 
-      HashMap<?, ?> map = foo.getMap();
-      assertNotNull(map);
+      Map<?, ?> map = foo.getMap();
+      assertNull(map);
    }
 
    @Test

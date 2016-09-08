@@ -134,7 +134,8 @@ public final class MockedTypeCascade
       return
          (!typeName.startsWith("java/lang/") || typeName.contains("management")) &&
          !typeName.startsWith("java/math/") &&
-         !typeName.startsWith("java/util/concurrent/atomic/");
+         (!typeName.startsWith("java/util/") ||
+           typeName.endsWith("/Date") || typeName.endsWith("/Callable") || typeName.contains("logging"));
    }
 
    @Nullable

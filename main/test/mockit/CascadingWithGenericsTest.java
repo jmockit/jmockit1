@@ -6,7 +6,6 @@ package mockit;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
@@ -27,12 +26,15 @@ public final class CascadingWithGenericsTest
       @SuppressWarnings("UnusedParameters")
       <RT extends Bar> RT genericMethodWithBoundedTypeVariableAndClassParameter(Class<RT> cl) { return null; }
 
-      <T1 extends Baz, T2 extends List<? extends Number>> Entry<T1, T2> returnTypeWithMultipleTypeVariables()
+      <T1 extends Baz, T2 extends List<? extends Number>> Pair<T1, T2> returnTypeWithMultipleTypeVariables()
       { return null; }
 
       Callable<Baz> returnGenericTypeWithTypeArgument() { return null; }
       Bar bar() { return null; }
    }
+
+   @SuppressWarnings("unused")
+   public interface Pair<K, V> {}
 
    static class Bar
    {
@@ -51,7 +53,7 @@ public final class CascadingWithGenericsTest
       assertNotNull(foo.returnTypeWithWildcard());
       assertNotNull(foo.returnTypeWithBoundedTypeVariable());
 
-      Entry<Baz, List<Integer>> x = foo.returnTypeWithMultipleTypeVariables();
+      Pair<Baz, List<Integer>> x = foo.returnTypeWithMultipleTypeVariables();
       assertNotNull(x);
    }
 
