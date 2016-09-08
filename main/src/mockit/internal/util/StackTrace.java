@@ -12,7 +12,7 @@ import javax.annotation.*;
 public final class StackTrace
 {
    @Nonnull private final Throwable throwable;
-   @Nonnull private final StackTraceElement[] elements;
+   @Nonnull private StackTraceElement[] elements;
 
    public StackTrace() { this(new Throwable()); }
 
@@ -51,6 +51,7 @@ public final class StackTrace
       StackTraceElement[] newStackTrace = new StackTraceElement[i];
       System.arraycopy(filteredST, 0, newStackTrace, 0, i);
       throwable.setStackTrace(newStackTrace);
+      elements = newStackTrace;
 
       Throwable cause = throwable.getCause();
 
