@@ -836,4 +836,22 @@ public final class DeencapsulationTest
          newInnerInstance("InnerClass", anInstance);
       }};
    }
+
+   @Test
+   public void attemptToGetFieldOnMockedInstance(@Mocked BaseClass mock)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("mocked instance");
+
+      long l = getField(mock, "longField");
+   }
+
+   @Test
+   public void attemptToSetFieldOnMockedInstance(@Injectable BaseClass mock)
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("mocked instance");
+
+      setField(mock, "longField", 123L);
+   }
 }

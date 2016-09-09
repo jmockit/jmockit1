@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.internal.state.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
 
 public final class FieldReflection
@@ -17,8 +18,16 @@ public final class FieldReflection
    @Nullable
    public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull String fieldName, @Nullable Object targetObject)
    {
+      validateNotAMockedInstance(targetObject);
       Field field = getDeclaredField(theClass, fieldName, targetObject != null);
       return getFieldValue(field, targetObject);
+   }
+
+   private static void validateNotAMockedInstance(@Nullable Object targetObject)
+   {
+      if (targetObject != null && TestRun.getExecutingTest().isMockedInstance(targetObject)) {
+         throw new IllegalArgumentException("Invalid operation on a mocked instance");
+      }
    }
 
    @Nonnull
@@ -65,6 +74,8 @@ public final class FieldReflection
       @Nonnull Class<?> theClass, @Nullable Object targetObject, @Nullable String fieldName,
       @Nullable Object fieldValue)
    {
+      validateNotAMockedInstance(targetObject);
+
       boolean instanceField = targetObject != null;
       Field field;
 
