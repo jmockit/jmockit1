@@ -116,7 +116,12 @@ final class TestDataSource
    {
       for (PropertyDescriptor property : properties) {
          if (property.getName().equals(name)) {
-            property.getWriteMethod().invoke(ds, value);
+            Method writeMethod = property.getWriteMethod();
+
+            if (writeMethod != null) {
+               writeMethod.invoke(ds, value);
+            }
+
             return;
          }
       }
