@@ -77,7 +77,7 @@
                   <configuration>
                      <rules>
                         <requireFilesDontExist>
-                           <files><file>coverage.check.failed</file></files>
+                           <files><file>target/coverage.check.failed</file></files>
                         </requireFilesDontExist>
                      </rules>
                   </configuration>
