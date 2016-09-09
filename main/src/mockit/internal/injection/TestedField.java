@@ -55,11 +55,10 @@ final class TestedField
       injectionState.setTestedTypeReflection(testedClass.reflection);
 
       Object testedObject = getTestedObjectFromFieldInTestClassIfApplicable(testClassInstance);
-      Type testedType = testedField.getGenericType();
       Class<?> testedClass = testedField.getType();
 
       if (testedObject == null && createAutomatically) {
-         if (reusePreviouslyCreatedInstance(testClassInstance, testedType)) {
+         if (reusePreviouslyCreatedInstance(testClassInstance)) {
             return;
          }
 
@@ -75,7 +74,7 @@ final class TestedField
       }
 
       if (testedObject != null && testedClass.getClassLoader() != null) {
-         performFieldInjection(testedType, testedClass, testedObject);
+         performFieldInjection(testedClass, testedObject);
          executeInitializationMethodsIfAny(testedClass, testedObject);
       }
    }
@@ -93,9 +92,11 @@ final class TestedField
       return testedObject;
    }
 
-   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull Type testedClass)
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance)
    {
-      Object previousInstance = injectionState.getTestedInstance(testedClass);
+      Type testedType = testedField.getGenericType();
+      String nameOfInjectionPoint = testedField.getName();
+      Object previousInstance = injectionState.getTestedInstance(testedType, nameOfInjectionPoint);
 
       if (previousInstance != null) {
          setFieldValue(testedField, testClassInstance, previousInstance);
@@ -111,9 +112,9 @@ final class TestedField
       injectionState.saveTestedObject(injectionPoint, testedObject);
    }
 
-   private void performFieldInjection(
-      @Nonnull Type testedType, @Nonnull Class<?> targetClass, @Nonnull Object testedObject)
+   private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject)
    {
+      Type testedType = testedField.getGenericType();
       TestedClass testedClass = testedObjectCreation == null ? null : testedObjectCreation.testedClass;
 
       if (testedClass == null || targetClass != testedClass.targetClass) {
