@@ -31,7 +31,7 @@ public final class TestedClassWithFullAnnotatedDITest
       @SuppressWarnings("unused") public void setUrl(String url) { this.url = url; }
 
       public String getUser() { return user; }
-      public void setUser(String user) { this.user = user; }
+      @SuppressWarnings("unused") public void setUser(String user) { this.user = user; }
 
       @SuppressWarnings("unused") public void setPassword(String password) { this.password = password; }
 
