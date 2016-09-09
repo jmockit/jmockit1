@@ -22,7 +22,7 @@ public final class FieldReflection
    }
 
    @Nonnull
-   public static Field getDeclaredField(@Nonnull Class<?> theClass, @Nonnull String fieldName, boolean instanceField)
+   private static Field getDeclaredField(@Nonnull Class<?> theClass, @Nonnull String fieldName, boolean instanceField)
    {
       try {
          return theClass.getDeclaredField(fieldName);
@@ -55,13 +55,6 @@ public final class FieldReflection
 
    @Nullable
    public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull Class<T> fieldType, @Nullable Object targetObject)
-   {
-      Field field = getDeclaredField(theClass, fieldType, targetObject != null, false);
-      return getFieldValue(field, targetObject);
-   }
-
-   @Nullable
-   public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull Type fieldType, @Nullable Object targetObject)
    {
       Field field = getDeclaredField(theClass, fieldType, targetObject != null, false);
       return getFieldValue(field, targetObject);
