@@ -20,6 +20,9 @@ public final class MisusedExpectationsTest
    @SuppressWarnings("unused")
    static class Blah
    {
+      Blah() {}
+      Blah(int i) {}
+
       @SuppressWarnings("RedundantStringConstructorCall") final String name = new String("Blah");
       int value() { return -1; }
       void setValue(int value) {}
@@ -528,6 +531,31 @@ public final class MisusedExpectationsTest
       new Verifications() {{
          mock.doSomething(true);
          minTimes = 0; // gets ignored
+      }};
+   }
+
+   @Test
+   public void recordReplacementMockInstanceExpectingItWouldReplaceAFutureInstanceCreatedWithMatchingConstructorCall()
+   {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("single replacement");
+      thrown.expectMessage("Blah");
+
+      new Expectations() {{
+         new Blah(); result = mock;
+      }};
+   }
+
+   @Test
+   public void recordMultipleReplacementsForSameMockedClassUsingSingleReplacementInstance()
+   {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("single replacement");
+      thrown.expectMessage("Blah");
+
+      new Expectations() {{
+         new Blah(); result = mock;
+         new Blah(1); result = mock;
       }};
    }
 

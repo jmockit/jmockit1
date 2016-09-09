@@ -153,11 +153,16 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test
-   public void matchMethodCallsOnInstancesCreatedWithConstructorMatchingRecordedOne(@Mocked final Collaborator mock)
+   public void matchMethodCallsOnInstancesCreatedWithConstructorMatchingRecordedOne(
+      @Mocked final Collaborator mock, @Mocked final Collaborator mock5, @Mocked final Collaborator mock6)
    {
       new Expectations() {{
-         new Collaborator(5); result = mock;
-         onInstance(mock).getValue(); result = 123; times = 2;
+         new Collaborator(5); result = mock5;
+         mock5.getValue(); result = 123; times = 2;
+
+         new Collaborator(); result = mock; times = 1;
+
+         new Collaborator(6); result = mock6;
       }};
 
       assertEquals(0, new Collaborator().getValue());
@@ -174,14 +179,11 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       assertFalse(newCol3.isPositive());
 
       new Verifications() {{
-         // Verify invocations to all mocked instances:
-         new Collaborator(); times = 1;
          new Collaborator(anyInt); times = 3;
-         mock.getValue(); times = 4;
-         mock.isPositive(); times = 2;
-
-         // Verify invocations to mocked instances matching the "mock" instance:
-         onInstance(mock).isPositive(); times = 1;
+         mock.getValue(); times = 1;
+         mock6.getValue(); times = 1;
+         mock5.isPositive(); times = 1;
+         mock6.isPositive(); times = 1;
       }};
    }
 

@@ -168,14 +168,10 @@ final class PhasedExecutionState
          Class<?> mockedClass1 = mock1.getClass();
          Class<?> mockedClass2 = GeneratedClasses.getMockedClass(mock2);
 
-         if (
+         return
             mockedClass2.isAssignableFrom(mockedClass1) ||
-            TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(mock1, mock2)
-         ) {
-            return true;
-         }
-
-         return TestRun.mockFixture().areCapturedClasses(mockedClass1, mockedClass2);
+            TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(mock1, mock2) ||
+            TestRun.mockFixture().areCapturedClasses(mockedClass1, mockedClass2);
       }
 
       return false;
@@ -291,6 +287,7 @@ final class PhasedExecutionState
          return false;
       }
 
+      //noinspection SimplifiableIfStatement
       if (mock1Equivalent != null && mock2Equivalent != null) {
          return true;
       }
@@ -329,5 +326,57 @@ final class PhasedExecutionState
    Object getReplacementInstanceForMethodInvocation(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc)
    {
       return methodNameAndDesc.charAt(0) == '<' ? null : replacementMap.get(invokedInstance);
+   }
+
+   void validateReplacementInstances()
+   {
+      Map<Class<?>, Object> mockedClassesToReplacements = findMockedClassesHavingReplacementInstances();
+
+      if (mockedClassesToReplacements != null) {
+         validateNoMockedClassWithSingleReplacementInstance(mockedClassesToReplacements);
+      }
+   }
+
+   @Nullable
+   private Map<Class<?>, Object> findMockedClassesHavingReplacementInstances()
+   {
+      ExecutingTest executingTest = TestRun.getExecutingTest();
+      Map<Class<?>, Object> mockedClassesToReplacements = null;
+
+      for (Expectation expectation : notStrictExpectations) {
+         ExpectedInvocation invocation = expectation.invocation;
+         Object replacementInstance = invocation.replacementInstance;
+
+         if (
+            replacementInstance != null && replacementInstance != invocation.instance &&
+            executingTest.isRegularMockedInstance(replacementInstance)
+         ) {
+            Class<?> mockedClass = replacementInstance.getClass();
+
+            if (mockedClassesToReplacements == null) {
+               mockedClassesToReplacements = new IdentityHashMap<Class<?>, Object>();
+               mockedClassesToReplacements.put(mockedClass, replacementInstance);
+            }
+            else if (!mockedClassesToReplacements.containsKey(mockedClass)) {
+               mockedClassesToReplacements.put(mockedClass, replacementInstance);
+            }
+            else if (mockedClassesToReplacements.get(mockedClass) != replacementInstance) {
+               mockedClassesToReplacements.put(mockedClass, null);
+            }
+         }
+      }
+
+      return mockedClassesToReplacements;
+   }
+
+   private static void validateNoMockedClassWithSingleReplacementInstance(
+      @Nonnull Map<Class<?>, Object> mockedClassesToReplacements)
+   {
+      for (Entry<Class<?>, Object> mockedClassAndReplacement : mockedClassesToReplacements.entrySet()) {
+         if (mockedClassAndReplacement.getValue() != null) {
+            Class<?> mockedClass = mockedClassAndReplacement.getKey();
+            throw new IllegalStateException("Invalid single replacement of a mocked instance for " + mockedClass);
+         }
+      }
    }
 }
