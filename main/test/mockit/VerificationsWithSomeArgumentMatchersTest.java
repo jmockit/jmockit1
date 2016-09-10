@@ -9,15 +9,13 @@ import java.util.*;
 import org.junit.*;
 import org.junit.rules.*;
 
-import static java.util.Arrays.*;
-
 import mockit.internal.*;
 
 public final class VerificationsWithSomeArgumentMatchersTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedDeclaration")
+   @SuppressWarnings("UnusedParameters")
    static class Collaborator
    {
       void setValue(int value) {}
@@ -30,11 +28,6 @@ public final class VerificationsWithSomeArgumentMatchersTest
       static long staticLongValues(long value1, byte value2, double value3, char value4)
       {
          return -2;
-      }
-
-      List<?> complexOperation(Object input1, Object... otherInputs)
-      {
-         return input1 == null ? Collections.emptyList() : asList(otherInputs);
       }
 
       final void simpleOperation(int a, String b, Date c) {}
