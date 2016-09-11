@@ -244,13 +244,15 @@ public final class JREMockingTest
    @Test
    public void threadMockUp()
    {
-       Thread t = new MockUp<Thread>() {
-           @Mock String getName() { return "test"; }
-       }.getMockInstance();
+      new MockUp<Thread>() {
+         @Mock
+         String getName() { return "test"; }
+      };
 
-       String threadName = t.getName();
+      Thread t = new Thread();
+      String threadName = t.getName();
 
-       assertEquals("test", threadName);
+      assertEquals("test", threadName);
    }
 
    @Test

@@ -19,6 +19,7 @@ import mockit.internal.startup.*;
 import mockit.internal.state.MockClasses.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.GeneratedClasses.*;
 
 /**
  * A base class used in the creation of a <em>mock-up</em> for an <em>external</em> type, which is usually a class from
@@ -321,7 +322,7 @@ public abstract class MockUp<T>
     * @see #MockUp()
     * @see #MockUp(Object)
     */
-   protected MockUp(Class<?> targetClass)
+   protected MockUp(@Nonnull Class<?> targetClass)
    {
       //noinspection ConstantConditions
       if (targetClass == null) {
@@ -370,7 +371,7 @@ public abstract class MockUp<T>
     * @see #MockUp()
     * @see #MockUp(Class)
     */
-   protected MockUp(T targetInstance)
+   protected MockUp(@Nonnull T targetInstance)
    {
       //noinspection ConstantConditions
       if (targetInstance == null) {
@@ -407,7 +408,7 @@ public abstract class MockUp<T>
     * Returns the mock instance exclusively associated with this mock-up instance.
     * If the mocked type was an interface, then said instance is the one that was automatically created when the mock-up
     * was applied.
-    * If it was a class, and no such instance is currently associated with this mock-up object, then a new
+    * If it was a class, and no such instance is currently associated with this (stateful) mock-up object, then a new
     * <em>uninitialized</em> instance of the faked class is created and returned, becoming associated with the mock-up.
     * If a regular <em>initialized</em> instance was desired, then the {@link #MockUp(Object)} constructor should have
     * been used instead.
@@ -415,7 +416,7 @@ public abstract class MockUp<T>
     * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
     * @throws IllegalStateException if called from a mock method for a static method, or if called on a mock-up whose
-    * base type was specified by a type variable
+    * base type was specified by a type variable, or if called on a stateless mock-up created without a target instance
     *
     * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces">Tutorial</a>
     */
@@ -434,24 +435,46 @@ public abstract class MockUp<T>
       }
 
       if (mockInstance == null && mockedClass != null) {
-         Object newInstance;
-
-         if (GeneratedClasses.isGeneratedImplementationClass(mockedClass)) {
-            newInstance = GeneratedClasses.newInstance(mockedClass);
-         }
-         else if (Proxy.isProxyClass(mockedClass)) {
-            newInstance = MockInvocationHandler.newMockedInstance(mockedClass);
-         }
-         else {
-            newInstance = ConstructorReflection.newUninitializedInstance(mockedClass);
-         }
-
-         //noinspection unchecked
-         setMockInstance((T) newInstance);
+         @SuppressWarnings("unchecked") T newInstance = (T) createMockInstance(mockedClass);
+         setMockInstance(newInstance);
       }
 
       //noinspection ConstantConditions
       return mockInstance;
+   }
+
+   @Nonnull
+   private Object createMockInstance(@Nonnull Class<?> mockedClass)
+   {
+      String mockedClassName = mockedClass.getName();
+
+      if (isGeneratedImplementationClass(mockedClassName)) {
+         return newInstance(mockedClass);
+      }
+
+      if (Proxy.isProxyClass(mockedClass)) {
+         return MockInvocationHandler.newMockedInstance(mockedClass);
+      }
+
+      if (isGeneratedSubclass(mockedClassName) || isMockupClassWithInstanceFields(getClass())) {
+         return ConstructorReflection.newUninitializedInstance(mockedClass);
+      }
+
+      throw new IllegalStateException(
+         "Invalid attempt to get uninitialized instance of " + mockedClass + " from stateless mockup");
+   }
+
+   private static boolean isMockupClassWithInstanceFields(@Nonnull Class<?> mockupSubclass)
+   {
+      for (Field field : mockupSubclass.getDeclaredFields()) {
+         if (!field.isSynthetic() && !isStatic(field.getModifiers())) {
+            return true;
+         }
+      }
+
+      Class<?> mockupClass = mockupSubclass.getSuperclass();
+
+      return mockupClass != MockUp.class && isMockupClassWithInstanceFields(mockupClass);
    }
 
    /**

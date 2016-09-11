@@ -13,8 +13,6 @@ import static org.junit.Assert.*;
 
 import mockit.MockUpTest.SomeInterface;
 
-import otherTests.multicast.*;
-
 public final class MisusingMockupsAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -156,20 +154,20 @@ public final class MisusingMockupsAPITest
    @Before public void redirectStandardErrorOutput() { System.setErr(new PrintStream(output)); }
    @After  public void restoreStandardErrorOutput()  { System.setErr(originalOutput); }
 
-   @Test
-   public void attemptToFakeClassFromTestedCodebase()
-   {
-      new MockUp<Client>() {};
-
-      String warningMessage = output.toString();
-      assertTrue(warningMessage.contains("Invalid mock-up for internal class"));
-      assertTrue(warningMessage.contains("Client"));
-   }
-
    public static class Dependency
    {
       private Dependency() {}
       @SuppressWarnings("unused") int getCount() { return 1; }
+   }
+
+   @Test
+   public void attemptToFakeClassFromTestedCodebase()
+   {
+      new MockUp<Dependency>() {};
+
+      String warningMessage = output.toString();
+      assertTrue(warningMessage.contains("Invalid mock-up for internal class"));
+      assertTrue(warningMessage.contains("Dependency"));
    }
 
    @Test
@@ -194,7 +192,20 @@ public final class MisusingMockupsAPITest
       thrown.expectMessage("private constructor");
 
       new MockUp<Dependency>() {
-         @Mock public void $init() {}
+         @Mock void $init() {}
       };
+   }
+
+   @Test
+   public void getMockInstanceFromStatelessClassMockupCreatedWithoutATargetInstance()
+   {
+      MockUp<Applet> mockUp = new MockUp<Applet>() {};
+
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Invalid");
+      thrown.expectMessage("uninitialized instance");
+      thrown.expectMessage("Applet");
+
+      mockUp.getMockInstance();
    }
 }

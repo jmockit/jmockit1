@@ -159,14 +159,20 @@ public final class MockUpForSingleClassInstanceTest
    public void accessCurrentMockedInstanceFromInsideMockMethodForSingleMockedInstance()
    {
       AClass unmockedInstance1 = new AClass(1, "test1");
+      final int i = 123;
 
       MockUp<AClass> mockUp = new MockUp<AClass>() {
+         final int numericValue = i;
+
          @Mock
          String getTextValue()
          {
             AClass mockedInstance = getMockInstance();
             return "mocked: " + mockedInstance.textValue;
          }
+
+         @Mock
+         int getNumericValue() { return numericValue; }
       };
       AClass onlyInstanceToBeMocked = mockUp.getMockInstance();
 
@@ -281,19 +287,5 @@ public final class MockUpForSingleClassInstanceTest
       mock.close();
       assertTrue(mock.ready());
       assertSame(mock, mockUp.getMockInstance());
-   }
-
-   static class ClassWithHashCode
-   {
-      private final Object value = "test";
-      @Override public int hashCode() { return value.hashCode(); }
-   }
-
-   @Test // ensures the hashCode method never gets called
-   public void getUninitializedMockInstanceForClassWithHashCodeMethodWhichNeedsInitializedState()
-   {
-      ClassWithHashCode uninitializedMock = new MockUp<ClassWithHashCode>() {}.getMockInstance();
-
-      assertNotNull(uninitializedMock);
    }
 }
