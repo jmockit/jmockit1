@@ -198,4 +198,31 @@ public final class CapturingImplementationsTest
 
       assertEquals(0, i);
    }
+
+   static class Base<T>
+   {
+      T doSomething() { return null; }
+      void doSomething(T t) { System.out.println("test");}
+   }
+
+   static final class Impl extends Base<Integer>
+   {
+      @Override Integer doSomething() { return 1; }
+      @Override void doSomething(Integer i) {}
+   }
+
+   @Test
+   public void captureImplementationsOfGenericType(@Capturing final Base<Integer> anyInstance)
+   {
+      new Expectations() {{
+         anyInstance.doSomething(); result = 2;
+         anyInstance.doSomething(0);
+      }};
+
+      Base<Integer> impl = new Impl();
+      int i = impl.doSomething();
+      impl.doSomething(0);
+
+      assertEquals(2, i);
+   }
 }

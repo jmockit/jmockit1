@@ -78,6 +78,7 @@ public final class GenericTypeReflection
       }
    }
 
+   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    private void addMappingsFromTypeParametersToTypeArguments(
       @Nonnull Class<?> rawType, @Nonnull ParameterizedType genericType)
    {
@@ -296,6 +297,11 @@ public final class GenericTypeReflection
       public boolean satisfiesGenericSignature(@Nonnull String otherSignature)
       {
          GenericSignature other = new GenericSignature(otherSignature);
+         return areMatchingSignatures(other);
+      }
+
+      private boolean areMatchingSignatures(@Nonnull GenericSignature other)
+      {
          int n = parameters.size();
 
          if (n != other.parameters.size()) {
@@ -314,6 +320,7 @@ public final class GenericTypeReflection
          return true;
       }
 
+      @SuppressWarnings("MethodWithMultipleLoops")
       private boolean areParametersOfSameType(@Nonnull String param1, @Nonnull String param2)
       {
          if (param1.equals(param2)) return true;
@@ -338,6 +345,12 @@ public final class GenericTypeReflection
          }
 
          return typeVarName2.equals(typeArg1);
+      }
+
+      public boolean satisfiesSignature(@Nonnull String otherSignature)
+      {
+         GenericSignature other = new GenericSignature(otherSignature);
+         return other.areMatchingSignatures(this);
       }
    }
 

@@ -616,28 +616,6 @@ public final class CascadingParametersTest
       assertNotSame(cascaded1, cascaded2);
    }
 
-   public static class Base<T>
-   {
-      T doSomething(T t) { return t; }
-   }
-
-   static class Impl extends Base<Integer>
-   {
-      @Override
-      public Integer doSomething(Integer i) { return -i; }
-   }
-
-   @Test @Ignore("issue #252")
-   public void captureImplementationsOfGenericType(@Capturing final Base<Integer> anyInstance)
-   {
-      new Expectations() {{ anyInstance.doSomething(1); result = 2; }};
-
-      Base<Integer> impl = new Impl();
-      int result = impl.doSomething(1);
-
-      assertEquals(2, result);
-   }
-
    @Test
    public void cascadeFromJavaManagementAPI(@Mocked ManagementFactory mngmntFactory)
    {

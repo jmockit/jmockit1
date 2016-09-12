@@ -153,7 +153,7 @@ final class PhasedExecutionState
    {
       ExpectedInvocation invocation = expectation.invocation;
       return
-         invocation.isMatch(mockClassDesc, mockNameAndDesc) &&
+         invocation.isMatch(mock, mockClassDesc, mockNameAndDesc) &&
          isSameMockedClass(mock, invocation.instance) &&
          (constructorInvocation || mock == null || isMatchingInstance(mock, expectation));
    }

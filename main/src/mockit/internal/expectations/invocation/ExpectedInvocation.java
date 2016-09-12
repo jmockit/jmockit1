@@ -13,6 +13,7 @@ import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import mockit.internal.util.GenericTypeReflection.*;
 
 public final class ExpectedInvocation
 {
@@ -132,13 +133,27 @@ public final class ExpectedInvocation
 
    // Matching based on instance or mocked type ///////////////////////////////////////////////////////////////////////
 
-   public boolean isMatch(@Nonnull String invokedClassDesc, @Nonnull String invokedMethod)
+   public boolean isMatch(@Nullable Object mock, @Nonnull String invokedClassDesc, @Nonnull String invokedMethod)
    {
-      return invokedClassDesc.equals(getClassDesc()) && isMatchingMethod(invokedMethod);
+      return invokedClassDesc.equals(getClassDesc()) && isMatchingMethod(mock, invokedMethod);
    }
 
-   private boolean isMatchingMethod(@Nonnull String invokedMethod)
+   private boolean isMatchingMethod(@Nullable Object mock, @Nonnull String invokedMethod)
    {
+      if (mock != null && instance != null) {
+         String genericSignature = arguments.genericSignature;
+
+         if (genericSignature != null) {
+            Class<?> mockedClass = mock.getClass();
+
+            if (mockedClass != instance.getClass()) {
+               GenericTypeReflection typeReflection = new GenericTypeReflection(mockedClass, null);
+               GenericSignature parsedSignature = typeReflection.parseSignature(genericSignature);
+               return parsedSignature.satisfiesSignature(invokedMethod);
+            }
+         }
+      }
+
       String nameAndDesc = getMethodNameAndDescription();
       int i = 0;
 
@@ -191,7 +206,7 @@ public final class ExpectedInvocation
       @Nullable Map<Object, Object> replacementMap)
    {
       return
-         isMatch(invokedClassDesc, invokedMethod) &&
+         isMatch(replayInstance, invokedClassDesc, invokedMethod) &&
          (arguments.isForConstructor() || !matchInstance || isEquivalentInstance(replayInstance, replacementMap));
    }
 
