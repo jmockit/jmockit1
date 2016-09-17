@@ -220,6 +220,7 @@ public abstract class MockUp<T>
    }
 
    private static final ProtectionDomain THIS_PD = MockUp.class.getProtectionDomain();
+   private static final String ALLOWED_INTERNAL_MOCKUPS = System.getProperty("allowed-internal-mockups", "");
 
    private void validateThatClassToFakeIsExternal(@Nonnull Class<?> targetClass)
    {
@@ -230,12 +231,17 @@ public abstract class MockUp<T>
             throw new IllegalArgumentException("Invalid mock-up");
          }
 
-         CodeSource testSrc = getClass().getProtectionDomain().getCodeSource();
-         CodeSource fakedSrc = targetPD.getCodeSource();
+         Class<? extends MockUp> mockupClass = getClass();
+         ProtectionDomain mockupClassPD = mockupClass.getProtectionDomain();
 
-         if (testSrc != null && fakedSrc != null && areClassesFromSameCodebase(testSrc, fakedSrc)) {
-            Warning.display("Invalid mock-up for internal " + targetClass);
-            targetIsInternal = true;
+         if (mockupClassPD != THIS_PD && !ALLOWED_INTERNAL_MOCKUPS.contains(mockupClass.getName())) {
+            CodeSource testSrc = mockupClassPD.getCodeSource();
+            CodeSource fakedSrc = targetPD.getCodeSource();
+
+            if (testSrc != null && fakedSrc != null && areClassesFromSameCodebase(testSrc, fakedSrc)) {
+               Warning.display("Invalid mock-up for internal " + targetClass);
+               targetIsInternal = true;
+            }
          }
       }
    }
