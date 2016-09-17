@@ -39,7 +39,6 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
          }
 
          InstanceFactory[] instanceFactories = redefineMockedTypes();
-         ensureThatTargetClassesAreInitialized();
          instantiateMockedTypes(instanceFactories);
       }
       finally {

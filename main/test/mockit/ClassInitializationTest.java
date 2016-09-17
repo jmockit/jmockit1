@@ -185,4 +185,18 @@ public final class ClassInitializationTest
       assertNotNull(mock);
       assertEquals("Testing", BaseInterface.DO_NOT_REMOVE);
    }
+
+   static final class ClassWhichCallsMethodOnItselfFromInitializer
+   {
+      static final Integer value = value();
+      static Integer value() { return null; }
+   }
+
+   @Test
+   public void mockClassWhichCallsMethodOnItselfFromInitializerWithoutStubbingOutTheInitializer(
+      @Mocked ClassWhichCallsMethodOnItselfFromInitializer unused)
+   {
+      assertNotNull(ClassWhichCallsMethodOnItselfFromInitializer.value());
+      assertNull(ClassWhichCallsMethodOnItselfFromInitializer.value);
+   }
 }

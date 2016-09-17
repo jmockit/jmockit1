@@ -9,7 +9,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.state.*;
-import static mockit.internal.util.Utilities.*;
 
 public class TypeRedefinitions
 {
@@ -44,13 +43,6 @@ public class TypeRedefinitions
    protected static void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
    {
       TestRun.getExecutingTest().registerMock(mockedType.injectable, mock);
-   }
-
-   protected final void ensureThatTargetClassesAreInitialized()
-   {
-      for (Class<?> targetClass : targetClasses) {
-         ensureThatClassIsInitialized(targetClass);
-      }
    }
 
    public void cleanUp()

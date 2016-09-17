@@ -58,8 +58,6 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
             redefineFieldType(candidateField, fieldModifiers);
          }
       }
-
-      ensureThatTargetClassesAreInitialized();
    }
 
    private void redefineFieldType(@Nonnull Field field, int modifiers)
