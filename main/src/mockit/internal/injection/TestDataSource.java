@@ -74,7 +74,7 @@ final class TestDataSource
 
    private void createDataSource(@Nonnull DataSourceDefinition dsDef)
    {
-      String configuredDataSourceName = dsDef.name();
+      String configuredDataSourceName = InjectionPoint.getNameFromJNDILookup(dsDef.name());
 
       if (configuredDataSourceName.equals(dsName)) {
          instantiateConfiguredDataSourceClass(dsDef);

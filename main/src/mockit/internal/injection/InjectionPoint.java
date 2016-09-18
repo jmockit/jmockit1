@@ -247,8 +247,9 @@ final class InjectionPoint
          if ("javax.annotation.Resource javax.ejb.EJB".contains(annotationName)) {
             String name = readAnnotationAttribute(annotation, "name");
 
-            if (name == null || name.isEmpty()) {
+            if (name.isEmpty()) {
                name = readAnnotationAttribute(annotation, "lookup");
+               name = getNameFromJNDILookup(name);
             }
 
             return name;
@@ -260,5 +261,17 @@ final class InjectionPoint
       }
 
       return null;
+   }
+
+   @Nonnull
+   static String getNameFromJNDILookup(@Nonnull String jndiLookup)
+   {
+      int p = jndiLookup.lastIndexOf('/');
+
+      if (p >= 0) {
+         jndiLookup = jndiLookup.substring(p + 1);
+      }
+
+      return jndiLookup;
    }
 }

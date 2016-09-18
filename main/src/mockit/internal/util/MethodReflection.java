@@ -76,21 +76,17 @@ public final class MethodReflection
       return result;
    }
 
-   @Nullable
-   public static <T> T readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName)
+   @Nonnull
+   public static String readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName)
    {
-      T result = null;
-
       try {
          Method publicMethod = annotationInstance.getClass().getMethod(attributeName, NO_PARAMETERS);
-         //noinspection unchecked
-         result = (T) publicMethod.invoke(annotationInstance);
+         String result = (String) publicMethod.invoke(annotationInstance);
+         return result;
       }
-      catch (NoSuchMethodException ignore) {}
-      catch (IllegalAccessException ignore) {}
-      catch (InvocationTargetException ignore) {}
-
-      return result;
+      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
    }
 
    @Nullable
