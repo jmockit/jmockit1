@@ -152,4 +152,18 @@ public final class ExpectationsUsingMockedTest
 
       assertNotNull(info);
    }
+
+   static class GenericBase<B extends Runnable> { public B base() { return null; } }
+   public static final class GenericSubclass<S extends Runnable> extends GenericBase<S> { /* bridge method here */ }
+
+   @Test
+   public void recordExpectationOnBaseMethodHavingASyntheticBridgeMethodInSubclass(@Mocked final GenericSubclass mock)
+   {
+      new Expectations() {{
+         mock.base();
+         result = null;
+      }};
+
+      assertNull(mock.base());
+   }
 }

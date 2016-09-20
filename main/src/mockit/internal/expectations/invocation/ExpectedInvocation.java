@@ -71,26 +71,24 @@ public final class ExpectedInvocation
       StackTrace st = new StackTrace(invocationCause);
 
       int steIndex = 3;
-      String firstCaller = st.getElement(steIndex).getClassName();
+      StackTraceElement ste = st.getElement(steIndex);
+
+      if (ste.getFileName() != null && ste.getLineNumber() == -1 && ste.getMethodName().charAt(0) != '<') {
+         StackTraceElement steNext = st.getElement(steIndex + 1);
+
+         if (steNext.getMethodName().equals(ste.getMethodName())) { // bridge method
+            ste = steNext;
+            steIndex++;
+         }
+      }
+
+      String firstCaller = ste.getClassName();
 
       steIndex += "mockit.internal.expectations.mocking.MockedBridge".equals(firstCaller) ? 2 : 1;
       String secondCaller = st.getElement(steIndex).getClassName();
 
       if (secondCaller.contains(".reflect.")) { // called through Reflection
-         steIndex += 3;
-
-         while (true) {
-            String nextCaller = st.getElement(steIndex).getClassName();
-            steIndex++;
-
-            if ("mockit.Deencapsulation".equals(nextCaller)) {
-               continue;
-            }
-
-            if (!nextCaller.contains(".reflect.") && !nextCaller.startsWith("mockit.internal.")) {
-               return nextCaller;
-            }
-         }
+         return getNextCallerAfterReflectionCalls(st, steIndex);
       }
 
       if (!secondCaller.equals(firstCaller)) {
@@ -99,6 +97,25 @@ public final class ExpectedInvocation
 
       String thirdCaller = st.getElement(steIndex + 1).getClassName();
       return thirdCaller;
+   }
+
+   @Nonnull
+   private static String getNextCallerAfterReflectionCalls(@Nonnull StackTrace st, int steIndex)
+   {
+      steIndex += 3;
+
+      while (true) {
+         String nextCaller = st.getElement(steIndex).getClassName();
+         steIndex++;
+
+         if ("mockit.Deencapsulation".equals(nextCaller)) {
+            continue;
+         }
+
+         if (!nextCaller.contains(".reflect.") && !nextCaller.startsWith("mockit.internal.")) {
+            return nextCaller;
+         }
+      }
    }
 
    // Simple getters //////////////////////////////////////////////////////////////////////////////////////////////////
