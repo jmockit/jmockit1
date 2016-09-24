@@ -34,7 +34,7 @@ public final class AgentLoader
          throw new IllegalStateException("JMockit requires a Java 6+ VM");
       }
 
-      jarFilePath = new PathToAgentJar().getPathToJarFile();
+      jarFilePath = PathToAgentJar.getPathToJarFile();
    }
 
    public AgentLoader(@Nonnull String pid)

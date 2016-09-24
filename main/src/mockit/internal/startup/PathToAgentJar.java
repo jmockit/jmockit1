@@ -5,6 +5,7 @@
 package mockit.internal.startup;
 
 import java.io.*;
+import java.security.*;
 import java.util.jar.*;
 import java.util.regex.*;
 import javax.annotation.*;
@@ -16,21 +17,15 @@ final class PathToAgentJar
    private static final Pattern JAR_REGEX = Pattern.compile(".*jmockit[-.\\d]*.jar");
 
    @Nonnull
-   String getPathToJarFile()
+   static String getPathToJarFile()
    {
       String jarFilePath = findPathToJarFileFromClasspath();
 
       if (jarFilePath == null) {
-         jarFilePath = createBootstrappingJarFileInTempDir();
+         jarFilePath = findOrCreateBootstrappingJarFileInTempDir();
       }
 
-      if (jarFilePath != null) {
-         return jarFilePath;
-      }
-
-      throw new IllegalStateException(
-         "No jar file with name ending in \"jmockit.jar\" or \"jmockit-nnn.jar\" (where \"nnn\" is a version number) " +
-         "found in the classpath");
+      return jarFilePath;
    }
 
    @Nullable
@@ -47,8 +42,39 @@ final class PathToAgentJar
       return null;
    }
 
-   @Nullable
-   private String createBootstrappingJarFileInTempDir()
+   @Nonnull
+   private static String findOrCreateBootstrappingJarFileInTempDir()
+   {
+      String tempDir = System.getProperty("java.io.tmpdir");
+      String currentVersion = currentVersion();
+      File bootstrapJar = new File(tempDir, "jmockitAgent-" + currentVersion + ".jar");
+
+      if (bootstrapJar.exists()) {
+         return bootstrapJar.getPath();
+      }
+
+      createBootstrapJarInTempDir(bootstrapJar);
+
+      return bootstrapJar.getPath();
+   }
+
+   @Nonnull
+   private static String currentVersion()
+   {
+      Class<?> thisClass = PathToAgentJar.class;
+      String currentVersion = thisClass.getPackage().getImplementationVersion();
+
+      if (currentVersion == null) { // only happens when the class is loaded from the main/target/classes dir
+         ProtectionDomain pd = thisClass.getProtectionDomain();
+         String versionFile = pd.getCodeSource().getLocation().getPath() + "../../../version.txt";
+         try { currentVersion = new RandomAccessFile(versionFile, "r").readLine(); }
+         catch (IOException e) { throw new RuntimeException(e); }
+      }
+
+      return currentVersion;
+   }
+
+   private static void createBootstrapJarInTempDir(@Nonnull File bootstrapJar)
    {
       Manifest manifest = new Manifest();
       Attributes attrs = manifest.getMainAttributes();
@@ -60,16 +86,11 @@ final class PathToAgentJar
       byte[] classFile = ClassFile.readFromFile(InstrumentationHolder.class).b;
 
       try {
-         File tempJar = File.createTempFile("jmockit", ".jar");
-         tempJar.deleteOnExit();
-
-         JarOutputStream output = new JarOutputStream(new FileOutputStream(tempJar), manifest);
+         JarOutputStream output = new JarOutputStream(new FileOutputStream(bootstrapJar), manifest);
          JarEntry classEntry = new JarEntry(InstrumentationHolder.class.getName().replace('.', '/') + ".class");
          output.putNextEntry(classEntry);
          output.write(classFile);
          output.close();
-
-         return tempJar.getPath();
       }
       catch (IOException e) {
          throw new RuntimeException(e);
