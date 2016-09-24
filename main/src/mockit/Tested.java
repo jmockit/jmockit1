@@ -37,8 +37,8 @@ import java.lang.annotation.*;
  * targeted.
  * For each such <em>target</em> field, the value of a still unused injectable of the <em>same</em> type is assigned, if
  * any is available.
- * Multiple target fields of the same type can be injected from separate injectables, provided each target field has the
- * same name as an available injectable of that type.
+ * When a tested object has multiple target fields of the <em>same</em> type, not just the type but also the
+ * <em>name</em> of each field will be used when looking for available injectables.
  * Finally, if there is no matching and available injectable value for a given target field, it is left unassigned,
  * unless the target field is for a <em>required</em> dependency; note that all fields marked with a DI annotation
  * (such as {@code @Inject}, {@code Autowired}, etc.) indicate required dependencies by default
@@ -63,9 +63,12 @@ import java.lang.annotation.*;
 public @interface Tested
 {
    /**
-    * Indicates that each and every field of the tested object should be assigned a value, which can be an
-    * {@linkplain Injectable @Injectable}, another {@code @Tested} field of a type assignable to the field type, or a
-    * real (unmocked) instance of the field type.
+    * Indicates that each field of the tested object that is eligible for injection should be assigned a value, which
+    * can be an {@linkplain Injectable @Injectable}, another {@code @Tested} field of a type assignable to the field
+    * type, or a real (unmocked) instance of the field type.
+    * Non-eligible fields are those that have already being assigned from a constructor, or that have a primitive,
+    * array, annotation, or JRE type (with the exception of the types described below, which are given special
+    * treatment).
     * <p/>
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.
@@ -77,7 +80,7 @@ public @interface Tested
     * In this case, the same rules used for injected fields apply to the parameters of the constructor that gets chosen
     * for automatic instantiation.
     * <p/>
-    * Currently, the following standard types (mostly Java EE interfaces) have special support:
+    * Currently, the following standard types (some of which are Java EE interfaces) have special support:
     * <ul>
     *    <li>
     *       {@link java.util.logging.Logger}: a logger is automatically
