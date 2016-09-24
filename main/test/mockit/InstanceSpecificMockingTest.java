@@ -131,16 +131,6 @@ public final class InstanceSpecificMockingTest
       assertSame(BlockJUnit4ClassRunner.class, runWith.value());
    }
 
-   enum EnumWithMethod { Value1; int someMethod() { return 123; } }
-
-   @Test
-   public void allowInjectableMockOfEnumType(@Injectable final EnumWithMethod enumWithMethod)
-   {
-      new Expectations() {{ enumWithMethod.someMethod(); result = 45; }};
-
-      assertEquals(45, enumWithMethod.someMethod());
-   }
-
    // Mocking java.nio.ByteBuffer /////////////////////////////////////////////////////////////////////////////////////
 
    @Test

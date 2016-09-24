@@ -13,6 +13,7 @@ import mockit.*;
 import mockit.internal.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.AutoBoxing.isWrapperOfPrimitiveType;
 
 @SuppressWarnings("EqualsAndHashcode")
 public final class MockedType implements InjectionPointProvider
@@ -230,8 +231,8 @@ public final class MockedType implements InjectionPointProvider
          return false;
       }
 
-      if (injectable && providedValue != null) {
-         if (classType == String.class || classType.isEnum()) {
+      if (injectable) {
+         if (classType == String.class || isWrapperOfPrimitiveType(classType) || classType.isEnum()) {
             return false;
          }
       }

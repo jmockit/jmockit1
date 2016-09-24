@@ -12,6 +12,8 @@ import java.lang.annotation.*;
  * Such instances can be said to be proper <em>mock objects</em>, in contrast to the mocked instances of a regular
  * {@code @Mocked} type.
  * <p/>
+ * When the type of the injectable is {@code String}, a primitive wrapper, or an enum, it is <em>not</em> mocked.
+ * <p/>
  * For the duration of each test where the mock field/parameter is in scope, <em>only one</em> injectable instance is
  * mocked; other instances of the same mocked type are not affected.
  * For an injectable mocked <em>class</em>, <em>static methods</em> and <em>constructors</em> are <em>not</em> mocked;
@@ -30,13 +32,10 @@ import java.lang.annotation.*;
 public @interface Injectable
 {
    /**
-    * Specifies a literal value when the type of the injectable mock field/parameter is {@code String}, a primitive
-    * type, or an enum type.
-    * For a primitive type, the value provided must be convertible to it.
+    * Specifies a literal value when the type of the injectable mock field/parameter is {@code String}, a primitive or
+    * wrapper type, or an enum type.
+    * For a primitive/wrapper type, the value provided must be convertible to it.
     * For an enum type, the given textual value must equal the name of one of the possible enum values.
-    * <p/>
-    * When a value is provided for an injectable whose type is {@code String} or an enum type, said type is <em>not</em>
-    * mocked; otherwise, it is.
     */
    String value() default "";
 }

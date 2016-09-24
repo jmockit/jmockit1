@@ -92,7 +92,7 @@ public final class TestedClassWithConstructorDI0Test
    @Injectable byte b = 56;
    @Injectable byte b2 = 57;
    @Injectable char c = 'X';
-   @Injectable String s = "test"; // String is mocked
+   @Injectable String s = "test";
    @Injectable double d1 = 1.0;
    @Injectable double d2 = 2.0;
 
