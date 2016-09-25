@@ -259,9 +259,22 @@ public abstract class MockUp<T>
          return false;
       }
 
-      String codebase1 = new File(location1.getPath()).getParent();
-      String codebase2 = new File(location2.getPath()).getParent();
+      String protocol1 = location1.getProtocol();
+
+      if (protocol1 == null || !protocol1.equals(location2.getProtocol())) {
+         return false;
+      }
+
+      String codebase1 = getCodebase(location1);
+      String codebase2 = getCodebase(location2);
       return codebase1.equals(codebase2);
+   }
+
+   @Nonnull
+   private static String getCodebase(@Nonnull URL location)
+   {
+      String path = location.getPath();
+      return path.contains(".jar") ? path : new File(path).getParent();
    }
 
    @Nonnull
