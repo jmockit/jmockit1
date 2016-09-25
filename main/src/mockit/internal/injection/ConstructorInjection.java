@@ -154,10 +154,4 @@ final class ConstructorInjection extends Injector
          TestRun.enterNoMockingZone();
       }
    }
-
-   @Override
-   public void fillOutDependenciesRecursively(@Nonnull Object dependency)
-   {
-      // TODO: implement/redesign
-   }
 }

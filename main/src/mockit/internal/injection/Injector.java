@@ -6,7 +6,7 @@ package mockit.internal.injection;
 
 import javax.annotation.*;
 
-abstract class Injector
+class Injector
 {
    @Nonnull final TestedClass testedClass;
    @Nonnull final InjectionState injectionState;
@@ -19,5 +19,5 @@ abstract class Injector
       fullInjection = injection;
    }
 
-   abstract void fillOutDependenciesRecursively(@Nonnull Object dependency);
+   void fillOutDependenciesRecursively(@Nonnull Object dependency) {}
 }
