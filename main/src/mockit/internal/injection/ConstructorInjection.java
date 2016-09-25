@@ -31,6 +31,7 @@ final class ConstructorInjection extends Injector
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
+      List<InjectionPointProvider> consumedInjectables = n == 0 ? null : injectionState.saveConsumedInjectables();
       Object[] arguments = n == 0 ? NO_ARGS : new Object[n];
       boolean varArgs = constructor.isVarArgs();
 
@@ -39,27 +40,17 @@ final class ConstructorInjection extends Injector
       }
 
       for (int i = 0; i < n; i++) {
-         Type parameterType = parameterTypes[i];
          InjectionPointProvider parameterProvider = parameterProviders.get(i);
          Object value;
 
          if (parameterProvider instanceof ConstructorParameter) {
-            injectionState.setTypeOfInjectionPoint(parameterProvider.getDeclaredType());
-            String qualifiedName = getQualifiedName(parameterProvider.getAnnotations());
-
-            assert fullInjection != null;
-            value = fullInjection.createOrReuseInstance(this, parameterProvider, qualifiedName);
-
-            if (value == null) {
-               String parameterName = parameterProvider.getName();
-               throw new IllegalStateException(
-                  "Missing @Tested or @Injectable" + missingValueDescription(parameterName));
-            }
+            value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider);
          }
          else {
             value = getArgumentValueToInject(parameterProvider);
          }
 
+         Type parameterType = parameterTypes[i];
          arguments[i] = wrapInProviderIfNeeded(parameterType, value);
       }
 
@@ -68,14 +59,41 @@ final class ConstructorInjection extends Injector
          arguments[n] = obtainInjectedVarargsArray(parameterType);
       }
 
-      TestRun.exitNoMockingZone();
+      if (consumedInjectables != null) {
+         injectionState.restoreConsumedInjectables(consumedInjectables);
+      }
 
-      try {
-         return invoke(constructor, arguments);
+      return invokeConstructor(arguments);
+   }
+
+   @Nonnull
+   private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter)
+   {
+      injectionState.setTypeOfInjectionPoint(constructorParameter.getDeclaredType());
+      String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
+
+      assert fullInjection != null;
+      Object value = fullInjection.createOrReuseInstance(this, constructorParameter, qualifiedName);
+
+      if (value == null) {
+         String parameterName = constructorParameter.getName();
+         throw new IllegalStateException("Missing @Tested or @Injectable" + missingValueDescription(parameterName));
       }
-      finally {
-         TestRun.enterNoMockingZone();
+
+      return value;
+   }
+
+   @Nonnull
+   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable)
+   {
+      Object argument = injectionState.getValueToInject(injectable);
+
+      if (argument == null) {
+         String parameterName = injectable.getName();
+         throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
       }
+
+      return argument;
    }
 
    @Nonnull
@@ -115,19 +133,6 @@ final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable)
-   {
-      Object argument = injectionState.getValueToInject(injectable);
-
-      if (argument == null) {
-         String parameterName = injectable.getName();
-         throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
-      }
-
-      return argument;
-   }
-
-   @Nonnull
    private String missingValueDescription(@Nonnull String name)
    {
       String classDesc = mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass());
@@ -135,6 +140,19 @@ final class ConstructorInjection extends Injector
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
 
       return " for parameter \"" + name + "\" in constructor " + constructorDescription.replace("java.lang.", "");
+   }
+
+   @Nonnull
+   private Object invokeConstructor(@Nonnull Object[] arguments)
+   {
+      TestRun.exitNoMockingZone();
+
+      try {
+         return invoke(constructor, arguments);
+      }
+      finally {
+         TestRun.enterNoMockingZone();
+      }
    }
 
    @Override
