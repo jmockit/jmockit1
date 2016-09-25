@@ -13,68 +13,9 @@ import org.junit.*;
 
 import mockit.*;
 
-import static org.junit.Assert.*;
-
 public final class MessageTest
 {
    static final String testContents = "hello there";
-
-   @Test
-   public void sendMessageToSingleClient()
-   {
-      final Client theClient = new Client("client1");
-
-      new MockUp<Socket>() {
-         @Mock(invocations = 1)
-         void $init(String host, int port)
-         {
-            assertEquals(theClient.getAddress(), host);
-            assertTrue(port > 0);
-         }
-
-         @Mock(invocations = 1)
-         public OutputStream getOutputStream()
-         {
-            return new ByteArrayOutputStream();
-         }
-
-         @Mock(invocations = 1)
-         public InputStream getInputStream()
-         {
-            return new ByteArrayInputStream("reply1\nreply2\n".getBytes());
-         }
-
-         @Mock(minInvocations = 1)
-         void close() {}
-      };
-
-      StatusListener listener = new MockUp<StatusListener>() {
-         int eventIndex;
-
-         @Mock(invocations = 1)
-         void messageSent(Client toClient)
-         {
-            assertSame(theClient, toClient);
-            assertEquals(0, eventIndex++);
-         }
-
-         @Mock(invocations = 1)
-         void messageDisplayedByClient(Client client)
-         {
-            assertSame(theClient, client);
-            assertEquals(1, eventIndex++);
-         }
-
-         @Mock(invocations = 1)
-         void messageReadByClient(Client client)
-         {
-            assertSame(theClient, client);
-            assertEquals(2, eventIndex++);
-         }
-      }.getMockInstance();
-
-      exerciseCodeUnderTest(listener, theClient);
-   }
 
    void exerciseCodeUnderTest(StatusListener listener, Client... to)
    {
@@ -116,56 +57,6 @@ public final class MessageTest
             try { task.join(); } catch (InterruptedException ignore) {}
          }
       }
-   }
-
-   @Test
-   public void sendMessageToTwoClients()
-   {
-      new MockUp<Socket>() {
-         @Mock(invocations = 2)
-         void $init(String host, int port)
-         {
-            assertTrue(host.startsWith("client"));
-            assertTrue(port > 0);
-         }
-
-         @Mock(invocations = 2)
-         public OutputStream getOutputStream()
-         {
-            return new ByteArrayOutputStream();
-         }
-
-         @Mock(invocations = 2)
-         public InputStream getInputStream()
-         {
-            return new ByteArrayInputStream("reply1\nreply2\n".getBytes());
-         }
-
-         @Mock(minInvocations = 2)
-         void close() {}
-      };
-
-      StatusListener listener = new MockUp<StatusListener>() {
-         @Mock(invocations = 2)
-         void messageSent(Client toClient)
-         {
-            assertNotNull(toClient);
-         }
-
-         @Mock(invocations = 2)
-         void messageDisplayedByClient(Client client)
-         {
-            assertNotNull(client);
-         }
-
-         @Mock(invocations = 2)
-         void messageReadByClient(Client client)
-         {
-            assertNotNull(client);
-         }
-      }.getMockInstance();
-
-      exerciseCodeUnderTest(listener, new Client("client1"), new Client("client2"));
    }
 
    @Test
