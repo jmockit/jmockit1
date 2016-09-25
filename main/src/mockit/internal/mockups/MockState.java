@@ -7,7 +7,6 @@ package mockit.internal.mockups;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
 import mockit.internal.mockups.MockMethods.*;
 import mockit.internal.util.*;
 
@@ -17,12 +16,6 @@ final class MockState
    @Nullable private Method actualMockMethod;
    @Nullable private Member realMethodOrConstructor;
    @Nullable private Object realClass;
-
-   // Expectations on the number of invocations of the mock as specified by the @Mock annotation,
-   // initialized with the default values as specified in the annotation's definition.
-   int expectedInvocations;
-   int minExpectedInvocations;
-   int maxExpectedInvocations;
 
    // Current mock invocation state:
    private int invocationCount;
@@ -34,9 +27,11 @@ final class MockState
    MockState(@Nonnull MockMethod mockMethod)
    {
       this.mockMethod = mockMethod;
-      expectedInvocations = -1;
-      maxExpectedInvocations = -1;
       invocationCountLock = new Object();
+
+      if (mockMethod.canBeReentered()) {
+         makeReentrant();
+      }
    }
 
    MockState(@Nonnull MockState mockState)
@@ -44,9 +39,6 @@ final class MockState
       mockMethod = mockState.mockMethod;
       actualMockMethod = mockState.actualMockMethod;
       realMethodOrConstructor = mockState.realMethodOrConstructor;
-      expectedInvocations = mockState.expectedInvocations;
-      minExpectedInvocations = mockState.minExpectedInvocations;
-      maxExpectedInvocations = mockState.maxExpectedInvocations;
       invocationCountLock = new Object();
 
       if (mockState.proceedingInvocation != null) {
@@ -56,12 +48,7 @@ final class MockState
 
    @Nonnull Class<?> getRealClass() { return mockMethod.getRealClass(); }
 
-   void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
-
-   boolean isWithExpectations()
-   {
-      return expectedInvocations >= 0 || minExpectedInvocations > 0 || maxExpectedInvocations >= 0;
-   }
+   private void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
 
    boolean update()
    {
@@ -74,55 +61,17 @@ final class MockState
          }
       }
 
-      int timesInvoked;
-
       synchronized (invocationCountLock) {
-         timesInvoked = ++invocationCount;
+         invocationCount++;
       }
 
-      verifyUnexpectedInvocation(timesInvoked);
       return true;
-   }
-
-   private void verifyUnexpectedInvocation(int timesInvoked)
-   {
-      if (expectedInvocations >= 0 && timesInvoked > expectedInvocations) {
-         String message = mockMethod.errorMessage("exactly", expectedInvocations, timesInvoked);
-         throw new UnexpectedInvocation(message);
-      }
-
-      if (maxExpectedInvocations >= 0 && timesInvoked > maxExpectedInvocations) {
-         String message = mockMethod.errorMessage("at most", maxExpectedInvocations, timesInvoked);
-         throw new UnexpectedInvocation(message);
-      }
-   }
-
-   void verifyMissingInvocations()
-   {
-      int timesInvoked = getTimesInvoked();
-
-      if (timesInvoked < expectedInvocations) {
-         String message = mockMethod.errorMessage("exactly", expectedInvocations, timesInvoked);
-         throw new MissingInvocation(message);
-      }
-
-      if (timesInvoked < minExpectedInvocations) {
-         String message = mockMethod.errorMessage("at least", minExpectedInvocations, timesInvoked);
-         throw new MissingInvocation(message);
-      }
    }
 
    int getTimesInvoked()
    {
       synchronized (invocationCountLock) {
          return invocationCount;
-      }
-   }
-
-   void reset()
-   {
-      synchronized (invocationCountLock) {
-         invocationCount = 0;
       }
    }
 

@@ -9,6 +9,7 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
+import mockit.internal.mockups.MockMethods.MockMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
@@ -104,11 +105,11 @@ final class MockMethodCollector extends ClassVisitor
       public AnnotationVisitor visitAnnotation(@Nullable String desc, boolean visible)
       {
          if ("Lmockit/Mock;".equals(desc)) {
-            MockMethods.MockMethod mockMethod =
-               mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+            MockMethod mockMethod = mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
 
-            if (mockMethod != null) {
-               return new MockAnnotationVisitor(mockMethod);
+            if (mockMethod != null && mockMethod.requiresMockState()) {
+               MockState mockState = new MockState(mockMethod);
+               mockMethods.addMockState(mockState);
             }
          }
 
@@ -121,59 +122,6 @@ final class MockMethodCollector extends ClassVisitor
       {
          String classDesc = mockMethods.getMockClassInternalName();
          ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
-      }
-   }
-
-   private final class MockAnnotationVisitor extends AnnotationVisitor
-   {
-      @Nonnull private final MockMethods.MockMethod mockMethod;
-      @Nullable private MockState mockState;
-
-      private MockAnnotationVisitor(@Nonnull MockMethods.MockMethod mockMethod)
-      {
-         this.mockMethod = mockMethod;
-
-         if (mockMethod.requiresMockState()) {
-            getMockState();
-         }
-      }
-
-      @Override
-      public void visit(String name, Object value)
-      {
-         Integer numInvocations = (Integer) value;
-
-         if ("invocations".equals(name)) {
-            getMockState().expectedInvocations = numInvocations;
-         }
-         else if ("minInvocations".equals(name)) {
-            getMockState().minExpectedInvocations = numInvocations;
-         }
-         else { // "maxInvocations"
-            getMockState().maxExpectedInvocations = numInvocations;
-         }
-      }
-
-      @Nonnull
-      private MockState getMockState()
-      {
-         if (mockState == null) {
-            mockState = new MockState(mockMethod);
-         }
-
-         return mockState;
-      }
-
-      @Override
-      public void visitEnd()
-      {
-         if (mockState != null) {
-            if (mockMethod.canBeReentered()) {
-               mockState.makeReentrant();
-            }
-
-            mockMethods.addMockState(mockState);
-         }
       }
    }
 }

@@ -11,7 +11,6 @@ import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.mockups.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
@@ -205,17 +204,11 @@ public class TestRunnerDecorator
       TestRun.enterNoMockingZone();
 
       Error expectationsFailure = RecordAndReplayExecution.endCurrentReplayIfAny();
-      MockStates mockStates = TestRun.getMockStates();
 
       try {
          clearTestedFieldsIfAny();
-
-         if (expectationsFailure == null && (thrownByTest == null || thrownAsExpected)) {
-            mockStates.verifyMissingInvocations();
-         }
       }
       finally {
-         mockStates.resetExpectations();
          savePoint.rollback();
          TestRun.exitNoMockingZone();
       }

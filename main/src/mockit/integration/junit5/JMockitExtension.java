@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.*;
 import mockit.*;
 import mockit.integration.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.mockups.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.StackTrace.*;
@@ -143,7 +142,6 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
          Error expectationsFailure = RecordAndReplayExecution.endCurrentReplayIfAny();
          clearTestedFieldsIfAny();
-         verifyAndClearMockupConstraintsIfAny(expectationsFailure);
 
          if (expectationsFailure != null) {
             filterStackTrace(expectationsFailure);
@@ -153,20 +151,6 @@ final class JMockitExtension extends TestRunnerDecorator implements
       finally {
          TestRun.finishCurrentTestExecution();
          TestRun.exitNoMockingZone();
-      }
-   }
-
-   private void verifyAndClearMockupConstraintsIfAny(Error expectationsFailure)
-   {
-      MockStates mockStates = TestRun.getMockStates();
-
-      try {
-         if (expectationsFailure == null && thrownByTest == null) {
-            mockStates.verifyMissingInvocations();
-         }
-      }
-      finally {
-         mockStates.resetExpectations();
       }
    }
 

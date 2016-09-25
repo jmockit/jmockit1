@@ -25,31 +25,15 @@ public final class MockStates
    @Nonnull private final Map<Object, List<MockState>> mockUpsToMockStates;
    @Nonnull private final Map<Object, List<MockState>> startupMockUpsToMockStates;
 
-   /**
-    * For each annotated mock method with at least one invocation expectation, its mock state will
-    * also be kept here, as an optimization.
-    */
-   @Nonnull private final Set<MockState> mockStatesWithExpectations;
-
    public MockStates()
    {
       startupMockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(2);
       mockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(8);
-      mockStatesWithExpectations = new LinkedHashSet<MockState>(10);
    }
 
    void addStartupMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
    {
       startupMockUpsToMockStates.put(mockUp, mockStates);
-   }
-
-   void addMockStates(@Nonnull Iterable<MockState> mockStates)
-   {
-      for (MockState mockState : mockStates) {
-         if (mockState.isWithExpectations()) {
-            mockStatesWithExpectations.add(mockState);
-         }
-      }
    }
 
    void addMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
@@ -92,12 +76,13 @@ public final class MockStates
 
    private void removeMockStates(@Nonnull Class<?> redefinedClass)
    {
-      for (Iterator<List<MockState>> itr = mockUpsToMockStates.values().iterator(); itr.hasNext(); ) {
+      Iterator<List<MockState>> itr = mockUpsToMockStates.values().iterator();
+
+      while (itr.hasNext()) {
          List<MockState> mockStates = itr.next();
          MockState mockState = mockStates.get(0);
 
          if (mockState.getRealClass() == redefinedClass) {
-            mockStatesWithExpectations.removeAll(mockStates);
             mockStates.clear();
             itr.remove();
          }
@@ -107,18 +92,13 @@ public final class MockStates
    private void removeMockStates(@Nonnull String mockClassInternalName)
    {
       Class<?> mockUpClass = ClassLoad.loadClass(mockClassInternalName.replace('/', '.'));
+      Iterator<Entry<Object, List<MockState>>> itr = mockUpsToMockStates.entrySet().iterator();
 
-      for (Iterator<Entry<Object, List<MockState>>> itr = mockUpsToMockStates.entrySet().iterator(); itr.hasNext(); ) {
+      while (itr.hasNext()) {
          Entry<Object, List<MockState>> mockUpAndMockStates = itr.next();
          Object mockUp = mockUpAndMockStates.getKey();
 
          if (mockUp.getClass() == mockUpClass) {
-            List<MockState> mockStates = mockUpAndMockStates.getValue();
-
-            if (mockStates != null) {
-               mockStatesWithExpectations.removeAll(mockStates);
-            }
-
             itr.remove();
          }
       }
@@ -142,19 +122,5 @@ public final class MockStates
       MockState mockState = mockStates.get(mockStateIndex);
       assert mockState != null;
       return mockState;
-   }
-
-   public void verifyMissingInvocations()
-   {
-      for (MockState mockState : mockStatesWithExpectations) {
-         mockState.verifyMissingInvocations();
-      }
-   }
-
-   public void resetExpectations()
-   {
-      for (MockState mockState : mockStatesWithExpectations) {
-         mockState.reset();
-      }
    }
 }

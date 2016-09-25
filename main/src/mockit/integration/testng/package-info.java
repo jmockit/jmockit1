@@ -8,8 +8,8 @@
  * This integration provides the following benefits to test code:
  * <ol>
  * <li>
- * Expected invocations specified through the Expectations or Mockups API are automatically verified before the
- * execution of a test is completed.
+ * Expected invocations specified through the Expectations API are automatically verified before the execution of a test
+ * is completed.
  * </li>
  * <li>
  * Mock-up classes applied with the Mockups API from inside a method annotated as a {@code @Test} or a

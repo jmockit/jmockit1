@@ -102,20 +102,7 @@ final class MockMethods
       boolean isForGenericMethod() { return mockSignature != null; }
       boolean isForNativeMethod() { return nativeRealMethod; }
       boolean requiresMockState() { return hasInvocationParameter || reentrantRealClass; }
-
-      boolean canBeReentered()
-      {
-         return targetTypeIsAClass && !nativeRealMethod && (hasInvocationParameter || reentrantRealClass);
-      }
-
-      @Nonnull
-      String errorMessage(@Nonnull String quantifier, int numExpectedInvocations, int timesInvoked)
-      {
-         String nameAndDesc = getMockNameAndDesc();
-         return
-            "Expected " + quantifier + ' ' + numExpectedInvocations + " invocation(s) of " +
-            new MethodFormatter(mockClassInternalName, nameAndDesc) + ", but was invoked " + timesInvoked + " time(s)";
-      }
+      boolean canBeReentered() { return targetTypeIsAClass && !nativeRealMethod; }
 
       @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
       public boolean equals(Object obj)
@@ -290,7 +277,6 @@ final class MockMethods
             allMockStates.addStartupMockUpAndItsMockStates(mockUp, mockStates);
          }
          else {
-            allMockStates.addMockStates(mockStates);
             allMockStates.addMockUpAndItsMockStates(mockUp, mockStates);
          }
       }
