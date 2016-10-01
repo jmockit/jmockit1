@@ -5,10 +5,13 @@
 package mockit.internal.util;
 
 import java.lang.reflect.*;
+import java.math.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 import javax.annotation.*;
 
 import mockit.internal.state.*;
+import static mockit.internal.util.AutoBoxing.*;
 
 /**
  * Miscellaneous utility constants and methods.
@@ -139,6 +142,7 @@ public final class Utilities
       return findClassAssignableFrom(toClasses, fromClass) != null;
    }
 
+   @SuppressWarnings("OverlyComplexMethod")
    @Nullable
    public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)
    {
@@ -146,14 +150,28 @@ public final class Utilities
          if (targetType == String.class) {
             return value;
          }
-         else if (targetType == char.class) {
+         else if (targetType == char.class || targetType == Character.class) {
             return value.charAt(0);
          }
          else if (targetType.isPrimitive()) {
-            Class<?> wrapperClass = AutoBoxing.getWrapperType(targetType);
+            Class<?> wrapperClass = getWrapperType(targetType);
             assert wrapperClass != null;
-            Class<?>[] constructorParameters = {String.class};
-            return ConstructorReflection.newInstance(wrapperClass, constructorParameters, value);
+            return newWrapperInstance(wrapperClass, value);
+         }
+         else if (isWrapperOfPrimitiveType(targetType)) {
+            return newWrapperInstance(targetType, value);
+         }
+         else if (targetType == BigDecimal.class) {
+            return new BigDecimal(value.trim());
+         }
+         else if (targetType == BigInteger.class) {
+            return new BigInteger(value.trim());
+         }
+         else if (targetType == AtomicInteger.class) {
+            return new AtomicInteger(Integer.parseInt(value.trim()));
+         }
+         else if (targetType == AtomicLong.class) {
+            return new AtomicLong(Long.parseLong(value.trim()));
          }
          else if (targetType.isEnum()) {
             @SuppressWarnings({"rawtypes", "unchecked"})
@@ -163,6 +181,13 @@ public final class Utilities
       }
 
       return null;
+   }
+
+   @Nonnull
+   private static Object newWrapperInstance(@Nonnull Class<?> wrapperClass, @Nonnull String value)
+   {
+      Class<?>[] constructorParameters = {String.class};
+      return ConstructorReflection.newInstance(wrapperClass, constructorParameters, value.trim());
    }
 
    public static boolean calledFromSpecialThread()
