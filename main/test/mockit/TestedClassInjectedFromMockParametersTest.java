@@ -48,12 +48,6 @@ public final class TestedClassInjectedFromMockParametersTest
    }
 
    @Test
-   public void instantiateTestedClassWithInjectablePrimitiveHavingNoValue(@Injectable boolean b)
-   {
-      assertFalse(tested.b);
-   }
-
-   @Test
    public void instantiateTestedObjectFromMockParametersUsingOneConstructor(
       @Injectable("Text") String s, @Injectable("123") int mock1, @Injectable("true") boolean mock2,
       @Injectable("A") char c1, @Injectable("bB") char c2)

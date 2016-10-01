@@ -58,12 +58,12 @@ public final class MockedType implements InjectionPointProvider
 
       validateAnnotationUsage();
 
-      providedValue = getDefaultInjectableValue(injectableAnnotation);
+      providedValue = getProvidedInjectableValue(injectableAnnotation);
       registerCascadingAsNeeded();
    }
 
    @Nullable
-   private Object getDefaultInjectableValue(@Nullable Injectable annotation)
+   private Object getProvidedInjectableValue(@Nullable Injectable annotation)
    {
       if (annotation != null) {
          String value = annotation.value();
@@ -77,6 +77,9 @@ public final class MockedType implements InjectionPointProvider
             else {
                return Utilities.convertFromString(injectableClass, value);
             }
+         }
+         else if (!fieldFromTestClass && !isMockableType()) {
+            throw new IllegalArgumentException("Missing value for injectable parameter: " + mockId);
          }
       }
 
@@ -110,7 +113,7 @@ public final class MockedType implements InjectionPointProvider
 
       validateAnnotationUsage();
 
-      providedValue = getDefaultInjectableValue(injectableAnnotation);
+      providedValue = getProvidedInjectableValue(injectableAnnotation);
 
       if (providedValue == null && parameterType instanceof Class<?>) {
          Class<?> parameterClass = (Class<?>) parameterType;
@@ -216,30 +219,35 @@ public final class MockedType implements InjectionPointProvider
          return false;
       }
 
-      //noinspection SimplifiableIfStatement
       if (!(declaredType instanceof Class<?>)) {
          return true;
       }
 
-      return isMockableType((Class<?>) declaredType);
-   }
+      Class<?> classType = (Class<?>) declaredType;
 
-   private boolean isMockableType(@Nonnull Class<?> classType)
-   {
-      if (classType.isPrimitive() || classType.isArray() || classType == Integer.class) {
+      if (isUnmockableJREType(classType)) {
          return false;
       }
 
       if (injectable) {
-         if (
-            classType == String.class || Number.class.isAssignableFrom(classType) ||
-            classType == Boolean.class || classType == Character.class || classType.isEnum()
-         ) {
+         if (isJREValueType(classType) || classType.isEnum()) {
             return false;
          }
       }
 
       return true;
+   }
+
+   private static boolean isUnmockableJREType(@Nonnull Class<?> type)
+   {
+      return type.isPrimitive() || type.isArray() || type == Integer.class;
+   }
+
+   private static boolean isJREValueType(@Nonnull Class<?> type)
+   {
+      return
+         type == String.class || type == Boolean.class || type == Character.class ||
+         Number.class.isAssignableFrom(type);
    }
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
@@ -248,14 +256,14 @@ public final class MockedType implements InjectionPointProvider
    boolean withInstancesToCapture() { return getMaxInstancesToCapture() > 0; }
    int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
 
-   @Nullable
-   public Object getValueToInject(@Nullable Object objectWithFields)
+   @Nullable @Override
+   public Object getValue(@Nullable Object owner)
    {
       if (field == null) {
          return providedValue;
       }
 
-      Object value = FieldReflection.getFieldValue(field, objectWithFields);
+      Object value = FieldReflection.getFieldValue(field, owner);
 
       if (!injectable) {
          return value;
@@ -279,9 +287,6 @@ public final class MockedType implements InjectionPointProvider
 
       return value.equals(defaultValue) ? providedValue : value;
    }
-
-   @Nullable @Override
-   public Object getValue(@Nullable Object owner) { return getValueToInject(owner); }
 
    @Override
    public int hashCode()

@@ -39,4 +39,10 @@ public final class InjectableParameterTest
       assertEquals(4567, ai.intValue());
       assertEquals(23434L, al.longValue());
    }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToDeclarePrimitiveInjectableWithoutAValue(@Injectable int i) {}
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToDeclareNonMockedInjectableWithoutAValue(@Injectable String s) {}
 }

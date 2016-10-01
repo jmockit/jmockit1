@@ -42,12 +42,6 @@ public final class InjectableFieldTest
       assertEquals(2, new Foo().getAnotherValue());
    }
 
-   @After
-   public void verifyExpectedInvocation()
-   {
-      new Verifications() {{ foo.doSomething(anyString); times = 1; }};
-   }
-
    @Test
    public void cascadeOneLevel()
    {
@@ -127,5 +121,31 @@ public final class InjectableFieldTest
       new Verifications() {{
          remoteHost.getCanonicalHostName();
       }};
+   }
+
+   @Injectable int primitiveInt = 123;
+   @Injectable Integer wrapperInt = 45;
+   @Injectable String string = "Abc";
+
+   @Test
+   public void useNonMockableInjectablesWithValuesProvidedThroughFieldAssignment()
+   {
+      assertEquals(123, primitiveInt);
+      assertEquals(45, wrapperInt.intValue());
+      assertEquals("Abc", string);
+   }
+
+   @Injectable int defaultInt;
+   @Injectable Integer nullInteger;
+   @Injectable String nullString;
+   @Injectable String emptyString = "";
+
+   @Test
+   public void useNullAndEmptyInjectablesOfNonMockableTypes()
+   {
+      assertEquals(0, defaultInt);
+      assertNull(nullInteger);
+      assertNull(nullString);
+      assertTrue(emptyString.isEmpty());
    }
 }
