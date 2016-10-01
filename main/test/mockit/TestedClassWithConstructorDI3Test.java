@@ -69,4 +69,19 @@ public final class TestedClassWithConstructorDI3Test
 
       assertEquals(10, tested.doSomeOperation());
    }
+
+   static class ClassWithStringParameter
+   {
+      final String name;
+      ClassWithStringParameter(String name) { this.name = name; }
+   }
+
+   @Tested ClassWithStringParameter tested2;
+   @Injectable String name = "";
+
+   @Test
+   public void initializeTestedObjectWithEmptyStringParameter()
+   {
+      assertEquals("", tested2.name);
+   }
 }
