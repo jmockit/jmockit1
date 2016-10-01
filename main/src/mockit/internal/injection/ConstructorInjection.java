@@ -47,7 +47,7 @@ final class ConstructorInjection extends Injector
             value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider);
          }
          else {
-            value = getArgumentValueToInject(parameterProvider);
+            value = getArgumentValueToInject(parameterProvider, i);
          }
 
          Type parameterType = parameterTypes[i];
@@ -84,16 +84,32 @@ final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable)
+   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable, int parameterIndex)
    {
       Object argument = injectionState.getValueToInject(injectable);
 
       if (argument == null) {
-         String parameterName = injectable.getName();
+         String classDesc = getClassDesc();
+         String constructorDesc = getConstructorDesc();
+         String parameterName = ParameterNames.getName(classDesc, constructorDesc, parameterIndex);
+
+         if (parameterName == null) {
+            parameterName = injectable.getName();
+         }
+
          throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
       }
 
       return argument;
+   }
+
+   @Nonnull
+   private String getClassDesc() { return mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass()); }
+
+   @Nonnull
+   private String getConstructorDesc()
+   {
+      return "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);
    }
 
    @Nonnull
@@ -135,8 +151,8 @@ final class ConstructorInjection extends Injector
    @Nonnull
    private String missingValueDescription(@Nonnull String name)
    {
-      String classDesc = mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass());
-      String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);
+      String classDesc = getClassDesc();
+      String constructorDesc = getConstructorDesc();
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
 
       return " for parameter \"" + name + "\" in constructor " + constructorDescription.replace("java.lang.", "");
