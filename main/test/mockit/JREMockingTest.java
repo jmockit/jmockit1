@@ -38,6 +38,12 @@ public final class JREMockingTest
    }
 
    @Test
+   public void mockFileThenApplyAMockup(@Mocked File file)
+   {
+      new MockUp<Date>() {};
+   }
+
+   @Test
    public void mockingOfCalendar()
    {
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
@@ -292,6 +298,7 @@ public final class JREMockingTest
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
 
    // These would interfere with the test runner if regular mocking was applied.
+/*
    @Injectable FileOutputStream stream;
    @Injectable Writer writer;
    @Injectable FileWriter fw;
@@ -319,6 +326,7 @@ public final class JREMockingTest
 
       new Verifications() {{ writer.append('x'); }};
    }
+*/
 
    @Test @Ignore("Find a way to avoid NPE from superclass constructor")
    public void mockConstructorsInFileWriterClass() throws Exception

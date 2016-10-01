@@ -17,18 +17,7 @@ import static org.junit.Assert.*;
 
 public final class ClassLoadingAndJREMocksTest
 {
-   static class Foo1 {}
-
-   @Test
-   public void recordExpectationForFile(@Mocked File file)
-   {
-      new Expectations() {{ new File("filePath").exists(); result = true; }};
-
-      new Foo1(); // causes a class load
-      assertTrue(new File("filePath").exists());
-   }
-
-   static class Foo2 {}
+   static class Foo {}
 
    @Test
    public void mockUpFile()
@@ -38,7 +27,7 @@ public final class ClassLoadingAndJREMocksTest
          @Mock boolean exists() { return true; }
       };
 
-      new Foo2(); // causes a class load
+      new Foo(); // causes a class load
       assertTrue(new File("filePath").exists());
    }
 
@@ -93,17 +82,6 @@ public final class ClassLoadingAndJREMocksTest
                return "testFile".equals(it.getName());
             }
          };
-      }};
-
-      checkForTheExistenceOfSeveralFiles();
-   }
-
-   @Test
-   public void mockFileSafelyUsingInstantiationRecordingToMatchDesiredFuturesInstancesOnly(@Mocked File anyFile)
-   {
-      new Expectations() {{
-         File testFile = new File("testFile");
-         testFile.exists(); result = true;
       }};
 
       checkForTheExistenceOfSeveralFiles();

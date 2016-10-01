@@ -217,24 +217,24 @@ public final class DelegateInvocationProceedTest
    @Test
    public void proceedConditionallyFromDelegateMethodIntoJREConstructor()
    {
-      new Expectations(File.class) {{
-         new File(anyString);
+      new Expectations(ProcessBuilder.class) {{
+         new ProcessBuilder(anyString);
          result = new Delegate() {
             @Mock
-            void init(Invocation inv, String name)
+            void init(Invocation inv, String... command)
             {
-               if ("proceed".equals(name)) {
+               if ("proceed".equals(command[0])) {
                   inv.proceed();
                }
             }
          };
       }};
 
-      File f1 = new File("proceed");
-      assertEquals("proceed", f1.getPath());
+      ProcessBuilder obj1 = new ProcessBuilder("proceed");
+      assertEquals("proceed", obj1.command().get(0));
 
-      File f2 = new File("do not proceed");
-      assertNull(f2.getPath());
+      ProcessBuilder obj2 = new ProcessBuilder("do not proceed");
+      assertNull(obj2.command());
    }
 
    @SuppressWarnings("UseOfObsoleteCollectionType")

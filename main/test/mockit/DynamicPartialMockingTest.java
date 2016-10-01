@@ -121,71 +121,67 @@ public final class DynamicPartialMockingTest
    @Test
    public void mockOnlyTheFutureObjectsThatMatchASpecificConstructorInvocation()
    {
-      final String path1 = "one";
-
       // Not mocked:
-      File f0 = new File(path1);
-      assertFalse(f0.exists());
+      Collaborator f0 = new Collaborator(12);
+      assertEquals(12, f0.getValue());
 
       // Applies partial mocking to all instances.
-      new Expectations(File.class) {{
-         File anyFutureFileWithPath1 = new File(path1);
-         anyFutureFileWithPath1.exists(); result = true; times = 2;
+      new Expectations(Collaborator.class) {{
+         Collaborator anyFutureInstanceWithValue1 = new Collaborator(1);
+         anyFutureInstanceWithValue1.overridableMethod(); result = "mock"; times = 2;
       }};
 
       // Mocked:
-      File f1 = new File(path1);
-      assertTrue(f1.exists());
+      Collaborator f1 = new Collaborator(1);
+      assertEquals("mock", f1.overridableMethod());
 
       // Not mocked:
-      File f2 = new File("two");
-      assertFalse(f2.exists());
+      Collaborator f2 = new Collaborator(2);
+      assertEquals("base", f2.overridableMethod());
 
       // Also mocked:
-      File f3 = new File(path1);
-      assertTrue(f3.exists());
+      Collaborator f3 = new Collaborator(1);
+      assertEquals("mock", f3.overridableMethod());
 
       // Invocations to non-mocked instances can also be verified (excluding those existing before mocking was applied).
       new Verifications() {{
-         File anyOtherFile = new File(withNotEqual(path1));
-         anyOtherFile.exists(); times = 1;
+         Collaborator anyOtherInstance = new Collaborator(withNotEqual(1));
+         anyOtherInstance.overridableMethod(); times = 1;
       }};
    }
 
    @Test
    public void verifyFutureMockedAndNonMockedObjectsInOrder()
    {
-      final String path1 = "one";
-
-      new Expectations(File.class) {{
-         File anyFutureFileWithPath1 = new File(path1);
-         anyFutureFileWithPath1.exists(); result = true;
+      new Expectations(Collaborator.class) {{
+         Collaborator anyFutureInstanceWithValue1 = new Collaborator(1);
+         anyFutureInstanceWithValue1.getValue(); result = 15;
       }};
 
-      File f1 = new File(path1);
-      assertTrue(f1.exists());
+      Collaborator f1 = new Collaborator(1);
+      assertEquals(15, f1.getValue());
 
-      File f2 = new File("two");
-      assertFalse(f2.exists());
-      assertEquals("two", f2.getPath());
+      Collaborator f2 = new Collaborator(2);
+      assertEquals(2, f2.getValue());
+      assertEquals("base", f2.overridableMethod());
 
-      assertNull(f1.getPath());
+      assertEquals("base", f1.overridableMethod());
 
-      File f3 = new File(path1);
-      assertTrue(f3.exists());
+      Collaborator f3 = new Collaborator(1);
+      assertEquals(15, f3.getValue());
 
       new FullVerificationsInOrder() {{
-         File anyFileWithPath1 = new File(path1);
-         anyFileWithPath1.exists();
+         Collaborator anyInstanceWithValue1 = new Collaborator(1);
+         anyInstanceWithValue1.getValue();
 
-         File anyOtherFile = new File(withNotEqual(path1));
-         anyOtherFile.exists();
-         anyOtherFile.getPath();
+         Collaborator anyOtherInstance = new Collaborator(withNotEqual(1));
+         anyOtherInstance.getValue();
+         anyOtherInstance.overridableMethod();
 
-         anyFileWithPath1.getPath();
+         anyInstanceWithValue1.overridableMethod();
 
-         new File(path1);
-         anyFileWithPath1.exists();
+         new Collaborator(1);
+         anyInstanceWithValue1.getValue();
       }};
    }
 

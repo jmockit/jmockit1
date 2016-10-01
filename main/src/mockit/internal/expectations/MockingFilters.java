@@ -21,6 +21,7 @@ public final class MockingFilters
       FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace ");
       FILTERS.put("java/lang/Thread", "currentThread getName getThreadGroup interrupted isInterrupted ");
       FILTERS.put("java/lang/ThreadLocal", "");
+      FILTERS.put("java/io/File", "<init> compareTo equals getPath hashCode toString ");
       FILTERS.put("java/util/AbstractCollection", "<init> ");
       FILTERS.put("java/util/AbstractSet", "<init> ");
       FILTERS.put("java/util/ArrayList", "");
