@@ -103,7 +103,9 @@ public final class GenericTypeReflection
             mappedTypeArg = typeArg;
 
             if (withSignatures) {
-               mappedTypeArgName = 'L' + getOwnerClassDesc((Class<?>) typeArg);
+               Class<?> classArg = (Class<?>) typeArg;
+               String ownerClassDesc = getOwnerClassDesc(classArg);
+               mappedTypeArgName = classArg.isArray() ? ownerClassDesc : 'L' + ownerClassDesc;
             }
          }
          else if (typeArg instanceof TypeVariable<?>) {
@@ -128,9 +130,7 @@ public final class GenericTypeReflection
             mappedTypeArg = typeArg;
 
             if (withSignatures) {
-               Type componentType = ((GenericArrayType) typeArg).getGenericComponentType();
-               Class<?> classType = getClassType(componentType);
-               mappedTypeArgName = "[L" + getOwnerClassDesc(classType);
+               mappedTypeArgName = getMappedTypeArgName((GenericArrayType) typeArg);
             }
          }
          else {
@@ -147,7 +147,7 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   private String getOwnerClassDesc(@Nonnull Class<?> rawType) { return rawType.getName().replace('.', '/'); }
+   private static String getOwnerClassDesc(@Nonnull Class<?> rawType) { return rawType.getName().replace('.', '/'); }
 
    @Nonnull
    private Class<?> getClassType(@Nonnull Type type)
@@ -171,6 +171,27 @@ public final class GenericTypeReflection
       }
 
       return (Class<?>) type;
+   }
+
+   @Nonnull
+   private String getMappedTypeArgName(@Nonnull GenericArrayType arrayType)
+   {
+      StringBuilder argName = new StringBuilder(20);
+      argName.append('[');
+
+      while (true) {
+         Type componentType = arrayType.getGenericComponentType();
+
+         if (componentType instanceof GenericArrayType) {
+            argName.append('[');
+            arrayType = (GenericArrayType) componentType;
+         }
+         else {
+            Class<?> classType = getClassType(componentType);
+            argName.append('L').append(getOwnerClassDesc(classType));
+            return argName.toString();
+         }
+      }
    }
 
    private void addTypeMapping(

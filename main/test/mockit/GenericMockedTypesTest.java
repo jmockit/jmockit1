@@ -282,4 +282,12 @@ public final class GenericMockedTypesTest
       assertSame(values, resultFromBase);
       assertEquals("Abc", resultFromSub);
    }
+
+   @Test
+   public void mockGenericTypeWithGenericMultiDimensionalArrayTypeArgument(@Mocked GenericBase<List<?>[][]> mock)
+   {
+      List<?>[][] result = mock.doSomething();
+
+      assertEquals(0, result.length);
+   }
 }
