@@ -33,7 +33,7 @@ final class TestedField
 
       Class<?> fieldType = field.getType();
 
-      if (fieldType.isInterface()) {
+      if (fieldType.isInterface() || fieldType.isEnum() || fieldType.isPrimitive() || fieldType.isArray()) {
          testedObjectCreation = null;
          testedClass = new TestedClass(field.getGenericType(), field.getType());
       }
