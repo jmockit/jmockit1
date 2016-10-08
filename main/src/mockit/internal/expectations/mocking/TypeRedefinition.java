@@ -14,6 +14,6 @@ class TypeRedefinition extends BaseTypeRedefinition
    final InstanceFactory redefineType()
    {
       //noinspection ConstantConditions
-      return redefineType(typeMetadata.declaredType);
+      return redefineType(typeMetadata.getDeclaredType());
    }
 }

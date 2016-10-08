@@ -12,11 +12,20 @@ import javax.annotation.*;
  * Provides type, name, and value(s) for an injection point, which is either a field to be injected or a parameter in
  * the chosen constructor of a tested class.
  */
-public interface InjectionPointProvider
+public abstract class InjectionPointProvider
 {
-   @Nonnull Type getDeclaredType();
-   @Nonnull Class<?> getClassOfDeclaredType();
-   @Nonnull String getName();
-   @Nonnull Annotation[] getAnnotations();
-   @Nullable Object getValue(@Nullable Object owner);
+   @Nonnull protected final Type declaredType;
+   @Nonnull protected final String name;
+
+   protected InjectionPointProvider(@Nonnull Type declaredType, @Nonnull String name)
+   {
+      this.declaredType = declaredType;
+      this.name = name;
+   }
+
+   @Nonnull public final Type getDeclaredType() { return declaredType; }
+   @Nonnull protected abstract Class<?> getClassOfDeclaredType();
+   @Nonnull public final String getName() { return name; }
+   @Nonnull Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
+   @Nullable protected Object getValue(@Nullable Object owner) { return null; }
 }

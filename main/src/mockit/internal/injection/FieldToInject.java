@@ -8,15 +8,16 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-final class FieldToInject implements InjectionPointProvider
+final class FieldToInject extends InjectionPointProvider
 {
    @Nonnull private final Field targetField;
 
-   FieldToInject(@Nonnull Field targetField) { this.targetField = targetField; }
+   FieldToInject(@Nonnull Field targetField)
+   {
+      super(targetField.getGenericType(), targetField.getName());
+      this.targetField = targetField;
+   }
 
-   @Nonnull @Override public Type getDeclaredType() { return targetField.getGenericType(); }
-   @Nonnull @Override public Class<?> getClassOfDeclaredType() { return targetField.getType(); }
-   @Nonnull @Override public String getName() { return targetField.getName(); }
-   @Nonnull @Override public Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
-   @Nullable @Override public Object getValue(@Nullable Object owner) { return null; }
+   @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return targetField.getType(); }
+   @Nonnull @Override Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
 }

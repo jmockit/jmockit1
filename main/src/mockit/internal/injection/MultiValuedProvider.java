@@ -4,21 +4,19 @@
  */
 package mockit.internal.injection;
 
-import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
 import static mockit.internal.util.Utilities.getClassType;
 
-final class MultiValuedProvider implements InjectionPointProvider
+final class MultiValuedProvider extends InjectionPointProvider
 {
-   @Nonnull private final Type declaredType;
    @Nonnull private final List<InjectionPointProvider> individualProviders;
 
    MultiValuedProvider(@Nonnull Type elementType)
    {
-      declaredType = elementType;
+      super(elementType, "");
       individualProviders = new ArrayList<InjectionPointProvider>();
    }
 
@@ -27,20 +25,10 @@ final class MultiValuedProvider implements InjectionPointProvider
       individualProviders.add(provider);
    }
 
-   @Nonnull @Override
-   public Type getDeclaredType() { return declaredType; }
-
-   @Nonnull @Override
-   public Class<?> getClassOfDeclaredType() { return getClassType(declaredType); }
-
-   @Nonnull @Override
-   public String getName() { throw new UnsupportedOperationException("No name"); }
-
-   @Nonnull @Override
-   public Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
+   @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return getClassType(declaredType); }
 
    @Nullable @Override
-   public Object getValue(@Nullable Object owner)
+   protected Object getValue(@Nullable Object owner)
    {
       List<Object> values = new ArrayList<Object>(individualProviders.size());
 

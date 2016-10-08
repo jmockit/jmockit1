@@ -334,7 +334,7 @@ class BaseTypeRedefinition
    @Nonnull
    private String getNameForConcreteSubclassToCreate()
    {
-      String mockId = typeMetadata == null ? null : typeMetadata.mockId;
+      String mockId = typeMetadata == null ? null : typeMetadata.getName();
       return getNameForGeneratedClass(targetClass, mockId);
    }
 }

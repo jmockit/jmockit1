@@ -15,7 +15,7 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings("EqualsAndHashcode")
-public final class MockedType implements InjectionPointProvider
+public final class MockedType extends InjectionPointProvider
 {
    @Mocked private static final Object DUMMY = null;
    private static final int DUMMY_HASHCODE;
@@ -40,12 +40,11 @@ public final class MockedType implements InjectionPointProvider
    @Nullable private final Mocked mocked;
    @Nullable private final Capturing capturing;
    public final boolean injectable;
-   @Nonnull public final Type declaredType;
-   @Nonnull public final String mockId;
    @Nullable Object providedValue;
 
    public MockedType(@Nonnull Field field)
    {
+      super(field.getGenericType(), field.getName());
       this.field = field;
       fieldFromTestClass = true;
       accessModifiers = field.getModifiers();
@@ -53,8 +52,6 @@ public final class MockedType implements InjectionPointProvider
       capturing = field.getAnnotation(Capturing.class);
       Injectable injectableAnnotation = field.getAnnotation(Injectable.class);
       injectable = injectableAnnotation != null;
-      declaredType = field.getGenericType();
-      mockId = field.getName();
 
       validateAnnotationUsage();
 
@@ -79,7 +76,7 @@ public final class MockedType implements InjectionPointProvider
             }
          }
          else if (!fieldFromTestClass && !isMockableType()) {
-            throw new IllegalArgumentException("Missing value for injectable parameter: " + mockId);
+            throw new IllegalArgumentException("Missing value for injectable parameter: " + name);
          }
       }
 
@@ -88,17 +85,22 @@ public final class MockedType implements InjectionPointProvider
 
    private void registerCascadingAsNeeded()
    {
-      if (isMockableType() && !(declaredType instanceof TypeVariable<?>)) {
-         ExecutingTest executingTest = TestRun.getExecutingTest();
-         CascadingTypes types = executingTest.getCascadingTypes();
-         types.add(fieldFromTestClass, declaredType, null);
+      if (isMockableType()) {
+         Type mockedType = declaredType;
+
+         if (!(mockedType instanceof TypeVariable<?>)) {
+            ExecutingTest executingTest = TestRun.getExecutingTest();
+            CascadingTypes types = executingTest.getCascadingTypes();
+            types.add(fieldFromTestClass, mockedType, null);
+         }
       }
    }
 
    MockedType(
-      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, int paramIndex, @Nonnull Type parameterType,
-      @Nonnull Annotation[] annotationsOnParameter)
+      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, @Nonnegative int paramIndex,
+      @Nonnull Type parameterType, @Nonnull Annotation[] annotationsOnParameter)
    {
+      super(parameterType, getMockParameterName(testClassDesc, testMethodDesc, paramIndex));
       field = null;
       fieldFromTestClass = false;
       accessModifiers = 0;
@@ -106,10 +108,6 @@ public final class MockedType implements InjectionPointProvider
       capturing = getAnnotation(annotationsOnParameter, Capturing.class);
       Injectable injectableAnnotation = getAnnotation(annotationsOnParameter, Injectable.class);
       injectable = injectableAnnotation != null;
-      declaredType = parameterType;
-
-      String parameterName = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
-      mockId = parameterName == null ? "param" + paramIndex : parameterName;
 
       validateAnnotationUsage();
 
@@ -124,6 +122,14 @@ public final class MockedType implements InjectionPointProvider
       }
 
       registerCascadingAsNeeded();
+   }
+
+   @Nonnull
+   private static String getMockParameterName(
+      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, @Nonnegative int paramIndex)
+   {
+      String parameterName = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
+      return parameterName == null ? "param" + paramIndex : parameterName;
    }
 
    @Nullable
@@ -148,11 +154,11 @@ public final class MockedType implements InjectionPointProvider
             int modifiers = baseType.getModifiers();
 
             if (isFinal(modifiers)) {
-               throw new IllegalArgumentException("Invalid @Capturing of final " + baseType + ": " + mockId);
+               throw new IllegalArgumentException("Invalid @Capturing of final " + baseType + ": " + name);
             }
 
             if (injectable) {
-               throw new IllegalArgumentException("Invalid application of @Capturing and @Injectable: " + mockId);
+               throw new IllegalArgumentException("Invalid application of @Capturing and @Injectable: " + name);
             }
          }
 
@@ -166,31 +172,22 @@ public final class MockedType implements InjectionPointProvider
    private void validateAgainstAnnotationRedundancy(@Nonnull String otherAnnotation)
    {
       if (mocked != null && !mocked.stubOutClassInitialization()) {
-         throw new IllegalArgumentException("Redundant application of @Mocked and " + otherAnnotation + ": " + mockId);
+         throw new IllegalArgumentException("Redundant application of @Mocked and " + otherAnnotation + ": " + name);
       }
    }
 
    MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType)
    {
+      super(cascadedType, cascadingMethodName);
       field = null;
       fieldFromTestClass = false;
       accessModifiers = 0;
       mocked = null;
       capturing = null;
       injectable = true;
-      declaredType = cascadedType;
-      mockId = cascadingMethodName;
    }
 
-   @Nonnull @Override public Type getDeclaredType() { return declaredType; }
    @Nonnull @Override public Class<?> getClassOfDeclaredType() { return getClassType(); }
-   @Nonnull @Override public String getName() { return mockId; }
-
-   @Nonnull @Override
-   public Annotation[] getAnnotations()
-   {
-      throw new UnsupportedOperationException("Annotations on injectable: not supported yet");
-   }
 
    /**
     * @return the class object corresponding to the type to be mocked, or {@code TypeVariable.class} in case the
@@ -199,12 +196,14 @@ public final class MockedType implements InjectionPointProvider
    @Nonnull
    public Class<?> getClassType()
    {
-      if (declaredType instanceof Class<?>) {
-         return (Class<?>) declaredType;
+      Type mockedType = declaredType;
+
+      if (mockedType instanceof Class<?>) {
+         return (Class<?>) mockedType;
       }
 
-      if (declaredType instanceof ParameterizedType) {
-         ParameterizedType parameterizedType = (ParameterizedType) declaredType;
+      if (mockedType instanceof ParameterizedType) {
+         ParameterizedType parameterizedType = (ParameterizedType) mockedType;
          return (Class<?>) parameterizedType.getRawType();
       }
 
@@ -219,11 +218,13 @@ public final class MockedType implements InjectionPointProvider
          return false;
       }
 
-      if (!(declaredType instanceof Class<?>)) {
+      Type mockedType = declaredType;
+
+      if (!(mockedType instanceof Class<?>)) {
          return true;
       }
 
-      Class<?> classType = (Class<?>) declaredType;
+      Class<?> classType = (Class<?>) mockedType;
 
       if (isUnmockableJREType(classType)) {
          return false;
@@ -257,7 +258,7 @@ public final class MockedType implements InjectionPointProvider
    int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
 
    @Nullable @Override
-   public Object getValue(@Nullable Object owner)
+   protected Object getValue(@Nullable Object owner)
    {
       if (field == null) {
          return providedValue;

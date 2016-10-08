@@ -33,7 +33,8 @@ final class FieldTypeRedefinition extends TypeRedefinition
    boolean redefineTypeForFinalField()
    {
       if (targetClass == TypeVariable.class || !typeMetadata.injectable && targetClass.isInterface()) {
-         throw new IllegalArgumentException("Final mock field \"" + typeMetadata.mockId + "\" must be of a class type");
+         String mockFieldName = typeMetadata.getName();
+         throw new IllegalArgumentException("Final mock field \"" + mockFieldName + "\" must be of a class type");
       }
 
       return redefineTypeForFieldNotSet();
