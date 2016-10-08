@@ -24,4 +24,10 @@ final class ConstructorParameter extends InjectionPointProvider
 
    @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return classOfDeclaredType; }
    @Nonnull @Override Annotation[] getAnnotations() { return annotations; }
+
+   @Override
+   public String toString()
+   {
+      return "parameter " + super.toString();
+   }
 }

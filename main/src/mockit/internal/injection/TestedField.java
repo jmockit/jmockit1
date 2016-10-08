@@ -29,7 +29,7 @@ final class TestedField
       this.injectionState = injectionState;
       testedField = field;
       this.metadata = metadata;
-      fullInjection = metadata.fullyInitialized() ? new FullInjection(injectionState) : null;
+      fullInjection = metadata.fullyInitialized() ? new FullInjection(injectionState, field) : null;
 
       Class<?> fieldType = field.getType();
 

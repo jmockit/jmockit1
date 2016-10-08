@@ -77,7 +77,10 @@ final class ConstructorInjection extends Injector
 
       if (value == null) {
          String parameterName = constructorParameter.getName();
-         throw new IllegalStateException("Missing @Tested or @Injectable" + missingValueDescription(parameterName));
+         String message =
+            "Missing @Tested or @Injectable" + missingValueDescription(parameterName) +
+            "\r\n  when initializing " + fullInjection;
+         throw new IllegalStateException(message);
       }
 
       return value;
@@ -154,8 +157,10 @@ final class ConstructorInjection extends Injector
       String classDesc = getClassDesc();
       String constructorDesc = getConstructorDesc();
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
+      int p = constructorDescription.indexOf('#');
+      String friendlyConstructorDesc = constructorDescription.substring(p + 1).replace("java.lang.", "");
 
-      return " for parameter \"" + name + "\" in constructor " + constructorDescription.replace("java.lang.", "");
+      return " for parameter \"" + name + "\" in constructor " + friendlyConstructorDesc;
    }
 
    @Nonnull

@@ -20,4 +20,10 @@ final class FieldToInject extends InjectionPointProvider
 
    @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return targetField.getType(); }
    @Nonnull @Override Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
+
+   @Override
+   public String toString()
+   {
+      return "field " + super.toString();
+   }
 }

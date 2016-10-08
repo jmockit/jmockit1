@@ -27,13 +27,16 @@ final class FullInjection
    private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
 
    @Nonnull private final InjectionState injectionState;
+   @Nonnull private final Field testedField;
    @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
-   private Class<?> dependencyClass;
+   @Nonnull private Class<?> dependencyClass;
+   @Nonnull private InjectionPointProvider injectionProvider;
 
-   FullInjection(@Nonnull InjectionState injectionState)
+   FullInjection(@Nonnull InjectionState injectionState, @Nonnull Field testedField)
    {
       this.injectionState = injectionState;
+      this.testedField = testedField;
       servletDependencies = SERVLET_CLASS == null ? null : new ServletDependencies(injectionState);
       jpaDependencies = PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
@@ -43,15 +46,14 @@ final class FullInjection
       @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
       @Nullable String qualifiedName)
    {
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
+      this.injectionProvider = injectionProvider;
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
       return dependency;
    }
 
    @Nonnull
-   private InjectionPoint getInjectionPoint(
-      @Nonnull GenericTypeReflection reflection, @Nonnull InjectionPointProvider injectionProvider,
-      @Nullable String qualifiedName)
+   private InjectionPoint getInjectionPoint(@Nonnull GenericTypeReflection reflection, @Nullable String qualifiedName)
    {
       Type dependencyType = injectionProvider.getDeclaredType();
 
@@ -85,7 +87,8 @@ final class FullInjection
       @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
    {
       TestedClass testedClass = injector.testedClass;
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
+      setInjectionProvider(injectionProvider);
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
 
       if (dependency != null) {
@@ -103,10 +106,16 @@ final class FullInjection
       }
 
       dependency = typeToInject.isInterface() ?
-         createInstanceOfSupportedInterfaceIfApplicable(testedClass, injectionProvider, injectionPoint) :
-         createAndRegisterNewInstance(injector, injectionProvider, injectionPoint);
+         createInstanceOfSupportedInterfaceIfApplicable(testedClass, injectionPoint) :
+         createAndRegisterNewInstance(injector, injectionPoint);
 
       return dependency;
+   }
+
+   private void setInjectionProvider(@Nonnull InjectionPointProvider injectionProvider)
+   {
+      injectionProvider.parent = this.injectionProvider;
+      this.injectionProvider = injectionProvider;
    }
 
    private static boolean isInstantiableType(@Nonnull Class<?> type)
@@ -132,8 +141,7 @@ final class FullInjection
 
    @Nullable
    private Object createInstanceOfSupportedInterfaceIfApplicable(
-      @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
-      @Nonnull InjectionPoint injectionPoint)
+      @Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
    {
       Class<?> typeToInject = dependencyClass;
       Object dependency = null;
@@ -142,7 +150,7 @@ final class FullInjection
          dependency = createAndRegisterDataSource(testedClass, injectionPoint);
       }
       else if (INJECT_CLASS != null && typeToInject == Provider.class) {
-         dependency = createProviderInstance(injectionProvider);
+         dependency = createProviderInstance();
       }
       else if (CONVERSATION_CLASS != null && typeToInject == Conversation.class) {
          dependency = createAndRegisterConversationInstance();
@@ -171,7 +179,7 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object createProviderInstance(@Nonnull InjectionPointProvider injectionProvider)
+   private Object createProviderInstance()
    {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -227,9 +235,7 @@ final class FullInjection
    }
 
    @Nullable
-   private Object createAndRegisterNewInstance(
-      @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider,
-      @Nonnull InjectionPoint injectionPoint)
+   private Object createAndRegisterNewInstance(@Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint)
    {
       Object dependency = createNewInstance(dependencyClass);
 
@@ -256,5 +262,19 @@ final class FullInjection
       }
 
       injectionState.saveInstantiatedDependency(injectionPoint, dependency);
+   }
+
+   @Override
+   public String toString()
+   {
+      String description =
+         "@Tested field \"" + testedField.getType().getSimpleName() + ' ' + testedField.getName() + '"';
+      InjectionPointProvider parentInjectionProvider = injectionProvider.parent;
+
+      if (parentInjectionProvider != null) {
+         description = parentInjectionProvider + "\r\n  of " + description;
+      }
+
+      return description;
    }
 }
