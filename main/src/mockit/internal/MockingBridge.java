@@ -62,7 +62,10 @@ public abstract class MockingBridge implements InvocationHandler
          for (int i = 3; i < n; i++) {
             StackTraceElement ste = st.getElement(i);
 
-            if ("ClassLoader.java".equals(ste.getFileName()) && "loadClass getResource".contains(ste.getMethodName())) {
+            if (
+               "ClassLoader.java".equals(ste.getFileName()) &&
+               "loadClass getResource loadLibrary".contains(ste.getMethodName())
+            ) {
                return true;
             }
          }
