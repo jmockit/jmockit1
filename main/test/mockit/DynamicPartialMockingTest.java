@@ -535,9 +535,11 @@ public final class DynamicPartialMockingTest
    }
 
    public interface AnotherInterface {}
+   interface NonPublicInterface {}
 
    @Test
-   public void attemptToUseDynamicMockingForInvalidTypes(@Mocked AnotherInterface mockedInterface)
+   public void attemptToUseDynamicMockingForInvalidTypes(
+      @Mocked AnotherInterface publicInterfaceMock, @Injectable NonPublicInterface nonPublicInterfaceMock)
    {
       assertInvalidTypeForDynamicPartialMocking(Dependency.class);
       assertInvalidTypeForDynamicPartialMocking(Test.class);
@@ -548,10 +550,8 @@ public final class DynamicPartialMockingTest
       assertInvalidTypeForDynamicPartialMocking(Boolean.class);
       assertInvalidTypeForDynamicPartialMocking(true);
       assertInvalidTypeForDynamicPartialMocking(2.5);
-      assertInvalidTypeForDynamicPartialMocking(mockedInterface);
-
-      Dependency mockInstance = new MockUp<Dependency>() {}.getMockInstance();
-      assertInvalidTypeForDynamicPartialMocking(mockInstance);
+      assertInvalidTypeForDynamicPartialMocking(publicInterfaceMock);
+      assertInvalidTypeForDynamicPartialMocking(nonPublicInterfaceMock);
    }
 
    void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)

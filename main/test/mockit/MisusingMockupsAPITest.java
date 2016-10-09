@@ -86,16 +86,16 @@ public final class MisusingMockupsAPITest
       assertEquals(5, j);
    }
 
+   @Mocked Process mockProcess;
+
    @Test
-   public void mockUpMethodInClassWhichIsAlreadyMocked(@Mocked Applet applet)
+   public void mockUpMethodInClassWhichIsAlreadyMocked()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("already mocked");
-      thrown.expectMessage("Applet");
+      thrown.expectMessage("Process");
 
-      new MockUp<Applet>() {
-         @Mock int getComponentCount() { return 2; }
-      };
+      new MockUp<Process>() {};
    }
 
    @Test
@@ -207,5 +207,14 @@ public final class MisusingMockupsAPITest
       thrown.expectMessage("Applet");
 
       mockUp.getMockInstance();
+   }
+
+   @Test
+   public void attemptToApplyMockupFromTestHavingMockParameters(@Mocked Runnable mock)
+   {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Invalid application of mock-up from test with mock parameters");
+
+      new SomeMockUp(1);
    }
 }

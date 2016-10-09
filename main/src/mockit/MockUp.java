@@ -158,6 +158,9 @@ public abstract class MockUp<T>
       if (TestRun.isInsideNoMockingZone()) {
          throw new IllegalStateException("Invalid place to apply a mock-up");
       }
+      else if (TestRun.getExecutingTest().getParameterRedefinitions() != null) {
+         throw new IllegalStateException("Invalid application of mock-up from test with mock parameters");
+      }
    }
 
    @Nullable
