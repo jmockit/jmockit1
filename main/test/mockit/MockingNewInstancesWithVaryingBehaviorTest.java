@@ -196,7 +196,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       new Expectations(Collaborator.class) {{
          new Collaborator(3); result = col1;
          new Collaborator(5); result = col2;
-         onInstance(col1).doSomething("recorded"); result = "mocked";
+         col1.doSomething("recorded"); result = "mocked";
       }};
 
       Collaborator newCol1 = new Collaborator(-10);
@@ -225,15 +225,14 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       assertEquals("test: 1", newCol5.doSomething("test"));
 
       new Verifications() {{
-         onInstance(col1).getValue(); times = 2;
-         onInstance(col1).isPositive(); times = 1;
+         col1.getValue(); times = 2;
+         col1.isPositive(); times = 1;
 
-         onInstance(col2).getValue(); times = 1;
-         onInstance(col2).isPositive(); times = 1;
+         col2.getValue(); times = 1;
+         col2.isPositive(); times = 1;
 
-         col1.doSomething(anyString); times = 6;
-         onInstance(col1).doSomething(anyString); times = 4;
-         onInstance(col2).doSomething(anyString); times = 1;
+         col1.doSomething(anyString); times = 4;
+         col2.doSomething(anyString); times = 1;
       }};
    }
 }

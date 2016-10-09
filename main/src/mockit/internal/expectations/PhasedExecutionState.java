@@ -237,9 +237,10 @@ final class PhasedExecutionState
    private boolean isMatchingInstance(@Nonnull Object invokedInstance, @Nonnull Expectation expectation)
    {
       ExpectedInvocation invocation = expectation.invocation;
-      assert invocation.instance != null;
+      Object invocationInstance = invocation.instance;
+      assert invocationInstance != null;
 
-      if (isEquivalentInstance(invocation.instance, invokedInstance)) {
+      if (isEquivalentInstance(invocationInstance, invokedInstance)) {
          return true;
       }
 
@@ -252,7 +253,7 @@ final class PhasedExecutionState
             return false;
          }
 
-         Class<?> invokedClass = invocation.instance.getClass();
+         Class<?> invokedClass = invocationInstance.getClass();
 
          for (Object dynamicMock : dynamicMockInstancesToMatch) {
             if (dynamicMock.getClass() == invokedClass) {
@@ -261,7 +262,9 @@ final class PhasedExecutionState
          }
       }
 
-      return !invocation.matchInstance && expectation.recordPhase != null;
+      return
+         !invocation.matchInstance && expectation.recordPhase != null &&
+         !replacementMap.containsValue(invocationInstance);
    }
 
    boolean isEquivalentInstance(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance)
@@ -326,6 +329,15 @@ final class PhasedExecutionState
    Object getReplacementInstanceForMethodInvocation(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc)
    {
       return methodNameAndDesc.charAt(0) == '<' ? null : replacementMap.get(invokedInstance);
+   }
+
+   boolean isReplacementInstance(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc)
+   {
+      return
+         methodNameAndDesc.charAt(0) != '<' && (
+            replacementMap.containsKey(invokedInstance) ||
+            replacementMap.containsValue(invokedInstance)
+         );
    }
 
    void validateReplacementInstances()

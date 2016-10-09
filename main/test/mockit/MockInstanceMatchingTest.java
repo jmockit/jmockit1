@@ -22,7 +22,6 @@ public final class MockInstanceMatchingTest
    static class Collaborator
    {
       private int value;
-
       int getValue() { return value; }
       void setValue(int value) { this.value = value; }
    }
@@ -30,71 +29,56 @@ public final class MockInstanceMatchingTest
    @Mocked Collaborator mock;
 
    @Test
-   public void recordExpectationMatchingOnMockInstance()
-   {
-      new Expectations() {{
-         onInstance(mock).getValue();
-         result = 12;
-      }};
-
-      assertEquals(12, mock.getValue());
-   }
-
-   @Test
-   public void recordOnMockInstanceButReplayOnDifferentInstance()
+   public void recordOnMockInstanceButReplayOnDifferentInstance(@Injectable final Collaborator verifiedMock)
    {
       thrown.expect(MissingInvocation.class);
 
-      Collaborator collaborator = new Collaborator();
-
       new Expectations() {{
-         onInstance(mock).getValue();
+         verifiedMock.getValue();
          result = 12;
       }};
 
+      Collaborator collaborator = new Collaborator();
       assertEquals(0, collaborator.getValue());
    }
 
    @Test
-   public void verifyExpectationMatchingOnMockInstance()
+   public void verifyExpectationMatchingOnMockInstance(@Injectable final Collaborator verifiedMock)
    {
       new Collaborator().setValue(12);
-      mock.setValue(12);
+      verifiedMock.setValue(12);
 
       new Verifications() {{
-         mock.setValue(anyInt); times = 2;
-         onInstance(mock).setValue(12); times = 1;
+         verifiedMock.setValue(12); times = 1;
       }};
    }
 
    @Test
-   public void verifyExpectationsOnSameMethodCallForDifferentMockedInstances()
+   public void verifyExpectationsOnSameMethodCallForDifferentMockedInstances(
+      @Injectable final Collaborator verifiedMock)
    {
       final Collaborator c1 = new Collaborator();
       c1.getValue();
-      mock.getValue();
+      verifiedMock.getValue();
       final Collaborator c2 = new Collaborator();
       c2.getValue();
 
       new Verifications() {{
-         onInstance(mock).getValue(); times = 1;
-         onInstance(c1).getValue(); times = 1;
-         onInstance(c2).getValue(); times = 1;
-         mock.getValue(); times = 3;
-         c1.getValue(); times = 3;
-         c2.getValue(); times = 3;
+         verifiedMock.getValue(); times = 1;
+         c1.getValue(); times = 1;
+         c2.getValue(); times = 1;
       }};
    }
 
    @Test
-   public void verifyOnMockInstanceButReplayOnDifferentInstance()
+   public void verifyOnMockInstanceButReplayOnDifferentInstance(@Injectable final Collaborator verifiedMock)
    {
       thrown.expect(MissingInvocation.class);
 
       new Collaborator().setValue(12);
 
       new Verifications() {{
-         onInstance(mock).setValue(12);
+         verifiedMock.setValue(12);
       }};
    }
 
@@ -155,30 +139,6 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void recordOnNullMockInstance(@Mocked Collaborator mock1)
-   {
-      thrown.expect(NullPointerException.class);
-
-      final Collaborator mock2 = null;
-
-      new Expectations() {{
-         onInstance(mock2).getValue();
-      }};
-   }
-
-   @Test
-   public void verifyOnNullMockInstance()
-   {
-      thrown.expect(NullPointerException.class);
-
-      new Verifications() {{
-         Collaborator mock2 = null;
-         //noinspection ConstantConditions
-         onInstance(mock2).getValue();
-      }};
-   }
-
-   @Test
    public void matchOnTwoMockInstances(@Mocked final Collaborator mock2)
    {
       new Expectations() {{
@@ -191,8 +151,7 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void matchOnTwoMockInstancesAndReplayInDifferentOrder(
-      @Mocked final Collaborator mock2)
+   public void matchOnTwoMockInstancesAndReplayInDifferentOrder(@Mocked final Collaborator mock2)
    {
       new Expectations() {{
          mock.getValue(); result = 1;
@@ -239,13 +198,12 @@ public final class MockInstanceMatchingTest
       r2.run();
    }
 
-   @Test @SuppressWarnings("ConstantConditions")
+   @Test
    public void verifyExpectationsMatchingOnMultipleMockParametersButReplayedOutOfOrder(
       @Mocked final AbstractExecutorService es1, @Mocked final AbstractExecutorService es2)
    {
       thrown.expect(MissingInvocation.class);
 
-      //noinspection ConstantConditions
       es2.execute(null);
       es1.submit((Runnable) null);
 
@@ -335,20 +293,20 @@ public final class MockInstanceMatchingTest
 
    @Test
    public void verifyingCallsOnSpecificInstancesOfDifferentSubclasses(
-      @Mocked final SubclassA a, @Mocked final SubclassB b)
+      @Mocked SubclassA anyA, @Injectable final SubclassA a, @Mocked final SubclassB anyB)
    {
       a.doSomething();
       new BaseClass().doSomething();
-      b.doSomething();
+      anyB.doSomething();
       a.doSomethingElse();
       new SubclassA().doSomethingElse();
-      b.doSomethingElse();
+      anyB.doSomethingElse();
 
       new Verifications() {{
-         a.doSomethingElse(); times = 2;
-         b.doSomethingElse(); times = 1;
-         onInstance(a).doSomething(); times = 1;
-         onInstance(b).doSomething(); times = 1;
+         a.doSomethingElse(); times = 1;
+         anyB.doSomethingElse(); times = 1;
+         a.doSomething(); times = 1;
+         anyB.doSomething(); times = 1;
       }};
    }
 }

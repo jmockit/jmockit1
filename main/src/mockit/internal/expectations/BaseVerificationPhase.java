@@ -70,7 +70,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       matchInstance =
          mock != null && (
             nextInstanceToMatch != null && mock == nextInstanceToMatch ||
-            recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc) != null ||
+            recordAndReplay.executionState.isReplacementInstance(mock, mockNameAndDesc) ||
             isEnumElement(mock)
          );
 
@@ -120,11 +120,9 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
          else if (matchInstance) {
             matching = recordAndReplay.executionState.isEquivalentInstance(invocation.instance, mock);
          }
-         else if (constructor) {
-            matching = true;
-         }
          else {
-            matching = !recordAndReplay.executionState.areInDifferentEquivalenceSets(invocation.instance, mock);
+            matching =
+               constructor || !recordAndReplay.executionState.areInDifferentEquivalenceSets(invocation.instance, mock);
          }
 
          if (matching) {

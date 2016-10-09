@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
@@ -100,6 +101,11 @@ final class Expectation
          getResults().addReturnValueResult(null);
       }
       else if (isReplacementInstance(value)) {
+         if (recordPhase != null) {
+            Map<Object, Object> replacementMap = recordPhase.getReplacementMap();
+            replacementMap.put(invocation.instance, value);
+         }
+
          invocation.replacementInstance = value;
       }
       else if (value instanceof Throwable) {
