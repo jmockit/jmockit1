@@ -32,8 +32,6 @@ import mockit.internal.expectations.*;
  * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
  * codeUnderTest.doSomething();
  * </pre>
- * It is also possible to create <em>named</em> subclasses.
- * <p/>
  * During replay, invocations matching a recorded expectation must occur at least <em>once</em> (unless specified
  * otherwise);
  * if, by the end of the test, no matching invocation occurred for a given recorded expectation, the test will fail with
@@ -53,9 +51,8 @@ import mockit.internal.expectations.*;
  * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified
  * to be the same as the instance used when recording the expectation.
  * That said, instance-specific matching can be obtained by declaring the mocked type as
- * {@linkplain Injectable @Injectable}, by using the {@link #onInstance(Object)} method, or by declaring multiple mock
- * fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each mock
- * instance).
+ * {@linkplain Injectable @Injectable}, or by declaring multiple mock fields and/or mock parameters of the same mocked
+ * type (so that separate expectations can be recorded for each mock instance).
  * <p/>
  * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified
  * <em>after</em> exercising the code under test.

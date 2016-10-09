@@ -374,25 +374,12 @@ abstract class Invocations
     * These instances will then be passed to the code under test, which will invoke them during the replay phase.
     * To avoid the need to explicitly call {@code onInstance(Object)} on each of these different instances of the
     * same type, instance matching is <em>implied</em> (and automatically applied to all relevant invocations) whenever
-    * two or more mocked instances of the same type are in scope for a given test method. This property of the API makes
-    * the use of {@code onInstance} much less frequent than it might otherwise be.
-    * <p/>
-    * In most cases, an invocation to the given mocked instance will be made on the value returned by this method (ie,
-    * a chained invocation).
-    * However, in the situation where the tested method calls an instance method defined in a mocked super-class
-    * (possibly an overridden method called through the {@code super} keyword), it will be necessary to match on a
-    * different instance than the one used for recording invocations.
-    * To do so, this method should be given the desired instance to match, while the invocation to be recorded should be
-    * done on the available mocked instance, which must be a different one (otherwise a non-mocked method would get
-    * executed).
-    * This is valid only if the instance to be matched is assignable to the mocked type, and typically occurs when
-    * partially mocking a class hierarchy.
+    * two or more mocked instances of the same type are in scope for a given test method.
     *
-    * @return the given mocked instance, allowing the invocation being recorded/verified to immediately follow the call
-    * to this method
-    *
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#onInstance">Tutorial</a>
+    * @return the given mocked instance
+    * @deprecated Either use {@linkplain Injectable @Injectable}'s or multiple mock fields/parameters of the same type.
     */
+   @Deprecated
    protected final <T> T onInstance(T mockedInstance)
    {
       if (mockedInstance == null) {

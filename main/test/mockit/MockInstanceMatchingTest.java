@@ -29,6 +29,18 @@ public final class MockInstanceMatchingTest
    @Mocked Collaborator mock;
 
    @Test
+   public void matchOnMockInstance(@Mocked Collaborator otherInstance)
+   {
+      new Expectations() {{ mock.getValue(); result = 12; }};
+
+      int result = mock.getValue();
+      assertEquals(12, result);
+
+      Collaborator another = new Collaborator();
+      assertEquals(0, another.getValue());
+   }
+
+   @Test
    public void recordOnMockInstanceButReplayOnDifferentInstance(@Injectable final Collaborator verifiedMock)
    {
       thrown.expect(MissingInvocation.class);
