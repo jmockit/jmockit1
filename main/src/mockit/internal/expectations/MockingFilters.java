@@ -21,7 +21,7 @@ public final class MockingFilters
       FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace ");
       FILTERS.put("java/lang/Thread", "currentThread getName getThreadGroup interrupted isInterrupted ");
       FILTERS.put("java/lang/ThreadLocal", "");
-      FILTERS.put("java/io/File", "<init> compareTo equals getPath hashCode toString ");
+      FILTERS.put("java/io/File", "<init> compareTo equals getAbsolutePath getName getPath hashCode toString ");
       FILTERS.put("java/util/AbstractCollection", "<init> ");
       FILTERS.put("java/util/AbstractSet", "<init> ");
       FILTERS.put("java/util/ArrayList", "");
@@ -36,9 +36,24 @@ public final class MockingFilters
    private MockingFilters() {}
 
    @Nullable
-   public static String forClass(@Nonnull String internalClassName)
+   public static String filtersForClass(@Nonnull String classDesc) { return FILTERS.get(classDesc); }
+
+   public static boolean isUnmockable(@Nonnull String classDesc)
    {
-      return FILTERS.get(internalClassName);
+      return
+         classDesc.startsWith("java/") && (
+            "java/lang/ClassLoader java/lang/Math java/lang/StrictMath java/time/Duration".contains(classDesc) ||
+            "java/nio/file/Paths".equals(classDesc)
+         );
+   }
+
+   public static boolean isFullMockingDisallowed(@Nonnull String classDesc)
+   {
+      return classDesc.startsWith("java/io/") && (
+         "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) ||
+         "java/io/FileWriter".equals(classDesc) ||
+         "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(classDesc)
+      );
    }
 
    public static boolean isUnmockable(@Nonnull String owner, @Nonnull String name)

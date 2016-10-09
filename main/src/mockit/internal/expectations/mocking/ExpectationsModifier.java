@@ -13,8 +13,9 @@ import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
-import static mockit.internal.expectations.MockingFilters.isUnmockableInvocation;
+import static mockit.internal.expectations.MockingFilters.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
+import static mockit.internal.util.ObjectMethods.isMethodFromObject;
 import static mockit.internal.util.Utilities.*;
 
 final class ExpectationsModifier extends BaseClassModifier
@@ -80,7 +81,7 @@ final class ExpectationsModifier extends BaseClassModifier
       }
       else {
          className = name;
-         defaultFilters = MockingFilters.forClass(name);
+         defaultFilters = filtersForClass(name);
 
          if (defaultFilters != null && defaultFilters.isEmpty()) {
             throw VisitInterruptedException.INSTANCE;
@@ -91,11 +92,11 @@ final class ExpectationsModifier extends BaseClassModifier
    private void validateMockingOfJREClass(@Nonnull String internalName)
    {
       if (internalName.startsWith("java/")) {
-         if ("java/lang/ClassLoader java/lang/Math java/lang/StrictMath".contains(internalName)) {
+         if (isUnmockable(internalName)) {
             throw new IllegalArgumentException("Class " + internalName.replace('/', '.') + " is not mockable");
          }
 
-         if (executionMode == ExecutionMode.Regular && mockedType != null && isDisallowedJREClass(internalName)) {
+         if (executionMode == ExecutionMode.Regular && mockedType != null && isFullMockingDisallowed(internalName)) {
             String modifyingClassName = internalName.replace('/', '.');
 
             if (modifyingClassName.equals(mockedType.getClassType().getName())) {
@@ -105,15 +106,6 @@ final class ExpectationsModifier extends BaseClassModifier
             }
          }
       }
-   }
-
-   private static boolean isDisallowedJREClass(@Nonnull String internalName)
-   {
-      return internalName.startsWith("java/io/") && (
-         "java/io/FileOutputStream".equals(internalName) || "java/io/FileInputStream".equals(internalName) ||
-         "java/io/FileWriter".equals(internalName) ||
-         "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(internalName)
-      );
    }
 
    @Override
@@ -195,14 +187,11 @@ final class ExpectationsModifier extends BaseClassModifier
 
    private boolean isMethodNotToBeMocked(int access, @Nonnull String name, @Nonnull String desc)
    {
-      if (isNative(access) && (NATIVE_UNSUPPORTED || (access & PUBLIC_OR_PROTECTED) == 0)) {
-         return true;
-      }
-
-      return isProxy && (
-         ObjectMethods.isMethodFromObject(name, desc) ||
-         "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
-      );
+      return
+         isNative(access) && (NATIVE_UNSUPPORTED || (access & PUBLIC_OR_PROTECTED) == 0) ||
+         isProxy && (
+            isMethodFromObject(name, desc) || "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
+         );
    }
 
    @Nonnull
