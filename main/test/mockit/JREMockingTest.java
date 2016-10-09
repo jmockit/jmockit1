@@ -160,7 +160,7 @@ public final class JREMockingTest
 
       new Expectations() {{
          Thread.sleep(anyLong); result = new InterruptedException();
-         onInstance(t).interrupt();
+         t.interrupt();
       }};
 
       assertTrue(t.wasInterruptRequested());
