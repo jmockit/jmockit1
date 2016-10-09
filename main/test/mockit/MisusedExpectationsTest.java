@@ -24,11 +24,15 @@ public final class MisusedExpectationsTest
       Blah(int i) {}
 
       @SuppressWarnings("RedundantStringConstructorCall") final String name = new String("Blah");
+
       int value() { return -1; }
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
       String getName() { return name.toUpperCase(); }
       Blah same() { return this; }
+
+      static Object doSomething() { return null; }
+      static Object someValue() { return null; }
    }
 
    @Mocked Blah mock;
@@ -266,34 +270,6 @@ public final class MisusedExpectationsTest
    {
       @Override String doSomething(boolean b) { return "overridden"; }
       void doSomethingElse(Object o) {}
-   }
-
-   @Test @SuppressWarnings("UnnecessarySuperQualifier")
-   public void accessSpecialFieldsInExpectationBlockThroughSuper(@Mocked final BlahBlah mock2)
-   {
-      new Expectations() {{
-         mock2.value(); super.result = 123; super.minTimes = 1; super.maxTimes = 2;
-
-         mock2.doSomething(super.anyBoolean); super.result = "test";
-         super.times = 1;
-
-         mock2.setValue(withNotEqual(0));
-      }};
-
-      assertEquals(123, mock2.value());
-      assertEquals("test", mock2.doSomething(true));
-      mock2.setValue(1);
-   }
-
-   @Test @SuppressWarnings("UnnecessarySuperQualifier")
-   public void accessSpecialFieldsInVerificationBlockThroughSuper(@Mocked final BlahBlah mock2)
-   {
-      assertNull(mock2.doSomething(true));
-
-      new Verifications() {{
-         mock2.doSomething(false); super.times = 0;
-         mock2.doSomethingElse(super.any); super.maxTimes = 0;
-      }};
    }
 
    @Test
@@ -556,6 +532,18 @@ public final class MisusedExpectationsTest
       new Expectations() {{
          new Blah(); result = mock;
          new Blah(1); result = mock;
+      }};
+   }
+
+   @Test
+   public void callMockedMethodFromExpressionAssignedToResultField()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid invocation to another mocked method during unfinished recording");
+
+      new Expectations() {{
+         Blah.doSomething();
+         result = Blah.someValue();
       }};
    }
 

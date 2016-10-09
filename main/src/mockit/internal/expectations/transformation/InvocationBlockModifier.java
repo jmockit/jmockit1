@@ -51,6 +51,8 @@ final class InvocationBlockModifier extends MethodVisitor
    // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
    private int lastLoadedVarIndex;
 
+   private int aload0Count;
+
    // Helper fields that allow argument matchers to be moved to the correct positions of their
    // corresponding parameters:
    @Nonnull private final int[] matcherStacks;
@@ -173,32 +175,26 @@ final class InvocationBlockModifier extends MethodVisitor
    @Override
    public void visitFieldInsn(int opcode, String owner, String name, String desc)
    {
-      if (
-         (opcode == GETFIELD || opcode == PUTFIELD) &&
-         name.indexOf('$') < 0 && isFieldDefinedByInvocationBlock(owner)
-      ) {
-         if (opcode == PUTFIELD) {
-            if (generateCodeThatReplacesAssignmentToSpecialField(name)) {
-               visitInsn(POP);
-               return;
-            }
+      boolean getField = opcode == GETFIELD;
+
+      if ((getField || opcode == PUTFIELD) && blockOwner.equals(owner)) {
+         aload0Count--;
+
+         if (name.indexOf('$') > 0) {
+            // Nothing to do.
          }
-         else if (name.startsWith("any") && ANY_FIELDS.contains(name)) {
+         else if (getField && name.startsWith("any") && ANY_FIELDS.contains(name)) {
             generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
+            return;
+         }
+         else if (!getField && generateCodeThatReplacesAssignmentToSpecialField(name)) {
+            visitInsn(POP);
             return;
          }
       }
 
       stackSize += stackSizeVariationForFieldAccess(opcode, desc);
       mw.visitFieldInsn(opcode, owner, name, desc);
-   }
-
-   private boolean isFieldDefinedByInvocationBlock(@Nonnull String fieldOwner)
-   {
-      return
-         blockOwner.equals(fieldOwner) ||
-         ("mockit/Expectations mockit/StrictExpectations mockit/Verifications mockit/VerificationsInOrder " +
-          "mockit/FullVerifications mockit/FullVerificationsInOrder").contains(fieldOwner);
    }
 
    private boolean generateCodeThatReplacesAssignmentToSpecialField(@Nonnull String fieldName)
@@ -253,6 +249,8 @@ final class InvocationBlockModifier extends MethodVisitor
             justAfterWithCaptureInvocation = withCaptureMethod;
             matcherStacks[matcherCount++] = stackSize;
          }
+
+         aload0Count--;
       }
       else if (isUnboxing(opcode, owner, desc)) {
          if (justAfterWithCaptureInvocation) {
@@ -266,6 +264,7 @@ final class InvocationBlockModifier extends MethodVisitor
       else {
          checkForInvocationThatIsNotMockable(owner, name);
          handleMockedOrNonMockedInvocation(opcode, owner, name, desc, itf);
+         aload0Count = 0;
       }
    }
 
@@ -314,10 +313,15 @@ final class InvocationBlockModifier extends MethodVisitor
 
    private void checkForInvocationThatIsNotMockable(@Nonnull String owner, @Nonnull String name)
    {
-      if (MockingFilters.isUnmockable(owner, name) && isMockedClass(owner)) {
-         generateCodeToThrowException(
-            "Attempted to " + (verifications ? "verify" : "record") +
-            " expectation on unmockable " + (name.charAt(0) == '<' ? "constructor" : "method"));
+      if (isMockedClass(owner)) {
+         if (MockingFilters.isUnmockable(owner, name)) {
+            generateCodeToThrowException(
+               "Attempted to " + (verifications ? "verify" : "record") +
+               " expectation on unmockable " + (name.charAt(0) == '<' ? "constructor" : "method"));
+         }
+         else if (aload0Count > 0 && name.charAt(0) != '<') {
+            generateCodeToThrowException("Invalid invocation to another mocked method during unfinished recording");
+         }
       }
    }
 
@@ -436,6 +440,10 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       if (opcode == ALOAD) {
          lastLoadedVarIndex = varIndex;
+
+         if (varIndex == 0) {
+            aload0Count++;
+         }
       }
 
       argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(opcode, varIndex);
