@@ -41,33 +41,27 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void recordOnMockInstanceButReplayOnDifferentInstance(@Injectable final Collaborator verifiedMock)
+   public void recordOnMockInstanceButReplayOnDifferentInstance(@Mocked final Collaborator verifiedMock)
    {
       thrown.expect(MissingInvocation.class);
 
-      new Expectations() {{
-         verifiedMock.getValue();
-         result = 12;
-      }};
+      new Expectations() {{ verifiedMock.getValue(); result = 12; }};
 
       Collaborator collaborator = new Collaborator();
       assertEquals(0, collaborator.getValue());
    }
 
    @Test
-   public void verifyExpectationMatchingOnMockInstance(@Injectable final Collaborator verifiedMock)
+   public void verifyExpectationMatchingOnMockInstance(@Mocked final Collaborator verifiedMock)
    {
       new Collaborator().setValue(12);
       verifiedMock.setValue(12);
 
-      new Verifications() {{
-         verifiedMock.setValue(12); times = 1;
-      }};
+      new Verifications() {{ verifiedMock.setValue(12); times = 1; }};
    }
 
    @Test
-   public void verifyExpectationsOnSameMethodCallForDifferentMockedInstances(
-      @Injectable final Collaborator verifiedMock)
+   public void verifyExpectationsOnSameMethodCallForDifferentMockedInstances(@Mocked final Collaborator verifiedMock)
    {
       final Collaborator c1 = new Collaborator();
       c1.getValue();
@@ -83,15 +77,13 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void verifyOnMockInstanceButReplayOnDifferentInstance(@Injectable final Collaborator verifiedMock)
+   public void verifyOnMockInstanceButReplayOnDifferentInstance(@Mocked final Collaborator verifiedMock)
    {
       thrown.expect(MissingInvocation.class);
 
       new Collaborator().setValue(12);
 
-      new Verifications() {{
-         verifiedMock.setValue(12);
-      }};
+      new Verifications() {{ verifiedMock.setValue(12); }};
    }
 
    @Test
@@ -305,7 +297,7 @@ public final class MockInstanceMatchingTest
 
    @Test
    public void verifyingCallsOnSpecificInstancesOfDifferentSubclasses(
-      @Mocked SubclassA anyA, @Injectable final SubclassA a, @Mocked final SubclassB anyB)
+      @Mocked SubclassA anyA, @Mocked final SubclassA a, @Mocked final SubclassB anyB)
    {
       a.doSomething();
       new BaseClass().doSomething();
