@@ -24,11 +24,17 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    {
       baseSubclasses = new ArrayList<String>();
       baseSubclasses.add("mockit/Expectations");
+      baseSubclasses.add("mockit/GroovyExpectations");
       baseSubclasses.add("mockit/StrictExpectations");
+      baseSubclasses.add("mockit/GroovyStrictExpectations");
       baseSubclasses.add("mockit/Verifications");
+      baseSubclasses.add("mockit/GroovyVerifications");
       baseSubclasses.add("mockit/FullVerifications");
+      baseSubclasses.add("mockit/GroovyFullVerifications");
       baseSubclasses.add("mockit/VerificationsInOrder");
+      baseSubclasses.add("mockit/GroovyVerificationsInOrder");
       baseSubclasses.add("mockit/FullVerificationsInOrder");
+      baseSubclasses.add("mockit/GroovyFullVerificationsInOrder");
 
       Class<?>[] alreadyLoaded = instrumentation.getAllLoadedClasses();
       findAndModifyOtherBaseSubclasses(alreadyLoaded);
@@ -74,8 +80,10 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    private static boolean isExpectationsOrVerificationsAPIClass(@Nonnull Class<?> aClass)
    {
       return
-         ("mockit.Expectations mockit.StrictExpectations mockit.Verifications mockit.FullVerifications " +
-          "mockit.VerificationsInOrder mockit.FullVerificationsInOrder").contains(aClass.getName());
+         ("mockit.Expectations mockit.GroovyExpectations mockit.StrictExpectations mockit.GroovyStrictExpectations " +
+          "mockit.Verifications mockit.GroovyVerifications mockit.FullVerifications mockit.GroovyFullVerifications " +
+          "mockit.VerificationsInOrder mockit.GroovyVerificationsInOrder " +
+          "mockit.FullVerificationsInOrder mockit.GroovyFullVerificationsInOrder").contains(aClass.getName());
    }
 
    private void modifyFinalSubclasses(@Nonnull Class<?>[] alreadyLoaded)
@@ -183,7 +191,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
          int i = baseSubclasses.indexOf(superName);
          boolean superClassIsKnownInvocationsSubclass = i >= 0;
 
-         if (i >= 2 && (i <= 5 || superName != null && superName.endsWith("Verifications"))) {
+         if (i >= 4 && (i <= 11 || superName != null && superName.endsWith("Verifications"))) {
             isVerificationsSubclass = true;
          }
 

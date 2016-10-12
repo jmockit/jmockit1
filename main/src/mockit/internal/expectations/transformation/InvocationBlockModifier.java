@@ -197,8 +197,10 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       return
          blockOwner.equals(fieldOwner) ||
-         ("mockit/Expectations mockit/StrictExpectations mockit/Verifications mockit/VerificationsInOrder " +
-          "mockit/FullVerifications mockit/FullVerificationsInOrder").contains(fieldOwner);
+         ("mockit/Expectations mockit/GroovyExpectations mockit/StrictExpectations mockit/GroovyStrictExpectations " +
+          "mockit/Verifications mockit/GroovyVerifications mockit/VerificationsInOrder mockit/GroovyVerificationsInOrder " +
+          "mockit/FullVerifications mockit/GroovyFullVerifications " +
+          "mockit/FullVerificationsInOrder mockit/GroovyFullVerificationsInOrder").contains(fieldOwner);
    }
 
    private boolean generateCodeThatReplacesAssignmentToSpecialField(@Nonnull String fieldName)

@@ -54,6 +54,7 @@
             <includes>
                <include>META-INF/services/org.junit.platform.engine.TestEngine</include>
                <include>META-INF/services/org.testng.ITestNGListener</include>
+               <include>META-INF/services/org.spockframework.runtime.extension.IGlobalExtension</include>
             </includes>
          </resource>
          <resource>
@@ -101,6 +102,29 @@
                <source>1.6</source><target>1.6</target>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>addTestSources</goal>
+                     <goal>testCompile</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <testSources>
+                  <testSource>
+                     <directory>${project.basedir}/test</directory>
+                     <includes>
+                        <include>**/*.groovy</include>
+                     </includes>
+                  </testSource>
+               </testSources>
             </configuration>
          </plugin>
          <plugin>
@@ -181,13 +205,15 @@
                   <configuration>
                      <skipTests>${skipTests}</skipTests>
                      <testNGArtifactName>none:none</testNGArtifactName>
+                     <includes>
+                        <include>**/*Test.class</include>
+                        <include>**/*Specification.class</include>
+                     </includes>
                      <excludes>
-                        <exclude>**/*$*</exclude>
                         <exclude>**/Base*Test.class</exclude>
                         <exclude>**/JUnit4DecoratorTest.class</exclude>
                         <exclude>**/testng/*Test.class</exclude>
                         <exclude>**/MockStateBetweenTestMethodsNGTest.class</exclude>
-                        <exclude>**/mockit/integration/TestedClass.class</exclude>
                      </excludes>
                   </configuration>
                </execution>
@@ -243,6 +269,10 @@
       </dependency>
       <dependency>
          <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-M2</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.spockframework</groupId><artifactId>spock-core</artifactId><version>1.0-groovy-2.4</version>
          <optional>true</optional>
       </dependency>
       <dependency>

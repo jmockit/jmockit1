@@ -7,6 +7,8 @@ package mockit.internal.expectations.mocking;
 import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.EMPTY_LIST;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
@@ -32,6 +34,7 @@ final class ExpectationsModifier extends BaseClassModifier
    private boolean isProxy;
    @Nullable private String defaultFilters;
    @Nullable List<String> enumSubclasses;
+   private List<String> interfaces = EMPTY_LIST;
 
    ExpectationsModifier(
       @Nullable ClassLoader classLoader, @Nonnull ClassReader classReader, @Nullable MockedType typeMetadata)
@@ -72,6 +75,9 @@ final class ExpectationsModifier extends BaseClassModifier
 
       super.visit(version, access, name, signature, superName, interfaces);
       isProxy = "java/lang/reflect/Proxy".equals(superName);
+      if (interfaces != null) {
+         this.interfaces = asList(interfaces);
+      }
 
       if (isProxy) {
          assert interfaces != null;
@@ -134,11 +140,12 @@ final class ExpectationsModifier extends BaseClassModifier
    public MethodVisitor visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      if ((access & METHOD_ACCESS_MASK) != 0) {
+      boolean visitingConstructor = "<init>".equals(name);
+
+      if (((access & METHOD_ACCESS_MASK) != 0) && !(visitingConstructor && interfaces.contains("groovy/lang/GroovyObject"))) {
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
       }
 
-      boolean visitingConstructor = "<init>".equals(name);
       String internalClassName = className;
 
       if (visitingConstructor) {
@@ -202,7 +209,13 @@ final class ExpectationsModifier extends BaseClassModifier
       return isProxy && (
          ObjectMethods.isMethodFromObject(name, desc) ||
          "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
-      );
+      ) || interfaces.contains("groovy/lang/GroovyObject") &&
+            ("setMetaClass".equals(name) && "(Lgroovy/lang/MetaClass;)V".equals(desc) ||
+             "getMetaClass".equals(name) && "()Lgroovy/lang/MetaClass;".equals(desc) ||
+             "setProperty".equals(name) && "(Ljava/lang/String;Ljava/lang/Object;)V".equals(desc) ||
+             "getProperty".equals(name) && "(Ljava/lang/String;)Ljava/lang/Object;".equals(desc) ||
+             "invokeMethod".equals(name) && "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;".equals(desc))
+      ;
    }
 
    @Nonnull

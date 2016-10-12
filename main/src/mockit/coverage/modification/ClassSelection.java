@@ -112,6 +112,7 @@ final class ClassSelection
          className.startsWith("org.hamcrest.") ||
          className.startsWith("org.junit.") || className.startsWith("junit.") ||
          className.startsWith("org.testng.") ||
+         className.startsWith("org.spockframework.") || className.startsWith("spock.") ||
          className.startsWith("org.apache.maven.surefire.") ||
          ClassLoad.isGeneratedSubclass(className);
    }

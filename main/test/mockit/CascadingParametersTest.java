@@ -87,9 +87,11 @@ public final class CascadingParametersTest
    public void verifyThatPreviousCascadedInstancesHaveBeenDiscarded(@Mocked Foo foo)
    {
       Bar bar = foo.getBar();
+      assertNotNull(cascadedBar1);
       assertNotSame(cascadedBar1, bar);
 
       Bar globalBar = Foo.globalBar();
+      assertNotNull(cascadedBar2);
       assertNotSame(cascadedBar2, globalBar);
    }
 

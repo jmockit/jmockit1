@@ -85,10 +85,16 @@ public final class ExpectedInvocation
       String firstCaller = ste.getClassName();
 
       steIndex += "mockit.internal.expectations.mocking.MockedBridge".equals(firstCaller) ? 2 : 1;
-      String secondCaller = st.getElement(steIndex).getClassName();
+      ste = st.getElement(steIndex);
+      String secondCaller = ste.getClassName();
 
       if (secondCaller.contains(".reflect.")) { // called through Reflection
          return getNextCallerAfterReflectionCalls(st, steIndex);
+      }
+
+      StackTraceElement steNext = st.getElement(steIndex + 1);
+      if ((ste.getFileName() == null) && secondCaller.contains("$") && ste.getMethodName().equals("call")) { // called through Groovy
+         return getNextCallerAfterGroovyCalls(st, steIndex);
       }
 
       if (!secondCaller.equals(firstCaller)) {
@@ -112,7 +118,24 @@ public final class ExpectedInvocation
             continue;
          }
 
-         if (!nextCaller.contains(".reflect.") && !nextCaller.startsWith("mockit.internal.")) {
+         if (!nextCaller.contains(".reflect.") && !nextCaller.startsWith("mockit.internal.")
+               && !nextCaller.contains(".reflection.")
+               && !(nextCaller.contains(".groovy.") && nextCaller.contains(".callsite."))) {
+            return nextCaller;
+         }
+      }
+   }
+
+   @Nonnull
+   private static String getNextCallerAfterGroovyCalls(@Nonnull StackTrace st, int steIndex)
+   {
+      steIndex += 1;
+
+      while (true) {
+         String nextCaller = st.getElement(steIndex).getClassName();
+         steIndex++;
+
+         if (!(nextCaller.contains(".groovy.") && nextCaller.contains(".callsite."))) {
             return nextCaller;
          }
       }

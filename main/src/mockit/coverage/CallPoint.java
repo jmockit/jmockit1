@@ -20,6 +20,7 @@ public final class CallPoint implements Serializable
    private static final Class<? extends Annotation> testAnnotation;
    private static final boolean checkTestAnnotationOnClass;
    private static final boolean checkIfTestCaseSubclass;
+   private static final boolean checkIfSpecificationSubclass;
 
    static
    {
@@ -38,6 +39,7 @@ public final class CallPoint implements Serializable
       testAnnotation = (Class<? extends Annotation>) annotation;
       checkTestAnnotationOnClass = checkOnClassAlso;
       checkIfTestCaseSubclass = checkForJUnit3Availability();
+      checkIfSpecificationSubclass = checkForSpockAvailability();
    }
 
    @Nullable
@@ -61,6 +63,17 @@ public final class CallPoint implements Serializable
    {
       try {
          Class.forName("junit.framework.TestCase");
+         return true;
+      }
+      catch (ClassNotFoundException ignore) {
+         return false;
+      }
+   }
+
+   private static boolean checkForSpockAvailability()
+   {
+      try {
+         Class.forName("spock.lang.Specification");
          return true;
       }
       catch (ClassNotFoundException ignore) {
@@ -128,7 +141,8 @@ public final class CallPoint implements Serializable
       if (
          ste.getFileName() != null && ste.getLineNumber() >= 0 &&
          !className.startsWith("java.") && !className.startsWith("javax.") && !className.startsWith("sun.") &&
-         !className.startsWith("org.junit.") && !className.startsWith("org.testng.") && !className.startsWith("mockit.")
+         !className.startsWith("org.junit.") && !className.startsWith("junit.") && !className.startsWith("org.testng.") &&
+         !className.startsWith("mockit.") && !className.startsWith("org.spockframework.") && !className.startsWith("spock.")
       ) {
          Class<?> aClass = loadClass(className);
 
@@ -142,7 +156,8 @@ public final class CallPoint implements Serializable
                if (method != null) {
                   isTestMethod =
                      containsATestFrameworkAnnotation(method.getDeclaredAnnotations()) ||
-                     checkIfTestCaseSubclass && isJUnit3xTestMethod(aClass, method);
+                     checkIfTestCaseSubclass && isJUnit3xTestMethod(aClass, method) ||
+                     checkIfSpecificationSubclass && isSpockTestMethod(aClass, method);
                }
             }
          }
@@ -200,6 +215,26 @@ public final class CallPoint implements Serializable
 
       while (superClass != Object.class) {
          if ("junit.framework.TestCase".equals(superClass.getName())) {
+            return true;
+         }
+
+         superClass = superClass.getSuperclass();
+      }
+
+      return false;
+   }
+
+   private static boolean isSpockTestMethod(@Nonnull Class<?> aClass, @Nonnull Method method)
+   {
+      if ("setup".equals(method.getName()) || "setupSpec".equals(method.getName())
+            || "cleanup".equals(method.getName()) || "cleanupSpec".equals(method.getName())) {
+         return false;
+      }
+
+      Class<?> superClass = aClass.getSuperclass();
+
+      while (superClass != Object.class) {
+         if ("spock.lang.Specification".equals(superClass.getName())) {
             return true;
          }
 

@@ -75,7 +75,8 @@ public final class StackTrace
 
    private static boolean isTestFrameworkMethod(@Nonnull String where)
    {
-      return where.startsWith("org.junit.") || where.startsWith("org.testng.");
+      return where.startsWith("org.junit.") || where.startsWith("junit.") || where.startsWith("org.testng.")
+            || where.startsWith("org.spockframework.") || where.startsWith("spock.");
    }
 
    private static boolean isJMockitMethod(@Nonnull String where)

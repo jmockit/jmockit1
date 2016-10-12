@@ -317,7 +317,7 @@ public final class MethodReflection
       for (Method declaredMethod : declaredMethods) {
          int methodModifiers = declaredMethod.getModifiers();
 
-         if (!isPrivate(methodModifiers) && !isStatic(methodModifiers)) {
+         if (!isPrivate(methodModifiers) && !isStatic(methodModifiers) && !declaredMethod.isSynthetic()) {
             if (found != null) {
                String methodType = Delegate.class.isAssignableFrom(handlerClass) ? "delegate" : "invocation handler";
                throw new IllegalArgumentException(
