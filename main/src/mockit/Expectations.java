@@ -42,7 +42,7 @@ import mockit.internal.expectations.*;
  * <p/>
  * Besides the special {@link #result} field already mentioned, there are several other fields and methods which can be
  * used inside the expectation block:
- * a) {@link #returns(Object, Object...)}, a convenience method for returning a <em>sequence</em> of values;
+ * a) {@link #returns(Object, Object, Object...)}, a convenience method for returning a <em>sequence</em> of values;
  * b) argument matchers such as {@link #anyInt}, {@link #anyString}, {@link #withNotNull()}, etc., which relax or
  * constrain the matching of argument values;
  * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or
@@ -108,8 +108,8 @@ public abstract class Expectations extends Invocations
     * </ul>
     * <p/>
     * When an expectation is recorded for a method which actually <em>returns</em> an exception or error (as opposed to
-    * <em>throwing</em> one), then the {@link #returns(Object, Object...)} method should be used instead, as it only
-    * applies to return values.
+    * <em>throwing</em> one), then the {@link #returns(Object, Object, Object...)} method should be used instead, as it
+    * only applies to return values.
     * <p/>
     * Assigning a value whose type differs from the method return type will cause an {@code IllegalArgumentException} to
     * be thrown, unless it can be safely converted to the return type.
@@ -133,7 +133,7 @@ public abstract class Expectations extends Invocations
     * <em>instance methods</em> made on <em>other</em> instances, provided they get created sometime later through a
     * matching constructor invocation.
     *
-    * @see #returns(Object, Object...)
+    * @see #returns(Object, Object, Object...)
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#results">Tutorial</a>
     */
    protected Object result;
@@ -206,6 +206,18 @@ public abstract class Expectations extends Invocations
    final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**
+    * Specifies that the previously recorded method invocation will return a given value during replay.
+    *
+    * @param singleValue the value to be returned at replay time
+    * @deprecated Assign the value to the {@link #result} field instead.
+    */
+   @Deprecated
+   protected final void returns(Object singleValue)
+   {
+      getCurrentPhase().addSequenceOfReturnValues(singleValue, new Object[0]);
+   }
+
+   /**
     * Specifies that the previously recorded method invocation will return a given sequence of values during replay.
     * <p/>
     * Calling this method is equivalent to assigning the {@link #result} field two or more times in sequence, or
@@ -227,17 +239,23 @@ public abstract class Expectations extends Invocations
     * The current expectation will have its upper invocation count automatically set to the total number of values
     * specified to be returned.
     * This upper limit can be overridden through the {@code maxTimes} field, if necessary.
-    * <p/>
-    * If this method is used for a constructor or {@code void} method, the given return values will be ignored,
-    * but matching invocations will be allowed during replay; they will simply do nothing.
     *
     * @param firstValue the first value to be returned at replay time
-    * @param remainingValues the remaining values to be returned, in the same order
+    * @param secondValue the second value to be returned at replay time
+    * @param remainingValues any remaining values to be returned, in the same order
+    *
+    * @throws IllegalArgumentException if this method is used for a constructor or {@code void} method
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#results">Tutorial</a>
     */
-   protected final void returns(Object firstValue, Object... remainingValues)
+   protected final void returns(Object firstValue, Object secondValue, Object... remainingValues)
    {
-      getCurrentPhase().addSequenceOfReturnValues(firstValue, remainingValues);
+      int n = remainingValues.length;
+      Object[] values = new Object[2 + n];
+      values[0] = firstValue;
+      values[1] = secondValue;
+      System.arraycopy(remainingValues, 0, values, 2, n);
+
+      getCurrentPhase().addSequenceOfReturnValues(values);
    }
 }

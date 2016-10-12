@@ -66,6 +66,29 @@ final class Expectation
       }
    }
 
+   void addSequenceOfReturnValues(@Nonnull Object[] values)
+   {
+      if (invocation.isConstructor()) {
+         throw new IllegalArgumentException("Invalid recording for a constructor");
+      }
+
+      if (invocation.getMethodNameAndDescription().endsWith(")V")) {
+         throw new IllegalArgumentException("Invalid recording for a void method");
+      }
+
+      int n = values.length - 1;
+      Object firstValue = values[0];
+      Object[] remainingValues = new Object[n];
+      System.arraycopy(values, 1, remainingValues, 0, n);
+
+      InvocationResults sequence = getResults();
+
+      if (!new SequenceOfReturnValues(this, firstValue, remainingValues).addResultWithSequenceOfValues()) {
+         sequence.addReturnValue(firstValue);
+         sequence.addReturnValues(remainingValues);
+      }
+   }
+
    void addSequenceOfReturnValues(@Nullable Object firstValue, @Nullable Object[] remainingValues)
    {
       InvocationResults sequence = getResults();

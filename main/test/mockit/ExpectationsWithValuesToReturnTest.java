@@ -4,18 +4,13 @@
  */
 package mockit;
 
-import java.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
 import org.junit.rules.*;
 
-import static java.util.Arrays.*;
-
 import static org.junit.Assert.*;
-
-import mockit.internal.*;
 
 public final class ExpectationsWithValuesToReturnTest
 {
@@ -58,15 +53,6 @@ public final class ExpectationsWithValuesToReturnTest
       Iterator<?> getIterator() { return null; }
       Iterable<?> getIterable() { return null; }
 
-      Collection<Number> getNumbers() { return null; }
-      List<Number> getNumberList() { return null; }
-      Set<String> getStringSet() { return null; }
-      SortedSet<Number> getSortedNumberSet() { return null; }
-      Iterator<String> getStringIterator() { return null; }
-      ListIterator<Float> getFloatIterator() { return null; }
-      Iterable<Number> getNumberIterable() { return null; }
-      Queue<Number> getNumberQueue() { return null; }
-
       int[] getIntArray() { return null; }
       int[][] getInt2Array() { return null; }
       byte[] getByteArray() { return null; }
@@ -81,54 +67,6 @@ public final class ExpectationsWithValuesToReturnTest
       boolean[] getBooleanArray() { return null; }
       String[] getStringArray() { return null; }
       String[][] getString2Array() { return null; }
-   }
-
-   @Test
-   public void returnsExpectedValuesWithStrictExpectations(@Mocked final Collaborator mock)
-   {
-      new StrictExpectations() {{
-         mock.getValue(); returns(3);
-         Collaborator.doInternal(); returns("test");
-      }};
-
-      assertEquals(3, mock.getValue());
-      assertEquals("test", Collaborator.doInternal());
-   }
-
-   @Test
-   public void returnsExpectedValues(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getValue(); returns(3);
-         Collaborator.doInternal(); returns("test");
-      }};
-
-      assertEquals(3, mock.getValue());
-      assertEquals("test", Collaborator.doInternal());
-   }
-
-   @Test
-   public void recordsMultipleExpectedValues(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getValue(); returns(1); returns(2); returns(3);
-      }};
-
-      assertEquals(1, mock.getValue());
-      assertEquals(2, mock.getValue());
-      assertEquals(3, mock.getValue());
-   }
-
-   @Test
-   public void returnsMultipleExpectedValuesWithMoreInvocationsAllowed(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getValue(); returns(1); returns(2); times = 3;
-      }};
-
-      assertEquals(1, mock.getValue());
-      assertEquals(2, mock.getValue());
-      assertEquals(2, mock.getValue());
    }
 
    @Test
@@ -227,18 +165,15 @@ public final class ExpectationsWithValuesToReturnTest
       assertArrayEquals(new String[0][0], mock.getString2Array());
    }
 
-   @SuppressWarnings("PrimitiveArrayArgumentToVariableArgMethod")
    @Test
    public void returnsMultipleValuesInSequenceUsingVarargs()
    {
       final Collaborator collaborator = new Collaborator();
-      final char[] charArray = {'a', 'b', 'c'};
 
       new StrictExpectations(collaborator) {{
          collaborator.getBooleanValue(); returns(true, false);
          collaborator.getShortValue(); returns((short) 1, (short) 2, (short) 3);
          collaborator.getShortWrapper(); returns((short) 5, (short) 6, (short) -7, (short) -8);
-         collaborator.getCharArray(); returns(charArray);
          collaborator.getCharArray(); returns(new char[0], new char[] {'x'});
       }};
 
@@ -254,7 +189,6 @@ public final class ExpectationsWithValuesToReturnTest
       assertEquals(-7, collaborator.getShortWrapper().shortValue());
       assertEquals(-8, collaborator.getShortWrapper().shortValue());
 
-      assertArrayEquals(charArray, collaborator.getCharArray());
       assertArrayEquals(new char[0], collaborator.getCharArray());
       assertArrayEquals(new char[]{'x'}, collaborator.getCharArray());
    }
@@ -274,115 +208,18 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsMultipleValuesInSequenceUsingArray()
-   {
-      final Collaborator collaborator = new Collaborator();
-      final boolean[] booleanArray = {true, false};
-      final int[] intArray = {1, 2, 3};
-      final Character[] charArray = {'a', 'b', 'c'};
-
-      new Expectations(collaborator) {{
-         collaborator.getBooleanValue(); returns(booleanArray);
-         collaborator.getBooleanWrapper(); returns(booleanArray);
-         collaborator.getInteger(); returns(intArray);
-         collaborator.getValue(); returns(intArray);
-         collaborator.getCharValue(); returns(charArray);
-      }};
-
-      assertTrue(collaborator.getBooleanValue());
-      assertFalse(collaborator.getBooleanValue());
-
-      assertTrue(collaborator.getBooleanWrapper());
-      assertFalse(collaborator.getBooleanWrapper());
-
-      assertEquals(1, collaborator.getInteger().intValue());
-      assertEquals(2, collaborator.getInteger().intValue());
-      assertEquals(3, collaborator.getInteger().intValue());
-
-      assertEquals(1, collaborator.getValue());
-      assertEquals(2, collaborator.getValue());
-      assertEquals(3, collaborator.getValue());
-
-      assertEquals('a', collaborator.getCharValue());
-      assertEquals('b', collaborator.getCharValue());
-      assertEquals('c', collaborator.getCharValue());
-   }
-
-   @Test
-   public void returnsMultipleValuesInSequenceUsingIterable(@Injectable final Collaborator collaborator)
-   {
-      final Iterable<Integer> intValues = new Iterable<Integer>() {
-         @Override public Iterator<Integer> iterator() { return asList(3, 2, 1).iterator(); }
-      };
-
-      new Expectations() {{
-         collaborator.getValue(); returns(intValues);
-      }};
-
-      assertEquals(3, collaborator.getValue());
-      assertEquals(2, collaborator.getValue());
-      assertEquals(1, collaborator.getValue());
-   }
-
-   @Test
-   public void returnsMultipleValuesInSequenceUsingCollection()
-   {
-      final Collaborator collaborator = new Collaborator();
-      final Set<Boolean> booleanSet = new LinkedHashSet<Boolean>(asList(true, false));
-      final Collection<Integer> intCol = asList(1, 2, 3);
-      final List<Character> charList = asList('a', 'b', 'c');
-
-      new Expectations(collaborator) {{
-         collaborator.getBooleanWrapper(); returns(booleanSet);
-         collaborator.getInteger(); returns(intCol);
-         collaborator.getCharValue(); returns(charList);
-      }};
-
-      assertTrue(collaborator.getBooleanWrapper());
-      assertFalse(collaborator.getBooleanWrapper());
-
-      assertEquals(1, collaborator.getInteger().intValue());
-      assertEquals(2, collaborator.getInteger().intValue());
-      assertEquals(3, collaborator.getInteger().intValue());
-
-      assertEquals('a', collaborator.getCharValue());
-      assertEquals('b', collaborator.getCharValue());
-      assertEquals('c', collaborator.getCharValue());
-   }
-
-   @Test
-   public void recordMultipleResultValuesInSequenceUsingIterator()
-   {
-      final Collaborator collaborator = new Collaborator();
-      final Collection<String> strCol = asList("ab", "cde", "Xyz");
-
-      new Expectations(collaborator) {{
-         collaborator.getString(); returns(strCol.iterator());
-      }};
-
-      assertEquals("ab", collaborator.getString());
-      assertEquals("cde", collaborator.getString());
-      assertEquals("Xyz", collaborator.getString());
-   }
-
-   @Test
    public void returnsMultipleValuesFromMethodWithReturnTypeOfObject(@Mocked final Collaborator collaborator)
    {
       new Expectations() {{
          collaborator.getObject();
          returns(1, 2);
-         returns(new int[] {1, 2});
          returns("test", 'X');
-         returns(asList(5L, 67L));
       }};
 
       assertEquals(1, collaborator.getObject());
       assertEquals(2, collaborator.getObject());
-      assertArrayEquals(new int[] {1, 2}, (int[]) collaborator.getObject());
       assertEquals("test", collaborator.getObject());
       assertEquals('X', collaborator.getObject());
-      //noinspection AssertEqualsBetweenInconvertibleTypes
-      assertEquals(asList(5L, 67L), collaborator.getObject());
    }
 
    @Test
@@ -399,181 +236,27 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForMethodsThatReturnCollections()
-   {
-      final Collaborator collaborator = new Collaborator();
-      final Collection<String> strCol = asList("ab", "cde");
-      final List<Byte> byteList = asList((byte) 5, (byte) 68);
-      final Set<Character> charSet = new HashSet<Character>(asList('g', 't', 'x'));
-      final SortedSet<String> sortedSet = new TreeSet<String>(asList("hpq", "Abc"));
-
-      new Expectations(collaborator) {{
-         collaborator.getItems(); returns(strCol);
-         collaborator.getListItems(); returns(byteList);
-         collaborator.getSetItems(); returns(charSet);
-         collaborator.getSortedSetItems(); returns(sortedSet);
-      }};
-
-      assertSame(strCol, collaborator.getItems());
-      assertSame(byteList, collaborator.getListItems());
-      assertSame(charSet, collaborator.getSetItems());
-      assertSame(sortedSet, collaborator.getSortedSetItems());
-   }
-
-   @Test
-   public void recordResultForMethodThatReturnsIterator()
-   {
-      final Collaborator collaborator = new Collaborator();
-      final Iterator<String> itr = asList("ab", "cde").iterator();
-
-      new Expectations(collaborator) {{
-         collaborator.getIterator(); returns(itr);
-      }};
-
-      assertSame(itr, collaborator.getIterator());
-   }
-
-   @Test
-   public void returnsValueOfIncompatibleTypeForMethodReturningArray(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getBooleanArray(); returns(new HashSet());
-         mock.getStringArray(); returns(Collections.emptyList());
-         mock.getIntArray(); returns(new short[0]);
-      }};
-
-      try { mock.getBooleanArray(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getStringArray(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getIntArray(); fail(); } catch (ClassCastException ignore) {}
-   }
-
-   @Test
-   public void returnsValueOfIncompatibleTypeForMethodReturningCollection(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getListItems(); returns(Collections.emptySet());
-         mock.getSetItems(); returns(new ArrayList());
-         mock.getItems(); returns(new char[0]);
-      }};
-
-      try { mock.getListItems(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getSetItems(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getItems(); fail(); } catch (ClassCastException ignore) {}
-   }
-
-   @Test
-   public void returnsValueOfIncompatibleTypeForMethodReturningIterator(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getIterator();
-         returns(Collections.emptySet());
-         returns(asList("a", true, 123));
-         returns(new char[] {'A', 'b'});
-      }};
-
-      try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
-      try { mock.getIterator(); fail(); } catch (ClassCastException ignore) {}
-   }
-
-   @Test
-   public void returnsEmptyArrayForSimpleReturnType(@Mocked final Collaborator mock)
+   public void attemptToRecordReturnValuesForVoidMethod(@Mocked final Collaborator mock)
    {
       thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("void method");
 
-      new Expectations() {{
-         mock.getString();
-         returns(new String[0]);
-      }};
-   }
-
-   @Test
-   public void returnsEmptyCollectionForSimpleReturnType(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new Expectations() {{
-         mock.getString();
-         returns(Collections.emptyList());
-      }};
-   }
-
-   @Test
-   public void returnsMockedCollectionForSimpleReturnType(
-      @Mocked final Collaborator mock, @Mocked final List<String> values)
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new Expectations() {{
-         mock.getString();
-         result = values;
-      }};
-   }
-
-   @Test
-   public void returnsEmptyIteratorForSimpleReturnType(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new Expectations() {{
-         mock.getString();
-         returns(Collections.emptySet().iterator());
-      }};
-   }
-
-   @Test
-   public void recordReturnValueForVoidMethod(@Mocked final Collaborator mock)
-   {
       new Expectations() {{
          mock.provideSomeService();
-         returns(123);
+         returns(123, "a");
       }};
-
-      mock.provideSomeService();
    }
 
    @Test
-   public void recordReturnValueForConstructor(@Mocked Collaborator mock)
+   public void attemptToRecordReturnValuesForConstructor(@Mocked Collaborator mock)
    {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("constructor");
+
       new Expectations() {{
          new Collaborator();
-         returns("test");
+         returns("test", "");
       }};
-
-      new Collaborator();
-   }
-
-   @Test
-   public void recordMultipleReturnValuesForVoidMethod(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.provideSomeService();
-         returns(null, 123, "abc");
-      }};
-
-      mock.provideSomeService();
-      mock.provideSomeService();
-   }
-
-   @Test
-   public void recordMultipleReturnValuesForConstructor(@Mocked Collaborator mock)
-   {
-      new StrictExpectations() {{
-         new Collaborator();
-         returns(123, null, "abc");
-      }};
-
-      new Collaborator();
-      new Collaborator();
-      new Collaborator();
-
-      try {
-         new Collaborator();
-         fail();
-      }
-      catch (UnexpectedInvocation e) {
-         assertTrue(e.getMessage().startsWith("Unexpected invocation "));
-      }
    }
 
    @Test
@@ -705,57 +388,5 @@ public final class ExpectationsWithValuesToReturnTest
       assertSame(firstResult, mock.getListItems());
       assertSame(secondResult, mock.getListItems());
       assertSame(thirdResult, mock.getListItems());
-   }
-
-   @Test
-   public void createAppropriateContainerFromSingleRecordedValueOfTheElementType(@Mocked final Collaborator mock)
-   {
-      final Double d = 1.2;
-      final Float f = 3.45F;
-      final BigDecimal price = new BigDecimal("123.45");
-
-      new Expectations() {{
-         mock.getNumbers(); result = 123;
-         mock.getNumberList(); result = 45L;
-         mock.getStringSet(); result = "test";
-         mock.getSortedNumberSet(); result = d;
-         mock.getNumberIterable(); result = price;
-         mock.getNumberQueue(); result = d;
-         mock.getStringIterator(); result = "Abc";
-         mock.getFloatIterator(); result = f;
-      }};
-
-      assertContainerWithSingleElement(mock.getNumbers(), 123);
-      assertContainerWithSingleElement(mock.getNumberList(), 45L);
-      assertContainerWithSingleElement(mock.getStringSet(), "test");
-      assertContainerWithSingleElement(mock.getSortedNumberSet(), d);
-      assertContainerWithSingleElement(mock.getNumberIterable(), price);
-      assertContainerWithSingleElement(mock.getNumberQueue(), d);
-      assertContainerWithSingleElement(mock.getStringIterator(), "Abc");
-      assertContainerWithSingleElement(mock.getFloatIterator(), f);
-   }
-
-   void assertContainerWithSingleElement(Iterable<?> container, Object expectedElement)
-   {
-      assertContainerWithSingleElement(container.iterator(), expectedElement);
-   }
-
-   void assertContainerWithSingleElement(Iterator<?> container, Object expectedElement)
-   {
-      assertTrue(container.hasNext());
-      assertSame(expectedElement, container.next());
-      assertFalse(container.hasNext());
-   }
-
-   @Test
-   public void createArrayFromSingleRecordedValueOfTheElementType(@Mocked final Collaborator mock)
-   {
-      new Expectations() {{
-         mock.getIntArray(); result = 123;
-         mock.getStringArray(); result = "test";
-      }};
-
-      assertArrayEquals(new int[] {123}, mock.getIntArray());
-      assertArrayEquals(new String[] {"test"}, mock.getStringArray());
    }
 }
