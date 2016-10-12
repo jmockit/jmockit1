@@ -124,8 +124,19 @@ public final class ActiveInvocations
             currentPhase.handleInvocationCountConstraint(n, -1);
          }
          else {
-            Warning.display("\"minTimes = 0\" constraint ignored");
+            String advice = currentPhase instanceof RecordPhase ? "; if needed, use a named Expectations subclass" : "";
+            throw new IllegalArgumentException("Invalid minTimes value from test method" + advice);
          }
+      }
+   }
+
+   public static void minTimes0(int n)
+   {
+      RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
+
+      if (instance != null) {
+         TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
+         currentPhase.handleInvocationCountConstraint(n, -1);
       }
    }
 

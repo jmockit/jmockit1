@@ -11,8 +11,6 @@ import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
-
 public final class MisusedExpectationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -208,15 +206,6 @@ public final class MisusedExpectationsTest
          mock2.doSomething(true);
          new Blah();
          mock.doSomething(false);
-      }};
-   }
-
-   @Before
-   public void recordCommonExpectations()
-   {
-      // A "non-strict" expectation.
-      new Expectations() {{
-         mock.doSomething(anyBoolean); minTimes = 0;
       }};
    }
 
@@ -480,33 +469,39 @@ public final class MisusedExpectationsTest
    @Test
    public void recordExpectationWithMinTimesSetToZero()
    {
-      thrown.expect(MissingInvocation.class);
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid");
+      thrown.expectMessage("minTimes");
+      thrown.expectMessage("test method");
+      thrown.expectMessage("named Expectations");
 
       new Expectations() {{
          mock.doSomething(true);
-         minTimes = 0; // gets ignored if set to 0 (or negative) in a test method
+         minTimes = 0; // invalid if set to 0 (or negative) in a test method
       }};
    }
 
    @Test
    public void recordDynamicExpectationWithMinTimesSetToZero()
    {
-      thrown.expect(MissingInvocation.class);
+      thrown.expect(IllegalArgumentException.class);
 
       new Expectations(ProcessBuilder.class) {{
          new ProcessBuilder();
-         minTimes = 0; // gets ignored
+         minTimes = 0; // invalid
       }};
    }
 
    @Test
    public void verifyExpectationWithMinTimesSetToZero()
    {
-      thrown.expect(MissingInvocation.class);
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid minTimes");
+      thrown.expectMessage("test method");
 
       new Verifications() {{
          mock.doSomething(true);
-         minTimes = 0; // gets ignored
+         minTimes = 0; // invalid
       }};
    }
 

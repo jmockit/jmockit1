@@ -52,4 +52,21 @@ public final class ReusableNestedExpectationsTest
 
       assertEquals(5, mock.doSomething("test"));
    }
+
+   static final class Nested3Expectations extends Expectations
+   {
+      Nested3Expectations(Collaborator c)
+      {
+         c.doSomething("");
+         minTimes = 0;
+      }
+   }
+
+   @Test
+   public void usingNestedExpectationsWithMinTimesSetToValueOtherwiseInvalid()
+   {
+      new Nested3Expectations(mock);
+
+      // Don't call mock.doSomething();
+   }
 }

@@ -6,6 +6,8 @@ package mockit.internal.expectations.transformation;
 
 import javax.annotation.*;
 
+import static java.lang.Character.isDigit;
+
 import mockit.external.asm.*;
 import mockit.internal.expectations.*;
 import mockit.internal.state.*;
@@ -204,8 +206,20 @@ final class InvocationBlockModifier extends MethodVisitor
          return true;
       }
 
-      if ("times".equals(fieldName) || "minTimes".equals(fieldName) || "maxTimes".equals(fieldName)) {
+      if ("times".equals(fieldName) || "maxTimes".equals(fieldName)) {
          generateCallToActiveInvocationsMethod(fieldName, "(I)V");
+         return true;
+      }
+
+      if ("minTimes".equals(fieldName)) {
+         String methodToCall = fieldName;
+         int p = blockOwner.lastIndexOf('$');
+
+         if (p < 0 || !isDigit(blockOwner.charAt(p + 1))) {
+            methodToCall = "minTimes0";
+         }
+
+         generateCallToActiveInvocationsMethod(methodToCall, "(I)V");
          return true;
       }
 
