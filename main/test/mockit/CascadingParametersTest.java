@@ -265,6 +265,14 @@ public final class CascadingParametersTest
    }
 
    @Test
+   public void returnSameMockedInstanceThroughCascadingEvenWithMultipleCandidatesAvailable(
+      @Injectable ProcessBuilder pb1, @Injectable ProcessBuilder pb2)
+   {
+      assertSame(pb1, pb1.command("a"));
+      assertSame(pb2, pb2.command("b"));
+   }
+
+   @Test
    public void createOSProcessToCopyTempFiles(@Mocked final ProcessBuilder pb) throws Exception
    {
       // Code under test creates a new process to execute an OS-specific command.
@@ -423,7 +431,6 @@ public final class CascadingParametersTest
 
       assertNotNull(foo);
    }
-
 
    // Other tests /////////////////////////////////////////////////////////////////////////////////////////////////////
 

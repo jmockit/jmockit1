@@ -65,7 +65,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       instanceFactory.lastInstance = mockInstance;
 
       TestRun.mockFixture().registerInstanceFactoryForMockedType(targetClass, instanceFactory);
-      TestRun.getExecutingTest().getCascadingTypes().add(false, targetClass, mockInstance);
+      TestRun.getExecutingTest().getCascadingTypes().add(false, targetClass);
    }
 
    private void applyPartialMockingToGivenClass()

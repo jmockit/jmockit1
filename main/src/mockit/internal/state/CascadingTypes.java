@@ -18,19 +18,17 @@ public final class CascadingTypes
 
    CascadingTypes() { cascadingTypes = new ConcurrentHashMap<String, MockedTypeCascade>(4); }
 
-   public void add(boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType, @Nullable Object cascadedInstance)
+   public void add(boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType)
    {
       Class<?> mockedClass = getClassType(mockedType);
       String mockedTypeDesc = Type.getInternalName(mockedClass);
-      add(mockedTypeDesc, fromMockField, mockedType, cascadedInstance);
+      add(mockedTypeDesc, fromMockField, mockedType);
    }
 
-   void add(
-      @Nonnull String mockedTypeDesc, boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType,
-      @Nullable Object cascadedInstance)
+   void add(@Nonnull String mockedTypeDesc, boolean fromMockField, @Nonnull java.lang.reflect.Type mockedType)
    {
       if (!cascadingTypes.containsKey(mockedTypeDesc)) {
-         cascadingTypes.put(mockedTypeDesc, new MockedTypeCascade(fromMockField, mockedType, cascadedInstance));
+         cascadingTypes.put(mockedTypeDesc, new MockedTypeCascade(fromMockField, mockedType));
       }
    }
 

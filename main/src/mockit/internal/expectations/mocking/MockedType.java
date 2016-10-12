@@ -91,7 +91,7 @@ public final class MockedType extends InjectionPointProvider
          if (!(mockedType instanceof TypeVariable<?>)) {
             ExecutingTest executingTest = TestRun.getExecutingTest();
             CascadingTypes types = executingTest.getCascadingTypes();
-            types.add(fieldFromTestClass, mockedType, null);
+            types.add(fieldFromTestClass, mockedType);
          }
       }
    }
