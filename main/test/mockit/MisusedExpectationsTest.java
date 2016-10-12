@@ -28,6 +28,7 @@ public final class MisusedExpectationsTest
       String doSomething(boolean b) { return ""; }
       String getName() { return name.toUpperCase(); }
       Blah same() { return this; }
+      Runnable getSomethingElse() { return null; }
 
       static Object doSomething() { return null; }
       static Object someValue() { return null; }
@@ -464,6 +465,15 @@ public final class MisusedExpectationsTest
       new Expectations() {{ mock.same(); result = mock; }};
 
       assertSame(mock, mock.same());
+   }
+
+   @Test
+   public void ambiguousCascadingWhenMultipleValidCandidatesAreAvailable(
+      @Injectable Runnable r1, @Injectable Runnable r2)
+   {
+      Runnable cascaded = mock.getSomethingElse(); // which one to return: r1 or r2?
+
+      assertSame(r2, cascaded); // currently, last mock to be declared wins
    }
 
    @Test
