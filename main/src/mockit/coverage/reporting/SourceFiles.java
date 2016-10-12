@@ -55,15 +55,21 @@ final class SourceFiles
          if (subDir.isDirectory()) {
             String subDirName = subDir.getName();
 
-            if (!"test generated-sources".contains(subDirName)) {
-               if ("src".equals(subDirName)) {
-                  srcDirs.add(subDir);
-               }
-               else {
-                  addSrcSubDirs(subDir);
-               }
+            if ("src".equals(subDirName)) {
+               srcDirs.add(subDir);
+            }
+            else if (!isDirectoryToIgnore(subDirName)) {
+               addSrcSubDirs(subDir);
             }
          }
       }
+   }
+
+   private static final String IGNORED_DIRS = "bin build classes generated-sources out test tst web ";
+
+   private static boolean isDirectoryToIgnore(@Nonnull String subDirName)
+   {
+      int p = IGNORED_DIRS.indexOf(subDirName);
+      return p >= 0 && IGNORED_DIRS.charAt(p + subDirName.length()) == ' ';
    }
 }
