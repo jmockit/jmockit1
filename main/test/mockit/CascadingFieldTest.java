@@ -176,6 +176,19 @@ public final class CascadingFieldTest
       assertSame(b1, b2);
    }
 
+   @Test
+   public void recordAmbiguousExpectationWithMultipleCascadingCandidatesFollowedByExpectationRecordedOnFirstCandidate(
+      @Injectable final Bar bar1, @Injectable Bar bar2)
+   {
+      new Expectations() {{
+         foo.getBar();
+         bar1.doSomething();
+      }};
+
+      foo.getBar();
+      bar1.doSomething();
+   }
+
    static final class AnotherFoo { Bar getBar() { return null; } }
    @Mocked AnotherFoo anotherFoo;
 

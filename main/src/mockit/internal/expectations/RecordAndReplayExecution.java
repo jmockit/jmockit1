@@ -287,7 +287,7 @@ public final class RecordAndReplayExecution
 
       if (returnTypeDesc.charAt(0) == 'L') {
          ExpectedInvocation invocation = new ExpectedInvocation(mock, classDesc, nameAndDesc, genericSignature, args);
-         Object cascadedInstance = invocation.getDefaultValueForReturnType(null);
+         Object cascadedInstance = invocation.getDefaultValueForReturnType();
 
          if (cascadedInstance != null) {
             return cascadedInstance;

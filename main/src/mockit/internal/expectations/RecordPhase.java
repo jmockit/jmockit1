@@ -75,7 +75,7 @@ public final class RecordPhase extends TestOnlyPhase
          recordAndReplay.executionState.addExpectation(currentExpectation, strict);
       }
 
-      return invocation.getDefaultValueForReturnType(this);
+      return invocation.getDefaultValueForReturnType();
    }
 
    @Nullable

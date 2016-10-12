@@ -47,7 +47,7 @@ final class Expectation
    Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
    {
       if (results == null) {
-         return invocation.getDefaultValueForReturnType(null);
+         return invocation.getDefaultValueForReturnType();
       }
 
       return results.produceResult(invokedObject, invocationArgs);

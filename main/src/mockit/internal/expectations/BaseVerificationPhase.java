@@ -97,7 +97,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
          currentExpectation = currentVerification;
       }
 
-      return currentExpectation.invocation.getDefaultValueForReturnType(this);
+      return currentExpectation.invocation.getDefaultValueForReturnType();
    }
 
    abstract void findNonStrictExpectation(

@@ -9,11 +9,12 @@ import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import mockit.internal.util.GenericTypeReflection.*;
+import static mockit.external.asm.Type.getType;
+import static mockit.internal.util.TypeDescriptor.getClassForType;
 
 public final class ExpectedInvocation
 {
@@ -152,10 +153,12 @@ public final class ExpectedInvocation
 
    public boolean isMatch(@Nullable Object mock, @Nonnull String invokedClassDesc, @Nonnull String invokedMethod)
    {
-      return invokedClassDesc.equals(getClassDesc()) && isMatchingMethod(mock, invokedMethod);
+      return
+         invokedClassDesc.equals(getClassDesc()) &&
+         (isMatchingGenericMethod(mock, invokedMethod) || isMatchingMethod(invokedMethod));
    }
 
-   private boolean isMatchingMethod(@Nullable Object mock, @Nonnull String invokedMethod)
+   private boolean isMatchingGenericMethod(@Nullable Object mock, @Nonnull String invokedMethod)
    {
       if (mock != null && instance != null) {
          String genericSignature = arguments.genericSignature;
@@ -171,51 +174,81 @@ public final class ExpectedInvocation
          }
       }
 
-      String nameAndDesc = getMethodNameAndDescription();
+      return false;
+   }
+
+   private boolean isMatchingMethod(@Nonnull String invokedMethod)
+   {
+      int returnTypeStartPos = getReturnTypePosition(invokedMethod);
+
+      if (returnTypeStartPos < 0) {
+         return false;
+      }
+
+      if (haveSameReturnTypes(invokedMethod, returnTypeStartPos)) {
+         return true;
+      }
+
+      // At this point the methods are known to differ only in return type, so check if the return type of
+      // the recorded one is assignable to the return type of the one invoked:
+      return isReturnTypeOfRecordedMethodAssignableToReturnTypeOfInvokedMethod(invokedMethod, returnTypeStartPos);
+   }
+
+   // Returns -1 if the method names or parameters are different.
+   private int getReturnTypePosition(@Nonnull String invokedMethod)
+   {
+      String recordedMethod = getMethodNameAndDescription();
       int i = 0;
 
-      // Will return false if the method names or parameters are different:
       while (true) {
-         char c = nameAndDesc.charAt(i);
+         char c = recordedMethod.charAt(i);
 
          if (c != invokedMethod.charAt(i)) {
-            return false;
+            return -1;
          }
 
          i++;
 
          if (c == ')') {
-            break;
+            return i;
          }
       }
+   }
 
+   private boolean haveSameReturnTypes(@Nonnull String invokedMethod, @Nonnegative int returnTypeStartPos)
+   {
+      String recordedMethod = getMethodNameAndDescription();
       int n = invokedMethod.length();
 
-      if (n == nameAndDesc.length()) {
-         int j = i;
-
-         // Given return types of same length, will return true if they are identical:
-         while (true) {
-            char c = nameAndDesc.charAt(j);
-
-            if (c != invokedMethod.charAt(j)) {
-               break;
-            }
-
-            j++;
-
-            if (j == n) {
-               return true;
-            }
-         }
+      if (n != recordedMethod.length()) {
+         return false;
       }
 
-      // At this point the methods are known to differ only in return type, so check if the return
-      // type of the recorded one is assignable to the return type of the one invoked:
-      Type rt1 = Type.getType(nameAndDesc.substring(i));
-      Type rt2 = Type.getType(invokedMethod.substring(i));
+      int j = returnTypeStartPos;
 
-      return TypeDescriptor.getClassForType(rt2).isAssignableFrom(TypeDescriptor.getClassForType(rt1));
+      while (true) {
+         char c = recordedMethod.charAt(j);
+
+         if (c != invokedMethod.charAt(j)) {
+            return false;
+         }
+
+         j++;
+
+         if (j == n) {
+            return true;
+         }
+      }
+   }
+
+   private boolean isReturnTypeOfRecordedMethodAssignableToReturnTypeOfInvokedMethod(
+      @Nonnull String invokedMethod, @Nonnegative int returnTypeStartPos)
+   {
+      String recordedMethod = getMethodNameAndDescription();
+      Type recordedRT = getType(recordedMethod.substring(returnTypeStartPos));
+      Type invokedRT  = getType(invokedMethod.substring(returnTypeStartPos));
+
+      return getClassForType(invokedRT).isAssignableFrom(getClassForType(recordedRT));
    }
 
    public boolean isMatch(
@@ -406,7 +439,7 @@ public final class ExpectedInvocation
    // Default result //////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Nullable
-   public Object getDefaultValueForReturnType(@Nullable TestOnlyPhase phase)
+   public Object getDefaultValueForReturnType()
    {
       if (defaultReturnValue == UNDEFINED_DEFAULT_RETURN) {
          Class<?> resolvedReturnType = getReturnTypeAsResolvedFromClassArgument();
@@ -417,9 +450,8 @@ public final class ExpectedInvocation
             if (defaultReturnValue == null) {
                String returnTypeDesc = 'L' + resolvedReturnType.getName().replace('.', '/') + ';';
                String mockedTypeDesc = getClassDesc();
-               Object cascadedMock = MockedTypeCascade.getMock(
+               defaultReturnValue = MockedTypeCascade.getMock(
                   mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, resolvedReturnType);
-               useCascadedMock(phase, cascadedMock);
             }
 
             return defaultReturnValue;
@@ -429,7 +461,9 @@ public final class ExpectedInvocation
          defaultReturnValue = DefaultValues.computeForType(returnTypeDesc);
 
          if (defaultReturnValue == null) {
-            produceCascadedInstanceIfApplicable(phase, returnTypeDesc, arguments.genericSignature);
+            String mockedTypeDesc = getClassDesc();
+            defaultReturnValue = MockedTypeCascade.getMock(
+               mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, arguments.genericSignature);
          }
       }
 
@@ -455,27 +489,6 @@ public final class ExpectedInvocation
       }
 
       return null;
-   }
-
-   private void produceCascadedInstanceIfApplicable(
-      @Nullable TestOnlyPhase phase, @Nonnull String returnTypeDesc, @Nullable String genericSignature)
-   {
-      String mockedTypeDesc = getClassDesc();
-      Object cascadedMock = MockedTypeCascade.getMock(
-         mockedTypeDesc, arguments.methodNameAndDesc, instance, returnTypeDesc, genericSignature);
-
-      useCascadedMock(phase, cascadedMock);
-   }
-
-   private void useCascadedMock(@Nullable TestOnlyPhase phase, @Nullable Object cascadedMock)
-   {
-      if (cascadedMock != null) {
-         if (phase != null && !TestRun.getExecutingTest().isRegularMockedInstance(cascadedMock)) {
-            phase.setNextInstanceToMatch(cascadedMock);
-         }
-
-         defaultReturnValue = cascadedMock;
-      }
    }
 
    public void copyDefaultReturnValue(@Nonnull ExpectedInvocation other)
