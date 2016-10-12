@@ -125,6 +125,7 @@ public final class CascadingWithGenericsTest
       static <T extends Bar> T bar(@SuppressWarnings("UnusedParameters") Class<T> c) { return null; }
       WithStaticInit staticInit() { return null; }
    }
+
    static class WithStaticInit
    {
       static final Bar T = Factory.bar();
@@ -225,5 +226,14 @@ public final class CascadingWithGenericsTest
       Bar cascadedResult = mock.genericMethod();
 
       assertNotNull(cascadedResult);
+   }
+
+   interface NonPublicInterfaceWithGenericMethod { <T extends Runnable> T doSomething(); }
+
+   @Test
+   public void cascadeFromGenericMethodOfNonPublicInterface(@Mocked NonPublicInterfaceWithGenericMethod mock) {
+      Runnable result = mock.doSomething();
+
+      assertNotNull(result);
    }
 }

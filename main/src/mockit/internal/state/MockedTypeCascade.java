@@ -227,8 +227,7 @@ public final class MockedTypeCascade
       Type genericReturnType = cascadingMethod.getGenericReturnType();
 
       if (genericReturnType instanceof TypeVariable<?>) {
-         //noinspection ConstantConditions
-         genericReturnType = genericReflection.resolveTypeVariable((TypeVariable<?>) genericReturnType);
+         genericReturnType = getGenericReflection().resolveTypeVariable((TypeVariable<?>) genericReturnType);
       }
 
       return genericReturnType;
