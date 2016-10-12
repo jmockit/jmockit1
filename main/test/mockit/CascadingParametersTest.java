@@ -9,6 +9,7 @@ import java.lang.management.*;
 import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.junit.*;
 import org.junit.runners.*;
@@ -409,6 +410,22 @@ public final class CascadingParametersTest
          sf.createSocket("first", 8080).getChannel().provider().openPipe();
       }};
    }
+
+   // Cascading other Java SE types ///////////////////////////////////////////////////////////////////////////////////
+
+   static class SomeClass { Future<Foo> doSomething() { return null; } }
+
+   @Test
+   public void cascadeAFuture(@Mocked SomeClass mock) throws Exception
+   {
+      Future<Foo> f = mock.doSomething();
+      Foo foo = f.get();
+
+      assertNotNull(foo);
+   }
+
+
+   // Other tests /////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordStrictExpectationOnCascadedMock(@Mocked Foo foo, @Mocked final Bar mockBar)
