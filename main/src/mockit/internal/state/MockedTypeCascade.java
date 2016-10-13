@@ -21,7 +21,7 @@ public final class MockedTypeCascade
    final boolean fromMockField;
    @Nonnull private final Type mockedType;
    @Nullable Class<?> mockedClass;
-   @Nullable GenericTypeReflection genericReflection;
+   @Nullable private GenericTypeReflection genericReflection;
    @Nonnull private final Map<String, Type> cascadedTypesAndMocks;
 
    MockedTypeCascade(boolean fromMockField, @Nonnull Type mockedType)
