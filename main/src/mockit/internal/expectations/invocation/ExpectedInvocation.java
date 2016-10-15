@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.invocation;
 
+import java.io.*;
 import java.util.*;
 import javax.annotation.*;
 
@@ -128,10 +129,7 @@ public final class ExpectedInvocation
    public boolean isConstructor() { return arguments.isForConstructor(); }
 
    @Nullable
-   public Object getRecordedInstance()
-   {
-      return replacementInstance != null ? replacementInstance : instance;
-   }
+   public Object getRecordedInstance() { return replacementInstance != null ? replacementInstance : instance; }
 
    @Nonnull
    public String getSignatureWithResolvedReturnType()
@@ -257,6 +255,11 @@ public final class ExpectedInvocation
       return getClassForType(invokedRT).isAssignableFrom(getClassForType(recordedRT));
    }
 
+   public boolean isMatch(@Nonnull ExpectedInvocation other)
+   {
+      return isMatch(other.instance, other.getClassDesc(), other.getMethodNameAndDescription(), null);
+   }
+
    public boolean isMatch(
       @Nullable Object replayInstance, @Nonnull String invokedClassDesc, @Nonnull String invokedMethod,
       @Nullable Map<Object, Object> replacementMap)
@@ -320,22 +323,46 @@ public final class ExpectedInvocation
    }
 
    @Nonnull
-   public MissingInvocation errorForMissingInvocation()
+   public MissingInvocation errorForMissingInvocation(@Nonnull List<ExpectedInvocation> nonMatchingInvocations)
    {
-      return newMissingInvocationWithCause("Missing invocation", "Missing invocation of:\n" + this);
+      StringBuilder errorMessage = new StringBuilder(200);
+      errorMessage.append("Missing invocation to:\n").append(this);
+      appendNonMatchingInvocations(errorMessage, nonMatchingInvocations);
+
+      return newMissingInvocationWithCause("Missing invocation", errorMessage.toString());
    }
 
    @Nonnull
-   public MissingInvocation errorForMissingInvocations(int missingInvocations)
+   public MissingInvocation errorForMissingInvocations(
+      @Nonnegative int missingInvocations, @Nonnull List<ExpectedInvocation> nonMatchingInvocations)
    {
-      String message = "Missing " + missingInvocations + invocationsTo(missingInvocations) + this;
-      return newMissingInvocationWithCause("Missing invocations", message);
+      StringBuilder errorMessage = new StringBuilder(200);
+      errorMessage.append("Missing ").append(missingInvocations).append(invocationsTo(missingInvocations)).append(this);
+      appendNonMatchingInvocations(errorMessage, nonMatchingInvocations);
+
+      return newMissingInvocationWithCause("Missing invocations", errorMessage.toString());
    }
 
    @Nonnull
-   private static String invocationsTo(int invocations)
+   private static String invocationsTo(@Nonnegative int invocations)
    {
       return invocations == 1 ? " invocation to:\n" : " invocations to:\n";
+   }
+
+   private void appendNonMatchingInvocations(
+      @Nonnull StringBuilder errorMessage, @Nonnull List<ExpectedInvocation> nonMatchingInvocations)
+   {
+      if (!nonMatchingInvocations.isEmpty()) {
+         errorMessage.append("\ninstead got:\n");
+         String sep = "";
+
+         for (ExpectedInvocation nonMatchingInvocation : nonMatchingInvocations) {
+            String invocationDescription = nonMatchingInvocation.toString(instance);
+            errorMessage.append(sep).append(invocationDescription);
+            sep = "\n";
+            nonMatchingInvocation.printCause(errorMessage);
+         }
+      }
    }
 
    @Nonnull
@@ -412,11 +439,14 @@ public final class ExpectedInvocation
    }
 
    @Nonnull @Override
-   public String toString()
+   public String toString() { return toString((Object) null); }
+
+   @Nonnull
+   public String toString(@Nullable Object otherInstance)
    {
       String desc = arguments.toString();
 
-      if (instance != null) {
+      if (instance != otherInstance && instance != null) {
          desc += "\n   on mock instance: " + ObjectMethods.objectIdentity(instance);
       }
 
@@ -434,6 +464,17 @@ public final class ExpectedInvocation
       arguments.setMatchers(matchers);
       arguments.setValues(invocationArgs);
       return description;
+   }
+
+   public void printCause(@Nonnull Appendable errorMessage)
+   {
+      if (invocationCause != null) {
+         try { errorMessage.append('\n'); } catch (IOException ignore) {}
+
+         StackTrace st = new StackTrace(invocationCause);
+         st.filter();
+         st.print(errorMessage);
+      }
    }
 
    @Nullable

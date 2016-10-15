@@ -153,8 +153,7 @@ final class ReplayPhase extends Phase
       return expectation.produceResult(mock, args);
    }
 
-   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   @Nullable
+   @Nullable @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    private Object handleStrictInvocation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, boolean withRealImpl,
       @Nonnull Object[] replayArgs)
@@ -273,23 +272,68 @@ final class ReplayPhase extends Phase
       Expectation strict = strictExpectation;
       strictExpectation = null;
 
-      if (strict != null && strict.constraints.isInvocationCountLessThanMinimumExpected()) {
-         return strict.invocation.errorForMissingInvocation();
-      }
+      Error missingInvocation = getErrorIfStrictExpectationIsMissing(strict);
 
-      List<Expectation> notStrictExpectations = recordAndReplay.executionState.notStrictExpectations;
+      if (missingInvocation == null) {
+         missingInvocation = getErrorForFirstNotStrictExpectationThatIsMissing();
 
-      // New expectations might get added to the list, so a regular loop would cause a CME.
-      //noinspection ForLoopReplaceableByForEach
-      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
-         Expectation nonStrict = notStrictExpectations.get(i);
-         InvocationConstraints constraints = nonStrict.constraints;
-
-         if (constraints.isInvocationCountLessThanMinimumExpected()) {
-            return constraints.errorForMissingExpectations(nonStrict.invocation);
+         if (missingInvocation == null) {
+            missingInvocation = getErrorIfNextStrictExpectationIsMissing();
          }
       }
 
+      return missingInvocation;
+   }
+
+   @Nullable
+   private Error getErrorIfStrictExpectationIsMissing(@Nullable Expectation strict)
+   {
+      if (strict != null && strict.constraints.isInvocationCountLessThanMinimumExpected()) {
+         return strict.invocation.errorForMissingInvocation(Collections.<ExpectedInvocation>emptyList());
+      }
+
+      return null;
+   }
+
+   @Nullable
+   private Error getErrorForFirstNotStrictExpectationThatIsMissing()
+   {
+      List<Expectation> notStrictExpectations = recordAndReplay.executionState.notStrictExpectations;
+
+      // New expectations might get added to the list, so a regular loop would cause a CME.
+      for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
+         Expectation notStrict = notStrictExpectations.get(i);
+         InvocationConstraints constraints = notStrict.constraints;
+
+         if (constraints.isInvocationCountLessThanMinimumExpected()) {
+            List<ExpectedInvocation> nonMatchingInvocations = getNonMatchingInvocations(notStrict);
+            return constraints.errorForMissingExpectations(notStrict.invocation, nonMatchingInvocations);
+         }
+      }
+
+      return null;
+   }
+
+   @Nonnull
+   private List<ExpectedInvocation> getNonMatchingInvocations(@Nonnull Expectation unsatisfiedExpectation)
+   {
+      ExpectedInvocation unsatisfiedInvocation = unsatisfiedExpectation.invocation;
+      List<ExpectedInvocation> nonMatchingInvocations = new ArrayList<ExpectedInvocation>();
+
+      for (Expectation replayedExpectation : invocations) {
+         ExpectedInvocation replayedInvocation = replayedExpectation.invocation;
+
+         if (replayedExpectation != unsatisfiedExpectation && replayedInvocation.isMatch(unsatisfiedInvocation)) {
+            nonMatchingInvocations.add(replayedInvocation);
+         }
+      }
+
+      return nonMatchingInvocations;
+   }
+
+   @Nullable
+   private Error getErrorIfNextStrictExpectationIsMissing()
+   {
       int nextStrictExpectationIndex = currentStrictExpectationIndex + 1;
       List<Expectation> strictExpectations = getStrictExpectations();
 
@@ -297,7 +341,8 @@ final class ReplayPhase extends Phase
          Expectation nextStrictExpectation = strictExpectations.get(nextStrictExpectationIndex);
 
          if (nextStrictExpectation.constraints.isInvocationCountLessThanMinimumExpected()) {
-            return nextStrictExpectation.invocation.errorForMissingInvocation();
+            return
+               nextStrictExpectation.invocation.errorForMissingInvocation(Collections.<ExpectedInvocation>emptyList());
          }
       }
 

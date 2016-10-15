@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.invocation;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.*;
@@ -55,7 +56,7 @@ public final class InvocationConstraints
    {
       if (invocationCount < lowerLimit) {
          int missingInvocations = lowerLimit - invocationCount;
-         return invocation.errorForMissingInvocations(missingInvocations);
+         return invocation.errorForMissingInvocations(missingInvocations, Collections.<ExpectedInvocation>emptyList());
       }
 
       return null;
@@ -77,8 +78,9 @@ public final class InvocationConstraints
    }
 
    @Nonnull
-   public Error errorForMissingExpectations(@Nonnull ExpectedInvocation invocation)
+   public Error errorForMissingExpectations(
+      @Nonnull ExpectedInvocation invocation, @Nonnull List<ExpectedInvocation> nonMatchingInvocations)
    {
-      return invocation.errorForMissingInvocations(minInvocations - invocationCount) ;
+      return invocation.errorForMissingInvocations(minInvocations - invocationCount, nonMatchingInvocations);
    }
 }

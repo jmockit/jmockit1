@@ -25,8 +25,8 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       verifiedExpectations = new ArrayList<VerifiedExpectation>();
    }
 
-   @Override
-   protected void findNonStrictExpectation(
+   @Nonnull @Override
+   protected List<ExpectedInvocation> findNonStrictExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
       if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
@@ -34,6 +34,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       }
 
       replayIndex = -1;
+      List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<ExpectedInvocation>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);
@@ -52,11 +53,16 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
             currentExpectation = replayExpectation;
             mapNewInstanceToReplacementIfApplicable(mock);
          }
+         else if (matchingInvocationWithDifferentArgs != null) {
+            matchingInvocationsWithDifferentArgs.add(matchingInvocationWithDifferentArgs);
+         }
       }
 
       if (replayIndex >= 0) {
          pendingError = verifyConstraints();
       }
+
+      return matchingInvocationsWithDifferentArgs;
    }
 
    @Nullable

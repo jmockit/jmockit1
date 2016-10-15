@@ -22,6 +22,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    @Nullable private Expectation currentVerification;
    protected int replayIndex;
    @Nullable protected Error pendingError;
+   @Nullable protected ExpectedInvocation matchingInvocationWithDifferentArgs;
 
    protected BaseVerificationPhase(
       @Nonnull RecordAndReplayExecution recordAndReplay,
@@ -81,7 +82,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
       currentExpectation = null;
       currentVerifiedExpectations.clear();
-      findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+      List<ExpectedInvocation> matchingInvocationsWithDifferentArgs =
+         findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       argMatchers = null;
 
       if (matchInstance) {
@@ -93,14 +95,15 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       }
 
       if (currentExpectation == null) {
-         pendingError = currentVerification.invocation.errorForMissingInvocation();
+         pendingError = currentVerification.invocation.errorForMissingInvocation(matchingInvocationsWithDifferentArgs);
          currentExpectation = currentVerification;
       }
 
       return currentExpectation.invocation.getDefaultValueForReturnType();
    }
 
-   abstract void findNonStrictExpectation(
+   @Nonnull
+   abstract List<ExpectedInvocation> findNonStrictExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args);
 
    final boolean matches(
@@ -110,6 +113,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       ExpectedInvocation invocation = replayExpectation.invocation;
       boolean constructor = invocation.isConstructor();
       Map<Object, Object> replacementMap = getReplacementMap();
+      matchingInvocationWithDifferentArgs = null;
 
       if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, replacementMap)) {
          boolean matching;
@@ -126,6 +130,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
          }
 
          if (matching) {
+            matchingInvocationWithDifferentArgs = invocation;
+
             InvocationArguments invocationArguments = invocation.arguments;
             List<ArgumentMatcher<?>> originalMatchers = invocationArguments.getMatchers();
             Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);

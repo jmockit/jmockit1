@@ -14,12 +14,11 @@ public final class AssertionErrorMessagesTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("unused")
    static class Collaborator
    {
       void doSomething() {}
-      void doSomething(int i, String s) {}
-      void doSomethingElse(String s) {}
+      void doSomething(@SuppressWarnings("unused") int i, @SuppressWarnings("unused") String s) {}
+      void doSomethingElse(@SuppressWarnings("unused") String s) {}
    }
 
    @Mocked Collaborator mock;
@@ -28,7 +27,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForRecordedStrictExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 2, \"xyz\"");
+      thrown.expectMessage("2, \"xyz\"");
 
       new StrictExpectations() {{
          mock.doSomething(anyInt, anyString);
@@ -58,7 +57,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForRecordedStrictExpectationWithMaximumInvocationCountOfZero()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 1, \"Abc\"");
+      thrown.expectMessage("1, \"Abc\"");
 
       new StrictExpectations() {{
          mock.doSomething(anyInt, anyString); times = 0;
@@ -71,7 +70,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForRecordedExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 2, \"xyz\"");
+      thrown.expectMessage("2, \"xyz\"");
 
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 1; }};
 
@@ -83,7 +82,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForVerifiedExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 123, \"Test\"");
+      thrown.expectMessage("123, \"Test\"");
 
       mock.doSomething(123, "Test");
       mock.doSomethingElse("abc");
@@ -98,7 +97,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForExpectationsVerifiedInOrder()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 123, \"Test\"");
+      thrown.expectMessage("123, \"Test\"");
 
       mock.doSomethingElse("test");
       mock.doSomething(123, "Test");
@@ -125,8 +124,8 @@ public final class AssertionErrorMessagesTest
          fail();
       }
       catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("with arguments: \"test\""));
-         assertTrue(e.getCause().toString().contains("with arguments: -5, \"abc\""));
+         assertTrue(e.toString().contains("\"test\""));
+         assertTrue(e.getCause().toString().contains("-5, \"abc\""));
       }
    }
 
@@ -146,8 +145,8 @@ public final class AssertionErrorMessagesTest
          fail();
       }
       catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("with arguments: 123, \"Test\""));
-         assertTrue(e.getCause().toString().contains("with arguments: -5, \"abc\""));
+         assertTrue(e.toString().contains("123, \"Test\""));
+         assertTrue(e.getCause().toString().contains("-5, \"abc\""));
       }
    }
 
@@ -168,8 +167,8 @@ public final class AssertionErrorMessagesTest
          fail();
       }
       catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("with arguments: 1, \"anotherValue\""));
-         assertTrue(e.getCause().toString().contains("with arguments: \"test\""));
+         assertTrue(e.toString().contains("1, \"anotherValue\""));
+         assertTrue(e.getCause().toString().contains("\"test\""));
       }
    }
 
@@ -188,7 +187,7 @@ public final class AssertionErrorMessagesTest
    public void missingInvocationForRecordedStrictExpectation()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int, any String");
+      thrown.expectMessage("any int, any String");
 
       new StrictExpectations() {{ mock.doSomething(anyInt, anyString); }};
    }
@@ -197,7 +196,7 @@ public final class AssertionErrorMessagesTest
    public void missingInvocationAfterRecordedStrictExpectationWhichCanOccurOneOrMoreTimes()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 1, any String");
+      thrown.expectMessage("1, any String");
 
       new StrictExpectations() {{
          mock.doSomethingElse(anyString); maxTimes = -1;
@@ -211,7 +210,7 @@ public final class AssertionErrorMessagesTest
    public void missingInvocationForRecordedExpectation()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int, any String");
+      thrown.expectMessage("any int, any String");
 
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 2; }};
 
@@ -219,19 +218,51 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
+   public void missingInvocationForRecordedExpectationWhichGetsNonMatchingInvocationsAtReplayTime()
+   {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("doSomethingElse(\"test\")");
+      thrown.expectMessage("instead got:");
+      thrown.expectMessage("doSomethingElse(\"Abc\")");
+      thrown.expectMessage("doSomethingElse(\"\")");
+
+      new Expectations() {{ mock.doSomethingElse("test"); }};
+
+      mock.doSomethingElse("Abc");
+      mock.doSomething(1, "xy");
+      mock.doSomethingElse("");
+   }
+
+   @Test
    public void missingInvocationForVerifiedExpectation()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 123, any String");
+      thrown.expectMessage("123, any String");
 
       new Verifications() {{ mock.doSomething(123, anyString); }};
+   }
+
+   @Test
+   public void missingInvocationForVerifiedExpectationWhichGetsNonMatchingInvocationsAtReplayTime()
+   {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("doSomethingElse(\"test\")");
+      thrown.expectMessage("instead got:");
+      thrown.expectMessage("doSomethingElse(\"Abc\")");
+      thrown.expectMessage("doSomethingElse(\"\")");
+
+      mock.doSomethingElse("Abc");
+      mock.doSomething(1, "xy");
+      mock.doSomethingElse("");
+
+      new Verifications() {{ mock.doSomethingElse("test"); }};
    }
 
    @Test
    public void missingInvocationForExpectationVerifiedInOrder()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int, any String");
+      thrown.expectMessage("any int, any String");
 
       mock.doSomething(123, "Test");
 
@@ -245,7 +276,7 @@ public final class AssertionErrorMessagesTest
    public void missingInvocationForFullyVerifiedExpectations()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int, any String");
+      thrown.expectMessage("any int, any String");
 
       mock.doSomething(123, "Abc");
 
