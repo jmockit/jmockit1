@@ -139,7 +139,10 @@ public final class InvocationArguments
    public String toString()
    {
       MethodFormatter methodFormatter = new MethodFormatter(classDesc, methodNameAndDesc, false);
-      return valuesAndMatchers.toString(methodFormatter);
+      List<String> parameterTypes = methodFormatter.getParameterTypes();
+      String arguments = valuesAndMatchers.toString(parameterTypes);
+      methodFormatter.append(arguments);
+      return methodFormatter.toString();
    }
 
    public boolean hasEquivalentMatchers(@Nonnull InvocationArguments other)

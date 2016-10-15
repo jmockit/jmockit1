@@ -8,7 +8,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
-import mockit.internal.util.*;
 
 abstract class ArgumentValuesAndMatchers
 {
@@ -177,11 +176,9 @@ abstract class ArgumentValuesAndMatchers
    }
 
    @Nonnull
-   final String toString(@Nonnull MethodFormatter methodFormatter)
+   final String toString(@Nonnull List<String> parameterTypes)
    {
       ArgumentMismatch desc = new ArgumentMismatch();
-      desc.append(":\n").append(methodFormatter.toString());
-
       int parameterCount = values.length;
 
       if (parameterCount > 0) {
@@ -189,7 +186,6 @@ abstract class ArgumentValuesAndMatchers
             desc.appendFormatted(values);
          }
          else {
-            List<String> parameterTypes = methodFormatter.getParameterTypes();
             String sep = "";
 
             for (int i = 0; i < parameterCount; i++) {

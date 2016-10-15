@@ -248,4 +248,6 @@ public final class MethodFormatter
 
       return result;
    }
+
+   public void append(@Nonnull String text) { out.append(text); }
 }

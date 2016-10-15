@@ -322,7 +322,7 @@ public final class ExpectedInvocation
    @Nonnull
    public MissingInvocation errorForMissingInvocation()
    {
-      return newMissingInvocationWithCause("Missing invocation", "Missing invocation of" + this);
+      return newMissingInvocationWithCause("Missing invocation", "Missing invocation of:\n" + this);
    }
 
    @Nonnull
@@ -335,7 +335,7 @@ public final class ExpectedInvocation
    @Nonnull
    private static String invocationsTo(int invocations)
    {
-      return invocations == 1 ? " invocation to" : " invocations to";
+      return invocations == 1 ? " invocation to:\n" : " invocations to:\n";
    }
 
    @Nonnull
@@ -357,7 +357,7 @@ public final class ExpectedInvocation
          message.append("\n   on instance: ").append(ObjectMethods.objectIdentity(mock));
       }
 
-      message.append("\nwhen was expecting an invocation of").append(this);
+      message.append("\nwhen was expecting an invocation of:\n").append(this);
 
       return newUnexpectedInvocationWithCause("Unexpected invocation", message.toString());
    }
@@ -365,7 +365,7 @@ public final class ExpectedInvocation
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocation(@Nonnull Object[] replayArgs)
    {
-      String message = "Unexpected invocation to" + toString(replayArgs);
+      String message = "Unexpected invocation to:\n" + toString(replayArgs);
       return newUnexpectedInvocationWithCause("Unexpected invocation", message);
    }
 
