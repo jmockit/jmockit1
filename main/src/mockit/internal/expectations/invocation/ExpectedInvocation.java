@@ -365,7 +365,7 @@ public final class ExpectedInvocation
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocation(@Nonnull Object[] replayArgs)
    {
-      String message = "unexpected invocation to" + toString(replayArgs);
+      String message = "Unexpected invocation to" + toString(replayArgs);
       return newUnexpectedInvocationWithCause("Unexpected invocation", message);
    }
 
