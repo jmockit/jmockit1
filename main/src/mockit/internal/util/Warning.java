@@ -14,7 +14,7 @@ public final class Warning
    public static void display(@Nonnull String message)
    {
       PrintStream output = System.err;
-      output.print("Warning: ");
+      output.print("\nWarning: ");
       output.println(message);
 
       StackTrace stackTrace = new StackTrace();
