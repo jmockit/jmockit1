@@ -4,7 +4,10 @@
  */
 package mockit;
 
+import java.beans.*;
 import java.util.*;
+
+import javax.persistence.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -571,4 +574,34 @@ public final class MisusedExpectationsTest
 
    @Test
    public void attemptToMockHashMap(@Mocked HashMap<?, ?> map) { assertNotNull(map); }
+
+   // Mocking/faking of JPA-annotated classes /////////////////////////////////////////////////////////////////////////
+
+   @Entity static class Person { public int getId() { return 1; } }
+   static class Manager { Person findPerson() { return null; } }
+
+   @Test
+   public void mockClassWithMethodsReturningEntityClasses(@Mocked final Manager mock) throws IntrospectionException
+   {
+      final Person p = new Person();
+      new Expectations() {{ mock.findPerson(); result = p; }};
+
+      Person found = mock.findPerson();
+
+      assertSame(p, found);
+   }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockAnEntityClass(@Injectable Person person) {}
+
+   @Test
+   public void attemptToFakeAnEntityClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("@Entity-annotated class");
+
+      new MockUp<Person>() {
+         @Mock int getId() { return 2; }
+      };
+   }
 }

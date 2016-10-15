@@ -75,6 +75,19 @@ public class BaseClassModifier extends ClassVisitor
       classDesc = name;
    }
 
+   @Override
+   public final AnnotationVisitor visitAnnotation(@Nonnull String desc, boolean visible)
+   {
+      if (desc.startsWith("Ljavax/persistence/")) {
+         String annotationName = desc.substring(19, desc.length() - 1);
+         String className = classDesc.replace('/', '.');
+         throw new IllegalArgumentException(
+            "Invalid mocking of @" + annotationName + "-annotated class \"" + className + '"');
+      }
+
+      return super.visitAnnotation(desc, visible);
+   }
+
    /**
     * Just creates a new MethodWriter which will write out the method bytecode when visited.
     * <p/>

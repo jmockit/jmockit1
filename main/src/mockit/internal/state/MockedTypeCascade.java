@@ -4,6 +4,7 @@
  */
 package mockit.internal.state;
 
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -118,6 +119,12 @@ public final class MockedTypeCascade
    @Nullable
    private static String getReturnTypeIfCascadingSupportedForIt(@Nonnull Class<?> returnType)
    {
+      for (Annotation annotation : returnType.getAnnotations()) {
+         if (annotation.annotationType().getName().startsWith("javax.persistence.")) {
+            return null;
+         }
+      }
+
       String typeName = getInternalName(returnType);
       return isTypeSupportedForCascading(typeName) ? typeName : null;
    }
