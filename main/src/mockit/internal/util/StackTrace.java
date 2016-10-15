@@ -4,6 +4,7 @@
  */
 package mockit.internal.util;
 
+import java.io.*;
 import javax.annotation.*;
 
 /**
@@ -99,5 +100,23 @@ public final class StackTrace
 
       q += 4;
       return q < where.length() && where.charAt(q) != '$';
+   }
+
+   public void print(@Nonnull Appendable output)
+   {
+      String previousFileName = null;
+      int previousLineNumber = 0;
+      String sep = "";
+
+      for (int i = 0, d = getDepth(); i < d; i++) {
+         StackTraceElement ste = elements[i];
+
+         if (ste.getLineNumber() != previousLineNumber || !ste.getFileName().equals(previousFileName)) {
+            try { output.append(sep).append("\tat ").append(ste.toString()); } catch (IOException ignore) {}
+            sep = "\n";
+            previousFileName = ste.getFileName();
+            previousLineNumber = ste.getLineNumber();
+         }
+      }
    }
 }

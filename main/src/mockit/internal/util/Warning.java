@@ -19,19 +19,6 @@ public final class Warning
 
       StackTrace stackTrace = new StackTrace();
       stackTrace.filter();
-
-      String previousFileName = null;
-      int previousLineNumber = 0;
-
-      for (int i = 0, d = stackTrace.getDepth(); i < d; i++) {
-         StackTraceElement ste = stackTrace.getElement(i);
-
-         if (ste.getLineNumber() != previousLineNumber || !ste.getFileName().equals(previousFileName)) {
-            output.print("\tat ");
-            output.println(ste);
-            previousFileName = ste.getFileName();
-            previousLineNumber = ste.getLineNumber();
-         }
-      }
+      stackTrace.print(output);
    }
 }
