@@ -103,6 +103,23 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       int access, @Nonnull String name, @Nonnull String desc,
       @Nullable String signature, @Nullable String[] exceptions);
 
+   protected final boolean isOverrideOfMethodFromSuperInterface(@Nonnull String name, @Nonnull String desc)
+   {
+      int p = desc.lastIndexOf(')');
+      String descNoReturnType = desc.substring(0, p + 1);
+
+      for (String implementedMethod : implementedMethods) {
+         if (
+            implementedMethod.startsWith(name) && implementedMethod.charAt(name.length()) == '(' &&
+            implementedMethod.contains(descNoReturnType)
+         ) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor
    {
       private String[] superInterfaces;

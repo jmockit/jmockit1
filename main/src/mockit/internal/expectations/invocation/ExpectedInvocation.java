@@ -139,6 +139,12 @@ public final class ExpectedInvocation
       String signature = arguments.genericSignature;
 
       if (signature != null) {
+         // TODO: cache it for use in return type conversion, cascading, etc.
+         String classDesc = getClassDesc();
+         Class<?> mockedClass = instance != null ? instance.getClass() : ClassLoad.loadByInternalName(classDesc);
+         GenericTypeReflection reflection = new GenericTypeReflection(mockedClass, null);
+         signature = reflection.resolveReturnType(classDesc, signature);
+
          char firstTypeChar = signature.charAt(signature.indexOf(')') + 1);
 
          if (firstTypeChar != 'T' && firstTypeChar != '[') {

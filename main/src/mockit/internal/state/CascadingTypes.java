@@ -85,9 +85,29 @@ public final class CascadingTypes
             return cascade;
          }
 
+         cascade = getCascadeForInterface(invokedTypeDesc, typeToLookFor);
+
+         if (cascade != null) {
+            return cascade;
+         }
+
          typeToLookFor = typeToLookFor.getSuperclass();
       }
       while (typeToLookFor != Object.class);
+
+      return null;
+   }
+
+   @Nullable
+   private MockedTypeCascade getCascadeForInterface(@Nonnull String invokedTypeDesc, @Nonnull Class<?> mockedClass)
+   {
+      for (Class<?> mockedInterface : mockedClass.getInterfaces()) {
+         MockedTypeCascade cascade = getCascade(invokedTypeDesc, mockedInterface);
+
+         if (cascade != null) {
+            return cascade;
+         }
+      }
 
       return null;
    }

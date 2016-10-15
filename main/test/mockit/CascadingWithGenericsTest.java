@@ -236,4 +236,14 @@ public final class CascadingWithGenericsTest
 
       assertNotNull(result);
    }
+
+   public interface FactoryInterface { <T> T genericWithClass(Class<T> type); }
+
+   @Test
+   public void cascadeFromGenericMethodWithClassParameterOfMockedInterface(@Mocked FactoryInterface mock)
+   {
+      Foo cascaded = mock.genericWithClass(Foo.class);
+
+      assertNotNull(cascaded);
+   }
 }

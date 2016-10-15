@@ -522,27 +522,39 @@ public final class GenericTypeReflection
    @Nullable
    private String resolveReturnType(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType)
    {
-      String ownerTypeDesc = getOwnerClassDesc(ownerType);
-      String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, genericReturnType);
+      do {
+         String ownerTypeDesc = getOwnerClassDesc(ownerType);
+         String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, genericReturnType);
 
-      if (!resolvedReturnType.equals(genericReturnType)) {
-         return resolvedReturnType;
-      }
-
-      if (ownerType.isInterface()) {
-         for (Class<?> superInterface: ownerType.getInterfaces()) {
-            resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
-
-            if (resolvedReturnType != null) {
-               return resolvedReturnType;
-            }
+         if (!resolvedReturnType.equals(genericReturnType)) {
+            return resolvedReturnType;
          }
 
-         return null;
+         resolvedReturnType = resolveReturnTypeForInterfaceMethod(ownerType, genericReturnType);
+
+         if (resolvedReturnType != null) {
+            return resolvedReturnType;
+         }
+
+         ownerType = ownerType.getSuperclass();
+      }
+      while (ownerType != null && ownerType != Object.class);
+
+      return null;
+   }
+
+   @Nullable
+   private String resolveReturnTypeForInterfaceMethod(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType)
+   {
+      for (Class<?> superInterface: ownerType.getInterfaces()) {
+         String resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
+
+         if (resolvedReturnType != null) {
+            return resolvedReturnType;
+         }
       }
 
-      Class<?> superClass = ownerType.getSuperclass();
-      return superClass == Object.class ? null : resolveReturnType(superClass, genericReturnType);
+      return null;
    }
 
    public boolean areMatchingTypes(@Nonnull Type declarationType, @Nonnull Type realizationType)
