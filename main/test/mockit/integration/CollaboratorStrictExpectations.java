@@ -8,7 +8,7 @@ import java.util.*;
 
 import mockit.*;
 
-public final class CollaboratorStrictExpectations extends Expectations
+public final class CollaboratorStrictExpectations extends StrictExpectations
 {
    public CollaboratorStrictExpectations(Collaborator mock)
    {

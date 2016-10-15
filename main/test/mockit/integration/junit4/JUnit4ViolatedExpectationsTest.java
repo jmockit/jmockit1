@@ -50,7 +50,7 @@ public final class JUnit4ViolatedExpectationsTest
    // Tests that fail with an "unexpected invocation" error ///////////////////////////////////////////////////////////
 
    @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict3(@Injectable Collaborator mock)
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict3(@Mocked Collaborator mock)
    {
       new CollaboratorStrictExpectations(mock);
 
