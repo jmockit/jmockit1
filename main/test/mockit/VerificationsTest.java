@@ -54,7 +54,7 @@ public final class VerificationsTest
    public void verifyUnrecordedInvocationThatNeverHappens()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       mock.setSomething(123);
       mock.prepare();
@@ -116,7 +116,7 @@ public final class VerificationsTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 2 invocations");
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomethingElse("test");
       mock.setSomething(3);
@@ -133,7 +133,7 @@ public final class VerificationsTest
    {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("1 unexpected invocation");
-      thrown.expectMessage("with arguments: 5");
+      thrown.expectMessage("5");
 
       mock.setSomethingElse("test");
       mock.setSomething(3);
@@ -151,7 +151,7 @@ public final class VerificationsTest
    {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("2 unexpected invocations");
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       mock.setSomething(5);
       mock.setSomething(123);
@@ -181,7 +181,7 @@ public final class VerificationsTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 2 invocations");
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomething(123);
 
@@ -192,7 +192,7 @@ public final class VerificationsTest
    public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: -1015");
+      thrown.expectMessage("-1015");
 
       mock.setSomething(45);
       mock.setSomething(123);
@@ -254,7 +254,7 @@ public final class VerificationsTest
    public void verifyWithCustomArgumentMatcher()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: isEmpty(\"test\")");
+      thrown.expectMessage("isEmpty(\"test\")");
 
       mock.setSomethingElse("test");
 
@@ -284,7 +284,7 @@ public final class VerificationsTest
    public void verifyInvocationThatMatchesExpectationRecordedWithAnyMatcherButWithArgumentValueWhichDidNotOccur()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       new Expectations() {{ mock.setSomething(anyInt); }};
 
@@ -297,7 +297,7 @@ public final class VerificationsTest
    public void verifyTwoInvocationsWithIteratingBlockHavingExpectationRecordedAndSecondInvocationUnverified()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       new Expectations() {{ mock.setSomething(anyInt); }};
 

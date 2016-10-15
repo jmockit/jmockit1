@@ -22,10 +22,7 @@ abstract class ArgumentValuesAndMatchers
       this.values = values;
    }
 
-   final void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify)
-   {
-      setValuesAndMatchers(argsToVerify, null);
-   }
+   final void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify) { setValuesAndMatchers(argsToVerify, null); }
 
    @Nonnull
    final Object[] prepareForVerification(
@@ -43,7 +40,7 @@ abstract class ArgumentValuesAndMatchers
    }
 
    @Nullable
-   final ArgumentMatcher<?> getArgumentMatcher(int parameterIndex)
+   final ArgumentMatcher<?> getArgumentMatcher(@Nonnegative int parameterIndex)
    {
       if (matchers == null) {
          return null;
@@ -61,7 +58,7 @@ abstract class ArgumentValuesAndMatchers
    abstract boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap);
 
    static boolean areEqual(
-      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, int count,
+      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, @Nonnegative int count,
       @Nonnull Map<Object, Object> instanceMap)
    {
       for (int i = 0; i < count; i++) {
@@ -88,7 +85,7 @@ abstract class ArgumentValuesAndMatchers
 
    @Nullable
    final Error assertEquals(
-      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, int count,
+      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, @Nonnegative int count,
       @Nonnull Map<Object, Object> instanceMap)
    {
       for (int i = 0; i < count; i++) {
@@ -133,14 +130,15 @@ abstract class ArgumentValuesAndMatchers
    {
       List<ArgumentMatcher<?>> otherMatchers = other.matchers;
 
-      if (otherMatchers == null || matchers == null || otherMatchers.size() != matchers.size()) {
+      if (hasDifferentAmountOfMatchers(otherMatchers)) {
          return -1;
       }
 
-      int i = 0;
+      //noinspection ConstantConditions
       int m = matchers.size();
+      int i;
 
-      while (i < m) {
+      for (i = 0; i < m; i++) {
          M1 matcher1 = (M1) matchers.get(i);
          M2 matcher2 = (M2) otherMatchers.get(i);
 
@@ -150,26 +148,32 @@ abstract class ArgumentValuesAndMatchers
             }
          }
          else if (matcher1 != matcher2) {
-            Class<?> matcherClass = matcher1.getClass();
-
-            if (matcherClass != matcher2.getClass()) {
+            if (matcher1.getClass() != matcher2.getClass()) {
                return -1;
             }
 
-            if (!matcher1.same((M1) matcher2)) {
-               if (
-                  matcherClass == ReflectiveMatcher.class || matcherClass == HamcrestAdapter.class ||
-                  !equivalentMatches(matcher1, values[i], matcher2, other.values[i])
-               ){
-                  return -1;
-               }
+            if (!matcher1.same((M1) matcher2) && areNonEquivalentMatches(other, matcher1, matcher2, i)) {
+               return -1;
             }
          }
-
-         i++;
       }
 
       return i;
+   }
+
+   private boolean hasDifferentAmountOfMatchers(@Nullable List<ArgumentMatcher<?>> otherMatchers)
+   {
+      return otherMatchers == null || matchers == null || otherMatchers.size() != matchers.size();
+   }
+
+   private boolean areNonEquivalentMatches(
+      @Nonnull ArgumentValuesAndMatchers other, @Nonnull ArgumentMatcher matcher1, @Nonnull ArgumentMatcher matcher2,
+      @Nonnegative int matcherIndex)
+   {
+      Class<?> matcherClass = matcher1.getClass();
+      return
+         matcherClass == ReflectiveMatcher.class || matcherClass == HamcrestAdapter.class ||
+         !equivalentMatches(matcher1, values[matcherIndex], matcher2, other.values[matcherIndex]);
    }
 
    @Nonnull
@@ -181,8 +185,6 @@ abstract class ArgumentValuesAndMatchers
       int parameterCount = values.length;
 
       if (parameterCount > 0) {
-         desc.append("\n   with arguments: ");
-
          if (matchers == null) {
             desc.appendFormatted(values);
          }
@@ -197,6 +199,8 @@ abstract class ArgumentValuesAndMatchers
                sep = ", ";
             }
          }
+
+         desc.append(')');
       }
 
       return desc.toString();

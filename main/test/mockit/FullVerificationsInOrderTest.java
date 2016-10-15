@@ -116,7 +116,7 @@ public final class FullVerificationsInOrderTest
    public void verifyAllInvocationsWhenOutOfOrder()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       mock.setSomething(123);
       mock.prepare();
@@ -131,7 +131,7 @@ public final class FullVerificationsInOrderTest
    public void verifyAllInvocationsWithSomeMissing()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       exerciseCodeUnderTest();
 
@@ -148,7 +148,7 @@ public final class FullVerificationsInOrderTest
    public void verifyTwoInvocationsWithIteratingBlockHavingExpectationRecordedAndSecondInvocationUnverified()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       new Expectations() {{ mock.setSomething(anyInt); }};
 
@@ -259,7 +259,7 @@ public final class FullVerificationsInOrderTest
    public void verifyAllInvocationsWithInvocationCountLessThanActual()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       mock.setSomething(123);
       mock.setSomething(45);
@@ -273,7 +273,7 @@ public final class FullVerificationsInOrderTest
    public void verifyAllInvocationsWithInvocationCountMoreThanActual()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomething(-67);
 
@@ -300,7 +300,7 @@ public final class FullVerificationsInOrderTest
    public void verifySingleInvocationInBlockWithLargerNumberOfIterations()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomething(123);
 
@@ -313,7 +313,7 @@ public final class FullVerificationsInOrderTest
    public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       mock.setSomething(123);
       mock.setSomething(45);

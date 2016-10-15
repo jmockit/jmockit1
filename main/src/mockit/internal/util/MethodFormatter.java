@@ -32,9 +32,14 @@ public final class MethodFormatter
 
    public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc)
    {
+      this(classDesc, methodNameAndDesc, true);
+   }
+
+   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc, boolean withParametersAppended)
+   {
       this(classDesc);
       methodDesc = methodNameAndDesc;
-      appendFriendlyMethodSignature();
+      appendFriendlyMethodSignature(withParametersAppended);
    }
 
    @Override
@@ -50,14 +55,14 @@ public final class MethodFormatter
       for (String methodNameAndDesc : methodNamesAndDescs) {
          out.append(sep);
          methodDesc = methodNameAndDesc;
-         appendFriendlyMethodSignature();
+         appendFriendlyMethodSignature(true);
          sep = ",\n";
       }
 
       return out.toString();
    }
 
-   private void appendFriendlyMethodSignature()
+   private void appendFriendlyMethodSignature(boolean withParametersAppended)
    {
       String friendlyDesc = methodDesc;
 
@@ -74,10 +79,17 @@ public final class MethodFormatter
 
       if (leftParenNextPos < rightParenPos) {
          out.append(friendlyDesc.substring(0, leftParenNextPos));
+
          String concatenatedParameterTypes = friendlyDesc.substring(leftParenNextPos, rightParenPos);
-         parameterIndex = 0;
-         appendFriendlyTypes(concatenatedParameterTypes);
-         out.append(')');
+
+         if (withParametersAppended) {
+            parameterIndex = 0;
+            appendParameterTypesAndNames(concatenatedParameterTypes);
+            out.append(')');
+         }
+         else {
+            addParameterTypes(concatenatedParameterTypes);
+         }
       }
       else {
          out.append(friendlyDesc.substring(0, rightParenPos + 1));
@@ -100,7 +112,7 @@ public final class MethodFormatter
       return constructorName;
    }
 
-   private void appendFriendlyTypes(@Nonnull String typeDescs)
+   private void appendParameterTypesAndNames(@Nonnull String typeDescs)
    {
       String sep = "";
 
@@ -112,7 +124,7 @@ public final class MethodFormatter
             appendParameterName();
          }
          else {
-            appendFriendlyPrimitiveTypes(typeDesc);
+            appendPrimitiveParameterTypesAndNames(typeDesc);
          }
 
          sep = ", ";
@@ -144,7 +156,7 @@ public final class MethodFormatter
       parameterIndex++;
    }
 
-   private void appendFriendlyPrimitiveTypes(String typeDesc)
+   private void appendPrimitiveParameterTypesAndNames(@Nonnull String typeDesc)
    {
       String sep = "";
 
@@ -162,8 +174,30 @@ public final class MethodFormatter
       }
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
-   @Nonnull
+   private void addParameterTypes(@Nonnull String typeDescs)
+   {
+      for (String typeDesc : typeDescs.split(";")) {
+         if (typeDesc.charAt(0) == 'L') {
+            parameterTypes.add(friendlyReferenceType(typeDesc));
+         }
+         else {
+            addPrimitiveParameterTypes(typeDesc);
+         }
+      }
+   }
+
+   private void addPrimitiveParameterTypes(@Nonnull String typeDesc)
+   {
+      for (typeDescPos = 0; typeDescPos < typeDesc.length(); typeDescPos++) {
+         typeCode = typeDesc.charAt(typeDescPos);
+         advancePastArrayDimensionsIfAny(typeDesc);
+
+         String paramType = getTypeNameForTypeDesc(typeDesc) + getArrayBrackets();
+         parameterTypes.add(paramType);
+      }
+   }
+
+   @Nonnull @SuppressWarnings("OverlyComplexMethod")
    private String getTypeNameForTypeDesc(@Nonnull String typeDesc)
    {
       String paramType;

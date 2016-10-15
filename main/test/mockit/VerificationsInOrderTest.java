@@ -73,7 +73,7 @@ public final class VerificationsInOrderTest
    public void verifyUnrecordedInvocationThatShouldHappenExactlyOnceButDoesNot()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 2");
+      thrown.expectMessage("2");
 
       mock.setSomething(1);
 
@@ -150,7 +150,7 @@ public final class VerificationsInOrderTest
    public void verifySimpleInvocationsWhenOutOfOrder()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       mock.setSomething(123);
       mock.prepare();
@@ -257,7 +257,7 @@ public final class VerificationsInOrderTest
    public void verifyInvocationNotExpectedToOccurButWhichDoes()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       mock.prepare();
       mock.setSomething(123);
@@ -287,7 +287,7 @@ public final class VerificationsInOrderTest
    public void verifyMultipleInvocationsInIteratingBlockContainingDuplicateVerificationThatCannotBeSatisfied()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomething(-67);
       mock.setSomething(123);
@@ -338,7 +338,7 @@ public final class VerificationsInOrderTest
    public void verifyWithArgumentMatchersWhenOutOfOrder()
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("with arguments: any String");
+      thrown.expectMessage("any String");
 
       mock.setSomething(123);
       mock.setSomethingElse("anotherValue");
@@ -356,7 +356,7 @@ public final class VerificationsInOrderTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 1 invocation");
-      thrown.expectMessage("with arguments: any int");
+      thrown.expectMessage("any int");
 
       mock.setSomething(123);
       mock.prepare();

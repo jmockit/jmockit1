@@ -138,7 +138,7 @@ public final class InvocationArguments
    @Override
    public String toString()
    {
-      MethodFormatter methodFormatter = new MethodFormatter(classDesc, methodNameAndDesc);
+      MethodFormatter methodFormatter = new MethodFormatter(classDesc, methodNameAndDesc, false);
       return valuesAndMatchers.toString(methodFormatter);
    }
 

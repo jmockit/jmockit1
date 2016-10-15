@@ -490,7 +490,7 @@ public final class WithCaptureTest
    public void attemptToCaptureNewInstanceWhenThereWasNone(@Mocked Person mockedPerson)
    {
       thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("Person(String");
+      thrown.expectMessage("Person(any String, any int)");
 
       dao.create("test", 14);
 
@@ -543,7 +543,7 @@ public final class WithCaptureTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 1 invocation to:");
       thrown.expectMessage("PersonDAO#create(");
-      thrown.expectMessage("with arguments: any " + Person.class.getName());
+      thrown.expectMessage("any " + Person.class.getName());
 
       new Verifications() {{
          Person p;

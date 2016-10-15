@@ -224,7 +224,7 @@ public final class FullVerificationsTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 1 invocation");
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       new Expectations() {{
          mock.setSomething(anyInt);
@@ -256,7 +256,7 @@ public final class FullVerificationsTest
    public void verifyAllInvocationsWithInvocationCountOneLessThanActual()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 45");
+      thrown.expectMessage("45");
 
       mock.setSomething(123);
       mock.setSomething(45);
@@ -271,7 +271,7 @@ public final class FullVerificationsTest
    {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("2 unexpected invocations");
-      thrown.expectMessage("with arguments: 1");
+      thrown.expectMessage("1");
 
       mock.setSomething(123);
       mock.setSomething(45);
@@ -287,7 +287,7 @@ public final class FullVerificationsTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 2 invocations");
-      thrown.expectMessage("with arguments: any char");
+      thrown.expectMessage("any char");
 
       mock.setSomethingElse('f');
 
@@ -316,7 +316,7 @@ public final class FullVerificationsTest
    {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 2 invocations");
-      thrown.expectMessage("with arguments: 123");
+      thrown.expectMessage("123");
 
       mock.setSomething(123);
 
@@ -329,7 +329,7 @@ public final class FullVerificationsTest
    public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: -14");
+      thrown.expectMessage("-14");
 
       mock.setSomething(123);
       mock.setSomething(-14);
