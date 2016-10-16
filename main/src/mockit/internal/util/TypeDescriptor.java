@@ -35,10 +35,26 @@ public final class TypeDescriptor
    }
 
    @Nonnull
-   public static Class<?> getReturnType(@Nonnull String methodDesc)
+   public static Class<?> getReturnType(@Nonnull String methodSignature)
    {
+      String methodDesc = methodDescriptionWithoutTypeArguments(methodSignature);
       Type returnType = Type.getReturnType(methodDesc);
       return getClassForType(returnType);
+   }
+
+   @Nonnull
+   private static String methodDescriptionWithoutTypeArguments(@Nonnull String methodSignature)
+   {
+      while (true) {
+         int p = methodSignature.indexOf('<');
+
+         if (p < 0) {
+            return methodSignature;
+         }
+
+         int q = methodSignature.indexOf('>', p);
+         methodSignature = methodSignature.substring(0, p) + methodSignature.substring(q + 1);
+      }
    }
 
    @Nonnull
@@ -58,14 +74,30 @@ public final class TypeDescriptor
       else {
          className = type.getClassName();
          assert className != null;
-
-         int p = className.indexOf('<');
-
-         if (p > 0) {
-            className = className.substring(0, p);
-         }
       }
 
+      className = classNameWithoutDotsForNestedTypes(className);
+
       return ClassLoad.loadClass(className);
+   }
+
+   @Nonnull
+   private static String classNameWithoutDotsForNestedTypes(@Nonnull String className)
+   {
+      while (true) {
+         int p = className.lastIndexOf('$');
+
+         if (p < 0) {
+            return className;
+         }
+
+         int q = className.indexOf('.', p);
+
+         if (q < 0) {
+            return className;
+         }
+
+         className = className.substring(0, q) + '$' + className.substring(q + 1);
+      }
    }
 }

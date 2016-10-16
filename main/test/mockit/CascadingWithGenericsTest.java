@@ -246,4 +246,20 @@ public final class CascadingWithGenericsTest
 
       assertNotNull(cascaded);
    }
+
+   @SuppressWarnings("unused") static class Outer<T> { class Inner {} }
+   static class Client { Outer<String>.Inner doSomething() { return null; } }
+
+   @Test
+   public void cascadeFromMethodReturningInnerInstanceOfGenericClass(@Mocked final Client mock)
+   {
+      final Outer.Inner innerInstance = new Outer().new Inner();
+
+      new Expectations() {{
+         mock.doSomething();
+         result = innerInstance;
+      }};
+
+      assertSame(innerInstance, mock.doSomething());
+   }
 }
