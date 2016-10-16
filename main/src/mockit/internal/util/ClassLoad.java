@@ -38,27 +38,7 @@ public final class ClassLoad
 
       if (loadedClass == null) {
          try {
-            loadedClass = loadClass(null, className);
-
-            if (loadedClass == null) {
-               if (className.startsWith("mockit.")) {
-                  loadedClass = loadClass(THIS_CL, className);
-               }
-
-               if (loadedClass == null) {
-                  Class<?> testClass = TestRun.getCurrentTestClass();
-                  loadedClass = testClass == null ? null : loadClass(testClass.getClassLoader(), className);
-
-                  if (loadedClass == null) {
-                     ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
-                     loadedClass = loadClass(contextCL, className);
-
-                     if (loadedClass == null) {
-                        throw new IllegalArgumentException("No class with name \"" + className + "\" found");
-                     }
-                  }
-               }
-            }
+            loadedClass = loadClassFromAClassLoader(className);
          }
          catch (LinkageError e) {
             e.printStackTrace();
@@ -68,6 +48,34 @@ public final class ClassLoad
 
       //noinspection unchecked
       return (Class<T>) loadedClass;
+   }
+
+   @Nonnull
+   private static Class<?> loadClassFromAClassLoader(@Nonnull String className)
+   {
+      Class<?> loadedClass = loadClass(null, className);
+
+      if (loadedClass == null) {
+         if (className.startsWith("mockit.")) {
+            loadedClass = loadClass(THIS_CL, className);
+         }
+
+         if (loadedClass == null) {
+            Class<?> testClass = TestRun.getCurrentTestClass();
+            loadedClass = testClass == null ? null : loadClass(testClass.getClassLoader(), className);
+
+            if (loadedClass == null) {
+               ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+               loadedClass = loadClass(contextCL, className);
+
+               if (loadedClass == null) {
+                  throw new IllegalArgumentException("No class with name \"" + className + "\" found");
+               }
+            }
+         }
+      }
+
+      return loadedClass;
    }
 
    @Nonnull
