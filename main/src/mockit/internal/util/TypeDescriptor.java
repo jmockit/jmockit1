@@ -52,8 +52,15 @@ public final class TypeDescriptor
             return methodSignature;
          }
 
-         int q = methodSignature.indexOf('>', p);
-         methodSignature = methodSignature.substring(0, p) + methodSignature.substring(q + 1);
+         String firstPart = methodSignature.substring(0, p);
+         int q = methodSignature.indexOf('>', p) + 1;
+
+         if (methodSignature.charAt(q) == '.') { // in case there is an inner class
+            methodSignature = firstPart + '$' + methodSignature.substring(q + 1);
+         }
+         else {
+            methodSignature = firstPart + methodSignature.substring(q);
+         }
       }
    }
 
@@ -76,28 +83,6 @@ public final class TypeDescriptor
          assert className != null;
       }
 
-      className = classNameWithoutDotsForNestedTypes(className);
-
       return ClassLoad.loadClass(className);
-   }
-
-   @Nonnull
-   private static String classNameWithoutDotsForNestedTypes(@Nonnull String className)
-   {
-      while (true) {
-         int p = className.lastIndexOf('$');
-
-         if (p < 0) {
-            return className;
-         }
-
-         int q = className.indexOf('.', p);
-
-         if (q < 0) {
-            return className;
-         }
-
-         className = className.substring(0, q) + '$' + className.substring(q + 1);
-      }
    }
 }
