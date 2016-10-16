@@ -491,7 +491,7 @@ public abstract class MockUp<T>
    private static boolean isMockupClassWithInstanceFields(@Nonnull Class<?> mockupSubclass)
    {
       for (Field field : mockupSubclass.getDeclaredFields()) {
-         if (!field.isSynthetic() && !isStatic(field.getModifiers())) {
+         if (!isStatic(field.getModifiers()) && (!field.isSynthetic() || !"this$0".equals(field.getName()))) {
             return true;
          }
       }

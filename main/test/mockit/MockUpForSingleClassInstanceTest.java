@@ -35,7 +35,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void multipleMockUpsOfSameTypeWithOwnMockInstanceEach()
+   public void multipleMockupsOfSameTypeWithOwnMockInstanceEach()
    {
       final class AClassMockUp extends MockUp<AClass>
       {
@@ -77,7 +77,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void samePublicMockUpAppliedMultipleTimes()
+   public void samePublicMockupAppliedMultipleTimes()
    {
       BasicStroke mock1 = new AClassMockUp(1).getMockInstance();
       BasicStroke mock2 = new AClassMockUp(2).getMockInstance();
@@ -88,7 +88,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void sameAnonymousMockUpAppliedMultipleTimesWithDifferentTargetInstances()
+   public void sameAnonymousMockupAppliedMultipleTimesWithDifferentTargetInstances()
    {
       List<BasicStroke> targetInstances = new ArrayList<BasicStroke>();
 
@@ -103,6 +103,23 @@ public final class MockUpForSingleClassInstanceTest
 
       assertEquals(100, targetInstances.get(0).getLineWidth(), 0);
       assertEquals(200, targetInstances.get(1).getLineWidth(), 0);
+   }
+
+   @Test
+   public void sameAnonymousMockupAppliedMultipleTimesWithoutTargetInstanceButWithMockInstanceCreatedFromMockup()
+   {
+      List<BasicStroke> mockInstances = new ArrayList<BasicStroke>();
+
+      for (int i = 1; i <= 2; i++) {
+         final int width = 100 * i;
+         BasicStroke mockInstance = new MockUp<BasicStroke>() {
+            @Mock float getLineWidth() { return width; }
+         }.getMockInstance();
+         mockInstances.add(mockInstance);
+      }
+
+      assertEquals(100, mockInstances.get(0).getLineWidth(), 0);
+      assertEquals(200, mockInstances.get(1).getLineWidth(), 0);
    }
 
    @Test
@@ -137,7 +154,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void mockUpAffectingOneInstanceButNotOthersOfSameClass()
+   public void mockupAffectingOneInstanceButNotOthersOfSameClass()
    {
       AClass instance1 = new AClass(1);
       AClass instance2 = new AClass(2);
@@ -209,7 +226,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void applyMockUpWithGivenSubclassInstance()
+   public void applyMockupWithGivenSubclassInstance()
    {
       AClass realInstance = new ASubClass(123, "test");
 
@@ -234,7 +251,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void getMockInstanceFromMockUpForAbstractClass()
+   public void getMockInstanceFromMockupForAbstractClass()
    {
       MockUp<AbstractBase> mockUp = new MockUp<AbstractBase>() {
          @Mock
@@ -264,7 +281,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void getMockInstanceFromMockUpForGenericAbstractClass() throws Exception
+   public void getMockInstanceFromMockupForGenericAbstractClass() throws Exception
    {
       GenericAbstractBase<Boolean, Long> mock = new MockUp<GenericAbstractBase<Boolean, Long>>() {
          @Mock
@@ -285,7 +302,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void getMockInstanceFromMockUpForAbstractJREClass() throws Exception
+   public void getMockInstanceFromMockupForAbstractJREClass() throws Exception
    {
       MockUp<Reader> mockUp = new MockUp<Reader>() {
          @Mock
