@@ -4,7 +4,10 @@
  */
 package mockit;
 
+import java.awt.*;
 import java.io.*;
+import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 
 import org.junit.*;
@@ -65,25 +68,41 @@ public final class MockUpForSingleClassInstanceTest
       assertEquals("two", mock2.getTextValue());
    }
 
-   public static class AClassMockUp extends MockUp<AClass>
+   public static class AClassMockUp extends MockUp<BasicStroke>
    {
-      private final String value;
-      AClassMockUp(String value) { this.value = value; }
+      private final int value;
+      AClassMockUp(int value) { this.value = value; }
 
-      @Mock public String getTextValue() { return value; }
-      @Mock public static boolean doSomething() { return true; }
+      @Mock public float getLineWidth() { return value; }
    }
 
    @Test
-   public void multiplePublicMockUps()
+   public void samePublicMockUpAppliedMultipleTimes()
    {
-      AClass mock1 = new AClassMockUp("Abc").getMockInstance();
-      AClass mock2 = new AClassMockUp("Xpto").getMockInstance();
+      BasicStroke mock1 = new AClassMockUp(1).getMockInstance();
+      BasicStroke mock2 = new AClassMockUp(2).getMockInstance();
 
       assertNotSame(mock1, mock2);
-      assertEquals("Abc", mock1.getTextValue());
-      assertEquals("Xpto", mock2.getTextValue());
-      assertTrue(AClass.doSomething());
+      assertEquals(1, mock1.getLineWidth(), 0);
+      assertEquals(2, mock2.getLineWidth(), 0);
+   }
+
+   @Test
+   public void sameAnonymousMockUpAppliedMultipleTimesWithDifferentTargetInstances()
+   {
+      List<BasicStroke> targetInstances = new ArrayList<BasicStroke>();
+
+      for (int i = 1; i <= 2; i++) {
+         final int width = 100 * i;
+         BasicStroke targetInstance = new BasicStroke(i);
+         new MockUp<BasicStroke>(targetInstance) {
+            @Mock float getLineWidth() { return width; }
+         };
+         targetInstances.add(targetInstance);
+      }
+
+      assertEquals(100, targetInstances.get(0).getLineWidth(), 0);
+      assertEquals(200, targetInstances.get(1).getLineWidth(), 0);
    }
 
    @Test

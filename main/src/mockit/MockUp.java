@@ -116,7 +116,8 @@ public abstract class MockUp<T>
     * or the real method matching a mock method is {@code abstract};
     * or if an <em>unbounded</em> type variable was used as the base type to be faked;
     * or if the mockup class contains a mock method for a {@code private} or package-private method or constructor, when
-    * the type to be faked is a class internal to the SUT
+    * the type to be faked is a class internal to the SUT;
+    * or if this same mockup subclass is already in effect (duplicate application)
     *
     * @see #MockUp(Class)
     * @see #MockUp(Object)
@@ -407,6 +408,7 @@ public abstract class MockUp<T>
       if (previousMockUp != null) {
          targetType = previousMockUp.targetType;
          mockedClass = previousMockUp.mockedClass;
+         setMockInstance(targetInstance);
          return;
       }
 
