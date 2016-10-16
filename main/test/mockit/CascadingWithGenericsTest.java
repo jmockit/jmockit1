@@ -262,4 +262,17 @@ public final class CascadingWithGenericsTest
 
       assertSame(innerInstance, mock.doSomething());
    }
+
+   static class SubB<T> extends B<T> {}
+   static class ClassWithMethodReturningGenericClassInstance { SubB<C> doSomething() { return null; } }
+
+   @Test
+   public void cascadeFromMethodReturningInstanceOfGenericSubclassThenFromGenericMethodOfGenericBaseClass(
+      @Mocked ClassWithMethodReturningGenericClassInstance mock)
+   {
+      SubB<C> cascade1 = mock.doSomething();
+      C cascade2 = cascade1.getValue();
+
+      assertNotNull(cascade2);
+   }
 }

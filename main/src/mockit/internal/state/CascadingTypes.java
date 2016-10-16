@@ -52,7 +52,10 @@ public final class CascadingTypes
    private MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc)
    {
       MockedTypeCascade cascade = cascadingTypes.get(mockedTypeDesc);
-      if (cascade != null) return cascade;
+
+      if (cascade != null) {
+         return cascade;
+      }
 
       for (Entry<String, MockedTypeCascade> cascadeEntry : cascadingTypes.entrySet()) {
           String cascadingTypeDesc = cascadeEntry.getKey();
@@ -78,7 +81,7 @@ public final class CascadingTypes
             return null;
          }
 
-         MockedTypeCascade cascade = cascadingTypes.get(typeDesc);
+         MockedTypeCascade cascade = getCascade(typeDesc);
 
          if (cascade != null) {
             cascade.mockedClass = mockedClass;
