@@ -56,7 +56,8 @@ final class Expectation
    @Nonnull
    Class<?> getReturnType()
    {
-      return TypeDescriptor.getReturnType(invocation.getSignatureWithResolvedReturnType());
+      String resolvedReturnType = invocation.getSignatureWithResolvedReturnType();
+      return TypeDescriptor.getReturnType(resolvedReturnType);
    }
 
    void clearNextInstanceToMatchIfRecording()
