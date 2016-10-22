@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
@@ -47,7 +48,7 @@ final class ConstructorInjection extends Injector
             value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider);
          }
          else {
-            value = getArgumentValueToInject(parameterProvider, i);
+            value = getArgumentValueToInject((MockedType) parameterProvider, i);
          }
 
          Type parameterType = parameterTypes[i];
@@ -69,11 +70,17 @@ final class ConstructorInjection extends Injector
    @Nonnull
    private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter)
    {
+      Object value = constructorParameter.getValue(null);
+
+      if (value != null) {
+         return value;
+      }
+
       injectionState.setTypeOfInjectionPoint(constructorParameter.getDeclaredType());
       String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
 
       assert fullInjection != null;
-      Object value = fullInjection.createOrReuseInstance(this, constructorParameter, qualifiedName);
+      value = fullInjection.createOrReuseInstance(this, constructorParameter, qualifiedName);
 
       if (value == null) {
          String parameterName = constructorParameter.getName();
@@ -87,7 +94,7 @@ final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable, int parameterIndex)
+   private Object getArgumentValueToInject(@Nonnull MockedType injectable, int parameterIndex)
    {
       Object argument = injectionState.getValueToInject(injectable);
 
@@ -122,7 +129,7 @@ final class ConstructorInjection extends Injector
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
       List<Object> varargValues = new ArrayList<Object>();
-      InjectionPointProvider injectable;
+      MockedType injectable;
 
       while ((injectable = injectionState.findNextInjectableForInjectionPoint()) != null) {
          Object value = injectionState.getValueToInject(injectable);

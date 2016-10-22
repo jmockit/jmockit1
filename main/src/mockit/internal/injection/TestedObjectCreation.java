@@ -63,11 +63,12 @@ final class TestedObjectCreation
    {
       ConstructorSearch constructorSearch =
          new ConstructorSearch(injectionState, actualTestedClass, fullInjection != null);
-      Constructor<?> constructor = constructorSearch.findConstructorAccordingToAccessibilityAndAvailableInjectables();
+      Constructor<?> constructor = constructorSearch.findConstructorToUse();
 
       if (constructor == null) {
+         String description = constructorSearch.getDescription();
          throw new IllegalArgumentException(
-            "No constructor in tested class that can be satisfied by available injectables" + constructorSearch);
+            "No constructor in tested class that can be satisfied by available injectables" + description);
       }
 
       ConstructorInjection constructorInjection =
