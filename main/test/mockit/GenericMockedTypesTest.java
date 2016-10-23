@@ -253,4 +253,16 @@ public final class GenericMockedTypesTest
 
       assertEquals(0, result.length);
    }
+
+   public interface BaseInterface<T> { void doSomething(T t); }
+   public interface SubInterface extends BaseInterface<String> { @Override void doSomething(String s); }
+
+   @Test
+   public void invokeGenericBaseInterfaceMethodThatIsOverriddenInMockedSubInterface(@Mocked final SubInterface mock)
+   {
+      @SuppressWarnings("UnnecessaryLocalVariable") BaseInterface<String> base = mock;
+      base.doSomething("test");
+
+      new Verifications() {{ mock.doSomething("test"); }};
+   }
 }

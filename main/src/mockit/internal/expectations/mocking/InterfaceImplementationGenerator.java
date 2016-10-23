@@ -40,9 +40,23 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
    {
       mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
 
-      String className = isOverrideOfMethodFromSuperInterface(name, desc) ? interfaceName : methodOwner;
-      generateDirectCallToHandler(mw, className, access, name, desc, signature);
+      String className = null;
 
+      if (signature != null) {
+         String subInterfaceOverride = getSubInterfaceOverride(mockedTypeInfo.genericTypeMap, name, signature);
+
+         if (subInterfaceOverride != null) {
+            className = interfaceName;
+            desc = subInterfaceOverride.substring(name.length());
+            signature = null;
+         }
+      }
+
+      if (className == null) {
+         className = isOverrideOfMethodFromSuperInterface(name, desc) ? interfaceName : methodOwner;
+      }
+
+      generateDirectCallToHandler(mw, className, access, name, desc, signature);
       generateReturnWithObjectAtTopOfTheStack(desc);
       mw.visitMaxs(1, 0);
    }
