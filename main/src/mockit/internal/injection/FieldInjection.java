@@ -73,7 +73,7 @@ final class FieldInjection extends Injector
          return true;
       }
 
-      return !isStatic(modifiers);
+      return !isStatic(modifiers) && !isVolatile(modifiers);
    }
 
    void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)

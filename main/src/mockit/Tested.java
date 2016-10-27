@@ -63,12 +63,16 @@ import java.lang.annotation.*;
 public @interface Tested
 {
    /**
-    * Indicates that each field of the tested object that is eligible for injection should be assigned a value, which
-    * can be an {@linkplain Injectable @Injectable}, another {@code @Tested} field of a type assignable to the field
-    * type, or a real (unmocked) instance of the field type.
+    * Indicates that each non-{@code final} field of the tested object that is eligible for injection should be assigned
+    * a value, which can be an {@linkplain Injectable @Injectable}, another {@code @Tested} field of a type assignable
+    * to the field type, or a real (unmocked) instance of the field type.
+    * <p/>
     * Non-eligible fields are those that have already being assigned from a constructor, or that have a primitive,
     * array, annotation, or JRE type (with the exception of the types described below, which are given special
     * treatment).
+    * Also non-eligible are any {@code static} or {@code volatile} fields, unless annotated with an <em>injection
+    * annotation</em> (one of {@code @Inject}, {@code @Resource}, {@code @Autowired}, {@code @Value}, {@code @EJB},
+    * {@code @PersistenceContext}, or {@code @PersistenceUnit}).
     * <p/>
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.

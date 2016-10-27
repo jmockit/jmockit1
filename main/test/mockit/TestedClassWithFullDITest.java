@@ -26,6 +26,7 @@ public final class TestedClassWithFullDITest
       Thread.State threadState;
       AnotherTestedClass subObj;
       YetAnotherTestedClass subObj2;
+      volatile CommonDependency notToBeInjected;
    }
 
    public static class FirstLevelDependency
@@ -55,6 +56,7 @@ public final class TestedClassWithFullDITest
    {
       assertNull(tested.name);
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
+      assertNull(tested.notToBeInjected);
    }
 
    @Test
