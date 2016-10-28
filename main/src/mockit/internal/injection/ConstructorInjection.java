@@ -48,7 +48,7 @@ final class ConstructorInjection extends Injector
             value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider);
          }
          else {
-            value = getArgumentValueToInject((MockedType) parameterProvider, i);
+            value = getArgumentValueToInject(parameterProvider, i);
          }
 
          Type parameterType = parameterTypes[i];
@@ -94,7 +94,7 @@ final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object getArgumentValueToInject(@Nonnull MockedType injectable, int parameterIndex)
+   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable, int parameterIndex)
    {
       Object argument = injectionState.getValueToInject(injectable);
 

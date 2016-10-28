@@ -48,25 +48,26 @@ public final class TestedClassWithGenericsTest
    @Injectable Collaborator<Integer> mockCollaborator;
 
    @Test
-   public void useSUTWithGenericFieldInjectedFromConcreteInjectable()
-   {
-      assertSame(numberToInject, tested1.value);
-   }
-
-   @Test
-   public void useSUTInstantiatedWithGenericConstructorParameterInjectedFromConcreteInjectable()
+   public void useSUTCreatedWithConstructorOfSingleGenericParameterAndWithGenericFieldInjectedFromConcreteInjectables()
    {
       assertSame(mockCollaborator, tested1.collaborator);
+      assertNull(tested1.collaborators);
+      assertSame(numberToInject, tested1.value);
       assertNull(tested1.action1);
+      assertNull(tested1.action2);
+      assertNull(tested1.values);
    }
 
    @Test
-   public void useSUTInstantiatedWithGenericFieldInjectedFromConcreteInjectable(
+   public void useSUTInstantiatedWithConstructorHavingMultipleGenericParameters(
       @Injectable Callable<String> mockAction1, @Injectable Callable<Integer> action1)
    {
-      assertSame(mockCollaborator, tested1.collaborator);
+      assertNull(tested1.collaborator);
+      assertSame(mockCollaborator, tested1.collaborators.iterator().next());
+      assertSame(mockAction1, tested1.action2);
       assertSame(action1, tested1.action1);
-      assertNull(tested1.action2);
+      assertSame(numberToInject, tested1.value);
+      assertNull(tested1.values);
    }
 
    @Test
@@ -77,6 +78,8 @@ public final class TestedClassWithGenericsTest
       assertSame(mockCollaborators, tested1.collaborators);
       assertNull(tested1.action1);
       assertSame(mockAction, tested1.action2);
+      assertSame(numberToInject, tested1.value);
+      assertNull(tested1.values);
    }
 
    @Test
@@ -88,6 +91,7 @@ public final class TestedClassWithGenericsTest
       assertSame(mockValues, tested1.values);
       assertNull(tested1.action1);
       assertSame(mockAction, tested1.action2);
+      assertSame(numberToInject, tested1.value);
    }
 
    static class GenericClass<T> { T value; }
