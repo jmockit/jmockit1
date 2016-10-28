@@ -16,6 +16,7 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
+import static mockit.internal.util.Utilities.getClassType;
 
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
@@ -99,7 +100,15 @@ final class InjectionState implements BeanExporter
             INJECT_CLASS != null && Provider.class.isAssignableFrom(classOfInjectionPoint)
          ) {
             Type providedType = parameterizedType.getActualTypeArguments()[0];
-            return providedType.equals(injectableType);
+
+            if (providedType.equals(injectableType)) {
+               return true;
+            }
+
+            Class<?> injectableClass = getClassType(injectableType);
+            Class<?> providedClass = getClassType(providedType);
+
+            return providedClass.isAssignableFrom(injectableClass);
          }
       }
 

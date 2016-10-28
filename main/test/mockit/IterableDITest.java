@@ -42,6 +42,7 @@ public final class IterableDITest
    }
 
    static class Dependency {}
+   static class SubDependency extends Dependency {}
    static class TestedClassWithInjectedList { @Inject List<Dependency> dependencies; }
 
    @Tested TestedClassWithInjectedList tested2;
@@ -51,5 +52,11 @@ public final class IterableDITest
    public void injectMockedInstanceIntoList()
    {
       assertTrue(tested2.dependencies.contains(dependency));
+   }
+
+   @Test
+   public void injectSubTypeInstanceIntoListOfBaseType(@Injectable SubDependency sub)
+   {
+      assertTrue(tested2.dependencies.contains(sub));
    }
 }
