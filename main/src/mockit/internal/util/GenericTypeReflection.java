@@ -78,16 +78,14 @@ public final class GenericTypeReflection
       }
    }
 
-   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    private void addMappingsFromTypeParametersToTypeArguments(
       @Nonnull Class<?> rawType, @Nonnull ParameterizedType genericType)
    {
       String ownerTypeDesc = getOwnerClassDesc(rawType);
       TypeVariable<?>[] typeParameters = rawType.getTypeParameters();
       Type[] typeArguments = genericType.getActualTypeArguments();
-      int n = typeParameters.length;
 
-      for (int i = 0; i < n; i++) {
+      for (int i = 0, n = typeParameters.length; i < n; i++) {
          TypeVariable<?> typeParam = typeParameters[i];
          String typeVarName = typeParam.getName();
 
@@ -96,54 +94,87 @@ public final class GenericTypeReflection
          }
 
          Type typeArg = typeArguments[i];
-         Type mappedTypeArg;
-         String mappedTypeArgName = null;
 
          if (typeArg instanceof Class<?>) {
-            mappedTypeArg = typeArg;
-
-            if (withSignatures) {
-               Class<?> classArg = (Class<?>) typeArg;
-               String ownerClassDesc = getOwnerClassDesc(classArg);
-               mappedTypeArgName = classArg.isArray() ? ownerClassDesc : 'L' + ownerClassDesc;
-            }
+            addMappingForClassType(ownerTypeDesc, typeVarName, typeArg);
          }
          else if (typeArg instanceof TypeVariable<?>) {
-            mappedTypeArg = typeArg;
-
-            if (withSignatures) {
-               TypeVariable<?> typeVar = (TypeVariable<?>) typeArg;
-               String ownerClassDesc = getOwnerClassDesc(typeVar);
-               String intermediateTypeArg = ownerClassDesc + ":T" + typeVar.getName();
-               mappedTypeArgName = typeParametersToTypeArgumentNames.get(intermediateTypeArg);
-            }
+            addMappingForTypeVariable(ownerTypeDesc, typeVarName, typeArg);
          }
          else if (typeArg instanceof ParameterizedType) {
-            mappedTypeArg = typeArg;
-
-            if (withSignatures) {
-               Class<?> classType = getClassType(typeArg);
-               mappedTypeArgName = 'L' + getOwnerClassDesc(classType);
-            }
+            addMappingForParameterizedType(ownerTypeDesc, typeVarName, typeArg);
          }
          else if (typeArg instanceof GenericArrayType) {
-            mappedTypeArg = typeArg;
-
-            if (withSignatures) {
-               mappedTypeArgName = getMappedTypeArgName((GenericArrayType) typeArg);
-            }
+            addMappingForArrayType(ownerTypeDesc, typeVarName, typeArg);
          }
          else {
-            mappedTypeArg = typeParam.getBounds()[0];
-
-            if (withSignatures) {
-               Class<?> classType = getClassType(mappedTypeArg);
-               mappedTypeArgName = 'L' + getOwnerClassDesc(classType);
-            }
+            addMappingForFirstTypeBound(ownerTypeDesc, typeParam);
          }
-
-         addTypeMapping(ownerTypeDesc, typeVarName, mappedTypeArg, mappedTypeArgName);
       }
+   }
+
+   private void addMappingForClassType(@Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
+   {
+      String mappedTypeArgName = null;
+
+      if (withSignatures) {
+         Class<?> classArg = (Class<?>) typeArg;
+         String ownerClassDesc = getOwnerClassDesc(classArg);
+         mappedTypeArgName = classArg.isArray() ? ownerClassDesc : 'L' + ownerClassDesc;
+      }
+
+      addTypeMapping(ownerTypeDesc, typeName, typeArg, mappedTypeArgName);
+   }
+
+   private void addMappingForTypeVariable(
+      @Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
+   {
+      String mappedTypeArgName = null;
+
+      if (withSignatures) {
+         TypeVariable<?> typeVar = (TypeVariable<?>) typeArg;
+         String ownerClassDesc = getOwnerClassDesc(typeVar);
+         String intermediateTypeArg = ownerClassDesc + ":T" + typeVar.getName();
+         mappedTypeArgName = typeParametersToTypeArgumentNames.get(intermediateTypeArg);
+      }
+
+      addTypeMapping(ownerTypeDesc, typeName, typeArg, mappedTypeArgName);
+   }
+
+   private void addMappingForParameterizedType(
+      @Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
+   {
+      String mappedTypeArgName = getMappedTypeArgName(typeArg);
+      addTypeMapping(ownerTypeDesc, typeName, typeArg, mappedTypeArgName);
+   }
+
+   @Nullable
+   private String getMappedTypeArgName(@Nonnull Type typeArg)
+   {
+      if (withSignatures) {
+         Class<?> classType = getClassType(typeArg);
+         return 'L' + getOwnerClassDesc(classType);
+      }
+
+      return null;
+   }
+
+   private void addMappingForArrayType(@Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
+   {
+      String mappedTypeArgName = null;
+
+      if (withSignatures) {
+         mappedTypeArgName = getMappedTypeArgName((GenericArrayType) typeArg);
+      }
+
+      addTypeMapping(ownerTypeDesc, typeName, typeArg, mappedTypeArgName);
+   }
+
+   private void addMappingForFirstTypeBound(@Nonnull String ownerTypeDesc, @Nonnull TypeVariable<?> typeParam)
+   {
+      Type typeArg = typeParam.getBounds()[0];
+      String mappedTypeArgName = getMappedTypeArgName(typeArg);
+      addTypeMapping(ownerTypeDesc, typeParam.getName(), typeArg, mappedTypeArgName);
    }
 
    @Nonnull
