@@ -111,6 +111,14 @@ public final class GenericTypeReflection
             addMappingForFirstTypeBound(ownerTypeDesc, typeParam);
          }
       }
+
+      Type outerType = genericType.getOwnerType();
+
+      if (outerType instanceof ParameterizedType) {
+         ParameterizedType parameterizedOuterType = (ParameterizedType) outerType;
+         Class<?> rawOuterType = (Class<?>) parameterizedOuterType.getRawType();
+         addMappingsFromTypeParametersToTypeArguments(rawOuterType, parameterizedOuterType);
+      }
    }
 
    private void addMappingForClassType(@Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
@@ -561,7 +569,7 @@ public final class GenericTypeReflection
             return resolvedReturnType;
          }
 
-         resolvedReturnType = resolveReturnTypeForInterfaceMethod(ownerType, genericReturnType);
+         resolvedReturnType = resolveReturnTypeForAbstractMethod(ownerType, genericReturnType);
 
          if (resolvedReturnType != null) {
             return resolvedReturnType;
@@ -575,17 +583,25 @@ public final class GenericTypeReflection
    }
 
    @Nullable
-   private String resolveReturnTypeForInterfaceMethod(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType)
+   private String resolveReturnTypeForAbstractMethod(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType)
    {
+      String resolvedReturnType = null;
+
       for (Class<?> superInterface: ownerType.getInterfaces()) {
-         String resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
+         resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
 
          if (resolvedReturnType != null) {
             return resolvedReturnType;
          }
       }
 
-      return null;
+      Class<?> outerClass = ownerType.getEnclosingClass();
+
+      if (outerClass != null) {
+         resolvedReturnType = resolveReturnType(outerClass, genericReturnType);
+      }
+
+      return resolvedReturnType;
    }
 
    public boolean areMatchingTypes(@Nonnull Type declarationType, @Nonnull Type realizationType)

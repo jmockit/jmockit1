@@ -265,4 +265,24 @@ public final class GenericMockedTypesTest
 
       new Verifications() {{ mock.doSomething("test"); }};
    }
+
+   public static class Outer<T>
+   {
+      public abstract class Inner { public abstract T getSomeValue(); }
+      public abstract class SubInner extends Inner {}
+   }
+
+   @Test
+   public void mockInnerClassWhichUsesTypeVariableOfOuterClass(@Mocked Outer<String>.Inner mock)
+   {
+      String in = mock.getSomeValue();
+      assertNull(in);
+   }
+
+   @Test
+   public void mockAbstractSubClassOfInnerClassWhichUsesTypeVariableOfOuterClass(@Mocked Outer<String>.SubInner mock)
+   {
+      String in = mock.getSomeValue();
+      assertNull(in);
+   }
 }
