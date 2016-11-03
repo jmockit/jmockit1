@@ -271,7 +271,11 @@ public final class MockedType extends InjectionPointProvider
       }
 
       if (value == null) {
-         return providedValue;
+         if (providedValue != null) {
+            return providedValue;
+         }
+
+         return isFinalFieldOrParameter() ? NULL : null;
       }
 
       if (providedValue == null) {

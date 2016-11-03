@@ -12,6 +12,7 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
+import static mockit.internal.injection.InjectionPointProvider.NULL;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -41,7 +42,7 @@ final class ConstructorInjection extends Injector
       }
 
       for (int i = 0; i < n; i++) {
-         InjectionPointProvider parameterProvider = parameterProviders.get(i);
+         @Nonnull InjectionPointProvider parameterProvider = parameterProviders.get(i);
          Object value;
 
          if (parameterProvider instanceof ConstructorParameter) {
@@ -51,8 +52,10 @@ final class ConstructorInjection extends Injector
             value = getArgumentValueToInject(parameterProvider, i);
          }
 
-         Type parameterType = parameterTypes[i];
-         arguments[i] = wrapInProviderIfNeeded(parameterType, value);
+         if (value != null) {
+            Type parameterType = parameterTypes[i];
+            arguments[i] = wrapInProviderIfNeeded(parameterType, value);
+         }
       }
 
       if (varArgs) {
@@ -93,7 +96,7 @@ final class ConstructorInjection extends Injector
       return value;
    }
 
-   @Nonnull
+   @Nullable
    private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable, int parameterIndex)
    {
       Object argument = injectionState.getValueToInject(injectable);
@@ -110,7 +113,7 @@ final class ConstructorInjection extends Injector
          throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
       }
 
-      return argument;
+      return argument == NULL ? null : argument;
    }
 
    @Nonnull

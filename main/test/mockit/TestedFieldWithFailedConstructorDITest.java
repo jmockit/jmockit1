@@ -26,8 +26,8 @@ public final class TestedFieldWithFailedConstructorDITest
    }
 
    @Tested ClassWithStringParameter tested;
-   @Injectable final String foo = null;
+   @Injectable String foo;
 
    @Test
-   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithNullValue() {}
+   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithoutAValue() {}
 }

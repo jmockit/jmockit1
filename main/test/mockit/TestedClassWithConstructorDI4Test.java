@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.inject.*;
 import javax.naming.*;
 import javax.sql.*;
 import static java.util.Arrays.*;
@@ -60,12 +61,6 @@ public final class TestedClassWithConstructorDI4Test
       new Expectations() {{ jndiContext.lookup("testDB"); result = testDB; }};
    }
 
-   @After
-   public void verifyCommonExpectations()
-   {
-      new Verifications() {{ mockGO.doSomething(); times = 1; }};
-   }
-
    @Test
    public void exerciseTestedObjectWithValuesInjectedFromMockFields()
    {
@@ -94,5 +89,31 @@ public final class TestedClassWithConstructorDI4Test
    {
       assertNotNull(tested.database);
       mockGO.doSomething();
+   }
+
+   static class TestedClass3
+   {
+      final String text;
+      final Runnable dependency;
+      @Inject GenericClass<Integer> otherDep;
+
+      TestedClass3(String text, Runnable dependency)
+      {
+         this.text = text;
+         this.dependency = dependency;
+      }
+   }
+
+   @Tested TestedClass3 tested7;
+   @Injectable final String text = null;
+   @Injectable final Runnable dependency = null;
+   @Injectable final GenericClass<Integer> otherDep = null;
+
+   @Test
+   public void injectNullsThroughConstructorParametersAndIntoRequiredField()
+   {
+      assertNull(tested7.text);
+      assertNull(tested7.dependency);
+      assertNull(tested7.otherDep);
    }
 }

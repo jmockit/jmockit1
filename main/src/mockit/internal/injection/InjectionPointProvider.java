@@ -14,6 +14,8 @@ import javax.annotation.*;
  */
 public abstract class InjectionPointProvider
 {
+   public static final Object NULL = Void.class;
+
    @Nonnull protected final Type declaredType;
    @Nonnull protected final String name;
    @Nullable InjectionPointProvider parent;
