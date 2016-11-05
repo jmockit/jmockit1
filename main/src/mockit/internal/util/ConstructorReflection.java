@@ -7,6 +7,8 @@ package mockit.internal.util;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import static java.lang.reflect.Modifier.isStatic;
+
 import static mockit.internal.util.MethodReflection.validateNotCalledFromInvocationBlock;
 import static mockit.internal.util.ParameterReflection.*;
 import static mockit.internal.util.Utilities.JAVA9;
@@ -218,7 +220,7 @@ public final class ConstructorReflection
 
       validateNotCalledFromInvocationBlock();
 
-      if (Modifier.isStatic(innerClass.getModifiers())) {
+      if (isStatic(innerClass.getModifiers())) {
          throw new IllegalArgumentException(innerClass.getSimpleName() + " is not an inner class");
       }
 
@@ -269,8 +271,13 @@ public final class ConstructorReflection
             REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR) :
             (Constructor<?>) NEW_CONSTRUCTOR.invoke(REFLECTION_FACTORY, aClass);
 
-         //noinspection unchecked
-         return (T) fakeConstructor.newInstance();
+         if (fakeConstructor == null) { // can happen on Java 9
+            //noinspection ConstantConditions
+            return null;
+         }
+
+         @SuppressWarnings("unchecked") T newInstance = (T) fakeConstructor.newInstance();
+         return newInstance;
       }
       catch (NoClassDefFoundError e) {
          StackTrace.filterStackTrace(e);
