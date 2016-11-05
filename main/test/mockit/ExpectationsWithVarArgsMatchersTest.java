@@ -244,7 +244,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    }
 
    @SuppressWarnings("unused")
-   class VarArgs
+   static class VarArgs
    {
       public void varsOnly(int... ints) {}
       public void mixed(String arg0, int... ints) {}
@@ -265,7 +265,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       varargs.mixed("abcd", null);
    }
 
-   class ReferenceVarArgs
+   static class ReferenceVarArgs
    {
       @SuppressWarnings("unused")
       public void mixed(String[] strings, Integer... ints) {}
@@ -295,7 +295,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    }
 
    @SuppressWarnings("unused")
-   class PrimitiveVarArgs
+   static class PrimitiveVarArgs
    {
       public void varsOnly(int... ints) {}
       public void mixed(String arg0, String[] strings, int... ints) {}
@@ -333,7 +333,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       varargs.mixed(null, null, null);
    }
 
-   class MixedVarArgs
+   static class MixedVarArgs
    {
       @SuppressWarnings("unused")
       public void mixed(String[] strings, int... ints) {}
