@@ -9,14 +9,10 @@ import javax.annotation.*;
 
 import static mockit.internal.util.MethodReflection.validateNotCalledFromInvocationBlock;
 import static mockit.internal.util.ParameterReflection.*;
-
-import sun.reflect.*;
+import static mockit.internal.util.Utilities.JAVA9;
 
 public final class ConstructorReflection
 {
-   @SuppressWarnings("UseOfSunClasses")
-   private static final ReflectionFactory REFLECTION_FACTORY = ReflectionFactory.getReflectionFactory();
-
    private static final Constructor<?> OBJECT_CONSTRUCTOR;
    static
    {
@@ -244,12 +240,35 @@ public final class ConstructorReflection
       return newInnerInstance(innerClass, outerInstance, nonNullArgs);
    }
 
+   @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UseOfSunClasses"})
+   private static final sun.reflect.ReflectionFactory REFLECTION_FACTORY =
+      sun.reflect.ReflectionFactory.getReflectionFactory();
+   private static final Method NEW_CONSTRUCTOR;
+
+   static
+   {
+      Method newConstructor = null;
+
+      if (JAVA9) {
+         Class<?> reflectionFactoryClass = REFLECTION_FACTORY.getClass();
+
+         try {
+            newConstructor = reflectionFactoryClass.getDeclaredMethod("newConstructorForSerialization", Class.class);
+         }
+         catch (NoSuchMethodException ignore) {}
+      }
+
+      NEW_CONSTRUCTOR = newConstructor;
+   }
+
    @Nonnull
    public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass)
    {
-      Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
-
       try {
+         Constructor<?> fakeConstructor = NEW_CONSTRUCTOR == null ?
+            REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR) :
+            (Constructor<?>) NEW_CONSTRUCTOR.invoke(REFLECTION_FACTORY, aClass);
+
          //noinspection unchecked
          return (T) fakeConstructor.newInstance();
       }
