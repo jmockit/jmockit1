@@ -75,7 +75,7 @@ public final class MockedType extends InjectionPointProvider
                return Utilities.convertFromString(injectableClass, value);
             }
          }
-         else if (!fieldFromTestClass && !isMockableType()) {
+         else if (!fieldFromTestClass && declaredType != String.class && !isMockableType()) {
             throw new IllegalArgumentException("Missing value for injectable parameter: " + name);
          }
       }
@@ -270,19 +270,27 @@ public final class MockedType extends InjectionPointProvider
          return value;
       }
 
+      Class<?> fieldType = field.getType();
+
       if (value == null) {
          if (providedValue != null) {
             return providedValue;
          }
 
-         return isFinalFieldOrParameter() ? NULL : null;
+         if (isFinalFieldOrParameter()) {
+            return NULL;
+         }
+
+         if (fieldType == String.class) {
+            return "";
+         }
+
+         return null;
       }
 
       if (providedValue == null) {
          return value;
       }
-
-      Class<?> fieldType = field.getType();
 
       if (!fieldType.isPrimitive()) {
          return value;

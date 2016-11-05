@@ -14,6 +14,7 @@ import java.lang.annotation.*;
  * <p/>
  * When the type of the injectable is {@code String}, a primitive wrapper, a {@linkplain Number number type}, or an
  * enum, it is <em>not</em> mocked.
+ * A non-empty {@link #value} must then be provided, except in the first case where the empty string is used by default.
  * <p/>
  * For the duration of each test where the mock field/parameter is in scope, <em>only one</em> injectable instance is
  * mocked; other instances of the same mocked type are not affected.

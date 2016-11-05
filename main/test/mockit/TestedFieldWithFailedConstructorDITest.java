@@ -6,6 +6,7 @@ package mockit;
 
 import org.junit.*;
 import org.junit.rules.*;
+import static org.junit.Assert.assertEquals;
 
 public final class TestedFieldWithFailedConstructorDITest
 {
@@ -16,18 +17,21 @@ public final class TestedFieldWithFailedConstructorDITest
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No injectable value available for parameter \"value\" in constructor ");
-      thrown.expectMessage("ClassWithStringParameter(String value)");
+      thrown.expectMessage("ClassWithOneParameter(Integer value)");
    }
 
-   static class ClassWithStringParameter
+   static class ClassWithOneParameter
    {
-      String value;
-      ClassWithStringParameter(String value) { this.value = value; }
+      Integer value;
+      ClassWithOneParameter(Integer value) { this.value = value; }
    }
 
-   @Tested ClassWithStringParameter tested;
-   @Injectable String foo;
+   @Tested ClassWithOneParameter tested;
+   @Injectable Integer foo;
 
    @Test
-   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithoutAValue() {}
+   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithoutAValue(@Injectable String s)
+   {
+      assertEquals("", s);
+   }
 }

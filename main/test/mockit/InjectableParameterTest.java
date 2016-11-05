@@ -44,5 +44,5 @@ public final class InjectableParameterTest
    public void attemptToDeclarePrimitiveInjectableWithoutAValue(@Injectable int i) {}
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToDeclareNonMockedInjectableWithoutAValue(@Injectable String s) {}
+   public void attemptToDeclareNonMockedInjectableWithoutAValue(@Injectable Integer i) {}
 }

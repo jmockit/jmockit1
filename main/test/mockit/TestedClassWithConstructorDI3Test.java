@@ -77,7 +77,7 @@ public final class TestedClassWithConstructorDI3Test
    }
 
    @Tested ClassWithStringParameter tested2;
-   @Injectable String name = "";
+   @Injectable String name;
 
    @Test
    public void initializeTestedObjectWithEmptyStringParameter()
