@@ -53,7 +53,6 @@ final class ReturnTypeConversion
          }
       }
 
-      expectation.clearNextInstanceToMatchIfRecording();
       results.addReturnValue(valueToReturn);
    }
 
@@ -337,22 +336,28 @@ final class ReturnTypeConversion
       if (targetType == Integer.class) {
          return number.intValue();
       }
-      else if (targetType == Short.class) {
+
+      if (targetType == Short.class) {
          return number.shortValue();
       }
-      else if (targetType == Long.class) {
+
+      if (targetType == Long.class) {
          return number.longValue();
       }
-      else if (targetType == Byte.class) {
+
+      if (targetType == Byte.class) {
          return number.byteValue();
       }
-      else if (targetType == Double.class) {
+
+      if (targetType == Double.class) {
          return number.doubleValue();
       }
-      else if (targetType == Float.class) {
+
+      if (targetType == Float.class) {
          return number.floatValue();
       }
-      else if (targetType == Character.class) {
+
+      if (targetType == Character.class) {
          return (char) number.intValue();
       }
 
@@ -365,20 +370,25 @@ final class ReturnTypeConversion
       if (targetType == Integer.class) {
          return (int) c;
       }
-      else if (targetType == Short.class) {
+
+      if (targetType == Short.class) {
          return (short) c;
       }
-      else if (targetType == Long.class) {
+
+      if (targetType == Long.class) {
          return (long) c;
       }
-      else if (targetType == Byte.class) {
+
+      if (targetType == Byte.class) {
          //noinspection NumericCastThatLosesPrecision
          return (byte) c;
       }
-      else if (targetType == Double.class) {
+
+      if (targetType == Double.class) {
          return (double) c;
       }
-      else if (targetType == Float.class) {
+
+      if (targetType == Float.class) {
          return (float) c;
       }
 

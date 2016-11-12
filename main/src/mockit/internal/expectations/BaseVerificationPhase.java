@@ -70,7 +70,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
       matchInstance =
          mock != null && (
-            nextInstanceToMatch != null && mock == nextInstanceToMatch ||
             recordAndReplay.executionState.isReplacementInstance(mock, mockNameAndDesc) ||
             isEnumElement(mock)
          );
@@ -85,10 +84,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs =
          findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       argMatchers = null;
-
-      if (matchInstance) {
-         nextInstanceToMatch = null;
-      }
 
       if (recordAndReplay.getErrorThrown() != null) {
          return null;

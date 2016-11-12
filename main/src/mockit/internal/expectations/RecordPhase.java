@@ -9,7 +9,6 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.internal.state.ExecutingTest.*;
 import static mockit.internal.util.ClassLoad.*;
 
@@ -87,25 +86,9 @@ public final class RecordPhase extends TestOnlyPhase
          return null;
       }
 
-      if (nextInstanceToMatch == null) {
-         Object replacementInstance = getReplacementMap().get(mock);
-         matchInstance = mock == replacementInstance || isEnumElement(mock);
-         return mock;
-      }
-
-      Object specified = nextInstanceToMatch;
-
-      if (mock != specified) {
-         Class<?> mockedClass = GeneratedClasses.getMockedClass(mock);
-
-         if (!mockedClass.isInstance(specified)) {
-            return mock;
-         }
-      }
-
-      nextInstanceToMatch = null;
-      matchInstance = true;
-      return specified;
+      Object replacementInstance = getReplacementMap().get(mock);
+      matchInstance = mock == replacementInstance || isEnumElement(mock);
+      return mock;
    }
 
    @Override

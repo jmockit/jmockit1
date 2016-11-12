@@ -60,13 +60,6 @@ final class Expectation
       return TypeDescriptor.getReturnType(resolvedReturnType);
    }
 
-   void clearNextInstanceToMatchIfRecording()
-   {
-      if (recordPhase != null) {
-         recordPhase.setNextInstanceToMatch(null);
-      }
-   }
-
    void addSequenceOfReturnValues(@Nonnull Object[] values)
    {
       if (invocation.isConstructor()) {
@@ -142,7 +135,6 @@ final class Expectation
          Class<?> rt = getReturnType();
 
          if (rt.isInstance(value)) {
-            clearNextInstanceToMatchIfRecording();
             getResults().addReturnValueResult(value);
          }
          else {
