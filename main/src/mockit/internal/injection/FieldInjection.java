@@ -160,7 +160,8 @@ final class FieldInjection extends Injector
       injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
-         return injectionState.findInjectableByTypeAndName(qualifiedTargetFieldName);
+         String injectableName = convertToLegalJavaIdentifierIfNeeded(qualifiedTargetFieldName);
+         return injectionState.findInjectableByTypeAndName(injectableName);
       }
 
       String targetFieldName = targetField.getName();

@@ -15,6 +15,8 @@ import javax.inject.*;
 import javax.persistence.*;
 import javax.servlet.*;
 
+import static java.lang.Character.toUpperCase;
+
 import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.util.MethodReflection.*;
 import static mockit.internal.util.ParameterReflection.*;
@@ -43,6 +45,7 @@ final class InjectionPoint
 
    @Nonnull final Type type;
    @Nullable final String name;
+   @Nullable private final String normalizedName;
 
    InjectionPoint(@Nonnull Type type) { this(type, null); }
 
@@ -50,6 +53,29 @@ final class InjectionPoint
    {
       this.type = type;
       this.name = name;
+      normalizedName = name == null ? null : convertToLegalJavaIdentifierIfNeeded(name);
+   }
+
+   @Nonnull
+   static String convertToLegalJavaIdentifierIfNeeded(@Nonnull String name)
+   {
+      if (name.indexOf('-') < 0 && name.indexOf('.') < 0) {
+         return name;
+      }
+
+      StringBuilder identifier = new StringBuilder(name);
+
+      for (int i = name.length() - 1; i >= 0; i--) {
+         char c = identifier.charAt(i);
+
+         if (c == '-' || c == '.') {
+            identifier.deleteCharAt(i);
+            c = identifier.charAt(i);
+            identifier.setCharAt(i, toUpperCase(c));
+         }
+      }
+
+      return identifier.toString();
    }
 
    @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
@@ -63,8 +89,8 @@ final class InjectionPoint
          return false;
       }
 
-      String thisName = name;
-      String otherName = otherIP.name;
+      String thisName = normalizedName;
+      String otherName = otherIP.normalizedName;
 
       if (thisName != null && !thisName.equals(otherName)) {
          return false;
@@ -77,7 +103,7 @@ final class InjectionPoint
    }
 
    @Override
-   public int hashCode() { return 31 * type.hashCode() + (name != null ? name.hashCode() : 0); }
+   public int hashCode() { return 31 * type.hashCode() + (normalizedName != null ? normalizedName.hashCode() : 0); }
 
    static boolean isServlet(@Nonnull Class<?> aClass)
    {
@@ -232,9 +258,8 @@ final class InjectionPoint
       if (parameterType instanceof Class<?>) {
          return ((Class<?>) parameterType).getComponentType();
       }
-      else {
-         return ((GenericArrayType) parameterType).getGenericComponentType();
-      }
+
+      return ((GenericArrayType) parameterType).getGenericComponentType();
    }
 
    @Nullable
@@ -254,7 +279,8 @@ final class InjectionPoint
 
             return name;
          }
-         else if ("javax.inject.Named".equals(annotationName) || annotationName.endsWith(".Qualifier")) {
+
+         if ("javax.inject.Named".equals(annotationName) || annotationName.endsWith(".Qualifier")) {
             String qualifiedName = readAnnotationAttribute(annotation, "value");
             return qualifiedName;
          }

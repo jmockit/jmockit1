@@ -5,7 +5,9 @@
 package mockit;
 
 import java.io.*;
+import javax.annotation.*;
 import javax.inject.*;
+import javax.sql.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -19,12 +21,16 @@ public final class TestedClassWithQualifiedDependencyTest
    {
       @Inject private Dependency1 dep1;
       @Autowired private Dependency2 dep2;
+      @Resource(name = "main-db") private DataSource ds;
+      @Named("some.textual.value") private String text;
+      @Qualifier("a.BC-12") private Long numericValue;
+      @Qualifier("a.BC-12b") private Long numericValue2;
    }
 
    public static class Dependency1
    {
-      @Named("action1") private Runnable action;
-      @Qualifier("foo") private Serializable qualifiedDep;
+      @Inject @Named("action1") private Runnable action;
+      @Autowired @Qualifier("foo") private Serializable qualifiedDep;
    }
 
    public static class Dependency2
@@ -42,6 +48,8 @@ public final class TestedClassWithQualifiedDependencyTest
    }
 
    @Tested Dependency2 dependency2;
+   @Tested final Long aBC12 = 123L;
+   @Tested final Long aBC12b = 45L;
    @Tested(fullyInitialized = true) TestedClass tested;
    @Injectable Runnable action1;
 
@@ -66,5 +74,16 @@ public final class TestedClassWithQualifiedDependencyTest
    public void useTestedObjectOfSubtypeForQualifiedAbstractDependencyTypeInAnotherTestedObject()
    {
       assertSame(dep1, tested2.dependency);
+   }
+
+   @Injectable DataSource mainDb;
+
+   @Test
+   public void verifyDependenciesHavingCompositeNames(@Injectable("text value") String someTextualValue)
+   {
+      assertSame(mainDb, tested.ds);
+      assertEquals(someTextualValue, tested.text);
+      assertEquals(aBC12, tested.numericValue);
+      assertEquals(aBC12b, tested.numericValue2);
    }
 }
