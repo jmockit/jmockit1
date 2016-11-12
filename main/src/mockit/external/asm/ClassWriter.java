@@ -617,8 +617,8 @@ public final class ClassWriter extends ClassVisitor {
         key2 = new Item();
         key3 = new Item();
         key4 = new Item();
-        this.computeMaxs = (flags & COMPUTE_MAXS) != 0;
-        this.computeFrames = (flags & COMPUTE_FRAMES) != 0;
+        computeMaxs = (flags & COMPUTE_MAXS) != 0;
+        computeFrames = (flags & COMPUTE_FRAMES) != 0;
     }
 
     /**
@@ -653,10 +653,10 @@ public final class ClassWriter extends ClassVisitor {
      *            these methods</i>. See {@link #COMPUTE_MAXS},
      *            {@link #COMPUTE_FRAMES}.
      */
-    public ClassWriter(final ClassReader classReader, final int flags) {
+    public ClassWriter(ClassReader classReader, int flags) {
         this(flags);
         classReader.copyPool(this);
-        this.cr = classReader;
+        cr = classReader;
     }
 
     // ------------------------------------------------------------------------
@@ -664,17 +664,18 @@ public final class ClassWriter extends ClassVisitor {
     // ------------------------------------------------------------------------
 
     @Override
-    public final void visit(final int version, final int access,
-            final String name, final String signature, final String superName,
-            final String[] interfaces) {
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         this.version = version;
         this.access = access;
         this.name = newClass(name);
         thisName = name;
+
         if (ClassReader.SIGNATURES && signature != null) {
             this.signature = newUTF8(signature);
         }
+
         this.superName = superName == null ? 0 : newClass(superName);
+
         if (interfaces != null && interfaces.length > 0) {
             interfaceCount = interfaces.length;
             this.interfaces = new int[interfaceCount];
@@ -689,80 +690,85 @@ public final class ClassWriter extends ClassVisitor {
     }
 
     @Override
-    public final void visitSource(final String file, final String debug) {
+    public void visitSource(String file, String debug) {
         if (file != null) {
             sourceFile = newUTF8(file);
         }
+
         if (debug != null) {
-            sourceDebug = new ByteVector().encodeUTF8(debug, 0,
-                    Integer.MAX_VALUE);
+            sourceDebug = new ByteVector().encodeUTF8(debug, 0, Integer.MAX_VALUE);
         }
     }
 
     @Override
-    public final void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(String owner, String name, String desc) {
         enclosingMethodOwner = newClass(owner);
+
         if (name != null && desc != null) {
             enclosingMethod = newNameType(name, desc);
         }
     }
 
     @Override
-    public final AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
+
         ByteVector bv = new ByteVector();
         // write type, and reserve space for values count
         bv.putShort(newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
+
         if (visible) {
             aw.next = anns;
             anns = aw;
-        } else {
+        }
+        else {
             aw.next = ianns;
             ianns = aw;
         }
+
         return aw;
     }
 
     @Override
-    public final AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         if (!ClassReader.ANNOTATIONS) {
             return null;
         }
+
         ByteVector bv = new ByteVector();
         // write target_type and target_info
         AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv,
-                bv.length - 2);
+        AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, bv.length - 2);
+
         if (visible) {
             aw.next = tanns;
             tanns = aw;
-        } else {
+        }
+        else {
             aw.next = itanns;
             itanns = aw;
         }
+
         return aw;
     }
 
     @Override
-    public final void visitAttribute(final Attribute attr) {
+    public void visitAttribute(Attribute attr) {
         attr.next = attrs;
         attrs = attr;
     }
 
     @Override
-    public final void visitInnerClass(final String name,
-            final String outerName, final String innerName, final int access) {
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
         if (innerClasses == null) {
             innerClasses = new ByteVector();
         }
+
         // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the
         // constant_pool table which represents a class or interface C that is
         // not a package member must have exactly one corresponding entry in the
@@ -774,6 +780,7 @@ public final class ClassWriter extends ClassVisitor {
         // entry (plus one) in intVal. This hack allows duplicate detection in
         // O(1) time.
         Item nameItem = newClassItem(name);
+
         if (nameItem.intVal == 0) {
             ++innerClassesCount;
             innerClasses.putShort(nameItem.index);
@@ -781,7 +788,8 @@ public final class ClassWriter extends ClassVisitor {
             innerClasses.putShort(innerName == null ? 0 : newUTF8(innerName));
             innerClasses.putShort(access);
             nameItem.intVal = innerClassesCount;
-        } else {
+        }
+        else {
             // Compare the inner classes entry nameItem.intVal - 1 with the
             // arguments of this method and throw an exception if there is a
             // difference?
@@ -789,21 +797,17 @@ public final class ClassWriter extends ClassVisitor {
     }
 
     @Override
-    public final FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         return new FieldWriter(this, access, name, desc, signature, value);
     }
 
     @Override
-    public final MethodWriter visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
-        return new MethodWriter(this, access, name, desc, signature,
-                exceptions, computeMaxs, computeFrames);
+    public MethodWriter visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+        return new MethodWriter(this, access, name, desc, signature, exceptions, computeMaxs, computeFrames);
     }
 
     @Override
-    public final void visitEnd() {
-    }
+    public void visitEnd() {}
 
     // ------------------------------------------------------------------------
     // Other public methods
@@ -811,30 +815,35 @@ public final class ClassWriter extends ClassVisitor {
 
     /**
      * Returns the bytecode of the class that was build with this class writer.
-     * 
-     * @return the bytecode of the class that was build with this class writer.
      */
-    @Override public byte[] toByteArray() {
+    @Override
+    public byte[] toByteArray() {
         if (index > 0xFFFF) {
             throw new RuntimeException("Class file too large!");
         }
+
         // computes the real size of the bytecode of this class
         int size = 24 + 2 * interfaceCount;
         int nbFields = 0;
         FieldWriter fb = firstField;
+
         while (fb != null) {
             ++nbFields;
             size += fb.getSize();
             fb = (FieldWriter) fb.fv;
         }
+
         int nbMethods = 0;
         MethodWriter mb = firstMethod;
+
         while (mb != null) {
             ++nbMethods;
             size += mb.getSize();
             mb = (MethodWriter) mb.mv;
         }
+
         int attributeCount = 0;
+
         if (bootstrapMethods != null) {
             // we put it as first attribute in order to improve a bit
             // ClassReader.copyBootstrapMethods
@@ -842,31 +851,37 @@ public final class ClassWriter extends ClassVisitor {
             size += 8 + bootstrapMethods.length;
             newUTF8("BootstrapMethods");
         }
+
         if (ClassReader.SIGNATURES && signature != 0) {
             ++attributeCount;
             size += 8;
             newUTF8("Signature");
         }
+
         if (sourceFile != 0) {
             ++attributeCount;
             size += 8;
             newUTF8("SourceFile");
         }
+
         if (sourceDebug != null) {
             ++attributeCount;
             size += sourceDebug.length + 6;
             newUTF8("SourceDebugExtension");
         }
+
         if (enclosingMethodOwner != 0) {
             ++attributeCount;
             size += 10;
             newUTF8("EnclosingMethod");
         }
+
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             ++attributeCount;
             size += 6;
             newUTF8("Deprecated");
         }
+
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             if ((version & 0xFFFF) < Opcodes.V1_5
                     || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
@@ -875,6 +890,7 @@ public final class ClassWriter extends ClassVisitor {
                 newUTF8("Synthetic");
             }
         }
+
         if (innerClasses != null) {
             ++attributeCount;
             size += 8 + innerClasses.length;
@@ -904,6 +920,7 @@ public final class ClassWriter extends ClassVisitor {
             attributeCount += attrs.getCount();
             size += attrs.getSize(this);
         }
+
         size += pool.length;
         // allocates a byte vector of this size, in order to avoid unnecessary
         // arraycopy operations in the ByteVector.enlarge() method
@@ -914,22 +931,28 @@ public final class ClassWriter extends ClassVisitor {
                 | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
         out.putShort(access & ~mask).putShort(name).putShort(superName);
         out.putShort(interfaceCount);
+
         for (int i = 0; i < interfaceCount; ++i) {
             out.putShort(interfaces[i]);
         }
+
         out.putShort(nbFields);
         fb = firstField;
         while (fb != null) {
             fb.put(out);
             fb = (FieldWriter) fb.fv;
         }
+
         out.putShort(nbMethods);
         mb = firstMethod;
+
         while (mb != null) {
             mb.put(out);
             mb = (MethodWriter) mb.mv;
         }
+
         out.putShort(attributeCount);
+
         if (bootstrapMethods != null) {
             out.putShort(newUTF8("BootstrapMethods"));
             out.putInt(bootstrapMethods.length + 2).putShort(
@@ -1020,30 +1043,30 @@ public final class ClassWriter extends ClassVisitor {
      *            {@link Type}.
      * @return a new or already existing constant item with the given value.
      */
-    Item newConstItem(final Object cst) {
+    Item newConstItem(Object cst) {
         if (cst instanceof Integer) {
-            int val = ((Integer) cst).intValue();
+            int val = (Integer) cst;
             return newInteger(val);
         } else if (cst instanceof Byte) {
             int val = ((Byte) cst).intValue();
             return newInteger(val);
         } else if (cst instanceof Character) {
-            int val = ((Character) cst).charValue();
+            int val = (Character) cst;
             return newInteger(val);
         } else if (cst instanceof Short) {
             int val = ((Short) cst).intValue();
             return newInteger(val);
         } else if (cst instanceof Boolean) {
-            int val = ((Boolean) cst).booleanValue() ? 1 : 0;
+            int val = (Boolean) cst ? 1 : 0;
             return newInteger(val);
         } else if (cst instanceof Float) {
-            float val = ((Float) cst).floatValue();
+            float val = (Float) cst;
             return newFloat(val);
         } else if (cst instanceof Long) {
-            long val = ((Long) cst).longValue();
+            long val = (Long) cst;
             return newLong(val);
         } else if (cst instanceof Double) {
-            double val = ((Double) cst).doubleValue();
+            double val = (Double) cst;
             return newDouble(val);
         } else if (cst instanceof String) {
             return newString((String) cst);
@@ -1078,7 +1101,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the index of a new or already existing constant item with the
      *         given value.
      */
-    public int newConst(final Object cst) {
+    public int newConst(Object cst) {
         return newConstItem(cst).index;
     }
 
@@ -1092,14 +1115,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the String value.
      * @return the index of a new or already existing UTF8 item.
      */
-    public int newUTF8(final String value) {
+    public int newUTF8(String value) {
         key.set(UTF8, value, null, null);
         Item result = get(key);
+
         if (result == null) {
             pool.putByte(UTF8).putUTF8(value);
             result = new Item(index++, key);
             put(result);
         }
+
         return result.index;
     }
 
@@ -1113,14 +1138,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the internal name of the class.
      * @return a new or already existing class reference item.
      */
-    Item newClassItem(final String value) {
+    Item newClassItem(String value) {
         key2.set(CLASS, value, null, null);
         Item result = get(key2);
+
         if (result == null) {
             pool.put12(CLASS, newUTF8(value));
             result = new Item(index++, key2);
             put(result);
         }
+
         return result;
     }
 
@@ -1134,7 +1161,7 @@ public final class ClassWriter extends ClassVisitor {
      *            the internal name of the class.
      * @return the index of a new or already existing class reference item.
      */
-    public int newClass(final String value) {
+    public int newClass(String value) {
         return newClassItem(value).index;
     }
 
@@ -1148,14 +1175,16 @@ public final class ClassWriter extends ClassVisitor {
      *            method descriptor of the method type.
      * @return a new or already existing method type reference item.
      */
-    Item newMethodTypeItem(final String methodDesc) {
+    Item newMethodTypeItem(String methodDesc) {
         key2.set(MTYPE, methodDesc, null, null);
         Item result = get(key2);
+
         if (result == null) {
             pool.put12(MTYPE, newUTF8(methodDesc));
             result = new Item(index++, key2);
             put(result);
         }
+
         return result;
     }
 
@@ -1170,7 +1199,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the index of a new or already existing method type reference
      *         item.
      */
-    public int newMethodType(final String methodDesc) {
+    public int newMethodType(String methodDesc) {
         return newMethodTypeItem(methodDesc).index;
     }
 
@@ -1196,22 +1225,22 @@ public final class ClassWriter extends ClassVisitor {
      *            the descriptor of the field or method.
      * @return a new or an already existing method type reference item.
      */
-    Item newHandleItem(final int tag, final String owner, final String name,
-            final String desc) {
+    Item newHandleItem(int tag, String owner, String name, String desc) {
         key4.set(HANDLE_BASE + tag, owner, name, desc);
         Item result = get(key4);
+
         if (result == null) {
             if (tag <= Opcodes.H_PUTSTATIC) {
                 put112(HANDLE, tag, newField(owner, name, desc));
-            } else {
-                put112(HANDLE,
-                        tag,
-                        newMethod(owner, name, desc,
-                                tag == Opcodes.H_INVOKEINTERFACE));
             }
+            else {
+                put112(HANDLE, tag, newMethod(owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE));
+            }
+
             result = new Item(index++, key4);
             put(result);
         }
+
         return result;
     }
 
@@ -1238,8 +1267,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the index of a new or already existing method type reference
      *         item.
      */
-    public int newHandle(final int tag, final String owner, final String name,
-            final String desc) {
+    public int newHandle(int tag, String owner, String name, String desc) {
         return newHandleItem(tag, owner, name, desc).index;
     }
 
@@ -1260,10 +1288,10 @@ public final class ClassWriter extends ClassVisitor {
      * 
      * @return a new or an already existing invokedynamic type reference item.
      */
-    Item newInvokeDynamicItem(final String name, final String desc,
-            final Handle bsm, final Object... bsmArgs) {
+    Item newInvokeDynamicItem(String name, String desc, Handle bsm, Object... bsmArgs) {
         // cache for performance
         ByteVector bootstrapMethods = this.bootstrapMethods;
+
         if (bootstrapMethods == null) {
             bootstrapMethods = this.bootstrapMethods = new ByteVector();
         }
@@ -1302,14 +1330,17 @@ public final class ClassWriter extends ClassVisitor {
                     continue loop;
                 }
             }
+
             break;
         }
 
         int bootstrapMethodIndex;
+
         if (result != null) {
             bootstrapMethodIndex = result.index;
             bootstrapMethods.length = position; // revert to old position
-        } else {
+        }
+        else {
             bootstrapMethodIndex = bootstrapMethodsCount++;
             result = new Item(bootstrapMethodIndex);
             result.set(position, hashCode);
@@ -1319,11 +1350,13 @@ public final class ClassWriter extends ClassVisitor {
         // now, create the InvokeDynamic constant
         key3.set(name, desc, bootstrapMethodIndex);
         result = get(key3);
+
         if (result == null) {
             put122(INDY, bootstrapMethodIndex, newNameType(name, desc));
             result = new Item(index++, key3);
             put(result);
         }
+
         return result;
     }
 
@@ -1345,8 +1378,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the index of a new or already existing invokedynamic reference
      *         item.
      */
-    public int newInvokeDynamic(final String name, final String desc,
-            final Handle bsm, final Object... bsmArgs) {
+    public int newInvokeDynamic(String name, String desc, Handle bsm, Object... bsmArgs) {
         return newInvokeDynamicItem(name, desc, bsm, bsmArgs).index;
     }
 
@@ -1362,14 +1394,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the field's descriptor.
      * @return a new or already existing field reference item.
      */
-    Item newFieldItem(final String owner, final String name, final String desc) {
+    Item newFieldItem(String owner, String name, String desc) {
         key3.set(FIELD, owner, name, desc);
         Item result = get(key3);
+
         if (result == null) {
             put122(FIELD, newClass(owner), newNameType(name, desc));
             result = new Item(index++, key3);
             put(result);
         }
+
         return result;
     }
 
@@ -1387,7 +1421,7 @@ public final class ClassWriter extends ClassVisitor {
      *            the field's descriptor.
      * @return the index of a new or already existing field reference item.
      */
-    public int newField(final String owner, final String name, final String desc) {
+    public int newField(String owner, String name, String desc) {
         return newFieldItem(owner, name, desc).index;
     }
 
@@ -1405,16 +1439,17 @@ public final class ClassWriter extends ClassVisitor {
      *            <tt>true</tt> if <tt>owner</tt> is an interface.
      * @return a new or already existing method reference item.
      */
-    Item newMethodItem(final String owner, final String name,
-            final String desc, final boolean itf) {
+    Item newMethodItem(String owner, String name, String desc, boolean itf) {
         int type = itf ? IMETH : METH;
         key3.set(type, owner, name, desc);
         Item result = get(key3);
+
         if (result == null) {
             put122(type, newClass(owner), newNameType(name, desc));
             result = new Item(index++, key3);
             put(result);
         }
+
         return result;
     }
 
@@ -1434,8 +1469,7 @@ public final class ClassWriter extends ClassVisitor {
      *            <tt>true</tt> if <tt>owner</tt> is an interface.
      * @return the index of a new or already existing method reference item.
      */
-    public int newMethod(final String owner, final String name,
-            final String desc, final boolean itf) {
+    public int newMethod(String owner, String name, String desc, boolean itf) {
         return newMethodItem(owner, name, desc, itf).index;
     }
 
@@ -1447,14 +1481,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the int value.
      * @return a new or already existing int item.
      */
-    Item newInteger(final int value) {
+    Item newInteger(int value) {
         key.set(value);
         Item result = get(key);
+
         if (result == null) {
             pool.putByte(INT).putInt(value);
             result = new Item(index++, key);
             put(result);
         }
+
         return result;
     }
 
@@ -1466,14 +1502,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the float value.
      * @return a new or already existing float item.
      */
-    Item newFloat(final float value) {
+    Item newFloat(float value) {
         key.set(value);
         Item result = get(key);
+
         if (result == null) {
             pool.putByte(FLOAT).putInt(key.intVal);
             result = new Item(index++, key);
             put(result);
         }
+
         return result;
     }
 
@@ -1485,15 +1523,17 @@ public final class ClassWriter extends ClassVisitor {
      *            the long value.
      * @return a new or already existing long item.
      */
-    Item newLong(final long value) {
+    Item newLong(long value) {
         key.set(value);
         Item result = get(key);
+
         if (result == null) {
             pool.putByte(LONG).putLong(value);
             result = new Item(index, key);
             index += 2;
             put(result);
         }
+
         return result;
     }
 
@@ -1505,15 +1545,17 @@ public final class ClassWriter extends ClassVisitor {
      *            the double value.
      * @return a new or already existing double item.
      */
-    Item newDouble(final double value) {
+    Item newDouble(double value) {
         key.set(value);
         Item result = get(key);
+
         if (result == null) {
             pool.putByte(DOUBLE).putLong(key.longVal);
             result = new Item(index, key);
             index += 2;
             put(result);
         }
+
         return result;
     }
 
@@ -1525,14 +1567,16 @@ public final class ClassWriter extends ClassVisitor {
      *            the String value.
      * @return a new or already existing string item.
      */
-    private Item newString(final String value) {
+    private Item newString(String value) {
         key2.set(STR, value, null, null);
         Item result = get(key2);
+
         if (result == null) {
             pool.put12(STR, newUTF8(value));
             result = new Item(index++, key2);
             put(result);
         }
+
         return result;
     }
 
@@ -1548,7 +1592,7 @@ public final class ClassWriter extends ClassVisitor {
      *            a type descriptor.
      * @return the index of a new or already existing name and type item.
      */
-    public int newNameType(final String name, final String desc) {
+    public int newNameType(String name, String desc) {
         return newNameTypeItem(name, desc).index;
     }
 
@@ -1562,14 +1606,16 @@ public final class ClassWriter extends ClassVisitor {
      *            a type descriptor.
      * @return a new or already existing name and type item.
      */
-    Item newNameTypeItem(final String name, final String desc) {
+    Item newNameTypeItem(String name, String desc) {
         key2.set(NAME_TYPE, name, desc, null);
         Item result = get(key2);
+
         if (result == null) {
             put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
             result = new Item(index++, key2);
             put(result);
         }
+
         return result;
     }
 
@@ -1581,12 +1627,14 @@ public final class ClassWriter extends ClassVisitor {
      *            the internal name to be added to the type table.
      * @return the index of this internal name in the type table.
      */
-    int addType(final String type) {
+    int addType(String type) {
         key.set(TYPE_NORMAL, type, null, null);
         Item result = get(key);
+
         if (result == null) {
             result = addType(key);
         }
+
         return result.index;
     }
 
@@ -1602,7 +1650,7 @@ public final class ClassWriter extends ClassVisitor {
      *            UNINITIALIZED type value.
      * @return the index of this internal name in the type table.
      */
-    int addUninitializedType(final String type, final int offset) {
+    int addUninitializedType(String type, int offset) {
         key.type = TYPE_UNINIT;
         key.intVal = offset;
         key.strVal1 = type;
@@ -1622,7 +1670,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the added Item, which a new Item instance with the same value as
      *         the given Item.
      */
-    private Item addType(final Item item) {
+    private Item addType(Item item) {
         ++typeCount;
         Item result = new Item(typeCount, key);
         put(result);
@@ -1650,7 +1698,7 @@ public final class ClassWriter extends ClassVisitor {
      *            index of an internal name in {@link #typeTable}.
      * @return the index of the common super type of the two given types.
      */
-    int getMergedType(final int type1, final int type2) {
+    int getMergedType(int type1, int type2) {
         key2.type = TYPE_MERGED;
         key2.longVal = type1 | (((long) type2) << 32);
         key2.hashCode = 0x7FFFFFFF & (TYPE_MERGED + type1 + type2);
@@ -1681,7 +1729,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the internal name of the common super class of the two given
      *         classes.
      */
-    private String getCommonSuperClass(final String type1, final String type2) {
+    private String getCommonSuperClass(String type1, String type2) {
        // Reimplemented to avoid "duplicate class definition" errors.
        String class1 = type1;
        String class2 = type2;
@@ -1715,7 +1763,7 @@ public final class ClassWriter extends ClassVisitor {
      * @return the constant pool's hash table item which is equal to the given
      *         item, or <tt>null</tt> if there is no such item.
      */
-    private Item get(final Item key) {
+    private Item get(Item key) {
         Item i = items[key.hashCode % items.length];
         while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
             i = i.next;
@@ -1730,13 +1778,15 @@ public final class ClassWriter extends ClassVisitor {
      * @param i
      *            the item to be added to the constant pool's hash table.
      */
-    private void put(final Item i) {
+    private void put(Item i) {
         if (index + typeCount > threshold) {
             int ll = items.length;
             int nl = ll * 2 + 1;
             Item[] newItems = new Item[nl];
+
             for (int l = ll - 1; l >= 0; --l) {
                 Item j = items[l];
+
                 while (j != null) {
                     int index = j.hashCode % newItems.length;
                     Item k = j.next;
@@ -1745,9 +1795,11 @@ public final class ClassWriter extends ClassVisitor {
                     j = k;
                 }
             }
+
             items = newItems;
             threshold = (int) (nl * 0.75);
         }
+
         int index = i.hashCode % items.length;
         i.next = items[index];
         items[index] = i;
@@ -1763,7 +1815,7 @@ public final class ClassWriter extends ClassVisitor {
      * @param s2
      *            another short.
      */
-    private void put122(final int b, final int s1, final int s2) {
+    private void put122(int b, int s1, int s2) {
         pool.put12(b, s1).putShort(s2);
     }
 
@@ -1777,13 +1829,13 @@ public final class ClassWriter extends ClassVisitor {
      * @param s
      *            a short.
      */
-    private void put112(final int b1, final int b2, final int s) {
+    private void put112(int b1, int b2, int s) {
         pool.put11(b1, b2).putShort(s);
     }
 
-    public ClassWriter(final ClassReader classReader) {
+    public ClassWriter(ClassReader classReader) {
         this(classReader.getVersion() >= Opcodes.V1_7 ? COMPUTE_FRAMES : COMPUTE_MAXS);
         classReader.copyPool(this);
-        this.cr = classReader;
+        cr = classReader;
     }
 }
