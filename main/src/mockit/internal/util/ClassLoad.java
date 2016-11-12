@@ -107,7 +107,7 @@ public final class ClassLoad
    @Nullable
    public static Class<?> loadClass(@Nullable ClassLoader loader, @Nonnull String className)
    {
-      try { return Class.forName(className, true, loader); } catch (ClassNotFoundException ignore) { return null; }
+      try { return Class.forName(className, false, loader); } catch (ClassNotFoundException ignore) { return null; }
    }
 
    @Nonnull
@@ -115,7 +115,7 @@ public final class ClassLoad
    {
       try {
          //noinspection unchecked
-         return (Class<T>) Class.forName(className, true, loader);
+         return (Class<T>) Class.forName(className, false, loader);
       }
       catch (ClassNotFoundException ignore) {
          throw new IllegalArgumentException("No class with name \"" + className + "\" found");
