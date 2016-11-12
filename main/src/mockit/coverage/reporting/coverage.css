@@ -75,7 +75,7 @@ td.annotation { background-image: url(annotation.png); }
 td.enum { background-image: url(enum.png); }
 
 td.pt, table#packages table td {
-   font-size: 0.95em; width: 2.875em; text-align: right;
+   font-size: 1em; width: 2.875em; text-align: right;
    border-bottom: white solid 1px; padding-right: 2px;
 }
 
