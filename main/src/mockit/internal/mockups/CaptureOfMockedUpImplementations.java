@@ -50,7 +50,6 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
 
       if (baseClassType != Object.class) {
          redefineClass(baseClassType, baseType, null);
-         mockClassSetup.validateThatAllMockMethodsWereApplied();
       }
 
       makeSureAllSubtypesAreModified(baseType, false, null);

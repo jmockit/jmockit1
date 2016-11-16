@@ -77,19 +77,6 @@ public final class MockAnnotationsTest
       codeUnderTest.doSomething();
    }
 
-   @Test
-   public void attemptToApplyMockupForClassLackingAMatchingRealMethod()
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new MockForClassWithoutRealMethod();
-   }
-
-   static final class MockForClassWithoutRealMethod extends MockUp<Collaborator>
-   {
-      @Mock void noMatchingRealMethod() {}
-   }
-
    public interface GenericInterface<T>
    {
       void method(T t);

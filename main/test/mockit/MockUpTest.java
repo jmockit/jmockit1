@@ -24,24 +24,15 @@ public final class MockUpTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void attemptToCreateMockUpWithoutTheTypeToBeMocked()
+   public void attemptToApplyMockUpWithoutTheTargetType()
    {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("No type to be mocked");
+      thrown.expectMessage("No target type");
 
       new MockUp() {};
    }
 
    // Mock-ups for classes ////////////////////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public void attemptToCreateMockUpWithMockMethodLackingCorrespondingRealMethod()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("$init(int");
-
-      new MockUp<Applet>() { @Mock void $init(int i) { System.out.println(i); } };
-   }
 
    @Test
    public void mockUpClass()
@@ -109,8 +100,7 @@ public final class MockUpTest
    @Test
    public void attemptToMockGivenClassButPassNull()
    {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Null reference");
+      thrown.expect(NullPointerException.class);
 
       new MockUp<Applet>((Class<?>) null) {};
    }
@@ -118,8 +108,7 @@ public final class MockUpTest
    @Test
    public void attemptToMockGivenInstanceButPassNull()
    {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Null reference");
+      thrown.expect(NullPointerException.class);
 
       new MockUp<Applet>((Applet) null) {};
    }
@@ -373,17 +362,6 @@ public final class MockUpTest
 
       outer.new PropertyHandler();
       assertTrue(constructed[0]);
-   }
-
-   @Test
-   public void attemptToMockConstructorNotFoundInTargetClassButFoundInASuperClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("$init(java.awt.LayoutManager");
-
-      new MockUp<Applet>() {
-         @Mock void $init(LayoutManager lm) {}
-      };
    }
 
    @Test

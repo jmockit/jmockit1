@@ -22,7 +22,6 @@ import static mockit.internal.util.ObjectMethods.*;
 final class MockMethods
 {
    @Nonnull final Class<?> realClass;
-   private final boolean targetIsInternal;
    private final boolean targetTypeIsAClass;
    private final boolean reentrantRealClass;
    @Nonnull private final List<MockMethod> methods;
@@ -50,19 +49,17 @@ final class MockMethods
          this.name = name;
          this.desc = desc;
 
-         int p = desc.lastIndexOf("Lmockit/Invocation;");
-
-         if (p > 1) {
-            throw new IllegalArgumentException(
-               "Mock method with Invocation parameter not as first one:\n" +
-               new MethodFormatter(mockClassInternalName, getMockNameAndDesc()));
+         if (desc.contains("Lmockit/Invocation;")) {
+            hasInvocationParameter = true;
+            mockDescWithoutInvocationParameter = '(' + desc.substring(20);
+            isAdvice = "$advice".equals(name) && "()Ljava/lang/Object;".equals(mockDescWithoutInvocationParameter);
+         }
+         else {
+            hasInvocationParameter = false;
+            mockDescWithoutInvocationParameter = desc;
+            isAdvice = false;
          }
 
-         hasInvocationParameter = p > 0;
-         mockDescWithoutInvocationParameter = hasInvocationParameter ? '(' + desc.substring(20) : desc;
-         isAdvice =
-            hasInvocationParameter &&
-            "$advice".equals(name) && "()Ljava/lang/Object;".equals(mockDescWithoutInvocationParameter);
          hasMatchingRealMethod = false;
          indexForMockState = -1;
       }
@@ -116,30 +113,11 @@ final class MockMethods
       {
          return 31 * (31 * realClass.hashCode() + name.hashCode()) + desc.hashCode();
       }
-
-      void validateTargetMemberIsAccessibleFromInternalCodebase(int targetAccess)
-      {
-         if ((targetAccess & (PUBLIC + PROTECTED)) == 0) {
-            StringBuilder msg = new StringBuilder(100);
-            msg.append("Invalid mock method ");
-
-            MethodFormatter mockDesc = new MethodFormatter(mockClassInternalName, getMockNameAndDesc());
-            msg.append(mockDesc);
-
-            msg.append(" for ");
-            msg.append(isPrivate(targetAccess) ? "private " : "package-private ");
-            msg.append(name.charAt(0) == '$' ? "constructor" : "method");
-            msg.append(" of internal class");
-
-            throw new IllegalArgumentException(msg.toString());
-         }
-      }
    }
 
-   MockMethods(@Nonnull Class<?> realClass, @Nullable Type targetType, boolean targetIsInternal)
+   MockMethods(@Nonnull Class<?> realClass, @Nullable Type targetType)
    {
       this.realClass = realClass;
-      this.targetIsInternal = targetIsInternal;
 
       if (targetType == null || realClass == targetType) {
          targetTypeIsAClass = true;
@@ -212,10 +190,6 @@ final class MockMethods
    {
       for (MockMethod mockMethod : methods) {
          if (mockMethod.isMatch(access, name, desc, signature)) {
-            if (targetIsInternal && targetTypeIsAClass) {
-               mockMethod.validateTargetMemberIsAccessibleFromInternalCodebase(access);
-            }
-
             return mockMethod;
          }
       }
@@ -250,22 +224,6 @@ final class MockMethods
       }
 
       return false;
-   }
-
-   @Nonnull
-   List<String> getUnusedMockSignatures()
-   {
-      List<String> signatures = new ArrayList<String>(methods.size());
-
-      for (MockMethod mockMethod : methods) {
-         String mockNameAndDesc = mockMethod.getMockNameAndDesc();
-
-         if (!"$clinit()V".equals(mockNameAndDesc) && !mockMethod.hasMatchingRealMethod) {
-            signatures.add(mockNameAndDesc);
-         }
-      }
-
-      return signatures;
    }
 
    void registerMockStates(@Nonnull Object mockUp, boolean forStartupMock)

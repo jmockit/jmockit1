@@ -13,7 +13,7 @@ public final class MethodFormatter
 {
    @Nonnull private final StringBuilder out;
    @Nonnull private final List<String> parameterTypes;
-   @Nullable private final String classDesc;
+   @Nonnull private final String classDesc;
    @Nonnull private String methodDesc;
 
    // Auxiliary fields for handling method parameters:
@@ -22,14 +22,6 @@ public final class MethodFormatter
    private char typeCode;
    private int arrayDimensions;
 
-   public MethodFormatter(@Nullable String classDesc)
-   {
-      out = new StringBuilder();
-      parameterTypes = new ArrayList<String>(5);
-      this.classDesc = classDesc;
-      methodDesc = "";
-   }
-
    public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc)
    {
       this(classDesc, methodNameAndDesc, true);
@@ -37,7 +29,10 @@ public final class MethodFormatter
 
    public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc, boolean withParametersAppended)
    {
-      this(classDesc);
+      out = new StringBuilder();
+      parameterTypes = new ArrayList<String>(5);
+      this.classDesc = classDesc;
+      methodDesc = "";
       methodDesc = methodNameAndDesc;
       appendFriendlyMethodSignature(withParametersAppended);
    }
@@ -47,32 +42,13 @@ public final class MethodFormatter
 
    @Nonnull public List<String> getParameterTypes() { return parameterTypes; }
 
-   @Nonnull
-   public String friendlyMethodSignatures(@Nonnull Collection<String> methodNamesAndDescs)
-   {
-      String sep = "";
-
-      for (String methodNameAndDesc : methodNamesAndDescs) {
-         out.append(sep);
-         methodDesc = methodNameAndDesc;
-         appendFriendlyMethodSignature(true);
-         sep = ",\n";
-      }
-
-      return out.toString();
-   }
-
    private void appendFriendlyMethodSignature(boolean withParametersAppended)
    {
-      String friendlyDesc = methodDesc;
+      String className = classDesc.replace('/', '.');
+      out.append(className).append('#');
 
-      if (classDesc != null) {
-         String className = classDesc.replace('/', '.');
-         out.append(className).append('#');
-
-         String constructorName = getConstructorName(className);
-         friendlyDesc = friendlyDesc.replace("<init>", constructorName);
-      }
+      String constructorName = getConstructorName(className);
+      String friendlyDesc = methodDesc.replace("<init>", constructorName);
 
       int leftParenNextPos = friendlyDesc.indexOf('(') + 1;
       int rightParenPos = friendlyDesc.indexOf(')');
@@ -145,12 +121,10 @@ public final class MethodFormatter
 
    private void appendParameterName()
    {
-      if (classDesc != null) {
-         String name = ParameterNames.getName(classDesc, methodDesc, parameterIndex);
+      String name = ParameterNames.getName(classDesc, methodDesc, parameterIndex);
 
-         if (name != null) {
-            out.append(' ').append(name);
-         }
+      if (name != null) {
+         out.append(' ').append(name);
       }
 
       parameterIndex++;

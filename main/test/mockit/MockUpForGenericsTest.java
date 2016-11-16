@@ -97,14 +97,6 @@ public final class MockUpForGenericsTest
       assertEquals(2, o.anotherMethod(123, 2, "non generic"));
    }
 
-   @Test(expected = IllegalArgumentException.class)
-   public void cannotMockGenericClassMethodWhenParameterTypeInMockMethodDiffersFromTypeArgument()
-   {
-      new MockUp<GenericClass<String, Boolean>>() {
-         @Mock void aMethod(Integer t) {}
-      };
-   }
-
    static class GenericBaseClass<T, U> { public U find(@SuppressWarnings("UnusedParameters") T id) { return null; } }
 
    @Test
@@ -210,12 +202,6 @@ public final class MockUpForGenericsTest
       }.getMockInstance();
 
       mock.method(123L);
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void cannotMockGenericInterfaceMethodWhenParameterTypeInMockMethodDiffersFromTypeArgument()
-   {
-      new MockUp<Comparable<String>>() { @Mock int compareTo(Integer i) { return 1; } };
    }
 
    @Test

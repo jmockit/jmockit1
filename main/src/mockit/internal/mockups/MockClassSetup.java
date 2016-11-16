@@ -14,7 +14,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
 public final class MockClassSetup
@@ -26,24 +25,23 @@ public final class MockClassSetup
    private final boolean forStartupMock;
 
    public MockClassSetup(
-      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp,
-      boolean targetIsInternal)
+      @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp)
    {
-      this(realClass, classToMock, mockedType, mockUp, targetIsInternal, null);
+      this(realClass, classToMock, mockedType, mockUp, null);
    }
 
    public MockClassSetup(
       @Nonnull Class<?> realClass, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp, @Nullable byte[] realClassCode)
    {
-      this(realClass, realClass, mockedType, mockUp, true, realClassCode);
+      this(realClass, realClass, mockedType, mockUp, realClassCode);
    }
 
    private MockClassSetup(
       @Nonnull Class<?> realClass, @Nonnull Class<?> classToMock, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp,
-      boolean targetIsInternal, @Nullable byte[] realClassCode)
+      @Nullable byte[] realClassCode)
    {
       this.realClass = classToMock;
-      mockMethods = new MockMethods(realClass, mockedType, targetIsInternal);
+      mockMethods = new MockMethods(realClass, mockedType);
       this.mockUp = mockUp;
       forStartupMock = Startup.initializing;
       rcReader = realClassCode == null ? null : new ClassReader(realClassCode);
@@ -66,7 +64,6 @@ public final class MockClassSetup
    public void redefineMethodsInGeneratedClass()
    {
       byte[] modifiedClassFile = modifyRealClass(realClass);
-      validateThatAllMockMethodsWereApplied();
 
       if (modifiedClassFile != null) {
          applyClassModifications(realClass, modifiedClassFile);
@@ -76,9 +73,7 @@ public final class MockClassSetup
    @Nonnull
    public Set<Class<?>> redefineMethods()
    {
-      Set<Class<?>> redefinedClasses = redefineMethodsInClassHierarchy();
-      validateThatAllMockMethodsWereApplied();
-      return redefinedClasses;
+      return redefineMethodsInClassHierarchy();
    }
 
    @Nonnull
@@ -125,10 +120,6 @@ public final class MockClassSetup
    @Nonnull
    private static ClassReader createClassReaderForRealClass(@Nonnull Class<?> classToModify)
    {
-      if (classToModify.isInterface() || classToModify.isArray()) {
-         throw new IllegalArgumentException("Not a modifiable class: " + classToModify.getName());
-      }
-
       return ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
    }
 
@@ -142,19 +133,6 @@ public final class MockClassSetup
       else {
          String mockClassDesc = mockMethods.getMockClassInternalName();
          TestRun.mockFixture().addRedefinedClass(mockClassDesc, classToModify, modifiedClassFile);
-      }
-   }
-
-   void validateThatAllMockMethodsWereApplied()
-   {
-      List<String> remainingMocks = mockMethods.getUnusedMockSignatures();
-
-      if (!remainingMocks.isEmpty()) {
-         String classDesc = mockMethods.getMockClassInternalName();
-         String mockSignatures = new MethodFormatter(classDesc).friendlyMethodSignatures(remainingMocks);
-
-         throw new IllegalArgumentException(
-            "Matching real methods not found for the following mocks:\n" + mockSignatures);
       }
    }
 }

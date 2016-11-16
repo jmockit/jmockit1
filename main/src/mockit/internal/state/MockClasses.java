@@ -75,8 +75,7 @@ public final class MockClasses
    {
       Class<?> mockUpClass = mockUp.getClass();
       MockUpInstances newData = new MockUpInstances(mockUp);
-      MockUpInstances previousData = mockupClassesToMockupInstances.put(mockUpClass, newData);
-      assert previousData == null;
+      mockupClassesToMockupInstances.put(mockUpClass, newData);
    }
 
    public void addMock(@Nonnull MockUp<?> mockUp, @Nonnull Object mockedInstance)

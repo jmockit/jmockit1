@@ -10,7 +10,6 @@ import java.nio.*;
 import javax.annotation.*;
 
 import org.junit.*;
-import org.junit.rules.*;
 import org.junit.runners.*;
 import static org.junit.Assert.*;
 
@@ -54,19 +53,6 @@ public final class MockingUpBaseTypesTest
    {
       int i = new BeforeAction().perform();
       assertEquals(56, i);
-   }
-
-   @Rule public final ExpectedException thrown = ExpectedException.none();
-
-   @Test
-   public <T extends Runnable> void test2_attemptToMockUpBaseTypeHavingMockMethodWithNoRealMethod()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("mockWithNoRealMethod");
-
-      new MockUp<T>() {
-         @Mock void mockWithNoRealMethod() {}
-      };
    }
 
    public interface IAction
