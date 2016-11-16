@@ -62,14 +62,6 @@ final class Expectation
 
    void addSequenceOfReturnValues(@Nonnull Object[] values)
    {
-      if (invocation.isConstructor()) {
-         throw new IllegalArgumentException("Invalid recording for a constructor");
-      }
-
-      if (invocation.getMethodNameAndDescription().endsWith(")V")) {
-         throw new IllegalArgumentException("Invalid recording for a void method");
-      }
-
       int n = values.length - 1;
       Object firstValue = values[0];
       Object[] remainingValues = new Object[n];
@@ -172,10 +164,5 @@ final class Expectation
    Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable
    {
       return getResults().executeRealImplementation(replacementInstance, args);
-   }
-
-   boolean isRedundantRecordedExpectation(@Nonnull Expectation verification)
-   {
-      return recordPhase != null && constraints.minInvocations > 0 && invocation.isRedundant(verification.invocation);
    }
 }

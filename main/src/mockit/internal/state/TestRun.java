@@ -10,7 +10,6 @@ import mockit.internal.expectations.*;
 import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
-import mockit.internal.util.*;
 
 /**
  * A singleton which stores several data structures which in turn hold global state for individual test methods, test
@@ -33,7 +32,6 @@ public final class TestRun
 
    @Nullable private Class<?> currentTestClass;
    @Nullable private Object currentTestInstance;
-   private boolean settingUpNextTest;
    @Nullable private FieldTypeRedefinitions fieldTypeRedefinitions;
    @Nullable private TestedClassInstantiations testedClassInstantiations;
 
@@ -49,7 +47,6 @@ public final class TestRun
    @Nullable public static Class<?> getCurrentTestClass() { return INSTANCE.currentTestClass; }
 
    @Nullable public static Object getCurrentTestInstance() { return INSTANCE.currentTestInstance; }
-   public static boolean isSettingUpNextTest() { return INSTANCE.settingUpNextTest; }
 
    public static int getTestId() { return INSTANCE.testId; }
 
@@ -77,12 +74,6 @@ public final class TestRun
    @Nonnull
    public static RecordAndReplayExecution getRecordAndReplayForVerifications()
    {
-      if (INSTANCE.fieldTypeRedefinitions == null) {
-         IllegalStateException failure = new IllegalStateException("Invalid place to verify expectations");
-         StackTrace.filterStackTrace(failure);
-         throw failure;
-      }
-
       return INSTANCE.executingTest.getRecordAndReplayForVerifications();
    }
 
@@ -109,13 +100,11 @@ public final class TestRun
    public static void clearCurrentTestInstance()
    {
       INSTANCE.currentTestInstance = null;
-      INSTANCE.settingUpNextTest = false;
    }
 
-   public static void setRunningIndividualTest(@Nonnull Object testInstance, boolean settingUpNextTest)
+   public static void setRunningIndividualTest(@Nonnull Object testInstance)
    {
       INSTANCE.currentTestInstance = testInstance;
-      INSTANCE.settingUpNextTest = settingUpNextTest;
    }
 
    public static void setFieldTypeRedefinitions(@Nullable FieldTypeRedefinitions redefinitions)

@@ -4,6 +4,8 @@
  */
 package mockit;
 
+import mockit.internal.expectations.*;
+
 /**
  * Used to record <em>strict</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
@@ -78,6 +80,11 @@ public abstract class StrictExpectations extends Expectations
    protected StrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {
       super(classesOrObjectsToBePartiallyMocked);
-      getCurrentPhase().setNumberOfIterations(numberOfIterations);
+
+      RecordPhase currentPhase = getCurrentPhase();
+
+      if (currentPhase != null) {
+         currentPhase.setNumberOfIterations(numberOfIterations);
+      }
    }
 }

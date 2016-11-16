@@ -169,14 +169,6 @@ public final class StrictExpectationsTest
    }
 
    @Test
-   public void attemptToAddArgumentMatcherWhenNotRecording(@Mocked Collaborator mock)
-   {
-      thrown.expect(IllegalStateException.class);
-
-      new StrictExpectations() {}.withNotEqual(5);
-   }
-
-   @Test
    public void mockClassWithMethodsOfAllReturnTypesReturningDefaultValues(
       @Mocked final ClassWithMethodsOfEveryReturnType mock)
    {

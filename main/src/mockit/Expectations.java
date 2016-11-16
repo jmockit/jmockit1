@@ -199,10 +199,14 @@ public abstract class Expectations extends Invocations
    protected Expectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {
       this(classesOrObjectsToBePartiallyMocked);
-      getCurrentPhase().setNumberOfIterations(numberOfIterations);
+      RecordPhase currentPhase = getCurrentPhase();
+
+      if (currentPhase != null) {
+         currentPhase.setNumberOfIterations(numberOfIterations);
+      }
    }
 
-   @Nonnull @Override
+   @Nullable @Override
    final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**
@@ -214,7 +218,11 @@ public abstract class Expectations extends Invocations
    @Deprecated
    protected final void returns(Object singleValue)
    {
-      getCurrentPhase().addSequenceOfReturnValues(singleValue, new Object[0]);
+      RecordPhase currentPhase = getCurrentPhase();
+
+      if (currentPhase != null) {
+         currentPhase.addSequenceOfReturnValues(singleValue, new Object[0]);
+      }
    }
 
    /**
@@ -250,12 +258,16 @@ public abstract class Expectations extends Invocations
     */
    protected final void returns(Object firstValue, Object secondValue, Object... remainingValues)
    {
-      int n = remainingValues.length;
-      Object[] values = new Object[2 + n];
-      values[0] = firstValue;
-      values[1] = secondValue;
-      System.arraycopy(remainingValues, 0, values, 2, n);
+      RecordPhase currentPhase = getCurrentPhase();
 
-      getCurrentPhase().addSequenceOfReturnValues(values);
+      if (currentPhase != null) {
+         int n = remainingValues.length;
+         Object[] values = new Object[2 + n];
+         values[0] = firstValue;
+         values[1] = secondValue;
+         System.arraycopy(remainingValues, 0, values, 2, n);
+
+         currentPhase.addSequenceOfReturnValues(values);
+      }
    }
 }

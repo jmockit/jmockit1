@@ -123,7 +123,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
       try {
          updateTestClassState(testInstance, testClass);
-         TestRun.setRunningIndividualTest(testInstance, false);
+         TestRun.setRunningIndividualTest(testInstance);
 
          SavePoint testMethodSavePoint = new SavePoint();
          savePoint.set(testMethodSavePoint);
@@ -170,7 +170,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
                createInstancesForTestedFields(testInstance, true);
             }
 
-            TestRun.setRunningIndividualTest(testInstance, true);
+            TestRun.setRunningIndividualTest(testInstance);
          }
          else if (method.isAfterClassConfiguration()) {
             TestRun.getExecutingTest().setRecordAndReplay(null);

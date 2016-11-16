@@ -9,10 +9,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.internal.expectations.*;
 import mockit.internal.expectations.invocation.InvocationResult.*;
-import mockit.internal.state.*;
-import mockit.internal.util.*;
 
 public final class InvocationResults
 {
@@ -52,33 +49,12 @@ public final class InvocationResults
 
    public void addReturnValueResult(@Nullable Object value)
    {
-      validateAsNonRedundant(value);
       addNewReturnValueResult(value);
-   }
-
-   private void validateAsNonRedundant(@Nullable Object value)
-   {
-      if (value != null && value == invocation.defaultReturnValue) {
-         Object defaultValue = DefaultValues.computeForWrapperType(value.getClass());
-
-         if (defaultValue == null) {
-            ExecutingTest executingTest = TestRun.getExecutingTest();
-            RecordAndReplayExecution recordAndReplay = executingTest.getCurrentRecordAndReplay();
-
-            //noinspection ConstantConditions
-            if (
-               !recordAndReplay.isStrictOrDynamic() &&
-               !executingTest.hasOtherMockedInstances(value)
-            ) {
-               Warning.display("Redundant recording");
-            }
-         }
-      }
    }
 
    public void addReturnValues(@Nonnull Object array)
    {
-      int n = validateMultiValuedResult(array);
+      int n = Array.getLength(array);
 
       for (int i = 0; i < n; i++) {
          Object value = Array.get(array, i);
@@ -86,36 +62,10 @@ public final class InvocationResults
       }
    }
 
-   private int validateMultiValuedResult(@Nonnull Object array)
-   {
-      int n = Array.getLength(array);
-
-      if (n == 0) {
-         reportInvalidReturnValue();
-      }
-      
-      return n;
-   }
-
-   private void reportInvalidReturnValue()
-   {
-      Class<?> returnType = TypeDescriptor.getReturnType(invocation.getMethodNameAndDescription());
-      throw new IllegalArgumentException("Invalid return value for method returning " + returnType);
-   }
-
    public void addReturnValues(@Nonnull Iterable<?> values)
    {
-      validateMultiValuedResult(values.iterator());
-
       for (Object value : values) {
          addReturnValue(value);
-      }
-   }
-
-   private void validateMultiValuedResult(@Nullable Iterator<?> values)
-   {
-      if (values == null || !values.hasNext()) {
-         reportInvalidReturnValue();
       }
    }
 
@@ -128,7 +78,7 @@ public final class InvocationResults
 
    public void addResults(@Nonnull Object array)
    {
-      int n = validateMultiValuedResult(array);
+      int n = Array.getLength(array);
 
       for (int i = 0; i < n; i++) {
          Object value = Array.get(array, i);
@@ -148,8 +98,6 @@ public final class InvocationResults
 
    public void addResults(@Nonnull Iterable<?> values)
    {
-      validateMultiValuedResult(values.iterator());
-
       for (Object value : values) {
          addConsecutiveResult(value);
       }
@@ -157,8 +105,6 @@ public final class InvocationResults
 
    public void addDeferredReturnValues(@Nonnull Iterator<?> values)
    {
-      validateMultiValuedResult(values);
-
       InvocationResult result = new DeferredReturnValues(values);
       addResult(result);
       constraints.setUnlimitedMaxInvocations();
@@ -166,8 +112,6 @@ public final class InvocationResults
 
    public void addDeferredResults(@Nonnull Iterator<?> values)
    {
-      validateMultiValuedResult(values);
-
       InvocationResult result = new DeferredResults(values);
       addResult(result);
       constraints.setUnlimitedMaxInvocations();
@@ -184,10 +128,7 @@ public final class InvocationResults
       return currentResult.produceResult(invocationArgs);
    }
 
-   public void addThrowable(@Nonnull Throwable t)
-   {
-      addResult(new ThrowableResult(t));
-   }
+   public void addThrowable(@Nonnull Throwable t) { addResult(new ThrowableResult(t)); }
 
    private void addResult(@Nonnull InvocationResult result)
    {
@@ -208,7 +149,11 @@ public final class InvocationResults
    public Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
    {
       InvocationResult resultToBeProduced = currentResult;
-      assert resultToBeProduced != null;
+
+      if (resultToBeProduced == null) {
+         return null;
+      }
+
       InvocationResult nextResult = resultToBeProduced.next;
 
       if (nextResult != null) {

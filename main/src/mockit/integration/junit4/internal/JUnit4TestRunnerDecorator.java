@@ -43,7 +43,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
             prepareToExecuteSetupMethod(target);
          }
 
-         TestRun.setRunningIndividualTest(target, true);
+         TestRun.setRunningIndividualTest(target);
 
          try {
             invocation.prepareToProceedFromNonRecursiveMock();
@@ -145,7 +145,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    {
       SavePoint savePoint = new SavePoint();
 
-      TestRun.setRunningIndividualTest(target, false);
+      TestRun.setRunningIndividualTest(target);
 
       FrameworkMethod it = invocation.getInvokedInstance();
       Method testMethod = it.getMethod();

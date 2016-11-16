@@ -12,10 +12,8 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.isAbstract;
 
 import mockit.*;
-import mockit.integration.junit4.internal.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.GeneratedClasses.*;
@@ -39,7 +37,6 @@ public final class RecordAndReplayExecution
 
    public RecordAndReplayExecution()
    {
-      validateRecordingContext();
       executionState = new PhasedExecutionState();
       lastExpectationIndexInPreviousReplayPhase = 0;
       dynamicPartialMocking = null;
@@ -53,36 +50,9 @@ public final class RecordAndReplayExecution
       return replayPhase == null ? -1 : replayPhase.currentStrictExpectationIndex;
    }
 
-   private static void validateRecordingContext()
-   {
-      if (TestRun.getFieldTypeRedefinitions() == null) {
-         String msg;
-
-         if (Startup.wasInitializedOnDemand()) {
-            msg = "JMockit wasn't properly initialized; please ";
-
-            if (MockFrameworkMethod.hasDependenciesInClasspath()) {
-               msg += "ensure that jmockit precedes junit in the runtime classpath, or use @RunWith(JMockit.class)";
-            }
-            else {
-               msg += "check the documentation";
-            }
-         }
-         else {
-            msg = "Invalid place to record expectations";
-         }
-
-         IllegalStateException failure = new IllegalStateException(msg);
-         StackTrace.filterStackTrace(failure);
-         throw failure;
-      }
-   }
-
    public RecordAndReplayExecution(
       @Nonnull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked)
    {
-      validateRecordingContext();
-
       TestRun.enterNoMockingZone();
       ExecutingTest executingTest = TestRun.getExecutingTest();
       executingTest.setShouldIgnoreMockingCallbacks(true);
@@ -124,20 +94,22 @@ public final class RecordAndReplayExecution
    private void discoverMockedTypesAndInstancesForMatchingOnInstance()
    {
       TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
-      assert fieldTypeRedefinitions != null;
-      List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
-      List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
 
-      TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
+      if (fieldTypeRedefinitions != null) {
+         List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
+         List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
 
-      if (paramTypeRedefinitions != null) {
-         targetClasses.addAll(paramTypeRedefinitions.getTargetClasses());
-      }
+         TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
-      executionState.discoverMockedTypesToMatchOnInstances(targetClasses);
+         if (paramTypeRedefinitions != null) {
+            targetClasses.addAll(paramTypeRedefinitions.getTargetClasses());
+         }
 
-      if (dynamicPartialMocking != null && !dynamicPartialMocking.targetInstances.isEmpty()) {
-         executionState.setDynamicMockInstancesToMatch(dynamicPartialMocking.targetInstances);
+         executionState.discoverMockedTypesToMatchOnInstances(targetClasses);
+
+         if (dynamicPartialMocking != null && !dynamicPartialMocking.targetInstances.isEmpty()) {
+            executionState.setDynamicMockInstancesToMatch(dynamicPartialMocking.targetInstances);
+         }
       }
    }
 
@@ -153,15 +125,8 @@ public final class RecordAndReplayExecution
       return mocking;
    }
 
-   @Nonnull
-   public RecordPhase getRecordPhase()
-   {
-      if (recordPhase == null) {
-         throw new IllegalStateException("Not in the recording phase");
-      }
-
-      return recordPhase;
-   }
+   @Nullable
+   public RecordPhase getRecordPhase() { return recordPhase; }
 
    @Nullable Error getErrorThrown() { return failureState.getErrorThrown(); }
    void setErrorThrown(@Nullable Error error) { failureState.setErrorThrown(error); }
@@ -381,9 +346,6 @@ public final class RecordAndReplayExecution
       return replay;
    }
 
-   public boolean isStrictOrDynamic() { return isStrict() || dynamicPartialMocking != null; }
-   public boolean isStrict() { return recordPhase != null && recordPhase.strict; }
-
    @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder)
    {
@@ -441,11 +403,13 @@ public final class RecordAndReplayExecution
       return replayPhase;
    }
 
-   @Nonnull
+   @Nullable
    public TestOnlyPhase getCurrentTestOnlyPhase()
    {
-      if (recordPhase != null) return recordPhase;
-      assert verificationPhase != null;
+      if (recordPhase != null) {
+         return recordPhase;
+      }
+
       return verificationPhase;
    }
 

@@ -4,10 +4,7 @@
  */
 package mockit;
 
-import java.beans.*;
 import java.util.*;
-
-import javax.persistence.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -211,51 +208,6 @@ public final class MisusedExpectationsTest
          new Blah();
          mock.doSomething(false);
       }};
-   }
-
-   @Test
-   public void verifiedExpectationWithDuplicateRecordedExpectation()
-   {
-      thrown.expect(IllegalStateException.class);
-      thrown.expectMessage("Identical expectation");
-
-      new Expectations() {{
-         mock.doSomething(anyBoolean); // not allowed unless recorded with minTimes = 0
-      }};
-
-      mock.doSomething(true);
-
-      new Verifications() {{
-         mock.doSomething(anyBoolean);
-      }};
-   }
-
-   @BeforeClass
-   public static void recordExpectationsInStaticContext()
-   {
-      final Blah blah = new Blah();
-
-      try {
-         new Expectations(blah) {{
-            blah.doSomething(anyBoolean); result = "invalid";
-         }};
-         fail();
-      }
-      catch (IllegalStateException ignored) {
-         // OK
-      }
-   }
-
-   @AfterClass
-   public static void verifyExpectationsInStaticContext()
-   {
-      try {
-         new FullVerifications() {};
-         fail();
-      }
-      catch (IllegalStateException ignored) {
-         // OK
-      }
    }
 
    @SuppressWarnings("UnusedParameters")
@@ -463,59 +415,12 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void recordExpectationReturningSameMockedInstanceWhichWouldBeAutomaticallyCascaded()
-   {
-      new Expectations() {{ mock.same(); result = mock; }};
-
-      assertSame(mock, mock.same());
-   }
-
-   @Test
    public void ambiguousCascadingWhenMultipleValidCandidatesAreAvailable(
       @Injectable Runnable r1, @Injectable Runnable r2)
    {
       Runnable cascaded = mock.getSomethingElse(); // which one to return: r1 or r2?
 
       assertSame(r2, cascaded); // currently, last mock to be declared wins
-   }
-
-   @Test
-   public void recordExpectationWithMinTimesSetToZero()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Invalid");
-      thrown.expectMessage("minTimes");
-      thrown.expectMessage("test method");
-      thrown.expectMessage("named Expectations");
-
-      new Expectations() {{
-         mock.doSomething(true);
-         minTimes = 0; // invalid if set to 0 (or negative) in a test method
-      }};
-   }
-
-   @Test
-   public void recordDynamicExpectationWithMinTimesSetToZero()
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new Expectations(ProcessBuilder.class) {{
-         new ProcessBuilder();
-         minTimes = 0; // invalid
-      }};
-   }
-
-   @Test
-   public void verifyExpectationWithMinTimesSetToZero()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Invalid minTimes");
-      thrown.expectMessage("test method");
-
-      new Verifications() {{
-         mock.doSomething(true);
-         minTimes = 0; // invalid
-      }};
    }
 
    @Test
@@ -574,34 +479,4 @@ public final class MisusedExpectationsTest
 
    @Test
    public void attemptToMockHashMap(@Mocked HashMap<?, ?> map) { assertNotNull(map); }
-
-   // Mocking/faking of JPA-annotated classes /////////////////////////////////////////////////////////////////////////
-
-   @Entity static class Person { public int getId() { return 1; } }
-   static class Manager { Person findPerson() { return null; } }
-
-   @Test
-   public void mockClassWithMethodsReturningEntityClasses(@Mocked final Manager mock) throws IntrospectionException
-   {
-      final Person p = new Person();
-      new Expectations() {{ mock.findPerson(); result = p; }};
-
-      Person found = mock.findPerson();
-
-      assertSame(p, found);
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockAnEntityClass(@Injectable Person person) {}
-
-   @Test
-   public void attemptToFakeAnEntityClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("@Entity-annotated class");
-
-      new MockUp<Person>() {
-         @Mock int getId() { return 2; }
-      };
-   }
 }

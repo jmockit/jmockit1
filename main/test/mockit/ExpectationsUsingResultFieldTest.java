@@ -508,57 +508,6 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsEmptyArrayForSimpleReturnType(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Invalid return value");
-      thrown.expectMessage("String");
-
-      new Expectations() {{
-         mock.getString();
-         result = new String[0];
-      }};
-   }
-
-   @Test
-   public void returnsEmptyCollectionForSimpleReturnType(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Invalid return value");
-      thrown.expectMessage("String");
-
-      new Expectations() {{
-         mock.getString();
-         result = Collections.emptyList();
-      }};
-   }
-
-   @Test
-   public void returnsEmptyIteratorForSimpleReturnType(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Invalid return value");
-      thrown.expectMessage("String");
-
-      new Expectations() {{
-         mock.getString();
-         result = Collections.emptySet().iterator();
-      }};
-   }
-
-   @Test
-   public void returnsMockedCollectionForSimpleReturnType(
-      @Mocked final Collaborator mock, @Mocked final List<String> values)
-   {
-      thrown.expect(IllegalArgumentException.class);
-
-      new Expectations() {{
-         mock.getString();
-         result = values;
-      }};
-   }
-
-   @Test
    public void recordNullReturnValueForConstructorAndVoidMethod(@Mocked final Collaborator mock)
    {
       new Expectations() {{

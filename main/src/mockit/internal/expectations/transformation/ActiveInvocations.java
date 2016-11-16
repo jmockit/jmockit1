@@ -36,7 +36,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.addArgMatcher(argumentMatcher);
+
+         if (currentPhase != null) {
+            currentPhase.addArgMatcher(argumentMatcher);
+         }
       }
    }
 
@@ -46,7 +49,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.moveArgMatcher(originalMatcherIndex, toIndex);
+
+         if (currentPhase != null) {
+            currentPhase.moveArgMatcher(originalMatcherIndex, toIndex);
+         }
       }
    }
 
@@ -56,8 +62,11 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
-         currentPhase.setExpectedSingleArgumentType(parameterIndex, argumentType);
+
+         if (currentPhase != null) {
+            Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
+            currentPhase.setExpectedSingleArgumentType(parameterIndex, argumentType);
+         }
       }
    }
 
@@ -70,8 +79,11 @@ public final class ActiveInvocations
 
          if (typeDesc != null) {
             TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-            Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
-            currentPhase.setExpectedMultiArgumentType(parameterIndex, argumentType);
+
+            if (currentPhase != null) {
+               Class<?> argumentType = ClassLoad.loadByInternalName(typeDesc);
+               currentPhase.setExpectedMultiArgumentType(parameterIndex, argumentType);
+            }
          }
       }
    }
@@ -83,7 +95,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          BaseVerificationPhase verificationPhase = (BaseVerificationPhase) instance.getCurrentTestOnlyPhase();
-         return verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
+
+         if (verificationPhase != null) {
+            return verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
+         }
       }
 
       return null;
@@ -94,7 +109,11 @@ public final class ActiveInvocations
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
-         instance.getRecordPhase().addResult(result);
+         RecordPhase recordPhase = instance.getRecordPhase();
+
+         if (recordPhase != null) {
+            recordPhase.addResult(result);
+         }
       }
    }
 
@@ -104,7 +123,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.handleInvocationCountConstraint(n, n);
+
+         if (currentPhase != null) {
+            currentPhase.handleInvocationCountConstraint(n, n);
+         }
       }
    }
 
@@ -115,17 +137,8 @@ public final class ActiveInvocations
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
 
-         if (
-            n > 0 ||
-            TestRun.isSettingUpNextTest() ||
-            instance.isStrict() ||
-            currentPhase instanceof BaseVerificationPhase && ((BaseVerificationPhase) currentPhase).isFullyVerified()
-         ) {
+         if (currentPhase != null) {
             currentPhase.handleInvocationCountConstraint(n, -1);
-         }
-         else {
-            String advice = currentPhase instanceof RecordPhase ? "; if needed, use a named Expectations subclass" : "";
-            throw new IllegalArgumentException("Invalid minTimes value from test method" + advice);
          }
       }
    }
@@ -136,7 +149,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.handleInvocationCountConstraint(n, -1);
+
+         if (currentPhase != null) {
+            currentPhase.handleInvocationCountConstraint(n, -1);
+         }
       }
    }
 
@@ -146,7 +162,10 @@ public final class ActiveInvocations
 
       if (instance != null) {
          TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-         currentPhase.setMaxInvocationCount(n);
+
+         if (currentPhase != null) {
+            currentPhase.setMaxInvocationCount(n);
+         }
       }
    }
 

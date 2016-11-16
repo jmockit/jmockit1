@@ -8,19 +8,14 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
-import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
 public final class ExpectationsWithValuesToReturnTest
 {
-   @Rule public final ExpectedException thrown = ExpectedException.none();
-
    static class Collaborator
    {
       static String doInternal() { return "123"; }
-
-      void provideSomeService() { throw new RuntimeException("Should not occur"); }
 
       int getValue() { return -1; }
       Integer getInteger() { return -1; }
@@ -233,30 +228,6 @@ public final class ExpectationsWithValuesToReturnTest
       assertEquals(3, callable.call().intValue());
       assertEquals(2, callable.call().intValue());
       assertEquals(1, callable.call().intValue());
-   }
-
-   @Test
-   public void attemptToRecordReturnValuesForVoidMethod(@Mocked final Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("void method");
-
-      new Expectations() {{
-         mock.provideSomeService();
-         returns(123, "a");
-      }};
-   }
-
-   @Test
-   public void attemptToRecordReturnValuesForConstructor(@Mocked Collaborator mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("constructor");
-
-      new Expectations() {{
-         new Collaborator();
-         returns("test", "");
-      }};
    }
 
    @Test

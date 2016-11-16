@@ -20,7 +20,7 @@ import org.hamcrest.Matcher;
  * Provides common API for use inside {@linkplain Expectations expectation} and {@linkplain Verifications verification}
  * blocks.
  */
-@SuppressWarnings({"ConstantConditions", "ClassWithTooManyFields"})
+@SuppressWarnings("ClassWithTooManyFields")
 abstract class Invocations
 {
    static { Startup.verifyInitialization(); }
@@ -359,7 +359,7 @@ abstract class Invocations
     */
    protected int maxTimes;
 
-   @Nonnull abstract TestOnlyPhase getCurrentPhase();
+   @Nullable abstract TestOnlyPhase getCurrentPhase();
 
    // Methods for argument matching ///////////////////////////////////////////////////////////////////////////////////
 
@@ -444,7 +444,14 @@ abstract class Invocations
       return DefaultValues.computeForWrapperType(parameterType);
    }
 
-   private void addMatcher(@Nonnull ArgumentMatcher<?> matcher) { getCurrentPhase().addArgMatcher(matcher); }
+   private void addMatcher(@Nonnull ArgumentMatcher<?> matcher)
+   {
+      TestOnlyPhase currentPhase = getCurrentPhase();
+
+      if (currentPhase != null) {
+         currentPhase.addArgMatcher(matcher);
+      }
+   }
 
    /**
     * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type ({@code null}
@@ -547,8 +554,13 @@ abstract class Invocations
     */
    protected final <T> T withEqual(T arg)
    {
-      Map<Object, Object> instanceMap = getCurrentPhase().getInstanceMap();
-      addMatcher(new LenientEqualityMatcher(arg, instanceMap));
+      TestOnlyPhase currentPhase = getCurrentPhase();
+
+      if (currentPhase != null) {
+         Map<Object, Object> instanceMap = currentPhase.getInstanceMap();
+         addMatcher(new LenientEqualityMatcher(arg, instanceMap));
+      }
+
       return arg;
    }
 
