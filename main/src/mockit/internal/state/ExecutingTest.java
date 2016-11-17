@@ -161,10 +161,7 @@ public final class ExecutingTest
       }
    }
 
-   public boolean isInjectableMock(@Nonnull Object instance)
-   {
-      return containsReference(injectableMocks, instance);
-   }
+   public boolean isInjectableMock(@Nonnull Object instance) { return containsReference(injectableMocks, instance); }
 
    public boolean isClassWithInjectableMocks(@Nonnull Class<?> aClass)
    {
@@ -177,11 +174,6 @@ public final class ExecutingTest
       }
 
       return false;
-   }
-
-   public boolean isRegularMockedInstance(@Nonnull Object instance)
-   {
-      return containsReference(regularMocks, instance);
    }
 
    public boolean isMockedInstance(@Nonnull Object instance)

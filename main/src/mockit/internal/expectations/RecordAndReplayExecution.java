@@ -418,7 +418,6 @@ public final class RecordAndReplayExecution
       TEST_ONLY_PHASE_LOCK.unlock();
 
       if (verificationPhase == null) {
-         executionState.validateReplacementInstances();
          switchFromRecordToReplayIfNotYet();
       }
       else {

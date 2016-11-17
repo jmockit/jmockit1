@@ -38,7 +38,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    public final void setAllInvocationsMustBeVerified() { allMockedInvocationsDuringReplayMustBeVerified = true; }
-   public final boolean isFullyVerified() { return allMockedInvocationsDuringReplayMustBeVerified; }
 
    public final void setMockedTypesToFullyVerify(@Nonnull Object[] mockedTypesAndInstancesToFullyVerify)
    {
@@ -48,12 +47,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    @Nonnull
    protected final Expectation expectationBeingVerified()
    {
-      if (currentVerification == null) {
-         throw new IllegalStateException(
-            "Missing invocation to mocked type at this point; please make sure there is an associated " +
-            "mock field or mock parameter in scope");
-      }
-
+      //noinspection ConstantConditions
       return currentVerification;
    }
 

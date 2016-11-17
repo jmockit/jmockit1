@@ -454,57 +454,6 @@ public final class JREMockingTest
       new Expectations(StrictMath.class) {};
    }
 
-   // Un-mockable JRE methods/constructors ////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public void attemptToRecordExpectationOnJREClassHavingAllMethodsExcludedFromMocking(@Mocked final ArrayList<?> list)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("record");
-      thrown.expectMessage("unmockable method");
-
-      new Expectations() {{
-         list.get(anyInt);
-      }};
-   }
-
-   @Test
-   public void attemptToRecordExpectationOnJREMethodThatIsExcludedFromMocking(@Mocked System system)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("record");
-      thrown.expectMessage("unmockable method");
-
-      new Expectations() {{
-         System.getProperties();
-      }};
-   }
-
-   @Test
-   public void attemptToRecordExpectationOnJREMethodExcludedFromMockingWhenUsingArgumentMatcher(
-      @SuppressWarnings("UseOfObsoleteCollectionType") @Mocked final Hashtable<?, ?> map)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("record");
-      thrown.expectMessage("unmockable method");
-
-      new Expectations() {{
-         map.containsKey(any);
-      }};
-   }
-
-   @Test
-   public void attemptToVerifyExpectationOnJREConstructorThatIsExcludedFromMocking(@Mocked Properties properties)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("verify");
-      thrown.expectMessage("unmockable constructor");
-
-      new Verifications() {{
-         new Properties();
-      }};
-   }
-
    // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////
 
    @Test

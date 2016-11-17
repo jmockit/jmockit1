@@ -144,7 +144,6 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       @Nullable private final ClassLoader loader;
       private boolean isFinalClass;
       @Nonnull private String classDesc;
-      private boolean isVerificationsSubclass;
 
       EndOfBlockModifier(@Nonnull ClassReader cr, @Nullable ClassLoader loader, boolean isFinalClass)
       {
@@ -183,10 +182,6 @@ public final class ExpectationsTransformer implements ClassFileTransformer
          int i = baseSubclasses.indexOf(superName);
          boolean superClassIsKnownInvocationsSubclass = i >= 0;
 
-         if (i >= 2 && (i <= 5 || superName != null && superName.endsWith("Verifications"))) {
-            isVerificationsSubclass = true;
-         }
-
          if (isFinalClass) {
             if (superClassIsKnownInvocationsSubclass) {
                return true;
@@ -221,7 +216,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       {
          MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
          boolean callEndInvocations = isFinalClass && "<init>".equals(name);
-         return new InvocationBlockModifier(mw, classDesc, callEndInvocations, isVerificationsSubclass);
+         return new InvocationBlockModifier(mw, classDesc, callEndInvocations);
       }
    }
 

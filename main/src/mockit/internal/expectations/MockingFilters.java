@@ -56,12 +56,6 @@ public final class MockingFilters
       );
    }
 
-   public static boolean isUnmockable(@Nonnull String owner, @Nonnull String name)
-   {
-      String mockingFilters = FILTERS.get(owner);
-      return isUnmockableInvocation(mockingFilters, name);
-   }
-
    public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @Nonnull String name)
    {
       if (mockingFilters == null) {

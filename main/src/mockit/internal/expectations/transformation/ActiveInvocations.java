@@ -143,19 +143,6 @@ public final class ActiveInvocations
       }
    }
 
-   public static void minTimes0(int n)
-   {
-      RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
-
-      if (instance != null) {
-         TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
-
-         if (currentPhase != null) {
-            currentPhase.handleInvocationCountConstraint(n, -1);
-         }
-      }
-   }
-
    public static void maxTimes(int n)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();

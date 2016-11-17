@@ -6,20 +6,14 @@ package mockit.internal.expectations.transformation;
 
 import javax.annotation.*;
 
-import static java.lang.Character.isDigit;
-
 import mockit.external.asm.*;
-import mockit.internal.expectations.*;
-import mockit.internal.state.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
-@SuppressWarnings("OverlyComplexClass")
 final class InvocationBlockModifier extends MethodVisitor
 {
    private static final String CLASS_DESC = Type.getInternalName(ActiveInvocations.class);
    private static final Type[] NO_PARAMETERS = new Type[0];
-   private static final MockFixture MOCK_FIXTURE = TestRun.mockFixture();
    private static final String ANY_FIELDS =
       "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
    private static final String WITH_METHODS =
@@ -46,14 +40,11 @@ final class InvocationBlockModifier extends MethodVisitor
    private final boolean callEndInvocations;
 
    // Takes care of withCapture() matchers, if any:
-   private final boolean verifications;
    private boolean justAfterWithCaptureInvocation;
    @Nonnull private final ArgumentCapturing argumentCapturing;
 
    // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
    private int lastLoadedVarIndex;
-
-   private int aload0Count;
 
    // Helper fields that allow argument matchers to be moved to the correct positions of their
    // corresponding parameters:
@@ -156,15 +147,13 @@ final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   InvocationBlockModifier(
-      @Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations, boolean verifications)
+   InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations)
    {
       super(mw);
       this.mw = mw;
       this.blockOwner = blockOwner;
       this.callEndInvocations = callEndInvocations;
       matcherStacks = new int[40];
-      this.verifications = verifications;
       argumentCapturing = new ArgumentCapturing(this);
       parameterTypes = NO_PARAMETERS;
    }
@@ -180,8 +169,6 @@ final class InvocationBlockModifier extends MethodVisitor
       boolean getField = opcode == GETFIELD;
 
       if ((getField || opcode == PUTFIELD) && blockOwner.equals(owner)) {
-         aload0Count--;
-
          if (name.indexOf('$') > 0) {
             // Nothing to do.
          }
@@ -206,20 +193,8 @@ final class InvocationBlockModifier extends MethodVisitor
          return true;
       }
 
-      if ("times".equals(fieldName) || "maxTimes".equals(fieldName)) {
+      if ("times".equals(fieldName) || "minTimes".equals(fieldName) || "maxTimes".equals(fieldName)) {
          generateCallToActiveInvocationsMethod(fieldName, "(I)V");
-         return true;
-      }
-
-      if ("minTimes".equals(fieldName)) {
-         String methodToCall = fieldName;
-         int p = blockOwner.lastIndexOf('$');
-
-         if (p < 0 || !isDigit(blockOwner.charAt(p + 1))) {
-            methodToCall = "minTimes0";
-         }
-
-         generateCallToActiveInvocationsMethod(methodToCall, "(I)V");
          return true;
       }
 
@@ -263,8 +238,6 @@ final class InvocationBlockModifier extends MethodVisitor
             justAfterWithCaptureInvocation = withCaptureMethod;
             matcherStacks[matcherCount++] = stackSize;
          }
-
-         aload0Count--;
       }
       else if (isUnboxing(opcode, owner, desc)) {
          if (justAfterWithCaptureInvocation) {
@@ -276,9 +249,7 @@ final class InvocationBlockModifier extends MethodVisitor
          }
       }
       else {
-         checkForInvocationThatIsNotMockable(owner, name);
          handleMockedOrNonMockedInvocation(opcode, owner, name, desc, itf);
-         aload0Count = 0;
       }
    }
 
@@ -324,22 +295,6 @@ final class InvocationBlockModifier extends MethodVisitor
 
       visitInsn(zeroOpcode);
    }
-
-   private void checkForInvocationThatIsNotMockable(@Nonnull String owner, @Nonnull String name)
-   {
-      if (isMockedClass(owner)) {
-         if (MockingFilters.isUnmockable(owner, name)) {
-            generateCodeToThrowException(
-               "Attempted to " + (verifications ? "verify" : "record") +
-               " expectation on unmockable " + (name.charAt(0) == '<' ? "constructor" : "method"));
-         }
-         else if (aload0Count > 0 && name.charAt(0) != '<') {
-            generateCodeToThrowException("Invalid invocation to another mocked method during unfinished recording");
-         }
-      }
-   }
-
-   private static boolean isMockedClass(String owner) { return MOCK_FIXTURE.isMockedClass(owner.replace('/', '.')); }
 
    private void handleMockedOrNonMockedInvocation(
       @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
@@ -454,10 +409,6 @@ final class InvocationBlockModifier extends MethodVisitor
    {
       if (opcode == ALOAD) {
          lastLoadedVarIndex = varIndex;
-
-         if (varIndex == 0) {
-            aload0Count++;
-         }
       }
 
       argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(opcode, varIndex);
@@ -488,16 +439,6 @@ final class InvocationBlockModifier extends MethodVisitor
          stackSize += Frame.SIZE[opcode];
       }
 
-      boolean labelIsFromCompiledSourceCode = label.line > 0 || label.position > 0;
-
-      if (labelIsFromCompiledSourceCode) {
-         boolean verifyingWithCaptures = verifications && argumentCapturing.hasCaptures();
-
-         if (!verifyingWithCaptures) {
-            generateCodeToThrowExceptionReportingInvalidSyntax("conditional");
-         }
-      }
-
       mw.visitJumpInsn(opcode, label);
    }
 
@@ -505,7 +446,6 @@ final class InvocationBlockModifier extends MethodVisitor
    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
    {
       stackSize--;
-      generateCodeToThrowExceptionReportingInvalidSyntax("switch");
       mw.visitTableSwitchInsn(min, max, dflt, labels);
    }
 
@@ -513,7 +453,6 @@ final class InvocationBlockModifier extends MethodVisitor
    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels)
    {
       stackSize--;
-      generateCodeToThrowExceptionReportingInvalidSyntax("switch");
       mw.visitLookupSwitchInsn(dflt, keys, labels);
    }
 
@@ -535,30 +474,6 @@ final class InvocationBlockModifier extends MethodVisitor
       }
 
       mw.visitInsn(opcode);
-   }
-
-   @Override
-   public void visitTryCatchBlock(Label start, Label end, Label handler, String type)
-   {
-      String description = type == null ? "try/finally" : "try/catch";
-      generateCodeToThrowExceptionReportingInvalidSyntax(description);
-      mw.visitTryCatchBlock(start, end, handler, type);
-   }
-
-   private void generateCodeToThrowExceptionReportingInvalidSyntax(@Nonnull String description)
-   {
-      if (callEndInvocations) {
-         generateCodeToThrowException("Invalid " + description + " statement inside expectation block");
-      }
-   }
-
-   private void generateCodeToThrowException(@Nonnull String message)
-   {
-      mw.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-      mw.visitInsn(DUP);
-      mw.visitLdcInsn(message);
-      mw.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
-      mw.visitInsn(ATHROW);
    }
 
    @Override
