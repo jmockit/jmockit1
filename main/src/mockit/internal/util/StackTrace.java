@@ -51,7 +51,7 @@ public final class StackTrace
 
       StackTraceElement[] newStackTrace = new StackTraceElement[i];
       System.arraycopy(filteredST, 0, newStackTrace, 0, i);
-//      throwable.setStackTrace(newStackTrace);
+      throwable.setStackTrace(newStackTrace);
       elements = newStackTrace;
 
       Throwable cause = throwable.getCause();
