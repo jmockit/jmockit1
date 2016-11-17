@@ -17,14 +17,12 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
    @Nonnull public final List<Object> targetInstances;
    @Nonnull private final Map<Class<?>, byte[]> modifiedClassfiles;
-   @Nonnull private final List<Class<?>> classesPartiallyMocked;
    private boolean methodsOnly;
 
    public DynamicPartialMocking()
    {
       targetInstances = new ArrayList<Object>(2);
       modifiedClassfiles = new HashMap<Class<?>, byte[]>();
-      classesPartiallyMocked = new ArrayList<Class<?>>();
    }
 
    public void redefineTypes(@Nonnull Object[] classesOrInstancesToBePartiallyMocked)
@@ -94,33 +92,14 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       ) {
          throw new IllegalArgumentException("Invalid type for partial mocking: " + targetClass);
       }
-
-      if (!isClassAssignableFrom(classesPartiallyMocked, targetClass)) {
-         Class<?> classAlreadyMocked = TestRun.mockFixture().findClassAlreadyMocked(targetClass);
-
-         if (classAlreadyMocked != null && !TestRun.getExecutingTest().isClassWithInjectableMocks(targetClass)) {
-            throw new IllegalArgumentException("Already mocked: " + classAlreadyMocked);
-         }
-      }
    }
 
    @Override
-   void configureClassModifier(@Nonnull ExpectationsModifier modifier)
-   {
-      modifier.useDynamicMocking(methodsOnly);
-   }
+   void configureClassModifier(@Nonnull ExpectationsModifier modifier) { modifier.useDynamicMocking(methodsOnly); }
 
    @Override
    void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
    {
       modifiedClassfiles.put(realClass, modifiedClass);
-
-      Class<?> classPartiallyMocked = realClass;
-
-      do {
-         classesPartiallyMocked.add(classPartiallyMocked);
-         classPartiallyMocked = classPartiallyMocked.getSuperclass();
-      }
-      while (classPartiallyMocked != null && classPartiallyMocked != Object.class);
    }
 }

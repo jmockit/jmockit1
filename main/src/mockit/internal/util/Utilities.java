@@ -137,11 +137,6 @@ public final class Utilities
       return null;
    }
 
-   public static boolean isClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass)
-   {
-      return findClassAssignableFrom(toClasses, fromClass) != null;
-   }
-
    @SuppressWarnings("OverlyComplexMethod")
    @Nullable
    public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)

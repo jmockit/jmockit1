@@ -163,19 +163,6 @@ public final class ExecutingTest
 
    public boolean isInjectableMock(@Nonnull Object instance) { return containsReference(injectableMocks, instance); }
 
-   public boolean isClassWithInjectableMocks(@Nonnull Class<?> aClass)
-   {
-      for (int i = 0, n = injectableMocks.size(); i < n; i++) {
-         Object injectableMock = injectableMocks.get(i);
-
-         if (injectableMock.getClass() == aClass) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    public boolean isMockedInstance(@Nonnull Object instance)
    {
       return containsReference(regularMocks, instance) || isInjectableMock(instance);

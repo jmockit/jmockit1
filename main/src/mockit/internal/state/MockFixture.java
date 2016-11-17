@@ -140,37 +140,6 @@ public final class MockFixture
       return false;
    }
 
-   public boolean isMockedClass(@Nonnull String targetClassName)
-   {
-      int n = mockedClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> mockedClass = mockedClasses.get(i);
-
-         if (targetClassName.equals(mockedClass.getName())) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   @Nullable
-   public Class<?> findClassAlreadyMocked(@Nonnull Class<?> targetClass)
-   {
-      int n = mockedClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> mockedClass = mockedClasses.get(i);
-
-         if (mockedClass == targetClass || !mockedClass.isInterface() && mockedClass.isAssignableFrom(targetClass)) {
-            return mockedClass;
-         }
-      }
-
-      return null;
-   }
-
    public boolean isInstanceOfMockedClass(@Nonnull Object mockedInstance)
    {
       Class<?> mockedClass = mockedInstance.getClass();

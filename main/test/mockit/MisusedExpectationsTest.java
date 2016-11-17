@@ -218,27 +218,6 @@ public final class MisusedExpectationsTest
    }
 
    @Test
-   public void partiallyMockingAClassWhichIsAlreadyMocked()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Already mocked");
-      thrown.expectMessage("Blah");
-
-      new Expectations(Blah.class) {};
-   }
-
-   @Test
-   public void partiallyMockingASubclassOfAClassWhichIsAlreadyMocked()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Already mocked");
-      thrown.expectMessage("Blah");
-
-      BlahBlah blahBlah = new BlahBlah();
-      new Expectations(blahBlah) {};
-   }
-
-   @Test
    public void attemptToHaveDelegateMethodWithInvocationParameterNotAtFirstPosition()
    {
       thrown.expect(IllegalArgumentException.class);
