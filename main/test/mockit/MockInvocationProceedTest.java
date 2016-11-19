@@ -204,20 +204,6 @@ public final class MockInvocationProceedTest
    }
 
    @Test
-   public void cannotProceedFromMockMethodIntoConstructorWithNewArguments()
-   {
-      new MockUp<ClassToBeMocked>() {
-         @Mock void $init(Invocation inv, String name) { inv.proceed("mock"); }
-      };
-
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot replace arguments");
-      thrown.expectMessage("constructor");
-
-      new ClassToBeMocked("will fail");
-   }
-
-   @Test
    public void proceedConditionallyFromMockMethodIntoJREConstructor()
    {
       new MockUp<File>() {

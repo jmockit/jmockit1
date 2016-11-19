@@ -6,11 +6,9 @@ package mockit.internal.expectations;
 
 import javax.annotation.*;
 
-import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
 import static mockit.internal.state.ExecutingTest.*;
-import static mockit.internal.util.ClassLoad.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
@@ -48,31 +46,28 @@ public final class RecordPhase extends TestOnlyPhase
 
       ExpectedInvocation invocation = new ExpectedInvocation(
          mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
-      Class<?> callerClass = loadClass(invocation.getCallerClassName());
 
-      if (Expectations.class.isAssignableFrom(callerClass)) {
-         boolean nonStrictInvocation = false;
+      boolean nonStrictInvocation = false;
 
-         if (strict) {
-            TestRun.getExecutingTest().addStrictMock(mock, matchInstance ? null : mockClassDesc);
-         }
-         else if (!matchInstance && invocation.isConstructor()) {
-            invocation.replacementInstance = mock;
-            getReplacementMap().put(mock, mock);
-         }
-         else {
-            nonStrictInvocation = isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
-         }
-
-         currentExpectation = new Expectation(this, invocation, strict, nonStrictInvocation);
-
-         if (argMatchers != null) {
-            invocation.arguments.setMatchers(argMatchers);
-            argMatchers = null;
-         }
-
-         recordAndReplay.executionState.addExpectation(currentExpectation, strict);
+      if (strict) {
+         TestRun.getExecutingTest().addStrictMock(mock, matchInstance ? null : mockClassDesc);
       }
+      else if (!matchInstance && invocation.isConstructor()) {
+         invocation.replacementInstance = mock;
+         getReplacementMap().put(mock, mock);
+      }
+      else {
+         nonStrictInvocation = isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
+      }
+
+      currentExpectation = new Expectation(this, invocation, strict, nonStrictInvocation);
+
+      if (argMatchers != null) {
+         invocation.arguments.setMatchers(argMatchers);
+         argMatchers = null;
+      }
+
+      recordAndReplay.executionState.addExpectation(currentExpectation, strict);
 
       return invocation.getDefaultValueForReturnType();
    }

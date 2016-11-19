@@ -9,13 +9,10 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.junit.*;
-import org.junit.rules.*;
 import static org.junit.Assert.*;
 
 public final class DelegateInvocationProceedTest
 {
-   @Rule public final ExpectedException thrown = ExpectedException.none();
-
    public static class BaseClassToBeMocked
    {
       protected String name;
@@ -198,23 +195,6 @@ public final class DelegateInvocationProceedTest
    }
 
    @Test
-   public void cannotProceedFromDelegateMethodIntoConstructorWithNewArguments()
-   {
-      new Expectations(ClassToBeMocked.class) {{
-         new ClassToBeMocked(anyString);
-         result = new Delegate() {
-            @Mock void init(Invocation inv, String name) { inv.proceed("mock"); }
-         };
-      }};
-
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot replace arguments");
-      thrown.expectMessage("constructor");
-
-      new ClassToBeMocked("will fail");
-   }
-
-   @Test
    public void proceedConditionallyFromDelegateMethodIntoJREConstructor()
    {
       new Expectations(ProcessBuilder.class) {{
@@ -337,21 +317,5 @@ public final class DelegateInvocationProceedTest
 
          assertEquals(123, c2.methodToBeMocked(1));
       }
-   }
-
-   @Test
-   public void cannotProceedWhenPassingInvokedArgumentsAsReplacement(@Mocked final ClassToBeMocked mocked)
-   {
-      new Expectations() {{
-         mocked.anotherMethodToBeMocked("test", true, null);
-         result = new Delegate() {
-            @Mock void delegate(Invocation inv) { inv.proceed(inv.getInvokedArguments()); }
-         };
-      }};
-
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Redundant replacement arguments");
-
-      mocked.anotherMethodToBeMocked("test", true, null);
    }
 }

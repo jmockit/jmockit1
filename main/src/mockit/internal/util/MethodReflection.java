@@ -9,7 +9,6 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import static mockit.internal.util.ClassLoad.loadClass;
 import static mockit.internal.util.ParameterReflection.*;
 
 public final class MethodReflection
@@ -25,8 +24,6 @@ public final class MethodReflection
          throw invalidArguments();
       }
 
-      validateNotCalledFromInvocationBlock();
-
       Method method = findSpecifiedMethod(theClass, methodName, paramTypes);
       T result = invoke(targetInstance, method, methodArgs);
       return result;
@@ -37,18 +34,10 @@ public final class MethodReflection
       @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] paramTypes)
    {
       while (true) {
-         for (Method declaredMethod : theClass.getDeclaredMethods()) {
-            if (declaredMethod.getName().equals(methodName)) {
-               Class<?>[] declaredParameterTypes = declaredMethod.getParameterTypes();
-               int firstRealParameter = indexOfFirstRealParameter(declaredParameterTypes, paramTypes);
+         Method declaredMethod = findSpecifiedMethodInGivenClass(theClass, methodName, paramTypes);
 
-               if (
-                  firstRealParameter >= 0 &&
-                     matchesParameterTypes(declaredMethod.getParameterTypes(), paramTypes, firstRealParameter)
-                  ) {
-                  return declaredMethod;
-               }
-            }
+         if (declaredMethod != null) {
+            return declaredMethod;
          }
 
          Class<?> superClass = theClass.getSuperclass();
@@ -61,6 +50,27 @@ public final class MethodReflection
          //noinspection AssignmentToMethodParameter
          theClass = superClass;
       }
+   }
+
+   @Nullable
+   private static Method findSpecifiedMethodInGivenClass(
+      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] paramTypes)
+   {
+      for (Method declaredMethod : theClass.getDeclaredMethods()) {
+         if (declaredMethod.getName().equals(methodName)) {
+            Class<?>[] declaredParameterTypes = declaredMethod.getParameterTypes();
+            int firstRealParameter = indexOfFirstRealParameter(declaredParameterTypes, paramTypes);
+
+            if (
+               firstRealParameter >= 0 &&
+               matchesParameterTypes(declaredMethod.getParameterTypes(), paramTypes, firstRealParameter)
+            ) {
+               return declaredMethod;
+            }
+         }
+      }
+
+      return null;
    }
 
    @Nullable
@@ -161,8 +171,6 @@ public final class MethodReflection
          throw invalidArguments();
       }
 
-      validateNotCalledFromInvocationBlock();
-
       boolean staticMethod = targetInstance == null;
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(methodArgs);
       Method method = staticMethod ?
@@ -180,23 +188,6 @@ public final class MethodReflection
 
    static void validateNotCalledFromInvocationBlock()
    {
-      Class<?> callerClass = getCallerClass();
-
-      if (Expectations.class.isAssignableFrom(callerClass)) {
-         throw new IllegalArgumentException("Invalid invocation from expectation block");
-      }
-
-      if (Verifications.class.isAssignableFrom(callerClass)) {
-         throw new IllegalArgumentException("Invalid invocation from verification block");
-      }
-   }
-
-   @Nonnull
-   private static Class<?> getCallerClass()
-   {
-      StackTrace st = new StackTrace();
-      String callerClassName = st.getElement(5).getClassName();
-      return loadClass(callerClassName);
    }
 
    @Nonnull

@@ -261,19 +261,6 @@ public final class MockUpTest
       assertEquals("45", parameter);
    }
 
-   @Test
-   public void cannotReenterConstructorsWithReplacementArguments()
-   {
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("Cannot replace arguments when proceeding into constructor");
-
-      new MockUp<Panel>() {
-         @Mock void $init(Invocation inv, LayoutManager lm) { inv.proceed(new BorderLayout()); }
-      };
-
-      new Panel(null);
-   }
-
    @SuppressWarnings("deprecation")
    @Test
    public void mockingOfAnnotatedClass() throws Exception

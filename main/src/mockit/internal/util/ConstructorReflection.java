@@ -11,7 +11,6 @@ import static java.lang.reflect.Modifier.isStatic;
 
 import static mockit.internal.util.MethodReflection.validateNotCalledFromInvocationBlock;
 import static mockit.internal.util.ParameterReflection.*;
-import static mockit.internal.util.Utilities.JAVA9;
 
 public final class ConstructorReflection
 {
@@ -218,8 +217,6 @@ public final class ConstructorReflection
          throw invalidArguments();
       }
 
-      validateNotCalledFromInvocationBlock();
-
       if (isStatic(innerClass.getModifiers())) {
          throw new IllegalArgumentException(innerClass.getSimpleName() + " is not an inner class");
       }
@@ -232,8 +229,6 @@ public final class ConstructorReflection
    public static <T> T newInnerInstance(
       @Nonnull String innerClassName, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
    {
-      validateNotCalledFromInvocationBlock();
-
       Class<?> outerClass = outerInstance.getClass();
       ClassLoader loader = outerClass.getClassLoader();
       String className = outerClass.getName() + '$' + innerClassName;
@@ -245,31 +240,12 @@ public final class ConstructorReflection
    @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UseOfSunClasses"})
    private static final sun.reflect.ReflectionFactory REFLECTION_FACTORY =
       sun.reflect.ReflectionFactory.getReflectionFactory();
-   private static final Method NEW_CONSTRUCTOR;
-
-   static
-   {
-      Method newConstructor = null;
-
-      if (JAVA9) {
-         Class<?> reflectionFactoryClass = REFLECTION_FACTORY.getClass();
-
-         try {
-            newConstructor = reflectionFactoryClass.getDeclaredMethod("newConstructorForSerialization", Class.class);
-         }
-         catch (NoSuchMethodException ignore) {}
-      }
-
-      NEW_CONSTRUCTOR = newConstructor;
-   }
 
    @Nonnull
    public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass)
    {
       try {
-         Constructor<?> fakeConstructor = NEW_CONSTRUCTOR == null ?
-            REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR) :
-            (Constructor<?>) NEW_CONSTRUCTOR.invoke(REFLECTION_FACTORY, aClass);
+         Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
 
          if (fakeConstructor == null) { // can happen on Java 9
             //noinspection ConstantConditions

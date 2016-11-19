@@ -15,8 +15,6 @@ public final class StackTrace
    @Nonnull private final Throwable throwable;
    @Nonnull private StackTraceElement[] elements;
 
-   public StackTrace() { this(new Throwable()); }
-
    public StackTrace(@Nonnull Throwable throwable)
    {
       this.throwable = throwable;

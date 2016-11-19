@@ -40,14 +40,9 @@ public abstract class BaseInvocation extends Invocation
    @Nullable
    public final <T> T doProceed(@Nullable Object[] replacementArguments)
    {
-      boolean withArgs = replacementArguments != null && replacementArguments.length > 0;
       Member memberToInvoke = getRealMember();
 
       if (memberToInvoke instanceof Constructor) {
-         if (withArgs) {
-            throw new UnsupportedOperationException("Cannot replace arguments when proceeding into constructor");
-         }
-
          prepareToProceed();
          return null;
       }
@@ -57,7 +52,7 @@ public abstract class BaseInvocation extends Invocation
       Method realMethod = (Method) memberToInvoke;
       Object[] actualArgs = getInvokedArguments();
 
-      if (withArgs) {
+      if (replacementArguments != null && replacementArguments.length > 0) {
          actualArgs = realMethod.isVarArgs() ?
             createArgumentsArrayWithVarargs(actualArgs.length, replacementArguments) : replacementArguments;
       }

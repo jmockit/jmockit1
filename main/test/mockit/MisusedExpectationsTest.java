@@ -217,42 +217,6 @@ public final class MisusedExpectationsTest
       void doSomethingElse(Object o) {}
    }
 
-   @Test
-   public void attemptToHaveDelegateMethodWithInvocationParameterNotAtFirstPosition()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Delegate method");
-      thrown.expectMessage("Invocation parameter");
-      thrown.expectMessage("first");
-
-      new Expectations() {{
-         mock.doSomething(true);
-         result = new Delegate() {
-            @SuppressWarnings("unused")
-            void delegate(boolean b, Invocation inv) {}
-         };
-      }};
-   }
-
-   @Test
-   public void callMockedMethodDuringEvaluationOfExpressionAssignedToResultField()
-   {
-      class CUT {
-         final int value;
-         CUT() { value = mock.value(); }
-         @Override public String toString() { return "cut=" + value; }
-      }
-
-      new Expectations() {{
-         mock.getName();
-         result = "test " + new CUT();
-      }};
-
-      String name = mock.getName();
-
-      assertEquals("test cut=0", name);
-   }
-
    @Test(expected = IllegalArgumentException.class)
    public void attemptToApplyCapturingOnFinalClass(@Capturing BlahBlah mock)
    {

@@ -19,32 +19,18 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nonnull private final Object targetObject;
    @Nonnull final Method methodToInvoke;
-   private int numberOfRegularParameters;
-   private boolean hasInvocationParameter;
+   private final boolean hasInvocationParameter;
+   private final int numberOfRegularParameters;
 
    DynamicInvocationResult(@Nonnull Object targetObject, @Nonnull Method methodToInvoke)
    {
       this.targetObject = targetObject;
       this.methodToInvoke = methodToInvoke;
-      determineWhetherMethodToInvokeHasInvocationParameter();
-   }
 
-   private void determineWhetherMethodToInvokeHasInvocationParameter()
-   {
       Class<?>[] parameters = methodToInvoke.getParameterTypes();
       int n = parameters.length;
 
-      for (int i = 0; i < n; i++) {
-         if (parameters[i] == Invocation.class) {
-            if (i > 0) {
-               throw new IllegalArgumentException(
-                  "Delegate method with Invocation parameter not as first one:\n" + methodToInvoke);
-            }
-
-            hasInvocationParameter = true;
-         }
-      }
-
+      hasInvocationParameter = n > 0 && parameters[0] == Invocation.class;
       numberOfRegularParameters = hasInvocationParameter ? n - 1 : n;
    }
 
