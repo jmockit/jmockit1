@@ -196,20 +196,6 @@ public final class JREMockingTest
       assertTrue(t.terminatedCleanly);
    }
 
-   // When a native instance method is called on a regular instance, there is no way to execute its real
-   // implementation; therefore, dynamic mocking of native methods is not supported.
-   @Test
-   public void dynamicMockingOfNativeMethod(@Injectable final Thread t)
-   {
-      thrown.expect(IllegalStateException.class);
-      thrown.expectMessage("Missing invocation to mocked type");
-
-      new Expectations() {{
-         t.isAlive();
-         result = true;
-      }};
-   }
-
    @Test
    public void fullMockingOfThread(@Mocked Thread t)
    {
@@ -292,7 +278,7 @@ public final class JREMockingTest
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
 
    // These would interfere with the test runner if regular mocking was applied.
-/*
+
    @Injectable FileOutputStream stream;
    @Injectable Writer writer;
    @Injectable FileWriter fw;
@@ -320,7 +306,6 @@ public final class JREMockingTest
 
       new Verifications() {{ writer.append('x'); }};
    }
-*/
 
    @Test @Ignore("Find a way to avoid NPE from superclass constructor")
    public void mockConstructorsInFileWriterClass() throws Exception

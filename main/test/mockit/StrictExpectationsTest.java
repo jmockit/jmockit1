@@ -65,9 +65,7 @@ public final class StrictExpectationsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new StrictExpectations() {{
-         mock.setValue(anyInt); times = 0;
-      }};
+      new StrictExpectations() {{ mock.setValue(anyInt); times = 0; }};
 
       mock.setValue(2);
    }
@@ -159,16 +157,6 @@ public final class StrictExpectationsTest
    }
 
    @Test
-   public void attemptToRecordExpectedReturnValueForNoCurrentInvocation(@Mocked Collaborator mock)
-   {
-      thrown.expect(IllegalStateException.class);
-
-      new StrictExpectations() {{
-         result = 42;
-      }};
-   }
-
-   @Test
    public void mockClassWithMethodsOfAllReturnTypesReturningDefaultValues(
       @Mocked final ClassWithMethodsOfEveryReturnType mock)
    {
@@ -217,9 +205,7 @@ public final class StrictExpectationsTest
    {
       thrown.expect(UnexpectedInvocation.class);
 
-      new StrictExpectations() {{
-         mock.getValue();
-      }};
+      new StrictExpectations() {{ mock.getValue(); }};
 
       Collaborator.doInternal();
    }
@@ -229,9 +215,7 @@ public final class StrictExpectationsTest
    {
       thrown.expect(MissingInvocation.class);
 
-      new StrictExpectations() {{
-         mock.setValue(123);
-      }};
+      new StrictExpectations() {{ mock.setValue(123); }};
    }
 
    @Test

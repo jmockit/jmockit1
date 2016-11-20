@@ -70,29 +70,19 @@ public abstract class TestOnlyPhase extends Phase
       matcher.setExpectedType(argumentType);
    }
 
-   @Nonnull
-   final Expectation getCurrentExpectation()
-   {
-      if (currentExpectation == null) {
-         throw new IllegalStateException(
-            "Missing invocation to mocked type at this point; please make sure such invocations appear only after " +
-            "the declaration of a suitable mock field or parameter");
-      }
-
-      return currentExpectation;
-   }
-
    public void setMaxInvocationCount(int maxInvocations)
    {
-      int currentMinimum = getCurrentExpectation().constraints.minInvocations;
+      if (currentExpectation != null) {
+         int currentMinimum = currentExpectation.constraints.minInvocations;
 
-      if (numberOfIterations > 0) {
-         currentMinimum /= numberOfIterations;
+         if (numberOfIterations > 0) {
+            currentMinimum /= numberOfIterations;
+         }
+
+         int minInvocations = maxInvocations < 0 ? currentMinimum : Math.min(currentMinimum, maxInvocations);
+
+         handleInvocationCountConstraint(minInvocations, maxInvocations);
       }
-
-      int minInvocations = maxInvocations < 0 ? currentMinimum : Math.min(currentMinimum, maxInvocations);
-
-      handleInvocationCountConstraint(minInvocations, maxInvocations);
    }
 
    public abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);

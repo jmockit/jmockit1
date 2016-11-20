@@ -22,17 +22,23 @@ public final class RecordPhase extends TestOnlyPhase
 
    public void addResult(@Nullable Object result)
    {
-      getCurrentExpectation().addResult(result);
+      if (currentExpectation != null) {
+         currentExpectation.addResult(result);
+      }
    }
 
    public void addSequenceOfReturnValues(@Nonnull Object[] values)
    {
-      getCurrentExpectation().addSequenceOfReturnValues(values);
+      if (currentExpectation != null) {
+         currentExpectation.addSequenceOfReturnValues(values);
+      }
    }
 
    public void addSequenceOfReturnValues(@Nullable Object firstValue, @Nullable Object[] remainingValues)
    {
-      getCurrentExpectation().addSequenceOfReturnValues(firstValue, remainingValues);
+      if (currentExpectation != null) {
+         currentExpectation.addSequenceOfReturnValues(firstValue, remainingValues);
+      }
    }
 
    @Nullable @Override
@@ -89,14 +95,16 @@ public final class RecordPhase extends TestOnlyPhase
    @Override
    public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
    {
-      int lowerLimit = minInvocations;
-      int upperLimit = maxInvocations;
+      if (currentExpectation != null) {
+         int lowerLimit = minInvocations;
+         int upperLimit = maxInvocations;
 
-      if (numberOfIterations > 1 && !strict) {
-         lowerLimit *= numberOfIterations;
-         upperLimit *= numberOfIterations;
+         if (numberOfIterations > 1 && !strict) {
+            lowerLimit *= numberOfIterations;
+            upperLimit *= numberOfIterations;
+         }
+
+         currentExpectation.constraints.setLimits(lowerLimit, upperLimit);
       }
-
-      getCurrentExpectation().constraints.setLimits(lowerLimit, upperLimit);
    }
 }

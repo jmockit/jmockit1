@@ -252,8 +252,6 @@ public abstract class Expectations extends Invocations
     * @param secondValue the second value to be returned at replay time
     * @param remainingValues any remaining values to be returned, in the same order
     *
-    * @throws IllegalArgumentException if this method is used for a constructor or {@code void} method
-    *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#results">Tutorial</a>
     */
    protected final void returns(Object firstValue, Object secondValue, Object... remainingValues)

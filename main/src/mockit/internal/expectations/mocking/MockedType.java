@@ -52,9 +52,6 @@ public final class MockedType extends InjectionPointProvider
       capturing = field.getAnnotation(Capturing.class);
       Injectable injectableAnnotation = field.getAnnotation(Injectable.class);
       injectable = injectableAnnotation != null;
-
-      validateAnnotationUsage();
-
       providedValue = getProvidedInjectableValue(injectableAnnotation);
       registerCascadingAsNeeded();
    }
@@ -74,9 +71,6 @@ public final class MockedType extends InjectionPointProvider
             else {
                return Utilities.convertFromString(injectableClass, value);
             }
-         }
-         else if (!fieldFromTestClass && declaredType != String.class && !isMockableType()) {
-            throw new IllegalArgumentException("Missing value for injectable parameter: " + name);
          }
       }
 
@@ -108,9 +102,6 @@ public final class MockedType extends InjectionPointProvider
       capturing = getAnnotation(annotationsOnParameter, Capturing.class);
       Injectable injectableAnnotation = getAnnotation(annotationsOnParameter, Injectable.class);
       injectable = injectableAnnotation != null;
-
-      validateAnnotationUsage();
-
       providedValue = getProvidedInjectableValue(injectableAnnotation);
 
       if (providedValue == null && parameterType instanceof Class<?>) {
@@ -144,36 +135,6 @@ public final class MockedType extends InjectionPointProvider
       }
 
       return null;
-   }
-
-   private void validateAnnotationUsage()
-   {
-      if (capturing != null) {
-         if (capturing.maxInstances() == Integer.MAX_VALUE) {
-            Class<?> baseType = getClassType();
-            int modifiers = baseType.getModifiers();
-
-            if (isFinal(modifiers)) {
-               throw new IllegalArgumentException("Invalid @Capturing of final " + baseType + ": " + name);
-            }
-
-            if (injectable) {
-               throw new IllegalArgumentException("Invalid application of @Capturing and @Injectable: " + name);
-            }
-         }
-
-         validateAgainstAnnotationRedundancy("@Capturing");
-      }
-      else if (injectable) {
-         validateAgainstAnnotationRedundancy("@Injectable");
-      }
-   }
-
-   private void validateAgainstAnnotationRedundancy(@Nonnull String otherAnnotation)
-   {
-      if (mocked != null && !mocked.stubOutClassInitialization()) {
-         throw new IllegalArgumentException("Redundant application of @Mocked and " + otherAnnotation + ": " + name);
-      }
    }
 
    MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType)

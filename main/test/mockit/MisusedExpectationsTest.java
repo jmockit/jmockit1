@@ -36,6 +36,8 @@ public final class MisusedExpectationsTest
 
    @Mocked Blah mock;
 
+   // Arrange-Act-Assert non-conformance //////////////////////////////////////////////////////////////////////////////
+
    @Test
    public void multipleReplayPhasesWithFirstSetOfExpectationsFullyReplayed()
    {
@@ -81,6 +83,28 @@ public final class MisusedExpectationsTest
    }
 
    @Test
+   public void recordNotStrictExpectationAfterInvokingSameMethodInReplayPhase()
+   {
+      assertEquals(0, mock.value());
+
+      new Expectations() {{ mock.value(); result = 1; }};
+
+      assertEquals(1, mock.value());
+   }
+
+   @Test
+   public void recordStrictExpectationAfterInvokingSameMethodInReplayPhase()
+   {
+      assertEquals(0, mock.value());
+
+      new StrictExpectations() {{ mock.value(); result = 1; }};
+
+      assertEquals(1, mock.value());
+   }
+
+   // Duplicate recordings ////////////////////////////////////////////////////////////////////////////////////////////
+
+   @Test
    public void recordDuplicateInvocationWithNoArguments()
    {
       new Expectations() {{
@@ -106,13 +130,8 @@ public final class MisusedExpectationsTest
    @Test
    public void recordDuplicateInvocationInSeparateExpectationBlocks()
    {
-      new Expectations() {{
-         mock.value(); result = 1;
-      }};
-
-      new Expectations() {{
-         mock.value(); result = 2; // overrides the previous expectation
-      }};
+      new Expectations() {{ mock.value(); result = 1; }};
+      new Expectations() {{ mock.value(); result = 2; }}; // overrides the previous expectation
 
       assertEquals(2, mock.value());
    }
@@ -120,44 +139,13 @@ public final class MisusedExpectationsTest
    @Test
    public void recordSameInvocationInNotStrictExpectationBlockThenInStrictOne()
    {
-      thrown.expect(AssertionError.class);
+      new Expectations() {{ mock.value(); result = 1; }};
+      new StrictExpectations() {{ mock.value(); result = 2; }}; // overrides previous one
 
-      new Expectations() {{
-         mock.value(); result = 1;
-      }};
-
-      new StrictExpectations() {{
-         // This expectation can never be replayed, so it will cause the test to fail:
-         mock.value(); result = 2;
-      }};
-
-      assertEquals(1, mock.value());
-      assertEquals(1, mock.value());
+      assertEquals(2, mock.value());
    }
 
-   @Test
-   public void recordNotStrictExpectationAfterInvokingSameMethodInReplayPhase()
-   {
-      assertEquals(0, mock.value());
-
-      new Expectations() {{
-         mock.value(); result = 1;
-      }};
-
-      assertEquals(1, mock.value());
-   }
-
-   @Test
-   public void recordStrictExpectationAfterInvokingSameMethodInReplayPhase()
-   {
-      assertEquals(0, mock.value());
-
-      new StrictExpectations() {{
-         mock.value(); result = 1;
-      }};
-
-      assertEquals(1, mock.value());
-   }
+   // Order-related recordings ////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordOrderedInstantiationOfClassMockedTwice(@Mocked Blah mock2)
@@ -210,42 +198,7 @@ public final class MisusedExpectationsTest
       }};
    }
 
-   @SuppressWarnings("UnusedParameters")
-   static final class BlahBlah extends Blah
-   {
-      @Override String doSomething(boolean b) { return "overridden"; }
-      void doSomethingElse(Object o) {}
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToApplyCapturingOnFinalClass(@Capturing BlahBlah mock)
-   {
-      fail("Should fail before entering the test");
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToApplyBothMockedAndCapturing(@Mocked @Capturing Blah mock)
-   {
-      fail("Should fail before entering the test");
-   }
-
-   @Test
-   public void allowMockedWithAttributePlusCapturing(@Mocked(stubOutClassInitialization = true) @Capturing Blah mock)
-   {
-      assertNotNull(mock);
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToApplyBothMockedAndInjectable(@Mocked @Injectable Blah mock)
-   {
-      fail("Should fail before entering the test");
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void attemptToApplyBothInjectableAndCapturingWithoutMaxInstances(@Capturing @Injectable Blah mock)
-   {
-      fail("Should fail before entering the test");
-   }
+   // Cascading ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void ambiguousCascadingWhenMultipleValidCandidatesAreAvailable(
