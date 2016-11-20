@@ -153,7 +153,7 @@ public final class ExpectationsTest
    @Test
    public void recordWithArgumentMatcherAndIndividualInvocationCounts()
    {
-      new Expectations(1) {{
+      new Expectations() {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
          mock.editABunchMoreStuff(); maxTimes = 5;
@@ -212,45 +212,6 @@ public final class ExpectationsTest
       }};
 
       assertEquals(1, Dependency.staticMethod(null, null));
-   }
-
-   @Test
-   public void recordInvocationsInIteratingBlock()
-   {
-      new Expectations(2) {{
-         mock.setSomething(anyInt); times = 1;
-         mock.save(); times = 1;
-      }};
-
-      mock.setSomething(123);
-      mock.save();
-      mock.setSomething(45);
-      mock.save();
-   }
-
-   @Test(expected = MissingInvocation.class)
-   public void recordInvocationInBlockWithWrongNumberOfIterations()
-   {
-      new Expectations(3) {{
-         mock.setSomething(123); minTimes = 1;
-      }};
-
-      mock.setSomething(123);
-   }
-
-   @Test
-   public void recordWithArgumentMatcherAndIndividualInvocationCountsInIteratingBlock()
-   {
-      new Expectations(2) {{
-         mock.prepare(); maxTimes = 1;
-         mock.setSomething(anyInt); minTimes = 2;
-         mock.editABunchMoreStuff(); minTimes = 1; maxTimes = 5;
-         mock.save(); times = 1;
-      }};
-
-      for (int i = 0; i < 2; i++) {
-         exerciseCodeUnderTest();
-      }
    }
 
    @Test

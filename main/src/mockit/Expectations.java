@@ -73,7 +73,6 @@ import mockit.internal.expectations.*;
  *
  * @see #Expectations()
  * @see #Expectations(Object...)
- * @see #Expectations(Integer, Object...)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation">Tutorial</a>
  */
 public abstract class Expectations extends Invocations
@@ -143,7 +142,6 @@ public abstract class Expectations extends Invocations
     * the instance initialization body of an anonymous subclass or the called constructor of a named subclass.
     *
     * @see #Expectations(Object...)
-    * @see #Expectations(Integer, Object...)
     */
    protected Expectations()
    {
@@ -172,7 +170,6 @@ public abstract class Expectations extends Invocations
     * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
     * interface, or if given a value/instance of such a type
     * 
-    * @see #Expectations(Integer, Object...)
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial">Tutorial</a>
     */
    protected Expectations(Object... classesOrObjectsToBePartiallyMocked)
@@ -195,7 +192,10 @@ public abstract class Expectations extends Invocations
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
     * @see #Expectations()
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected Expectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
    {
       this(classesOrObjectsToBePartiallyMocked);

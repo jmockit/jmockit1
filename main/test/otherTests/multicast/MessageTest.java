@@ -63,30 +63,6 @@ public final class MessageTest
    public void sendMessageToMultipleClients(@Mocked final Socket con, @Mocked final StatusListener listener)
       throws Exception
    {
-      Client[] testClients = {new Client("client1"), new Client("client2"), new Client("client3")};
-
-      new Expectations(testClients.length) {{
-         new Socket(withPrefix("client"), anyInt); times = 1;
-         con.getOutputStream(); result = new ByteArrayOutputStream();
-         con.getInputStream(); result = "reply1\nreply2\n";
-         con.close(); times = 1;
-      }};
-
-      exerciseCodeUnderTest(listener, testClients);
-
-      for (final Client client : testClients) {
-         new VerificationsInOrder() {{
-            listener.messageSent(client);
-            listener.messageDisplayedByClient(client);
-            listener.messageReadByClient(client);
-         }};
-      }
-   }
-
-   @Test
-   public void sendMessageToMultipleClients_minimal(@Mocked final Socket con, @Mocked final StatusListener listener)
-      throws Exception
-   {
       Client[] testClients = {new Client("client1"), new Client("client2")};
 
       new Expectations() {{

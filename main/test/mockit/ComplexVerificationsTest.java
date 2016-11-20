@@ -46,35 +46,6 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingStrictExpectationsOnly(@Mocked final A a, @Mocked final B b, @Mocked final C c)
-   {
-      new StrictExpectations() {{
-         // Meets requirement 1:
-         new A();
-         new B();
-         new C();
-
-         // Meets requirement 2:
-         a.process(input);
-      }};
-
-      new StrictExpectations(input.length) {{
-         // Meets requirement 3 but NOT 4:
-         b.foo();
-         c.bar();
-      }};
-
-      new StrictExpectations() {{
-         // Meets requirement 5:
-         a.result(); result = 42;
-      }};
-
-      assertEquals(42, testedMethod());
-
-      // Requirement 6 is met since all classes are mocked strictly.
-   }
-
-   @Test
    public void usingStrictAndNotStrictMockedTypes(@Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
       new StrictExpectations() {{
