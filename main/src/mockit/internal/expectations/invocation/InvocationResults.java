@@ -47,27 +47,7 @@ public final class InvocationResults
       addResult(result);
    }
 
-   public void addReturnValueResult(@Nullable Object value)
-   {
-      addNewReturnValueResult(value);
-   }
-
-   public void addReturnValues(@Nonnull Object array)
-   {
-      int n = Array.getLength(array);
-
-      for (int i = 0; i < n; i++) {
-         Object value = Array.get(array, i);
-         addReturnValue(value);
-      }
-   }
-
-   public void addReturnValues(@Nonnull Iterable<?> values)
-   {
-      for (Object value : values) {
-         addReturnValue(value);
-      }
-   }
+   public void addReturnValueResult(@Nullable Object value) { addNewReturnValueResult(value); }
 
    public void addReturnValues(@Nonnull Object... values)
    {
@@ -101,13 +81,6 @@ public final class InvocationResults
       for (Object value : values) {
          addConsecutiveResult(value);
       }
-   }
-
-   public void addDeferredReturnValues(@Nonnull Iterator<?> values)
-   {
-      InvocationResult result = new DeferredReturnValues(values);
-      addResult(result);
-      constraints.setUnlimitedMaxInvocations();
    }
 
    public void addDeferredResults(@Nonnull Iterator<?> values)

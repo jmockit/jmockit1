@@ -47,19 +47,6 @@ abstract class InvocationResult
       }
    }
 
-   static final class DeferredReturnValues extends InvocationResult
-   {
-      @Nonnull private final Iterator<?> values;
-
-      DeferredReturnValues(@Nonnull Iterator<?> values) { this.values = values; }
-
-      @Nullable @Override
-      Object produceResult(@Nonnull Object[] args)
-      {
-         return values.hasNext() ? values.next() : null;
-      }
-   }
-
    static final class DeferredResults extends InvocationResult
    {
       @Nonnull private final Iterator<?> values;

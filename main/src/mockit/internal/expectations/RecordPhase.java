@@ -34,13 +34,6 @@ public final class RecordPhase extends TestOnlyPhase
       }
    }
 
-   public void addSequenceOfReturnValues(@Nullable Object firstValue, @Nullable Object[] remainingValues)
-   {
-      if (currentExpectation != null) {
-         currentExpectation.addSequenceOfReturnValues(firstValue, remainingValues);
-      }
-   }
-
    @Nullable @Override
    Object handleInvocation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,

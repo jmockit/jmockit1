@@ -210,22 +210,6 @@ public abstract class Expectations extends Invocations
    final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**
-    * Specifies that the previously recorded method invocation will return a given value during replay.
-    *
-    * @param singleValue the value to be returned at replay time
-    * @deprecated Assign the value to the {@link #result} field instead.
-    */
-   @Deprecated
-   protected final void returns(Object singleValue)
-   {
-      RecordPhase currentPhase = getCurrentPhase();
-
-      if (currentPhase != null) {
-         currentPhase.addSequenceOfReturnValues(singleValue, new Object[0]);
-      }
-   }
-
-   /**
     * Specifies that the previously recorded method invocation will return a given sequence of values during replay.
     * <p/>
     * Calling this method is equivalent to assigning the {@link #result} field two or more times in sequence, or

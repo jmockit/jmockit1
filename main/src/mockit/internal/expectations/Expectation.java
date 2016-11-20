@@ -75,34 +75,6 @@ final class Expectation
       }
    }
 
-   void addSequenceOfReturnValues(@Nullable Object firstValue, @Nullable Object[] remainingValues)
-   {
-      InvocationResults sequence = getResults();
-
-      if (remainingValues == null) {
-         addFirstReturnValue(firstValue);
-         sequence.addReturnValue(null);
-      }
-      else if (remainingValues.length == 0) {
-         addFirstReturnValue(firstValue);
-      }
-      else if (!new SequenceOfReturnValues(this, firstValue, remainingValues).addResultWithSequenceOfValues()) {
-         sequence.addReturnValue(firstValue);
-         sequence.addReturnValues(remainingValues);
-      }
-   }
-
-   private void addFirstReturnValue(@Nullable Object firstValue)
-   {
-      if (firstValue == null) {
-         getResults().addReturnValueResult(null);
-      }
-      else {
-         Class<?> returnType = getReturnType();
-         new ReturnTypeConversion(this, returnType, firstValue).addConvertedValueOrValues();
-      }
-   }
-
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
    void addResult(@Nullable Object value)
    {
@@ -155,10 +127,7 @@ final class Expectation
    }
 
    @Nullable
-   Error verifyConstraints(int minInvocations)
-   {
-      return constraints.verifyLowerLimit(invocation, minInvocations);
-   }
+   Error verifyConstraints(int minInvocations) { return constraints.verifyLowerLimit(invocation, minInvocations); }
 
    @Nullable
    Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable

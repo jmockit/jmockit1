@@ -30,32 +30,6 @@ final class ReturnTypeConversion
       valueToReturn = value;
    }
 
-   void addConvertedValueOrValues()
-   {
-      boolean valueIsArray = valueToReturn.getClass().isArray();
-      boolean valueIsIterable = valueToReturn instanceof Iterable<?>;
-      InvocationResults results = expectation.getResults();
-
-      if (valueIsArray || valueIsIterable || valueToReturn instanceof Iterator<?>) {
-         if (returnType == void.class || hasReturnOfDifferentType()) {
-            if (valueIsArray) {
-               results.addReturnValues(valueToReturn);
-            }
-            else if (valueIsIterable) {
-               //noinspection CastConflictsWithInstanceof
-               results.addReturnValues((Iterable<?>) valueToReturn);
-            }
-            else {
-               results.addDeferredReturnValues((Iterator<?>) valueToReturn);
-            }
-
-            return;
-         }
-      }
-
-      results.addReturnValue(valueToReturn);
-   }
-
    private boolean hasReturnOfDifferentType()
    {
       return
