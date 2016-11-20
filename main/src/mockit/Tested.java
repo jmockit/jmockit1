@@ -44,6 +44,11 @@ import java.lang.annotation.*;
  * (such as {@code @Inject}, {@code Autowired}, etc.) indicate required dependencies by default
  * (the use of "<code>@Autowired(required = false)</code>" is respected, if present).
  * <p/>
+ * Custom names specified in field annotations from Java EE ({@code @Resource(name)}, {@code @Named}) or the Spring
+ * framework ({@code @Qualifier}) are used when looking for a matching {@code @Injectable} or {@code @Tested} value.
+ * When such a name contains a {@code -} (dash) or {@code .} (dot) character, the corresponding camel-cased name is used
+ * instead.
+ * <p/>
  * Whenever constructor or field injection is used, the value of each injectable goes into <em>at most one</em> matching
  * constructor parameter or instance field of a tested class.
  * <p/>
