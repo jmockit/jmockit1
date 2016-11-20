@@ -145,22 +145,6 @@ public final class FullVerificationsInOrderTest
    }
 
    @Test
-   public void verifyTwoInvocationsWithIteratingBlockHavingExpectationRecordedAndSecondInvocationUnverified()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("123");
-
-      new Expectations() {{ mock.setSomething(anyInt); }};
-
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new FullVerificationsInOrder(2) {{
-         mock.setSomething(123);
-      }};
-   }
-
-   @Test
    public void verifyInvocationThatNeverHappens()
    {
       mock.prepare();
@@ -279,65 +263,6 @@ public final class FullVerificationsInOrderTest
 
       new FullVerificationsInOrder() {{
          mock.setSomething(anyInt); minTimes = 3; maxTimes = 6;
-      }};
-   }
-
-   @Test
-   public void verifyAllInvocationsInIteratingBlock()
-   {
-      mock.setSomething(123);
-      mock.save();
-      mock.setSomething(45);
-      mock.save();
-
-      new FullVerificationsInOrder(2) {{
-         mock.setSomething(anyInt);
-         mock.save();
-      }};
-   }
-
-   @Test
-   public void verifySingleInvocationInBlockWithLargerNumberOfIterations()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("any int");
-
-      mock.setSomething(123);
-
-      new FullVerificationsInOrder(3) {{
-         mock.setSomething(anyInt);
-      }};
-   }
-
-   @Test
-   public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("45");
-
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new FullVerificationsInOrder(1) {{
-         mock.setSomething(anyInt);
-      }};
-   }
-
-   @Test
-   public void verifyWithArgumentMatcherAndIndividualInvocationCountsInIteratingBlock()
-   {
-      for (int i = 0; i < 2; i++) {
-         exerciseCodeUnderTest();
-      }
-
-      new FullVerificationsInOrder(2) {{
-         mock.prepare(); maxTimes = 1;
-         mock.setSomething(anyInt); minTimes = 1;
-         mock.setSomethingElse('a');
-         mock.setSomething(anyInt); maxTimes = 1;
-         mock.editABunchMoreStuff(); minTimes = 0; maxTimes = 5;
-         mock.notifyBeforeSave();
-         mock.save(); times = 1;
       }};
    }
 }

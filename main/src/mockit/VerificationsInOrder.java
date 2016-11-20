@@ -23,7 +23,6 @@ import mockit.internal.expectations.*;
  * </pre>
  *
  * @see #VerificationsInOrder()
- * @see #VerificationsInOrder(int)
  * @see #unverifiedInvocations()
  * @see #verifiedInvocations(Verifications)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder">Tutorial</a>
@@ -33,8 +32,6 @@ public abstract class VerificationsInOrder extends Verifications
    /**
     * Begins <em>in-order</em> verification on the mocked types/instances that were invoked while executing code under
     * test.
-    *
-    * @see #VerificationsInOrder(int)
     */
    protected VerificationsInOrder() { super(true); }
 
@@ -46,7 +43,10 @@ public abstract class VerificationsInOrder extends Verifications
     * paste") the whole sequence of verified expectations.
     *
     * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected VerificationsInOrder(int numberOfIterations)
    {
       super(true);

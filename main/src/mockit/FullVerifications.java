@@ -24,9 +24,7 @@ package mockit;
  * constraint when recorded, will cause an assertion error to be thrown.
  *
  * @see #FullVerifications()
- * @see #FullVerifications(int)
  * @see #FullVerifications(Object...)
- * @see #FullVerifications(Integer, Object...)
  * @see #unverifiedInvocations()
  * @see FullVerificationsInOrder
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerification">Tutorial</a>
@@ -37,14 +35,9 @@ public abstract class FullVerifications extends Verifications
     * Begins <em>full</em> verification on the mocked types/instances that can potentially be invoked from code under
     * test.
     *
-    * @see #FullVerifications(int)
     * @see #FullVerifications(Object...)
-    * @see #FullVerifications(Integer, Object...)
     */
-   protected FullVerifications()
-   {
-      verificationPhase.setAllInvocationsMustBeVerified();
-   }
+   protected FullVerifications() { verificationPhase.setAllInvocationsMustBeVerified(); }
 
    /**
     * Same as {@link #FullVerifications()}, but considering that such invocations occurred in a given number of
@@ -60,11 +53,13 @@ public abstract class FullVerifications extends Verifications
     * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
     *
     * @see #FullVerifications(Object...)
-    * @see #FullVerifications(Integer, Object...)
     * @see #times
     * @see #minTimes
     * @see #maxTimes
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected FullVerifications(int numberOfIterations)
    {
       super(numberOfIterations);
@@ -78,9 +73,6 @@ public abstract class FullVerifications extends Verifications
     * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, {@code Class} objects) and/or mocked
     * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
     * including) {@code java.lang.Object} are considered
-    *
-    * @see #FullVerifications(int)
-    * @see #FullVerifications(Integer, Object...)
     */
    protected FullVerifications(Object... mockedTypesAndInstancesToVerify)
    {
@@ -99,7 +91,10 @@ public abstract class FullVerifications extends Verifications
     *
     * @see #FullVerifications()
     * @see #FullVerifications(Object...)
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected FullVerifications(Integer numberOfIterations, Object... mockedTypesAndInstancesToVerify)
    {
       this(numberOfIterations);
@@ -114,8 +109,5 @@ public abstract class FullVerifications extends Verifications
     * {@linkplain #FullVerifications(Object...) constructor call} for this verification block, then only the associated
     * invocations (if any) are removed.
     */
-   protected final void unverifiedInvocations()
-   {
-      verificationPhase.discardReplayedInvocations();
-   }
+   protected final void unverifiedInvocations() { verificationPhase.discardReplayedInvocations(); }
 }

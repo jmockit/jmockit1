@@ -90,29 +90,12 @@ public final class RestrictedFullVerificationsTest
    }
 
    @Test
-   public void verifyAllInvocationsToOneOfTwoMocksInIteratingBlock(@Mocked AnotherDependency mock2)
-   {
-      mock2.doSomething();
-      mock.setSomething(123);
-      mock.save();
-      mock2.doSomethingElse(1);
-      mock.setSomething(45);
-      mock.save();
-      mock2.doSomethingElse(2);
-
-      new FullVerifications(2, mock) {{
-         mock.setSomething(anyInt);
-         mock.save();
-      }};
-   }
-
-   @Test
    public void verifyAllInvocationsToInheritedMethods(@Mocked SubDependency mock2)
    {
       mock.prepare();
       mock2.getValue();
 
-      new FullVerificationsInOrder(1, mock) {{ mock.prepare(); }};
+      new FullVerificationsInOrder(mock) {{ mock.prepare(); }};
       new FullVerificationsInOrder(Dependency.class) {{ mock.prepare(); }};
    }
 
@@ -122,7 +105,7 @@ public final class RestrictedFullVerificationsTest
       mock2.prepare();
       mock2.getValue();
 
-      new FullVerifications(1, mock2) {{ mock2.getValue(); }};
+      new FullVerifications(mock2) {{ mock2.getValue(); }};
    }
 
    @Test
@@ -131,7 +114,7 @@ public final class RestrictedFullVerificationsTest
       mock.prepare();
       mock2.getValue();
 
-      new FullVerifications(1, mock2.getClass()) {{ mock2.getValue(); }};
+      new FullVerifications(mock2.getClass()) {{ mock2.getValue(); }};
    }
 
    @Test(expected = UnexpectedInvocation.class)
@@ -140,7 +123,7 @@ public final class RestrictedFullVerificationsTest
       mock.prepare();
       mock2.getValue();
 
-      new FullVerificationsInOrder(1, mock2.getClass()) {{ mock.prepare(); }};
+      new FullVerificationsInOrder(mock2.getClass()) {{ mock.prepare(); }};
    }
 
    @Test
@@ -245,7 +228,7 @@ public final class RestrictedFullVerificationsTest
       mock2.getValue();
       Dependency.staticMethod("test");
 
-      new FullVerificationsInOrder(1, mock2) {{ mock2.getValue(); }};
+      new FullVerificationsInOrder(mock2) {{ mock2.getValue(); }};
    }
 
    @Test

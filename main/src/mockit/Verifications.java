@@ -44,7 +44,6 @@ import mockit.internal.state.*;
  * {@link FullVerifications} class instead.
  *
  * @see #Verifications()
- * @see #Verifications(int)
  * @see #withCapture()
  * @see Expectations
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#verification">Tutorial</a>
@@ -56,8 +55,6 @@ public abstract class Verifications extends Invocations
    /**
     * Begins a set of unordered expectation verifications, on the available mocked types and/or mocked instances.
     * Such verifications are meant to be executed <em>after</em> the call to code under test has been made.
-    *
-    * @see #Verifications(int)
     */
    protected Verifications() { this(false); }
 
@@ -76,7 +73,10 @@ public abstract class Verifications extends Invocations
     * @see #times
     * @see #minTimes
     * @see #maxTimes
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected Verifications(int numberOfIterations)
    {
       this(false);

@@ -182,75 +182,12 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifySimpleInvocationInIteratingBlock()
-   {
-      mock.setSomething(123);
-      mock.setSomething(123);
-
-      new VerificationsInOrder(2) {{ mock.setSomething(123); }};
-   }
-
-   @Test
-   public void verifyRepeatingInvocationInIteratingBlock()
-   {
-      mock.setSomething(123);
-      mock.setSomething(123);
-      mock.setSomething(123);
-      mock.setSomething(123);
-
-      new VerificationsInOrder(2) {{ mock.setSomething(123); minTimes = 2; }};
-   }
-
-   @Test
    public void verifyRepeatingInvocationUsingMatcher()
    {
       mock.setSomething(123);
       mock.setSomething(45);
 
       new VerificationsInOrder() {{ mock.setSomething(anyInt); times = 2; }};
-   }
-
-   @Test
-   public void verifySimpleInvocationInIteratingBlockUsingMatcher()
-   {
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new VerificationsInOrder(2) {{ mock.setSomething(anyInt); }};
-   }
-
-   @Test
-   public void verifySimpleInvocationsInIteratingBlock()
-   {
-      mock.setSomething(123);
-      mock.save();
-      mock.setSomething(45);
-      mock.save();
-
-      new VerificationsInOrder(2) {{
-         mock.setSomething(anyInt);
-         mock.save();
-      }};
-   }
-
-   @Test
-   public void verifySingleInvocationInBlockWithLargerNumberOfIterations()
-   {
-      thrown.expect(MissingInvocation.class);
-
-      mock.setSomething(123);
-
-      new VerificationsInOrder(3) {{ mock.setSomething(123); }};
-   }
-
-   @Test
-   public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
-   {
-      mock.setSomething(-67);
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new VerificationsInOrder(2) {{ mock.setSomething(anyInt); }};
    }
 
    @Test
@@ -265,37 +202,6 @@ public final class VerificationsInOrderTest
       new VerificationsInOrder() {{
          mock.prepare();
          mock.setSomething(anyInt); maxTimes = 0;
-      }};
-   }
-
-   @Test
-   public void verifyRepeatingInvocationsInIteratingBlockWithMaxTimes()
-   {
-      for (int i = 1; i <= 5; i++) {
-         mock.setSomething(i);
-         if (i % 2 == 0) mock.setSomething(-i);
-         mock.setSomethingElse(String.valueOf(i));
-      }
-
-      new VerificationsInOrder(2) {{
-         mock.setSomething(anyInt); maxTimes = 2;
-         mock.setSomethingElse(anyString); maxTimes = 1;
-      }};
-   }
-
-   @Test
-   public void verifyMultipleInvocationsInIteratingBlockContainingDuplicateVerificationThatCannotBeSatisfied()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("any int");
-
-      mock.setSomething(-67);
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new VerificationsInOrder(2) {{
-         mock.setSomething(anyInt);
-         mock.setSomething(anyInt);
       }};
    }
 

@@ -163,45 +163,6 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifySimpleInvocationsInIteratingBlock()
-   {
-      mock.setSomething(123);
-      mock.save();
-      mock.setSomething(45);
-      mock.save();
-
-      new Verifications(2) {{
-         mock.setSomething(anyInt);
-         mock.save();
-      }};
-   }
-
-   @Test
-   public void verifySingleInvocationInBlockWithLargerNumberOfIterations()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("Missing 2 invocations");
-      thrown.expectMessage("any int");
-
-      mock.setSomething(123);
-
-      new Verifications(3) {{ mock.setSomething(anyInt); }};
-   }
-
-   @Test
-   public void verifyMultipleInvocationsInBlockWithSmallerNumberOfIterations()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("-1015");
-
-      mock.setSomething(45);
-      mock.setSomething(123);
-      mock.setSomething(-1015);
-
-      new Verifications(2) {{ mock.setSomething(anyInt); }};
-   }
-
-   @Test
    public void verifyWithArgumentMatcher()
    {
       exerciseCodeUnderTest();
@@ -214,7 +175,7 @@ public final class VerificationsTest
    {
       exerciseCodeUnderTest();
 
-      new Verifications(1) {{
+      new Verifications() {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
          mock.editABunchMoreStuff(); maxTimes = 5;
@@ -266,21 +227,6 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyWithArgumentMatcherAndIndividualInvocationCountsInIteratingBlock()
-   {
-      for (int i = 0; i < 2; i++) {
-         exerciseCodeUnderTest();
-      }
-
-      new Verifications(2) {{
-         mock.prepare(); maxTimes = 1;
-         mock.setSomething(anyInt); minTimes = 2;
-         mock.editABunchMoreStuff(); maxTimes = 5;
-         mock.save(); times = 1;
-      }};
-   }
-
-   @Test
    public void verifyInvocationThatMatchesExpectationRecordedWithAnyMatcherButWithArgumentValueWhichDidNotOccur()
    {
       thrown.expect(MissingInvocation.class);
@@ -291,20 +237,6 @@ public final class VerificationsTest
       mock.setSomething(123);
 
       new Verifications() {{ mock.setSomething(45); }};
-   }
-
-   @Test
-   public void verifyTwoInvocationsWithIteratingBlockHavingExpectationRecordedAndSecondInvocationUnverified()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("123");
-
-      new Expectations() {{ mock.setSomething(anyInt); }};
-
-      mock.setSomething(123);
-      mock.setSomething(45);
-
-      new Verifications(2) {{ mock.setSomething(123); }};
    }
 
    @Test

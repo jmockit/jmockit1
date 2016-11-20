@@ -74,69 +74,7 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingNotStrictExpectationsOnly(@Mocked final A a, @Mocked final B b, @Mocked final C c)
-   {
-      new Expectations() {{
-         // Meets requirements 1b and 5b.
-         new A(); times = 1;
-         new B(); times = 1;
-         new C(); times = 1;
-         a.result(); result = 42; times = 1;
-      }};
-
-      assertEquals(42, testedMethod());
-
-      new VerificationsInOrder() {{
-         // Meets requirements 1a, 2, 3a, and 5a.
-         unverifiedInvocations(); // accounts for the instantiations of A, B, and C
-         a.process(input); times = 1;
-         unverifiedInvocations(); // accounts for the calls to "foo" and "bar"
-         a.result();
-      }};
-
-      new FullVerifications(a) {{
-         // Meets requirement 6a.
-         a.process(input);
-      }};
-
-      new FullVerifications(input.length, b, c) {{
-         // Meets requirements 3b, 4, 6b and 6c.
-         b.foo();
-         c.bar();
-      }};
-   }
-
-   @Test
-   public void usingNotStrictExpectationsOnlyWithoutDuplicateInvocations(
-      @Mocked final A a, @Mocked final B b, @Mocked final C c)
-   {
-      new Expectations() {{
-         // Meets requirements 1b and 5b.
-         new A(); times = 1;
-         new B(); times = 1;
-         new C(); times = 1;
-         a.result(); result = 42; times = 1;
-      }};
-
-      assertEquals(42, testedMethod());
-
-      new VerificationsInOrder() {{
-         // Meets requirements 1a, 2, 3a, and 5a.
-         unverifiedInvocations(); // accounts for the instantiations of A, B, and C
-         a.process(input); times = 1;
-         unverifiedInvocations(); // accounts for the calls to "foo" and "bar"
-         a.result(); // this duplication is inevitable without resorting to strict expectations, so it's ok
-      }};
-
-      new FullVerifications(input.length) {{
-         // Meets requirements 3b, 4, and 6.
-         b.foo();
-         c.bar();
-      }};
-   }
-
-   @Test
-   public void testFewerRequirementsUsingNotStrictExpectationsOnly(
+   public void fewerRequirementsUsingNotStrictExpectationsOnly(
       @Mocked final A a, @Mocked final B b, @Mocked final C c)
    {
       // Requirements to meet: only 1b, 3b, 4, 6b and 6c.

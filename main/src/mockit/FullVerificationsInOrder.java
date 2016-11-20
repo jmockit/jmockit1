@@ -20,9 +20,7 @@ package mockit;
  * </pre>
  *
  * @see #FullVerificationsInOrder()
- * @see #FullVerificationsInOrder(int)
  * @see #FullVerificationsInOrder(Object...)
- * @see #FullVerificationsInOrder(Integer, Object...)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerificationInOrder">Tutorial</a>
  */
 public abstract class FullVerificationsInOrder extends Verifications
@@ -31,9 +29,7 @@ public abstract class FullVerificationsInOrder extends Verifications
     * Begins <em>in-order</em> verification for <em>all</em> invocations on the mocked types/instances that can
     * potentially be invoked from code under test.
     *
-    * @see #FullVerificationsInOrder(int)
     * @see #FullVerificationsInOrder(Object...)
-    * @see #FullVerificationsInOrder(Integer, Object...)
     */
    protected FullVerificationsInOrder()
    {
@@ -51,8 +47,10 @@ public abstract class FullVerificationsInOrder extends Verifications
     * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
     *
     * @see #FullVerificationsInOrder(Object...)
-    * @see #FullVerificationsInOrder(Integer, Object...)
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected FullVerificationsInOrder(int numberOfIterations)
    {
       super(true);
@@ -69,8 +67,6 @@ public abstract class FullVerificationsInOrder extends Verifications
     * including) {@code java.lang.Object} are considered
     *
     * @see #FullVerificationsInOrder()
-    * @see #FullVerificationsInOrder(int)
-    * @see #FullVerificationsInOrder(Integer, Object...)
     */
    protected FullVerificationsInOrder(Object... mockedTypesAndInstancesToVerify)
    {
@@ -87,9 +83,11 @@ public abstract class FullVerificationsInOrder extends Verifications
     * including) {@code java.lang.Object} are considered
     *
     * @see #FullVerificationsInOrder()
-    * @see #FullVerificationsInOrder(int)
     * @see #FullVerificationsInOrder(Object...)
+    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
+    * iterated expectations, or eliminated altogether.
     */
+   @Deprecated
    protected FullVerificationsInOrder(Integer numberOfIterations, Object... mockedTypesAndInstancesToVerify)
    {
       this(numberOfIterations);
