@@ -189,7 +189,7 @@ final class ExpectationsModifier extends BaseClassModifier
    {
       return
          isNative(access) && (NATIVE_UNSUPPORTED || (access & PUBLIC_OR_PROTECTED) == 0) ||
-         isProxy && (
+         (isProxy || executionMode == ExecutionMode.Partial) && (
             isMethodFromObject(name, desc) || "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
          );
    }

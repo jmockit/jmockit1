@@ -12,7 +12,8 @@ import static org.junit.Assert.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings({
-   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "FinalizeCalledExplicitly", "SimplifiableJUnitAssertion"})
+   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "FinalizeCalledExplicitly", "SimplifiableJUnitAssertion",
+   "LiteralAsArgToStringEquals", "EqualsWithItself"})
 public final class ObjectOverridesTest
 {
    @Test
@@ -37,15 +38,8 @@ public final class ObjectOverridesTest
       assertFalse(obj1.equals(obj2));
    }
 
-   void assertDefaultHashCodeBehavior(Object obj)
-   {
-      assertEquals(System.identityHashCode(obj), obj.hashCode());
-   }
-
-   void assertDefaultToStringBehavior(Object obj)
-   {
-      assertEquals(ObjectMethods.objectIdentity(obj), obj.toString());
-   }
+   void assertDefaultHashCodeBehavior(Object obj) { assertEquals(System.identityHashCode(obj), obj.hashCode()); }
+   void assertDefaultToStringBehavior(Object obj) { assertEquals(ObjectMethods.objectIdentity(obj), obj.toString()); }
 
    @Test
    public void verifyStandardBehaviorOfOverriddenObjectMethodsInMockedJREClass(@Mocked Date d1, @Mocked Date d2)
@@ -188,6 +182,7 @@ public final class ObjectOverridesTest
       a.doSomething();
    }
 
+   @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
    static class ClassWithEqualsOverride
    {
       private final int value;
@@ -215,5 +210,15 @@ public final class ObjectOverridesTest
       new StrictExpectations(Date.class) {{ a.doSomething(o1); }};
 
       a.doSomething(o2);
+   }
+
+   @Test
+   public void callEqualsOnInstanceOfPartiallyMockedClassDuringVerification()
+   {
+      final ClassWithEqualsOverride instance1 = new ClassWithEqualsOverride(1);
+      final ClassWithEqualsOverride instance2 = new ClassWithEqualsOverride(2);
+      new Expectations(ClassWithEqualsOverride.class) {};
+
+      new Verifications() {{ assertNotEquals(instance1, instance2); }};
    }
 }
