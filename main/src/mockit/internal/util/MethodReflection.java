@@ -186,10 +186,6 @@ public final class MethodReflection
       return result;
    }
 
-   static void validateNotCalledFromInvocationBlock()
-   {
-   }
-
    @Nonnull
    private static Method findCompatibleStaticMethod(
       @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)

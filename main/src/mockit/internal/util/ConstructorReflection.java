@@ -9,8 +9,8 @@ import javax.annotation.*;
 
 import static java.lang.reflect.Modifier.isStatic;
 
-import static mockit.internal.util.MethodReflection.validateNotCalledFromInvocationBlock;
 import static mockit.internal.util.ParameterReflection.*;
+import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
 
 public final class ConstructorReflection
 {
@@ -30,8 +30,6 @@ public final class ConstructorReflection
       if (initArgs == null) {
          throw invalidArguments();
       }
-
-      validateNotCalledFromInvocationBlock();
 
       Constructor<T> constructor = findSpecifiedConstructor(aClass, parameterTypes);
       return invoke(constructor, initArgs);
@@ -62,7 +60,7 @@ public final class ConstructorReflection
    @Nonnull
    public static <T> T invoke(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs)
    {
-      Utilities.ensureThatMemberIsAccessible(constructor);
+      ensureThatMemberIsAccessible(constructor);
 
       try {
          return constructor.newInstance(initArgs);
@@ -93,8 +91,6 @@ public final class ConstructorReflection
    public static <T> T newInstance(
       @Nonnull String className, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
    {
-      validateNotCalledFromInvocationBlock();
-
       Class<T> theClass = ClassLoad.loadClass(className);
       return newInstance(theClass, parameterTypes, initArgs);
    }
@@ -105,8 +101,6 @@ public final class ConstructorReflection
       if (nonNullArgs == null) {
          throw invalidArguments();
       }
-
-      validateNotCalledFromInvocationBlock();
 
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
       Class<T> theClass = ClassLoad.loadClass(className);
@@ -159,17 +153,9 @@ public final class ConstructorReflection
          throw invalidArguments();
       }
 
-      validateNotCalledFromInvocationBlock();
-
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
       Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
       return invoke(constructor, nonNullArgs);
-   }
-
-   @Nonnull
-   public static <T> T newInstance(@Nonnull Class<T> aClass)
-   {
-      return newInstance(aClass, (Object[]) NO_PARAMETERS);
    }
 
    @Nonnull
@@ -183,7 +169,7 @@ public final class ConstructorReflection
          throw new RuntimeException(ie);
       }
       catch (IllegalAccessException ignore) {
-         return newInstance(aClass);
+         return newInstance(aClass, (Object[]) NO_PARAMETERS);
       }
    }
 

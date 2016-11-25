@@ -177,6 +177,8 @@ public final class Deencapsulation
     *
     * @return the return value from the invoked method
     *
+    * @throws IllegalArgumentException if the desired method is not found
+    *
     * @see #invoke(Class, String, Object...)
     */
    public static <T> T invoke(
@@ -197,7 +199,8 @@ public final class Deencapsulation
     *
     * @return the return value from the invoked method
     *
-    * @throws IllegalArgumentException if a null reference was provided for a parameter
+    * @throws IllegalArgumentException if the desired method is not found, or a null reference was provided for a
+    * parameter
     *
     * @see #invoke(Class, String, Object...)
     */
@@ -237,7 +240,8 @@ public final class Deencapsulation
     *
     * @return the return value from the invoked method
     *
-    * @throws IllegalArgumentException if a null reference was provided for a parameter
+    * @throws IllegalArgumentException if the desired method is not found, or a null reference was provided for a
+    * parameter
     *
     * @see #invoke(String, String, Object...)
     */
@@ -258,7 +262,8 @@ public final class Deencapsulation
     *
     * @return the return value from the invoked method
     *
-    * @throws IllegalArgumentException if a null reference was provided for a parameter
+    * @throws IllegalArgumentException if the desired method is not found, or a null reference was provided for a
+    * parameter
     *
     * @see #invoke(Class, String, Object...)
     */
@@ -421,7 +426,8 @@ public final class Deencapsulation
          T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
          return instance;
       }
-      else if (isAbstract(classToInstantiate.getModifiers())) {
+
+      if (isAbstract(classToInstantiate.getModifiers())) {
          classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
       }
 

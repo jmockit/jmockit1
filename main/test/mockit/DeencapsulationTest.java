@@ -282,6 +282,15 @@ public final class DeencapsulationTest
    }
 
    @Test
+   public void attemptToSetFieldByTypeWithoutAValue()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Missing field value");
+
+      setField(Subclass.class, null);
+   }
+
+   @Test
    public void attemptToSetStaticFieldByTypeWithWrongType()
    {
       thrown.expect(IllegalArgumentException.class);
@@ -359,7 +368,37 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeInstanceMethodWithInvalidNullArgument()
+   public void attemptToInvokeNonExistentInstanceMethod()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("No compatible method found");
+      thrown.expectMessage("notAMethod()");
+
+      invoke(anInstance, "notAMethod");
+   }
+
+   @Test
+   public void attemptToInvokeNonExistentStaticMethod()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("No compatible static method found");
+      thrown.expectMessage("notAMethod()");
+
+      invoke(Subclass.class, "notAMethod");
+   }
+
+   @Test
+   public void attemptToInvokeNonExistentMethodByNameAndParameterTypes()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Specified method not found");
+      thrown.expectMessage("notAMethod(int)");
+
+      invoke(anInstance, "notAMethod", new Class<?>[] {int.class}, 123);
+   }
+
+   @Test
+   public void attemptToInvokeInstanceMethodWithInvalidNullArgument()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null ");
@@ -369,7 +408,17 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeInstanceMethodWithNullVarargs()
+   public void attemptToInvokeMethodWithNameAndParameterTypesButInvalidNullArgument()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid null ");
+
+      Class<?>[] parameterTypes = {short.class, String.class, Boolean.class};
+      invoke(anInstance, "instanceMethod", parameterTypes, (Object[]) null);
+   }
+
+   @Test
+   public void attemptToInvokeInstanceMethodWithNullVarargs()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value passed as argument");
@@ -430,7 +479,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeMethodByClassNameOnUnavailableClass()
+   public void attemptToInvokeMethodByClassNameOnUnavailableClass()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No class with name \"abc.xyz.NoClass\" found");
@@ -448,7 +497,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeStaticMethodWithInvalidNullArgument()
+   public void attemptToInvokeStaticMethodWithInvalidNullArgument()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value ");
@@ -458,7 +507,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeMethodWithNonMatchingArrayArguments()
+   public void attemptToInvokeMethodWithNonMatchingArrayArguments()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No compatible method found");
@@ -470,7 +519,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeInstanceMethodAsAnStaticMethod()
+   public void attemptToInvokeInstanceMethodAsAnStaticMethod()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Attempted to invoke non-static method without an instance");
@@ -479,7 +528,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeInstanceMethodAsAnStaticMethodUsingClassName()
+   public void attemptToInvokeInstanceMethodAsAnStaticMethodUsingClassName()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Attempted to invoke non-static method without an instance");
@@ -507,7 +556,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeConstructorWithNullVarargs()
+   public void attemptToInvokeConstructorWithNullVarargs()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value passed as argument");
@@ -535,6 +584,24 @@ public final class DeencapsulationTest
    }
 
    @Test
+   public void attemptNewInstanceWithInvalidNullArgument()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid null value");
+
+      newInstance(Subclass.class, (Object[]) null);
+   }
+
+   @Test
+   public void attemptNewInstanceWithParameterTypesButInvalidNullArgument()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid null value");
+
+      newInstance(Subclass.class, new Class<?>[] {int.class, String.class}, (Object[]) null);
+   }
+
+   @Test
    public void attemptNewInstanceWithNoMatchingConstructor()
    {
       thrown.expect(IllegalArgumentException.class);
@@ -554,7 +621,17 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void newInstanceByNameUsingMultipleArgsConstructorWithInvalidNullArgument()
+   public void attemptNewInstanceForNonExistentConstructorByClassNameAndArgumentValues()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("No compatible constructor found");
+      thrown.expectMessage("Subclass(Integer)");
+
+      newInstance(Subclass.class.getName(), 123);
+   }
+
+   @Test
+   public void attemptNewInstanceByNameUsingMultipleArgsConstructorWithInvalidNullArgument()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value");
@@ -609,7 +686,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void newInnerInstanceWithWrongInnerClassName()
+   public void attemptToInstantiateInnerInstanceWithWrongInnerClassName()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No class with name ");
@@ -619,7 +696,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void invokeConstructorForInnerClassWithNullVarargs()
+   public void attemptToInvokeConstructorForInnerClassWithNullVarargs()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value passed as argument");
@@ -637,7 +714,7 @@ public final class DeencapsulationTest
    }
 
    @Test
-   public void newInnerInstanceByNameUsingMultipleArgsConstructorWithInvalidNullArguments()
+   public void attemptToInstantiateInnerInstanceByNameUsingMultipleArgsConstructorWithInvalidNullArguments()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid null value");
@@ -733,23 +810,5 @@ public final class DeencapsulationTest
 
       assertNotNull(callable);
       assertNull(callable.call());
-   }
-
-   @Test
-   public void attemptToGetFieldOnMockedInstance(@Mocked BaseClass mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("mocked instance");
-
-      long l = getField(mock, "longField");
-   }
-
-   @Test
-   public void attemptToSetFieldOnMockedInstance(@Injectable BaseClass mock)
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("mocked instance");
-
-      setField(mock, "longField", 123L);
    }
 }
