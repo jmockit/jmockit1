@@ -51,9 +51,4 @@ public final class MockingMultipleInterfacesTest<MultiMock extends Dependency & 
 
       new Verifications() {{ mock.doSomething(); times = 1; }};
    }
-
-   @Test(expected = IllegalArgumentException.class)
-   public <M extends Base & Dependency> void attemptToHaveCapturingMockImplementingTwoInterfaces(@Capturing M mock)
-   {
-   }
 }

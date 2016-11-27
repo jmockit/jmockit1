@@ -11,15 +11,15 @@ import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
-import mockit.internal.util.*;
+import static mockit.internal.util.Utilities.getClassType;
 
 public final class CaptureOfMockedUpImplementations extends CaptureOfImplementations<Void>
 {
    private final MockClassSetup mockClassSetup;
 
-   public CaptureOfMockedUpImplementations(MockUp<?> mockUp, Type baseType)
+   public CaptureOfMockedUpImplementations(@Nonnull MockUp<?> mockUp, @Nonnull Type baseType)
    {
-      Class<?> baseClassType = Utilities.getClassType(baseType);
+      Class<?> baseClassType = getClassType(baseType);
       mockClassSetup = new MockClassSetup(baseClassType, baseType, mockUp, null);
    }
 
