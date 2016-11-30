@@ -16,10 +16,7 @@ final class JMockitInitialization
 {
    @Nonnull private final StartupConfiguration config;
 
-   JMockitInitialization()
-   {
-      config = new StartupConfiguration();
-   }
+   JMockitInitialization() { config = new StartupConfiguration(); }
 
    void initialize(@Nonnull Instrumentation inst)
    {
@@ -33,16 +30,12 @@ final class JMockitInitialization
       applyUserSpecifiedStartupMocksIfAny();
    }
 
-   private static void preventEventualClassLoadingConflicts()
-   {
-      DefaultValues.computeForReturnType("()J");
-   }
+   private static void preventEventualClassLoadingConflicts() { DefaultValues.computeForReturnType("()J"); }
 
    private void applyInternalStartupMocksAsNeeded()
    {
       if (MockFrameworkMethod.hasDependenciesInClasspath()) {
          new RunNotifierDecorator();
-         new BlockJUnit4ClassRunnerDecorator();
          new MockFrameworkMethod();
       }
    }
