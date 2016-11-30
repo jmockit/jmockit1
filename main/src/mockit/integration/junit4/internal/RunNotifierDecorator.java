@@ -4,6 +4,8 @@
  */
 package mockit.integration.junit4.internal;
 
+import javax.annotation.*;
+
 import org.junit.runner.*;
 import org.junit.runner.notification.*;
 
@@ -22,7 +24,7 @@ import mockit.internal.state.TestRun;
 public final class RunNotifierDecorator extends MockUp<RunNotifier>
 {
    @Mock
-   public static void fireTestRunStarted(Invocation invocation, Description description) throws Exception
+   public static void fireTestRunStarted(Invocation invocation, Description description)
    {
       RunNotifier it = invocation.getInvokedInstance();
 
@@ -30,8 +32,32 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
          it.addListener(new JUnitListener());
       }
 
-      ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+      prepareToProceed(invocation);
       it.fireTestRunStarted(description);
+   }
+
+   private static void prepareToProceed(@Nonnull Invocation invocation)
+   {
+      ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+   }
+
+   @Mock
+   public void fireTestStarted(Invocation invocation, Description description)
+   {
+      Class<?> currentTestClass = TestRun.getCurrentTestClass();
+
+      if (currentTestClass != null) {
+         Class<?> newTestClass = description.getTestClass();
+
+         if (!currentTestClass.isAssignableFrom(newTestClass)) {
+            TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
+         }
+      }
+
+      prepareToProceed(invocation);
+
+      RunNotifier it = invocation.getInvokedInstance();
+      it.fireTestStarted(description);
    }
 
    @Mock
@@ -42,8 +68,9 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       try {
          TestRunnerDecorator.cleanUpAllMocks();
 
+         prepareToProceed(invocation);
+
          RunNotifier it = invocation.getInvokedInstance();
-         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          it.fireTestRunFinished(result);
       }
       finally {
