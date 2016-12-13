@@ -50,6 +50,7 @@ public final class JMockitTestEngine implements TestEngine
    public void execute(ExecutionRequest executionRequest)
    {
       EngineExecutionListener executionListener = executionRequest.getEngineExecutionListener();
-      executionListener.executionSkipped(descriptor, null);
+      executionListener.executionStarted(descriptor);
+      executionListener.executionFinished(descriptor, TestExecutionResult.successful());
    }
 }
