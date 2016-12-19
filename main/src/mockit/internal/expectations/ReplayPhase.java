@@ -241,28 +241,11 @@ final class ReplayPhase extends Phase
 
       currentStrictExpectationIndex++;
 
-      strictExpectation =
-         currentStrictExpectationIndex < strictExpectations.size() ?
-            strictExpectations.get(currentStrictExpectationIndex) : null;
+      boolean hasNextExpectation = currentStrictExpectationIndex < strictExpectations.size();
+      strictExpectation = hasNextExpectation ? strictExpectations.get(currentStrictExpectationIndex) : null;
 
-      if (expectationBlock.numberOfIterations <= 1) {
-         if (strictExpectation != null && strictExpectation.recordPhase != expectationBlock) {
-            initialStrictExpectationIndexForCurrentBlock = currentStrictExpectationIndex;
-         }
-      }
-      else if (strictExpectation == null || strictExpectation.recordPhase != expectationBlock) {
-         expectationBlock.numberOfIterations--;
-         positionOnFirstStrictExpectation();
-         resetInvocationCountsForStrictExpectations(expectationBlock);
-      }
-   }
-
-   private void resetInvocationCountsForStrictExpectations(@Nonnull RecordPhase expectationBlock)
-   {
-      for (Expectation expectation : getStrictExpectations()) {
-         if (expectation.recordPhase == expectationBlock) {
-            expectation.constraints.invocationCount = 0;
-         }
+      if (strictExpectation != null && strictExpectation.recordPhase != expectationBlock) {
+         initialStrictExpectationIndexForCurrentBlock = currentStrictExpectationIndex;
       }
    }
 

@@ -141,7 +141,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
             verifying.constraints.invocationCount++;
 
             if (invocationCount > maxInvocations) {
-               if (maxInvocations >= 0 && numberOfIterations <= 1) {
+               if (maxInvocations >= 0) {
                   throw replayExpectation.invocation.errorForUnexpectedInvocation();
                }
 
@@ -188,9 +188,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    private void verifyMaxInvocations(int maxInvocations)
    {
       if (maxInvocations >= 0) {
-         int multiplier = numberOfIterations <= 1 ? 1 : numberOfIterations;
          Expectation verifying = expectationBeingVerified();
-         int n = verifying.constraints.invocationCount - maxInvocations * multiplier;
+         int n = verifying.constraints.invocationCount - maxInvocations;
 
          if (n > 0) {
             Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex - 1);
@@ -218,53 +217,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
          return unverifiedInvocationPrecedingVerifiedOnesLeftBehind.errorForUnexpectedInvocation();
       }
 
-      Error error = verifyRemainingIterations();
-
-      if (error != null) {
-         return error;
-      }
-
       return super.endVerification();
-   }
-
-   @Nullable
-   private Error verifyRemainingIterations()
-   {
-      int expectationsVerifiedInFirstIteration = recordAndReplay.executionState.verifiedExpectations.size();
-
-      for (int i = 1; i < numberOfIterations; i++) {
-         Error error = verifyNextIterationOfWholeBlockOfInvocations(expectationsVerifiedInFirstIteration);
-
-         if (error != null) {
-            return error;
-         }
-      }
-
-      return null;
-   }
-
-   @Nullable
-   private Error verifyNextIterationOfWholeBlockOfInvocations(int expectationsVerifiedInFirstIteration)
-   {
-      List<VerifiedExpectation> expectationsVerified = recordAndReplay.executionState.verifiedExpectations;
-
-      for (int i = 0; i < expectationsVerifiedInFirstIteration; i++) {
-         VerifiedExpectation verifiedExpectation = expectationsVerified.get(i);
-         ExpectedInvocation invocation = verifiedExpectation.expectation.invocation;
-
-         argMatchers = verifiedExpectation.argMatchers;
-         handleInvocation(
-            invocation.instance, 0, invocation.getClassDesc(), invocation.getMethodNameAndDescription(), null, false,
-            verifiedExpectation.arguments);
-
-         Error testFailure = recordAndReplay.getErrorThrown();
-
-         if (testFailure != null) {
-            return testFailure;
-         }
-      }
-
-      return null;
    }
 
    @Override

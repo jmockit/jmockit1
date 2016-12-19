@@ -36,24 +36,6 @@ public abstract class VerificationsInOrder extends Verifications
    protected VerificationsInOrder() { super(true); }
 
    /**
-    * Same as {@link #VerificationsInOrder()}, but considering that such invocations occurred in a given number of
-    * iterations.
-    * <p/>
-    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to duplicating (like in "copy &
-    * paste") the whole sequence of verified expectations.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected VerificationsInOrder(int numberOfIterations)
-   {
-      super(true);
-      verificationPhase.setNumberOfIterations(numberOfIterations);
-   }
-
-   /**
     * Accounts for a sequence of invocations executed by code under test that are not explicitly verified in any
     * verification block.
     * Such a "sequence" of invocations can include only a single invocation, or even be empty.

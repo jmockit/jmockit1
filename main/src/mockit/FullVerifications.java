@@ -40,33 +40,6 @@ public abstract class FullVerifications extends Verifications
    protected FullVerifications() { verificationPhase.setAllInvocationsMustBeVerified(); }
 
    /**
-    * Same as {@link #FullVerifications()}, but considering that such invocations occurred in a given number of
-    * iterations.
-    * <p/>
-    * The effect of specifying a (positive) number of iterations is equivalent to setting to that number the lower and
-    * upper invocation count limits for each verified expectation.
-    * If, however, the lower/upper limit is explicitly specified for an expectation, the given number of iterations
-    * becomes a multiplier.
-    * When not specified, at least one matching invocation will be required to have occurred; therefore, specifying
-    * <em>1 (one)</em> iteration is different from not specifying the number of iterations at all.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    *
-    * @see #FullVerifications(Object...)
-    * @see #times
-    * @see #minTimes
-    * @see #maxTimes
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected FullVerifications(int numberOfIterations)
-   {
-      super(numberOfIterations);
-      verificationPhase.setAllInvocationsMustBeVerified();
-   }
-
-   /**
     * Same as {@link #FullVerifications()}, but restricting the verification to the specified mocked types and/or
     * mocked instances.
     *
@@ -77,27 +50,6 @@ public abstract class FullVerifications extends Verifications
    protected FullVerifications(Object... mockedTypesAndInstancesToVerify)
    {
       this();
-      verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
-   }
-
-   /**
-    * Same as {@link #FullVerifications(int)}, but restricting the verification to the specified mocked types and/or
-    * mocked instances.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, {@code Class} objects) and/or mocked
-    * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
-    * including) {@code java.lang.Object} are considered
-    *
-    * @see #FullVerifications()
-    * @see #FullVerifications(Object...)
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected FullVerifications(Integer numberOfIterations, Object... mockedTypesAndInstancesToVerify)
-   {
-      this(numberOfIterations);
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }
 

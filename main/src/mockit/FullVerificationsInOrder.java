@@ -38,27 +38,6 @@ public abstract class FullVerificationsInOrder extends Verifications
    }
 
    /**
-    * Same as {@link #FullVerificationsInOrder()}, but considering that such invocations occurred in a given number of
-    * iterations.
-    * <p/>
-    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to duplicating (like in "copy &
-    * paste") the whole sequence of verified expectations.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    *
-    * @see #FullVerificationsInOrder(Object...)
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected FullVerificationsInOrder(int numberOfIterations)
-   {
-      super(true);
-      verificationPhase.setAllInvocationsMustBeVerified();
-      verificationPhase.setNumberOfIterations(numberOfIterations);
-   }
-
-   /**
     * Same as {@link #FullVerificationsInOrder()}, but restricting the verification to the specified mocked types and/or
     * mocked instances.
     *
@@ -71,26 +50,6 @@ public abstract class FullVerificationsInOrder extends Verifications
    protected FullVerificationsInOrder(Object... mockedTypesAndInstancesToVerify)
    {
       this();
-      verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
-   }
-
-   /**
-    * Same as {@link #FullVerificationsInOrder(int)}, but restricting the verification to the specified mocked types
-    * and/or mocked instances.
-    *
-    * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, {@code Class} objects) and/or mocked
-    * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
-    * including) {@code java.lang.Object} are considered
-    *
-    * @see #FullVerificationsInOrder()
-    * @see #FullVerificationsInOrder(Object...)
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected FullVerificationsInOrder(Integer numberOfIterations, Object... mockedTypesAndInstancesToVerify)
-   {
-      this(numberOfIterations);
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }
 }

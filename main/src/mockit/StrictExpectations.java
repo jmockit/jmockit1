@@ -4,8 +4,6 @@
  */
 package mockit;
 
-import mockit.internal.expectations.*;
-
 /**
  * Used to record <em>strict</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
@@ -54,38 +52,10 @@ public abstract class StrictExpectations extends Expectations
     * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
     * interface, or if given a value/instance of such a type
     *
-    * @see #StrictExpectations(Integer, Object...)
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial">Tutorial</a>
     */
    protected StrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {
       super(classesOrObjectsToBePartiallyMocked);
-   }
-
-   /**
-    * Same as {@link #StrictExpectations(Object...)}, but considering that the invocations inside the block will occur
-    * in a given number of iterations.
-    * <p/>
-    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to duplicating the whole
-    * sequence of invocations in the expectation block.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole sequence of invocations recorded inside
-    * the block; when not specified, 1 (one) iteration is assumed
-    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
-    *
-    * @see #StrictExpectations()
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected StrictExpectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
-   {
-      super(classesOrObjectsToBePartiallyMocked);
-
-      RecordPhase currentPhase = getCurrentPhase();
-
-      if (currentPhase != null) {
-         currentPhase.setNumberOfIterations(numberOfIterations);
-      }
    }
 }

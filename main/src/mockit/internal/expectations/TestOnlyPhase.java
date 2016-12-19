@@ -12,14 +12,11 @@ import static mockit.internal.util.Utilities.*;
 
 public abstract class TestOnlyPhase extends Phase
 {
-   protected int numberOfIterations;
    protected boolean matchInstance;
    @Nullable protected List<ArgumentMatcher<?>> argMatchers;
    @Nullable Expectation currentExpectation;
 
    TestOnlyPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
-
-   public final void setNumberOfIterations(int numberOfIterations) { this.numberOfIterations = numberOfIterations; }
 
    public final void addArgMatcher(@Nonnull ArgumentMatcher<?> matcher) { getArgumentMatchers().add(matcher); }
 
@@ -74,13 +71,7 @@ public abstract class TestOnlyPhase extends Phase
    {
       if (currentExpectation != null) {
          int currentMinimum = currentExpectation.constraints.minInvocations;
-
-         if (numberOfIterations > 0) {
-            currentMinimum /= numberOfIterations;
-         }
-
          int minInvocations = maxInvocations < 0 ? currentMinimum : Math.min(currentMinimum, maxInvocations);
-
          handleInvocationCountConstraint(minInvocations, maxInvocations);
       }
    }

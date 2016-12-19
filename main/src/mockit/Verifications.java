@@ -58,31 +58,6 @@ public abstract class Verifications extends Invocations
     */
    protected Verifications() { this(false); }
 
-   /**
-    * Same as {@link #Verifications()}, but considering that such invocations occurred in a given number of iterations.
-    * <p/>
-    * The effect of specifying a (positive) number of iterations is equivalent to setting to that number the lower and
-    * upper invocation count limits for each expectation verified.
-    * If, however, the lower/upper limit is explicitly specified for an expectation, the given number of iterations
-    * becomes a multiplier.
-    * When not specified, at least one matching invocation will be required to have occurred; therefore, specifying
-    * <em>1 (one)</em> iteration is different from not specifying the number of iterations at all.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of verified expectations
-    *
-    * @see #times
-    * @see #minTimes
-    * @see #maxTimes
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected Verifications(int numberOfIterations)
-   {
-      this(false);
-      verificationPhase.setNumberOfIterations(numberOfIterations);
-   }
-
    Verifications(boolean inOrder)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForVerifications();

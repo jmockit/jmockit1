@@ -177,35 +177,6 @@ public abstract class Expectations extends Invocations
       execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
    }
 
-   /**
-    * Same as {@link #Expectations(Object...)}, but considering that the invocations inside the block will occur in a
-    * given number of iterations.
-    * <p/>
-    * The effect of specifying a number of iterations larger than 1 (one) is equivalent to multiplying by that number
-    * the lower and upper invocation count limits for each invocation inside the expectation block.
-    * <p/>
-    * It's also valid to have multiple expectation blocks for the same test, each with an arbitrary number of
-    * iterations.
-    *
-    * @param numberOfIterations the positive number of iterations for the whole set of expectations recorded inside the
-    * block; when not specified, 1 (one) iteration is assumed
-    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
-    *
-    * @see #Expectations()
-    * @deprecated Will be removed in a future release; existing tests should be simplified in order to not depend on
-    * iterated expectations, or eliminated altogether.
-    */
-   @Deprecated
-   protected Expectations(Integer numberOfIterations, Object... classesOrObjectsToBePartiallyMocked)
-   {
-      this(classesOrObjectsToBePartiallyMocked);
-      RecordPhase currentPhase = getCurrentPhase();
-
-      if (currentPhase != null) {
-         currentPhase.setNumberOfIterations(numberOfIterations);
-      }
-   }
-
    @Nullable @Override
    final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
