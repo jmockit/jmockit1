@@ -122,6 +122,7 @@ public final class MockedTypeCascade
       return isTypeSupportedForCascading(typeName) ? typeName : null;
    }
 
+   @SuppressWarnings("OverlyComplexMethod")
    private static boolean isTypeSupportedForCascading(@Nonnull String typeName)
    {
       //noinspection SimplifiableIfStatement
@@ -134,7 +135,8 @@ public final class MockedTypeCascade
          !typeName.startsWith("java/math/") &&
          (!typeName.startsWith("java/util/") ||
            typeName.endsWith("/Date") || typeName.endsWith("/Callable") || typeName.endsWith("Future") ||
-           typeName.contains("logging"));
+           typeName.contains("logging")) &&
+         !"java/time/Duration".equals(typeName);
    }
 
    @Nullable

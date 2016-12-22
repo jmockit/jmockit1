@@ -9,6 +9,7 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.security.*;
+import java.time.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -437,6 +438,26 @@ public final class JREMockingTest
       thrown.expectMessage("java.lang.StrictMath is not mockable");
 
       new Expectations(StrictMath.class) {};
+   }
+
+   @Test
+   public void attemptToMockDurationClass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("java.time.Duration is not mockable");
+
+      //noinspection Since15
+      new Expectations(Duration.class) {};
+   }
+
+   public interface DurationProvider { @SuppressWarnings("Since15") Duration getDuration(); }
+
+   @Test
+   public void mockMethodWhichReturnsADuration(@Mocked DurationProvider mock)
+   {
+      Object d = mock.getDuration();
+
+      assertNull(d);
    }
 
    // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////
