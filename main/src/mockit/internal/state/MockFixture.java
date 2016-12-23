@@ -392,6 +392,13 @@ public final class MockFixture
       return null;
    }
 
+   public boolean isCaptured(@Nonnull Object mock)
+   {
+      Class<?> baseType = getMockedClass(mock);
+      CaptureOfNewInstances capture = findCaptureOfImplementations(baseType);
+      return capture != null;
+   }
+
    public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2)
    {
       for (CaptureTransformer<?> captureTransformer : captureTransformers) {

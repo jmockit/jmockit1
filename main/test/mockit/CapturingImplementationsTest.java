@@ -225,4 +225,33 @@ public final class CapturingImplementationsTest
 
       assertEquals(2, i);
    }
+
+   static class Base2 { void base() {} }
+   static class Sub extends Base2 {}
+   static class Sub2 extends Sub { @Override void base() { throw new RuntimeException(); } }
+
+   @Test
+   public void verifyInvocationToMethodFromBaseClassOnCapturedSubclassOfIntermediateSubclass(@Capturing final Sub sub)
+   {
+      Sub impl = new Sub2();
+      impl.base();
+
+      new Verifications() {{
+         sub.base();
+      }};
+   }
+
+   public interface BaseItf { void base(); }
+   public interface SubItf extends BaseItf {}
+
+   @Test
+   public void verifyInvocationToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(@Capturing final SubItf sub)
+   {
+      SubItf impl = new SubItf() { @Override public void base() {} };
+      impl.base();
+
+      new Verifications() {{
+         sub.base();
+      }};
+   }
 }

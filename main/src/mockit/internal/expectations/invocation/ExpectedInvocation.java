@@ -104,7 +104,7 @@ public final class ExpectedInvocation
    public boolean isMatch(@Nullable Object mock, @Nonnull String invokedClassDesc, @Nonnull String invokedMethod)
    {
       return
-         invokedClassDesc.equals(getClassDesc()) &&
+         (invokedClassDesc.equals(getClassDesc()) || mock != null && TestRun.mockFixture().isCaptured(mock)) &&
          (isMatchingGenericMethod(mock, invokedMethod) || isMatchingMethod(invokedMethod));
    }
 
