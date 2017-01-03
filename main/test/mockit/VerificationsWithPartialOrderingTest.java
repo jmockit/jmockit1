@@ -9,6 +9,8 @@ import org.junit.rules.*;
 
 import mockit.internal.*;
 
+import org.hamcrest.*;
+
 @SuppressWarnings("UnusedDeclaration")
 public final class VerificationsWithPartialOrderingTest
 {
@@ -324,6 +326,13 @@ public final class VerificationsWithPartialOrderingTest
    public void verifyThatUnorderedGroupOfCallsOccursAfterOneOtherCall_outOfOrder()
    {
       thrown.expect(UnexpectedInvocation.class);
+      thrown.expectCause(new CustomTypeSafeMatcher<Throwable>("starting with \"Unexpected invocation \"") {
+         @Override
+         protected boolean matchesSafely(Throwable cause)
+         {
+            return cause.toString().startsWith("Unexpected invocation ");
+         }
+      });
 
       mock.setSomething(123);
       mock.editABunchMoreStuff();
@@ -526,6 +535,7 @@ public final class VerificationsWithPartialOrderingTest
    public void verifyThatOneGroupOccursBeforeAnotherAllowingUnverifiedInvocationsInBetween_outOfOrder()
    {
       thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("Invocation occurred unexpectedly before another ");
 
       mock.save();
       mock.prepare();

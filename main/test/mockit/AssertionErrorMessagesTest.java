@@ -27,6 +27,7 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationForRecordedStrictExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("Unexpected invocation of ");
       thrown.expectMessage("2, \"xyz\"");
 
       new StrictExpectations() {{
@@ -124,8 +125,13 @@ public final class AssertionErrorMessagesTest
          fail();
       }
       catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("\"test\""));
-         assertTrue(e.getCause().toString().contains("-5, \"abc\""));
+         String msg = e.toString();
+         assertTrue(msg, msg.startsWith("Unexpected invocation before "));
+         assertTrue(msg, msg.contains("\"test\""));
+
+         msg = e.getCause().toString();
+         assertTrue(msg, msg.startsWith("Unexpected invocation "));
+         assertTrue(msg, msg.contains("-5, \"abc\""));
       }
    }
 
@@ -167,8 +173,13 @@ public final class AssertionErrorMessagesTest
          fail();
       }
       catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("1, \"anotherValue\""));
-         assertTrue(e.getCause().toString().contains("\"test\""));
+         String msg = e.toString();
+         assertTrue(msg, msg.startsWith("Unexpected invocation after "));
+         assertTrue(msg, msg.contains("1, \"anotherValue\""));
+
+         msg = e.getCause().toString();
+         assertTrue(msg, msg.startsWith("Unexpected invocation "));
+         assertTrue(msg, msg.contains("\"test\""));
       }
    }
 

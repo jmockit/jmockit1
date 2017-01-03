@@ -240,7 +240,8 @@ public final class ExpectedInvocation
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocation()
    {
-      return newUnexpectedInvocationWithCause("Unexpected invocation", "Unexpected invocation of" + this);
+      String initialMessage = "Unexpected invocation of " + this;
+      return newUnexpectedInvocationWithCause("Unexpected invocation", initialMessage);
    }
 
    @Nonnull
@@ -353,27 +354,32 @@ public final class ExpectedInvocation
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocationBeforeAnother(@Nonnull ExpectedInvocation another)
    {
-      return newUnexpectedInvocationWithCause("Unexpected invocation" + this, "Unexpected invocation before" + another);
+      String titleForCause = "Unexpected invocation " + this;
+      String initialMessage = "Unexpected invocation before " + another;
+      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
    }
 
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother()
    {
-      String initialMessage = "Invocation occurred unexpectedly before another" + this;
+      String initialMessage = "Invocation occurred unexpectedly before another " + this;
       return newUnexpectedInvocationWithCause("Unexpected invocation", initialMessage);
    }
 
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother(@Nonnull ExpectedInvocation another)
    {
+      String titleForCause = "Unexpected invocation " + this;
       String initialMessage = "Another invocation unexpectedly occurred before" + another;
-      return newUnexpectedInvocationWithCause("Unexpected invocation" + this, initialMessage);
+      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
    }
 
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocationAfterAnother(@Nonnull ExpectedInvocation another)
    {
-      return newUnexpectedInvocationWithCause("Unexpected invocation" + this, "Unexpected invocation after" + another);
+      String titleForCause = "Unexpected invocation " + this;
+      String initialMessage = "Unexpected invocation after " + another;
+      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
    }
 
    @Nonnull @Override
