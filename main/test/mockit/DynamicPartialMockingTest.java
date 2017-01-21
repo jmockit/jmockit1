@@ -771,4 +771,17 @@ public final class DynamicPartialMockingTest
    {
       new Expectations(Action.class) {};
    }
+
+   static class Base { List<String> list() { return null; } }
+   static class Sub extends Base {}
+
+   @Test
+   public void callIterableReturningInstanceMethodOnPartiallyMockedSubclassWithNoRecordedExpectations()
+   {
+      new Expectations(Sub.class) {};
+
+      Object result = new Base().list();
+
+      assertNull(result);
+   }
 }

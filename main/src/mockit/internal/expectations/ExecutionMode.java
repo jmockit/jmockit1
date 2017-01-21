@@ -26,6 +26,12 @@ public enum ExecutionMode
    Partial
    {
       @Override
+      boolean isToExecuteRealImplementation(@Nullable Object instance)
+      {
+         return instance != null && !TestRun.mockFixture().isInstanceOfMockedClass(instance);
+      }
+
+      @Override
       boolean isWithRealImplementation(@Nullable Object instance)
       {
          return instance == null || !TestRun.getExecutingTest().isInjectableMock(instance);
