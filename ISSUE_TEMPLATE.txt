@@ -6,4 +6,9 @@ Please provide the following information:
 
 * Description of the problem:
 
-
+* Please avoid reporting a problem that cannot be reproduced by project members.
+  Instead, include enough information (typically, an example test or more,
+  perhaps accompanied by a Maven/Ant/Gradle build script) so that other developers
+  can verify the problem in their own environments.
+  Otherwise, there is a good chance the issue will be immediately closed with the
+  "could not reproduce" tag.
