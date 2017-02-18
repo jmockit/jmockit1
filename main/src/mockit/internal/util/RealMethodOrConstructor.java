@@ -73,7 +73,14 @@ public final class RealMethodOrConstructor
 
       while (true) {
          try {
-            return ownerClass.getDeclaredMethod(methodName, parameterTypes);
+            Method method = ownerClass.getDeclaredMethod(methodName, parameterTypes);
+
+            if (method.isBridge()) {
+               ownerClass = ownerClass.getSuperclass();
+               continue;
+            }
+
+            return method;
          }
          catch (NoSuchMethodException e) {
             if (ownerClass.isInterface()) {
@@ -85,9 +92,8 @@ public final class RealMethodOrConstructor
 
                return interfaceMethod;
             }
-            else {
-               ownerClass = ownerClass.getSuperclass();
-            }
+
+            ownerClass = ownerClass.getSuperclass();
 
             if (ownerClass == Object.class) {
                throw e;

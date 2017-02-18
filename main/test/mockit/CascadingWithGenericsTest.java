@@ -275,4 +275,15 @@ public final class CascadingWithGenericsTest
 
       assertNotNull(cascade2);
    }
+
+   public interface InterfaceWithGenericMethod<T> { @SuppressWarnings("unused") T genericMethod(); }
+   static class BaseClass { public Bar genericMethod() { return null; } }
+   static class SubClass extends BaseClass implements InterfaceWithGenericMethod<Bar> {}
+
+   @Test
+   public void cascadeFromGenericInterfaceMethodImplementedInBaseClassOfMockedSubClass(@Mocked SubClass mock)
+   {
+      Bar cascaded = mock.genericMethod();
+      assertNotNull(cascaded);
+   }
 }
