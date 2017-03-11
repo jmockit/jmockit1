@@ -304,4 +304,17 @@ public final class DynamicOnInstanceMockingTest
          mock.setValue(2); times = 0;
       }};
    }
+
+   static class Baz {}
+   static class Noop { void noop() {} }
+
+   @Test(expected = MissingInvocation.class)
+   public void partiallyMockClassWithInjectableMockWhileHavingTwoMockParametersOfAnotherType(
+      @Injectable final Noop mock, @Mocked Baz a, @Mocked Baz b)
+   {
+      Noop foo = new Noop();
+      new Expectations(Noop.class) {{ mock.noop(); }};
+
+      foo.noop();
+   }
 }

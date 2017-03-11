@@ -102,11 +102,8 @@ final class PhasedExecutionState
             return true;
          }
       }
-      else if (TestRun.getExecutingTest().isInjectableMock(mock)) {
-         return true;
-      }
 
-      return false;
+      return TestRun.getExecutingTest().isInjectableMock(mock);
    }
 
    private void removeMatchingExpectationsCreatedBefore(@Nonnull ExpectedInvocation invocation)
