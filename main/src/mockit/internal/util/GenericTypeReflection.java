@@ -137,7 +137,7 @@ public final class GenericTypeReflection
    private void addMappingForTypeVariable(
       @Nonnull String ownerTypeDesc, @Nonnull String typeName, @Nonnull Type typeArg)
    {
-      String mappedTypeArgName = null;
+      @Nullable String mappedTypeArgName = null;
 
       if (withSignatures) {
          TypeVariable<?> typeVar = (TypeVariable<?>) typeArg;
@@ -199,7 +199,7 @@ public final class GenericTypeReflection
       if (type instanceof TypeVariable<?>) {
          TypeVariable<?> typeVar = (TypeVariable<?>) type;
          String typeVarKey = getTypeVariableKey(typeVar);
-         Type typeArg = typeParametersToTypeArguments.get(typeVarKey);
+         @Nullable Type typeArg = typeParametersToTypeArguments.get(typeVarKey);
 
          if (typeArg == null) {
             throw new IllegalArgumentException("Unable to resolve type variable \"" + typeVar.getName() + '"');
@@ -474,7 +474,7 @@ public final class GenericTypeReflection
    {
       if (typeDesc.charAt(0) == 'T' && !typeParametersToTypeArgumentNames.isEmpty()) {
          String typeParameter = typeDesc.substring(0, typeDesc.length() - 1);
-         String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
+         @Nullable String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
          return typeArg == null ? typeDesc : typeArg + ';';
       }
 
@@ -500,7 +500,7 @@ public final class GenericTypeReflection
    public Type resolveTypeVariable(@Nonnull TypeVariable<?> typeVariable)
    {
       String typeVarKey = getTypeVariableKey(typeVariable);
-      Type typeArgument = typeParametersToTypeArguments.get(typeVarKey);
+      @Nullable Type typeArgument = typeParametersToTypeArguments.get(typeVarKey);
 
       if (typeArgument == null) {
          typeArgument = typeVariable.getBounds()[0];
@@ -628,8 +628,11 @@ public final class GenericTypeReflection
    private boolean areMatchingTypes(@Nonnull TypeVariable<?> declarationType, @Nonnull Type realizationType)
    {
       String typeVarKey = getTypeVariableKey(declarationType);
-      Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
-      return resolvedType.equals(realizationType) || typeSatisfiesResolvedTypeVariable(resolvedType, realizationType);
+      @Nullable Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
+
+      return
+         resolvedType != null &&
+         (resolvedType.equals(realizationType) || typeSatisfiesResolvedTypeVariable(resolvedType, realizationType));
    }
 
    private boolean areMatchingTypes(
@@ -668,7 +671,7 @@ public final class GenericTypeReflection
    private boolean areMatchingTypeArguments(@Nonnull TypeVariable<?> declaredType, @Nonnull Type concreteType)
    {
       String typeVarKey = getTypeVariableKey(declaredType);
-      Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
+      @Nullable Type resolvedType = typeParametersToTypeArguments.get(typeVarKey);
 
       if (resolvedType != null) {
          if (resolvedType.equals(concreteType)) {
