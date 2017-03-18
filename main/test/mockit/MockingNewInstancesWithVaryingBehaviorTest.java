@@ -235,4 +235,22 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
          col2.doSomething(anyString); times = 1;
       }};
    }
+
+   @Test @Ignore("open issue #393")
+   public void recordDifferentResultsForInstancesCreatedWithDifferentConstructors(@Mocked final Collaborator anyCol)
+   {
+      new Expectations() {{
+         anyCol.getValue(); result = 1;
+
+         Collaborator col2 = new Collaborator(anyInt);
+         col2.getValue(); result = 2;
+      }};
+
+      Collaborator col3 = new Collaborator(10);
+      int valueFromRecordedConstructor = col3.getValue();
+      int valueFromAnyOtherConstructor = new Collaborator().getValue();
+
+      assertEquals(2, valueFromRecordedConstructor);
+      assertEquals(1, valueFromAnyOtherConstructor);
+   }
 }
