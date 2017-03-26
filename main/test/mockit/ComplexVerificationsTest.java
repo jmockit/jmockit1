@@ -46,11 +46,11 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void usingStrictAndNotStrictMockedTypes(@Mocked final A a, @Mocked final B b, @Mocked final C c)
+   public void usingStrictAndNotStrictMockedTypes(@Mocked A anyA, @Mocked B anyB, @Mocked C anyC)
    {
       new StrictExpectations() {{
          // Meets requirements 1 and 2.
-         new A();
+         A a = new A();
          a.process(input);
 
          // Meets requirement 5.
@@ -59,8 +59,8 @@ public class ComplexVerificationsTest
 
       new Expectations() {{
          // Meets requirements 1 and 2.
-         new B(); times = 1;
-         new C(); times = 1;
+         B b = new B(); times = 1;
+         C c = new C(); times = 1;
 
          // Meets requirement 3b and 4, but NOT 3a.
          b.foo(); times = input.length;
@@ -74,16 +74,15 @@ public class ComplexVerificationsTest
    }
 
    @Test
-   public void fewerRequirementsUsingNotStrictExpectationsOnly(
-      @Mocked final A a, @Mocked final B b, @Mocked final C c)
+   public void fewerRequirementsUsingNotStrictExpectationsOnly(@Mocked A anyA, @Mocked B anyB, @Mocked C anyC)
    {
       // Requirements to meet: only 1b, 3b, 4, 6b and 6c.
 
       new Expectations() {{
          // Meets requirement 1b.
-         new A(); times = 1;
-         new B(); times = 1;
-         new C(); times = 1;
+         A a = new A(); times = 1;
+         B b = new B(); times = 1;
+         C c = new C(); times = 1;
          a.result(); result = 42;
 
          // Meets requirements 3b and 4.
@@ -94,6 +93,6 @@ public class ComplexVerificationsTest
       assertEquals(42, testedMethod());
 
       // Meets requirements 6b and 6c.
-      new FullVerifications(b, c) {};
+      new FullVerifications(anyB, anyC) {};
    }
 }

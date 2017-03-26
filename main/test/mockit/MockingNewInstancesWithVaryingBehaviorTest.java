@@ -85,33 +85,6 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       exerciseAndVerifyTestedCode();
    }
 
-   final Map<Object, String> formats = new IdentityHashMap<Object, String>();
-
-   final class SDFFormatDelegate implements Delegate<Object>
-   {
-      final String format;
-      SDFFormatDelegate(String format) { this.format = format; }
-
-      @SuppressWarnings("unused")
-      void saveInstance(Invocation inv) { formats.put(inv.getInvokedInstance(), format); }
-   }
-
-   @Test // too complex
-   public void usingDelegates(@Mocked final SimpleDateFormat mockSDF)
-   {
-      new Expectations() {{
-         new SimpleDateFormat(DATE_FORMAT); result = new SDFFormatDelegate(FORMATTED_DATE);
-         new SimpleDateFormat(TIME_FORMAT); result = new SDFFormatDelegate(FORMATTED_TIME);
-
-         mockSDF.format((Date) any);
-         result = new Delegate() {
-            @Mock String format(Invocation inv) { return formats.get(inv.getInvokedInstance()); }
-         };
-      }};
-
-      exerciseAndVerifyTestedCode();
-   }
-
    @Test // nice
    public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt)
    {
@@ -236,7 +209,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       }};
    }
 
-   @Test @Ignore("open issue #393")
+   @Test
    public void recordDifferentResultsForInstancesCreatedWithDifferentConstructors(@Mocked final Collaborator anyCol)
    {
       new Expectations() {{
@@ -246,8 +219,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
          col2.getValue(); result = 2;
       }};
 
-      Collaborator col3 = new Collaborator(10);
-      int valueFromRecordedConstructor = col3.getValue();
+      int valueFromRecordedConstructor = new Collaborator(10).getValue();
       int valueFromAnyOtherConstructor = new Collaborator().getValue();
 
       assertEquals(2, valueFromRecordedConstructor);

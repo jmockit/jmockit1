@@ -508,12 +508,17 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void recordNullReturnValueForConstructorAndVoidMethod(@Mocked final Collaborator mock)
+   public void recordNullReturnValueForConstructor(@Mocked Collaborator mock)
    {
-      new Expectations() {{
-         new Collaborator(); result = null;
-         mock.provideSomeService(); result = null;
-      }};
+      new Expectations() {{ new Collaborator(); result = null; }};
+
+      new Collaborator().provideSomeService();
+   }
+
+   @Test
+   public void recordNullReturnValueForVoidMethod(@Mocked final Collaborator mock)
+   {
+      new Expectations() {{ mock.provideSomeService(); result = null; }};
 
       new Collaborator().provideSomeService();
    }

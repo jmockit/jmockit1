@@ -153,10 +153,6 @@ final class PhasedExecutionState
       @Nonnull String mockNameAndDesc, boolean constructorInvocation, @Nonnull Expectation expectation)
    {
       ExpectedInvocation invocation = expectation.invocation;
-//
-//      if (matchInstance == null && instanceMap.containsKey(mock)) {
-//         matchInstance = true;
-//      }
 
       return
          invocation.isMatch(mock, mockClassDesc, mockNameAndDesc) &&
@@ -251,12 +247,12 @@ final class PhasedExecutionState
          return true;
       }
 
-      if (TestRun.getExecutingTest().isInjectableMock(invokedInstance)) {
-         return false;
-      }
-
       //noinspection SimplifiableIfStatement
-      if (isDynamicMockInstanceOrClass(invokedInstance, invocationInstance)) {
+      if (
+         TestRun.getExecutingTest().isInjectableMock(invokedInstance) ||
+         isDynamicMockInstanceOrClass(invokedInstance, invocationInstance) ||
+         areNonEquivalentInstances(invocationInstance, invokedInstance)
+      ) {
          return false;
       }
 
@@ -271,7 +267,6 @@ final class PhasedExecutionState
          invocationInstance == invokedInstance ||
          invocationInstance == replacementMap.get(invokedInstance) ||
          invocationInstance == instanceMap.get(invokedInstance) ||
-//         replacementMap.containsKey(instanceMap.get(invokedInstance)) ||
          invokedInstance == instanceMap.get(invocationInstance) ||
          TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(invocationInstance, invokedInstance);
    }
@@ -293,6 +288,20 @@ final class PhasedExecutionState
       }
 
       return false;
+   }
+
+   private boolean areNonEquivalentInstances(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance)
+   {
+      boolean recordedInstanceMatchingAnyInstance = !isMatchingInstance(invocationInstance);
+      boolean invokedInstanceMatchingSpecificInstance = isMatchingInstance(invokedInstance);
+      return recordedInstanceMatchingAnyInstance && invokedInstanceMatchingSpecificInstance;
+   }
+
+   private boolean isMatchingInstance(@Nonnull Object instance)
+   {
+      return
+         instanceMap.containsKey(instance)    || instanceMap.containsValue(instance) ||
+         replacementMap.containsKey(instance) || replacementMap.containsValue(instance);
    }
 
    boolean areInDifferentEquivalenceSets(@Nonnull Object mock1, @Nonnull Object mock2)
