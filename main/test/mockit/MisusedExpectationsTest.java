@@ -228,4 +228,16 @@ public final class MisusedExpectationsTest
 
    @Test
    public void attemptToMockHashMap(@Mocked HashMap<?, ?> map) { assertNotNull(map); }
+
+   // @Tested/@Injectable usage ///////////////////////////////////////////////////////////////////////////////////////
+
+   static class TestedClass { Runnable action; }
+   @Injectable static Runnable action = new Runnable() { @Override public void run() {} };
+   @Tested TestedClass tested;
+
+   @Test
+   public void checkStaticInjectableIsNotUsed()
+   {
+      assertNull(tested.action);
+   }
 }

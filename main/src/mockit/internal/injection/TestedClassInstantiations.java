@@ -11,9 +11,12 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.mocking.*;
+import static mockit.external.asm.Opcodes.*;
 
 public final class TestedClassInstantiations
 {
+   private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
+
    @Nonnull private final List<TestedField> testedFields;
    @Nonnull private final List<MockedType> injectableFields;
    @Nonnull private final InjectionState injectionState;
@@ -39,8 +42,14 @@ public final class TestedClassInstantiations
          findAllTestedAndInjectableFieldsInTestClassHierarchy(superclass);
       }
 
-      for (Field field : testClass.getDeclaredFields()) {
-         addAsTestedOrInjectableFieldIfApplicable(field);
+      Field[] fieldsFromTestClass = testClass.getDeclaredFields();
+
+      for (Field candidateField : fieldsFromTestClass) {
+         int fieldModifiers = candidateField.getModifiers();
+
+         if ((fieldModifiers & FIELD_ACCESS_MASK) == 0) {
+            addAsTestedOrInjectableFieldIfApplicable(candidateField);
+         }
       }
    }
 
