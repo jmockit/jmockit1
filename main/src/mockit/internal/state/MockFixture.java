@@ -379,10 +379,10 @@ public final class MockFixture
    }
 
    @Nullable
-   public CaptureOfNewInstances findCaptureOfImplementations(@Nonnull Class<?> baseType)
+   public CaptureOfNewInstances findCaptureOfImplementations(@Nonnull Class<?> capturedType)
    {
       for (CaptureTransformer<?> captureTransformer : captureTransformers) {
-         CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(baseType);
+         CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(capturedType);
 
          if (capture != null) {
             return capture;
@@ -394,8 +394,8 @@ public final class MockFixture
 
    public boolean isCaptured(@Nonnull Object mock)
    {
-      Class<?> baseType = getMockedClass(mock);
-      CaptureOfNewInstances capture = findCaptureOfImplementations(baseType);
+      Class<?> mockedClass = getMockedClass(mock);
+      CaptureOfNewInstances capture = findCaptureOfImplementations(mockedClass);
       return capture != null;
    }
 
