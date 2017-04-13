@@ -31,8 +31,10 @@ public class TestRunnerDecorator
 
    protected TestRunnerDecorator() { shouldPrepareForNextTest = true; }
 
-   protected static void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass)
+   protected final void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass)
    {
+      testClass = getActualTestClass(testClass);
+
       try {
          handleSwitchToNewTestClassIfApplicable(testClass);
 
@@ -56,6 +58,12 @@ public class TestRunnerDecorator
          StackTrace.filterStackTrace(e);
          throw e;
       }
+   }
+
+   @Nonnull
+   private static Class<?> getActualTestClass(@Nonnull Class<?> testClass)
+   {
+      return testClass.isSynthetic() ? testClass.getSuperclass() : testClass;
    }
 
    private static void handleSwitchToNewTestClassIfApplicable(@Nonnull Class<?> testClass)
@@ -134,9 +142,9 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void handleMockFieldsForWholeTestClass(@Nonnull Object target)
+   protected final void handleMockFieldsForWholeTestClass(@Nonnull Object target)
    {
-      Class<?> testClass = target.getClass();
+      Class<?> testClass = getActualTestClass(target.getClass());
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions == null) {

@@ -81,7 +81,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    @Nullable
-   private static Object executeClassMethod(@Nonnull MockInvocation inv, @Nonnull Object[] params) throws Throwable
+   private Object executeClassMethod(@Nonnull MockInvocation inv, @Nonnull Object[] params) throws Throwable
    {
       FrameworkMethod method = inv.getInvokedInstance();
       handleMockingOutsideTests(method);
@@ -100,7 +100,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       createInstancesForTestedFields(target, true);
    }
 
-   private static void handleMockingOutsideTests(@Nonnull FrameworkMethod it)
+   private void handleMockingOutsideTests(@Nonnull FrameworkMethod it)
    {
       Class<?> testClass = it.getMethod().getDeclaringClass();
 
@@ -125,7 +125,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void handleMockingOutsideTestMethods(@Nonnull Object target)
+   private void handleMockingOutsideTestMethods(@Nonnull Object target)
    {
       Class<?> testClass = target.getClass();
 
