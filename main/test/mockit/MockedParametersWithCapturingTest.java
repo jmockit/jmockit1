@@ -156,4 +156,18 @@ public final class MockedParametersWithCapturingTest
       impl3.doSomething();
       assertEquals("derived", impl3.getStr());
    }
+
+   public interface IBase { int doSomething(); }
+   public interface ISub extends IBase {}
+
+   @Test
+   public void recordCallToBaseInterfaceMethodOnCaptureSubInterfaceImplementation(@Capturing final ISub mock)
+   {
+      new Expectations() {{ mock.doSomething(); result = 123; }};
+
+      ISub impl = new ISub() { @Override public int doSomething() { return -1; } };
+      int i = impl.doSomething();
+
+      assertEquals(123, i);
+   }
 }

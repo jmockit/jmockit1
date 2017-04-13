@@ -122,12 +122,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          boolean haveInterfaces = interfaces != null && interfaces.length > 0;
 
          if (haveInterfaces) {
-            for (String implementedInterface : interfaces) {
-               if (capturedTypeDesc.equals(implementedInterface)) {
-                  classExtendsCapturedType = true;
-                  throw VisitInterruptedException.INSTANCE;
-               }
-            }
+            interruptVisitIfClassImplementsAnInterface(interfaces);
          }
 
          if (superName != null) {
@@ -145,6 +140,16 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          throw VisitInterruptedException.INSTANCE;
       }
 
+      private void interruptVisitIfClassImplementsAnInterface(@Nonnull String[] interfaces)
+      {
+         for (String implementedInterface : interfaces) {
+            if (capturedTypeDesc.equals(implementedInterface)) {
+               classExtendsCapturedType = true;
+               throw VisitInterruptedException.INSTANCE;
+            }
+         }
+      }
+
       private void searchSuperType(@Nonnull String superName)
       {
          ClassReader cr = ClassFile.createClassFileReader(loader, superName);
@@ -159,9 +164,9 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    }
 
    @Nullable
-   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> baseType)
+   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> aType)
    {
-      if (baseType == capturedType.baseType && typeMetadata != null) {
+      if (capturedType.baseType.isAssignableFrom(aType) && typeMetadata != null) {
          //noinspection unchecked
          return (C) captureOfImplementations;
       }
