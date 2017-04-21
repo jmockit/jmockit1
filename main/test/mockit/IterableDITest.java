@@ -25,6 +25,7 @@ public final class IterableDITest
    {
       final List<String> names;
       @Inject Collection<Collaborator> collaborators;
+      Set<? extends Number> numbers;
 
       @Inject
       TestedClassWithIterableInjectionPoints(List<String> names) { this.names = names; }
@@ -39,6 +40,7 @@ public final class IterableDITest
    {
       assertSame(nameList, tested1.names);
       assertSame(colList, tested1.collaborators);
+      assertNull(tested1.numbers);
    }
 
    static class Dependency {}

@@ -77,6 +77,11 @@ public final class Utilities
             continue;
          }
 
+         if (declaredType instanceof WildcardType) {
+            declaredType = ((WildcardType) declaredType).getUpperBounds()[0];
+            continue;
+         }
+
          throw new IllegalArgumentException("Type of unexpected kind: " + declaredType);
       }
    }
