@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
+import static java.util.Collections.synchronizedList;
+
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Type.*;
@@ -20,15 +22,19 @@ public final class MockedTypeCascade
 
    final boolean fromMockField;
    @Nonnull private final Type mockedType;
+   @Nonnull final String mockedTypeDesc;
    @Nullable Class<?> mockedClass;
    @Nullable private GenericTypeReflection genericReflection;
    @Nonnull private final Map<String, Type> cascadedTypesAndMocks;
+   @Nonnull private final List<Object> cascadingInstances;
 
-   MockedTypeCascade(boolean fromMockField, @Nonnull Type mockedType)
+   MockedTypeCascade(boolean fromMockField, @Nonnull Type mockedType, @Nonnull String mockedTypeDesc)
    {
       this.fromMockField = fromMockField;
       this.mockedType = mockedType;
+      this.mockedTypeDesc = mockedTypeDesc;
       cascadedTypesAndMocks = new ConcurrentHashMap<String, Type>(4);
+      cascadingInstances = synchronizedList(new ArrayList<Object>());
    }
 
    @Nullable
@@ -162,6 +168,7 @@ public final class MockedTypeCascade
    private Object getCascadedInstance(
       @Nonnull String methodNameAndDesc, @Nonnull String returnTypeInternalName, @Nullable Object mockInstance)
    {
+      MockedTypeCascade nextLevel = this;
       Type returnType = cascadedTypesAndMocks.get(returnTypeInternalName);
       Class<?> returnClass;
 
@@ -190,12 +197,13 @@ public final class MockedTypeCascade
             }
 
             cascadedTypesAndMocks.put(returnTypeInternalName, genericReturnType);
-            CASCADING_TYPES.add(returnTypeInternalName, false, genericReturnType);
+            nextLevel = CASCADING_TYPES.add(returnTypeInternalName, false, genericReturnType);
             returnType = genericReturnType;
             returnClass = resolvedReturnType;
          }
       }
       else {
+         nextLevel = CASCADING_TYPES.getCascade(returnType);
          returnClass = getClassType(returnType);
       }
 
@@ -203,7 +211,7 @@ public final class MockedTypeCascade
          return null;
       }
 
-      return createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);
+      return nextLevel.createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);
    }
 
    @Nonnull
@@ -235,7 +243,7 @@ public final class MockedTypeCascade
    }
 
    @Nullable
-   private static Object createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(
+   private Object createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(
       @Nonnull String methodNameAndDesc, @Nonnull Type mockedReturnType)
    {
       InstanceFactory instanceFactory = TestRun.mockFixture().findInstanceFactory(mockedReturnType);
@@ -259,9 +267,21 @@ public final class MockedTypeCascade
 
       Object cascadedInstance = instanceFactory.create();
       instanceFactory.clearLastInstance();
+      addInstance(cascadedInstance);
       TestRun.getExecutingTest().addInjectableMock(cascadedInstance);
       return cascadedInstance;
    }
 
-   void discardCascadedMocks() { cascadedTypesAndMocks.clear(); }
+   void discardCascadedMocks()
+   {
+      cascadedTypesAndMocks.clear();
+      cascadingInstances.clear();
+   }
+
+   void addInstance(@Nonnull Object cascadingInstance) { cascadingInstances.add(cascadingInstance); }
+
+   boolean hasInstance(@Nonnull Object cascadingInstance)
+   {
+      return containsReference(cascadingInstances, cascadingInstance);
+   }
 }

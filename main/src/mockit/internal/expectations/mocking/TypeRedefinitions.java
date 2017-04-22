@@ -42,7 +42,7 @@ public class TypeRedefinitions
 
    protected static void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
    {
-      TestRun.getExecutingTest().registerMock(mockedType.injectable, mock);
+      TestRun.getExecutingTest().registerMock(mockedType, mock);
    }
 
    public void cleanUp()

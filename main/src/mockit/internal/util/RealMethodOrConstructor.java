@@ -83,13 +83,9 @@ public final class RealMethodOrConstructor
             return method;
          }
          catch (NoSuchMethodException e) {
-            if (ownerClass.isInterface()) {
-               Method interfaceMethod = findInterfaceMethod(ownerClass, methodName, parameterTypes);
+            Method interfaceMethod = findInterfaceMethod(ownerClass, methodName, parameterTypes);
 
-               if (interfaceMethod == null) {
-                  throw e;
-               }
-
+            if (interfaceMethod != null) {
                return interfaceMethod;
             }
 
@@ -104,10 +100,10 @@ public final class RealMethodOrConstructor
 
    @Nullable
    private static Method findInterfaceMethod(
-      @Nonnull Class<?> anInterface, @Nonnull String methodName, @Nonnull Class<?>[] parameterTypes)
+      @Nonnull Class<?> aType, @Nonnull String methodName, @Nonnull Class<?>[] parameterTypes)
    {
-      for (Class<?> superInterface : anInterface.getInterfaces()) {
-         try { return superInterface.getMethod(methodName, parameterTypes); } catch (NoSuchMethodException ignore) {}
+      for (Class<?> anInterface : aType.getInterfaces()) {
+         try { return anInterface.getMethod(methodName, parameterTypes); } catch (NoSuchMethodException ignore) {}
       }
 
       return null;

@@ -4,6 +4,7 @@
  */
 package mockit.internal.state;
 
+import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
@@ -220,14 +221,17 @@ public final class ExecutingTest
           mock instanceof Comparable<?> && nameAndDesc.startsWith("compareTo(L") && nameAndDesc.endsWith(";)I"));
    }
 
-   public void registerMock(boolean injectable, @Nonnull Object mock)
+   public void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
    {
-      if (injectable) {
+      if (mockedType.injectable) {
          addInjectableMock(mock);
       }
       else if (!containsReference(regularMocks, mock)) {
          regularMocks.add(mock);
       }
+
+      Type declaredType = mockedType.getDeclaredType();
+      cascadingTypes.addInstance(declaredType, mock);
    }
 
    public boolean isStrictInvocation(

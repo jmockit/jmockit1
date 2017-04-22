@@ -5,7 +5,7 @@
 package mockit;
 
 import java.io.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -284,5 +284,16 @@ public final class GenericMockedTypesTest
    {
       String in = mock.getSomeValue();
       assertNull(in);
+   }
+
+   static class T1 {}
+   static class T2 {}
+
+   @Test
+   public void cascadeFromGenericMethodOfSecondMockedGenericTypeHavingDifferentParameterTypeFromFirstMockedType(
+      @Mocked GenericBase<T1> mock1, @Mocked GenericBase<T2> mock2)
+   {
+      T2 r = mock2.doSomething();
+      assertNotNull(r);
    }
 }

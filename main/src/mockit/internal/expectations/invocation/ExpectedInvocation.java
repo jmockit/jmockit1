@@ -449,6 +449,11 @@ public final class ExpectedInvocation
          }
 
          String returnTypeDesc = DefaultValues.getReturnTypeDesc(arguments.methodNameAndDesc);
+
+         if ("V".equals(returnTypeDesc)) {
+            return null;
+         }
+
          defaultReturnValue = DefaultValues.computeForType(returnTypeDesc);
 
          if (defaultReturnValue == null) {
