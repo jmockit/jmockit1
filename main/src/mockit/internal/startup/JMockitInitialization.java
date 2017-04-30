@@ -5,6 +5,7 @@
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
@@ -30,7 +31,16 @@ final class JMockitInitialization
       applyUserSpecifiedStartupMocksIfAny();
    }
 
-   private static void preventEventualClassLoadingConflicts() { DefaultValues.computeForReturnType("()J"); }
+   private static void preventEventualClassLoadingConflicts()
+   {
+      // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class,
+      // which may get @Mocked.
+      TimeZone.getDefault();
+      Currency.getInstance(Locale.getDefault());
+
+      DefaultValues.computeForReturnType("()J");
+      Utilities.calledFromSpecialThread();
+   }
 
    private void applyInternalStartupMocksAsNeeded()
    {
