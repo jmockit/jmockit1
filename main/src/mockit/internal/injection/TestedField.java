@@ -10,6 +10,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
+import mockit.internal.util.*;
 import static mockit.internal.util.FieldReflection.*;
 
 final class TestedField
@@ -52,30 +53,31 @@ final class TestedField
          return;
       }
 
-      injectionState.setTestedTypeReflection(testedClass.reflection);
-
       Object testedObject = getTestedObjectFromFieldInTestClassIfApplicable(testClassInstance);
-      Class<?> testedClass = testedField.getType();
+      Class<?> testedObjectClass = testedField.getType();
+
+      if (isNonInstantiableType(testedObjectClass, testedObject)) {
+         reusePreviouslyCreatedInstance(testClassInstance);
+         return;
+      }
+
+      injectionState.setTestedTypeReflection(testedClass.reflection);
 
       if (testedObject == null && createAutomatically) {
          if (reusePreviouslyCreatedInstance(testClassInstance)) {
             return;
          }
 
-         if (testedObjectCreation != null) {
-            testedObject = testedObjectCreation.create();
-            setFieldValue(testedField, testClassInstance, testedObject);
-            registerTestedObject(testedObject);
-         }
+         testedObject = createAndRegisterNewObject(testClassInstance);
       }
       else if (testedObject != null) {
          registerTestedObject(testedObject);
-         testedClass = testedObject.getClass();
+         testedObjectClass = testedObject.getClass();
       }
 
-      if (testedObject != null && testedClass.getClassLoader() != null) {
-         performFieldInjection(testedClass, testedObject);
-         executeInitializationMethodsIfAny(testedClass, testedObject);
+      if (testedObject != null && testedObjectClass.getClassLoader() != null) {
+         performFieldInjection(testedObjectClass, testedObject);
+         executeInitializationMethodsIfAny(testedObjectClass, testedObject);
       }
    }
 
@@ -92,6 +94,16 @@ final class TestedField
       return testedObject;
    }
 
+   private static boolean isNonInstantiableType(@Nonnull Class<?> targetClass, @Nullable Object currentValue)
+   {
+      return
+         targetClass.isPrimitive() && DefaultValues.defaultValueForPrimitiveType(targetClass).equals(currentValue) ||
+         currentValue == null && (
+            targetClass.isArray() || targetClass.isEnum() || targetClass.isAnnotation() ||
+            AutoBoxing.isWrapperOfPrimitiveType(targetClass)
+         );
+   }
+
    private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance)
    {
       Type testedType = testedField.getGenericType();
@@ -104,6 +116,20 @@ final class TestedField
       }
 
       return false;
+   }
+
+   @Nullable
+   Object createAndRegisterNewObject(@Nonnull Object testClassInstance)
+   {
+      Object testedObject = null;
+
+      if (testedObjectCreation != null) {
+         testedObject = testedObjectCreation.create();
+         setFieldValue(testedField, testClassInstance, testedObject);
+         registerTestedObject(testedObject);
+      }
+
+      return testedObject;
    }
 
    private void registerTestedObject(@Nonnull Object testedObject)

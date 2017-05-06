@@ -276,6 +276,20 @@ final class InjectionState implements BeanExporter
    @Nullable
    Object getTestedInstance(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
    {
+      Object testedInstance = instantiatedDependencies.isEmpty() ?
+         null : findPreviouslyInstantiatedDependency(testedType, nameOfInjectionPoint);
+
+      if (testedInstance == null) {
+         testedInstance = testedObjects.isEmpty() ?
+            null : getValueFromExistingTestedObject(testedType, nameOfInjectionPoint);
+      }
+
+      return testedInstance;
+   }
+
+   @Nullable
+   private Object findPreviouslyInstantiatedDependency(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
+   {
       InjectionPoint injectionPoint = new InjectionPoint(testedType, nameOfInjectionPoint);
       Object dependency = instantiatedDependencies.get(injectionPoint);
 
@@ -289,6 +303,41 @@ final class InjectionState implements BeanExporter
       }
 
       return dependency;
+   }
+
+   @Nullable
+   private Object getValueFromExistingTestedObject(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
+   {
+      InjectionPoint injectionPoint = new InjectionPoint(testedType, nameOfInjectionPoint);
+
+      for (Object testedObject : testedObjects.values()) {
+         Object fieldValue = getValueFromFieldOfEquivalentTypeAndName(injectionPoint, testedObject);
+
+         if (fieldValue != null) {
+            return fieldValue;
+         }
+      }
+
+      return null;
+   }
+
+   @Nullable
+   private static Object getValueFromFieldOfEquivalentTypeAndName(
+      @Nonnull InjectionPoint injectionPoint, @Nonnull Object testedObject)
+   {
+      for (Field internalField : testedObject.getClass().getDeclaredFields()) {
+         Type fieldType = internalField.getGenericType();
+         String qualifiedName = getQualifiedName(internalField.getDeclaredAnnotations());
+         String fieldName = qualifiedName == null ? internalField.getName() : qualifiedName;
+         InjectionPoint internalInjectionPoint = new InjectionPoint(fieldType, fieldName);
+
+         if (internalInjectionPoint.equals(injectionPoint)) {
+            Object fieldValue = FieldReflection.getFieldValue(internalField, testedObject);
+            return fieldValue;
+         }
+      }
+
+      return null;
    }
 
    @Nullable @SuppressWarnings("unchecked")
