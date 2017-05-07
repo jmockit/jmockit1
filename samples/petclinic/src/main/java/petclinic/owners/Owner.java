@@ -1,6 +1,7 @@
 package petclinic.owners;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -34,7 +35,7 @@ public class Owner extends Person
 
    public List<Pet> getPets() { return pets; }
 
-   public void addPet(Pet pet)
+   public void addPet(@Nonnull Pet pet)
    {
       pets.add(pet);
       pet.setOwner(this);
@@ -43,7 +44,8 @@ public class Owner extends Person
    /**
     * Return the Pet with the given name, or null if none found for this Owner.
     */
-   public Pet getPet(String name)
+   @Nullable
+   public Pet getPet(@Nonnull String name)
    {
       for (Pet pet : pets) {
          if (pet.getName().equalsIgnoreCase(name)) {

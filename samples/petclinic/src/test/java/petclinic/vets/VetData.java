@@ -1,5 +1,7 @@
 package petclinic.vets;
 
+import javax.annotation.*;
+
 import petclinic.util.*;
 
 /**
@@ -7,7 +9,8 @@ import petclinic.util.*;
  */
 public final class VetData extends TestDatabase
 {
-   public Vet create(String fullName, String... specialtyNames)
+   @Nonnull
+   public Vet create(@Nonnull String fullName, @Nonnull String... specialtyNames)
    {
       String[] names = fullName.split(" ");
 

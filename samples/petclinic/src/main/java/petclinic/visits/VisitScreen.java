@@ -1,6 +1,7 @@
 package petclinic.visits;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.faces.view.*;
 import javax.inject.*;
 import javax.transaction.*;
@@ -15,13 +16,13 @@ public class VisitScreen
 {
    @Inject private VisitMaintenance visitMaintenance;
    @Inject private PetMaintenance petMaintenance;
-   private Pet pet;
-   private Visit visit;
-   private List<Visit> visits;
+   @Nullable private Pet pet;
+   @Nullable private Visit visit;
+   @Nullable private List<Visit> visits;
 
-   public Pet getPet() { return pet; }
-   public Visit getVisit() { return visit; }
-   public List<Visit> getVisits() { return visits; }
+   @Nullable public Pet getPet() { return pet; }
+   @Nullable public Visit getVisit() { return visit; }
+   @Nullable public List<Visit> getVisits() { return visits; }
 
    public void selectPet(int petId)
    {
@@ -31,6 +32,7 @@ public class VisitScreen
    public void selectVisit(int visitId)
    {
       visit = visitMaintenance.findById(visitId);
+      assert visit != null;
       pet = visit.getPet();
    }
 
@@ -41,11 +43,14 @@ public class VisitScreen
 
    public void createOrUpdateVisit()
    {
+      assert pet != null : "Pet not selected";
+      assert visit != null : "Visit not selected";
       visitMaintenance.create(pet, visit);
    }
 
    public void showVisits()
    {
+      assert pet != null : "Pet not selected";
       visits = visitMaintenance.findByPetId(pet.getId());
    }
 }

@@ -1,6 +1,7 @@
 package petclinic.pets;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.faces.view.*;
 import javax.inject.*;
 import javax.transaction.*;
@@ -15,10 +16,11 @@ public class PetScreen
 {
    @Inject private PetMaintenance petMaintenance;
    @Inject private OwnerMaintenance ownerMaintenance;
-   private List<PetType> types;
-   private Owner owner;
-   private Pet pet;
+   @Nullable private List<PetType> types;
+   @Nullable private Owner owner;
+   @Nullable private Pet pet;
 
+   @Nonnull
    public List<PetType> getTypes()
    {
       if (types == null) {
@@ -28,6 +30,7 @@ public class PetScreen
       return types;
    }
 
+   @Nullable
    public Pet getPet() { return pet; }
 
    public void requestNewPet()
@@ -48,7 +51,10 @@ public class PetScreen
 
    public void createOrUpdatePet()
    {
+      assert pet != null;
+
       if (pet.isNew()) {
+         assert owner != null;
          petMaintenance.createPet(owner, pet);
       }
       else {

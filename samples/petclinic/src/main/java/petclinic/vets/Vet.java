@@ -9,7 +9,6 @@ import petclinic.util.*;
  * A veterinarian.
  */
 @Entity
-@Table
 public class Vet extends Person
 {
    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

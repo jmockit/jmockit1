@@ -1,5 +1,7 @@
 package petclinic.owners;
 
+import javax.annotation.*;
+
 import petclinic.util.*;
 
 /**
@@ -7,7 +9,8 @@ import petclinic.util.*;
  */
 public final class OwnerData extends TestDatabase
 {
-   public Owner create(String fullName)
+   @Nonnull
+   public Owner create(@Nonnull String fullName)
    {
       String[] names = fullName.split(" ");
 

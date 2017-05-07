@@ -7,6 +7,7 @@ import javax.validation.constraints.*;
 import petclinic.owners.*;
 import petclinic.util.*;
 import petclinic.visits.*;
+import static javax.persistence.TemporalType.*;
 
 /**
  * A pet.
@@ -20,7 +21,7 @@ public class Pet extends BaseEntity
    @NotNull
    private String name;
 
-   @Temporal(TemporalType.DATE)
+   @Temporal(DATE)
    private Date birthDate;
 
    @ManyToOne @JoinColumn(name = "typeId") @NotNull

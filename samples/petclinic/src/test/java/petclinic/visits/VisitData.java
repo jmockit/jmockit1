@@ -1,6 +1,7 @@
 package petclinic.visits;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.inject.*;
 
 import petclinic.pets.*;
@@ -13,7 +14,8 @@ public final class VisitData extends TestDatabase
 {
    @Inject private PetData petData;
 
-   public Visit create(String description)
+   @Nonnull
+   public Visit create(@Nonnull String description)
    {
       Pet pet = petData.findOrCreate("Test", null, "mouse");
 
@@ -25,6 +27,7 @@ public final class VisitData extends TestDatabase
       return visit;
    }
 
+   @Nonnull
    public Visit create()
    {
       return create("Testing");

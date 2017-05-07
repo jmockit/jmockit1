@@ -2,6 +2,7 @@ package petclinic.pets;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.inject.*;
 
 import petclinic.owners.*;
@@ -14,7 +15,8 @@ public final class PetData extends TestDatabase
 {
    @Inject private OwnerData ownerData;
 
-   public Pet findOrCreate(String name, Date birthDate, String petType)
+   @Nonnull
+   public Pet findOrCreate(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
    {
       Pet pet = findOne("select p from Pet p where p.name = ?1", name);
 
@@ -25,13 +27,15 @@ public final class PetData extends TestDatabase
       return pet;
    }
 
-   public Pet create(String name, Date birthDate, String petType)
+   @Nonnull
+   public Pet create(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
    {
       Owner owner = ownerData.create("Pet Owner");
       return create(owner, name, birthDate, petType);
    }
 
-   public Pet create(Owner owner, String name, Date birthDate, String petType)
+   @Nonnull
+   public Pet create(@Nonnull Owner owner, @Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
    {
       PetType type = findOrCreatePetType(petType);
 
@@ -45,7 +49,8 @@ public final class PetData extends TestDatabase
       return pet;
    }
 
-   PetType findOrCreatePetType(String petType)
+   @Nonnull
+   PetType findOrCreatePetType(@Nonnull String petType)
    {
       PetType type = findOne("select t from PetType t where t.name = ?1", petType);
 
@@ -56,7 +61,8 @@ public final class PetData extends TestDatabase
       return type;
    }
 
-   PetType createType(String name)
+   @Nonnull
+   PetType createType(@Nonnull String name)
    {
       PetType type = new PetType();
       type.setName(name);

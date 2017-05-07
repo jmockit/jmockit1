@@ -1,6 +1,7 @@
 package petclinic.owners;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.faces.view.*;
 import javax.inject.*;
 import javax.transaction.*;
@@ -12,15 +13,15 @@ import javax.transaction.*;
 public class OwnerScreen
 {
    @Inject private OwnerMaintenance ownerMaintenance;
-   private String lastName;
-   private List<Owner> owners;
-   private Owner owner;
+   @Nullable private String lastName;
+   @Nullable private List<Owner> owners;
+   @Nullable private Owner owner;
 
-   public String getLastName() { return lastName; }
-   public void setLastName(String lastName) { this.lastName = lastName; }
+   @Nullable public String getLastName() { return lastName; }
+   public void setLastName(@Nullable String lastName) { this.lastName = lastName; }
 
-   public Owner getOwner() { return owner; }
-   public List<Owner> getOwners() { return owners; }
+   @Nullable public Owner getOwner() { return owner; }
+   @Nullable public List<Owner> getOwners() { return owners; }
 
    public void findOwners()
    {
@@ -43,6 +44,7 @@ public class OwnerScreen
 
    public void createOrUpdateOwner()
    {
+      assert owner != null;
       ownerMaintenance.createOrUpdate(owner);
    }
 }

@@ -1,6 +1,7 @@
 package petclinic.util;
 
 import java.util.*;
+import javax.annotation.*;
 import javax.persistence.*;
 import javax.transaction.*;
 
@@ -18,7 +19,8 @@ public class Database
 
     * @return the persistent entity if found, or {@code null} if not found
     */
-   public <E extends BaseEntity> E findById(Class<E> entityClass, int id)
+   @Nullable
+   public <E extends BaseEntity> E findById(@Nonnull Class<E> entityClass, int id)
    {
       E entity = em.find(entityClass, id);
       return entity;
@@ -36,7 +38,8 @@ public class Database
     *
     * @see #find(int, String, Object...)
     */
-   public <E extends BaseEntity> List<E> find(String qlStatement, Object... qlArgs)
+   @Nonnull
+   public <E extends BaseEntity> List<E> find(@Nonnull String qlStatement, @Nonnull Object... qlArgs)
    {
       return find(0, qlStatement, qlArgs);
    }
@@ -53,7 +56,9 @@ public class Database
     * @return the list of zero or more entities found, in an arbitrary order or in the order specified by an "order by"
     * clause (if any)
     */
-   public <E extends BaseEntity> List<E> find(int maxResults, String qlStatement, Object... qlArgs)
+   @Nonnull
+   public <E extends BaseEntity> List<E> find(
+      @Nonnegative int maxResults, @Nonnull String qlStatement, @Nonnull Object... qlArgs)
    {
       Query query = em.createQuery(qlStatement);
       query.setMaxResults(maxResults);
@@ -73,7 +78,7 @@ public class Database
     * In the case of an already persisted entity, the persistence context is synchronized to the application database,
     * so that any pending "inserts", "updates" or "deletes" get executed at this time.
     */
-   public void save(BaseEntity entity)
+   public void save(@Nonnull BaseEntity entity)
    {
       if (entity.isNew()) {
          em.persist(entity);
@@ -90,7 +95,7 @@ public class Database
    /**
     * Removes a given persistent entity from the application database.
     */
-   public void remove(BaseEntity entity)
+   public void remove(@Nonnull BaseEntity entity)
    {
       em.remove(entity);
    }

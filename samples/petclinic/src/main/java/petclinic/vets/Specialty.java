@@ -9,7 +9,6 @@ import petclinic.util.*;
  * A {@linkplain Vet Vet's} specialty (for example, "Dentistry").
  */
 @Entity
-@Table
 public class Specialty extends BaseEntity
 {
    @NotNull
