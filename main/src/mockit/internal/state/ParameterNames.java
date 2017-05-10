@@ -64,7 +64,6 @@ public final class ParameterNames
 
       while (true) {
          char c = memberDesc.charAt(i);
-         i++;
 
          if (c == ')') {
             return sum;
@@ -77,11 +76,7 @@ public final class ParameterNames
          }
          else if (c == '[') {
             while ((c = memberDesc.charAt(i)) == '[') i++;
-
-            if (isDoubleSizeType(c)) { // if the array element type is double size...
-               i++;
-               sum++; // ...then count it here, otherwise let the outer loop count it
-            }
+            continue;
          }
          else if (isDoubleSizeType(c)) {
             sum += 2;
@@ -89,6 +84,7 @@ public final class ParameterNames
          else {
             sum++;
          }
+         i++;
       }
    }
 
