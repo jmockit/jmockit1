@@ -261,6 +261,8 @@ public final class FullInjection
    private void registerNewInstance(
       @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint, @Nonnull Object dependency)
    {
+      injectionState.saveInstantiatedDependency(injectionPoint, dependency);
+
       Class<?> instantiatedClass = dependency.getClass();
 
       if (injector.testedClass.isClassFromSameModuleOrSystemAsTestedClass(instantiatedClass)) {
@@ -268,8 +270,6 @@ public final class FullInjection
          injectionState.lifecycleMethods.findLifecycleMethods(instantiatedClass);
          injectionState.lifecycleMethods.executeInitializationMethodsIfAny(instantiatedClass, dependency);
       }
-
-      injectionState.saveInstantiatedDependency(injectionPoint, dependency);
    }
 
    @Override

@@ -104,4 +104,19 @@ public final class TestedClassWithFullDITest
    {
       assertSame(concreteDependency, tested4.dependency);
    }
+
+   static class A { B b1; }
+   static class B { B b2; }
+   @Tested(fullyInitialized = true) A a;
+
+   @Test
+   public void instantiateClassDependentOnAnotherHavingFieldOfItsOwnType()
+   {
+      B b1 = a.b1;
+      assertNotNull(b1);
+
+      B b2 = b1.b2;
+      assertNotNull(b2);
+      assertSame(b1, b2);
+   }
 }
