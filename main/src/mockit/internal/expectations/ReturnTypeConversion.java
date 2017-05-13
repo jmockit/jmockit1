@@ -12,8 +12,8 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
-import static mockit.internal.util.ConstructorReflection.*;
-import static mockit.internal.util.MethodReflection.*;
+import static mockit.internal.reflection.ConstructorReflection.*;
+import static mockit.internal.reflection.MethodReflection.*;
 
 final class ReturnTypeConversion
 {

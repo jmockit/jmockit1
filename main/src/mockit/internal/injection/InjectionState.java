@@ -13,8 +13,8 @@ import javax.inject.*;
 import javax.servlet.*;
 
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.Utilities.getClassType;
 

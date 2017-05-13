@@ -15,7 +15,7 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.injection.InjectionPointProvider.NULL;
-import static mockit.internal.util.ConstructorReflection.*;
+import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 public final class ConstructorInjection extends Injector

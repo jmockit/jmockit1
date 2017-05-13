@@ -11,6 +11,7 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 

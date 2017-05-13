@@ -9,6 +9,7 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 

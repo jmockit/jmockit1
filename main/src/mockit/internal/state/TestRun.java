@@ -10,6 +10,7 @@ import mockit.internal.expectations.*;
 import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
+import mockit.internal.util.*;
 
 /**
  * A singleton which stores several data structures which in turn hold global state for individual test methods, test
@@ -145,5 +146,22 @@ public final class TestRun
    public static Object getMock(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
       return INSTANCE.mockClasses.getMock(mockUpClassDesc, mockedInstance);
+   }
+
+   public static void ensureThatClassIsInitialized(@Nonnull Class<?> aClass)
+   {
+      boolean previousFlag = INSTANCE.executingTest.setShouldIgnoreMockingCallbacks(true);
+
+      try {
+         Class.forName(aClass.getName(), true, aClass.getClassLoader());
+      }
+      catch (ClassNotFoundException ignore) {}
+      catch (LinkageError e) {
+         StackTrace.filterStackTrace(e);
+         e.printStackTrace();
+      }
+      finally {
+         INSTANCE.executingTest.setShouldIgnoreMockingCallbacks(previousFlag);
+      }
    }
 }

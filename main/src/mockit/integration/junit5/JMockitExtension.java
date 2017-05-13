@@ -13,8 +13,8 @@ import org.junit.jupiter.api.extension.*;
 import mockit.*;
 import mockit.integration.internal.*;
 import mockit.internal.expectations.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.internal.util.StackTrace.*;
 
 @SuppressWarnings("Since15")

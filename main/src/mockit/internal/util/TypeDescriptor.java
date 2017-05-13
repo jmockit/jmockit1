@@ -10,6 +10,7 @@ import mockit.external.asm.*;
 
 public final class TypeDescriptor
 {
+   private static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
    private static final Class<?>[] PRIMITIVE_TYPES = {
       void.class, boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class
    };
@@ -22,7 +23,7 @@ public final class TypeDescriptor
       Type[] paramTypes = Type.getArgumentTypes(methodDesc);
 
       if (paramTypes.length == 0) {
-         return ParameterReflection.NO_PARAMETERS;
+         return NO_PARAMETERS;
       }
 
       Class<?>[] paramClasses = new Class<?>[paramTypes.length];

@@ -7,8 +7,8 @@ package mockit.internal.expectations.invocation;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 
 final class RealImplementationResult extends DynamicInvocationResult
 {

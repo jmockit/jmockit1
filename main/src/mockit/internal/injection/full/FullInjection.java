@@ -14,10 +14,10 @@ import javax.sql.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.injection.*;
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.injection.InjectionPoint.*;
-import static mockit.internal.util.ConstructorReflection.*;
+import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 /**

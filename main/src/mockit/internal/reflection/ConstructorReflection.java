@@ -2,14 +2,15 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.util;
+package mockit.internal.reflection;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
 
 import static java.lang.reflect.Modifier.isStatic;
 
-import static mockit.internal.util.ParameterReflection.*;
+import mockit.internal.util.*;
+import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
 
 public final class ConstructorReflection
@@ -36,7 +37,7 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes)
+   static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes)
    {
       for (Constructor<?> declaredConstructor : theClass.getDeclaredConstructors()) {
          Class<?>[] declaredParameterTypes = declaredConstructor.getParameterTypes();
@@ -182,6 +183,16 @@ public final class ConstructorReflection
       }
       catch (InstantiationException ignore) { return null; }
       catch (IllegalAccessException ignore) { return null; }
+   }
+
+   @Nonnull
+   public static <T> T newInstanceUsingPublicDefaultConstructor(@Nonnull Class<T> aClass)
+   {
+      Constructor<T> publicConstructor;
+      try { publicConstructor = aClass.getConstructor(); }
+      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+
+      return invoke(publicConstructor);
    }
 
    @Nullable

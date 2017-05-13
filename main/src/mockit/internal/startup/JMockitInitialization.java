@@ -11,6 +11,7 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.coverage.*;
 import mockit.integration.junit4.internal.*;
+import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 
 final class JMockitInitialization

@@ -14,6 +14,7 @@ import static java.lang.reflect.Modifier.isAbstract;
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.GeneratedClasses.*;

@@ -8,7 +8,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatcher>
 {

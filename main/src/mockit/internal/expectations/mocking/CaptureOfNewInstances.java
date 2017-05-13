@@ -14,7 +14,7 @@ import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
-import static mockit.internal.util.FieldReflection.*;
+import static mockit.internal.reflection.FieldReflection.*;
 
 public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 {

@@ -11,6 +11,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.internal.injection.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 

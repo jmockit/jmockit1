@@ -10,7 +10,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.isFinal;
 
 import mockit.*;
-import static mockit.internal.util.FieldReflection.*;
+import static mockit.internal.reflection.FieldReflection.*;
 
 final class TestedField extends TestedObject
 {

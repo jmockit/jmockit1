@@ -13,6 +13,7 @@ import static java.util.regex.Pattern.*;
 
 import mockit.internal.injection.*;
 import mockit.internal.injection.full.*;
+import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.injection.InjectionPointProvider.NULL;

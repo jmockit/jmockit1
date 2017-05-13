@@ -6,7 +6,7 @@ package mockit.internal.expectations.mocking;
 
 import javax.annotation.*;
 
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 public abstract class InstanceFactory
 {

@@ -11,7 +11,6 @@ import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import static mockit.external.asm.ClassReader.*;
-import static mockit.internal.util.Utilities.*;
 
 public abstract class CaptureOfImplementations<M>
 {
@@ -49,7 +48,7 @@ public abstract class CaptureOfImplementations<M>
             return;
          }
 
-         ensureThatClassIsInitialized(realClass);
+         TestRun.ensureThatClassIsInitialized(realClass);
 
          BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseType, typeMetadata);
          classReader.accept(modifier, SKIP_FRAMES);

@@ -2,14 +2,15 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.util;
+package mockit.internal.reflection;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import static mockit.internal.util.ParameterReflection.*;
+import mockit.internal.util.*;
+import static mockit.internal.reflection.ParameterReflection.*;
 
 public final class MethodReflection
 {

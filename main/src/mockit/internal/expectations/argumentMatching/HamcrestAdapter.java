@@ -6,7 +6,7 @@ package mockit.internal.expectations.argumentMatching;
 
 import javax.annotation.*;
 
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 import org.hamcrest.*;
 import org.hamcrest.core.*;

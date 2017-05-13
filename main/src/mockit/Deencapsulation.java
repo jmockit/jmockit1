@@ -7,8 +7,9 @@ package mockit;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.classGeneration.*;
+import mockit.internal.reflection.*;
 import mockit.internal.util.*;
-import mockit.internal.util.EmptyProxy.*;
+import mockit.internal.reflection.EmptyProxy.*;
 
 /**
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields, methods, and

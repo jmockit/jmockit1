@@ -7,6 +7,7 @@ package mockit.internal.classGeneration;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 
 public final class MockedTypeInfo

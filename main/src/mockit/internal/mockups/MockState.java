@@ -8,7 +8,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.internal.mockups.MockMethods.*;
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 final class MockState
 {

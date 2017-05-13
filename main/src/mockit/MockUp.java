@@ -11,10 +11,10 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.classGeneration.*;
 import mockit.internal.mockups.*;
+import mockit.internal.reflection.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.MockClasses.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
 /**
@@ -320,7 +320,7 @@ public abstract class MockUp<T>
       String mockedClassName = mockedClass.getName();
 
       if (isGeneratedImplementationClass(mockedClassName)) {
-         return newInstance(mockedClass);
+         return ConstructorReflection.newInstanceUsingPublicDefaultConstructor(mockedClass);
       }
 
       if (Proxy.isProxyClass(mockedClass)) {

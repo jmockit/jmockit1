@@ -15,9 +15,10 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import mockit.internal.util.EmptyProxy.Impl;
+import mockit.internal.reflection.EmptyProxy.Impl;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
@@ -65,7 +66,7 @@ class BaseTypeRedefinition
       }
       else {
          if (typeMetadata == null || !typeMetadata.isClassInitializationToBeStubbedOut()) {
-            ensureThatClassIsInitialized(targetClass);
+            TestRun.ensureThatClassIsInitialized(targetClass);
          }
 
          redefineTargetClassAndCreateInstanceFactory(typeToMock);

@@ -9,7 +9,7 @@ import java.lang.reflect.*;
 import java.security.*;
 import javax.annotation.*;
 
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 public final class TestedClass
 {

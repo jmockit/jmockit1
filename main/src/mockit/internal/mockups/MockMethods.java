@@ -10,9 +10,10 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import mockit.internal.util.GenericTypeReflection.*;
+import mockit.internal.reflection.GenericTypeReflection.*;
 import static mockit.internal.util.ObjectMethods.*;
 
 /**

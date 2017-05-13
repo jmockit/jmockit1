@@ -9,7 +9,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 /**
  * Base class for encapsulating state and logic needed by both the Expectations and Mockups APIs, but which should not

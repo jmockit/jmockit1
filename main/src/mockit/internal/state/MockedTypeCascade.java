@@ -12,6 +12,7 @@ import javax.annotation.*;
 import static java.util.Collections.synchronizedList;
 
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Type.*;
 import static mockit.internal.util.Utilities.*;

@@ -11,9 +11,10 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import mockit.internal.util.GenericTypeReflection.*;
+import mockit.internal.reflection.GenericTypeReflection.*;
 import static mockit.external.asm.Type.getType;
 import static mockit.internal.util.TypeDescriptor.getClassForType;
 

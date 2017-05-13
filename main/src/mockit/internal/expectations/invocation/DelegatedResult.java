@@ -7,7 +7,7 @@ package mockit.internal.expectations.invocation;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.internal.util.*;
+import mockit.internal.reflection.*;
 
 final class DelegatedResult extends DynamicInvocationResult
 {

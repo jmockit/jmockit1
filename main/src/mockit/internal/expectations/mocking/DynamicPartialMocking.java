@@ -11,7 +11,6 @@ import mockit.internal.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.AutoBoxing.*;
 import static mockit.internal.util.GeneratedClasses.*;
-import static mockit.internal.util.Utilities.*;
 
 public final class DynamicPartialMocking extends BaseTypeRedefinition
 {
@@ -69,7 +68,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    private void applyPartialMockingToGivenClass()
    {
       validateTargetClassType();
-      ensureThatClassIsInitialized(targetClass);
+      TestRun.ensureThatClassIsInitialized(targetClass);
       methodsOnly = false;
       redefineMethodsAndConstructorsInTargetType();
    }

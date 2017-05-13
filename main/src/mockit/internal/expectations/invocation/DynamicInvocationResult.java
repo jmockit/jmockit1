@@ -10,8 +10,8 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.*;
+import mockit.internal.reflection.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 
 abstract class DynamicInvocationResult extends InvocationResult
 {

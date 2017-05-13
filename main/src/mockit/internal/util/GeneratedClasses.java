@@ -81,14 +81,4 @@ public final class GeneratedClasses
    {
       return getMockedClassOrInterfaceType(mock.getClass());
    }
-
-   @Nonnull
-   public static Object newInstance(Class<?> generatedClass)
-   {
-      Constructor<?> publicConstructor;
-      try { publicConstructor = generatedClass.getConstructor(); }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-
-      return ConstructorReflection.invoke(publicConstructor);
-   }
 }
