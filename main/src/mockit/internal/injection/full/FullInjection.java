@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.full;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
@@ -13,6 +13,7 @@ import javax.inject.*;
 import javax.sql.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.internal.injection.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.injection.InjectionPoint.*;
@@ -20,40 +21,45 @@ import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
- * Responsible for recursive injection of dependencies as requested by a {@code @Tested(fullyInitialized = true)} field.
+ * Responsible for recursive injection of dependencies into a {@code @Tested(fullyInitialized = true)} object.
  */
-final class FullInjection
+public final class FullInjection
 {
    private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
 
    @Nonnull private final InjectionState injectionState;
-   @Nonnull private final Field testedField;
+   @Nonnull private final Class<?> testedClass;
+   @Nonnull private final String testedName;
    @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
-   @Nonnull private Class<?> dependencyClass;
-   @Nonnull private InjectionPointProvider injectionProvider;
+   @Nullable private Class<?> dependencyClass;
+   @Nullable private InjectionPointProvider injectionProvider;
 
-   FullInjection(@Nonnull InjectionState injectionState, @Nonnull Field testedField)
+   public FullInjection(
+      @Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, @Nonnull String testedName)
    {
       this.injectionState = injectionState;
-      this.testedField = testedField;
+      this.testedClass = testedClass;
+      this.testedName = testedName;
       servletDependencies = SERVLET_CLASS == null ? null : new ServletDependencies(injectionState);
       jpaDependencies = PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
    @Nullable
-   Object reuseInstance(
+   public Object reuseInstance(
       @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
       @Nullable String qualifiedName)
    {
       this.injectionProvider = injectionProvider;
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, qualifiedName);
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
       return dependency;
    }
 
    @Nonnull
-   private InjectionPoint getInjectionPoint(@Nonnull GenericTypeReflection reflection, @Nullable String qualifiedName)
+   private InjectionPoint getInjectionPoint(
+      @Nonnull GenericTypeReflection reflection, @Nonnull InjectionPointProvider injectionProvider,
+      @Nullable String qualifiedName)
    {
       Type dependencyType = injectionProvider.getDeclaredType();
 
@@ -83,12 +89,12 @@ final class FullInjection
    }
 
    @Nullable
-   Object createOrReuseInstance(
+   public Object createOrReuseInstance(
       @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
    {
       TestedClass testedClass = injector.testedClass;
       setInjectionProvider(injectionProvider);
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, qualifiedName);
+      InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
       Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
 
       if (dependency != null) {
@@ -101,13 +107,13 @@ final class FullInjection
          return Logger.getLogger(testedClass.nameOfTestedClass);
       }
 
-      if (!isInstantiableType(typeToInject)) {
+      if (typeToInject == null || !isInstantiableType(typeToInject)) {
          return null;
       }
 
       dependency = typeToInject.isInterface() ?
-         createInstanceOfSupportedInterfaceIfApplicable(testedClass, injectionPoint) :
-         createAndRegisterNewInstance(injector, injectionPoint);
+         createInstanceOfSupportedInterfaceIfApplicable(testedClass, typeToInject, injectionPoint, injectionProvider) :
+         createAndRegisterNewInstance(typeToInject, injector, injectionPoint, injectionProvider);
 
       return dependency;
    }
@@ -141,16 +147,16 @@ final class FullInjection
 
    @Nullable
    private Object createInstanceOfSupportedInterfaceIfApplicable(
-      @Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
+      @Nonnull TestedClass testedClass, @Nonnull Class<?> typeToInject,
+      @Nonnull InjectionPoint injectionPoint, @Nonnull InjectionPointProvider injectionProvider)
    {
-      Class<?> typeToInject = dependencyClass;
       Object dependency = null;
 
       if (CommonDataSource.class.isAssignableFrom(typeToInject)) {
          dependency = createAndRegisterDataSource(testedClass, injectionPoint);
       }
       else if (INJECT_CLASS != null && typeToInject == Provider.class) {
-         dependency = createProviderInstance();
+         dependency = createProviderInstance(injectionProvider);
       }
       else if (CONVERSATION_CLASS != null && typeToInject == Conversation.class) {
          dependency = createAndRegisterConversationInstance();
@@ -179,7 +185,7 @@ final class FullInjection
    }
 
    @Nonnull
-   private Object createProviderInstance()
+   private Object createProviderInstance(@Nonnull InjectionPointProvider injectionProvider)
    {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -235,9 +241,11 @@ final class FullInjection
    }
 
    @Nullable
-   private Object createAndRegisterNewInstance(@Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint)
+   private Object createAndRegisterNewInstance(
+      @Nonnull Class<?> typeToInstantiate, @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint,
+      @Nonnull InjectionPointProvider injectionProvider)
    {
-      Object dependency = createNewInstance(dependencyClass);
+      Object dependency = createNewInstance(typeToInstantiate);
 
       if (dependency != null) {
          if (injectionPoint.name == null) {
@@ -267,12 +275,14 @@ final class FullInjection
    @Override
    public String toString()
    {
-      String description =
-         "@Tested field \"" + testedField.getType().getSimpleName() + ' ' + testedField.getName() + '"';
-      InjectionPointProvider parentInjectionProvider = injectionProvider.parent;
+      String description = "@Tested object \"" + testedClass.getSimpleName() + ' ' + testedName + '"';
 
-      if (parentInjectionProvider != null) {
-         description = parentInjectionProvider + "\r\n  of " + description;
+      if (injectionProvider != null) {
+         InjectionPointProvider parentInjectionProvider = injectionProvider.parent;
+
+         if (parentInjectionProvider != null) {
+            description = parentInjectionProvider + "\r\n  of " + description;
+         }
       }
 
       return description;

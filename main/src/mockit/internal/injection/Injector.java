@@ -6,18 +6,21 @@ package mockit.internal.injection;
 
 import javax.annotation.*;
 
-class Injector
-{
-   @Nonnull final TestedClass testedClass;
-   @Nonnull final InjectionState injectionState;
-   @Nullable final FullInjection fullInjection;
+import mockit.internal.injection.full.*;
 
-   Injector(@Nonnull TestedClass testedClass, @Nonnull InjectionState state, @Nullable FullInjection injection)
+public class Injector
+{
+   @Nonnull public final TestedClass testedClass;
+   @Nonnull protected final InjectionState injectionState;
+   @Nullable protected final FullInjection fullInjection;
+
+   protected Injector(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionState state, @Nullable FullInjection fullInjection)
    {
       this.testedClass = testedClass;
       injectionState = state;
-      fullInjection = injection;
+      this.fullInjection = fullInjection;
    }
 
-   void fillOutDependenciesRecursively(@Nonnull Object dependency) {}
+   public void fillOutDependenciesRecursively(@Nonnull Object dependency) {}
 }

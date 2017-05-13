@@ -21,7 +21,7 @@ import static mockit.internal.util.Utilities.getClassType;
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
  */
-final class InjectionState implements BeanExporter
+public final class InjectionState implements BeanExporter
 {
    @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
       new ConcurrentHashMap<InjectionPoint, Object>(2);
@@ -30,7 +30,7 @@ final class InjectionState implements BeanExporter
    @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
    @Nonnull private List<MockedType> injectables;
    @Nonnull private List<InjectionPointProvider> consumedInjectables;
-   @Nonnull final LifecycleMethods lifecycleMethods;
+   @Nonnull public final LifecycleMethods lifecycleMethods;
    private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
@@ -74,7 +74,7 @@ final class InjectionState implements BeanExporter
 
    void setTestedTypeReflection(@Nonnull GenericTypeReflection reflection) { testedTypeReflection = reflection; }
 
-   void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
+   public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
    {
       this.typeOfInjectionPoint = typeOfInjectionPoint;
    }
@@ -85,7 +85,7 @@ final class InjectionState implements BeanExporter
       return isSameTypeAsInjectionPoint(declaredType);
    }
 
-   boolean isSameTypeAsInjectionPoint(@Nonnull Type injectableType)
+   public boolean isSameTypeAsInjectionPoint(@Nonnull Type injectableType)
    {
       if (testedTypeReflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
@@ -116,7 +116,7 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   MockedType findNextInjectableForInjectionPoint()
+   public MockedType findNextInjectableForInjectionPoint()
    {
       for (MockedType injectable : injectables) {
          if (hasSameTypeAsInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
@@ -142,7 +142,7 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   InjectionPointProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
+   public InjectionPointProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
    {
       Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
 
@@ -154,7 +154,7 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   Object getValueForParameterFromTestedField(@Nonnull String nameOfInjectionPoint)
+   public Object getTestedValueForConstructorParameter(@Nonnull String nameOfInjectionPoint)
    {
       InjectionPoint injectionPoint = new InjectionPoint(typeOfInjectionPoint, nameOfInjectionPoint);
       return testedObjects.get(injectionPoint);
@@ -223,7 +223,7 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint)
+   public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint)
    {
       for (MockedType injectable : injectables) {
          if (hasSameTypeAsInjectionPoint(injectable) && nameOfInjectionPoint.equals(injectable.getName())) {
@@ -235,7 +235,7 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   Object getValueToInject(@Nonnull InjectionPointProvider injectable)
+   public Object getValueToInject(@Nonnull InjectionPointProvider injectable)
    {
       if (consumedInjectables.contains(injectable)) {
          return null;
@@ -256,14 +256,14 @@ final class InjectionState implements BeanExporter
    }
 
    @Nonnull
-   List<InjectionPointProvider> saveConsumedInjectables()
+   public List<InjectionPointProvider> saveConsumedInjectables()
    {
       List<InjectionPointProvider> previousConsumedInjectables = consumedInjectables;
       consumedInjectables = new ArrayList<InjectionPointProvider>();
       return previousConsumedInjectables;
    }
 
-   void restoreConsumedInjectables(@Nonnull List<InjectionPointProvider> previousConsumedInjectables)
+   public void restoreConsumedInjectables(@Nonnull List<InjectionPointProvider> previousConsumedInjectables)
    {
       consumedInjectables = previousConsumedInjectables;
    }
@@ -341,10 +341,10 @@ final class InjectionState implements BeanExporter
    }
 
    @Nullable @SuppressWarnings("unchecked")
-   <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
+   public <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
 
    @Nullable
-   Object getInstantiatedDependency(
+   public Object getInstantiatedDependency(
       @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
       @Nonnull InjectionPoint dependencyKey)
    {
@@ -391,12 +391,12 @@ final class InjectionState implements BeanExporter
       return null;
    }
 
-   void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
+   public void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       instantiatedDependencies.put(dependencyKey, dependency);
    }
 
-   void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
+   public void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       globalDependencies.put(dependencyKey, dependency);
    }

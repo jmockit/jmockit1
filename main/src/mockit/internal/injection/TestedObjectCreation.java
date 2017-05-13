@@ -12,9 +12,11 @@ import static java.lang.reflect.Modifier.*;
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.injection.constructor.*;
+import mockit.internal.injection.full.*;
 import mockit.internal.state.*;
 
-final class TestedObjectCreation
+public final class TestedObjectCreation
 {
    @Nonnull private final InjectionState injectionState;
    @Nullable private final FullInjection fullInjection;
@@ -22,15 +24,14 @@ final class TestedObjectCreation
    @Nonnull final TestedClass testedClass;
 
    TestedObjectCreation(
-      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Field testedField)
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
+      @Nonnull Type declaredType, @Nonnull Class<?> declaredClass)
    {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      Class<?> declaredTestedClass = testedField.getType();
-      Type declaredType = testedField.getGenericType();
-      actualTestedClass = isAbstract(declaredTestedClass.getModifiers()) ?
-         generateSubclass(declaredType, declaredTestedClass) : declaredTestedClass;
-      testedClass = new TestedClass(declaredType, declaredTestedClass);
+      actualTestedClass = isAbstract(declaredClass.getModifiers()) ?
+         generateSubclass(declaredType, declaredClass) : declaredClass;
+      testedClass = new TestedClass(declaredType, declaredClass);
    }
 
    @Nonnull
@@ -48,7 +49,7 @@ final class TestedObjectCreation
       return generatedSubclass;
    }
 
-   TestedObjectCreation(
+   public TestedObjectCreation(
       @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
       @Nonnull Class<?> implementationClass)
    {
@@ -59,7 +60,7 @@ final class TestedObjectCreation
    }
 
    @Nonnull
-   Object create()
+   public Object create()
    {
       ConstructorSearch constructorSearch =
          new ConstructorSearch(injectionState, actualTestedClass, fullInjection != null);

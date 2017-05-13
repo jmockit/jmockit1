@@ -18,7 +18,7 @@ public abstract class InjectionPointProvider
 
    @Nonnull protected final Type declaredType;
    @Nonnull protected final String name;
-   @Nullable InjectionPointProvider parent;
+   @Nullable public InjectionPointProvider parent;
 
    protected InjectionPointProvider(@Nonnull Type declaredType, @Nonnull String name)
    {
@@ -27,10 +27,10 @@ public abstract class InjectionPointProvider
    }
 
    @Nonnull public final Type getDeclaredType() { return declaredType; }
-   @Nonnull protected abstract Class<?> getClassOfDeclaredType();
+   @Nonnull public abstract Class<?> getClassOfDeclaredType();
    @Nonnull public final String getName() { return name; }
-   @Nonnull Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
-   @Nullable protected Object getValue(@Nullable Object owner) { return null; }
+   @Nonnull public Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
+   @Nullable public Object getValue(@Nullable Object owner) { return null; }
 
    @Override
    public String toString()

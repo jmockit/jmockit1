@@ -91,10 +91,10 @@ public final class MockedType extends InjectionPointProvider
    }
 
    MockedType(
-      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, @Nonnegative int paramIndex,
+      @Nonnull TestMethod testMethod, @Nonnegative int paramIndex,
       @Nonnull Type parameterType, @Nonnull Annotation[] annotationsOnParameter)
    {
-      super(parameterType, getMockParameterName(testClassDesc, testMethodDesc, paramIndex));
+      super(parameterType, ParameterNames.getName(testMethod, paramIndex));
       field = null;
       fieldFromTestClass = false;
       accessModifiers = 0;
@@ -113,14 +113,6 @@ public final class MockedType extends InjectionPointProvider
       }
 
       registerCascadingAsNeeded();
-   }
-
-   @Nonnull
-   private static String getMockParameterName(
-      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, @Nonnegative int paramIndex)
-   {
-      String parameterName = ParameterNames.getName(testClassDesc, testMethodDesc, paramIndex);
-      return parameterName == null ? "param" + paramIndex : parameterName;
    }
 
    @Nullable
@@ -219,7 +211,7 @@ public final class MockedType extends InjectionPointProvider
    int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
 
    @Nullable @Override
-   protected Object getValue(@Nullable Object owner)
+   public Object getValue(@Nullable Object owner)
    {
       if (field == null) {
          return providedValue;

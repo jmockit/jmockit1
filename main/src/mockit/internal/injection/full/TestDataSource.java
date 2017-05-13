@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.full;
 
 import java.beans.*;
 import java.lang.annotation.*;
@@ -10,6 +10,8 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 import javax.annotation.sql.*;
 import javax.sql.*;
+
+import mockit.internal.injection.*;
 
 final class TestDataSource
 {

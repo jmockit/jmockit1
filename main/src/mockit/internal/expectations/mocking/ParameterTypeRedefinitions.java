@@ -9,56 +9,42 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.state.*;
+import mockit.internal.util.*;
 
 public final class ParameterTypeRedefinitions extends TypeRedefinitions
 {
-   @Nonnull private final Type[] paramTypes;
-   @Nonnull private final Annotation[][] paramAnnotations;
-   @Nonnull private final Object[] paramValues;
+   @Nonnull private final TestMethod testMethod;
    @Nonnull private final MockedType[] mockParameters;
    @Nonnull private final List<MockedType> injectableParameters;
 
-   public ParameterTypeRedefinitions(@Nonnull Method testMethod, @Nullable Object[] parameterValues)
+   public ParameterTypeRedefinitions(@Nonnull TestMethod testMethod)
    {
-      TestRun.enterNoMockingZone();
+      this.testMethod = testMethod;
+      int n = testMethod.getParameterCount();
+      mockParameters = new MockedType[n];
+      injectableParameters = new ArrayList<MockedType>(n);
 
-      try {
-         paramTypes = testMethod.getGenericParameterTypes();
-         paramAnnotations = testMethod.getParameterAnnotations();
-         int n = paramTypes.length;
-         paramValues = parameterValues == null || parameterValues.length != n ? new Object[n] : parameterValues;
-         mockParameters = new MockedType[n];
-         injectableParameters = new ArrayList<MockedType>(n);
-
-         String testClassDesc = mockit.external.asm.Type.getInternalName(testMethod.getDeclaringClass());
-         String testMethodDesc = testMethod.getName() + mockit.external.asm.Type.getMethodDescriptor(testMethod);
-
-         for (int i = 0; i < n; i++) {
-            getMockedTypeFromMockParameterDeclaration(testClassDesc, testMethodDesc, i);
-         }
-
-         InstanceFactory[] instanceFactories = redefineMockedTypes();
-         instantiateMockedTypes(instanceFactories);
+      for (int i = 0; i < n; i++) {
+         getMockedTypeFromMockParameterDeclaration(i);
       }
-      finally {
-         TestRun.exitNoMockingZone();
-      }
+
+      InstanceFactory[] instanceFactories = redefineMockedTypes();
+      instantiateMockedTypes(instanceFactories);
    }
 
-   private void getMockedTypeFromMockParameterDeclaration(
-      @Nonnull String testClassDesc, @Nonnull String testMethodDesc, int paramIndex)
+   private void getMockedTypeFromMockParameterDeclaration(@Nonnegative int parameterIndex)
    {
-      Type paramType = paramTypes[paramIndex];
-      Annotation[] annotationsOnParameter = paramAnnotations[paramIndex];
+      Type parameterType = testMethod.getParameterType(parameterIndex);
+      Annotation[] annotationsOnParameter = testMethod.getParameterAnnotations(parameterIndex);
+      MockedType mockedType = new MockedType(testMethod, parameterIndex, parameterType, annotationsOnParameter);
 
-      MockedType mockedType =
-         new MockedType(testClassDesc, testMethodDesc, paramIndex, paramType, annotationsOnParameter);
-      mockParameters[paramIndex] = mockedType;
+      if (mockedType.isMockableType()) {
+         mockParameters[parameterIndex] = mockedType;
+      }
 
       if (mockedType.injectable) {
          injectableParameters.add(mockedType);
-         paramValues[paramIndex] = mockedType.providedValue;
+         testMethod.setParameterValue(parameterIndex, mockedType.providedValue);
       }
    }
 
@@ -71,7 +57,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       for (int i = 0; i < n; i++) {
          MockedType mockedType = mockParameters[i];
 
-         if (mockedType.isMockableType()) {
+         if (mockedType != null) {
             instanceFactories[i] = redefineMockedType(mockedType);
          }
       }
@@ -104,13 +90,13 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
 
    private void instantiateMockedTypes(@Nonnull InstanceFactory[] instanceFactories)
    {
-      for (int i = 0; i < instanceFactories.length; i++) {
-         InstanceFactory instanceFactory = instanceFactories[i];
+      for (int paramIndex = 0; paramIndex < instanceFactories.length; paramIndex++) {
+         InstanceFactory instanceFactory = instanceFactories[paramIndex];
 
          if (instanceFactory != null) {
-            MockedType mockedType = mockParameters[i];
-            Object mockedInstance = instantiateMockedType(mockedType, instanceFactory);
-            paramValues[i] = mockedInstance;
+            MockedType mockedType = mockParameters[paramIndex];
+            @Nonnull Object mockedInstance = instantiateMockedType(mockedType, instanceFactory);
+            testMethod.setParameterValue(paramIndex, mockedInstance);
             mockedType.providedValue = mockedInstance;
          }
       }
@@ -130,5 +116,4 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nonnull public List<MockedType> getInjectableParameters() { return injectableParameters; }
-   @Nonnull public Object[] getParameterValues() { return paramValues; }
 }

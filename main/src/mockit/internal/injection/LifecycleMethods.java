@@ -15,7 +15,7 @@ import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.Utilities.*;
 
-final class LifecycleMethods
+public final class LifecycleMethods
 {
    @Nonnull private final List<Class<?>> classesSearched;
    @Nonnull private final Map<Class<?>, Method> initializationMethods;
@@ -31,7 +31,7 @@ final class LifecycleMethods
       objectsWithTerminationMethodsToExecute = new IdentityHashMap<Class<?>, Object>();
    }
 
-   void findLifecycleMethods(@Nonnull Class<?> testedClass)
+   public void findLifecycleMethods(@Nonnull Class<?> testedClass)
    {
       if (testedClass.isInterface() || classesSearched.contains(testedClass)) {
          return;
@@ -59,7 +59,8 @@ final class LifecycleMethods
          if (method.isSynthetic()) {
             continue;
          }
-         else if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
+
+         if (initializationMethod == null && isInitializationMethod(method, isServlet)) {
             initializationMethods.put(classWithLifecycleMethods, method);
             initializationMethod = method;
             methodsFoundInSameClass++;
@@ -97,7 +98,7 @@ final class LifecycleMethods
          isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
-   void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
+   public void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
    {
       Class<?> superclass = testedClass.getSuperclass();
 

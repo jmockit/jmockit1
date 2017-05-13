@@ -25,10 +25,11 @@ final class MultiValuedProvider extends InjectionPointProvider
       individualProviders.add(provider);
    }
 
-   @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return getClassType(declaredType); }
+   @Nonnull @Override
+   public Class<?> getClassOfDeclaredType() { return getClassType(declaredType); }
 
    @Nullable @Override
-   protected Object getValue(@Nullable Object owner)
+   public Object getValue(@Nullable Object owner)
    {
       List<Object> values = new ArrayList<Object>(individualProviders.size());
 

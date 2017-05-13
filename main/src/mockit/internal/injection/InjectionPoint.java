@@ -22,16 +22,16 @@ import static mockit.internal.util.MethodReflection.*;
 import static mockit.internal.util.ParameterReflection.*;
 import static mockit.internal.util.Utilities.*;
 
-final class InjectionPoint
+public final class InjectionPoint
 {
-   enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
+   public enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
 
-   @Nullable static final Class<? extends Annotation> INJECT_CLASS;
+   @Nullable public static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> INSTANCE_CLASS;
    @Nullable private static final Class<? extends Annotation> EJB_CLASS;
-   @Nullable static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
-   @Nullable static final Class<?> SERVLET_CLASS;
-   @Nullable static final Class<?> CONVERSATION_CLASS;
+   @Nullable public static final Class<? extends Annotation> PERSISTENCE_UNIT_CLASS;
+   @Nullable public static final Class<?> SERVLET_CLASS;
+   @Nullable public static final Class<?> CONVERSATION_CLASS;
 
    static
    {
@@ -43,13 +43,13 @@ final class InjectionPoint
       CONVERSATION_CLASS = searchTypeInClasspath("javax.enterprise.context.Conversation");
    }
 
-   @Nonnull final Type type;
-   @Nullable final String name;
+   @Nonnull public final Type type;
+   @Nullable public final String name;
    @Nullable private final String normalizedName;
 
-   InjectionPoint(@Nonnull Type type) { this(type, null); }
+   public InjectionPoint(@Nonnull Type type) { this(type, null); }
 
-   InjectionPoint(@Nonnull Type type, @Nullable String name)
+   public InjectionPoint(@Nonnull Type type, @Nullable String name)
    {
       this.type = type;
       this.name = name;
@@ -57,7 +57,7 @@ final class InjectionPoint
    }
 
    @Nonnull
-   static String convertToLegalJavaIdentifierIfNeeded(@Nonnull String name)
+   public static String convertToLegalJavaIdentifierIfNeeded(@Nonnull String name)
    {
       if (name.indexOf('-') < 0 && name.indexOf('.') < 0) {
          return name;
@@ -105,13 +105,13 @@ final class InjectionPoint
    @Override
    public int hashCode() { return 31 * type.hashCode() + (normalizedName != null ? normalizedName.hashCode() : 0); }
 
-   static boolean isServlet(@Nonnull Class<?> aClass)
+   public static boolean isServlet(@Nonnull Class<?> aClass)
    {
       return SERVLET_CLASS != null && Servlet.class.isAssignableFrom(aClass);
    }
 
    @Nonnull
-   static Object wrapInProviderIfNeeded(@Nonnull Type type, @Nonnull final Object value)
+   public static Object wrapInProviderIfNeeded(@Nonnull Type type, @Nonnull final Object value)
    {
       if (INJECT_CLASS != null && type instanceof ParameterizedType && !(value instanceof Provider)) {
          Type parameterizedType = ((ParameterizedType) type).getRawType();
@@ -146,7 +146,7 @@ final class InjectionPoint
    }
 
    @Nonnull
-   static KindOfInjectionPoint isAnnotated(@Nonnull AccessibleObject fieldOrConstructor)
+   public static KindOfInjectionPoint isAnnotated(@Nonnull AccessibleObject fieldOrConstructor)
    {
       Annotation[] annotations = fieldOrConstructor.getDeclaredAnnotations();
 
@@ -235,7 +235,7 @@ final class InjectionPoint
    }
 
    @Nullable
-   static Object getValueFromAnnotation(@Nonnull Field field)
+   public static Object getValueFromAnnotation(@Nonnull Field field)
    {
       String value = null;
 
@@ -253,7 +253,7 @@ final class InjectionPoint
    }
 
    @Nonnull
-   static Type getTypeOfInjectionPointFromVarargsParameter(@Nonnull Type parameterType)
+   public static Type getTypeOfInjectionPointFromVarargsParameter(@Nonnull Type parameterType)
    {
       if (parameterType instanceof Class<?>) {
          return ((Class<?>) parameterType).getComponentType();
@@ -263,7 +263,7 @@ final class InjectionPoint
    }
 
    @Nullable
-   static String getQualifiedName(@Nonnull Annotation[] annotationsOnInjectionPoint)
+   public static String getQualifiedName(@Nonnull Annotation[] annotationsOnInjectionPoint)
    {
       for (Annotation annotation : annotationsOnInjectionPoint) {
          Class<? extends Annotation> annotationType = annotation.annotationType();
@@ -290,7 +290,7 @@ final class InjectionPoint
    }
 
    @Nonnull
-   static String getNameFromJNDILookup(@Nonnull String jndiLookup)
+   public static String getNameFromJNDILookup(@Nonnull String jndiLookup)
    {
       int p = jndiLookup.lastIndexOf('/');
 

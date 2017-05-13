@@ -11,14 +11,14 @@ import javax.annotation.*;
 
 import mockit.internal.util.*;
 
-final class TestedClass
+public final class TestedClass
 {
    @Nonnull final Type declaredType;
-   @Nonnull final Class<?> targetClass;
-   @Nonnull final GenericTypeReflection reflection;
+   @Nonnull public final Class<?> targetClass;
+   @Nonnull public final GenericTypeReflection reflection;
    @Nonnull final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable final String codeLocationParentPath;
-   @Nonnull final String nameOfTestedClass;
+   @Nonnull public final String nameOfTestedClass;
 
    TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass)
    {
@@ -32,7 +32,7 @@ final class TestedClass
       nameOfTestedClass = targetClass.getName();
    }
 
-   boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass)
+   public boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass)
    {
       if (anotherClass.getClassLoader() == null) {
          return false;

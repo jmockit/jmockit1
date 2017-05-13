@@ -11,6 +11,7 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 
 public final class TestedClassInstantiations
@@ -72,37 +73,74 @@ public final class TestedClassInstantiations
    }
 
    @Nullable
-   private static Tested getTestedAnnotationIfPresent(@Nonnull Annotation fieldAnnotation)
+   private static Tested getTestedAnnotationIfPresent(@Nonnull Annotation annotation)
    {
-      if (fieldAnnotation instanceof Tested) {
-         return (Tested) fieldAnnotation;
+      if (annotation instanceof Tested) {
+         return (Tested) annotation;
       }
 
-      return fieldAnnotation.annotationType().getAnnotation(Tested.class);
+      return annotation.annotationType().getAnnotation(Tested.class);
+   }
+
+   public void createTestedParameters(@Nonnull Object testClassInstance, @Nonnull TestMethod testMethod)
+   {
+      int n = testMethod.getParameterCount();
+
+      for (int i = 0; i < n; i++) {
+         TestedParameter testedParameter = createTestedParameterIfApplicable(testMethod, i);
+
+         if (testedParameter != null) {
+            instantiateTestedObject(testClassInstance, testedParameter);
+         }
+      }
+   }
+
+   @Nullable
+   private TestedParameter createTestedParameterIfApplicable(@Nonnull TestMethod testMethod, @Nonnegative int i)
+   {
+      Annotation[] parameterAnnotations = testMethod.getParameterAnnotations(i);
+
+      for (Annotation parameterAnnotation : parameterAnnotations) {
+         Tested testedMetadata = getTestedAnnotationIfPresent(parameterAnnotation);
+
+         if (testedMetadata != null) {
+            return new TestedParameter(injectionState, testMethod, i, testedMetadata);
+         }
+      }
+
+      return null;
+   }
+
+   private void instantiateTestedObject(@Nonnull Object testClassInstance, @Nonnull TestedObject testedObject)
+   {
+      try {
+         testedObject.instantiateWithInjectableValues(testClassInstance);
+      }
+      finally {
+         injectionState.resetConsumedInjectables();
+      }
    }
 
    public void assignNewInstancesToTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 
-      for (TestedField testedField : testedFields) {
+      for (TestedObject testedField : testedFields) {
          if (!beforeSetup || testedField.isAvailableDuringSetup()) {
-            try {
-               testedField.instantiateWithInjectableValues(testClassInstance);
-            }
-            finally {
-               injectionState.resetConsumedInjectables();
-            }
+            instantiateTestedObject(testClassInstance, testedField);
          }
       }
    }
 
-   public void clearTestedFields()
+   public void clearTestedObjects()
    {
       injectionState.lifecycleMethods.executeTerminationMethodsIfAny();
+      injectionState.clearTestedObjectsAndInstantiatedDependencies();
 
-      for (TestedField testedField : testedFields) {
-         testedField.clearIfAutomaticCreation();
+      Object testClassInstance = injectionState.getCurrentTestClassInstance();
+
+      for (TestedObject testedField : testedFields) {
+         testedField.clearIfAutomaticCreation(testClassInstance);
       }
    }
 

@@ -2,11 +2,13 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.field;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
+
+import mockit.internal.injection.*;
 
 final class FieldToInject extends InjectionPointProvider
 {
@@ -18,8 +20,8 @@ final class FieldToInject extends InjectionPointProvider
       this.targetField = targetField;
    }
 
-   @Nonnull @Override protected Class<?> getClassOfDeclaredType() { return targetField.getType(); }
-   @Nonnull @Override Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
+   @Nonnull @Override public Class<?> getClassOfDeclaredType() { return targetField.getType(); }
+   @Nonnull @Override public Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
 
    @Override
    public String toString()

@@ -43,7 +43,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       FrameworkMethod it = invocation.getInvokedInstance();
       int previousErrorCount = errors.size();
 
-      if (!isStatic && eachParameterContainsAMockingAnnotation(it.getMethod().getParameterAnnotations())) {
+      if (!isStatic && eachParameterContainsAKnownAnnotation(it.getMethod().getParameterAnnotations())) {
          it.validatePublicVoid(false, errors);
       }
       else {
@@ -59,14 +59,14 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       }
    }
 
-   private static boolean eachParameterContainsAMockingAnnotation(@Nonnull Annotation[][] parametersAndTheirAnnotations)
+   private static boolean eachParameterContainsAKnownAnnotation(@Nonnull Annotation[][] parametersAndTheirAnnotations)
    {
       if (parametersAndTheirAnnotations.length == 0) {
          return false;
       }
 
       for (Annotation[] parameterAnnotations : parametersAndTheirAnnotations) {
-         if (!containsAMockingAnnotation(parameterAnnotations)) {
+         if (!containsAKnownAnnotation(parameterAnnotations)) {
             return false;
          }
       }
@@ -74,7 +74,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       return true;
    }
 
-   private static boolean containsAMockingAnnotation(@Nonnull Annotation[] parameterAnnotations)
+   private static boolean containsAKnownAnnotation(@Nonnull Annotation[] parameterAnnotations)
    {
       if (parameterAnnotations.length == 0) {
          return false;
@@ -83,7 +83,7 @@ public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
       for (Annotation parameterAnnotation : parameterAnnotations) {
          String annotationTypeName = parameterAnnotation.annotationType().getName();
 
-         if (!"mockit.Mocked mockit.Injectable mockit.Capturing".contains(annotationTypeName)) {
+         if (!"mockit.Tested mockit.Mocked mockit.Injectable mockit.Capturing".contains(annotationTypeName)) {
             return false;
          }
       }

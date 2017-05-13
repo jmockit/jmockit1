@@ -2,13 +2,15 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.full;
 
 import java.io.*;
 import java.lang.annotation.*;
 import javax.annotation.*;
 import javax.persistence.*;
 import javax.xml.parsers.*;
+
+import mockit.internal.injection.*;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;

@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.full;
 
 import java.io.*;
 import java.net.*;
@@ -12,6 +12,8 @@ import javax.servlet.*;
 import javax.servlet.descriptor.*;
 import javax.servlet.http.*;
 import static java.util.Collections.enumeration;
+
+import mockit.internal.injection.*;
 
 /**
  * Detects and resolves dependencies belonging to the {@code javax.servlet} API, namely {@code ServletContext}

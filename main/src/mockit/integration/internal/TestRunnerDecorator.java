@@ -168,7 +168,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFields(@Nonnull Object target, boolean beforeSetup)
+   protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
    {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
@@ -176,7 +176,7 @@ public class TestRunnerDecorator
          TestRun.enterNoMockingZone();
 
          try {
-            testedClasses.assignNewInstancesToTestedFields(target, beforeSetup);
+            testedClasses.assignNewInstancesToTestedFields(testClassInstance, beforeSetup);
          }
          finally {
             TestRun.exitNoMockingZone();
@@ -185,24 +185,37 @@ public class TestRunnerDecorator
    }
 
    @Nullable
-   protected static Object[] createInstancesForMockParameters(
-      @Nonnull Method testMethod, @Nullable Object[] parameterValues)
+   protected static Object[] createInstancesForAnnotatedParameters(
+      @Nonnull Object testClassInstance, @Nonnull Method testMethod, @Nullable Object[] parameterValues)
    {
-      if (testMethod.getParameterTypes().length == 0) {
+      int numParameters = testMethod.getParameterTypes().length;
+
+      if (numParameters == 0) {
          return null;
       }
+
+      if (parameterValues == null || parameterValues.length != numParameters) {
+         parameterValues = new Object[numParameters];
+      }
+
+      TestMethod methodInfo = new TestMethod(testMethod, parameterValues);
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       TestRun.enterNoMockingZone();
 
       try {
-         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(testMethod, parameterValues);
+         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(methodInfo);
          TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
-         return redefinitions.getParameterValues();
+         if (testedClasses != null) {
+            testedClasses.createTestedParameters(testClassInstance, methodInfo);
+         }
       }
       finally {
          TestRun.exitNoMockingZone();
       }
+
+      return parameterValues;
    }
 
    protected static void concludeTestMethodExecution(
@@ -214,7 +227,7 @@ public class TestRunnerDecorator
       Error expectationsFailure = RecordAndReplayExecution.endCurrentReplayIfAny();
 
       try {
-         clearTestedFieldsIfAny();
+         clearTestedObjectsIfAny();
       }
       finally {
          savePoint.rollback();
@@ -238,12 +251,12 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void clearTestedFieldsIfAny()
+   protected static void clearTestedObjectsIfAny()
    {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
-         testedClasses.clearTestedFields();
+         testedClasses.clearTestedObjects();
       }
    }
 

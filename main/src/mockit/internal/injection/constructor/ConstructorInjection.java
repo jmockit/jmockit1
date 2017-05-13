@@ -2,13 +2,15 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.constructor;
 
 import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.injection.*;
+import mockit.internal.injection.full.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
@@ -16,11 +18,11 @@ import static mockit.internal.injection.InjectionPointProvider.NULL;
 import static mockit.internal.util.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
-final class ConstructorInjection extends Injector
+public final class ConstructorInjection extends Injector
 {
    @Nonnull private final Constructor<?> constructor;
 
-   ConstructorInjection(
+   public ConstructorInjection(
       @Nonnull TestedClass testedClass, @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
       @Nonnull Constructor<?> constructor)
    {
@@ -29,7 +31,7 @@ final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   Object instantiate(@Nonnull List<InjectionPointProvider> parameterProviders)
+   public Object instantiate(@Nonnull List<InjectionPointProvider> parameterProviders)
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;

@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.constructor;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
@@ -10,24 +10,26 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.internal.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
-final class ConstructorSearch
+public final class ConstructorSearch
 {
    private static final int CONSTRUCTOR_ACCESS = PUBLIC + PROTECTED + PRIVATE;
 
    @Nonnull private final InjectionState injectionState;
    @Nonnull private final Class<?> testedClass;
    @Nonnull private final String testedClassDesc;
-   @Nonnull List<InjectionPointProvider> parameterProviders;
+   @Nonnull public List<InjectionPointProvider> parameterProviders;
    private final boolean withFullInjection;
    @Nullable private Constructor<?> constructor;
    @Nullable private StringBuilder searchResults;
 
-   ConstructorSearch(@Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, boolean withFullInjection)
+   public ConstructorSearch(
+      @Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, boolean withFullInjection)
    {
       this.injectionState = injectionState;
       this.testedClass = testedClass;
@@ -38,7 +40,7 @@ final class ConstructorSearch
    }
 
    @Nullable
-   Constructor<?> findConstructorToUse()
+   public Constructor<?> findConstructorToUse()
    {
       constructor = null;
       Constructor<?>[] constructors = testedClass.getDeclaredConstructors();
@@ -204,7 +206,7 @@ final class ConstructorSearch
       InjectionPointProvider provider = injectionState.getProviderByTypeAndOptionallyName(parameterName);
 
       if (provider == null && withFullInjection) {
-         Object valueForParameter = injectionState.getValueForParameterFromTestedField(parameterName);
+         Object valueForParameter = injectionState.getTestedValueForConstructorParameter(parameterName);
          provider = new ConstructorParameter(parameterType, parameterAnnotations, parameterName, valueForParameter);
       }
 
@@ -234,7 +236,7 @@ final class ConstructorSearch
    // Methods used only when no satisfiable constructor is found //////////////////////////////////////////////////////
 
    @Nonnull
-   String getDescription()
+   public String getDescription()
    {
       searchResults = new StringBuilder();
       findConstructorToUse();

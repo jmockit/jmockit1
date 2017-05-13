@@ -9,6 +9,8 @@ import javax.annotation.*;
 
 import static java.lang.reflect.Modifier.isStatic;
 
+import mockit.internal.util.*;
+
 public final class ParameterNames
 {
    private static final Map<String, Map<String, String[]>> classesToMethodsToParameters =
@@ -57,6 +59,7 @@ public final class ParameterNames
       }
    }
 
+   @SuppressWarnings("MethodWithMultipleLoops")
    private static int getSumOfArgumentSizes(@Nonnull String memberDesc)
    {
       int sum = 0;
@@ -94,8 +97,15 @@ public final class ParameterNames
 
    private static boolean isDoubleSizeType(char typeCode) { return typeCode == 'D' || typeCode == 'J'; }
 
+   @Nonnull
+   public static String getName(@Nonnull TestMethod method, @Nonnegative int index)
+   {
+      String name = getName(method.testClassDesc, method.testMethodDesc, index);
+      return name == null ? "param" + index : name;
+   }
+
    @Nullable
-   public static String getName(@Nonnull String classDesc, @Nonnull String methodDesc, int index)
+   public static String getName(@Nonnull String classDesc, @Nonnull String methodDesc, @Nonnegative int index)
    {
       Map<String, String[]> methodsToParameters = classesToMethodsToParameters.get(classDesc);
 

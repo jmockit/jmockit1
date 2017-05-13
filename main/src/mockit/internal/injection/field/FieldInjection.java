@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.injection;
+package mockit.internal.injection.field;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -11,11 +11,13 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.regex.Pattern.*;
 
+import mockit.internal.injection.*;
+import mockit.internal.injection.full.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.injection.InjectionPointProvider.NULL;
 
-final class FieldInjection extends Injector
+public final class FieldInjection extends Injector
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
@@ -23,16 +25,17 @@ final class FieldInjection extends Injector
    @Nonnull Class<?> targetClass;
    private Field targetField;
 
-   FieldInjection(
-      @Nonnull TestedField testedField, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection)
+   public FieldInjection(
+      @Nonnull InjectionState injectionState, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection,
+      boolean requireDIAnnotation)
    {
-      super(testedClass, testedField.injectionState, fullInjection);
-      requireDIAnnotation = testedField.requireDIAnnotation;
+      super(testedClass, injectionState, fullInjection);
+      this.requireDIAnnotation = requireDIAnnotation;
       targetClass = testedClass.targetClass;
    }
 
    @Nonnull
-   List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> actualTestedClass)
+   public List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> actualTestedClass)
    {
       requireDIAnnotation = false;
 
@@ -77,7 +80,7 @@ final class FieldInjection extends Injector
       return !isStatic(modifiers) && !isVolatile(modifiers);
    }
 
-   void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
+   public void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
    {
       targetClass = testedObject.getClass();
 
@@ -225,4 +228,6 @@ final class FieldInjection extends Injector
 
       requireDIAnnotation = previousRequireDIAnnotation;
    }
+
+   public boolean isDIAnnotationRequired() { return requireDIAnnotation; }
 }
