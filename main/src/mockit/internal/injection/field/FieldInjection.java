@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
 import javax.annotation.*;
+import javax.persistence.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.regex.Pattern.*;
 
@@ -71,11 +72,14 @@ public final class FieldInjection extends Injector
          return false;
       }
 
-      boolean annotated = isAnnotated(field) != KindOfInjectionPoint.NotAnnotated;
-
-      if (annotated) {
+      if (kindOfInjectionPoint(field) != KindOfInjectionPoint.NotAnnotated) {
          requireDIAnnotation = true;
          return true;
+      }
+
+      //noinspection SimplifiableIfStatement
+      if (PERSISTENCE_UNIT_CLASS != null && field.getType().isAnnotationPresent(Entity.class)) {
+         return false;
       }
 
       return !isStatic(modifiers) && !isVolatile(modifiers);
@@ -101,7 +105,7 @@ public final class FieldInjection extends Injector
 
    private boolean targetFieldWasNotAssignedByConstructor(@Nonnull Object testedObject)
    {
-      if (isAnnotated(targetField) != KindOfInjectionPoint.NotAnnotated) {
+      if (kindOfInjectionPoint(targetField) != KindOfInjectionPoint.NotAnnotated) {
          return true;
       }
 
@@ -132,7 +136,7 @@ public final class FieldInjection extends Injector
          return injectionState.getValueToInject(mockedType);
       }
 
-      KindOfInjectionPoint kindOfInjectionPoint = isAnnotated(targetField);
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
 
       if (fullInjection != null) {
          InjectionPointProvider fieldToInject = new FieldToInject(targetField);

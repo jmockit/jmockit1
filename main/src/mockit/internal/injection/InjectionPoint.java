@@ -146,7 +146,7 @@ public final class InjectionPoint
    }
 
    @Nonnull
-   public static KindOfInjectionPoint isAnnotated(@Nonnull AccessibleObject fieldOrConstructor)
+   public static KindOfInjectionPoint kindOfInjectionPoint(@Nonnull AccessibleObject fieldOrConstructor)
    {
       Annotation[] annotations = fieldOrConstructor.getDeclaredAnnotations();
 

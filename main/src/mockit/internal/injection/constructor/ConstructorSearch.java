@@ -55,7 +55,7 @@ public final class ConstructorSearch
    private boolean findSingleAnnotatedConstructor(@Nonnull Constructor<?>[] constructors)
    {
       for (Constructor<?> c : constructors) {
-         if (isAnnotated(c) != KindOfInjectionPoint.NotAnnotated) {
+         if (kindOfInjectionPoint(c) != KindOfInjectionPoint.NotAnnotated) {
             List<InjectionPointProvider> providersFound = findParameterProvidersForConstructor(c);
 
             if (providersFound != null) {

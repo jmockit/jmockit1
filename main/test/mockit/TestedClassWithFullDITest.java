@@ -6,6 +6,8 @@ package mockit;
 
 import java.lang.annotation.*;
 
+import javax.persistence.*;
+
 import org.junit.*;
 import org.junit.runners.*;
 import static org.junit.Assert.*;
@@ -118,5 +120,14 @@ public final class TestedClassWithFullDITest
       B b2 = b1.b2;
       assertNotNull(b2);
       assertSame(b1, b2);
+   }
+
+   @Entity static class Person {}
+   static class ClassWithJPAEntityField { Person person; }
+
+   @Test
+   public void instantiateClassWithJPAEntityField(@Tested(fullyInitialized = true) ClassWithJPAEntityField tested)
+   {
+      assertNull(tested.person);
    }
 }
