@@ -27,7 +27,7 @@ package mockit;
  * @see #FullVerifications(Object...)
  * @see #unverifiedInvocations()
  * @see FullVerificationsInOrder
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerification">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerification" target="tutorial">Tutorial</a>
  */
 public abstract class FullVerifications extends Verifications
 {

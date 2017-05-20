@@ -18,7 +18,7 @@ package mockit;
  *
  * @see #StrictExpectations()
  * @see #StrictExpectations(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#strictness">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#strictness" target="tutorial">Tutorial</a>
  */
 public abstract class StrictExpectations extends Expectations
 {
@@ -52,7 +52,7 @@ public abstract class StrictExpectations extends Expectations
     * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
     * interface, or if given a value/instance of such a type
     *
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
    protected StrictExpectations(Object... classesOrObjectsToBePartiallyMocked)
    {

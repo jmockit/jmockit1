@@ -21,7 +21,7 @@ package mockit;
  *
  * @see #FullVerificationsInOrder()
  * @see #FullVerificationsInOrder(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerificationInOrder">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerificationInOrder" target="tutorial">Tutorial</a>
  */
 public abstract class FullVerificationsInOrder extends Verifications
 {

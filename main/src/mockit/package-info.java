@@ -33,7 +33,8 @@
  * occasional cases where a {@code private} field needs to be accessed, etc.
  * <p/>
  * For a description with examples of the <em>Expectations</em> API, see the
- * "<a href="http://jmockit.org/tutorial/Mocking.html">Mocking</a>" chapter in the Tutorial.
- * For the <em>Mockups</em> API, see the "<a href="http://jmockit.org/tutorial/Faking.html">Faking</a>" chapter.
+ * "<a href="http://jmockit.org/tutorial/Mocking.html" target="tutorial">Mocking</a>" chapter in the Tutorial.
+ * For the <em>Mockups</em> API, see the
+ * "<a href="http://jmockit.org/tutorial/Faking.html" target="tutorial">Faking</a>" chapter.
  */
 package mockit;

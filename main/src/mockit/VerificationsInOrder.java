@@ -25,7 +25,7 @@ import mockit.internal.expectations.*;
  * @see #VerificationsInOrder()
  * @see #unverifiedInvocations()
  * @see #verifiedInvocations(Verifications)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder" target="tutorial">Tutorial</a>
  */
 public abstract class VerificationsInOrder extends Verifications
 {
@@ -66,7 +66,7 @@ public abstract class VerificationsInOrder extends Verifications
     * The unordered block should not come before, however, since it would "consume" the verified invocations.
     *
     * @see #verifiedInvocations(Verifications)
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered" target="tutorial">Tutorial</a>
     */
    protected final void unverifiedInvocations()
    {
@@ -82,7 +82,7 @@ public abstract class VerificationsInOrder extends Verifications
     * @throws IllegalArgumentException if the given verifications are ordered
     *
     * @see #unverifiedInvocations()
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered" target="tutorial">Tutorial</a>
     */
    protected final void verifiedInvocations(Verifications alreadyVerified)
    {

@@ -43,7 +43,7 @@ package mockit;
  * Finally, note that a {@code static} method in the mocked type can have a delegate as well.
  * The same is true for {@code private}, {@code final}, and {@code native} methods.
  *
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates" target="tutorial">Tutorial</a>
  *
  * @param <T> the type of the argument to be matched, when used with the {@code with(Delegate)} method
  */

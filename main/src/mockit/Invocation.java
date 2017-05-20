@@ -22,8 +22,8 @@ import mockit.internal.*;
  * @see #getInvocationCount()
  * @see #getInvocationIndex()
  * @see #proceed(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates">Tutorial (mocking)</a>
- * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation">Tutorial (faking)</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates" target="tutorial">Tutorial (mocking)</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation" target="tutorial">Tutorial (faking)</a>
  */
 public class Invocation
 {
@@ -104,7 +104,7 @@ public class Invocation
     * partially mocked type}, into a {@code native} method, into a mocked constructor while passing replacement
     * arguments, or into an interface or abstract method
     *
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
     */
    public final <T> T proceed(Object... replacementArguments)
    {

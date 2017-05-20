@@ -73,7 +73,7 @@ import mockit.internal.expectations.*;
  *
  * @see #Expectations()
  * @see #Expectations(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
  */
 public abstract class Expectations extends Invocations
 {
@@ -133,7 +133,7 @@ public abstract class Expectations extends Invocations
     * matching constructor invocation.
     *
     * @see #returns(Object, Object, Object...)
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#results">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
    protected Object result;
 
@@ -170,7 +170,7 @@ public abstract class Expectations extends Invocations
     * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
     * interface, or if given a value/instance of such a type
     * 
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
    protected Expectations(Object... classesOrObjectsToBePartiallyMocked)
    {
@@ -207,7 +207,7 @@ public abstract class Expectations extends Invocations
     * @param secondValue the second value to be returned at replay time
     * @param remainingValues any remaining values to be returned, in the same order
     *
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#results">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
    protected final void returns(Object firstValue, Object secondValue, Object... remainingValues)
    {

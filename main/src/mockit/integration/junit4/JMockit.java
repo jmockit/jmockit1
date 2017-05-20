@@ -14,7 +14,7 @@ import mockit.internal.startup.*;
  * Normally, use of this class is optional.
  * Instead, simply make sure that {@code jmockit.jar} precedes {@code junit-4.n.jar} in the runtime classpath.
  *
- * @see <a href="http://jmockit.org/tutorial/Introduction.html#runningTests">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Introduction.html#runningTests" target="tutorial">Tutorial</a>
  */
 public final class JMockit extends BlockJUnit4ClassRunner
 {

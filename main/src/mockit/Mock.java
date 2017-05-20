@@ -30,7 +30,7 @@ import java.lang.annotation.*;
  * Yet another special mock method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will
  * match <em>every</em> method in the target class hierarchy.
  *
- * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks" target="tutorial">Tutorial</a>
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

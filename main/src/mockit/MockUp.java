@@ -85,7 +85,7 @@ import static mockit.internal.util.GeneratedClasses.*;
  * @see #getMockInstance()
  * @see #onTearDown()
  * @see #targetType
- * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp" target="tutorial">Tutorial</a>
  */
 public abstract class MockUp<T>
 {
@@ -293,7 +293,7 @@ public abstract class MockUp<T>
     * <p/>
     * In any case, for a given mock-up instance this method will always return the same mock instance.
     *
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces">Tutorial</a>
+    * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces" target="tutorial">Tutorial</a>
     */
    public final T getMockInstance()
    {
