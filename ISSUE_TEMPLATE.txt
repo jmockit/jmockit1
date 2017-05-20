@@ -6,6 +6,10 @@ Please provide the following information:
 
 
 * Please avoid reporting a problem that cannot be reproduced by project members.
-  Instead, include enough information (typically, an example test or more, perhaps accompanied by a
-  Maven/Ant/Gradle build script) so that other developers can verify the problem in their own environments.
-  Otherwise, there is a good chance the issue will be immediately closed with the "could not reproduce" tag.
+Instead, include enough information (typically, an example test or more, perhaps accompanied by a
+Maven/Ant/Gradle build script) so that other developers can verify the problem in their own environments.
+Otherwise, there is a good chance the issue will be immediately closed with the "could not reproduce" tag.
+
+* Also, avoid issues that fall outside the scope of the project. For example, attempting to use JMockit
+APIs from Groovy or Scala code. Current project members are not going to add such support. If you would
+like to contribute to the project in such areas, please submit Pull Requests.
