@@ -33,7 +33,6 @@ import mockit.internal.util.*;
 public final class Startup
 {
    public static boolean initializing;
-   private static boolean initializedOnDemand;
 
    private Startup() {}
 
@@ -137,13 +136,10 @@ public final class Startup
       return InstrumentationHolder.get();
    }
 
-   public static boolean wasInitializedOnDemand() { return initializedOnDemand; }
-
    public static void verifyInitialization()
    {
       if (InstrumentationHolder.get() == null) {
          new AgentLoader().loadAgent(null);
-         initializedOnDemand = true;
       }
    }
 
