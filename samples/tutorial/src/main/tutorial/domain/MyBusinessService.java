@@ -2,14 +2,14 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package jmockit.tutorial.domain;
+package tutorial.domain;
 
 import java.math.*;
 import java.util.*;
 
 import org.apache.commons.mail.*;
 
-import static jmockit.tutorial.persistence.Database.*;
+import static tutorial.persistence.Database.*;
 
 /**
  * This class makes use of several idioms which would prevent unit testing with more "conventional" mocking tools.
@@ -17,7 +17,7 @@ import static jmockit.tutorial.persistence.Database.*;
  * No need to make such classes stateless, or worse, <em>singletons</em>; instead, it's designed as a proper object.
  * <p/>
  * One of those "untestable" idioms is the use of a <em>static persistence facade</em> (the
- * {@linkplain jmockit.tutorial.persistence.Database Database} class) for high-level database operations in the context
+ * {@linkplain tutorial.persistence.Database Database} class) for high-level database operations in the context
  * of a thread-bound work unit.
  * Since all interaction with the facade is through {@code static} methods, client classes cannot be unit tested with a
  * tool which only supports <em>mock objects</em>.

@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package jmockit.tutorial.persistence;
+package tutorial.persistence;
 
 import java.sql.*;
 import java.util.*;
