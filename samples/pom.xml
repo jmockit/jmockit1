@@ -25,6 +25,12 @@
    <build>
       <sourceDirectory>src</sourceDirectory>
       <testSourceDirectory>test</testSourceDirectory>
+      <testResources>
+         <testResource>
+            <directory>test</directory>
+            <includes><include>**/*.xml</include></includes>
+         </testResource>
+      </testResources>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>

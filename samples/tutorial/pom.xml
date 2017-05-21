@@ -7,11 +7,7 @@
    <parent><groupId>org.jmockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
    <artifactId>tutorial</artifactId>
    <name>Tutorial Sample</name>
-   <build>
-      <sourceDirectory>src/main</sourceDirectory>
-      <testSourceDirectory>src/test</testSourceDirectory>
-      <testResources><testResource><directory>src/test</directory></testResource></testResources>
-   </build>
+
    <dependencies>
       <!-- Production code -->
       <dependency>
