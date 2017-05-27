@@ -1,6 +1,5 @@
 package blog.blogEntry;
 
-import javax.annotation.*;
 import javax.inject.*;
 
 import blog.common.*;
@@ -14,14 +13,6 @@ public final class BlogEntryTestData extends BaseTestData<BlogEntry>
    @Inject private UserTestData userData;
    @Inject private BlogEntry currentBlogEntry;
    private String withTitle;
-
-   @PostConstruct
-   private void defineCurrentBlogEntry()
-   {
-      currentBlogEntry.setTitle("Integration testing with JMockit");
-      currentBlogEntry.setContent("...");
-      save(currentBlogEntry);
-   }
 
    public BlogEntryTestData withTitle(String title)
    {

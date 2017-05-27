@@ -8,8 +8,15 @@ import blog.common.*;
 public final class CommentServiceTest
 {
    @TestData CommentTestData commentData;
+   @TestData BlogEntryTestData blogEntryData;
+   @Dependency BlogEntry blogEntry;
    @ObjectUnderTest CommentService commentService;
-   @ObjectUnderTest BlogEntry blogEntry;
+
+   @Before
+   public void createBlogEntry()
+   {
+      blogEntry = blogEntryData.buildAndSave();
+   }
 
    @Test
    public void createNewPartiallyInitializedComment()
