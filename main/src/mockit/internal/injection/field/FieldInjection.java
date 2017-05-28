@@ -23,8 +23,8 @@ public final class FieldInjection extends Injector
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
-   boolean requireDIAnnotation;
-   @Nonnull Class<?> targetClass;
+   private boolean requireDIAnnotation;
+   @Nonnull private Class<?> targetClass;
    private Field targetField;
 
    public FieldInjection(
