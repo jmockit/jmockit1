@@ -619,10 +619,45 @@ public final class GenericTypeReflection
             return true;
          }
       }
+      else if (declarationType instanceof ParameterizedType) {
+         ParameterizedType parameterizedDeclarationType = (ParameterizedType) declarationType;
+         ParameterizedType parameterizedRealizationType = null;
 
-      return
-         declarationType instanceof ParameterizedType && realizationType instanceof ParameterizedType &&
-         areMatchingTypes((ParameterizedType) declarationType, (ParameterizedType) realizationType);
+         if (realizationType instanceof ParameterizedType) {
+            parameterizedRealizationType = (ParameterizedType) realizationType;
+         }
+         else if (realizationType instanceof Class<?>) {
+            parameterizedRealizationType = findRealizationSupertype((Class<?>) realizationType);
+         }
+
+         if (parameterizedRealizationType != null) {
+            return areMatchingTypes(parameterizedDeclarationType, parameterizedRealizationType);
+         }
+      }
+
+      return false;
+   }
+
+   @Nullable
+   private ParameterizedType findRealizationSupertype(@Nonnull Class<?> realizationType)
+   {
+      Type realizationSuperclass = realizationType.getGenericSuperclass();
+      ParameterizedType parameterizedRealizationType = null;
+
+      // TODO: should recurse up to java.lang.Object, and to multiple super-interfaces?
+      if (realizationSuperclass instanceof ParameterizedType) {
+         parameterizedRealizationType = (ParameterizedType) realizationSuperclass;
+      }
+      else {
+         for (Type realizationSupertype : realizationType.getGenericInterfaces()) {
+            if (realizationSupertype instanceof ParameterizedType) {
+               parameterizedRealizationType = (ParameterizedType) realizationSupertype;
+               break;
+            }
+         }
+      }
+
+      return parameterizedRealizationType;
    }
 
    private boolean areMatchingTypes(@Nonnull TypeVariable<?> declarationType, @Nonnull Type realizationType)

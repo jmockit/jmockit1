@@ -39,7 +39,7 @@ final class TestedParameter extends TestedObject
             testedObject = Utilities.convertFromString(parameterClass, providedValue);
 
             if (testedObject != null) {
-               setInstance(testClassInstance, testedObject);
+               testMethod.setParameterValue(parameterIndex, testedObject);
             }
          }
 

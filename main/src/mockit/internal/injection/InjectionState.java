@@ -70,6 +70,14 @@ public final class InjectionState implements BeanExporter
       }
    }
 
+   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs)
+   {
+      currentTestClassInstance = testClassInstance;
+      injectables = new ArrayList<MockedType>(paramTypeRedefs.getInjectableParameters());
+
+      getServletConfigForInitMethodsIfAny(testClassInstance);
+   }
+
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
    void setTestedTypeReflection(@Nonnull GenericTypeReflection reflection) { testedTypeReflection = reflection; }

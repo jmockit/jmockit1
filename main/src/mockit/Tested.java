@@ -39,10 +39,10 @@ import static java.lang.annotation.RetentionPolicy.*;
  * Only non-<code>final</code> fields are considered, between those declared in the tested class itself or in one of its
  * super-classes; at this time constructor injection already occurred, so only fields which remain uninitialized are
  * targeted.
- * For each such <em>target</em> field, the value of a still unused injectable of the <em>same</em> type is assigned, if
- * any is available.
- * When a tested object has multiple target fields of the <em>same</em> type, not just the type but also the
- * <em>name</em> of each field will be used when looking for available injectables.
+ * For each such <em>target</em> field, the value of a still unused injectable of a matching type is assigned, if any is
+ * available.
+ * When a tested object has multiple target fields of a matching type, not just the type but also the <em>name</em> of
+ * each field will be used when looking for available injectables.
  * Finally, if there is no matching and available injectable value for a given target field, it is left unassigned,
  * unless the target field is for a <em>required</em> dependency; note that all fields marked with a DI annotation
  * (such as {@code @Inject}, {@code Autowired}, etc.) indicate required dependencies by default

@@ -199,7 +199,6 @@ public class TestRunnerDecorator
       }
 
       TestMethod methodInfo = new TestMethod(testMethod, parameterValues);
-      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       TestRun.enterNoMockingZone();
 
@@ -207,9 +206,8 @@ public class TestRunnerDecorator
          ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(methodInfo);
          TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
-         if (testedClasses != null) {
-            testedClasses.createTestedParameters(testClassInstance, methodInfo);
-         }
+         TestedParameters testedParameters = new TestedParameters(methodInfo);
+         testedParameters.createTestedParameters(testClassInstance, redefinitions);
       }
       finally {
          TestRun.exitNoMockingZone();

@@ -4,6 +4,7 @@
  */
 package mockit.internal.injection;
 
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
@@ -25,6 +26,16 @@ abstract class TestedObject
    @Nullable private List<Field> targetFields;
    boolean createAutomatically;
    boolean requireDIAnnotation;
+
+   @Nullable
+   static Tested getTestedAnnotationIfPresent(@Nonnull Annotation annotation)
+   {
+      if (annotation instanceof Tested) {
+         return (Tested) annotation;
+      }
+
+      return annotation.annotationType().getAnnotation(Tested.class);
+   }
 
    TestedObject(
       @Nonnull InjectionState injectionState, @Nonnull Tested metadata,
