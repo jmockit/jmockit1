@@ -12,7 +12,7 @@ import static mockit.internal.util.TypeConversion.*;
 
 final class InvocationBlockModifier extends MethodVisitor
 {
-   private static final String CLASS_DESC = Type.getInternalName(ActiveInvocations.class);
+   private static final String CLASS_DESC = "mockit/internal/expectations/transformation/ActiveInvocations";
    private static final Type[] NO_PARAMETERS = new Type[0];
    private static final String ANY_FIELDS =
       "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
