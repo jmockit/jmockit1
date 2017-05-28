@@ -13,11 +13,12 @@ import static mockit.external.asm.Opcodes.*;
 
 final class ArgumentCapturing
 {
+   static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
+
    @Nonnull private final InvocationBlockModifier modifier;
    @Nullable private List<Capture> captures;
    private boolean parameterForCapture;
    @Nullable private String capturedTypeDesc;
-   private boolean capturesFound;
 
    ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
 
@@ -65,7 +66,7 @@ final class ArgumentCapturing
          }
 
          Type type = Type.getType(typeDesc);
-         ActiveInvocations.varIndexToTypeDesc.put(varIndex, type.getInternalName());
+         varIndexToTypeDesc.put(varIndex, type.getInternalName());
       }
    }
 
@@ -83,7 +84,6 @@ final class ArgumentCapturing
    {
       if (captures == null) {
          captures = new ArrayList<Capture>();
-         capturesFound = true;
       }
 
       captures.add(capture);
@@ -121,6 +121,4 @@ final class ArgumentCapturing
          captures = null;
       }
    }
-
-   boolean hasCaptures() { return capturesFound; }
 }

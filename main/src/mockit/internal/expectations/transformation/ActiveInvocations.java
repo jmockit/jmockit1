@@ -4,19 +4,17 @@
  */
 package mockit.internal.expectations.transformation;
 
-import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.expectations.transformation.ArgumentCapturing.varIndexToTypeDesc;
 
 @SuppressWarnings("unused")
 public final class ActiveInvocations
 {
-   static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
-
    private ActiveInvocations() {}
 
    public static void anyString()  { addArgMatcher(AlwaysTrueMatcher.ANY_STRING); }
