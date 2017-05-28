@@ -2,27 +2,28 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.transformation;
+package mockit.internal.expectations.argumentCapturing;
 
 import java.util.*;
 import javax.annotation.*;
 
 import mockit.external.asm.*;
-import mockit.internal.expectations.transformation.InvocationBlockModifier.*;
+import mockit.internal.expectations.transformation.*;
 import static mockit.external.asm.Opcodes.*;
 
-final class ArgumentCapturing
+public final class ArgumentCapturing
 {
-   static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
+   private static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
 
    @Nonnull private final InvocationBlockModifier modifier;
    @Nullable private List<Capture> captures;
    private boolean parameterForCapture;
    @Nullable private String capturedTypeDesc;
 
-   ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
+   public ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
 
-   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc, int lastLoadedVarIndex)
+   public boolean registerMatcher(
+      boolean withCaptureMethod, @Nonnull String methodDesc, @Nonnegative int lastLoadedVarIndex)
    {
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
@@ -31,7 +32,7 @@ final class ArgumentCapturing
       if (withCaptureMethod) {
          if (methodDesc.contains("List")) {
             if (lastLoadedVarIndex > 0) {
-               Capture capture = modifier.new Capture(lastLoadedVarIndex);
+               Capture capture = new Capture(modifier, lastLoadedVarIndex, modifier.getMatcherCount());
                addCapture(capture);
             }
 
@@ -48,14 +49,14 @@ final class ArgumentCapturing
       return true;
    }
 
-   void registerTypeToCaptureIfApplicable(int opcode, @Nonnull String typeDesc)
+   public void registerTypeToCaptureIfApplicable(@Nonnegative int opcode, @Nonnull String typeDesc)
    {
       if (opcode == CHECKCAST && parameterForCapture) {
          capturedTypeDesc = typeDesc;
       }
    }
 
-   void registerTypeToCaptureIntoListIfApplicable(int varIndex, @Nonnull String signature)
+   public void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
    {
       if (signature.startsWith("Ljava/util/List<")) {
          String typeDesc = signature.substring(16, signature.length() - 2);
@@ -70,10 +71,10 @@ final class ArgumentCapturing
       }
    }
 
-   void registerAssignmentToCaptureVariableIfApplicable(int opcode, int varIndex)
+   public void registerAssignmentToCaptureVariableIfApplicable(@Nonnegative int opcode, @Nonnegative int varIndex)
    {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
-         Capture capture = modifier.new Capture(opcode, varIndex, capturedTypeDesc);
+         Capture capture = new Capture(modifier, opcode, varIndex, capturedTypeDesc, modifier.getMatcherCount() - 1);
          addCapture(capture);
          parameterForCapture = false;
          capturedTypeDesc = null;
@@ -89,7 +90,7 @@ final class ArgumentCapturing
       captures.add(capture);
    }
 
-   void updateCaptureIfAny(int originalIndex, int newIndex)
+   public void updateCaptureIfAny(@Nonnegative int originalIndex, @Nonnegative int newIndex)
    {
       if (captures != null) {
          for (int i = captures.size() - 1; i >= 0; i--) {
@@ -102,7 +103,7 @@ final class ArgumentCapturing
       }
    }
 
-   void generateCallsToSetArgumentTypesToCaptureIfAny()
+   public void generateCallsToSetArgumentTypesToCaptureIfAny()
    {
       if (captures != null) {
          for (Capture capture : captures) {
@@ -111,7 +112,7 @@ final class ArgumentCapturing
       }
    }
 
-   void generateCallsToCaptureMatchedArgumentsIfPending()
+   public void generateCallsToCaptureMatchedArgumentsIfPending()
    {
       if (captures != null) {
          for (Capture capture : captures) {
@@ -120,5 +121,11 @@ final class ArgumentCapturing
 
          captures = null;
       }
+   }
+
+   @Nullable
+   public static String extractArgumentType(@Nonnegative int varIndex)
+   {
+      return varIndexToTypeDesc.remove(varIndex);
    }
 }

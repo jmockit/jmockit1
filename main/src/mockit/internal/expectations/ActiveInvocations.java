@@ -2,31 +2,31 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.transformation;
+package mockit.internal.expectations;
 
 import javax.annotation.*;
 
-import mockit.internal.expectations.*;
+import mockit.internal.expectations.argumentCapturing.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.transformation.ArgumentCapturing.varIndexToTypeDesc;
+import static mockit.internal.expectations.argumentMatching.AlwaysTrueMatcher.*;
 
 @SuppressWarnings("unused")
 public final class ActiveInvocations
 {
    private ActiveInvocations() {}
 
-   public static void anyString()  { addArgMatcher(AlwaysTrueMatcher.ANY_STRING); }
-   public static void anyBoolean() { addArgMatcher(AlwaysTrueMatcher.ANY_BOOLEAN); }
-   public static void anyChar()    { addArgMatcher(AlwaysTrueMatcher.ANY_CHAR); }
-   public static void anyByte()    { addArgMatcher(AlwaysTrueMatcher.ANY_BYTE); }
-   public static void anyShort()   { addArgMatcher(AlwaysTrueMatcher.ANY_SHORT); }
-   public static void anyInt()     { addArgMatcher(AlwaysTrueMatcher.ANY_INT); }
-   public static void anyFloat()   { addArgMatcher(AlwaysTrueMatcher.ANY_FLOAT); }
-   public static void anyLong()    { addArgMatcher(AlwaysTrueMatcher.ANY_LONG); }
-   public static void anyDouble()  { addArgMatcher(AlwaysTrueMatcher.ANY_DOUBLE); }
-   public static void any()        { addArgMatcher(AlwaysTrueMatcher.ANY_VALUE); }
+   public static void anyString()  { addArgMatcher(ANY_STRING); }
+   public static void anyBoolean() { addArgMatcher(ANY_BOOLEAN); }
+   public static void anyChar()    { addArgMatcher(ANY_CHAR); }
+   public static void anyByte()    { addArgMatcher(ANY_BYTE); }
+   public static void anyShort()   { addArgMatcher(ANY_SHORT); }
+   public static void anyInt()     { addArgMatcher(ANY_INT); }
+   public static void anyFloat()   { addArgMatcher(ANY_FLOAT); }
+   public static void anyLong()    { addArgMatcher(ANY_LONG); }
+   public static void anyDouble()  { addArgMatcher(ANY_DOUBLE); }
+   public static void any()        { addArgMatcher(ANY_VALUE); }
 
    private static void addArgMatcher(@Nonnull ArgumentMatcher<?> argumentMatcher)
    {
@@ -73,7 +73,7 @@ public final class ActiveInvocations
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
-         String typeDesc = varIndexToTypeDesc.remove(varIndex);
+         String typeDesc = ArgumentCapturing.extractArgumentType(varIndex);
 
          if (typeDesc != null) {
             TestOnlyPhase currentPhase = instance.getCurrentTestOnlyPhase();
