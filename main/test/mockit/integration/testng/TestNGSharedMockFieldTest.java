@@ -21,7 +21,7 @@ public final class TestNGSharedMockFieldTest
 
    @Mocked Dependency mock1;
    @Capturing Runnable mock2;
-   @Mocked BufferedWriter writer;
+   @Injectable BufferedWriter writer;
 
    @Test
    public void recordAndReplayExpectationsOnSharedMocks()
@@ -63,5 +63,25 @@ public final class TestNGSharedMockFieldTest
          fail();
       }
       catch (IOException ignore) {}
+   }
+
+   public static class Collaborator {}
+   public interface BaseType { Collaborator doSomething(); }
+   public interface SubType extends BaseType {}
+
+   @Mocked SubType mock;
+
+   @Test
+   public void cascadeFistTime()
+   {
+      Collaborator cascaded = mock.doSomething();
+      assertNotNull(cascaded);
+   }
+
+   @Test
+   public void cascadeSecondTime()
+   {
+      Collaborator cascaded = mock.doSomething();
+      assertNotNull(cascaded);
    }
 }
