@@ -18,7 +18,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.0</version>
+         <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.2</version>
          <optional>true</optional>
       </dependency>
 
@@ -38,7 +38,7 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.32</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.33</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -47,7 +47,7 @@
       </dependency>
       <dependency>
          <!-- Test database: HSQLDB -->
-         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.3.3</version>
+         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.4.0</version>
          <scope>runtime</scope>
       </dependency>
    </dependencies>
@@ -55,14 +55,14 @@
    <build>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.6.1</version>
             <configuration>
                <source>1.7</source>
                <target>1.7</target>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.20</version>
             <configuration>
                <systemPropertyVariables>
                   <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
@@ -90,7 +90,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-war-plugin</artifactId><version>2.3</version>
+            <artifactId>maven-war-plugin</artifactId><version>3.1.0</version>
             <configuration>
                <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
             </configuration>

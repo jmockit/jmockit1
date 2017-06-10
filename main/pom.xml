@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.32</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.33</version>
    <packaging>jar</packaging>
 
    <name>Main</name>
@@ -88,7 +88,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.6.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.6</source><target>1.6</target>
@@ -97,7 +97,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-jar-plugin</artifactId><version>2.6</version>
+            <artifactId>maven-jar-plugin</artifactId><version>3.0.2</version>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -114,7 +114,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>3.0.0</version>
+            <artifactId>maven-source-plugin</artifactId><version>3.0.1</version>
             <configuration>
                <excludes>
                   <exclude>*</exclude>
@@ -130,7 +130,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>2.10.3</version>
+            <artifactId>maven-javadoc-plugin</artifactId><version>2.10.4</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -160,7 +160,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.20</version>
             <configuration>
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
@@ -213,7 +213,7 @@
          </plugin>
          <plugin>
             <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.7</version>
+            <version>1.6.8</version>
             <extensions>true</extensions>
             <configuration>
                <serverId>sonatype-nexus-staging</serverId>
@@ -226,7 +226,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.0</version>
+         <groupId>com.google.code.findbugs</groupId><artifactId>jsr305</artifactId><version>3.0.2</version>
          <optional>true</optional>
       </dependency>
       <dependency>

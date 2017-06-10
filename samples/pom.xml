@@ -19,7 +19,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.32</jmockit.version>
+      <jmockit.version>1.33</jmockit.version>
    </properties>
 
    <build>
@@ -33,7 +33,7 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.5.1</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.6.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.7</source><target>1.7</target>
@@ -41,7 +41,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.19.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.20</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
             </configuration>
