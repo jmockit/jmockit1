@@ -8,6 +8,8 @@ import java.io.*;
 import java.lang.management.*;
 import java.lang.reflect.*;
 
+import javax.xml.parsers.*;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -183,6 +185,17 @@ public final class CapturingImplementationsTest
       int threadCount = threadingBean.getThreadCount();
 
       assertEquals(0, threadCount);
+   }
+
+   @Test
+   public void captureClassesFromTheSAXParserAPI(@Capturing final SAXParser anyParser) throws Exception
+   {
+      new Expectations() {{ anyParser.isNamespaceAware(); result = true; }};
+
+      SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+      boolean b = parser.isNamespaceAware();
+
+      assertTrue(b);
    }
 
    interface Interface2 { int doSomething(); }
