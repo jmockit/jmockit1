@@ -510,30 +510,6 @@ public final class DynamicPartialMockingTest
       }};
    }
 
-   @Test
-   public void dynamicallyMockInstanceOfJREClass()
-   {
-      final List<String> list = new LinkedList<String>();
-      @SuppressWarnings("UseOfObsoleteCollectionType") List<String> anotherList = new Vector<String>();
-
-      new Expectations(list, anotherList) {{
-         list.get(1); result = "an item";
-         list.size(); result = 2;
-      }};
-
-      // Use mocked methods:
-      assertEquals(2, list.size());
-      assertEquals("an item", list.get(1));
-
-      // Use unmocked methods:
-      assertTrue(list.add("another"));
-      assertEquals("another", list.remove(0));
-
-      anotherList.add("one");
-      assertEquals("one", anotherList.get(0));
-      assertEquals(1, anotherList.size());
-   }
-
    public interface AnotherInterface {}
    interface NonPublicInterface {}
 

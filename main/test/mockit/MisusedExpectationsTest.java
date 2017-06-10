@@ -4,8 +4,6 @@
  */
 package mockit;
 
-import java.util.*;
-
 import org.junit.*;
 import org.junit.rules.*;
 
@@ -208,26 +206,6 @@ public final class MisusedExpectationsTest
 
       assertSame(r2, cascaded); // currently, last mock to be declared wins
    }
-
-   // Attempts to mock JRE classes that should never be mocked ////////////////////////////////////////////////////////
-
-   @Test
-   public void attemptToMockString(@Mocked String s) { assertNotNull(s); }
-
-   @Test
-   public void attemptToMockStringBuilder(@Mocked StringBuilder s) { assertNotNull(s); }
-
-   @Test
-   public void attemptToMockStringBuffer(@Mocked StringBuffer s) { assertNotNull(s); }
-
-   @Test
-   public void attemptToMockArrayList(@Mocked ArrayList<?> list) { assertNotNull(list); }
-
-   @Test
-   public void attemptToMockLinkedList(@Mocked LinkedList<?> list) { assertNotNull(list); }
-
-   @Test
-   public void attemptToMockHashMap(@Mocked HashMap<?, ?> map) { assertNotNull(map); }
 
    // @Tested/@Injectable usage ///////////////////////////////////////////////////////////////////////////////////////
 

@@ -126,23 +126,6 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void recordThrowingOfMockException(
-      @Mocked final Collaborator mock, @Mocked final IllegalFormatWidthException e)
-   {
-      new Expectations() {{
-         mock.provideSomeService(); result = e;
-         e.getMessage(); result = "foo";
-      }};
-
-      try {
-         mock.provideSomeService();
-      }
-      catch (Throwable t) {
-         assertEquals("foo", t.getMessage());
-      }
-   }
-
-   @Test
    public void returnsMultipleExpectedValues(@Mocked final Collaborator mock)
    {
       new Expectations() {{

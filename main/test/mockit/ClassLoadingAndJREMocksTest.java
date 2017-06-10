@@ -107,46 +107,9 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockEntireAbstractListClass(@Mocked AbstractList<?> c)
-   {
-      assertNull(c.get(1));
-   }
-
-   @Test
    public void attemptToMockNonMockableJREClass(@Mocked Integer mock)
    {
       assertNull(mock);
-   }
-
-   static class ClassWithVector
-   {
-      @SuppressWarnings("UseOfObsoleteCollectionType")
-      final Collection<?> theVector = new Vector<Object>();
-      public int getVectorSize() { return theVector.size(); }
-   }
-
-   @Test
-   public void useMockedVectorDuringClassLoading(@Mocked final Vector<?> mockedVector)
-   {
-      new Expectations() {{
-         mockedVector.size(); result = 2;
-      }};
-
-      assertEquals(2, new ClassWithVector().getVectorSize());
-   }
-
-   @Test
-   public void mockHashtable(@Mocked final Properties mock)
-   {
-      Properties props = new Properties();
-
-      new Expectations() {{
-         mock.remove(anyString); result = 123;
-         mock.getProperty("test"); result = "mock";
-      }};
-
-      assertEquals(123, props.remove(""));
-      assertEquals("mock", props.getProperty("test"));
    }
 
    @Test

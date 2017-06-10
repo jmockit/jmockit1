@@ -12,25 +12,11 @@ public final class MockingFilters
    private static final Map<String, String> FILTERS = new HashMap<String, String>();
    static {
       FILTERS.put("java/lang/Object", "<init> clone getClass hashCode ");
-      FILTERS.put("java/lang/AbstractStringBuilder", "");
-      FILTERS.put("java/lang/String", "");
-      FILTERS.put("java/lang/StringBuffer", "");
-      FILTERS.put("java/lang/StringBuilder", "");
       FILTERS.put("java/lang/System", "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName ");
-      FILTERS.put("java/lang/Exception", "<init> ");
-      FILTERS.put("java/lang/Throwable", "<init> fillInStackTrace ");
       FILTERS.put("java/lang/Thread", "currentThread getName getThreadGroup interrupted isInterrupted ");
-      FILTERS.put("java/lang/ThreadLocal", "");
       FILTERS.put("java/io/File", "<init> compareTo equals getName getPath hashCode toString ");
-      FILTERS.put("java/util/AbstractCollection", "<init> ");
-      FILTERS.put("java/util/AbstractSet", "<init> ");
-      FILTERS.put("java/util/ArrayList", "");
-      FILTERS.put("java/util/HashSet", "<init> add ");
-      FILTERS.put("java/util/Hashtable", "<init> containsKey get ");
-      FILTERS.put("java/util/HashMap", "");
-      FILTERS.put("java/util/Properties", "<init> ");
-      FILTERS.put("java/util/jar/JarEntry", "<init> ");
       FILTERS.put("java/util/logging/Logger", "<init> getName ");
+      FILTERS.put("java/util/jar/JarEntry", "<init> ");
    }
 
    private MockingFilters() {}
@@ -41,10 +27,10 @@ public final class MockingFilters
    public static boolean isUnmockable(@Nonnull String classDesc)
    {
       return
-         classDesc.startsWith("java/") && (
-            "java/lang/ClassLoader java/lang/Math java/lang/StrictMath java/time/Duration".contains(classDesc) ||
-            "java/nio/file/Paths".equals(classDesc)
-         );
+         ("java/lang/String java/lang/AbstractStringBuilder java/util/AbstractCollection java/util/AbstractMap " +
+          "java/util/Hashtable java/lang/Throwable " +
+          "java/lang/ClassLoader java/lang/Math java/lang/StrictMath java/time/Duration").contains(classDesc) ||
+         "java/lang/ThreadLocal".equals(classDesc) || "java/nio/file/Paths".equals(classDesc);
    }
 
    public static boolean isFullMockingDisallowed(@Nonnull String classDesc)

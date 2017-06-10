@@ -11,7 +11,6 @@ import java.lang.reflect.*;
 import java.security.*;
 import java.time.*;
 import java.util.*;
-import java.util.List;
 import java.util.logging.*;
 
 import org.junit.*;
@@ -265,19 +264,7 @@ public final class JREMockingTest
       assertTrue(task.doSomething());
    }
 
-   @Test
-   public void attemptToMockThreadLocal(@Mocked ThreadLocal<String> tl)
-   {
-      // All ThreadLocal methods are excluded from mocking, avoiding potential StackOverflowError's.
-      assertNull(tl.get());
-      tl.set("test");
-      assertEquals("test", tl.get());
-      tl.remove();
-      assertNull(tl.get());
-   }
-
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
-
    // These would interfere with the test runner if regular mocking was applied.
 
    @Injectable FileOutputStream stream;
@@ -407,48 +394,39 @@ public final class JREMockingTest
    @Test
    public void attemptToMockJREClassThatIsNeverMockable()
    {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.lang.ClassLoader is not mockable");
-
-      new Expectations(ClassLoader.class) {};
-   }
-
-   @Test
-   public void attemptToMockClassClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.lang.Class is not mockable");
-
-      new Expectations(Class.class) {};
-   }
-
-   @Test
-   public void attemptToMockMathClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.lang.Math is not mockable");
-
-      new Expectations(Math.class) {};
-   }
-
-   @Test
-   public void attemptToMockStrictMathClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.lang.StrictMath is not mockable");
-
-      new Expectations(StrictMath.class) {};
-   }
-
-   @Test
-   public void attemptToMockDurationClass()
-   {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.time.Duration is not mockable");
-
+      attemptToMockUnmockableJREClass(String.class);
+      attemptToMockUnmockableJREClass(StringBuffer.class);
+      attemptToMockUnmockableJREClass(StringBuilder.class);
+      attemptToMockUnmockableJREClass(ArrayList.class);
+      attemptToMockUnmockableJREClass(LinkedList.class);
+      attemptToMockUnmockableJREClass(HashMap.class);
+      attemptToMockUnmockableJREClass(HashSet.class);
+      attemptToMockUnmockableJREClass(Hashtable.class);
+      attemptToMockUnmockableJREClass(Properties.class);
+      attemptToMockUnmockableJREClass(AbstractSet.class);
+      attemptToMockUnmockableJREClass(Exception.class);
+      attemptToMockUnmockableJREClass(Throwable.class);
+      attemptToMockUnmockableJREClass(ThreadLocal.class);
+      attemptToMockUnmockableJREClass(ClassLoader.class);
+      attemptToMockUnmockableJREClass(Class.class);
+      attemptToMockUnmockableJREClass(Math.class);
+      attemptToMockUnmockableJREClass(StrictMath.class);
       //noinspection Since15
-      new Expectations(Duration.class) {};
+      attemptToMockUnmockableJREClass(Duration.class);
    }
+
+   void attemptToMockUnmockableJREClass(Class<?> jreClass)
+   {
+      try {
+         new Expectations(jreClass) {};
+         fail("Allowed mocking of " + jreClass);
+      }
+      catch (IllegalArgumentException e) {
+         assertTrue(e.getMessage().endsWith(" is not mockable"));
+      }
+   }
+
+   // Mocking java.time ///////////////////////////////////////////////////////////////////////////////////////////////
 
    public interface DurationProvider { @SuppressWarnings("Since15") Duration getDuration(); }
 
@@ -474,46 +452,5 @@ public final class JREMockingTest
    {
       assertNotNull(LogManager.getLogManager());
       assertSame(mock, Logger.getLogger("test"));
-   }
-
-   // Mocking critical collection classes /////////////////////////////////////////////////////////////////////////////
-
-   @SuppressWarnings("CollectionDeclaredAsConcreteClass")
-   @Mocked final ArrayList<String> mockedArrayList = new ArrayList<String>();
-
-   @Test
-   public void useMockedArrayList()
-   {
-      assertTrue(mockedArrayList.add("test"));
-      assertEquals("test", mockedArrayList.get(0));
-
-      List<Object> l2 = new ArrayList<Object>();
-      assertTrue(l2.add("test"));
-      assertNotNull(l2.get(0));
-   }
-
-   @Test
-   public void useMockedHashMap(@Mocked HashMap<String, Object> mockedHashMap)
-   {
-      Map<String, Object> m = new HashMap<String, Object>();
-      m.put("test", 123);
-      assertEquals(123, m.get("test"));
-      assertEquals(1, m.size());
-   }
-
-   @Test
-   public void useMockedHashSet(@Mocked final HashSet<String> mockedHashSet)
-   {
-      Set<String> s = new HashSet<String>();
-      assertTrue(s.add("test"));
-      assertFalse(s.contains("test"));
-      assertEquals(0, s.size());
-
-      new Expectations() {{
-         mockedHashSet.size();
-         result = 15;
-      }};
-
-      assertEquals(15, mockedHashSet.size());
    }
 }
