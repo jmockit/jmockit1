@@ -11,7 +11,7 @@ import javax.annotation.*;
 import static java.util.regex.Pattern.*;
 
 import mockit.coverage.*;
-import mockit.internal.util.*;
+import static mockit.internal.util.GeneratedClasses.isExternallyGeneratedSubclass;
 
 final class ClassSelection
 {
@@ -113,7 +113,7 @@ final class ClassSelection
          className.startsWith("org.junit.") || className.startsWith("junit.") ||
          className.startsWith("org.testng.") ||
          className.startsWith("org.apache.maven.surefire.") ||
-         ClassLoad.isGeneratedSubclass(className);
+         isExternallyGeneratedSubclass(className);
    }
 
    private static boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain)

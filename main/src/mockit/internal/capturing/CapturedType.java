@@ -7,7 +7,6 @@ package mockit.internal.capturing;
 import java.security.*;
 import javax.annotation.*;
 
-import mockit.internal.util.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
 final class CapturedType
@@ -62,7 +61,7 @@ final class CapturedType
             hasSubPackage(classNameOrDesc, 4, "sun") && !hasSubPackage(classNameOrDesc, 8, "proxy") ||
             hasSubPackage(classNameOrDesc, 4, "intellij")
          ) ||
-         ClassLoad.isGeneratedSubclass(classNameOrDesc);
+         isExternallyGeneratedSubclass(classNameOrDesc);
    }
 
    private static boolean hasSubPackage(@Nonnull String nameOrDesc, int offset, @Nonnull String subPackage)

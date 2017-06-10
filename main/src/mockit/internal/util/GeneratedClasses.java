@@ -40,9 +40,18 @@ public final class GeneratedClasses
       return isGeneratedImplementationClass(mockedType.getName());
    }
 
-   public static boolean isGeneratedSubclass(@Nonnull String className)
+   public static boolean isGeneratedSubclass(@Nonnull String className) { return className.contains(SUBCLASS_PREFIX); }
+
+   public static boolean isExternallyGeneratedSubclass(@Nonnull String className)
    {
-      return className.contains(SUBCLASS_PREFIX);
+      int p = className.indexOf('$') + 1;
+
+      //noinspection SimplifiableIfStatement
+      if (p < 2 || p == className.length() || className.charAt(p) != '$') {
+         return false;
+      }
+
+      return className.contains("_$$_javassist_") || className.contains("_$$_jvst") || className.contains("CGLIB$$");
    }
 
    public static boolean isGeneratedImplementationClass(@Nonnull String className)
