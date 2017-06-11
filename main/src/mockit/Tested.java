@@ -45,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * each field will be used when looking for available injectables.
  * Finally, if there is no matching and available injectable value for a given target field, it is left unassigned,
  * unless the target field is for a <em>required</em> dependency; note that all fields marked with a DI annotation
- * (such as {@code @Inject}, {@code Autowired}, etc.) indicate required dependencies by default
+ * (such as {@code @Inject}, {@code @Autowired}, etc.) indicate required dependencies by default
  * (the use of "<code>@Autowired(required = false)</code>" is respected, if present).
  * <p/>
  * Tested fields/parameters whose declared type is primitive, a primitive wrapper, numeric, or an enum can use the
