@@ -46,14 +46,17 @@ public final class InjectionPoint
    @Nonnull public final Type type;
    @Nullable public final String name;
    @Nullable private final String normalizedName;
+   public final boolean qualified;
 
-   public InjectionPoint(@Nonnull Type type) { this(type, null); }
+   public InjectionPoint(@Nonnull Type type) { this(type, null, false); }
+   public InjectionPoint(@Nonnull Type type, @Nullable String name) { this(type, name, false); }
 
-   public InjectionPoint(@Nonnull Type type, @Nullable String name)
+   public InjectionPoint(@Nonnull Type type, @Nullable String name, boolean qualified)
    {
       this.type = type;
       this.name = name;
       normalizedName = name == null ? null : convertToLegalJavaIdentifierIfNeeded(name);
+      this.qualified = qualified;
    }
 
    @Nonnull
@@ -90,20 +93,18 @@ public final class InjectionPoint
       }
 
       String thisName = normalizedName;
-      String otherName = otherIP.normalizedName;
 
-      if (thisName != null && !thisName.equals(otherName)) {
-         return false;
-      }
-
-      Class<?> thisClass = getClassType(type);
-      Class<?> otherClass = getClassType(otherIP.type);
-
-      return thisClass.isAssignableFrom(otherClass);
+      return type.equals(otherIP.type) && (thisName == null || thisName.equals(otherIP.normalizedName));
    }
 
    @Override
-   public int hashCode() { return 31 * type.hashCode() + (normalizedName != null ? normalizedName.hashCode() : 0); }
+   public int hashCode() { return 31 * type.hashCode() + (normalizedName == null ? 0 : normalizedName.hashCode()); }
+
+   boolean hasSameName(InjectionPoint otherIP)
+   {
+      String thisName = normalizedName;
+      return thisName != null && thisName.equals(otherIP.normalizedName);
+   }
 
    public static boolean isServlet(@Nonnull Class<?> aClass)
    {

@@ -57,4 +57,16 @@ public final class TestedParametersTest
       assertSame(collaborator, tested2.collaborator);
       assertNotNull(tested2.dependency);
    }
+
+   static class TestedClass2 { CharSequence text; Number n; Comparable<Float> cmp; }
+
+   @Test
+   public void injectTestedParametersIntoTestedFieldsOfSupertypes(
+      @Tested("test") String s, @Tested("123") Integer n, @Tested("5.2") Float cmp,
+      @Tested(fullyInitialized = true) TestedClass2 tested)
+   {
+      assertEquals("test", tested.text);
+      assertEquals(123, tested.n.intValue());
+      assertEquals(5.2F, tested.cmp);
+   }
 }

@@ -32,26 +32,29 @@ final class JPADependencies
    JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
-   String getDependencyIdIfAvailable(@Nonnull Annotation annotation)
+   InjectionPoint getInjectionPointIfAvailable(@Nonnull Annotation jpaAnnotation)
    {
-      Class<? extends Annotation> annotationType = annotation.annotationType();
-      String unitName = null;
+      Class<? extends Annotation> annotationType = jpaAnnotation.annotationType();
+      Class<?> jpaClass;
+      String unitName;
 
       if (annotationType == PersistenceUnit.class) {
-         unitName = ((PersistenceUnit) annotation).unitName();
+         jpaClass = EntityManagerFactory.class;
+         unitName = ((PersistenceUnit) jpaAnnotation).unitName();
       }
       else if (annotationType == PersistenceContext.class) {
-         unitName = ((PersistenceContext) annotation).unitName();
+         jpaClass = EntityManager.class;
+         unitName = ((PersistenceContext) jpaAnnotation).unitName();
+      }
+      else {
+         return null;
       }
 
-      return unitName == null ? null : getNameOfPersistentUnit(unitName);
-   }
+      if (unitName.isEmpty()) {
+         unitName = discoverNameOfDefaultPersistenceUnit();
+      }
 
-   @Nonnull
-   private String getNameOfPersistentUnit(@Nullable String injectionPointName)
-   {
-      return injectionPointName != null && !injectionPointName.isEmpty() ?
-         injectionPointName : discoverNameOfDefaultPersistenceUnit();
+      return new InjectionPoint(jpaClass, unitName, true);
    }
 
    @Nonnull
@@ -102,7 +105,14 @@ final class JPADependencies
    private InjectionPoint createFactoryInjectionPoint(@Nonnull InjectionPoint injectionPoint)
    {
       String persistenceUnitName = getNameOfPersistentUnit(injectionPoint.name);
-      return new InjectionPoint(EntityManagerFactory.class, persistenceUnitName);
+      return new InjectionPoint(EntityManagerFactory.class, persistenceUnitName, injectionPoint.qualified);
+   }
+
+   @Nonnull
+   private String getNameOfPersistentUnit(@Nullable String injectionPointName)
+   {
+      return injectionPointName != null && !injectionPointName.isEmpty() ?
+         injectionPointName : discoverNameOfDefaultPersistenceUnit();
    }
 
    @Nonnull

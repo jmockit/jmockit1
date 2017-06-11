@@ -72,20 +72,20 @@ public final class FullInjection
       }
 
       if (qualifiedName != null && !qualifiedName.isEmpty()) {
-         return new InjectionPoint(dependencyClass, qualifiedName);
+         return new InjectionPoint(dependencyClass, qualifiedName, true);
       }
 
       if (jpaDependencies != null && JPADependencies.isApplicable(dependencyClass)) {
          for (Annotation annotation : injectionProvider.getAnnotations()) {
-            String id = jpaDependencies.getDependencyIdIfAvailable(annotation);
+            InjectionPoint injectionPoint = jpaDependencies.getInjectionPointIfAvailable(annotation);
 
-            if (id != null) {
-               return new InjectionPoint(dependencyClass, id);
+            if (injectionPoint != null) {
+               return injectionPoint;
             }
          }
       }
 
-      return new InjectionPoint(dependencyType);
+      return new InjectionPoint(dependencyType, injectionProvider.getName(), false);
    }
 
    @Nullable

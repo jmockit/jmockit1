@@ -199,15 +199,19 @@ public final class ConstructorSearch
    private InjectionPointProvider findOrCreateInjectionPointProvider(
       @Nonnull Type parameterType, @Nullable String parameterName, @Nonnull Annotation[] parameterAnnotations)
    {
-      if (parameterName == null) {
+      String qualifiedName = getQualifiedName(parameterAnnotations);
+
+      if (parameterName == null && qualifiedName == null) {
          return null;
       }
 
-      InjectionPointProvider provider = injectionState.getProviderByTypeAndOptionallyName(parameterName);
+      boolean qualified = qualifiedName != null;
+      String targetName = qualified ? qualifiedName : parameterName;
+      InjectionPointProvider provider = injectionState.getProviderByTypeAndOptionallyName(targetName);
 
       if (provider == null && withFullInjection) {
-         Object valueForParameter = injectionState.getTestedValueForConstructorParameter(parameterName);
-         provider = new ConstructorParameter(parameterType, parameterAnnotations, parameterName, valueForParameter);
+         Object valueForParameter = injectionState.getTestedValueForConstructorParameter(targetName, qualified);
+         provider = new ConstructorParameter(parameterType, parameterAnnotations, targetName, valueForParameter);
       }
 
       return provider;

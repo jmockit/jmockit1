@@ -89,10 +89,6 @@ public final class InjectionState implements BeanExporter
 
    public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType)
    {
-      if (injectableType instanceof Class<?> && typeOfInjectionPoint instanceof Class<?>) {
-         return ((Class<?>) typeOfInjectionPoint).isAssignableFrom((Class<?>) injectableType);
-      }
-
       if (testedTypeReflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
       }
@@ -166,9 +162,9 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   public Object getTestedValueForConstructorParameter(@Nonnull String nameOfInjectionPoint)
+   public Object getTestedValueForConstructorParameter(@Nonnull String nameOfInjectionPoint, boolean qualified)
    {
-      InjectionPoint injectionPoint = new InjectionPoint(typeOfInjectionPoint, nameOfInjectionPoint);
+      InjectionPoint injectionPoint = new InjectionPoint(typeOfInjectionPoint, nameOfInjectionPoint, qualified);
       return testedObjects.get(injectionPoint);
    }
 
@@ -340,8 +336,9 @@ public final class InjectionState implements BeanExporter
       for (Field internalField : testedObject.getClass().getDeclaredFields()) {
          Type fieldType = internalField.getGenericType();
          String qualifiedName = getQualifiedName(internalField.getDeclaredAnnotations());
-         String fieldName = qualifiedName == null ? internalField.getName() : qualifiedName;
-         InjectionPoint internalInjectionPoint = new InjectionPoint(fieldType, fieldName);
+         boolean qualified = qualifiedName != null;
+         String fieldName = qualified ? qualifiedName : internalField.getName();
+         InjectionPoint internalInjectionPoint = new InjectionPoint(fieldType, fieldName, qualified);
 
          if (internalInjectionPoint.equals(injectionPoint)) {
             Object fieldValue = FieldReflection.getFieldValue(internalField, testedObject);
@@ -369,10 +366,10 @@ public final class InjectionState implements BeanExporter
             dependency = instantiatedDependencies.get(dependencyKey);
 
             if (dependency == null) {
-               dependency = findMatchingObject(instantiatedDependencies, null, dependencyKey);
+               dependency = findMatchingObject(instantiatedDependencies, testedClass.reflection, dependencyKey);
 
                if (dependency == null) {
-                  dependency = findMatchingObject(globalDependencies, null, dependencyKey);
+                  dependency = findMatchingObject(globalDependencies, testedClass.reflection, dependencyKey);
                }
             }
          }
@@ -386,21 +383,37 @@ public final class InjectionState implements BeanExporter
       @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable GenericTypeReflection reflection,
       @Nonnull InjectionPoint injectionPoint)
    {
+      if (availableObjects.isEmpty()) {
+         return null;
+      }
+
       Type dependencyType = injectionPoint.type;
+      Object found = null;
 
       for (Entry<InjectionPoint, Object> injectionPointAndObject : availableObjects.entrySet()) {
          InjectionPoint dependencyIP = injectionPointAndObject.getKey();
          Object dependencyObject = injectionPointAndObject.getValue();
 
-         if (
-            injectionPoint.equals(dependencyIP) ||
-            reflection != null && reflection.areMatchingTypes(dependencyType, dependencyIP.type)
-         ) {
+         if (injectionPoint.equals(dependencyIP)) {
             return dependencyObject;
+         }
+
+         if (reflection != null && reflection.areMatchingTypes(dependencyType, dependencyIP.type)) {
+            if (injectionPoint.hasSameName(dependencyIP)) {
+               return dependencyObject;
+            }
+
+            if (injectionPoint.qualified) {
+               return null;
+            }
+
+            if (found == null) {
+               found = dependencyObject;
+            }
          }
       }
 
-      return null;
+      return found;
    }
 
    public void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)

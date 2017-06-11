@@ -610,7 +610,12 @@ public final class GenericTypeReflection
          return true;
       }
 
-      if (declarationType instanceof TypeVariable<?>) {
+      if (declarationType instanceof Class<?>) {
+         if (realizationType instanceof Class<?>) {
+            return ((Class<?>) declarationType).isAssignableFrom((Class<?>) realizationType);
+         }
+      }
+      else if (declarationType instanceof TypeVariable<?>) {
          if (realizationType instanceof TypeVariable<?>) {
             return false;
          }
@@ -621,14 +626,7 @@ public final class GenericTypeReflection
       }
       else if (declarationType instanceof ParameterizedType) {
          ParameterizedType parameterizedDeclarationType = (ParameterizedType) declarationType;
-         ParameterizedType parameterizedRealizationType = null;
-
-         if (realizationType instanceof ParameterizedType) {
-            parameterizedRealizationType = (ParameterizedType) realizationType;
-         }
-         else if (realizationType instanceof Class<?>) {
-            parameterizedRealizationType = findRealizationSupertype((Class<?>) realizationType);
-         }
+         ParameterizedType parameterizedRealizationType = getParameterizedType(realizationType);
 
          if (parameterizedRealizationType != null) {
             return areMatchingTypes(parameterizedDeclarationType, parameterizedRealizationType);
@@ -636,6 +634,20 @@ public final class GenericTypeReflection
       }
 
       return false;
+   }
+
+   @Nullable
+   private ParameterizedType getParameterizedType(@Nonnull Type realizationType)
+   {
+      if (realizationType instanceof ParameterizedType) {
+         return (ParameterizedType) realizationType;
+      }
+
+      if (realizationType instanceof Class<?>) {
+         return findRealizationSupertype((Class<?>) realizationType);
+      }
+
+      return null;
    }
 
    @Nullable
