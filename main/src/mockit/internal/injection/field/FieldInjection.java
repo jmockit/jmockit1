@@ -184,7 +184,7 @@ public final class FieldInjection extends Injector
       for (Field anotherTargetField : targetFields) {
          if (
             anotherTargetField != targetField &&
-            injectionState.isSameTypeAsInjectionPoint(anotherTargetField.getGenericType())
+            injectionState.isAssignableToInjectionPoint(anotherTargetField.getGenericType())
          ) {
             return true;
          }

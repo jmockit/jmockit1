@@ -39,4 +39,40 @@ public final class InjectableParameterTest
       assertEquals(4567, ai.intValue());
       assertEquals(23434L, al.longValue());
    }
+
+   static class TestedClass { Number n; CharSequence text; Comparable<Float> cmp; }
+
+   @Test
+   public void injectablesHavingSubtypesOfTestedFields(
+      @Tested TestedClass tested,
+      @Injectable("test") String s, @Injectable("1.2") Float cmp, @Injectable("123") Integer n)
+   {
+      assertEquals(123, tested.n.intValue());
+      assertEquals("test", tested.text);
+      assertEquals(1.2F, tested.cmp);
+   }
+
+   static class TestedClass2
+   {
+      final Number n;
+      final CharSequence text;
+      final Comparable<Float> cmp;
+
+      TestedClass2(Number n, CharSequence text, Comparable<Float> cmp)
+      {
+         this.n = n;
+         this.text = text;
+         this.cmp = cmp;
+      }
+   }
+
+   @Test
+   public void injectablesHavingSubtypesOfTestedConstructorParameters(
+      @Tested TestedClass2 tested,
+      @Injectable("1.2") Float cmp, @Injectable("test") String s, @Injectable("123") Integer n)
+   {
+      assertEquals(123, tested.n.intValue());
+      assertEquals("test", tested.text);
+      assertEquals(1.2F, tested.cmp);
+   }
 }

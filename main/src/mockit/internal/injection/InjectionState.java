@@ -87,14 +87,12 @@ public final class InjectionState implements BeanExporter
       this.typeOfInjectionPoint = typeOfInjectionPoint;
    }
 
-   private boolean hasSameTypeAsInjectionPoint(@Nonnull InjectionPointProvider injectable)
+   public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType)
    {
-      Type declaredType = injectable.getDeclaredType();
-      return isSameTypeAsInjectionPoint(declaredType);
-   }
+      if (injectableType instanceof Class<?> && typeOfInjectionPoint instanceof Class<?>) {
+         return ((Class<?>) typeOfInjectionPoint).isAssignableFrom((Class<?>) injectableType);
+      }
 
-   public boolean isSameTypeAsInjectionPoint(@Nonnull Type injectableType)
-   {
       if (testedTypeReflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
       }
@@ -127,12 +125,18 @@ public final class InjectionState implements BeanExporter
    public MockedType findNextInjectableForInjectionPoint()
    {
       for (MockedType injectable : injectables) {
-         if (hasSameTypeAsInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
+         if (hasTypeAssignableToInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
             return injectable;
          }
       }
 
       return null;
+   }
+
+   private boolean hasTypeAssignableToInjectionPoint(@Nonnull InjectionPointProvider injectable)
+   {
+      Type declaredType = injectable.getDeclaredType();
+      return isAssignableToInjectionPoint(declaredType);
    }
 
    @Nonnull
@@ -141,7 +145,7 @@ public final class InjectionState implements BeanExporter
       List<MockedType> found = new ArrayList<MockedType>();
 
       for (MockedType injectable : injectables) {
-         if (hasSameTypeAsInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
+         if (hasTypeAssignableToInjectionPoint(injectable) && !consumedInjectables.contains(injectable)) {
             found.add(injectable);
          }
       }
@@ -198,7 +202,7 @@ public final class InjectionState implements BeanExporter
             return injectable;
          }
 
-         if (isSameTypeAsInjectionPoint(injectableType)) {
+         if (isAssignableToInjectionPoint(injectableType)) {
             if (found == null) {
                found = new MultiValuedProvider(elementType);
             }
@@ -216,7 +220,7 @@ public final class InjectionState implements BeanExporter
       MockedType found = null;
 
       for (MockedType injectable : injectables) {
-         if (hasSameTypeAsInjectionPoint(injectable)) {
+         if (hasTypeAssignableToInjectionPoint(injectable)) {
             if (nameOfInjectionPoint.equals(injectable.getName())) {
                return injectable;
             }
@@ -234,7 +238,7 @@ public final class InjectionState implements BeanExporter
    public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint)
    {
       for (MockedType injectable : injectables) {
-         if (hasSameTypeAsInjectionPoint(injectable) && nameOfInjectionPoint.equals(injectable.getName())) {
+         if (hasTypeAssignableToInjectionPoint(injectable) && nameOfInjectionPoint.equals(injectable.getName())) {
             return injectable;
          }
       }
