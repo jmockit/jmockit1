@@ -145,10 +145,13 @@ public final class AgentLoader
       try {
          return VirtualMachine.attach(pid);
       }
-      catch (AttachNotSupportedException e) {
-         throw new RuntimeException(e);
-      }
+      catch (AttachNotSupportedException e) { throw new RuntimeException(e); }
       catch (IOException e) {
+         if (e.getMessage().contains("current VM")) {
+            throw new IllegalStateException(
+               "Running on JDK 9 requires -javaagent:<proper path>/jmockit-1.n.jar or -Djdk.attach.allowAttachSelf");
+         }
+
          throw new RuntimeException(e);
       }
    }
@@ -159,14 +162,8 @@ public final class AgentLoader
          vm.loadAgent(jarFilePath, options);
          vm.detach();
       }
-      catch (AgentLoadException e) {
-         throw new IllegalStateException(e);
-      }
-      catch (AgentInitializationException e) {
-         throw new IllegalStateException(e);
-      }
-      catch (IOException e) {
-         throw new RuntimeException(e);
-      }
+      catch (AgentLoadException e) { throw new IllegalStateException(e); }
+      catch (AgentInitializationException e) { throw new IllegalStateException(e); }
+      catch (IOException e) { throw new RuntimeException(e); }
    }
 }
