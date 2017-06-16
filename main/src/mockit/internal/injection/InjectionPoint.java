@@ -59,6 +59,14 @@ public final class InjectionPoint
       this.qualified = qualified;
    }
 
+   public InjectionPoint(@Nonnull InjectionProvider provider)
+   {
+      type = provider.getDeclaredType();
+      name = provider.getName();
+      normalizedName = name;
+      qualified = false;
+   }
+
    @Nonnull
    public static String convertToLegalJavaIdentifierIfNeeded(@Nonnull String name)
    {
