@@ -10,17 +10,17 @@ import javax.annotation.*;
 
 import static mockit.internal.util.Utilities.getClassType;
 
-final class MultiValuedProvider extends InjectionPointProvider
+final class MultiValuedProvider extends InjectionProvider
 {
-   @Nonnull private final List<InjectionPointProvider> individualProviders;
+   @Nonnull private final List<InjectionProvider> individualProviders;
 
    MultiValuedProvider(@Nonnull Type elementType)
    {
       super(elementType, "");
-      individualProviders = new ArrayList<InjectionPointProvider>();
+      individualProviders = new ArrayList<InjectionProvider>();
    }
 
-   void addInjectable(@Nonnull InjectionPointProvider provider)
+   void addInjectable(@Nonnull InjectionProvider provider)
    {
       individualProviders.add(provider);
    }
@@ -33,7 +33,7 @@ final class MultiValuedProvider extends InjectionPointProvider
    {
       List<Object> values = new ArrayList<Object>(individualProviders.size());
 
-      for (InjectionPointProvider provider : individualProviders) {
+      for (InjectionProvider provider : individualProviders) {
          Object value = provider.getValue(owner);
          values.add(value);
       }

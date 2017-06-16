@@ -12,15 +12,15 @@ import javax.annotation.*;
  * Provides type, name, and value(s) for an injection point, which is either a field to be injected or a parameter in
  * the chosen constructor of a tested class.
  */
-public abstract class InjectionPointProvider
+public abstract class InjectionProvider
 {
    public static final Object NULL = Void.class;
 
    @Nonnull protected final Type declaredType;
    @Nonnull protected final String name;
-   @Nullable public InjectionPointProvider parent;
+   @Nullable public InjectionProvider parent;
 
-   protected InjectionPointProvider(@Nonnull Type declaredType, @Nonnull String name)
+   protected InjectionProvider(@Nonnull Type declaredType, @Nonnull String name)
    {
       this.declaredType = declaredType;
       this.name = name;

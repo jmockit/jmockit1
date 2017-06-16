@@ -14,7 +14,7 @@ import mockit.internal.injection.full.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
-import static mockit.internal.injection.InjectionPointProvider.NULL;
+import static mockit.internal.injection.InjectionProvider.NULL;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -31,11 +31,11 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   public Object instantiate(@Nonnull List<InjectionPointProvider> parameterProviders)
+   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders)
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
-      List<InjectionPointProvider> consumedInjectables = n == 0 ? null : injectionState.saveConsumedInjectables();
+      List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.saveConsumedInjectionProviders();
       Object[] arguments = n == 0 ? NO_ARGS : new Object[n];
       boolean varArgs = constructor.isVarArgs();
 
@@ -44,7 +44,7 @@ public final class ConstructorInjection extends Injector
       }
 
       for (int i = 0; i < n; i++) {
-         @Nonnull InjectionPointProvider parameterProvider = parameterProviders.get(i);
+         @Nonnull InjectionProvider parameterProvider = parameterProviders.get(i);
          Object value;
 
          if (parameterProvider instanceof ConstructorParameter) {
@@ -66,7 +66,7 @@ public final class ConstructorInjection extends Injector
       }
 
       if (consumedInjectables != null) {
-         injectionState.restoreConsumedInjectables(consumedInjectables);
+         injectionState.restoreConsumedInjectionProviders(consumedInjectables);
       }
 
       return invokeConstructor(arguments);
@@ -99,7 +99,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nullable
-   private Object getArgumentValueToInject(@Nonnull InjectionPointProvider injectable, int parameterIndex)
+   private Object getArgumentValueToInject(@Nonnull InjectionProvider injectable, int parameterIndex)
    {
       Object argument = injectionState.getValueToInject(injectable);
 

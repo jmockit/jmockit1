@@ -77,7 +77,7 @@ public final class TestedClassInstantiations
          testedObject.instantiateWithInjectableValues(testClassInstance);
       }
       finally {
-         injectionState.resetConsumedInjectables();
+         injectionState.resetConsumedInjectionProviders();
       }
    }
 

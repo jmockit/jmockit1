@@ -16,7 +16,7 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings("EqualsAndHashcode")
-public final class MockedType extends InjectionPointProvider
+public final class MockedType extends InjectionProvider
 {
    @Mocked private static final Object DUMMY = null;
    private static final int DUMMY_HASHCODE;

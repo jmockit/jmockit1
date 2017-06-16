@@ -10,7 +10,7 @@ import javax.annotation.*;
 
 import mockit.internal.injection.*;
 
-final class FieldToInject extends InjectionPointProvider
+final class FieldToInject extends InjectionProvider
 {
    @Nonnull private final Field targetField;
 
@@ -24,8 +24,5 @@ final class FieldToInject extends InjectionPointProvider
    @Nonnull @Override public Annotation[] getAnnotations() { return targetField.getDeclaredAnnotations(); }
 
    @Override
-   public String toString()
-   {
-      return "field " + super.toString();
-   }
+   public String toString() { return "field " + super.toString(); }
 }

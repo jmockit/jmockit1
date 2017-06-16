@@ -11,7 +11,7 @@ import javax.annotation.*;
 import mockit.internal.injection.*;
 import static mockit.internal.util.Utilities.*;
 
-final class ConstructorParameter extends InjectionPointProvider
+final class ConstructorParameter extends InjectionProvider
 {
    @Nonnull private final Class<?> classOfDeclaredType;
    @Nonnull private final Annotation[] annotations;
