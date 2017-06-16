@@ -33,7 +33,7 @@ public final class FullInjection
    @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
    @Nullable private Class<?> dependencyClass;
-   @Nullable private InjectionPointProvider injectionProvider;
+   @Nullable private InjectionProvider injectionProvider;
 
    public FullInjection(
       @Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, @Nonnull String testedName)
@@ -47,18 +47,17 @@ public final class FullInjection
 
    @Nullable
    public Object reuseInstance(
-      @Nonnull TestedClass testedClass, @Nonnull InjectionPointProvider injectionProvider,
-      @Nullable String qualifiedName)
+      @Nonnull TestedClass testedClass, @Nonnull InjectionProvider injectionProvider, @Nullable String qualifiedName)
    {
       this.injectionProvider = injectionProvider;
       InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionPoint);
       return dependency;
    }
 
    @Nonnull
    private InjectionPoint getInjectionPoint(
-      @Nonnull GenericTypeReflection reflection, @Nonnull InjectionPointProvider injectionProvider,
+      @Nonnull GenericTypeReflection reflection, @Nonnull InjectionProvider injectionProvider,
       @Nullable String qualifiedName)
    {
       Type dependencyType = injectionProvider.getDeclaredType();
@@ -90,12 +89,12 @@ public final class FullInjection
 
    @Nullable
    public Object createOrReuseInstance(
-      @Nonnull Injector injector, @Nonnull InjectionPointProvider injectionProvider, @Nullable String qualifiedName)
+      @Nonnull Injector injector, @Nonnull InjectionProvider injectionProvider, @Nullable String qualifiedName)
    {
       TestedClass testedClass = injector.testedClass;
       setInjectionProvider(injectionProvider);
       InjectionPoint injectionPoint = getInjectionPoint(testedClass.reflection, injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionProvider, injectionPoint);
+      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionPoint);
 
       if (dependency != null) {
          return dependency;
@@ -118,7 +117,7 @@ public final class FullInjection
       return dependency;
    }
 
-   private void setInjectionProvider(@Nonnull InjectionPointProvider injectionProvider)
+   private void setInjectionProvider(@Nonnull InjectionProvider injectionProvider)
    {
       injectionProvider.parent = this.injectionProvider;
       this.injectionProvider = injectionProvider;
@@ -148,7 +147,7 @@ public final class FullInjection
    @Nullable
    private Object createInstanceOfSupportedInterfaceIfApplicable(
       @Nonnull TestedClass testedClass, @Nonnull Class<?> typeToInject,
-      @Nonnull InjectionPoint injectionPoint, @Nonnull InjectionPointProvider injectionProvider)
+      @Nonnull InjectionPoint injectionPoint, @Nonnull InjectionProvider injectionProvider)
    {
       Object dependency = null;
 
@@ -185,7 +184,7 @@ public final class FullInjection
    }
 
    @Nonnull
-   private Object createProviderInstance(@Nonnull InjectionPointProvider injectionProvider)
+   private Object createProviderInstance(@Nonnull InjectionProvider injectionProvider)
    {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -243,7 +242,7 @@ public final class FullInjection
    @Nullable
    private Object createAndRegisterNewInstance(
       @Nonnull Class<?> typeToInstantiate, @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint,
-      @Nonnull InjectionPointProvider injectionProvider)
+      @Nonnull InjectionProvider injectionProvider)
    {
       Object dependency = createNewInstance(typeToInstantiate);
 
@@ -278,7 +277,7 @@ public final class FullInjection
       String description = "@Tested object \"" + testedClass.getSimpleName() + ' ' + testedName + '"';
 
       if (injectionProvider != null) {
-         InjectionPointProvider parentInjectionProvider = injectionProvider.parent;
+         InjectionProvider parentInjectionProvider = injectionProvider.parent;
 
          if (parentInjectionProvider != null) {
             description = parentInjectionProvider + "\r\n  of " + description;
