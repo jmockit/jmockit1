@@ -20,7 +20,6 @@ public final class TestedObjectCreation
 {
    @Nonnull private final InjectionState injectionState;
    @Nullable private final FullInjection fullInjection;
-   @Nonnull private final Class<?> actualTestedClass;
    @Nonnull final TestedClass testedClass;
 
    TestedObjectCreation(
@@ -29,9 +28,9 @@ public final class TestedObjectCreation
    {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      actualTestedClass = isAbstract(declaredClass.getModifiers()) ?
+      Class<?> actualTestedClass = isAbstract(declaredClass.getModifiers()) ?
          generateSubclass(declaredType, declaredClass) : declaredClass;
-      testedClass = new TestedClass(declaredType, declaredClass);
+      testedClass = new TestedClass(declaredType, actualTestedClass);
    }
 
    @Nonnull
@@ -55,21 +54,19 @@ public final class TestedObjectCreation
    {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      actualTestedClass = implementationClass;
       testedClass = new TestedClass(implementationClass, implementationClass);
    }
 
    @Nonnull
    public Object create()
    {
-      ConstructorSearch constructorSearch =
-         new ConstructorSearch(injectionState, actualTestedClass, fullInjection != null);
+      ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, testedClass, fullInjection != null);
       Constructor<?> constructor = constructorSearch.findConstructorToUse();
 
       if (constructor == null) {
          String description = constructorSearch.getDescription();
          throw new IllegalArgumentException(
-            "No constructor in tested class that can be satisfied by available injectables" + description);
+            "No constructor in tested class that can be satisfied by available tested/injectable values" + description);
       }
 
       ConstructorInjection constructorInjection =

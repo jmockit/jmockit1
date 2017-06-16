@@ -17,7 +17,7 @@ import mockit.internal.injection.full.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
-import static mockit.internal.injection.InjectionPointProvider.NULL;
+import static mockit.internal.injection.InjectionProvider.NULL;
 
 public final class FieldInjection extends Injector
 {
@@ -129,18 +129,25 @@ public final class FieldInjection extends Injector
    @Nullable
    private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
    {
-      String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
-      InjectionPointProvider mockedType = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
+      @Nullable String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
+      InjectionProvider injectable = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
 
-      if (mockedType != null) {
-         return injectionState.getValueToInject(mockedType);
+      if (injectable != null) {
+         return injectionState.getValueToInject(injectable);
+      }
+
+      InjectionProvider fieldToInject = new FieldToInject(targetField);
+      InjectionPoint injectionPoint =
+         new InjectionPoint(fieldToInject.getDeclaredType(), fieldToInject.getName(), qualifiedFieldName);
+      Object testedValue = injectionState.getTestedValue(testedClass, injectionPoint);
+
+      if (testedValue != null) {
+         return testedValue;
       }
 
       KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
 
       if (fullInjection != null) {
-         InjectionPointProvider fieldToInject = new FieldToInject(targetField);
-
          if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
             Object existingInstance = fullInjection.reuseInstance(testedClass, fieldToInject, qualifiedFieldName);
             return existingInstance;
@@ -162,7 +169,7 @@ public final class FieldInjection extends Injector
    }
 
    @Nullable
-   private InjectionPointProvider findAvailableInjectableIfAny(
+   private InjectionProvider findAvailableInjectableIfAny(
       @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName)
    {
       injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
@@ -224,11 +231,11 @@ public final class FieldInjection extends Injector
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass);
 
       if (!targetFields.isEmpty()) {
-         List<InjectionPointProvider> currentlyConsumedInjectables = injectionState.saveConsumedInjectables();
+         List<InjectionProvider> currentlyConsumedInjectables = injectionState.saveConsumedInjectionProviders();
 
          injectIntoEligibleFields(targetFields, dependency);
 
-         injectionState.restoreConsumedInjectables(currentlyConsumedInjectables);
+         injectionState.restoreConsumedInjectionProviders(currentlyConsumedInjectables);
       }
 
       requireDIAnnotation = previousRequireDIAnnotation;

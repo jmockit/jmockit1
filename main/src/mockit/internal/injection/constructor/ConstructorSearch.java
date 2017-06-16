@@ -14,14 +14,13 @@ import mockit.internal.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.injection.InjectionPoint.*;
-import static mockit.internal.util.GeneratedClasses.*;
 
 public final class ConstructorSearch
 {
    private static final int CONSTRUCTOR_ACCESS = PUBLIC + PROTECTED + PRIVATE;
 
    @Nonnull private final InjectionState injectionState;
-   @Nonnull private final Class<?> testedClass;
+   @Nonnull private final TestedClass testedClass;
    @Nonnull private final String testedClassDesc;
    @Nonnull public List<InjectionProvider> parameterProviders;
    private final boolean withFullInjection;
@@ -29,11 +28,11 @@ public final class ConstructorSearch
    @Nullable private StringBuilder searchResults;
 
    public ConstructorSearch(
-      @Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, boolean withFullInjection)
+      @Nonnull InjectionState injectionState, @Nonnull TestedClass testedClass, boolean withFullInjection)
    {
       this.injectionState = injectionState;
       this.testedClass = testedClass;
-      Class<?> declaredClass = isGeneratedClass(testedClass.getName()) ? testedClass.getSuperclass() : testedClass;
+      Class<?> declaredClass = testedClass.getDeclaredClass();
       testedClassDesc = new ParameterNameExtractor().extractNames(declaredClass);
       parameterProviders = new ArrayList<InjectionProvider>();
       this.withFullInjection = withFullInjection;
@@ -43,7 +42,8 @@ public final class ConstructorSearch
    public Constructor<?> findConstructorToUse()
    {
       constructor = null;
-      Constructor<?>[] constructors = testedClass.getDeclaredConstructors();
+      Class<?> declaredClass = testedClass.targetClass;
+      Constructor<?>[] constructors = declaredClass.getDeclaredConstructors();
 
       if (!findSingleAnnotatedConstructor(constructors)) {
          findSatisfiedConstructorWithMostParameters(constructors);
@@ -209,12 +209,18 @@ public final class ConstructorSearch
       String targetName = qualified ? qualifiedName : parameterName;
       InjectionProvider provider = injectionState.getProviderByTypeAndOptionallyName(targetName);
 
-      if (provider == null && withFullInjection) {
-         Object valueForParameter = injectionState.getTestedValueForConstructorParameter(targetName, qualified);
-         provider = new ConstructorParameter(parameterType, parameterAnnotations, targetName, valueForParameter);
+      if (provider != null) {
+         return provider;
       }
 
-      return provider;
+      InjectionPoint injectionPoint = new InjectionPoint(parameterType, targetName, qualifiedName);
+      Object valueForParameter = injectionState.getTestedValue(testedClass, injectionPoint);
+
+      if (valueForParameter == null && !withFullInjection) {
+         return null;
+      }
+
+      return new ConstructorParameter(parameterType, parameterAnnotations, targetName, valueForParameter);
    }
 
    @Nullable
@@ -267,7 +273,8 @@ public final class ConstructorSearch
             searchResults.append("parameter names are not available");
          }
          else {
-            searchResults.append("no injectable was found for parameter \"").append(parameterName).append('"');
+            searchResults.append(
+               "no tested/injectable value was found for parameter \"").append(parameterName).append('"');
 
             if (injectableFound != null) {
                searchResults.append(" that hadn't been used already");

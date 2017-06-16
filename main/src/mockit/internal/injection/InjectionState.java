@@ -37,8 +37,8 @@ public final class InjectionState implements BeanExporter
 
    InjectionState()
    {
-      testedObjects = new HashMap<InjectionPoint, Object>();
-      instantiatedDependencies = new HashMap<InjectionPoint, Object>();
+      testedObjects = new LinkedHashMap<InjectionPoint, Object>();
+      instantiatedDependencies = new LinkedHashMap<InjectionPoint, Object>();
       injectables = Collections.emptyList();
       consumedInjectionProviders = new ArrayList<InjectionProvider>();
       lifecycleMethods = new LifecycleMethods();
@@ -159,13 +159,6 @@ public final class InjectionState implements BeanExporter
       }
 
       return findInjectableByTypeAndOptionallyName(nameOfInjectionPoint);
-   }
-
-   @Nullable
-   public Object getTestedValueForConstructorParameter(@Nonnull String nameOfInjectionPoint, boolean qualified)
-   {
-      InjectionPoint injectionPoint = new InjectionPoint(typeOfInjectionPoint, nameOfInjectionPoint, qualified);
-      return testedObjects.get(injectionPoint);
    }
 
    @Nullable
@@ -348,6 +341,18 @@ public final class InjectionState implements BeanExporter
 
    @Nullable @SuppressWarnings("unchecked")
    public <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
+
+   @Nullable
+   public Object getTestedValue(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
+   {
+      Object testedValue = testedObjects.get(injectionPoint);
+
+      if (testedValue == null) {
+         testedValue = findMatchingObject(testedObjects, testedClass.reflection, injectionPoint);
+      }
+
+      return testedValue;
+   }
 
    @Nullable
    public Object getInstantiatedDependency(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint dependencyKey)

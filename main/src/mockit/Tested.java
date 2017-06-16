@@ -22,11 +22,12 @@ import static java.lang.annotation.RetentionPolicy.*;
  * tested field declaration (it is ignored if applied to a tested parameter).
  * Whenever automatic creation occurs, a suitable instance of the tested class is created, initialized, and assigned to
  * the tested field or passed as argument to the tested parameter when the test method gets executed.
- * Available {@linkplain Injectable injectables} are used, either as argument values for the chosen constructor of the
- * tested class, or as values to set into injected fields of the newly-created tested object.
+ * Available {@linkplain Injectable injectables} and other {@code @Tested} values are used, either as argument values
+ * for the chosen constructor of the tested class, or as values to set into injected fields of the newly-created tested
+ * object.
  * <p/>
- * For <em>constructor injection</em>, all constructor parameters (if any) must be satisfied with the values of
- * available injectables.
+ * For <em>constructor injection</em>, all constructor parameters (if any) must be satisfied with available
+ * tested/injectable values.
  * If the tested class has a constructor annotated with the standard CDI annotation "<code>@Inject</code>", then it is
  * the one to be used;
  * otherwise, if there are multiple satisfiable constructors then the one with the most parameters <em>and</em> the
@@ -97,8 +98,8 @@ public @interface Tested
     * For each field of a reference type that would otherwise remain {@code null}, an attempt is made to automatically
     * create and recursively initialize a suitable real instance.
     * For this attempt to succeed, the type of the field must either be a concrete class having a constructor that can
-    * be satisfied by available injectables and/or by recursively created dependencies, or a known interface (see below)
-    * for which a real instance can be created.
+    * be satisfied by available tested/injectable values and/or by recursively created dependencies, or a known
+    * interface (see below) for which a real instance can be created.
     * <p/>
     * Constructor injection is also supported.
     * In this case, the same rules used for injected fields apply to the parameters of the constructor that gets chosen
@@ -145,9 +146,6 @@ public @interface Tested
     * Another potential use is to affect the initialization of other tested objects in the same test class, during their
     * creation <em>after</em> setup.
     * Finally, objects made available during setup are also available during the execution of any tear-down methods.
-    * <p/>
-    * In order to be made available during test setup, a tested object won't be injected from {@code @Injectable}
-    * test method parameters, only from injectable fields.
     */
    boolean availableDuringSetup() default false;
 }

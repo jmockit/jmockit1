@@ -59,12 +59,12 @@ public final class InjectionPoint
       this.qualified = qualified;
    }
 
-   public InjectionPoint(@Nonnull InjectionProvider provider)
+   public InjectionPoint(@Nonnull Type type, @Nonnull String name, @Nullable String qualifiedName)
    {
-      type = provider.getDeclaredType();
-      name = provider.getName();
-      normalizedName = name;
-      qualified = false;
+      this.type = type;
+      this.name = qualifiedName == null ? name : qualifiedName;
+      normalizedName = this.name;
+      qualified = qualifiedName != null;
    }
 
    @Nonnull
