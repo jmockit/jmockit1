@@ -14,24 +14,42 @@ public final class TestedFieldExtractionTest
 {
    static class Dependency {}
 
+   static class TestedClassWithMultipleFieldsOfSameType
+   {
+      Dependency dep1;
+      Dependency dep2;
+   }
+
+   @Tested(fullyInitialized = true) TestedClassWithMultipleFieldsOfSameType tested1;
+   @Tested Dependency dep;
+
+   @Test
+   public void extractMultipleFieldsOfSameTypeIntoSingleTestedField()
+   {
+      assertNotNull(tested1.dep1);
+      assertNotNull(tested1.dep2);
+      assertSame(tested1.dep1, tested1.dep2); // unqualified fields of same type get the same created instance
+      assertSame(tested1.dep1, dep);
+   }
+
    static class TestedClassWithNamedFields
    {
       @Inject @Named("first") Dependency dep1;
       @Inject @Named("second") Dependency dep2;
    }
 
-   @Tested(fullyInitialized = true) TestedClassWithNamedFields tested1;
+   @Tested(fullyInitialized = true) TestedClassWithNamedFields tested2;
    @Tested Dependency first;
    @Tested Dependency second;
 
    @Test
-   public void extractMultipleInjectedFieldsOfSameTypeIntoSeparateTestedFields()
+   public void extractMultipleQualifiedFieldsOfSameTypeIntoSeparateTestedFields()
    {
-      assertNotNull(tested1.dep1);
-      assertNotNull(tested1.dep2);
-      assertNotSame(tested1.dep1, tested1.dep2);
-      assertSame(tested1.dep1, first);
-      assertSame(tested1.dep2, second);
+      assertNotNull(tested2.dep1);
+      assertNotNull(tested2.dep2);
+      assertNotSame(tested2.dep1, tested2.dep2);
+      assertSame(tested2.dep1, first);
+      assertSame(tested2.dep2, second);
    }
 
    static class TestedClassWithInitializedFieldsOfVariousTypes
@@ -42,7 +60,7 @@ public final class TestedFieldExtractionTest
       Map<Integer, String> numbersAndNames = new HashMap<Integer, String>();
    }
 
-   @Tested TestedClassWithInitializedFieldsOfVariousTypes tested2;
+   @Tested TestedClassWithInitializedFieldsOfVariousTypes tested3;
    @Tested String name;
    @Tested List<String> test;
    @Tested Map<Integer, String> numbersAndNames;
@@ -51,9 +69,9 @@ public final class TestedFieldExtractionTest
    @Test
    public void extractFieldsInitializedByConstructorOfTestedClass()
    {
-      assertEquals(tested2.name, name);
-      assertEquals(tested2.number, number);
-      assertSame(tested2.names, test);
-      assertSame(tested2.numbersAndNames, numbersAndNames);
+      assertEquals(tested3.name, name);
+      assertEquals(tested3.number, number);
+      assertSame(tested3.names, test);
+      assertSame(tested3.numbersAndNames, numbersAndNames);
    }
 }
