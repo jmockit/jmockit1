@@ -72,7 +72,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#tested" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
-@Target({FIELD, PARAMETER, ANNOTATION_TYPE})
+@Target({FIELD, PARAMETER, ANNOTATION_TYPE, METHOD})
 public @interface Tested
 {
    /**

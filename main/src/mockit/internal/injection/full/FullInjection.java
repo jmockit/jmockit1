@@ -110,9 +110,22 @@ public final class FullInjection
          return null;
       }
 
-      dependency = typeToInject.isInterface() ?
-         createInstanceOfSupportedInterfaceIfApplicable(testedClass, typeToInject, injectionPoint, injectionProvider) :
-         createAndRegisterNewInstance(typeToInject, injector, injectionPoint, injectionProvider);
+      if (typeToInject.isInterface()) {
+         dependency = createInstanceOfSupportedInterfaceIfApplicable(
+            testedClass, typeToInject, injectionPoint, injectionProvider);
+
+         if (dependency == null) {
+            Class<?> resolvedType = injectionState.resolveInterface(typeToInject);
+
+            if (resolvedType != null && !resolvedType.isInterface()) {
+               typeToInject = resolvedType;
+            }
+         }
+      }
+
+      if (dependency == null) {
+         dependency = createAndRegisterNewInstance(typeToInject, injector, injectionPoint, injectionProvider);
+      }
 
       return dependency;
    }

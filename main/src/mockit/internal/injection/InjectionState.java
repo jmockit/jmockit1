@@ -16,6 +16,7 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import static mockit.internal.injection.InjectionPoint.*;
+import static mockit.internal.reflection.MethodReflection.*;
 import static mockit.internal.util.Utilities.getClassType;
 
 /**
@@ -26,6 +27,7 @@ public final class InjectionState implements BeanExporter
    @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
       new ConcurrentHashMap<InjectionPoint, Object>(2);
 
+   @Nonnull private final Map<ParameterizedType, Method> interfaceResolutionMethods;
    @Nonnull private final Map<InjectionPoint, Object> testedObjects;
    @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
    @Nonnull private List<MockedType> injectables;
@@ -37,6 +39,7 @@ public final class InjectionState implements BeanExporter
 
    InjectionState()
    {
+      interfaceResolutionMethods = new HashMap<ParameterizedType, Method>();
       testedObjects = new LinkedHashMap<InjectionPoint, Object>();
       instantiatedDependencies = new LinkedHashMap<InjectionPoint, Object>();
       injectables = Collections.emptyList();
@@ -463,6 +466,42 @@ public final class InjectionState implements BeanExporter
          if (name.equals(injectionPoint.name)) {
             return injectionPointAndObject.getValue();
          }
+      }
+
+      return null;
+   }
+
+   void addInterfaceResolutionMethod(@Nonnull ParameterizedType interfaceType, @Nonnull Method resolutionMethod)
+   {
+      interfaceResolutionMethods.put(interfaceType, resolutionMethod);
+   }
+
+   @Nullable
+   public Class<?> resolveInterface(@Nonnull Class<?> interfaceType)
+   {
+      if (interfaceResolutionMethods.isEmpty()) {
+         return null;
+      }
+
+      Method resolutionMethod = null;
+
+      for (Entry<ParameterizedType, Method> typeAndMethod : interfaceResolutionMethods.entrySet()) {
+         ParameterizedType acceptedType = typeAndMethod.getKey();
+         Method method = typeAndMethod.getValue();
+         Type targetType = acceptedType.getActualTypeArguments()[0];
+
+         if (targetType == interfaceType) {
+            resolutionMethod = method;
+            break;
+         }
+         else if (targetType instanceof WildcardType) {
+            resolutionMethod = method;
+         }
+      }
+
+      if (resolutionMethod != null) {
+         Class<?> implementationClass = invoke(currentTestClassInstance, resolutionMethod, interfaceType);
+         return implementationClass;
       }
 
       return null;

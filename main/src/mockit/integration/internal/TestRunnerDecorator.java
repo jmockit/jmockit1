@@ -155,7 +155,7 @@ public class TestRunnerDecorator
 
          TestedClassInstantiations testedClassInstantiations = new TestedClassInstantiations();
 
-         if (!testedClassInstantiations.findTestedAndInjectableFields(testClass)) {
+         if (!testedClassInstantiations.findTestedAndInjectableMembers(testClass)) {
             testedClassInstantiations = null;
          }
 
