@@ -13,5 +13,5 @@ abstract class SubstringMatcher implements ArgumentMatcher<SubstringMatcher>
    SubstringMatcher(@Nonnull CharSequence substring) { this.substring = substring.toString(); }
 
    @Override
-   public boolean same(@Nonnull SubstringMatcher other) { return substring.equals(other.substring); }
+   public final boolean same(@Nonnull SubstringMatcher other) { return substring.equals(other.substring); }
 }
