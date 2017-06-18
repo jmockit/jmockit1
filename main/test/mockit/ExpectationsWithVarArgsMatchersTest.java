@@ -24,8 +24,8 @@ public final class ExpectationsWithVarArgsMatchersTest
          return input1 == null ? Collections.emptyList() : asList(otherInputs);
       }
 
-      @SuppressWarnings("UnusedDeclaration")
-      int anotherOperation(int i, boolean b, String s, String... otherStrings) { return -1; }
+      @SuppressWarnings("UnusedParameters")
+      int anotherOperation( int i, boolean b, String s, String... otherStrings) { return -1; }
 
       boolean doSomething(int i, Object... values) { return i + values.length > 0; }
    }
@@ -256,13 +256,13 @@ public final class ExpectationsWithVarArgsMatchersTest
    {
       new StrictExpectations() {{
          varargs.varsOnly(); times = 2;
-         varargs.mixed("abcd"); times = 2;
+         varargs.mixed("arg"); times = 2;
       }};
 
       varargs.varsOnly();
       varargs.varsOnly(null);
-      varargs.mixed("abcd");
-      varargs.mixed("abcd", null);
+      varargs.mixed("arg");
+      varargs.mixed("arg", null);
    }
 
    static class ReferenceVarArgs
@@ -275,7 +275,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    public void expectInvocationWithNonPrimitiveVarArgs(@Mocked final ReferenceVarArgs varargs)
    {
       final String[] strings1 = new String[0];
-      final String[] strings2 = {"efgh", "ijkl"};
+      final String[] strings2 = {"first", "second"};
 
       new Expectations() {{
          varargs.mixed(null, 4, 5, 6);
@@ -306,30 +306,30 @@ public final class ExpectationsWithVarArgsMatchersTest
    public void expectInvocationWithPrimitiveVarArgs(@Mocked final PrimitiveVarArgs varargs)
    {
       final String[] strings1 = new String[0];
-      final String[] strings2 = {"efgh", "ijkl"};
+      final String[] strings2 = {"first", "second"};
 
       new StrictExpectations() {{
          varargs.varsOnly(1, 2, 3);
          varargs.varsOnly(null);
-         varargs.mixed("abcd", null, 4, 5, 6);
-         varargs.mixed("abcd", strings1, 4, 5, 6);
-         varargs.mixed("abcd", strings2, 4, 5, 6);
-         varargs.mixed("abcd", null);
-         varargs.mixed("abcd", strings1);
-         varargs.mixed("abcd", strings2);
-         varargs.mixed("abcd", null, null);
+         varargs.mixed("arg", null, 4, 5, 6);
+         varargs.mixed("arg", strings1, 4, 5, 6);
+         varargs.mixed("arg", strings2, 4, 5, 6);
+         varargs.mixed("arg", null);
+         varargs.mixed("arg", strings1);
+         varargs.mixed("arg", strings2);
+         varargs.mixed("arg", null, null);
          varargs.mixed(null, null, null);
       }};
 
       varargs.varsOnly(1, 2, 3);
       varargs.varsOnly(null);
-      varargs.mixed("abcd", null, 4, 5, 6);
-      varargs.mixed("abcd", strings1, 4, 5, 6);
-      varargs.mixed("abcd", strings2, 4, 5, 6);
-      varargs.mixed("abcd", null);
-      varargs.mixed("abcd", strings1);
-      varargs.mixed("abcd", strings2);
-      varargs.mixed("abcd", null, null);
+      varargs.mixed("arg", null, 4, 5, 6);
+      varargs.mixed("arg", strings1, 4, 5, 6);
+      varargs.mixed("arg", strings2, 4, 5, 6);
+      varargs.mixed("arg", null);
+      varargs.mixed("arg", strings1);
+      varargs.mixed("arg", strings2);
+      varargs.mixed("arg", null, null);
       varargs.mixed(null, null, null);
    }
 
@@ -343,7 +343,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    public void expectInvocationWithPrimitiveVarArgsUsingMatchers(@Mocked final MixedVarArgs varargs)
    {
       final String[] strings1 = new String[0];
-      final String[] strings2 = {"efgh", "ijkl"};
+      final String[] strings2 = {"first", "second"};
 
       new Expectations() {{
          varargs.mixed((String[]) withNull(), withEqual(4), withEqual(5), withEqual(6));
