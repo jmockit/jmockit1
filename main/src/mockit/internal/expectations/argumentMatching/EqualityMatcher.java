@@ -14,7 +14,7 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
    EqualityMatcher(@Nullable Object equalArg) { object = equalArg; }
 
    @Override
-   public boolean same(@Nonnull EqualityMatcher other) { return object == other.object; }
+   public final boolean same(@Nonnull EqualityMatcher other) { return object == other.object; }
 
    @Override
    public boolean matches(@Nullable Object argValue) { return areEqual(argValue, object); }
@@ -30,14 +30,8 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
       if (o1 == null) {
          return o2 == null;
       }
-      else if (o2 == null) {
-         return false;
-      }
-      else if (o1 == o2) {
-         return true;
-      }
 
-      return areEqualWhenNonNull(o1, o2);
+      return o2 != null && (o1 == o2 || areEqualWhenNonNull(o1, o2));
    }
 
    public static boolean areEqualWhenNonNull(@Nonnull Object o1, @Nonnull Object o2)
