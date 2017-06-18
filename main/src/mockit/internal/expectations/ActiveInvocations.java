@@ -6,8 +6,8 @@ package mockit.internal.expectations;
 
 import javax.annotation.*;
 
-import mockit.internal.expectations.argumentCapturing.*;
 import mockit.internal.expectations.argumentMatching.*;
+import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.argumentMatching.AlwaysTrueMatcher.*;

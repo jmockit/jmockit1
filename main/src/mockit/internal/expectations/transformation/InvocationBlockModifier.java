@@ -7,51 +7,27 @@ package mockit.internal.expectations.transformation;
 import javax.annotation.*;
 
 import mockit.external.asm.*;
-import mockit.internal.expectations.argumentCapturing.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
 public final class InvocationBlockModifier extends MethodVisitor
 {
-   private static final String CLASS_DESC = "mockit/internal/expectations/ActiveInvocations";
-   private static final Type[] NO_PARAMETERS = new Type[0];
-   private static final String ANY_FIELDS =
-      "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
-   private static final String WITH_METHODS =
-      "withArgThat(Lorg/hamcrest/Matcher;)Ljava/lang/Object; " +
-      "with(Lmockit/Delegate;)Ljava/lang/Object; " +
-      "withAny(Ljava/lang/Object;)Ljava/lang/Object; " +
-      "withCapture()Ljava/lang/Object; withCapture(Ljava/util/List;)Ljava/lang/Object; " +
-      "withCapture(Ljava/lang/Object;)Ljava/util/List; " +
-      "withEqual(Ljava/lang/Object;)Ljava/lang/Object; withEqual(DD)D withEqual(FD)F " +
-      "withInstanceLike(Ljava/lang/Object;)Ljava/lang/Object; " +
-      "withInstanceOf(Ljava/lang/Class;)Ljava/lang/Object; " +
-      "withNotEqual(Ljava/lang/Object;)Ljava/lang/Object; " +
-      "withNull()Ljava/lang/Object; withNotNull()Ljava/lang/Object; " +
-      "withSameInstance(Ljava/lang/Object;)Ljava/lang/Object; " +
-      "withSubstring(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
-      "withPrefix(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
-      "withSuffix(Ljava/lang/CharSequence;)Ljava/lang/CharSequence; " +
-      "withMatch(Ljava/lang/CharSequence;)Ljava/lang/CharSequence;";
-
    @Nonnull private final MethodWriter mw;
 
    // Input data:
    @Nonnull private final String blockOwner;
    private final boolean callEndInvocations;
 
-   // Takes care of withCapture() matchers, if any:
+   // Keeps track of the current stack size (after each bytecode instruction) within the invocation block:
+   @Nonnegative private int stackSize;
+
+   // Handle withCapture()/anyXyz/withXyz matchers, if any:
+   @Nonnull final ArgumentMatching argumentMatching;
+   @Nonnull final ArgumentCapturing argumentCapturing;
    private boolean justAfterWithCaptureInvocation;
-   @Nonnull private final ArgumentCapturing argumentCapturing;
 
    // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
    @Nonnegative private int lastLoadedVarIndex;
-
-   // Helper fields that allow argument matchers to be moved to the correct positions of their corresponding parameters:
-   @Nonnull private final int[] matcherStacks;
-   @Nonnegative private int matcherCount;
-   @Nonnegative private int stackSize;
-   @Nonnull private Type[] parameterTypes;
 
    InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations)
    {
@@ -59,14 +35,13 @@ public final class InvocationBlockModifier extends MethodVisitor
       this.mw = mw;
       this.blockOwner = blockOwner;
       this.callEndInvocations = callEndInvocations;
-      matcherStacks = new int[40];
+      argumentMatching = new ArgumentMatching(this);
       argumentCapturing = new ArgumentCapturing(this);
-      parameterTypes = NO_PARAMETERS;
    }
 
-   public void generateCallToActiveInvocationsMethod(@Nonnull String name, @Nonnull String desc)
+   void generateCallToActiveInvocationsMethod(@Nonnull String name, @Nonnull String desc)
    {
-      visitMethodInstruction(INVOKESTATIC, CLASS_DESC, name, desc, false);
+      visitMethodInstruction(INVOKESTATIC, "mockit/internal/expectations/ActiveInvocations", name, desc, false);
    }
 
    @Override
@@ -79,8 +54,9 @@ public final class InvocationBlockModifier extends MethodVisitor
          if (name.indexOf('$') > 0) {
             // Nothing to do.
          }
-         else if (getField && name.startsWith("any") && ANY_FIELDS.contains(name)) {
-            generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
+         else if (getField && ArgumentMatching.isAnyField(name)) {
+            argumentMatching.generateCodeToAddArgumentMatcherForAnyField(owner, name, desc);
+            argumentMatching.addMatcher(stackSize);
             return;
          }
          else if (!getField && generateCodeThatReplacesAssignmentToSpecialField(name)) {
@@ -106,14 +82,6 @@ public final class InvocationBlockModifier extends MethodVisitor
       }
 
       return false;
-   }
-
-   private void generateCodeToAddArgumentMatcherForAnyField(
-      @Nonnull String fieldOwner, @Nonnull String name, @Nonnull String desc)
-   {
-      mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
-      generateCallToActiveInvocationsMethod(name, "()V");
-      matcherStacks[matcherCount++] = stackSize;
    }
 
    private static int stackSizeVariationForFieldAccess(@Nonnegative int opcode, @Nonnull String fieldType)
@@ -144,7 +112,7 @@ public final class InvocationBlockModifier extends MethodVisitor
 
          if (argumentCapturing.registerMatcher(withCaptureMethod, desc, lastLoadedVarIndex)) {
             justAfterWithCaptureInvocation = withCaptureMethod;
-            matcherStacks[matcherCount++] = stackSize;
+            argumentMatching.addMatcher(stackSize);
          }
       }
       else if (isUnboxing(opcode, owner, desc)) {
@@ -185,7 +153,7 @@ public final class InvocationBlockModifier extends MethodVisitor
    {
       return
          opcode == INVOKEVIRTUAL && owner.equals(blockOwner) &&
-         name.startsWith("with") && WITH_METHODS.contains(name + desc);
+         ArgumentMatching.isCallToArgumentMatcher(name, desc);
    }
 
    private void generateCodeToReplaceNullWithZeroOnTopOfStack(@Nonnull String unboxingMethodDesc)
@@ -207,68 +175,14 @@ public final class InvocationBlockModifier extends MethodVisitor
    private void handleMockedOrNonMockedInvocation(
       @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
    {
-      if (matcherCount == 0) {
+      if (argumentMatching.getMatcherCount() == 0) {
          visitMethodInstruction(opcode, owner, name, desc, itf);
       }
       else {
-         boolean mockedInvocationUsingTheMatchers = handleInvocationParameters(desc);
+         boolean mockedInvocationUsingTheMatchers = argumentMatching.handleInvocationParameters(stackSize, desc);
          visitMethodInstruction(opcode, owner, name, desc, itf);
          handleArgumentCapturingIfNeeded(mockedInvocationUsingTheMatchers);
       }
-   }
-
-   private boolean handleInvocationParameters(@Nonnull String desc)
-   {
-      parameterTypes = Type.getArgumentTypes(desc);
-      int stackAfter = stackSize - sumOfParameterSizes();
-      boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
-
-      if (mockedInvocationUsingTheMatchers) {
-         generateCallsToMoveArgMatchers(stackAfter);
-         argumentCapturing.generateCallsToSetArgumentTypesToCaptureIfAny();
-         matcherCount = 0;
-      }
-
-      return mockedInvocationUsingTheMatchers;
-   }
-
-   @Nonnegative
-   private int sumOfParameterSizes()
-   {
-      int sum = 0;
-
-      for (Type argType : parameterTypes) {
-         sum += argType.getSize();
-      }
-
-      return sum;
-   }
-
-   private void generateCallsToMoveArgMatchers(@Nonnegative int initialStack)
-   {
-      int stack = initialStack;
-      int nextMatcher = 0;
-      int matcherStack = matcherStacks[0];
-
-      for (int i = 0; i < parameterTypes.length && nextMatcher < matcherCount; i++) {
-         stack += parameterTypes[i].getSize();
-
-         if (stack == matcherStack || stack == matcherStack + 1) {
-            if (nextMatcher < i) {
-               generateCallToMoveArgMatcher(nextMatcher, i);
-               argumentCapturing.updateCaptureIfAny(nextMatcher, i);
-            }
-
-            matcherStack = matcherStacks[++nextMatcher];
-         }
-      }
-   }
-
-   private void generateCallToMoveArgMatcher(@Nonnegative int originalMatcherIndex, @Nonnegative int toIndex)
-   {
-      mw.visitIntInsn(SIPUSH, originalMatcherIndex);
-      mw.visitIntInsn(SIPUSH, toIndex);
-      generateCallToActiveInvocationsMethod("moveArgMatcher", "(II)V");
    }
 
    private void handleArgumentCapturingIfNeeded(boolean mockedInvocationUsingTheMatchers)
@@ -400,7 +314,5 @@ public final class InvocationBlockModifier extends MethodVisitor
       }
    }
 
-   @Nonnull public MethodWriter getMethodWriter() { return mw; }
-   @Nonnegative public int getMatcherCount() { return matcherCount; }
-   @Nonnull public Type getParameterType(@Nonnegative int parameterIndex) { return parameterTypes[parameterIndex]; }
+   @Nonnull MethodWriter getMethodWriter() { return mw; }
 }

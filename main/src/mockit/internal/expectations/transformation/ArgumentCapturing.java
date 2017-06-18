@@ -2,13 +2,12 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.argumentCapturing;
+package mockit.internal.expectations.transformation;
 
 import java.util.*;
 import javax.annotation.*;
 
 import mockit.external.asm.*;
-import mockit.internal.expectations.transformation.*;
 import static mockit.external.asm.Opcodes.*;
 
 public final class ArgumentCapturing
@@ -20,10 +19,9 @@ public final class ArgumentCapturing
    private boolean parameterForCapture;
    @Nullable private String capturedTypeDesc;
 
-   public ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
+   ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
 
-   public boolean registerMatcher(
-      boolean withCaptureMethod, @Nonnull String methodDesc, @Nonnegative int lastLoadedVarIndex)
+   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc, @Nonnegative int lastLoadedVarIndex)
    {
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
@@ -32,7 +30,8 @@ public final class ArgumentCapturing
       if (withCaptureMethod) {
          if (methodDesc.contains("List")) {
             if (lastLoadedVarIndex > 0) {
-               Capture capture = new Capture(modifier, lastLoadedVarIndex, modifier.getMatcherCount());
+               int parameterIndex = modifier.argumentMatching.getMatcherCount();
+               Capture capture = new Capture(modifier, lastLoadedVarIndex, parameterIndex);
                addCapture(capture);
             }
 
@@ -49,14 +48,14 @@ public final class ArgumentCapturing
       return true;
    }
 
-   public void registerTypeToCaptureIfApplicable(@Nonnegative int opcode, @Nonnull String typeDesc)
+   void registerTypeToCaptureIfApplicable(@Nonnegative int opcode, @Nonnull String typeDesc)
    {
       if (opcode == CHECKCAST && parameterForCapture) {
          capturedTypeDesc = typeDesc;
       }
    }
 
-   public void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
+   void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
    {
       if (signature.startsWith("Ljava/util/List<")) {
          String typeDesc = signature.substring(16, signature.length() - 2);
@@ -71,10 +70,11 @@ public final class ArgumentCapturing
       }
    }
 
-   public void registerAssignmentToCaptureVariableIfApplicable(@Nonnegative int opcode, @Nonnegative int varIndex)
+   void registerAssignmentToCaptureVariableIfApplicable(@Nonnegative int opcode, @Nonnegative int varIndex)
    {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
-         Capture capture = new Capture(modifier, opcode, varIndex, capturedTypeDesc, modifier.getMatcherCount() - 1);
+         int parameterIndex = modifier.argumentMatching.getMatcherCount() - 1;
+         Capture capture = new Capture(modifier, opcode, varIndex, capturedTypeDesc, parameterIndex);
          addCapture(capture);
          parameterForCapture = false;
          capturedTypeDesc = null;
@@ -90,7 +90,7 @@ public final class ArgumentCapturing
       captures.add(capture);
    }
 
-   public void updateCaptureIfAny(@Nonnegative int originalIndex, @Nonnegative int newIndex)
+   void updateCaptureIfAny(@Nonnegative int originalIndex, @Nonnegative int newIndex)
    {
       if (captures != null) {
          for (int i = captures.size() - 1; i >= 0; i--) {
@@ -103,7 +103,7 @@ public final class ArgumentCapturing
       }
    }
 
-   public void generateCallsToSetArgumentTypesToCaptureIfAny()
+   void generateCallsToSetArgumentTypesToCaptureIfAny()
    {
       if (captures != null) {
          for (Capture capture : captures) {
@@ -112,7 +112,7 @@ public final class ArgumentCapturing
       }
    }
 
-   public void generateCallsToCaptureMatchedArgumentsIfPending()
+   void generateCallsToCaptureMatchedArgumentsIfPending()
    {
       if (captures != null) {
          for (Capture capture : captures) {

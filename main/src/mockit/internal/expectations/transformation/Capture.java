@@ -2,12 +2,11 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations.argumentCapturing;
+package mockit.internal.expectations.transformation;
 
 import javax.annotation.*;
 
 import mockit.external.asm.*;
-import mockit.internal.expectations.transformation.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
@@ -67,7 +66,7 @@ final class Capture
    private Type getArgumentType()
    {
       if (typeToCapture == null) {
-         return invocationBlockModifier.getParameterType(parameterIndex);
+         return invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       }
       else if (typeToCapture.charAt(0) == '[') {
          return Type.getType(typeToCapture);
@@ -105,7 +104,7 @@ final class Capture
 
    private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc)
    {
-      Type parameterType = invocationBlockModifier.getParameterType(parameterIndex);
+      Type parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       int sort = parameterType.getSort();
 
       if (sort == Type.OBJECT || sort == Type.ARRAY) {
