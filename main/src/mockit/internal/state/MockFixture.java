@@ -7,6 +7,7 @@ package mockit.internal.state;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.*;
+import java.util.concurrent.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
@@ -67,7 +68,7 @@ public final class MockFixture
    public MockFixture()
    {
       transformedClasses = new HashMap<ClassIdentification, byte[]>(2);
-      redefinedClasses = new IdentityHashMap<Class<?>, byte[]>(8);
+      redefinedClasses = new ConcurrentHashMap<Class<?>, byte[]>(8);
       redefinedClassesWithNativeMethods = new HashSet<String>();
       realClassesToMockClasses = new IdentityHashMap<Class<?>, String>(8);
       mockedClasses = new ArrayList<Class<?>>();
