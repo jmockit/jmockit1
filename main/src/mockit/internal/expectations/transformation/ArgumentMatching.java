@@ -65,7 +65,7 @@ final class ArgumentMatching
    {
       MethodWriter mw = modifier.getMethodWriter();
       mw.visitFieldInsn(GETFIELD, fieldOwner, name, desc);
-      modifier.generateCallToActiveInvocationsMethod(name, "()V");
+      modifier.generateCallToActiveInvocationsMethod(name);
    }
 
    boolean handleInvocationParameters(@Nonnegative int stackSize, @Nonnull String desc)

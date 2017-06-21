@@ -12,6 +12,8 @@ import static mockit.internal.util.TypeConversion.*;
 
 public final class InvocationBlockModifier extends MethodVisitor
 {
+   private static final String CLASS_DESC = "mockit/internal/expectations/ActiveInvocations";
+
    @Nonnull private final MethodWriter mw;
 
    // Input data:
@@ -39,9 +41,14 @@ public final class InvocationBlockModifier extends MethodVisitor
       argumentCapturing = new ArgumentCapturing(this);
    }
 
+   void generateCallToActiveInvocationsMethod(@Nonnull String name)
+   {
+      mw.visitMethodInsn(INVOKESTATIC, CLASS_DESC, name, "()V", false);
+   }
+
    void generateCallToActiveInvocationsMethod(@Nonnull String name, @Nonnull String desc)
    {
-      visitMethodInstruction(INVOKESTATIC, "mockit/internal/expectations/ActiveInvocations", name, desc, false);
+      visitMethodInstruction(INVOKESTATIC, CLASS_DESC, name, desc, false);
    }
 
    @Override
@@ -137,14 +144,22 @@ public final class InvocationBlockModifier extends MethodVisitor
    private void visitMethodInstruction(
       @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
    {
-      int argSize = Type.getArgumentsAndReturnSizes(desc);
-      int sizeVariation = (argSize & 0x03) - (argSize >> 2);
+      if (!"()V".equals(desc)) {
+         int argAndRetSize = Type.getArgumentsAndReturnSizes(desc);
+         int retSize = argAndRetSize & 0x03;
+         int argSize = argAndRetSize >> 2;
 
-      if (opcode == INVOKESTATIC) {
-         sizeVariation++;
+         if (opcode == INVOKESTATIC) {
+            argSize--;
+         }
+
+         stackSize -= argSize;
+         stackSize += retSize;
+      }
+      else if (opcode != INVOKESTATIC) {
+         stackSize--;
       }
 
-      stackSize += sizeVariation;
       mw.visitMethodInsn(opcode, owner, name, desc, itf);
    }
 
@@ -289,7 +304,7 @@ public final class InvocationBlockModifier extends MethodVisitor
    public void visitInsn(@Nonnegative int opcode)
    {
       if (opcode == RETURN && callEndInvocations) {
-         generateCallToActiveInvocationsMethod("endInvocations", "()V");
+         generateCallToActiveInvocationsMethod("endInvocations");
       }
       else {
          stackSize += Frame.SIZE[opcode];
