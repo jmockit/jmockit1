@@ -26,7 +26,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       }
 
       int anotherOperation( int i, boolean b, String s, String... otherStrings) { return -1; }
-      boolean doSomething(int i, Object... values) { return i + values.length > 0; }
+      static boolean doSomething(int i, Object... values) { return i + values.length > 0; }
    }
 
    public interface Dependency { void doSomething(String... args); }
@@ -116,7 +116,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       new Expectations() {{
          mock.complexOperation("test", (Object[]) any); result = values;
          mock.anotherOperation(1, true, null, (String[]) any); result = 123;
-         mock.doSomething(anyInt, (Object[]) any); result = true;
+         Collaborator.doSomething(anyInt, (Object[]) any); result = true;
       }};
 
       assertSame(values, mock.complexOperation("test", true, 'a', 2.5));
@@ -127,8 +127,8 @@ public final class ExpectationsWithVarArgsMatchersTest
       assertEquals(123, mock.anotherOperation(1, true, null, "A", null, "b"));
       assertEquals(123, mock.anotherOperation(1, true, "test", "a", "b"));
 
-      assertTrue(mock.doSomething(-1));
-      assertTrue(mock.doSomething(-2, "test"));
+      assertTrue(Collaborator.doSomething(-1));
+      assertTrue(Collaborator.doSomething(-2, "test"));
    }
 
    @Test
@@ -347,10 +347,18 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectationRecordedWithNotNullMatcherForVarargsParameter()
    {
-      new Expectations() {{ mock.doSomething(0, (Object[]) withNotNull()); result = true; }};
+      new Expectations() {{ Collaborator.doSomething(0, (Object[]) withNotNull()); result = true; }};
 
-      assertTrue(mock.doSomething(0, "test"));
+      assertTrue(Collaborator.doSomething(0, "test"));
       //noinspection NullArgumentToVariableArgMethod
-      assertFalse(mock.doSomething(0, (Object[]) null));
+      assertFalse(Collaborator.doSomething(0, (Object[]) null));
+   }
+
+   @Test @Ignore("issue #292")
+   public void recordVarargsMethodWithRegularParameterUsingMatcherForVarargsOnly()
+   {
+      new Expectations() {{ Collaborator.doSomething(123, anyString); }};
+
+      Collaborator.doSomething(123, "test");
    }
 }
