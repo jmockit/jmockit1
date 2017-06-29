@@ -120,7 +120,7 @@ final class JPADependencies
    {
       String persistenceUnitName = injectionPoint.name;
       EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
-      injectionState.saveGlobalDependency(injectionPoint, emFactory);
+      InjectionState.saveGlobalDependency(injectionPoint, emFactory);
       return emFactory;
    }
 
@@ -128,7 +128,7 @@ final class JPADependencies
    private EntityManager createAndRegisterEntityManager(@Nonnull InjectionPoint injectionPoint)
    {
       InjectionPoint emFactoryKey = createFactoryInjectionPoint(injectionPoint);
-      EntityManagerFactory emFactory = injectionState.getGlobalDependency(emFactoryKey);
+      EntityManagerFactory emFactory = InjectionState.getGlobalDependency(emFactoryKey);
 
       if (emFactory == null) {
          emFactory = createAndRegisterEntityManagerFactory(emFactoryKey);

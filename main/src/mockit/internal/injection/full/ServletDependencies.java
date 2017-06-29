@@ -110,7 +110,7 @@ final class ServletDependencies
       };
 
       InjectionPoint injectionPoint = new InjectionPoint(ServletContext.class);
-      injectionState.saveGlobalDependency(injectionPoint, context);
+      InjectionState.saveGlobalDependency(injectionPoint, context);
       return context;
    }
 
@@ -156,7 +156,7 @@ final class ServletDependencies
          @Override
          public ServletContext getServletContext()
          {
-            ServletContext context = injectionState.getGlobalDependency(new InjectionPoint(ServletContext.class));
+            ServletContext context = InjectionState.getGlobalDependency(new InjectionPoint(ServletContext.class));
 
             if (context == null) {
                context = createAndRegisterServletContext();

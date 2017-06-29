@@ -343,7 +343,7 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable @SuppressWarnings("unchecked")
-   public <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
+   public static <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
 
    @Nullable
    public Object getTestedValue(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
@@ -382,7 +382,7 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   private Object findMatchingObject(
+   private static Object findMatchingObject(
       @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable GenericTypeReflection reflection,
       @Nonnull InjectionPoint injectionPoint)
    {
@@ -424,7 +424,7 @@ public final class InjectionState implements BeanExporter
       instantiatedDependencies.put(dependencyKey, dependency);
    }
 
-   public void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
+   public static void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
    {
       globalDependencies.put(dependencyKey, dependency);
    }
@@ -458,9 +458,9 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   private Object findByName(@Nonnull Map<InjectionPoint, Object> injectionPointsAndObjects, @Nonnull String name)
+   private static Object findByName(@Nonnull Map<InjectionPoint, Object> dependencies, @Nonnull String name)
    {
-      for (Entry<InjectionPoint, Object> injectionPointAndObject : injectionPointsAndObjects.entrySet()) {
+      for (Entry<InjectionPoint, Object> injectionPointAndObject : dependencies.entrySet()) {
          InjectionPoint injectionPoint = injectionPointAndObject.getKey();
 
          if (name.equals(injectionPoint.name)) {
