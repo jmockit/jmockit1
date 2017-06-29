@@ -477,7 +477,7 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   public Class<?> resolveInterface(@Nonnull Class<?> interfaceType)
+   public Class<?> resolveInterface(@Nonnull Class<?> anInterface)
    {
       if (interfaceResolutionMethods.isEmpty()) {
          return null;
@@ -490,20 +490,33 @@ public final class InjectionState implements BeanExporter
          Method method = typeAndMethod.getValue();
          Type targetType = acceptedType.getActualTypeArguments()[0];
 
-         if (targetType == interfaceType) {
+         if (targetType == anInterface) {
             resolutionMethod = method;
             break;
          }
-         else if (targetType instanceof WildcardType) {
+         else if (targetType instanceof WildcardType && satisfiesUpperBounds(anInterface, (WildcardType) targetType)) {
             resolutionMethod = method;
          }
       }
 
       if (resolutionMethod != null) {
-         Class<?> implementationClass = invoke(currentTestClassInstance, resolutionMethod, interfaceType);
+         Class<?> implementationClass = invoke(currentTestClassInstance, resolutionMethod, anInterface);
          return implementationClass;
       }
 
       return null;
+   }
+
+   private static boolean satisfiesUpperBounds(@Nonnull Class<?> interfaceType, @Nonnull WildcardType targetType)
+   {
+      for (Type upperBound : targetType.getUpperBounds()) {
+         Class<?> classOfUpperBound = getClassType(upperBound);
+
+         if (!classOfUpperBound.isAssignableFrom(interfaceType)) {
+            return false;
+         }
+      }
+
+      return true;
    }
 }

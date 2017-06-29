@@ -12,10 +12,12 @@ import static org.junit.Assert.*;
 public final class TestedMethodsTest
 {
    public interface Dependency {}
+   public interface AnotherDependency {}
    static class DependencyImpl implements Dependency {}
    @SuppressWarnings("unused") public interface BaseDAO<T extends Serializable> {}
-   static class DAOImpl implements BaseDAO<String> {}
-   static class TestedClass { Dependency dependency; BaseDAO<String> dao; }
+   public interface ConcreteDAO extends BaseDAO<String> {}
+   static class DAOImpl implements ConcreteDAO {}
+   static class TestedClass { Dependency dependency; ConcreteDAO dao; AnotherDependency anotherDependency; }
 
    @Tested
    static Class<? extends Dependency> resolveDependencyInterfaces(Class<Dependency> dependencyInterface)
@@ -25,9 +27,9 @@ public final class TestedMethodsTest
    }
 
    @Tested
-   Class<?> resolveDAOInterfaces(Class<? extends BaseDAO> daoInterface)
+   Class<?> resolveDAOInterfaces(Class<? extends BaseDAO<?>> daoInterface)
    {
-      assertSame(BaseDAO.class, daoInterface);
+      assertSame(ConcreteDAO.class, daoInterface);
       return DAOImpl.class;
    }
 
@@ -38,5 +40,6 @@ public final class TestedMethodsTest
    {
       assertTrue(tested.dependency instanceof DependencyImpl);
       assertTrue(tested.dao instanceof DAOImpl);
+      assertNull(tested.anotherDependency);
    }
 }
