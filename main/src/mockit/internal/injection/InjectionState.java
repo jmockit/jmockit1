@@ -27,7 +27,7 @@ public final class InjectionState implements BeanExporter
    @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
       new ConcurrentHashMap<InjectionPoint, Object>(2);
 
-   @Nonnull private final Map<ParameterizedType, Method> interfaceResolutionMethods;
+   @Nonnull final Map<ParameterizedType, Method> interfaceResolutionMethods;
    @Nonnull private final Map<InjectionPoint, Object> testedObjects;
    @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
    @Nonnull private List<MockedType> injectables;
