@@ -137,8 +137,8 @@ public final class FieldInjection extends Injector
       }
 
       InjectionProvider fieldToInject = new FieldToInject(targetField);
-      InjectionPoint injectionPoint =
-         new InjectionPoint(fieldToInject.getDeclaredType(), fieldToInject.getName(), qualifiedFieldName);
+      Type typeToInject = fieldToInject.getDeclaredType();
+      InjectionPoint injectionPoint = new InjectionPoint(typeToInject, fieldToInject.getName(), qualifiedFieldName);
       Object testedValue = injectionState.getTestedValue(testedClass, injectionPoint);
 
       if (testedValue != null) {
