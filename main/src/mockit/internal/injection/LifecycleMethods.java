@@ -4,6 +4,7 @@
  */
 package mockit.internal.injection;
 
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.*;
@@ -79,7 +80,7 @@ public final class LifecycleMethods
 
    private static boolean isInitializationMethod(@Nonnull Method method, boolean isServlet)
    {
-      if (method.isAnnotationPresent(PostConstruct.class)) {
+      if (hasLifecycleAnnotation(method, true)) {
          return true;
       }
 
@@ -91,10 +92,24 @@ public final class LifecycleMethods
       return false;
    }
 
+   private static boolean hasLifecycleAnnotation(@Nonnull Method method, boolean postConstruct)
+   {
+      try {
+         Class<? extends Annotation> lifecycleAnnotation = postConstruct ? PostConstruct.class : PreDestroy.class;
+
+         if (method.isAnnotationPresent(lifecycleAnnotation)) {
+            return true;
+         }
+      }
+      catch (NoClassDefFoundError ignore) { /* can occur on JDK 9 */ }
+
+      return false;
+   }
+
    private static boolean isTerminationMethod(@Nonnull Method method, boolean isServlet)
    {
       return
-         method.isAnnotationPresent(PreDestroy.class) ||
+         hasLifecycleAnnotation(method, false) ||
          isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
    }
 
