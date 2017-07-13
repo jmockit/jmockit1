@@ -151,8 +151,12 @@ public final class Startup
          try {
             new AgentLoader().loadAgent(null);
             Instrumentation inst = InstrumentationHolder.get();
-            String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
-            InstrumentationHolder.setHostJREClassName(hostJREClassName);
+
+            if (InstrumentationHolder.hostJREClassName == null) {
+               String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+               InstrumentationHolder.setHostJREClassName(hostJREClassName);
+            }
+
             initialize(inst);
             return true;
          }
