@@ -7,7 +7,6 @@ package mockit.internal.startup;
 import java.lang.instrument.*;
 import java.security.*;
 import javax.annotation.*;
-import javax.print.PrintException;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
@@ -31,7 +30,7 @@ final class MockingBridgeFields
       NegativeArraySizeException.class.getName();
 
       if (fieldAdditionTransformer.hostClassName == null) {
-         PrintException.class.getName();
+         Provider.class.getName();
       }
 
       return fieldAdditionTransformer.hostClassName;
