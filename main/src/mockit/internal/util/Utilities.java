@@ -4,8 +4,11 @@
  */
 package mockit.internal.util;
 
+import java.io.*;
 import java.lang.reflect.*;
 import java.math.*;
+import java.net.*;
+import java.security.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 import javax.annotation.*;
@@ -188,5 +191,20 @@ public final class Utilities
       return
          "java.awt.EventDispatchThread".equals(currentThread.getClass().getName()) ||
          "system".equals(currentThread.getThreadGroup().getName());
+   }
+
+   @Nonnull
+   public static String getClassFileLocationPath(@Nonnull Class<?> aClass)
+   {
+      CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+      return getClassFileLocationPath(codeSource);
+   }
+
+   @Nonnull
+   public static String getClassFileLocationPath(@Nonnull CodeSource codeSource)
+   {
+      String locationPath = codeSource.getLocation().getPath();
+      try { locationPath = URLDecoder.decode(locationPath, "UTF-8"); } catch (UnsupportedEncodingException ignore) {}
+      return locationPath;
    }
 }

@@ -11,6 +11,7 @@ import java.util.jar.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
+import mockit.internal.util.*;
 
 /**
  * Coverage data captured for all source files exercised during a test run.
@@ -164,7 +165,7 @@ public final class CoverageData implements Serializable
          return 0L;
       }
 
-      String locationPath = coveredClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+      String locationPath = Utilities.getClassFileLocationPath(coveredClass);
 
       if (locationPath.endsWith(".jar")) {
          try { return getLastModifiedTimeFromJarEntry(sourceFilePathNoExt, locationPath); }

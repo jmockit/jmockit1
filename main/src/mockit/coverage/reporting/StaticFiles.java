@@ -8,6 +8,8 @@ import java.io.*;
 import java.security.*;
 import javax.annotation.*;
 
+import mockit.internal.util.*;
+
 final class StaticFiles
 {
    @Nonnull private final String outputDir;
@@ -71,7 +73,7 @@ final class StaticFiles
             lastModifiedTimeOfCoverageJar = -1;
          }
          else {
-            String pathToThisJar = codeSource.getLocation().getPath();
+            String pathToThisJar = Utilities.getClassFileLocationPath(codeSource);
             lastModifiedTimeOfCoverageJar = new File(pathToThisJar).lastModified();
          }
       }
