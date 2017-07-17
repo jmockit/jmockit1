@@ -4,15 +4,20 @@
  */
 package mockit.integration.internal;
 
-import java.lang.reflect.*;
-import javax.annotation.*;
-
-import mockit.internal.*;
-import mockit.internal.expectations.*;
-import mockit.internal.injection.*;
+import mockit.internal.MissingInvocation;
+import mockit.internal.UnexpectedInvocation;
+import mockit.internal.expectations.RecordAndReplayExecution;
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.state.*;
+import mockit.internal.injection.TestedClassInstantiations;
+import mockit.internal.injection.TestedParameters;
+import mockit.internal.state.SavePoint;
+import mockit.internal.state.TestRun;
 import mockit.internal.util.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.lang.reflect.Method;
 
 /**
  * Base class for "test runner decorators", which provide integration between JMockit and specific
@@ -74,7 +79,7 @@ public class TestRunnerDecorator
          if (currentTestClass == null) {
             savePointForTestClass = new SavePoint();
          }
-         else if (!currentTestClass.isAssignableFrom(testClass)) {
+         else if (!currentTestClass.equals(testClass)) {
             cleanUpMocksFromPreviousTestClass();
             savePointForTestClass = new SavePoint();
          }
