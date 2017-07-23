@@ -147,10 +147,14 @@ final class MockupsModifier extends BaseClassModifier
       Label startOfRealImplementation = null;
 
       if (!isStatic(methodAccess) && !isConstructor && isMockedSuperclass()) {
-         startOfRealImplementation = new Label();
-         mw.visitVarInsn(ALOAD, 0);
-         mw.visitTypeInsn(INSTANCEOF, Type.getInternalName(mockMethods.getRealClass()));
-         mw.visitJumpInsn(IFEQ, startOfRealImplementation);
+         Class<?> targetClass = mockMethods.getRealClass();
+
+         if (mockedClass.getClassLoader() == targetClass.getClassLoader()) {
+            startOfRealImplementation = new Label();
+            mw.visitVarInsn(ALOAD, 0);
+            mw.visitTypeInsn(INSTANCEOF, Type.getInternalName(targetClass));
+            mw.visitJumpInsn(IFEQ, startOfRealImplementation);
+         }
       }
 
       generateCallToUpdateMockState();

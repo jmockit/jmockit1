@@ -12,6 +12,7 @@ import java.rmi.*;
 import java.sql.*;
 import java.util.concurrent.atomic.*;
 
+import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 
@@ -366,5 +367,18 @@ public final class MockUpTest
             assertEquals(10, i);
          }
       });
+   }
+
+   static final class JRESubclass extends Patch { JRESubclass(int i, int j) { super(i, j); } }
+
+   @Test
+   public void anonymousMockUpForJRESubclassHavingMockMethodForJREMethod()
+   {
+      new MockUp<JRESubclass>() { @Mock int getBank() { return 123; } };
+
+      Patch t = new JRESubclass(1, 2);
+      int i = t.getBank();
+
+      assertEquals(123, i);
    }
 }
