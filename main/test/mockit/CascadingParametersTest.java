@@ -658,4 +658,15 @@ public final class CascadingParametersTest
 
       assertNull(ret);
    }
+
+   public static final class CustomException extends Throwable  {}
+   static class AClass { CustomException getException() { return new CustomException(); } }
+
+   @Test
+   public void cascadeFromMethodReturningAThrowableSubclass(@Mocked AClass mock)
+   {
+      CustomException t = mock.getException();
+
+      assertNull(t);
+   }
 }

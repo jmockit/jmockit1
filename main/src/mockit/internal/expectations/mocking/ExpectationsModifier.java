@@ -13,7 +13,7 @@ import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
-import static mockit.internal.expectations.MockingFilters.*;
+import static mockit.internal.MockingFilters.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.ObjectMethods.isMethodFromObject;
 import static mockit.internal.util.Utilities.*;

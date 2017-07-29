@@ -12,6 +12,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Collections.synchronizedList;
 
+import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
@@ -128,6 +129,10 @@ public final class MockedTypeCascade
    @Nullable
    private static String getReturnTypeIfCascadingSupportedForIt(@Nonnull Class<?> returnType)
    {
+      if (MockingFilters.isSubclassOfUnmockable(returnType)) {
+         return null;
+      }
+
       String typeName = getInternalName(returnType);
       return isTypeSupportedForCascading(typeName) ? typeName : null;
    }

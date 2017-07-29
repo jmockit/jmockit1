@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations;
+package mockit.internal;
 
 import java.util.*;
 import javax.annotation.*;
@@ -54,5 +54,16 @@ public final class MockingFilters
 
       int i = mockingFilters.indexOf(name);
       return i > -1 && mockingFilters.charAt(i + name.length()) == ' ';
+   }
+
+   public static boolean isSubclassOfUnmockable(@Nonnull Class<?> aClass)
+   {
+      return
+         AbstractCollection.class.isAssignableFrom(aClass) ||
+         AbstractMap.class.isAssignableFrom(aClass) ||
+         Hashtable.class.isAssignableFrom(aClass) ||
+         Throwable.class.isAssignableFrom(aClass) ||
+         ClassLoader.class.isAssignableFrom(aClass) ||
+         ThreadLocal.class.isAssignableFrom(aClass);
    }
 }
