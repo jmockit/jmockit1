@@ -669,4 +669,16 @@ public final class CascadingParametersTest
 
       assertNull(t);
    }
+
+   static class First { <T extends Second> T getSecond(@SuppressWarnings("unused") Class<T> aClass) { return null; } }
+   static class Second { Runnable getSomething() { return null; }}
+
+   @Test
+   public void cascadeFromMethodReturningTypeProvidedByClassParameterThenFromCascadedInstance(@Mocked First first)
+   {
+      Second second = first.getSecond(Second.class);
+      Runnable runnable = second.getSomething();
+
+      assertNotNull(runnable);
+   }
 }

@@ -165,12 +165,14 @@ public final class MockedTypeCascade
    private Object getCascadedInstance(
       @Nonnull String methodNameAndDesc, @Nonnull String returnTypeInternalName, @Nonnull Class<?> returnClass)
    {
+      MockedTypeCascade nextLevel = this;
+
       if (!cascadedTypesAndMocks.containsKey(returnTypeInternalName)) {
          cascadedTypesAndMocks.put(returnTypeInternalName, returnClass);
-         CASCADING_TYPES.add(returnTypeInternalName, false, returnClass);
+         nextLevel = CASCADING_TYPES.add(returnTypeInternalName, false, returnClass);
       }
 
-      return createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnClass);
+      return nextLevel.createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnClass);
    }
 
    @Nullable
