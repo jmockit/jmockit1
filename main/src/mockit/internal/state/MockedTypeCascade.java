@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
+import static java.lang.reflect.Modifier.*;
 import static java.util.Collections.synchronizedList;
 
 import mockit.internal.expectations.mocking.*;
@@ -20,6 +21,7 @@ import static mockit.internal.util.Utilities.*;
 public final class MockedTypeCascade
 {
    @Nonnull private static final CascadingTypes CASCADING_TYPES = TestRun.getExecutingTest().getCascadingTypes();
+   private static final int PUBLIC_INTERFACE = PUBLIC + INTERFACE;
 
    final boolean fromMockField;
    @Nonnull private final Type mockedType;
@@ -176,12 +178,9 @@ public final class MockedTypeCascade
 
       if (returnType == null) {
          Class<?> cascadingClass = getClassWithCalledMethod();
+         Type genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc);
 
-         Type genericReturnType;
-         try { genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc); }
-         catch (NoSuchMethodException ignore) { return null; }
-
-         if (genericReturnType == Object.class) {
+         if (genericReturnType == null) {
             return null;
          }
 
@@ -194,6 +193,9 @@ public final class MockedTypeCascade
 
             returnType = mockedType;
             returnClass = cascadingClass;
+         }
+         else if (nonPublicTypeReturnedFromPublicInterface(cascadingClass, resolvedReturnType)) {
+            return null;
          }
          else {
             Object defaultReturnValue = DefaultValues.computeForType(resolvedReturnType);
@@ -220,6 +222,16 @@ public final class MockedTypeCascade
       return nextLevel.createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);
    }
 
+   private static boolean nonPublicTypeReturnedFromPublicInterface(
+      @Nonnull Class<?> cascadingClass, @Nonnull Class<?> resolvedReturnType)
+   {
+      return
+         !isPublic(resolvedReturnType.getModifiers()) &&
+         cascadingClass.getClassLoader() != null &&
+         (cascadingClass.getModifiers() & PUBLIC_INTERFACE) != 0 &&
+         !resolvedReturnType.isMemberClass();
+   }
+
    @Nonnull
    private Class<?> getClassWithCalledMethod()
    {
@@ -234,18 +246,22 @@ public final class MockedTypeCascade
       return (Class<?>) ((ParameterizedType) mockedType).getRawType();
    }
 
-   @Nonnull
+   @Nullable
    private Type getGenericReturnType(@Nonnull Class<?> cascadingClass, @Nonnull String methodNameAndDesc)
-      throws NoSuchMethodException
    {
-      Method cascadingMethod = new RealMethodOrConstructor(cascadingClass, methodNameAndDesc).getMember();
+      RealMethodOrConstructor realMethod;
+
+      try { realMethod = new RealMethodOrConstructor(cascadingClass, methodNameAndDesc); }
+      catch (NoSuchMethodException e) { return null; }
+
+      Method cascadingMethod = realMethod.getMember();
       Type genericReturnType = cascadingMethod.getGenericReturnType();
 
       if (genericReturnType instanceof TypeVariable<?>) {
          genericReturnType = getGenericReflection().resolveTypeVariable((TypeVariable<?>) genericReturnType);
       }
 
-      return genericReturnType;
+      return genericReturnType == Object.class ? null : genericReturnType;
    }
 
    @Nullable

@@ -648,4 +648,14 @@ public final class CascadingParametersTest
       assertNotNull(compilation);
       assertNull(compilation.getName());
    }
+
+   public interface AnInterface { NonPublicTestedClass getPackagePrivateClass(); }
+
+   @Test
+   public void cascadeFromMethodInPublicInterfaceReturningPackagePrivateType(@Mocked AnInterface mock)
+   {
+      NonPublicTestedClass ret = mock.getPackagePrivateClass();
+
+      assertNull(ret);
+   }
 }

@@ -222,7 +222,8 @@ public final class CascadingWithGenericsTest
    public interface NonGenericInterface extends GenericSubInterface<Bar> {}
 
    @Test
-   public void cascadeFromGenericMethodDefinedTwoLevelsDeepInInheritanceHierarchy(@Mocked NonGenericInterface mock) {
+   public void cascadeFromGenericMethodDefinedTwoLevelsDeepInInheritanceHierarchy(@Mocked NonGenericInterface mock)
+   {
       Bar cascadedResult = mock.genericMethod();
 
       assertNotNull(cascadedResult);

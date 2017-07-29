@@ -93,7 +93,7 @@ public final class RealMethodOrConstructor
 
             ownerClass = ownerClass.getSuperclass();
 
-            if (ownerClass == Object.class) {
+            if (ownerClass == null || ownerClass == Object.class) {
                throw e;
             }
          }
