@@ -29,7 +29,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
       @Nullable String signature, @Nullable String[] exceptions)
    {
       if (signature != null && mockedTypeInfo != null) {
-         signature = mockedTypeInfo.genericTypeMap.resolveReturnType(className, signature);
+         signature = mockedTypeInfo.genericTypeMap.resolveSignature(className, signature);
       }
 
       mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);

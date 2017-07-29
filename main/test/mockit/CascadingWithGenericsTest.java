@@ -253,7 +253,7 @@ public final class CascadingWithGenericsTest
    @Test
    public void cascadeFromMethodReturningInnerInstanceOfGenericClass(@Mocked final Client mock)
    {
-      final Outer.Inner innerInstance = new Outer().new Inner();
+      final Outer<?>.Inner innerInstance = new Outer().new Inner();
 
       new Expectations() {{
          mock.doSomething();
@@ -264,14 +264,14 @@ public final class CascadingWithGenericsTest
    }
 
    static class SubB<T> extends B<T> {}
-   static class ClassWithMethodReturningGenericClassInstance { SubB<C> doSomething() { return null; } }
+   static class ClassWithMethodReturningGenericClassInstance { SubB<C<?>> doSomething() { return null; } }
 
    @Test
    public void cascadeFromMethodReturningInstanceOfGenericSubclassThenFromGenericMethodOfGenericBaseClass(
       @Mocked ClassWithMethodReturningGenericClassInstance mock)
    {
-      SubB<C> cascade1 = mock.doSomething();
-      C cascade2 = cascade1.getValue();
+      SubB<C<?>> cascade1 = mock.doSomething();
+      C<?> cascade2 = cascade1.getValue();
 
       assertNotNull(cascade2);
    }

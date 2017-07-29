@@ -421,7 +421,7 @@ public final class GenericTypeReflection
    }
 
    @Nonnull
-   public String resolveReturnType(@Nonnull String ownerTypeDesc, @Nonnull String genericSignature)
+   public String resolveSignature(@Nonnull String ownerTypeDesc, @Nonnull String genericSignature)
    {
       addTypeArgumentsIfAvailable(ownerTypeDesc, genericSignature);
 
@@ -473,9 +473,7 @@ public final class GenericTypeReflection
    private String replaceTypeParametersWithActualTypes(@Nonnull String ownerTypeDesc, @Nonnull String typeDesc)
    {
       if (typeDesc.charAt(0) == 'T' && !typeParametersToTypeArgumentNames.isEmpty()) {
-         String typeParameter = typeDesc.substring(0, typeDesc.length() - 1);
-         @Nullable String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
-         return typeArg == null ? typeDesc : typeArg + ';';
+         return replaceTypeParameters(ownerTypeDesc, typeDesc);
       }
 
       int p = typeDesc.indexOf('<');
@@ -494,6 +492,26 @@ public final class GenericTypeReflection
       }
 
       return resolvedTypeDesc;
+   }
+
+   @Nonnull
+   private String replaceTypeParameters(@Nonnull String ownerTypeDesc, @Nonnull String typeDesc)
+   {
+      String typeParameter = typeDesc.substring(0, typeDesc.length() - 1);
+
+      while (true) {
+         @Nullable String typeArg = typeParametersToTypeArgumentNames.get(ownerTypeDesc + ':' + typeParameter);
+
+         if (typeArg == null) {
+            return typeDesc;
+         }
+
+         if (typeArg.charAt(0) != 'T') {
+            return typeArg + ';';
+         }
+
+         typeParameter = typeArg;
+      }
    }
 
    @Nonnull

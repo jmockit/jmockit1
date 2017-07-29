@@ -78,7 +78,7 @@ public final class MockedTypeCascade
       String resolvedReturnTypeDesc = null;
 
       if (genericSignature != null) {
-         resolvedReturnTypeDesc = cascade.getGenericReturnType(genericSignature);
+         resolvedReturnTypeDesc = cascade.getGenericReturnType(mockedTypeDesc, genericSignature);
       }
 
       if (resolvedReturnTypeDesc == null) {
@@ -96,9 +96,10 @@ public final class MockedTypeCascade
    }
 
    @Nullable
-   private String getGenericReturnType(@Nonnull String genericSignature)
+   private String getGenericReturnType(@Nonnull String ownerTypeDesc, @Nonnull String genericSignature)
    {
-      String returnTypeDesc = getGenericReflection().resolveReturnType(genericSignature);
+      String resolvedSignature = getGenericReflection().resolveSignature(ownerTypeDesc, genericSignature);
+      String returnTypeDesc = resolvedSignature.substring(resolvedSignature.indexOf(')') + 1);
 
       if (returnTypeDesc.charAt(0) == '[') {
          return returnTypeDesc;
@@ -179,6 +180,10 @@ public final class MockedTypeCascade
          Type genericReturnType;
          try { genericReturnType = getGenericReturnType(cascadingClass, methodNameAndDesc); }
          catch (NoSuchMethodException ignore) { return null; }
+
+         if (genericReturnType == Object.class) {
+            return null;
+         }
 
          Class<?> resolvedReturnType = getClassType(genericReturnType);
 

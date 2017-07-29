@@ -296,4 +296,23 @@ public final class GenericMockedTypesTest
       T2 r = mock2.doSomething();
       assertNotNull(r);
    }
+
+   static class AClass
+   {
+      <R> R genericMethod() { return null; }
+      <R> R genericMethodWithParameter(R value) { return value; }
+      <R, S> R genericMethodWithTwoTypeParameters(@SuppressWarnings("unused") S s) { return null; }
+   }
+
+   @Test
+   public void returnNullFromGenericMethod(@Mocked AClass mock)
+   {
+      String test1 = mock.genericMethod();
+      String test2 = mock.genericMethodWithParameter("test2");
+      String test3 = mock.genericMethodWithTwoTypeParameters(1);
+
+      assertNull(test1);
+      assertNull(test2);
+      assertNull(test3);
+   }
 }
