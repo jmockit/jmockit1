@@ -39,7 +39,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void beforeAll(@Nonnull ContainerExtensionContext context)
+   public void beforeAll(@Nonnull ExtensionContext context)
    {
       savePointForTestClass = new SavePoint();
 
@@ -63,16 +63,22 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void beforeEach(@Nonnull TestExtensionContext context)
+   public void beforeEach(@Nonnull ExtensionContext context)
    {
-      @Nonnull Object testInstance = context.getTestInstance();
+      Optional<Object> testInstance = context.getTestInstance();
+
+      if (!testInstance.isPresent()) {
+         return;
+      }
+
+      @Nonnull Object instance = testInstance.get();
 
       TestRun.prepareForNextTest();
       TestRun.enterNoMockingZone();
 
       try {
          savePointForTest = new SavePoint();
-         createInstancesForTestedFields(testInstance, true);
+         createInstancesForTestedFields(instance, true);
       }
       finally {
          TestRun.exitNoMockingZone();
@@ -80,7 +86,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void beforeTestExecution(@Nonnull TestExtensionContext context)
+   public void beforeTestExecution(@Nonnull ExtensionContext context)
    {
       Optional<Method> testMethod = context.getTestMethod();
 
@@ -88,25 +94,32 @@ final class JMockitExtension extends TestRunnerDecorator implements
          return;
       }
 
+      Optional<Object> testInstance = context.getTestInstance();
+
+      if (!testInstance.isPresent()) {
+         return;
+      }
+
       @Nonnull Method method = testMethod.get();
-      @Nonnull Object testInstance = context.getTestInstance();
+      @Nonnull Object instance = testInstance.get();
 
       TestRun.enterNoMockingZone();
 
       try {
          savePointForTestMethod = new SavePoint();
-         mockParameters = createInstancesForAnnotatedParameters(testInstance, method, null);
-         createInstancesForTestedFields(testInstance, false);
+         mockParameters = createInstancesForAnnotatedParameters(instance, method, null);
+         createInstancesForTestedFields(instance, false);
       }
       finally {
          TestRun.exitNoMockingZone();
       }
 
-      TestRun.setRunningIndividualTest(testInstance);
+      TestRun.setRunningIndividualTest(instance);
    }
 
    @Override
-   public boolean supports(@Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
+   public boolean supportsParameter(
+      @Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
    {
       @Nonnull Parameter parameter = parameterContext.getParameter();
 
@@ -118,7 +131,8 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public Object resolve(@Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
+   public Object resolveParameter(
+      @Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
    {
       @Nonnull Parameter parameter = parameterContext.getParameter();
       Integer parameterIndex = FieldReflection.getFieldValue(indexField, parameter);
@@ -128,14 +142,14 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    @Override
    public void handleTestExecutionException(
-      @Nonnull TestExtensionContext context, @Nonnull Throwable throwable) throws Throwable
+      @Nonnull ExtensionContext context, @Nonnull Throwable throwable) throws Throwable
    {
       thrownByTest = throwable;
       throw throwable;
    }
 
    @Override
-   public void afterTestExecution(@Nonnull TestExtensionContext context)
+   public void afterTestExecution(@Nonnull ExtensionContext context)
    {
       TestRun.enterNoMockingZone();
 
@@ -163,7 +177,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void afterEach(@Nonnull TestExtensionContext context)
+   public void afterEach(@Nonnull ExtensionContext context)
    {
       assert savePointForTest != null;
       savePointForTest.rollback();
@@ -171,7 +185,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    }
 
    @Override
-   public void afterAll(@Nonnull ContainerExtensionContext context)
+   public void afterAll(@Nonnull ExtensionContext context)
    {
       assert savePointForTestClass != null;
       savePointForTestClass.rollback();
