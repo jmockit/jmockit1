@@ -206,27 +206,27 @@ final class Item {
         this.strVal1 = strVal1;
         this.strVal2 = strVal2;
         this.strVal3 = strVal3;
+
         switch (type) {
-        case ClassWriter.CLASS:
-            intVal = 0;     // intVal of a class must be zero, see visitInnerClass
-        case ClassWriter.UTF8:
-        case ClassWriter.STR:
-        case ClassWriter.MTYPE:
-        case ClassWriter.TYPE_NORMAL:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-            return;
-        case ClassWriter.NAME_TYPE: {
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode());
-            return;
-        }
-        // ClassWriter.FIELD:
-        // ClassWriter.METH:
-        // ClassWriter.IMETH:
-        // ClassWriter.HANDLE_BASE + 1..9
-        default:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode() * strVal3.hashCode());
+            case ClassWriter.CLASS:
+                intVal = 0;     // intVal of a class must be zero, see visitInnerClass
+            // fall through
+            case ClassWriter.UTF8:
+            case ClassWriter.STR:
+            case ClassWriter.MTYPE:
+            case ClassWriter.TYPE_NORMAL:
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
+                return;
+            case ClassWriter.NAME_TYPE: {
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
+                return;
+            }
+            // ClassWriter.FIELD:
+            // ClassWriter.METH:
+            // ClassWriter.IMETH:
+            // ClassWriter.HANDLE_BASE + 1..9
+            default:
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
         }
     }
 
