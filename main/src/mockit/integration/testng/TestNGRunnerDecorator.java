@@ -110,10 +110,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
       Object testInstance = testResult.getInstance();
 
-      if (
-         testInstance == null ||
-         testInstance.getClass() != testClass && !testClass.getClass().getName().equals(testClass.getName())
-      ) {
+      if (testInstance == null || testInstance.getClass() != testClass) {
          // Happens when TestNG is running a JUnit test class, for which "TestResult#getInstance()" erroneously returns
          // a org.junit.runner.Description object.
          return;
