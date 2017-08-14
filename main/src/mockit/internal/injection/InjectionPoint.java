@@ -38,9 +38,17 @@ public final class InjectionPoint
       INJECT_CLASS = searchTypeInClasspath("javax.inject.Inject");
       INSTANCE_CLASS = searchTypeInClasspath("javax.enterprise.inject.Instance");
       EJB_CLASS = searchTypeInClasspath("javax.ejb.EJB");
-      PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
       SERVLET_CLASS = searchTypeInClasspath("javax.servlet.Servlet");
       CONVERSATION_CLASS = searchTypeInClasspath("javax.enterprise.context.Conversation");
+
+      Class<? extends Annotation> entity = searchTypeInClasspath("javax.persistence.Entity");
+
+      if (entity == null) {
+         PERSISTENCE_UNIT_CLASS = null;
+      }
+      else {
+         PERSISTENCE_UNIT_CLASS = searchTypeInClasspath("javax.persistence.PersistenceUnit");
+      }
    }
 
    @Nonnull public final Type type;
