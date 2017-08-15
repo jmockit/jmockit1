@@ -227,4 +227,22 @@ public final class CapturingInstancesTest
       assertEquals(20, buffer2.position());
       assertEquals(20, buffer3.position());
    }
+
+   public interface BaseItf { boolean doSomething(); }
+   public interface SubItf extends BaseItf {}
+   static final class Impl implements SubItf { @Override public boolean doSomething() { return false; } }
+
+   @Test
+   public void recordStrictExpectationForBaseMethodOnCapturingSubInterface(@Capturing final SubItf mock)
+   {
+      new StrictExpectations() {{
+         mock.doSomething();
+         result = true;
+      }};
+
+      Impl impl = new Impl();
+      boolean result = impl.doSomething();
+
+      assertTrue(result);
+   }
 }

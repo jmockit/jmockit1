@@ -242,11 +242,15 @@ public final class ExecutingTest
       }
 
       for (Object strictMock : strictMocks) {
-         if (strictMock == mock) {
+         if (strictMock == mockClassDesc) {
+            addStrictMock(mock);
             return true;
          }
-         else if (strictMock == mockClassDesc) {
-            addStrictMock(mock);
+
+         if (
+            strictMock == mock ||
+            mock != null && isInvokedInstanceEquivalentToCapturedInstance(mock, strictMock)
+         ) {
             return true;
          }
       }
