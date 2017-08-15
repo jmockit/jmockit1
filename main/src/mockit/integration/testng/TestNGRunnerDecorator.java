@@ -119,7 +119,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       TestRun.enterNoMockingZone();
 
       try {
-         TestRun.clearCurrentTestInstance();
          updateTestClassState(testInstance, testClass);
          TestRun.setRunningIndividualTest(testInstance);
 
@@ -227,6 +226,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
       finally {
          TestRun.finishCurrentTestExecution();
+         TestRun.clearCurrentTestInstance();
       }
    }
 
