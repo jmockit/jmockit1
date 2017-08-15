@@ -207,7 +207,7 @@ public final class ConstructorSearch
 
       boolean qualified = qualifiedName != null;
       String targetName = qualified ? qualifiedName : parameterName;
-      InjectionProvider provider = injectionState.getProviderByTypeAndOptionallyName(targetName);
+      InjectionProvider provider = injectionState.getProviderByTypeAndOptionallyName(targetName, testedClass);
 
       if (provider != null) {
          return provider;
@@ -228,7 +228,7 @@ public final class ConstructorSearch
    {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
-      return injectionState.findNextInjectableForInjectionPoint();
+      return injectionState.findNextInjectableForInjectionPoint(testedClass);
    }
 
    private void selectConstructorWithUnresolvedParameterIfMoreAccessible(

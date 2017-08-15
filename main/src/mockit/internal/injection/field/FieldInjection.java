@@ -24,20 +24,18 @@ public final class FieldInjection extends Injector
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
    private boolean requireDIAnnotation;
-   @Nonnull private Class<?> targetClass;
    private Field targetField;
 
    public FieldInjection(
-      @Nonnull InjectionState injectionState, @Nonnull TestedClass testedClass, @Nullable FullInjection fullInjection,
-      boolean requireDIAnnotation)
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, boolean requireDIAnnotation)
    {
-      super(testedClass, injectionState, fullInjection);
+      super(injectionState, fullInjection);
       this.requireDIAnnotation = requireDIAnnotation;
-      targetClass = testedClass.targetClass;
    }
 
    @Nonnull
-   public List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> actualTestedClass)
+   public List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
+      @Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass)
    {
       requireDIAnnotation = false;
 
@@ -85,15 +83,14 @@ public final class FieldInjection extends Injector
       return !isStatic(modifiers) && !isVolatile(modifiers);
    }
 
-   public void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject)
+   public void injectIntoEligibleFields(
+      @Nonnull List<Field> targetFields, @Nonnull Object testedObject, @Nonnull TestedClass testedClass)
    {
-      targetClass = testedObject.getClass();
-
       for (Field field : targetFields) {
          targetField = field;
 
          if (targetFieldWasNotAssignedByConstructor(testedObject)) {
-            Object injectableValue = getValueForFieldIfAvailable(targetFields);
+            Object injectableValue = getValueForFieldIfAvailable(targetFields, testedClass);
 
             if (injectableValue != null && injectableValue != NULL) {
                injectableValue = wrapInProviderIfNeeded(field.getGenericType(), injectableValue);
@@ -127,10 +124,10 @@ public final class FieldInjection extends Injector
    }
 
    @Nullable
-   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields)
+   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass)
    {
       @Nullable String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
-      InjectionProvider injectable = findAvailableInjectableIfAny(targetFields, qualifiedFieldName);
+      InjectionProvider injectable = findAvailableInjectableIfAny(targetFields, qualifiedFieldName, testedClass);
 
       if (injectable != null) {
          return injectionState.getValueToInject(injectable);
@@ -139,7 +136,9 @@ public final class FieldInjection extends Injector
       InjectionProvider fieldToInject = new FieldToInject(targetField);
       Type typeToInject = fieldToInject.getDeclaredType();
       InjectionPoint injectionPoint = new InjectionPoint(typeToInject, fieldToInject.getName(), qualifiedFieldName);
-      Object testedValue = injectionState.getTestedValue(testedClass, injectionPoint);
+      TestedClass nextTestedClass = typeToInject instanceof TypeVariable<?> ?
+         testedClass : new TestedClass(typeToInject, fieldToInject.getClassOfDeclaredType(), testedClass);
+      Object testedValue = injectionState.getTestedValue(nextTestedClass, injectionPoint);
 
       if (testedValue != null) {
          return testedValue;
@@ -149,11 +148,12 @@ public final class FieldInjection extends Injector
 
       if (fullInjection != null) {
          if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
-            Object existingInstance = fullInjection.reuseInstance(testedClass, fieldToInject, qualifiedFieldName);
+            Object existingInstance = fullInjection.reuseInstance(nextTestedClass, fieldToInject, qualifiedFieldName);
             return existingInstance;
          }
 
-         Object newInstance = fullInjection.createOrReuseInstance(this, fieldToInject, qualifiedFieldName);
+         Object newInstance =
+            fullInjection.createOrReuseInstance(nextTestedClass, this, fieldToInject, qualifiedFieldName);
 
          if (newInstance != null) {
             return newInstance;
@@ -170,28 +170,29 @@ public final class FieldInjection extends Injector
 
    @Nullable
    private InjectionProvider findAvailableInjectableIfAny(
-      @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName)
+      @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName, @Nonnull TestedClass testedClass)
    {
       injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
          String injectableName = convertToLegalJavaIdentifierIfNeeded(qualifiedTargetFieldName);
-         return injectionState.findInjectableByTypeAndName(injectableName);
+         return injectionState.findInjectableByTypeAndName(injectableName, testedClass);
       }
 
       String targetFieldName = targetField.getName();
 
-      return withMultipleTargetFieldsOfSameType(targetFields) ?
-         injectionState.findInjectableByTypeAndName(targetFieldName) :
-         injectionState.getProviderByTypeAndOptionallyName(targetFieldName);
+      return withMultipleTargetFieldsOfSameType(targetFields, testedClass) ?
+         injectionState.findInjectableByTypeAndName(targetFieldName, testedClass) :
+         injectionState.getProviderByTypeAndOptionallyName(targetFieldName, testedClass);
    }
 
-   private boolean withMultipleTargetFieldsOfSameType(@Nonnull List<Field> targetFields)
+   private boolean withMultipleTargetFieldsOfSameType(
+      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass)
    {
       for (Field anotherTargetField : targetFields) {
          if (
             anotherTargetField != targetField &&
-            injectionState.isAssignableToInjectionPoint(anotherTargetField.getGenericType())
+            injectionState.isAssignableToInjectionPoint(anotherTargetField.getGenericType(), testedClass)
          ) {
             return true;
          }
@@ -224,17 +225,15 @@ public final class FieldInjection extends Injector
    }
 
    @Override
-   public void fillOutDependenciesRecursively(@Nonnull Object dependency)
+   public void fillOutDependenciesRecursively(@Nonnull Object dependency, @Nonnull TestedClass testedClass)
    {
       Class<?> dependencyClass = dependency.getClass();
       boolean previousRequireDIAnnotation = requireDIAnnotation;
-      List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass);
+      List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass, testedClass);
 
       if (!targetFields.isEmpty()) {
          List<InjectionProvider> currentlyConsumedInjectables = injectionState.saveConsumedInjectionProviders();
-
-         injectIntoEligibleFields(targetFields, dependency);
-
+         injectIntoEligibleFields(targetFields, dependency, testedClass);
          injectionState.restoreConsumedInjectionProviders(currentlyConsumedInjectables);
       }
 

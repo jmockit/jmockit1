@@ -48,4 +48,16 @@ public final class TestedClassWithGenericSubtypesTest
       assertSame(i1, sut.dependency1);
       assertSame(i2, sut.dependency2);
    }
+
+   static final class Dependency {}
+   static final class Service1 extends GenericClass<Dependency> {}
+   static final class Service2 { Service1 service1; }
+
+   @Test
+   public void injectInstanceIntoTypeVariableOfSecondLevelClass(@Tested(fullyInitialized = true) Service2 service2)
+   {
+      Service1 service1 = service2.service1;
+      assertNotNull(service1);
+      assertTrue(service1.value instanceof Dependency);
+   }
 }

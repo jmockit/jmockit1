@@ -42,4 +42,30 @@ public final class TestedMethodsTest
       assertTrue(tested.dao instanceof DAOImpl);
       assertNull(tested.anotherDependency);
    }
+
+   static final class DAO1 {}
+   static final class DAO2 {}
+   public interface BaseService {}
+   static class BaseServiceImpl<D> { D dao; }
+   public interface Service1 extends BaseService {}
+   public interface Service2 extends BaseService {}
+   static final class ConcreteService1 extends BaseServiceImpl<DAO1> implements Service1 {}
+   static final class ConcreteService2 extends BaseServiceImpl<DAO2> implements Service2 { Service1 service1; }
+
+   @Tested
+   Class<? extends BaseServiceImpl<?>> resolveServiceInterfaces(Class<? extends BaseService> baseServiceType)
+   {
+      if (baseServiceType == Service1.class) return ConcreteService1.class;
+      if (baseServiceType == Service2.class) return ConcreteService2.class;
+      return null;
+   }
+
+   @Test
+   public void createComplexObjectsWithGenericDependencies(@Tested(fullyInitialized = true) ConcreteService2 service2)
+   {
+      assertTrue(service2.dao instanceof DAO2);
+      Service1 service1 = service2.service1;
+      assertTrue(service1 instanceof ConcreteService1);
+      assertTrue(((ConcreteService1) service1).dao instanceof DAO1);
+   }
 }

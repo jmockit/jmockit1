@@ -33,7 +33,6 @@ public final class InjectionState implements BeanExporter
    @Nonnull private List<MockedType> injectables;
    @Nonnull private List<InjectionProvider> consumedInjectionProviders;
    @Nonnull public final LifecycleMethods lifecycleMethods;
-   private GenericTypeReflection testedTypeReflection;
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
 
@@ -83,16 +82,14 @@ public final class InjectionState implements BeanExporter
 
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
-   void setTestedTypeReflection(@Nonnull GenericTypeReflection reflection) { testedTypeReflection = reflection; }
-
    public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
    {
       this.typeOfInjectionPoint = typeOfInjectionPoint;
    }
 
-   public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType)
+   public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType, @Nonnull TestedClass testedClass)
    {
-      if (testedTypeReflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
+      if (testedClass.reflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
       }
 
@@ -121,10 +118,13 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   public MockedType findNextInjectableForInjectionPoint()
+   public MockedType findNextInjectableForInjectionPoint(@Nonnull TestedClass testedClass)
    {
       for (MockedType injectable : injectables) {
-         if (hasTypeAssignableToInjectionPoint(injectable) && !consumedInjectionProviders.contains(injectable)) {
+         if (
+            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
+            !consumedInjectionProviders.contains(injectable)
+         ) {
             return injectable;
          }
       }
@@ -132,19 +132,23 @@ public final class InjectionState implements BeanExporter
       return null;
    }
 
-   private boolean hasTypeAssignableToInjectionPoint(@Nonnull InjectionProvider injectable)
+   private boolean hasTypeAssignableToInjectionPoint(
+      @Nonnull InjectionProvider injectable, @Nonnull TestedClass testedClass)
    {
       Type declaredType = injectable.getDeclaredType();
-      return isAssignableToInjectionPoint(declaredType);
+      return isAssignableToInjectionPoint(declaredType, testedClass);
    }
 
    @Nonnull
-   List<MockedType> findInjectablesByType()
+   List<MockedType> findInjectablesByType(@Nonnull TestedClass testedClass)
    {
       List<MockedType> found = new ArrayList<MockedType>();
 
       for (MockedType injectable : injectables) {
-         if (hasTypeAssignableToInjectionPoint(injectable) && !consumedInjectionProviders.contains(injectable)) {
+         if (
+            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
+            !consumedInjectionProviders.contains(injectable)
+         ) {
             found.add(injectable);
          }
       }
@@ -153,15 +157,16 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   public InjectionProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
+   public InjectionProvider getProviderByTypeAndOptionallyName(
+      @Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
    {
       Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
 
       if (elementTypeOfIterable != null) {
-         return findInjectablesByTypeOnly(elementTypeOfIterable);
+         return findInjectablesByTypeOnly(elementTypeOfIterable, testedClass);
       }
 
-      return findInjectableByTypeAndOptionallyName(nameOfInjectionPoint);
+      return findInjectableByTypeAndOptionallyName(nameOfInjectionPoint, testedClass);
    }
 
    @Nullable
@@ -180,21 +185,20 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   private InjectionProvider findInjectablesByTypeOnly(@Nonnull Type elementType)
+   private InjectionProvider findInjectablesByTypeOnly(@Nonnull Type elementType, @Nonnull TestedClass testedClass)
    {
+      GenericTypeReflection typeReflection = testedClass.reflection;
       MultiValuedProvider found = null;
 
       for (MockedType injectable : injectables) {
          Type injectableType = injectable.getDeclaredType();
          Type elementTypeOfIterable = getElementTypeIfIterable(injectableType);
 
-         if (
-            elementTypeOfIterable != null && testedTypeReflection.areMatchingTypes(elementType, elementTypeOfIterable)
-         ) {
+         if (elementTypeOfIterable != null && typeReflection.areMatchingTypes(elementType, elementTypeOfIterable)) {
             return injectable;
          }
 
-         if (isAssignableToInjectionPoint(injectableType)) {
+         if (isAssignableToInjectionPoint(injectableType, testedClass)) {
             if (found == null) {
                found = new MultiValuedProvider(elementType);
             }
@@ -207,12 +211,13 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   private InjectionProvider findInjectableByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint)
+   private InjectionProvider findInjectableByTypeAndOptionallyName(
+      @Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
    {
       MockedType foundInjectable = null;
 
       for (MockedType injectable : injectables) {
-         if (hasTypeAssignableToInjectionPoint(injectable)) {
+         if (hasTypeAssignableToInjectionPoint(injectable, testedClass)) {
             if (nameOfInjectionPoint.equals(injectable.getName())) {
                return injectable;
             }
@@ -227,10 +232,13 @@ public final class InjectionState implements BeanExporter
    }
 
    @Nullable
-   public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint)
+   public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
    {
       for (MockedType injectable : injectables) {
-         if (hasTypeAssignableToInjectionPoint(injectable) && nameOfInjectionPoint.equals(injectable.getName())) {
+         if (
+            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
+            nameOfInjectionPoint.equals(injectable.getName())
+         ) {
             return injectable;
          }
       }
@@ -351,7 +359,7 @@ public final class InjectionState implements BeanExporter
       Object testedValue = testedObjects.get(injectionPoint);
 
       if (testedValue == null) {
-         testedValue = findMatchingObject(testedObjects, testedClass.reflection, injectionPoint);
+         testedValue = findMatchingObject(testedObjects, testedClass, injectionPoint);
       }
 
       return testedValue;
@@ -363,16 +371,16 @@ public final class InjectionState implements BeanExporter
       Object dependency = testedObjects.get(dependencyKey);
 
       if (dependency == null) {
-         dependency = findMatchingObject(testedObjects, testedClass.reflection, dependencyKey);
+         dependency = findMatchingObject(testedObjects, testedClass, dependencyKey);
 
          if (dependency == null) {
             dependency = instantiatedDependencies.get(dependencyKey);
 
             if (dependency == null) {
-               dependency = findMatchingObject(instantiatedDependencies, testedClass.reflection, dependencyKey);
+               dependency = findMatchingObject(instantiatedDependencies, testedClass, dependencyKey);
 
                if (dependency == null) {
-                  dependency = findMatchingObject(globalDependencies, testedClass.reflection, dependencyKey);
+                  dependency = findMatchingObject(globalDependencies, testedClass, dependencyKey);
                }
             }
          }
@@ -383,13 +391,14 @@ public final class InjectionState implements BeanExporter
 
    @Nullable
    private static Object findMatchingObject(
-      @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable GenericTypeReflection reflection,
+      @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable TestedClass testedClass,
       @Nonnull InjectionPoint injectionPoint)
    {
       if (availableObjects.isEmpty()) {
          return null;
       }
 
+      GenericTypeReflection reflection = testedClass == null ? null : testedClass.reflection;
       Type dependencyType = injectionPoint.type;
       Object found = null;
 

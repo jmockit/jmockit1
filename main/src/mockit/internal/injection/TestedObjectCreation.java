@@ -69,9 +69,8 @@ public final class TestedObjectCreation
             "No constructor in tested class that can be satisfied by available tested/injectable values" + description);
       }
 
-      ConstructorInjection constructorInjection =
-         new ConstructorInjection(testedClass, injectionState, fullInjection, constructor);
+      ConstructorInjection constructorInjection = new ConstructorInjection(injectionState, fullInjection, constructor);
 
-      return constructorInjection.instantiate(constructorSearch.parameterProviders);
+      return constructorInjection.instantiate(constructorSearch.parameterProviders, testedClass);
    }
 }

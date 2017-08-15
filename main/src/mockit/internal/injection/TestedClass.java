@@ -21,8 +21,14 @@ public final class TestedClass
    @Nonnull final ProtectionDomain protectionDomainOfTestedClass;
    @Nullable final String codeLocationParentPath;
    @Nonnull public final String nameOfTestedClass;
+   @Nullable public final TestedClass parent;
 
-   TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass)
+   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass)
+   {
+      this(declaredType, targetClass, null);
+   }
+
+   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass, @Nullable TestedClass parent)
    {
       this.declaredType = declaredType;
       declaredClass = Utilities.getClassType(declaredType);
@@ -33,6 +39,7 @@ public final class TestedClass
       codeLocationParentPath = codeSource == null || codeSource.getLocation() == null ?
          null : new File(codeSource.getLocation().getPath()).getParent();
       nameOfTestedClass = declaredClass.getName();
+      this.parent = parent;
    }
 
    @Nonnull

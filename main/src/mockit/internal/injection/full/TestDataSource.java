@@ -28,21 +28,38 @@ final class TestDataSource
          return null;
       }
 
+      TestedClass testedClassToBeSearched = testedClass;
+
+      do {
+         createFromTestedClassOrASuperclass(testedClassToBeSearched);
+
+         if (ds != null) {
+            return ds;
+         }
+
+         testedClassToBeSearched = testedClassToBeSearched.parent;
+      }
+      while (testedClassToBeSearched != null);
+
+      throw new IllegalStateException(
+         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClass.nameOfTestedClass +
+         " or on a super/parent class");
+   }
+
+   private void createFromTestedClassOrASuperclass(@Nonnull TestedClass testedClass)
+   {
       Class<?> targetClass = testedClass.targetClass;
 
       do {
          createDataSource(targetClass);
 
          if (ds != null) {
-            return ds;
+            return;
          }
 
          targetClass = targetClass.getSuperclass();
       }
-      while (targetClass != Object.class);
-
-      throw new IllegalStateException(
-         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClass.nameOfTestedClass);
+      while (targetClass != null && targetClass != Object.class);
    }
 
    private void createDataSource(@Nonnull Class<?> targetClass)

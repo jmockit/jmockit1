@@ -23,15 +23,15 @@ public final class ConstructorInjection extends Injector
    @Nonnull private final Constructor<?> constructor;
 
    public ConstructorInjection(
-      @Nonnull TestedClass testedClass, @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
       @Nonnull Constructor<?> constructor)
    {
-      super(testedClass, injectionState, fullInjection);
+      super(injectionState, fullInjection);
       this.constructor = constructor;
    }
 
    @Nonnull
-   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders)
+   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass)
    {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
@@ -62,7 +62,7 @@ public final class ConstructorInjection extends Injector
 
       if (varArgs) {
          Type parameterType = parameterTypes[n];
-         arguments[n] = obtainInjectedVarargsArray(parameterType);
+         arguments[n] = obtainInjectedVarargsArray(parameterType, testedClass);
       }
 
       if (consumedInjectables != null) {
@@ -81,11 +81,15 @@ public final class ConstructorInjection extends Injector
          return value;
       }
 
-      injectionState.setTypeOfInjectionPoint(constructorParameter.getDeclaredType());
+      Type parameterType = constructorParameter.getDeclaredType();
+      injectionState.setTypeOfInjectionPoint(parameterType);
       String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
 
+      Class<?> parameterClass = constructorParameter.getClassOfDeclaredType();
+      TestedClass nextTestedClass = new TestedClass(parameterType, parameterClass);
+
       assert fullInjection != null;
-      value = fullInjection.createOrReuseInstance(this, constructorParameter, qualifiedName);
+      value = fullInjection.createOrReuseInstance(nextTestedClass, this, constructorParameter, qualifiedName);
 
       if (value == null) {
          String parameterName = constructorParameter.getName();
@@ -128,7 +132,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object obtainInjectedVarargsArray(@Nonnull Type parameterType)
+   private Object obtainInjectedVarargsArray(@Nonnull Type parameterType, @Nonnull TestedClass testedClass)
    {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
@@ -136,7 +140,7 @@ public final class ConstructorInjection extends Injector
       List<Object> varargValues = new ArrayList<Object>();
       MockedType injectable;
 
-      while ((injectable = injectionState.findNextInjectableForInjectionPoint()) != null) {
+      while ((injectable = injectionState.findNextInjectableForInjectionPoint(testedClass)) != null) {
          Object value = injectionState.getValueToInject(injectable);
 
          if (value != null) {
