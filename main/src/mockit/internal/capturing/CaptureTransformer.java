@@ -9,12 +9,13 @@ import java.security.*;
 import java.util.*;
 import javax.annotation.*;
 
+import static java.lang.Boolean.*;
+
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
-import static mockit.internal.capturing.CapturedType.*;
 
 public final class CaptureTransformer<M> implements ClassFileTransformer
 {
@@ -22,6 +23,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    @Nonnull private final String capturedTypeDesc;
    @Nonnull private final CaptureOfImplementations<M> captureOfImplementations;
    @Nonnull private final Map<ClassIdentification, byte[]> transformedClasses;
+   @Nonnull private final Map<String, Boolean> superTypesSearched;
    @Nullable private final M typeMetadata;
    private boolean inactive;
 
@@ -34,6 +36,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       this.captureOfImplementations = captureOfImplementations;
       transformedClasses = registerTransformedClasses ?
          new HashMap<ClassIdentification, byte[]>(2) : Collections.<ClassIdentification, byte[]>emptyMap();
+      superTypesSearched = new HashMap<String, Boolean>();
       this.typeMetadata = typeMetadata;
    }
 
@@ -59,7 +62,10 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String classDesc, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
    {
-      if (classBeingRedefined != null || inactive || isNotToBeCaptured(loader, protectionDomain, classDesc)) {
+      if (
+         classBeingRedefined != null || inactive ||
+         capturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
+      ) {
          return null;
       }
 
@@ -119,22 +125,12 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
             throw VisitInterruptedException.INSTANCE;
          }
 
-         boolean haveInterfaces = interfaces != null && interfaces.length > 0;
-
-         if (haveInterfaces) {
+         if (interfaces != null && interfaces.length > 0) {
             interruptVisitIfClassImplementsAnInterface(interfaces);
          }
 
          if (superName != null) {
-            if (!"java/lang/Object mockit/MockUp".contains(superName)) {
-               searchSuperType(superName);
-            }
-
-            if (haveInterfaces) {
-               for (String implementedInterface : interfaces) {
-                  searchSuperType(implementedInterface);
-               }
-            }
+            searchSuperTypes(superName, interfaces);
          }
 
          throw VisitInterruptedException.INSTANCE;
@@ -150,15 +146,45 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          }
       }
 
+      private void searchSuperTypes(@Nonnull String superName, @Nullable String[] interfaces)
+      {
+         if (!"java/lang/Object".equals(superName) && !superName.startsWith("mockit/")) {
+            searchSuperType(superName);
+         }
+
+         if (interfaces != null && interfaces.length > 0) {
+            for (String itf : interfaces) {
+               if (!itf.startsWith("java/") && !itf.startsWith("javax/")) {
+                  searchSuperType(itf);
+               }
+            }
+         }
+      }
+
       private void searchSuperType(@Nonnull String superName)
       {
+         Boolean extendsCapturedType = superTypesSearched.get(superName);
+
+         if (extendsCapturedType == FALSE) {
+            return;
+         }
+
+         if (extendsCapturedType == TRUE) {
+            classExtendsCapturedType = true;
+            throw VisitInterruptedException.INSTANCE;
+         }
+
          ClassReader cr = ClassFile.createClassFileReader(loader, superName);
 
          try {
             cr.accept(this, SKIP_DEBUG);
          }
          catch (VisitInterruptedException e) {
-            if (classExtendsCapturedType) throw e;
+            superTypesSearched.put(superName, classExtendsCapturedType);
+
+            if (classExtendsCapturedType) {
+               throw e;
+            }
          }
       }
    }

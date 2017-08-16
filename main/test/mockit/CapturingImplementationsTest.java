@@ -8,6 +8,7 @@ import java.io.*;
 import java.lang.management.*;
 import java.lang.reflect.*;
 
+import javax.faces.event.*;
 import javax.xml.parsers.*;
 
 import org.junit.*;
@@ -266,5 +267,21 @@ public final class CapturingImplementationsTest
       new Verifications() {{
          sub.base();
       }};
+   }
+
+   static final class MyActionListener implements ActionListener
+   {
+      @Override public void processAction(ActionEvent event) {}
+      boolean doSomething() { return true; }
+   }
+
+   @Test
+   public void captureUserDefinedClassImplementingExternalAPI(@Capturing ActionListener actionListener)
+   {
+      boolean notCaptured = new MyActionListener().doSomething();
+      assertFalse(notCaptured);
+
+      //noinspection UnnecessaryFullyQualifiedName
+      new org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator();
    }
 }
