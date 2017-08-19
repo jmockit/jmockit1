@@ -63,7 +63,7 @@ final class CapturedType
          classNameOrDesc.endsWith("Test") ||
          classNameOrDesc.startsWith("junit") ||
          classNameOrDesc.startsWith("sun") && !hasSubPackage(classNameOrDesc, 4, "management") ||
-         classNameOrDesc.startsWith("org") && hasSubPackage(classNameOrDesc, 4, "junit testng hamcrest") ||
+         classNameOrDesc.startsWith("org") && hasSubPackage(classNameOrDesc, 4, "junit testng hamcrest gradle") ||
          classNameOrDesc.startsWith("com") && (
             hasSubPackage(classNameOrDesc, 4, "sun") && !hasSubPackage(classNameOrDesc, 8, "proxy org") ||
             hasSubPackage(classNameOrDesc, 4, "intellij")
