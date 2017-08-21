@@ -15,17 +15,6 @@ import mockit.*;
 
 public final class MessageTest
 {
-   static final String testContents = "hello there";
-
-   void exerciseCodeUnderTest(StatusListener listener, Client... to)
-   {
-      final Message message = new Message(to, testContents, listener);
-
-      new TaskExecution() {
-         @Override public void run() { message.dispatch(); }
-      };
-   }
-
    // A general-purpose utility class that waits for background task completion.
    abstract static class TaskExecution implements Runnable
    {
@@ -59,19 +48,23 @@ public final class MessageTest
       }
    }
 
-   @Test
-   public void sendMessageToMultipleClients(@Mocked final Socket con, @Mocked final StatusListener listener)
-      throws Exception
-   {
-      Client[] testClients = {new Client("client1"), new Client("client2")};
+   @Injectable final String testContents = "hello there";
+   @Injectable final Client[] testClients = {new Client("client1"), new Client("client2")};
+   @Injectable StatusListener listener;
+   @Tested Message message;// = new Message(testClients, testContents, listener);
 
+   @Test
+   public void sendMessageToMultipleClients(@Mocked final Socket con) throws Exception
+   {
       new Expectations() {{
          con.getOutputStream(); result = new ByteArrayOutputStream();
          con.getInputStream(); result = "reply1\n reply2\n";
       }};
 
-      exerciseCodeUnderTest(listener, testClients);
+      // Code under test:
+      new TaskExecution() { @Override public void run() { message.dispatch(); } };
 
+      // Verification that each client received the expected invocations:
       for (final Client client : testClients) {
          new VerificationsInOrder() {{
             listener.messageSent(client);
