@@ -65,7 +65,7 @@ public final class StackTrace
 
       return
          className.startsWith("sun.") && !ste.isNativeMethod() ||
-         className.startsWith("jdk.") ||
+         className.startsWith("jdk.") || className.startsWith("java.util.") ||
          className.contains(".reflect.") ||
          className.contains(".surefire.") ||
          className.contains(".intellij.") ||
