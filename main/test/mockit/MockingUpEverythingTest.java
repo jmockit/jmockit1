@@ -151,46 +151,46 @@ public final class MockingUpEverythingTest
 
    static final class XMLSourceTimingAspect<S extends Source> extends MockUp<S>
    {
-      final Map<String, List<Long>> executionTimes = new HashMap<String, List<Long>>();
+      final Map<String, List<Long>> executionTimesMillis = new HashMap<String, List<Long>>();
 
       @Mock
       Object $advice(Invocation invocation)
       {
-         long startTime = System.nanoTime() / 1000000;
+         long startTimeMillis = System.nanoTime() / 1000000;
 
          try {
             return invocation.proceed();
          }
          finally {
-            long endTime = System.nanoTime() / 1000000;
-            long dt = endTime - startTime;
+            long endTimeMillis = System.nanoTime() / 1000000;
+            long dtMillis = endTimeMillis - startTimeMillis;
             Method invokedMethod = invocation.getInvokedMember();
-            addMethodExecutionTime(invokedMethod, dt);
+            addMethodExecutionTime(invokedMethod, dtMillis);
          }
       }
 
-      private void addMethodExecutionTime(Method invokedMethod, long executionTime)
+      private void addMethodExecutionTime(Method invokedMethod, long executionTimeMillis)
       {
          String methodId = invokedMethod.getName();
-         List<Long> methodTimes = executionTimes.get(methodId);
+         List<Long> methodTimesMillis = executionTimesMillis.get(methodId);
 
-         if (methodTimes == null) {
-            methodTimes = new ArrayList<Long>();
-            executionTimes.put(methodId, methodTimes);
+         if (methodTimesMillis == null) {
+            methodTimesMillis = new ArrayList<Long>();
+            executionTimesMillis.put(methodId, methodTimesMillis);
          }
 
-         methodTimes.add(executionTime);
+         methodTimesMillis.add(executionTimeMillis);
       }
 
-      void assertTimes(String methodId, int... expectedTimes)
+      void assertTimes(String methodId, int... expectedTimesMillisForConsecutiveExecutions)
       {
-         List<Long> actualExecutionTimes = executionTimes.get(methodId);
-         assertEquals(expectedTimes.length, actualExecutionTimes.size());
+         List<Long> actualExecutionTimesMillis = executionTimesMillis.get(methodId);
+         assertEquals(expectedTimesMillisForConsecutiveExecutions.length, actualExecutionTimesMillis.size());
 
-         for (int i = 0; i < expectedTimes.length; i++) {
-            long expectedTime = expectedTimes[i];
-            long executionTime = actualExecutionTimes.get(i);
-            assertEquals(expectedTime, executionTime, 5);
+         for (int i = 0; i < expectedTimesMillisForConsecutiveExecutions.length; i++) {
+            long expectedTime = expectedTimesMillisForConsecutiveExecutions[i];
+            long executionTime = actualExecutionTimesMillis.get(i);
+            assertEquals("Expected time at index " + i, expectedTime, executionTime, 15);
          }
       }
    }
