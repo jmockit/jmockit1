@@ -139,7 +139,7 @@
                <nohelp>true</nohelp>
                <breakiterator>true</breakiterator>
                <use>false</use>
-               <source>1.7</source>
+               <source>1.8</source>
                <windowtitle>JMockit Toolkit API</windowtitle>
                <doctitle>JMockit Toolkit API Documentation</doctitle>
                <stylesheetfile>${project.basedir}/../../jmockit.github.io/api1x/stylesheet.css</stylesheetfile>
@@ -151,6 +151,10 @@
                <sourcepath>${basedir}/src</sourcepath>
                <subpackages>none</subpackages>
                <additionalparam>-Xdoclint:none mockit mockit.integration.junit4</additionalparam>
+               <links>
+                  <link>http://docs.oracle.com/javase/8/docs/api/</link>
+                  <link>http://docs.oracle.com/javaee/7/api/</link>
+               </links>
             </configuration>
             <executions>
                <execution>

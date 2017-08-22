@@ -30,7 +30,7 @@
             <include name="mockit/integration/springframework/*.java"/>
          </fileset>
          <link href="http://docs.oracle.com/javase/8/docs/api/" offline="true" packagelistloc="${api}/javase"/>
-         <link href="http://docs.oracle.com/javaee/7/docs/api/" offline="true" packagelistloc="${api}/javaee"/>
+         <link href="http://docs.oracle.com/javaee/7/api/"      offline="true" packagelistloc="${api}/javaee"/>
          <doctitle><![CDATA[
             <a href="http://jmockit.org" target="_top"><img src="resources/logo.png" style="vertical-align:middle">
                JMockit</a>
