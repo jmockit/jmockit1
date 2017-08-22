@@ -32,12 +32,14 @@ final class JMockitInitialization
       applyUserSpecifiedStartupMocksIfAny();
    }
 
+   @SuppressWarnings("ResultOfMethodCallIgnored")
    private static void preventEventualClassLoadingConflicts()
    {
       // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class,
       // which may get @Mocked.
       TimeZone.getDefault();
-      Currency.getInstance(Locale.getDefault());
+      Locale.getDefault();
+      Currency.getInstance(Locale.CANADA);
 
       DefaultValues.computeForReturnType("()J");
       Utilities.calledFromSpecialThread();
