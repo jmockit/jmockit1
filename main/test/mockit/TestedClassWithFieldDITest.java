@@ -90,4 +90,13 @@ public final class TestedClassWithFieldDITest
       assertNull(util.action);
       assertNull(TestedClass.globalAction);
    }
+
+   @Tested("123") int id;
+   @Tested UtilityClass tested2;
+
+   @Test
+   public void createTestedObjectInjectingItWithValueProvidedInPreviousTestedField()
+   {
+      assertEquals(123, tested2.id);
+   }
 }

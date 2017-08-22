@@ -10,6 +10,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.isFinal;
 
 import mockit.*;
+import mockit.internal.util.*;
 import static mockit.internal.reflection.FieldReflection.*;
 
 final class TestedField extends TestedObject
@@ -34,8 +35,18 @@ final class TestedField extends TestedObject
       Object testedObject = null;
 
       if (!createAutomatically) {
+         Class<?> targetClass = testedField.getType();
          testedObject = getFieldValue(testedField, testClassInstance);
-         createAutomatically = testedObject == null && !isFinal(testedField.getModifiers());
+
+         if (testedObject == null || isNonInstantiableType(targetClass, testedObject)) {
+            String providedValue = metadata.value();
+
+            if (!providedValue.isEmpty()) {
+               testedObject = Utilities.convertFromString(targetClass, providedValue);
+            }
+
+            createAutomatically = testedObject == null && !isFinal(testedField.getModifiers());
+         }
       }
 
       return testedObject;

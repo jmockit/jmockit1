@@ -96,7 +96,7 @@ abstract class TestedObject
    @Nullable
    abstract Object getExistingTestedInstanceIfApplicable(@Nonnull Object testClassInstance);
 
-   private static boolean isNonInstantiableType(@Nonnull Class<?> targetClass, @Nullable Object currentValue)
+   static boolean isNonInstantiableType(@Nonnull Class<?> targetClass, @Nullable Object currentValue)
    {
       return
          targetClass.isPrimitive() && defaultValueForPrimitiveType(targetClass).equals(currentValue) ||
