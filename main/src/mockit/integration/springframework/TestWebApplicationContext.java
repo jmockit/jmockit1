@@ -11,8 +11,8 @@ import org.springframework.beans.factory.*;
 import org.springframework.web.context.support.*;
 
 /**
- * A {@link org.springframework.web.context.WebApplicationContext} implementation which exposes the {@link @Tested}
- * objects and their injected dependencies declared in the current test class.
+ * A {@link org.springframework.web.context.WebApplicationContext} implementation which exposes the
+ * {@linkplain mockit.Tested @Tested} objects and their injected dependencies declared in the current test class.
  */
 public final class TestWebApplicationContext extends StaticWebApplicationContext
 {
