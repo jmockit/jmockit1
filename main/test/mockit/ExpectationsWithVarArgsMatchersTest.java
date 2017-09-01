@@ -37,19 +37,11 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void replayVarargsMethodWithDifferentThanExpectedNonVarargsArgument()
    {
-      new StrictExpectations() {{ mock.complexOperation(1, 2, 3); }};
-      thrown.expect(UnexpectedInvocation.class);
+      thrown.expect(MissingInvocation.class);
 
       mock.complexOperation(2, 2, 3);
-   }
 
-   @Test
-   public void replayVarargsMethodWithDifferentThanExpectedNumberOfVarargsArguments_strict()
-   {
-      new StrictExpectations() {{ mock.complexOperation(1, 2, 3); }};
-      thrown.expect(UnexpectedInvocation.class);
-
-      mock.complexOperation(1, 2);
+      new Verifications() {{ mock.complexOperation(1, 2, 3); }};
    }
 
    @Test
@@ -59,15 +51,6 @@ public final class ExpectationsWithVarArgsMatchersTest
       thrown.expect(MissingInvocation.class);
 
       mock2.doSomething("1", "2");
-   }
-
-   @Test
-   public void replayVarargsMethodWithDifferentThanExpectedVarargsArgument_strict()
-   {
-      new StrictExpectations() {{ mock.complexOperation(1, 2, 3); }};
-      thrown.expect(UnexpectedInvocation.class);
-
-      mock.complexOperation(1, 2, 4);
    }
 
    @Test
@@ -94,15 +77,13 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithAnyNumberOfVariableArguments()
    {
-      new StrictExpectations() {{
+      new Expectations() {{
          mock.complexOperation(any, (Object[]) null); times = 3;
          mock2.doSomething((String[]) any); minTimes = 2;
-         mock.complexOperation(123, (Object[]) any);
       }};
 
       mock.complexOperation("test");
       mock.complexOperation(null, 'X');
-      mock.complexOperation(1, 3, null);
       mock2.doSomething();
       mock2.doSomething("test", "abc");
       mock.complexOperation(123, true, "test", 3);
@@ -196,10 +177,11 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithNonNullRegularArgumentAndAnyVarargsButReplayWithNull()
    {
-      new StrictExpectations() {{ mock.complexOperation(withNotNull(), (Object[]) any); }};
-      thrown.expect(UnexpectedInvocation.class);
+      thrown.expect(MissingInvocation.class);
 
       mock.complexOperation(null, 1, "2");
+
+      new Verifications() {{ mock.complexOperation(withNotNull(), (Object[]) any); }};
    }
 
    @Test
@@ -230,7 +212,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithNoVarArgs(@Mocked final VarArgs varargs)
    {
-      new StrictExpectations() {{
+      new Expectations() {{
          varargs.varsOnly(); times = 2;
          varargs.mixed("arg"); times = 2;
       }};
@@ -282,7 +264,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       final String[] strings1 = new String[0];
       final String[] strings2 = {"first", "second"};
 
-      new StrictExpectations() {{
+      new Expectations() {{
          varargs.varsOnly(1, 2, 3);
          varargs.varsOnly(null);
          varargs.mixed("arg", null, 4, 5, 6);
@@ -338,10 +320,11 @@ public final class ExpectationsWithVarArgsMatchersTest
    @Test
    public void expectInvocationWithMatchersForAllParametersAndVarargsValuesButReplayWithDifferentVarargValue()
    {
-      new StrictExpectations() {{ mock.complexOperation(anyString, anyBoolean, withEqual(123L)); }};
-      thrown.expect(UnexpectedInvocation.class);
+      thrown.expect(MissingInvocation.class);
 
       mock.complexOperation("abc", true, 1L);
+
+      new Verifications() {{ mock.complexOperation(anyString, anyBoolean, withEqual(123L)); }};
    }
 
    @Test

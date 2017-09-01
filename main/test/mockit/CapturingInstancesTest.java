@@ -73,21 +73,6 @@ public final class CapturingInstancesTest
    static final class Service2Impl implements Service2 { @Override public int doSomething() { return 2; } }
 
    @Test
-   public void recordStrictExpectationsForNextTwoInstancesToBeCreated(
-      @Capturing(maxInstances = 1) final Service2 s1, @Capturing(maxInstances = 1) final Service2 s2)
-   {
-      new StrictExpectations() {{
-         s1.doSomething(); result = 11;
-         s2.doSomething(); returns(22, 33);
-      }};
-
-      assertEquals(11, new Service2Impl().doSomething());
-      Service2Impl s = new Service2Impl();
-      assertEquals(22, s.doSomething());
-      assertEquals(33, s.doSomething());
-   }
-
-   @Test
    public void recordExpectationsForNextTwoInstancesToBeCreated(
       @Capturing(maxInstances = 1) final Service2 mock1, @Capturing(maxInstances = 1) final Service2 mock2)
    {
@@ -226,23 +211,5 @@ public final class CapturingInstancesTest
       assertEquals(10, buffer1.position());
       assertEquals(20, buffer2.position());
       assertEquals(20, buffer3.position());
-   }
-
-   public interface BaseItf { boolean doSomething(); }
-   public interface SubItf extends BaseItf {}
-   static final class Impl implements SubItf { @Override public boolean doSomething() { return false; } }
-
-   @Test
-   public void recordStrictExpectationForBaseMethodOnCapturingSubInterface(@Capturing final SubItf mock)
-   {
-      new StrictExpectations() {{
-         mock.doSomething();
-         result = true;
-      }};
-
-      Impl impl = new Impl();
-      boolean result = impl.doSomething();
-
-      assertTrue(result);
    }
 }

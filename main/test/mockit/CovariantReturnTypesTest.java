@@ -20,23 +20,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInClassHierarchyUsingStrictExpectations(@Mocked final SubClass mock)
-   {
-      final JPasswordField passwordField = new JPasswordField();
-
-      new StrictExpectations() {{
-         // These recordings apply to all calls to the method on a SubClass object, regardless of
-         // whether the owner object is of a base or derived type.
-         mock.getTextField(); result = passwordField;
-         mock.getTextField(); result = passwordField;
-      }};
-
-      assertSame(passwordField, mock.getTextField());
-      assertSame(passwordField, ((SuperClass) mock).getTextField());
-   }
-
-   @Test
-   public void methodInClassHierarchyUsingNotStrictExpectations(@Mocked final SubClass mock)
+   public void methodInClassHierarchyUsingRecordedExpectation(@Mocked final SubClass mock)
    {
       final JPasswordField passwordField = new JPasswordField();
 
@@ -62,21 +46,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void concreteMethodImplementationUsingStrictExpectations(@Mocked final ConcreteClass mock)
-   {
-      final JTextField formattedField = new JFormattedTextField();
-
-      new StrictExpectations() {{
-         mock.getTextField(); result = formattedField;
-         ((AbstractBaseClass) mock).getTextField(); result = formattedField;
-      }};
-
-      assertSame(formattedField, mock.getTextField());
-      assertSame(formattedField, ((AbstractBaseClass) mock).getTextField());
-   }
-
-   @Test
-   public void concreteMethodImplementationUsingNotStrictExpectations(@Mocked final ConcreteClass mock)
+   public void concreteMethodImplementationUsingRecordedExpectation(@Mocked final ConcreteClass mock)
    {
       final JTextField formattedField1 = new JFormattedTextField();
       final JTextField formattedField2 = new JFormattedTextField();
@@ -90,26 +60,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void abstractMethodImplementationUsingStrictExpectations(@Capturing final AbstractBaseClass mock)
-   {
-      final JTextField regularField = new JTextField();
-      final JTextField formattedField = new JFormattedTextField();
-
-      new StrictExpectations() {{
-         mock.getTextField(); result = regularField;
-         mock.getTextField(); result = formattedField;
-      }};
-
-      AbstractBaseClass firstInstance = new AbstractBaseClass() {
-         @Override public JTextField getTextField() { return null; }
-      };
-      assertSame(regularField, firstInstance.getTextField());
-
-      assertSame(formattedField, firstInstance.getTextField());
-   }
-
-   @Test
-   public void abstractMethodImplementationUsingNotStrictExpectations(@Capturing final AbstractBaseClass mock)
+   public void abstractMethodImplementationUsingRecordedExpectation(@Capturing final AbstractBaseClass mock)
    {
       final JTextField regularField = new JTextField();
       final JTextField formattedField = new JFormattedTextField();
@@ -126,27 +77,11 @@ public final class CovariantReturnTypesTest
       assertSame(formattedField, firstInstance.getTextField());
    }
 
-   public interface SuperInterface { void someOtherMethod(int i); Object getValue(); }
+   public interface SuperInterface { Object getValue(); }
    public interface SubInterface extends SuperInterface { @Override String getValue(); }
 
    @Test
-   public void methodInSuperInterfaceWithVaryingReturnValuesUsingStrictExpectations(@Mocked final SuperInterface mock)
-   {
-      final Object value = new Object();
-      final String specificValue = "test";
-
-      new StrictExpectations() {{
-         mock.getValue(); result = value;
-         mock.getValue(); result = specificValue;
-      }};
-
-      assertSame(value, mock.getValue());
-      assertSame(specificValue, mock.getValue());
-   }
-
-   @Test
-   public void methodInSuperInterfaceWithVaryingReturnValuesUsingNotStrictExpectations(
-      @Mocked final SuperInterface mock)
+   public void methodInSuperInterfaceWithVaryingReturnValuesUsingRecordedExpectation(@Mocked final SuperInterface mock)
    {
       final Object value = new Object();
       final String specificValue = "test";
@@ -160,33 +95,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSubInterfaceUsingStrictExpectations(@Mocked final SubInterface mock)
-   {
-      @SuppressWarnings("UnnecessaryLocalVariable") final SuperInterface base = mock;
-      final Object value = new Object();
-      final String specificValue = "test";
-
-      new StrictExpectations() {{
-         base.getValue(); result = value;
-         base.getValue(); result = specificValue;
-
-         mock.someOtherMethod(anyInt);
-
-         mock.getValue(); result = specificValue;
-         base.getValue(); result = specificValue;
-      }};
-
-      assertSame(value, base.getValue());
-      assertSame(specificValue, base.getValue());
-
-      mock.someOtherMethod(1);
-
-      assertSame(specificValue, mock.getValue());
-      assertSame(specificValue, base.getValue());
-   }
-
-   @Test
-   public void methodInSubInterfaceUsingNotStrictExpectations(@Mocked final SubInterface mock)
+   public void methodInSubInterfaceUsingRecordedExpectations(@Mocked final SubInterface mock)
    {
       @SuppressWarnings("UnnecessaryLocalVariable") final SuperInterface base = mock;
       final Object value = new Object();
@@ -206,17 +115,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingStrictExpectations(@Mocked final SubInterface mock)
-   {
-      final String specificValue = "test";
-
-      new StrictExpectations() {{ mock.getValue(); result = specificValue; }};
-
-      assertSame(specificValue, ((SuperInterface) mock).getValue());
-   }
-
-   @Test
-   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingNotStrictExpectations(
+   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingRecordedExpectation(
       @Mocked final SubInterface mock)
    {
       final String specificValue = "test";

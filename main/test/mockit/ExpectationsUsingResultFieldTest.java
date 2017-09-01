@@ -78,18 +78,6 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    @Test
-   public void returnsExpectedValuesFromStrictExpectations(@Mocked final Collaborator mock)
-   {
-      new StrictExpectations() {{
-         mock.getValue(); result = 3;
-         Collaborator.doInternal(); result = "test";
-      }};
-
-      assertEquals(3, mock.getValue());
-      assertEquals("test", Collaborator.doInternal());
-   }
-
-   @Test
    public void returnsExpectedValues(@Mocked final Collaborator mock)
    {
       new Expectations() {{
@@ -605,25 +593,14 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void recordExceptionFollowedByNullReturnValueForVoidMethod(@Mocked final Collaborator mock)
    {
-      new StrictExpectations() {{
-         // One way of doing it:
+      new Expectations() {{
          mock.provideSomeService();
          result = new IllegalArgumentException();
          result = null;
-
-         // Another way:
-         mock.provideSomeService();
-         result = asList(new IllegalArgumentException(), null);
-
-         // Yet another way:
-         mock.provideSomeService();
-         result = asList(new IllegalArgumentException(), null).iterator();
       }};
 
-      for (int i = 0; i < 3; i++) {
-         try { mock.provideSomeService(); fail(); } catch (IllegalArgumentException ignored) {}
-         mock.provideSomeService();
-      }
+      try { mock.provideSomeService(); fail(); } catch (IllegalArgumentException ignored) {}
+      mock.provideSomeService();
    }
 
    @Test

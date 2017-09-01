@@ -37,65 +37,11 @@ public final class MisusedExpectationsTest
    // Arrange-Act-Assert non-conformance //////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void multipleReplayPhasesWithFirstSetOfExpectationsFullyReplayed()
-   {
-      // First record phase:
-      new StrictExpectations() {{
-         new Blah().value(); result = 5;
-      }};
-
-      // First replay phase:
-      assertEquals(5, new Blah().value());
-
-      // Second record phase:
-      new StrictExpectations() {{
-         mock.value(); result = 6;
-         mock.value(); result = 3;
-      }};
-
-      // Second replay phase:
-      assertEquals(6, mock.value());
-      assertEquals(3, mock.value());
-   }
-
-   @Test
-   public void multipleReplayPhasesWithFirstSetOfExpectationsPartiallyReplayed()
-   {
-      // First record phase:
-      new StrictExpectations() {{
-         mock.value(); returns(1, 2);
-      }};
-
-      // First replay phase:
-      assertEquals(1, mock.value());
-
-      // Second record phase:
-      new StrictExpectations() {{
-         mock.value(); returns(3, 4);
-      }};
-
-      // Second replay phase:
-      assertEquals(2, mock.value());
-      assertEquals(3, mock.value());
-      assertEquals(4, mock.value());
-   }
-
-   @Test
-   public void recordNotStrictExpectationAfterInvokingSameMethodInReplayPhase()
+   public void recordExpectationAfterInvokingSameMethodInReplayPhase()
    {
       assertEquals(0, mock.value());
 
       new Expectations() {{ mock.value(); result = 1; }};
-
-      assertEquals(1, mock.value());
-   }
-
-   @Test
-   public void recordStrictExpectationAfterInvokingSameMethodInReplayPhase()
-   {
-      assertEquals(0, mock.value());
-
-      new StrictExpectations() {{ mock.value(); result = 1; }};
 
       assertEquals(1, mock.value());
    }
@@ -134,27 +80,7 @@ public final class MisusedExpectationsTest
       assertEquals(2, mock.value());
    }
 
-   @Test
-   public void recordSameInvocationInNotStrictExpectationBlockThenInStrictOne()
-   {
-      new Expectations() {{ mock.value(); result = 1; }};
-      new StrictExpectations() {{ mock.value(); result = 2; }}; // overrides previous one
-
-      assertEquals(2, mock.value());
-   }
-
    // Order-related recordings ////////////////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public void recordOrderedInstantiationOfClassMockedTwice(@Mocked Blah mock2)
-   {
-      new StrictExpectations() {{
-         // OK because of the strictly ordered matching (will match the *first* invocation with this constructor).
-         new Blah();
-      }};
-
-      new Blah();
-   }
 
    @Test
    public void recordUnorderedInstantiationOfClassMockedTwice(@Mocked final Blah mock2)

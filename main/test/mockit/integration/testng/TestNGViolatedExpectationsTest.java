@@ -15,50 +15,22 @@ import mockit.integration.*;
 @Test(enabled = false)
 public final class TestNGViolatedExpectationsTest
 {
-   // Tests that fail with a "missing invocation" error ///////////////////////////////////////////////////////////////
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict1(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-   }
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict1(@Mocked Collaborator mock)
+   @Test // fails with a "missing invocation" error
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_1(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
    }
 
-   // Tests that fail with the exception thrown by tested code ////////////////////////////////////////////////////////
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict2(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-
-      mock.doSomething();
-   }
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict2(@Mocked Collaborator mock)
+   @Test // fails with the exception thrown by tested code
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_2(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
 
-   // Tests that fail with an "unexpected invocation" error ///////////////////////////////////////////////////////////
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict3(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-
-      new Collaborator();
-   }
-
-   @Test
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict3(@Mocked Collaborator mock)
+   @Test // fails with an "unexpected invocation" error
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_3(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
 
@@ -66,52 +38,25 @@ public final class TestNGViolatedExpectationsTest
       new Collaborator();
    }
 
-   // Tests that fail with a "missing invocation" error after the exception thrown by tested code /////////////////////
-
+   // fails with a "missing invocation" error after the exception thrown by tested code
    @Test(expectedExceptions = IllegalFormatCodePointException.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict4(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-
-      mock.doSomething();
-   }
-
-   @Test(expectedExceptions = IllegalFormatCodePointException.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict4(@Mocked Collaborator mock)
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_4(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
 
-   // Tests that fail with a different exception than expected ////////////////////////////////////////////////////////
-
-   @Test(expectedExceptions = AssertionError.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict5(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-
-      mock.doSomething();
-   }
-
-   @Test(expectedExceptions = AssertionError.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict5(@Mocked Collaborator mock)
+   @Test(expectedExceptions = AssertionError.class) // fails with a different exception than expected
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_5(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
 
       mock.doSomething();
    }
 
-   // Tests that fail without the expected exception being thrown /////////////////////////////////////////////////////
-
-   @Test(expectedExceptions = AssertionError.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_strict6(@Injectable Collaborator mock)
-   {
-      new CollaboratorStrictExpectations(mock);
-   }
-
-   @Test(expectedExceptions = AssertionError.class)
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_nonStrict6(@Mocked Collaborator mock)
+   @Test(expectedExceptions = AssertionError.class) // fails without the expected exception being thrown
+   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_6(@Mocked Collaborator mock)
    {
       new CollaboratorExpectations(mock);
    }

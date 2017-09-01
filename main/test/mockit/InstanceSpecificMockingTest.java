@@ -62,17 +62,6 @@ public final class InstanceSpecificMockingTest
    }
 
    @Test
-   public void mockSingleInstanceStrictly()
-   {
-      assertThatPreviouslyCreatedInstanceIsNotMocked();
-
-      new StrictExpectations() {{ mock.getValue(); result = 123; }};
-
-      assertEquals(123, mock.getValue());
-      assertThatNewlyCreatedInstanceIsNotMocked();
-   }
-
-   @Test
    public void mockSpecificInstance()
    {
       new Expectations() {{

@@ -435,17 +435,6 @@ public final class CascadingParametersTest
    // Other tests /////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void recordStrictExpectationOnCascadedMock(@Mocked Foo foo, @Mocked final Bar mockBar)
-   {
-      new StrictExpectations() {{
-         mockBar.doSomething();
-      }};
-
-      Bar bar = foo.getBar();
-      bar.doSomething();
-   }
-
-   @Test
    public void recordExpectationOnCascadedMock(@Mocked Foo foo, @Mocked final Bar mockBar)
    {
       new Expectations() {{
@@ -473,21 +462,24 @@ public final class CascadingParametersTest
       bar2.doSomething();
    }
 
-   @Test(expected = UnexpectedInvocation.class)
+   @Test(expected = MissingInvocation.class)
    public void overrideTwoCascadedMocksOfTheSameTypeButReplayInDifferentOrder(
       @Mocked final Foo foo1, @Mocked final Foo foo2, @Injectable final Bar mockBar1, @Mocked final Bar mockBar2)
    {
-      new StrictExpectations() {{
+      new Expectations() {{
          foo1.getBar(); result = mockBar1;
          foo2.getBar(); result = mockBar2;
-         mockBar1.doSomething();
-         mockBar2.doSomething();
       }};
 
       Bar bar1 = foo1.getBar();
       Bar bar2 = foo2.getBar();
       bar2.doSomething();
       bar1.doSomething();
+
+      new FullVerificationsInOrder() {{
+         mockBar1.doSomething();
+         mockBar2.doSomething();
+      }};
    }
 
    @Test
@@ -526,36 +518,6 @@ public final class CascadingParametersTest
       assertSame(AnEnum.First, mock.getBar().getEnum());
       assertSame(AnEnum.Second, mock.getBar().getEnum());
       assertSame(AnEnum.Third, mock.getBar().getEnum());
-   }
-
-   @Test
-   public void cascadedStrictEnumReturningConsecutiveValuesThroughResultField(@Mocked final Foo mock)
-   {
-      new StrictExpectations() {{
-         mock.getBar().getEnum();
-         result = AnEnum.Third;
-         result = AnEnum.Second;
-         result = AnEnum.First;
-      }};
-
-      Bar bar = mock.getBar();
-      assertSame(AnEnum.Third, bar.getEnum());
-      assertSame(AnEnum.Second, bar.getEnum());
-      assertSame(AnEnum.First, bar.getEnum());
-   }
-
-   @Test
-   public void cascadedStrictEnumReturningConsecutiveValuesThroughReturnsMethod(@Mocked final Foo mock)
-   {
-      new StrictExpectations() {{
-         mock.getBar().getEnum();
-         returns(AnEnum.First, AnEnum.Second, AnEnum.Third);
-      }};
-
-      Bar bar = mock.getBar();
-      assertSame(AnEnum.First, bar.getEnum());
-      assertSame(AnEnum.Second, bar.getEnum());
-      assertSame(AnEnum.Third, bar.getEnum());
    }
 
    @Test

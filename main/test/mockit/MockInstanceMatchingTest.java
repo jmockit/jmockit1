@@ -103,9 +103,9 @@ public final class MockInstanceMatchingTest
    @Test
    public void recordOnSpecificMockInstancesButReplayOnDifferentOnes(@Mocked final Collaborator mock2)
    {
-      thrown.expect(UnexpectedInvocation.class);
+      thrown.expect(MissingInvocation.class);
 
-      new StrictExpectations() {{
+      new Expectations() {{
          mock.setValue(12);
          mock2.setValue(13);
       }};
@@ -188,21 +188,6 @@ public final class MockInstanceMatchingTest
    }
 
    @Test
-   public void recordExpectationsMatchingOnMultipleMockParametersButReplayOutOfOrder(
-      @Mocked final Runnable r1, @Mocked final Runnable r2)
-   {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new StrictExpectations() {{
-         r2.run();
-         r1.run();
-      }};
-
-      r1.run();
-      r2.run();
-   }
-
-   @Test
    public void verifyExpectationsMatchingOnMultipleMockParametersButReplayedOutOfOrder(
       @Mocked final AbstractExecutorService es1, @Mocked final AbstractExecutorService es2)
    {
@@ -225,53 +210,6 @@ public final class MockInstanceMatchingTest
       }};
 
       assertEquals(1, new Collaborator().getValue());
-   }
-
-   @Test
-   public void recordNonStrictExpectationsOnOneInstanceWhileStrictOnAnother(
-      @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
-   {
-      new Expectations() {{ mock2.getValue(); result = 123; }};
-      new StrictExpectations() {{ mock1.setValue(5); }};
-
-      assertEquals(123, mock2.getValue());
-
-      // mock1 is strict, mock2 is not
-      mock1.setValue(5);
-   }
-
-   @Test
-   public void recordExpectedConstructorInvocationForMockedTypeWithBothStrictAndNotStrictExpectations(
-      @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
-   {
-      new Expectations() {{ mock1.getValue(); result = 123; }};
-
-      new StrictExpectations() {{
-         mock2.setValue(2);
-         new Collaborator();
-      }};
-
-      mock2.setValue(2);
-      new Collaborator();
-
-      assertEquals(123, mock1.getValue());
-   }
-
-   @Test
-   public void unexpectedConstructorInvocationForMockedTypeWithBothStrictAndNonStrictExpectations(
-      @Mocked final Collaborator mock1, @Mocked final Collaborator mock2)
-   {
-      new Expectations() {{ mock1.getValue(); result = 1; }};
-      new StrictExpectations() {{ mock2.getValue(); result = 2; }};
-
-      assertEquals(1, mock1.getValue());
-      assertEquals(2, mock2.getValue());
-
-      try {
-         new Collaborator();
-         fail();
-      }
-      catch (UnexpectedInvocation ignore) {}
    }
 
    @Test

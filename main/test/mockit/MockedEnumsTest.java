@@ -10,8 +10,6 @@ import java.util.concurrent.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
-
 public final class MockedEnumsTest
 {
    enum MyEnum
@@ -109,17 +107,6 @@ public final class MockedEnumsTest
       }};
    }
 
-   @Test(expected = UnexpectedInvocation.class)
-   public void mockSpecificEnumElementsEvenWhenUsingASingleStrictMockInstance(@Mocked MyEnum unused)
-   {
-      new StrictExpectations() {{
-         MyEnum.First.getDescription();
-         MyEnum.Second.getDescription();
-      }};
-
-      MyEnum.Second.getDescription();
-   }
-   
    @Test
    public void mockNonAbstractMethodsInEnumWithAbstractMethod(@Mocked final TimeUnit tm) throws Exception
    {
@@ -146,7 +133,7 @@ public final class MockedEnumsTest
       };
 
       public abstract int getValue();
-      public String getDescription() { return String.valueOf(getValue()); }
+      @SuppressWarnings("unused") public String getDescription() { return String.valueOf(getValue()); }
    }
 
    @Test

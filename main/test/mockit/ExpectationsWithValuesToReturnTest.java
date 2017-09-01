@@ -165,7 +165,7 @@ public final class ExpectationsWithValuesToReturnTest
    {
       final Collaborator collaborator = new Collaborator();
 
-      new StrictExpectations(collaborator) {{
+      new Expectations(collaborator) {{
          collaborator.getBooleanValue(); returns(true, false);
          collaborator.getShortValue(); returns((short) 1, (short) 2, (short) 3);
          collaborator.getShortWrapper(); returns((short) 5, (short) 6, (short) -7, (short) -8);

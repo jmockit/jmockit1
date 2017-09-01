@@ -73,10 +73,9 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Object o = new Object();
 
-      new StrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(withEqual(1), "", null);
          mock.simpleOperation(withNotEqual(1), null, (Date) withNull());
-         mock.simpleOperation(1, withNotEqual("arg"), null); minTimes = 1; maxTimes = 2;
          mock.simpleOperation(12, "arg", (Date) withNotNull());
 
          mock.anotherOperation((byte) 0, anyLong); result = 123L;
@@ -110,37 +109,37 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useMatcherOnlyForFirstArgumentWithUnexpectedReplayValue()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new StrictExpectations() {{
-         mock.simpleOperation(withEqual(1), "", null);
-      }};
+      thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(2, "", null);
+
+      new Verifications() {{
+         mock.simpleOperation(withEqual(1), "", null);
+      }};
    }
 
    @Test
    public void useMatcherOnlyForSecondArgumentWithUnexpectedReplayValue()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new StrictExpectations() {{
-         mock.simpleOperation(1, withPrefix("arg"), null);
-      }};
+      thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(1, "Xyz", null);
+
+      new Verifications() {{
+         mock.simpleOperation(1, withPrefix("arg"), null);
+      }};
    }
 
    @Test
    public void useMatcherOnlyForLastArgumentWithUnexpectedReplayValue()
    {
-      thrown.expect(UnexpectedInvocation.class);
-
-      new StrictExpectations() {{
-         mock.simpleOperation(12, "arg", (Date) withNotNull());
-      }};
+      thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(12, "arg", null);
+
+      new Verifications() {{
+         mock.simpleOperation(12, "arg", (Date) withNotNull());
+      }};
    }
 
    @Test
@@ -184,7 +183,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Date now = new Date();
 
-      new StrictExpectations() {{
+      new Expectations() {{
          mock.simpleOperation(anyInt, null, null);
          mock.simpleOperation(anyInt, "test", null);
          mock.simpleOperation(3, "test2", null);
@@ -216,19 +215,19 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    @Test
    public void useWithMethodsMixedWithAnyFields()
    {
-      new StrictExpectations() {{
+      mock.simpleOperation(2, "abc", new Date());
+      mock.simpleOperation(5, "test", null);
+      mock.simpleOperation(3, "test2", null);
+      mock.simpleOperation(-1, "Xyz", new Date());
+      mock.simpleOperation(1, "", new Date());
+
+      new FullVerificationsInOrder() {{
          mock.simpleOperation(anyInt, null, (Date) any);
          mock.simpleOperation(anyInt, withEqual("test"), null);
          mock.simpleOperation(3, withPrefix("test"), (Date) any);
          mock.simpleOperation(-1, anyString, (Date) any);
          mock.simpleOperation(1, anyString, (Date) withNotNull());
       }};
-
-      mock.simpleOperation(2, "abc", new Date());
-      mock.simpleOperation(5, "test", null);
-      mock.simpleOperation(3, "test2", null);
-      mock.simpleOperation(-1, "Xyz", new Date());
-      mock.simpleOperation(1, "", new Date());
    }
 
    public interface Scheduler
@@ -247,18 +246,6 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    // Tests for the matching of expectations to instances created during replay ///////////////////////////////////////
-
-   @Test
-   public void recordStrictExpectationWithMatcherForMockedObjectInstantiatedInsideSUT(@Mocked Dependency dep)
-   {
-      new StrictExpectations() {{
-         Dependency src = new Dependency();
-         mock.doSomething(withEqual(src));
-      }};
-
-      Dependency src = new Dependency();
-      mock.doSomething(src);
-   }
 
    @Test
    public void recordExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep)
@@ -327,25 +314,12 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordStrictExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
-      @Mocked Dependency dep)
-   {
-      new StrictExpectations() {{
-         Dependency src = new Dependency();
-         mock.doSomething(src, anyString);
-      }};
-
-      Dependency src = new Dependency();
-      mock.doSomething(src, "test");
-   }
-
-   @Test
-   public void recordNotStrictExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
+   public void recordExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
       final List<Dependency> dependencies = new ArrayList<Dependency>();
 
-      new StrictExpectations() {{
+      new Expectations() {{
          Dependency src = new Dependency();
          dependencies.add(src);
       }};
@@ -363,25 +337,12 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void recordStrictVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
-      @Mocked Dependency dep)
-   {
-      new StrictExpectations() {{
-         Dependency src = new Dependency();
-         mock.doSomething(src, (String[]) any);
-      }};
-
-      Dependency src = new Dependency();
-      mock.doSomething(src, "a", "b");
-   }
-
-   @Test
-   public void recordNotStrictVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
+   public void recordVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep)
    {
       final List<Dependency> dependencies = new ArrayList<Dependency>();
 
-      new StrictExpectations() {{
+      new Expectations() {{
          Dependency src = new Dependency();
          dependencies.add(src);
       }};
@@ -449,7 +410,16 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    {
       final Date now = new Date();
 
-      new StrictExpectations() {{
+      mock.simpleOperation(123, "test", null);
+      mock.simpleOperation(-2, "", now);
+      mock.simpleOperation(0, "test", now);
+      mock.simpleOperation(1, "test", null);
+      mock.simpleOperation(0, "test", null);
+      mock.simpleOperation(-3, "xyz", now);
+      mock.simpleOperation(123, null, now);
+      mock.simpleOperation(123, "", null);
+
+      new FullVerificationsInOrder() {{
          // Expectations with one matcher:
          mock.simpleOperation(
             anyInt,
@@ -477,14 +447,5 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
             "",
             (Date) any);
       }};
-
-      mock.simpleOperation(123, "test", null);
-      mock.simpleOperation(-2, "", now);
-      mock.simpleOperation(0, "test", now);
-      mock.simpleOperation(1, "test", null);
-      mock.simpleOperation(0, "test", null);
-      mock.simpleOperation(-3, "xyz", now);
-      mock.simpleOperation(123, null, now);
-      mock.simpleOperation(123, "", null);
    }
 }

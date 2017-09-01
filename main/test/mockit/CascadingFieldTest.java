@@ -116,25 +116,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void recordUnambiguousStrictExpectationsProducingDifferentCascadedInstances()
-   {
-      new StrictExpectations() {{
-         Bar c1 = Foo.globalBar();
-         c1.isDone(); result = true;
-         Bar c2 = Foo.globalBar();
-         c2.doSomething(); result = 5;
-         assertNotSame(c1, c2);
-      }};
-
-      Bar b1 = Foo.globalBar();
-      assertTrue(b1.isDone());
-      Bar b2 = Foo.globalBar();
-      assertEquals(5, b2.doSomething());
-      assertNotSame(b1, b2);
-   }
-
-   @Test
-   public void recordUnambiguousNonStrictExpectationsProducingDifferentCascadedInstances(
+   public void recordUnambiguousExpectationsProducingDifferentCascadedInstances(
       @Mocked final Foo foo1, @Mocked final Foo foo2)
    {
       new Expectations() {{
@@ -303,7 +285,7 @@ public final class CascadingFieldTest
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingClass(
       @Mocked final ActionHolder mock)
    {
-      new StrictExpectations() {{ mock.getValue().getB().getC(); }};
+      new Expectations() {{ mock.getValue().getB().getC(); }};
 
       mock.getValue().getB().getC();
    }

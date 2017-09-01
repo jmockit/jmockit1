@@ -115,14 +115,6 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordStrictExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
-   {
-      new StrictExpectations() {{ new Base(); }};
-
-      new Derived();
-   }
-
-   @Test(expected = MissingInvocation.class)
    public void recordExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
    {
       new Expectations() {{ new Base(); times = 1; }};

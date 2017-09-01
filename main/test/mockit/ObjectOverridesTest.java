@@ -12,8 +12,8 @@ import static org.junit.Assert.*;
 import mockit.internal.util.*;
 
 @SuppressWarnings({
-   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "FinalizeCalledExplicitly", "SimplifiableJUnitAssertion",
-   "LiteralAsArgToStringEquals", "EqualsWithItself"})
+   "ObjectEqualsNull", "EqualsBetweenInconvertibleTypes", "FinalizeCalledExplicitly", "LiteralAsArgToStringEquals",
+   "EqualsWithItself"})
 public final class ObjectOverridesTest
 {
    @Test
@@ -139,37 +139,6 @@ public final class ObjectOverridesTest
    }
 
    @Test
-   public void allowAnyInvocationsOnOverriddenObjectMethodsForStrictMocks()
-   {
-      new StrictExpectations() {{
-         a.getIntValue(); result = 58;
-         b.doSomething();
-      }};
-
-      assertFalse(a.equals(b));
-      assertTrue(a.hashCode() != b.hashCode());
-      assertEquals(58, a.getIntValue());
-      assertTrue(a.equals(a));
-      String bStr = b.toString();
-      b.doSomething();
-      assertFalse(b.equals(a));
-      String aStr = a.toString();
-      assertFalse(aStr.equals(bStr));
-
-      new Verifications() {{
-         a.equals(b);
-         b.hashCode(); times = 1;
-         a.toString();
-         b.equals(null); times = 0;
-      }};
-
-      new VerificationsInOrder() {{
-         a.hashCode();
-         b.equals(a);
-      }};
-   }
-
-   @Test
    public void recordExpectationsOnOverriddenObjectMethodAsAlwaysNonStrict()
    {
       new Expectations() {{
@@ -191,23 +160,23 @@ public final class ObjectOverridesTest
    }
 
    @Test
-   public void mockClassWithEqualsOverrideWhoseInstanceGetsPassedInRecordedStrictExpectation()
+   public void mockClassWithEqualsOverrideWhoseInstanceGetsPassedInRecordedExpectation()
    {
       final Object o1 = new ClassWithEqualsOverride(123);
       Object o2 = new ClassWithEqualsOverride(123);
 
-      new StrictExpectations(ClassWithEqualsOverride.class) {{ a.doSomething(o1); }};
+      new Expectations(ClassWithEqualsOverride.class) {{ a.doSomething(o1); }};
 
       a.doSomething(o2);
    }
 
    @Test
-   public void mockJREClassWithEqualsOverrideWhoseInstanceGetsPassedInRecordedStrictExpectation()
+   public void mockJREClassWithEqualsOverrideWhoseInstanceGetsPassedInRecordedExpectation()
    {
       final Object o1 = new Date(123);
       Object o2 = new Date(123);
 
-      new StrictExpectations(Date.class) {{ a.doSomething(o1); }};
+      new Expectations(Date.class) {{ a.doSomething(o1); }};
 
       a.doSomething(o2);
    }

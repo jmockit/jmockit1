@@ -26,8 +26,7 @@ public final class TestNGSharedMockFieldTest
    @Test
    public void recordAndReplayExpectationsOnSharedMocks()
    {
-      // Strict mocking:
-      new StrictExpectations() {{
+      new Expectations() {{
          mock1.doSomething(); result = true;
          mock2.run();
       }};

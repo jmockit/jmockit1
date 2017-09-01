@@ -255,25 +255,18 @@ public final class ClassLoadingAndJREMocksTest
       @Mocked final JarFile mockFile, @Mocked final Manifest mockManifest, @Mocked final Attributes mockAttributes,
       @Mocked final Enumeration<JarEntry> mockEntries, @Mocked final JarEntry mockEntry) throws Exception
    {
-      final File testFile = new File("test.jar");
+      File testFile = new File("test.jar");
       final String mainClassName = "test.Main";
 
-      new StrictExpectations() {{
-         new JarFile(testFile);
+      new Expectations() {{
          mockFile.getManifest(); result = mockManifest;
          mockManifest.getMainAttributes(); result = mockAttributes;
          mockAttributes.getValue(Name.MAIN_CLASS); result = mainClassName;
          mockFile.entries(); result = mockEntries;
 
-         mockEntries.hasMoreElements(); result = true;
+         mockEntries.hasMoreElements(); returns(true, true, false);
          mockEntries.nextElement(); result = mockEntry;
-         mockEntry.getName(); result = "test/Main$Inner.class";
-
-         mockEntries.hasMoreElements(); result = true;
-         mockEntries.nextElement(); result = mockEntry;
-         mockEntry.getName(); result = "test/Main.class";
-
-         mockEntries.hasMoreElements(); result = false;
+         mockEntry.getName(); returns("test/Main$Inner.class", "test/Main.class");
       }};
 
       List<String> fileNames = new ArrayList<String>();

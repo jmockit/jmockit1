@@ -24,59 +24,43 @@ public final class AssertionErrorMessagesTest
    @Mocked Collaborator mock;
 
    @Test
-   public void unexpectedInvocationForRecordedStrictExpectation()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("Unexpected invocation of ");
-      thrown.expectMessage("2, \"xyz\"");
-
-      new StrictExpectations() {{
-         mock.doSomething(anyInt, anyString);
-      }};
-
-      mock.doSomething(1, "Abc");
-      mock.doSomething(2, "xyz");
-   }
-
-   @Test
-   public void unexpectedInvocationWhereExpectingAnotherForRecordedStrictExpectations()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("with arguments: 2, \"xyz\"");
-
-      new StrictExpectations() {{
-         mock.doSomething(anyInt, anyString);
-         mock.doSomethingElse(anyString);
-      }};
-
-      mock.doSomething(1, "Abc");
-      mock.doSomething(2, "xyz");
-      mock.doSomethingElse("test");
-   }
-
-   @Test
-   public void unexpectedInvocationForRecordedStrictExpectationWithMaximumInvocationCountOfZero()
-   {
-      thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("1, \"Abc\"");
-
-      new StrictExpectations() {{
-         mock.doSomething(anyInt, anyString); times = 0;
-      }};
-
-      mock.doSomething(1, "Abc");
-   }
-
-   @Test
    public void unexpectedInvocationForRecordedExpectation()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("2, \"xyz\"");
+      thrown.expectMessage("Unexpected invocation to");
+      thrown.expectMessage("doSomething(2, \"xyz\")");
 
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 1; }};
 
       mock.doSomething(1, "Abc");
       mock.doSomething(2, "xyz");
+   }
+
+   @Test
+   public void unexpectedInvocationWhereExpectingAnotherForRecordedExpectations()
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("doSomething(2, \"xyz\"");
+
+      mock.doSomething(1, "Abc");
+      mock.doSomething(2, "xyz");
+      mock.doSomethingElse("test");
+
+      new VerificationsInOrder() {{
+         mock.doSomething(anyInt, anyString); times = 1;
+         mock.doSomethingElse(anyString);
+      }};
+   }
+
+   @Test
+   public void unexpectedInvocationForRecordedExpectationWithMaximumInvocationCountOfZero()
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("1, \"Abc\"");
+
+      new Expectations() {{ mock.doSomething(anyInt, anyString); times = 0; }};
+
+      mock.doSomething(1, "Abc");
    }
 
    @Test
@@ -187,34 +171,13 @@ public final class AssertionErrorMessagesTest
    public void unexpectedInvocationOnMethodWithNoParameters()
    {
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage("doSomething()\n   on instance");
+      thrown.expectMessage("doSomething()\n   on mock instance");
 
-      new StrictExpectations() {{ mock.doSomethingElse(anyString); }};
+      new Expectations() {{ mock.doSomethingElse(anyString); }};
 
       mock.doSomething();
-   }
 
-   @Test
-   public void missingInvocationForRecordedStrictExpectation()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("any int, any String");
-
-      new StrictExpectations() {{ mock.doSomething(anyInt, anyString); }};
-   }
-
-   @Test
-   public void missingInvocationAfterRecordedStrictExpectationWhichCanOccurOneOrMoreTimes()
-   {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("1, any String");
-
-      new StrictExpectations() {{
-         mock.doSomethingElse(anyString); maxTimes = -1;
-         mock.doSomething(1, anyString);
-      }};
-
-      mock.doSomethingElse("Test");
+      new FullVerifications(mock) {};
    }
 
    @Test

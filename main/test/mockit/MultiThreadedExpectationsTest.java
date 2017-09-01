@@ -67,18 +67,6 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void useMockedObjectFromWorkerThreadWhileRecordingStrictExpectation()
-   {
-      new StrictExpectations() {{
-         mock.doSomething();
-         useMockedCollaboratorFromWorkerThread();
-         result = 123;
-      }};
-
-      assertEquals(123, mock.doSomething());
-   }
-
-   @Test
    public void executeInvalidExpectationBlockThenReplayRecordedExpectationFromAnotherThread() throws Exception
    {
       try {

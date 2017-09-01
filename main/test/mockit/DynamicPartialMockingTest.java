@@ -43,6 +43,7 @@ public final class DynamicPartialMockingTest
       }
       
       String overridableMethod() { return "base"; }
+      @SuppressWarnings("DeprecatedIsStillUsed")
       @Deprecated native void nativeMethod();
 
       void readFile(File f) {}
@@ -53,25 +54,6 @@ public final class DynamicPartialMockingTest
    {
       boolean doSomething();
       List<?> doSomethingElse(int n);
-   }
-
-   @Test
-   public void dynamicallyMockAClassStrictly()
-   {
-      final Collaborator toBeMocked = new Collaborator();
-
-      new StrictExpectations(Collaborator.class) {{
-         toBeMocked.getValue(); result = 123;
-      }};
-
-      // Not mocked:
-      Collaborator collaborator = new Collaborator();
-      assertEquals(-1, collaborator.value);
-      assertTrue(collaborator.simpleOperation(1, "b", null));
-      assertEquals(45, new Collaborator(45).value);
-
-      // Mocked:
-      assertEquals(123, collaborator.getValue());
    }
 
    @Test
@@ -93,11 +75,9 @@ public final class DynamicPartialMockingTest
    }
 
    @Test
-   public void dynamicallyMockClass()
+   public void dynamicallyMockAClass()
    {
-      new Expectations(Collaborator.class) {{
-         new Collaborator().getValue(); result = 123;
-      }};
+      new Expectations(Collaborator.class) {{ new Collaborator().getValue(); result = 123; }};
 
       // Mocked:
       final Collaborator col1 = new Collaborator();
@@ -183,92 +163,6 @@ public final class DynamicPartialMockingTest
          new Collaborator(1);
          anyInstanceWithValue1.getValue();
       }};
-   }
-
-   @Test
-   public void dynamicallyMockAnInstanceStrictly()
-   {
-      final Collaborator collaborator = new Collaborator();
-
-      new StrictExpectations(collaborator) {{
-         collaborator.getValue(); result = 123;
-      }};
-
-      // Mocked:
-      assertEquals(123, collaborator.getValue());
-
-      // Not mocked:
-      assertTrue(collaborator.simpleOperation(1, "b", null));
-      assertEquals(45, new Collaborator(45).value);
-      assertEquals(-1, new Collaborator().value);
-   }
-
-   @Test
-   public void expectTwoInvocationsOnStrictDynamicMockButReplayOnce()
-   {
-      final Collaborator collaborator = new Collaborator();
-
-      new StrictExpectations(collaborator) {{
-         collaborator.getValue(); times = 2;
-      }};
-
-      assertEquals(0, collaborator.getValue());
-      thrown.expect(MissingInvocation.class);
-   }
-
-   @Test
-   public void expectOneInvocationOnStrictDynamicMockButReplayTwice()
-   {
-      final Collaborator collaborator = new Collaborator(1);
-
-      new StrictExpectations(collaborator) {{
-         collaborator.methodWhichCallsAnotherInTheSameClass(); result = false;
-      }};
-
-      // Mocked:
-      assertFalse(collaborator.methodWhichCallsAnotherInTheSameClass());
-
-      // No longer mocked, since it's strict:
-      assertTrue(collaborator.methodWhichCallsAnotherInTheSameClass());
-   }
-
-   @Test
-   public void expectTwoInvocationsOnStrictDynamicMockButReplayMoreTimes()
-   {
-      final Collaborator collaborator = new Collaborator(1);
-
-      new StrictExpectations(collaborator) {{
-         collaborator.getValue(); times = 2;
-      }};
-
-      // Mocked:
-      assertEquals(0, collaborator.getValue());
-      assertEquals(0, collaborator.getValue());
-
-      // No longer mocked, since it's strict and all expected invocations were already replayed:
-      assertEquals(1, collaborator.getValue());
-   }
-
-   @Test
-   public void expectTwoOrderedInvocationsOnStrictDynamicMockButReplayOutOfOrder()
-   {
-      final Collaborator collaborator = new Collaborator(1);
-
-      new StrictExpectations(collaborator) {{
-         collaborator.setValue(1);
-         collaborator.setValue(2);
-      }};
-
-      // Not mocked since the first expectation that can be matched is the one setting the value to 1:
-      collaborator.setValue(2);
-      assertEquals(2, collaborator.value);
-
-      // Mocked since the first expectation wasn't yet matched by a replayed one:
-      collaborator.setValue(1);
-      assertEquals(2, collaborator.value);
-
-      // The recorded call to "setValue(2)" is missing at this point.
-      thrown.expect(MissingInvocation.class);
    }
 
    @Test
@@ -533,7 +427,7 @@ public final class DynamicPartialMockingTest
    void assertInvalidTypeForDynamicPartialMocking(Object classOrObject)
    {
       try {
-         new StrictExpectations(classOrObject) {};
+         new Expectations(classOrObject) {};
          fail();
       }
       catch (IllegalArgumentException e) {

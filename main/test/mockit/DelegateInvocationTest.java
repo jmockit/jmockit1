@@ -126,7 +126,7 @@ public final class DelegateInvocationTest
    @Test
    public void delegateClassWithMultipleMethodsAndInexactButValidMatch(@Mocked Collaborator mock)
    {
-      new StrictExpectations() {{
+      new Expectations() {{
          Collaborator.staticMethod(1);
          result = new Delegate() {
             @SuppressWarnings("unused")
@@ -183,7 +183,7 @@ public final class DelegateInvocationTest
    @Test
    public void consecutiveDelegatesForTheSameExpectation(@Mocked final Collaborator mock)
    {
-      new StrictExpectations() {{
+      new Expectations() {{
          mock.getValue();
          returns(
             new Delegate() {
