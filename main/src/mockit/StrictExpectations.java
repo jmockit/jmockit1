@@ -18,8 +18,10 @@ package mockit;
  *
  * @see #StrictExpectations()
  * @see #StrictExpectations(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#strictness" target="tutorial">Tutorial</a>
+ * @deprecated Use {@link Expectations} instead; to detect unrecorded invocations (if desired), use
+ * {@link FullVerifications}.
  */
+@Deprecated
 public abstract class StrictExpectations extends Expectations
 {
    /**

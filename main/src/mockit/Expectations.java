@@ -59,17 +59,6 @@ import mockit.internal.expectations.*;
  * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder},
  * {@link FullVerifications}, and {@link FullVerificationsInOrder}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
- * <p/>
- * Finally, note that this class has a specialized subclass: {@link StrictExpectations}.
- * That one differs in that 1) each recorded expectation has, by default, a maximum allowed number of invocations
- * of {@code 1} (one); 2) matching invocations must occur in the <em>same order</em> as recorded; 3) <em>only</em>
- * matching invocations are allowed, with any occurrence of unmatched invocations causing the test to fail with an
- * {@code UnexpectedInvocation} error; and 4) use of verification blocks is not supported, since all invocations are
- * implicitly verified through the strictly recorded sequence of expectations.
- * Most tests can and should only use {@code Expectations}; {@code StrictExpectations} are meant for users who prefer a
- * mocking style where all expectations are specified before exercising the code under test, or for situations where
- * the recording of a strict sequence of expectations produces a test that is more succinct or that fails as early as
- * an unexpected invocation occurs.
  *
  * @see #Expectations()
  * @see #Expectations(Object...)
