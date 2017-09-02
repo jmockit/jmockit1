@@ -11,6 +11,7 @@ import javax.annotation.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
+import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("ClassWithTooManyFields")
@@ -242,12 +243,16 @@ public final class ExecutingTest
       }
 
       for (Object strictMock : strictMocks) {
-         if (strictMock == mockClassDesc) {
-            addStrictMock(mock);
-            return true;
+         if (strictMock instanceof String) {
+            if (
+               strictMock == mockClassDesc ||
+               loadByInternalName((String) strictMock).isAssignableFrom(loadByInternalName(mockClassDesc))
+            ) {
+               addStrictMock(mock);
+               return true;
+            }
          }
-
-         if (
+         else if (
             strictMock == mock ||
             mock != null && isInvokedInstanceEquivalentToCapturedInstance(mock, strictMock)
          ) {

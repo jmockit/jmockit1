@@ -4,10 +4,9 @@
  */
 package mockit;
 
-import java.net.*;
-
 import org.junit.*;
 import org.junit.rules.*;
+import static org.junit.Assert.*;
 
 import mockit.internal.*;
 
@@ -23,7 +22,7 @@ public final class StrictExpectationsTest
       void setValue(int value) { this.value = value; }
 
       void provideSomeService() {}
-      String doSomething(URL url) { return url.toString(); }
+      String doSomething(String s) { return s.toLowerCase(); }
       static String doInternal() { return "123"; }
    }
 
@@ -83,16 +82,31 @@ public final class StrictExpectationsTest
    public void recordingExpectationOnMethodWithOneArgumentButReplayingWithAnotherShouldProduceUsefulErrorMessage(
       @Mocked final Collaborator mock) throws Exception
    {
-      final URL expectedURL = new URL("http://expected");
-      new Expectations() {{ mock.doSomething(expectedURL); }};
+      final String expected = "expected";
+      new Expectations() {{ mock.doSomething(expected); }};
 
-      mock.doSomething(expectedURL);
+      mock.doSomething(expected);
 
-      URL anotherURL = new URL("http://another");
-      mock.doSomething(anotherURL);
+      String another = "another";
+      mock.doSomething(another);
 
       thrown.expect(UnexpectedInvocation.class);
-      thrown.expectMessage(anotherURL.toString());
+      thrown.expectMessage(another);
       new FullVerifications() {};
+   }
+
+   public interface BaseItf { int base(); }
+   public interface SubItf extends BaseItf {}
+   static final class Impl implements SubItf { @Override public int base() { return 1; } }
+   final BaseItf impl = new Impl();
+
+   @Test
+   public void recordStrictCallToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(@Capturing final SubItf sub)
+   {
+      new StrictExpectations() {{ sub.base(); result = 123; }};
+
+      int actual = impl.base();
+
+      assertEquals(123, actual);
    }
 }
