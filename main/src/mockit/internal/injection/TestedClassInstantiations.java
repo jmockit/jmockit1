@@ -33,7 +33,7 @@ public final class TestedClassInstantiations
    public boolean findTestedAndInjectableMembers(@Nonnull Class<?> testClass)
    {
       findAllTestedAndInjectableMembersInTestClassHierarchy(testClass);
-      return !testedFields.isEmpty() || !injectionState.interfaceResolutionMethods.isEmpty();
+      return !testedFields.isEmpty() || injectionState.canResolveInterfaces();
    }
 
    private void findAllTestedAndInjectableMembersInTestClassHierarchy(@Nonnull Class<?> testClass)

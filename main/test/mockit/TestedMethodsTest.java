@@ -33,6 +33,13 @@ public final class TestedMethodsTest
       return DAOImpl.class;
    }
 
+   @Tested
+   Class<?> resolveAnythingElse(Class<?> anyInterface)
+   {
+      assertSame(AnotherDependency.class, anyInterface);
+      return null;
+   }
+
    @Tested(fullyInitialized = true) TestedClass tested;
 
    @Test
