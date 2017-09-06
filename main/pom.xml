@@ -242,7 +242,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.9.10</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.11</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>com.google.inject</groupId><artifactId>guice</artifactId></exclusion>

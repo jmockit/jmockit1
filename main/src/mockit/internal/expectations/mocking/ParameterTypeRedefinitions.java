@@ -95,7 +95,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
 
          if (instanceFactory != null) {
             MockedType mockedType = mockParameters[paramIndex];
-            @Nonnull Object mockedInstance = instantiateMockedType(mockedType, instanceFactory);
+            @Nonnull Object mockedInstance = instantiateMockedType(mockedType, instanceFactory, paramIndex);
             testMethod.setParameterValue(paramIndex, mockedInstance);
             mockedType.providedValue = mockedInstance;
          }
@@ -103,9 +103,15 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nonnull
-   private Object instantiateMockedType(@Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory)
+   private Object instantiateMockedType(
+      @Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory, @Nonnegative int paramIndex)
    {
-      Object mock = instanceFactory.create();
+      Object mock = testMethod.getParameterValue(paramIndex);
+
+      if (mock == null) {
+         mock = instanceFactory.create();
+      }
+
       registerMock(mockedType, mock);
 
       if (mockedType.withInstancesToCapture()) {

@@ -41,7 +41,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       @Mock
       @Nullable
       public static Object getInjectedParameter(
-         @Nonnull Invocation invocation, Class<?> c, @Nullable Method method,
+         @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method,
          ITestContext context, ITestResult testResult)
       {
          ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
@@ -67,7 +67,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          }
 
          // It's a mock parameter in a test method, to be provided by JMockit.
-         return "";
+         return Deencapsulation.newUninitializedInstance(c);
       }
    }
 

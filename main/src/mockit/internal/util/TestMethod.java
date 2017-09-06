@@ -32,5 +32,11 @@ public final class TestMethod
    @Nonnull public Class<?> getParameterClass(@Nonnegative int index) { return parameterClasses[index]; }
    @Nonnull public Annotation[] getParameterAnnotations(@Nonnegative int index) { return parameterAnnotations[index]; }
    @Nullable public Object getParameterValue(@Nonnegative int index) { return parameterValues[index]; }
-   public void setParameterValue(@Nonnegative int index, @Nullable Object value) { parameterValues[index] = value; }
+
+   public void setParameterValue(@Nonnegative int index, @Nullable Object value)
+   {
+      if (value != null) {
+         parameterValues[index] = value;
+      }
+   }
 }
