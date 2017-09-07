@@ -30,7 +30,7 @@ public final class MockClassSetup
       this(realClass, classToMock, mockedType, mockUp, null);
    }
 
-   public MockClassSetup(
+   MockClassSetup(
       @Nonnull Class<?> realClass, @Nullable Type mockedType, @Nonnull MockUp<?> mockUp, @Nullable byte[] realClassCode)
    {
       this(realClass, realClass, mockedType, mockUp, realClassCode);
@@ -61,7 +61,7 @@ public final class MockClassSetup
       }
    }
 
-   public void redefineMethodsInGeneratedClass()
+   void redefineMethodsInGeneratedClass()
    {
       byte[] modifiedClassFile = modifyRealClass(realClass);
 
@@ -72,12 +72,6 @@ public final class MockClassSetup
 
    @Nonnull
    public Set<Class<?>> redefineMethods()
-   {
-      return redefineMethodsInClassHierarchy();
-   }
-
-   @Nonnull
-   private Set<Class<?>> redefineMethodsInClassHierarchy()
    {
       Set<Class<?>> redefinedClasses = new HashSet<Class<?>>();
       @Nullable Class<?> classToModify = realClass;
@@ -102,7 +96,7 @@ public final class MockClassSetup
    private byte[] modifyRealClass(@Nonnull Class<?> classToModify)
    {
       if (rcReader == null) {
-         rcReader = createClassReaderForRealClass(classToModify);
+         rcReader = ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
       }
 
       MockupsModifier modifier = new MockupsModifier(rcReader, classToModify, mockUp, mockMethods);
@@ -115,12 +109,6 @@ public final class MockClassSetup
    BaseClassModifier createClassModifier(@Nonnull ClassReader cr)
    {
       return new MockupsModifier(cr, realClass, mockUp, mockMethods);
-   }
-
-   @Nonnull
-   private static ClassReader createClassReaderForRealClass(@Nonnull Class<?> classToModify)
-   {
-      return ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
    }
 
    void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile)

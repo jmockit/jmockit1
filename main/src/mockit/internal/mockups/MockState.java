@@ -123,7 +123,7 @@ final class MockState
       return realMethodOrConstructor;
    }
 
-   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
+   boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
    {
       if (proceedingInvocation != null) {
          MockInvocation pendingInvocation = proceedingInvocation.get();
@@ -167,13 +167,6 @@ final class MockState
       MockInvocation currentInvocation = proceedingInvocation.get();
       MockInvocation previousInvocation = (MockInvocation) currentInvocation.getPrevious();
       proceedingInvocation.set(previousInvocation);
-   }
-
-   @Nonnull
-   Method getMockMethod()
-   {
-      assert actualMockMethod != null;
-      return actualMockMethod;
    }
 
    @Nonnull

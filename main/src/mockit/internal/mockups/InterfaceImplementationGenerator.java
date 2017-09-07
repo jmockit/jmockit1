@@ -10,9 +10,9 @@ import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import static mockit.external.asm.Opcodes.*;
 
-public final class InterfaceImplementationGenerator extends BaseImplementationGenerator
+final class InterfaceImplementationGenerator extends BaseImplementationGenerator
 {
-   public InterfaceImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName)
+   InterfaceImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName)
    {
       super(classReader, implementationClassName);
    }

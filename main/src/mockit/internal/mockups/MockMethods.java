@@ -22,7 +22,7 @@ import static mockit.internal.util.ObjectMethods.*;
  */
 final class MockMethods
 {
-   @Nonnull final Class<?> realClass;
+   @Nonnull private final Class<?> realClass;
    private final boolean targetTypeIsAClass;
    private final boolean reentrantRealClass;
    @Nonnull private final List<MockMethod> methods;
@@ -178,8 +178,6 @@ final class MockMethods
       mockState.mockMethod.indexForMockState = mockStates.size();
       mockStates.add(mockState);
    }
-
-   @Nullable List<MockState> getMockStates() { return mockStates; }
 
    /**
     * Finds a mock method with the same signature of a given real method, if previously collected from the mockup class.

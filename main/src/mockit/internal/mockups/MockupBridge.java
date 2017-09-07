@@ -16,7 +16,7 @@ public final class MockupBridge extends MockingBridge
 
    private MockupBridge() { super("$MUB"); }
 
-   @Nullable @Override
+   @Nonnull @Override
    public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable
    {
       if (TestRun.isInsideNoMockingZone()) {

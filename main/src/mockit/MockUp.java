@@ -99,7 +99,7 @@ public abstract class MockUp<T>
    @Nullable private final Class<?> mockedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T mockInstance;
-   @Nullable private T invokedInstance;
+   @SuppressWarnings("unused") @Nullable private T invokedInstance; // set through Reflection elsewhere
 
    /**
     * Applies the {@linkplain Mock mock methods} defined in the concrete subclass to the class or interface specified
@@ -197,14 +197,16 @@ public abstract class MockUp<T>
    @Nonnull
    private Class<T> createInstanceOfMockedImplementationClass(@Nonnull Class<T> classToMock, @Nullable Type typeToMock)
    {
-      return new MockedImplementationClass<T>(this).createImplementation(classToMock, typeToMock);
+      MockedImplementationClass<T> mockedImplementationClass = new MockedImplementationClass<T>(this);
+      return mockedImplementationClass.createImplementation(classToMock, typeToMock);
    }
 
-   @Nullable
+   @Nonnull
    private Set<Class<?>> redefineMethods(
       @Nonnull Class<T> realClass, @Nonnull Class<T> classToMock, @Nullable Type genericMockedType)
    {
-      return new MockClassSetup(realClass, classToMock, genericMockedType, this).redefineMethods();
+      MockClassSetup mockClassSetup = new MockClassSetup(realClass, classToMock, genericMockedType, this);
+      return mockClassSetup.redefineMethods();
    }
 
    /**
