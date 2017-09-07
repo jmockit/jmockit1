@@ -5,6 +5,7 @@
 package mockit;
 
 import java.io.*;
+import java.util.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -17,7 +18,7 @@ public final class TestedMethodsTest
    @SuppressWarnings("unused") public interface BaseDAO<T extends Serializable> {}
    public interface ConcreteDAO extends BaseDAO<String> {}
    static class DAOImpl implements ConcreteDAO {}
-   static class TestedClass { Dependency dependency; ConcreteDAO dao; AnotherDependency anotherDependency; }
+   static class TestedClass { Dependency dependency; ConcreteDAO dao; AnotherDependency anotherDependency; Set<?> set; }
 
    @Tested
    static Class<? extends Dependency> resolveDependencyInterfaces(Class<Dependency> dependencyInterface)
@@ -48,6 +49,7 @@ public final class TestedMethodsTest
       assertTrue(tested.dependency instanceof DependencyImpl);
       assertTrue(tested.dao instanceof DAOImpl);
       assertNull(tested.anotherDependency);
+      assertNull(tested.set);
    }
 
    static final class DAO1 {}

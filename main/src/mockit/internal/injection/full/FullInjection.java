@@ -104,7 +104,7 @@ public final class FullInjection
          dependency = createInstanceOfSupportedInterfaceIfApplicable(
             testedClass, typeToInject, injectionPoint, injectionProvider);
 
-         if (dependency == null) {
+         if (dependency == null && typeToInject.getClassLoader() != null) {
             Class<?> resolvedType = injectionState.resolveInterface(typeToInject);
 
             if (resolvedType != null && !resolvedType.isInterface()) {
