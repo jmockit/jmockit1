@@ -57,8 +57,6 @@ public final class TestedClassWithFullAnnotatedDITest
       @Inject ItfWithTwoImpls anotherDependency;
       @Inject private Logger log1;
       @Inject private Logger log2;
-      Logger log3;
-      Value value;
       Collaborator collaborator;
       @Inject Conversation conversation;
       @Resource(lookup = "java:global/jdbc/testDS") DataSource ds;
@@ -93,7 +91,6 @@ public final class TestedClassWithFullAnnotatedDITest
       @Resource(name = "regularDS") DataSource ds4;
    }
 
-   static final class Value {}
    static class Collaborator {}
 
    public interface ItfWithSingleImpl {}
@@ -131,10 +128,8 @@ public final class TestedClassWithFullAnnotatedDITest
    }
 
    @Test
-   public void leaveNonAnnotatedFieldsUninitializedUnlessThereIsAMatchingTestedField()
+   public void injectNonAnnotatedFieldFromMatchingTestedField()
    {
-      assertNull(tested.value);
-      assertNull(tested.log3);
       assertSame(collaborator, tested.collaborator);
    }
 

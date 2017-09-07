@@ -14,13 +14,26 @@ public final class TestedClassWithFullMixedFieldDITest
    }
 
    static class Dependency { String value; }
-
-   @Tested(fullyInitialized = true) TestedClass tested;
+   static class Dependency2 {}
 
    @Test
-   public void verifyThatFieldsFromJRETypesAreNotInitialized()
+   public void verifyThatFieldsFromJRETypesAreNotInitialized(@Tested(fullyInitialized = true) TestedClass tested)
    {
       assertNull(tested.text);
       assertNull(tested.dependency.value);
+   }
+
+   static class TestedClass2
+   {
+      @Inject Dependency dependency1;
+      Dependency2 dependency2;
+   }
+
+   @Test
+   public void verifyThatFieldsOfUserTypesAreInitializedEvenOnlySomeAreAnnotated(
+      @Tested(fullyInitialized = true) TestedClass2 tested)
+   {
+      assertNotNull(tested.dependency1);
+      assertNotNull(tested.dependency2);
    }
 }

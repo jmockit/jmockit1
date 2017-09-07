@@ -17,7 +17,7 @@ import static mockit.internal.util.DefaultValues.*;
 
 abstract class TestedObject
 {
-   @Nonnull final InjectionState injectionState;
+   @Nonnull private final InjectionState injectionState;
    @Nonnull private final String testedName;
    @Nonnull final Tested metadata;
    @Nullable private final FullInjection fullInjection;
@@ -25,7 +25,6 @@ abstract class TestedObject
    @Nullable private final TestedObjectCreation testedObjectCreation;
    @Nullable private List<Field> targetFields;
    boolean createAutomatically;
-   boolean requireDIAnnotation;
 
    @Nullable
    static Tested getTestedAnnotationIfPresent(@Nonnull Annotation annotation)
@@ -86,7 +85,7 @@ abstract class TestedObject
       }
 
       if (testedObject != null && testedObjectClass.getClassLoader() != null) {
-         performFieldInjection(testedObjectClass, testedObject, testedClass);
+         performFieldInjection(testedObjectClass, testedObject);
          executeInitializationMethodsIfAny(testedObjectClass, testedObject);
       }
    }
@@ -140,14 +139,12 @@ abstract class TestedObject
       injectionState.saveTestedObject(injectionPoint, testedObject);
    }
 
-   private void performFieldInjection(
-      @Nonnull Class<?> targetClass, @Nonnull Object testedObject, @Nonnull TestedClass testedClass)
+   private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject)
    {
-      FieldInjection fieldInjection = new FieldInjection(injectionState, fullInjection, requireDIAnnotation);
+      FieldInjection fieldInjection = new FieldInjection(injectionState, fullInjection);
 
       if (targetFields == null) {
          targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(targetClass, testedClass);
-         requireDIAnnotation = fieldInjection.isDIAnnotationRequired();
       }
 
       fieldInjection.injectIntoEligibleFields(targetFields, testedObject, testedClass);

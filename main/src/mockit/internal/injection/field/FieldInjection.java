@@ -23,22 +23,17 @@ public final class FieldInjection extends Injector
 {
    private static final Pattern TYPE_NAME = compile("class |interface |java\\.lang\\.");
 
-   private boolean requireDIAnnotation;
    private Field targetField;
 
-   public FieldInjection(
-      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, boolean requireDIAnnotation)
+   public FieldInjection(@Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection)
    {
       super(injectionState, fullInjection);
-      this.requireDIAnnotation = requireDIAnnotation;
    }
 
    @Nonnull
    public List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
       @Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass)
    {
-      requireDIAnnotation = false;
-
       List<Field> targetFields = new ArrayList<Field>();
       Class<?> classWithFields = actualTestedClass;
 
@@ -71,7 +66,6 @@ public final class FieldInjection extends Injector
       }
 
       if (kindOfInjectionPoint(field) != KindOfInjectionPoint.NotAnnotated) {
-         requireDIAnnotation = true;
          return true;
       }
 
@@ -144,14 +138,7 @@ public final class FieldInjection extends Injector
          return testedValue;
       }
 
-      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
-
       if (fullInjection != null) {
-         if (requireDIAnnotation && kindOfInjectionPoint == KindOfInjectionPoint.NotAnnotated) {
-            Object existingInstance = fullInjection.reuseInstance(nextTestedClass, fieldToInject, qualifiedFieldName);
-            return existingInstance;
-         }
-
          Object newInstance =
             fullInjection.createOrReuseInstance(nextTestedClass, this, fieldToInject, qualifiedFieldName);
 
@@ -159,6 +146,8 @@ public final class FieldInjection extends Injector
             return newInstance;
          }
       }
+
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
 
       if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
          return getValueFromAnnotation(targetField);
@@ -228,7 +217,6 @@ public final class FieldInjection extends Injector
    public void fillOutDependenciesRecursively(@Nonnull Object dependency, @Nonnull TestedClass testedClass)
    {
       Class<?> dependencyClass = dependency.getClass();
-      boolean previousRequireDIAnnotation = requireDIAnnotation;
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass, testedClass);
 
       if (!targetFields.isEmpty()) {
@@ -236,9 +224,5 @@ public final class FieldInjection extends Injector
          injectIntoEligibleFields(targetFields, dependency, testedClass);
          injectionState.restoreConsumedInjectionProviders(currentlyConsumedInjectables);
       }
-
-      requireDIAnnotation = previousRequireDIAnnotation;
    }
-
-   public boolean isDIAnnotationRequired() { return requireDIAnnotation; }
 }

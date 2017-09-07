@@ -44,16 +44,6 @@ public final class FullInjection
       jpaDependencies = PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
    }
 
-   @Nullable
-   public Object reuseInstance(
-      @Nonnull TestedClass testedClass, @Nonnull InjectionProvider injectionProvider, @Nullable String qualifiedName)
-   {
-      this.injectionProvider = injectionProvider;
-      InjectionPoint injectionPoint = getInjectionPoint(testedClass, injectionProvider, qualifiedName);
-      Object dependency = injectionState.getInstantiatedDependency(testedClass, injectionPoint);
-      return dependency;
-   }
-
    @Nonnull
    private InjectionPoint getInjectionPoint(
       @Nonnull TestedClass testedClass, @Nonnull InjectionProvider injectionProvider, @Nullable String qualifiedName)
