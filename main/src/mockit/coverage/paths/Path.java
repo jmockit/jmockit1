@@ -64,9 +64,4 @@ public final class Path implements Serializable
       int previousExecutionCount = previousPath.executionCount.get();
       executionCount.set(currentExecutionCount + previousExecutionCount);
    }
-
-   void reset()
-   {
-      executionCount.set(0);
-   }
 }

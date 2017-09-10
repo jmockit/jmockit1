@@ -83,6 +83,4 @@ public class LineSegmentData implements Serializable
          }
       }
    }
-
-   void reset() { executionCount = 0; }
 }

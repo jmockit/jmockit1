@@ -30,13 +30,7 @@ final class ClassSelection
 
    ClassSelection()
    {
-      if (CodeCoverage.isTestRun()) {
-         testCode = TEST_CLASS_NAME.matcher("");
-      }
-      else {
-         testCode = null;
-         readConfiguration();
-      }
+      testCode = TEST_CLASS_NAME.matcher("");
    }
 
    @Nullable

@@ -131,13 +131,6 @@ public final class CoverageData implements Serializable
       return minPercentage;
    }
 
-   public void reset()
-   {
-      for (FileCoverageData fileCoverageData : fileToFileData.values()) {
-         fileCoverageData.reset();
-      }
-   }
-
    public void fillLastModifiedTimesForAllClassFiles()
    {
       for (Iterator<Entry<String, FileCoverageData>> itr = fileToFileData.entrySet().iterator(); itr.hasNext(); ) {

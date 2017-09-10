@@ -30,17 +30,6 @@ public final class Configuration
       return System.getProperty(COVERAGE_PREFIX2 + nameSuffix, defaultValue);
    }
 
-   public static void setProperty(@Nonnull String name, @Nonnull String value)
-   {
-      String prefixToUse = COVERAGE_PREFIX1;
-
-      if (System.getProperty(prefixToUse + name) == null) {
-         prefixToUse = COVERAGE_PREFIX2;
-      }
-
-      System.setProperty(prefixToUse + name, value);
-   }
-
    @Nullable
    public static String getOrChooseOutputDirectory(@Nonnull String outputDir)
    {

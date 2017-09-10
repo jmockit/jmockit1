@@ -30,7 +30,7 @@ public enum Metrics
       "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
       "The percentages are calculated as 100*NFE/NF, where NF is the number of non-final fields and NFE the " +
       "number of fully exercised fields.",
-      CodeCoverage.isTestRun() && isActive("data"));
+      isActive("data"));
 
    private static boolean isActive(@Nonnull String name)
    {

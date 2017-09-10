@@ -133,10 +133,4 @@ public final class FileCoverageData implements Serializable
          dataCoverageInfo.mergeInformation(previousInfo.dataCoverageInfo);
       }
    }
-
-   void reset()
-   {
-      lineCoverageInfo.reset();
-      pathCoverageInfo.reset();
-   }
 }

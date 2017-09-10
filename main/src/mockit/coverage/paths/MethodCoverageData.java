@@ -135,13 +135,4 @@ public final class MethodCoverageData implements Serializable
          path.addCountFromPreviousTestRun(previousPath);
       }
    }
-
-   public void reset()
-   {
-      clearNodes();
-
-      for (Path path : paths) {
-         path.reset();
-      }
-   }
 }

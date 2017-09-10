@@ -30,7 +30,7 @@ final class OutputFileGenerator
       String commaSeparatedDirs = Configuration.getProperty("srcDirs");
 
       if (commaSeparatedDirs == null) {
-         sourceDirs = CodeCoverage.isTestRun() ? ALL_SOURCE_DIRS : null;
+         sourceDirs = ALL_SOURCE_DIRS;
       }
       else if (commaSeparatedDirs.isEmpty()) {
          sourceDirs = null;
@@ -59,7 +59,7 @@ final class OutputFileGenerator
 
    boolean isWithCallPoints()
    {
-      return CodeCoverage.isTestRun() && isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
+      return isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
    }
 
    private boolean hasOutputFormat(@Nonnull String format)

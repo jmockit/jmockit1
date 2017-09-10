@@ -238,21 +238,6 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.getNumberOfBranchingSourcesAndTargets();
    }
 
-   public void reset()
-   {
-      for (int i = 1; i < executionCounts.length; i++) {
-         executionCounts[i] = 0;
-      }
-
-      for (LineCoverageData lineData : lineToLineData.values()) {
-         if (lineData != null) {
-            lineData.reset();
-         }
-      }
-
-      initializeCache();
-   }
-
    public void mergeInformation(@Nonnull PerFileLineCoverage previousCoverage)
    {
       Map<Integer, LineCoverageData> previousInfo = previousCoverage.lineToLineData;

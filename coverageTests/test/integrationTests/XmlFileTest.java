@@ -28,7 +28,7 @@ public final class XmlFileTest
       assumeTrue("src".equals(System.getProperty("coverage-srcDirs")));
 
       new ClassInRegularPackage().doSomething(NestedEnum.Second);
-      CodeCoverage.generateOutput(false);
+      CodeCoverage.generateOutput();
 
       String parentDir = Configuration.getOrChooseOutputDirectory("");
       InputStream xmlFile = new FileInputStream(new File(parentDir, "coverage.xml"));

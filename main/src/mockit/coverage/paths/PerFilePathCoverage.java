@@ -81,15 +81,6 @@ public final class PerFilePathCoverage implements PerFileCoverage
       }
    }
 
-   public void reset()
-   {
-      for (MethodCoverageData methodData : firstLineToMethodData.values()) {
-         methodData.reset();
-      }
-
-      initializeCache();
-   }
-
    public void mergeInformation(@Nonnull PerFilePathCoverage previousCoverage)
    {
       Map<Integer, MethodCoverageData> previousInfo = previousCoverage.firstLineToMethodData;

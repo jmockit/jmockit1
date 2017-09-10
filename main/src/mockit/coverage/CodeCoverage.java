@@ -15,7 +15,6 @@ import mockit.internal.startup.*;
 public final class CodeCoverage implements ClassFileTransformer
 {
    private static CodeCoverage instance;
-   private static boolean inATestRun = true;
 
    @Nonnull private final ClassModification classModification;
    @Nonnull private final OutputFileGenerator outputGenerator;
@@ -47,8 +46,6 @@ public final class CodeCoverage implements ClassFileTransformer
       CoverageData.instance().setWithCallPoints(generator.isWithCallPoints());
       return generator;
    }
-
-   public static boolean isTestRun() { return inATestRun; }
 
    public CodeCoverage()
    {
@@ -88,32 +85,17 @@ public final class CodeCoverage implements ClassFileTransformer
    }
 
    @Nonnull
-   public static CodeCoverage create(boolean standalone, boolean generateOutputOnShutdown)
+   public static CodeCoverage create(boolean generateOutputOnShutdown)
    {
-      inATestRun = !standalone;
       instance = new CodeCoverage();
       instance.outputPendingForShutdown = generateOutputOnShutdown;
       return instance;
    }
 
-   public static void resetConfiguration()
-   {
-      Startup.instrumentation().removeTransformer(instance);
-      CoverageData.instance().clear();
-
-      CodeCoverage coverage = create(true, false);
-      Startup.instrumentation().addTransformer(coverage);
-      instance.outputPendingForShutdown = false;
-   }
-
-   public static void generateOutput(boolean resetState)
+   public static void generateOutput()
    {
       instance.outputGenerator.generate(null);
       instance.outputPendingForShutdown = false;
-
-      if (resetState) {
-         CoverageData.instance().reset();
-      }
    }
 
    @Nullable @Override

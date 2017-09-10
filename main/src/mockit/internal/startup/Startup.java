@@ -9,7 +9,6 @@ import java.lang.instrument.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
-import mockit.coverage.standalone.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -103,15 +102,9 @@ public final class Startup
 
    private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
-      boolean standalone = "standalone".equals(agentArgs);
-
-      if (standalone || "coverage".equals(agentArgs)) {
+      if ("coverage".equals(agentArgs)) {
          try {
-            if (standalone) {
-               CoverageControl.create();
-            }
-
-            CodeCoverage coverage = CodeCoverage.create(standalone, true);
+            CodeCoverage coverage = CodeCoverage.create(true);
             inst.addTransformer(coverage);
 
             return true;
