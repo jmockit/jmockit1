@@ -196,7 +196,6 @@
                      <junitArtifactName>none:none</junitArtifactName>
                      <includes>
                         <include>**/testng/*Test.class</include>
-                        <include>**/MockStateBetweenTestMethodsNGTest.class</include>
                      </includes>
                      <excludes>
                         <exclude>**/TestNGViolatedExpectationsTest.class</exclude>
@@ -238,7 +237,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0-RC3</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.0.0</version>
          <optional>true</optional>
       </dependency>
       <dependency>
