@@ -86,6 +86,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       if (
          targetClass.isInterface() || targetClass.isAnnotation() ||
          targetClass.isArray() || targetClass.isPrimitive() ||
+         MockingFilters.isSubclassOfUnmockable(targetClass) ||
          isWrapperOfPrimitiveType(targetClass) ||
          isGeneratedImplementationClass(targetClass)
       ) {

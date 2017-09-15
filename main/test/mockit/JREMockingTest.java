@@ -422,7 +422,8 @@ public final class JREMockingTest
          fail("Allowed mocking of " + jreClass);
       }
       catch (IllegalArgumentException e) {
-         assertTrue(e.getMessage().endsWith(" is not mockable"));
+         String msg = e.getMessage();
+         assertTrue(msg.contains(jreClass.getName()) || msg.endsWith("is not mockable"));
       }
    }
 
@@ -444,6 +445,7 @@ public final class JREMockingTest
    public void mockLogManager(@Mocked LogManager mock)
    {
       LogManager logManager = LogManager.getLogManager();
+      //noinspection MisorderedAssertEqualsArguments
       assertSame(mock, logManager);
    }
 
@@ -451,6 +453,7 @@ public final class JREMockingTest
    public void mockLogger(@Mocked Logger mock)
    {
       assertNotNull(LogManager.getLogManager());
+      //noinspection MisorderedAssertEqualsArguments
       assertSame(mock, Logger.getLogger("test"));
    }
 }

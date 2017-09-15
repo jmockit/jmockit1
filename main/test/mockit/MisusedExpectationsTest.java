@@ -144,4 +144,23 @@ public final class MisusedExpectationsTest
    {
       assertNull(tested.action);
    }
+
+   // Other cases /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   static final class CustomException extends Exception {}
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptingToMockAllInstancesOfExceptionSubclass(@Mocked CustomException anyCustomException)
+   {
+      fail("Shouldn't get here");
+   }
+
+   @Test
+   public void attemptingToPartiallyMockExceptionSubclass()
+   {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("CustomException");
+
+      new Expectations(CustomException.class) {};
+   }
 }
