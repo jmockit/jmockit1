@@ -12,14 +12,28 @@ import mockit.*;
 final class JUnit5Test
 {
    @Tested(availableDuringSetup = true) TestUtils utils;
-
    @Tested BusinessService cut;
    @Injectable Collaborator collaborator;
+   boolean runningInnerTest;
 
    @BeforeEach
-   void checkMockFields()
+   void checkMockAndTestedFields()
    {
-      assertNotNull(utils);
+      if (!runningInnerTest) { // executed also before "innerTest": unclear whether it's a JUnit bug or not
+         assertNotNull(utils);
+      }
+
+      assertNotNull(collaborator);
+      assertNull(cut);
+   }
+
+   @AfterEach
+   void checkMockAndTestedFieldsAgain()
+   {
+      if (!runningInnerTest) { // executed also after "innerTest": unclear whether it's a JUnit bug or not
+         assertNotNull(utils);
+      }
+
       assertNotNull(collaborator);
       assertNull(cut);
    }
@@ -37,5 +51,23 @@ final class JUnit5Test
       assertEquals("test", text);
       assertNotNull(collaborator);
       assertSame(collaborator, cut.getCollaborator());
+   }
+
+   @Nested
+   final class InnerTest
+   {
+      InnerTest() { runningInnerTest = true; }
+
+      @BeforeEach
+      void setUp()
+      {
+         assertNotNull(collaborator);
+      }
+
+      @Test
+      void innerTest()
+      {
+         assertTrue(runningInnerTest);
+      }
    }
 }
