@@ -19,7 +19,7 @@ final class JUnit5Test
    @BeforeEach
    void checkMockAndTestedFields()
    {
-      if (!runningInnerTest) { // executed also before "innerTest": unclear whether it's a JUnit bug or not
+      if (!runningInnerTest) { // executed also before "innerTest"
          assertNotNull(utils);
       }
 
@@ -30,7 +30,7 @@ final class JUnit5Test
    @AfterEach
    void checkMockAndTestedFieldsAgain()
    {
-      if (!runningInnerTest) { // executed also after "innerTest": unclear whether it's a JUnit bug or not
+      if (!runningInnerTest) { // executed also after "innerTest"
          assertNotNull(utils);
       }
 

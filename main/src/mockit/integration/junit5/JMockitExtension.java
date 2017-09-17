@@ -80,8 +80,8 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    private static boolean isRegularTestClass(@Nonnull ExtensionContext context)
    {
-      Optional<Object> testInstance = context.getTestInstance();
-      return testInstance.isPresent() && isRegularTestClass(testInstance.get());
+      Optional<Class<?>> testClass = context.getTestClass();
+      return testClass.isPresent() && isRegularTestClass(testClass.get());
    }
 
    @Override
@@ -222,7 +222,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    @Override
    public void afterAll(@Nonnull ExtensionContext context)
    {
-      if (savePointForTestClass != null) {
+      if (savePointForTestClass != null && isRegularTestClass(context)) {
          savePointForTestClass.rollback();
          savePointForTestClass = null;
 
