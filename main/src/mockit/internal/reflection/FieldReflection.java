@@ -45,13 +45,16 @@ public final class FieldReflection
    {
       ensureThatMemberIsAccessible(field);
 
+      if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
+         Field outerInstanceField = getDeclaredField(targetObject.getClass(), "this$0", true);
+         targetObject = getFieldValue(outerInstanceField, targetObject);
+      }
+
       try {
          //noinspection unchecked
          return (T) field.get(targetObject);
       }
-      catch (IllegalAccessException e) {
-         throw new RuntimeException(e);
-      }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 
    @Nullable
@@ -61,8 +64,7 @@ public final class FieldReflection
       return getFieldValue(field, targetObject);
    }
 
-   @Nonnull
-   public static Field setField(
+   public static void setField(
       @Nonnull Class<?> theClass, @Nullable Object targetObject, @Nullable String fieldName,
       @Nullable Object fieldValue)
    {
@@ -80,7 +82,6 @@ public final class FieldReflection
       }
 
       setFieldValue(field, targetObject, fieldValue);
-      return field;
    }
 
    @Nonnull
@@ -178,6 +179,15 @@ public final class FieldReflection
    public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value)
    {
       ensureThatMemberIsAccessible(field);
-      try { field.set(targetObject, value); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
+
+      if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
+         Field outerInstanceField = getDeclaredField(targetObject.getClass(), "this$0", true);
+         targetObject = getFieldValue(outerInstanceField, targetObject);
+      }
+
+      try {
+         field.set(targetObject, value);
+      }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 }
