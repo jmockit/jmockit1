@@ -14,15 +14,11 @@ final class JUnit5Test
    @Tested(availableDuringSetup = true) TestUtils utils;
    @Tested BusinessService cut;
    @Injectable Collaborator collaborator;
-   boolean runningInnerTest;
 
    @BeforeEach
    void checkMockAndTestedFields()
    {
-      if (!runningInnerTest) { // executed also before "innerTest"
-         assertNotNull(utils);
-      }
-
+      assertNotNull(utils);
       assertNotNull(collaborator);
       assertNull(cut);
    }
@@ -30,10 +26,7 @@ final class JUnit5Test
    @AfterEach
    void checkMockAndTestedFieldsAgain()
    {
-      if (!runningInnerTest) { // executed also after "innerTest"
-         assertNotNull(utils);
-      }
-
+      assertNotNull(utils);
       assertNotNull(collaborator);
       assertNull(cut);
    }
@@ -56,18 +49,25 @@ final class JUnit5Test
    @Nested
    final class InnerTest
    {
-      InnerTest() { runningInnerTest = true; }
-
       @BeforeEach
       void setUp()
       {
+         assertNotNull(utils);
          assertNotNull(collaborator);
+         assertNull(cut);
       }
 
       @Test
       void innerTest()
       {
-         assertTrue(runningInnerTest);
+         assertNotNull(collaborator);
+         assertSame(collaborator, cut.getCollaborator());
+      }
+
+      @Test
+      void innerTestWithMockParameter(@Injectable("123") int number)
+      {
+         assertEquals(123, number);
       }
    }
 }

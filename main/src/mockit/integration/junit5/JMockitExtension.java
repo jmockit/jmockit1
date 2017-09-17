@@ -42,18 +42,23 @@ final class JMockitExtension extends TestRunnerDecorator implements
    @Override
    public void beforeAll(@Nonnull ExtensionContext context)
    {
-      @Nullable Class<?> testClass = context.getTestClass().orElse(null);
-
-      if (testClass == null || isRegularTestClass(testClass)) {
+      if (isRegularTestClass(context)) {
+         @Nullable Class<?> testClass = context.getTestClass().orElse(null);
          savePointForTestClass = new SavePoint();
          TestRun.setCurrentTestClass(testClass);
       }
    }
 
+   private static boolean isRegularTestClass(@Nonnull ExtensionContext context)
+   {
+      Optional<Class<?>> testClass = context.getTestClass();
+      return testClass.isPresent() && !testClass.get().isAnnotationPresent(Nested.class);
+   }
+
    @Override
    public void postProcessTestInstance(@Nonnull Object testInstance, @Nonnull ExtensionContext context)
    {
-      if (isRegularTestClass(testInstance)) {
+      if (isRegularTestClass(context)) {
          TestRun.enterNoMockingZone();
 
          try {
@@ -67,23 +72,6 @@ final class JMockitExtension extends TestRunnerDecorator implements
       }
    }
 
-   private static boolean isRegularTestClass(@Nonnull Class<?> testClass)
-   {
-      return !testClass.isAnnotationPresent(Nested.class);
-   }
-
-   private static boolean isRegularTestClass(@Nonnull Object testInstance)
-   {
-      Class<?> testClass = testInstance.getClass();
-      return isRegularTestClass(testClass);
-   }
-
-   private static boolean isRegularTestClass(@Nonnull ExtensionContext context)
-   {
-      Optional<Class<?>> testClass = context.getTestClass();
-      return testClass.isPresent() && isRegularTestClass(testClass.get());
-   }
-
    @Override
    public void beforeEach(@Nonnull ExtensionContext context)
    {
@@ -94,18 +82,15 @@ final class JMockitExtension extends TestRunnerDecorator implements
       }
 
       @Nonnull Object instance = testInstance.get();
+      TestRun.prepareForNextTest();
+      TestRun.enterNoMockingZone();
 
-      if (isRegularTestClass(instance)) {
-         TestRun.prepareForNextTest();
-         TestRun.enterNoMockingZone();
-
-         try {
-            savePointForTest = new SavePoint();
-            createInstancesForTestedFields(instance, true);
-         }
-         finally {
-            TestRun.exitNoMockingZone();
-         }
+      try {
+         savePointForTest = new SavePoint();
+         createInstancesForTestedFields(instance, true);
+      }
+      finally {
+         TestRun.exitNoMockingZone();
       }
    }
 
@@ -113,44 +98,32 @@ final class JMockitExtension extends TestRunnerDecorator implements
    public void beforeTestExecution(@Nonnull ExtensionContext context)
    {
       Optional<Method> testMethod = context.getTestMethod();
-
-      if (!testMethod.isPresent()) {
-         return;
-      }
-
       Optional<Object> testInstance = context.getTestInstance();
 
-      if (!testInstance.isPresent()) {
+      if (!testMethod.isPresent() || !testInstance.isPresent()) {
          return;
       }
 
+      @Nonnull Method method = testMethod.get();
       @Nonnull Object instance = testInstance.get();
+      TestRun.enterNoMockingZone();
 
-      if (isRegularTestClass(instance)) {
-         @Nonnull Method method = testMethod.get();
-         TestRun.enterNoMockingZone();
-
-         try {
-            savePointForTestMethod = new SavePoint();
-            mockParameters = createInstancesForAnnotatedParameters(instance, method, null);
-            createInstancesForTestedFields(instance, false);
-         }
-         finally {
-            TestRun.exitNoMockingZone();
-         }
-
-         TestRun.setRunningIndividualTest(instance);
+      try {
+         savePointForTestMethod = new SavePoint();
+         mockParameters = createInstancesForAnnotatedParameters(instance, method, null);
+         createInstancesForTestedFields(instance, false);
       }
+      finally {
+         TestRun.exitNoMockingZone();
+      }
+
+      TestRun.setRunningIndividualTest(instance);
    }
 
    @Override
    public boolean supportsParameter(
       @Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
    {
-      if (!isRegularTestClass(extensionContext)) {
-         return false;
-      }
-
       @Nonnull Parameter parameter = parameterContext.getParameter();
 
       return
@@ -174,10 +147,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    public void handleTestExecutionException(
       @Nonnull ExtensionContext context, @Nonnull Throwable throwable) throws Throwable
    {
-      if (isRegularTestClass(context)) {
-         thrownByTest = throwable;
-      }
-
+      thrownByTest = throwable;
       throw throwable;
    }
 
