@@ -12,15 +12,11 @@ import mockit.internal.util.*;
 import mockit.internal.reflection.EmptyProxy.*;
 
 /**
- * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields, methods, and
- * constructors.
+ * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields.
  *
  * @see #getField(Object, String)
  * @see #setField(Object, String, Object)
- * @see #invoke(Object, String, Object...)
- * @see #newInstance(String, Object...)
  */
-@SuppressWarnings("ConstantConditions")
 public final class Deencapsulation
 {
    private Deencapsulation() {}
@@ -182,6 +178,7 @@ public final class Deencapsulation
     *
     * @see #invoke(Class, String, Object...)
     */
+   @Deprecated
    public static <T> T invoke(
       Object objectWithMethod, String methodName, Class<?>[] parameterTypes, Object... methodArgs)
    {
@@ -205,6 +202,7 @@ public final class Deencapsulation
     *
     * @see #invoke(Class, String, Object...)
     */
+   @Deprecated
    public static <T> T invoke(Object objectWithMethod, String methodName, Object... nonNullArgs)
    {
       Class<?> theClass = objectWithMethod.getClass();
@@ -224,6 +222,7 @@ public final class Deencapsulation
     *
     * @see #invoke(String, String, Object...)
     */
+   @Deprecated
    public static <T> T invoke(
       Class<?> classWithStaticMethod, String methodName, Class<?>[] parameterTypes, Object... methodArgs)
    {
@@ -246,6 +245,7 @@ public final class Deencapsulation
     *
     * @see #invoke(String, String, Object...)
     */
+   @Deprecated
    public static <T> T invoke(Class<?> classWithStaticMethod, String methodName, Object... nonNullArgs)
    {
       return MethodReflection.invoke(classWithStaticMethod, null, methodName, nonNullArgs);
@@ -268,6 +268,7 @@ public final class Deencapsulation
     *
     * @see #invoke(Class, String, Object...)
     */
+   @Deprecated
    public static <T> T invoke(String classWithStaticMethod, String methodName, Object... nonNullArgs)
    {
       Class<Object> theClass = ClassLoad.loadClass(classWithStaticMethod);
@@ -291,6 +292,7 @@ public final class Deencapsulation
     * @see #newInstance(Class, Class[], Object...)
     * @see #newInnerInstance(String, Object, Object...)
     */
+   @Deprecated
    public static <T> T newInstance(String className, Class<?>[] parameterTypes, Object... initArgs)
    {
       return ConstructorReflection.newInstance(className, parameterTypes, initArgs);
@@ -312,6 +314,7 @@ public final class Deencapsulation
     * @see #newInnerInstance(Class, Object, Object...)
     * @see #newInstance(String, Class[], Object...)
     */
+   @Deprecated
    public static <T> T newInstance(Class<? extends T> classToInstantiate, Class<?>[] parameterTypes, Object... initArgs)
    {
       return ConstructorReflection.newInstance(classToInstantiate, parameterTypes, initArgs);
@@ -334,6 +337,7 @@ public final class Deencapsulation
     * @see #newInstance(Class, Object...)
     * @see #newInstance(String, Class[], Object...)
     */
+   @Deprecated
    public static <T> T newInstance(String className, Object... nonNullArgs)
    {
       return ConstructorReflection.newInstance(className, nonNullArgs);
@@ -356,6 +360,7 @@ public final class Deencapsulation
     * @see #newInstance(String, Object...)
     * @see #newInstance(String, Class[], Object...)
     */
+   @Deprecated
    public static <T> T newInstance(Class<? extends T> classToInstantiate, Object... nonNullArgs)
    {
       return ConstructorReflection.newInstance(classToInstantiate, nonNullArgs);
@@ -379,6 +384,7 @@ public final class Deencapsulation
     *
     * @see #newInnerInstance(Class, Object, Object...)
     */
+   @Deprecated
    public static <T> T newInnerInstance(String innerClassSimpleName, Object outerClassInstance, Object... nonNullArgs)
    {
       return ConstructorReflection.newInnerInstance(innerClassSimpleName, outerClassInstance, nonNullArgs);
@@ -401,6 +407,7 @@ public final class Deencapsulation
     *
     * @see #newInnerInstance(String, Object, Object...)
     */
+   @Deprecated
    public static <T> T newInnerInstance(
       Class<? extends T> innerClassToInstantiate, Object outerClassInstance, Object... nonNullArgs)
    {
@@ -419,7 +426,6 @@ public final class Deencapsulation
     *
     * @see #newInstance(Class, Object...)
     * @see #newInstance(String, Class[], Object...)
-    * @see #newInnerInstance(Class, Object, Object...)
     */
    public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate)
    {

@@ -121,7 +121,15 @@ public final class CapturingImplementationsTest
       }
    }.findClass(Service2Impl.class.getName());
 
-   final Service2 service2 = Deencapsulation.newInstance(customLoadedClass);
+   Service2 service2;
+
+   @Before
+   public void instantiateCustomLoadedClass() throws Exception
+   {
+      Constructor<?> defaultConstructor = customLoadedClass.getDeclaredConstructors()[0];
+      defaultConstructor.setAccessible(true);
+      service2 = (Service2) defaultConstructor.newInstance();
+   }
 
    @Test
    public void captureClassPreviouslyLoadedByClassLoaderOtherThanContext(@Capturing final Service2 mock)

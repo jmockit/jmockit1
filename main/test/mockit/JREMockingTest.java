@@ -104,9 +104,12 @@ public final class JREMockingTest
    }
 
    @Test
-   public void mockPackagePrivateMethodsInJREClass(@Mocked AWTEvent awtEvent)
+   public void mockPackagePrivateMethodsInJREClass(@Mocked AWTEvent awtEvent) throws Exception
    {
-      AccessControlContext ctx = Deencapsulation.invoke(awtEvent, "getAccessControlContext");
+      Method method = AWTEvent.class.getDeclaredMethod("getAccessControlContext");
+      method.setAccessible(true);
+
+      AccessControlContext ctx = (AccessControlContext) method.invoke(awtEvent);
       ctx.checkPermission(null);
    }
 

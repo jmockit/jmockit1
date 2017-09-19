@@ -5,11 +5,13 @@
 package mockit;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 
 import org.junit.*;
 import org.junit.internal.TextListener;
 import org.junit.runner.*;
+import org.junit.runner.notification.*;
 
 import static org.junit.Assert.assertFalse;
 
@@ -84,7 +86,7 @@ public final class CustomClassLoadingTest
    @Test @SuppressWarnings("OverlyCoupledMethod")
    public void createAndExecuteTestRunOnIsolatedClassLoader() throws Exception
    {
-      Object testClasses = loadIsolatedTestClasses(
+      Class<?>[] testClasses = loadIsolatedTestClasses(
          //CapturingImplementationsTest.class,
          CapturingInstancesTest.class, CascadingFieldTest.class, CascadingParametersTest.class,
          ClassInitializationTest.class, //ClassLoadingAndJREMocksTest.class,
@@ -94,7 +96,8 @@ public final class CustomClassLoadingTest
       );
 
       Object jUnit = createJUnitCoreInIsolatedCL();
-      Deencapsulation.invoke(jUnit, "run", testClasses);
+      Method runMethod = jUnit.getClass().getDeclaredMethod("run", Class[].class);
+      runMethod.invoke(jUnit, (Object) testClasses);
 
       String output = testOutput.toString();
       System.out.print(output);
@@ -108,9 +111,11 @@ public final class CustomClassLoadingTest
 
       Class<?> textListenerClass = loadIsolatedClass(TextListener.class);
       PrintStream output = new PrintStream(testOutput);
-      Object textListener = Deencapsulation.newInstance(textListenerClass, output);
+      Object textListener = textListenerClass.getDeclaredConstructor(PrintStream.class).newInstance(output);
 
-      Deencapsulation.invoke(jUnit, "addListener", textListener);
+      Class<?> runListenerClass = loadIsolatedClass(RunListener.class);
+      Method addListener = jUnitCoreClass.getDeclaredMethod("addListener", runListenerClass);
+      addListener.invoke(jUnit, textListener);
 
       return jUnit;
    }
