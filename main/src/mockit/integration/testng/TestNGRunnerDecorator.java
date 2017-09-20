@@ -24,8 +24,7 @@ import static mockit.internal.util.Utilities.*;
 
 /**
  * Provides callbacks to be called by the TestNG 6.2+ test runner for each test execution.
- * JMockit will then assert any expectations set during the test, including those specified through {@link Mock} and
- * those recorded in {@link Expectations} subclasses.
+ * JMockit will then assert any expectations recorded in {@link Expectations} subclasses during the test.
  * <p/>
  * This class is not supposed to be accessed from user code; it will be automatically loaded at startup.
  */
