@@ -258,6 +258,15 @@ public class TestRunnerDecorator
       }
    }
 
+   protected static void clearTestedObjectsCreatedDuringSetup()
+   {
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
+
+      if (testedClasses != null) {
+         testedClasses.clearTestedObjectsCreatedDuringSetup();
+      }
+   }
+
    private static boolean isUnexpectedOrMissingInvocation(@Nonnull Throwable error)
    {
       Class<?> errorType = error.getClass();

@@ -157,9 +157,9 @@ abstract class TestedObject
       }
    }
 
-   void clearIfAutomaticCreation(@Nonnull Object testClassInstance)
+   void clearIfAutomaticCreation(@Nonnull Object testClassInstance, boolean duringTearDown)
    {
-      if (createAutomatically && !isAvailableDuringSetup()) {
+      if (createAutomatically && (duringTearDown || !isAvailableDuringSetup())) {
          setInstance(testClassInstance, null);
       }
    }

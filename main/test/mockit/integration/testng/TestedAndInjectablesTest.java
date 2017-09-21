@@ -35,6 +35,7 @@ public final class TestedAndInjectablesTest
    }
 
    @Tested(availableDuringSetup = true) UtilityClass util;
+   UtilityClass previousUtilityClassInstance;
    @Injectable("util") String utilName;
 
    @Tested SUT tested1;
@@ -91,6 +92,8 @@ public final class TestedAndInjectablesTest
       }};
 
       tested1.useCollaborators();
+
+      previousUtilityClassInstance = util;
    }
 
    void assertStatesOfTestedObjects(Collaborator collaborator2)
@@ -118,5 +121,7 @@ public final class TestedAndInjectablesTest
       assertNotSame(tested1, firstTestedObject);
 
       assertStatesOfTestedObjects(collaborator2);
+
+      assertNotSame(util, previousUtilityClassInstance);
    }
 }

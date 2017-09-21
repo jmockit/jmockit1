@@ -143,12 +143,21 @@ public final class TestedClassInstantiations
    {
       injectionState.lifecycleMethods.executeTerminationMethodsIfAny();
       injectionState.clearTestedObjectsAndInstantiatedDependencies();
+      resetTestedFields(false);
+   }
 
+   private void resetTestedFields(boolean duringTearDown)
+   {
       Object testClassInstance = injectionState.getCurrentTestClassInstance();
 
       for (TestedObject testedField : testedFields) {
-         testedField.clearIfAutomaticCreation(testClassInstance);
+         testedField.clearIfAutomaticCreation(testClassInstance, duringTearDown);
       }
+   }
+
+   public void clearTestedObjectsCreatedDuringSetup()
+   {
+      resetTestedFields(true);
    }
 
    @Nonnull

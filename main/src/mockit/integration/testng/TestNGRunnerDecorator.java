@@ -127,6 +127,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          if (shouldPrepareForNextTest) {
             TestRun.prepareForNextTest();
             shouldPrepareForNextTest = false;
+            clearTestedObjectsCreatedDuringSetup();
          }
 
          if (!isMethodWithParametersProvidedByTestNG(method)) {
@@ -155,6 +156,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          if (method.isBeforeMethodConfiguration()) {
             if (shouldPrepareForNextTest) {
                discardTestLevelMockedTypes();
+               clearTestedObjectsCreatedDuringSetup();
             }
 
             Object testInstance = method.getInstance();
