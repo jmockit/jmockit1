@@ -258,7 +258,9 @@ public abstract class MockUp<T>
     *
     * @see #MockUp()
     * @see #MockUp(Class)
+    * @deprecated This is a rarely used feature without demonstrable use cases; real instances should be used instead.
     */
+   @Deprecated
    protected MockUp(T targetInstance)
    {
       MockUp<?> previousMockUp = findPreviouslyFakedClassIfMockUpAlreadyApplied();
