@@ -14,7 +14,7 @@ import static java.util.Arrays.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-public final class MockingUpEverythingTest
+public final class FakingEverythingTest
 {
    final List<String> traces = new ArrayList<String>();
 
@@ -30,7 +30,7 @@ public final class MockingUpEverythingTest
    }
 
    @Test
-   public void mockEveryMethodInSingleClass()
+   public void fakeEveryMethodInSingleClass()
    {
       new MockUp<TargetClass>() {
          @Mock
@@ -81,7 +81,7 @@ public final class MockingUpEverythingTest
    }
 
    @Test
-   public void mockEveryMethodInSingleClassWithAdviceOnly()
+   public void fakeEveryMethodInSingleClassWithAdviceOnly()
    {
       new MockUp<TargetClass>() {
          @Mock
@@ -96,7 +96,7 @@ public final class MockingUpEverythingTest
    }
 
    @Test
-   public <B extends TargetClass> void mockEveryMethodInClassHierarchy()
+   public <B extends TargetClass> void fakeEveryMethodInClassHierarchy()
    {
       new MockUp<B>() {
          @Mock
@@ -217,7 +217,7 @@ public final class MockingUpEverythingTest
    }
 
    @Test
-   public void mockEveryMethodInAllClassesImplementingAnInterface() throws Exception
+   public void fakeEveryMethodInAllClassesImplementingAnInterface() throws Exception
    {
       XMLSourceTimingAspect<?> timingAspect = new XMLSourceTimingAspect<Source>();
 
@@ -238,7 +238,7 @@ public final class MockingUpEverythingTest
       timingAspect.assertTimes("setSystemId", 30, 30);
    }
 
-   public static final class PublicMockUp extends MockUp<TargetClass>
+   public static final class PublicFake extends MockUp<TargetClass>
    {
       @Mock
       public static Object $advice(Invocation inv)
@@ -255,9 +255,9 @@ public final class MockingUpEverythingTest
    }
 
    @Test
-   public void publicAdviceMethodInPublicMockUpClass()
+   public void publicAdviceMethodInPublicFakeClass()
    {
-      new PublicMockUp();
+      new PublicFake();
 
       new TargetClass().validateSomething();
       int i = TargetClass.staticMethod(123);

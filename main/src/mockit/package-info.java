@@ -25,16 +25,16 @@
  * <p/>
  * {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} is a generic base class (where {@code T} is the type to be
  * faked) which allows the definition of fake implementations for external classes or interfaces.
- * Methods in a mock-up subclass that take the place of the "real" methods in class {@code T} are indicated with the
+ * Methods in a fake class that take the place of the "real" methods in class {@code T} are indicated with the
  * {@linkplain mockit.Mock @Mock} annotation.
  * Such methods can also (optionally) have an {@link mockit.Invocation} parameter.
  * <p/>
  * Finally, the {@link mockit.Deencapsulation} class provides several Reflection-based utility methods, for the
  * occasional cases where a {@code private} field needs to be accessed, etc.
  * <p/>
- * For a description with examples of the <em>Expectations</em> API, see the
+ * For a description with examples of the <em>Mocking</em> API, see the
  * "<a href="http://jmockit.org/tutorial/Mocking.html" target="tutorial">Mocking</a>" chapter in the Tutorial.
- * For the <em>Mockups</em> API, see the
- * "<a href="http://jmockit.org/tutorial/Faking.html" target="tutorial">Faking</a>" chapter.
+ * For the <em>Faking</em> API, see the "<a href="http://jmockit.org/tutorial/Faking.html" target="tutorial">Faking</a>"
+ * chapter.
  */
 package mockit;

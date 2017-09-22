@@ -10,7 +10,7 @@ import static java.lang.reflect.Modifier.*;
 import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.mockups.MockMethods.*;
+import mockit.internal.mockups.FakeMethods.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
@@ -28,10 +28,10 @@ final class MockupsModifier extends BaseClassModifier
 {
    private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
 
-   @Nonnull private final MockMethods mockMethods;
+   @Nonnull private final FakeMethods mockMethods;
    private final boolean useMockingBridgeForUpdatingMockState;
    @Nonnull private final Class<?> mockedClass;
-   private MockMethod mockMethod;
+   private FakeMethod mockMethod;
    private boolean isConstructor;
 
    /**
@@ -51,7 +51,7 @@ final class MockupsModifier extends BaseClassModifier
     * corresponding real method was found for any of its method identifiers
     */
    MockupsModifier(
-      @Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> mockUp, @Nonnull MockMethods mockMethods)
+      @Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> mockUp, @Nonnull FakeMethods mockMethods)
    {
       super(cr);
       mockedClass = realClass;
@@ -175,9 +175,9 @@ final class MockupsModifier extends BaseClassModifier
          mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
       }
       else {
-         mw.visitLdcInsn(mockMethods.getMockClassInternalName());
+         mw.visitLdcInsn(mockMethods.getFakeClassInternalName());
          generateCodeToPassThisOrNullIfStaticMethod();
-         mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
+         mw.visitIntInsn(SIPUSH, mockMethod.getIndexForFakeState());
          mw.visitMethodInsn(
             INVOKESTATIC, "mockit/internal/state/TestRun", "updateMockState",
             "(Ljava/lang/String;Ljava/lang/Object;I)Z", false);
@@ -186,7 +186,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateCallToControlMethodThroughMockingBridge()
    {
-      generateCodeToObtainInstanceOfMockingBridge(MockupBridge.MB);
+      generateCodeToObtainInstanceOfMockingBridge(FakeBridge.MB);
 
       // First and second "invoke" arguments:
       generateCodeToPassThisOrNullIfStaticMethod();
@@ -196,8 +196,8 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToCreateArrayOfObject(mw, 2);
 
       int i = 0;
-      generateCodeToFillArrayElement(i++, mockMethods.getMockClassInternalName());
-      generateCodeToFillArrayElement(i, mockMethod.getIndexForMockState());
+      generateCodeToFillArrayElement(i++, mockMethods.getFakeClassInternalName());
+      generateCodeToFillArrayElement(i, mockMethod.getIndexForFakeState());
 
       generateCallToInvocationHandler();
    }
@@ -249,7 +249,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateCallToMockMethodThroughMockingBridge()
    {
-      generateCodeToObtainInstanceOfMockingBridge(MockMethodBridge.MB);
+      generateCodeToObtainInstanceOfMockingBridge(FakeMethodBridge.MB);
 
       // First and second "invoke" arguments:
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod();
@@ -260,7 +260,7 @@ final class MockupsModifier extends BaseClassModifier
       generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
 
       int i = 0;
-      generateCodeToFillArrayElement(i++, mockMethods.getMockClassInternalName());
+      generateCodeToFillArrayElement(i++, mockMethods.getFakeClassInternalName());
       generateCodeToFillArrayElement(i++, classDesc);
       generateCodeToFillArrayElement(i++, methodAccess);
 
@@ -273,7 +273,7 @@ final class MockupsModifier extends BaseClassModifier
          generateCodeToFillArrayElement(i++, mockMethod.desc);
       }
 
-      generateCodeToFillArrayElement(i++, mockMethod.getIndexForMockState());
+      generateCodeToFillArrayElement(i++, mockMethod.getIndexForFakeState());
 
       generateCodeToFillArrayWithParameterValues(mw, argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
@@ -281,7 +281,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateDirectCallToMockMethod()
    {
-      String mockClassDesc = mockMethods.getMockClassInternalName();
+      String mockClassDesc = mockMethods.getFakeClassInternalName();
       int invokeOpcode;
 
       if (mockMethod.isStatic()) {
@@ -313,7 +313,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private boolean generateArgumentsForMockMethodInvocation()
    {
-      String mockedDesc = mockMethod.isAdvice ? methodDesc : mockMethod.mockDescWithoutInvocationParameter;
+      String mockedDesc = mockMethod.isAdvice ? methodDesc : mockMethod.fakeDescWithoutInvocationParameter;
       Type[] argTypes = Type.getArgumentTypes(mockedDesc);
       int varIndex = isStatic(methodAccess) ? 0 : 1;
       boolean canProceedIntoConstructor = false;
@@ -360,8 +360,8 @@ final class MockupsModifier extends BaseClassModifier
          generateCodeToFillArrayWithParameterValues(mw, argTypes, 0, initialParameterIndex);
       }
 
-      mw.visitLdcInsn(mockMethods.getMockClassInternalName());
-      mw.visitIntInsn(SIPUSH, mockMethod.getIndexForMockState());
+      mw.visitLdcInsn(mockMethods.getFakeClassInternalName());
+      mw.visitIntInsn(SIPUSH, mockMethod.getIndexForFakeState());
       mw.visitLdcInsn(classDesc);
       mw.visitLdcInsn(methodName);
       mw.visitLdcInsn(methodDesc);

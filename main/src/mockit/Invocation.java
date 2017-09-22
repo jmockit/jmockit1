@@ -10,12 +10,11 @@ import javax.annotation.*;
 import mockit.internal.*;
 
 /**
- * A context object representing the current invocation to a mocked method/constructor, to be passed as the
- * <em>first</em> parameter of the corresponding delegate/mock method implementation.
+ * A context object representing the current invocation to a mocked or faked method/constructor, to be passed as the
+ * <em>first</em> parameter of the corresponding delegate/fake method implementation.
  * <p/>
- * With the <em>Expectations</em> API, this parameter can appear in delegate methods implemented in {@link Delegate}
- * classes.
- * With the <em>Mockups</em> API, it can appear in {@link Mock @Mock} methods.
+ * With the <em>Mocking</em> API, this parameter can appear in delegate methods implemented in {@link Delegate} classes.
+ * With the <em>Faking</em> API, it can appear in {@link Mock @Mock} methods.
  *
  * @see #getInvokedInstance()
  * @see #getInvokedArguments()

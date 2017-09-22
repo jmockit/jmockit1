@@ -11,7 +11,7 @@ import static org.testng.Assert.*;
 
 import mockit.*;
 
-public final class TestNGMockupsTest
+public final class TestNGFakingTest
 {
    @BeforeSuite
    void setUpTestSuite()

@@ -17,34 +17,34 @@ import mockit.internal.reflection.GenericTypeReflection.*;
 import static mockit.internal.util.ObjectMethods.*;
 
 /**
- * A container for the mock methods "collected" from a mockup class, separated in two sets: one with all the mock
- * methods, and another with just the subset of static methods.
+ * A container for the fake methods "collected" from a fake class, separated in two sets: one with all the fake methods,
+ * and another with just the subset of static methods.
  */
-final class MockMethods
+final class FakeMethods
 {
    @Nonnull private final Class<?> realClass;
    private final boolean targetTypeIsAClass;
    private final boolean reentrantRealClass;
-   @Nonnull private final List<MockMethod> methods;
-   @Nullable private MockMethod adviceMethod;
+   @Nonnull private final List<FakeMethod> methods;
+   @Nullable private FakeMethod adviceMethod;
    @Nonnull private final GenericTypeReflection typeParametersToTypeArguments;
-   @Nonnull private String mockClassInternalName;
-   @Nullable private List<MockState> mockStates;
+   @Nonnull private String fakeClassInternalName;
+   @Nullable private List<MockState> fakeStates;
 
-   final class MockMethod
+   final class FakeMethod
    {
       private final int access;
       @Nonnull final String name;
       @Nonnull final String desc;
       final boolean isAdvice;
       final boolean hasInvocationParameter;
-      @Nonnull final String mockDescWithoutInvocationParameter;
+      @Nonnull final String fakeDescWithoutInvocationParameter;
       private boolean hasMatchingRealMethod;
-      @Nullable private GenericSignature mockSignature;
-      private int indexForMockState;
+      @Nullable private GenericSignature fakeSignature;
+      private int indexForFakeState;
       private boolean nativeRealMethod;
 
-      private MockMethod(int access, @Nonnull String name, @Nonnull String desc)
+      private FakeMethod(int access, @Nonnull String name, @Nonnull String desc)
       {
          this.access = access;
          this.name = name;
@@ -52,17 +52,17 @@ final class MockMethods
 
          if (desc.contains("Lmockit/Invocation;")) {
             hasInvocationParameter = true;
-            mockDescWithoutInvocationParameter = '(' + desc.substring(20);
-            isAdvice = "$advice".equals(name) && "()Ljava/lang/Object;".equals(mockDescWithoutInvocationParameter);
+            fakeDescWithoutInvocationParameter = '(' + desc.substring(20);
+            isAdvice = "$advice".equals(name) && "()Ljava/lang/Object;".equals(fakeDescWithoutInvocationParameter);
          }
          else {
             hasInvocationParameter = false;
-            mockDescWithoutInvocationParameter = desc;
+            fakeDescWithoutInvocationParameter = desc;
             isAdvice = false;
          }
 
          hasMatchingRealMethod = false;
-         indexForMockState = -1;
+         indexForFakeState = -1;
       }
 
       boolean isMatch(int realAccess, @Nonnull String realName, @Nonnull String realDesc, @Nullable String signature)
@@ -78,34 +78,34 @@ final class MockMethods
 
       private boolean hasMatchingParameters(@Nonnull String methodDesc, @Nullable String signature)
       {
-         boolean sameParametersIgnoringGenerics = mockDescWithoutInvocationParameter.equals(methodDesc);
+         boolean sameParametersIgnoringGenerics = fakeDescWithoutInvocationParameter.equals(methodDesc);
 
          if (sameParametersIgnoringGenerics || signature == null) {
             return sameParametersIgnoringGenerics;
          }
 
-         if (mockSignature == null) {
-            mockSignature = typeParametersToTypeArguments.parseSignature(mockDescWithoutInvocationParameter);
+         if (fakeSignature == null) {
+            fakeSignature = typeParametersToTypeArguments.parseSignature(fakeDescWithoutInvocationParameter);
          }
 
-         return mockSignature.satisfiesGenericSignature(signature);
+         return fakeSignature.satisfiesGenericSignature(signature);
       }
 
       @Nonnull Class<?> getRealClass() { return realClass; }
-      @Nonnull String getMockNameAndDesc() { return name + desc; }
-      int getIndexForMockState() { return indexForMockState; }
+      @Nonnull String getFakeNameAndDesc() { return name + desc; }
+      int getIndexForFakeState() { return indexForFakeState; }
 
       boolean isStatic() { return Modifier.isStatic(access); }
       boolean isPublic() { return Modifier.isPublic(access); }
-      boolean isForGenericMethod() { return mockSignature != null; }
+      boolean isForGenericMethod() { return fakeSignature != null; }
       boolean isForNativeMethod() { return nativeRealMethod; }
-      boolean requiresMockState() { return hasInvocationParameter || reentrantRealClass; }
+      boolean requiresFakeState() { return hasInvocationParameter || reentrantRealClass; }
       boolean canBeReentered() { return targetTypeIsAClass && !nativeRealMethod; }
 
       @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
       public boolean equals(Object obj)
       {
-         MockMethod other = (MockMethod) obj;
+         FakeMethod other = (FakeMethod) obj;
          return realClass == other.getRealClass() && name.equals(other.name) && desc.equals(other.desc);
       }
 
@@ -116,7 +116,7 @@ final class MockMethods
       }
    }
 
-   MockMethods(@Nonnull Class<?> realClass, @Nullable Type targetType)
+   FakeMethods(@Nonnull Class<?> realClass, @Nullable Type targetType)
    {
       this.realClass = realClass;
 
@@ -129,30 +129,30 @@ final class MockMethods
       }
 
       reentrantRealClass = targetTypeIsAClass && MockingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
-      methods = new ArrayList<MockMethod>();
+      methods = new ArrayList<FakeMethod>();
       typeParametersToTypeArguments = new GenericTypeReflection(realClass, targetType);
-      mockClassInternalName = "";
+      fakeClassInternalName = "";
    }
 
    @Nonnull Class<?> getRealClass() { return realClass; }
 
    @Nullable
-   MockMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
+   FakeMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
    {
       if (fromSuperClass && isMethodAlreadyAdded(name, desc)) {
          return null;
       }
 
-      MockMethod mockMethod = new MockMethod(access, name, desc);
+      FakeMethod fakeMethod = new FakeMethod(access, name, desc);
 
-      if (mockMethod.isAdvice) {
-         adviceMethod = mockMethod;
+      if (fakeMethod.isAdvice) {
+         adviceMethod = fakeMethod;
       }
       else {
-         methods.add(mockMethod);
+         methods.add(fakeMethod);
       }
 
-      return mockMethod;
+      return fakeMethod;
    }
 
    private boolean isMethodAlreadyAdded(@Nonnull String name, @Nonnull String desc)
@@ -160,8 +160,8 @@ final class MockMethods
       int p = desc.lastIndexOf(')');
       String params = desc.substring(0, p + 1);
 
-      for (MockMethod mockMethod : methods) {
-         if (mockMethod.name.equals(name) && mockMethod.desc.startsWith(params)) {
+      for (FakeMethod fakeMethod : methods) {
+         if (fakeMethod.name.equals(name) && fakeMethod.desc.startsWith(params)) {
             return true;
          }
       }
@@ -169,14 +169,14 @@ final class MockMethods
       return false;
    }
 
-   void addMockState(@Nonnull MockState mockState)
+   void addMockState(@Nonnull MockState fakeState)
    {
-      if (mockStates == null) {
-         mockStates = new ArrayList<MockState>(4);
+      if (fakeStates == null) {
+         fakeStates = new ArrayList<MockState>(4);
       }
 
-      mockState.mockMethod.indexForMockState = mockStates.size();
-      mockStates.add(mockState);
+      fakeState.mockMethod.indexForFakeState = fakeStates.size();
+      fakeStates.add(fakeState);
    }
 
    /**
@@ -185,11 +185,11 @@ final class MockMethods
     * method is processed there should be no mock methods left unused in the container.
     */
    @Nullable
-   MockMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
+   FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
    {
-      for (MockMethod mockMethod : methods) {
-         if (mockMethod.isMatch(access, name, desc, signature)) {
-            return mockMethod;
+      for (FakeMethod fakeMethod : methods) {
+         if (fakeMethod.isMatch(access, name, desc, signature)) {
+            return fakeMethod;
          }
       }
 
@@ -203,20 +203,20 @@ final class MockMethods
       return null;
    }
 
-   @Nonnull String getMockClassInternalName() { return mockClassInternalName; }
+   @Nonnull String getFakeClassInternalName() { return fakeClassInternalName; }
 
-   void setMockClassInternalName(@Nonnull String mockClassInternalName)
+   void setFakeClassInternalName(@Nonnull String fakeClassInternalName)
    {
-      this.mockClassInternalName = mockClassInternalName.intern();
+      this.fakeClassInternalName = fakeClassInternalName.intern();
    }
 
-   boolean hasUnusedMocks()
+   boolean hasUnusedFakes()
    {
       if (adviceMethod != null) {
          return true;
       }
 
-      for (MockMethod method : methods) {
+      for (FakeMethod method : methods) {
          if (!method.hasMatchingRealMethod) {
             return true;
          }
@@ -225,16 +225,16 @@ final class MockMethods
       return false;
    }
 
-   void registerMockStates(@Nonnull Object mockUp, boolean forStartupMock)
+   void registerMockStates(@Nonnull Object fake, boolean forStartupFake)
    {
-      if (mockStates != null) {
+      if (fakeStates != null) {
          MockStates allMockStates = TestRun.getMockStates();
 
-         if (forStartupMock) {
-            allMockStates.addStartupMockUpAndItsMockStates(mockUp, mockStates);
+         if (forStartupFake) {
+            allMockStates.addStartupMockUpAndItsMockStates(fake, fakeStates);
          }
          else {
-            allMockStates.addMockUpAndItsMockStates(mockUp, mockStates);
+            allMockStates.addMockUpAndItsMockStates(fake, fakeStates);
          }
       }
    }

@@ -14,7 +14,7 @@
  * is completed.
  * </li>
  * <li>
- * Mock-up classes applied with the Mockups API from inside a method annotated as a {@code @Test} or a {@code @Before}
+ * Fake classes applied with the Faking API from inside a method annotated as a {@code @Test} or a {@code @Before}
  * method are discarded right after the execution of the test method or the whole test, respectively.
  * </li>
  * <li>

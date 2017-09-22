@@ -7,12 +7,12 @@ package mockit.internal.mockups;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.mockups.MockMethods.*;
+import mockit.internal.mockups.FakeMethods.*;
 import mockit.internal.reflection.*;
 
 final class MockState
 {
-   @Nonnull final MockMethod mockMethod;
+   @Nonnull final FakeMethod mockMethod;
    @Nullable private Method actualMockMethod;
    @Nullable private Member realMethodOrConstructor;
    @Nullable private Object realClass;
@@ -24,7 +24,7 @@ final class MockState
    // Helper field just for synchronization:
    @Nonnull private final Object invocationCountLock;
 
-   MockState(@Nonnull MockMethod mockMethod)
+   MockState(@Nonnull FakeMethod mockMethod)
    {
       this.mockMethod = mockMethod;
       invocationCountLock = new Object();

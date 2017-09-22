@@ -15,14 +15,13 @@ import mockit.internal.mockups.*;
 import mockit.internal.util.*;
 
 /**
- * Startup mock that modifies the JUnit 4.5+ test runner so that it calls back to JMockit immediately after every test
+ * Startup fake that modifies the JUnit 4.5+ test runner so that it calls back to JMockit immediately after every test
  * executes.
- * When that happens, JMockit will assert any expectations set during the test, including expectations specified through
- * {@link Mock} as well as in {@link Expectations} subclasses.
+ * When that happens, JMockit will assert any expectations recorded during the test in {@link Expectations} subclasses.
  * <p/>
  * This class is not supposed to be accessed from user code. JMockit will automatically load it at startup.
  */
-public final class MockFrameworkMethod extends MockUp<FrameworkMethod>
+public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
 {
    public static boolean hasDependenciesInClasspath()
    {

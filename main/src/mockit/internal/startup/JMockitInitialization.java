@@ -23,13 +23,13 @@ final class JMockitInitialization
    void initialize(@Nonnull Instrumentation inst)
    {
       preventEventualClassLoadingConflicts();
-      applyInternalStartupMocksAsNeeded();
+      applyInternalStartupFakesAsNeeded();
 
       if (CodeCoverage.active()) {
          inst.addTransformer(new CodeCoverage());
       }
 
-      applyUserSpecifiedStartupMocksIfAny();
+      applyUserSpecifiedStartupFakesIfAny();
    }
 
    @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -45,40 +45,40 @@ final class JMockitInitialization
       Utilities.calledFromSpecialThread();
    }
 
-   private void applyInternalStartupMocksAsNeeded()
+   private void applyInternalStartupFakesAsNeeded()
    {
-      if (MockFrameworkMethod.hasDependenciesInClasspath()) {
+      if (FakeFrameworkMethod.hasDependenciesInClasspath()) {
          new RunNotifierDecorator();
-         new MockFrameworkMethod();
+         new FakeFrameworkMethod();
       }
    }
 
-   private void applyUserSpecifiedStartupMocksIfAny()
+   private void applyUserSpecifiedStartupFakesIfAny()
    {
-      for (String mockClassName : config.mockClasses) {
-         applyStartupMock(mockClassName);
+      for (String fakeClassName : config.mockClasses) {
+         applyStartupFake(fakeClassName);
       }
    }
 
-   private static void applyStartupMock(@Nonnull String mockClassName)
+   private static void applyStartupFake(@Nonnull String fakeClassName)
    {
       String argument = null;
-      int p = mockClassName.indexOf('=');
+      int p = fakeClassName.indexOf('=');
 
       if (p > 0) {
-         argument = mockClassName.substring(p + 1);
-         mockClassName = mockClassName.substring(0, p);
+         argument = fakeClassName.substring(p + 1);
+         fakeClassName = fakeClassName.substring(0, p);
       }
 
       try {
-         Class<?> mockClass = ClassLoad.loadClassAtStartup(mockClassName);
+         Class<?> fakeClass = ClassLoad.loadClassAtStartup(fakeClassName);
 
-         if (MockUp.class.isAssignableFrom(mockClass)) {
+         if (MockUp.class.isAssignableFrom(fakeClass)) {
             if (argument == null) {
-               ConstructorReflection.newInstanceUsingDefaultConstructor(mockClass);
+               ConstructorReflection.newInstanceUsingDefaultConstructor(fakeClass);
             }
             else {
-               ConstructorReflection.newInstance(mockClass, argument);
+               ConstructorReflection.newInstance(fakeClass, argument);
             }
          }
       }

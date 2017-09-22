@@ -16,7 +16,7 @@ import mockit.*;
 public final class TestSuiteWithBeforeClass
 {
    @BeforeClass
-   public static void setUpSuiteWideMocks()
+   public static void setUpSuiteWideFakes()
    {
       new MockUp<AnotherDependency>() {
          @Mock boolean alwaysTrue() { return false; }

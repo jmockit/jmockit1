@@ -17,19 +17,19 @@ public final class SecondJUnit4DecoratorTest
       public String getValue() { return "REAL3"; }
    }
 
-   public static final class MockClass3 extends MockUp<RealClass3>
+   public static final class FakeClass3 extends MockUp<RealClass3>
    {
       @Mock public String getValue() { return "TEST3"; }
    }
 
    @BeforeClass
-   public static void setUpMocks()
+   public static void setUpFakes()
    {
-      new MockClass3();
+      new FakeClass3();
    }
 
    @Test
-   public void realClassesMockedInPreviousTestClassMustNoLongerBeMocked()
+   public void realClassesFakedInPreviousTestClassMustNoLongerBeFaked()
    {
       assertEquals("REAL0", new BaseJUnit4DecoratorTest.RealClass0().getValue());
       assertEquals("REAL1", new BaseJUnit4DecoratorTest.RealClass1().getValue());
@@ -37,7 +37,7 @@ public final class SecondJUnit4DecoratorTest
    }
 
    @Test
-   public void useClassScopedMockDefinedForThisClass()
+   public void useClassScopedFakeDefinedForThisClass()
    {
       assertEquals("TEST3", new RealClass3().getValue());
    }

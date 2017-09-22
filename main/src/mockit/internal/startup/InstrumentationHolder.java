@@ -203,10 +203,10 @@ public final class InstrumentationHolder implements Instrumentation
    public boolean isModifiableClass(Class<?> theClass) { return inst.isModifiableClass(theClass); }
 
    @Override
-   public Class[] getAllLoadedClasses() { return inst.getAllLoadedClasses(); }
+   public Class<?>[] getAllLoadedClasses() { return inst.getAllLoadedClasses(); }
 
    @Override
-   public Class[] getInitiatedClasses(ClassLoader loader) { return inst.getInitiatedClasses(loader); }
+   public Class<?>[] getInitiatedClasses(ClassLoader loader) { return inst.getInitiatedClasses(loader); }
 
    @Override
    public long getObjectSize(Object objectToSize) { return inst.getObjectSize(objectToSize); }

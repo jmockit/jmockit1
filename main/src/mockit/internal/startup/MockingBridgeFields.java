@@ -72,8 +72,8 @@ final class MockingBridgeFields
             public void visitEnd()
             {
                addField(MockedBridge.MB);
-               addField(MockupBridge.MB);
-               addField(MockMethodBridge.MB);
+               addField(FakeBridge.MB);
+               addField(FakeMethodBridge.MB);
             }
 
             private void addField(@Nonnull MockingBridge mb)

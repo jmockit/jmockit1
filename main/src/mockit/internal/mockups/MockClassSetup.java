@@ -20,7 +20,7 @@ public final class MockClassSetup
 {
    @Nonnull final Class<?> realClass;
    @Nullable private ClassReader rcReader;
-   @Nonnull private final MockMethods mockMethods;
+   @Nonnull private final FakeMethods mockMethods;
    @Nonnull final MockUp<?> mockUp;
    private final boolean forStartupMock;
 
@@ -41,7 +41,7 @@ public final class MockClassSetup
       @Nullable byte[] realClassCode)
    {
       this.realClass = classToMock;
-      mockMethods = new MockMethods(realClass, mockedType);
+      mockMethods = new FakeMethods(realClass, mockedType);
       this.mockUp = mockUp;
       forStartupMock = Startup.initializing;
       rcReader = realClassCode == null ? null : new ClassReader(realClassCode);
@@ -54,7 +54,7 @@ public final class MockClassSetup
       MockClasses mockClasses = TestRun.getMockClasses();
 
       if (forStartupMock) {
-         mockClasses.addMock(mockMethods.getMockClassInternalName(), mockUp);
+         mockClasses.addMock(mockMethods.getFakeClassInternalName(), mockUp);
       }
       else {
          mockClasses.addMock(mockUp);
@@ -76,7 +76,7 @@ public final class MockClassSetup
       Set<Class<?>> redefinedClasses = new HashSet<Class<?>>();
       @Nullable Class<?> classToModify = realClass;
 
-      while (classToModify != null && mockMethods.hasUnusedMocks()) {
+      while (classToModify != null && mockMethods.hasUnusedFakes()) {
          byte[] modifiedClassFile = modifyRealClass(classToModify);
 
          if (modifiedClassFile != null) {
@@ -119,7 +119,7 @@ public final class MockClassSetup
          CachedClassfiles.addClassfile(classToModify, modifiedClassFile);
       }
       else {
-         String mockClassDesc = mockMethods.getMockClassInternalName();
+         String mockClassDesc = mockMethods.getFakeClassInternalName();
          TestRun.mockFixture().addRedefinedClass(mockClassDesc, classToModify, modifiedClassFile);
       }
    }

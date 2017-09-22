@@ -40,7 +40,7 @@ public final class Startup
     * In order for this to occur, the JVM must be started with "-javaagent:jmockit.jar" as a command line parameter
     * (assuming the jar file is in the current directory).
     * <p/>
-    * It is also possible to load user-specified mock-ups at this time, by having set the "mockups" system property.
+    * It is also possible to load user-specified fakes at this time, by having set the "mockups" system property.
     *
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
@@ -57,11 +57,11 @@ public final class Startup
    private static void initialize(@Nonnull Instrumentation inst)
    {
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
-      applyStartupMocks(inst);
+      applyStartupFakes(inst);
       inst.addTransformer(new ExpectationsTransformer(inst));
    }
 
-   private static void applyStartupMocks(@Nonnull Instrumentation inst)
+   private static void applyStartupFakes(@Nonnull Instrumentation inst)
    {
       initializing = true;
 

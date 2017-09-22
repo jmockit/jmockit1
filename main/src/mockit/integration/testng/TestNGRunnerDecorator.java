@@ -31,7 +31,7 @@ import static mockit.internal.util.Utilities.*;
 public final class TestNGRunnerDecorator extends TestRunnerDecorator
    implements IInvokedMethodListener, IExecutionListener
 {
-   public static final class MockParameters extends MockUp<Parameters>
+   public static final class FakeParameters extends MockUp<Parameters>
    {
       @Mock
       public static void checkParameterTypes(
@@ -345,7 +345,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    public void onExecutionStart()
    {
       if (Startup.initializeIfPossible()) {
-         new MockParameters();
+         new FakeParameters();
       }
    }
 

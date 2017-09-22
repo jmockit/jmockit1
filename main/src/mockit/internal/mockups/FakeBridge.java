@@ -10,14 +10,14 @@ import javax.annotation.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 
-public final class MockupBridge extends MockingBridge
+public final class FakeBridge extends MockingBridge
 {
-   @Nonnull public static final MockingBridge MB = new MockupBridge();
+   @Nonnull public static final MockingBridge MB = new FakeBridge();
 
-   private MockupBridge() { super("$MUB"); }
+   private FakeBridge() { super("$FB"); }
 
    @Nonnull @Override
-   public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable
+   public Object invoke(@Nullable Object faked, Method method, @Nonnull Object[] args) throws Throwable
    {
       if (TestRun.isInsideNoMockingZone()) {
          return false;
@@ -26,14 +26,14 @@ public final class MockupBridge extends MockingBridge
       TestRun.enterNoMockingZone();
 
       try {
-         String mockClassDesc = (String) args[0];
+         String fakeClassDesc = (String) args[0];
 
-         if (notToBeMocked(mocked, mockClassDesc)) {
+         if (notToBeMocked(faked, fakeClassDesc)) {
             return false;
          }
 
          Integer mockStateIndex = (Integer) args[1];
-         return TestRun.updateMockState(mockClassDesc, mocked, mockStateIndex);
+         return TestRun.updateMockState(fakeClassDesc, faked, mockStateIndex);
       }
       finally {
          TestRun.exitNoMockingZone();

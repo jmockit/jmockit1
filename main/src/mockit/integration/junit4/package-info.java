@@ -6,8 +6,8 @@
 /**
  * Provides integration with <em>JUnit 4.x</em> test runners, for version 4.5 or newer.
  * Contains the {@link mockit.integration.junit4.JMockit} custom test runner (which is not an actual test runner, but
- * just a way to ensure that JMockit gets properly initialized - a better way is to simply put {@code jmockit.jar}
- * <em>before</em> {@code junit.jar} in the test runtime classpath).
+ * just a way to ensure that JMockit gets properly initialized - a better way is to simply put {@code jmockit-1.x.jar}
+ * <em>before</em> {@code junit-4.x.jar} in the test runtime classpath).
  * <p/>
  * This integration provides the following benefits to test code:
  * <ol>
@@ -25,11 +25,10 @@
  *       a test is completed.
  *    </li>
  *    <li>
- *       Mock-up classes applied with the Mockups API from inside a method annotated as a {@code @Test} or a
- *       {@code @Before} method are discarded right after the execution of the test method or the whole test,
- *       respectively.
- *       Similarly, mock-ups applied from a {@code @BeforeClass} method are discarded after all tests in a test class
- *       have executed.
+ *       Fake classes applied with the Faking API from inside a method annotated as a {@code @Test} or a {@code @Before}
+ *       method are discarded right after the execution of the test method or the whole test, respectively.
+ *       Similarly, fakes applied from a {@code @BeforeClass} method are discarded after all tests in a test class have
+ *       executed.
  *    </li>
  * </ol>
  */

@@ -9,7 +9,7 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.mockups.MockMethods.MockMethod;
+import mockit.internal.mockups.FakeMethods.FakeMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
@@ -23,12 +23,12 @@ final class MockMethodCollector extends ClassVisitor
 {
    private static final int INVALID_METHOD_ACCESSES = ACC_BRIDGE + ACC_SYNTHETIC + ACC_ABSTRACT + ACC_NATIVE;
 
-   @Nonnull private final MockMethods mockMethods;
+   @Nonnull private final FakeMethods mockMethods;
 
    private boolean collectingFromSuperClass;
    @Nullable private String enclosingClassDescriptor;
 
-   MockMethodCollector(@Nonnull MockMethods mockMethods) { this.mockMethods = mockMethods; }
+   MockMethodCollector(@Nonnull FakeMethods mockMethods) { this.mockMethods = mockMethods; }
 
    void collectMockMethods(@Nonnull Class<?> mockClass)
    {
@@ -51,7 +51,7 @@ final class MockMethodCollector extends ClassVisitor
       @Nullable String[] interfaces)
    {
       if (!collectingFromSuperClass) {
-         mockMethods.setMockClassInternalName(name);
+         mockMethods.setFakeClassInternalName(name);
 
          int p = name.lastIndexOf('$');
 
@@ -105,9 +105,9 @@ final class MockMethodCollector extends ClassVisitor
       public AnnotationVisitor visitAnnotation(@Nullable String desc, boolean visible)
       {
          if ("Lmockit/Mock;".equals(desc)) {
-            MockMethod mockMethod = mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+            FakeMethod mockMethod = mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
 
-            if (mockMethod != null && mockMethod.requiresMockState()) {
+            if (mockMethod != null && mockMethod.requiresFakeState()) {
                MockState mockState = new MockState(mockMethod);
                mockMethods.addMockState(mockState);
             }
@@ -120,7 +120,7 @@ final class MockMethodCollector extends ClassVisitor
       public void visitLocalVariable(
          @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
       {
-         String classDesc = mockMethods.getMockClassInternalName();
+         String classDesc = mockMethods.getFakeClassInternalName();
          ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
       }
    }

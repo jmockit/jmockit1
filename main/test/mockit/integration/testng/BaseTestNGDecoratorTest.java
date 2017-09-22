@@ -21,7 +21,7 @@ public class BaseTestNGDecoratorTest implements IHookable
       callBack.runTestMethod(testResult);
    }
 
-   public static class MockClass1 extends MockUp<Applet>
+   public static class FakeClass1 extends MockUp<Applet>
    {
       @Mock
       public String getAppletInfo() { return "TEST1"; }
@@ -31,7 +31,7 @@ public class BaseTestNGDecoratorTest implements IHookable
    public final void beforeBase()
    {
       assertNull(new Applet().getAppletInfo());
-      new MockClass1();
+      new FakeClass1();
       assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 

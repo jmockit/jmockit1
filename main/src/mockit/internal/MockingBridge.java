@@ -93,8 +93,8 @@ public abstract class MockingBridge implements InvocationHandler
    {
       Class<?> hostClass = ClassLoad.loadByInternalName(InstrumentationHolder.hostJREClassName);
       setMockingBridgeField(hostClass, MockedBridge.MB);
-      setMockingBridgeField(hostClass, MockupBridge.MB);
-      setMockingBridgeField(hostClass, MockMethodBridge.MB);
+      setMockingBridgeField(hostClass, FakeBridge.MB);
+      setMockingBridgeField(hostClass, FakeMethodBridge.MB);
    }
 
    private static void setMockingBridgeField(@Nonnull Class<?> hostClass, @Nonnull MockingBridge mockingBridge)

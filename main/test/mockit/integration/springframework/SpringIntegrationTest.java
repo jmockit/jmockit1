@@ -20,7 +20,7 @@ public final class SpringIntegrationTest
    @BeforeClass
    public static void applySpringIntegration()
    {
-      new BeanFactoryMockUp();
+      new FakeBeanFactory();
    }
 
    @Rule public final ExpectedException thrown = ExpectedException.none();

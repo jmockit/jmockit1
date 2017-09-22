@@ -13,11 +13,11 @@ import mockit.internal.*;
 import mockit.internal.capturing.*;
 import static mockit.internal.util.Utilities.getClassType;
 
-public final class CaptureOfMockedUpImplementations extends CaptureOfImplementations<Void>
+public final class CaptureOfFakedImplementations extends CaptureOfImplementations<Void>
 {
    private final MockClassSetup mockClassSetup;
 
-   public CaptureOfMockedUpImplementations(@Nonnull MockUp<?> mockUp, @Nonnull Type baseType)
+   public CaptureOfFakedImplementations(@Nonnull MockUp<?> mockUp, @Nonnull Type baseType)
    {
       Class<?> baseClassType = getClassType(baseType);
       mockClassSetup = new MockClassSetup(baseClassType, baseType, mockUp, null);
@@ -41,11 +41,11 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
    {
       @SuppressWarnings("unchecked") Class<T> baseType = (Class<T>) mockClassSetup.realClass;
       Class<T> baseClassType = baseType;
-      Class<T> mockedClass = null;
+      Class<T> fakedClass = null;
 
       if (baseType.isInterface()) {
-         mockedClass = new MockedImplementationClass<T>(mockClassSetup.mockUp).createImplementation(baseType);
-         baseClassType = mockedClass;
+         fakedClass = new FakedImplementationClass<T>(mockClassSetup.mockUp).createImplementation(baseType);
+         baseClassType = fakedClass;
       }
 
       if (baseClassType != Object.class) {
@@ -53,6 +53,6 @@ public final class CaptureOfMockedUpImplementations extends CaptureOfImplementat
       }
 
       makeSureAllSubtypesAreModified(baseType, false, null);
-      return mockedClass;
+      return fakedClass;
    }
 }
