@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.state;
+package mockit.internal.expectations.state;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -32,7 +32,7 @@ public final class ExecutingTest
    @Nonnull private final Map<Object, Object> originalToCapturedInstance;
    @Nonnull private final CascadingTypes cascadingTypes;
 
-   ExecutingTest()
+   public ExecutingTest()
    {
       shouldIgnoreMockingCallbacks = new ThreadLocal<Boolean>() {
          @Override protected Boolean initialValue() { return false; }
@@ -89,8 +89,6 @@ public final class ExecutingTest
 
    public void markAsProceedingIntoRealImplementation() { proceeding = true; }
 
-   @Nullable public BaseInvocation getProceedingInvocation() { return proceedingInvocation.get(); }
-
    public void markAsProceedingIntoRealImplementation(@Nonnull BaseInvocation invocation)
    {
       BaseInvocation previousInvocation = proceedingInvocation.get();
@@ -123,7 +121,7 @@ public final class ExecutingTest
    }
 
    @Nonnull
-   RecordAndReplayExecution getRecordAndReplayForVerifications()
+   public RecordAndReplayExecution getRecordAndReplayForVerifications()
    {
       if (currentRecordAndReplay == null) {
          if (recordAndReplayForLastTestMethod != null) {
@@ -156,7 +154,7 @@ public final class ExecutingTest
       originalToCapturedInstance.clear();
    }
 
-   public void addInjectableMock(@Nonnull Object mock)
+   void addInjectableMock(@Nonnull Object mock)
    {
       if (!isInjectableMock(mock)) {
          injectableMocks.add(mock);
@@ -265,7 +263,7 @@ public final class ExecutingTest
 
    @Nonnull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
-   void finishExecution()
+   public void finishExecution()
    {
       recordAndReplayForLastTestMethod = currentRecordAndReplay;
       currentRecordAndReplay = null;

@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.state;
+package mockit.internal.expectations.state;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -15,6 +15,7 @@ import static java.util.Collections.synchronizedList;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Type.*;
 import static mockit.internal.util.Utilities.*;

@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.state;
+package mockit.internal.expectations.state;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -41,7 +41,7 @@ public final class CascadingTypes
    MockedTypeCascade getCascade(@Nonnull Type mockedType) { return mockedTypesToCascades.get(mockedType); }
 
    @Nullable
-   public MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc, @Nullable Object mockInstance)
+   MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc, @Nullable Object mockInstance)
    {
       if (mockedTypesToCascades.isEmpty()) {
          return null;
@@ -96,7 +96,7 @@ public final class CascadingTypes
 
    public void clear() { mockedTypesToCascades.clear(); }
 
-   public void addInstance(@Nonnull Type mockedType, @Nonnull Object cascadingInstance)
+   void addInstance(@Nonnull Type mockedType, @Nonnull Object cascadingInstance)
    {
       MockedTypeCascade cascade = mockedTypesToCascades.get(mockedType);
 

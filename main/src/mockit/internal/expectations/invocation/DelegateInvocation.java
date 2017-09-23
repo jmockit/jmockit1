@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.internal.*;
+import mockit.internal.expectations.state.*;
 import mockit.internal.state.*;
 
 final class DelegateInvocation extends BaseInvocation

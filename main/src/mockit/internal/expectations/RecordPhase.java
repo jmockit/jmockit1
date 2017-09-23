@@ -8,7 +8,7 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
-import static mockit.internal.state.ExecutingTest.*;
+import static mockit.internal.expectations.state.ExecutingTest.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {

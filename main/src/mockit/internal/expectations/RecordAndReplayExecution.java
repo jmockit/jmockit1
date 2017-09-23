@@ -14,6 +14,7 @@ import static java.lang.reflect.Modifier.isAbstract;
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.expectations.state.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -232,7 +233,7 @@ public final class RecordAndReplayExecution
       return Void.class;
    }
 
-   @Nullable
+   @Nonnull
    private static Object defaultReturnValue(
       @Nullable Object mock, @Nonnull String classDesc, @Nonnull String nameAndDesc,
       @Nullable String genericSignature, @Nonnull ExecutionMode executionMode, @Nonnull Object[] args)

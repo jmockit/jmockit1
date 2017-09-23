@@ -7,6 +7,7 @@ package mockit.internal.state;
 import javax.annotation.*;
 
 import mockit.internal.expectations.*;
+import mockit.internal.expectations.state.*;
 import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.mockups.*;
