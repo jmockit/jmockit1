@@ -55,7 +55,7 @@ final class JMockitInitialization
 
    private void applyUserSpecifiedStartupFakesIfAny()
    {
-      for (String fakeClassName : config.mockClasses) {
+      for (String fakeClassName : config.fakeClasses) {
          applyStartupFake(fakeClassName);
       }
    }

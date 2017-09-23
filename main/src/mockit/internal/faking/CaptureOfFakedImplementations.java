@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.mockups;
+package mockit.internal.faking;
 
 import java.lang.reflect.Type;
 import javax.annotation.*;

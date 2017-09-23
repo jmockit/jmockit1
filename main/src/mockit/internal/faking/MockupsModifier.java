@@ -2,7 +2,7 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.mockups;
+package mockit.internal.faking;
 
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
@@ -10,7 +10,7 @@ import static java.lang.reflect.Modifier.*;
 import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.mockups.FakeMethods.*;
+import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
@@ -297,7 +297,7 @@ final class MockupsModifier extends BaseClassModifier
 
       if (canProceedIntoConstructor) {
          mw.visitMethodInsn(
-            INVOKEVIRTUAL, "mockit/internal/mockups/MockInvocation", "shouldProceedIntoConstructor", "()Z", false);
+            INVOKEVIRTUAL, "mockit/internal/faking/MockInvocation", "shouldProceedIntoConstructor", "()Z", false);
       }
    }
 
@@ -367,9 +367,9 @@ final class MockupsModifier extends BaseClassModifier
       mw.visitLdcInsn(methodDesc);
 
       mw.visitMethodInsn(
-         INVOKESTATIC, "mockit/internal/mockups/MockInvocation", "create",
+         INVOKESTATIC, "mockit/internal/faking/MockInvocation", "create",
          "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;I" +
-         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/mockups/MockInvocation;", false);
+         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/faking/MockInvocation;", false);
    }
 
    private void generateMethodReturn()

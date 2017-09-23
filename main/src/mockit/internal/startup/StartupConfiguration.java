@@ -12,20 +12,20 @@ final class StartupConfiguration
 {
    private static final Pattern COMMA_OR_SPACES = Pattern.compile("\\s*,\\s*|\\s+");
 
-   @Nonnull final Collection<String> mockClasses;
+   @Nonnull final Collection<String> fakeClasses;
 
    StartupConfiguration()
    {
-      String commaOrSpaceSeparatedValues = System.getProperty("mockups");
+      String commaOrSpaceSeparatedValues = System.getProperty("fakes");
       
       if (commaOrSpaceSeparatedValues == null) {
-         mockClasses = Collections.emptyList();
+         fakeClasses = Collections.emptyList();
       }
       else {
          List<String> allValues = Arrays.asList(COMMA_OR_SPACES.split(commaOrSpaceSeparatedValues));
          Set<String> uniqueValues = new HashSet<String>(allValues);
          uniqueValues.remove("");
-         mockClasses = uniqueValues;
+         fakeClasses = uniqueValues;
       }
    }
 }

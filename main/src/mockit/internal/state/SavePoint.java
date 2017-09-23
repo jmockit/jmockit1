@@ -8,7 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
 
 public final class SavePoint

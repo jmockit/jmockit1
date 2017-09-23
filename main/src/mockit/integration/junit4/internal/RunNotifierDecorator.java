@@ -13,7 +13,7 @@ import mockit.*;
 import mockit.coverage.*;
 import mockit.coverage.testRedundancy.JUnitListener;
 import mockit.integration.internal.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.state.TestRun;
 
 /**

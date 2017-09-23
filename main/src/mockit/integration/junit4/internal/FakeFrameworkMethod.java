@@ -11,7 +11,7 @@ import javax.annotation.*;
 import org.junit.runners.model.*;
 
 import mockit.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.util.*;
 
 /**

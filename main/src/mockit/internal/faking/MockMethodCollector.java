@@ -2,14 +2,14 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.mockups;
+package mockit.internal.faking;
 
 import javax.annotation.*;
 
 import mockit.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
-import mockit.internal.mockups.FakeMethods.FakeMethod;
+import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;

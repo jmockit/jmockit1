@@ -15,7 +15,7 @@ import mockit.*;
 import mockit.coverage.*;
 import mockit.coverage.testRedundancy.*;
 import mockit.integration.internal.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.state.TestRun;

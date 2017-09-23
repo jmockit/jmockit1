@@ -12,7 +12,7 @@ import org.junit.runners.model.*;
 
 import mockit.integration.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 

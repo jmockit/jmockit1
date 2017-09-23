@@ -12,7 +12,7 @@ import static java.lang.reflect.Modifier.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 

@@ -10,7 +10,7 @@ import mockit.internal.expectations.*;
 import mockit.internal.expectations.state.*;
 import mockit.internal.injection.*;
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.util.*;
 
 /**

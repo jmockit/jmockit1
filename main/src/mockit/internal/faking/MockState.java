@@ -2,12 +2,12 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.mockups;
+package mockit.internal.faking;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.mockups.FakeMethods.*;
+import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.reflection.*;
 
 final class MockState

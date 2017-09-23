@@ -13,7 +13,7 @@ import java.util.jar.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
-import mockit.internal.mockups.*;
+import mockit.internal.faking.*;
 import mockit.internal.startup.*;
 import mockit.internal.util.*;
 

@@ -18,7 +18,7 @@ import mockit.internal.util.*;
  * <p/>
  * There are several possible initialization scenarios:
  * <ol>
- *    <li>Execution with {@code -javaagent:jmockit.jar} and without reloading in a custom class loader.</li>
+ *    <li>Execution with {@code -javaagent:jmockit-1-x.jar} and without reloading in a custom class loader.</li>
  *    <li>Execution from system CL without {@code -javaagent} and without reloading in custom CL.</li>
  *    <li>Execution with {@code -javaagent} and with reloading in custom CL.</li>
  *    <li>Execution from system CL without {@code -javaagent} and with reloading in custom CL.</li>
@@ -37,10 +37,10 @@ public final class Startup
 
    /**
     * This method must only be called by the JVM, to provide the instrumentation object.
-    * In order for this to occur, the JVM must be started with "-javaagent:jmockit.jar" as a command line parameter
+    * In order for this to occur, the JVM must be started with "-javaagent:jmockit-1.x.jar" as a command line parameter
     * (assuming the jar file is in the current directory).
     * <p/>
-    * It is also possible to load user-specified fakes at this time, by having set the "mockups" system property.
+    * It is also possible to load user-specified fakes at this time, by having set the "fakes" system property.
     *
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
