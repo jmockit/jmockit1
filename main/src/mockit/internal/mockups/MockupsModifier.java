@@ -17,7 +17,7 @@ import static mockit.external.asm.Opcodes.*;
 
 /**
  * Responsible for generating all necessary bytecode in the redefined (real) class.
- * Such code will redirect calls made on "real" methods to equivalent calls on the corresponding "mock" methods.
+ * Such code will redirect calls made on "real" methods to equivalent calls on the corresponding "fake" methods.
  * The original code won't be executed by the running JVM until the class redefinition is undone.
  * <p/>
  * Methods in the real class with no corresponding mock methods are unaffected.
@@ -40,7 +40,7 @@ final class MockupsModifier extends BaseClassModifier
     * The mock instance provided will receive calls for any instance methods defined in the mock class.
     * Therefore, it needs to be later recovered by the modified bytecode inside the real method.
     * To enable this, the mock instance is added to a global data structure made available through the
-    * {@link TestRun#getMock(String, Object)} method.
+    * {@link TestRun#getFake(String, Object)} method.
     *
     * @param cr the class file reader for the real class
     * @param realClass the class to be mocked-up, or a base type of an implementation class to be mocked-up
@@ -292,7 +292,7 @@ final class MockupsModifier extends BaseClassModifier
          invokeOpcode = INVOKEVIRTUAL;
       }
 
-      boolean canProceedIntoConstructor = generateArgumentsForMockMethodInvocation();
+      boolean canProceedIntoConstructor = generateArgumentsForFakeMethodInvocation();
       mw.visitMethodInsn(invokeOpcode, mockClassDesc, mockMethod.name, mockMethod.desc, false);
 
       if (canProceedIntoConstructor) {
@@ -306,12 +306,12 @@ final class MockupsModifier extends BaseClassModifier
       mw.visitLdcInsn(mockClassDesc);
       generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitMethodInsn(
-         INVOKESTATIC, "mockit/internal/state/TestRun", "getMock",
+         INVOKESTATIC, "mockit/internal/state/TestRun", "getFake",
          "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
       mw.visitTypeInsn(CHECKCAST, mockClassDesc);
    }
 
-   private boolean generateArgumentsForMockMethodInvocation()
+   private boolean generateArgumentsForFakeMethodInvocation()
    {
       String mockedDesc = mockMethod.isAdvice ? methodDesc : mockMethod.fakeDescWithoutInvocationParameter;
       Type[] argTypes = Type.getArgumentTypes(mockedDesc);

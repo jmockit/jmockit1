@@ -51,13 +51,13 @@ public final class MockClassSetup
 
       mockMethods.registerMockStates(mockUp, forStartupMock);
 
-      MockClasses mockClasses = TestRun.getMockClasses();
+      FakeClasses fakeClasses = TestRun.getFakeClasses();
 
       if (forStartupMock) {
-         mockClasses.addMock(mockMethods.getFakeClassInternalName(), mockUp);
+         fakeClasses.addFake(mockMethods.getFakeClassInternalName(), mockUp);
       }
       else {
-         mockClasses.addMock(mockUp);
+         fakeClasses.addFake(mockUp);
       }
    }
 

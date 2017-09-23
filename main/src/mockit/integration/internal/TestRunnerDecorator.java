@@ -89,7 +89,7 @@ public class TestRunnerDecorator
    public static void cleanUpAllMocks()
    {
       cleanUpMocks(true);
-      TestRun.getMockClasses().discardStartupMocks();
+      TestRun.getFakeClasses().discardStartupFakes();
    }
 
    private static void cleanUpMocks(boolean forTestClassAsWell)

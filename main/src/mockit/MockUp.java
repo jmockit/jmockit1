@@ -13,7 +13,7 @@ import mockit.internal.classGeneration.*;
 import mockit.internal.mockups.*;
 import mockit.internal.reflection.*;
 import mockit.internal.startup.*;
-import mockit.internal.state.MockClasses.*;
+import mockit.internal.mockups.FakeClasses.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
@@ -146,8 +146,8 @@ public abstract class MockUp<T>
    @Nullable
    private MockUp<?> findPreviouslyFakedClassIfMockUpAlreadyApplied()
    {
-      MockClasses fakeClasses = TestRun.getMockClasses();
-      MockUpInstances fakeInstances = fakeClasses.findPreviouslyAppliedMockUps(this);
+      FakeClasses fakeClasses = TestRun.getFakeClasses();
+      MockUpInstances fakeInstances = fakeClasses.findPreviouslyAppliedFakes(this);
 
       if (fakeInstances != null && fakeInstances.hasMockUpsForSingleInstances()) {
          return fakeInstances.initialMockUp;
@@ -282,7 +282,7 @@ public abstract class MockUp<T>
 
    private void setMockInstance(@Nonnull T mockInstance)
    {
-      TestRun.getMockClasses().addMock(this, mockInstance);
+      TestRun.getFakeClasses().addFake(this, mockInstance);
       this.mockInstance = mockInstance;
    }
 

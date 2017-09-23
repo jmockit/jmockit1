@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.*;
+import mockit.internal.mockups.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
 
 public final class SavePoint
@@ -16,7 +17,7 @@ public final class SavePoint
    @Nonnull private final Map<Class<?>, byte[]> previousRedefinedClasses;
    private final int previousCaptureTransformerCount;
    @Nonnull private final List<Class<?>> previousMockedClasses;
-   @Nonnull private final MockClasses.SavePoint previousMockClasses;
+   @Nonnull private final FakeClasses.SavePoint previousFakeClasses;
 
    public SavePoint()
    {
@@ -25,7 +26,7 @@ public final class SavePoint
       previousRedefinedClasses = mockFixture.getRedefinedClasses();
       previousCaptureTransformerCount = mockFixture.getCaptureTransformerCount();
       previousMockedClasses = mockFixture.getMockedClasses();
-      previousMockClasses = TestRun.getMockClasses().new SavePoint();
+      previousFakeClasses = TestRun.getFakeClasses().new SavePoint();
    }
 
    public synchronized void rollback()
@@ -38,7 +39,7 @@ public final class SavePoint
          mockFixture.restoreTransformedClasses(previousTransformedClasses);
          mockFixture.restoreRedefinedClasses(previousRedefinedClasses);
          mockFixture.removeMockedClasses(previousMockedClasses);
-         previousMockClasses.rollback();
+         previousFakeClasses.rollback();
       }
       finally {
          RECORD_OR_REPLAY_LOCK.unlock();

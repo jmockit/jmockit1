@@ -40,7 +40,7 @@ public final class TestRun
    @Nonnull private final MockFixture mockFixture = new MockFixture();
 
    @Nonnull private final ExecutingTest executingTest = new ExecutingTest();
-   @Nonnull private final MockClasses mockClasses = new MockClasses();
+   @Nonnull private final FakeClasses fakeClasses = new FakeClasses();
 
    // Static "getters" for global state ///////////////////////////////////////////////////////////////////////////////
 
@@ -79,8 +79,8 @@ public final class TestRun
       return INSTANCE.executingTest.getRecordAndReplayForVerifications();
    }
 
-   @Nonnull public static MockClasses getMockClasses() { return INSTANCE.mockClasses; }
-   @Nonnull public static MockStates getMockStates() { return INSTANCE.mockClasses.mockStates; }
+   @Nonnull public static FakeClasses getFakeClasses() { return INSTANCE.fakeClasses; }
+   @Nonnull public static MockStates getMockStates() { return INSTANCE.fakeClasses.fakeStates; }
 
    // Static "mutators" for global state //////////////////////////////////////////////////////////////////////////////
 
@@ -128,25 +128,25 @@ public final class TestRun
 
    @SuppressWarnings({"StaticMethodOnlyUsedInOneClass", "SimplifiableIfStatement"})
    public static boolean updateMockState(
-      @Nonnull String mockUpClassDesc, @Nullable Object mockedInstance, int mockStateIndex)
+      @Nonnull String fakeClassDesc, @Nullable Object fakedInstance, int fakeStateIndex)
    {
-      Object mockUp = getMock(mockUpClassDesc, mockedInstance);
+      Object fake = getFake(fakeClassDesc, fakedInstance);
 
-      if (mockUp == null) {
+      if (fake == null) {
          return false;
       }
 
-      if (mockStateIndex < 0) {
+      if (fakeStateIndex < 0) {
          return true;
       }
 
-      return getMockStates().updateMockState(mockUp, mockStateIndex);
+      return getMockStates().updateMockState(fake, fakeStateIndex);
    }
 
    @Nullable
-   public static Object getMock(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
+   public static Object getFake(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
-      return INSTANCE.mockClasses.getMock(mockUpClassDesc, mockedInstance);
+      return INSTANCE.fakeClasses.getFake(mockUpClassDesc, mockedInstance);
    }
 
    public static void ensureThatClassIsInitialized(@Nonnull Class<?> aClass)

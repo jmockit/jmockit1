@@ -216,4 +216,13 @@ public final class TestedClassWithGenericsTest
    {
       assertSame(impl, tested.dep);
    }
+
+   static class ClassWithFieldOfGenericTypeContainingGenericArray { int n; List<Comparable<?>[]> list; }
+
+   @Test
+   public void instantiateObjectContainingGenericTypeFieldWithGenericArrayElement(
+      @Tested ClassWithFieldOfGenericTypeContainingGenericArray t)
+   {
+      assertNotNull(t);
+   }
 }
