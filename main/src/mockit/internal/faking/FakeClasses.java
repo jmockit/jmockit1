@@ -159,12 +159,12 @@ public final class FakeClasses
       fakeClassesToFakeInstances.keySet().retainAll(previousFakeClasses.keySet());
    }
 
-   private void updatePreviousFakes(@Nonnull Map<Class<?>, Boolean> previousMockupClasses)
+   private void updatePreviousFakes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
    {
-      for (Entry<Class<?>, Boolean> mockupClassAndData : previousMockupClasses.entrySet()) {
-         Class<?> mockupClass = mockupClassAndData.getKey();
-         MockUpInstances mockUpData = fakeClassesToFakeInstances.get(mockupClass);
-         mockUpData.hasMockupsForSingleInstances = mockupClassAndData.getValue();
+      for (Entry<Class<?>, Boolean> fakeClassAndData : previousFakeClasses.entrySet()) {
+         Class<?> fakeClass = fakeClassAndData.getKey();
+         MockUpInstances fakeData = fakeClassesToFakeInstances.get(fakeClass);
+         fakeData.hasMockupsForSingleInstances = fakeClassAndData.getValue();
       }
    }
 

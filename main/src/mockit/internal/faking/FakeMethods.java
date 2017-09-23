@@ -180,9 +180,9 @@ final class FakeMethods
    }
 
    /**
-    * Finds a mock method with the same signature of a given real method, if previously collected from the mockup class.
-    * This operation can be performed only once for any given mock method in this container, so that after the last real
-    * method is processed there should be no mock methods left unused in the container.
+    * Finds a fake method with the same signature of a given real method, if previously collected from the fake class.
+    * This operation can be performed only once for any given fake method in this container, so that after the last real
+    * method is processed there should be no fake methods left unused in the container.
     */
    @Nullable
    FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
@@ -231,10 +231,10 @@ final class FakeMethods
          MockStates allMockStates = TestRun.getMockStates();
 
          if (forStartupFake) {
-            allMockStates.addStartupMockUpAndItsMockStates(fake, fakeStates);
+            allMockStates.addStartupFakeAndItsFakeStates(fake, fakeStates);
          }
          else {
-            allMockStates.addMockUpAndItsMockStates(fake, fakeStates);
+            allMockStates.addFakeAndItsFakeStates(fake, fakeStates);
          }
       }
    }

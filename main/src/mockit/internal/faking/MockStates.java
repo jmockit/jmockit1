@@ -12,38 +12,38 @@ import javax.annotation.*;
 import mockit.internal.util.*;
 
 /**
- * Holds state associated with mock class containing {@linkplain mockit.Mock annotated mocks}.
+ * Holds state associated with fake class containing {@linkplain mockit.Mock annotated fakes}.
  */
 public final class MockStates
 {
    private static final Pattern SPACE = Pattern.compile(" ");
 
    /**
-    * For each mockup instance and each {@code @Mock} method containing the {@code Invocation} parameter or an
-    * invocation count constraint, a runtime state will be kept here.
+    * For each fake instance and each {@code @Mock} method containing the {@code Invocation} parameter, a runtime state
+    * will be kept here.
     */
-   @Nonnull private final Map<Object, List<MockState>> mockUpsToMockStates;
-   @Nonnull private final Map<Object, List<MockState>> startupMockUpsToMockStates;
+   @Nonnull private final Map<Object, List<MockState>> fakesToFakeStates;
+   @Nonnull private final Map<Object, List<MockState>> startupFakesToFakeStates;
 
    public MockStates()
    {
-      startupMockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(2);
-      mockUpsToMockStates = new IdentityHashMap<Object, List<MockState>>(8);
+      startupFakesToFakeStates = new IdentityHashMap<Object, List<MockState>>(2);
+      fakesToFakeStates = new IdentityHashMap<Object, List<MockState>>(8);
    }
 
-   void addStartupMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
+   void addStartupFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<MockState> fakeStates)
    {
-      startupMockUpsToMockStates.put(mockUp, mockStates);
+      startupFakesToFakeStates.put(fake, fakeStates);
    }
 
-   void addMockUpAndItsMockStates(@Nonnull Object mockUp, @Nonnull List<MockState> mockStates)
+   void addFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<MockState> fakeStates)
    {
-      mockUpsToMockStates.put(mockUp, mockStates);
+      fakesToFakeStates.put(fake, fakeStates);
    }
 
-   public void copyMockStates(@Nonnull Object previousMockUp, @Nonnull Object newMockUp)
+   public void copyMockStates(@Nonnull Object previousFake, @Nonnull Object newFake)
    {
-      List<MockState> mockStates = mockUpsToMockStates.get(previousMockUp);
+      List<MockState> mockStates = fakesToFakeStates.get(previousFake);
 
       if (mockStates != null) {
          List<MockState> copiedMockStates = new ArrayList<MockState>(mockStates.size());
@@ -52,71 +52,71 @@ public final class MockStates
             copiedMockStates.add(new MockState(mockState));
          }
 
-         mockUpsToMockStates.put(newMockUp, copiedMockStates);
+         fakesToFakeStates.put(newFake, copiedMockStates);
       }
    }
 
-   public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreMockClasses)
+   public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreFakeClasses)
    {
-      removeMockStates(redefinedClass);
+      removeFakeStates(redefinedClass);
 
-      if (internalNameForOneOrMoreMockClasses != null) {
-         if (internalNameForOneOrMoreMockClasses.indexOf(' ') < 0) {
-            removeMockStates(internalNameForOneOrMoreMockClasses);
+      if (internalNameForOneOrMoreFakeClasses != null) {
+         if (internalNameForOneOrMoreFakeClasses.indexOf(' ') < 0) {
+            removeFakeStates(internalNameForOneOrMoreFakeClasses);
          }
          else {
-            String[] mockClassesInternalNames = SPACE.split(internalNameForOneOrMoreMockClasses);
+            String[] mockClassesInternalNames = SPACE.split(internalNameForOneOrMoreFakeClasses);
 
             for (String mockClassInternalName : mockClassesInternalNames) {
-               removeMockStates(mockClassInternalName);
+               removeFakeStates(mockClassInternalName);
             }
          }
       }
    }
 
-   private void removeMockStates(@Nonnull Class<?> redefinedClass)
+   private void removeFakeStates(@Nonnull Class<?> redefinedClass)
    {
-      Iterator<List<MockState>> itr = mockUpsToMockStates.values().iterator();
+      Iterator<List<MockState>> itr = fakesToFakeStates.values().iterator();
 
       while (itr.hasNext()) {
-         List<MockState> mockStates = itr.next();
-         MockState mockState = mockStates.get(0);
+         List<MockState> fakeStates = itr.next();
+         MockState fakeState = fakeStates.get(0);
 
-         if (mockState.getRealClass() == redefinedClass) {
-            mockStates.clear();
+         if (fakeState.getRealClass() == redefinedClass) {
+            fakeStates.clear();
             itr.remove();
          }
       }
    }
 
-   private void removeMockStates(@Nonnull String mockClassInternalName)
+   private void removeFakeStates(@Nonnull String fakeClassInternalName)
    {
-      Class<?> mockUpClass = ClassLoad.loadClass(mockClassInternalName.replace('/', '.'));
-      Iterator<Entry<Object, List<MockState>>> itr = mockUpsToMockStates.entrySet().iterator();
+      Class<?> fakeClass = ClassLoad.loadClass(fakeClassInternalName.replace('/', '.'));
+      Iterator<Entry<Object, List<MockState>>> itr = fakesToFakeStates.entrySet().iterator();
 
       while (itr.hasNext()) {
-         Entry<Object, List<MockState>> mockUpAndMockStates = itr.next();
-         Object mockUp = mockUpAndMockStates.getKey();
+         Entry<Object, List<MockState>> fakeAndFakeStates = itr.next();
+         Object fake = fakeAndFakeStates.getKey();
 
-         if (mockUp.getClass() == mockUpClass) {
+         if (fake.getClass() == fakeClass) {
             itr.remove();
          }
       }
    }
 
-   public boolean updateMockState(@Nonnull Object mockUp, int mockStateIndex)
+   public boolean updateMockState(@Nonnull Object fake, int mockStateIndex)
    {
-      MockState mockState = getMockState(mockUp, mockStateIndex);
+      MockState mockState = getMockState(fake, mockStateIndex);
       return mockState.update();
    }
 
    @Nonnull
-   MockState getMockState(@Nonnull Object mockUp, int mockStateIndex)
+   MockState getMockState(@Nonnull Object fake, int mockStateIndex)
    {
-      List<MockState> mockStates = startupMockUpsToMockStates.get(mockUp);
+      List<MockState> mockStates = startupFakesToFakeStates.get(fake);
 
       if (mockStates == null) {
-         mockStates = mockUpsToMockStates.get(mockUp);
+         mockStates = fakesToFakeStates.get(fake);
       }
 
       MockState mockState = mockStates.get(mockStateIndex);
