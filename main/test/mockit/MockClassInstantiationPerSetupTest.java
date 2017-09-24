@@ -38,11 +38,11 @@ public final class MockClassInstantiationPerSetupTest
       public int performComputation(int a, boolean b) { return b ? a : -a; }
    }
 
-   static final class MockClass1 extends MockUp<RealClass1>
+   static final class FakeClass1 extends MockUp<RealClass1>
    {
       static Object singleInstanceCreated;
 
-      MockClass1()
+      FakeClass1()
       {
          assertNull(singleInstanceCreated);
          singleInstanceCreated = this;
@@ -57,11 +57,11 @@ public final class MockClassInstantiationPerSetupTest
       }
    }
 
-   static final class MockClass2 extends MockUp<RealClass2>
+   static final class FakeClass2 extends MockUp<RealClass2>
    {
       static Object singleInstanceCreated;
 
-      MockClass2()
+      FakeClass2()
       {
          assertNull(singleInstanceCreated);
          singleInstanceCreated = this;
@@ -76,11 +76,11 @@ public final class MockClassInstantiationPerSetupTest
       }
    }
 
-   static final class MockClass3 extends MockUp<RealClass3>
+   static final class FakeClass3 extends MockUp<RealClass3>
    {
       static Object singleInstanceCreated;
 
-      MockClass3()
+      FakeClass3()
       {
          assertNull(singleInstanceCreated);
          singleInstanceCreated = this;
@@ -95,11 +95,11 @@ public final class MockClassInstantiationPerSetupTest
       }
    }
 
-   static final class MockClass4 extends MockUp<RealClass4>
+   static final class FakeClass4 extends MockUp<RealClass4>
    {
       static Object singleInstanceCreated;
 
-      MockClass4()
+      FakeClass4()
       {
          assertNull(singleInstanceCreated);
          singleInstanceCreated = this;
@@ -117,69 +117,69 @@ public final class MockClassInstantiationPerSetupTest
    }
 
    @BeforeClass
-   public static void setUpClassLevelMocks()
+   public static void setUpClassLevelFakes()
    {
-      new MockClass1();
+      new FakeClass1();
    }
 
    @BeforeClass
-   public static void setUpAdditionalClassLevelMocks()
+   public static void setUpAdditionalClassLevelFakes()
    {
-      new MockClass2();
+      new FakeClass2();
    }
 
    @Before
-   public void setUpMethodLevelMocks()
+   public void setUpMethodLevelFakes()
    {
-      MockClass3.singleInstanceCreated = null;
-      new MockClass3();
+      FakeClass3.singleInstanceCreated = null;
+      new FakeClass3();
    }
 
    @Test
-   public void mockInstancePerSetupInClassAndFixtureScopes()
+   public void fakeInstancePerSetupInClassAndFixtureScopes()
    {
-      assertMockClass1();
-      assertMockClass2();
-      assertMockClass3();
+      assertFakeClass1();
+      assertFakeClass2();
+      assertFakeClass3();
       assertEquals(1, new RealClass4().performComputation(1, true));
    }
 
-   private void assertMockClass1()
+   void assertFakeClass1()
    {
       RealClass1.doSomething();
       assertEquals(2, new RealClass1().performComputation(1, true));
    }
 
-   private void assertMockClass2()
+   void assertFakeClass2()
    {
       RealClass2.doSomething();
       assertEquals(2, new RealClass2().performComputation(1, true));
    }
 
-   private void assertMockClass3()
+   void assertFakeClass3()
    {
       RealClass3.doSomething();
       assertEquals(2, new RealClass3().performComputation(1, true));
    }
 
-   private void assertMockClass4()
+   void assertFakeClass4()
    {
       RealClass4.doSomething();
       assertEquals(2, new RealClass4().performComputation(1, true));
    }
 
    @Test
-   public void mockInstancePerSetupInAllScopes()
+   public void fakeInstancePerSetupInAllScopes()
    {
-      new MockClass4();
+      new FakeClass4();
 
-      assertMockClass1();
-      assertMockClass2();
-      assertMockClass3();
-      assertMockClass4();
+      assertFakeClass1();
+      assertFakeClass2();
+      assertFakeClass3();
+      assertFakeClass4();
    }
 
-   public static final class MockURL extends MockUp<URL>
+   public static final class FakeURL extends MockUp<URL>
    {
       @Mock
       public InputStream openStream(Invocation inv) throws IOException
@@ -195,9 +195,9 @@ public final class MockClassInstantiationPerSetupTest
    }
 
    @Test
-   public void reentrantMockForJREClass() throws Exception
+   public void reentrantFakeForJREClass() throws Exception
    {
-      new MockURL();
+      new FakeURL();
 
       InputStream response = new URL("http://test").openStream();
 
