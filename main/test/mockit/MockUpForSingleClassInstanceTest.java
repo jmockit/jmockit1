@@ -35,14 +35,14 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void multipleMockupsOfSameTypeWithOwnMockInstanceEach()
+   public void multipleFakesOfSameTypeWithOwnFakeInstanceEach()
    {
-      final class AClassMockUp extends MockUp<AClass>
+      final class AClassFake extends MockUp<AClass>
       {
          private final int number;
          private final String text;
 
-         AClassMockUp(int number, String text)
+         AClassFake(int number, String text)
          {
             this.number = number;
             this.text = text;
@@ -52,35 +52,35 @@ public final class MockUpForSingleClassInstanceTest
          @Mock String getTextValue() { return text; }
       }
 
-      MockUp<AClass> mockUp1 = new AClassMockUp(1, "one");
-      AClass mock1 = mockUp1.getMockInstance();
+      MockUp<AClass> fake1 = new AClassFake(1, "one");
+      AClass fakedInstance1 = fake1.getMockInstance();
 
-      AClassMockUp mockUp2 = new AClassMockUp(2, "two");
-      AClass mock2 = mockUp2.getMockInstance();
+      AClassFake fake2 = new AClassFake(2, "two");
+      AClass fakedInstance2 = fake2.getMockInstance();
 
-      assertNotSame(mock1, mock2);
-      assertEquals(1, mock1.getNumericValue());
-      assertEquals("one", mock1.getTextValue());
-      assertEquals(0, mock1.getSomeOtherValue());
-      assertEquals(2, mock2.getNumericValue());
-      assertEquals("two", mock2.getTextValue());
-      assertEquals(0, mock2.getSomeOtherValue());
-      assertEquals("two", mock2.getTextValue());
+      assertNotSame(fakedInstance1, fakedInstance2);
+      assertEquals(1, fakedInstance1.getNumericValue());
+      assertEquals("one", fakedInstance1.getTextValue());
+      assertEquals(0, fakedInstance1.getSomeOtherValue());
+      assertEquals(2, fakedInstance2.getNumericValue());
+      assertEquals("two", fakedInstance2.getTextValue());
+      assertEquals(0, fakedInstance2.getSomeOtherValue());
+      assertEquals("two", fakedInstance2.getTextValue());
    }
 
-   public static class AClassMockUp extends MockUp<BasicStroke>
+   public static class AClassFake extends MockUp<BasicStroke>
    {
       private final int value;
-      AClassMockUp(int value) { this.value = value; }
+      AClassFake(int value) { this.value = value; }
 
       @Mock public float getLineWidth() { return value; }
    }
 
    @Test
-   public void samePublicMockupAppliedMultipleTimes()
+   public void samePublicFakeAppliedMultipleTimes()
    {
-      BasicStroke mock1 = new AClassMockUp(1).getMockInstance();
-      BasicStroke mock2 = new AClassMockUp(2).getMockInstance();
+      BasicStroke mock1 = new AClassFake(1).getMockInstance();
+      BasicStroke mock2 = new AClassFake(2).getMockInstance();
 
       assertNotSame(mock1, mock2);
       assertEquals(1, mock1.getLineWidth(), 0);
@@ -88,7 +88,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void sameAnonymousMockupAppliedMultipleTimesWithDifferentTargetInstances()
+   public void sameAnonymousFakeAppliedMultipleTimesWithDifferentTargetInstances()
    {
       List<BasicStroke> targetInstances = new ArrayList<BasicStroke>();
 
@@ -106,7 +106,7 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void sameAnonymousMockupAppliedMultipleTimesWithoutTargetInstanceButWithMockInstanceCreatedFromMockup()
+   public void sameAnonymousFakeAppliedMultipleTimesWithoutTargetInstanceButWithFakedInstanceCreatedFromFake()
    {
       List<BasicStroke> mockInstances = new ArrayList<BasicStroke>();
 
@@ -123,84 +123,84 @@ public final class MockUpForSingleClassInstanceTest
    }
 
    @Test
-   public void getMockInstanceFromInsideMockMethodForNonStaticMockedMethod()
+   public void getFakedInstanceFromInsideFakeMethodForNonStaticFakedMethod()
    {
       new MockUp<AClass>() {
          @Mock
          String getTextValue()
          {
             assertNotNull(getMockInstance());
-            return "mock";
+            return "fake";
          }
       };
 
-      assertEquals("mock", new AClass(123).getTextValue());
+      assertEquals("fake", new AClass(123).getTextValue());
    }
 
    @Test
-   public void mockupAffectingOneInstanceButNotOthersOfSameClass()
+   public void fakeAffectingOneInstanceButNotOthersOfSameClass()
    {
       AClass instance1 = new AClass(1);
       AClass instance2 = new AClass(2);
 
-      AClass mockInstance = new MockUp<AClass>(instance1) {
+      AClass fakedInstance = new MockUp<AClass>(instance1) {
          @Mock int getNumericValue() { return 3; }
       }.getMockInstance();
 
-      assertSame(instance1, mockInstance);
+      assertSame(instance1, fakedInstance);
       assertEquals(3, instance1.getNumericValue());
       assertEquals(2, instance2.getNumericValue());
       assertEquals(1, new AClass(1).getNumericValue());
    }
 
    @Test
-   public void accessCurrentMockedInstanceFromInsideMockMethodForAnyInstanceOfTheMockedClass()
+   public void accessCurrentFakedInstanceFromInsideFakeMethodForAnyInstanceOfTheFakedClass()
    {
       AClass instance1 = new AClass(1);
       AClass instance2 = new AClass(2, "test2");
 
-      MockUp<AClass> mockUp = new MockUp<AClass>() {
+      MockUp<AClass> fake = new MockUp<AClass>() {
          @Mock
          String getTextValue()
          {
-            AClass mockedInstance = getMockInstance();
-            return "mocked: " + mockedInstance.textValue;
+            AClass fakedInstance = getMockInstance();
+            return "faked: " + fakedInstance.textValue;
          }
       };
 
       AClass instance3 = new AClass(3, "test3");
-      assertEquals("mocked: null", instance1.getTextValue());
-      assertEquals("mocked: test2", instance2.getTextValue());
-      assertEquals("mocked: test3", instance3.getTextValue());
-      assertSame(instance3, mockUp.getMockInstance());
+      assertEquals("faked: null", instance1.getTextValue());
+      assertEquals("faked: test2", instance2.getTextValue());
+      assertEquals("faked: test3", instance3.getTextValue());
+      assertSame(instance3, fake.getMockInstance());
    }
 
    @Test
-   public void accessCurrentMockedInstanceFromInsideMockMethodForSingleMockedInstance()
+   public void accessCurrentFakedInstanceFromInsideFakeMethodForSingleFakedInstance()
    {
-      AClass unmockedInstance1 = new AClass(1, "test1");
+      AClass nonFakedInstance1 = new AClass(1, "test1");
       final int i = 123;
 
-      MockUp<AClass> mockUp = new MockUp<AClass>() {
+      MockUp<AClass> fake = new MockUp<AClass>() {
          final int numericValue = i;
 
          @Mock
          String getTextValue()
          {
-            AClass mockedInstance = getMockInstance();
-            return "mocked: " + mockedInstance.textValue;
+            AClass fakedInstance = getMockInstance();
+            return "faked: " + fakedInstance.textValue;
          }
 
          @Mock
          int getNumericValue() { return numericValue; }
       };
-      AClass onlyInstanceToBeMocked = mockUp.getMockInstance();
+      AClass onlyInstanceToBeFaked = fake.getMockInstance();
 
-      assertEquals("test1", unmockedInstance1.getTextValue());
+      assertEquals("test1", nonFakedInstance1.getTextValue());
       AClass unmockedInstance2 = new AClass(2, "test2");
-      assertEquals("mocked: null", onlyInstanceToBeMocked.getTextValue());
+      assertEquals("faked: null", onlyInstanceToBeFaked.getTextValue());
       assertEquals("test2", unmockedInstance2.getTextValue());
-      assertSame(onlyInstanceToBeMocked, mockUp.getMockInstance());
+      assertSame(onlyInstanceToBeFaked, fake.getMockInstance());
    }
 
    static final class ASubClass extends AClass

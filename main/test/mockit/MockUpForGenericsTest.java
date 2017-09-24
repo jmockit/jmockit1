@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 public final class MockUpForGenericsTest
 {
-   // Mock-ups for generic classes/methods ////////////////////////////////////////////////////////////////////////////
+   // Fakes for generic classes/methods ///////////////////////////////////////////////////////////////////////////////
 
    public static final class Collaborator
    {
@@ -19,7 +19,7 @@ public final class MockUpForGenericsTest
    }
 
    @Test
-   public void mockGenericMethod()
+   public void fakeGenericMethod()
    {
       new MockUp<Collaborator>() {
          @Mock <T extends Number> T genericMethod(T t) { return t; }
@@ -50,7 +50,7 @@ public final class MockUpForGenericsTest
    }
 
    @Test
-   public void mockGenericClassWithUnspecifiedTypeArguments()
+   public void fakeGenericClassWithUnspecifiedTypeArguments()
    {
       new MockUp<GenericClass<?, ?>>() {
          @Mock
@@ -58,7 +58,7 @@ public final class MockUpForGenericsTest
          {
             StringBuilder s = (StringBuilder) o;
             s.setLength(0);
-            s.append("mock");
+            s.append("fake");
             s.toString();
          }
 
@@ -79,13 +79,13 @@ public final class MockUpForGenericsTest
       int r1 = g.anotherMethod(new StringBuilder("test"), 58, Collections.<String>emptyList());
       int r2 = g.anotherMethod(123, 65, "abc");
 
-      assertEquals("mock", s.toString());
+      assertEquals("fake", s.toString());
       assertEquals(-58, r1);
       assertEquals(-130, r2);
    }
 
    @Test
-   public void mockBothGenericAndNonGenericMethodsInGenericClass()
+   public void fakeBothGenericAndNonGenericMethodsInGenericClass()
    {
       new MockUp<GenericClass<String, Boolean>>() {
          @Mock int anotherMethod(Integer t, int i, String p) { return 2; }
@@ -100,7 +100,7 @@ public final class MockUpForGenericsTest
    static class GenericBaseClass<T, U> { public U find(@SuppressWarnings("UnusedParameters") T id) { return null; } }
 
    @Test
-   public void mockGenericMethodWithMockMethodHavingParameterTypesMatchingTypeArguments()
+   public void fakeGenericMethodWithFakeMethodHavingParameterTypesMatchingTypeArguments()
    {
       new MockUp<GenericBaseClass<String, Integer>>() {
          @Mock
@@ -112,7 +112,7 @@ public final class MockUpForGenericsTest
    }
 
    @Test
-   public void cannotCallGenericMethodWhenSomeMockMethodExpectsDifferentTypes()
+   public void cannotCallGenericMethodWhenSomeFakeMethodExpectsDifferentTypes()
    {
       new MockUp<GenericBaseClass<String, Integer>>() { @Mock Integer find(String id) { return 1; } };
 
@@ -129,7 +129,7 @@ public final class MockUpForGenericsTest
    final class NonGenericSubclass extends NonGenericSuperclass {}
 
    @Test
-   public void mockGenericMethodFromInstantiationOfNonGenericSubclass()
+   public void fakeGenericMethodFromInstantiationOfNonGenericSubclass()
    {
       new MockUp<NonGenericSubclass>() {
          @Mock
@@ -144,7 +144,7 @@ public final class MockUpForGenericsTest
    final class AnotherNonGenericSubclass extends GenericSuperclass<Integer> {}
 
    @Test
-   public void mockGenericMethodFromInstantiationOfNonGenericSubclassWhichExtendsAGenericIntermediateSuperclass()
+   public void fakeGenericMethodFromInstantiationOfNonGenericSubclassWhichExtendsAGenericIntermediateSuperclass()
    {
       new MockUp<AnotherNonGenericSubclass>() {
          @Mock
@@ -164,7 +164,7 @@ public final class MockUpForGenericsTest
    }
 
    @Test
-   public void mockGenericMethodsOfNonGenericClass()
+   public void fakeGenericMethodsOfNonGenericClass()
    {
       new MockUp<NonGenericClassWithGenericMethods>() {
          @Mock <T> T staticMethod(Class<T> cls, String s) { return null; }
@@ -177,35 +177,35 @@ public final class MockUpForGenericsTest
       new NonGenericClassWithGenericMethods().instanceMethod(Byte.class, "test2");
    }
 
-   // Mock-ups for generic interfaces /////////////////////////////////////////////////////////////////////////////////
+   // Fakes for generic interfaces ////////////////////////////////////////////////////////////////////////////////////
 
    public interface GenericInterface<T> { void method(T t); }
 
    @Test
-   public void mockGenericInterfaceMethodWithMockMethodHavingParameterOfTypeObject()
+   public void fakeGenericInterfaceMethodWithFakeMethodHavingParameterOfTypeObject()
    {
-      GenericInterface<Boolean> mock = new MockUp<GenericInterface<Boolean>>() {
+      GenericInterface<Boolean> fakedInstance = new MockUp<GenericInterface<Boolean>>() {
          @Mock
          void method(Object b) { assertTrue((Boolean) b); }
       }.getMockInstance();
 
-      mock.method(true);
+      fakedInstance.method(true);
    }
 
    public interface NonGenericSubInterface extends GenericInterface<Long> {}
 
    @Test
-   public void mockMethodOfSubInterfaceWithGenericTypeArgument()
+   public void fakeMethodOfSubInterfaceWithGenericTypeArgument()
    {
-      NonGenericSubInterface mock = new MockUp<NonGenericSubInterface>() {
+      NonGenericSubInterface fakedInstance = new MockUp<NonGenericSubInterface>() {
          @Mock void method(Long l) { assertTrue(l > 0); }
       }.getMockInstance();
 
-      mock.method(123L);
+      fakedInstance.method(123L);
    }
 
    @Test
-   public void mockGenericInterfaceMethod()
+   public void fakeGenericInterfaceMethod()
    {
       Comparable<Integer> cmp = new MockUp<Comparable<Integer>>() {
          @Mock

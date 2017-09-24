@@ -25,7 +25,7 @@ public final class MockUpTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void attemptToApplyMockUpWithoutTheTargetType()
+   public void attemptToApplyFakeWithoutTheTargetType()
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No target type");
@@ -33,10 +33,10 @@ public final class MockUpTest
       new MockUp() {};
    }
 
-   // Mock-ups for classes ////////////////////////////////////////////////////////////////////////////////////////////
+   // Fakes for classes ///////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void mockUpClass()
+   public void fakeAClass()
    {
       new MockUp<Applet>() {
          @Mock
@@ -71,7 +71,7 @@ public final class MockUpTest
    }
 
    @Test
-   public void mockUpGivenClass()
+   public void fakeAGivenClass()
    {
       final Main main = new Main();
       AtomicIntegerFieldUpdater<?> atomicCount = Deencapsulation.getField(Main.class, AtomicIntegerFieldUpdater.class);
@@ -99,56 +99,48 @@ public final class MockUpTest
    }
 
    @Test
-   public void attemptToMockGivenClassButPassNull()
+   public void attemptToFakeGivenClassButPassNull()
    {
       thrown.expect(NullPointerException.class);
 
       new MockUp<Applet>((Class<?>) null) {};
    }
 
-   @Test
-   public void attemptToMockGivenInstanceButPassNull()
-   {
-      thrown.expect(NullPointerException.class);
-
-      new MockUp<Applet>((Applet) null) {};
-   }
-
    @SuppressWarnings("rawtypes")
-   static class MockForGivenClass extends MockUp
+   static class FakeForGivenClass extends MockUp
    {
       @SuppressWarnings("unchecked")
-      MockForGivenClass() { super(Applet.class); }
+      FakeForGivenClass() { super(Applet.class); }
 
       @Mock
       String getParameter(String s) { return "mock"; }
    }
 
    @Test
-   public void mockUpGivenClassUsingNamedMockUp()
+   public void fakeGivenClassUsingNamedFake()
    {
-      new MockForGivenClass();
+      new FakeForGivenClass();
 
       String s = new Applet().getParameter("test");
 
       assertEquals("mock", s);
    }
 
-   // Mock-ups for interfaces /////////////////////////////////////////////////////////////////////////////////////////
+   // Fakes for interfaces ////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void mockUpInterface() throws Exception
+   public void fakeAnInterface() throws Exception
    {
-      ResultSet mock = new MockUp<ResultSet>() {
+      ResultSet fake = new MockUp<ResultSet>() {
          @Mock
          boolean next() { return true; }
       }.getMockInstance();
 
-      assertTrue(mock.next());
+      assertTrue(fake.next());
    }
 
    @Test
-   public void mockUpGivenInterface()
+   public void fakeAGivenInterface()
    {
       Runnable r = new MockUp<Runnable>(Runnable.class) {
          @Mock
@@ -159,9 +151,9 @@ public final class MockUpTest
    }
 
    @Test
-   public <M extends Runnable & ResultSet> void mockUpTwoInterfacesAtOnce() throws Exception
+   public <M extends Runnable & ResultSet> void fakeTwoInterfacesAtOnce() throws Exception
    {
-      M mock = new MockUp<M>() {
+      M fake = new MockUp<M>() {
          @Mock
          void run() {}
 
@@ -169,13 +161,13 @@ public final class MockUpTest
          boolean next() { return true; }
       }.getMockInstance();
 
-      mock.run();
-      assertTrue(mock.next());
+      fake.run();
+      assertTrue(fake.next());
    }
 
    @SuppressWarnings("TypeParameterExtendsFinalClass")
    @Test
-   public <M extends Applet & Runnable> void attemptToMockUpClassAndInterfaceAtOnce() throws Exception
+   public <M extends Applet & Runnable> void attemptToFAkeClassAndInterfaceAtOnce() throws Exception
    {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("java.applet.Applet is not an interface");
@@ -189,7 +181,7 @@ public final class MockUpTest
    public interface SomeInterface { int doSomething(); }
 
    @Test
-   public void callEqualsMethodOnMockedUpInterface()
+   public void callEqualsMethodOnFakedInterface()
    {
       SomeInterface proxy1 = new MockUp<SomeInterface>(){}.getMockInstance();
       SomeInterface proxy2 = new MockUp<SomeInterface>(){}.getMockInstance();
@@ -203,7 +195,7 @@ public final class MockUpTest
    }
 
    @Test
-   public void callHashCodeMethodOnMockedUpInterface()
+   public void callHashCodeMethodOnFakedInterface()
    {
       SomeInterface proxy = new MockUp<SomeInterface>(){}.getMockInstance();
 
@@ -211,17 +203,17 @@ public final class MockUpTest
    }
 
    @Test
-   public void callToStringMethodOnMockedUpInterface()
+   public void callToStringMethodOnFakedInterface()
    {
       SomeInterface proxy = new MockUp<SomeInterface>(){}.getMockInstance();
 
       assertEquals(proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode()), proxy.toString());
    }
 
-   // Mock-ups for other situations ///////////////////////////////////////////////////////////////////////////////////
+   // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void mockUpUsingInvocationParameters()
+   public void fakeUsingInvocationParameters()
    {
       new MockUp<Applet>() {
          @Mock
@@ -243,7 +235,7 @@ public final class MockUpTest
       assertEquals(-1, i);
    }
 
-   public static class PublicNamedMockUpWithNoInvocationParameters extends MockUp<Applet>
+   public static class PublicNamedFakeWithNoInvocationParameters extends MockUp<Applet>
    {
       boolean executed;
       @Mock public void $init() { executed = true; }
@@ -251,12 +243,12 @@ public final class MockUpTest
    }
 
    @Test
-   public void publicNamedMockUpWithNoInvocationParameter()
+   public void publicNamedFakeWithNoInvocationParameter()
    {
-      PublicNamedMockUpWithNoInvocationParameters mockup = new PublicNamedMockUpWithNoInvocationParameters();
+      PublicNamedFakeWithNoInvocationParameters fake = new PublicNamedFakeWithNoInvocationParameters();
 
       Applet applet = new Applet();
-      assertTrue(mockup.executed);
+      assertTrue(fake.executed);
 
       String parameter = applet.getParameter("test");
       assertEquals("45", parameter);
@@ -264,7 +256,7 @@ public final class MockUpTest
 
    @SuppressWarnings("deprecation")
    @Test
-   public void mockingOfAnnotatedClass() throws Exception
+   public void fakingOfAnnotatedClass() throws Exception
    {
       new MockUp<RMISecurityException>() {
          @Mock void $init(String s) { assertNotNull(s); }
@@ -280,16 +272,16 @@ public final class MockUpTest
    }
 
    @Test
-   public void mockSameClassTwiceUsingSeparateMockups()
+   public void fakeSameClassTwiceUsingSeparateFakes()
    {
       Applet a = new Applet();
 
-      class MockUp1 extends MockUp<Applet> { @Mock void play(URL url) {} }
-      new MockUp1();
+      class Fake1 extends MockUp<Applet> { @Mock void play(URL url) {} }
+      new Fake1();
       a.play(null);
 
       new MockUp<Applet>() { @Mock void showStatus(String s) {} };
-      a.play(null); // still mocked
+      a.play(null); // still faked
       a.showStatus("");
    }
 
@@ -300,7 +292,7 @@ public final class MockUpTest
    }
 
    @Test
-   public void mockNonPublicInterface()
+   public void fakeANonPublicInterface()
    {
       B b = new MockUp<B>() {
          @Mock int aMethod() { return 1; }
@@ -317,24 +309,24 @@ public final class MockUpTest
    }
 
    @Test
-   public void mockSameInterfaceTwiceUsingSeparateMockups()
+   public void fakeSameInterfaceTwiceUsingSeparateFakes()
    {
-      class MockUp1 extends MockUp<C> { @Mock int method1() { return 1; } }
-      C c1 = new MockUp1().getMockInstance();
+      class Fake1 extends MockUp<C> { @Mock int method1() { return 1; } }
+      C c1 = new Fake1().getMockInstance();
       assertEquals(1, c1.method1());
       assertEquals(0, c1.method2());
 
       C c2 = new MockUp<C>() { @Mock int method2() { return 2; } }.getMockInstance();
-      assertEquals(0, c2.method1()); // not mocked because c2 belongs to a second implementation class for C
+      assertEquals(0, c2.method1()); // not faked because c2 belongs to a second implementation class for C
       assertEquals(2, c2.method2());
 
-      // Instances c1 and c2 belong to different mocked classes, so c1 is unaffected:
+      // Instances c1 and c2 belong to different faked classes, so c1 is unaffected:
       assertEquals(1, c1.method1());
       assertEquals(0, c1.method2());
    }
 
    @Test
-   public void mockConstructorOfInnerClass()
+   public void fakeConstructorOfInnerClass()
    {
       final BasicColorChooserUI outer = new BasicColorChooserUI();
       final boolean[] constructed = {false};
@@ -353,7 +345,7 @@ public final class MockUpTest
    }
 
    @Test
-   public void callMockMethodFromAWTEventDispatchingThread() throws Exception
+   public void callFakMethodFromAWTEventDispatchingThread() throws Exception
    {
       new MockUp<Panel>() {
          @Mock int getComponentCount() { return 10; }
@@ -372,7 +364,7 @@ public final class MockUpTest
    static final class JRESubclass extends Patch { JRESubclass(int i, int j) { super(i, j); } }
 
    @Test
-   public void anonymousMockUpForJRESubclassHavingMockMethodForJREMethod()
+   public void anonymousFakeForJRESubclassHavingFakeMethodForJREMethod()
    {
       new MockUp<JRESubclass>() { @Mock int getBank() { return 123; } };
 
