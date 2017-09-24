@@ -29,13 +29,13 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       assertEquals(FORMATTED_DATE, date);
    }
 
-   /// Tests using the Mockups API ////////////////////////////////////////////////////////////////////////////////////
+   /// Tests using the Faking API /////////////////////////////////////////////////////////////////////////////////////
 
    DateFormat dateFormat;
    DateFormat hourFormat;
 
    @Test
-   public void usingMockUpsWithInvocationParameter()
+   public void usingFakesWithInvocationParameter()
    {
       new MockUp<SimpleDateFormat>() {
          @Mock
@@ -62,7 +62,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       exerciseAndVerifyTestedCode();
    }
 
-   /// Tests using the Expectations API ///////////////////////////////////////////////////////////////////////////////
+   /// Tests using the Mocking API ////////////////////////////////////////////////////////////////////////////////////
 
    @Test // not too complex, but inelegant
    public void usingPartialMockingAndDelegate()
