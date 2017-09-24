@@ -16,7 +16,7 @@ public class BaseJUnit4DecoratorTest
       public String getValue() { return "REAL0"; }
    }
 
-   public static final class MockClass0 extends MockUp<RealClass0>
+   public static final class FakeClass0 extends MockUp<RealClass0>
    {
       @Mock public String getValue() { return "TEST0"; }
    }
@@ -25,7 +25,7 @@ public class BaseJUnit4DecoratorTest
    public static void beforeClass()
    {
       assertEquals("REAL0", new RealClass0().getValue());
-      new MockClass0();
+      new FakeClass0();
       assertEquals("TEST0", new RealClass0().getValue());
    }
 
@@ -34,7 +34,7 @@ public class BaseJUnit4DecoratorTest
       public String getValue() { return "REAL1"; }
    }
 
-   public static final class MockClass1 extends MockUp<RealClass1>
+   public static final class FakeClass1 extends MockUp<RealClass1>
    {
       @Mock public String getValue() { return "TEST1"; }
    }
@@ -43,7 +43,7 @@ public class BaseJUnit4DecoratorTest
    public final void beforeBase()
    {
       assertEquals("REAL1", new RealClass1().getValue());
-      new MockClass1();
+      new FakeClass1();
       assertEquals("TEST1", new RealClass1().getValue());
    }
 
