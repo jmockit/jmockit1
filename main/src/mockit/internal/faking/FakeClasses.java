@@ -54,14 +54,12 @@ public final class FakeClasses
 
    @Nonnull private final Map<String, MockUp<?>> startupFakes;
    @Nonnull private final Map<Class<?>, MockUpInstances> fakeClassesToFakeInstances;
-   @Nonnull private final Map<Object, MockUp<?>> fakedToFakeInstances;
    @Nonnull public final FakeStates fakeStates;
 
    public FakeClasses()
    {
       startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
       fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUpInstances>();
-      fakedToFakeInstances = new IdentityHashMap<Object, MockUp<?>>();
       fakeStates = new FakeStates();
    }
 
@@ -77,26 +75,9 @@ public final class FakeClasses
       fakeClassesToFakeInstances.put(fakeClass, newData);
    }
 
-   public void addFake(@Nonnull MockUp<?> fake, @Nonnull Object fakedInstance)
-   {
-      MockUp<?> previousFake = fakedToFakeInstances.put(fakedInstance, fake);
-      assert previousFake == null;
-
-      MockUpInstances fakeInstances = fakeClassesToFakeInstances.get(fake.getClass());
-      fakeInstances.hasMockupsForSingleInstances = true;
-   }
-
-   @Nullable
+   @Nonnull
    public MockUp<?> getFake(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
-      if (mockedInstance != null) {
-         MockUp<?> mockUpForSingleInstance = fakedToFakeInstances.get(mockedInstance);
-
-         if (mockUpForSingleInstance != null) {
-            return mockUpForSingleInstance;
-         }
-      }
-
       MockUp<?> startupMock = startupFakes.get(mockUpClassDesc);
 
       if (startupMock != null) {
@@ -109,9 +90,6 @@ public final class FakeClasses
 
       if (mockedInstance == null) {
          invokedInstance = Void.class;
-      }
-      else if (mockUpInstances.hasMockUpsForSingleInstances()) {
-         return null;
       }
 
       try { INVOKED_INSTANCE_FIELD.set(mockUpInstances.initialMockUp, invokedInstance); }
@@ -126,21 +104,11 @@ public final class FakeClasses
       Class<?> mockUpClass = newFake.getClass();
       MockUpInstances mockUpInstances = fakeClassesToFakeInstances.get(mockUpClass);
 
-      if (mockUpInstances != null && mockUpInstances.hasMockupsForSingleInstances) {
+      if (mockUpInstances != null/* && mockUpInstances.hasMockupsForSingleInstances*/) {
          fakeStates.copyFakeStates(mockUpInstances.initialMockUp, newFake);
       }
 
       return mockUpInstances;
-   }
-
-   private void discardFakeInstances(@Nonnull Map<Object, MockUp<?>> previousFakeInstances)
-   {
-      if (!previousFakeInstances.isEmpty()) {
-         fakedToFakeInstances.entrySet().retainAll(previousFakeInstances.entrySet());
-      }
-      else if (!fakedToFakeInstances.isEmpty()) {
-         fakedToFakeInstances.clear();
-      }
    }
 
    private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
@@ -188,12 +156,10 @@ public final class FakeClasses
 
    public final class SavePoint
    {
-      @Nonnull private final Map<Object, MockUp<?>> previousFakeInstances;
       @Nonnull private final Map<Class<?>, Boolean> previousFakeClasses;
 
       public SavePoint()
       {
-         previousFakeInstances = new IdentityHashMap<Object, MockUp<?>>(fakedToFakeInstances);
          previousFakeClasses = new IdentityHashMap<Class<?>, Boolean>();
 
          for (Entry<Class<?>, MockUpInstances> fakeClassAndData : fakeClassesToFakeInstances.entrySet()) {
@@ -205,8 +171,6 @@ public final class FakeClasses
 
       public void rollback()
       {
-         discardFakeInstances(previousFakeInstances);
-
          if (!previousFakeClasses.isEmpty()) {
             discardFakeInstancesExceptPreviousOnes(previousFakeClasses);
          }

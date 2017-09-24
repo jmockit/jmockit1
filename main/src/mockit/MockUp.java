@@ -147,7 +147,7 @@ public abstract class MockUp<T>
       FakeClasses fakeClasses = TestRun.getFakeClasses();
       MockUpInstances fakeInstances = fakeClasses.findPreviouslyAppliedFakes(this);
 
-      if (fakeInstances != null && fakeInstances.hasMockUpsForSingleInstances()) {
+      if (fakeInstances != null) {
          return fakeInstances.initialMockUp;
       }
 
@@ -238,12 +238,6 @@ public abstract class MockUp<T>
       }
    }
 
-   private void setFakeInstance(@Nonnull T fakeInstance)
-   {
-      TestRun.getFakeClasses().addFake(this, fakeInstance);
-      this.fakeInstance = fakeInstance;
-   }
-
    /**
     * Returns the mock instance exclusively associated with this fake instance.
     * If the faked type was an interface, then said instance is the one that was automatically created when the fake was
@@ -267,7 +261,7 @@ public abstract class MockUp<T>
 
       if (fakeInstance == null && fakedClass != null) {
          @SuppressWarnings("unchecked") T newInstance = (T) createFakeInstance(fakedClass);
-         setFakeInstance(newInstance);
+         fakeInstance = newInstance;
       }
 
       //noinspection ConstantConditions

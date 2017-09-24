@@ -29,7 +29,6 @@ public final class MockInvocation extends BaseInvocation
       @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
       Object mockUp = TestRun.getFake(mockClassDesc, invokedInstance);
-      assert mockUp != null;
       FakeState fakeState = TestRun.getFakeStates().getFakeState(mockUp, mockStateIndex);
       Object[] args = invokedArguments == null ? NO_ARGS : invokedArguments;
       return new MockInvocation(invokedInstance, args, fakeState, mockedClassDesc, mockedMethodName, mockedMethodDesc);

@@ -132,10 +132,6 @@ public final class TestRun
    {
       Object fake = getFake(fakeClassDesc, fakedInstance);
 
-      if (fake == null) {
-         return false;
-      }
-
       if (fakeStateIndex < 0) {
          return true;
       }
@@ -143,7 +139,7 @@ public final class TestRun
       return getFakeStates().updateFakeState(fake, fakeStateIndex);
    }
 
-   @Nullable
+   @Nonnull
    public static Object getFake(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
    {
       return INSTANCE.fakeClasses.getFake(mockUpClassDesc, mockedInstance);
