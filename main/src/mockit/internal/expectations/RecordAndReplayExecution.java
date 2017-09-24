@@ -27,12 +27,8 @@ public final class RecordAndReplayExecution
    public static final ReentrantLock TEST_ONLY_PHASE_LOCK = new ReentrantLock();
 
    @Nullable private final DynamicPartialMocking dynamicPartialMocking;
-
    @Nonnull final PhasedExecutionState executionState;
-   final int lastExpectationIndexInPreviousReplayPhase;
-
-   @Nonnull final FailureState failureState;
-
+   @Nonnull private final FailureState failureState;
    @Nullable private RecordPhase recordPhase;
    @Nullable private ReplayPhase replayPhase;
    @Nullable private BaseVerificationPhase verificationPhase;
@@ -40,16 +36,10 @@ public final class RecordAndReplayExecution
    public RecordAndReplayExecution()
    {
       executionState = new PhasedExecutionState();
-      lastExpectationIndexInPreviousReplayPhase = 0;
       dynamicPartialMocking = null;
       discoverMockedTypesAndInstancesForMatchingOnInstance();
       failureState = new FailureState();
       replayPhase = new ReplayPhase(this);
-   }
-
-   private int getLastExpectationIndexInPreviousReplayPhase()
-   {
-      return replayPhase == null ? -1 : replayPhase.currentStrictExpectationIndex;
    }
 
    public RecordAndReplayExecution(
@@ -64,17 +54,13 @@ public final class RecordAndReplayExecution
 
          if (previous == null) {
             executionState = new PhasedExecutionState();
-            lastExpectationIndexInPreviousReplayPhase = 0;
          }
          else {
             executionState = previous.executionState;
-            lastExpectationIndexInPreviousReplayPhase = previous.getLastExpectationIndexInPreviousReplayPhase();
          }
 
          failureState = new FailureState();
-
-         boolean strict = targetObject instanceof StrictExpectations;
-         recordPhase = new RecordPhase(this, strict);
+         recordPhase = new RecordPhase(this);
 
          executingTest.setRecordAndReplay(this);
          dynamicPartialMocking = applyDynamicPartialMocking(classesOrInstancesToBePartiallyMocked);
@@ -274,7 +260,7 @@ public final class RecordAndReplayExecution
 
       if (execution != null) {
          Expectation recordedExpectation =
-            execution.executionState.findNotStrictExpectation(mock, classDesc, nameAndDesc, args);
+            execution.executionState.findExpectation(mock, classDesc, nameAndDesc, args);
 
          if (recordedExpectation != null) {
             return recordedExpectation.produceResult(mock, args);

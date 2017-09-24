@@ -11,10 +11,8 @@ import javax.annotation.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
-import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.util.Utilities.*;
 
-@SuppressWarnings("ClassWithTooManyFields")
 public final class ExecutingTest
 {
    @Nullable private RecordAndReplayExecution currentRecordAndReplay;
@@ -28,7 +26,6 @@ public final class ExecutingTest
 
    @Nonnull private final List<Object> regularMocks;
    @Nonnull private final List<Object> injectableMocks;
-   @Nonnull private final List<Object> strictMocks;
    @Nonnull private final Map<Object, Object> originalToCapturedInstance;
    @Nonnull private final CascadingTypes cascadingTypes;
 
@@ -40,7 +37,6 @@ public final class ExecutingTest
       proceedingInvocation = new ThreadLocal<BaseInvocation>();
       regularMocks = new ArrayList<Object>();
       injectableMocks = new ArrayList<Object>();
-      strictMocks = new ArrayList<Object>();
       originalToCapturedInstance = new IdentityHashMap<Object, Object>(4);
       cascadingTypes = new CascadingTypes();
    }
@@ -187,31 +183,6 @@ public final class ExecutingTest
          capturedInstance == originalToCapturedInstance.get(invokedInstance);
    }
 
-   public void addStrictMock(@Nullable Object mock, @Nullable String mockClassDesc)
-   {
-      addStrictMock(mock);
-
-      if (mockClassDesc != null) {
-         String uniqueMockClassDesc = mockClassDesc.intern();
-
-         if (!containsStrictMock(uniqueMockClassDesc)) {
-            strictMocks.add(uniqueMockClassDesc);
-         }
-      }
-   }
-
-   private void addStrictMock(@Nullable Object mock)
-   {
-      if (mock != null && !containsStrictMock(mock)) {
-         strictMocks.add(mock);
-      }
-   }
-
-   private boolean containsStrictMock(@Nonnull Object mockOrClassDesc)
-   {
-      return containsReference(strictMocks, mockOrClassDesc);
-   }
-
    public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc)
    {
       return
@@ -233,34 +204,6 @@ public final class ExecutingTest
       cascadingTypes.addInstance(declaredType, mock);
    }
 
-   public boolean isStrictInvocation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc)
-   {
-      if (isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc)) {
-         return false;
-      }
-
-      for (Object strictMock : strictMocks) {
-         if (strictMock instanceof String) {
-            if (
-               strictMock == mockClassDesc ||
-               loadByInternalName((String) strictMock).isAssignableFrom(loadByInternalName(mockClassDesc))
-            ) {
-               addStrictMock(mock);
-               return true;
-            }
-         }
-         else if (
-            strictMock == mock ||
-            mock != null && isInvokedInstanceEquivalentToCapturedInstance(mock, strictMock)
-         ) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    @Nonnull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
    public void finishExecution()
@@ -273,7 +216,6 @@ public final class ExecutingTest
          parameterTypeRedefinitions = null;
       }
 
-      strictMocks.clear();
       cascadingTypes.clearNonSharedCascadingTypes();
    }
 }

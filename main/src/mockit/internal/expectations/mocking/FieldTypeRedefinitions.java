@@ -43,10 +43,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    {
       Class<?> superClass = classWithMockFields.getSuperclass();
 
-      if (
-         superClass != null && superClass != Object.class &&
-         superClass != mockit.Expectations.class && superClass != mockit.StrictExpectations.class
-      ) {
+      if (superClass != null && superClass != Object.class && superClass != mockit.Expectations.class) {
          redefineFieldTypes(superClass);
       }
 

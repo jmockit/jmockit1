@@ -8,16 +8,9 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
-import mockit.internal.state.*;
 
 final class ReplayPhase extends Phase
 {
-   // Fields for the handling of strict invocations:
-   private int initialStrictExpectationIndexForCurrentBlock;
-   int currentStrictExpectationIndex;
-   @Nullable private Expectation strictExpectation;
-
-   // Fields for the handling of invocations that are not strict:
    @Nonnull final List<Expectation> invocations;
    @Nonnull final List<Object> invocationInstances;
    @Nonnull final List<Object[]> invocationArguments;
@@ -28,29 +21,7 @@ final class ReplayPhase extends Phase
       invocations = new ArrayList<Expectation>();
       invocationInstances = new ArrayList<Object>();
       invocationArguments = new ArrayList<Object[]>();
-      initialStrictExpectationIndexForCurrentBlock =
-         Math.max(recordAndReplay.lastExpectationIndexInPreviousReplayPhase, 0);
-      positionOnFirstStrictExpectation();
    }
-
-   private void positionOnFirstStrictExpectation()
-   {
-      List<Expectation> strictExpectations = getStrictExpectations();
-
-      if (strictExpectations.isEmpty()) {
-         currentStrictExpectationIndex = -1;
-         strictExpectation = null ;
-      }
-      else {
-         currentStrictExpectationIndex = initialStrictExpectationIndexForCurrentBlock;
-         strictExpectation =
-            currentStrictExpectationIndex < strictExpectations.size() ?
-               strictExpectations.get(currentStrictExpectationIndex) : null;
-      }
-   }
-
-   @Nonnull
-   private List<Expectation> getStrictExpectations() { return recordAndReplay.executionState.strictExpectations; }
 
    @Override
    @Nullable
@@ -59,51 +30,42 @@ final class ReplayPhase extends Phase
       @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
       throws Throwable
    {
-      Expectation notStrictExpectation =
-         recordAndReplay.executionState.findNotStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+      Expectation expectation =
+         recordAndReplay.executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance = mock == null ?
          null : recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
-      if (notStrictExpectation == null) {
-         notStrictExpectation = createExpectationIfNotStrictInvocation(
+      if (expectation == null) {
+         expectation = createExpectation(
             replacementInstance == null ? mock : replacementInstance,
             mockAccess, mockClassDesc, mockNameAndDesc, genericSignature, args);
       }
-      else if (notStrictExpectation.recordPhase != null) {
-         registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, notStrictExpectation.invocation);
+      else if (expectation.recordPhase != null) {
+         registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, expectation.invocation);
       }
 
-      if (notStrictExpectation != null) {
-         invocations.add(notStrictExpectation);
-         invocationInstances.add(mock);
-         invocationArguments.add(args);
+      invocations.add(expectation);
+      invocationInstances.add(mock);
+      invocationArguments.add(args);
 
-         notStrictExpectation.constraints.incrementInvocationCount();
+      expectation.constraints.incrementInvocationCount();
 
-         if (withRealImpl && replacementInstance != null) {
-            return produceResult(notStrictExpectation, replacementInstance, args);
-         }
-
-         return produceResult(notStrictExpectation, mock, withRealImpl, args);
+      if (withRealImpl && replacementInstance != null) {
+         return produceResult(expectation, replacementInstance, args);
       }
 
-      return handleStrictInvocation(mock, mockClassDesc, mockNameAndDesc, withRealImpl, args);
+      return produceResult(expectation, mock, withRealImpl, args);
    }
 
-   @Nullable
-   private Expectation createExpectationIfNotStrictInvocation(
+   @Nonnull
+   private Expectation createExpectation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
       @Nullable String genericSignature, @Nonnull Object[] args)
    {
-      Expectation expectation = null;
-
-      if (!TestRun.getExecutingTest().isStrictInvocation(mock, mockClassDesc, mockNameAndDesc)) {
-         ExpectedInvocation invocation =
-            new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
-         expectation = new Expectation(invocation);
-         recordAndReplay.executionState.addExpectation(expectation, false);
-      }
-
+      ExpectedInvocation invocation =
+         new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
+      Expectation expectation = new Expectation(invocation);
+      recordAndReplay.executionState.addExpectation(expectation);
       return expectation;
    }
 
@@ -153,69 +115,6 @@ final class ReplayPhase extends Phase
       return expectation.produceResult(mock, args);
    }
 
-   @Nullable @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   private Object handleStrictInvocation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, boolean withRealImpl,
-      @Nonnull Object[] replayArgs)
-      throws Throwable
-   {
-      Map<Object, Object> instanceMap = getInstanceMap();
-
-      while (true) {
-         Expectation expectation = strictExpectation;
-
-         if (expectation == null) {
-            return handleUnexpectedInvocation(mock, mockClassDesc, mockNameAndDesc, withRealImpl, replayArgs);
-         }
-
-         ExpectedInvocation invocation = expectation.invocation;
-         InvocationConstraints constraints = expectation.constraints;
-
-         if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, null)) {
-            registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, invocation);
-
-            Error error = invocation.assertThatArgumentsMatch(replayArgs, instanceMap);
-
-            if (error != null) {
-               if (constraints.isInvocationCountInExpectedRange()) {
-                  moveToNextExpectation();
-                  continue;
-               }
-
-               if (withRealImpl) {
-                  return Void.class;
-               }
-
-               recordAndReplay.setErrorThrown(error);
-               return null;
-            }
-
-            constraints.incrementInvocationCount();
-
-            if (constraints.isInvocationCountAtMaximumAllowed()) {
-               moveToNextExpectation();
-            }
-            else if (constraints.isInvocationCountMoreThanMaximumExpected()) {
-               recordAndReplay.setErrorThrown(invocation.errorForUnexpectedInvocation(replayArgs));
-               return null;
-            }
-
-            return expectation.produceResult(mock, replayArgs);
-         }
-         else if (constraints.isInvocationCountInExpectedRange()) {
-            moveToNextExpectation();
-         }
-         else if (withRealImpl) {
-            return Void.class;
-         }
-         else {
-            recordAndReplay.setErrorThrown(
-               invocation.errorForUnexpectedInvocation(mock, mockClassDesc, mockNameAndDesc, replayArgs));
-            return null;
-         }
-      }
-   }
-
    @Nullable
    private Object handleUnexpectedInvocation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, boolean withRealImpl,
@@ -231,57 +130,17 @@ final class ReplayPhase extends Phase
       return null;
    }
 
-   private void moveToNextExpectation()
-   {
-      List<Expectation> strictExpectations = getStrictExpectations();
-
-      assert strictExpectation != null;
-      RecordPhase expectationBlock = strictExpectation.recordPhase;
-      assert expectationBlock != null;
-
-      currentStrictExpectationIndex++;
-
-      boolean hasNextExpectation = currentStrictExpectationIndex < strictExpectations.size();
-      strictExpectation = hasNextExpectation ? strictExpectations.get(currentStrictExpectationIndex) : null;
-
-      if (strictExpectation != null && strictExpectation.recordPhase != expectationBlock) {
-         initialStrictExpectationIndexForCurrentBlock = currentStrictExpectationIndex;
-      }
-   }
-
    @Nullable
    Error endExecution()
    {
-      Expectation strict = strictExpectation;
-      strictExpectation = null;
-
-      Error missingInvocation = getErrorIfStrictExpectationIsMissing(strict);
-
-      if (missingInvocation == null) {
-         missingInvocation = getErrorForFirstNotStrictExpectationThatIsMissing();
-
-         if (missingInvocation == null) {
-            missingInvocation = getErrorIfNextStrictExpectationIsMissing();
-         }
-      }
-
+      Error missingInvocation = getErrorForFirstExpectationThatIsMissing();
       return missingInvocation;
    }
 
    @Nullable
-   private Error getErrorIfStrictExpectationIsMissing(@Nullable Expectation strict)
+   private Error getErrorForFirstExpectationThatIsMissing()
    {
-      if (strict != null && strict.constraints.isInvocationCountLessThanMinimumExpected()) {
-         return strict.invocation.errorForMissingInvocation(Collections.<ExpectedInvocation>emptyList());
-      }
-
-      return null;
-   }
-
-   @Nullable
-   private Error getErrorForFirstNotStrictExpectationThatIsMissing()
-   {
-      List<Expectation> notStrictExpectations = recordAndReplay.executionState.notStrictExpectations;
+      List<Expectation> notStrictExpectations = recordAndReplay.executionState.expectations;
 
       // New expectations might get added to the list, so a regular loop would cause a CME.
       for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {
@@ -312,23 +171,5 @@ final class ReplayPhase extends Phase
       }
 
       return nonMatchingInvocations;
-   }
-
-   @Nullable
-   private Error getErrorIfNextStrictExpectationIsMissing()
-   {
-      int nextStrictExpectationIndex = currentStrictExpectationIndex + 1;
-      List<Expectation> strictExpectations = getStrictExpectations();
-
-      if (nextStrictExpectationIndex < strictExpectations.size()) {
-         Expectation nextStrictExpectation = strictExpectations.get(nextStrictExpectationIndex);
-
-         if (nextStrictExpectation.constraints.isInvocationCountLessThanMinimumExpected()) {
-            return
-               nextStrictExpectation.invocation.errorForMissingInvocation(Collections.<ExpectedInvocation>emptyList());
-         }
-      }
-
-      return null;
    }
 }

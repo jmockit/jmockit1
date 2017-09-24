@@ -7,6 +7,7 @@ package mockit;
 import java.lang.reflect.*;
 
 import org.junit.*;
+import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
@@ -15,6 +16,8 @@ import mockit.internal.*;
 @SuppressWarnings({"unused", "deprecation"})
 public final class ExpectationsTest
 {
+   @Rule public final ExpectedException thrown = ExpectedException.none();
+
    @Deprecated
    public static class Dependency
    {
@@ -227,5 +230,86 @@ public final class ExpectationsTest
       assertNotNull(ignore);
       assertEquals("test", ignore.value());
       assertTrue(mockedMethod.getParameterAnnotations()[0][0] instanceof Deprecated);
+   }
+
+   static class Collaborator
+   {
+      private int value;
+
+      int getValue() { return value; }
+      void setValue(int value) { this.value = value; }
+
+      void provideSomeService() {}
+      String doSomething(String s) { return s.toLowerCase(); }
+      static String doInternal() { return "123"; }
+   }
+
+   @Test
+   public void expectOnlyOneInvocationButExerciseOthersDuringReplay(@Mocked final Collaborator mock)
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      new Expectations() {{ mock.provideSomeService(); }};
+
+      mock.provideSomeService();
+      mock.setValue(1);
+
+      new FullVerifications() {};
+   }
+
+   @Test
+   public void expectNothingOnMockedTypeButExerciseItDuringReplay(@Mocked final Collaborator mock)
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      new Expectations() {{ mock.setValue(anyInt); times = 0; }};
+
+      mock.setValue(2);
+
+      new FullVerifications() {};
+   }
+
+   @Test
+   public void replayWithUnexpectedStaticMethodInvocation(@Mocked final Collaborator mock)
+   {
+      thrown.expect(UnexpectedInvocation.class);
+      new Expectations() {{ mock.getValue(); }};
+
+      Collaborator.doInternal();
+
+      new FullVerifications() {};
+   }
+
+   @Test
+   public void failureFromUnexpectedInvocationInAnotherThread(@Mocked final Collaborator mock) throws Exception
+   {
+      Thread t = new Thread() {
+         @Override
+         public void run() { mock.provideSomeService(); }
+      };
+
+      new Expectations() {{ mock.getValue(); }};
+      thrown.expect(UnexpectedInvocation.class);
+
+      mock.getValue();
+      t.start();
+      t.join();
+
+      new FullVerifications() {};
+   }
+
+   @Test
+   public void recordingExpectationOnMethodWithOneArgumentButReplayingWithAnotherShouldProduceUsefulErrorMessage(
+      @Mocked final Collaborator mock) throws Exception
+   {
+      final String expected = "expected";
+      new Expectations() {{ mock.doSomething(expected); }};
+
+      mock.doSomething(expected);
+
+      String another = "another";
+      mock.doSomething(another);
+
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage(another);
+      new FullVerifications() {};
    }
 }

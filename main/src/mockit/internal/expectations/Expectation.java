@@ -22,15 +22,14 @@ final class Expectation
    {
       recordPhase = null;
       this.invocation = invocation;
-      constraints = new InvocationConstraints(false, true);
+      constraints = new InvocationConstraints(true);
    }
 
-   Expectation(
-      @Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean strict, boolean nonStrict)
+   Expectation(@Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean nonStrict)
    {
       this.recordPhase = recordPhase;
       this.invocation = invocation;
-      constraints = new InvocationConstraints(strict, nonStrict);
+      constraints = new InvocationConstraints(nonStrict);
    }
 
    @Nonnull

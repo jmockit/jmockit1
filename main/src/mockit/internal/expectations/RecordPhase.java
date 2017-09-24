@@ -7,18 +7,11 @@ package mockit.internal.expectations;
 import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
-import mockit.internal.state.*;
 import static mockit.internal.expectations.state.ExecutingTest.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
-   final boolean strict;
-
-   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay, boolean strict)
-   {
-      super(recordAndReplay);
-      this.strict = strict;
-   }
+   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
 
    public void addResult(@Nullable Object result)
    {
@@ -48,10 +41,7 @@ public final class RecordPhase extends TestOnlyPhase
 
       boolean nonStrictInvocation = false;
 
-      if (strict) {
-         TestRun.getExecutingTest().addStrictMock(mock, matchInstance ? null : mockClassDesc);
-      }
-      else if (!matchInstance && invocation.isConstructor()) {
+      if (!matchInstance && invocation.isConstructor()) {
          invocation.replacementInstance = mock;
          getReplacementMap().put(mock, mock);
       }
@@ -59,14 +49,14 @@ public final class RecordPhase extends TestOnlyPhase
          nonStrictInvocation = isInstanceMethodWithStandardBehavior(mock, mockNameAndDesc);
       }
 
-      currentExpectation = new Expectation(this, invocation, strict, nonStrictInvocation);
+      currentExpectation = new Expectation(this, invocation, nonStrictInvocation);
 
       if (argMatchers != null) {
          invocation.arguments.setMatchers(argMatchers);
          argMatchers = null;
       }
 
-      recordAndReplay.executionState.addExpectation(currentExpectation, strict);
+      recordAndReplay.executionState.addExpectation(currentExpectation);
 
       return invocation.getDefaultValueForReturnType();
    }
