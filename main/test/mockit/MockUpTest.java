@@ -374,7 +374,7 @@ public final class MockUpTest
       assertEquals(123, i);
    }
 
-   static boolean fakeTornDown;
+   static Boolean fakeTornDown;
 
    static final class FakeWithActionOnTearDown extends MockUp<Applet>
    {
@@ -385,6 +385,7 @@ public final class MockUpTest
    @Test
    public void performActionOnFakeTearDown()
    {
+      fakeTornDown = false;
       new FakeWithActionOnTearDown();
       assertFalse(fakeTornDown);
    }
@@ -392,6 +393,6 @@ public final class MockUpTest
    @AfterClass
    public static void verifyFakeAppliedInTestWasTornDown()
    {
-      assertTrue(fakeTornDown);
+      assertTrue(fakeTornDown == null || fakeTornDown);
    }
 }
