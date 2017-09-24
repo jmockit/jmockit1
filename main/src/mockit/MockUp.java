@@ -145,10 +145,10 @@ public abstract class MockUp<T>
    private MockUp<?> findPreviouslyFakedClassIfFakeAlreadyApplied()
    {
       FakeClasses fakeClasses = TestRun.getFakeClasses();
-      MockUpInstances fakeInstances = fakeClasses.findPreviouslyAppliedFakes(this);
+      FakeInstances fakeInstances = fakeClasses.findPreviouslyAppliedFakes(this);
 
       if (fakeInstances != null) {
-         return fakeInstances.initialMockUp;
+         return fakeInstances.initialFake;
       }
 
       return null;

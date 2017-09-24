@@ -29,37 +29,28 @@ public final class FakeClasses
       catch (NoSuchMethodException e) { throw new RuntimeException(e); }
    }
 
-   private static void notifyOfTearDown(@Nonnull MockUp<?> mockUp)
+   private static void notifyOfTearDown(@Nonnull MockUp<?> fake)
    {
-      try { ON_TEAR_DOWN_METHOD.invoke(mockUp); }
+      try { ON_TEAR_DOWN_METHOD.invoke(fake); }
       catch (IllegalAccessException ignore) {}
       catch (InvocationTargetException e) { e.getCause().printStackTrace(); }
    }
 
-   public static final class MockUpInstances
+   public static final class FakeInstances
    {
-      @Nonnull public final MockUp<?> initialMockUp;
-      boolean hasMockupsForSingleInstances;
-
-      MockUpInstances(@Nonnull MockUp<?> initialMockUp)
-      {
-         this.initialMockUp = initialMockUp;
-         hasMockupsForSingleInstances = false;
-      }
-
-      public boolean hasMockUpsForSingleInstances() { return hasMockupsForSingleInstances; }
-
-      void notifyMockUpOfTearDown() { notifyOfTearDown(initialMockUp); }
+      @Nonnull public final MockUp<?> initialFake;
+      FakeInstances(@Nonnull MockUp<?> initialFake) { this.initialFake = initialFake; }
+      void notifyMockUpOfTearDown() { notifyOfTearDown(initialFake); }
    }
 
    @Nonnull private final Map<String, MockUp<?>> startupFakes;
-   @Nonnull private final Map<Class<?>, MockUpInstances> fakeClassesToFakeInstances;
+   @Nonnull private final Map<Class<?>, FakeInstances> fakeClassesToFakeInstances;
    @Nonnull public final FakeStates fakeStates;
 
    public FakeClasses()
    {
       startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
-      fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUpInstances>();
+      fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, FakeInstances>();
       fakeStates = new FakeStates();
    }
 
@@ -71,7 +62,7 @@ public final class FakeClasses
    public void addFake(@Nonnull MockUp<?> fake)
    {
       Class<?> fakeClass = fake.getClass();
-      MockUpInstances newData = new MockUpInstances(fake);
+      FakeInstances newData = new FakeInstances(fake);
       fakeClassesToFakeInstances.put(fakeClass, newData);
    }
 
@@ -85,62 +76,51 @@ public final class FakeClasses
       }
 
       Class<?> mockUpClass = ClassLoad.loadByInternalName(mockUpClassDesc);
-      MockUpInstances mockUpInstances = fakeClassesToFakeInstances.get(mockUpClass);
+      FakeInstances fakeInstances = fakeClassesToFakeInstances.get(mockUpClass);
       Object invokedInstance = mockedInstance;
 
       if (mockedInstance == null) {
          invokedInstance = Void.class;
       }
 
-      try { INVOKED_INSTANCE_FIELD.set(mockUpInstances.initialMockUp, invokedInstance); }
+      try { INVOKED_INSTANCE_FIELD.set(fakeInstances.initialFake, invokedInstance); }
       catch (IllegalAccessException ignore) {}
 
-      return mockUpInstances.initialMockUp;
+      return fakeInstances.initialFake;
    }
 
    @Nullable
-   public MockUpInstances findPreviouslyAppliedFakes(@Nonnull MockUp<?> newFake)
+   public FakeInstances findPreviouslyAppliedFakes(@Nonnull MockUp<?> newFake)
    {
-      Class<?> mockUpClass = newFake.getClass();
-      MockUpInstances mockUpInstances = fakeClassesToFakeInstances.get(mockUpClass);
+      Class<?> fakeClass = newFake.getClass();
+      FakeInstances fakeInstances = fakeClassesToFakeInstances.get(fakeClass);
 
-      if (mockUpInstances != null/* && mockUpInstances.hasMockupsForSingleInstances*/) {
-         fakeStates.copyFakeStates(mockUpInstances.initialMockUp, newFake);
+      if (fakeInstances != null) {
+         fakeStates.copyFakeStates(fakeInstances.initialFake, newFake);
       }
 
-      return mockUpInstances;
+      return fakeInstances;
    }
 
    private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
    {
-      updatePreviousFakes(previousFakeClasses);
-
-      for (Entry<Class<?>, MockUpInstances> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
+      for (Entry<Class<?>, FakeInstances> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
          Class<?> fakeClass = fakeClassAndInstances.getKey();
 
          if (!previousFakeClasses.containsKey(fakeClass)) {
-            MockUpInstances mockUpInstances = fakeClassAndInstances.getValue();
-            mockUpInstances.notifyMockUpOfTearDown();
+            FakeInstances fakeInstances = fakeClassAndInstances.getValue();
+            fakeInstances.notifyMockUpOfTearDown();
          }
       }
 
       fakeClassesToFakeInstances.keySet().retainAll(previousFakeClasses.keySet());
    }
 
-   private void updatePreviousFakes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
-   {
-      for (Entry<Class<?>, Boolean> fakeClassAndData : previousFakeClasses.entrySet()) {
-         Class<?> fakeClass = fakeClassAndData.getKey();
-         MockUpInstances fakeData = fakeClassesToFakeInstances.get(fakeClass);
-         fakeData.hasMockupsForSingleInstances = fakeClassAndData.getValue();
-      }
-   }
-
    private void discardAllFakeInstances()
    {
       if (!fakeClassesToFakeInstances.isEmpty()) {
-         for (MockUpInstances mockUpInstances : fakeClassesToFakeInstances.values()) {
-            mockUpInstances.notifyMockUpOfTearDown();
+         for (FakeInstances fakeInstances : fakeClassesToFakeInstances.values()) {
+            fakeInstances.notifyMockUpOfTearDown();
          }
 
          fakeClassesToFakeInstances.clear();
@@ -162,10 +142,9 @@ public final class FakeClasses
       {
          previousFakeClasses = new IdentityHashMap<Class<?>, Boolean>();
 
-         for (Entry<Class<?>, MockUpInstances> fakeClassAndData : fakeClassesToFakeInstances.entrySet()) {
+         for (Entry<Class<?>, FakeInstances> fakeClassAndData : fakeClassesToFakeInstances.entrySet()) {
             Class<?> fakeClass = fakeClassAndData.getKey();
-            MockUpInstances fakeData = fakeClassAndData.getValue();
-            previousFakeClasses.put(fakeClass, fakeData.hasMockupsForSingleInstances);
+            previousFakeClasses.put(fakeClass, false);
          }
       }
 
