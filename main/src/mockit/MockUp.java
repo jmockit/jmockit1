@@ -81,7 +81,6 @@ import static mockit.internal.util.GeneratedClasses.*;
  *
  * @see #MockUp()
  * @see #MockUp(Class)
- * @see #MockUp(Object)
  * @see #getMockInstance()
  * @see #onTearDown()
  * @see #targetType
@@ -106,7 +105,6 @@ public abstract class MockUp<T>
     * through the type parameter.
     *
     * @see #MockUp(Class)
-    * @see #MockUp(Object)
     */
    protected MockUp()
    {
@@ -216,7 +214,6 @@ public abstract class MockUp<T>
     * This variation should be used only when the type to be faked is not accessible or known from the test code.
     *
     * @see #MockUp()
-    * @see #MockUp(Object)
     */
    protected MockUp(@SuppressWarnings("NullableProblems") Class<?> targetClass)
    {
@@ -241,45 +238,6 @@ public abstract class MockUp<T>
       }
    }
 
-   /**
-    * Applies the {@linkplain Mock fake methods} defined in the fake class to the type specified through the type
-    * parameter, but only affecting the given instance.
-    * <p/>
-    * In most cases, the constructor with no parameters should be adequate.
-    * This variation can be used when fake data or behavior is desired only for a particular instance, with other
-    * instances remaining unaffected; or when multiple fake objects carrying different states are desired, with one
-    * fake instance per real instance.
-    * <p/>
-    * If {@link #getMockInstance()} later gets called on this fake instance, it will return the instance that was given
-    * here.
-    *
-    * @param targetInstance a real instance of the type to be faked, meant to be the only one of that type that should
-    * be affected by this fake instance
-    *
-    * @see #MockUp()
-    * @see #MockUp(Class)
-    * @deprecated This is a rarely used feature without demonstrable use cases; real instances should be used instead.
-    */
-   @Deprecated
-   protected MockUp(T targetInstance)
-   {
-      MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
-
-      if (previousFake != null) {
-         targetType = previousFake.targetType;
-         fakedClass = previousFake.fakedClass;
-         setFakeInstance(targetInstance);
-         return;
-      }
-
-      @SuppressWarnings("unchecked") Class<T> classToFake = (Class<T>) targetInstance.getClass();
-      targetType = classToFake;
-      fakedClass = classToFake;
-      classesToRestore = redefineMethods(classToFake, classToFake, classToFake);
-
-      setFakeInstance(targetInstance);
-   }
-
    private void setFakeInstance(@Nonnull T fakeInstance)
    {
       TestRun.getFakeClasses().addFake(this, fakeInstance);
@@ -292,8 +250,6 @@ public abstract class MockUp<T>
     * applied.
     * If it was a class, and no such instance is currently associated with this (stateful) fake object, then a new
     * <em>uninitialized</em> instance of the faked class is created and returned, becoming associated with the fake.
-    * If a regular <em>initialized</em> instance was desired, then the {@link #MockUp(Object)} constructor should have
-    * been used instead.
     * <p/>
     * In any case, for a given fake instance this method will always return the same fake instance.
     *

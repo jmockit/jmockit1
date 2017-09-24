@@ -103,7 +103,7 @@ public final class MockUpTest
    {
       thrown.expect(NullPointerException.class);
 
-      new MockUp<Applet>((Class<?>) null) {};
+      new MockUp<Applet>(null) {};
    }
 
    @SuppressWarnings("rawtypes")
