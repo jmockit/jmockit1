@@ -10,43 +10,43 @@ import javax.annotation.*;
 import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.reflection.*;
 
-final class MockState
+final class FakeState
 {
-   @Nonnull final FakeMethod mockMethod;
-   @Nullable private Method actualMockMethod;
+   @Nonnull final FakeMethod fakeMethod;
+   @Nullable private Method actualFakeMethod;
    @Nullable private Member realMethodOrConstructor;
    @Nullable private Object realClass;
 
-   // Current mock invocation state:
+   // Current fake invocation state:
    private int invocationCount;
    @Nullable private ThreadLocal<MockInvocation> proceedingInvocation;
 
    // Helper field just for synchronization:
    @Nonnull private final Object invocationCountLock;
 
-   MockState(@Nonnull FakeMethod mockMethod)
+   FakeState(@Nonnull FakeMethod fakeMethod)
    {
-      this.mockMethod = mockMethod;
+      this.fakeMethod = fakeMethod;
       invocationCountLock = new Object();
 
-      if (mockMethod.canBeReentered()) {
+      if (fakeMethod.canBeReentered()) {
          makeReentrant();
       }
    }
 
-   MockState(@Nonnull MockState mockState)
+   FakeState(@Nonnull FakeState fakeState)
    {
-      mockMethod = mockState.mockMethod;
-      actualMockMethod = mockState.actualMockMethod;
-      realMethodOrConstructor = mockState.realMethodOrConstructor;
+      fakeMethod = fakeState.fakeMethod;
+      actualFakeMethod = fakeState.actualFakeMethod;
+      realMethodOrConstructor = fakeState.realMethodOrConstructor;
       invocationCountLock = new Object();
 
-      if (mockState.proceedingInvocation != null) {
+      if (fakeState.proceedingInvocation != null) {
          makeReentrant();
       }
    }
 
-   @Nonnull Class<?> getRealClass() { return mockMethod.getRealClass(); }
+   @Nonnull Class<?> getRealClass() { return fakeMethod.getRealClass(); }
 
    private void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
 
@@ -77,23 +77,23 @@ final class MockState
 
    @Nonnull
    Member getRealMethodOrConstructor(
-      @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
+      @Nonnull String fakedClassDesc, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc)
    {
-      if (realMethodOrConstructor == null || !mockedClassDesc.equals(realClass)) {
-         String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
+      if (realMethodOrConstructor == null || !fakedClassDesc.equals(realClass)) {
+         String memberName = "$init".equals(fakedMethodName) ? "<init>" : fakedMethodName;
 
          RealMethodOrConstructor realMember;
-         try { realMember = new RealMethodOrConstructor(mockedClassDesc, memberName, mockedMethodDesc); }
+         try { realMember = new RealMethodOrConstructor(fakedClassDesc, memberName, fakedMethodDesc); }
          catch (NoSuchMethodException e) { throw new RuntimeException(e); }
 
          Member member = realMember.getMember();
 
-         if (mockMethod.isAdvice) {
+         if (fakeMethod.isAdvice) {
             return member;
          }
 
          realMethodOrConstructor = member;
-         realClass = mockedClassDesc;
+         realClass = fakedClassDesc;
       }
 
       return realMethodOrConstructor;
@@ -101,34 +101,34 @@ final class MockState
 
    @Nonnull
    Member getRealMethodOrConstructor(
-      @Nonnull Class<?> mockedClass, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
+      @Nonnull Class<?> fakedClass, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc)
    {
-      if (realMethodOrConstructor == null || !mockedClass.equals(realClass)) {
-         String memberName = "$init".equals(mockedMethodName) ? "<init>" : mockedMethodName;
+      if (realMethodOrConstructor == null || !fakedClass.equals(realClass)) {
+         String memberName = "$init".equals(fakedMethodName) ? "<init>" : fakedMethodName;
 
          RealMethodOrConstructor realMember;
-         try { realMember = new RealMethodOrConstructor(mockedClass, memberName, mockedMethodDesc); }
+         try { realMember = new RealMethodOrConstructor(fakedClass, memberName, fakedMethodDesc); }
          catch (NoSuchMethodException e) { throw new RuntimeException(e); }
 
          Member member = realMember.getMember();
 
-         if (mockMethod.isAdvice) {
+         if (fakeMethod.isAdvice) {
             return member;
          }
 
          realMethodOrConstructor = member;
-         realClass = mockedClass;
+         realClass = fakedClass;
       }
 
       return realMethodOrConstructor;
    }
 
-   boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
+   boolean shouldProceedIntoRealImplementation(@Nullable Object fake, @Nonnull String classDesc)
    {
       if (proceedingInvocation != null) {
          MockInvocation pendingInvocation = proceedingInvocation.get();
 
-         if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(mock, classDesc)) {
+         if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(fake, classDesc)) {
             return true;
          }
       }
@@ -142,7 +142,7 @@ final class MockState
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
       }
 
-      if (mockMethod.isForNativeMethod()) {
+      if (fakeMethod.isForNativeMethod()) {
          throw new UnsupportedOperationException("Cannot proceed into real implementation of native method");
       }
 
@@ -155,7 +155,7 @@ final class MockState
       proceedingInvocation.set(invocation);
    }
 
-   void prepareToProceedFromNonRecursiveMock(@Nonnull MockInvocation invocation)
+   void prepareToProceedFromNonRecursiveFake(@Nonnull MockInvocation invocation)
    {
       assert proceedingInvocation != null;
       proceedingInvocation.set(invocation);
@@ -170,18 +170,18 @@ final class MockState
    }
 
    @Nonnull
-   Method getMockMethod(@Nonnull Class<?> mockUpClass, @Nonnull Class<?>[] parameterTypes)
+   Method getFakeMethod(@Nonnull Class<?> fakeClass, @Nonnull Class<?>[] parameterTypes)
    {
-      if (actualMockMethod == null) {
-         actualMockMethod = MethodReflection.findCompatibleMethod(mockUpClass, mockMethod.name, parameterTypes);
+      if (actualFakeMethod == null) {
+         actualFakeMethod = MethodReflection.findCompatibleMethod(fakeClass, fakeMethod.name, parameterTypes);
       }
 
-      return actualMockMethod;
+      return actualFakeMethod;
    }
 
    @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-   public boolean equals(@Nonnull Object other) { return mockMethod.equals(((MockState) other).mockMethod); }
+   public boolean equals(@Nonnull Object other) { return fakeMethod.equals(((FakeState) other).fakeMethod); }
 
    @Override
-   public int hashCode() { return mockMethod.hashCode(); }
+   public int hashCode() { return fakeMethod.hashCode(); }
 }

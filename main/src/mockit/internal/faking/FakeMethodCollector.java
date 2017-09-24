@@ -16,33 +16,33 @@ import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
 /**
- * Responsible for collecting the signatures of all methods defined in a given mock class which are explicitly annotated
- * as {@link Mock mocks}.
+ * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated
+ * as {@link Mock fakes}.
  */
-final class MockMethodCollector extends ClassVisitor
+final class FakeMethodCollector extends ClassVisitor
 {
    private static final int INVALID_METHOD_ACCESSES = ACC_BRIDGE + ACC_SYNTHETIC + ACC_ABSTRACT + ACC_NATIVE;
 
-   @Nonnull private final FakeMethods mockMethods;
+   @Nonnull private final FakeMethods fakeMethods;
 
    private boolean collectingFromSuperClass;
    @Nullable private String enclosingClassDescriptor;
 
-   MockMethodCollector(@Nonnull FakeMethods mockMethods) { this.mockMethods = mockMethods; }
+   FakeMethodCollector(@Nonnull FakeMethods fakeMethods) { this.fakeMethods = fakeMethods; }
 
-   void collectMockMethods(@Nonnull Class<?> mockClass)
+   void collectFakeMethods(@Nonnull Class<?> fakeClass)
    {
-      ClassLoad.registerLoadedClass(mockClass);
+      ClassLoad.registerLoadedClass(fakeClass);
 
-      Class<?> classToCollectMocksFrom = mockClass;
+      Class<?> classToCollectFakesFrom = fakeClass;
 
       do {
-         ClassReader mcReader = ClassFile.readFromFile(classToCollectMocksFrom);
+         ClassReader mcReader = ClassFile.readFromFile(classToCollectFakesFrom);
          mcReader.accept(this, SKIP_CODE + SKIP_FRAMES);
-         classToCollectMocksFrom = classToCollectMocksFrom.getSuperclass();
+         classToCollectFakesFrom = classToCollectFakesFrom.getSuperclass();
          collectingFromSuperClass = true;
       }
-      while (classToCollectMocksFrom != Object.class && classToCollectMocksFrom != MockUp.class);
+      while (classToCollectFakesFrom != Object.class && classToCollectFakesFrom != MockUp.class);
    }
 
    @Override
@@ -51,7 +51,7 @@ final class MockMethodCollector extends ClassVisitor
       @Nullable String[] interfaces)
    {
       if (!collectingFromSuperClass) {
-         mockMethods.setFakeClassInternalName(name);
+         fakeMethods.setFakeClassInternalName(name);
 
          int p = name.lastIndexOf('$');
 
@@ -62,7 +62,7 @@ final class MockMethodCollector extends ClassVisitor
    }
 
    /**
-    * Adds the method specified to the set of mock methods, as long as it's annotated with {@code @Mock}.
+    * Adds the method specified to the set of fake methods, as long as it's annotated with {@code @Mock}.
     *
     * @param methodSignature generic signature for a Java 5 generic method, ignored since redefinition only needs to
     *                        consider the "erased" signature
@@ -85,16 +85,16 @@ final class MockMethodCollector extends ClassVisitor
          return null;
       }
 
-      return new MockMethodVisitor(access, methodName, methodDesc);
+      return new FakeMethodVisitor(access, methodName, methodDesc);
    }
 
-   private final class MockMethodVisitor extends MethodVisitor
+   private final class FakeMethodVisitor extends MethodVisitor
    {
       private final int access;
       @Nonnull private final String methodName;
       @Nonnull private final String methodDesc;
 
-      MockMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc)
+      FakeMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc)
       {
          this.access = access;
          this.methodName = methodName;
@@ -105,11 +105,11 @@ final class MockMethodCollector extends ClassVisitor
       public AnnotationVisitor visitAnnotation(@Nullable String desc, boolean visible)
       {
          if ("Lmockit/Mock;".equals(desc)) {
-            FakeMethod mockMethod = mockMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+            FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
 
-            if (mockMethod != null && mockMethod.requiresFakeState()) {
-               MockState mockState = new MockState(mockMethod);
-               mockMethods.addMockState(mockState);
+            if (fakeMethod != null && fakeMethod.requiresFakeState()) {
+               FakeState fakeState = new FakeState(fakeMethod);
+               fakeMethods.addFakeState(fakeState);
             }
          }
 
@@ -120,7 +120,7 @@ final class MockMethodCollector extends ClassVisitor
       public void visitLocalVariable(
          @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
       {
-         String classDesc = mockMethods.getFakeClassInternalName();
+         String classDesc = fakeMethods.getFakeClassInternalName();
          ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
       }
    }

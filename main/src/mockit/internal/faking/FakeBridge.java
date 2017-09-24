@@ -33,7 +33,7 @@ public final class FakeBridge extends MockingBridge
          }
 
          Integer mockStateIndex = (Integer) args[1];
-         return TestRun.updateMockState(fakeClassDesc, faked, mockStateIndex);
+         return TestRun.updateFakeState(fakeClassDesc, faked, mockStateIndex);
       }
       finally {
          TestRun.exitNoMockingZone();

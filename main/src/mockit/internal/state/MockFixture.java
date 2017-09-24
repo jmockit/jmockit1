@@ -208,7 +208,7 @@ public final class MockFixture
    private void discardStateForCorrespondingFakeClassIfAny(@Nonnull Class<?> redefinedClass)
    {
       String mockClassesInternalNames = realClassesToFakeClasses.remove(redefinedClass);
-      TestRun.getMockStates().removeClassState(redefinedClass, mockClassesInternalNames);
+      TestRun.getFakeStates().removeClassState(redefinedClass, mockClassesInternalNames);
    }
 
    void restoreTransformedClasses(@Nonnull Set<ClassIdentification> previousTransformedClasses)

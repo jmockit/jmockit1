@@ -47,9 +47,9 @@ public final class FakeClassSetup
       rcReader = realClassCode == null ? null : new ClassReader(realClassCode);
 
       Class<?> fakeClass = fake.getClass();
-      new MockMethodCollector(fakeMethods).collectMockMethods(fakeClass);
+      new FakeMethodCollector(fakeMethods).collectFakeMethods(fakeClass);
 
-      fakeMethods.registerMockStates(fake, forStartupFake);
+      fakeMethods.registerFakeStates(fake, forStartupFake);
 
       FakeClasses fakeClasses = TestRun.getFakeClasses();
 

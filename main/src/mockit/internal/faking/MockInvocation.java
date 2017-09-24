@@ -16,7 +16,7 @@ import static mockit.internal.util.Utilities.*;
  */
 public final class MockInvocation extends BaseInvocation
 {
-   @Nonnull private final MockState mockState;
+   @Nonnull private final FakeState fakeState;
    @Nonnull private final String mockedClassDesc;
    @Nonnull private final String mockedMethodName;
    @Nonnull private final String mockedMethodDesc;
@@ -30,17 +30,17 @@ public final class MockInvocation extends BaseInvocation
    {
       Object mockUp = TestRun.getFake(mockClassDesc, invokedInstance);
       assert mockUp != null;
-      MockState mockState = TestRun.getMockStates().getMockState(mockUp, mockStateIndex);
+      FakeState fakeState = TestRun.getFakeStates().getFakeState(mockUp, mockStateIndex);
       Object[] args = invokedArguments == null ? NO_ARGS : invokedArguments;
-      return new MockInvocation(invokedInstance, args, mockState, mockedClassDesc, mockedMethodName, mockedMethodDesc);
+      return new MockInvocation(invokedInstance, args, fakeState, mockedClassDesc, mockedMethodName, mockedMethodDesc);
    }
 
    MockInvocation(
-      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnull MockState mockState,
+      @Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnull FakeState fakeState,
       @Nonnull String mockedClassDesc, @Nonnull String mockedMethodName, @Nonnull String mockedMethodDesc)
    {
-      super(invokedInstance, invokedArguments, mockState.getTimesInvoked());
-      this.mockState = mockState;
+      super(invokedInstance, invokedArguments, fakeState.getTimesInvoked());
+      this.fakeState = fakeState;
       this.mockedClassDesc = mockedClassDesc;
       this.mockedMethodName = mockedMethodName;
       this.mockedMethodDesc = mockedMethodDesc;
@@ -53,16 +53,16 @@ public final class MockInvocation extends BaseInvocation
 
       if (invokedInstance != null) {
          Class<?> mockedClass = invokedInstance.getClass();
-         return mockState.getRealMethodOrConstructor(mockedClass, mockedMethodName, mockedMethodDesc);
+         return fakeState.getRealMethodOrConstructor(mockedClass, mockedMethodName, mockedMethodDesc);
       }
 
-      return mockState.getRealMethodOrConstructor(mockedClassDesc, mockedMethodName, mockedMethodDesc);
+      return fakeState.getRealMethodOrConstructor(mockedClassDesc, mockedMethodName, mockedMethodDesc);
    }
 
    boolean shouldProceedIntoConstructor()
    {
       if (proceeding && getInvokedMember() instanceof Constructor) {
-         mockState.clearProceedIndicator();
+         fakeState.clearProceedIndicator();
          return true;
       }
 
@@ -72,19 +72,19 @@ public final class MockInvocation extends BaseInvocation
    @Override
    public void prepareToProceed()
    {
-      mockState.prepareToProceed(this);
+      fakeState.prepareToProceed(this);
       proceeding = true;
    }
 
    public void prepareToProceedFromNonRecursiveMock()
    {
-      mockState.prepareToProceedFromNonRecursiveMock(this);
+      fakeState.prepareToProceedFromNonRecursiveFake(this);
       proceeding = true;
    }
 
    @Override
    public void cleanUpAfterProceed()
    {
-      mockState.clearProceedIndicator();
+      fakeState.clearProceedIndicator();
    }
 }

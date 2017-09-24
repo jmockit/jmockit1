@@ -29,7 +29,7 @@ final class MockupsModifier extends BaseClassModifier
    private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
 
    @Nonnull private final FakeMethods fakeMethods;
-   private final boolean useMockingBridgeForUpdatingMockState;
+   private final boolean useMockingBridgeForUpdatingFakeState;
    @Nonnull private final Class<?> fakedClass;
    private FakeMethod fakeMethod;
    private boolean isConstructor;
@@ -58,7 +58,7 @@ final class MockupsModifier extends BaseClassModifier
       this.fakeMethods = fakeMethods;
 
       ClassLoader classLoaderOfRealClass = realClass.getClassLoader();
-      useMockingBridgeForUpdatingMockState = ClassLoad.isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
+      useMockingBridgeForUpdatingFakeState = ClassLoad.isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
       inferUseOfMockingBridge(classLoaderOfRealClass, fake);
    }
 
@@ -169,7 +169,7 @@ final class MockupsModifier extends BaseClassModifier
 
    private void generateCallToUpdateFakeState()
    {
-      if (useMockingBridgeForUpdatingMockState) {
+      if (useMockingBridgeForUpdatingFakeState) {
          generateCallToControlMethodThroughMockingBridge();
          mw.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
          mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
@@ -179,7 +179,7 @@ final class MockupsModifier extends BaseClassModifier
          generateCodeToPassThisOrNullIfStaticMethod();
          mw.visitIntInsn(SIPUSH, fakeMethod.getIndexForFakeState());
          mw.visitMethodInsn(
-            INVOKESTATIC, "mockit/internal/state/TestRun", "updateMockState",
+            INVOKESTATIC, "mockit/internal/state/TestRun", "updateFakeState",
             "(Ljava/lang/String;Ljava/lang/Object;I)Z", false);
       }
    }

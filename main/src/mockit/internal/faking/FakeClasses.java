@@ -55,14 +55,14 @@ public final class FakeClasses
    @Nonnull private final Map<String, MockUp<?>> startupFakes;
    @Nonnull private final Map<Class<?>, MockUpInstances> fakeClassesToFakeInstances;
    @Nonnull private final Map<Object, MockUp<?>> fakedToFakeInstances;
-   @Nonnull public final MockStates fakeStates;
+   @Nonnull public final FakeStates fakeStates;
 
    public FakeClasses()
    {
       startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
       fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUpInstances>();
       fakedToFakeInstances = new IdentityHashMap<Object, MockUp<?>>();
-      fakeStates = new MockStates();
+      fakeStates = new FakeStates();
    }
 
    public void addFake(@Nonnull String fakeClassDesc, @Nonnull MockUp<?> fake)
@@ -127,7 +127,7 @@ public final class FakeClasses
       MockUpInstances mockUpInstances = fakeClassesToFakeInstances.get(mockUpClass);
 
       if (mockUpInstances != null && mockUpInstances.hasMockupsForSingleInstances) {
-         fakeStates.copyMockStates(mockUpInstances.initialMockUp, newFake);
+         fakeStates.copyFakeStates(mockUpInstances.initialMockUp, newFake);
       }
 
       return mockUpInstances;

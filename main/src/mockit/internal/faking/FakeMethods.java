@@ -29,7 +29,7 @@ final class FakeMethods
    @Nullable private FakeMethod adviceMethod;
    @Nonnull private final GenericTypeReflection typeParametersToTypeArguments;
    @Nonnull private String fakeClassInternalName;
-   @Nullable private List<MockState> fakeStates;
+   @Nullable private List<FakeState> fakeStates;
 
    final class FakeMethod
    {
@@ -169,13 +169,13 @@ final class FakeMethods
       return false;
    }
 
-   void addMockState(@Nonnull MockState fakeState)
+   void addFakeState(@Nonnull FakeState fakeState)
    {
       if (fakeStates == null) {
-         fakeStates = new ArrayList<MockState>(4);
+         fakeStates = new ArrayList<FakeState>(4);
       }
 
-      fakeState.mockMethod.indexForFakeState = fakeStates.size();
+      fakeState.fakeMethod.indexForFakeState = fakeStates.size();
       fakeStates.add(fakeState);
    }
 
@@ -225,16 +225,16 @@ final class FakeMethods
       return false;
    }
 
-   void registerMockStates(@Nonnull Object fake, boolean forStartupFake)
+   void registerFakeStates(@Nonnull Object fake, boolean forStartupFake)
    {
       if (fakeStates != null) {
-         MockStates allMockStates = TestRun.getMockStates();
+         FakeStates allFakeStates = TestRun.getFakeStates();
 
          if (forStartupFake) {
-            allMockStates.addStartupFakeAndItsFakeStates(fake, fakeStates);
+            allFakeStates.addStartupFakeAndItsFakeStates(fake, fakeStates);
          }
          else {
-            allMockStates.addFakeAndItsFakeStates(fake, fakeStates);
+            allFakeStates.addFakeAndItsFakeStates(fake, fakeStates);
          }
       }
    }
