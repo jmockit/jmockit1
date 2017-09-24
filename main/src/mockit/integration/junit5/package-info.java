@@ -10,8 +10,8 @@
  * This integration provides the following benefits to test code:
  * <ol>
  * <li>
- * Expected invocations specified through the Expectations API are automatically verified before the execution of a test
- * is completed.
+ * Expected invocations specified through the Mocking API are automatically verified before the execution of a test is
+ * completed.
  * </li>
  * <li>
  * Fake classes applied with the Faking API from inside a method annotated as a {@code @Test} or a {@code @Before}
