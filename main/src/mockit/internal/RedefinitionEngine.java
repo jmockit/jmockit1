@@ -33,24 +33,17 @@ public final class RedefinitionEngine
 
    public void redefineMethodsWhileRegisteringTheClass(@Nonnull byte[] modifiedClassfile)
    {
-      redefineMethods(modifiedClassfile);
-      addToMapOfRedefinedClasses(null, modifiedClassfile);
-      TestRun.mockFixture().registerMockedClass(realClass);
-   }
-
-   private void addToMapOfRedefinedClasses(@Nullable String mockClassInternalName, @Nonnull byte[] modifiedClassfile)
-   {
-      TestRun.mockFixture().addRedefinedClass(mockClassInternalName, realClass, modifiedClassfile);
-   }
-
-   private void redefineMethods(@Nonnull byte[] modifiedClassfile)
-   {
       Startup.redefineMethods(realClass, modifiedClassfile);
+
+      MockFixture mockFixture = TestRun.mockFixture();
+      mockFixture.addRedefinedClass(null, realClass, modifiedClassfile);
+      mockFixture.registerMockedClass(realClass);
    }
 
    public void redefineMethods(@Nonnull Map<Class<?>, byte[]> modifiedClassfiles)
    {
       ClassDefinition[] classDefs = new ClassDefinition[modifiedClassfiles.size()];
+      MockFixture mockFixture = TestRun.mockFixture();
       int i = 0;
 
       for (Entry<Class<?>, byte[]> classAndBytecode : modifiedClassfiles.entrySet()) {
@@ -58,7 +51,7 @@ public final class RedefinitionEngine
          byte[] modifiedClassfile = classAndBytecode.getValue();
 
          classDefs[i++] = new ClassDefinition(realClass, modifiedClassfile);
-         addToMapOfRedefinedClasses(null, modifiedClassfile);
+         mockFixture.addRedefinedClass(null, realClass, modifiedClassfile);
       }
 
       Startup.redefineMethods(classDefs);
@@ -79,13 +72,13 @@ public final class RedefinitionEngine
       if (!GeneratedClasses.isGeneratedImplementationClass(aClass)) {
          realClass = aClass;
          byte[] realClassFile = ClassFile.createReaderOrGetFromCache(aClass).b;
-         redefineMethods(realClassFile);
+         Startup.redefineMethods(aClass, realClassFile);
       }
    }
 
    public void restoreToDefinition(@Nonnull Class<?> aClass, @Nonnull byte[] definitionToRestore)
    {
       realClass = aClass;
-      redefineMethods(definitionToRestore);
+      Startup.redefineMethods(aClass, definitionToRestore);
    }
 }

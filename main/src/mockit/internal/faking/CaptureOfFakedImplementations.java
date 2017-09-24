@@ -15,36 +15,36 @@ import static mockit.internal.util.Utilities.getClassType;
 
 public final class CaptureOfFakedImplementations extends CaptureOfImplementations<Void>
 {
-   private final MockClassSetup mockClassSetup;
+   private final FakeClassSetup fakeClassSetup;
 
    public CaptureOfFakedImplementations(@Nonnull MockUp<?> mockUp, @Nonnull Type baseType)
    {
       Class<?> baseClassType = getClassType(baseType);
-      mockClassSetup = new MockClassSetup(baseClassType, baseType, mockUp, null);
+      fakeClassSetup = new FakeClassSetup(baseClassType, baseType, mockUp, null);
    }
 
    @Nonnull @Override
    protected BaseClassModifier createModifier(
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata)
    {
-      return mockClassSetup.createClassModifier(cr);
+      return fakeClassSetup.createClassModifier(cr);
    }
 
    @Override
    protected void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
    {
-      mockClassSetup.applyClassModifications(realClass, modifiedClass);
+      fakeClassSetup.applyClassModifications(realClass, modifiedClass);
    }
 
    @Nullable
    public <T> Class<T> apply()
    {
-      @SuppressWarnings("unchecked") Class<T> baseType = (Class<T>) mockClassSetup.realClass;
+      @SuppressWarnings("unchecked") Class<T> baseType = (Class<T>) fakeClassSetup.realClass;
       Class<T> baseClassType = baseType;
       Class<T> fakedClass = null;
 
       if (baseType.isInterface()) {
-         fakedClass = new FakedImplementationClass<T>(mockClassSetup.mockUp).createImplementation(baseType);
+         fakedClass = new FakedImplementationClass<T>(fakeClassSetup.fake).createImplementation(baseType);
          baseClassType = fakedClass;
       }
 

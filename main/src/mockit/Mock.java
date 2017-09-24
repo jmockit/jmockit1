@@ -7,8 +7,8 @@ package mockit;
 import java.lang.annotation.*;
 
 /**
- * Used inside a {@linkplain MockUp fake} class to indicate a <em>mock (fake) method</em> whose implementation will
- * temporarily replace the implementation of a matching "real" method.
+ * Used inside a {@linkplain MockUp fake} class to indicate a <em>fake method</em> whose implementation will temporarily
+ * replace the implementation of a matching "real" method.
  * <p/>
  * The fake method must have the same name and the same parameters as the matching real method, except for an optional
  * first parameter of type {@link Invocation}; if this extra parameter is present, the remaining ones must match the
@@ -30,7 +30,7 @@ import java.lang.annotation.*;
  * Yet another special fake method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will
  * match <em>every</em> method in the target class hierarchy.
  *
- * @see <a href="http://jmockit.org/tutorial/Faking.html#mocks" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.org/tutorial/Faking.html#fakes" target="tutorial">Tutorial</a>
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

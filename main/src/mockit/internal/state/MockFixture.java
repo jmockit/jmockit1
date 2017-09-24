@@ -37,7 +37,7 @@ public final class MockFixture
     * The keys in the map allow each redefined real class to be later restored to a previous definition.
     * <p/>
     * The modified bytecode arrays in the map allow a new redefinition to be made on top of the current redefinition
-    * (in the case of the Mockups API), or to restore the class to a previous definition (provided the map is copied
+    * (in the case of the Faking API), or to restore the class to a previous definition (provided the map is copied
     * between redefinitions of the same class).
     */
    @Nonnull private final Map<Class<?>, byte[]> redefinedClasses;
@@ -53,12 +53,12 @@ public final class MockFixture
    @Nonnull private final Set<String> redefinedClassesWithNativeMethods;
 
    /**
-    * Maps redefined real classes to the internal name of the corresponding mock classes, when it's the case.
+    * Maps redefined real classes to the internal name of the corresponding fake classes, when it's the case.
     * <p/>
-    * This allows any global state associated to a mock class to be discarded when the corresponding real class is
-    * later restored to its original definition.
+    * This allows any global state associated to a fake class to be discarded when the corresponding real class is later
+    * restored to its original definition.
     */
-   @Nonnull private final Map<Class<?>, String> realClassesToMockClasses;
+   @Nonnull private final Map<Class<?>, String> realClassesToFakeClasses;
 
    @Nonnull private final List<Class<?>> mockedClasses;
    @Nonnull private final Map<Type, InstanceFactory> mockedTypesAndInstances;
@@ -70,7 +70,7 @@ public final class MockFixture
       transformedClasses = new HashMap<ClassIdentification, byte[]>(2);
       redefinedClasses = new ConcurrentHashMap<Class<?>, byte[]>(8);
       redefinedClassesWithNativeMethods = new HashSet<String>();
-      realClassesToMockClasses = new IdentityHashMap<Class<?>, String>(8);
+      realClassesToFakeClasses = new IdentityHashMap<Class<?>, String>(8);
       mockedClasses = new ArrayList<Class<?>>();
       mockedTypesAndInstances = new IdentityHashMap<Type, InstanceFactory>();
       captureTransformers = new ArrayList<CaptureTransformer<?>>();
@@ -84,13 +84,13 @@ public final class MockFixture
    }
 
    public void addRedefinedClass(
-      @Nullable String mockClassInternalName, @Nonnull Class<?> redefinedClass, @Nonnull byte[] modifiedClassfile)
+      @Nullable String fakeClassInternalName, @Nonnull Class<?> redefinedClass, @Nonnull byte[] modifiedClassfile)
    {
-      if (mockClassInternalName != null) {
-         String previousNames = realClassesToMockClasses.put(redefinedClass, mockClassInternalName);
+      if (fakeClassInternalName != null) {
+         String previousNames = realClassesToFakeClasses.put(redefinedClass, fakeClassInternalName);
 
          if (previousNames != null) {
-            realClassesToMockClasses.put(redefinedClass, previousNames + ' ' + mockClassInternalName);
+            realClassesToFakeClasses.put(redefinedClass, previousNames + ' ' + fakeClassInternalName);
          }
       }
 
@@ -205,9 +205,9 @@ public final class MockFixture
       mockedClasses.remove(mockedClass);
    }
 
-   private void discardStateForCorrespondingMockClassIfAny(@Nonnull Class<?> redefinedClass)
+   private void discardStateForCorrespondingFakeClassIfAny(@Nonnull Class<?> redefinedClass)
    {
-      String mockClassesInternalNames = realClassesToMockClasses.remove(redefinedClass);
+      String mockClassesInternalNames = realClassesToFakeClasses.remove(redefinedClass);
       TestRun.getMockStates().removeClassState(redefinedClass, mockClassesInternalNames);
    }
 
@@ -263,7 +263,7 @@ public final class MockFixture
 
             if (previousDefinition == null) {
                restoreDefinition(redefinedClass);
-               discardStateForCorrespondingMockClassIfAny(redefinedClass);
+               discardStateForCorrespondingFakeClassIfAny(redefinedClass);
                itr.remove();
             }
             else {

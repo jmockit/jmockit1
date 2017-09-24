@@ -30,8 +30,8 @@ public final class FakedImplementationClass<T>
       createImplementation(interfaceToBeFaked);
       byte[] generatedBytecode = implementationClass == null ? null : implementationClass.getGeneratedBytecode();
 
-      MockClassSetup mockClassSetup = new MockClassSetup(generatedClass, typeToFake, fakeInstance, generatedBytecode);
-      mockClassSetup.redefineMethodsInGeneratedClass();
+      FakeClassSetup fakeClassSetup = new FakeClassSetup(generatedClass, typeToFake, fakeInstance, generatedBytecode);
+      fakeClassSetup.redefineMethodsInGeneratedClass();
 
       return generatedClass;
    }
@@ -74,7 +74,7 @@ public final class FakedImplementationClass<T>
 
       //noinspection unchecked
       generatedClass = (Class<T>) Proxy.getProxyClass(THIS_CL, interfacesToFake);
-      new MockClassSetup(generatedClass, null, fakeInstance, null).redefineMethods();
+      new FakeClassSetup(generatedClass, null, fakeInstance, null).redefineMethods();
 
       return generatedClass;
    }

@@ -205,7 +205,7 @@ public abstract class MockUp<T>
    private Set<Class<?>> redefineMethods(
       @Nonnull Class<T> realClass, @Nonnull Class<T> classToFake, @Nullable Type genericFakedType)
    {
-      MockClassSetup fakeSetup = new MockClassSetup(realClass, classToFake, genericFakedType, this);
+      FakeClassSetup fakeSetup = new FakeClassSetup(realClass, classToFake, genericFakedType, this);
       return fakeSetup.redefineMethods();
    }
 
