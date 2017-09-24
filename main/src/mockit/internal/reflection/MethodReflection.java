@@ -17,16 +17,13 @@ public final class MethodReflection
    private MethodReflection() {}
 
    @Nullable
-   public static <T> T invoke(
+   public static <T> T invokeWithCheckedThrows(
       @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
-      @Nonnull Class<?>[] paramTypes, @Nullable Object... methodArgs)
+      @Nonnull Class<?>[] paramTypes, @Nonnull Object... methodArgs)
+      throws Throwable
    {
-      if (methodArgs == null) {
-         throw invalidArguments();
-      }
-
       Method method = findSpecifiedMethod(theClass, methodName, paramTypes);
-      T result = invoke(targetInstance, method, methodArgs);
+      T result = invokeWithCheckedThrows(targetInstance, method, methodArgs);
       return result;
    }
 
@@ -87,30 +84,6 @@ public final class MethodReflection
       return result;
    }
 
-   @Nonnull
-   public static String readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName)
-   {
-      try {
-         Method publicMethod = annotationInstance.getClass().getMethod(attributeName, NO_PARAMETERS);
-         String result = (String) publicMethod.invoke(annotationInstance);
-         return result;
-      }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
-   }
-
-   @Nullable
-   public static <T> T invokeWithCheckedThrows(
-      @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
-      @Nonnull Class<?>[] paramTypes, @Nonnull Object... methodArgs)
-      throws Throwable
-   {
-      Method method = findSpecifiedMethod(theClass, methodName, paramTypes);
-      T result = invokeWithCheckedThrows(targetInstance, method, methodArgs);
-      return result;
-   }
-
    @Nullable
    public static <T> T invoke(@Nullable Object targetInstance, @Nonnull Method method, @Nonnull Object... methodArgs)
    {
@@ -163,42 +136,17 @@ public final class MethodReflection
       }
    }
 
-   @Nullable
-   public static <T> T invoke(
-      @Nonnull Class<?> theClass, @Nullable Object targetInstance, @Nonnull String methodName,
-      @Nullable Object... methodArgs)
-   {
-      if (methodArgs == null) {
-         throw invalidArguments();
-      }
-
-      boolean staticMethod = targetInstance == null;
-      Class<?>[] argTypes = getArgumentTypesFromArgumentValues(methodArgs);
-      Method method = staticMethod ?
-         findCompatibleStaticMethod(theClass, methodName, argTypes) :
-         findCompatibleMethod(theClass, methodName, argTypes);
-
-      if (staticMethod && !isStatic(method.getModifiers())) {
-         throw new IllegalArgumentException(
-            "Attempted to invoke non-static method without an instance to invoke it on");
-      }
-
-      T result = invoke(targetInstance, method, methodArgs);
-      return result;
-   }
-
    @Nonnull
-   private static Method findCompatibleStaticMethod(
-      @Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes)
+   public static String readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName)
    {
-      Method methodFound = findCompatibleMethodInClass(theClass, methodName, argTypes);
-
-      if (methodFound != null) {
-         return methodFound;
+      try {
+         Method publicMethod = annotationInstance.getClass().getMethod(attributeName, NO_PARAMETERS);
+         String result = (String) publicMethod.invoke(annotationInstance);
+         return result;
       }
-
-      String argTypesDesc = getParameterTypesDescription(argTypes);
-      throw new IllegalArgumentException("No compatible static method found: " + methodName + argTypesDesc);
+      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
    }
 
    @Nonnull

@@ -12,8 +12,6 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-import static mockit.Deencapsulation.*;
-
 import static org.hamcrest.CoreMatchers.*;
 
 public final class DeencapsulationTest
@@ -61,9 +59,9 @@ public final class DeencapsulationTest
       anInstance.setStringField("test");
       anInstance.setListField(Collections.<String>emptyList());
 
-      Integer intValue = getField(anInstance, "intField");
-      String stringValue = getField(anInstance, "stringField");
-      List<String> listValue = getField(anInstance, "listField");
+      Integer intValue = Deencapsulation.getField(anInstance, "intField");
+      String stringValue = Deencapsulation.getField(anInstance, "stringField");
+      List<String> listValue = Deencapsulation.getField(anInstance, "listField");
 
       assertEquals(anInstance.getIntField(), intValue.intValue());
       assertEquals(anInstance.getStringField(), stringValue);
@@ -76,7 +74,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No instance field of name \"noField\" found");
 
-      getField(anInstance, "noField");
+      Deencapsulation.getField(anInstance, "noField");
    }
 
    @Test
@@ -86,9 +84,9 @@ public final class DeencapsulationTest
       anInstance.baseString = "test";
       anInstance.baseSet = Collections.emptySet();
 
-      Integer intValue = getField(anInstance, "baseInt");
-      String stringValue = getField(anInstance, "baseString");
-      Set<Boolean> listValue = getField(anInstance, "baseSet");
+      Integer intValue = Deencapsulation.getField(anInstance, "baseInt");
+      String stringValue = Deencapsulation.getField(anInstance, "baseString");
+      Set<Boolean> listValue = Deencapsulation.getField(anInstance, "baseSet");
 
       assertEquals(anInstance.baseInt, intValue.intValue());
       assertEquals(anInstance.baseString, stringValue);
@@ -101,9 +99,9 @@ public final class DeencapsulationTest
       anInstance.setStringField("by type");
       anInstance.setListField(new ArrayList<String>());
 
-      String stringValue = getField(anInstance, String.class);
-      List<String> listValue = getField(anInstance, List.class);
-      List<String> listValue2 = getField(anInstance, ArrayList.class);
+      String stringValue = Deencapsulation.getField(anInstance, String.class);
+      List<String> listValue = Deencapsulation.getField(anInstance, List.class);
+      List<String> listValue2 = Deencapsulation.getField(anInstance, ArrayList.class);
 
       assertEquals(anInstance.getStringField(), stringValue);
       assertSame(anInstance.getListField(), listValue);
@@ -116,7 +114,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Instance field of type byte or Byte not found");
 
-      getField(anInstance, Byte.class);
+      Deencapsulation.getField(anInstance, Byte.class);
    }
 
    @Test
@@ -127,7 +125,7 @@ public final class DeencapsulationTest
       thrown.expectMessage("of type int ");
       thrown.expectMessage("INITIAL_VALUE, initialValue");
 
-      getField(anInstance, int.class);
+      Deencapsulation.getField(anInstance, int.class);
    }
 
    @Test @SuppressWarnings("unchecked")
@@ -136,8 +134,8 @@ public final class DeencapsulationTest
       Set<Boolean> fieldValueOnInstance = new HashSet<Boolean>();
       anInstance.baseSet = fieldValueOnInstance;
 
-      Set<Boolean> setValue = getField(anInstance, fieldValueOnInstance.getClass());
-      Set<Boolean> setValue2 = getField(anInstance, HashSet.class);
+      Set<Boolean> setValue = Deencapsulation.getField(anInstance, fieldValueOnInstance.getClass());
+      Set<Boolean> setValue2 = Deencapsulation.getField(anInstance, HashSet.class);
 
       assertSame(fieldValueOnInstance, setValue);
       assertSame(setValue, setValue2);
@@ -148,7 +146,7 @@ public final class DeencapsulationTest
    {
       anInstance.setLongField(15);
 
-      long longValue = getField(anInstance, long.class);
+      long longValue = Deencapsulation.getField(anInstance, long.class);
 
       assertEquals(15, longValue);
    }
@@ -158,7 +156,7 @@ public final class DeencapsulationTest
    {
       Subclass.setBuffer(new StringBuilder());
 
-      StringBuilder b = getField(Subclass.class, "buffer");
+      StringBuilder b = Deencapsulation.getField(Subclass.class, "buffer");
 
       assertSame(Subclass.getBuffer(), b);
    }
@@ -169,7 +167,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No static field of name \"buffer\" found in class mockit.BaseClass");
 
-      getField(BaseClass.class, "buffer");
+      Deencapsulation.getField(BaseClass.class, "buffer");
    }
 
    @Test
@@ -177,7 +175,7 @@ public final class DeencapsulationTest
    {
       Subclass.setBuffer(new StringBuilder());
 
-      StringBuilder b = getField(Subclass.class, StringBuilder.class);
+      StringBuilder b = Deencapsulation.getField(Subclass.class, StringBuilder.class);
 
       assertSame(Subclass.getBuffer(), b);
    }
@@ -187,7 +185,7 @@ public final class DeencapsulationTest
    {
       anInstance.setIntField2(1);
 
-      setField(anInstance, "intField2", 901);
+      Deencapsulation.setField(anInstance, "intField2", 901);
 
       assertEquals(901, anInstance.getIntField2());
    }
@@ -198,7 +196,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No instance field of name \"noField\" found");
 
-      setField(anInstance, "noField", 901);
+      Deencapsulation.setField(anInstance, "noField", 901);
    }
 
    @Test
@@ -206,7 +204,7 @@ public final class DeencapsulationTest
    {
       anInstance.setStringField("");
 
-      setField(anInstance, "Test");
+      Deencapsulation.setField(anInstance, "Test");
 
       assertEquals("Test", anInstance.getStringField());
    }
@@ -217,7 +215,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Instance field of type byte or Byte not found");
 
-      setField(anInstance, (byte) 123);
+      Deencapsulation.setField(anInstance, (byte) 123);
    }
 
    @Test
@@ -226,7 +224,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("More than one instance field ");
 
-      setField(anInstance, 901);
+      Deencapsulation.setField(anInstance, 901);
    }
 
    @Test
@@ -234,7 +232,7 @@ public final class DeencapsulationTest
    {
       Subclass.setBuffer(null);
 
-      setField(Subclass.class, "buffer", new StringBuilder());
+      Deencapsulation.setField(Subclass.class, "buffer", new StringBuilder());
 
       assertNotNull(Subclass.getBuffer());
    }
@@ -245,7 +243,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No static field of name \"noField\" found ");
 
-      setField(Subclass.class, "noField", null);
+      Deencapsulation.setField(Subclass.class, "noField", null);
    }
 
    @Test
@@ -253,7 +251,7 @@ public final class DeencapsulationTest
    {
       Subclass.setBuffer(null);
 
-      setField(Subclass.class, new StringBuilder());
+      Deencapsulation.setField(Subclass.class, new StringBuilder());
 
       assertNotNull(Subclass.getBuffer());
    }
@@ -264,7 +262,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Missing field value");
 
-      setField(Subclass.class, null);
+      Deencapsulation.setField(Subclass.class, null);
    }
 
    @Test
@@ -273,7 +271,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Static field of type StringBuffer not found");
 
-      setField(Subclass.class, new StringBuffer());
+      Deencapsulation.setField(Subclass.class, new StringBuffer());
    }
 
    @Test
@@ -282,7 +280,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("More than one static field ");
 
-      setField(Subclass.class, 'A');
+      Deencapsulation.setField(Subclass.class, 'A');
    }
 
    @Test
@@ -290,11 +288,11 @@ public final class DeencapsulationTest
    {
       Subclass obj = new Subclass();
 
-      setField(obj, "INITIAL_VALUE", 123);
-      setField(obj, "initialValue", 123);
+      Deencapsulation.setField(obj, "INITIAL_VALUE", 123);
+      Deencapsulation.setField(obj, "initialValue", 123);
 
       assertEquals(123, obj.INITIAL_VALUE);
-      assertEquals(123, getField(obj, "initialValue"));
+      assertEquals(123, Deencapsulation.getField(obj, "initialValue"));
       assertEquals(-1, obj.initialValue); // in this case, the compile-time constant gets embedded in client code
    }
 
@@ -303,7 +301,7 @@ public final class DeencapsulationTest
    {
       thrown.expectCause(isA(IllegalAccessException.class));
 
-      setField(Subclass.class, "constantField", 54);
+      Deencapsulation.setField(Subclass.class, "constantField", 54);
    }
 
    @Test(expected = InstantiationException.class)
@@ -316,14 +314,14 @@ public final class DeencapsulationTest
    @Test
    public void newUninitializedInstanceOfConcreteClass()
    {
-      Subclass instance = newUninitializedInstance(Subclass.class);
+      Subclass instance = Deencapsulation.newUninitializedInstance(Subclass.class);
 
       assertEquals(0, instance.intField);
       assertEquals(0, instance.INITIAL_VALUE);
       assertEquals(-1, instance.initialValue);
 
       // This field value is a compile-time constant, so we need Reflection to read its current value:
-      int initialValue = getField(instance, "initialValue");
+      int initialValue = Deencapsulation.getField(instance, "initialValue");
       assertEquals(0, initialValue);
    }
 
@@ -332,7 +330,7 @@ public final class DeencapsulationTest
    @Test
    public void newUninitializedInstanceOfAbstractClass()
    {
-      AbstractClass instance = newUninitializedInstance(AbstractClass.class);
+      AbstractClass instance = Deencapsulation.newUninitializedInstance(AbstractClass.class);
 
       assertNotNull(instance);
       assertEquals(0, instance.doSomething());
@@ -342,10 +340,10 @@ public final class DeencapsulationTest
    @Test
    public void newUninitializedInstanceOfAbstractJREClass() throws Exception
    {
-      Writer instance = newUninitializedInstance(Writer.class);
+      Writer instance = Deencapsulation.newUninitializedInstance(Writer.class);
 
       assertNotNull(instance);
-      assertNull(getField(instance, "lock"));
+      assertNull(Deencapsulation.getField(instance, "lock"));
 
       // Abstract methods.
       instance.write(new char[0], 0, 0);
@@ -363,7 +361,7 @@ public final class DeencapsulationTest
    @Test
    public void newUninitializedInstanceOfInterface() throws Exception
    {
-      Callable<?> callable = newUninitializedInstance(Callable.class);
+      Callable<?> callable = Deencapsulation.newUninitializedInstance(Callable.class);
 
       assertNotNull(callable);
       assertNull(callable.call());

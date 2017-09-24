@@ -7,8 +7,6 @@ package mockit.internal.reflection;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import static java.lang.reflect.Modifier.isStatic;
-
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
@@ -23,18 +21,6 @@ public final class ConstructorReflection
    }
 
    private ConstructorReflection() {}
-
-   @Nonnull
-   public static <T> T newInstance(
-      @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
-   {
-      if (initArgs == null) {
-         throw invalidArguments();
-      }
-
-      Constructor<T> constructor = findSpecifiedConstructor(aClass, parameterTypes);
-      return invoke(constructor, initArgs);
-   }
 
    @Nonnull
    static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes)
@@ -89,23 +75,14 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> T newInstance(
-      @Nonnull String className, @Nonnull Class<?>[] parameterTypes, @Nullable Object... initArgs)
-   {
-      Class<T> theClass = ClassLoad.loadClass(className);
-      return newInstance(theClass, parameterTypes, initArgs);
-   }
-
-   @Nonnull
-   public static <T> T newInstance(@Nonnull String className, @Nullable Object... nonNullArgs)
+   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs)
    {
       if (nonNullArgs == null) {
          throw invalidArguments();
       }
 
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
-      Class<T> theClass = ClassLoad.loadClass(className);
-      Constructor<T> constructor = findCompatibleConstructor(theClass, argTypes);
+      Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
       return invoke(constructor, nonNullArgs);
    }
 
@@ -122,10 +99,10 @@ public final class ConstructorReflection
 
          if (
             firstRealParameter >= 0 &&
-            (matchesParameterTypes(declaredParamTypes, argTypes, firstRealParameter) ||
-             acceptsArgumentTypes(declaredParamTypes, argTypes, firstRealParameter)) &&
-            (found == null || hasMoreSpecificTypes(declaredParamTypes, foundParameters))
-         ) {
+               (matchesParameterTypes(declaredParamTypes, argTypes, firstRealParameter) ||
+                  acceptsArgumentTypes(declaredParamTypes, argTypes, firstRealParameter)) &&
+               (found == null || hasMoreSpecificTypes(declaredParamTypes, foundParameters))
+            ) {
             //noinspection unchecked
             found = (Constructor<T>) declaredConstructor;
             foundParameters = declaredParamTypes;
@@ -140,23 +117,11 @@ public final class ConstructorReflection
       Class<?>[] paramTypes = declaredConstructors[0].getParameterTypes();
 
       if (paramTypes.length > argTypes.length && paramTypes[0] == declaringClass) {
-         throw new IllegalArgumentException("Invalid instantiation of inner class; use newInnerInstance instead");
+         throw new IllegalArgumentException("Invalid instantiation of inner class");
       }
 
       String argTypesDesc = getParameterTypesDescription(argTypes);
       throw new IllegalArgumentException("No compatible constructor found: " + theClass.getSimpleName() + argTypesDesc);
-   }
-
-   @Nonnull
-   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs)
-   {
-      if (nonNullArgs == null) {
-         throw invalidArguments();
-      }
-
-      Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
-      Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
-      return invoke(constructor, nonNullArgs);
    }
 
    @Nonnull
@@ -204,34 +169,6 @@ public final class ConstructorReflection
       catch (NoSuchMethodException ignore) { return null; }
 
       return invoke(publicConstructor, initArgs);
-   }
-
-   @Nonnull
-   public static <T> T newInnerInstance(
-      @Nonnull Class<? extends T> innerClass, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
-   {
-      if (nonNullArgs == null) {
-         throw invalidArguments();
-      }
-
-      if (isStatic(innerClass.getModifiers())) {
-         throw new IllegalArgumentException(innerClass.getSimpleName() + " is not an inner class");
-      }
-
-      Object[] initArgs = argumentsWithExtraFirstValue(nonNullArgs, outerInstance);
-      return newInstance(innerClass, initArgs);
-   }
-
-   @Nonnull
-   public static <T> T newInnerInstance(
-      @Nonnull String innerClassName, @Nonnull Object outerInstance, @Nullable Object... nonNullArgs)
-   {
-      Class<?> outerClass = outerInstance.getClass();
-      ClassLoader loader = outerClass.getClassLoader();
-      String className = outerClass.getName() + '$' + innerClassName;
-      Class<T> innerClass = ClassLoad.loadFromLoader(loader, className);
-
-      return newInnerInstance(innerClass, outerInstance, nonNullArgs);
    }
 
    @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UseOfSunClasses"})
