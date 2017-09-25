@@ -20,38 +20,38 @@ public final class FakeMethodBridge extends MockingBridge
    private FakeMethodBridge() { super("$FMB"); }
 
    @Nullable @Override
-   public Object invoke(@Nullable Object mockedInstance, Method method, @Nonnull Object[] args) throws Throwable
+   public Object invoke(@Nullable Object fakedInstance, Method method, @Nonnull Object[] args) throws Throwable
    {
       String fakeClassDesc = (String) args[0];
       String fakedClassDesc = (String) args[1];
       String fakeDesc = (String) args[4];
 
-      Object fake = TestRun.getFake(fakeClassDesc, mockedInstance);
+      Object fake = TestRun.getFake(fakeClassDesc, fakedInstance);
 
-      if (notToBeMocked(mockedInstance, fakedClassDesc)) {
+      if (notToBeMocked(fakedInstance, fakedClassDesc)) {
          return DefaultValues.computeForReturnType(fakeDesc);
       }
 
       String fakeName = (String) args[3];
-      int mockStateIndex = (Integer) args[5];
+      int fakeStateIndex = (Integer) args[5];
       Object[] fakeArgs = extractMockArguments(6, args);
 
-      return callFake(mockedInstance, fake, fakedClassDesc, fakeName, fakeDesc, mockStateIndex, fakeArgs);
+      return callFake(fakedInstance, fake, fakedClassDesc, fakeName, fakeDesc, fakeStateIndex, fakeArgs);
    }
 
    @Nullable
    private static Object callFake(
       @Nullable Object fakedInstance, @Nonnull Object fake, @Nonnull String fakedClassDesc,
-      @Nonnull String fakeOrFakedName, @Nonnull String fakeOrFakedDesc, int mockStateIndex, @Nonnull Object[] fakeArgs)
+      @Nonnull String fakeOrFakedName, @Nonnull String fakeOrFakedDesc, int fakeStateIndex, @Nonnull Object[] fakeArgs)
       throws Throwable
    {
       Class<?> fakeClass = fake.getClass();
 
-      if (mockStateIndex < 0) {
+      if (fakeStateIndex < 0) {
          return executeSimpleFakeMethod(fakeClass, fake, fakeOrFakedName, fakeOrFakedDesc, fakeArgs);
       }
 
-      FakeState fakeState = TestRun.getFakeStates().getFakeState(fake, mockStateIndex);
+      FakeState fakeState = TestRun.getFakeStates().getFakeState(fake, fakeStateIndex);
 
       if (!fakeState.fakeMethod.hasInvocationParameter) {
          return executeFakeMethodWithoutInvocationArgument(fakeState, fakeClass, fake, fakeOrFakedDesc, fakeArgs);

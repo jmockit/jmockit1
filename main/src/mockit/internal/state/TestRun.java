@@ -140,9 +140,9 @@ public final class TestRun
    }
 
    @Nonnull
-   public static Object getFake(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
+   public static Object getFake(@Nonnull String fakeClassDesc, @Nullable Object fakedInstance)
    {
-      return INSTANCE.fakeClasses.getFake(mockUpClassDesc, mockedInstance);
+      return INSTANCE.fakeClasses.getFake(fakeClassDesc, fakedInstance);
    }
 
    public static void ensureThatClassIsInitialized(@Nonnull Class<?> aClass)
