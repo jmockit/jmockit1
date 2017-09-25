@@ -13,7 +13,6 @@ import mockit.internal.classGeneration.*;
 import mockit.internal.faking.*;
 import mockit.internal.reflection.*;
 import mockit.internal.startup.*;
-import mockit.internal.faking.FakeClasses.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.GeneratedClasses.*;
 
@@ -145,13 +144,8 @@ public abstract class MockUp<T>
    private MockUp<?> findPreviouslyFakedClassIfFakeAlreadyApplied()
    {
       FakeClasses fakeClasses = TestRun.getFakeClasses();
-      FakeInstances fakeInstances = fakeClasses.findPreviouslyAppliedFakes(this);
-
-      if (fakeInstances != null) {
-         return fakeInstances.initialFake;
-      }
-
-      return null;
+      MockUp<?> previousFake = fakeClasses.findPreviouslyAppliedFake(this);
+      return previousFake;
    }
 
    @Nonnull

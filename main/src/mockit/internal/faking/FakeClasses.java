@@ -36,80 +36,69 @@ public final class FakeClasses
       catch (InvocationTargetException e) { e.getCause().printStackTrace(); }
    }
 
-   public static final class FakeInstances
-   {
-      @Nonnull public final MockUp<?> initialFake;
-      FakeInstances(@Nonnull MockUp<?> initialFake) { this.initialFake = initialFake; }
-      void notifyMockUpOfTearDown() { notifyOfTearDown(initialFake); }
-   }
-
    @Nonnull private final Map<String, MockUp<?>> startupFakes;
-   @Nonnull private final Map<Class<?>, FakeInstances> fakeClassesToFakeInstances;
+   @Nonnull private final Map<Class<?>, MockUp<?>> fakeClassesToFakeInstances;
    @Nonnull public final FakeStates fakeStates;
 
    public FakeClasses()
    {
       startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
-      fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, FakeInstances>();
+      fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUp<?>>();
       fakeStates = new FakeStates();
    }
 
-   public void addFake(@Nonnull String fakeClassDesc, @Nonnull MockUp<?> fake)
+   void addFake(@Nonnull String fakeClassDesc, @Nonnull MockUp<?> fake)
    {
       startupFakes.put(fakeClassDesc, fake);
    }
 
-   public void addFake(@Nonnull MockUp<?> fake)
+   void addFake(@Nonnull MockUp<?> fake)
    {
       Class<?> fakeClass = fake.getClass();
-      FakeInstances newData = new FakeInstances(fake);
-      fakeClassesToFakeInstances.put(fakeClass, newData);
+      fakeClassesToFakeInstances.put(fakeClass, fake);
    }
 
    @Nonnull
-   public MockUp<?> getFake(@Nonnull String mockUpClassDesc, @Nullable Object mockedInstance)
+   public MockUp<?> getFake(@Nonnull String fakeClassDesc, @Nullable Object fakedInstance)
    {
-      MockUp<?> startupMock = startupFakes.get(mockUpClassDesc);
+      MockUp<?> startupFake = startupFakes.get(fakeClassDesc);
 
-      if (startupMock != null) {
-         return startupMock;
+      if (startupFake != null) {
+         return startupFake;
       }
 
-      Class<?> mockUpClass = ClassLoad.loadByInternalName(mockUpClassDesc);
-      FakeInstances fakeInstances = fakeClassesToFakeInstances.get(mockUpClass);
-      Object invokedInstance = mockedInstance;
+      Class<?> fakeClass = ClassLoad.loadByInternalName(fakeClassDesc);
+      MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
+      Object invokedInstance = fakedInstance == null ? Void.class : fakedInstance;
 
-      if (mockedInstance == null) {
-         invokedInstance = Void.class;
-      }
-
-      try { INVOKED_INSTANCE_FIELD.set(fakeInstances.initialFake, invokedInstance); }
+      try { INVOKED_INSTANCE_FIELD.set(fakeInstance, invokedInstance); }
       catch (IllegalAccessException ignore) {}
 
-      return fakeInstances.initialFake;
+      return fakeInstance;
    }
 
    @Nullable
-   public FakeInstances findPreviouslyAppliedFakes(@Nonnull MockUp<?> newFake)
+   public MockUp<?> findPreviouslyAppliedFake(@Nonnull MockUp<?> newFake)
    {
       Class<?> fakeClass = newFake.getClass();
-      FakeInstances fakeInstances = fakeClassesToFakeInstances.get(fakeClass);
+      MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
 
-      if (fakeInstances != null) {
-         fakeStates.copyFakeStates(fakeInstances.initialFake, newFake);
+      if (fakeInstance != null) {
+         fakeStates.copyFakeStates(fakeInstance, newFake);
+         return fakeInstance;
       }
 
-      return fakeInstances;
+      return null;
    }
 
    private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
    {
-      for (Entry<Class<?>, FakeInstances> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
+      for (Entry<Class<?>, MockUp<?>> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
          Class<?> fakeClass = fakeClassAndInstances.getKey();
 
          if (!previousFakeClasses.containsKey(fakeClass)) {
-            FakeInstances fakeInstances = fakeClassAndInstances.getValue();
-            fakeInstances.notifyMockUpOfTearDown();
+            MockUp<?> fakeInstance = fakeClassAndInstances.getValue();
+            notifyOfTearDown(fakeInstance);
          }
       }
 
@@ -119,8 +108,8 @@ public final class FakeClasses
    private void discardAllFakeInstances()
    {
       if (!fakeClassesToFakeInstances.isEmpty()) {
-         for (FakeInstances fakeInstances : fakeClassesToFakeInstances.values()) {
-            fakeInstances.notifyMockUpOfTearDown();
+         for (MockUp<?> fakeInstance : fakeClassesToFakeInstances.values()) {
+            notifyOfTearDown(fakeInstance);
          }
 
          fakeClassesToFakeInstances.clear();
@@ -142,8 +131,8 @@ public final class FakeClasses
       {
          previousFakeClasses = new IdentityHashMap<Class<?>, Boolean>();
 
-         for (Entry<Class<?>, FakeInstances> fakeClassAndData : fakeClassesToFakeInstances.entrySet()) {
-            Class<?> fakeClass = fakeClassAndData.getKey();
+         for (Entry<Class<?>, MockUp<?>> fakeClassAndInstance : fakeClassesToFakeInstances.entrySet()) {
+            Class<?> fakeClass = fakeClassAndInstance.getKey();
             previousFakeClasses.put(fakeClass, false);
          }
       }
