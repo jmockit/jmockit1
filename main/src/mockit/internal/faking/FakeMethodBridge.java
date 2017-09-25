@@ -26,7 +26,7 @@ public final class FakeMethodBridge extends MockingBridge
       String fakedClassDesc = (String) args[1];
       String fakeDesc = (String) args[4];
 
-      Object fake = TestRun.getFake(fakeClassDesc, fakedInstance);
+      Object fake = TestRun.getFake(fakeClassDesc);
 
       if (notToBeMocked(fakedInstance, fakedClassDesc)) {
          return DefaultValues.computeForReturnType(fakeDesc);

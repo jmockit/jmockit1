@@ -40,7 +40,7 @@ final class MockupsModifier extends BaseClassModifier
     * The fake instance provided will receive calls for any instance methods defined in the fake class.
     * Therefore, it needs to be later recovered by the modified bytecode inside the real method.
     * To enable this, the fake instance is added to a global data structure made available through the
-    * {@link TestRun#getFake(String, Object)} method.
+    * {@link TestRun#getFake(String)} method.
     *
     * @param cr the class file reader for the real class
     * @param realClass the class to be faked, or a base type of an implementation class to be faked
@@ -176,11 +176,9 @@ final class MockupsModifier extends BaseClassModifier
       }
       else {
          mw.visitLdcInsn(fakeMethods.getFakeClassInternalName());
-         generateCodeToPassThisOrNullIfStaticMethod();
          mw.visitIntInsn(SIPUSH, fakeMethod.getIndexForFakeState());
          mw.visitMethodInsn(
-            INVOKESTATIC, "mockit/internal/state/TestRun", "updateFakeState",
-            "(Ljava/lang/String;Ljava/lang/Object;I)Z", false);
+            INVOKESTATIC, "mockit/internal/state/TestRun", "updateFakeState", "(Ljava/lang/String;I)Z", false);
       }
    }
 
@@ -304,10 +302,8 @@ final class MockupsModifier extends BaseClassModifier
    private void generateCodeToObtainFakeInstance(@Nonnull String fakeClassDesc)
    {
       mw.visitLdcInsn(fakeClassDesc);
-      generateCodeToPassThisOrNullIfStaticMethod();
       mw.visitMethodInsn(
-         INVOKESTATIC, "mockit/internal/state/TestRun", "getFake",
-         "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
+         INVOKESTATIC, "mockit/internal/state/TestRun", "getFake", "(Ljava/lang/String;)Ljava/lang/Object;", false);
       mw.visitTypeInsn(CHECKCAST, fakeClassDesc);
    }
 

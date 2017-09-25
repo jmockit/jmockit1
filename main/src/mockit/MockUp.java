@@ -97,7 +97,6 @@ public abstract class MockUp<T>
    @Nullable private final Class<?> fakedClass;
    @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T fakeInstance;
-   @SuppressWarnings("unused") @Nullable private T invokedInstance; // set through Reflection elsewhere
 
    /**
     * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class or interface specified
@@ -245,20 +244,11 @@ public abstract class MockUp<T>
     */
    public final T getMockInstance()
    {
-      if (invokedInstance == Void.class) {
-         return null;
-      }
-
-      if (invokedInstance != null) {
-         return invokedInstance;
-      }
-
       if (fakeInstance == null && fakedClass != null) {
          @SuppressWarnings("unchecked") T newInstance = (T) createFakeInstance(fakedClass);
          fakeInstance = newInstance;
       }
 
-      //noinspection ConstantConditions
       return fakeInstance;
    }
 

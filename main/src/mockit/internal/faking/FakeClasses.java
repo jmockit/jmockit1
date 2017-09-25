@@ -14,18 +14,13 @@ import mockit.internal.util.*;
 
 public final class FakeClasses
 {
-   private static final Field INVOKED_INSTANCE_FIELD;
    private static final Method ON_TEAR_DOWN_METHOD;
    static
    {
       try {
-         INVOKED_INSTANCE_FIELD = MockUp.class.getDeclaredField("invokedInstance");
-         INVOKED_INSTANCE_FIELD.setAccessible(true);
-
          ON_TEAR_DOWN_METHOD = MockUp.class.getDeclaredMethod("onTearDown");
          ON_TEAR_DOWN_METHOD.setAccessible(true);
       }
-      catch (NoSuchFieldException e)  { throw new RuntimeException(e); }
       catch (NoSuchMethodException e) { throw new RuntimeException(e); }
    }
 
@@ -59,7 +54,7 @@ public final class FakeClasses
    }
 
    @Nonnull
-   public MockUp<?> getFake(@Nonnull String fakeClassDesc, @Nullable Object fakedInstance)
+   public MockUp<?> getFake(@Nonnull String fakeClassDesc)
    {
       MockUp<?> startupFake = startupFakes.get(fakeClassDesc);
 
@@ -69,11 +64,6 @@ public final class FakeClasses
 
       Class<?> fakeClass = ClassLoad.loadByInternalName(fakeClassDesc);
       MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
-      Object invokedInstance = fakedInstance == null ? Void.class : fakedInstance;
-
-      try { INVOKED_INSTANCE_FIELD.set(fakeInstance, invokedInstance); }
-      catch (IllegalAccessException ignore) {}
-
       return fakeInstance;
    }
 
