@@ -203,7 +203,7 @@ public class TestRunnerDecorator
       TestRun.enterNoMockingZone();
 
       try {
-         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(methodInfo);
+         ParameterTypeRedefinitions redefinitions = new ParameterTypeRedefinitions(methodInfo, parameterValues);
          TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
          TestedParameters testedParameters = new TestedParameters(methodInfo);

@@ -4,6 +4,8 @@
  */
 package mockit.integration.testng;
 
+import java.util.concurrent.*;
+
 import org.testng.annotations.*;
 import static org.testng.Assert.*;
 
@@ -123,5 +125,16 @@ public final class TestedAndInjectablesTest
       assertStatesOfTestedObjects(collaborator2);
 
       assertNotSame(util, previousUtilityClassInstance);
+   }
+
+   @Test
+   public void recordAndVerifyExpectationsOnMockedInterface(@Injectable final Callable<String> mock) throws Exception
+   {
+      new Expectations() {{ mock.call(); result = "test"; minTimes = 0; }};
+
+      String value = mock.call();
+
+      assertEquals("test", value);
+      new Verifications() {{ mock.call(); times = 1; }};
    }
 }

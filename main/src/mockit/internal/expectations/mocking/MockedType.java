@@ -41,6 +41,7 @@ public final class MockedType extends InjectionProvider
    private final int accessModifiers;
    @Nullable private final Mocked mocked;
    @Nullable private final Capturing capturing;
+   @Nullable private final Class<?> parameterImplementationClass;
    public final boolean injectable;
    @Nullable Object providedValue;
 
@@ -52,6 +53,7 @@ public final class MockedType extends InjectionProvider
       accessModifiers = field.getModifiers();
       mocked = field.getAnnotation(Mocked.class);
       capturing = field.getAnnotation(Capturing.class);
+      parameterImplementationClass = null;
       Injectable injectableAnnotation = field.getAnnotation(Injectable.class);
       injectable = injectableAnnotation != null;
       providedValue = getProvidedInjectableValue(injectableAnnotation);
@@ -71,6 +73,7 @@ public final class MockedType extends InjectionProvider
                // Not supported, do nothing.
             }
             else {
+               //noinspection unchecked
                return Utilities.convertFromString(injectableClass, value);
             }
          }
@@ -94,7 +97,8 @@ public final class MockedType extends InjectionProvider
 
    MockedType(
       @Nonnull TestMethod testMethod, @Nonnegative int paramIndex,
-      @Nonnull Type parameterType, @Nonnull Annotation[] annotationsOnParameter)
+      @Nonnull Type parameterType, @Nonnull Annotation[] annotationsOnParameter,
+      @Nullable Class<?> parameterImplementationClass)
    {
       super(parameterType, ParameterNames.getName(testMethod, paramIndex));
       field = null;
@@ -102,6 +106,7 @@ public final class MockedType extends InjectionProvider
       accessModifiers = 0;
       mocked = getAnnotation(annotationsOnParameter, Mocked.class);
       capturing = getAnnotation(annotationsOnParameter, Capturing.class);
+      this.parameterImplementationClass = parameterImplementationClass;
       Injectable injectableAnnotation = getAnnotation(annotationsOnParameter, Injectable.class);
       injectable = injectableAnnotation != null;
       providedValue = getProvidedInjectableValue(injectableAnnotation);
@@ -140,6 +145,7 @@ public final class MockedType extends InjectionProvider
       mocked = null;
       capturing = null;
       injectable = true;
+      parameterImplementationClass = null;
    }
 
    @Nonnull @Override public Class<?> getClassOfDeclaredType() { return getClassType(); }
@@ -151,6 +157,10 @@ public final class MockedType extends InjectionProvider
    @Nonnull
    public Class<?> getClassType()
    {
+      if (parameterImplementationClass != null) {
+         return parameterImplementationClass;
+      }
+
       Type mockedType = declaredType;
 
       if (mockedType instanceof Class<?>) {
