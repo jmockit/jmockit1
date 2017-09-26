@@ -9,6 +9,8 @@ import javax.annotation.*;
 
 import org.testng.*;
 import org.testng.annotations.*;
+
+import org.testng.internal.Invoker;
 import org.testng.internal.Parameters;
 
 import mockit.*;
@@ -44,6 +46,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          ITestContext context, ITestResult testResult)
       {
          ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+         //noinspection deprecation
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
 
          if (value != null) {
@@ -79,6 +82,42 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       Test testMetadata = method.getAnnotation(Test.class);
 
       return testMetadata != null && !testMetadata.dataProvider().isEmpty();
+   }
+
+   public static final class FakeInvoker extends MockUp<Invoker>
+   {
+      @Mock
+      public static Object[] injectParameters(
+         @Nonnull Invocation invocation,
+         Object[] parameterValues, Method method, ITestContext context, ITestResult testResult)
+      {
+         if (method == null) {
+            // Test execution didn't reach a test method yet.
+            return parameterValues;
+         }
+
+         Class<?>[] parameterTypes = method.getParameterTypes();
+         int numParameters = parameterTypes.length;
+
+         if (numParameters == 0) {
+            // A test method was reached, but it has no parameters.
+            return parameterValues;
+         }
+
+         if (isMethodWithParametersProvidedByTestNG(method)) {
+            // The test method has parameters, but they are to be provided by TestNG, not JMockit.
+            return parameterValues;
+         }
+
+         Object[] mockValues = new Object[numParameters];
+
+         for (int i = 0; i < numParameters; i++) {
+            Class<?> parameterType = parameterTypes[i];
+            mockValues[i] = Deencapsulation.newUninitializedInstance(parameterType);
+         }
+
+         return mockValues;
+      }
    }
 
    @Nonnull private final ThreadLocal<SavePoint> savePoint;
@@ -346,6 +385,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    {
       if (Startup.initializeIfPossible()) {
          new FakeParameters();
+         new FakeInvoker();
       }
    }
 
