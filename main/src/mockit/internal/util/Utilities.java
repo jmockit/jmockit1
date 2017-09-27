@@ -133,9 +133,9 @@ public final class Utilities
       return null;
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
+   @SuppressWarnings({"OverlyComplexMethod", "rawtypes", "unchecked"})
    @Nullable
-   public static <E extends Enum<E>> Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)
+   public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)
    {
       if (value != null) {
          if (targetType == String.class) {
@@ -165,8 +165,9 @@ public final class Utilities
             return new AtomicLong(Long.parseLong(value.trim()));
          }
          else if (targetType.isEnum()) {
-            @SuppressWarnings("unchecked") Class<E> enumType = (Class<E>) targetType;
-            return Enum.valueOf(enumType, value);
+            Class<Enum> enumType = (Class<Enum>) targetType;
+            Object enumValue = Enum.valueOf(enumType, value);
+            return enumValue;
          }
       }
 

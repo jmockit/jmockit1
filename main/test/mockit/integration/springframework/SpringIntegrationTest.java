@@ -99,12 +99,8 @@ public final class SpringIntegrationTest
    {
       assertSame(dependency, exampleSUT.dependency);
 
-      // Look-up bean by name only.
+      // Look-up beans by name only.
       Dependency dependencyBean = (Dependency) beanFactory.getBean("dependency");
-      assertSame(dependency, dependencyBean);
-
-      // Look-up bean by name and type.
-      dependencyBean = beanFactory.getBean("dependency", Dependency.class);
       assertSame(dependency, dependencyBean);
 
       Collaborator collaboratorBean = (Collaborator) beanFactory.getBean("collaborator");
@@ -113,9 +109,35 @@ public final class SpringIntegrationTest
       ExampleSUT sut = (ExampleSUT) beanFactory.getBean("exampleSUT");
       assertSame(exampleSUT, sut);
 
+      // Look-up beans by name and type.
+      dependencyBean = beanFactory.getBean("dependency", Dependency.class);
+      assertSame(dependency, dependencyBean);
+      dependencyBean = beanFactory.getBean("undefined", Dependency.class);
+      assertSame(dependency, dependencyBean);
+
+      collaboratorBean = beanFactory.getBean("collaborator", Collaborator.class);
+      assertSame(exampleSUT.collaborator, collaboratorBean);
+
+      sut = beanFactory.getBean("exampleSUT", ExampleSUT.class);
+      assertSame(exampleSUT, sut);
+      sut = beanFactory.getBean("", ExampleSUT.class);
+      assertSame(exampleSUT, sut);
+
       Runnable mockAction = beanFactory.getBean("action", Runnable.class);
       assertSame(action, mockAction);
 
+      // Look-up beans by type only.
+      dependencyBean = beanFactory.getBean(Dependency.class);
+      assertSame(dependency, dependencyBean);
+
+      collaboratorBean = beanFactory.getBean(Collaborator.class);
+      assertSame(exampleSUT.collaborator, collaboratorBean);
+
+      sut = beanFactory.getBean(ExampleSUT.class);
+      assertSame(exampleSUT, sut);
+
+      mockAction = beanFactory.getBean(Runnable.class);
+      assertSame(action, mockAction);
    }
 
    void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory)

@@ -73,7 +73,6 @@ public final class MockedType extends InjectionProvider
                // Not supported, do nothing.
             }
             else {
-               //noinspection unchecked
                return Utilities.convertFromString(injectableClass, value);
             }
          }

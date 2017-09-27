@@ -9,6 +9,7 @@ import java.util.Map.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.util.*;
 
 public final class BeanExporter
 {
@@ -100,8 +101,9 @@ public final class BeanExporter
    {
       for (Entry<InjectionPoint, Object> injectionPointAndObject : dependencies.entrySet()) {
          InjectionPoint injectionPoint = injectionPointAndObject.getKey();
+         Class<?> injectedType = Utilities.getClassType(injectionPoint.type);
 
-         if (type == injectionPoint.type) {
+         if (type.isAssignableFrom(injectedType)) {
             return injectionPointAndObject.getValue();
          }
       }

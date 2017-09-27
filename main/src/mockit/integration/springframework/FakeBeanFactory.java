@@ -23,7 +23,7 @@ import org.springframework.beans.factory.support.*;
  * <p/>
  * Note this fake is only useful if the code under test makes direct calls to Spring's {@code getBean} methods.
  */
-public final class FakeBeanFactory extends MockUp<AbstractBeanFactory>
+public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
 {
    @Mock
    public Object getBean(@Nonnull Invocation invocation, @Nonnull String name)
@@ -50,6 +50,20 @@ public final class FakeBeanFactory extends MockUp<AbstractBeanFactory>
 
       BeanExporter beanExporter = testedClasses.getBeanExporter();
       T bean = BeanLookup.getBean(beanExporter, name, requiredType);
+      return bean;
+   }
+
+   @Mock
+   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull Class<T> requiredType)
+   {
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
+
+      if (testedClasses == null) {
+         return invocation.proceed();
+      }
+
+      BeanExporter beanExporter = testedClasses.getBeanExporter();
+      T bean = BeanLookup.getBean(beanExporter, requiredType);
       return bean;
    }
 }

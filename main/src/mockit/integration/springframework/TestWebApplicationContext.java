@@ -45,4 +45,12 @@ public final class TestWebApplicationContext extends StaticWebApplicationContext
       T bean = BeanLookup.getBean(beanExporter, name, requiredType);
       return bean;
    }
+
+   @Override @Nonnull
+   public <T> T getBean(@Nonnull Class<T> requiredType)
+   {
+      BeanExporter beanExporter = getBeanExporter();
+      T bean = BeanLookup.getBean(beanExporter, requiredType);
+      return bean;
+   }
 }

@@ -50,4 +50,16 @@ final class BeanLookup
 
       return bean;
    }
+
+   @Nonnull
+   static <T> T getBean(@Nonnull BeanExporter beanExporter, @Nonnull Class<T> requiredType)
+   {
+      T bean = beanExporter.getBean(requiredType);
+
+      if (bean == null) {
+         throw new NoSuchBeanDefinitionException(requiredType);
+      }
+
+      return bean;
+   }
 }
