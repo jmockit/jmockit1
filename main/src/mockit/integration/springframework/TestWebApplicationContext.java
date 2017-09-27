@@ -4,6 +4,8 @@
  */
 package mockit.integration.springframework;
 
+import javax.annotation.*;
+
 import mockit.internal.injection.*;
 import mockit.internal.state.*;
 
@@ -16,8 +18,16 @@ import org.springframework.web.context.support.*;
  */
 public final class TestWebApplicationContext extends StaticWebApplicationContext
 {
-   @Override
-   public Object getBean(String name)
+   @Override @Nonnull
+   public Object getBean(@Nonnull String name)
+   {
+      BeanExporter beanExporter = getBeanExporter();
+      Object bean = BeanLookup.getBean(beanExporter, name);
+      return bean;
+   }
+
+   @Nonnull
+   private static BeanExporter getBeanExporter()
    {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
@@ -25,12 +35,14 @@ public final class TestWebApplicationContext extends StaticWebApplicationContext
          throw new BeanDefinitionStoreException("Test class does not define any @Tested fields");
       }
 
-      Object bean = testedClasses.getBeanExporter().getBean(name);
+      return testedClasses.getBeanExporter();
+   }
 
-      if (bean == null) {
-         throw new NoSuchBeanDefinitionException(name);
-      }
-
+   @Override @Nonnull
+   public <T> T getBean(@Nonnull String name, @Nullable Class<T> requiredType)
+   {
+      BeanExporter beanExporter = getBeanExporter();
+      T bean = BeanLookup.getBean(beanExporter, name, requiredType);
       return bean;
    }
 }

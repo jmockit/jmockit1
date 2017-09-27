@@ -46,11 +46,65 @@ public final class SpringIntegrationTest
       assertTestedObjectsAndDependencies(beanFactory);
    }
 
+   @Test
+   public void lookupTestedObjectsAndInjectedDependenciesThroughStrutsIntegration()
+   {
+      BeanFactory beanFactory = new TestWebApplicationContext();
+      assertTestedObjectsAndDependencies(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameWithUnknownNameUsingBeanFactory()
+   {
+      BeanFactory beanFactory = new DefaultListableBeanFactory();
+      assertNoSuchBeanDefinitionForUnknownBeanName(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameWithUnknownNameUsingStrutsIntegration()
+   {
+      BeanFactory beanFactory = new TestWebApplicationContext();
+      assertNoSuchBeanDefinitionForUnknownBeanName(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingBeanFactory()
+   {
+      BeanFactory beanFactory = new DefaultListableBeanFactory();
+      assertNoSuchBeanDefinitionForUnknownBeanNameAndType(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingStrutsIntegration()
+   {
+      BeanFactory beanFactory = new TestWebApplicationContext();
+      assertNoSuchBeanDefinitionForUnknownBeanNameAndType(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameAndTypeWithWrongTypeUsingBeanFactory()
+   {
+      BeanFactory beanFactory = new DefaultListableBeanFactory();
+      assertBeanNotOfRequiredTypeForWrongBeanType(beanFactory);
+   }
+
+   @Test
+   public void lookUpBeanByNameAndTypeWithWrongTypeUsingStrutsIntegration()
+   {
+      BeanFactory beanFactory = new TestWebApplicationContext();
+      assertBeanNotOfRequiredTypeForWrongBeanType(beanFactory);
+   }
+
    void assertTestedObjectsAndDependencies(BeanFactory beanFactory)
    {
       assertSame(dependency, exampleSUT.dependency);
 
+      // Look-up bean by name only.
       Dependency dependencyBean = (Dependency) beanFactory.getBean("dependency");
+      assertSame(dependency, dependencyBean);
+
+      // Look-up bean by name and type.
+      dependencyBean = beanFactory.getBean("dependency", Dependency.class);
       assertSame(dependency, dependencyBean);
 
       Collaborator collaboratorBean = (Collaborator) beanFactory.getBean("collaborator");
@@ -59,17 +113,30 @@ public final class SpringIntegrationTest
       ExampleSUT sut = (ExampleSUT) beanFactory.getBean("exampleSUT");
       assertSame(exampleSUT, sut);
 
-      Runnable mockAction = (Runnable) beanFactory.getBean("action");
+      Runnable mockAction = beanFactory.getBean("action", Runnable.class);
       assertSame(action, mockAction);
 
+   }
+
+   void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory)
+   {
       thrown.expect(NoSuchBeanDefinitionException.class);
+      thrown.expectMessage("undefined");
       beanFactory.getBean("undefined");
    }
 
-   @Test
-   public void lookupTestedObjectsAndInjectedDependenciesThroughStrutsIntegration()
+   void assertNoSuchBeanDefinitionForUnknownBeanNameAndType(BeanFactory beanFactory)
    {
-      BeanFactory beanFactory = new TestWebApplicationContext();
-      assertTestedObjectsAndDependencies(beanFactory);
+      thrown.expect(NoSuchBeanDefinitionException.class);
+      thrown.expectMessage("undefined");
+      thrown.expectMessage("Process");
+      beanFactory.getBean("undefined", Process.class);
+   }
+
+   void assertBeanNotOfRequiredTypeForWrongBeanType(BeanFactory beanFactory)
+   {
+      thrown.expect(BeanNotOfRequiredTypeException.class);
+      thrown.expectMessage("Collaborator");
+      beanFactory.getBean("dependency", Collaborator.class);
    }
 }

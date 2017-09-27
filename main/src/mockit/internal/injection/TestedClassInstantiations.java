@@ -33,7 +33,7 @@ public final class TestedClassInstantiations
    public boolean findTestedAndInjectableMembers(@Nonnull Class<?> testClass)
    {
       findAllTestedAndInjectableMembersInTestClassHierarchy(testClass);
-      return !testedFields.isEmpty() || injectionState.canResolveInterfaces();
+      return !testedFields.isEmpty() || injectionState.interfaceResolution.canResolveInterfaces();
    }
 
    private void findAllTestedAndInjectableMembersInTestClassHierarchy(@Nonnull Class<?> testClass)
@@ -111,7 +111,7 @@ public final class TestedClassInstantiations
                ParameterizedType interfaceType = (ParameterizedType) parameterType;
 
                if (interfaceType.getRawType() == Class.class) {
-                  injectionState.addInterfaceResolutionMethod(interfaceType, methodFromTestClass);
+                  injectionState.interfaceResolution.addInterfaceResolutionMethod(interfaceType, methodFromTestClass);
                }
             }
          }
@@ -161,5 +161,5 @@ public final class TestedClassInstantiations
    }
 
    @Nonnull
-   public BeanExporter getBeanExporter() { return injectionState; }
+   public BeanExporter getBeanExporter() { return injectionState.getBeanExporter(); }
 }
