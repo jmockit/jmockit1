@@ -9,7 +9,7 @@ import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
-public final class MisusedExpectationsTest
+public final class MisusedMockingAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 

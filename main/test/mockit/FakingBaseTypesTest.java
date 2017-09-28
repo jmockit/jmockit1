@@ -14,13 +14,13 @@ import org.junit.runners.*;
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public final class MockingUpBaseTypesTest
+public final class FakingBaseTypesTest
 {
    static class BeforeClassBaseAction { protected int perform() { return -1; } }
    static class BeforeClassAction extends BeforeClassBaseAction { @Override protected int perform() { return 12; } }
 
    @BeforeClass
-   public static <T extends BeforeClassBaseAction> void applyMockUpForAllTests()
+   public static <T extends BeforeClassBaseAction> void applyFakeForAllTests()
    {
       new MockUp<T>() {
          @Mock int perform() { return 34; }
@@ -28,7 +28,7 @@ public final class MockingUpBaseTypesTest
    }
 
    @AfterClass
-   public static void verifyMockUpForAllTestsIsInEffect()
+   public static void verifyFakeForAllTestsIsInEffect()
    {
       int i1 = new BeforeClassAction().perform();
       int i2 = new BeforeClassBaseAction().perform();
@@ -41,7 +41,7 @@ public final class MockingUpBaseTypesTest
    static class BeforeAction implements IBeforeAction { @Override public int perform() { return 123; } }
 
    @Before
-   public <T extends IBeforeAction> void applyMockUpForEachTest()
+   public <T extends IBeforeAction> void applyFakeForEachTest()
    {
       new MockUp<T>() {
          @Mock int perform() { return 56; }
@@ -49,7 +49,7 @@ public final class MockingUpBaseTypesTest
    }
 
    @After
-   public void verifyMockUpForEachTestIsInEffect()
+   public void verifyFakeForEachTestIsInEffect()
    {
       int i = new BeforeAction().perform();
       assertEquals(56, i);
@@ -58,25 +58,25 @@ public final class MockingUpBaseTypesTest
    public interface IAction
    {
       int perform(int i);
-      boolean notToBeMocked();
+      boolean notToBeFaked();
    }
 
    public static class ActionImpl1 implements IAction
    {
       @Override public int perform(int i) { return i - 1; }
-      @Override public boolean notToBeMocked() { return true; }
+      @Override public boolean notToBeFaked() { return true; }
    }
 
    static final class ActionImpl2 implements IAction
    {
       @Override public int perform(int i) { return i - 2; }
-      @Override public boolean notToBeMocked() { return true; }
+      @Override public boolean notToBeFaked() { return true; }
    }
 
    IAction actionI;
 
    @Test
-   public <T extends IAction> void test3_mockUpInterfaceImplementationClassesUsingAnonymousMockUp()
+   public <T extends IAction> void test3_fakeInterfaceImplementationClassesUsingAnonymousFake()
    {
       actionI = new ActionImpl1();
 
@@ -86,40 +86,40 @@ public final class MockingUpBaseTypesTest
       };
 
       assertEquals(2, actionI.perform(1));
-      assertTrue(actionI.notToBeMocked());
+      assertTrue(actionI.notToBeFaked());
 
       ActionImpl2 impl2 = new ActionImpl2();
       assertEquals(3, impl2.perform(2));
-      assertTrue(impl2.notToBeMocked());
+      assertTrue(impl2.notToBeFaked());
    }
 
    public interface TestInterface { String getData(); }
 
-   public static final class MockTestInterface<T extends TestInterface> extends MockUp<T>
+   public static final class FakeTestInterface<T extends TestInterface> extends MockUp<T>
    {
       @Mock
-      public String getData(Invocation inv) { return "mocked" + inv.proceed(); }
+      public String getData(Invocation inv) { return "faked" + inv.proceed(); }
    }
 
    @Test
-   public void mockAllClassesImplementingAnInterfaceUsingNamedMockUpWithInvocationParameter()
+   public void fakeAllClassesImplementingAnInterfaceUsingNamedFakeWithInvocationParameter()
    {
       TestInterface impl1 = new TestInterface() { @Override public String getData() { return "1"; } };
       TestInterface impl2 = new TestInterface() { @Override public String getData() { return "2"; } };
-      new MockTestInterface();
+      new FakeTestInterface();
 
-      String mocked1 = impl1.getData();
-      String mocked2 = impl2.getData();
+      String faked1 = impl1.getData();
+      String faked2 = impl2.getData();
 
-      assertEquals("mocked1", mocked1);
-      assertEquals("mocked2", mocked2);
+      assertEquals("faked1", faked1);
+      assertEquals("faked2", faked2);
    }
 
    public abstract static class BaseAction
    {
       protected abstract int perform(int i);
-      public int toBeMockedAsWell() { return -1; }
-      int notToBeMocked() { return 1; }
+      public int toBeFakedAsWell() { return -1; }
+      int notToBeFaked() { return 1; }
    }
 
    static final class ConcreteAction1 extends BaseAction
@@ -130,46 +130,46 @@ public final class MockingUpBaseTypesTest
    static class ConcreteAction2 extends BaseAction
    {
       @Override protected int perform(int i) { return i - 2; }
-      @Override public int toBeMockedAsWell() { return super.toBeMockedAsWell() - 1; }
-      @Override int notToBeMocked() { return super.notToBeMocked() + 1; }
+      @Override public int toBeFakedAsWell() { return super.toBeFakedAsWell() - 1; }
+      @Override int notToBeFaked() { return super.notToBeFaked() + 1; }
    }
 
    static class ConcreteAction3 extends ConcreteAction2
    {
       @Override public int perform(int i) { return i - 3; }
-      @Override public int toBeMockedAsWell() { return -3; }
-      @Override final int notToBeMocked() { return 3; }
+      @Override public int toBeFakedAsWell() { return -3; }
+      @Override final int notToBeFaked() { return 3; }
    }
 
    BaseAction actionB;
 
    @Test
-   public <T extends BaseAction> void test4_mockUpConcreteSubclassesUsingAnonymousMockUp()
+   public <T extends BaseAction> void test4_fakeConcreteSubclassesUsingAnonymousFake()
    {
       actionB = new ConcreteAction1();
 
       new MockUp<T>() {
          @Mock int perform(int i) { return i + 1; }
-         @Mock int toBeMockedAsWell() { return 123; }
+         @Mock int toBeFakedAsWell() { return 123; }
       };
 
       assertEquals(2, actionB.perform(1));
-      assertEquals(123, actionB.toBeMockedAsWell());
-      assertEquals(1, actionB.notToBeMocked());
+      assertEquals(123, actionB.toBeFakedAsWell());
+      assertEquals(1, actionB.notToBeFaked());
 
       ConcreteAction2 action2 = new ConcreteAction2();
       assertEquals(3, action2.perform(2));
-      assertEquals(123, action2.toBeMockedAsWell());
-      assertEquals(2, action2.notToBeMocked());
+      assertEquals(123, action2.toBeFakedAsWell());
+      assertEquals(2, action2.notToBeFaked());
 
       ConcreteAction3 action3 = new ConcreteAction3();
       assertEquals(4, action3.perform(3));
-      assertEquals(123, action3.toBeMockedAsWell());
-      assertEquals(3, action3.notToBeMocked());
+      assertEquals(123, action3.toBeFakedAsWell());
+      assertEquals(3, action3.notToBeFaked());
    }
 
    @After
-   public void checkImplementationClassesAreNoLongerMocked()
+   public void checkImplementationClassesAreNoLongerFaked()
    {
       if (actionI != null) {
          assertEquals(-1, actionI.perform(0));
@@ -185,32 +185,32 @@ public final class MockingUpBaseTypesTest
       assertEquals(-3, new ConcreteAction3().perform(0));
    }
 
-   static final class InterfaceMockUp<T extends IAction> extends MockUp<T>
+   static final class FakeInterface<T extends IAction> extends MockUp<T>
    {
       @Mock
       int perform(int i) { return i + 2; }
    }
 
    @Test
-   public void test5_mockUpInterfaceImplementationClassesUsingNamedMockUp()
+   public void test5_fakeInterfaceImplementationClassesUsingNamedFake()
    {
-      new InterfaceMockUp();
+      new FakeInterface();
 
       actionI = new ActionImpl1();
       assertEquals(3, actionI.perform(1));
       assertEquals(4, new ActionImpl2().perform(2));
    }
 
-   static final class BaseClassMockUp<T extends BaseAction> extends MockUp<T>
+   static final class FakeBaseClass<T extends BaseAction> extends MockUp<T>
    {
       @Mock
       int perform(int i) { return i + 3; }
    }
 
    @Test
-   public void test6_mockUpConcreteSubclassesUsingNamedMockUp()
+   public void test6_fakeConcreteSubclassesUsingNamedFake()
    {
-      new BaseClassMockUp();
+      new FakeBaseClass();
 
       actionB = new ConcreteAction1();
       assertEquals(4, actionB.perform(1));
@@ -221,7 +221,7 @@ public final class MockingUpBaseTypesTest
    interface GenericIAction<N extends Number> { N perform(N n); }
 
    @Test
-   public <M extends GenericIAction<Number>> void test7_mockUpImplementationsOfGenericInterface()
+   public <M extends GenericIAction<Number>> void test7_fakeImplementationsOfGenericInterface()
    {
       GenericIAction<Number> actionNumber = new GenericIAction<Number>() {
          @Override public Number perform(Number n) { return n.intValue() + 1; }
@@ -250,7 +250,7 @@ public final class MockingUpBaseTypesTest
    }
 
    @Test
-   public <R extends Readable> void test8_excludeJREClassesFromMockingForSafety() throws Exception
+   public <R extends Readable> void test8_excludeJREClassesFromFakingForSafety() throws Exception
    {
       new MockUp<R>() {
          @Mock

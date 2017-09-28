@@ -9,7 +9,7 @@ import java.util.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-public final class MockUpForGenericsTest
+public final class FakeForGenericsTest
 {
    // Fakes for generic classes/methods ///////////////////////////////////////////////////////////////////////////////
 
@@ -133,11 +133,11 @@ public final class MockUpForGenericsTest
    {
       new MockUp<NonGenericSubclass>() {
          @Mock
-         String find(Integer id) { return "mocked" + id; }
+         String find(Integer id) { return "faked" + id; }
       };
 
       String s = new NonGenericSubclass().find(1);
-      assertEquals("mocked1", s);
+      assertEquals("faked1", s);
    }
 
    static class GenericSuperclass<I> extends GenericBaseClass<I, String> {}
@@ -148,11 +148,11 @@ public final class MockUpForGenericsTest
    {
       new MockUp<AnotherNonGenericSubclass>() {
          @Mock
-         String find(Integer id) { return "mocked" + id; }
+         String find(Integer id) { return "faked" + id; }
       };
 
       String s = new AnotherNonGenericSubclass().find(1);
-      assertEquals("mocked1", s);
+      assertEquals("faked1", s);
    }
 
    @SuppressWarnings("UnusedParameters")

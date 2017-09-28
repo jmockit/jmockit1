@@ -76,17 +76,17 @@ public final class MockedClassWithSuperClassTest
       assertEquals(0, mock.doSomething());
    }
 
-   public static final class MockUpForSubclass extends MockUp<Subclass> {
+   public static final class FakeForSubclass extends MockUp<Subclass> {
       @Mock public int doSomething() { return 1; }
    }
 
    @Test
-   public void mockOnlyInstancesOfTheClassSpecifiedToBeMocked()
+   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked()
    {
       BaseClass d = new Subclass();
       assertEquals(123, d.doSomething());
 
-      new MockUpForSubclass();
+      new FakeForSubclass();
 
       assertEquals(1, d.doSomething());
       assertEquals(123, new BaseClass().doSomething());
@@ -96,7 +96,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void mockOnlyInstancesOfTheClassSpecifiedToBeMocked_usingMockingBridge()
+   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked_usingMockingBridge()
    {
       BaseClass d = new Subclass();
       assertEquals(123, d.doSomething());
@@ -137,14 +137,14 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void mockSubclassWithConstructorContainingTryCatch_usingMockUp()
+   public void fakeSubclassWithConstructorContainingTryCatch()
    {
       new MockUp<DerivedClass>() { @Mock void $init() {} };
       new DerivedClass();
    }
 
    @Test
-   public void mockSubclassWithConstructorContainingTryCatch_usingExpectations(@Mocked DerivedClass mock)
+   public void mockSubclassWithConstructorContainingTryCatch(@Mocked DerivedClass mock)
    {
       new DerivedClass();
    }
