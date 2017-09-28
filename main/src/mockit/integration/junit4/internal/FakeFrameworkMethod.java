@@ -33,7 +33,7 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
    @Nullable @Mock
    public Object invokeExplosively(@Nonnull Invocation invocation, Object target, Object... params) throws Throwable
    {
-      return decorator.invokeExplosively((MockInvocation) invocation, target, params);
+      return decorator.invokeExplosively((FakeInvocation) invocation, target, params);
    }
 
    @Mock
@@ -46,7 +46,7 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
          it.validatePublicVoid(false, errors);
       }
       else {
-         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+         ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          it.validatePublicVoidNoArg(isStatic, errors);
       }
 

@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.*;
 
-public final class MockInvocationTest
+public final class FakeInvocationTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -25,7 +25,7 @@ public final class MockInvocationTest
       public static boolean staticMethod() { return true; }
    }
 
-   static final class MockMethods extends MockUp<Collaborator>
+   static final class FakeMethods extends MockUp<Collaborator>
    {
       @Mock
       static boolean staticMethod(Invocation context)
@@ -46,15 +46,15 @@ public final class MockInvocationTest
    }
 
    @Test
-   public void mockMethodsForMethodsWithoutParameters()
+   public void fakeMethodsForMethodsWithoutParameters()
    {
-      new MockMethods();
+      new FakeMethods();
       assertFalse(Collaborator.staticMethod());
       assertEquals(123, new Collaborator().getValue());
    }
 
    @Test
-   public void instanceMockMethodForStaticMethod()
+   public void instanceFakeMethodForStaticMethod()
    {
       new MockUp<Collaborator>() {
          @Mock
@@ -71,7 +71,7 @@ public final class MockInvocationTest
    }
 
    @Test
-   public void mockMethodsWithInvocationParameter()
+   public void fakeMethodsWithInvocationParameter()
    {
       new MockUp<Collaborator>() {
          Collaborator instantiated;
@@ -101,16 +101,16 @@ public final class MockInvocationTest
       assertEquals("mock", s);
    }
 
-   static class MockMethodsWithParameters extends MockUp<Collaborator>
+   static class FakeMethodsWithParameters extends MockUp<Collaborator>
    {
       int capturedArgument;
-      Collaborator mockedInstance;
+      Collaborator fakedInstance;
 
       @Mock
       void $init(Invocation context, int i)
       {
          capturedArgument = i + context.getInvocationCount();
-         assertNull(mockedInstance);
+         assertNull(fakedInstance);
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
          assertEquals(1, context.getInvokedArguments().length);
       }
@@ -119,18 +119,18 @@ public final class MockInvocationTest
       void setValue(Invocation context, int i)
       {
          assertEquals(i, context.getInvocationIndex());
-         assertSame(mockedInstance, context.getInvokedInstance());
+         assertSame(fakedInstance, context.getInvokedInstance());
          assertEquals(1, context.getInvokedArguments().length);
       }
    }
 
    @Test
-   public void mockMethodsWithParameters()
+   public void fakeMethodsWithParameters()
    {
-      MockMethodsWithParameters mock = new MockMethodsWithParameters();
+      FakeMethodsWithParameters mock = new FakeMethodsWithParameters();
 
       Collaborator col = new Collaborator(4);
-      mock.mockedInstance = col;
+      mock.fakedInstance = col;
 
       assertEquals(5, mock.capturedArgument);
       col.setValue(0);

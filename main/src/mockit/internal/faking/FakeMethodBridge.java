@@ -98,13 +98,13 @@ public final class FakeMethodBridge extends MockingBridge
    {
       Class<?>[] paramClasses;
       Method fakeMethod;
-      MockInvocation invocation;
+      FakeInvocation invocation;
       Object[] executionArgs;
 
       if (fakeState.fakeMethod.isAdvice) {
          paramClasses = new Class[] {Invocation.class};
          fakeMethod = fakeState.getFakeMethod(fakeClass, paramClasses);
-         invocation = new MockInvocation(fakedInstance, fakeArgs, fakeState, fakedClassDesc, fakedName, fakedDesc);
+         invocation = new FakeInvocation(fakedInstance, fakeArgs, fakeState, fakedClassDesc, fakedName, fakedDesc);
          executionArgs = new Object[] {invocation};
       }
       else {
@@ -113,7 +113,7 @@ public final class FakeMethodBridge extends MockingBridge
 
          //noinspection AssignmentToMethodParameter
          fakedDesc = fakeState.fakeMethod.fakeDescWithoutInvocationParameter;
-         invocation = new MockInvocation(fakedInstance, fakeArgs, fakeState, fakedClassDesc, fakedName, fakedDesc);
+         invocation = new FakeInvocation(fakedInstance, fakeArgs, fakeState, fakedClassDesc, fakedName, fakedDesc);
          executionArgs = ParameterReflection.argumentsWithExtraFirstValue(fakeArgs, invocation);
       }
 

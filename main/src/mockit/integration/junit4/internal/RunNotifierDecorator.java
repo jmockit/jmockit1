@@ -38,7 +38,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
 
    private static void prepareToProceed(@Nonnull Invocation invocation)
    {
-      ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+      ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
    }
 
    @Mock

@@ -45,7 +45,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method,
          ITestContext context, ITestResult testResult)
       {
-         ((MockInvocation) invocation).prepareToProceedFromNonRecursiveMock();
+         ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          //noinspection deprecation
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
 

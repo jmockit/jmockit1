@@ -19,7 +19,7 @@ final class FakeState
 
    // Current fake invocation state:
    private int invocationCount;
-   @Nullable private ThreadLocal<MockInvocation> proceedingInvocation;
+   @Nullable private ThreadLocal<FakeInvocation> proceedingInvocation;
 
    // Helper field just for synchronization:
    @Nonnull private final Object invocationCountLock;
@@ -48,12 +48,12 @@ final class FakeState
 
    @Nonnull Class<?> getRealClass() { return fakeMethod.getRealClass(); }
 
-   private void makeReentrant() { proceedingInvocation = new ThreadLocal<MockInvocation>(); }
+   private void makeReentrant() { proceedingInvocation = new ThreadLocal<FakeInvocation>(); }
 
    boolean update()
    {
       if (proceedingInvocation != null) {
-         MockInvocation invocation = proceedingInvocation.get();
+         FakeInvocation invocation = proceedingInvocation.get();
 
          if (invocation != null && invocation.proceeding) {
             invocation.proceeding = false;
@@ -126,7 +126,7 @@ final class FakeState
    boolean shouldProceedIntoRealImplementation(@Nullable Object fake, @Nonnull String classDesc)
    {
       if (proceedingInvocation != null) {
-         MockInvocation pendingInvocation = proceedingInvocation.get();
+         FakeInvocation pendingInvocation = proceedingInvocation.get();
 
          if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(fake, classDesc)) {
             return true;
@@ -136,7 +136,7 @@ final class FakeState
       return false;
    }
 
-   void prepareToProceed(@Nonnull MockInvocation invocation)
+   void prepareToProceed(@Nonnull FakeInvocation invocation)
    {
       if (proceedingInvocation == null) {
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
@@ -146,7 +146,7 @@ final class FakeState
          throw new UnsupportedOperationException("Cannot proceed into real implementation of native method");
       }
 
-      MockInvocation previousInvocation = proceedingInvocation.get();
+      FakeInvocation previousInvocation = proceedingInvocation.get();
 
       if (previousInvocation != null) {
          invocation.setPrevious(previousInvocation);
@@ -155,7 +155,7 @@ final class FakeState
       proceedingInvocation.set(invocation);
    }
 
-   void prepareToProceedFromNonRecursiveFake(@Nonnull MockInvocation invocation)
+   void prepareToProceedFromNonRecursiveFake(@Nonnull FakeInvocation invocation)
    {
       assert proceedingInvocation != null;
       proceedingInvocation.set(invocation);
@@ -164,8 +164,8 @@ final class FakeState
    void clearProceedIndicator()
    {
       assert proceedingInvocation != null;
-      MockInvocation currentInvocation = proceedingInvocation.get();
-      MockInvocation previousInvocation = (MockInvocation) currentInvocation.getPrevious();
+      FakeInvocation currentInvocation = proceedingInvocation.get();
+      FakeInvocation previousInvocation = (FakeInvocation) currentInvocation.getPrevious();
       proceedingInvocation.set(previousInvocation);
    }
 

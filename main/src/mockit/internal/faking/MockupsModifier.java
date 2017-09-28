@@ -295,7 +295,7 @@ final class MockupsModifier extends BaseClassModifier
 
       if (canProceedIntoConstructor) {
          mw.visitMethodInsn(
-            INVOKEVIRTUAL, "mockit/internal/faking/MockInvocation", "shouldProceedIntoConstructor", "()Z", false);
+            INVOKEVIRTUAL, "mockit/internal/faking/FakeInvocation", "shouldProceedIntoConstructor", "()Z", false);
       }
    }
 
@@ -363,9 +363,9 @@ final class MockupsModifier extends BaseClassModifier
       mw.visitLdcInsn(methodDesc);
 
       mw.visitMethodInsn(
-         INVOKESTATIC, "mockit/internal/faking/MockInvocation", "create",
+         INVOKESTATIC, "mockit/internal/faking/FakeInvocation", "create",
          "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;I" +
-         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/faking/MockInvocation;", false);
+         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/faking/FakeInvocation;", false);
    }
 
    private void generateMethodReturn()

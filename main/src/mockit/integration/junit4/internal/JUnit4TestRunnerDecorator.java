@@ -19,7 +19,7 @@ import static mockit.internal.util.StackTrace.*;
 final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
 {
    @Nullable
-   Object invokeExplosively(@Nonnull MockInvocation invocation, @Nullable Object target, Object... params)
+   Object invokeExplosively(@Nonnull FakeInvocation invocation, @Nullable Object target, Object... params)
       throws Throwable
    {
       FrameworkMethod it = invocation.getInvokedInstance();
@@ -81,7 +81,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    @Nullable
-   private Object executeClassMethod(@Nonnull MockInvocation inv, @Nonnull Object[] params) throws Throwable
+   private Object executeClassMethod(@Nonnull FakeInvocation inv, @Nonnull Object[] params) throws Throwable
    {
       FrameworkMethod method = inv.getInvokedInstance();
       handleMockingOutsideTests(method);
@@ -140,7 +140,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void executeTestMethod(
-      @Nonnull MockInvocation invocation, @Nonnull Object target, @Nullable Object... parameters)
+      @Nonnull FakeInvocation invocation, @Nonnull Object target, @Nullable Object... parameters)
       throws Throwable
    {
       SavePoint savePoint = new SavePoint();
