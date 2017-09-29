@@ -12,7 +12,7 @@ import mockit.internal.state.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
- * An invocation to a {@code @Mock} method.
+ * An invocation to a {@linkplain mockit.Mock fake} method.
  */
 public final class FakeInvocation extends BaseInvocation
 {

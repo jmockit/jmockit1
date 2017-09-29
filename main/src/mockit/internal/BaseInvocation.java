@@ -12,8 +12,8 @@ import mockit.*;
 import mockit.internal.reflection.*;
 
 /**
- * Base class for encapsulating state and logic needed by both the Expectations and Mockups APIs, but which should not
- * go into {@link Invocation} in order to keep the published API clean.
+ * Base class for encapsulating state and logic needed by both the Mocking and Faking APIs, but which should not go into
+ * {@link Invocation} in order to keep the published API clean.
  */
 public abstract class BaseInvocation extends Invocation
 {
