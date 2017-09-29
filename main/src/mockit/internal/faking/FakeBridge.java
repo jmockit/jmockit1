@@ -10,9 +10,9 @@ import javax.annotation.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 
-public final class FakeBridge extends MockingBridge
+public final class FakeBridge extends ClassLoadingBridge
 {
-   @Nonnull public static final MockingBridge MB = new FakeBridge();
+   @Nonnull public static final ClassLoadingBridge MB = new FakeBridge();
 
    private FakeBridge() { super("$FB"); }
 

@@ -29,7 +29,7 @@ final class FakedClassModifier extends BaseClassModifier
    private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
 
    @Nonnull private final FakeMethods fakeMethods;
-   private final boolean useMockingBridgeForUpdatingFakeState;
+   private final boolean useClassLoadingBridgeForUpdatingFakeState;
    @Nonnull private final Class<?> fakedClass;
    private FakeMethod fakeMethod;
    private boolean isConstructor;
@@ -58,16 +58,16 @@ final class FakedClassModifier extends BaseClassModifier
       this.fakeMethods = fakeMethods;
 
       ClassLoader classLoaderOfRealClass = realClass.getClassLoader();
-      useMockingBridgeForUpdatingFakeState = ClassLoad.isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
-      inferUseOfMockingBridge(classLoaderOfRealClass, fake);
+      useClassLoadingBridgeForUpdatingFakeState = ClassLoad.isClassLoaderWithNoDirectAccess(classLoaderOfRealClass);
+      inferUseOfClassLoadingBridge(classLoaderOfRealClass, fake);
    }
 
-   private void inferUseOfMockingBridge(@Nullable ClassLoader classLoaderOfRealClass, @Nonnull Object fake)
+   private void inferUseOfClassLoadingBridge(@Nullable ClassLoader classLoaderOfRealClass, @Nonnull Object fake)
    {
-      setUseMockingBridge(classLoaderOfRealClass);
+      setUseClassLoadingBridge(classLoaderOfRealClass);
 
-      if (!useMockingBridge && !isPublic(fake.getClass().getModifiers())) {
-         useMockingBridge = true;
+      if (!useClassLoadingBridge && !isPublic(fake.getClass().getModifiers())) {
+         useClassLoadingBridge = true;
       }
    }
 
@@ -169,8 +169,8 @@ final class FakedClassModifier extends BaseClassModifier
 
    private void generateCallToUpdateFakeState()
    {
-      if (useMockingBridgeForUpdatingFakeState) {
-         generateCallToControlMethodThroughMockingBridge();
+      if (useClassLoadingBridgeForUpdatingFakeState) {
+         generateCallToControlMethodThroughClassLoadingBridge();
          mw.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
          mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
       }
@@ -182,9 +182,9 @@ final class FakedClassModifier extends BaseClassModifier
       }
    }
 
-   private void generateCallToControlMethodThroughMockingBridge()
+   private void generateCallToControlMethodThroughClassLoadingBridge()
    {
-      generateCodeToObtainInstanceOfMockingBridge(FakeBridge.MB);
+      generateCodeToObtainInstanceOfClassLoadingBridge(FakeBridge.MB);
 
       // First and second "invoke" arguments:
       generateCodeToPassThisOrNullIfStaticMethod();
@@ -219,7 +219,7 @@ final class FakedClassModifier extends BaseClassModifier
 
       int jumpInsnOpcode;
 
-      if (shouldUseMockingBridge()) {
+      if (shouldUseClassLoadingBridge()) {
          mw.visitLdcInsn(VOID_TYPE);
          jumpInsnOpcode = IF_ACMPEQ;
       }
@@ -235,19 +235,19 @@ final class FakedClassModifier extends BaseClassModifier
 
    private void generateCallToFakeMethod()
    {
-      if (shouldUseMockingBridge()) {
-         generateCallToFakeMethodThroughMockingBridge();
+      if (shouldUseClassLoadingBridge()) {
+         generateCallToFakeMethodThroughClassLoadingBridge();
       }
       else {
          generateDirectCallToFakeMethod();
       }
    }
 
-   private boolean shouldUseMockingBridge() { return useMockingBridge || !fakeMethod.isPublic(); }
+   private boolean shouldUseClassLoadingBridge() { return useClassLoadingBridge || !fakeMethod.isPublic(); }
 
-   private void generateCallToFakeMethodThroughMockingBridge()
+   private void generateCallToFakeMethodThroughClassLoadingBridge()
    {
-      generateCodeToObtainInstanceOfMockingBridge(FakeMethodBridge.MB);
+      generateCodeToObtainInstanceOfClassLoadingBridge(FakeMethodBridge.MB);
 
       // First and second "invoke" arguments:
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod();
@@ -370,7 +370,7 @@ final class FakedClassModifier extends BaseClassModifier
 
    private void generateMethodReturn()
    {
-      if (shouldUseMockingBridge() || fakeMethod.isAdvice) {
+      if (shouldUseClassLoadingBridge() || fakeMethod.isAdvice) {
          generateReturnWithObjectAtTopOfTheStack(methodDesc);
       }
       else {

@@ -14,9 +14,9 @@ import mockit.internal.util.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
 import static mockit.internal.util.Utilities.calledFromSpecialThread;
 
-public final class MockedBridge extends MockingBridge
+public final class MockedBridge extends ClassLoadingBridge
 {
-   @Nonnull public static final MockingBridge MB = new MockedBridge();
+   @Nonnull public static final ClassLoadingBridge MB = new MockedBridge();
 
    private MockedBridge() { super("$MB"); }
 
@@ -33,7 +33,7 @@ public final class MockedBridge extends MockingBridge
       String mockDesc = (String) args[3];
       String mockNameAndDesc = mockName + mockDesc;
       Integer executionMode = (Integer) args[5];
-      Object[] mockArgs = extractMockArguments(6, args);
+      Object[] mockArgs = extractArguments(6, args);
 
       boolean regularExecutionWithRecordReplayLock =
          executionMode == ExecutionMode.Regular.ordinal() && RECORD_OR_REPLAY_LOCK.isHeldByCurrentThread();

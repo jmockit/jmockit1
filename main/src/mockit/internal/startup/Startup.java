@@ -48,7 +48,7 @@ public final class Startup
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+         String hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
          Instrumentation wrappedInst = InstrumentationHolder.set(inst, hostJREClassName);
          initialize(wrappedInst);
       }
@@ -93,7 +93,7 @@ public final class Startup
       String hostJREClassName = InstrumentationHolder.hostJREClassName;
 
       if (hostJREClassName == null) {
-         hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+         hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
       }
 
       InstrumentationHolder.set(inst, hostJREClassName);
@@ -146,7 +146,7 @@ public final class Startup
             Instrumentation inst = InstrumentationHolder.get();
 
             if (InstrumentationHolder.hostJREClassName == null) {
-               String hostJREClassName = MockingBridgeFields.createSyntheticFieldsInJREClassToHoldMockingBridges(inst);
+               String hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
                InstrumentationHolder.setHostJREClassName(hostJREClassName);
             }
 

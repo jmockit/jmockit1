@@ -40,7 +40,7 @@ final class MockedClassModifier extends BaseClassModifier
       super(classReader);
       mockedType = typeMetadata;
       classFromNonBootstrapClassLoader = classLoader != null;
-      setUseMockingBridge(classLoader);
+      setUseClassLoadingBridge(classLoader);
       executionMode = ExecutionMode.Regular;
       useInstanceBasedMockingIfApplicable();
    }
@@ -167,7 +167,7 @@ final class MockedClassModifier extends BaseClassModifier
 
       ExecutionMode actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
 
-      if (useMockingBridge) {
+      if (useClassLoadingBridge) {
          return generateCallToHandlerThroughMockingBridge(
             signature, internalClassName, visitingConstructor, actualExecutionMode);
       }
@@ -253,7 +253,7 @@ final class MockedClassModifier extends BaseClassModifier
       @Nullable String genericSignature, @Nonnull String internalClassName, boolean visitingConstructor,
       @Nonnull ExecutionMode actualExecutionMode)
    {
-      generateCodeToObtainInstanceOfMockingBridge(MockedBridge.MB);
+      generateCodeToObtainInstanceOfClassLoadingBridge(MockedBridge.MB);
 
       // First and second "invoke" arguments:
       boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod();

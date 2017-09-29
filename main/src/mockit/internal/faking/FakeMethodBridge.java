@@ -13,9 +13,9 @@ import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-public final class FakeMethodBridge extends MockingBridge
+public final class FakeMethodBridge extends ClassLoadingBridge
 {
-   @Nonnull public static final MockingBridge MB = new FakeMethodBridge();
+   @Nonnull public static final ClassLoadingBridge MB = new FakeMethodBridge();
 
    private FakeMethodBridge() { super("$FMB"); }
 
@@ -34,7 +34,7 @@ public final class FakeMethodBridge extends MockingBridge
 
       String fakeName = (String) args[3];
       int fakeStateIndex = (Integer) args[5];
-      Object[] fakeArgs = extractMockArguments(6, args);
+      Object[] fakeArgs = extractArguments(6, args);
 
       return callFake(fakedInstance, fake, fakedClassDesc, fakeName, fakeDesc, fakeStateIndex, fakeArgs);
    }

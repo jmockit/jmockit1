@@ -37,7 +37,7 @@ public class BaseClassModifier extends ClassVisitor
 
    @Nonnull protected final ClassWriter cw;
    protected MethodWriter mw;
-   protected boolean useMockingBridge;
+   protected boolean useClassLoadingBridge;
    protected String superClassName;
    protected String classDesc;
    protected int methodAccess;
@@ -51,9 +51,9 @@ public class BaseClassModifier extends ClassVisitor
       cw = (ClassWriter) cv;
    }
 
-   protected final void setUseMockingBridge(@Nullable ClassLoader classLoader)
+   protected final void setUseClassLoadingBridge(@Nullable ClassLoader classLoader)
    {
-      useMockingBridge = ClassLoad.isClassLoaderWithNoDirectAccess(classLoader);
+      useClassLoadingBridge = ClassLoad.isClassLoaderWithNoDirectAccess(classLoader);
    }
 
    @Override
@@ -166,10 +166,10 @@ public class BaseClassModifier extends ClassVisitor
       }
    }
 
-   protected final void generateCodeToObtainInstanceOfMockingBridge(@Nonnull MockingBridge mockingBridge)
+   protected final void generateCodeToObtainInstanceOfClassLoadingBridge(@Nonnull ClassLoadingBridge classLoadingBridge)
    {
-      String hostClassName = MockingBridge.getHostClassName();
-      mw.visitFieldInsn(GETSTATIC, hostClassName, mockingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
+      String hostClassName = ClassLoadingBridge.getHostClassName();
+      mw.visitFieldInsn(GETSTATIC, hostClassName, classLoadingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
    }
 
    protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value)

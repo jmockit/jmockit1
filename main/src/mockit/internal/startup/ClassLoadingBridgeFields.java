@@ -16,12 +16,12 @@ import mockit.internal.faking.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-final class MockingBridgeFields
+final class ClassLoadingBridgeFields
 {
-   private MockingBridgeFields() {}
+   private ClassLoadingBridgeFields() {}
 
    @Nonnull
-   static String createSyntheticFieldsInJREClassToHoldMockingBridges(@Nonnull Instrumentation instrumentation)
+   static String createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation)
    {
       FieldAdditionTransformer fieldAdditionTransformer = new FieldAdditionTransformer(instrumentation);
       instrumentation.addTransformer(fieldAdditionTransformer);
@@ -76,7 +76,7 @@ final class MockingBridgeFields
                addField(FakeMethodBridge.MB);
             }
 
-            private void addField(@Nonnull MockingBridge mb)
+            private void addField(@Nonnull ClassLoadingBridge mb)
             {
                cw.visitField(FIELD_ACCESS, mb.id, "Ljava/lang/reflect/InvocationHandler;", null, null);
             }

@@ -128,7 +128,7 @@ final class FakeMethods
          targetTypeIsAClass = !targetClass.isInterface();
       }
 
-      reentrantRealClass = targetTypeIsAClass && MockingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
+      reentrantRealClass = targetTypeIsAClass && ClassLoadingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
       methods = new ArrayList<FakeMethod>();
       typeParametersToTypeArguments = new GenericTypeReflection(realClass, targetType);
       fakeClassInternalName = "";
