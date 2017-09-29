@@ -88,7 +88,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    {
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
 
-      ExpectationsModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
+      MockedClassModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
       modifier.useDynamicMocking(true);
       classReader.accept(modifier, SKIP_FRAMES);
       byte[] modifiedClassfile = modifier.toByteArray();
@@ -97,10 +97,10 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @Nonnull
-   private static ExpectationsModifier newModifier(
+   private static MockedClassModifier newModifier(
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata)
    {
-      ExpectationsModifier modifier = new ExpectationsModifier(cl, cr, typeMetadata);
+      MockedClassModifier modifier = new MockedClassModifier(cl, cr, typeMetadata);
       modifier.setClassNameForCapturedInstanceMethods(Type.getInternalName(baseType));
       return modifier;
    }
@@ -109,7 +109,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    protected final BaseClassModifier createModifier(
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata)
    {
-      ExpectationsModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
+      MockedClassModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
 
       if (partiallyMockedBaseTypes.contains(baseType)) {
          modifier.useDynamicMocking(true);

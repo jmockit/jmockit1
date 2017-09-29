@@ -151,19 +151,19 @@ class BaseTypeRedefinition
       }
 
       ClassLoader loader = realClass.getClassLoader();
-      ExpectationsModifier modifier = createClassModifier(loader, classReader);
+      MockedClassModifier modifier = createClassModifier(loader, classReader);
       redefineClass(realClass, classReader, modifier);
    }
 
    @Nonnull
-   private ExpectationsModifier createClassModifier(@Nonnull ClassLoader loader, @Nonnull ClassReader classReader)
+   private MockedClassModifier createClassModifier(@Nonnull ClassLoader loader, @Nonnull ClassReader classReader)
    {
-      ExpectationsModifier modifier = new ExpectationsModifier(loader, classReader, typeMetadata);
+      MockedClassModifier modifier = new MockedClassModifier(loader, classReader, typeMetadata);
       configureClassModifier(modifier);
       return modifier;
    }
 
-   void configureClassModifier(@Nonnull ExpectationsModifier modifier) {}
+   void configureClassModifier(@Nonnull MockedClassModifier modifier) {}
 
    private void generateNewMockImplementationClassForInterface(@Nonnull final Type interfaceToMock)
    {
@@ -198,13 +198,13 @@ class BaseTypeRedefinition
 
       ClassLoader loader = realClass.getClassLoader();
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
-      ExpectationsModifier modifier = createClassModifier(loader, classReader);
+      MockedClassModifier modifier = createClassModifier(loader, classReader);
 
       try {
          redefineClass(realClass, classReader, modifier);
       }
       catch (VisitInterruptedException ignore) {
-         // As defined in ExpectationsModifier, some critical JRE classes have all methods excluded from mocking by
+         // As defined in MockedClassModifier, some critical JRE classes have all methods excluded from mocking by
          // default. This exception occurs when they are visited.
          // In this case, we simply stop class redefinition for the rest of the class hierarchy.
          return false;
@@ -224,7 +224,7 @@ class BaseTypeRedefinition
    }
 
    private void redefineClass(
-      @Nonnull Class<?> realClass, @Nonnull ClassReader classReader, @Nonnull ExpectationsModifier modifier)
+      @Nonnull Class<?> realClass, @Nonnull ClassReader classReader, @Nonnull MockedClassModifier modifier)
    {
       classReader.accept(modifier, SKIP_FRAMES);
 

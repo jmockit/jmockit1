@@ -95,7 +95,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    }
 
    @Override
-   void configureClassModifier(@Nonnull ExpectationsModifier modifier) { modifier.useDynamicMocking(methodsOnly); }
+   void configureClassModifier(@Nonnull MockedClassModifier modifier) { modifier.useDynamicMocking(methodsOnly); }
 
    @Override
    void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)

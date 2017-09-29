@@ -99,7 +99,7 @@ public final class FakeClassSetup
          rcReader = ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
       }
 
-      MockupsModifier modifier = new MockupsModifier(rcReader, classToModify, fake, fakeMethods);
+      FakedClassModifier modifier = new FakedClassModifier(rcReader, classToModify, fake, fakeMethods);
       rcReader.accept(modifier, SKIP_FRAMES);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
@@ -108,7 +108,7 @@ public final class FakeClassSetup
    @Nonnull
    BaseClassModifier createClassModifier(@Nonnull ClassReader cr)
    {
-      return new MockupsModifier(cr, realClass, fake, fakeMethods);
+      return new FakedClassModifier(cr, realClass, fake, fakeMethods);
    }
 
    void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile)

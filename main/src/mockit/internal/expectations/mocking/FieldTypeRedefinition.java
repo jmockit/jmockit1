@@ -22,7 +22,7 @@ final class FieldTypeRedefinition extends TypeRedefinition
    }
 
    @Override
-   void configureClassModifier(@Nonnull ExpectationsModifier modifier)
+   void configureClassModifier(@Nonnull MockedClassModifier modifier)
    {
       if (usePartialMocking) {
          modifier.useDynamicMocking(true);

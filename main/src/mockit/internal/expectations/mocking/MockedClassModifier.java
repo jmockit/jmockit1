@@ -18,7 +18,7 @@ import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.ObjectMethods.isMethodFromObject;
 import static mockit.internal.util.Utilities.*;
 
-final class ExpectationsModifier extends BaseClassModifier
+final class MockedClassModifier extends BaseClassModifier
 {
    private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
    private static final int METHOD_ACCESS_MASK = ACC_PRIVATE + ACC_SYNTHETIC + ACC_ABSTRACT;
@@ -34,7 +34,7 @@ final class ExpectationsModifier extends BaseClassModifier
    @Nullable private String defaultFilters;
    @Nullable List<String> enumSubclasses;
 
-   ExpectationsModifier(
+   MockedClassModifier(
       @Nullable ClassLoader classLoader, @Nonnull ClassReader classReader, @Nullable MockedType typeMetadata)
    {
       super(classReader);

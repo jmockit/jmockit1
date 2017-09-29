@@ -24,7 +24,7 @@ import static mockit.external.asm.Opcodes.*;
  * <p/>
  * Any fields (static or not) in the real class remain untouched.
  */
-final class MockupsModifier extends BaseClassModifier
+final class FakedClassModifier extends BaseClassModifier
 {
    private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
 
@@ -50,7 +50,7 @@ final class MockupsModifier extends BaseClassModifier
     * description of the parameters; once the real class modification is complete this set will be empty, unless no
     * corresponding real method was found for any of its method identifiers
     */
-   MockupsModifier(
+   FakedClassModifier(
       @Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nonnull FakeMethods fakeMethods)
    {
       super(cr);
