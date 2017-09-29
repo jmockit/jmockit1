@@ -20,7 +20,7 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-public final class MockUpTest
+public final class FakingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 

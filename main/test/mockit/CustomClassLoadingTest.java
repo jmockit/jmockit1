@@ -91,8 +91,8 @@ public final class CustomClassLoadingTest
          CapturingInstancesTest.class, CascadingFieldTest.class, CascadingParametersTest.class,
          ClassInitializationTest.class, //ClassLoadingAndJREMocksTest.class,
          DelegateTest.class, ExpectationsTest.class, FinalMockFieldsTest.class, FullVerificationsTest.class,
-         InjectableMockedTest.class, //DelegateInvocationProceedTest.class, //JREMockingTest.class,
-         MockUpTest.class, StandardDITest.class
+         InjectableMockedTest.class, DelegateInvocationProceedTest.class, //JREMockingTest.class,
+         FakingTest.class, StandardDITest.class
       );
 
       Object jUnit = createJUnitCoreInIsolatedCL();
