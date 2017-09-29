@@ -91,23 +91,23 @@ public final class TestedClassWithFullStandardDITest
    @BeforeClass
    public static void setUpPersistence() throws Exception
    {
-      final MockUp<EntityManager> namedEMMockUp = new MockUp<EntityManager>() {};
-      final MockUp<EntityManager> defaultEMMockUp = new MockUp<EntityManager>() {};
-      final MockUp<EntityManagerFactory> namedEMFactoryMockUp = new MockUp<EntityManagerFactory>() {
+      final MockUp<EntityManager> namedEMFake = new MockUp<EntityManager>() {};
+      final MockUp<EntityManager> defaultEMFake = new MockUp<EntityManager>() {};
+      final MockUp<EntityManagerFactory> namedEMFactoryFake = new MockUp<EntityManagerFactory>() {
          @Mock
          EntityManager createEntityManager()
          {
             assertNull("Named EM already created", namedEM);
-            namedEM = namedEMMockUp.getMockInstance();
+            namedEM = namedEMFake.getMockInstance();
             return namedEM;
          }
       };
-      final MockUp<EntityManagerFactory> defaultEMFactoryMockUp = new MockUp<EntityManagerFactory>() {
+      final MockUp<EntityManagerFactory> defaultEMFactoryFake = new MockUp<EntityManagerFactory>() {
          @Mock
          EntityManager createEntityManager()
          {
             assertNull("Default EM already created", defaultEM);
-            defaultEM = defaultEMMockUp.getMockInstance();
+            defaultEM = defaultEMFake.getMockInstance();
             return defaultEM;
          }
       };
@@ -118,13 +118,13 @@ public final class TestedClassWithFullStandardDITest
          {
             if ("test".equals(persistenceUnitName)) {
                // TODO: assertNull("Named EM factory already created", namedEMFactory);
-               namedEMFactory = namedEMFactoryMockUp.getMockInstance();
+               namedEMFactory = namedEMFactoryFake.getMockInstance();
                return namedEMFactory;
             }
 
             if ("default".equals(persistenceUnitName)) {
                assertNull("Default EM factory already created", defaultEMFactory);
-               defaultEMFactory = defaultEMFactoryMockUp.getMockInstance();
+               defaultEMFactory = defaultEMFactoryFake.getMockInstance();
                return defaultEMFactory;
             }
 

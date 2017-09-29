@@ -67,7 +67,7 @@ public final class TestNGFakingTest
    @AfterTest
    void tearDownTest()
    {
-      assertNull(System.getenv("AfterTest"), "MockUp still in effect");
+      assertNull(System.getenv("AfterTest"), "Fake still in effect");
       assertNull(new Applet().getAppletInfo());
    }
 

@@ -15,7 +15,7 @@ public final class MisusedFakingAPITest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void mockSameMethodTwiceWithReentrantMocksFromTwoDifferentMockClasses()
+   public void fakeSameMethodTwiceWithReentrantFakesFromTwoDifferentFakeClasses()
    {
       new MockUp<Applet>() {
          @Mock
@@ -52,11 +52,11 @@ public final class MisusedFakingAPITest
       thrown.expectMessage("Cannot proceed");
       thrown.expectMessage("interface method");
 
-      AnInterface mock = new MockUp<AnInterface>() {
+      AnInterface faked = new MockUp<AnInterface>() {
          @Mock
          void doSomething(Invocation invocation) { invocation.proceed(); }
       }.getMockInstance();
 
-      mock.doSomething();
+      faked.doSomething();
    }
 }

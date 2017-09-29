@@ -16,19 +16,19 @@ import static org.junit.Assert.*;
 
 import static mockit.Deencapsulation.*;
 
-public final class MockLoginContextTest
+public final class FakeLoginContextTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void mockJREMethodAndConstructorUsingAnnotatedMockClass() throws Exception
+   public void fakeJREMethodAndConstructorUsingFakeClass() throws Exception
    {
-      new MockLoginContext();
+      new FakeLoginContext();
 
       new LoginContext("test", (CallbackHandler) null).login();
    }
 
-   public static class MockLoginContext extends MockUp<LoginContext>
+   public static class FakeLoginContext extends MockUp<LoginContext>
    {
       @Mock
       public void $init(String name, CallbackHandler callbackHandler)
@@ -45,7 +45,7 @@ public final class MockLoginContextTest
    }
 
    @Test
-   public void mockJREMethodAndConstructorWithMockUpClass() throws Exception
+   public void fakeJREMethodAndConstructorWithFakeClass() throws Exception
    {
       thrown.expect(LoginException.class);
 
@@ -64,16 +64,16 @@ public final class MockLoginContextTest
    }
 
    @Test
-   public void mockJREClassWithStubs() throws Exception
+   public void fakeJREClassWithStubs() throws Exception
    {
-      new MockLoginContextWithStubs();
+      new FakeLoginContextWithStubs();
 
       LoginContext context = new LoginContext("");
       context.login();
       context.logout();
    }
 
-   final class MockLoginContextWithStubs extends MockUp<LoginContext>
+   final class FakeLoginContextWithStubs extends MockUp<LoginContext>
    {
       @Mock void $init(String s) {}
       @Mock void logout() {}
@@ -81,7 +81,7 @@ public final class MockLoginContextTest
    }
 
    @Test
-   public void accessMockedInstance() throws Exception
+   public void accessFakedInstance() throws Exception
    {
       final Subject testSubject = new Subject();
 
@@ -120,7 +120,7 @@ public final class MockLoginContextTest
    }
 
    @Test
-   public void proceedIntoRealImplementationsOfMockedMethods() throws Exception
+   public void proceedIntoRealImplementationsOfFakedMethods() throws Exception
    {
       // Create objects to be exercised by the code under test:
       Configuration configuration = new Configuration() {
@@ -138,25 +138,25 @@ public final class MockLoginContextTest
       };
       LoginContext loginContext = new LoginContext("test", null, null, configuration);
 
-      // Set up mocks:
-      ProceedingMockLoginContext mockInstance = new ProceedingMockLoginContext();
+      // Apply fakes:
+      ProceedingFakeLoginContext fakeInstance = new ProceedingFakeLoginContext();
 
       // Exercise the code under test:
       assertNull(loginContext.getSubject());
       loginContext.login();
       assertNotNull(loginContext.getSubject());
-      assertTrue(mockInstance.loggedIn);
+      assertTrue(fakeInstance.loggedIn);
 
-      mockInstance.ignoreLogout = true;
+      fakeInstance.ignoreLogout = true;
       loginContext.logout();
-      assertTrue(mockInstance.loggedIn);
+      assertTrue(fakeInstance.loggedIn);
 
-      mockInstance.ignoreLogout = false;
+      fakeInstance.ignoreLogout = false;
       loginContext.logout();
-      assertFalse(mockInstance.loggedIn);
+      assertFalse(fakeInstance.loggedIn);
    }
 
-   static final class ProceedingMockLoginContext extends MockUp<LoginContext>
+   static final class ProceedingFakeLoginContext extends MockUp<LoginContext>
    {
       boolean ignoreLogout;
       boolean loggedIn;

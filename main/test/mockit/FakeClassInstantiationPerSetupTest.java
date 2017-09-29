@@ -12,7 +12,7 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
-public final class MockClassInstantiationPerSetupTest
+public final class FakeClassInstantiationPerSetupTest
 {
    public static final class RealClass1
    {

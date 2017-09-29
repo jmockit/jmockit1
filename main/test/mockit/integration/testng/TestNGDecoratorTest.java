@@ -15,31 +15,31 @@ import mockit.*;
 
 public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
 {
-   public static class MockClass2 extends MockUp<Reference>
+   public static class FakeClass2 extends MockUp<Reference>
    {
       @Mock
       public String getClassName() { return "TEST2"; }
    }
 
    @Test
-   public void setUpAndUseSomeMocks()
+   public void applyAndUseSomeFakes()
    {
       assertEquals(new Applet().getAppletInfo(), "TEST1");
       assertEquals(new Reference("REAL2").getClassName(), "REAL2");
 
-      new MockClass2();
+      new FakeClass2();
 
       assertEquals(new Reference("").getClassName(), "TEST2");
       assertEquals(new Applet().getAppletInfo(), "TEST1");
    }
 
    @Test
-   public void setUpAndUseMocksAgain()
+   public void applyAndUseFakesAgain()
    {
       assertEquals(new Applet().getAppletInfo(), "TEST1");
       assertEquals(new Reference("REAL2").getClassName(), "REAL2");
 
-      new MockClass2();
+      new FakeClass2();
 
       assertEquals(new Reference("").getClassName(), "TEST2");
       assertEquals(new Applet().getAppletInfo(), "TEST1");

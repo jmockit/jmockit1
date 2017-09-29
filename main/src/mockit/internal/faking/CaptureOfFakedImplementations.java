@@ -17,10 +17,10 @@ public final class CaptureOfFakedImplementations extends CaptureOfImplementation
 {
    private final FakeClassSetup fakeClassSetup;
 
-   public CaptureOfFakedImplementations(@Nonnull MockUp<?> mockUp, @Nonnull Type baseType)
+   public CaptureOfFakedImplementations(@Nonnull MockUp<?> fake, @Nonnull Type baseType)
    {
       Class<?> baseClassType = getClassType(baseType);
-      fakeClassSetup = new FakeClassSetup(baseClassType, baseType, mockUp, null);
+      fakeClassSetup = new FakeClassSetup(baseClassType, baseType, fake, null);
    }
 
    @Nonnull @Override
