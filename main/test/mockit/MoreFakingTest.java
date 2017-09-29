@@ -19,12 +19,12 @@ import org.junit.*;
 import org.junit.rules.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-public final class MockAnnotationsTest
+public final class MoreFakingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    final CodeUnderTest codeUnderTest = new CodeUnderTest();
-   boolean mockExecuted;
+   boolean fakeExecuted;
 
    static class CodeUnderTest
    {
@@ -114,16 +114,16 @@ public final class MockAnnotationsTest
    public void applyFakesFromInnerFakeClassWithFakeConstructor()
    {
       new FakeCollaborator4();
-      assertFalse(mockExecuted);
+      assertFalse(fakeExecuted);
 
       new CodeUnderTest().doSomething();
 
-      assertTrue(mockExecuted);
+      assertTrue(fakeExecuted);
    }
 
    class FakeCollaborator4 extends MockUp<Collaborator>
    {
-      @Mock void $init() { mockExecuted = true; }
+      @Mock void $init() { fakeExecuted = true; }
       @Mock void provideSomeService() {}
    }
 

@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 import static mockit.internal.util.Utilities.*;
 
-public final class ReentrantMockTest
+public final class ReentrantFakeTest
 {
    public static class RealClass
    {
