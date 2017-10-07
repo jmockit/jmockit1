@@ -324,42 +324,30 @@ public final class MockFixture
          byte[] currentDefinition = entry.getValue();
          byte[] previousDefinition = previousDefinitions.get(redefinedClass);
 
-         //noinspection ArrayEquality
-         if (currentDefinition != previousDefinition) {
-            restoreDefinition(redefinedClass, previousDefinition);
-
-            if (previousDefinition == null) {
-               restoreDefinition(redefinedClass);
-               discardStateForCorrespondingFakeClassIfAny(redefinedClass);
-               itr.remove();
-            }
-            else {
-               entry.setValue(previousDefinition);
-            }
+         if (previousDefinition == null) {
+            restoreDefinition(redefinedClass);
+            itr.remove();
+         }
+         else if (currentDefinition != previousDefinition) {
+            Startup.redefineMethods(redefinedClass, previousDefinition);
+            entry.setValue(previousDefinition);
          }
       }
-   }
-
-   private void restoreDefinition(@Nonnull Class<?> aClass, @Nullable byte[] previousDefinition)
-   {
-      if (previousDefinition == null) {
-         if (isGeneratedImplementationClass(aClass)) {
-            return;
-         }
-
-         previousDefinition = ClassFile.createReaderOrGetFromCache(aClass).b;
-      }
-
-      Startup.redefineMethods(aClass, previousDefinition);
    }
 
    private void restoreDefinition(@Nonnull Class<?> redefinedClass)
    {
+      if (!isGeneratedImplementationClass(redefinedClass)) {
+         byte[] previousDefinition = ClassFile.createReaderOrGetFromCache(redefinedClass).b;
+         Startup.redefineMethods(redefinedClass, previousDefinition);
+      }
+
       if (redefinedClassesWithNativeMethods.contains(redefinedClass.getName())) {
          reregisterNativeMethodsForRestoredClass(redefinedClass);
       }
 
       removeMockedClass(redefinedClass);
+      discardStateForCorrespondingFakeClassIfAny(redefinedClass);
    }
 
    private void removeMockedClass(@Nonnull Class<?> mockedClass)
