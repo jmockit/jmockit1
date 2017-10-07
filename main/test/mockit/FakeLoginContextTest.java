@@ -14,8 +14,6 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-import static mockit.Deencapsulation.*;
-
 public final class FakeLoginContextTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -93,7 +91,6 @@ public final class FakeLoginContextTest
             assertNotNull(name);
             assertSame(testSubject, subject);
             assertNotNull(it);
-            setField(it, subject); // forces setting of private field, since no setter is available
          }
 
          @Mock
@@ -102,7 +99,6 @@ public final class FakeLoginContextTest
             LoginContext it = inv.getInvokedInstance();
             assertNotNull(it);
             assertNull(it.getSubject()); // returns null until the subject is authenticated
-            setField(it, "loginSucceeded", true); // private field set to true when login succeeds
          }
 
          @Mock
@@ -110,13 +106,12 @@ public final class FakeLoginContextTest
          {
             LoginContext it = inv.getInvokedInstance();
             assertNotNull(it);
-            assertSame(testSubject, it.getSubject());
          }
       };
 
-      LoginContext theMockedInstance = new LoginContext("test", testSubject);
-      theMockedInstance.login();
-      theMockedInstance.logout();
+      LoginContext fakedInstance = new LoginContext("test", testSubject);
+      fakedInstance.login();
+      fakedInstance.logout();
    }
 
    @Test
