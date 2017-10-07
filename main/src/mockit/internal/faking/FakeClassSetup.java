@@ -4,6 +4,7 @@
  */
 package mockit.internal.faking;
 
+import java.lang.instrument.*;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -113,14 +114,15 @@ public final class FakeClassSetup
 
    void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile)
    {
-      Startup.redefineMethods(classToModify, modifiedClassFile);
+      ClassDefinition classDef = new ClassDefinition(classToModify, modifiedClassFile);
+      Startup.redefineMethods(classDef);
 
       if (forStartupFake) {
          CachedClassfiles.addClassfile(classToModify, modifiedClassFile);
       }
       else {
          String fakeClassDesc = fakeMethods.getFakeClassInternalName();
-         TestRun.mockFixture().addRedefinedClass(fakeClassDesc, classToModify, modifiedClassFile);
+         TestRun.mockFixture().addRedefinedClass(fakeClassDesc, classDef);
       }
    }
 }

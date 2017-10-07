@@ -4,6 +4,7 @@
  */
 package mockit.internal.expectations.mocking;
 
+import java.lang.instrument.*;
 import java.util.*;
 import javax.annotation.*;
 
@@ -119,9 +120,14 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @Override
-   protected final void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
+   protected final void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClassfile)
    {
-      new RedefinitionEngine(realClass).redefineMethodsWhileRegisteringTheClass(modifiedClass);
+      ClassDefinition newClassDefinition = new ClassDefinition(realClass, modifiedClassfile);
+      Startup.redefineMethods(newClassDefinition);
+
+      MockFixture mockFixture = TestRun.mockFixture();
+      mockFixture.addRedefinedClass(newClassDefinition);
+      mockFixture.registerMockedClass(realClass);
    }
 
    final void registerCaptureOfNewInstances(@Nonnull MockedType typeMetadata, @Nullable Object mockInstance)

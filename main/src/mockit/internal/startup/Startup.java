@@ -9,6 +9,7 @@ import java.lang.instrument.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
+import mockit.internal.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -172,6 +173,12 @@ public final class Startup
    public static void retransformClass(@Nonnull Class<?> aClass)
    {
       try { instrumentation().retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
+   }
+
+   public static void redefineMethods(@Nonnull ClassIdentification classToRedefine, @Nonnull byte[] modifiedClassfile)
+   {
+      Class<?> loadedClass = classToRedefine.getLoadedClass();
+      redefineMethods(loadedClass, modifiedClassfile);
    }
 
    public static void redefineMethods(@Nonnull Class<?> classToRedefine, @Nonnull byte[] modifiedClassfile)

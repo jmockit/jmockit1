@@ -38,7 +38,7 @@ class BaseTypeRedefinition
 
       void redefineClasses()
       {
-         RedefinitionEngine.redefineClasses(mockedClassDefinitions);
+         TestRun.mockFixture().redefineClasses(mockedClassDefinitions);
       }
    }
 
@@ -237,7 +237,7 @@ class BaseTypeRedefinition
    void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
    {
       ClassDefinition classDefinition = new ClassDefinition(realClass, modifiedClass);
-      RedefinitionEngine.redefineClasses(classDefinition);
+      TestRun.mockFixture().redefineClasses(classDefinition);
 
       if (mockedClassDefinitions != null) {
          mockedClassDefinitions.add(classDefinition);

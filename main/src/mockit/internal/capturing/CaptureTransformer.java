@@ -13,6 +13,7 @@ import static java.lang.Boolean.*;
 
 import mockit.external.asm.*;
 import mockit.internal.*;
+import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
@@ -45,12 +46,11 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       inactive = true;
 
       if (!transformedClasses.isEmpty()) {
-         RedefinitionEngine redefinitionEngine = new RedefinitionEngine();
-
          for (Map.Entry<ClassIdentification, byte[]> classNameAndOriginalBytecode : transformedClasses.entrySet()) {
             ClassIdentification classId = classNameAndOriginalBytecode.getKey();
             byte[] originalBytecode = classNameAndOriginalBytecode.getValue();
-            redefinitionEngine.restoreToDefinition(classId.getLoadedClass(), originalBytecode);
+
+            Startup.redefineMethods(classId, originalBytecode);
          }
 
          transformedClasses.clear();

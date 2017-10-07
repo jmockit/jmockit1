@@ -31,7 +31,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       }
 
       if (!modifiedClassfiles.isEmpty()) {
-         new RedefinitionEngine().redefineMethods(modifiedClassfiles);
+         TestRun.mockFixture().redefineMethods(modifiedClassfiles);
          modifiedClassfiles.clear();
       }
    }
