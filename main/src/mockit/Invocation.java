@@ -51,7 +51,7 @@ public class Invocation
    }
 
    /**
-    * Returns the {@code Method} or {@code Constructor} object corresponding to the mocked method or constructor,
+    * Returns the {@code Method} or {@code Constructor} object corresponding to the target method or constructor,
     * respectively.
     */
    public final <M extends Member> M getInvokedMember()
@@ -61,7 +61,7 @@ public class Invocation
    }
 
    /**
-    * Returns the actual argument values passed in the invocation to the mocked method/constructor.
+    * Returns the actual argument values passed in the invocation to the target method/constructor.
     */
    public final Object[] getInvokedArguments() { return invokedArguments; }
 
@@ -77,31 +77,30 @@ public class Invocation
    public final int getInvocationIndex() { return invocationCount - 1; }
 
    /**
-    * Allows execution to proceed into the real implementation of the mocked method/constructor.
+    * Allows execution to proceed into the real implementation of the target method/constructor.
     * <p/>
-    * In the case of a mocked method, the real implementation is executed with the argument values originally received
-    * or explicitly given as replacement.
-    * Whatever comes out of that call (either a return value or a thrown exception/error, even if it is a
-    * <em>checked</em> exception) becomes the result of the current invocation to the mock method.
+    * In the case of a method, the real implementation is executed with the argument values originally received or
+    * explicitly given as replacement.
+    * Whatever comes out (either a return value or a thrown exception/error) becomes the result for this execution of
+    * the method.
     * <p/>
-    * In the case of a mocked constructor, the real constructor implementation code which comes after the necessary call
-    * to "<code>super</code>" is executed, using the original argument values; replacement arguments are not supported.
-    * If the execution of said code throws an exception or error, it is propagated out to the caller of the mocked
-    * constructor (even in the case of a <em>checked</em> exception).
-    * Contrary to proceeding into a mocked method, it's not possible to actually execute test code inside the delegate
+    * In the case of a constructor, the real constructor implementation code which comes after the necessary call to
+    * "<code>super</code>" is executed, using the original argument values; replacement arguments are not supported.
+    * If the execution of said code throws an exception or error, it is propagated out to the caller of the target
+    * constructor.
+    * Contrary to proceeding into a method, it's not possible to actually execute test code inside the delegate or fake
     * method after proceeding into the real constructor, nor to proceed into it more than once.
     *
     * @param replacementArguments the argument values to be passed to the real method, as replacement for the values
-    *                             received by the mock method; if those received values should be passed without
-    *                             replacement, then this method should be called with no values
-    * @param <T> the return type of the mocked method
+    *                             received by the delegate or fake method; if those received values should be passed
+    *                             without replacement, then this method should be called with no values
+    * @param <T> the return type of the target method
     *
-    * @return the same value returned by the real method, if any
+    * @return the same value returned by the target method, if any
     *
-    * @throws UnsupportedOperationException if attempting to proceed into a mocked method which does not belong to an
+    * @throws UnsupportedOperationException if attempting to proceed into a target method which does not belong to an
     * {@linkplain Injectable injectable mocked type} nor to a {@linkplain Expectations#Expectations(Object...) dynamic
-    * partially mocked type}, into a {@code native} method, into a mocked constructor while passing replacement
-    * arguments, or into an interface or abstract method
+    * partially mocked type}, into a {@code native} method, or into an interface or abstract method
     *
     * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
     */
