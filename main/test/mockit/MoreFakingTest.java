@@ -11,7 +11,6 @@ import javax.accessibility.*;
 import javax.faces.application.*;
 import javax.security.auth.callback.*;
 
-import static mockit.Deencapsulation.*;
 import static mockit.internal.util.Utilities.*;
 
 import static org.junit.Assert.*;
@@ -211,7 +210,7 @@ public final class MoreFakingTest
       assertEquals(0, System.nanoTime());
    }
 
-   static class FakeSystem extends MockUp<System> {
+   public static final class FakeSystem extends MockUp<System> {
       @Mock public static long nanoTime() { return 0; }
    }
 
@@ -406,12 +405,12 @@ public final class MoreFakingTest
          void $init(Invocation inv, String pathName)
          {
             File it = inv.getInvokedInstance();
-            setField(it, "path", "fixedPrefix/" + pathName);
+            assertNotNull(it);
          }
       };
 
       File f = new File("test");
-      assertEquals("fixedPrefix/test", f.getPath());
+      assertNull(f.getPath());
    }
 
    @Test @SuppressWarnings("MethodWithMultipleLoops")
