@@ -8,6 +8,10 @@ import javax.annotation.*;
 
 import mockit.internal.reflection.*;
 
+/**
+ * Factory for the creation of new mocked instances, and for obtaining/clearing the last instance created.
+ * There are separate subclasses dedicated to mocked interfaces and mocked classes.
+ */
 public abstract class InstanceFactory
 {
    @Nonnull final Class<?> concreteClass;
