@@ -65,7 +65,6 @@ public final class DynamicPartialMockingTest
 
       // Mocked:
       ByteArrayOutputStream collaborator = new ByteArrayOutputStream();
-      assertNull(Deencapsulation.getField(collaborator, "buf"));
       assertEquals(123, collaborator.size());
 
       // Not mocked:

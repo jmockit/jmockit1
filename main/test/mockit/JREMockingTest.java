@@ -4,11 +4,9 @@
  */
 package mockit;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.security.*;
 import java.time.*;
 import java.util.*;
 import java.util.logging.*;
@@ -18,9 +16,7 @@ import org.junit.rules.*;
 import org.junit.runners.*;
 import static org.junit.Assert.*;
 
-@SuppressWarnings({
-   "WaitWhileNotSynced", "UnconditionalWait", "WaitWithoutCorrespondingNotify", "WaitNotInLoop",
-   "WaitOrAwaitWithoutTimeout", "deprecation"})
+@SuppressWarnings({"WaitNotInLoop", "deprecation"})
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class JREMockingTest
 {
@@ -101,16 +97,6 @@ public final class JREMockingTest
       Thread.sleep(delay);
       long t1 = System.currentTimeMillis();
       assertTrue(t1 - t0 >= delay);
-   }
-
-   @Test
-   public void mockPackagePrivateMethodsInJREClass(@Mocked AWTEvent awtEvent) throws Exception
-   {
-      Method method = AWTEvent.class.getDeclaredMethod("getAccessControlContext");
-      method.setAccessible(true);
-
-      AccessControlContext ctx = (AccessControlContext) method.invoke(awtEvent);
-      ctx.checkPermission(null);
    }
 
    // Mocking of java.lang.Thread and native methods //////////////////////////////////////////////////////////////////
