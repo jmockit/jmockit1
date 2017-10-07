@@ -343,7 +343,6 @@ public final class DeencapsulationTest
       Writer instance = Deencapsulation.newUninitializedInstance(Writer.class);
 
       assertNotNull(instance);
-      assertNull(Deencapsulation.getField(instance, "lock"));
 
       // Abstract methods.
       instance.write(new char[0], 0, 0);
