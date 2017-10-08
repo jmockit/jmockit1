@@ -8,7 +8,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
 import mockit.internal.expectations.argumentMatching.*;
 
 final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatchers

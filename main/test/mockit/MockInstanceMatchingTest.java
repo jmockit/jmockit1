@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 import org.w3c.dom.*;
 

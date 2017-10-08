@@ -16,7 +16,7 @@ import org.junit.runners.*;
 
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 @SuppressWarnings("ConstantConditions")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

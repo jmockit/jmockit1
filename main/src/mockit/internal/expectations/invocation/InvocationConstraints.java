@@ -7,8 +7,6 @@ package mockit.internal.expectations.invocation;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
-
 public final class InvocationConstraints
 {
    public int minInvocations;

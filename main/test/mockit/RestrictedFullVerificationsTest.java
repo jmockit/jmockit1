@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public final class RestrictedFullVerificationsTest

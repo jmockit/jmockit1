@@ -9,7 +9,7 @@ import java.util.*;
 import org.junit.*;
 import org.junit.rules.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 public final class InvocationBlocksWithTimesFieldsTest
 {

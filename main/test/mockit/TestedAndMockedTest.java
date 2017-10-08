@@ -7,7 +7,7 @@ package mockit;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 public final class TestedAndMockedTest
 {

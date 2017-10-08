@@ -7,7 +7,7 @@ package mockit;
 import org.junit.*;
 import org.junit.rules.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 import org.hamcrest.*;
 

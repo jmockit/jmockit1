@@ -9,7 +9,7 @@ import org.junit.rules.*;
 
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 public final class FullVerificationsTest
 {

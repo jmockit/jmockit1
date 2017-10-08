@@ -14,7 +14,7 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 import static mockit.ExpectationsWithArgMatchersTest.Delegates.*;
 import static org.hamcrest.CoreMatchers.*;

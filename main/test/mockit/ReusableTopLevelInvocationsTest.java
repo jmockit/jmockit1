@@ -9,7 +9,7 @@ import java.io.*;
 import org.junit.*;
 import static org.junit.Assert.assertTrue;
 
-import mockit.internal.*;
+import mockit.internal.expectations.invocation.*;
 
 final class FinalReusableExpectations extends Expectations
 {
