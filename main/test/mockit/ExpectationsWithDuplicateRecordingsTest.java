@@ -173,7 +173,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
          mock.doSomething(withEqual("XYZ")); result = "second";
 
          mock.truncate(withEqual(5.0, 0.1)); result = 1;
-         mock.truncate(withEqual(-5.0, 0.1)); result = 2;
+         mock.truncate(withEqual(-5.0, 0.005)); result = 2;
 
          mock.truncate(withEqual(300.0F, 2)); result = 1;
          mock.truncate(withEqual(123.5F, 1)); result = 2;
@@ -212,7 +212,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
       assertEquals("second", mock.doSomething("XYZ"));
       assertEquals("first", mock.doSomething("abc"));
 
-      assertEquals(2, mock.truncate(-5.1));
+      assertEquals(2, mock.truncate(-5.001));
       assertEquals(1, mock.truncate(4.92));
 
       assertEquals(2, mock.truncate(123.5F));
