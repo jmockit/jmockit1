@@ -74,9 +74,8 @@ public final class FakingTest
    public void fakeAGivenClass()
    {
       final Main main = new Main();
-      AtomicIntegerFieldUpdater<?> atomicCount = Deencapsulation.getField(Main.class, AtomicIntegerFieldUpdater.class);
 
-      new MockUp<AtomicIntegerFieldUpdater<?>>(atomicCount.getClass()) {
+      new MockUp<AtomicIntegerFieldUpdater<?>>(Main.atomicCount.getClass()) {
          boolean second;
 
          @Mock
