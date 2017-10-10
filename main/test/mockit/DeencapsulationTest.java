@@ -304,13 +304,6 @@ public final class DeencapsulationTest
       Deencapsulation.setField(Subclass.class, "constantField", 54);
    }
 
-   @Test(expected = InstantiationException.class)
-   public void causeInstantiationExceptionToBeThrown() throws Exception
-   {
-      //noinspection ClassNewInstance
-      Runnable.class.newInstance();
-   }
-
    @Test
    public void newUninitializedInstanceOfConcreteClass()
    {
