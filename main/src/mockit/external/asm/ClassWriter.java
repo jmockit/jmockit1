@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -77,8 +77,7 @@ public final class ClassWriter extends ClassVisitor {
     /**
      * Factor to convert from ACC_SYNTHETIC_ATTRIBUTE to Opcode.ACC_SYNTHETIC.
      */
-    static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE
-            / Opcodes.ACC_SYNTHETIC;
+    static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC;
 
     /**
      * The type of instructions without any argument.
@@ -511,7 +510,7 @@ public final class ClassWriter extends ClassVisitor {
     // Static initializer
     // ------------------------------------------------------------------------
 
-    /**
+    /*
      * Computes the instruction types of JVM opcodes.
      */
     static {
@@ -670,7 +669,7 @@ public final class ClassWriter extends ClassVisitor {
         this.name = newClass(name);
         thisName = name;
 
-        if (ClassReader.SIGNATURES && signature != null) {
+        if (signature != null) {
             this.signature = newUTF8(signature);
         }
 
@@ -711,10 +710,6 @@ public final class ClassWriter extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (!ClassReader.ANNOTATIONS) {
-            return null;
-        }
-
         ByteVector bv = new ByteVector();
         // write type, and reserve space for values count
         bv.putShort(newUTF8(desc)).putShort(0);
@@ -734,10 +729,6 @@ public final class ClassWriter extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        if (!ClassReader.ANNOTATIONS) {
-            return null;
-        }
-
         ByteVector bv = new ByteVector();
         // write target_type and target_info
         AnnotationWriter.putTarget(typeRef, typePath, bv);
@@ -852,7 +843,7 @@ public final class ClassWriter extends ClassVisitor {
             newUTF8("BootstrapMethods");
         }
 
-        if (ClassReader.SIGNATURES && signature != 0) {
+        if (signature != 0) {
             ++attributeCount;
             size += 8;
             newUTF8("Signature");
@@ -896,22 +887,22 @@ public final class ClassWriter extends ClassVisitor {
             size += 8 + innerClasses.length;
             newUTF8("InnerClasses");
         }
-        if (ClassReader.ANNOTATIONS && anns != null) {
+        if (anns != null) {
             ++attributeCount;
             size += 8 + anns.getSize();
             newUTF8("RuntimeVisibleAnnotations");
         }
-        if (ClassReader.ANNOTATIONS && ianns != null) {
+        if (ianns != null) {
             ++attributeCount;
             size += 8 + ianns.getSize();
             newUTF8("RuntimeInvisibleAnnotations");
         }
-        if (ClassReader.ANNOTATIONS && tanns != null) {
+        if (tanns != null) {
             ++attributeCount;
             size += 8 + tanns.getSize();
             newUTF8("RuntimeVisibleTypeAnnotations");
         }
-        if (ClassReader.ANNOTATIONS && itanns != null) {
+        if (itanns != null) {
             ++attributeCount;
             size += 8 + itanns.getSize();
             newUTF8("RuntimeInvisibleTypeAnnotations");
@@ -959,7 +950,7 @@ public final class ClassWriter extends ClassVisitor {
                     bootstrapMethodsCount);
             out.putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
         }
-        if (ClassReader.SIGNATURES && signature != 0) {
+        if (signature != 0) {
             out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
         }
         if (sourceFile != 0) {
@@ -988,19 +979,19 @@ public final class ClassWriter extends ClassVisitor {
             out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
             out.putByteArray(innerClasses.data, 0, innerClasses.length);
         }
-        if (ClassReader.ANNOTATIONS && anns != null) {
+        if (anns != null) {
             out.putShort(newUTF8("RuntimeVisibleAnnotations"));
             anns.put(out);
         }
-        if (ClassReader.ANNOTATIONS && ianns != null) {
+        if (ianns != null) {
             out.putShort(newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
         }
-        if (ClassReader.ANNOTATIONS && tanns != null) {
+        if (tanns != null) {
             out.putShort(newUTF8("RuntimeVisibleTypeAnnotations"));
             tanns.put(out);
         }
-        if (ClassReader.ANNOTATIONS && itanns != null) {
+        if (itanns != null) {
             out.putShort(newUTF8("RuntimeInvisibleTypeAnnotations"));
             itanns.put(out);
         }
@@ -1700,7 +1691,7 @@ public final class ClassWriter extends ClassVisitor {
      */
     int getMergedType(int type1, int type2) {
         key2.type = TYPE_MERGED;
-        key2.longVal = type1 | (((long) type2) << 32);
+        key2.longVal = type1 | ((long) type2 << 32);
         key2.hashCode = 0x7FFFFFFF & (TYPE_MERGED + type1 + type2);
         Item result = get(key2);
         if (result == null) {

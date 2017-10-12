@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -41,31 +41,6 @@ import java.io.*;
  * @author Eugene Kuleshov
  */
 public final class ClassReader {
-
-    /**
-     * True to enable signatures support.
-     */
-    static final boolean SIGNATURES = true;
-
-    /**
-     * True to enable annotations support.
-     */
-    static final boolean ANNOTATIONS = true;
-
-    /**
-     * True to enable stack map frames support.
-     */
-    static final boolean FRAMES = true;
-
-    /**
-     * True to enable bytecode writing support.
-     */
-    static final boolean WRITER = true;
-
-    /**
-     * True to enable JSR_W and GOTO_W support.
-     */
-    static final boolean RESIZE = true;
 
     /**
      * Flag to skip method code. If this class is set <code>CODE</code>
@@ -149,28 +124,14 @@ public final class ClassReader {
      *            the bytecode of the class to be read.
      */
     public ClassReader(byte[] b) {
-        this(b, 0, b.length);
-    }
-
-    /**
-     * Constructs a new {@link ClassReader} object.
-     * 
-     * @param b
-     *            the bytecode of the class to be read.
-     * @param off
-     *            the start offset of the class data.
-     * @param len
-     *            the length of the class data.
-     */
-    public ClassReader(byte[] b, int off, int len) {
         this.b = b;
 
         // parses the constant pool
-        items = new int[readUnsignedShort(off + 8)];
+        items = new int[readUnsignedShort(8)];
         int n = items.length;
         strings = new String[n];
         int max = 0;
-        int index = off + 10;
+        int index = 10;
         for (int i = 1; i < n; ++i) {
             items[i] = index + 1;
             int size;
@@ -572,13 +533,11 @@ public final class ClassReader {
                     enclosingName = readUTF8(items[item], c);
                     enclosingDesc = readUTF8(items[item] + 2, c);
                 }
-            } else if (SIGNATURES && "Signature".equals(attrName)) {
+            } else if ("Signature".equals(attrName)) {
                 signature = readUTF8(u + 8, c);
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleAnnotations".equals(attrName)) {
                 anns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleTypeAnnotations".equals(attrName)) {
                 tanns = u + 8;
             } else if ("Deprecated".equals(attrName)) {
                 access |= Opcodes.ACC_DEPRECATED;
@@ -588,11 +547,9 @@ public final class ClassReader {
             } else if ("SourceDebugExtension".equals(attrName)) {
                 int len = readInt(u + 4);
                 sourceDebug = readUTF(u + 8, len, new char[len]);
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
                 ianns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = u + 8;
             } else if ("BootstrapMethods".equals(attrName)) {
                 int[] bootstrapMethods = new int[readUnsignedShort(u + 8)];
@@ -602,8 +559,7 @@ public final class ClassReader {
                 }
                 context.bootstrapMethods = bootstrapMethods;
             } else {
-                Attribute attr = readAttribute(attrs, attrName, u + 8,
-                        readInt(u + 4), c, -1, null);
+                Attribute attr = readAttribute(attrs, attrName, u + 8, readInt(u + 4));
                 if (attr != null) {
                     attr.next = attributes;
                     attributes = attr;
@@ -629,19 +585,19 @@ public final class ClassReader {
         }
 
         // visits the class annotations and type annotations
-        if (ANNOTATIONS && anns != 0) {
+        if (anns != 0) {
             for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         classVisitor.visitAnnotation(readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && ianns != 0) {
+        if (ianns != 0) {
             for (int i = readUnsignedShort(ianns), v = ianns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         classVisitor.visitAnnotation(readUTF8(v, c), false));
             }
         }
-        if (ANNOTATIONS && tanns != 0) {
+        if (tanns != 0) {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -649,7 +605,7 @@ public final class ClassReader {
                                 context.typePath, readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && itanns != 0) {
+        if (itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -726,28 +682,23 @@ public final class ClassReader {
             if ("ConstantValue".equals(attrName)) {
                 int item = readUnsignedShort(u + 8);
                 value = item == 0 ? null : readConst(item, c);
-            } else if (SIGNATURES && "Signature".equals(attrName)) {
+            } else if ("Signature".equals(attrName)) {
                 signature = readUTF8(u + 8, c);
             } else if ("Deprecated".equals(attrName)) {
                 access |= Opcodes.ACC_DEPRECATED;
             } else if ("Synthetic".equals(attrName)) {
                 access |= Opcodes.ACC_SYNTHETIC
                         | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleAnnotations".equals(attrName)) {
                 anns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleTypeAnnotations".equals(attrName)) {
                 tanns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
                 ianns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = u + 8;
             } else {
-                Attribute attr = readAttribute(context.attrs, attrName, u + 8,
-                        readInt(u + 4), c, -1, null);
+                Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4));
                 if (attr != null) {
                     attr.next = attributes;
                     attributes = attr;
@@ -765,19 +716,19 @@ public final class ClassReader {
         }
 
         // visits the field annotations and type annotations
-        if (ANNOTATIONS && anns != 0) {
+        if (anns != 0) {
             for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         fv.visitAnnotation(readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && ianns != 0) {
+        if (ianns != 0) {
             for (int i = readUnsignedShort(ianns), v = ianns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         fv.visitAnnotation(readUTF8(v, c), false));
             }
         }
-        if (ANNOTATIONS && tanns != 0) {
+        if (tanns != 0) {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -785,7 +736,7 @@ public final class ClassReader {
                                 context.typePath, readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && itanns != 0) {
+        if (itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -858,38 +809,31 @@ public final class ClassReader {
                     exceptions[j] = readClass(exception, c);
                     exception += 2;
                 }
-            } else if (SIGNATURES && "Signature".equals(attrName)) {
+            } else if ("Signature".equals(attrName)) {
                 signature = readUTF8(u + 8, c);
             } else if ("Deprecated".equals(attrName)) {
                 context.access |= Opcodes.ACC_DEPRECATED;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleAnnotations".equals(attrName)) {
                 anns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleTypeAnnotations".equals(attrName)) {
                 tanns = u + 8;
-            } else if (ANNOTATIONS && "AnnotationDefault".equals(attrName)) {
+            } else if ("AnnotationDefault".equals(attrName)) {
                 dann = u + 8;
             } else if ("Synthetic".equals(attrName)) {
                 context.access |= Opcodes.ACC_SYNTHETIC
                         | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
                 ianns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleParameterAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
                 mpanns = u + 8;
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleParameterAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleParameterAnnotations".equals(attrName)) {
                 impanns = u + 8;
             } else if ("MethodParameters".equals(attrName)) {
                 methodParameters = u + 8;
             } else {
-                Attribute attr = readAttribute(context.attrs, attrName, u + 8,
-                        readInt(u + 4), c, -1, null);
+                Attribute attr = readAttribute(context.attrs, attrName, u + 8, readInt(u + 4));
                 if (attr != null) {
                     attr.next = attributes;
                     attributes = attr;
@@ -916,7 +860,7 @@ public final class ClassReader {
          * access, name and descriptor can have been changed, this is not
          * important since they are not copied as is from the reader).
          */
-        if (WRITER && mv instanceof MethodWriter) {
+        if (mv instanceof MethodWriter) {
             MethodWriter mw = (MethodWriter) mv;
             if (mw.cw.cr == this && signature == mw.signature) {
                 boolean sameExceptions = false;
@@ -953,26 +897,26 @@ public final class ClassReader {
         }
 
         // visits the method annotations
-        if (ANNOTATIONS && dann != 0) {
+        if (dann != 0) {
             AnnotationVisitor dv = mv.visitAnnotationDefault();
             readAnnotationValue(dann, c, null, dv);
             if (dv != null) {
                 dv.visitEnd();
             }
         }
-        if (ANNOTATIONS && anns != 0) {
+        if (anns != 0) {
             for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         mv.visitAnnotation(readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && ianns != 0) {
+        if (ianns != 0) {
             for (int i = readUnsignedShort(ianns), v = ianns + 2; i > 0; --i) {
                 v = readAnnotationValues(v + 2, c, true,
                         mv.visitAnnotation(readUTF8(v, c), false));
             }
         }
-        if (ANNOTATIONS && tanns != 0) {
+        if (tanns != 0) {
             for (int i = readUnsignedShort(tanns), v = tanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -980,7 +924,7 @@ public final class ClassReader {
                                 context.typePath, readUTF8(v, c), true));
             }
         }
-        if (ANNOTATIONS && itanns != 0) {
+        if (itanns != 0) {
             for (int i = readUnsignedShort(itanns), v = itanns + 2; i > 0; --i) {
                 v = readAnnotationTarget(context, v);
                 v = readAnnotationValues(v + 2, c, true,
@@ -988,10 +932,10 @@ public final class ClassReader {
                                 context.typePath, readUTF8(v, c), false));
             }
         }
-        if (ANNOTATIONS && mpanns != 0) {
+        if (mpanns != 0) {
             readParameterAnnotations(mv, context, mpanns, true);
         }
-        if (ANNOTATIONS && impanns != 0) {
+        if (impanns != 0) {
             readParameterAnnotations(mv, context, impanns, false);
         }
 
@@ -1166,17 +1110,15 @@ public final class ClassReader {
                         v += 4;
                     }
                 }
-            } else if (ANNOTATIONS
-                    && "RuntimeVisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeVisibleTypeAnnotations".equals(attrName)) {
                 tanns = readTypeAnnotations(mv, context, u + 8, true);
                 ntoff = tanns.length == 0 || readByte(tanns[0]) < 0x43 ? -1
                         : readUnsignedShort(tanns[0] + 1);
-            } else if (ANNOTATIONS
-                    && "RuntimeInvisibleTypeAnnotations".equals(attrName)) {
+            } else if ("RuntimeInvisibleTypeAnnotations".equals(attrName)) {
                 itanns = readTypeAnnotations(mv, context, u + 8, false);
                 nitoff = itanns.length == 0 || readByte(itanns[0]) < 0x43 ? -1
                         : readUnsignedShort(itanns[0] + 1);
-            } else if (FRAMES && "StackMapTable".equals(attrName)) {
+            } else if ("StackMapTable".equals(attrName)) {
                 if ((context.flags & SKIP_FRAMES) == 0) {
                     stackMap = u + 10;
                     stackMapSize = readInt(u + 4);
@@ -1200,7 +1142,7 @@ public final class ClassReader {
                  * this by parsing the stack map table without a full decoding
                  * (see below).
                  */
-            } else if (FRAMES && "StackMap".equals(attrName)) {
+            } else if ("StackMap".equals(attrName)) {
                 if ((context.flags & SKIP_FRAMES) == 0) {
                     zip = false;
                     stackMap = u + 10;
@@ -1229,7 +1171,7 @@ public final class ClassReader {
         u += 2;
 
         // generates the first (implicit) stack map frame
-        if (FRAMES && stackMap != 0) {
+        if (stackMap != 0) {
             /*
              * for the first explicit frame the offset is not offset_delta + 1
              * but only offset_delta; setting the implicit frame offset to -1
@@ -1284,8 +1226,7 @@ public final class ClassReader {
             }
 
             // visits the frame for this offset, if any
-            while (FRAMES && frame != null
-                    && (frame.offset == offset || frame.offset == -1)) {
+            while (frame != null && (frame.offset == offset || frame.offset == -1)) {
                 // if there is a frame for this offset, makes the visitor visit
                 // it, and reads the next frame if there is one.
                 if (frame.offset != -1) {
@@ -1562,8 +1503,7 @@ public final class ClassReader {
      *            annotations.
      * @return the start offset of each type annotation in the parsed table.
      */
-    private int[] readTypeAnnotations(final MethodVisitor mv,
-            final Context context, int u, boolean visible) {
+    private int[] readTypeAnnotations(MethodVisitor mv, Context context, int u, boolean visible) {
         char[] c = context.buffer;
         int[] offsets = new int[readUnsignedShort(u)];
         u += 2;
@@ -1640,7 +1580,7 @@ public final class ClassReader {
      *            the start offset of a type_annotation structure.
      * @return the start offset of the rest of the type_annotation structure.
      */
-    private int readAnnotationTarget(final Context context, int u) {
+    private int readAnnotationTarget(Context context, int u) {
         int target = readInt(u);
         switch (target >>> 24) {
         case 0x00: // CLASS_TYPE_PARAMETER
@@ -1714,8 +1654,7 @@ public final class ClassReader {
      *            <tt>true</tt> if the annotations to be read are visible at
      *            runtime.
      */
-    private void readParameterAnnotations(final MethodVisitor mv,
-            final Context context, int v, final boolean visible) {
+    private void readParameterAnnotations(MethodVisitor mv, Context context, int v, boolean visible) {
         int i;
         int n = b[v++] & 0xFF;
         // workaround for a bug in javac (javac compiler generates a parameter
@@ -1761,8 +1700,7 @@ public final class ClassReader {
      *            the visitor that must visit the values.
      * @return the end offset of the annotation values.
      */
-    private int readAnnotationValues(int v, final char[] buf,
-            final boolean named, final AnnotationVisitor av) {
+    private int readAnnotationValues(int v, char[] buf, boolean named, AnnotationVisitor av) {
         int i = readUnsignedShort(v);
         v += 2;
         if (named) {
@@ -1796,8 +1734,7 @@ public final class ClassReader {
      *            the visitor that must visit the value.
      * @return the end offset of the annotation value.
      */
-    private int readAnnotationValue(int v, final char[] buf, final String name,
-            final AnnotationVisitor av) {
+    private int readAnnotationValue(int v, char[] buf, String name, AnnotationVisitor av) {
         int i;
         if (av == null) {
             switch (b[v] & 0xFF) {
@@ -1820,8 +1757,7 @@ public final class ClassReader {
             v += 2;
             break;
         case 'B': // pointer to CONSTANT_Byte
-            av.visit(name,
-                    new Byte((byte) readInt(items[readUnsignedShort(v)])));
+            av.visit(name, (byte) readInt(items[readUnsignedShort(v)]));
             v += 2;
             break;
         case 'Z': // pointer to CONSTANT_Boolean
@@ -1831,13 +1767,11 @@ public final class ClassReader {
             v += 2;
             break;
         case 'S': // pointer to CONSTANT_Short
-            av.visit(name, new Short(
-                    (short) readInt(items[readUnsignedShort(v)])));
+            av.visit(name, (short) readInt(items[readUnsignedShort(v)]));
             v += 2;
             break;
         case 'C': // pointer to CONSTANT_Char
-            av.visit(name, new Character(
-                    (char) readInt(items[readUnsignedShort(v)])));
+            av.visit(name, (char) readInt(items[readUnsignedShort(v)]));
             v += 2;
             break;
         case 's': // pointer to CONSTANT_Utf8
@@ -1860,10 +1794,9 @@ public final class ClassReader {
             int size = readUnsignedShort(v);
             v += 2;
             if (size == 0) {
-                return readAnnotationValues(v - 2, buf, false,
-                        av.visitArray(name));
+                return readAnnotationValues(v - 2, buf, false, av.visitArray(name));
             }
-            switch (this.b[v++] & 0xFF) {
+            switch (b[v++] & 0xFF) {
             case 'B':
                 byte[] bv = new byte[size];
                 for (i = 0; i < size; i++) {
@@ -1952,7 +1885,7 @@ public final class ClassReader {
      * @param frame
      *            information about the class being parsed.
      */
-    private void getImplicitFrame(final Context frame) {
+    private void getImplicitFrame(Context frame) {
         String desc = frame.desc;
         Object[] locals = frame.local;
         int local = 0;
@@ -2022,8 +1955,7 @@ public final class ClassReader {
      *            where the parsed stack map frame must be stored.
      * @return the offset of the first byte following the parsed frame.
      */
-    private int readFrame(int stackMap, boolean zip, boolean unzip,
-            Context frame) {
+    private int readFrame(int stackMap, boolean zip, boolean unzip, Context frame) {
         char[] c = frame.buffer;
         Label[] labels = frame.labels;
         int tag;
@@ -2113,8 +2045,7 @@ public final class ClassReader {
      *            this array if it does not already exist.
      * @return the offset of the first byte after the parsed type.
      */
-    private int readFrameType(final Object[] frame, final int index, int v,
-            final char[] buf, final Label[] labels) {
+    private int readFrameType(Object[] frame, int index, int v, char[] buf, Label[] labels) {
         int type = b[v++] & 0xFF;
         switch (type) {
         case 0:
@@ -2212,24 +2143,9 @@ public final class ClassReader {
      *            account here (they have already been read).
      * @param len
      *            the length of the attribute's content.
-     * @param buf
-     *            buffer to be used to call {@link #readUTF8 readUTF8},
-     *            {@link #readClass(int,char[]) readClass} or {@link #readConst
-     *            readConst}.
-     * @param codeOff
-     *            index of the first byte of code's attribute content in
-     *            {@link #b b}, or -1 if the attribute to be read is not a code
-     *            attribute. The 6 attribute header bytes, containing the type
-     *            and the length of the attribute, are not taken into account
-     *            here.
-     * @param labels
-     *            the labels of the method's code, or <tt>null</tt> if the
-     *            attribute to be read is not a code attribute.
-     * @return the attribute that has been read, or <tt>null</tt> to skip this
-     *         attribute.
+     * @return the attribute that has been read, or <tt>null</tt> to skip this attribute.
      */
-    private Attribute readAttribute(Attribute[] attrs, String type, int off, int len, char[] buf, int codeOff,
-                                    Label[] labels) {
+    private Attribute readAttribute(Attribute[] attrs, String type, int off, int len) {
         for (int i = 0; i < attrs.length; ++i) {
             if (attrs[i].type.equals(type)) {
                 return attrs[i].read(this, off, len);
@@ -2261,7 +2177,7 @@ public final class ClassReader {
      * @return the start index of the constant pool item in {@link #b b}, plus
      *         one.
      */
-    public int getItem(final int item) {
+    public int getItem(int item) {
         return items[item];
     }
 
@@ -2285,7 +2201,7 @@ public final class ClassReader {
      *            the start index of the value to be read in {@link #b b}.
      * @return the read value.
      */
-    public int readByte(final int index) {
+    public int readByte(int index) {
         return b[index] & 0xFF;
     }
 
@@ -2298,7 +2214,7 @@ public final class ClassReader {
      *            the start index of the value to be read in {@link #b b}.
      * @return the read value.
      */
-    public int readUnsignedShort(final int index) {
+    public int readUnsignedShort(int index) {
         byte[] b = this.b;
         return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
     }
@@ -2312,7 +2228,7 @@ public final class ClassReader {
      *            the start index of the value to be read in {@link #b b}.
      * @return the read value.
      */
-    public short readShort(final int index) {
+    public short readShort(int index) {
         byte[] b = this.b;
         return (short) (((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
     }
@@ -2326,7 +2242,7 @@ public final class ClassReader {
      *            the start index of the value to be read in {@link #b b}.
      * @return the read value.
      */
-    public int readInt(final int index) {
+    public int readInt(int index) {
         byte[] b = this.b;
         return ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16)
                 | ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
@@ -2341,7 +2257,7 @@ public final class ClassReader {
      *            the start index of the value to be read in {@link #b b}.
      * @return the read value.
      */
-    public long readLong(final int index) {
+    public long readLong(int index) {
         long l1 = readInt(index);
         long l0 = readInt(index + 4) & 0xFFFFFFFFL;
         return (l1 << 32) | l0;
@@ -2360,7 +2276,7 @@ public final class ClassReader {
      *            sufficiently large. It is not automatically resized.
      * @return the String corresponding to the specified UTF8 item.
      */
-    public String readUTF8(int index, final char[] buf) {
+    public String readUTF8(int index, char[] buf) {
         int item = readUnsignedShort(index);
         if (index == 0 || item == 0) {
             return null;
@@ -2385,7 +2301,7 @@ public final class ClassReader {
      *            sufficiently large. It is not automatically resized.
      * @return the String corresponding to the specified UTF8 string.
      */
-    private String readUTF(int index, final int utfLen, final char[] buf) {
+    private String readUTF(int index, int utfLen, char[] buf) {
         int endIndex = index + utfLen;
         byte[] b = this.b;
         int strLen = 0;
@@ -2435,7 +2351,7 @@ public final class ClassReader {
      *            sufficiently large. It is not automatically resized.
      * @return the String corresponding to the specified class item.
      */
-    public String readClass(final int index, final char[] buf) {
+    public String readClass(int index, char[] buf) {
         // computes the start index of the CONSTANT_Class item in b
         // and reads the CONSTANT_Utf8 item designated by
         // the first two bytes of this CONSTANT_Class item
@@ -2456,17 +2372,17 @@ public final class ClassReader {
      *         {@link String}, {@link Type} or {@link Handle} corresponding to
      *         the given constant pool item.
      */
-    public Object readConst(final int item, final char[] buf) {
+    public Object readConst(int item, char[] buf) {
         int index = items[item];
         switch (b[index - 1]) {
         case ClassWriter.INT:
-            return new Integer(readInt(index));
+            return readInt(index);
         case ClassWriter.FLOAT:
-            return new Float(Float.intBitsToFloat(readInt(index)));
+            return Float.intBitsToFloat(readInt(index));
         case ClassWriter.LONG:
-            return new Long(readLong(index));
+            return readLong(index);
         case ClassWriter.DOUBLE:
-            return new Double(Double.longBitsToDouble(readLong(index)));
+            return Double.longBitsToDouble(readLong(index));
         case ClassWriter.CLASS:
             return Type.getObjectType(readUTF8(index, buf));
         case ClassWriter.STR:
