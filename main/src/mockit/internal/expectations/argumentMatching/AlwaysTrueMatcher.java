@@ -8,19 +8,25 @@ import javax.annotation.*;
 
 public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatcher>
 {
-   public static final ArgumentMatcher<?> ANY_STRING  = new AlwaysTrueMatcher(String.class);
-   public static final ArgumentMatcher<?> ANY_BOOLEAN = new AlwaysTrueMatcher(Boolean.class);
-   public static final ArgumentMatcher<?> ANY_CHAR    = new AlwaysTrueMatcher(Character.class);
-   public static final ArgumentMatcher<?> ANY_BYTE    = new AlwaysTrueMatcher(Byte.class);
-   public static final ArgumentMatcher<?> ANY_SHORT   = new AlwaysTrueMatcher(Short.class);
-   public static final ArgumentMatcher<?> ANY_INT     = new AlwaysTrueMatcher(Integer.class);
-   public static final ArgumentMatcher<?> ANY_FLOAT   = new AlwaysTrueMatcher(Float.class);
-   public static final ArgumentMatcher<?> ANY_LONG    = new AlwaysTrueMatcher(Long.class);
-   public static final ArgumentMatcher<?> ANY_DOUBLE  = new AlwaysTrueMatcher(Double.class);
-   public static final ArgumentMatcher<?> ANY_VALUE   = new AlwaysTrueMatcher(Object.class);
+   public static final ArgumentMatcher<?> ANY_STRING  = new AlwaysTrueMatcher(String.class, "String");
+   public static final ArgumentMatcher<?> ANY_BOOLEAN = new AlwaysTrueMatcher(Boolean.class, "boolean");
+   public static final ArgumentMatcher<?> ANY_CHAR    = new AlwaysTrueMatcher(Character.class, "char");
+   public static final ArgumentMatcher<?> ANY_BYTE    = new AlwaysTrueMatcher(Byte.class, "byte");
+   public static final ArgumentMatcher<?> ANY_SHORT   = new AlwaysTrueMatcher(Short.class, "short");
+   public static final ArgumentMatcher<?> ANY_INT     = new AlwaysTrueMatcher(Integer.class, "int");
+   public static final ArgumentMatcher<?> ANY_FLOAT   = new AlwaysTrueMatcher(Float.class, "float");
+   public static final ArgumentMatcher<?> ANY_LONG    = new AlwaysTrueMatcher(Long.class, "long");
+   public static final ArgumentMatcher<?> ANY_DOUBLE  = new AlwaysTrueMatcher(Double.class, "double");
+   public static final ArgumentMatcher<?> ANY_VALUE   = new AlwaysTrueMatcher(Object.class, null);
 
    @Nonnull private final Class<?> expectedType;
-   private AlwaysTrueMatcher(@Nonnull Class<?> expectedType) { this.expectedType = expectedType; }
+   @Nullable private final String typeName;
+
+   private AlwaysTrueMatcher(@Nonnull Class<?> expectedType, @Nullable String typeName)
+   {
+      this.expectedType = expectedType;
+      this.typeName = typeName;
+   }
 
    @Override
    public boolean same(@Nonnull AlwaysTrueMatcher other)
@@ -37,6 +43,7 @@ public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatche
    @Override
    public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
    {
-      argumentMismatch.append("any ").append(argumentMismatch.getParameterType());
+      String parameterTypeName = typeName != null ? typeName : argumentMismatch.getParameterType();
+      argumentMismatch.append("any ").append(parameterTypeName);
    }
 }
