@@ -54,6 +54,9 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    @Override
+   public final AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
+
+   @Override
    public final void visitInnerClass(String name, String outerName, String innerName, int access) {}
 
    @Override

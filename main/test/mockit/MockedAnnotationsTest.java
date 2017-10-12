@@ -4,6 +4,10 @@
  */
 package mockit;
 
+import java.lang.annotation.*;
+
+import javax.annotation.*;
+
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -53,5 +57,16 @@ public final class MockedAnnotationsTest
          // Mocked methods called here always return the default value according to return type.
          a.flag();
       }};
+   }
+
+   @Resource
+   public interface AnInterface {}
+
+   @Test
+   public void mockingAnAnnotatedPublicInterface(@Mocked AnInterface mock)
+   {
+      Annotation[] mockClassAnnotations = mock.getClass().getAnnotations();
+
+      assertEquals(0, mockClassAnnotations.length);
    }
 }
