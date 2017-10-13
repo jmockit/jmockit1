@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.*;
 import mockit.*;
 import mockit.integration.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 
@@ -25,19 +24,11 @@ final class JMockitExtension extends TestRunnerDecorator implements
    BeforeTestExecutionCallback, AfterTestExecutionCallback,
    ParameterResolver, TestExecutionExceptionHandler
 {
-   @Nonnull private final Field indexField;
    @Nullable private SavePoint savePointForTestClass;
    @Nullable private SavePoint savePointForTest;
    @Nullable private SavePoint savePointForTestMethod;
    @Nullable private Throwable thrownByTest;
-   @Nullable private Object[] mockParameters;
-
-   JMockitExtension()
-   {
-      // Somehow, "Parameter#index" is not exposed in the Java API.
-      try { indexField = Parameter.class.getDeclaredField("index"); }
-      catch (NoSuchFieldException e) { throw new RuntimeException(e); }
-   }
+   private Object[] mockParameters;
 
    @Override
    public void beforeAll(@Nonnull ExtensionContext context)
@@ -138,9 +129,9 @@ final class JMockitExtension extends TestRunnerDecorator implements
       @Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext)
    {
       @Nonnull Parameter parameter = parameterContext.getParameter();
-      Integer parameterIndex = FieldReflection.getFieldValue(indexField, parameter);
-      //noinspection ConstantConditions
-      return mockParameters[parameterIndex];
+      int parameterIndex = parameterContext.getIndex();
+      Object mockParameter = mockParameters[parameterIndex];
+      return mockParameter;
    }
 
    @Override
