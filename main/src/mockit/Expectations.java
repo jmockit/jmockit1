@@ -155,9 +155,9 @@ public abstract class Expectations extends Invocations
     *
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
-    * @throws IllegalArgumentException if given a class literal for an interface, an annotation, an array, a
-    * primitive/wrapper type, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class} created for an
-    * interface, or if given a value/instance of such a type
+    * @throws IllegalArgumentException if given a {@code Class} object for an interface, an annotation, an array, a
+    * primitive/wrapper type, a synthetic class, a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy
+    * class}, or if given a value/instance of such a type
     * 
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
