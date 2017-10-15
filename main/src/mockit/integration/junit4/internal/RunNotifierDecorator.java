@@ -42,7 +42,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
    }
 
    @Mock
-   public void fireTestStarted(Invocation invocation, Description description)
+   public static void fireTestStarted(Invocation invocation, Description description)
    {
       Class<?> currentTestClass = TestRun.getCurrentTestClass();
 
