@@ -74,8 +74,9 @@ public final class InstrumentationHolder implements Instrumentation
          return null;
       }
 
-      try { return Class.forName(InstrumentationHolder.class.getName(), true, systemCL); }
-      catch (ClassNotFoundException e) { return null; }
+      throw new UnsupportedOperationException("Attempted to redefine class loaded from custom class loader");
+//      try { return Class.forName(InstrumentationHolder.class.getName(), true, systemCL); }
+//      catch (ClassNotFoundException e) { return null; }
    }
 
    private static <T> T readStaticField(Class<?> aClass, String fieldName)
