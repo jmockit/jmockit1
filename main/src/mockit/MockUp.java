@@ -5,7 +5,6 @@
 package mockit;
 
 import java.lang.reflect.*;
-import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
@@ -95,7 +94,6 @@ public abstract class MockUp<T>
    protected final Type targetType;
 
    @Nullable private final Class<?> fakedClass;
-   @Nullable private Set<Class<?>> classesToRestore;
    @Nullable private T fakeInstance;
 
    /**
@@ -181,7 +179,7 @@ public abstract class MockUp<T>
          classToFake = new ConcreteSubclass<T>(classToFake).generateClass();
       }
 
-      classesToRestore = redefineMethods(realClass, classToFake, targetType);
+      redefineMethods(realClass, classToFake, targetType);
       return classToFake;
    }
 
@@ -192,12 +190,11 @@ public abstract class MockUp<T>
       return fakedImplementationClass.createImplementation(classToFake, typeToFake);
    }
 
-   @Nonnull
-   private Set<Class<?>> redefineMethods(
+   private void redefineMethods(
       @Nonnull Class<T> realClass, @Nonnull Class<T> classToFake, @Nullable Type genericFakedType)
    {
       FakeClassSetup fakeSetup = new FakeClassSetup(realClass, classToFake, genericFakedType, this);
-      return fakeSetup.redefineMethods();
+      fakeSetup.redefineMethods();
    }
 
    /**
@@ -226,7 +223,7 @@ public abstract class MockUp<T>
          fakedClass = targetClass;
          //noinspection unchecked
          Class<T> realClass = (Class<T>) targetClass;
-         classesToRestore = redefineMethods(realClass, realClass, null);
+         redefineMethods(realClass, realClass, null);
          fakeInstance = null;
       }
    }

@@ -7,7 +7,6 @@ package mockit.internal.faking;
 import java.lang.instrument.*;
 import java.lang.reflect.*;
 import java.lang.reflect.Type;
-import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
@@ -71,10 +70,8 @@ public final class FakeClassSetup
       }
    }
 
-   @Nonnull
-   public Set<Class<?>> redefineMethods()
+   public void redefineMethods()
    {
-      Set<Class<?>> redefinedClasses = new HashSet<Class<?>>();
       @Nullable Class<?> classToModify = realClass;
 
       while (classToModify != null && fakeMethods.hasUnusedFakes()) {
@@ -82,15 +79,12 @@ public final class FakeClassSetup
 
          if (modifiedClassFile != null) {
             applyClassModifications(classToModify, modifiedClassFile);
-            redefinedClasses.add(classToModify);
          }
 
          Class<?> superClass = classToModify.getSuperclass();
          classToModify = superClass == Object.class || superClass == Proxy.class ? null : superClass;
          rcReader = null;
       }
-
-      return redefinedClasses;
    }
 
    @Nullable
