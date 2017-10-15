@@ -377,7 +377,7 @@ public final class ClassReader {
      *             if a problem occurs during reading.
      */
     public ClassReader(InputStream is) throws IOException {
-        this(readClass(is, true));
+        this(readClass(is));
     }
 
     /**
@@ -389,24 +389,17 @@ public final class ClassReader {
      *             if an exception occurs during reading.
      */
     public ClassReader(String name) throws IOException {
-        this(readClass(
-                ClassLoader.getSystemResourceAsStream(name.replace('.', '/')
-                        + ".class"), true));
+        this(readClass(ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class")));
     }
 
     /**
      * Reads the bytecode of a class.
      * 
-     * @param is
-     *            an input stream from which to read the class.
-     * @param close
-     *            true to close the input stream after reading.
+     * @param is an input stream from which to read the class.
      * @return the bytecode read from the given input stream.
-     * @throws IOException
-     *             if a problem occurs during reading.
+     * @throws IOException if a problem occurs during reading.
      */
-    private static byte[] readClass(InputStream is, boolean close)
-            throws IOException {
+    private static byte[] readClass(InputStream is) throws IOException {
         if (is == null) {
             throw new IOException("Class not found");
         }
@@ -436,9 +429,7 @@ public final class ClassReader {
                 }
             }
         } finally {
-            if (close) {
-                is.close();
-            }
+            is.close();
         }
     }
 
@@ -1168,7 +1159,6 @@ public final class ClassReader {
             }
             u += 6 + readInt(u + 4);
         }
-        u += 2;
 
         // generates the first (implicit) stack map frame
         if (stackMap != 0) {
@@ -1454,7 +1444,7 @@ public final class ClassReader {
             for (int i = 0; i < tanns.length; ++i) {
                 if ((readByte(tanns[i]) >> 1) == (0x40 >> 1)) {
                     int v = readAnnotationTarget(context, tanns[i]);
-                    v = readAnnotationValues(v + 2, c, true,
+                    readAnnotationValues(v + 2, c, true,
                             mv.visitLocalVariableAnnotation(context.typeRef,
                                     context.typePath, context.start,
                                     context.end, context.index, readUTF8(v, c),
@@ -1466,7 +1456,7 @@ public final class ClassReader {
             for (int i = 0; i < itanns.length; ++i) {
                 if ((readByte(itanns[i]) >> 1) == (0x40 >> 1)) {
                     int v = readAnnotationTarget(context, itanns[i]);
-                    v = readAnnotationValues(v + 2, c, true,
+                    readAnnotationValues(v + 2, c, true,
                             mv.visitLocalVariableAnnotation(context.typeRef,
                                     context.typePath, context.start,
                                     context.end, context.index, readUTF8(v, c),

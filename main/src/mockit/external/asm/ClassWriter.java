@@ -1180,21 +1180,6 @@ public final class ClassWriter extends ClassVisitor {
     }
 
     /**
-     * Adds a method type reference to the constant pool of the class being
-     * build. Does nothing if the constant pool already contains a similar item.
-     * <i>This method is intended for {@link Attribute} sub classes, and is
-     * normally not needed by class generators or adapters.</i>
-     * 
-     * @param methodDesc
-     *            method descriptor of the method type.
-     * @return the index of a new or already existing method type reference
-     *         item.
-     */
-    public int newMethodType(String methodDesc) {
-        return newMethodTypeItem(methodDesc).index;
-    }
-
-    /**
      * Adds a handle to the constant pool of the class being build. Does nothing
      * if the constant pool already contains a similar item. <i>This method is
      * intended for {@link Attribute} sub classes, and is normally not needed by
@@ -1349,28 +1334,6 @@ public final class ClassWriter extends ClassVisitor {
         }
 
         return result;
-    }
-
-    /**
-     * Adds an invokedynamic reference to the constant pool of the class being
-     * build. Does nothing if the constant pool already contains a similar item.
-     * <i>This method is intended for {@link Attribute} sub classes, and is
-     * normally not needed by class generators or adapters.</i>
-     * 
-     * @param name
-     *            name of the invoked method.
-     * @param desc
-     *            descriptor of the invoke method.
-     * @param bsm
-     *            the bootstrap method.
-     * @param bsmArgs
-     *            the bootstrap method constant arguments.
-     * 
-     * @return the index of a new or already existing invokedynamic reference
-     *         item.
-     */
-    public int newInvokeDynamic(String name, String desc, Handle bsm, Object... bsmArgs) {
-        return newInvokeDynamicItem(name, desc, bsm, bsmArgs).index;
     }
 
     /**
@@ -1623,7 +1586,7 @@ public final class ClassWriter extends ClassVisitor {
         Item result = get(key);
 
         if (result == null) {
-            result = addType(key);
+            result = addType();
         }
 
         return result.index;
@@ -1648,7 +1611,7 @@ public final class ClassWriter extends ClassVisitor {
         key.hashCode = 0x7FFFFFFF & (TYPE_UNINIT + type.hashCode() + offset);
         Item result = get(key);
         if (result == null) {
-            result = addType(key);
+            result = addType();
         }
         return result.index;
     }
@@ -1656,12 +1619,9 @@ public final class ClassWriter extends ClassVisitor {
     /**
      * Adds the given Item to {@link #typeTable}.
      * 
-     * @param item
-     *            the value to be added to the type table.
-     * @return the added Item, which a new Item instance with the same value as
-     *         the given Item.
+     * @return the added Item, which a new Item instance with the same value as the given Item.
      */
-    private Item addType(Item item) {
+    private Item addType() {
         ++typeCount;
         Item result = new Item(typeCount, key);
         put(result);
