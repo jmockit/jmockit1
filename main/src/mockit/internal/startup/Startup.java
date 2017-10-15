@@ -13,6 +13,7 @@ import mockit.internal.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges;
 
 /**
  * This is the "agent class" that initializes the JMockit "Java agent". It is not intended for use in client code.
@@ -49,7 +50,7 @@ public final class Startup
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         String hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+         String hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
          Instrumentation wrappedInst = InstrumentationHolder.set(inst, hostJREClassName);
          initialize(wrappedInst);
       }
@@ -94,7 +95,7 @@ public final class Startup
       String hostJREClassName = InstrumentationHolder.hostJREClassName;
 
       if (hostJREClassName == null) {
-         hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+         hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
       }
 
       InstrumentationHolder.set(inst, hostJREClassName);
@@ -147,7 +148,7 @@ public final class Startup
             Instrumentation inst = InstrumentationHolder.get();
 
             if (InstrumentationHolder.hostJREClassName == null) {
-               String hostJREClassName = ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+               String hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
                InstrumentationHolder.setHostJREClassName(hostJREClassName);
             }
 
