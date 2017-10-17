@@ -40,7 +40,8 @@ public final class StackTrace
          if (ste.getFileName() != null) {
             String where = ste.getClassName();
 
-            if (!isJDKInternalMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
+            if (!isJDKInternalMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)
+                    && !isBuildToolMethod(where)) {
                filteredST[i] = ste;
                i++;
             }
@@ -75,6 +76,11 @@ public final class StackTrace
    private static boolean isTestFrameworkMethod(@Nonnull String where)
    {
       return where.startsWith("org.junit.") || where.startsWith("org.testng.");
+   }
+
+   private static boolean isBuildToolMethod(@Nonnull String where)
+   {
+      return where.startsWith("org.gradle.");
    }
 
    private static boolean isJMockitMethod(@Nonnull String where)
