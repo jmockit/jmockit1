@@ -40,7 +40,7 @@ public final class StackTrace
          if (ste.getFileName() != null) {
             String where = ste.getClassName();
 
-            if (!isJDKInternalMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
+            if (!isJDKOr3rdPartyLibraryInternalMethod(ste) && !isTestFrameworkMethod(where) && !isJMockitMethod(where)) {
                filteredST[i] = ste;
                i++;
             }
@@ -59,7 +59,7 @@ public final class StackTrace
       }
    }
 
-   private static boolean isJDKInternalMethod(@Nonnull StackTraceElement ste)
+   private static boolean isJDKOr3rdPartyLibraryInternalMethod(@Nonnull StackTraceElement ste)
    {
       String className = ste.getClassName();
 
@@ -68,6 +68,7 @@ public final class StackTrace
          className.startsWith("jdk.") || className.startsWith("java.util.") ||
          className.contains(".reflect.") ||
          className.contains(".surefire.") ||
+         className.contains(".gradle.") ||
          className.contains(".intellij.") ||
          className.contains(".jdt.");
    }
