@@ -37,7 +37,7 @@ public final class InvocationResults
 
    public void addDelegatedResult(@Nonnull Delegate<?> delegate)
    {
-      InvocationResult result = new DelegatedResult(delegate);
+      InvocationResult result = new DelegatedResult(invocation, delegate);
       addResult(result);
    }
 
@@ -95,7 +95,7 @@ public final class InvocationResults
       throws Throwable
    {
       if (currentResult == null) {
-         currentResult = new RealImplementationResult(instanceToInvoke, invocation.getMethodNameAndDescription());
+         currentResult = new RealImplementationResult(invocation, instanceToInvoke);
       }
 
       return currentResult.produceResult(invocationArgs);

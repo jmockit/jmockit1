@@ -11,9 +11,9 @@ import mockit.internal.reflection.*;
 
 final class DelegatedResult extends DynamicInvocationResult
 {
-   DelegatedResult(@Nonnull Delegate<?> delegate)
+   DelegatedResult(@Nonnull ExpectedInvocation invocation, @Nonnull Delegate<?> delegate)
    {
-      super(delegate, MethodReflection.findNonPrivateHandlerMethod(delegate));
+      super(invocation, delegate, MethodReflection.findNonPrivateHandlerMethod(delegate));
    }
 
    @Nullable @Override

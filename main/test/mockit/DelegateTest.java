@@ -303,7 +303,9 @@ public final class DelegateTest
          result = new Delegate() { String onReplay() { return "action"; } };
       }};
 
-      assertEquals("action", new Collaborator().doSomething(true, null, null));
+      String result = new Collaborator().doSomething(true, null, null);
+
+      assertEquals("action", result);
    }
 
    @Test
@@ -486,5 +488,50 @@ public final class DelegateTest
       collaborator.getFoo();
 
       new Verifications() {{ action.run(); }};
+   }
+
+   @Test
+   public void convertValueReturnedFromDelegateWhenReturnsTypesDiffer(@Mocked final Collaborator mock)
+   {
+      new Expectations() {{
+         mock.getValue();
+         result = new Delegate() {
+            byte delegate() { return (byte) 123; }
+         };
+      }};
+
+      int value = mock.getValue();
+
+      assertEquals(123, value);
+   }
+
+   @Test
+   public void returnInconvertibleValueFromDelegateWhenReturnsTypesDiffer(@Mocked final Collaborator mock)
+   {
+      new Expectations() {{
+         mock.getValue();
+         result = new Delegate() {
+            String delegate() { return "abc"; }
+         };
+      }};
+
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Value of type String incompatible with return type int");
+
+      mock.getValue();
+   }
+
+   @Test
+   public void returnVoidFromDelegateMethodForRecordedMethodHavingPrimitiveReturnType(@Mocked final Collaborator mock)
+   {
+      new Expectations() {{
+         mock.getValue();
+         result = new Delegate() { void delegate() {} };
+      }};
+
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("void return type incompatible with return type int");
+
+      mock.getValue();
    }
 }

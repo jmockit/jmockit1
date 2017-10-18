@@ -12,12 +12,13 @@ import mockit.internal.state.*;
 
 final class RealImplementationResult extends DynamicInvocationResult
 {
-   RealImplementationResult(@Nonnull Object instanceToInvoke, @Nonnull String methodToInvoke)
+   RealImplementationResult(@Nonnull ExpectedInvocation invocation, @Nonnull Object instanceToInvoke)
       throws NoSuchMethodException
    {
       super(
-         instanceToInvoke,
-         new RealMethodOrConstructor(instanceToInvoke.getClass(), methodToInvoke).<Method>getMember());
+         invocation, instanceToInvoke,
+         new RealMethodOrConstructor(instanceToInvoke.getClass(), invocation.getMethodNameAndDescription())
+            .<Method>getMember());
    }
 
    @Nullable @Override
