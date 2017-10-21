@@ -26,7 +26,7 @@ import mockit.internal.expectations.*;
  * // <em>Record</em> one or more expectations on available mocked types/instances.
  * new Expectations() {{
  *    <strong>mock1</strong>.expectedMethod(anyInt); result = 123; times = 2;
- *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); result = new String[] {"Abc", "xyz"};
+ *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); result = "Abc";
  * }};
  *
  * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
@@ -131,6 +131,7 @@ public abstract class Expectations extends Invocations
     * the instance initialization body of an anonymous subclass or the called constructor of a named subclass.
     *
     * @see #Expectations(Object...)
+    * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
     */
    protected Expectations()
    {
