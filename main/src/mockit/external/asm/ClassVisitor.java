@@ -106,46 +106,16 @@ public class ClassVisitor
     /**
      * Visits an annotation of the class.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
+     *
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
+     * this annotation.
      */
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
     /**
-     * Visits an annotation on a type in the class signature.
-     * 
-     * @param typeRef
-     *            a reference to the annotated type. The sort of this type
-     *            reference must be
-     *            CLASS_TYPE_PARAMETER,
-     *
-     *            CLASS_TYPE_PARAMETER_BOUND or
-     *            CLASS_EXTENDS.
-     *
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
-    }
-
-    /**
      * Visits a non standard attribute of the class.
-     * 
-     * @param attr
-     *            an attribute.
      */
     public void visitAttribute(Attribute attr) {}
 
@@ -175,13 +145,9 @@ public class ClassVisitor
      * @param access
      *            the field's access flags (see {@link Opcodes}). This parameter
      *            also indicates if the field is synthetic and/or deprecated.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link Type Type}).
-     * @param signature
-     *            the field's signature. May be <tt>null</tt> if the field's
-     *            type does not use generic types.
+     * @param name the field's name.
+     * @param desc the field's descriptor (see {@link Type Type}).
+     * @param signature the field's signature. May be <tt>null</tt> if the field's type does not use generic types.
      * @param value
      *            the field's initial value. This parameter, which may be
      *            <tt>null</tt> if the field does not have an initial value,
@@ -192,6 +158,7 @@ public class ClassVisitor
      *            fields</i>. Its value is ignored for non static fields, which
      *            must be initialized through bytecode instructions in
      *            constructors or methods.
+     *
      * @return a visitor to visit field annotations and attributes, or
      *         <tt>null</tt> if this class visitor is not interested in visiting
      *         these annotations and attributes.

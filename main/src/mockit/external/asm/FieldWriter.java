@@ -86,17 +86,6 @@ final class FieldWriter extends FieldVisitor
     private AnnotationWriter ianns;
 
     /**
-     * The runtime visible type annotations of this field. May be <tt>null</tt>.
-     */
-    private AnnotationWriter tanns;
-
-    /**
-     * The runtime invisible type annotations of this field. May be
-     * <tt>null</tt>.
-     */
-    private AnnotationWriter itanns;
-
-    /**
      * The non standard attributes of this field. May be <tt>null</tt>.
      */
     private Attribute attrs;
@@ -164,27 +153,6 @@ final class FieldWriter extends FieldVisitor
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        ByteVector bv = new ByteVector();
-        // write target_type and target_info
-        AnnotationWriter.putTarget(typeRef, typePath, bv);
-        // write type, and reserve space for values count
-        bv.putShort(cw.newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
-
-        if (visible) {
-            aw.next = tanns;
-            tanns = aw;
-        }
-        else {
-            aw.next = itanns;
-            itanns = aw;
-        }
-
-        return aw;
-    }
-
-    @Override
     public void visitAttribute(Attribute attr) {
         attr.next = attrs;
         attrs = attr;
@@ -235,16 +203,6 @@ final class FieldWriter extends FieldVisitor
             size += 8 + ianns.getSize();
         }
 
-        if (tanns != null) {
-            cw.newUTF8("RuntimeVisibleTypeAnnotations");
-            size += 8 + tanns.getSize();
-        }
-
-        if (itanns != null) {
-            cw.newUTF8("RuntimeInvisibleTypeAnnotations");
-            size += 8 + itanns.getSize();
-        }
-
         if (attrs != null) {
             size += attrs.getSize(cw);
         }
@@ -279,58 +237,55 @@ final class FieldWriter extends FieldVisitor
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             ++attributeCount;
         }
+
         if (signature != 0) {
             ++attributeCount;
         }
+
         if (anns != null) {
             ++attributeCount;
         }
+
         if (ianns != null) {
             ++attributeCount;
         }
-        if (tanns != null) {
-            ++attributeCount;
-        }
-        if (itanns != null) {
-            ++attributeCount;
-        }
+
         if (attrs != null) {
             attributeCount += attrs.getCount();
         }
+
         out.putShort(attributeCount);
+
         if (value != 0) {
             out.putShort(cw.newUTF8("ConstantValue"));
             out.putInt(2).putShort(value);
         }
+
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 out.putShort(cw.newUTF8("Synthetic")).putInt(0);
             }
         }
+
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             out.putShort(cw.newUTF8("Deprecated")).putInt(0);
         }
+
         if (signature != 0) {
             out.putShort(cw.newUTF8("Signature"));
             out.putInt(2).putShort(signature);
         }
+
         if (anns != null) {
             out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
             anns.put(out);
         }
+
         if (ianns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
         }
-        if (tanns != null) {
-            out.putShort(cw.newUTF8("RuntimeVisibleTypeAnnotations"));
-            tanns.put(out);
-        }
-        if (itanns != null) {
-            out.putShort(cw.newUTF8("RuntimeInvisibleTypeAnnotations"));
-            itanns.put(out);
-        }
+
         if (attrs != null) {
             attrs.put(cw, out);
         }

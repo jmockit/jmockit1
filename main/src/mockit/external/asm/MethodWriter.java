@@ -192,18 +192,6 @@ public final class MethodWriter extends MethodVisitor
     private AnnotationWriter ianns;
 
     /**
-     * The runtime visible type annotations of this method. May be <tt>null</tt>
-     * .
-     */
-    private AnnotationWriter tanns;
-
-    /**
-     * The runtime invisible type annotations of this method. May be
-     * <tt>null</tt>.
-     */
-    private AnnotationWriter itanns;
-
-    /**
      * The runtime visible parameter annotations of this method. May be
      * <tt>null</tt>.
      */
@@ -523,27 +511,6 @@ public final class MethodWriter extends MethodVisitor
         else {
             aw.next = ianns;
             ianns = aw;
-        }
-
-        return aw;
-    }
-
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        ByteVector bv = new ByteVector();
-        // write target_type and target_info
-        AnnotationWriter.putTarget(typeRef, typePath, bv);
-        // write type, and reserve space for values count
-        bv.putShort(cw.newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
-
-        if (visible) {
-            aw.next = tanns;
-            tanns = aw;
-        }
-        else {
-            aw.next = itanns;
-            itanns = aw;
         }
 
         return aw;
@@ -2145,16 +2112,6 @@ public final class MethodWriter extends MethodVisitor
             size += 8 + ianns.getSize();
         }
 
-        if (tanns != null) {
-            cw.newUTF8("RuntimeVisibleTypeAnnotations");
-            size += 8 + tanns.getSize();
-        }
-
-        if (itanns != null) {
-            cw.newUTF8("RuntimeInvisibleTypeAnnotations");
-            size += 8 + itanns.getSize();
-        }
-
         if (panns != null) {
             cw.newUTF8("RuntimeVisibleParameterAnnotations");
             size += 7 + 2 * (panns.length - synthetics);
@@ -2236,14 +2193,6 @@ public final class MethodWriter extends MethodVisitor
         }
 
         if (ianns != null) {
-            ++attributeCount;
-        }
-
-        if (tanns != null) {
-            ++attributeCount;
-        }
-
-        if (itanns != null) {
             ++attributeCount;
         }
 
@@ -2410,16 +2359,6 @@ public final class MethodWriter extends MethodVisitor
         if (ianns != null) {
             out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
-        }
-
-        if (tanns != null) {
-            out.putShort(cw.newUTF8("RuntimeVisibleTypeAnnotations"));
-            tanns.put(out);
-        }
-
-        if (itanns != null) {
-            out.putShort(cw.newUTF8("RuntimeInvisibleTypeAnnotations"));
-            itanns.put(out);
         }
 
         if (panns != null) {

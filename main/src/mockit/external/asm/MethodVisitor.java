@@ -100,35 +100,6 @@ public class MethodVisitor
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
     /**
-     * Visits an annotation on a type in the method signature.
-     * 
-     * @param typeRef
-     *            a reference to the annotated type. The sort of this type
-     *            reference must be
-     *            METHOD_TYPE_PARAMETER,
-     *
-     *            METHOD_TYPE_PARAMETER_BOUND,
-     *            METHOD_RETURN},
-     *            METHOD_RECEIVER},
-     *            METHOD_FORMAL_PARAMETER
-     *            or
-     *            THROWS.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
-    }
-
-    /**
      * Visits an annotation of a parameter this method.
      * 
      * @param parameter

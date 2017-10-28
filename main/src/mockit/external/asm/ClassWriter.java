@@ -419,16 +419,6 @@ public final class ClassWriter extends ClassVisitor
     private AnnotationWriter ianns;
 
     /**
-     * The runtime visible type annotations of this class.
-     */
-    private AnnotationWriter tanns;
-
-    /**
-     * The runtime invisible type annotations of this class.
-     */
-    private AnnotationWriter itanns;
-
-    /**
      * The non standard attributes of this class.
      */
     private Attribute attrs;
@@ -723,27 +713,6 @@ public final class ClassWriter extends ClassVisitor
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        ByteVector bv = new ByteVector();
-        // write target_type and target_info
-        AnnotationWriter.putTarget(typeRef, typePath, bv);
-        // write type, and reserve space for values count
-        bv.putShort(newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, bv.length - 2);
-
-        if (visible) {
-            aw.next = tanns;
-            tanns = aw;
-        }
-        else {
-            aw.next = itanns;
-            itanns = aw;
-        }
-
-        return aw;
-    }
-
-    @Override
     public void visitAttribute(Attribute attr) {
         attr.next = attrs;
         attrs = attr;
@@ -879,39 +848,33 @@ public final class ClassWriter extends ClassVisitor
             size += 8 + innerClasses.length;
             newUTF8("InnerClasses");
         }
+
         if (anns != null) {
             ++attributeCount;
             size += 8 + anns.getSize();
             newUTF8("RuntimeVisibleAnnotations");
         }
+
         if (ianns != null) {
             ++attributeCount;
             size += 8 + ianns.getSize();
             newUTF8("RuntimeInvisibleAnnotations");
         }
-        if (tanns != null) {
-            ++attributeCount;
-            size += 8 + tanns.getSize();
-            newUTF8("RuntimeVisibleTypeAnnotations");
-        }
-        if (itanns != null) {
-            ++attributeCount;
-            size += 8 + itanns.getSize();
-            newUTF8("RuntimeInvisibleTypeAnnotations");
-        }
+
         if (attrs != null) {
             attributeCount += attrs.getCount();
             size += attrs.getSize(this);
         }
 
         size += pool.length;
+
         // allocates a byte vector of this size, in order to avoid unnecessary
         // arraycopy operations in the ByteVector.enlarge() method
         ByteVector out = new ByteVector(size);
         out.putInt(0xCAFEBABE).putInt(version);
         out.putShort(index).putByteArray(pool.data, 0, pool.length);
-        int mask = Opcodes.ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE
-                | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+        int mask =
+           Opcodes.ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
         out.putShort(access & ~mask).putShort(name).putShort(superName);
         out.putShort(interfaceCount);
 
@@ -939,58 +902,59 @@ public final class ClassWriter extends ClassVisitor
 
         if (bootstrapMethods != null) {
             out.putShort(newUTF8("BootstrapMethods"));
-            out.putInt(bootstrapMethods.length + 2).putShort(
-                    bootstrapMethodsCount);
+            out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
             out.putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
         }
+
         if (signature != 0) {
             out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
         }
+
         if (sourceFile != 0) {
             out.putShort(newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
         }
+
         if (sourceDebug != null) {
             int len = sourceDebug.length;
             out.putShort(newUTF8("SourceDebugExtension")).putInt(len);
             out.putByteArray(sourceDebug.data, 0, len);
         }
+
         if (enclosingMethodOwner != 0) {
             out.putShort(newUTF8("EnclosingMethod")).putInt(4);
             out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
         }
+
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             out.putShort(newUTF8("Deprecated")).putInt(0);
         }
+
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            if ((version & 0xFFFF) < Opcodes.V1_5
-                    || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 out.putShort(newUTF8("Synthetic")).putInt(0);
             }
         }
+
         if (innerClasses != null) {
             out.putShort(newUTF8("InnerClasses"));
             out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
             out.putByteArray(innerClasses.data, 0, innerClasses.length);
         }
+
         if (anns != null) {
             out.putShort(newUTF8("RuntimeVisibleAnnotations"));
             anns.put(out);
         }
+
         if (ianns != null) {
             out.putShort(newUTF8("RuntimeInvisibleAnnotations"));
             ianns.put(out);
         }
-        if (tanns != null) {
-            out.putShort(newUTF8("RuntimeVisibleTypeAnnotations"));
-            tanns.put(out);
-        }
-        if (itanns != null) {
-            out.putShort(newUTF8("RuntimeInvisibleTypeAnnotations"));
-            itanns.put(out);
-        }
+
         if (attrs != null) {
             attrs.put(this, out);
         }
+
         if (invalidFrames) {
             anns = null;
             ianns = null;
@@ -1009,6 +973,7 @@ public final class ClassWriter extends ClassVisitor
             new ClassReader(out.data).accept(this, ClassReader.SKIP_FRAMES);
             return toByteArray();
         }
+
         return out.data;
     }
 
