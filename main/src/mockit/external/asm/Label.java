@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -38,8 +38,8 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-public final class Label {
-
+public final class Label
+{
     /**
      * Indicates if this label is only used for debug attributes. Such a label
      * is not the start of a basic block, the target of a jump instruction, or
@@ -153,7 +153,7 @@ public final class Label {
      * the forward reference itself. In fact the sign of the first integer
      * indicates if this reference uses 2 or 4 bytes, and its absolute value
      * gives the position of the bytecode instruction. This array is also used
-     * as a bitset to store the subroutines to which a basic block belongs. This
+     * as a bit set to store the subroutines to which a basic block belongs. This
      * information is needed in {@link MethodWriter#visitMaxs}, after all
      * forward references have been resolved. Hence the same array can be used
      * for both purposes without problems.
@@ -273,32 +273,29 @@ public final class Label {
      * directly. Otherwise, a null offset is written and a new forward reference
      * is declared for this label.
      * 
-     * @param owner
-     *            the code writer that calls this method.
-     * @param out
-     *            the bytecode of the method.
-     * @param source
-     *            the position of first byte of the bytecode instruction that
-     *            contains this label.
+     * @param out the bytecode of the method.
+     * @param source the position of first byte of the bytecode instruction that contains this label.
      * @param wideOffset
      *            <tt>true</tt> if the reference must be stored in 4 bytes, or
      *            <tt>false</tt> if it must be stored with 2 bytes.
-     * @throws IllegalArgumentException
-     *             if this label has not been created by the given code writer.
+     * @throws IllegalArgumentException if this label has not been created by the given code writer.
      */
-    void put(MethodWriter owner, ByteVector out, int source, boolean wideOffset) {
+    void put(ByteVector out, int source, boolean wideOffset) {
         if ((status & RESOLVED) == 0) {
             if (wideOffset) {
                 addReference(-1 - source, out.length);
                 out.putInt(-1);
-            } else {
+            }
+            else {
                 addReference(source, out.length);
                 out.putShort(-1);
             }
-        } else {
+        }
+        else {
             if (wideOffset) {
                 out.putInt(position - source);
-            } else {
+            }
+            else {
                 out.putShort(position - source);
             }
         }
@@ -337,12 +334,8 @@ public final class Label {
      * position becomes known. This method fills in the blanks that where left
      * in the bytecode by each forward reference previously added to this label.
      * 
-     * @param owner
-     *            the code writer that calls this method.
-     * @param position
-     *            the position of this label in the bytecode.
-     * @param data
-     *            the bytecode of the method.
+     * @param position the position of this label in the bytecode.
+     * @param data the bytecode of the method.
      * @return <tt>true</tt> if a blank that was left for this label was to
      *         small to store the offset. In such a case the corresponding jump
      *         instruction is replaced with a pseudo instruction (using unused
@@ -354,17 +347,20 @@ public final class Label {
      *             if this label has already been resolved, or if it has not
      *             been created by the given code writer.
      */
-    boolean resolve(MethodWriter owner, int position, byte[] data) {
+    boolean resolve(int position, byte[] data) {
         boolean needUpdate = false;
         status |= RESOLVED;
         this.position = position;
         int i = 0;
+
         while (i < referenceCount) {
             int source = srcAndRefPositions[i++];
             int reference = srcAndRefPositions[i++];
             int offset;
+
             if (source >= 0) {
                 offset = position - source;
+
                 if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
                     /*
                      * changes the opcode of the jump instruction, in order to
@@ -376,18 +372,23 @@ public final class Label {
                      * limited to 65535 bytes).
                      */
                     int opcode = data[reference - 1] & 0xFF;
+
                     if (opcode <= Opcodes.JSR) {
                         // changes IFEQ ... JSR to opcodes 202 to 217
                         data[reference - 1] = (byte) (opcode + 49);
-                    } else {
+                    }
+                    else {
                         // changes IFNULL and IFNONNULL to opcodes 218 and 219
                         data[reference - 1] = (byte) (opcode + 20);
                     }
+
                     needUpdate = true;
                 }
+
                 data[reference++] = (byte) (offset >>> 8);
                 data[reference] = (byte) offset;
-            } else {
+            }
+            else {
                 offset = position + source + 1;
                 data[reference++] = (byte) (offset >>> 24);
                 data[reference++] = (byte) (offset >>> 16);
@@ -395,6 +396,7 @@ public final class Label {
                 data[reference] = (byte) offset;
             }
         }
+
         return needUpdate;
     }
 
@@ -426,6 +428,7 @@ public final class Label {
         if ((status & VISITED) != 0) {
             return (srcAndRefPositions[(int) (id >>> 32)] & (int) id) != 0;
         }
+
         return false;
     }
 
@@ -442,11 +445,13 @@ public final class Label {
         if ((status & VISITED) == 0 || (block.status & VISITED) == 0) {
             return false;
         }
+
         for (int i = 0; i < srcAndRefPositions.length; ++i) {
             if ((srcAndRefPositions[i] & block.srcAndRefPositions[i]) != 0) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -463,6 +468,7 @@ public final class Label {
             status |= VISITED;
             srcAndRefPositions = new int[nbSubroutines / 32 + 1];
         }
+
         srcAndRefPositions[(int) (id >>> 32)] |= (int) id;
     }
 
@@ -486,6 +492,7 @@ public final class Label {
         // user managed stack of labels, to avoid using a recursive method
         // (recursivity can lead to stack overflow with very large methods)
         Label stack = this;
+
         while (stack != null) {
             // removes a label l from the stack
             Label l = stack;
@@ -496,7 +503,9 @@ public final class Label {
                 if ((l.status & VISITED2) != 0) {
                     continue;
                 }
+
                 l.status |= VISITED2;
+
                 // adds JSR to the successors of l, if it is a RET block
                 if ((l.status & RET) != 0) {
                     if (!l.inSameSubroutine(JSR)) {
@@ -507,16 +516,20 @@ public final class Label {
                         l.successors = e;
                     }
                 }
-            } else {
+            }
+            else {
                 // if the l block already belongs to subroutine 'id', continue
                 if (l.inSubroutine(id)) {
                     continue;
                 }
+
                 // marks the l block as belonging to subroutine 'id'
                 l.addToSubroutine(id, nbSubroutines);
             }
+
             // pushes each successor of l on the stack, except JSR targets
             Edge e = l.successors;
+
             while (e != null) {
                 // if the l block is a JSR block, then 'l.successors.next' leads
                 // to the JSR target (see {@link #visitJumpInsn}) and must
@@ -528,6 +541,7 @@ public final class Label {
                         stack = e.successor;
                     }
                 }
+
                 e = e.next;
             }
         }

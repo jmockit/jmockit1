@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -34,8 +34,8 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-public final class Frame {
-
+public final class Frame
+{
     /*
      * Frames are computed in a two steps process: during the visit of each
      * instruction, the state of the frame at the end of current basic block is
@@ -231,7 +231,7 @@ public final class Frame {
      */
     public static final int[] SIZE;
 
-    /**
+    /*
      * Computes the stack size variation corresponding to each JVM instruction.
      */
     static {
@@ -695,10 +695,10 @@ public final class Frame {
     private int pop() {
         if (outputStackTop > 0) {
             return outputStack[--outputStackTop];
-        } else {
-            // if the output frame stack is empty, pops from the input stack
-            return STACK | -(--owner.inputStackTop);
         }
+
+        // if the output frame stack is empty, pops from the input stack
+        return STACK | -(--owner.inputStackTop);
     }
 
     /**
@@ -710,7 +710,8 @@ public final class Frame {
     private void pop(int elements) {
         if (outputStackTop >= elements) {
             outputStackTop -= elements;
-        } else {
+        }
+        else {
             // if the number of elements to be popped is greater than the number
             // of elements in the output stack, clear it, and pops the remaining
             // elements from the input stack.

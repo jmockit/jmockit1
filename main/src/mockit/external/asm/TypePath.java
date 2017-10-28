@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2013 INRIA, France Telecom
  * All rights reserved.
@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package mockit.external.asm;
 
 /**
@@ -36,8 +35,8 @@ package mockit.external.asm;
  *
  * @author Eric Bruneton
  */
-final class TypePath {
-
+final class TypePath
+{
     /**
      * A type path step that steps into the element type of an array type. See
      * {@link #getStep getStep}.
@@ -133,6 +132,7 @@ final class TypePath {
     public String toString() {
         int length = getLength();
         StringBuilder result = new StringBuilder(length * 2);
+
         for (int i = 0; i < length; ++i) {
             switch (getStep(i)) {
             case ARRAY_ELEMENT:
@@ -151,6 +151,7 @@ final class TypePath {
                 result.append('_');
             }
         }
+
         return result.toString();
     }
 }

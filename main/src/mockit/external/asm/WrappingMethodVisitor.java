@@ -1,63 +1,25 @@
-/*
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
- * A visitor to visit a Java method. The methods of this class must be called in
- * the following order: ( <tt>visitParameter</tt> )* [
- * <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> |
- * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* [
- * <tt>visitCode</tt> ( <tt>visitFrame</tt> | <tt>visit<i>X</i>Insn</tt> |
- * <tt>visitLabel</tt> | <tt>visitInsnAnnotation</tt> |
- * <tt>visitTryCatchBlock</tt> | <tt>visitTryCatchBlockAnnotation</tt> |
- * <tt>visitLocalVariable</tt> | <tt>visitLocalVariableAnnotation</tt> |
- * <tt>visitLineNumber</tt> )* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>. In
- * addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must
- * be called in the sequential order of the bytecode instructions of the visited
- * code, <tt>visitInsnAnnotation</tt> must be called <i>after</i> the annotated
- * instruction, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the
- * labels passed as arguments have been visited,
- * <tt>visitTryCatchBlockAnnotation</tt> must be called <i>after</i> the
- * corresponding try catch block has been visited, and the
- * <tt>visitLocalVariable</tt>, <tt>visitLocalVariableAnnotation</tt> and
- * <tt>visitLineNumber</tt> methods must be called <i>after</i> the labels
- * passed as arguments have been visited.
- * 
- * @author Eric Bruneton
+ * Same as {@link MethodVisitor}, except it wraps another {@code MethodVisitor}.
  */
-public class MethodVisitor
+public class WrappingMethodVisitor extends MethodVisitor
 {
     /**
-     * Constructs a new {@link MethodVisitor}.
+     * The method visitor to which this visitor must delegate method calls.
      */
-    protected MethodVisitor() {}
+    @Nonnull private final MethodVisitor mv;
+
+    /**
+     * Constructs a new {@link WrappingMethodVisitor}.
+     *
+     * @param mv
+     *            the method visitor to which this visitor must delegate method
+     *            calls. May be null.
+     */
+    protected WrappingMethodVisitor(@Nonnull MethodVisitor mv) { this.mv = mv; }
 
     // -------------------------------------------------------------------------
     // Parameters, annotations and non standard attributes
@@ -73,7 +35,10 @@ public class MethodVisitor
      *            <tt>ACC_SYNTHETIC</tt> or/and <tt>ACC_MANDATED</tt> are
      *            allowed (see {@link Opcodes}).
      */
-    public void visitParameter(String name, int access) {}
+    @Override
+    public void visitParameter(String name, int access) {
+        mv.visitParameter(name, access);
+    }
 
     /**
      * Visits the default value of this annotation interface method.
@@ -85,7 +50,10 @@ public class MethodVisitor
      *         ignored. Moreover, exactly one visit method must be called on this
      *         annotation visitor, followed by visitEnd.
      */
-    public AnnotationVisitor visitAnnotationDefault() { return null; }
+    @Override
+    public AnnotationVisitor visitAnnotationDefault() {
+        return mv.visitAnnotationDefault();
+    }
 
     /**
      * Visits an annotation of this method.
@@ -97,7 +65,10 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return mv.visitAnnotation(desc, visible);
+    }
 
     /**
      * Visits an annotation on a type in the method signature.
@@ -124,8 +95,9 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
+    @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
+        return mv.visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     /**
@@ -140,7 +112,10 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) { return null; }
+    @Override
+    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
+        return mv.visitParameterAnnotation(parameter, desc, visible);
+    }
 
     /**
      * Visits a non standard attribute of this method.
@@ -148,12 +123,18 @@ public class MethodVisitor
      * @param attr
      *            an attribute.
      */
-    public void visitAttribute(Attribute attr) {}
+    @Override
+    public void visitAttribute(Attribute attr) {
+        mv.visitAttribute(attr);
+    }
 
     /**
      * Starts the visit of the method's code, if any (i.e. non abstract method).
      */
-    public void visitCode() {}
+    @Override
+    public void visitCode() {
+        mv.visitCode();
+    }
 
     /**
      * Visits the current state of the local variables and operand stack
@@ -230,7 +211,10 @@ public class MethodVisitor
      *             instruction between the two (unless this frame is a
      *             Opcodes#F_SAME frame, in which case it is silently ignored).
      */
-    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {}
+    @Override
+    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+        mv.visitFrame(type, nLocal, local, nStack, stack);
+    }
 
     // -------------------------------------------------------------------------
     // Normal instructions
@@ -256,7 +240,10 @@ public class MethodVisitor
      *            DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER,
      *            or MONITOREXIT.
      */
-    public void visitInsn(int opcode) {}
+    @Override
+    public void visitInsn(int opcode) {
+        mv.visitInsn(opcode);
+    }
 
     /**
      * Visits an instruction with a single int operand.
@@ -276,7 +263,10 @@ public class MethodVisitor
      *            {@link Opcodes#T_BYTE}, {@link Opcodes#T_SHORT},
      *            {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
      */
-    public void visitIntInsn(int opcode, int operand) {}
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+        mv.visitIntInsn(opcode, operand);
+    }
 
     /**
      * Visits a local variable instruction. A local variable instruction is an
@@ -290,7 +280,10 @@ public class MethodVisitor
      *            the operand of the instruction to be visited. This operand is
      *            the index of a local variable.
      */
-    public void visitVarInsn(int opcode, int var) {}
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+        mv.visitVarInsn(opcode, var);
+    }
 
     /**
      * Visits a type instruction. A type instruction is an instruction that
@@ -304,7 +297,10 @@ public class MethodVisitor
      *            must be the internal name of an object or array class (see
      *            {@link Type#getInternalName() getInternalName}).
      */
-    public void visitTypeInsn(int opcode, String type) {}
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        mv.visitTypeInsn(opcode, type);
+    }
 
     /**
      * Visits a field instruction. A field instruction is an instruction that
@@ -321,7 +317,10 @@ public class MethodVisitor
      * @param desc
      *            the field's descriptor (see {@link Type Type}).
      */
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {}
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+        mv.visitFieldInsn(opcode, owner, name, desc);
+    }
 
     /**
      * Visits a method instruction. A method instruction is an instruction that
@@ -341,7 +340,10 @@ public class MethodVisitor
      * @param itf
      *            if the method's owner class is an interface.
      */
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {}
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        mv.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
 
     /**
      * Visits an invokedynamic instruction.
@@ -359,7 +361,10 @@ public class MethodVisitor
      *            value. This method is allowed to modify the content of the
      *            array so a caller should expect that this array may change.
      */
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {}
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+        mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
 
     /**
      * Visits a jump instruction. A jump instruction is an instruction that may
@@ -375,7 +380,10 @@ public class MethodVisitor
      *            a label that designates the instruction to which the jump
      *            instruction may jump.
      */
-    public void visitJumpInsn(int opcode, Label label) {}
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        mv.visitJumpInsn(opcode, label);
+    }
 
     /**
      * Visits a label. A label designates the instruction that will be visited
@@ -384,7 +392,10 @@ public class MethodVisitor
      * @param label
      *            a {@link Label Label} object.
      */
-    public void visitLabel(Label label) {}
+    @Override
+    public void visitLabel(Label label) {
+        mv.visitLabel(label);
+    }
 
     // -------------------------------------------------------------------------
     // Special instructions
@@ -434,7 +445,10 @@ public class MethodVisitor
      *            {@link Handle} for MethodType and MethodHandle constants, for
      *            classes whose version is 51.0.
      */
-    public void visitLdcInsn(Object cst) {}
+    @Override
+    public void visitLdcInsn(Object cst) {
+        mv.visitLdcInsn(cst);
+    }
 
     /**
      * Visits an IINC instruction.
@@ -444,7 +458,10 @@ public class MethodVisitor
      * @param increment
      *            amount to increment the local variable by.
      */
-    public void visitIincInsn(int var, int increment) {}
+    @Override
+    public void visitIincInsn(int var, int increment) {
+        mv.visitIincInsn(var, increment);
+    }
 
     /**
      * Visits a TABLESWITCH instruction.
@@ -459,7 +476,10 @@ public class MethodVisitor
      *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
      *            beginning of the handler block for the <tt>min + i</tt> key.
      */
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {}
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+        mv.visitTableSwitchInsn(min, max, dflt, labels);
+    }
 
     /**
      * Visits a LOOKUPSWITCH instruction.
@@ -472,7 +492,10 @@ public class MethodVisitor
      *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
      *            beginning of the handler block for the <tt>keys[i]</tt> key.
      */
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {}
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+        mv.visitLookupSwitchInsn(dflt, keys, labels);
+    }
 
     /**
      * Visits a MULTIANEWARRAY instruction.
@@ -482,7 +505,10 @@ public class MethodVisitor
      * @param dims
      *            number of dimensions of the array to allocate.
      */
-    public void visitMultiANewArrayInsn(String desc, int dims) {}
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+        mv.visitMultiANewArrayInsn(desc, dims);
+    }
 
     /**
      * Visits an annotation on an instruction. This method must be called just
@@ -515,8 +541,9 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
+    @Override
     public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
+        return mv.visitInsnAnnotation(typeRef, typePath, desc, visible);
     }
 
     // -------------------------------------------------------------------------
@@ -540,7 +567,10 @@ public class MethodVisitor
      *             if one of the labels has already been visited by this visitor
      *             (by the {@link #visitLabel visitLabel} method).
      */
-    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {}
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+        mv.visitTryCatchBlock(start, end, handler, type);
+    }
 
     /**
      * Visits an annotation on an exception handler type. This method must be
@@ -563,8 +593,9 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
+    @Override
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
+        return mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
     }
 
     /**
@@ -590,7 +621,10 @@ public class MethodVisitor
      *             if one of the labels has not already been visited by this
      *             visitor (by the {@link #visitLabel visitLabel} method).
      */
-    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {}
+    @Override
+    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+        mv.visitLocalVariable(name, desc, signature, start, end, index);
+    }
 
     /**
      * Visits an annotation on a local variable type.
@@ -621,10 +655,11 @@ public class MethodVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
+    @Override
     public AnnotationVisitor visitLocalVariableAnnotation(
         int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index, String desc, boolean visible
     ) {
-        return null;
+        return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);
     }
 
     /**
@@ -639,7 +674,10 @@ public class MethodVisitor
      *             if <tt>start</tt> has not already been visited by this
      *             visitor (by the {@link #visitLabel visitLabel} method).
      */
-    public void visitLineNumber(int line, Label start) {}
+    @Override
+    public void visitLineNumber(int line, Label start) {
+        mv.visitLineNumber(line, start);
+    }
 
     /**
      * Visits the maximum stack size and the maximum number of local variables
@@ -650,12 +688,18 @@ public class MethodVisitor
      * @param maxLocals
      *            maximum number of local variables for the method.
      */
-    public void visitMaxs(int maxStack, int maxLocals) {}
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        mv.visitMaxs(maxStack, maxLocals);
+    }
 
     /**
      * Visits the end of the method. This method, which is the last one to be
      * called, is used to inform the visitor that all the annotations and
      * attributes of the method have been visited.
      */
-    public void visitEnd() {}
+    @Override
+    public void visitEnd() {
+        mv.visitEnd();
+    }
 }

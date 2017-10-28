@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -37,13 +37,12 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public abstract class AnnotationVisitor {
-
+public abstract class AnnotationVisitor
+{
     /**
      * Constructs a new {@link AnnotationVisitor}.
      */
-    protected AnnotationVisitor() {
-    }
+    protected AnnotationVisitor() {}
 
     /**
      * Visits a primitive value of the annotation.
@@ -60,8 +59,7 @@ public abstract class AnnotationVisitor {
      *            {@link #visitArray visitArray} and visiting each array element
      *            in turn, but is more convenient).
      */
-    public void visit(String name, Object value) {
-    }
+    public void visit(String name, Object value) {}
 
     /**
      * Visits an enumeration value of the annotation.
@@ -73,8 +71,7 @@ public abstract class AnnotationVisitor {
      * @param value
      *            the actual enumeration value.
      */
-    public void visitEnum(String name, String desc, String value) {
-    }
+    public void visitEnum(String name, String desc, String value) {}
 
     /**
      * Visits a nested annotation value of the annotation.
@@ -89,9 +86,7 @@ public abstract class AnnotationVisitor {
      *         visited before calling other methods on this annotation
      *         visitor</i>.
      */
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
-        return null;
-    }
+    public AnnotationVisitor visitAnnotation(String name, String desc) { return null; }
 
     /**
      * Visits an array value of the annotation. Note that arrays of primitive
@@ -107,13 +102,10 @@ public abstract class AnnotationVisitor {
      *         visitor are ignored. <i>All the array values must be visited
      *         before calling other methods on this annotation visitor</i>.
      */
-    public AnnotationVisitor visitArray(String name) {
-        return null;
-    }
+    public AnnotationVisitor visitArray(String name) { return null; }
 
     /**
      * Visits the end of the annotation.
      */
-    public void visitEnd() {
-    }
+    public void visitEnd() {}
 }

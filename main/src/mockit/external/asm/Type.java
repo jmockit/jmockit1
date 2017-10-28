@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -38,8 +38,8 @@ import java.lang.reflect.*;
  * @author Eric Bruneton
  * @author Chris Nokleberg
  */
-public final class Type {
-
+public final class Type
+{
     /**
      * The sort of the <tt>void</tt> type. See {@link #getSort getSort}.
      */

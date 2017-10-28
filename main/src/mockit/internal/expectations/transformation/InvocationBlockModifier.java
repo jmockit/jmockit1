@@ -10,7 +10,7 @@ import mockit.external.asm.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
-public final class InvocationBlockModifier extends MethodVisitor
+public final class InvocationBlockModifier extends WrappingMethodVisitor
 {
    private static final String CLASS_DESC = "mockit/internal/expectations/ActiveInvocations";
 

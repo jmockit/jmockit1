@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -34,8 +34,8 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-final class Handler {
-
+final class Handler
+{
     /**
      * Beginning of the exception handler's scope (inclusive).
      */
@@ -90,20 +90,24 @@ final class Handler {
         int hend = h.end.position;
         int s = start.position;
         int e = end == null ? Integer.MAX_VALUE : end.position;
+
         // if [hstart,hend[ and [s,e[ intervals intersect...
         if (s < hend && e > hstart) {
             if (s <= hstart) {
                 if (e >= hend) {
                     // [hstart,hend[ fully included in [s,e[, h removed
                     h = h.next;
-                } else {
+                }
+                else {
                     // [hstart,hend[ minus [s,e[ = [e,hend[
                     h.start = end;
                 }
-            } else if (e >= hend) {
+            }
+            else if (e >= hend) {
                 // [hstart,hend[ minus [s,e[ = [hstart,s[
                 h.end = start;
-            } else {
+            }
+            else {
                 // [hstart,hend[ minus [s,e[ = [hstart,s[ + [e,hend[
                 Handler g = new Handler();
                 g.start = end;
@@ -116,6 +120,7 @@ final class Handler {
                 h.next = g;
             }
         }
+
         return h;
     }
 }

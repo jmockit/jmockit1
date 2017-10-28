@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -36,19 +36,12 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-public abstract class FieldVisitor {
-
-    /**
-     * The field visitor to which this visitor must delegate method calls. May
-     * be null.
-     */
-    protected FieldVisitor fv;
-
+public class FieldVisitor
+{
     /**
      * Constructs a new {@link FieldVisitor}.
      */
-    protected FieldVisitor() {
-    }
+    protected FieldVisitor() {}
 
     /**
      * Visits an annotation of the field.
@@ -60,12 +53,7 @@ public abstract class FieldVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        if (fv != null) {
-            return fv.visitAnnotation(desc, visible);
-        }
-        return null;
-    }
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
     /**
      * Visits an annotation on the type of the field.
@@ -86,9 +74,6 @@ public abstract class FieldVisitor {
      *         this visitor is not interested in visiting this annotation.
      */
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        if (fv != null) {
-            return fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
-        }
         return null;
     }
 
@@ -98,20 +83,12 @@ public abstract class FieldVisitor {
      * @param attr
      *            an attribute.
      */
-    public void visitAttribute(Attribute attr) {
-        if (fv != null) {
-            fv.visitAttribute(attr);
-        }
-    }
+    public void visitAttribute(Attribute attr) {}
 
     /**
      * Visits the end of the field. This method, which is the last one to be
      * called, is used to inform the visitor that all the annotations and
      * attributes of the field have been visited.
      */
-    public void visitEnd() {
-        if (fv != null) {
-            fv.visitEnd();
-        }
-    }
+    public void visitEnd() {}
 }

@@ -13,7 +13,7 @@ import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
 
-final class EndOfBlockModifier extends ClassVisitor
+final class EndOfBlockModifier extends WrappingClassVisitor
 {
    @Nonnull private final ClassWriter cw;
    @Nullable private final ClassLoader loader;

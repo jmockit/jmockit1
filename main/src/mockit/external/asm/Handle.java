@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -27,7 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package mockit.external.asm;
 
 /**
@@ -36,8 +35,8 @@ package mockit.external.asm;
  * @author Remi Forax
  * @author Eric Bruneton
  */
-final class Handle {
-
+final class Handle
+{
     /**
      * The kind of field or method designated by this Handle. Should be
      * {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
@@ -49,8 +48,7 @@ final class Handle {
     final int tag;
 
     /**
-     * The internal name of the class that owns the field or method designated
-     * by this handle.
+     * The internal name of the class that owns the field or method designated by this handle.
      */
     final String owner;
 
@@ -99,39 +97,35 @@ final class Handle {
      * @return the internal name of the class that owns the field or method
      *         designated by this handle.
      */
-    String getOwner() {
-        return owner;
-    }
+    String getOwner() { return owner; }
 
     /**
      * Returns the name of the field or method designated by this handle.
      * 
      * @return the name of the field or method designated by this handle.
      */
-    String getName() {
-        return name;
-    }
+    String getName() { return name; }
 
     /**
      * Returns the descriptor of the field or method designated by this handle.
      * 
      * @return the descriptor of the field or method designated by this handle.
      */
-    String getDesc() {
-        return desc;
-    }
+    String getDesc() { return desc; }
 
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
+
         if (!(obj instanceof Handle)) {
             return false;
         }
+
         Handle h = (Handle) obj;
-        return tag == h.tag && owner.equals(h.owner) && name.equals(h.name)
-                && desc.equals(h.desc);
+
+        return tag == h.tag && owner.equals(h.owner) && name.equals(h.name) && desc.equals(h.desc);
     }
 
     @Override

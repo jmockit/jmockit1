@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -30,13 +30,13 @@
 package mockit.external.asm;
 
 /**
- * A constant pool item. Constant pool items can be created with the 'newXXX'
- * methods in the {@link ClassWriter} class.
+ * A constant pool item.
+ * Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
  * 
  * @author Eric Bruneton
  */
-final class Item {
-
+final class Item
+{
     /**
      * Index of this item in the constant pool.
      */
@@ -108,8 +108,7 @@ final class Item {
     /**
      * Constructs an uninitialized {@link Item}.
      */
-    Item() {
-    }
+    Item() {}
 
     /**
      * Constructs an uninitialized {@link Item} for constant pool element at
@@ -274,7 +273,6 @@ final class Item {
      * @return <tt>true</tt> if the given item if equal to this one,
      *         <tt>false</tt> otherwise.
      */
-    @SuppressWarnings("OverlyComplexMethod")
     boolean isEqualTo(Item i) {
         switch (type) {
         case ClassWriter.UTF8:
@@ -295,16 +293,14 @@ final class Item {
         case ClassWriter.NAME_TYPE:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
         case ClassWriter.INDY: {
-            return i.longVal == longVal && i.strVal1.equals(strVal1)
-                    && i.strVal2.equals(strVal2);
+            return i.longVal == longVal && i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
         }
         // case ClassWriter.FIELD:
         // case ClassWriter.METH:
         // case ClassWriter.IMETH:
         // case ClassWriter.HANDLE_BASE + 1..9
         default:
-            return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2)
-                    && i.strVal3.equals(strVal3);
+            return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2) && i.strVal3.equals(strVal3);
         }
     }
 }

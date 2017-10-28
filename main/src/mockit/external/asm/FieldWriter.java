@@ -34,12 +34,17 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-final class FieldWriter extends FieldVisitor {
-
+final class FieldWriter extends FieldVisitor
+{
     /**
      * The class writer to which this field must be added.
      */
     private final ClassWriter cw;
+
+    /**
+     * Next field in a linked list of field writers for a class.
+     */
+    FieldWriter fw;
 
     /**
      * Access flags of this field.
@@ -96,10 +101,6 @@ final class FieldWriter extends FieldVisitor {
      */
     private Attribute attrs;
 
-    // ------------------------------------------------------------------------
-    // Constructor
-    // ------------------------------------------------------------------------
-
     /**
      * Constructs a new {@link FieldWriter}.
      * 
@@ -119,17 +120,21 @@ final class FieldWriter extends FieldVisitor {
     FieldWriter(ClassWriter cw, int access, String name, String desc, String signature, Object value) {
         if (cw.firstField == null) {
             cw.firstField = this;
-        } else {
-            cw.lastField.fv = this;
         }
+        else {
+            cw.lastField.fw = this;
+        }
+
         cw.lastField = this;
         this.cw = cw;
         this.access = access;
         this.name = cw.newUTF8(name);
         this.desc = cw.newUTF8(desc);
+
         if (signature != null) {
             this.signature = cw.newUTF8(signature);
         }
+
         if (value != null) {
             this.value = cw.newConstItem(value).index;
         }
@@ -145,13 +150,16 @@ final class FieldWriter extends FieldVisitor {
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+
         if (visible) {
             aw.next = anns;
             anns = aw;
-        } else {
+        }
+        else {
             aw.next = ianns;
             ianns = aw;
         }
+
         return aw;
     }
 
@@ -162,15 +170,17 @@ final class FieldWriter extends FieldVisitor {
         AnnotationWriter.putTarget(typeRef, typePath, bv);
         // write type, and reserve space for values count
         bv.putShort(cw.newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv,
-                bv.length - 2);
+        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
+
         if (visible) {
             aw.next = tanns;
             tanns = aw;
-        } else {
+        }
+        else {
             aw.next = itanns;
             itanns = aw;
         }
+
         return aw;
     }
 
@@ -178,10 +188,6 @@ final class FieldWriter extends FieldVisitor {
     public void visitAttribute(Attribute attr) {
         attr.next = attrs;
         attrs = attr;
-    }
-
-    @Override
-    public void visitEnd() {
     }
 
     // ------------------------------------------------------------------------
@@ -196,44 +202,53 @@ final class FieldWriter extends FieldVisitor {
     @SuppressWarnings("OverlyComplexMethod")
     int getSize() {
         int size = 8;
+
         if (value != 0) {
             cw.newUTF8("ConstantValue");
             size += 8;
         }
+
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 cw.newUTF8("Synthetic");
                 size += 6;
             }
         }
+
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             cw.newUTF8("Deprecated");
             size += 6;
         }
+
         if (signature != 0) {
             cw.newUTF8("Signature");
             size += 8;
         }
+
         if (anns != null) {
             cw.newUTF8("RuntimeVisibleAnnotations");
             size += 8 + anns.getSize();
         }
+
         if (ianns != null) {
             cw.newUTF8("RuntimeInvisibleAnnotations");
             size += 8 + ianns.getSize();
         }
+
         if (tanns != null) {
             cw.newUTF8("RuntimeVisibleTypeAnnotations");
             size += 8 + tanns.getSize();
         }
+
         if (itanns != null) {
             cw.newUTF8("RuntimeInvisibleTypeAnnotations");
             size += 8 + itanns.getSize();
         }
+
         if (attrs != null) {
             size += attrs.getSize(cw);
         }
+
         return size;
     }
 
@@ -250,15 +265,17 @@ final class FieldWriter extends FieldVisitor {
                 | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
         out.putShort(access & ~mask).putShort(name).putShort(desc);
         int attributeCount = 0;
+
         if (value != 0) {
             ++attributeCount;
         }
+
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 ++attributeCount;
             }
         }
+
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             ++attributeCount;
         }

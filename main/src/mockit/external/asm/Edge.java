@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -34,8 +34,8 @@ package mockit.external.asm;
  * 
  * @author Eric Bruneton
  */
-final class Edge {
-
+final class Edge
+{
     /**
      * Denotes a normal control flow graph edge.
      */

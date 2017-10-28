@@ -67,7 +67,7 @@ final class ClassLoadingBridgeFields
       {
          final ClassWriter cw = new ClassWriter(classReader);
 
-         ClassVisitor cv = new ClassVisitor(cw) {
+         ClassVisitor cv = new WrappingClassVisitor(cw) {
             @Override
             public void visitEnd()
             {

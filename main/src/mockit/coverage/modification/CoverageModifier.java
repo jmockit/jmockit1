@@ -16,7 +16,7 @@ import static mockit.coverage.Metrics.*;
 import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
-final class CoverageModifier extends ClassVisitor
+final class CoverageModifier extends WrappingClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = ACC_FINAL + ACC_SYNTHETIC;
@@ -130,10 +130,10 @@ final class CoverageModifier extends ClassVisitor
    private static String getKindOfJavaType(int typeModifiers, @Nonnull String superName)
    {
       if ((typeModifiers & ACC_ANNOTATION) != 0) return "annotation";
-      else if ((typeModifiers & ACC_INTERFACE) != 0) return "interface";
-      else if ((typeModifiers & ACC_ENUM) != 0) return "enum";
-      else if ((typeModifiers & ACC_ABSTRACT) != 0) return "abstractClass";
-      else if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exception";
+      if ((typeModifiers & ACC_INTERFACE) != 0) return "interface";
+      if ((typeModifiers & ACC_ENUM) != 0) return "enum";
+      if ((typeModifiers & ACC_ABSTRACT) != 0) return "abstractClass";
+      if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exception";
       return "class";
    }
 
@@ -236,7 +236,7 @@ final class CoverageModifier extends ClassVisitor
       return WITH_PATH_OR_DATA_COVERAGE ? new MethodModifier(mw) : new BaseMethodModifier(mw);
    }
 
-   private class BaseMethodModifier extends MethodVisitor
+   private class BaseMethodModifier extends WrappingMethodVisitor
    {
       static final String DATA_RECORDING_CLASS = "mockit/coverage/TestRun";
 

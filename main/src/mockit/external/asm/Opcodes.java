@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
  * All rights reserved.
@@ -41,8 +41,8 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public interface Opcodes {
-
+public interface Opcodes
+{
     // versions
 
     int V1_5 = 0 << 16 | 49;
@@ -102,7 +102,7 @@ public interface Opcodes {
     // stack map frame types
 
     /**
-     * Represents an expanded frame. See {@link ClassReader#EXPAND_FRAMES}.
+     * Represents an expanded frame.
      */
     int F_NEW = -1;
 

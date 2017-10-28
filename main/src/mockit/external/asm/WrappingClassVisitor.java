@@ -1,50 +1,23 @@
-/*
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
- * A visitor to visit a Java class. The methods of this class must be called in the following order:
- * <tt>visit</tt> [ <tt>visitSource</tt> ] [
- * <tt>visitOuterClass</tt> ] ( <tt>visitAnnotation</tt> |
- * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* (
- * <tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt> )*
- * <tt>visitEnd</tt>.
- * 
- * @author Eric Bruneton
+ * Same as {@link ClassVisitor}, except it wraps another {@code ClassVisitor}.
  */
-public class ClassVisitor
+public class WrappingClassVisitor extends ClassVisitor
 {
     /**
-     * Constructs a new {@link ClassVisitor}.
+     * The class visitor to which this visitor must delegate method calls.
      */
-    protected ClassVisitor() {}
+    @Nonnull protected final ClassVisitor cv;
+
+    /**
+     * Constructs a new {@link WrappingClassVisitor}.
+     *
+     * @param cv the class visitor to which this visitor must delegate method calls.
+     */
+    protected WrappingClassVisitor(@Nonnull ClassVisitor cv) { this.cv = cv; }
 
     /**
      * Visits the header of the class.
@@ -71,7 +44,10 @@ public class ClassVisitor
      *            {@link Type#getInternalName() getInternalName}). May be
      *            <tt>null</tt>.
      */
-    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        cv.visit(version, access, name, signature, superName, interfaces);
+    }
 
     /**
      * Visits the source of the class.
@@ -84,7 +60,10 @@ public class ClassVisitor
      *            between source and compiled elements of the class. May be
      *            <tt>null</tt>.
      */
-    public void visitSource(String source, String debug) {}
+    @Override
+    public void visitSource(String source, String debug) {
+        cv.visitSource(source, debug);
+    }
 
     /**
      * Visits the enclosing class of the class. This method must be called only
@@ -101,19 +80,23 @@ public class ClassVisitor
      *            <tt>null</tt> if the class is not enclosed in a method of its
      *            enclosing class.
      */
-    public void visitOuterClass(String owner, String name, String desc) {}
+    @Override
+    public void visitOuterClass(String owner, String name, String desc) {
+        cv.visitOuterClass(owner, name, desc);
+    }
 
     /**
      * Visits an annotation of the class.
      * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return cv.visitAnnotation(desc, visible);
+    }
 
     /**
      * Visits an annotation on a type in the class signature.
@@ -137,8 +120,9 @@ public class ClassVisitor
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
+    @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
+        return cv.visitTypeAnnotation(typeRef, typePath, desc, visible);
     }
 
     /**
@@ -147,7 +131,10 @@ public class ClassVisitor
      * @param attr
      *            an attribute.
      */
-    public void visitAttribute(Attribute attr) {}
+    @Override
+    public void visitAttribute(Attribute attr) {
+        cv.visitAttribute(attr);
+    }
 
     /**
      * Visits information about an inner class. This inner class is not
@@ -167,7 +154,10 @@ public class ClassVisitor
      *            the access flags of the inner class as originally declared in
      *            the enclosing class.
      */
-    public void visitInnerClass(String name, String outerName, String innerName, int access) {}
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+        cv.visitInnerClass(name, outerName, innerName, access);
+    }
 
     /**
      * Visits a field of the class.
@@ -196,8 +186,9 @@ public class ClassVisitor
      *         <tt>null</tt> if this class visitor is not interested in visiting
      *         these annotations and attributes.
      */
+    @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        return null;
+        return cv.visitField(access, name, desc, signature, value);
     }
 
     /**
@@ -225,8 +216,9 @@ public class ClassVisitor
      *         if this class visitor is not interested in visiting the code of
      *         this method.
      */
+    @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        return null;
+        return cv.visitMethod(access, name, desc, signature, exceptions);
     }
 
     /**
@@ -234,10 +226,11 @@ public class ClassVisitor
      * called, is used to inform the visitor that all the fields and methods of
      * the class have been visited.
      */
-    public void visitEnd() {}
+    @Override
+    public void visitEnd() {
+        cv.visitEnd();
+    }
 
-    /**
-     * Returns the bytecode of the class that was built with this class visitor.
-     */
-    public byte[] toByteArray() { return null; }
+    @Override
+    public final byte[] toByteArray() { return cv.toByteArray(); }
 }

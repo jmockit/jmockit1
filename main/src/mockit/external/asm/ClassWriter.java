@@ -41,8 +41,8 @@ import static mockit.internal.util.ClassLoad.OBJECT;
  * 
  * @author Eric Bruneton
  */
-public final class ClassWriter extends ClassVisitor {
-
+public final class ClassWriter extends ClassVisitor
+{
     /**
      * Flag to automatically compute the maximum stack size and the maximum
      * number of local variables of methods. If this flag is set, then the
@@ -454,34 +454,34 @@ public final class ClassWriter extends ClassVisitor {
     ByteVector bootstrapMethods;
 
     /**
-     * The fields of this class. These fields are stored in a linked list of
-     * {@link FieldWriter} objects, linked to each other by their
-     * {@link FieldWriter#fv} field. This field stores the first element of this
-     * list.
+     * The fields of this class.
+     * These fields are stored in a linked list of {@link FieldWriter} objects, linked to each other by their
+     * {@link FieldWriter#fw} field.
+     * This field stores the first element of this list.
      */
     FieldWriter firstField;
 
     /**
-     * The fields of this class. These fields are stored in a linked list of
-     * {@link FieldWriter} objects, linked to each other by their
-     * {@link FieldWriter#fv} field. This field stores the last element of this
-     * list.
+     * The fields of this class.
+     * These fields are stored in a linked list of {@link FieldWriter} objects, linked to each other by their
+     * {@link FieldWriter#fw} field.
+     * This field stores the last element of this list.
      */
     FieldWriter lastField;
 
     /**
-     * The methods of this class. These methods are stored in a linked list of
-     * {@link MethodWriter} objects, linked to each other by their
-     * {@link MethodWriter#mv} field. This field stores the first element of
-     * this list.
+     * The methods of this class.
+     * These methods are stored in a linked list of {@link MethodWriter} objects, linked to each other by their
+     * {@link MethodWriter#mw} field.
+     * This field stores the first element of this list.
      */
     MethodWriter firstMethod;
 
     /**
-     * The methods of this class. These methods are stored in a linked list of
-     * {@link MethodWriter} objects, linked to each other by their
-     * {@link MethodWriter#mv} field. This field stores the last element of this
-     * list.
+     * The methods of this class.
+     * These methods are stored in a linked list of {@link MethodWriter} objects, linked to each other by their
+     * {@link MethodWriter#mw} field.
+     * This field stores the last element of this list.
      */
     MethodWriter lastMethod;
 
@@ -594,10 +594,6 @@ public final class ClassWriter extends ClassVisitor {
         // System.err.println();
     }
 
-    // ------------------------------------------------------------------------
-    // Constructor
-    // ------------------------------------------------------------------------
-
     /**
      * Constructs a new {@link ClassWriter} object.
      * 
@@ -606,8 +602,7 @@ public final class ClassWriter extends ClassVisitor {
      *            of this class. See {@link #COMPUTE_MAXS},
      *            {@link #COMPUTE_FRAMES}.
      */
-    private ClassWriter(int flags)
-    {
+    private ClassWriter(int flags) {
         index = 1;
         pool = new ByteVector();
         items = new Item[256];
@@ -797,9 +792,6 @@ public final class ClassWriter extends ClassVisitor {
         return new MethodWriter(this, access, name, desc, signature, exceptions, computeMaxs, computeFrames);
     }
 
-    @Override
-    public void visitEnd() {}
-
     // ------------------------------------------------------------------------
     // Other public methods
     // ------------------------------------------------------------------------
@@ -821,7 +813,7 @@ public final class ClassWriter extends ClassVisitor {
         while (fb != null) {
             ++nbFields;
             size += fb.getSize();
-            fb = (FieldWriter) fb.fv;
+            fb = fb.fw;
         }
 
         int nbMethods = 0;
@@ -830,7 +822,7 @@ public final class ClassWriter extends ClassVisitor {
         while (mb != null) {
             ++nbMethods;
             size += mb.getSize();
-            mb = (MethodWriter) mb.mv;
+            mb = mb.mw;
         }
 
         int attributeCount = 0;
@@ -929,9 +921,10 @@ public final class ClassWriter extends ClassVisitor {
 
         out.putShort(nbFields);
         fb = firstField;
+
         while (fb != null) {
             fb.put(out);
-            fb = (FieldWriter) fb.fv;
+            fb = fb.fw;
         }
 
         out.putShort(nbMethods);
@@ -939,7 +932,7 @@ public final class ClassWriter extends ClassVisitor {
 
         while (mb != null) {
             mb.put(out);
-            mb = (MethodWriter) mb.mv;
+            mb = mb.mw;
         }
 
         out.putShort(attributeCount);
