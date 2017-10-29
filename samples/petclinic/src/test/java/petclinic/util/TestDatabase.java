@@ -44,7 +44,6 @@ public class TestDatabase
     */
    public final void refresh(BaseEntity entity)
    {
-      em.flush();
       em.refresh(entity);
    }
 
