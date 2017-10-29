@@ -65,11 +65,9 @@ public final class Attribute
      * <tt>len</tt> bytes starting at the given offset, in the given class reader.
      *
      * @param cr the class that contains the attribute to be read.
-     * @param off
-     *            index of the first byte of the attribute's content in
+     * @param off index of the first byte of the attribute's content in
      *            {@link ClassReader#b cr.b}. The 6 attribute header bytes,
-     *            containing the type and the length of the attribute, are not
-     *            taken into account here.
+     *            containing the type and the length of the attribute, are not taken into account here.
      * @param len the length of the attribute's content.
      *
      * @return a <i>new</i> {@link Attribute} object corresponding to the given bytes.

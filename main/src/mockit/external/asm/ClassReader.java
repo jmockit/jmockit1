@@ -728,7 +728,6 @@ public final class ClassReader
         int exception = 0;
         exceptions = null;
         String signature = null;
-        int methodParameters = 0;
         int anns = 0;
         int ianns = 0;
         int annDefault = 0;
@@ -773,9 +772,6 @@ public final class ClassReader
             else if ("RuntimeInvisibleParameterAnnotations".equals(attrName)) {
                 invParamAnns = u + 8;
             }
-            else if ("MethodParameters".equals(attrName)) {
-                methodParameters = u + 8;
-            }
             else {
                 readAttribute(u, attrName);
             }
@@ -791,7 +787,6 @@ public final class ClassReader
             return u;
         }
 
-        readMethodParameters(mv, c, methodParameters);
         readAnnotationDefaultValue(mv, c, annDefault);
         readAnnotationValues(mv, c, anns, true);
         readAnnotationValues(mv, c, ianns, false);
@@ -831,16 +826,6 @@ public final class ClassReader
         if (attr != null) {
             attr.next = attributes;
             attributes = attr;
-        }
-    }
-
-    private void readMethodParameters(MethodVisitor mv, char[] c, int methodParameters) {
-        if (methodParameters != 0) {
-            for (int i = b[methodParameters] & 0xFF, v = methodParameters + 1; i > 0; --i, v = v + 4) {
-                String name = readUTF8(v, c);
-                int access = readUnsignedShort(v + 2);
-                mv.visitParameter(name, access);
-            }
         }
     }
 
@@ -940,14 +925,14 @@ public final class ClassReader
      * @param u the start offset of the code attribute in the class file.
      */
     private void readCode(MethodVisitor mv, Context context, int u) {
-        // reads the header
+        // Reads the header.
         char[] c = context.buffer;
         int maxStack = readUnsignedShort(u);
         int maxLocals = readUnsignedShort(u + 2);
         int codeLength = readInt(u + 4);
         u += 8;
 
-        // reads the bytecode to find the labels
+        // Reads the bytecode to find the labels.
         int codeStart = u;
         int codeEnd = u + codeLength;
 
@@ -956,12 +941,12 @@ public final class ClassReader
 
         u = readAllLabelsInCodeBlock(context, u, codeLength, codeStart, codeEnd);
 
-        // reads the try catch entries to find the labels, and also visits them
+        // Reads the try catch entries to find the labels, and also visits them.
         u = readTryCatchBlocks(mv, u, c, labels);
 
         u += 2;
 
-        // reads the code attributes
+        // Reads the code attributes.
         int varTable = 0;
         int varTypeTable = 0;
 
@@ -1143,7 +1128,7 @@ public final class ClassReader
         while (u < codeEnd) {
             int offset = u - codeStart;
 
-            // visits the label and line number for this offset, if any
+            // Visits the label and line number for this offset, if any.
             Label l = labels[offset];
 
             if (l != null) {
@@ -1154,7 +1139,7 @@ public final class ClassReader
                 }
             }
 
-            // visits the instruction at this offset
+            // Visits the instruction at this offset.
             int opcode = b[u] & 0xFF;
 
             switch (TYPE[opcode]) {
@@ -1196,9 +1181,10 @@ public final class ClassReader
 
                     break;
                 case TABL_INSN: {
-                    // skips 0 to 3 padding bytes
+                    // Skips 0 to 3 padding bytes.
                     u = u + 4 - (offset & 3);
-                    // reads instruction
+
+                    // Reads instruction.
                     int label = offset + readInt(u);
                     int min = readInt(u + 4);
                     int max = readInt(u + 8);
@@ -1214,9 +1200,10 @@ public final class ClassReader
                     break;
                 }
                 case LOOK_INSN: {
-                    // skips 0 to 3 padding bytes
+                    // Skips 0 to 3 padding bytes.
                     u = u + 4 - (offset & 3);
-                    // reads instruction
+
+                    // Reads instruction.
                     int label = offset + readInt(u);
                     int len = readInt(u + 4);
                     int[] keys = new int[len];
@@ -1408,14 +1395,13 @@ public final class ClassReader
     /**
      * Reads the values of an annotation and makes the given visitor visit them.
      *
-     * @param v
-     *            the start offset in {@link #b b} of the values to be read
-     *            (including the unsigned short that gives the number of values).
-     * @param buf
-     *            buffer to be used to call {@link #readUTF8 readUTF8},
+     * @param v the start offset in {@link #b b} of the values to be read
+     *          (including the unsigned short that gives the number of values).
+     * @param buf buffer to be used to call {@link #readUTF8 readUTF8},
      *            {@link #readClass(int,char[]) readClass} or {@link #readConst readConst}.
      * @param named if the annotation values are named or not.
      * @param av the visitor that must visit the values.
+     *
      * @return the end offset of the annotation values.
      */
     private int readAnnotationValues(int v, char[] buf, boolean named, AnnotationVisitor av) {
@@ -1443,17 +1429,13 @@ public final class ClassReader
     /**
      * Reads a value of an annotation and makes the given visitor visit it.
      *
-     * @param v
-     *            the start offset in {@link #b b} of the value to be read
-     *            (<i>not including the value name constant pool index</i>).
-     * @param buf
-     *            buffer to be used to call {@link #readUTF8 readUTF8},
-     *            {@link #readClass(int,char[]) readClass} or {@link #readConst
-     *            readConst}.
-     * @param name
-     *            the name of the value to be read.
-     * @param av
-     *            the visitor that must visit the value.
+     * @param v the start offset in {@link #b b} of the value to be read
+     *          (<i>not including the value name constant pool index</i>).
+     * @param buf buffer to be used to call {@link #readUTF8 readUTF8},
+     *            {@link #readClass(int,char[]) readClass} or {@link #readConst readConst}.
+     * @param name the name of the value to be read.
+     * @param av the visitor that must visit the value.
+     *
      * @return the end offset of the annotation value.
      */
     private int readAnnotationValue(int v, char[] buf, String name, AnnotationVisitor av) {
@@ -1605,16 +1587,13 @@ public final class ClassReader
     }
 
     /**
-     * Returns the label corresponding to the given offset. The default
-     * implementation of this method creates a label for the given offset if it
-     * has not been already created.
+     * Returns the label corresponding to the given offset. The default implementation of this method creates a label
+     * for the given offset if it has not been already created.
      *
-     * @param offset
-     *            a bytecode offset in a method.
-     * @param labels
-     *            the already created labels, indexed by their offset. If a
-     *            label already exists for offset this method must not create a
-     *            new one. Otherwise it must store the new label in this array.
+     * @param offset a bytecode offset in a method.
+     * @param labels the already created labels, indexed by their offset. If a label already exists for offset this
+     *               method must not create a new one. Otherwise it must store the new label in this array.
+     *
      * @return a non null Label, which must be equal to labels[offset].
      */
     private Label readLabel(int offset, Label[] labels) {
@@ -1627,8 +1606,6 @@ public final class ClassReader
 
     /**
      * Returns the start index of the attribute_info structure of this class.
-     *
-     * @return the start index of the attribute_info structure of this class.
      */
     private int getAttributes() {
         // skips the header
@@ -1661,17 +1638,16 @@ public final class ClassReader
      * Reads an attribute in {@link #b b}.
      *
      * @param type the type of the attribute.
-     * @param off
-     *            index of the first byte of the attribute's content in
-     *            {@link #b b}. The 6 attribute header bytes, containing the
-     *            type and the length of the attribute, are not taken into
+     * @param off index of the first byte of the attribute's content in {@link #b b}.
+     *            The 6 attribute header bytes, containing the type and the length of the attribute, are not taken into
      *            account here (they have already been read).
      * @param len the length of the attribute's content.
      *
-     * @return the attribute that has been read, or <tt>null</tt> to skip this attribute.
+     * @return the attribute that has been read.
      */
     private Attribute readAttribute(String type, int off, int len) {
-        return new Attribute(type).read(this, off, len);
+        Attribute attribute = new Attribute(type);
+        return attribute.read(this, off, len);
     }
 
     /**

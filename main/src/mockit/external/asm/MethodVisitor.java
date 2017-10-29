@@ -60,18 +60,8 @@ public class MethodVisitor
     protected MethodVisitor() {}
 
     // -------------------------------------------------------------------------
-    // Parameters, annotations and non standard attributes
+    // Annotations and non standard attributes
     // -------------------------------------------------------------------------
-
-    /**
-     * Visits a parameter of this method.
-     * 
-     * @param name parameter name or null if none is provided.
-     * @param access
-     *            the parameter's access flags, only <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> or/and
-     *            <tt>ACC_MANDATED</tt> are allowed (see {@link Opcodes}).
-     */
-    public void visitParameter(String name, int access) {}
 
     /**
      * Visits the default value of this annotation interface method.

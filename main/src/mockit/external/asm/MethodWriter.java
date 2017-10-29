@@ -35,9 +35,8 @@ import static mockit.external.asm.ClassWriter.LONG;
 import static mockit.external.asm.Opcodes.*;
 
 /**
- * A {@link MethodVisitor} that generates methods in bytecode form. Each visit
- * method of this class appends the bytecode corresponding to the visited
- * instruction to a byte vector, in the order these methods are called.
+ * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
+ * corresponding to the visited instruction to a byte vector, in the order these methods are called.
  * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -50,60 +49,54 @@ public final class MethodWriter extends MethodVisitor
     static final int ACC_CONSTRUCTOR = 0x80000;
 
     /**
-     * Frame has exactly the same locals as the previous stack map frame and
-     * number of stack items is zero.
+     * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
      */
     static final int SAME_FRAME = 0; // to 63 (0-3f)
 
     /**
-     * Frame has exactly the same locals as the previous stack map frame and
-     * number of stack items is 1
+     * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
      */
     static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
 
     /**
-     * Frame has exactly the same locals as the previous stack map frame and
-     * number of stack items is 1. Offset is bigger then 63;
+     * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
+     * Offset is bigger then 63.
      */
     static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
 
     /**
-     * Frame where current locals are the same as the locals in the previous
-     * frame, except that the k last locals are absent. The value of k is given
-     * by the formula 251-frame_type.
+     * Frame where current locals are the same as the locals in the previous frame, except that the k last locals are
+     * absent. The value of k is given by the formula 251-frame_type.
      */
     static final int CHOP_FRAME = 248; // to 250 (f8-fA)
 
     /**
-     * Frame has exactly the same locals as the previous stack map frame and
-     * number of stack items is zero. Offset is bigger then 63;
+     * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
+     * Offset is bigger then 63.
      */
     static final int SAME_FRAME_EXTENDED = 251; // fb
 
     /**
-     * Frame where current locals are the same as the locals in the previous
-     * frame, except that k additional locals are defined. The value of k is
-     * given by the formula frame_type-251.
+     * Frame where current locals are the same as the locals in the previous frame, except that k additional locals are
+     * defined. The value of k is given by the formula frame_type-251.
      */
     static final int APPEND_FRAME = 252; // to 254 // fc-fe
 
     /**
-     * Full frame
+     * Full frame.
      */
     static final int FULL_FRAME = 255; // ff
 
     /**
-     * Indicates that the stack map frames must be recomputed from scratch. In
-     * this case the maximum stack size and number of local variables is also
-     * recomputed from scratch.
+     * Indicates that the stack map frames must be recomputed from scratch. In this case the maximum stack size and
+     * number of local variables is also recomputed from scratch.
      * 
      * @see #compute
      */
     private static final int FRAMES = 0;
 
     /**
-     * Indicates that the maximum stack size and number of local variables must
-     * be automatically computed.
+     * Indicates that the maximum stack size and number of local variables must be automatically computed.
      * 
      * @see #compute
      */
@@ -132,14 +125,12 @@ public final class MethodWriter extends MethodVisitor
     private int access;
 
     /**
-     * The index of the constant pool item that contains the name of this
-     * method.
+     * The index of the constant pool item that contains the name of this method.
      */
     private final int name;
 
     /**
-     * The index of the constant pool item that contains the descriptor of this
-     * method.
+     * The index of the constant pool item that contains the descriptor of this method.
      */
     private final int desc;
 
@@ -154,18 +145,15 @@ public final class MethodWriter extends MethodVisitor
     String signature;
 
     /**
-     * If not zero, indicates that the code of this method must be copied from
-     * the ClassReader associated to this writer in <code>cw.cr</code>. More
-     * precisely, this field gives the index of the first byte to copied from
+     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
+     * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
      * <code>cw.cr.b</code>.
      */
     int classReaderOffset;
 
     /**
-     * If not zero, indicates that the code of this method must be copied from
-     * the ClassReader associated to this writer in <code>cw.cr</code>. More
-     * precisely, this field gives the number of bytes to copied from
-     * <code>cw.cr.b</code>.
+     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
+     * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.b</code>.
      */
     int classReaderLength;
 
@@ -175,9 +163,8 @@ public final class MethodWriter extends MethodVisitor
     int exceptionCount;
 
     /**
-     * The exceptions that can be thrown by this method. More precisely, this
-     * array contains the indexes of the constant pool items that contain the
-     * internal names of these exception classes.
+     * The exceptions that can be thrown by this method. More precisely, this array contains the indexes of the constant
+     * pool items that contain the internal names of these exception classes.
      */
     int[] exceptions;
 
@@ -247,8 +234,7 @@ public final class MethodWriter extends MethodVisitor
     private ByteVector stackMap;
 
     /**
-     * The offset of the last frame that was written in the StackMapTable
-     * attribute.
+     * The offset of the last frame that was written in the StackMapTable attribute.
      */
     private int previousFrameOffset;
 
@@ -284,16 +270,6 @@ public final class MethodWriter extends MethodVisitor
      * The last element in the exception handler list.
      */
     private Handler lastHandler;
-
-    /**
-     * Number of entries in the MethodParameters attribute.
-     */
-    private int methodParametersCount;
-
-    /**
-     * The MethodParameters attribute.
-     */
-    private ByteVector methodParameters;
 
     /**
      * Number of entries in the LocalVariableTable attribute.
@@ -473,16 +449,6 @@ public final class MethodWriter extends MethodVisitor
     // ------------------------------------------------------------------------
     // Implementation of the MethodVisitor abstract class
     // ------------------------------------------------------------------------
-
-    @Override
-    public void visitParameter(String name, int access) {
-        if (methodParameters == null) {
-            methodParameters = new ByteVector();
-        }
-
-        ++methodParametersCount;
-        methodParameters.putShort((name == null) ? 0 : cw.newUTF8(name)).putShort(access);
-    }
 
     @Override
     public AnnotationVisitor visitAnnotationDefault() {
@@ -2158,8 +2124,6 @@ public final class MethodWriter extends MethodVisitor
 
     /**
      * Returns the size of the bytecode of this method.
-     * 
-     * @return the size of the bytecode of this method.
      */
     int getSize() {
         if (classReaderOffset != 0) {
@@ -2231,11 +2195,6 @@ public final class MethodWriter extends MethodVisitor
             size += 8;
         }
 
-        if (methodParameters != null) {
-            cw.newUTF8("MethodParameters");
-            size += 7 + methodParameters.length;
-        }
-
         if (annotationDefault != null) {
             cw.newUTF8("AnnotationDefault");
             size += 6 + annotationDefault.length;
@@ -2285,6 +2244,7 @@ public final class MethodWriter extends MethodVisitor
         int mask =
            ACC_CONSTRUCTOR | ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE |
           ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+
         out.putShort(access & ~mask).putShort(name).putShort(desc);
 
         if (classReaderOffset != 0) {
@@ -2313,10 +2273,6 @@ public final class MethodWriter extends MethodVisitor
         }
 
         if (signature != null) {
-            ++attributeCount;
-        }
-
-        if (methodParameters != null) {
             ++attributeCount;
         }
 
@@ -2475,12 +2431,6 @@ public final class MethodWriter extends MethodVisitor
             out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(cw.newUTF8(signature));
         }
 
-        if (methodParameters != null) {
-            out.putShort(cw.newUTF8("MethodParameters"));
-            out.putInt(methodParameters.length + 1).putByte(methodParametersCount);
-            out.putByteArray(methodParameters.data, 0, methodParameters.length);
-        }
-
         if (annotationDefault != null) {
             out.putShort(cw.newUTF8("AnnotationDefault"));
             out.putInt(annotationDefault.length);
@@ -2517,19 +2467,15 @@ public final class MethodWriter extends MethodVisitor
     // ------------------------------------------------------------------------
 
     /**
-     * Resizes and replaces the temporary instructions inserted by
-     * {@link Label#resolve} for wide forward jumps, while keeping jump offsets
-     * and instruction addresses consistent. This may require to resize other
-     * existing instructions, or even to introduce new instructions: for
-     * example, increasing the size of an instruction by 2 at the middle of a
-     * method can increases the offset of an IFEQ instruction from 32766 to
-     * 32768, in which case IFEQ 32766 must be replaced with IFNEQ 8 GOTO_W
-     * 32765. This, in turn, may require to increase the size of another jump
+     * Resizes and replaces the temporary instructions inserted by {@link Label#resolve} for wide forward jumps, while
+     * keeping jump offsets and instruction addresses consistent. This may require to resize other existing
+     * instructions, or even to introduce new instructions: for example, increasing the size of an instruction by 2 at
+     * the middle of a method can increases the offset of an IFEQ instruction from 32766 to 32768, in which case IFEQ
+     * 32766 must be replaced with IFNEQ 8 GOTO_W 32765. This, in turn, may require to increase the size of another jump
      * instruction, and so on... All these operations are handled automatically by this method.
      * <p>
-     * <i>This method must be called after all the method that is being built
-     * has been visited</i>. In particular, the {@link Label Label} objects used
-     * to construct the method are no longer valid after this method has been called.
+     * <i>This method must be called after all the method that is being built has been visited</i>. In particular, the
+     * {@link Label Label} objects used to construct the method are no longer valid after this method has been called.
      */
     private void resizeInstructions() {
         byte[] b = code.data; // bytecode of the method
@@ -2673,8 +2619,7 @@ public final class MethodWriter extends MethodVisitor
         int label;
 
         if (opcode > 201) {
-            // converts temporary opcodes 202 to 217, 218 and 219 to
-            // IFEQ ... JSR (inclusive), IFNULL and IFNONNULL
+            // Converts temporary opcodes 202 to 217, 218 and 219 to IFEQ ... JSR (inclusive), IFNULL and IFNONNULL.
             opcode = opcode < 218 ? opcode - 49 : opcode - 20;
             label = u + readUnsignedShort(b, u + 1);
         }
@@ -2748,9 +2693,8 @@ public final class MethodWriter extends MethodVisitor
                 break;
             case LABEL_INSN:
                 if (opcode > 201) {
-                    // changes temporary opcodes 202 to 217 (inclusive), 218
-                    // and 219 to IFEQ ... JSR (inclusive), IFNULL and
-                    // IFNONNULL
+                    // Changes temporary opcodes 202 to 217 (inclusive), 218 and 219 to IFEQ ... JSR (inclusive),
+                    // IFNULL and IFNONNULL.
                     opcode = opcode < 218 ? opcode - 49 : opcode - 20;
                     label = u + readUnsignedShort(b, u + 1);
                 }
@@ -2761,9 +2705,8 @@ public final class MethodWriter extends MethodVisitor
                 newOffset = getNewOffset(allIndexes, allSizes, u, label);
 
                 if (resize[u]) {
-                    // replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx
-                    // <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is
-                    // the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ)
+                    // Replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where
+                    // IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ)
                     // and where <l'> designates the instruction just after the GOTO_W.
                     if (opcode == GOTO) {
                         newCode.putByte(200); // GOTO_W
@@ -2796,10 +2739,11 @@ public final class MethodWriter extends MethodVisitor
                 u += 5;
                 break;
             case TABL_INSN:
-                // skips 0 to 3 padding bytes
+                // Skips 0 to 3 padding bytes.
                 v = u;
                 u = u + 4 - (v & 3);
-                // reads and copies instruction
+
+                // Reads and copies instruction.
                 newCode.putByte(TABLESWITCH);
                 newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
                 label = v + readInt(b, u);
@@ -2822,10 +2766,11 @@ public final class MethodWriter extends MethodVisitor
 
                 break;
             case LOOK_INSN:
-                // skips 0 to 3 padding bytes
+                // Skips 0 to 3 padding bytes.
                 v = u;
                 u = u + 4 - (v & 3);
-                // reads and copies instruction
+
+                // Reads and copies instruction.
                 newCode.putByte(LOOKUPSWITCH);
                 newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
                 label = v + readInt(b, u);
@@ -2910,7 +2855,7 @@ public final class MethodWriter extends MethodVisitor
                 l = l.successor;
             }
 
-            // Update the offsets in the uninitialized types
+            // Update the offsets in the uninitialized types.
             for (int i = 0; i < cw.typeTable.length; ++i) {
                 Item item = cw.typeTable[i];
 

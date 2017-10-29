@@ -22,23 +22,8 @@ public class WrappingMethodVisitor extends MethodVisitor
     protected WrappingMethodVisitor(@Nonnull MethodVisitor mv) { this.mv = mv; }
 
     // -------------------------------------------------------------------------
-    // Parameters, annotations and non standard attributes
+    // Annotations and non standard attributes
     // -------------------------------------------------------------------------
-
-    /**
-     * Visits a parameter of this method.
-     * 
-     * @param name
-     *            parameter name or null if none is provided.
-     * @param access
-     *            the parameter's access flags, only <tt>ACC_FINAL</tt>,
-     *            <tt>ACC_SYNTHETIC</tt> or/and <tt>ACC_MANDATED</tt> are
-     *            allowed (see {@link Opcodes}).
-     */
-    @Override
-    public void visitParameter(String name, int access) {
-        mv.visitParameter(name, access);
-    }
 
     /**
      * Visits the default value of this annotation interface method.
@@ -89,9 +74,6 @@ public class WrappingMethodVisitor extends MethodVisitor
 
     /**
      * Visits a non standard attribute of this method.
-     * 
-     * @param attr
-     *            an attribute.
      */
     @Override
     public void visitAttribute(Attribute attr) {
@@ -107,27 +89,24 @@ public class WrappingMethodVisitor extends MethodVisitor
     }
 
     /**
-     * Visits the current state of the local variables and operand stack
-     * elements. This method must(*) be called <i>just before</i> any
-     * instruction <b>i</b> that follows an unconditional branch instruction
-     * such as GOTO or THROW, that is the target of a jump instruction, or that
-     * starts an exception handler block. The visited types must describe the
-     * values of the local variables and of the operand stack elements <i>just
+     * Visits the current state of the local variables and operand stack elements.
+     * This method must(*) be called <i>just before</i> any instruction <b>i</b> that follows an unconditional branch
+     * instruction such as GOTO or THROW, that is the target of a jump instruction, or that starts an exception handler
+     * block.
+     * The visited types must describe the values of the local variables and of the operand stack elements <i>just
      * before</i> <b>i</b> is executed.<br>
      * <br>
      * (*) this is mandatory only for classes whose version is greater than or
      * equal to {@link Opcodes#V1_6 V1_6}. <br>
      * <br>
-     * The frames of a method must be given either in expanded form, or in
-     * compressed form (all frames must use the same format, i.e. you must not
-     * mix expanded and compressed frames within a single method):
+     * The frames of a method must be given either in expanded form, or in compressed form (all frames must use the same
+     * format, i.e. you must not mix expanded and compressed frames within a single method):
      * <ul>
      * <li>In expanded form, all frames must have the F_NEW type.</li>
-     * <li>In compressed form, frames are basically "deltas" from the state of
-     * the previous frame:
+     * <li>In compressed form, frames are basically "deltas" from the state of the previous frame:
      * <ul>
-     * <li>{@link Opcodes#F_SAME} representing frame with exactly the same
-     * locals as the previous frame and with the empty stack.</li>
+     * <li>{@link Opcodes#F_SAME} representing frame with exactly the same locals as the previous frame and with the
+     * empty stack.</li>
      * <li>{@link Opcodes#F_SAME1} representing frame with exactly the same
      * locals as the previous frame and with single value on the stack (
      * <code>nStack</code> is 1 and <code>stack[0]</code> contains value for the
@@ -144,42 +123,26 @@ public class WrappingMethodVisitor extends MethodVisitor
      * </li>
      * </ul>
      * <br>
-     * In both cases the first frame, corresponding to the method's parameters
-     * and access flags, is implicit and must not be visited. Also, it is
-     * illegal to visit two or more frames for the same code location (i.e., at
-     * least one instruction must be visited between two calls to visitFrame).
+     * In both cases the first frame, corresponding to the method's parameters and access flags, is implicit and must
+     * not be visited.
+     * Also, it is illegal to visit two or more frames for the same code location (i.e., at least one instruction must
+     * be visited between two calls to visitFrame).
      * 
-     * @param type
-     *            the type of this stack map frame. Must be
-     *            {@link Opcodes#F_NEW} for expanded frames, or
-     *            {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND},
-     *            {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
-     *            {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for
-     *            compressed frames.
-     * @param nLocal
-     *            the number of local variables in the visited frame.
-     * @param local
-     *            the local variable types in this frame. This array must not be
-     *            modified. Primitive types are represented by
-     *            {@link Opcodes#TOP}, {@link Opcodes#INTEGER},
-     *            {@link Opcodes#FLOAT}, {@link Opcodes#LONG},
-     *            {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
-     *            {@link Opcodes#UNINITIALIZED_THIS} (long and double are
-     *            represented by a single element). Reference types are
-     *            represented by String objects (representing internal names),
-     *            and uninitialized types by Label objects (this label
-     *            designates the NEW instruction that created this uninitialized
-     *            value).
-     * @param nStack
-     *            the number of operand stack elements in the visited frame.
-     * @param stack
-     *            the operand stack types in this frame. This array must not be
-     *            modified. Its content has the same format as the "local"
-     *            array.
-     * @throws IllegalStateException
-     *             if a frame is visited just after another one, without any
-     *             instruction between the two (unless this frame is a
-     *             Opcodes#F_SAME frame, in which case it is silently ignored).
+     * @param type the type of this stack map frame. Must be {@link Opcodes#F_NEW} for expanded frames, or
+     *            {@link Opcodes#F_FULL}, {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
+     *            {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
+     * @param nLocal the number of local variables in the visited frame.
+     * @param local the local variable types in this frame. This array must not be modified.
+     *        Primitive types are represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT},
+     *        {@link Opcodes#LONG}, {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or {@link Opcodes#UNINITIALIZED_THIS}
+     *        (long and double are represented by a single element).
+     *        Reference types are represented by String objects (representing internal names), and uninitialized types
+     *        by Label objects (this label designates the NEW instruction that created this uninitialized value).
+     * @param nStack the number of operand stack elements in the visited frame.
+     * @param stack the operand stack types in this frame. This array must not be modified.
+     *              Its content has the same format as the "local" array.
+     * @throws IllegalStateException if a frame is visited just after another one, without any instruction between the
+     *         two (unless this frame is a Opcodes#F_SAME frame, in which case it is silently ignored).
      */
     @Override
     public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
@@ -218,9 +181,7 @@ public class WrappingMethodVisitor extends MethodVisitor
     /**
      * Visits an instruction with a single int operand.
      * 
-     * @param opcode
-     *            the opcode of the instruction to be visited. This opcode is
-     *            either BIPUSH, SIPUSH or NEWARRAY.
+     * @param opcode the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH or NEWARRAY.
      * @param operand
      *            the operand of the instruction to be visited.<br>
      *            When opcode is BIPUSH, operand value should be between
