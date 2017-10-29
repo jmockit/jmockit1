@@ -3,6 +3,8 @@ package petclinic.util;
 import java.io.*;
 import javax.persistence.*;
 
+import static javax.persistence.GenerationType.*;
+
 /**
  * Base class for all entity types, containing the id property, which is automatically generated.
  */
@@ -10,7 +12,7 @@ import javax.persistence.*;
 public class BaseEntity implements Serializable
 {
    @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @GeneratedValue(strategy = IDENTITY)
    protected Integer id;
 
    public Integer getId() { return id; }
@@ -34,6 +36,6 @@ public class BaseEntity implements Serializable
    @Override
    public final int hashCode()
    {
-      return id == null ? 0 : id.hashCode();
+      return id == null ? -1 : id;
    }
 }
