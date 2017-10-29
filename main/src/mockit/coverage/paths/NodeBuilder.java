@@ -74,7 +74,6 @@ public final class NodeBuilder
    {
       if (conditional) {
          SimpleFork newFork = new SimpleFork(line);
-         assert currentSimpleFork == null;
          connectNodes(targetBlock, newFork);
          currentSimpleFork = newFork;
          potentiallyTrivialJump = 1;
