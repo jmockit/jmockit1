@@ -13,7 +13,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.faking.*;
-import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
 final class ClassLoadingBridgeFields
@@ -82,7 +81,7 @@ final class ClassLoadingBridgeFields
             }
          };
 
-         classReader.accept(cv, SKIP_FRAMES);
+         classReader.accept(cv, 0);
          return cw.toByteArray();
       }
    }

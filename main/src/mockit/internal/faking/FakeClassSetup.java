@@ -14,7 +14,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import static mockit.external.asm.ClassReader.*;
 
 public final class FakeClassSetup
 {
@@ -95,7 +94,7 @@ public final class FakeClassSetup
       }
 
       FakedClassModifier modifier = new FakedClassModifier(rcReader, classToModify, fake, fakeMethods);
-      rcReader.accept(modifier, SKIP_FRAMES);
+      rcReader.accept(modifier, 0);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }

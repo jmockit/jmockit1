@@ -73,7 +73,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
 
       try {
-         cr.accept(superTypeCollector, SKIP_DEBUG);
+         cr.accept(superTypeCollector, SKIP_CODE + SKIP_DEBUG);
       }
       catch (VisitInterruptedException ignore) {
          if (superTypeCollector.classExtendsCapturedType) {
@@ -90,7 +90,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String className, @Nonnull ClassReader cr)
    {
       ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedType.baseType, typeMetadata);
-      cr.accept(modifier, SKIP_FRAMES);
+      cr.accept(modifier, 0);
 
       ClassIdentification classId = new ClassIdentification(loader, className);
       byte[] originalBytecode = cr.b;
@@ -177,7 +177,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          ClassReader cr = ClassFile.createClassFileReader(loader, superName);
 
          try {
-            cr.accept(this, SKIP_DEBUG);
+            cr.accept(this, SKIP_CODE + SKIP_DEBUG);
          }
          catch (VisitInterruptedException e) {
             superTypesSearched.put(superName, classExtendsCapturedType);

@@ -111,7 +111,7 @@ final class EndOfBlockModifier extends WrappingClassVisitor
 
          ClassReader cr = ClassFile.createClassFileReader(loader, classOfInterest);
 
-         try { cr.accept(this, SKIP_DEBUG + SKIP_FRAMES); } catch (VisitInterruptedException ignore) {}
+         try { cr.accept(this, SKIP_DEBUG); } catch (VisitInterruptedException ignore) {}
 
          return classExtendsBaseSubclass;
       }

@@ -14,7 +14,6 @@ import mockit.internal.capturing.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.reflection.FieldReflection.*;
 
 public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
@@ -91,7 +90,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 
       MockedClassModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
       modifier.useDynamicMocking(true);
-      classReader.accept(modifier, SKIP_FRAMES);
+      classReader.accept(modifier, 0);
       byte[] modifiedClassfile = modifier.toByteArray();
 
       Startup.redefineMethods(mockedClass, modifiedClassfile);

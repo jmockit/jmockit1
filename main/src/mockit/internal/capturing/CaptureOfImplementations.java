@@ -10,7 +10,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import static mockit.external.asm.ClassReader.*;
 
 public abstract class CaptureOfImplementations<M>
 {
@@ -51,7 +50,7 @@ public abstract class CaptureOfImplementations<M>
          TestRun.ensureThatClassIsInitialized(realClass);
 
          BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseType, typeMetadata);
-         classReader.accept(modifier, SKIP_FRAMES);
+         classReader.accept(modifier, 0);
 
          if (modifier.wasModified()) {
             byte[] modifiedClass = modifier.toByteArray();

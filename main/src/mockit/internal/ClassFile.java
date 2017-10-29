@@ -171,6 +171,6 @@ public final class ClassFile
    {
       byte[] classfile = CachedClassfiles.getClassfile(classDesc);
       ClassReader cr = classfile != null ? new ClassReader(classfile) : readFromFile(classDesc);
-      cr.accept(visitor, SKIP_DEBUG + SKIP_FRAMES);
+      cr.accept(visitor, SKIP_DEBUG);
    }
 }

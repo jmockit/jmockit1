@@ -11,7 +11,6 @@ import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.startup.*;
-import static mockit.external.asm.ClassReader.*;
 
 public final class ClassModification
 {
@@ -139,7 +138,7 @@ public final class ClassModification
    private byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
    {
       CoverageModifier modifier = new CoverageModifier(cr, reprocessing);
-      cr.accept(modifier, SKIP_FRAMES);
+      cr.accept(modifier, 0);
       return modifier.toByteArray();
    }
 

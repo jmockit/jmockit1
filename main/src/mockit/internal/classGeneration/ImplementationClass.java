@@ -10,7 +10,6 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
 
 /**
  * Allows the creation of new implementation classes for interfaces and abstract classes.
@@ -40,7 +39,7 @@ public abstract class ImplementationClass<T>
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(sourceClass);
 
       ClassVisitor modifier = createMethodBodyGenerator(classReader);
-      classReader.accept(modifier, SKIP_FRAMES);
+      classReader.accept(modifier, 0);
 
       return defineNewClass(modifier);
    }

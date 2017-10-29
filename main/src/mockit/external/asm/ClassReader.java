@@ -57,14 +57,6 @@ public final class ClassReader
     public static final int SKIP_DEBUG = 2;
 
     /**
-     * Flag to skip the stack map frames in the class. If this flag is set the stack map frames of the class is not
-     * visited, i.e. the {@link MethodVisitor#visitFrame visitFrame} method will not be called.
-     * This flag is useful when the {@link ClassWriter#computeFrames} option is used:
-     * it avoids visiting frames that will be ignored and recomputed from scratch in the class writer.
-     */
-    public static final int SKIP_FRAMES = 4;
-
-    /**
      * The class to be parsed. <em>The content of this array must not be modified.</em>
      */
     public final byte[] b;
@@ -227,9 +219,6 @@ public final class ClassReader
 
     /**
      * Copies the constant pool data into the given {@link ClassWriter}.
-     * Should be called before the {@link #accept(ClassVisitor,int)} method.
-     *
-     * @param classWriter the {@link ClassWriter} to copy constant pool into.
      */
     void copyPool(ClassWriter classWriter) {
         char[] buf = new char[maxStringLength];
@@ -315,9 +304,6 @@ public final class ClassReader
 
     /**
      * Copies the bootstrap method data into the given {@link ClassWriter}.
-     * Should be called before the {@link #accept(ClassVisitor,int)} method.
-     *
-     * @param classWriter the {@link ClassWriter} to copy bootstrap methods into.
      */
     private void copyBootstrapMethods(ClassWriter classWriter, Item[] items, char[] c) {
         // Finds the "BootstrapMethods" attribute.
@@ -442,7 +428,7 @@ public final class ClassReader
      *
      * @param classVisitor the visitor that must visit this class.
      * @param flags option flags that can be used to modify the default behavior of this class.
-     *              See {@link #SKIP_DEBUG}, {@link #SKIP_CODE}.
+     *              See {@link #SKIP_CODE}, {@link #SKIP_DEBUG}.
      */
     public void accept(ClassVisitor classVisitor, int flags) {
         char[] c = new char[maxStringLength]; // buffer used to read strings

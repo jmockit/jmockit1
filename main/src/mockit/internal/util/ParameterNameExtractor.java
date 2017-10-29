@@ -9,7 +9,6 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
-import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
 public final class ParameterNameExtractor extends ClassVisitor
@@ -33,7 +32,7 @@ public final class ParameterNameExtractor extends ClassVisitor
       if (!ParameterNames.hasNamesForClass(classDesc)) {
          // Reads class from file, since JRE 1.6 (but not 1.7) discards parameter names on retransformation.
          ClassReader cr = ClassFile.readFromFile(classDesc);
-         cr.accept(this, SKIP_FRAMES);
+         cr.accept(this, 0);
       }
 
       return classDesc;

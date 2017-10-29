@@ -38,7 +38,7 @@ final class FakeMethodCollector extends ClassVisitor
 
       do {
          ClassReader mcReader = ClassFile.readFromFile(classToCollectFakesFrom);
-         mcReader.accept(this, SKIP_CODE + SKIP_FRAMES);
+         mcReader.accept(this, SKIP_CODE);
          classToCollectFakesFrom = classToCollectFakesFrom.getSuperclass();
          collectingFromSuperClass = true;
       }

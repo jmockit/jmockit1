@@ -856,7 +856,7 @@ public final class ClassWriter extends ClassVisitor
             computeMaxs = false;
             computeFrames = true;
             invalidFrames = false;
-            new ClassReader(out.data).accept(this, ClassReader.SKIP_FRAMES);
+            new ClassReader(out.data).accept(this, 0);
             return toByteArray();
         }
 

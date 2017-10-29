@@ -13,7 +13,6 @@ import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.external.asm.*;
 import static mockit.coverage.Metrics.*;
-import static mockit.external.asm.ClassReader.*;
 import static mockit.external.asm.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
@@ -180,7 +179,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
       if (innerCR != null) {
          CoverageModifier innerClassModifier = new CoverageModifier(innerCR, this, innerName);
-         innerCR.accept(innerClassModifier, SKIP_FRAMES);
+         innerCR.accept(innerClassModifier, 0);
          INNER_CLASS_MODIFIERS.put(innerClassName, innerClassModifier);
       }
    }

@@ -19,7 +19,6 @@ import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import mockit.internal.reflection.EmptyProxy.Impl;
-import static mockit.external.asm.ClassReader.*;
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -156,7 +155,7 @@ class BaseTypeRedefinition
    }
 
    @Nonnull
-   private MockedClassModifier createClassModifier(@Nonnull ClassLoader loader, @Nonnull ClassReader classReader)
+   private MockedClassModifier createClassModifier(@Nullable ClassLoader loader, @Nonnull ClassReader classReader)
    {
       MockedClassModifier modifier = new MockedClassModifier(loader, classReader, typeMetadata);
       configureClassModifier(modifier);
@@ -226,7 +225,7 @@ class BaseTypeRedefinition
    private void redefineClass(
       @Nonnull Class<?> realClass, @Nonnull ClassReader classReader, @Nonnull MockedClassModifier modifier)
    {
-      classReader.accept(modifier, SKIP_FRAMES);
+      classReader.accept(modifier, 0);
 
       if (modifier.wasModified()) {
          byte[] modifiedClass = modifier.toByteArray();

@@ -14,7 +14,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
 
 public final class ExpectationsTransformer implements ClassFileTransformer
 {
@@ -105,7 +104,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       ClassVisitor modifier = new EndOfBlockModifier(cr, loader, baseSubclasses, finalClass);
 
       try {
-         cr.accept(modifier, SKIP_FRAMES);
+         cr.accept(modifier, 0);
          return modifier.toByteArray();
       }
       catch (VisitInterruptedException ignore) {}
