@@ -424,6 +424,7 @@ public final class MethodWriter extends MethodVisitor
         if (exceptions != null && exceptions.length > 0) {
             exceptionCount = exceptions.length;
             this.exceptions = new int[exceptionCount];
+
             for (int i = 0; i < exceptionCount; ++i) {
                 this.exceptions[i] = cw.newClass(exceptions[i]);
             }
@@ -432,14 +433,17 @@ public final class MethodWriter extends MethodVisitor
         compute = computeFrames ? FRAMES : computeMaxs ? MAXS : NOTHING;
 
         if (computeMaxs || computeFrames) {
-            // updates maxLocals
+            // Updates maxLocals.
             int size = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
+
             if ((access & ACC_STATIC) != 0) {
                 --size;
             }
+
             maxLocals = size;
             currentLocals = size;
-            // creates and visits the label for the first basic block
+
+            // Creates and visits the label for the first basic block.
             labels = new Label();
             labels.status |= Label.PUSHED;
             visitLabel(labels);

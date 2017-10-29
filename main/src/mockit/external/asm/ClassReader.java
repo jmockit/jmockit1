@@ -59,7 +59,7 @@ public final class ClassReader
     /**
      * Flag to skip the stack map frames in the class. If this flag is set the stack map frames of the class is not
      * visited, i.e. the {@link MethodVisitor#visitFrame visitFrame} method will not be called.
-     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option is used:
+     * This flag is useful when the {@link ClassWriter#computeFrames} option is used:
      * it avoids visiting frames that will be ignored and recomputed from scratch in the class writer.
      */
     public static final int SKIP_FRAMES = 4;

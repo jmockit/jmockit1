@@ -30,11 +30,10 @@
 package mockit.external.asm;
 
 /**
- * A label represents a position in the bytecode of a method. Labels are used
- * for jump, goto, and switch instructions, and for try catch blocks. A label
- * designates the <i>instruction</i> that is just after. Note however that there
- * can be other elements between a label and the instruction it designates (such
- * as other labels, stack map frames, line numbers, etc.).
+ * A label represents a position in the bytecode of a method. Labels are used for jump, goto, and switch instructions,
+ * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note however that there can
+ * be other elements between a label and the instruction it designates (such as other labels, stack map frames, line
+ * numbers, etc.).
  * 
  * @author Eric Bruneton
  */
@@ -213,18 +212,16 @@ public final class Label
     int outputStackMax;
 
     /**
-     * Information about the input and output stack map frames of this basic
-     * block. This field is only used when {@link ClassWriter#COMPUTE_FRAMES}
-     * option is used.
+     * Information about the input and output stack map frames of this basic block.
+     * This field is only used when {@link ClassWriter#computeFrames} option is used.
      */
     Frame frame;
 
     /**
-     * The successor of this label, in the order they are visited. This linked
-     * list does not include labels used for debug info only. If
-     * {@link ClassWriter#COMPUTE_FRAMES} option is used then, in addition, it
-     * does not contain successive labels that denote the same bytecode position
-     * (in this case only the first label appears in this list).
+     * The successor of this label, in the order they are visited.
+     * This linked list does not include labels used for debug info only.
+     * If {@link ClassWriter#computeFrames} option is used then, in addition, it does not contain successive labels that
+     * denote the same bytecode position (in this case only the first label appears in this list).
      */
     Label successor;
 
