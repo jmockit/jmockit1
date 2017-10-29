@@ -36,7 +36,7 @@ public final class MyBusinessServiceTest
    @Test
    public void doBusinessOperationXyzWithInvalidEmailAddress() throws Exception
    {
-      final String email = "invalid address";
+      String email = "invalid address";
       data.setCustomerEmail(email);
       new Expectations() {{ anyEmail.addTo(email); result = new EmailException(); }};
       thrown.expect(EmailException.class);
