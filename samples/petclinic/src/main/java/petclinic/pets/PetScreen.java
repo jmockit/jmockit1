@@ -51,14 +51,14 @@ public class PetScreen
 
    public void createOrUpdatePet()
    {
-      assert pet != null;
-
-      if (pet.isNew()) {
-         assert owner != null;
-         petMaintenance.createPet(owner, pet);
-      }
-      else {
-         petMaintenance.updatePet(pet);
+      if (pet != null) {
+         if (pet.isNew()) {
+            assert owner != null;
+            petMaintenance.createPet(owner, pet);
+         }
+         else {
+            petMaintenance.updatePet(pet);
+         }
       }
    }
 }
