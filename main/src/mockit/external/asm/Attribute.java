@@ -55,12 +55,9 @@ public final class Attribute
     /**
      * Constructs a new empty attribute.
      *
-     * @param type
-     *            the type of the attribute.
+     * @param type the type of the attribute.
      */
-    Attribute(String type) {
-        this.type = type;
-    }
+    Attribute(String type) { this.type = type; }
 
     /**
      * Reads a {@link #type type} attribute.
