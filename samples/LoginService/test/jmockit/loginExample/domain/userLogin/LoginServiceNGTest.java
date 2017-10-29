@@ -34,7 +34,7 @@ public final class LoginServiceNGTest
       new Verifications() {{ account.setLoggedIn(true); }};
    }
 
-   void willMatchPassword(final boolean... matches)
+   void willMatchPassword(boolean... matches)
    {
       new Expectations() {{ account.passwordMatches(anyString); result = matches; }};
    }
@@ -67,7 +67,7 @@ public final class LoginServiceNGTest
    }
 
    @Test
-   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked final UserAccount secondAccount)
+   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked UserAccount secondAccount)
       throws Exception
    {
       new Expectations() {{

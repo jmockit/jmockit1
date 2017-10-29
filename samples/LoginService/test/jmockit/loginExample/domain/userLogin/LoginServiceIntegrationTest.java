@@ -59,7 +59,7 @@ public final class LoginServiceIntegrationTest
    @Test
    public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount() throws Exception
    {
-      final UserAccount secondAccount = new UserAccount("roger", "password");
+      UserAccount secondAccount = new UserAccount("roger", "password");
       new Expectations() {{ UserAccount.find("roger"); result = secondAccount; }};
 
       service.login(account.getId(), "wrong password");
