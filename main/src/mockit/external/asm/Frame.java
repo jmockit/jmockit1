@@ -90,8 +90,7 @@ public final class Frame
      */
 
     /**
-     * Mask to get the dimension of a frame type. This dimension is a signed
-     * integer between -8 and 7.
+     * Mask to get the dimension of a frame type. This dimension is a signed integer between -8 and 7.
      */
     static final int DIM = 0xF0000000;
 
@@ -144,8 +143,7 @@ public final class Frame
     static final int BASE = 0x1000000;
 
     /**
-     * Base kind of the base reference types. The BASE_VALUE of such types is an
-     * index into the type table.
+     * Base kind of the base reference types. The BASE_VALUE of such types is an index into the type table.
      */
     static final int OBJECT = BASE | 0x700000;
 
@@ -164,8 +162,7 @@ public final class Frame
 
     /**
      * Kind of the the types that are relative to the stack of an input stack
-     * map frame. The value of such types is a position relatively to the top of
-     * this stack.
+     * map frame. The value of such types is a position relatively to the top of this stack.
      */
     private static final int STACK = 0x3000000;
 
@@ -225,9 +222,8 @@ public final class Frame
     static final int UNINITIALIZED_THIS = BASE | 6;
 
     /**
-     * The stack size variation corresponding to each JVM instruction. This
-     * stack variation is equal to the size of the values produced by an
-     * instruction, minus the size of the values consumed by this instruction.
+     * The stack size variation corresponding to each JVM instruction. This stack variation is equal to the size of the
+     * values produced by an instruction, minus the size of the values consumed by this instruction.
      */
     public static final int[] SIZE;
 
@@ -235,234 +231,22 @@ public final class Frame
      * Computes the stack size variation corresponding to each JVM instruction.
      */
     static {
-        int i;
         int[] b = new int[202];
-        String s = "EFFFFFFFFGGFFFGGFFFEEFGFGFEEEEEEEEEEEEEEEEEEEEDEDEDDDDD"
-                + "CDCDEEEEEEEEEEEEEEEEEEEEBABABBBBDCFFFGGGEDCDCDCDCDCDCDCDCD"
-                + "CDCEEEEDDDDDDDCDCDCEFEFDDEEFFDEDEEEBDDBBDDDDDDCCCCCCCCEFED"
-                + "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
-        for (i = 0; i < b.length; ++i) {
+        String s =
+           "EFFFFFFFFGGFFFGGFFFEEFGFGFEEEEEEEEEEEEEEEEEEEEDEDEDDDDD" +
+           "CDCDEEEEEEEEEEEEEEEEEEEEBABABBBBDCFFFGGGEDCDCDCDCDCDCDCDCD" +
+           "CDCEEEEDDDDDDDCDCDCEFEFDDEEFFDEDEEEBDDBBDDDDDDCCCCCCCCEFED" +
+           "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
+
+        for (int i = 0; i < b.length; ++i) {
             b[i] = s.charAt(i) - 'E';
         }
-        SIZE = b;
 
-        // code to generate the above string
-        //
-        // int NA = 0; // not applicable (unused opcode or variable size opcode)
-        //
-        // b = new int[] {
-        // 0, //NOP, // visitInsn
-        // 1, //ACONST_NULL, // -
-        // 1, //ICONST_M1, // -
-        // 1, //ICONST_0, // -
-        // 1, //ICONST_1, // -
-        // 1, //ICONST_2, // -
-        // 1, //ICONST_3, // -
-        // 1, //ICONST_4, // -
-        // 1, //ICONST_5, // -
-        // 2, //LCONST_0, // -
-        // 2, //LCONST_1, // -
-        // 1, //FCONST_0, // -
-        // 1, //FCONST_1, // -
-        // 1, //FCONST_2, // -
-        // 2, //DCONST_0, // -
-        // 2, //DCONST_1, // -
-        // 1, //BIPUSH, // visitIntInsn
-        // 1, //SIPUSH, // -
-        // 1, //LDC, // visitLdcInsn
-        // NA, //LDC_W, // -
-        // NA, //LDC2_W, // -
-        // 1, //ILOAD, // visitVarInsn
-        // 2, //LLOAD, // -
-        // 1, //FLOAD, // -
-        // 2, //DLOAD, // -
-        // 1, //ALOAD, // -
-        // NA, //ILOAD_0, // -
-        // NA, //ILOAD_1, // -
-        // NA, //ILOAD_2, // -
-        // NA, //ILOAD_3, // -
-        // NA, //LLOAD_0, // -
-        // NA, //LLOAD_1, // -
-        // NA, //LLOAD_2, // -
-        // NA, //LLOAD_3, // -
-        // NA, //FLOAD_0, // -
-        // NA, //FLOAD_1, // -
-        // NA, //FLOAD_2, // -
-        // NA, //FLOAD_3, // -
-        // NA, //DLOAD_0, // -
-        // NA, //DLOAD_1, // -
-        // NA, //DLOAD_2, // -
-        // NA, //DLOAD_3, // -
-        // NA, //ALOAD_0, // -
-        // NA, //ALOAD_1, // -
-        // NA, //ALOAD_2, // -
-        // NA, //ALOAD_3, // -
-        // -1, //IALOAD, // visitInsn
-        // 0, //LALOAD, // -
-        // -1, //FALOAD, // -
-        // 0, //DALOAD, // -
-        // -1, //AALOAD, // -
-        // -1, //BALOAD, // -
-        // -1, //CALOAD, // -
-        // -1, //SALOAD, // -
-        // -1, //ISTORE, // visitVarInsn
-        // -2, //LSTORE, // -
-        // -1, //FSTORE, // -
-        // -2, //DSTORE, // -
-        // -1, //ASTORE, // -
-        // NA, //ISTORE_0, // -
-        // NA, //ISTORE_1, // -
-        // NA, //ISTORE_2, // -
-        // NA, //ISTORE_3, // -
-        // NA, //LSTORE_0, // -
-        // NA, //LSTORE_1, // -
-        // NA, //LSTORE_2, // -
-        // NA, //LSTORE_3, // -
-        // NA, //FSTORE_0, // -
-        // NA, //FSTORE_1, // -
-        // NA, //FSTORE_2, // -
-        // NA, //FSTORE_3, // -
-        // NA, //DSTORE_0, // -
-        // NA, //DSTORE_1, // -
-        // NA, //DSTORE_2, // -
-        // NA, //DSTORE_3, // -
-        // NA, //ASTORE_0, // -
-        // NA, //ASTORE_1, // -
-        // NA, //ASTORE_2, // -
-        // NA, //ASTORE_3, // -
-        // -3, //IASTORE, // visitInsn
-        // -4, //LASTORE, // -
-        // -3, //FASTORE, // -
-        // -4, //DASTORE, // -
-        // -3, //AASTORE, // -
-        // -3, //BASTORE, // -
-        // -3, //CASTORE, // -
-        // -3, //SASTORE, // -
-        // -1, //POP, // -
-        // -2, //POP2, // -
-        // 1, //DUP, // -
-        // 1, //DUP_X1, // -
-        // 1, //DUP_X2, // -
-        // 2, //DUP2, // -
-        // 2, //DUP2_X1, // -
-        // 2, //DUP2_X2, // -
-        // 0, //SWAP, // -
-        // -1, //IADD, // -
-        // -2, //LADD, // -
-        // -1, //FADD, // -
-        // -2, //DADD, // -
-        // -1, //ISUB, // -
-        // -2, //LSUB, // -
-        // -1, //FSUB, // -
-        // -2, //DSUB, // -
-        // -1, //IMUL, // -
-        // -2, //LMUL, // -
-        // -1, //FMUL, // -
-        // -2, //DMUL, // -
-        // -1, //IDIV, // -
-        // -2, //LDIV, // -
-        // -1, //FDIV, // -
-        // -2, //DDIV, // -
-        // -1, //IREM, // -
-        // -2, //LREM, // -
-        // -1, //FREM, // -
-        // -2, //DREM, // -
-        // 0, //INEG, // -
-        // 0, //LNEG, // -
-        // 0, //FNEG, // -
-        // 0, //DNEG, // -
-        // -1, //ISHL, // -
-        // -1, //LSHL, // -
-        // -1, //ISHR, // -
-        // -1, //LSHR, // -
-        // -1, //IUSHR, // -
-        // -1, //LUSHR, // -
-        // -1, //IAND, // -
-        // -2, //LAND, // -
-        // -1, //IOR, // -
-        // -2, //LOR, // -
-        // -1, //IXOR, // -
-        // -2, //LXOR, // -
-        // 0, //IINC, // visitIincInsn
-        // 1, //I2L, // visitInsn
-        // 0, //I2F, // -
-        // 1, //I2D, // -
-        // -1, //L2I, // -
-        // -1, //L2F, // -
-        // 0, //L2D, // -
-        // 0, //F2I, // -
-        // 1, //F2L, // -
-        // 1, //F2D, // -
-        // -1, //D2I, // -
-        // 0, //D2L, // -
-        // -1, //D2F, // -
-        // 0, //I2B, // -
-        // 0, //I2C, // -
-        // 0, //I2S, // -
-        // -3, //LCMP, // -
-        // -1, //FCMPL, // -
-        // -1, //FCMPG, // -
-        // -3, //DCMPL, // -
-        // -3, //DCMPG, // -
-        // -1, //IFEQ, // visitJumpInsn
-        // -1, //IFNE, // -
-        // -1, //IFLT, // -
-        // -1, //IFGE, // -
-        // -1, //IFGT, // -
-        // -1, //IFLE, // -
-        // -2, //IF_ICMPEQ, // -
-        // -2, //IF_ICMPNE, // -
-        // -2, //IF_ICMPLT, // -
-        // -2, //IF_ICMPGE, // -
-        // -2, //IF_ICMPGT, // -
-        // -2, //IF_ICMPLE, // -
-        // -2, //IF_ACMPEQ, // -
-        // -2, //IF_ACMPNE, // -
-        // 0, //GOTO, // -
-        // 1, //JSR, // -
-        // 0, //RET, // visitVarInsn
-        // -1, //TABLESWITCH, // visiTableSwitchInsn
-        // -1, //LOOKUPSWITCH, // visitLookupSwitch
-        // -1, //IRETURN, // visitInsn
-        // -2, //LRETURN, // -
-        // -1, //FRETURN, // -
-        // -2, //DRETURN, // -
-        // -1, //ARETURN, // -
-        // 0, //RETURN, // -
-        // NA, //GETSTATIC, // visitFieldInsn
-        // NA, //PUTSTATIC, // -
-        // NA, //GETFIELD, // -
-        // NA, //PUTFIELD, // -
-        // NA, //INVOKEVIRTUAL, // visitMethodInsn
-        // NA, //INVOKESPECIAL, // -
-        // NA, //INVOKESTATIC, // -
-        // NA, //INVOKEINTERFACE, // -
-        // NA, //INVOKEDYNAMIC, // visitInvokeDynamicInsn
-        // 1, //NEW, // visitTypeInsn
-        // 0, //NEWARRAY, // visitIntInsn
-        // 0, //ANEWARRAY, // visitTypeInsn
-        // 0, //ARRAYLENGTH, // visitInsn
-        // NA, //ATHROW, // -
-        // 0, //CHECKCAST, // visitTypeInsn
-        // 0, //INSTANCEOF, // -
-        // -1, //MONITORENTER, // visitInsn
-        // -1, //MONITOREXIT, // -
-        // NA, //WIDE, // NOT VISITED
-        // NA, //MULTIANEWARRAY, // visitMultiANewArrayInsn
-        // -1, //IFNULL, // visitJumpInsn
-        // -1, //IFNONNULL, // -
-        // NA, //GOTO_W, // -
-        // NA, //JSR_W, // -
-        // };
-        // for (i = 0; i < b.length; ++i) {
-        // System.err.print((char)('E' + b[i]));
-        // }
-        // System.err.println();
+        SIZE = b;
     }
 
     /**
-     * The label (i.e. basic block) to which these input and output stack map
-     * frames correspond.
+     * The label (i.e. basic block) to which these input and output stack map frames correspond.
      */
     Label owner;
 
@@ -487,14 +271,13 @@ public final class Frame
     private int[] outputStack;
 
     /**
-     * Relative size of the output stack. The exact semantics of this field
-     * depends on the algorithm that is used.
-     * 
-     * When only the maximum stack size is computed, this field is the size of
-     * the output stack relatively to the top of the input stack.
-     * 
-     * When the stack map frames are completely computed, this field is the
-     * actual number of types in {@link #outputStack}.
+     * Relative size of the output stack. The exact semantics of this field depends on the algorithm that is used.
+     * <p/>
+     * When only the maximum stack size is computed, this field is the size of the output stack relatively to the top of
+     * the input stack.
+     * <p/>
+     * When the stack map frames are completely computed, this field is the actual number of types in
+     * {@link #outputStack}.
      */
     private int outputStackTop;
 
@@ -506,87 +289,88 @@ public final class Frame
     private int initializationCount;
 
     /**
-     * The types that are initialized in the basic block. A constructor
-     * invocation on an UNINITIALIZED or UNINITIALIZED_THIS type must replace
-     * <i>every occurence</i> of this type in the local variables and in the
-     * operand stack. This cannot be done during the first phase of the
-     * algorithm since, during this phase, the local variables and the operand
-     * stack are not completely computed. It is therefore necessary to store the
-     * types on which constructors are invoked in the basic block, in order to
-     * do this replacement during the second phase of the algorithm, where the
-     * frames are fully computed. Note that this array can contain types that
-     * are relative to input locals or to the input stack (see below for the
-     * description of the algorithm).
+     * The types that are initialized in the basic block. A constructor invocation on an UNINITIALIZED or
+     * UNINITIALIZED_THIS type must replace <i>every occurrence</i> of this type in the local variables and in the
+     * operand stack. This cannot be done during the first phase of the algorithm since, during this phase, the local
+     * variables and the operand stack are not completely computed. It is therefore necessary to store the types on
+     * which constructors are invoked in the basic block, in order to do this replacement during the second phase of the
+     * algorithm, where the frames are fully computed. Note that this array can contain types that are relative to input
+     * locals or to the input stack (see below for the description of the algorithm).
      */
     private int[] initializations;
 
     /**
      * Returns the output frame local variable type at the given index.
      * 
-     * @param local
-     *            the index of the local that must be returned.
-     * @return the output frame local variable type at the given index.
+     * @param local the index of the local that must be returned.
      */
     private int get(int local) {
         if (outputLocals == null || local >= outputLocals.length) {
-            // this local has never been assigned in this basic block,
-            // so it is still equal to its value in the input frame
+            // This local has never been assigned in this basic block, so it is still equal to its value in the input
+            // frame.
             return LOCAL | local;
-        } else {
-            int type = outputLocals[local];
-            if (type == 0) {
-                // this local has never been assigned in this basic block,
-                // so it is still equal to its value in the input frame
-                type = outputLocals[local] = LOCAL | local;
-            }
-            return type;
         }
+
+        int type = outputLocals[local];
+
+        if (type == 0) {
+            // This local has never been assigned in this basic block, so it is still equal to its value in the input
+            // frame.
+            type = outputLocals[local] = LOCAL | local;
+        }
+
+        return type;
     }
 
     /**
      * Sets the output frame local variable type at the given index.
      * 
-     * @param local
-     *            the index of the local that must be set.
-     * @param type
-     *            the value of the local that must be set.
+     * @param local the index of the local that must be set.
+     * @param type the value of the local that must be set.
      */
     private void set(int local, int type) {
-        // creates and/or resizes the output local variables array if necessary
+        // Creates and/or resizes the output local variables array if necessary.
         if (outputLocals == null) {
             outputLocals = new int[10];
         }
+
         int n = outputLocals.length;
+
         if (local >= n) {
             int[] t = new int[Math.max(local + 1, 2 * n)];
             System.arraycopy(outputLocals, 0, t, 0, n);
             outputLocals = t;
         }
-        // sets the local variable
+
+        // Sets the local variable.
         outputLocals[local] = type;
     }
 
     /**
      * Pushes a new type onto the output frame stack.
      * 
-     * @param type
-     *            the type that must be pushed.
+     * @param type the type that must be pushed.
      */
     private void push(int type) {
-        // creates and/or resizes the output stack array if necessary
+        // Creates and/or resizes the output stack array if necessary.
         if (outputStack == null) {
             outputStack = new int[10];
         }
+
         int n = outputStack.length;
+
         if (outputStackTop >= n) {
             int[] t = new int[Math.max(outputStackTop + 1, 2 * n)];
             System.arraycopy(outputStack, 0, t, 0, n);
             outputStack = t;
         }
-        // pushes the type on the output stack
+
+        // Pushes the type on the output stack.
         outputStack[outputStackTop++] = type;
-        // updates the maximun height reached by the output stack, if needed
+
+        // Updates the maximum height reached by the output stack, if needed.
         int top = owner.inputStackTop + outputStackTop;
+
         if (top > owner.outputStackMax) {
             owner.outputStackMax = top;
         }
@@ -595,17 +379,17 @@ public final class Frame
     /**
      * Pushes a new type onto the output frame stack.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
+     * @param cw the ClassWriter to which this label belongs.
      * @param desc
      *            the descriptor of the type to be pushed. Can also be a method
-     *            descriptor (in this case this method pushes its return type
-     *            onto the output frame stack).
+     *            descriptor (in this case this method pushes its return type onto the output frame stack).
      */
     private void push(ClassWriter cw, String desc) {
         int type = type(cw, desc);
+
         if (type != 0) {
             push(type);
+
             if (type == LONG || type == DOUBLE) {
                 push(TOP);
             }
@@ -615,16 +399,15 @@ public final class Frame
     /**
      * Returns the int encoding of the given type.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
-     * @param desc
-     *            a type descriptor.
+     * @param cw the ClassWriter to which this label belongs.
+     * @param desc a type descriptor.
+     *
      * @return the int encoding of the given type.
      */
-    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
     private static int type(ClassWriter cw, String desc) {
         String t;
         int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
+
         switch (desc.charAt(index)) {
         case 'V':
             return 0;
@@ -641,17 +424,19 @@ public final class Frame
         case 'D':
             return DOUBLE;
         case 'L':
-            // stores the internal name, not the descriptor!
+            // Stores the internal name, not the descriptor!
             t = desc.substring(index + 1, desc.length() - 1);
             return OBJECT | cw.addType(t);
-            // case '[':
+        // case '[':
         default:
-            // extracts the dimensions and the element type
+            // Extracts the dimensions and the element type.
             int data;
             int dims = index + 1;
+
             while (desc.charAt(dims) == '[') {
                 ++dims;
             }
+
             switch (desc.charAt(dims)) {
             case 'Z':
                 data = BOOLEAN;
@@ -679,10 +464,11 @@ public final class Frame
                 break;
             // case 'L':
             default:
-                // stores the internal name, not the descriptor
+                // Stores the internal name, not the descriptor.
                 t = desc.substring(dims + 1, desc.length() - 1);
                 data = OBJECT | cw.addType(t);
             }
+
             return (dims - index) << 28 | data;
         }
     }
@@ -697,24 +483,23 @@ public final class Frame
             return outputStack[--outputStackTop];
         }
 
-        // if the output frame stack is empty, pops from the input stack
+        // If the output frame stack is empty, pops from the input stack.
+        //noinspection UnnecessaryParentheses
         return STACK | -(--owner.inputStackTop);
     }
 
     /**
      * Pops the given number of types from the output frame stack.
      * 
-     * @param elements
-     *            the number of types that must be popped.
+     * @param elements the number of types that must be popped.
      */
     private void pop(int elements) {
         if (outputStackTop >= elements) {
             outputStackTop -= elements;
         }
         else {
-            // if the number of elements to be popped is greater than the number
-            // of elements in the output stack, clear it, and pops the remaining
-            // elements from the input stack.
+            // If the number of elements to be popped is greater than the number of elements in the output stack, clear
+            // it, and pops the remaining elements from the input stack.
             owner.inputStackTop -= elements - outputStackTop;
             outputStackTop = 0;
         }
@@ -725,111 +510,120 @@ public final class Frame
      * 
      * @param desc
      *            the descriptor of the type to be popped. Can also be a method
-     *            descriptor (in this case this method pops the types
-     *            corresponding to the method arguments).
+     *            descriptor (in this case this method pops the types corresponding to the method arguments).
      */
     private void pop(String desc) {
         char c = desc.charAt(0);
+
         if (c == '(') {
             pop((Type.getArgumentsAndReturnSizes(desc) >> 2) - 1);
-        } else if (c == 'J' || c == 'D') {
+        }
+        else if (c == 'J' || c == 'D') {
             pop(2);
-        } else {
+        }
+        else {
             pop(1);
         }
     }
 
     /**
-     * Adds a new type to the list of types on which a constructor is invoked in
-     * the basic block.
+     * Adds a new type to the list of types on which a constructor is invoked in the basic block.
      * 
-     * @param var
-     *            a type on a which a constructor is invoked.
+     * @param var a type on a which a constructor is invoked.
      */
     private void init(int var) {
-        // creates and/or resizes the initializations array if necessary
+        // Creates and/or resizes the initializations array if necessary.
         if (initializations == null) {
             initializations = new int[2];
         }
+
         int n = initializations.length;
+
         if (initializationCount >= n) {
             int[] t = new int[Math.max(initializationCount + 1, 2 * n)];
             System.arraycopy(initializations, 0, t, 0, n);
             initializations = t;
         }
-        // stores the type to be initialized
+
+        // Stores the type to be initialized.
         initializations[initializationCount++] = var;
     }
 
     /**
-     * Replaces the given type with the appropriate type if it is one of the
-     * types on which a constructor is invoked in the basic block.
+     * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in
+     * the basic block.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
-     * @param t
-     *            a type
+     * @param cw the ClassWriter to which this label belongs.
+     * @param t a type
+     *
      * @return t or, if t is one of the types on which a constructor is invoked
      *         in the basic block, the type corresponding to this constructor.
      */
     private int init(ClassWriter cw, int t) {
         int s;
+
         if (t == UNINITIALIZED_THIS) {
             s = OBJECT | cw.addType(cw.thisName);
-        } else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
+        }
+        else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
             String type = cw.typeTable[t & BASE_VALUE].strVal1;
             s = OBJECT | cw.addType(type);
-        } else {
+        }
+        else {
             return t;
         }
+
         for (int j = 0; j < initializationCount; ++j) {
             int u = initializations[j];
             int dim = u & DIM;
             int kind = u & KIND;
+
             if (kind == LOCAL) {
                 u = dim + inputLocals[u & VALUE];
-            } else if (kind == STACK) {
+            }
+            else if (kind == STACK) {
                 u = dim + inputStack[inputStack.length - (u & VALUE)];
             }
+
             if (t == u) {
                 return s;
             }
         }
+
         return t;
     }
 
     /**
-     * Initializes the input frame of the first basic block from the method
-     * descriptor.
+     * Initializes the input frame of the first basic block from the method descriptor.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
-     * @param access
-     *            the access flags of the method to which this label belongs.
-     * @param args
-     *            the formal parameter types of this method.
-     * @param maxLocals
-     *            the maximum number of local variables of this method.
+     * @param cw the ClassWriter to which this label belongs.
+     * @param access the access flags of the method to which this label belongs.
+     * @param args the formal parameter types of this method.
+     * @param maxLocals the maximum number of local variables of this method.
      */
-    @SuppressWarnings("MethodWithMultipleLoops")
     void initInputFrame(ClassWriter cw, int access, Type[] args, int maxLocals) {
         inputLocals = new int[maxLocals];
         inputStack = new int[0];
         int i = 0;
+
         if ((access & Opcodes.ACC_STATIC) == 0) {
             if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
                 inputLocals[i++] = OBJECT | cw.addType(cw.thisName);
-            } else {
+            }
+            else {
                 inputLocals[i++] = UNINITIALIZED_THIS;
             }
         }
+
         for (int j = 0; j < args.length; ++j) {
             int t = type(cw, args[j].getDescriptor());
             inputLocals[i++] = t;
+
             if (t == LONG || t == DOUBLE) {
                 inputLocals[i++] = TOP;
             }
         }
+
         while (i < maxLocals) {
             inputLocals[i++] = TOP;
         }
@@ -838,18 +632,15 @@ public final class Frame
     /**
      * Simulates the action of the given instruction on the output stack frame.
      * 
-     * @param opcode
-     *            the opcode of the instruction.
-     * @param arg
-     *            the operand of the instruction, if any.
-     * @param cw
-     *            the class writer to which this label belongs.
-     * @param item
-     *            the operand of the instructions, if any.
+     * @param opcode the opcode of the instruction.
+     * @param arg the operand of the instruction, if any.
+     * @param cw the class writer to which this label belongs.
+     * @param item the operand of the instructions, if any.
      */
-    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
     void execute(int opcode, int arg, ClassWriter cw, Item item) {
         int t1, t2, t3, t4;
+        String s;
+
         switch (opcode) {
         case Opcodes.NOP:
         case Opcodes.INEG:
@@ -977,15 +768,19 @@ public final class Frame
             t1 = pop();
             set(arg, t1);
             set(arg + 1, TOP);
+
             if (arg > 0) {
                 t2 = get(arg - 1);
-                // if t2 is of kind STACK or LOCAL we cannot know its size!
+
+                // If t2 is of kind STACK or LOCAL we cannot know its size!
                 if (t2 == LONG || t2 == DOUBLE) {
                     set(arg - 1, TOP);
-                } else if ((t2 & KIND) != BASE) {
+                }
+                else if ((t2 & KIND) != BASE) {
                     set(arg - 1, t2 | TOP_IF_LONG_OR_DOUBLE);
                 }
             }
+
             break;
         case Opcodes.IASTORE:
         case Opcodes.BASTORE:
@@ -1198,13 +993,15 @@ public final class Frame
         case Opcodes.INVOKESTATIC:
         case Opcodes.INVOKEINTERFACE:
             pop(item.strVal3);
+
             if (opcode != Opcodes.INVOKESTATIC) {
                 t1 = pop();
-                if (opcode == Opcodes.INVOKESPECIAL
-                        && item.strVal2.charAt(0) == '<') {
+
+                if (opcode == Opcodes.INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
                     init(t1);
                 }
             }
+
             push(cw, item.strVal3);
             break;
         case Opcodes.INVOKEDYNAMIC:
@@ -1216,6 +1013,7 @@ public final class Frame
             break;
         case Opcodes.NEWARRAY:
             pop();
+
             switch (arg) {
             case Opcodes.T_BOOLEAN:
                 push(ARRAY_OF | BOOLEAN);
@@ -1245,22 +1043,28 @@ public final class Frame
             }
             break;
         case Opcodes.ANEWARRAY:
-            String s = item.strVal1;
+            s = item.strVal1;
             pop();
+
             if (s.charAt(0) == '[') {
                 push(cw, '[' + s);
-            } else {
+            }
+            else {
                 push(ARRAY_OF | OBJECT | cw.addType(s));
             }
+
             break;
         case Opcodes.CHECKCAST:
             s = item.strVal1;
             pop();
+
             if (s.charAt(0) == '[') {
                 push(cw, s);
-            } else {
+            }
+            else {
                 push(OBJECT | cw.addType(s));
             }
+
             break;
         // case Opcodes.MULTIANEWARRAY:
         default:
@@ -1271,27 +1075,22 @@ public final class Frame
     }
 
     /**
-     * Merges the input frame of the given basic block with the input and output
-     * frames of this basic block. Returns <tt>true</tt> if the input frame of
-     * the given label has been changed by this operation.
+     * Merges the input frame of the given basic block with the input and output frames of this basic block.
+     * Returns <tt>true</tt> if the input frame of the given label has been changed by this operation.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
-     * @param frame
-     *            the basic block whose input frame must be updated.
-     * @param edge
-     *            the kind of the {@link Edge} between this label and 'label'.
-     *            See {@link Edge#info}.
-     * @return <tt>true</tt> if the input frame of the given label has been
-     *         changed by this operation.
+     * @param cw the ClassWriter to which this label belongs.
+     * @param frame the basic block whose input frame must be updated.
+     * @param edge the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
+     *
+     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
      */
-    @SuppressWarnings({"MethodWithMultipleLoops", "OverlyComplexMethod", "OverlyLongMethod"})
     boolean merge(ClassWriter cw, Frame frame, int edge) {
         boolean changed = false;
         int i, s, dim, kind, t;
 
         int nLocal = inputLocals.length;
         int nStack = inputStack.length;
+
         if (frame.inputLocals == null) {
             frame.inputLocals = new int[nLocal];
             changed = true;
@@ -1300,31 +1099,39 @@ public final class Frame
         for (i = 0; i < nLocal; ++i) {
             if (outputLocals != null && i < outputLocals.length) {
                 s = outputLocals[i];
+
                 if (s == 0) {
                     t = inputLocals[i];
-                } else {
+                }
+                else {
                     dim = s & DIM;
                     kind = s & KIND;
+
                     if (kind == BASE) {
                         t = s;
-                    } else {
+                    }
+                    else {
                         if (kind == LOCAL) {
                             t = dim + inputLocals[s & VALUE];
-                        } else {
+                        }
+                        else {
                             t = dim + inputStack[nStack - (s & VALUE)];
                         }
-                        if ((s & TOP_IF_LONG_OR_DOUBLE) != 0
-                                && (t == LONG || t == DOUBLE)) {
+
+                        if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
                             t = TOP;
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 t = inputLocals[i];
             }
+
             if (initializations != null) {
                 t = init(cw, t);
             }
+
             changed |= merge(cw, t, frame.inputLocals, i);
         }
 
@@ -1333,15 +1140,18 @@ public final class Frame
                 t = inputLocals[i];
                 changed |= merge(cw, t, frame.inputLocals, i);
             }
+
             if (frame.inputStack == null) {
                 frame.inputStack = new int[1];
                 changed = true;
             }
+
             changed |= merge(cw, edge, frame.inputStack, 0);
             return changed;
         }
 
         int nInputStack = inputStack.length + owner.inputStackTop;
+
         if (frame.inputStack == null) {
             frame.inputStack = new int[nInputStack + outputStackTop];
             changed = true;
@@ -1349,117 +1159,127 @@ public final class Frame
 
         for (i = 0; i < nInputStack; ++i) {
             t = inputStack[i];
+
             if (initializations != null) {
                 t = init(cw, t);
             }
+
             changed |= merge(cw, t, frame.inputStack, i);
         }
+
         for (i = 0; i < outputStackTop; ++i) {
             s = outputStack[i];
             dim = s & DIM;
             kind = s & KIND;
+
             if (kind == BASE) {
                 t = s;
-            } else {
+            }
+            else {
                 if (kind == LOCAL) {
                     t = dim + inputLocals[s & VALUE];
-                } else {
+                }
+                else {
                     t = dim + inputStack[nStack - (s & VALUE)];
                 }
-                if ((s & TOP_IF_LONG_OR_DOUBLE) != 0
-                        && (t == LONG || t == DOUBLE)) {
+
+                if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
                     t = TOP;
                 }
             }
+
             if (initializations != null) {
                 t = init(cw, t);
             }
+
             changed |= merge(cw, t, frame.inputStack, nInputStack + i);
         }
+
         return changed;
     }
 
     /**
-     * Merges the type at the given index in the given type array with the given
-     * type. Returns <tt>true</tt> if the type array has been modified by this
-     * operation.
+     * Merges the type at the given index in the given type array with the given type.
+     * Returns <tt>true</tt> if the type array has been modified by this operation.
      * 
-     * @param cw
-     *            the ClassWriter to which this label belongs.
-     * @param t
-     *            the type with which the type array element must be merged.
-     * @param types
-     *            an array of types.
-     * @param index
-     *            the index of the type that must be merged in 'types'.
-     * @return <tt>true</tt> if the type array has been modified by this
-     *         operation.
+     * @param cw the ClassWriter to which this label belongs.
+     * @param t the type with which the type array element must be merged.
+     * @param types an array of types.
+     * @param index the index of the type that must be merged in 'types'.
+     *
+     * @return <tt>true</tt> if the type array has been modified by this operation.
      */
-    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
     private static boolean merge(ClassWriter cw, int t, int[] types, int index) {
         int u = types[index];
+
         if (u == t) {
-            // if the types are equal, merge(u,t)=u, so there is no change
+            // If the types are equal, merge(u,t)=u, so there is no change.
             return false;
         }
+
         if ((t & ~DIM) == NULL) {
             if (u == NULL) {
                 return false;
             }
+
             t = NULL;
         }
+
         if (u == 0) {
-            // if types[index] has never been assigned, merge(u,t)=t
+            // If types[index] has never been assigned, merge(u,t)=t.
             types[index] = t;
             return true;
         }
+
         int v;
+
         if ((u & BASE_KIND) == OBJECT || (u & DIM) != 0) {
-            // if u is a reference type of any dimension
+            // If u is a reference type of any dimension.
             if (t == NULL) {
-                // if t is the NULL type, merge(u,t)=u, so there is no change
+                // If t is the NULL type, merge(u,t)=u, so there is no change.
                 return false;
-            } else if ((t & (DIM | BASE_KIND)) == (u & (DIM | BASE_KIND))) {
-                // if t and u have the same dimension and same base kind
+            }
+            else if ((t & (DIM | BASE_KIND)) == (u & (DIM | BASE_KIND))) {
+                // If t and u have the same dimension and same base kind.
                 if ((u & BASE_KIND) == OBJECT) {
-                    // if t is also a reference type, and if u and t have the
-                    // same dimension merge(u,t) = dim(t) | common parent of the
-                    // element types of u and t
-                    v = (t & DIM) | OBJECT
-                            | cw.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
-                } else {
-                    // if u and t are array types, but not with the same element
-                    // type, merge(u,t) = dim(u) - 1 | java/lang/Object
-                    int vdim = ELEMENT_OF + (u & DIM);
-                    v = vdim | OBJECT | cw.addType("java/lang/Object");
+                    // If t is also a reference type, and if u and t have the same dimension
+                    // merge(u,t) = dim(t) | common parent of the element types of u and t.
+                    v = (t & DIM) | OBJECT | cw.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
                 }
-            } else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
-                // if t is any other reference or array type, the merged type
-                // is min(udim, tdim) | java/lang/Object, where udim is the
-                // array dimension of u, minus 1 if u is an array type with a
-                // primitive element type (and similarly for tdim).
-                int tdim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0
-                        : ELEMENT_OF) + (t & DIM);
-                int udim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0
-                        : ELEMENT_OF) + (u & DIM);
-                v = Math.min(tdim, udim) | OBJECT
-                        | cw.addType("java/lang/Object");
-            } else {
-                // if t is any other type, merge(u,t)=TOP
+                else {
+                    // If u and t are array types, but not with the same element type,
+                    // merge(u,t) = dim(u) - 1 | java/lang/Object.
+                    int dim = ELEMENT_OF + (u & DIM);
+                    v = dim | OBJECT | cw.addType("java/lang/Object");
+                }
+            }
+            else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
+                // If t is any other reference or array type, the merged type is min(uDim, tDim) | java/lang/Object,
+                // where uDim is the array dimension of u, minus 1 if u is an array type with a primitive element type
+                // (and similarly for tDim).
+                int tDim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (t & DIM);
+                int uDim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (u & DIM);
+                v = Math.min(tDim, uDim) | OBJECT | cw.addType("java/lang/Object");
+            }
+            else {
+                // If t is any other type, merge(u,t)=TOP.
                 v = TOP;
             }
-        } else if (u == NULL) {
-            // if u is the NULL type, merge(u,t)=t,
-            // or TOP if t is not a reference type
+        }
+        else if (u == NULL) {
+            // If u is the NULL type, merge(u,t)=t, or TOP if t is not a reference type.
             v = (t & BASE_KIND) == OBJECT || (t & DIM) != 0 ? t : TOP;
-        } else {
-            // if u is any other type, merge(u,t)=TOP whatever t
+        }
+        else {
+            // If u is any other type, merge(u,t)=TOP whatever t.
             v = TOP;
         }
+
         if (u != v) {
             types[index] = v;
             return true;
         }
+
         return false;
     }
 }

@@ -35,9 +35,8 @@ import static mockit.external.asm.ClassWriter.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
- * This class parses a byte array conforming to the Java class file format and
- * calls the appropriate visit methods of a given class visitor for each field,
- * method and bytecode instruction encountered.
+ * This class parses a byte array conforming to the Java class file format and calls the appropriate visit methods of a
+ * given class visitor for each field, method and bytecode instruction encountered.
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -45,63 +44,52 @@ import static mockit.external.asm.ClassWriter.*;
 public final class ClassReader
 {
     /**
-     * Flag to skip method code. If this class is set <code>CODE</code>
-     * attribute won't be visited. This can be used, for example, to retrieve
-     * annotations for methods and method parameters.
+     * Flag to skip method code. If this class is set <code>CODE</code> attribute won't be visited.
+     * This can be used, for example, to retrieve annotations for methods and method parameters.
      */
     public static final int SKIP_CODE = 1;
 
     /**
-     * Flag to skip the debug information in the class. If this flag is set the
-     * debug information of the class is not visited, i.e. the
-     * {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
-     * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be
-     * called.
+     * Flag to skip the debug information in the class. If this flag is set the debug information of the class is not
+     * visited, i.e. the {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
+     * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be called.
      */
     public static final int SKIP_DEBUG = 2;
 
     /**
-     * Flag to skip the stack map frames in the class. If this flag is set the
-     * stack map frames of the class is not visited, i.e. the
-     * {@link MethodVisitor#visitFrame visitFrame} method will not be called.
-     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option is
-     * used: it avoids visiting frames that will be ignored and recomputed from
-     * scratch in the class writer.
+     * Flag to skip the stack map frames in the class. If this flag is set the stack map frames of the class is not
+     * visited, i.e. the {@link MethodVisitor#visitFrame visitFrame} method will not be called.
+     * This flag is useful when the {@link ClassWriter#COMPUTE_FRAMES} option is used:
+     * it avoids visiting frames that will be ignored and recomputed from scratch in the class writer.
      */
     public static final int SKIP_FRAMES = 4;
 
     /**
-     * The class to be parsed. <i>The content of this array must not be
-     * modified. This field is intended for {@link Attribute} sub classes, and
-     * is normally not needed by class generators or adapters.</i>
+     * The class to be parsed. <em>The content of this array must not be modified.</em>
      */
     public final byte[] b;
 
     /**
-     * The start index of each constant pool item in {@link #b b}, plus one. The
-     * one byte offset skips the constant pool item tag that indicates its type.
+     * The start index of each constant pool item in {@link #b b}, plus one.
+     * The one byte offset skips the constant pool item tag that indicates its type.
      */
     private final int[] items;
 
     /**
-     * The String objects corresponding to the CONSTANT_Utf8 items. This cache
-     * avoids multiple parsing of a given CONSTANT_Utf8 constant pool item,
-     * which GREATLY improves performances (by a factor 2 to 3). This caching
-     * strategy could be extended to all constant pool items, but its benefit
-     * would not be so great for these items (because they are much less
-     * expensive to parse than CONSTANT_Utf8 items).
+     * The String objects corresponding to the CONSTANT_Utf8 items. This cache avoids multiple parsing of a given
+     * CONSTANT_Utf8 constant pool item, which GREATLY improves performances (by a factor 2 to 3). This caching
+     * strategy could be extended to all constant pool items, but its benefit would not be so great for these items
+     * (because they are much less expensive to parse than CONSTANT_Utf8 items).
      */
     private final String[] strings;
 
     /**
-     * Maximum length of the strings contained in the constant pool of the
-     * class.
+     * Maximum length of the strings contained in the constant pool of the class.
      */
     private final int maxStringLength;
 
     /**
-     * Start index of the class header information (access, name...) in
-     * {@link #b b}.
+     * Start index of the class header information (access, name...) in {@link #b b}.
      */
     private final int header;
 
@@ -179,9 +167,8 @@ public final class ClassReader
     }
 
     /**
-     * Returns the class's access flags (see {@link Opcodes}). This value may
-     * not reflect Deprecated and Synthetic flags when bytecode is before 1.5
-     * and those flags are represented by attributes.
+     * Returns the class's access flags (see {@link Opcodes}). This value may not reflect Deprecated and Synthetic flags
+     * when bytecode is before 1.5 and those flags are represented by attributes.
      *
      * @return the class access flags
      *
@@ -192,8 +179,7 @@ public final class ClassReader
     }
 
     /**
-     * Returns the internal name of the class (see
-     * {@link Type#getInternalName() getInternalName}).
+     * Returns the internal name of the class (see {@link Type#getInternalName() getInternalName}).
      *
      * @return the internal class name
      *
@@ -204,12 +190,10 @@ public final class ClassReader
     }
 
     /**
-     * Returns the internal of name of the super class (see
-     * {@link Type#getInternalName() getInternalName}). For interfaces, the
-     * super class is {@link Object}.
+     * Returns the internal of name of the super class (see {@link Type#getInternalName() getInternalName}).
+     * For interfaces, the super class is {@link Object}.
      *
-     * @return the internal name of super class, or <tt>null</tt> for
-     *         {@link Object} class.
+     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
      *
      * @see ClassVisitor#visit(int, int, String, String, String, String[])
      */
@@ -218,11 +202,9 @@ public final class ClassReader
     }
 
     /**
-     * Returns the internal names of the class's interfaces (see
-     * {@link Type#getInternalName() getInternalName}).
+     * Returns the internal names of the class's interfaces (see {@link Type#getInternalName() getInternalName}).
      *
-     * @return the array of internal names for all implemented interfaces or
-     *         <tt>null</tt>.
+     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
      *
      * @see ClassVisitor#visit(int, int, String, String, String, String[])
      */
@@ -338,7 +320,7 @@ public final class ClassReader
      * @param classWriter the {@link ClassWriter} to copy bootstrap methods into.
      */
     private void copyBootstrapMethods(ClassWriter classWriter, Item[] items, char[] c) {
-        // finds the "BootstrapMethods" attribute
+        // Finds the "BootstrapMethods" attribute.
         int u = getAttributes();
         boolean found = false;
 
@@ -357,7 +339,7 @@ public final class ClassReader
             return;
         }
 
-        // copies the bootstrap methods in the class writer
+        // Copies the bootstrap methods in the class writer.
         int bootstrapMethodCount = readUnsignedShort(u + 8);
 
         for (int j = 0, v = u + 10; j < bootstrapMethodCount; j++) {
@@ -470,7 +452,7 @@ public final class ClassReader
         readClassDeclaration(u, c);
         readInterfaces(u, c);
 
-        // reads the class attributes
+        // Reads the class attributes.
         signature = null;
         sourceFile = null;
         sourceDebug = null;
@@ -650,14 +632,14 @@ public final class ClassReader
      * @return the offset of the first byte following the field in the class.
      */
     private int readField(ClassVisitor classVisitor, Context context, int u) {
-        // reads the field declaration
+        // Reads the field declaration.
         char[] c = context.buffer;
         int access = readUnsignedShort(u);
         String name = readUTF8(u + 2, c);
         String desc = readUTF8(u + 4, c);
         u += 6;
 
-        // reads the field attributes
+        // Reads the field attributes.
         String signature = null;
         int anns = 0;
         int ianns = 0;
@@ -667,8 +649,6 @@ public final class ClassReader
         for (int i = readUnsignedShort(u); i > 0; --i) {
             String attrName = readUTF8(u + 2, c);
 
-            // tests are sorted in decreasing frequency order
-            // (based on frequencies observed on typical classes)
             if ("ConstantValue".equals(attrName)) {
                 int item = readUnsignedShort(u + 8);
                 value = item == 0 ? null : readConst(item, c);
@@ -680,8 +660,7 @@ public final class ClassReader
                 access |= Opcodes.ACC_DEPRECATED;
             }
             else if ("Synthetic".equals(attrName)) {
-                access |= Opcodes.ACC_SYNTHETIC
-                   | ACC_SYNTHETIC_ATTRIBUTE;
+                access |= Opcodes.ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
             }
             else if ("RuntimeVisibleAnnotations".equals(attrName)) {
                 anns = u + 8;
@@ -698,7 +677,6 @@ public final class ClassReader
 
         u += 2;
 
-        // visits the field declaration
         FieldVisitor fv = classVisitor.visitField(access, name, desc, signature, value);
 
         if (fv == null) {
@@ -891,6 +869,7 @@ public final class ClassReader
         if (mv instanceof MethodWriter) {
             MethodWriter mw = (MethodWriter) mv;
 
+            //noinspection StringEquality
             if (mw.cw.cr == this && signature == mw.signature) {
                 boolean sameExceptions = false;
 
@@ -1186,12 +1165,13 @@ public final class ClassReader
                 case IMPLVAR_INSN:
                     if (opcode > Opcodes.ISTORE) {
                         opcode -= 59; // ISTORE_0
-                        mv.visitVarInsn(Opcodes.ISTORE + (opcode >> 2),
-                           opcode & 0x3);
-                    } else {
+                        mv.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
+                    }
+                    else {
                         opcode -= 26; // ILOAD_0
                         mv.visitVarInsn(Opcodes.ILOAD + (opcode >> 2), opcode & 0x3);
                     }
+
                     u += 1;
                     break;
                 case LABEL_INSN:
@@ -1204,13 +1184,16 @@ public final class ClassReader
                     break;
                 case WIDE_INSN:
                     opcode = b[u + 1] & 0xFF;
+
                     if (opcode == Opcodes.IINC) {
                         mv.visitIincInsn(readUnsignedShort(u + 2), readShort(u + 4));
                         u += 6;
-                    } else {
+                    }
+                    else {
                         mv.visitVarInsn(opcode, readUnsignedShort(u + 2));
                         u += 4;
                     }
+
                     break;
                 case TABL_INSN: {
                     // skips 0 to 3 padding bytes
@@ -1221,10 +1204,12 @@ public final class ClassReader
                     int max = readInt(u + 8);
                     Label[] table = new Label[max - min + 1];
                     u += 12;
+
                     for (int i = 0; i < table.length; ++i) {
                         table[i] = labels[offset + readInt(u)];
                         u += 4;
                     }
+
                     mv.visitTableSwitchInsn(min, max, labels[label], table);
                     break;
                 }
@@ -1237,11 +1222,13 @@ public final class ClassReader
                     int[] keys = new int[len];
                     Label[] values = new Label[len];
                     u += 8;
+
                     for (int i = 0; i < len; ++i) {
                         keys[i] = readInt(u);
                         values[i] = labels[offset + readInt(u + 4)];
                         u += 8;
                     }
+
                     mv.visitLookupSwitchInsn(labels[label], keys, values);
                     break;
                 }
@@ -1269,20 +1256,25 @@ public final class ClassReader
                 case ITFMETH_INSN: {
                     int cpIndex = items[readUnsignedShort(u + 1)];
                     boolean itf = b[cpIndex - 1] == IMETH;
-                    String iowner = readClass(cpIndex, c);
+                    String owner = readClass(cpIndex, c);
                     cpIndex = items[readUnsignedShort(cpIndex + 2)];
-                    String iname = readUTF8(cpIndex, c);
-                    String idesc = readUTF8(cpIndex + 2, c);
+                    String name = readUTF8(cpIndex, c);
+                    String desc = readUTF8(cpIndex + 2, c);
+
                     if (opcode < Opcodes.INVOKEVIRTUAL) {
-                        mv.visitFieldInsn(opcode, iowner, iname, idesc);
-                    } else {
-                        mv.visitMethodInsn(opcode, iowner, iname, idesc, itf);
+                        mv.visitFieldInsn(opcode, owner, name, desc);
                     }
+                    else {
+                        mv.visitMethodInsn(opcode, owner, name, desc, itf);
+                    }
+
                     if (opcode == Opcodes.INVOKEINTERFACE) {
                         u += 5;
-                    } else {
+                    }
+                    else {
                         u += 3;
                     }
+
                     break;
                 }
                 case INDYMETH_INSN: {
