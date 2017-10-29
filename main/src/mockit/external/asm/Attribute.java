@@ -45,7 +45,7 @@ public final class Attribute
     /**
      * The raw value of this attribute, used only for unknown attributes.
      */
-    private byte[] value;
+    private final byte[] value;
 
     /**
      * The next attribute in this attribute list. May be <tt>null</tt>.
@@ -53,30 +53,18 @@ public final class Attribute
     Attribute next;
 
     /**
-     * Constructs a new empty attribute.
-     *
-     * @param type the type of the attribute.
-     */
-    Attribute(String type) { this.type = type; }
-
-    /**
-     * Reads a {@link #type type} attribute.
-     * This method must return a <i>new</i> {@link Attribute} object, of type {@link #type type}, corresponding to the
-     * <tt>len</tt> bytes starting at the given offset, in the given class reader.
+     * Constructs a new attribute with contents read from a given class reader.
      *
      * @param cr the class that contains the attribute to be read.
-     * @param off index of the first byte of the attribute's content in
-     *            {@link ClassReader#b cr.b}. The 6 attribute header bytes,
-     *            containing the type and the length of the attribute, are not taken into account here.
+     * @param off index of the first byte of the attribute's content in {@link ClassReader#b cr.b}.
+     *            The 6 attribute header bytes, containing the type and the length of the attribute, are not taken into
+     *            account here.
      * @param len the length of the attribute's content.
-     *
-     * @return a <i>new</i> {@link Attribute} object corresponding to the given bytes.
      */
-    Attribute read(ClassReader cr, int off, int len) {
-        Attribute attr = new Attribute(type);
-        attr.value = new byte[len];
-        System.arraycopy(cr.b, off, attr.value, 0, len);
-        return attr;
+    Attribute(String type, ClassReader cr, int off, int len) {
+        this.type = type;
+        value = new byte[len];
+        System.arraycopy(cr.b, off, value, 0, len);
     }
 
     /**

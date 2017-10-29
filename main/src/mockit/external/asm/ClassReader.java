@@ -807,12 +807,9 @@ public final class ClassReader
 
     private void readAttribute(int u, String attrName) {
         int len = readInt(u + 4);
-        Attribute attr = readAttribute(attrName, u + 8, len);
-
-        if (attr != null) {
-            attr.next = attributes;
-            attributes = attr;
-        }
+        Attribute attr = new Attribute(attrName, this, u + 8, len);
+        attr.next = attributes;
+        attributes = attr;
     }
 
     private void readAnnotationDefaultValue(MethodVisitor mv, char[] c, int annotationDefault) {
@@ -1618,22 +1615,6 @@ public final class ClassReader
 
         // the attribute_info structure starts just after the methods
         return u + 2;
-    }
-
-    /**
-     * Reads an attribute in {@link #b b}.
-     *
-     * @param type the type of the attribute.
-     * @param off index of the first byte of the attribute's content in {@link #b b}.
-     *            The 6 attribute header bytes, containing the type and the length of the attribute, are not taken into
-     *            account here (they have already been read).
-     * @param len the length of the attribute's content.
-     *
-     * @return the attribute that has been read.
-     */
-    private Attribute readAttribute(String type, int off, int len) {
-        Attribute attribute = new Attribute(type);
-        return attribute.read(this, off, len);
     }
 
     /**
