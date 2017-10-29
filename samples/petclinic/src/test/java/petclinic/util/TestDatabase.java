@@ -83,10 +83,8 @@ public class TestDatabase
 
       List<? extends BaseEntity> found = db.find(qlStatement, qlArgs);
 
-      for (BaseEntity entityFound : found) {
-         if (entityFound.getId().equals(newId)) {
-            return;
-         }
+      if (found.stream().filter(e -> e.getId().equals(newId)).count() > 0) {
+         return;
       }
 
       fail("New entity with id " + newId + " not found in database");

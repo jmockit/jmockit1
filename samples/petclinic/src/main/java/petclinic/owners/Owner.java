@@ -47,12 +47,6 @@ public class Owner extends Person
    @Nullable
    public Pet getPet(@Nonnull String name)
    {
-      for (Pet pet : pets) {
-         if (pet.getName().equalsIgnoreCase(name)) {
-            return pet;
-         }
-      }
-
-      return null;
+      return pets.stream().filter(pet -> pet.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
    }
 }
