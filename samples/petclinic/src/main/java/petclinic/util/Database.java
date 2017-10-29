@@ -75,21 +75,19 @@ public class Database
     * Saves the state of a given entity to the application database, whether it is new (still transient, with no id) or
     * already persisted (with an id).
     * <p/>
-    * In the case of an already persisted entity, the persistence context is synchronized to the application database,
-    * so that any pending "inserts", "updates" or "deletes" get executed at this time.
+    * In either case, the persistence context is synchronized to the application database, so that any pending
+    * "inserts", "updates" or "deletes" get executed at this time.
     */
    public void save(@Nonnull BaseEntity entity)
    {
       if (entity.isNew()) {
          em.persist(entity);
       }
-      else {
-         if (!em.contains(entity)) { // in case it is a detached entity
-            em.merge(entity);
-         }
-
-         em.flush();
+      else if (!em.contains(entity)) { // in case it is a detached entity
+         em.merge(entity);
       }
+
+      em.flush();
    }
 
    /**
