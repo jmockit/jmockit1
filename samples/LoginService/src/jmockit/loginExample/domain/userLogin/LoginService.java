@@ -4,17 +4,19 @@
  */
 package jmockit.loginExample.domain.userLogin;
 
+import javax.annotation.*;
+
 import jmockit.loginExample.domain.userAccount.*;
 
 public final class LoginService
 {
    private static final int MAX_LOGIN_ATTEMPTS = 3;
 
-   private int loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
-   private String previousAccountId;
-   private UserAccount account;
+   @Nonnegative private int loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
+   @Nullable private String previousAccountId;
+   @Nullable private UserAccount account;
 
-   public void login(String accountId, String password)
+   public void login(@Nonnull String accountId, @Nonnull String password)
       throws UserAccountNotFoundException, UserAccountRevokedException, AccountLoginLimitReachedException
    {
       account = UserAccount.find(accountId);
@@ -33,6 +35,7 @@ public final class LoginService
 
    private void registerNewLogin() throws AccountLoginLimitReachedException, UserAccountRevokedException
    {
+      //noinspection ConstantConditions
       if (account.isLoggedIn()) {
          throw new AccountLoginLimitReachedException();
       }
@@ -45,7 +48,7 @@ public final class LoginService
       loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
    }
 
-   private void handleFailedLoginAttempt(String accountId)
+   private void handleFailedLoginAttempt(@Nonnull String accountId)
    {
       if (previousAccountId == null) {
          loginAttemptsRemaining--;
@@ -55,6 +58,7 @@ public final class LoginService
          loginAttemptsRemaining--;
 
          if (loginAttemptsRemaining == 0) {
+            //noinspection ConstantConditions
             account.setRevoked(true);
             loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
          }

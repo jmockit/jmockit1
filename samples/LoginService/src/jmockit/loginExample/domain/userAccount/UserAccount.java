@@ -4,6 +4,8 @@
  */
 package jmockit.loginExample.domain.userAccount;
 
+import javax.annotation.*;
+
 public final class UserAccount
 {
    private final String id;
@@ -32,7 +34,7 @@ public final class UserAccount
       return password.equals(candidatePassword);
    }
 
-   public static UserAccount find(String accountId)
+   public static UserAccount find(@Nonnull String accountId)
    {
       throw new UnsupportedOperationException("Not implemented");
    }
