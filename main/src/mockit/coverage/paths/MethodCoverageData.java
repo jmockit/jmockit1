@@ -65,23 +65,25 @@ public final class MethodCoverageData implements Serializable
          clearNodes();
       }
 
-      Node node = nodes.get(nodeIndex);
-      List<Node> currentNodesReached = nodesReached.get();
+      if (nodeIndex < nodes.size()) {
+         Node node = nodes.get(nodeIndex);
+         List<Node> currentNodesReached = nodesReached.get();
 
-      if (!node.wasReached() && (nodeIndex == 0 || nodeIndex > previousNodeIndex.get())) {
-         node.setReached(Boolean.TRUE);
-         currentNodesReached.add(node);
-         previousNodeIndex.set(nodeIndex);
-      }
+         if (!node.wasReached() && (nodeIndex == 0 || nodeIndex > previousNodeIndex.get())) {
+            node.setReached(Boolean.TRUE);
+            currentNodesReached.add(node);
+            previousNodeIndex.set(nodeIndex);
+         }
 
-      if (node instanceof Exit) {
-         Exit exitNode = (Exit) node;
+         if (node instanceof Exit) {
+            Exit exitNode = (Exit) node;
 
-         for (Path path : exitNode.paths) {
-            int previousExecutionCount = path.countExecutionIfAllNodesWereReached(currentNodesReached);
+            for (Path path : exitNode.paths) {
+               int previousExecutionCount = path.countExecutionIfAllNodesWereReached(currentNodesReached);
 
-            if (previousExecutionCount >= 0) {
-               return previousExecutionCount;
+               if (previousExecutionCount >= 0) {
+                  return previousExecutionCount;
+               }
             }
          }
       }
