@@ -4,110 +4,41 @@
  */
 package mockit.internal.injection;
 
-import java.util.*;
-import java.util.Map.*;
 import javax.annotation.*;
 
-import mockit.internal.expectations.mocking.*;
-import mockit.internal.util.*;
+import mockit.internal.injection.full.*;
 
 public final class BeanExporter
 {
-   @Nonnull private final List<MockedType> injectables;
-   @Nonnull private final Map<InjectionPoint, Object> testedObjects;
-   @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
-   @Nonnull private final Map<InjectionPoint, Object> globalDependencies;
-   private Object currentTestClassInstance;
+   @Nonnull private final InjectionState injectionState;
 
-   BeanExporter(
-      @Nonnull List<MockedType> injectables,
-      @Nonnull Map<InjectionPoint, Object> testedObjects,
-      @Nonnull Map<InjectionPoint, Object> instantiatedDependencies,
-      @Nonnull Map<InjectionPoint, Object> globalDependencies
-   ) {
-      this.injectables = injectables;
-      this.testedObjects = testedObjects;
-      this.instantiatedDependencies = instantiatedDependencies;
-      this.globalDependencies = globalDependencies;
-   }
-
-   void setCurrentTestClassInstance(@Nonnull Object currentTestClassInstance)
-   {
-      this.currentTestClassInstance = currentTestClassInstance;
-   }
+   BeanExporter(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
    public Object getBean(@Nonnull String name)
    {
-      for (InjectionProvider injectable : injectables) {
-         if (name.equals(injectable.getName())) {
-            return injectable.getValue(currentTestClassInstance);
-         }
-      }
-
-      Object bean = findByName(testedObjects, name);
-
-      if (bean == null) {
-         bean = findByName(instantiatedDependencies, name);
-
-         if (bean == null) {
-            bean = findByName(globalDependencies, name);
-         }
-      }
-
+      InjectionPoint injectionPoint = new InjectionPoint(Object.class, name, true);
+      Object bean = injectionState.getInstantiatedDependency(null, injectionPoint);
       return bean;
    }
 
    @Nullable
-   private static Object findByName(@Nonnull Map<InjectionPoint, Object> dependencies, @Nonnull String name)
+   public <T> T getBean(@Nonnull Class<T> beanType)
    {
-      for (Entry<InjectionPoint, Object> injectionPointAndObject : dependencies.entrySet()) {
-         InjectionPoint injectionPoint = injectionPointAndObject.getKey();
+      TestedClass testedClass = new TestedClass(beanType, beanType);
+      String beanName = getBeanNameFromType(beanType);
+      FullInjection injection = new FullInjection(injectionState, beanType, beanName);
+      Injector injector = new Injector(injectionState, injection);
 
-         if (name.equals(injectionPoint.name)) {
-            return injectionPointAndObject.getValue();
-         }
-      }
-
-      return null;
+      @SuppressWarnings("unchecked")
+      T bean = (T) injection.createOrReuseInstance(testedClass, injector, null, beanName);
+      return bean;
    }
 
-   @Nullable
-   public <T> T getBean(@Nonnull Class<T> type)
+   @Nonnull
+   private static String getBeanNameFromType(@Nonnull Class<?> beanType)
    {
-      for (MockedType injectable : injectables) {
-         if (type == injectable.getClassType()) {
-            @SuppressWarnings("unchecked") T injectableValue = (T) injectable.getValue(currentTestClassInstance);
-            return injectableValue;
-         }
-      }
-
-      Object bean = findByType(testedObjects, type);
-
-      if (bean == null) {
-         bean = findByType(instantiatedDependencies, type);
-
-         if (bean == null) {
-            bean = findByType(globalDependencies, type);
-         }
-      }
-
-      //noinspection unchecked
-      return (T) bean;
-   }
-
-   @Nullable
-   private static Object findByType(@Nonnull Map<InjectionPoint, Object> dependencies, @Nonnull Class<?> type)
-   {
-      for (Entry<InjectionPoint, Object> injectionPointAndObject : dependencies.entrySet()) {
-         InjectionPoint injectionPoint = injectionPointAndObject.getKey();
-         Class<?> injectedType = Utilities.getClassType(injectionPoint.type);
-
-         if (type.isAssignableFrom(injectedType)) {
-            return injectionPointAndObject.getValue();
-         }
-      }
-
-      return null;
+      String name = beanType.getSimpleName();
+      return Character.toLowerCase(name.charAt(0)) + name.substring(1);
    }
 }

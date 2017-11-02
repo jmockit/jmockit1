@@ -366,7 +366,7 @@ public final class InjectionState
    }
 
    @Nullable
-   public Object getInstantiatedDependency(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint dependencyKey)
+   public Object getInstantiatedDependency(@Nullable TestedClass testedClass, @Nonnull InjectionPoint dependencyKey)
    {
       Object dependency = testedObjects.get(dependencyKey);
 
@@ -410,22 +410,21 @@ public final class InjectionState
             return dependencyObject;
          }
 
-         if (reflection != null && reflection.areMatchingTypes(dependencyType, dependencyIP.type)) {
-            if (injectionPoint.hasSameName(dependencyIP)) {
-               return dependencyObject;
-            }
-
-            if (injectionPoint.qualified) {
-               return null;
-            }
-
-            if (found == null) {
+         if (reflection != null) {
+            if (reflection.areMatchingTypes(dependencyType, dependencyIP.type)) {
                found = dependencyObject;
             }
+            else {
+               continue;
+            }
+         }
+
+         if (injectionPoint.hasSameName(dependencyIP)) {
+            return dependencyObject;
          }
       }
 
-      return found;
+      return injectionPoint.qualified ? null : found;
    }
 
    public void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
@@ -448,10 +447,9 @@ public final class InjectionState
    BeanExporter getBeanExporter()
    {
       if (beanExporter == null) {
-         beanExporter = new BeanExporter(injectables, testedObjects, instantiatedDependencies, globalDependencies);
+         beanExporter = new BeanExporter(this);
       }
 
-      beanExporter.setCurrentTestClassInstance(currentTestClassInstance);
       return beanExporter;
    }
 

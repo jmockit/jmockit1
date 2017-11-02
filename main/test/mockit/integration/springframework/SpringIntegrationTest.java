@@ -33,11 +33,20 @@ public final class SpringIntegrationTest
 
    public interface Dependency {}
    static final class DependencyImpl implements Dependency {}
+   public interface AnotherDependency {}
+   static final class AnotherDependencyImpl implements AnotherDependency {}
    static class Collaborator { @Autowired Runnable action; }
 
    @Tested DependencyImpl dependency;
    @Tested(fullyInitialized = true) ExampleSUT exampleSUT;
    @Injectable Runnable action;
+
+   @Tested
+   Class<?> resolveAnotherDependency(Class<? extends AnotherDependency> anInterface)
+   {
+      assertSame(AnotherDependency.class, anInterface);
+      return AnotherDependencyImpl.class;
+   }
 
    @Test
    public void lookupTestedObjectsAndInjectedDependenciesThroughTheBeanFactory()
@@ -112,19 +121,15 @@ public final class SpringIntegrationTest
       // Look-up beans by name and type.
       dependencyBean = beanFactory.getBean("dependency", Dependency.class);
       assertSame(dependency, dependencyBean);
-      dependencyBean = beanFactory.getBean("undefined", Dependency.class);
-      assertSame(dependency, dependencyBean);
 
       collaboratorBean = beanFactory.getBean("collaborator", Collaborator.class);
       assertSame(exampleSUT.collaborator, collaboratorBean);
 
       sut = beanFactory.getBean("exampleSUT", ExampleSUT.class);
       assertSame(exampleSUT, sut);
-      sut = beanFactory.getBean("", ExampleSUT.class);
-      assertSame(exampleSUT, sut);
 
-      Runnable mockAction = beanFactory.getBean("action", Runnable.class);
-      assertSame(action, mockAction);
+      AnotherDependency anotherDependencyBean = beanFactory.getBean("anotherDependency", AnotherDependency.class);
+      assertNotNull(anotherDependencyBean);
 
       // Look-up beans by type only.
       dependencyBean = beanFactory.getBean(Dependency.class);
@@ -136,8 +141,8 @@ public final class SpringIntegrationTest
       sut = beanFactory.getBean(ExampleSUT.class);
       assertSame(exampleSUT, sut);
 
-      mockAction = beanFactory.getBean(Runnable.class);
-      assertSame(action, mockAction);
+      anotherDependencyBean = beanFactory.getBean(AnotherDependency.class);
+      assertNotNull(anotherDependencyBean);
    }
 
    void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory)
