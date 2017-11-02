@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2015 SAP AG. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,18 +34,19 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.File;
 
+// Based on 'LinuxVirtualMachine.java'. All occurrences of the string
+// "Linux" have been textually replaced by "Aix" to avoid confusion.
+
 /*
- * Bsd implementation of HotSpotVirtualMachine
+ * Aix implementation of HotSpotVirtualMachine
  */
-public class BsdVirtualMachine extends HotSpotVirtualMachine {
-    // "tmpdir" is used as a global well-known location for the files
+public class AixVirtualMachine extends HotSpotVirtualMachine {
+    // "/tmp" is used as a global well-known location for the files
     // .java_pid<pid>. and .attach_pid<pid>. It is important that this
     // location is the same for all processes, otherwise the tools
     // will not be able to find all Hotspot processes.
-    // This is intentionally not the same as java.io.tmpdir, since
-    // the latter can be changed by the user.
     // Any changes to this needs to be synchronized with HotSpot.
-    private static final String tmpdir;
+    private static final String tmpdir = "/tmp";
 
     // The patch to the socket file created by the target VM
     String path;
@@ -52,7 +54,7 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
     /**
      * Attaches to the target VM
      */
-    public BsdVirtualMachine(AttachProvider provider, String vmid)
+    public AixVirtualMachine(AttachProvider provider, String vmid)
         throws AttachNotSupportedException, IOException
     {
         super(provider, vmid);
@@ -70,8 +72,7 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
         // Then we attempt to find the socket file again.
         path = findSocketFile(pid);
         if (path == null) {
-            File f = new File(tmpdir, ".attach_pid" + pid);
-            createAttachFile(f.getPath());
+            File f = createAttachFile(pid);
             try {
                 sendQuitTo(pid);
 
@@ -132,7 +133,7 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
      * Execute the given command in the target VM.
      */
     InputStream execute(String cmd, Object ... args) throws AgentLoadException, IOException {
-        assert args.length <= 3;                // includes null
+        assert args.length <= 3;            // includes null
 
         // did we detach?
         String p;
@@ -243,24 +244,41 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
             if ((off < 0) || (off > bs.length) || (len < 0) ||
                 ((off + len) > bs.length) || ((off + len) < 0)) {
                 throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
+            } else if (len == 0)
                 return 0;
-            }
 
-            return BsdVirtualMachine.read(s, bs, off, len);
+            return AixVirtualMachine.read(s, bs, off, len);
         }
 
         public void close() throws IOException {
-            BsdVirtualMachine.close(s);
+            AixVirtualMachine.close(s);
         }
     }
 
     // Return the socket file for the given process.
-    // Checks temp directory for .java_pid<pid>.
     private String findSocketFile(int pid) {
-        String fn = ".java_pid" + pid;
-        File f = new File(tmpdir, fn);
-        return f.exists() ? f.getPath() : null;
+        File f = new File(tmpdir, ".java_pid" + pid);
+        if (!f.exists()) {
+            return null;
+        }
+        return f.getPath();
+    }
+
+    // On Solaris/Linux/Aix a simple handshake is used to start the attach mechanism
+    // if not already started. The client creates a .attach_pid<pid> file in the
+    // target VM's working directory (or temp directory), and the SIGQUIT handler
+    // checks for the file.
+    private File createAttachFile(int pid) throws IOException {
+        String fn = ".attach_pid" + pid;
+        String path = "/proc/" + pid + "/cwd/" + fn;
+        File f = new File(path);
+        try {
+            f.createNewFile();
+        } catch (IOException x) {
+            f = new File(tmpdir, fn);
+            f.createNewFile();
+        }
+        return f;
     }
 
     /*
@@ -273,9 +291,9 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
             try {
                 b = s.getBytes("UTF-8");
             } catch (java.io.UnsupportedEncodingException x) {
-                throw new InternalError();
+                throw new InternalError(x);
             }
-            BsdVirtualMachine.write(fd, b, 0, b.length);
+            AixVirtualMachine.write(fd, b, 0, b.length);
         }
         byte b[] = new byte[1];
         b[0] = 0;
@@ -299,12 +317,7 @@ public class BsdVirtualMachine extends HotSpotVirtualMachine {
 
     static native void write(int fd, byte buf[], int off, int bufLen) throws IOException;
 
-    static native void createAttachFile(String path);
-
-    static native String getTempDir();
-
     static {
         System.loadLibrary("attach");
-        tmpdir = getTempDir();
     }
 }

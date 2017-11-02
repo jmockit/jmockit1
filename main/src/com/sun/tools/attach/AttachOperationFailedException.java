@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,38 +25,29 @@
 
 package com.sun.tools.attach;
 
+import java.io.IOException;
+
 /**
- * The exception thrown when an agent cannot be loaded into the target
- * Java virtual machine.
+ * Exception type to signal that an attach operation failed in the target VM.
  *
- * <p> This exception is thrown by {@link
- * com.sun.tools.attach.VirtualMachine#loadAgent VirtualMachine.loadAgent} or
- * {@link com.sun.tools.attach.VirtualMachine#loadAgentLibrary
- * VirtualMachine.loadAgentLibrary}, {@link
- * com.sun.tools.attach.VirtualMachine#loadAgentPath loadAgentPath} methods
- * if the agent, or agent library, cannot be loaded.
+ * <p> This exception can be thrown by the various operations of
+ * {@link com.sun.tools.attach.VirtualMachine} when the operation
+ * fails in the target VM. If there is a communication error,
+ * a regular IOException will be thrown.
+ *
+ * @since 1.9
  */
-public class AgentLoadException extends Exception {
+public class AttachOperationFailedException extends IOException {
 
-    /** use serialVersionUID for interoperability */
-    static final long serialVersionUID = 688047862952114238L;
-
-    /**
-     * Constructs an <code>AgentLoadException</code> with
-     * no detail message.
-     */
-    public AgentLoadException() {
-        super();
-    }
+    private static final long serialVersionUID = 2140308168167478043L;
 
     /**
-     * Constructs an <code>AgentLoadException</code> with
+     * Constructs an <code>AttachOperationFailedException</code> with
      * the specified detail message.
      *
      * @param   s   the detail message.
      */
-    public AgentLoadException(String s) {
-        super(s);
+    public AttachOperationFailedException(String message) {
+        super(message);
     }
-
 }

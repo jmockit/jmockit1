@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2006, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -59,7 +59,7 @@ import java.io.IOException;
  * {@link java.lang.instrument} for a detailed description on how these agents
  * are loaded and started). The {@link #loadAgentLibrary loadAgentLibrary} and
  * {@link #loadAgentPath loadAgentPath} methods are used to load agents that
- * are deployed in a dynamic library and make use of the <a
+ * are deployed either in a dynamic library or statically linked into the VM and make use of the <a
  * href="../../../../../../../../technotes/guides/jvmti/index.html">JVM Tools
  * Interface</a>. </p>
  *
@@ -76,16 +76,10 @@ import java.io.IOException;
  *      // attach to target VM
  *      VirtualMachine vm = VirtualMachine.attach("2177");
  *
- *      // get system properties in target VM
- *      Properties props = vm.getSystemProperties();
- *
- *      // construct path to management agent
- *      String home = props.getProperty("java.home");
- *      String agent = home + File.separator + "lib" + File.separator
- *          + "management-agent.jar";
- *
- *      // load agent into target VM
- *      vm.loadAgent(agent, "com.sun.management.jmxremote.port=5000");
+ *      // start management agent
+ *      Properties props = new Properties();
+ *      props.put("com.sun.management.jmxremote.port", "5000");
+ *      vm.startManagementAgent(props);
  *
  *      // detach
  *      vm.detach();
@@ -93,9 +87,9 @@ import java.io.IOException;
  * </pre>
  *
  * <p> In this example we attach to a Java virtual machine that is identified by
- * the process identifier <code>2177</code>. The system properties from the target
- * VM are then used to construct the path to a <i>management agent</i> which is then
- * loaded into the target VM. Once loaded the client detaches from the target VM. </p>
+ * the process identifier <code>2177</code>. Then the JMX management agent is
+ * started in the target process using the supplied arguments. Finally, the
+ * client detaches from the target VM. </p>
  *
  * <p> A VirtualMachine is safe for use by multiple concurrent threads. </p>
  *
@@ -298,25 +292,29 @@ public abstract class VirtualMachine {
      * <p> A <a href="../../../../../../../../technotes/guides/jvmti/index.html">JVM
      * TI</a> client is called an <i>agent</i>. It is developed in a native language.
      * A JVM TI agent is deployed in a platform specific manner but it is typically the
-     * platform equivalent of a dynamic library. This method causes the given agent
-     * library to be loaded into the target VM (if not already loaded).
+     * platform equivalent of a dynamic library. Alternatively, it may be statically linked into the VM.
+     * This method causes the given agent library to be loaded into the target
+     * VM (if not already loaded or if not statically linked into the VM).
      * It then causes the target VM to invoke the <code>Agent_OnAttach</code> function
+     * or, for a statically linked agent named 'L', the <code>Agent_OnAttach_L</code> function
      * as specified in the
      * <a href="../../../../../../../../technotes/guides/jvmti/index.html"> JVM Tools
-     * Interface</a> specification. Note that the <code>Agent_OnAttach</code>
+     * Interface</a> specification. Note that the <code>Agent_OnAttach[_L]</code>
      * function is invoked even if the agent library was loaded prior to invoking
      * this method.
      *
      * <p> The agent library provided is the name of the agent library. It is interpreted
      * in the target virtual machine in an implementation-dependent manner. Typically an
      * implementation will expand the library name into an operating system specific file
-     * name. For example, on UNIX systems, the name <tt>foo</tt> might be expanded to
-     * <tt>libfoo.so</tt>, and located using the search path specified by the
-     * <tt>LD_LIBRARY_PATH</tt> environment variable.</p>
+     * name. For example, on UNIX systems, the name <tt>L</tt> might be expanded to
+     * <tt>libL.so</tt>, and located using the search path specified by the
+     * <tt>LD_LIBRARY_PATH</tt> environment variable. If the agent named 'L' is
+     * statically linked into the VM then the VM must export a function named
+     * <code>Agent_OnAttach_L</code>.</p>
      *
-     * <p> If the <code>Agent_OnAttach</code> function in the agent library returns
+     * <p> If the <code>Agent_OnAttach[_L]</code> function in the agent library returns
      * an error then an {@link com.sun.tools.attach.AgentInitializationException} is
-     * thrown. The return value from the <code>Agent_OnAttach</code> can then be
+     * thrown. The return value from the <code>Agent_OnAttach[_L]</code> can then be
      * obtained by invoking the {@link
      * com.sun.tools.attach.AgentInitializationException#returnValue() returnValue}
      * method on the exception. </p>
@@ -325,15 +323,16 @@ public abstract class VirtualMachine {
      *          The name of the agent library.
      *
      * @param   options
-     *          The options to provide to the <code>Agent_OnAttach</code>
+     *          The options to provide to the <code>Agent_OnAttach[_L]</code>
      *          function (can be <code>null</code>).
      *
      * @throws  AgentLoadException
-     *          If the agent library does not exist, or cannot be loaded for
-     *          another reason.
+     *          If the agent library does not exist, the agent library is not
+     *          statically linked with the VM, or the agent library cannot be
+     *          loaded for another reason.
      *
      * @throws  AgentInitializationException
-     *          If the <code>Agent_OnAttach</code> function returns an error
+     *          If the <code>Agent_OnAttach[_L]</code> function returns an error.
      *
      * @throws  IOException
      *          If an I/O error occurs
@@ -359,11 +358,12 @@ public abstract class VirtualMachine {
      *          The name of the agent library.
      *
      * @throws  AgentLoadException
-     *          If the agent library does not exist, or cannot be loaded for
-     *          another reason.
+     *          If the agent library does not exist, the agent library is not
+     *          statically linked with the VM, or the agent library cannot be
+     *          loaded for another reason.
      *
      * @throws  AgentInitializationException
-     *          If the <code>Agent_OnAttach</code> function returns an error
+     *          If the <code>Agent_OnAttach[_L]</code> function returns an error.
      *
      * @throws  IOException
      *          If an I/O error occurs
@@ -383,12 +383,23 @@ public abstract class VirtualMachine {
      * <p> A <a href="../../../../../../../../technotes/guides/jvmti/index.html">JVM
      * TI</a> client is called an <i>agent</i>. It is developed in a native language.
      * A JVM TI agent is deployed in a platform specific manner but it is typically the
-     * platform equivalent of a dynamic library. This method causes the given agent
-     * library to be loaded into the target VM (if not already loaded).
-     * It then causes the target VM to invoke the <code>Agent_OnAttach</code> function
-     * as specified in the
+     * platform equivalent of a dynamic library. Alternatively, the native
+     * library specified by the agentPath parameter may be statically
+     * linked with the VM. The parsing of the agentPath parameter into
+     * a statically linked library name is done in a platform
+     * specific manner in the VM. For example, in UNIX, an agentPath parameter
+     * of <code>/a/b/libL.so</code> would name a library 'L'.
+     *
+     * See the JVM TI Specification for more details.
+     *
+     * This method causes the given agent library to be loaded into the target
+     * VM (if not already loaded or if not statically linked into the VM).
+     * It then causes the target VM to invoke the <code>Agent_OnAttach</code>
+     * function or, for a statically linked agent named 'L', the
+     * <code>Agent_OnAttach_L</code> function as specified in the
      * <a href="../../../../../../../../technotes/guides/jvmti/index.html"> JVM Tools
-     * Interface</a> specification. Note that the <code>Agent_OnAttach</code>
+     * Interface</a> specification.
+     * Note that the <code>Agent_OnAttach[_L]</code>
      * function is invoked even if the agent library was loaded prior to invoking
      * this method.
      *
@@ -396,9 +407,9 @@ public abstract class VirtualMachine {
      * agent library. Unlike {@link #loadAgentLibrary loadAgentLibrary}, the library name
      * is not expanded in the target virtual machine. </p>
      *
-     * <p> If the <code>Agent_OnAttach</code> function in the agent library returns
+     * <p> If the <code>Agent_OnAttach[_L]</code> function in the agent library returns
      * an error then an {@link com.sun.tools.attach.AgentInitializationException} is
-     * thrown. The return value from the <code>Agent_OnAttach</code> can then be
+     * thrown. The return value from the <code>Agent_OnAttach[_L]</code> can then be
      * obtained by invoking the {@link
      * com.sun.tools.attach.AgentInitializationException#returnValue() returnValue}
      * method on the exception. </p>
@@ -407,15 +418,16 @@ public abstract class VirtualMachine {
      *          The full path of the agent library.
      *
      * @param   options
-     *          The options to provide to the <code>Agent_OnAttach</code>
+     *          The options to provide to the <code>Agent_OnAttach[_L]</code>
      *          function (can be <code>null</code>).
      *
      * @throws  AgentLoadException
-     *          If the agent library does not exist, or cannot be loaded for
-     *          another reason.
+     *          If the agent library does not exist, the agent library is not
+     *          statically linked with the VM, or the agent library cannot be
+     *          loaded for another reason.
      *
      * @throws  AgentInitializationException
-     *          If the <code>Agent_OnAttach</code> function returns an error
+     *          If the <code>Agent_OnAttach[_L]</code> function returns an error.
      *
      * @throws  IOException
      *          If an I/O error occurs
@@ -441,11 +453,12 @@ public abstract class VirtualMachine {
      *          The full path to the agent library.
      *
      * @throws  AgentLoadException
-     *          If the agent library does not exist, or cannot be loaded for
-     *          another reason.
+     *          If the agent library does not exist, the agent library is not
+     *          statically linked with the VM, or the agent library cannot be
+     *          loaded for another reason.
      *
      * @throws  AgentInitializationException
-     *          If the <code>Agent_OnAttach</code> function returns an error
+     *          If the <code>Agent_OnAttach[_L]</code> function returns an error.
      *
      * @throws  IOException
      *          If an I/O error occurs
@@ -544,8 +557,15 @@ public abstract class VirtualMachine {
      *
      * @return  The system properties
      *
+     * @throws  AttachOperationFailedException
+     *          If the target virtual machine is unable to complete the
+     *          attach operation. A more specific error message will be
+     *          given by {@link AttachOperationFailedException#getMessage()}.
+     *
      * @throws  IOException
-     *          If an I/O error occurs
+     *          If an I/O error occurs, a communication error for example,
+     *          that cannot be identified as an error to indicate that the
+     *          operation failed in the target VM.
      *
      * @see     java.lang.System#getProperties
      * @see     #loadAgentLibrary
@@ -571,10 +591,79 @@ public abstract class VirtualMachine {
      *
      * @return       The agent properties
      *
+     * @throws       AttachOperationFailedException
+     *               If the target virtual machine is unable to complete the
+     *               attach operation. A more specific error message will be
+     *               given by {@link AttachOperationFailedException#getMessage()}.
+     *
      * @throws       IOException
-     *               If an I/O error occurs
+     *               If an I/O error occurs, a communication error for example,
+     *               that cannot be identified as an error to indicate that the
+     *               operation failed in the target VM.
      */
     public abstract Properties getAgentProperties() throws IOException;
+
+    /**
+     * Starts the JMX management agent in the target virtual machine.
+     *
+     * <p> The configuration properties are the same as those specified on
+     * the command line when starting the JMX management agent. In the same
+     * way as on the command line, you need to specify at least the
+     * {@code com.sun.management.jmxremote.port} property.
+     *
+     * <p> See the online documentation for <a
+     * href="../../../../../../../../technotes/guides/management/agent.html">
+     * Monitoring and Management Using JMX Technology</a> for further details.
+     *
+     * @param   agentProperties
+     *          A Properties object containing the configuration properties
+     *          for the agent.
+     *
+     * @throws  AttachOperationFailedException
+     *          If the target virtual machine is unable to complete the
+     *          attach operation. A more specific error message will be
+     *          given by {@link AttachOperationFailedException#getMessage()}.
+     *
+     * @throws  IOException
+     *          If an I/O error occurs, a communication error for example,
+     *          that cannot be identified as an error to indicate that the
+     *          operation failed in the target VM.
+     *
+     * @throws  IllegalArgumentException
+     *          If keys or values in agentProperties are invalid.
+     *
+     * @throws  NullPointerException
+     *          If agentProperties is null.
+     *
+     * @since   1.8
+     */
+    public abstract void startManagementAgent(Properties agentProperties) throws IOException;
+
+    /**
+     * Starts the local JMX management agent in the target virtual machine.
+     *
+     * <p> See the online documentation for <a
+     * href="../../../../../../../../technotes/guides/management/agent.html">
+     * Monitoring and Management Using JMX Technology</a> for further details.
+     *
+     * @return  The String representation of the local connector's service address.
+     *          The value can be parsed by the
+     *          {@link javax.management.remote.JMXServiceURL#JMXServiceURL(String)}
+     *          constructor.
+     *
+     * @throws  AttachOperationFailedException
+     *          If the target virtual machine is unable to complete the
+     *          attach operation. A more specific error message will be
+     *          given by {@link AttachOperationFailedException#getMessage()}.
+     *
+     * @throws  IOException
+     *          If an I/O error occurs, a communication error for example,
+     *          that cannot be identified as an error to indicate that the
+     *          operation failed in the target VM.
+     *
+     * @since   1.8
+     */
+    public abstract String startLocalManagementAgent() throws IOException;
 
     /**
      * Returns a hash-code value for this VirtualMachine. The hash

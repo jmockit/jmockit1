@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2014, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,7 +33,7 @@ import com.sun.tools.attach.spi.AttachProvider;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Map;
+import java.util.Map.Entry;
 
 /*
  * The HotSpot implementation of com.sun.tools.attach.VirtualMachine.
@@ -102,7 +102,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         try {
             loadAgentLibrary("instrument", args);
         } catch (AgentLoadException x) {
-            throw new InternalError("instrument library is missing in target VM");
+            throw new InternalError("instrument library is missing in target VM", x);
         } catch (AgentInitializationException x) {
             /*
              * Translate interesting errors into the right exception and
@@ -161,6 +161,54 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         return props;
     }
 
+    private static final String MANAGMENT_PREFIX = "com.sun.management.";
+
+    private static boolean checkedKeyName(Object key) {
+        if (!(key instanceof String)) {
+            throw new IllegalArgumentException("Invalid option (not a String): "+key);
+        }
+        if (!((String)key).startsWith(MANAGMENT_PREFIX)) {
+            throw new IllegalArgumentException("Invalid option: "+key);
+        }
+        return true;
+    }
+
+    private static String stripKeyName(Object key) {
+        return ((String)key).substring(MANAGMENT_PREFIX.length());
+    }
+
+    @Override
+    public void startManagementAgent(Properties agentProperties) throws IOException {
+        if (agentProperties == null) {
+            throw new NullPointerException("agentProperties cannot be null");
+        }
+        // Convert the arguments into arguments suitable for the Diagnostic Command:
+        // "ManagementAgent.start jmxremote.port=5555 jmxremote.authenticate=false"
+        StringBuilder args = new StringBuilder();
+        String sep = "";
+        for (Entry<Object, Object> entry : agentProperties.entrySet()) {
+            if (checkedKeyName(entry.getKey())) {
+                args.append(sep).append(stripKeyName(entry.getKey())).append("=").append(escape(entry.getValue()));
+                sep = " ";
+            }
+        }
+        executeJCmd("ManagementAgent.start " + args);
+    }
+
+    private String escape(Object arg) {
+        String value = arg.toString();
+        if (value.contains(" ")) {
+            return "'" + value + "'";
+        }
+        return value;
+    }
+
+    @Override
+    public String startLocalManagementAgent() throws IOException {
+        executeJCmd("ManagementAgent.start_local");
+        return getAgentProperties().getProperty("com.sun.management.jmxremote.localConnectorAddress");
+    }
+
     // --- HotSpot specific methods ---
 
     // same as SIGQUIT
@@ -216,7 +264,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         try {
             return execute(cmd, args);
         } catch (AgentLoadException x) {
-            throw new InternalError("Should not get here");
+            throw new InternalError("Should not get here", x);
         }
     }
 
@@ -256,6 +304,20 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         }
         return value;
     }
+
+    /*
+     * Utility method to read data into a String.
+     */
+    String readErrorMessage(InputStream sis) throws IOException {
+        byte b[] = new byte[1024];
+        int n;
+        StringBuffer message = new StringBuffer();
+        while ((n = sis.read(b)) != -1) {
+            message.append(new String(b, 0, n, "UTF-8"));
+        }
+        return message.toString();
+    }
+
 
     // -- attach timeout support
 

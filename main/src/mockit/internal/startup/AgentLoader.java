@@ -109,6 +109,10 @@ public final class AgentLoader
          return SolarisVirtualMachine.class;
       }
 
+      if (osName.contains("AIX")) {
+         return AixVirtualMachine.class;
+      }
+
       throw new IllegalStateException("Cannot use Attach API on unknown OS: " + osName);
    }
 
