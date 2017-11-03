@@ -79,6 +79,6 @@ final class Context
      */
     Label[] labels;
 
-    boolean skipCode() { return (flags & SKIP_CODE) != 0; }
-    boolean skipDebug() { return (flags & SKIP_DEBUG) != 0; }
+    boolean readCode() { return (flags & SKIP_CODE) == 0; }
+    boolean readDebugInfo() { return (flags & SKIP_DEBUG) == 0; }
 }

@@ -137,7 +137,7 @@ public final class ClassWriter extends ClassVisitor
     /**
      * The type of the MULTIANEWARRAY instruction.
      */
-    static final int MANA_INSN = 16;
+    @SuppressWarnings("unused") static final int MANA_INSN = 16;
 
     /**
      * The type of the WIDE instruction.
@@ -238,15 +238,14 @@ public final class ClassWriter extends ClassVisitor
     static final int TYPE_UNINIT = 31;
 
     /**
-     * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable},
-     * instead of the constant pool, in order to avoid clashes with normal
-     * constant pool items in the ClassWriter constant pool's hash table.
+     * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order
+     * to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
      */
     static final int TYPE_MERGED = 32;
 
     /**
-     * The type of BootstrapMethods items. These items are stored in a special
-     * class attribute named BootstrapMethods and not in the constant pool.
+     * The type of BootstrapMethods items. These items are stored in a special class attribute named BootstrapMethods
+     * and not in the constant pool.
      */
     static final int BSM = 33;
 
@@ -301,15 +300,12 @@ public final class ClassWriter extends ClassVisitor
     final Item key4;
 
     /**
-     * A type table used to temporarily store internal names that will not
-     * necessarily be stored in the constant pool. This type table is used by
-     * the control flow and data flow analysis algorithm used to compute stack
-     * map frames from scratch. This array associates to each index <tt>i</tt>
-     * the Item whose index is <tt>i</tt>. All Item objects stored in this array
-     * are also stored in the {@link #items} hash table. These two arrays allow
-     * to retrieve an Item from its index or, conversely, to get the index of an
-     * Item from its value. Each Item stores an internal name in its
-     * {@link Item#strVal1} field.
+     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
+     * This type table is used by the control flow and data flow analysis algorithm used to compute stack map frames
+     * from scratch. This array associates to each index <tt>i</tt> the Item whose index is <tt>i</tt>. All Item objects
+     * stored in this array are also stored in the {@link #items} hash table. These two arrays allow to retrieve an Item
+     * from its index or, conversely, to get the index of an Item from its value. Each Item stores an internal name in
+     * its {@link Item#strVal1} field.
      */
     Item[] typeTable;
 
@@ -339,8 +335,7 @@ public final class ClassWriter extends ClassVisitor
     private int signature;
 
     /**
-     * The constant pool item that contains the internal name of the super class
-     * of this class.
+     * The constant pool item that contains the internal name of the super class of this class.
      */
     private int superName;
 
@@ -350,15 +345,13 @@ public final class ClassWriter extends ClassVisitor
     private int interfaceCount;
 
     /**
-     * The interfaces implemented or extended by this class or interface. More
-     * precisely, this array contains the indexes of the constant pool items
-     * that contain the internal names of these interfaces.
+     * The interfaces implemented or extended by this class or interface. More precisely, this array contains the
+     * indexes of the constant pool items that contain the internal names of these interfaces.
      */
     private int[] interfaces;
 
     /**
-     * The index of the constant pool item that contains the name of the source
-     * file from which this class was compiled.
+     * The index of the constant pool item that contains the name of the source file from which this class was compiled.
      */
     private int sourceFile;
 
@@ -368,14 +361,12 @@ public final class ClassWriter extends ClassVisitor
     private ByteVector sourceDebug;
 
     /**
-     * The constant pool item that contains the name of the enclosing class of
-     * this class.
+     * The constant pool item that contains the name of the enclosing class of this class.
      */
     private int enclosingMethodOwner;
 
     /**
-     * The constant pool item that contains the name and descriptor of the
-     * enclosing method of this class.
+     * The constant pool item that contains the name and descriptor of the enclosing method of this class.
      */
     private int enclosingMethod;
 
@@ -415,34 +406,26 @@ public final class ClassWriter extends ClassVisitor
     ByteVector bootstrapMethods;
 
     /**
-     * The fields of this class.
-     * These fields are stored in a linked list of {@link FieldWriter} objects, linked to each other by their
-     * {@link FieldWriter#fw} field.
-     * This field stores the first element of this list.
+     * The fields of this class. These fields are stored in a linked list of {@link FieldWriter} objects, linked to each
+     * other by their {@link FieldWriter#fw} field. This field stores the first element of this list.
      */
     FieldWriter firstField;
 
     /**
-     * The fields of this class.
-     * These fields are stored in a linked list of {@link FieldWriter} objects, linked to each other by their
-     * {@link FieldWriter#fw} field.
-     * This field stores the last element of this list.
+     * The fields of this class. These fields are stored in a linked list of {@link FieldWriter} objects, linked to each
+     * other by their {@link FieldWriter#fw} field. This field stores the last element of this list.
      */
     FieldWriter lastField;
 
     /**
-     * The methods of this class.
-     * These methods are stored in a linked list of {@link MethodWriter} objects, linked to each other by their
-     * {@link MethodWriter#mw} field.
-     * This field stores the first element of this list.
+     * The methods of this class. These methods are stored in a linked list of {@link MethodWriter} objects, linked to
+     * each other by their {@link MethodWriter#mw} field. This field stores the first element of this list.
      */
     MethodWriter firstMethod;
 
     /**
-     * The methods of this class.
-     * These methods are stored in a linked list of {@link MethodWriter} objects, linked to each other by their
-     * {@link MethodWriter#mw} field.
-     * This field stores the last element of this list.
+     * The methods of this class. These methods are stored in a linked list of {@link MethodWriter} objects, linked to
+     * each other by their {@link MethodWriter#mw} field. This field stores the last element of this list.
      */
     MethodWriter lastMethod;
 
@@ -465,17 +448,12 @@ public final class ClassWriter extends ClassVisitor
     private boolean computeFrames;
 
     /**
-     * <tt>true</tt> if the stack map tables of this class are invalid.
-     * The {@link MethodWriter#resizeInstructions} method cannot transform existing stack map tables, and so produces
-     * potentially invalid classes when it is executed.
-     * In this case the class is reread and rewritten with the {@link #computeFrames} option (the resizeInstructions
-     * method can resize stack map tables when this option is used).
+     * <tt>true</tt> if the stack map tables of this class are invalid. The {@link MethodWriter#resizeInstructions}
+     * method cannot transform existing stack map tables, and so produces potentially invalid classes when it is
+     * executed. In this case the class is reread and rewritten with the {@link #computeFrames} option (the
+     * resizeInstructions method can resize stack map tables when this option is used).
      */
     boolean invalidFrames;
-
-    // ------------------------------------------------------------------------
-    // Static initializer
-    // ------------------------------------------------------------------------
 
     /*
      * Computes the instruction types of JVM opcodes.
@@ -530,7 +508,7 @@ public final class ClassWriter extends ClassVisitor
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the ClassVisitor abstract class
+    // Implementation of the ClassVisitor base class
     // ------------------------------------------------------------------------
 
     @Override
@@ -582,8 +560,10 @@ public final class ClassWriter extends ClassVisitor
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         ByteVector bv = new ByteVector();
-        // write type, and reserve space for values count
+
+        // Write type, and reserve space for values count.
         bv.putShort(newUTF8(desc)).putShort(0);
+
         AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
 
         if (visible) {
@@ -610,16 +590,12 @@ public final class ClassWriter extends ClassVisitor
             innerClasses = new ByteVector();
         }
 
-        // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the
-        // constant_pool table which represents a class or interface C that is
-        // not a package member must have exactly one corresponding entry in the
-        // classes array". To avoid duplicates we keep track in the intVal field
-        // of the Item of each CONSTANT_Class_info entry C whether an inner
-        // class entry has already been added for C (this field is unused for
-        // class entries, and changing its value does not change the hashcode
-        // and equality tests). If so we store the index of this inner class
-        // entry (plus one) in intVal. This hack allows duplicate detection in
-        // O(1) time.
+        // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table which represents a
+        // class or interface C that is not a package member must have exactly one corresponding entry in the classes
+        // array". To avoid duplicates we keep track in the intVal field of the Item of each CONSTANT_Class_info entry C
+        // whether an inner class entry has already been added for C (this field is unused for class entries, and
+        // changing its value does not change the hashcode and equality tests). If so we store the index of this inner
+        // class entry (plus one) in intVal. This hack allows duplicate detection in O(1) time.
         Item nameItem = newClassItem(name);
 
         if (nameItem.intVal == 0) {
@@ -631,9 +607,8 @@ public final class ClassWriter extends ClassVisitor
             nameItem.intVal = innerClassesCount;
         }
         else {
-            // Compare the inner classes entry nameItem.intVal - 1 with the
-            // arguments of this method and throw an exception if there is a
-            // difference?
+            // Compare the inner classes entry nameItem.intVal - 1 with the arguments of this method and throw an
+            // exception if there is a difference?
         }
     }
 
@@ -660,7 +635,7 @@ public final class ClassWriter extends ClassVisitor
             throw new RuntimeException("Class file too large!");
         }
 
-        // computes the real size of the bytecode of this class
+        // Computes the real size of the bytecode of this class.
         int size = 24 + 2 * interfaceCount;
         int nbFields = 0;
         FieldWriter fb = firstField;
@@ -683,8 +658,7 @@ public final class ClassWriter extends ClassVisitor
         int attributeCount = 0;
 
         if (bootstrapMethods != null) {
-            // we put it as first attribute in order to improve a bit
-            // ClassReader.copyBootstrapMethods
+            // We put it as first attribute in order to improve a bit ClassReader.copyBootstrapMethods.
             ++attributeCount;
             size += 8 + bootstrapMethods.length;
             newUTF8("BootstrapMethods");
@@ -721,8 +695,7 @@ public final class ClassWriter extends ClassVisitor
         }
 
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            if ((version & 0xFFFF) < Opcodes.V1_5
-                    || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 ++attributeCount;
                 size += 6;
                 newUTF8("Synthetic");
@@ -754,8 +727,8 @@ public final class ClassWriter extends ClassVisitor
 
         size += pool.length;
 
-        // allocates a byte vector of this size, in order to avoid unnecessary
-        // arraycopy operations in the ByteVector.enlarge() method
+        // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
+        // ByteVector.enlarge() method.
         ByteVector out = new ByteVector(size);
         out.putInt(0xCAFEBABE).putInt(version);
         out.putShort(index).putByteArray(pool.data, 0, pool.length);
@@ -868,14 +841,11 @@ public final class ClassWriter extends ClassVisitor
     // ------------------------------------------------------------------------
 
     /**
-     * Adds a number or string constant to the constant pool of the class being
-     * build. Does nothing if the constant pool already contains a similar item.
+     * Adds a number or string constant to the constant pool of the class being build. Does nothing if the constant pool
+     * already contains a similar item.
      * 
-     * @param cst
-     *            the value of the constant to be added to the constant pool.
-     *            This parameter must be an {@link Integer}, a {@link Float}, a
-     *            {@link Long}, a {@link Double}, a {@link String} or a
-     *            {@link Type}.
+     * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
+     *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
      *
      * @return a new or already existing constant item with the given value.
      */
@@ -1150,15 +1120,16 @@ public final class ClassWriter extends ClassVisitor
         int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
         hashCode &= 0x7FFFFFFF;
         Item result = items[hashCode % items.length];
+
         loop: while (result != null) {
             if (result.type != BSM || result.hashCode != hashCode) {
                 result = result.next;
                 continue;
             }
 
-            // because the data encode the size of the argument
-            // we don't need to test if these size are equals
+            // Because the data encode the size of the argument we don't need to test if these size are equals.
             int resultPosition = result.intVal;
+
             for (int p = 0; p < length; p++) {
                 if (data[position + p] != data[resultPosition + p]) {
                     result = result.next;

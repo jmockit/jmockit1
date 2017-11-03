@@ -30,55 +30,47 @@
 package mockit.external.asm;
 
 /**
- * The path to a type argument, wildcard bound, array element type, or static
- * inner type within an enclosing type.
+ * The path to a type argument, wildcard bound, array element type, or static inner type within an enclosing type.
  *
  * @author Eric Bruneton
  */
 final class TypePath
 {
     /**
-     * A type path step that steps into the element type of an array type. See
-     * {@link #getStep getStep}.
+     * A type path step that steps into the element type of an array type. See {@link #getStep}.
      */
     static final int ARRAY_ELEMENT = 0;
 
     /**
-     * A type path step that steps into the nested type of a class type. See
-     * {@link #getStep getStep}.
+     * A type path step that steps into the nested type of a class type. See {@link #getStep}.
      */
     static final int INNER_TYPE = 1;
 
     /**
-     * A type path step that steps into the bound of a wildcard type. See
-     * {@link #getStep getStep}.
+     * A type path step that steps into the bound of a wildcard type. See {@link #getStep}.
      */
     static final int WILDCARD_BOUND = 2;
 
     /**
-     * A type path step that steps into a type argument of a generic type. See
-     * {@link #getStep getStep}.
+     * A type path step that steps into a type argument of a generic type. See {@link #getStep}.
      */
     static final int TYPE_ARGUMENT = 3;
 
     /**
      * The byte array where the path is stored, in Java class file format.
      */
-    byte[] b;
+    final byte[] b;
 
     /**
      * The offset of the first byte of the type path in 'b'.
      */
-    int offset;
+    final int offset;
 
     /**
      * Creates a new type path.
      *
-     * @param b
-     *            the byte array containing the type path in Java class file
-     *            format.
-     * @param offset
-     *            the offset of the first byte of the type path in 'b'.
+     * @param b the byte array containing the type path in Java class file format.
+     * @param offset the offset of the first byte of the type path in 'b'.
      */
     TypePath(byte[] b, int offset) {
         this.b = b;
@@ -87,8 +79,6 @@ final class TypePath
 
     /**
      * Returns the length of this path.
-     *
-     * @return the length of this path.
      */
     int getLength() {
         return b[offset];
@@ -97,36 +87,29 @@ final class TypePath
     /**
      * Returns the value of the given step of this path.
      *
-     * @param index
-     *            an index between 0 and {@link #getLength()}, exclusive.
-     * @return {@link #ARRAY_ELEMENT ARRAY_ELEMENT}, {@link #INNER_TYPE
-     *         INNER_TYPE}, {@link #WILDCARD_BOUND WILDCARD_BOUND}, or
-     *         {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
+     * @param index an index between 0 and {@link #getLength()}, exclusive.
+     *
+     * @return {@link #ARRAY_ELEMENT}, {@link #INNER_TYPE}, {@link #WILDCARD_BOUND}, or {@link #TYPE_ARGUMENT}.
      */
     int getStep(int index) {
         return b[offset + 2 * index + 1];
     }
 
     /**
-     * Returns the index of the type argument that the given step is stepping
-     * into. This method should only be used for steps whose value is
-     * {@link #TYPE_ARGUMENT TYPE_ARGUMENT}.
+     * Returns the index of the type argument that the given step is stepping into. This method should only be used for
+     * steps whose value is {@link #TYPE_ARGUMENT}.
      *
-     * @param index
-     *            an index between 0 and {@link #getLength()}, exclusive.
-     * @return the index of the type argument that the given step is stepping
-     *         into.
+     * @param index an index between 0 and {@link #getLength()}, exclusive.
+     * @return the index of the type argument that the given step is stepping into.
      */
     int getStepArgument(int index) {
         return b[offset + 2 * index + 2];
     }
 
     /**
-     * Returns a string representation of this type path. {@link #ARRAY_ELEMENT
-     * ARRAY_ELEMENT} steps are represented with '[', {@link #INNER_TYPE
-     * INNER_TYPE} steps with '.', {@link #WILDCARD_BOUND WILDCARD_BOUND} steps
-     * with '*' and {@link #TYPE_ARGUMENT TYPE_ARGUMENT} steps with their type
-     * argument index in decimal form.
+     * Returns a string representation of this type path. {@link #ARRAY_ELEMENT} steps are represented with '[',
+     * {@link #INNER_TYPE} steps with '.', {@link #WILDCARD_BOUND} steps with '*' and {@link #TYPE_ARGUMENT} steps with
+     * their type argument index in decimal form.
      */
     @Override
     public String toString() {

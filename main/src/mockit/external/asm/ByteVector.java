@@ -204,20 +204,15 @@ final class ByteVector
     }
 
     /**
-     * Puts an UTF8 string into this byte vector. The byte vector is
-     * automatically enlarged if necessary. The string length is encoded in two
-     * bytes before the encoded characters, if there is space for that (i.e. if
+     * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if necessary.
+     * The string length is encoded in two bytes before the encoded characters, if there is space for that (i.e. if
      * this.length - i - 2 >= 0).
      * 
-     * @param s
-     *            the String to encode.
-     * @param i
-     *            the index of the first character to encode. The previous
-     *            characters are supposed to have already been encoded, using
-     *            only one byte per character.
-     * @param maxByteLength
-     *            the maximum byte length of the encoded string, including the
-     *            already encoded characters.
+     * @param s the String to encode.
+     * @param i the index of the first character to encode. The previous characters are supposed to have already been
+     *          encoded, using only one byte per character.
+     * @param maxByteLength the maximum byte length of the encoded string, including the already encoded characters.
+     *
      * @return this byte vector.
      */
     ByteVector encodeUTF8(String s, int i, int maxByteLength) {

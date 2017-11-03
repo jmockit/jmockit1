@@ -36,7 +36,7 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public abstract class AnnotationVisitor
+public class AnnotationVisitor
 {
     /**
      * Constructs a new {@link AnnotationVisitor}.

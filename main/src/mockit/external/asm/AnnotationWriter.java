@@ -50,16 +50,14 @@ final class AnnotationWriter extends AnnotationVisitor
     private int size;
 
     /**
-     * <tt>true<tt> if values are named, <tt>false</tt> otherwise. Annotation
-     * writers used for annotation default and annotation arrays use unnamed
-     * values.
+     * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+     * Annotation writers used for annotation default and annotation arrays use unnamed values.
      */
     private final boolean named;
 
     /**
-     * The annotation values in bytecode form. This byte vector only contains
-     * the values themselves, i.e. the number of values must be stored as a
-     * unsigned short just before these bytes.
+     * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of
+     * values must be stored as a unsigned short just before these bytes.
      */
     private final ByteVector bv;
 
@@ -70,8 +68,7 @@ final class AnnotationWriter extends AnnotationVisitor
     private final ByteVector parent;
 
     /**
-     * Where the number of values of this annotation must be stored in
-     * {@link #parent}.
+     * Where the number of values of this annotation must be stored in {@link #parent}.
      */
     private final int offset;
 
@@ -88,17 +85,11 @@ final class AnnotationWriter extends AnnotationVisitor
     /**
      * Constructs a new {@link AnnotationWriter}.
      * 
-     * @param cw
-     *            the class writer to which this annotation must be added.
-     * @param named
-     *            <tt>true<tt> if values are named, <tt>false</tt> otherwise.
-     * @param bv
-     *            where the annotation values must be stored.
-     * @param parent
-     *            where the number of annotation values must be stored.
-     * @param offset
-     *            where in <tt>parent</tt> the number of annotation values must
-     *            be stored.
+     * @param cw the class writer to which this annotation must be added.
+     * @param named <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+     * @param bv where the annotation values must be stored.
+     * @param parent where the number of annotation values must be stored.
+     * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
      */
     AnnotationWriter(ClassWriter cw, boolean named, ByteVector bv, ByteVector parent, int offset) {
         this.cw = cw;
@@ -274,8 +265,6 @@ final class AnnotationWriter extends AnnotationVisitor
 
     /**
      * Returns the size of this annotation writer list.
-     * 
-     * @return the size of this annotation writer list.
      */
     int getSize() {
         int size = 0;
@@ -359,17 +348,13 @@ final class AnnotationWriter extends AnnotationVisitor
     }
 
     /**
-     * Puts the given type reference and type path into the given bytevector.
+     * Puts the given type reference and type path into the given byte vector.
      * LOCAL_VARIABLE and RESOURCE_VARIABLE target types are not supported.
      * 
-     * @param typeRef
-     *            a reference to the annotated type.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param out
-     *            where the type reference and type path must be put.
+     * @param typeRef a reference to the annotated type.
+     * @param typePath the path to the annotated type argument, wildcard bound, array element type, or static inner type
+     *                 within 'typeRef'. May be <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     * @param out where the type reference and type path must be put.
      */
     static void putTarget(int typeRef, TypePath typePath, ByteVector out) {
         switch (typeRef >>> 24) {

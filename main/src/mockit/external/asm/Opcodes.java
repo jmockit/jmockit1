@@ -30,13 +30,10 @@
 package mockit.external.asm;
 
 /**
- * Defines the JVM opcodes, access flags and array type codes. This interface
- * does not define all the JVM opcodes because some opcodes are automatically
- * handled. For example, the xLOAD and xSTORE opcodes are automatically replaced
- * by xLOAD_n and xSTORE_n opcodes when possible. The xLOAD_n and xSTORE_n
- * opcodes are therefore not defined in this interface. Likewise for LDC,
- * automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and
- * JSR_W.
+ * Defines the JVM opcodes, access flags and array type codes. This interface does not define all the JVM opcodes
+ * because some opcodes are automatically handled. For example, the xLOAD and xSTORE opcodes are automatically replaced
+ * by xLOAD_n and xSTORE_n opcodes when possible. The xLOAD_n and xSTORE_n opcodes are therefore not defined in this
+ * interface. Likewise for LDC, automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
  * 
  * @author Eric Bruneton
  * @author Eugene Kuleshov
@@ -44,40 +41,36 @@ package mockit.external.asm;
 public interface Opcodes
 {
     // versions
-
     int V1_5 = 0 << 16 | 49;
     int V1_6 = 0 << 16 | 50;
     int V1_7 = 0 << 16 | 51;
     int V1_8 = 0 << 16 | 52;
 
     // access flags
-
     int ACC_PUBLIC = 0x0001; // class, field, method
     int ACC_PRIVATE = 0x0002; // class, field, method
     int ACC_PROTECTED = 0x0004; // class, field, method
     int ACC_STATIC = 0x0008; // field, method
     int ACC_FINAL = 0x0010; // class, field, method, parameter
     int ACC_SUPER = 0x0020; // class
-    int ACC_SYNCHRONIZED = 0x0020; // method
-    int ACC_VOLATILE = 0x0040; // field
+    // int ACC_SYNCHRONIZED = 0x0020; // method
+    // int ACC_VOLATILE = 0x0040; // field
     int ACC_BRIDGE = 0x0040; // method
     int ACC_VARARGS = 0x0080; // method
-    int ACC_TRANSIENT = 0x0080; // field
+    // int ACC_TRANSIENT = 0x0080; // field
     int ACC_NATIVE = 0x0100; // method
     int ACC_INTERFACE = 0x0200; // class
     int ACC_ABSTRACT = 0x0400; // class, method
-    int ACC_STRICT = 0x0800; // method
+    // int ACC_STRICT = 0x0800; // method
     int ACC_SYNTHETIC = 0x1000; // class, field, method, parameter
     int ACC_ANNOTATION = 0x2000; // class
     int ACC_ENUM = 0x4000; // class(?) field inner
-    int ACC_MANDATED = 0x8000; // parameter
+    // int ACC_MANDATED = 0x8000; // parameter
 
     // ASM specific pseudo access flags
-
     int ACC_DEPRECATED = 0x20000; // class, field, method
 
     // types for NEWARRAY
-
     int T_BOOLEAN = 4;
     int T_CHAR = 5;
     int T_FLOAT = 6;
@@ -88,7 +81,6 @@ public interface Opcodes
     int T_LONG = 11;
 
     // tags for Handle
-
     int H_GETFIELD = 1;
     int H_GETSTATIC = 2;
     int H_PUTFIELD = 3;
@@ -112,28 +104,25 @@ public interface Opcodes
     int F_FULL = 0;
 
     /**
-     * Represents a compressed frame where locals are the same as the locals in
-     * the previous frame, except that additional 1-3 locals are defined, and
-     * with an empty stack.
+     * Represents a compressed frame where locals are the same as the locals in the previous frame, except that
+     * additional 1-3 locals are defined, and with an empty stack.
      */
     int F_APPEND = 1;
 
     /**
-     * Represents a compressed frame where locals are the same as the locals in
-     * the previous frame, except that the last 1-3 locals are absent and with
-     * an empty stack.
+     * Represents a compressed frame where locals are the same as the locals in the previous frame, except that the last
+     * 1-3 locals are absent and with an empty stack.
      */
     int F_CHOP = 2;
 
     /**
-     * Represents a compressed frame with exactly the same locals as the
-     * previous frame and with an empty stack.
+     * Represents a compressed frame with exactly the same locals as the previous frame and with an empty stack.
      */
     int F_SAME = 3;
 
     /**
-     * Represents a compressed frame with exactly the same locals as the
-     * previous frame and with a single value on the stack.
+     * Represents a compressed frame with exactly the same locals as the previous frame and with a single value on the
+     * stack.
      */
     int F_SAME1 = 4;
 
@@ -146,7 +135,6 @@ public interface Opcodes
     Integer UNINITIALIZED_THIS = 6;
 
     // opcodes // visit method (- = idem)
-
     int NOP = 0; // visitInsn
     int ACONST_NULL = 1; // -
     int ICONST_M1 = 2; // -
@@ -317,7 +305,7 @@ public interface Opcodes
     int GOTO = 167; // -
     int JSR = 168; // -
     int RET = 169; // visitVarInsn
-    int TABLESWITCH = 170; // visiTableSwitchInsn
+    int TABLESWITCH = 170; // visitTableSwitchInsn
     int LOOKUPSWITCH = 171; // visitLookupSwitch
     int IRETURN = 172; // visitInsn
     int LRETURN = 173; // -
