@@ -52,26 +52,22 @@ final class FieldWriter extends FieldVisitor
     private final int access;
 
     /**
-     * The index of the constant pool item that contains the name of this
-     * method.
+     * The index of the constant pool item that contains the name of this method.
      */
     private final int name;
 
     /**
-     * The index of the constant pool item that contains the descriptor of this
-     * field.
+     * The index of the constant pool item that contains the descriptor of this field.
      */
     private final int desc;
 
     /**
-     * The index of the constant pool item that contains the signature of this
-     * field.
+     * The index of the constant pool item that contains the signature of this field.
      */
     private int signature;
 
     /**
-     * The index of the constant pool item that contains the constant value of
-     * this field.
+     * The index of the constant pool item that contains the constant value of this field.
      */
     private int value;
 
@@ -93,18 +89,12 @@ final class FieldWriter extends FieldVisitor
     /**
      * Constructs a new {@link FieldWriter}.
      * 
-     * @param cw
-     *            the class writer to which this field must be added.
-     * @param access
-     *            the field's access flags (see {@link Opcodes}).
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link Type}).
-     * @param signature
-     *            the field's signature. May be <tt>null</tt>.
-     * @param value
-     *            the field's constant value. May be <tt>null</tt>.
+     * @param cw the class writer to which this field must be added.
+     * @param access the field's access flags (see {@link Opcodes}).
+     * @param name the field's name.
+     * @param desc the field's descriptor (see {@link Type}).
+     * @param signature the field's signature. May be <tt>null</tt>.
+     * @param value the field's constant value. May be <tt>null</tt>.
      */
     FieldWriter(ClassWriter cw, int access, String name, String desc, String signature, Object value) {
         if (cw.firstField == null) {
@@ -130,13 +120,14 @@ final class FieldWriter extends FieldVisitor
     }
 
     // ------------------------------------------------------------------------
-    // Implementation of the FieldVisitor abstract class
+    // Implementation of the FieldVisitor base class
     // ------------------------------------------------------------------------
 
     @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         ByteVector bv = new ByteVector();
-        // write type, and reserve space for values count
+
+        // Write type, and reserve space for values count.
         bv.putShort(cw.newUTF8(desc)).putShort(0);
         AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 
@@ -164,10 +155,7 @@ final class FieldWriter extends FieldVisitor
 
     /**
      * Returns the size of this field.
-     * 
-     * @return the size of this field.
      */
-    @SuppressWarnings("OverlyComplexMethod")
     int getSize() {
         int size = 8;
 
@@ -213,14 +201,13 @@ final class FieldWriter extends FieldVisitor
     /**
      * Puts the content of this field into the given byte vector.
      * 
-     * @param out
-     *            where the content of this field must be put.
+     * @param out where the content of this field must be put.
      */
-    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
     void put(ByteVector out) {
         int FACTOR = ClassWriter.TO_ACC_SYNTHETIC;
-        int mask = Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-                | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
+        int mask =
+            Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE |
+            ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
         out.putShort(access & ~mask).putShort(name).putShort(desc);
         int attributeCount = 0;
 

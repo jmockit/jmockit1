@@ -716,6 +716,7 @@ public final class ClassReader
     private int readMethod(Context context, int u) {
         u = readMethodDeclaration(context, u);
 
+        int u0 = u;
         int code = 0;
         int exception = 0;
         exceptions = null;
@@ -725,7 +726,6 @@ public final class ClassReader
         int annDefault = 0;
         int paramAnns = 0;
         int invParamAnns = 0;
-        int firstAttribute = u;
         attributes = null;
         char[] c = context.buffer;
 
@@ -770,13 +770,21 @@ public final class ClassReader
         }
 
         u += 2;
+        readMethodBody(context, u0, u, code, exception, signature, anns, ianns, annDefault, paramAnns, invParamAnns);
+        return u;
+    }
 
+    private void readMethodBody(
+       Context context, int u0, int u, int code, int exception, String signature, int anns, int ianns, int annDefault,
+       int paramAnns, int invParamAnns
+    ) {
         MethodVisitor mv = cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
 
-        if (mv == null || copyMethodBodyIfApplicable(mv, u, exception, signature, firstAttribute)) {
-            return u;
+        if (mv == null || copyMethodBodyIfApplicable(mv, u, exception, signature, u0)) {
+            return;
         }
 
+        char[] c = context.buffer;
         readAnnotationDefaultValue(mv, c, annDefault);
         readAnnotationValues(mv, c, anns, true);
         readAnnotationValues(mv, c, ianns, false);
@@ -785,7 +793,6 @@ public final class ClassReader
         readMethodAttributes(mv);
         readMethodCode(mv, context, code);
         mv.visitEnd();
-        return u;
     }
 
     private int readMethodDeclaration(Context context, int u) {
