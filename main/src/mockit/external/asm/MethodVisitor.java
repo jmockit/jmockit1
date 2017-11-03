@@ -443,41 +443,6 @@ public class MethodVisitor
      */
     public void visitMultiANewArrayInsn(String desc, int dims) {}
 
-    /**
-     * Visits an annotation on an instruction. This method must be called just
-     * <i>after</i> the annotated instruction. It can be called several times
-     * for the same instruction.
-     * 
-     * @param typeRef
-     *            a reference to the annotated type. The sort of this type
-     *            reference must be INSTANCEOF,
-     *            NEW,
-     *
-     *            CONSTRUCTOR_REFERENCE,
-     *            METHOD_REFERENCE,
-     *            CAST,
-     *            CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT,
-     *
-     *            METHOD_INVOCATION_TYPE_ARGUMENT,
-     *            CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT,
-     *            or
-     *            METHOD_REFERENCE_TYPE_ARGUMENT.
-     *
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
-    }
-
     // -------------------------------------------------------------------------
     // Exceptions table entries, debug information, max stack and max locals
     // -------------------------------------------------------------------------
@@ -500,31 +465,6 @@ public class MethodVisitor
      *             (by the {@link #visitLabel visitLabel} method).
      */
     public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {}
-
-    /**
-     * Visits an annotation on an exception handler type. This method must be
-     * called <i>after</i> the {@link #visitTryCatchBlock} for the annotated
-     * exception handler. It can be called several times for the same exception
-     * handler.
-     * 
-     * @param typeRef
-     *            a reference to the annotated type. The sort of this type
-     *            reference must be
-     *            EXCEPTION_PARAMETER.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-        return null;
-    }
 
     /**
      * Visits a local variable declaration.
@@ -550,41 +490,6 @@ public class MethodVisitor
      *             visitor (by the {@link #visitLabel visitLabel} method).
      */
     public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {}
-
-    /**
-     * Visits an annotation on a local variable type.
-     * 
-     * @param typeRef
-     *            a reference to the annotated type. The sort of this type
-     *            reference must be
-     *            LOCAL_VARIABLE or
-     *            RESOURCE_VARIABLE.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param start
-     *            the fist instructions corresponding to the continuous ranges
-     *            that make the scope of this local variable (inclusive).
-     * @param end
-     *            the last instructions corresponding to the continuous ranges
-     *            that make the scope of this local variable (exclusive). This
-     *            array must have the same size as the 'start' array.
-     * @param index
-     *            the local variable's index in each range. This array must have
-     *            the same size as the 'start' array.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitLocalVariableAnnotation(
-        int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index, String desc, boolean visible
-    ) {
-        return null;
-    }
 
     /**
      * Visits a line number declaration.
