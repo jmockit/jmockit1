@@ -15,7 +15,6 @@ import static mockit.external.asm.ClassReader.*;
 
 final class EndOfBlockModifier extends WrappingClassVisitor
 {
-   @Nonnull private final ClassWriter cw;
    @Nullable private final ClassLoader loader;
    @Nonnull private final List<String> baseSubclasses;
    private boolean isFinalClass;
@@ -25,8 +24,6 @@ final class EndOfBlockModifier extends WrappingClassVisitor
       @Nonnull ClassReader cr, @Nullable ClassLoader loader, @Nonnull List<String> baseSubclasses, boolean isFinalClass)
    {
       super(new ClassWriter(cr));
-      assert cv != null;
-      cw = (ClassWriter) cv;
       this.loader = loader;
       this.baseSubclasses = baseSubclasses;
       this.isFinalClass = isFinalClass;

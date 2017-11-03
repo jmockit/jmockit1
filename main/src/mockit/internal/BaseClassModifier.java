@@ -24,18 +24,8 @@ public class BaseClassModifier extends WrappingClassVisitor
       {
          return mw.visitAnnotation(desc, visible);
       }
-
-      @Override
-      public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
-         int index)
-      {}
-
-      @Override
-      public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) { return null; }
    };
 
-   @Nonnull protected final ClassWriter cw;
    protected MethodWriter mw;
    protected boolean useClassLoadingBridge;
    protected String superClassName;
@@ -47,8 +37,6 @@ public class BaseClassModifier extends WrappingClassVisitor
    protected BaseClassModifier(@Nonnull ClassReader classReader)
    {
       super(new ClassWriter(classReader));
-      //noinspection ConstantConditions
-      cw = (ClassWriter) cv;
    }
 
    protected final void setUseClassLoadingBridge(@Nullable ClassLoader classLoader)

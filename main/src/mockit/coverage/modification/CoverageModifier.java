@@ -50,7 +50,6 @@ final class CoverageModifier extends WrappingClassVisitor
       try { return new ClassReader(classFile); } catch (IOException ignore) { return null; }
    }
 
-   @Nonnull private final ClassWriter cw;
    @Nullable private String internalClassName;
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
@@ -70,7 +69,6 @@ final class CoverageModifier extends WrappingClassVisitor
    private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass, @Nullable BitSet linesReprocessed)
    {
       super(new ClassWriter(cr));
-      cw = (ClassWriter) cv;
       sourceFileName = "";
       this.linesReprocessed = linesReprocessed;
       this.forInnerClass = forInnerClass;
