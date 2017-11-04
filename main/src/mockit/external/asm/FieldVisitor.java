@@ -33,36 +33,35 @@ package mockit.external.asm;
  * A visitor to visit a Java field.
  * The methods of this class must be called in the following order: ( <tt>visitAnnotation</tt> |
  * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FieldVisitor
 {
-    /**
-     * Constructs a new {@link FieldVisitor}.
-     */
-    protected FieldVisitor() {}
+   /**
+    * Constructs a new {@link FieldVisitor}.
+    */
+   protected FieldVisitor() {}
 
-    /**
-     * Visits an annotation of the field.
-     * 
-     * @param desc the class descriptor of the annotation class.
-     * @param visible <tt>true</tt> if the annotation is visible at runtime.
-     *
-     * @return a visitor to visit the annotation values, or <tt>null</tt> if
-     *         this visitor is not interested in visiting this annotation.
-     */
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
+   /**
+    * Visits an annotation of the field.
+    *
+    * @param desc    the class descriptor of the annotation class.
+    * @param visible <tt>true</tt> if the annotation is visible at runtime.
+    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
+    * this annotation.
+    */
+   public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
-    /**
-     * Visits a non standard attribute of the field.
-     */
-    public void visitAttribute(Attribute attr) {}
+   /**
+    * Visits a non standard attribute of the field.
+    */
+   public void visitAttribute(Attribute attr) {}
 
-    /**
-     * Visits the end of the field.
-     * This method, which is the last one to be called, is used to inform the visitor that all the annotations and
-     * attributes of the field have been visited.
-     */
-    public void visitEnd() {}
+   /**
+    * Visits the end of the field.
+    * This method, which is the last one to be called, is used to inform the visitor that all the annotations and
+    * attributes of the field have been visited.
+    */
+   public void visitEnd() {}
 }
