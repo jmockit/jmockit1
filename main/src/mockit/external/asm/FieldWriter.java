@@ -77,11 +77,6 @@ final class FieldWriter extends FieldVisitor
    private AnnotationWriter anns;
 
    /**
-    * The runtime invisible annotations of this field. May be <tt>null</tt>.
-    */
-   private AnnotationWriter ianns;
-
-   /**
     * Constructs a new {@link FieldWriter}.
     *
     * @param cw        the class writer to which this field must be added.
@@ -119,22 +114,15 @@ final class FieldWriter extends FieldVisitor
    // ------------------------------------------------------------------------
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+   public AnnotationVisitor visitAnnotation(String desc) {
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
       bv.putShort(cw.newUTF8(desc)).putShort(0);
+
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-
-      if (visible) {
-         aw.next = anns;
-         anns = aw;
-      }
-      else {
-         aw.next = ianns;
-         ianns = aw;
-      }
-
+      aw.next = anns;
+      anns = aw;
       return aw;
    }
 
@@ -175,11 +163,6 @@ final class FieldWriter extends FieldVisitor
          size += 8 + anns.getSize();
       }
 
-      if (ianns != null) {
-         cw.newUTF8("RuntimeInvisibleAnnotations");
-         size += 8 + ianns.getSize();
-      }
-
       return size;
    }
 
@@ -218,10 +201,6 @@ final class FieldWriter extends FieldVisitor
          ++attributeCount;
       }
 
-      if (ianns != null) {
-         ++attributeCount;
-      }
-
       out.putShort(attributeCount);
 
       if (value != 0) {
@@ -247,11 +226,6 @@ final class FieldWriter extends FieldVisitor
       if (anns != null) {
          out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
          anns.put(out);
-      }
-
-      if (ianns != null) {
-         out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
-         ianns.put(out);
       }
    }
 }

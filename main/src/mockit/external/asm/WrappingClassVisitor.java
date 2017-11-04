@@ -35,8 +35,8 @@ public class WrappingClassVisitor extends ClassVisitor
    }
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-      return cw.visitAnnotation(desc, visible);
+   public AnnotationVisitor visitAnnotation(String desc) {
+      return cw.visitAnnotation(desc);
    }
 
    @Override

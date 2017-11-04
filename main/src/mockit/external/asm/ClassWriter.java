@@ -374,11 +374,6 @@ public final class ClassWriter extends ClassVisitor
    private AnnotationWriter anns;
 
    /**
-    * The runtime invisible annotations of this class.
-    */
-   private AnnotationWriter ianns;
-
-   /**
     * The number of entries in the InnerClasses attribute.
     */
    private int innerClassesCount;
@@ -552,23 +547,15 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+   public AnnotationVisitor visitAnnotation(String desc) {
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
       bv.putShort(newUTF8(desc)).putShort(0);
 
       AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
-
-      if (visible) {
-         aw.next = anns;
-         anns = aw;
-      }
-      else {
-         aw.next = ianns;
-         ianns = aw;
-      }
-
+      aw.next = anns;
+      anns = aw;
       return aw;
    }
 
@@ -702,12 +689,6 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("RuntimeVisibleAnnotations");
       }
 
-      if (ianns != null) {
-         ++attributeCount;
-         size += 8 + ianns.getSize();
-         newUTF8("RuntimeInvisibleAnnotations");
-      }
-
       size += pool.length;
 
       // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
@@ -788,14 +769,8 @@ public final class ClassWriter extends ClassVisitor
          anns.put(out);
       }
 
-      if (ianns != null) {
-         out.putShort(newUTF8("RuntimeInvisibleAnnotations"));
-         ianns.put(out);
-      }
-
       if (invalidFrames) {
          anns = null;
-         ianns = null;
          innerClassesCount = 0;
          innerClasses = null;
          bootstrapMethodsCount = 0;

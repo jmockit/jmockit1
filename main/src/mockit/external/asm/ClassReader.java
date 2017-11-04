@@ -448,7 +448,6 @@ public final class ClassReader
       enclosingName = null;
       enclosingDesc = null;
       int anns = 0;
-      int ianns = 0;
       int innerClasses = 0;
 
       u = getAttributesStartIndex();
@@ -481,9 +480,6 @@ public final class ClassReader
             int len = readInt(u + 4);
             sourceDebug = readUTF(u + 8, len, new char[len]);
          }
-         else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
-            ianns = u + 8;
-         }
          else if ("BootstrapMethods".equals(attrName)) {
             readBootstrapMethods(context, u);
          }
@@ -494,8 +490,7 @@ public final class ClassReader
       readClass();
       readSourceAndDebugInfo(context);
       readOuterClass();
-      readAnnotations(c, anns, true);
-      readAnnotations(c, ianns, false);
+      readAnnotations(c, anns);
       readInnerClasses(c, innerClasses);
       readFieldsAndMethods(context);
       cv.visitEnd();
@@ -544,11 +539,11 @@ public final class ClassReader
       }
    }
 
-   private void readAnnotations(char[] c, int anns, boolean visible) {
+   private void readAnnotations(char[] c, int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
             String desc = readUTF8(v, c);
-            AnnotationVisitor av = cv.visitAnnotation(desc, visible);
+            AnnotationVisitor av = cv.visitAnnotation(desc);
             v = readAnnotationValues(v + 2, c, true, av);
          }
       }
@@ -612,7 +607,6 @@ public final class ClassReader
       // Reads the field attributes.
       String signature = null;
       int anns = 0;
-      int ianns = 0;
       Object value = null;
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
@@ -634,9 +628,6 @@ public final class ClassReader
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
          }
-         else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
-            ianns = u + 8;
-         }
 
          u += 6 + readInt(u + 4);
       }
@@ -649,17 +640,16 @@ public final class ClassReader
          return u;
       }
 
-      readFieldAnnotations(fv, c, anns, true);
-      readFieldAnnotations(fv, c, ianns, false);
+      readFieldAnnotations(fv, c, anns);
       fv.visitEnd();
       return u;
    }
 
-   private void readFieldAnnotations(FieldVisitor fv, char[] c, int anns, boolean visible) {
+   private void readFieldAnnotations(FieldVisitor fv, char[] c, int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
             String desc = readUTF8(v, c);
-            AnnotationVisitor av = fv.visitAnnotation(desc, visible);
+            AnnotationVisitor av = fv.visitAnnotation(desc);
             v = readAnnotationValues(v + 2, c, true, av);
          }
       }
