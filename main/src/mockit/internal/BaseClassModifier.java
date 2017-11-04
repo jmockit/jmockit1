@@ -248,13 +248,13 @@ public class BaseClassModifier extends WrappingClassVisitor
       Type returnType = Type.getReturnType(desc);
       pushDefaultValueForType(returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
-      mw.visitMaxs(1, 0);
+      mw.visitMaxStack(1);
    }
 
    protected final void generateEmptyImplementation()
    {
       mw.visitInsn(RETURN);
-      mw.visitMaxs(1, 0);
+      mw.visitMaxStack(1);
    }
 
    @Nonnull

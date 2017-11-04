@@ -35,7 +35,7 @@ package mockit.external.asm;
  * [<tt>visitAnnotationDefault</tt>] (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
  * [<tt>visitCode</tt> (<tt>visitFrame</tt> | <tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> |
  * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)*
- * <tt>visitMaxs</tt>] <tt>visitEnd</tt>.
+ * <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
  * <p/>
  * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must be called in the sequential order of
  * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the labels
@@ -52,7 +52,7 @@ public class MethodVisitor
    protected MethodVisitor() {}
 
    // -------------------------------------------------------------------------
-   // Annotations and non standard attributes
+   // Annotations, code, and frames
    // -------------------------------------------------------------------------
 
    /**
@@ -373,12 +373,9 @@ public class MethodVisitor
    public void visitLineNumber(int line, Label start) {}
 
    /**
-    * Visits the maximum stack size and the maximum number of local variables of the method.
-    *
-    * @param maxStack  maximum stack size of the method.
-    * @param maxLocals maximum number of local variables for the method.
+    * Visits the maximum stack size of the method.
     */
-   public void visitMaxs(int maxStack, int maxLocals) {}
+   public void visitMaxStack(int maxStack) {}
 
    /**
     * Visits the end of the method. This method, which is the last one to be called, is used to inform the visitor that

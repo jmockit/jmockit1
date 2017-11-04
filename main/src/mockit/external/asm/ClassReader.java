@@ -837,7 +837,6 @@ public final class ClassReader
       // Reads the header.
       char[] c = context.buffer;
       int maxStack = readUnsignedShort(u);
-      int maxLocals = readUnsignedShort(u + 2);
       int codeLength = readInt(u + 4);
       u += 8;
 
@@ -887,7 +886,7 @@ public final class ClassReader
          readLocalVariableTables(mv, context, varTable, varTypeTable);
       }
 
-      mv.visitMaxs(maxStack, maxLocals);
+      mv.visitMaxStack(maxStack);
    }
 
    private int readAllLabelsInCodeBlock(Context context, int u, int codeLength, int codeStart, int codeEnd) {

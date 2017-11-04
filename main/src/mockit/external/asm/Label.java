@@ -58,8 +58,7 @@ public final class Label
    static final int RESIZED = 4;
 
    /**
-    * Indicates if this basic block has been pushed in the basic block stack.
-    * See {@link MethodWriter#visitMaxs visitMaxs}.
+    * Indicates if this basic block has been pushed in the basic block stack. See {@link MethodWriter#visitMaxStack}.
     */
    static final int PUSHED = 8;
 
@@ -145,60 +144,52 @@ public final class Label
    private int referenceCount;
 
    /**
-    * Information about forward references. Each forward reference is
-    * described by two consecutive integers in this array: the first one is the
-    * position of the first byte of the bytecode instruction that contains the
-    * forward reference, while the second is the position of the first byte of
-    * the forward reference itself. In fact the sign of the first integer
-    * indicates if this reference uses 2 or 4 bytes, and its absolute value
-    * gives the position of the bytecode instruction. This array is also used
-    * as a bit set to store the subroutines to which a basic block belongs. This
-    * information is needed in {@link MethodWriter#visitMaxs}, after all
-    * forward references have been resolved. Hence the same array can be used
-    * for both purposes without problems.
+    * Information about forward references. Each forward reference is described by two consecutive integers in this
+    * array: the first one is the position of the first byte of the bytecode instruction that contains the forward
+    * reference, while the second is the position of the first byte of the forward reference itself. In fact the sign of
+    * the first integer indicates if this reference uses 2 or 4 bytes, and its absolute value gives the position of the
+    * bytecode instruction. This array is also used as a bit set to store the subroutines to which a basic block
+    * belongs. This information is needed in {@link MethodWriter#visitMaxStack}, after all forward references have been
+    * resolved. Hence the same array can be used for both purposes without problems.
     */
    private int[] srcAndRefPositions;
 
-    /*
-     * Fields for the control flow and data flow graph analysis algorithms (used to compute the maximum stack size or
-     * the stack map frames). A control flow graph contains one node per "basic block", and one edge per "jump" from one
-     * basic block to another. Each node (i.e., each basic block) is represented by the Label object that corresponds to
-     * the first instruction of this basic block. Each node also stores the list of its successors in the graph, as a
-     * linked list of Edge objects.
-     * 
-     * The control flow analysis algorithms used to compute the maximum stack size or the stack map frames are similar
-     * and use two steps. The first step, during the visit of each instruction, builds information about the state of
-     * the local variables and the operand stack at the end of each basic block, called the "output frame",
-     * <i>relatively</i> to the frame state at the beginning of the basic block, which is called the "input frame", and
-     * which is <i>unknown</i> during this step. The second step, in {@link MethodWriter#visitMaxs}, is a fix point
-     * algorithm that computes information about the input frame of each basic block, from the input state of the first
-     * basic block (known from the method signature), and by the using the previously computed relative output frames.
-     * 
-     * The algorithm used to compute the maximum stack size only computes the relative output and absolute input stack
-     * heights, while the algorithm used to compute stack map frames computes relative output frames and absolute input
-     * frames.
-     */
+   /*
+    * Fields for the control flow and data flow graph analysis algorithms (used to compute the maximum stack size or the
+    * stack map frames). A control flow graph contains one node per "basic block", and one edge per "jump" from one
+    * basic block to another. Each node (i.e., each basic block) is represented by the Label object that corresponds to
+    * the first instruction of this basic block. Each node also stores the list of its successors in the graph, as a
+    * linked list of Edge objects.
+    *
+    * The control flow analysis algorithms used to compute the maximum stack size or the stack map frames are similar
+    * and use two steps. The first step, during the visit of each instruction, builds information about the state of
+    * the local variables and the operand stack at the end of each basic block, called the "output frame",
+    * <i>relatively</i> to the frame state at the beginning of the basic block, which is called the "input frame", and
+    * which is <i>unknown</i> during this step. The second step, in {@link MethodWriter#visitMaxStack}, is a fix point
+    * algorithm that computes information about the input frame of each basic block, from the input state of the first
+    * basic block (known from the method signature), and by the using the previously computed relative output frames.
+    *
+    * The algorithm used to compute the maximum stack size only computes the relative output and absolute input stack
+    * heights, while the algorithm used to compute stack map frames computes relative output frames and absolute input
+    * frames.
+    */
 
    /**
-    * Start of the output stack relatively to the input stack. The exact
-    * semantics of this field depends on the algorithm that is used.
-    * <p>
-    * When only the maximum stack size is computed, this field is the number of
-    * elements in the input stack.
-    * <p>
-    * When the stack map frames are completely computed, this field is the
-    * offset of the first output stack element relatively to the top of the
-    * input stack. This offset is always negative or null. A null offset means
-    * that the output stack must be appended to the input stack. A -n offset
-    * means that the first n output stack elements must replace the top n input
-    * stack elements, and that the other elements must be appended to the input
-    * stack.
+    * Start of the output stack relatively to the input stack. The exact semantics of this field depends on the
+    * algorithm that is used.
+    * <p/>
+    * When only the maximum stack size is computed, this field is the number of elements in the input stack.
+    * <p/>
+    * When the stack map frames are completely computed, this field is the offset of the first output stack element
+    * relatively to the top of the input stack. This offset is always negative or null. A null offset means that the
+    * output stack must be appended to the input stack. A -n offset means that the first n output stack elements must
+    * replace the top n input stack elements, and that the other elements must be appended to the input stack.
     */
    int inputStackTop;
 
    /**
-    * Maximum height reached by the output stack, relatively to the top of the
-    * input stack. This maximum is always positive or null.
+    * Maximum height reached by the output stack, relatively to the top of the input stack. This maximum is always
+    * positive or null.
     */
    int outputStackMax;
 
@@ -209,27 +200,24 @@ public final class Label
    Frame frame;
 
    /**
-    * The successor of this label, in the order they are visited.
-    * This linked list does not include labels used for debug info only.
-    * If {@link ClassWriter#computeFrames} option is used then, in addition, it does not contain successive labels that
-    * denote the same bytecode position (in this case only the first label appears in this list).
+    * The successor of this label, in the order they are visited. This linked list does not include labels used for
+    * debug info only. If {@link ClassWriter#computeFrames} option is used then, in addition, it does not contain
+    * successive labels that denote the same bytecode position (in this case only the first label appears in this list).
     */
    Label successor;
 
    /**
-    * The successors of this node in the control flow graph. These successors
-    * are stored in a linked list of {@link Edge Edge} objects, linked to each
-    * other by their {@link Edge#next} field.
+    * The successors of this node in the control flow graph. These successors are stored in a linked list of
+    * {@link Edge Edge} objects, linked to each other by their {@link Edge#next} field.
     */
    Edge successors;
 
    /**
-    * The next basic block in the basic block stack. This stack is used in the
-    * main loop of the fix point algorithm used in the second step of the
-    * control flow analysis algorithms. It is also used in
-    * {@link #visitSubroutine} to avoid using a recursive method.
+    * The next basic block in the basic block stack. This stack is used in the main loop of the fix point algorithm used
+    * in the second step of the control flow analysis algorithms. It is also used in {@link #visitSubroutine} to avoid
+    * using a recursive method.
     *
-    * @see MethodWriter#visitMaxs
+    * @see MethodWriter#visitMaxStack
     */
    Label next;
 

@@ -130,8 +130,8 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public final void visitMaxs(int maxStack, int maxLocals) {
-      mw.visitMaxs(maxStack, maxLocals);
+   public final void visitMaxStack(int maxStack) {
+      mw.visitMaxStack(maxStack);
    }
 
    @Override

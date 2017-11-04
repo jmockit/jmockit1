@@ -88,28 +88,6 @@ public final class MethodWriter extends MethodVisitor
    static final int FULL_FRAME = 255; // ff
 
    /**
-    * Indicates that the stack map frames must be recomputed from scratch. In this case the maximum stack size and
-    * number of local variables is also recomputed from scratch.
-    *
-    * @see #compute
-    */
-   private static final int FRAMES = 0;
-
-   /**
-    * Indicates that the maximum stack size and number of local variables must be automatically computed.
-    *
-    * @see #compute
-    */
-   private static final int MAXS = 1;
-
-   /**
-    * Indicates that nothing must be automatically computed.
-    *
-    * @see #compute
-    */
-   private static final int NOTHING = 2;
-
-   /**
     * The class writer to which this method must be added.
     */
    final ClassWriter cw;
@@ -299,20 +277,16 @@ public final class MethodWriter extends MethodVisitor
     */
 
    /**
-    * Indicates what must be automatically computed.
-    *
-    * @see #FRAMES
-    * @see #MAXS
-    * @see #NOTHING
+    * Indicates whether frames AND max stack/locals must be automatically computed, or if only max stack/locals must be.
     */
-   private final int compute;
+   private final boolean computeFrames;
 
    /**
-    * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to
-    * each other by their {@link Label#successor} field, in the order they are visited by
-    * {@link MethodVisitor#visitLabel}, and starting with the first basic block.
+    * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to each
+    * other by their {@link Label#successor} field, in the order they are visited by {@link MethodVisitor#visitLabel},
+    * and starting with the first basic block.
     */
-   private Label labels;
+   private final Label labels;
 
    /**
     * The previous basic block.
@@ -347,12 +321,10 @@ public final class MethodWriter extends MethodVisitor
     * @param desc          the method's descriptor (see {@link Type}).
     * @param signature     the method's signature. May be <tt>null</tt>.
     * @param exceptions    the internal names of the method's exceptions. May be <tt>null</tt>.
-    * @param computeMaxs   {@code true} if the maximum stack size and number of local variables must be automatically computed.
     * @param computeFrames {@code true} if the stack map tables must be recomputed from scratch.
     */
    MethodWriter(
-      ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions,
-      boolean computeMaxs, boolean computeFrames
+      ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
    ) {
       if (cw.firstMethod == null) {
          cw.firstMethod = this;
@@ -383,28 +355,26 @@ public final class MethodWriter extends MethodVisitor
          }
       }
 
-      compute = computeFrames ? FRAMES : computeMaxs ? MAXS : NOTHING;
+      this.computeFrames = computeFrames;
 
-      if (computeMaxs || computeFrames) {
-         // Updates maxLocals.
-         int size = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
+      // Updates maxLocals.
+      int size = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
 
-         if ((access & ACC_STATIC) != 0) {
-            --size;
-         }
-
-         maxLocals = size;
-         currentLocals = size;
-
-         // Creates and visits the label for the first basic block.
-         labels = new Label();
-         labels.status |= Label.PUSHED;
-         visitLabel(labels);
+      if ((access & ACC_STATIC) != 0) {
+         --size;
       }
+
+      maxLocals = size;
+      currentLocals = size;
+
+      // Creates and visits the label for the first basic block.
+      labels = new Label();
+      labels.status |= Label.PUSHED;
+      visitLabel(labels);
    }
 
    // ------------------------------------------------------------------------
-   // Implementation of the MethodVisitor abstract class
+   // Implementation of the MethodVisitor base class
    // ------------------------------------------------------------------------
 
    @Override
@@ -436,7 +406,8 @@ public final class MethodWriter extends MethodVisitor
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 
       if (parameterAnnotations == null) {
-         parameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
+         int numParameters = Type.getArgumentTypes(descriptor).length;
+         parameterAnnotations = new AnnotationWriter[numParameters];
       }
 
       aw.next = parameterAnnotations[parameter];
@@ -447,7 +418,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-      if (compute == FRAMES) {
+      if (computeFrames) {
          return;
       }
 
@@ -572,7 +543,7 @@ public final class MethodWriter extends MethodVisitor
 
       // Update currentBlock.
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, 0, null, null);
          }
          else {
@@ -596,12 +567,11 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitIntInsn(int opcode, int operand) {
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, operand, null, null);
          }
          else if (opcode != NEWARRAY) {
-            // Updates current and max stack sizes only for NEWARRAY
-            // (stack size variation = 0 for BIPUSH or SIPUSH).
+            // Updates current and max stack sizes only for NEWARRAY (stack size variation = 0 for BIPUSH or SIPUSH).
             int size = stackSize + 1;
 
             if (size > maxStackSize) {
@@ -624,7 +594,7 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitVarInsn(int opcode, int var) {
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, var, null, null);
          }
          else {
@@ -649,20 +619,11 @@ public final class MethodWriter extends MethodVisitor
          }
       }
 
-      if (compute != NOTHING) {
-         // Updates max locals.
-         int n;
+      // Updates max locals.
+      int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? var + 2 : var + 1;
 
-         if (opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE) {
-            n = var + 2;
-         }
-         else {
-            n = var + 1;
-         }
-
-         if (n > maxLocals) {
-            maxLocals = n;
-         }
+      if (n > maxLocals) {
+         maxLocals = n;
       }
 
       // Adds the instruction to the bytecode of the method.
@@ -685,7 +646,7 @@ public final class MethodWriter extends MethodVisitor
          code.put11(opcode, var);
       }
 
-      if (opcode >= ISTORE && compute == FRAMES && handlerCount > 0) {
+      if (opcode >= ISTORE && computeFrames && handlerCount > 0) {
          visitLabel(new Label());
       }
    }
@@ -695,7 +656,7 @@ public final class MethodWriter extends MethodVisitor
       Item i = cw.newClassItem(type);
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, code.length, cw, i);
          }
          else if (opcode == NEW) {
@@ -720,7 +681,7 @@ public final class MethodWriter extends MethodVisitor
       Item i = cw.newFieldItem(owner, name, desc);
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, 0, cw, i);
          }
          else {
@@ -763,16 +724,16 @@ public final class MethodWriter extends MethodVisitor
       int argSize = i.intVal;
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, 0, cw, i);
          }
          else {
-                /*
-                 * Computes the stack size variation. In order not to recompute several times this variation for the
-                 * same Item, we use the intVal field of this item to store this variation, once it has been computed.
-                 * More precisely this intVal field stores the sizes of the arguments and of the return value
-                 * corresponding to desc.
-                 */
+            /*
+             * Computes the stack size variation. In order not to recompute several times this variation for the same
+             * Item, we use the intVal field of this item to store this variation, once it has been computed. More
+             * precisely this intVal field stores the sizes of the arguments and of the return value corresponding to
+             * desc.
+             */
             if (argSize == 0) {
                // The above sizes have not been computed yet, so we compute them...
                argSize = Type.getArgumentsAndReturnSizes(desc);
@@ -781,13 +742,10 @@ public final class MethodWriter extends MethodVisitor
                i.intVal = argSize;
             }
 
-            int size;
+            int size = stackSize - (argSize >> 2) + (argSize & 0x03);
 
             if (opcode == INVOKESTATIC) {
-               size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
-            }
-            else {
-               size = stackSize - (argSize >> 2) + (argSize & 0x03);
+               size++;
             }
 
             // Updates current and max stack sizes.
@@ -819,16 +777,16 @@ public final class MethodWriter extends MethodVisitor
       int argSize = i.intVal;
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(INVOKEDYNAMIC, 0, cw, i);
          }
          else {
-                /*
-                 * Computes the stack size variation. In order not to recompute several times this variation for the
-                 * same Item, we use the intVal field of this item to store this variation, once it has been computed.
-                 * More precisely this intVal field stores the sizes of the arguments and of the return value
-                 * corresponding to desc.
-                 */
+            /*
+             * Computes the stack size variation. In order not to recompute several times this variation for the same
+             * Item, we use the intVal field of this item to store this variation, once it has been computed. More
+             * precisely this intVal field stores the sizes of the arguments and of the return value corresponding to
+             * desc.
+             */
             if (argSize == 0) {
                // The above sizes have not been computed yet, so we compute them...
                argSize = Type.getArgumentsAndReturnSizes(desc);
@@ -857,12 +815,11 @@ public final class MethodWriter extends MethodVisitor
    public void visitJumpInsn(int opcode, Label label) {
       Label nextInsn = null;
 
-      // Label currentBlock = this.currentBlock;
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(opcode, 0, null, null);
 
-            // 'label' is the target of a jump instruction
+            // 'label' is the target of a jump instruction.
             label.getFirst().status |= Label.TARGET;
 
             // Adds 'label' as a successor of this basic block.
@@ -885,16 +842,15 @@ public final class MethodWriter extends MethodVisitor
 
                // Creates a Label for the next basic block.
                nextInsn = new Label();
-                    /*
-                     * note that, by construction in this method, a JSR block
-                     * has at least two successors in the control flow graph:
-                     * the first one leads the next instruction after the JSR,
-                     * while the second one leads to the JSR target.
-                     */
+               /*
+                * Note that, by construction in this method, a JSR block has at least two successors in the control flow
+                * graph: the first one leads the next instruction after the JSR, while the second one leads to the JSR
+                * target.
+                */
             }
             else {
-               // Updates current stack size (max stack size unchanged
-               // because stack size variation always negative in this case).
+               // Updates current stack size (max stack size unchanged because stack size variation always negative in
+               // this case).
                stackSize += Frame.SIZE[opcode];
                addSuccessor(stackSize, label);
             }
@@ -915,8 +871,8 @@ public final class MethodWriter extends MethodVisitor
             code.putByte(201); // JSR_W
          }
          else {
-            // If the IF instruction is transformed into IFNOT GOTO_W the
-            // next instruction becomes the target of the IFNOT instruction.
+            // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
+            // IFNOT instruction.
             if (nextInsn != null) {
                nextInsn.status |= Label.TARGET;
             }
@@ -961,10 +917,10 @@ public final class MethodWriter extends MethodVisitor
          return;
       }
 
-      if (compute == FRAMES) {
+      if (computeFrames) {
          if (currentBlock != null) {
             if (label.position == currentBlock.position) {
-               // successive labels, do not start a new basic block
+               // Successive labels, do not start a new basic block.
                currentBlock.status |= label.status & Label.TARGET;
                label.frame = currentBlock.frame;
                return;
@@ -996,7 +952,7 @@ public final class MethodWriter extends MethodVisitor
 
          previousBlock = label;
       }
-      else if (compute == MAXS) {
+      else {
          if (currentBlock != null) {
             // Ends current block (with one new successor).
             currentBlock.outputStackMax = maxStackSize;
@@ -1024,7 +980,7 @@ public final class MethodWriter extends MethodVisitor
       Item i = cw.newConstItem(cst);
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(LDC, 0, cw, i);
          }
          else {
@@ -1064,22 +1020,20 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitIincInsn(int var, int increment) {
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(IINC, var, null, null);
          }
       }
 
-      if (compute != NOTHING) {
-         // updates max locals
-         int n = var + 1;
+      // Updates max locals.
+      int n = var + 1;
 
-         if (n > maxLocals) {
-            maxLocals = n;
-         }
+      if (n > maxLocals) {
+         maxLocals = n;
       }
 
       // Adds the instruction to the bytecode of the method.
-      if ((var > 255) || (increment > 127) || (increment < -128)) {
+      if (var > 255 || increment > 127 || increment < -128) {
          code.putByte(196 /* WIDE */).put12(IINC, var).putShort(increment);
       }
       else {
@@ -1124,11 +1078,12 @@ public final class MethodWriter extends MethodVisitor
 
    private void visitSwitchInsn(Label dflt, Label[] labels) {
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
-            // adds current block successors
+            // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);
             dflt.getFirst().status |= Label.TARGET;
+
             for (int i = 0; i < labels.length; ++i) {
                addSuccessor(Edge.NORMAL, labels[i]);
                labels[i].getFirst().status |= Label.TARGET;
@@ -1156,7 +1111,7 @@ public final class MethodWriter extends MethodVisitor
       Item i = cw.newClassItem(desc);
 
       if (currentBlock != null) {
-         if (compute == FRAMES) {
+         if (computeFrames) {
             currentBlock.frame.execute(MULTIANEWARRAY, dims, cw, i);
          }
          else {
@@ -1215,14 +1170,12 @@ public final class MethodWriter extends MethodVisitor
          .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc))
          .putShort(index);
 
-      if (compute != NOTHING) {
-         // updates max locals
-         char c = desc.charAt(0);
-         int n = index + (c == 'J' || c == 'D' ? 2 : 1);
+      // Updates max locals.
+      char c = desc.charAt(0);
+      int n = index + (c == 'J' || c == 'D' ? 2 : 1);
 
-         if (n > maxLocals) {
-            maxLocals = n;
-         }
+      if (n > maxLocals) {
+         maxLocals = n;
       }
    }
 
@@ -1238,294 +1191,318 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitMaxs(int maxStack, int maxLocals) {
+   public void visitMaxStack(int maxStack) {
       if (resize) {
-         // Replaces the temporary jump opcodes introduced by Label.resolve.
          resizeInstructions();
       }
 
-      if (compute == FRAMES) {
-         // Completes the control flow graph with exception handler blocks.
-         Handler handler = firstHandler;
+      if (computeFrames) {
+         completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames();
+         createAndVisitFirstFrame();
 
-         while (handler != null) {
-            Label l = handler.start.getFirst();
-            Label h = handler.handler.getFirst();
-            Label e = handler.end.getFirst();
+         int max = computeMaxStackSizeFromComputedFrames();
+         max = visitAllFramesToBeStoredInStackMap(max);
 
-            // Computes the kind of the edges to 'h'.
-            String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
-            int kind = Frame.OBJECT | cw.addType(t);
+         countNumberOfHandlers();
+         this.maxStack = max;
+      }
+      else {
+         completeControlFlowGraphWithExceptionHandlerBlocks();
 
-            // h is an exception handler
-            h.status |= Label.TARGET;
-
-            // Adds 'h' as a successor of labels between 'start' and 'end'.
-            while (l != e) {
-               // creates an edge to 'h'
-               Edge b = new Edge();
-               b.info = kind;
-               b.successor = h;
-
-               // adds it to the successors of 'l'
-               b.next = l.successors;
-               l.successors = b;
-
-               // goes to the next label
-               l = l.successor;
-            }
-
-            handler = handler.next;
+         if (subroutines > 0) {
+            completeControlFlowGraphWithRETSuccessors();
          }
 
-         // Creates and visits the first (implicit) frame.
-         Frame f = labels.frame;
-         Type[] args = Type.getArgumentTypes(descriptor);
-         f.initInputFrame(cw, access, args, this.maxLocals);
-         visitFrame(f);
+         int computedMaxStack = computeMaxStackSize();
+         this.maxStack = Math.max(maxStack, computedMaxStack);
+      }
+   }
 
-         /*
-          * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while
-          * there are changed basic blocks, choose one, mark it as unchanged, and update its successors (which can be
-          * changed in the process).
-          */
-         int max = 0;
-         Label changed = labels;
+   private void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
+      Handler handler = firstHandler;
 
-         while (changed != null) {
-            // Removes a basic block from the list of changed basic blocks.
-            Label l = changed;
-            changed = changed.next;
-            l.next = null;
-            f = l.frame;
+      while (handler != null) {
+         Label l = handler.start.getFirst();
+         Label h = handler.handler.getFirst();
+         Label e = handler.end.getFirst();
 
-            // A reachable jump target must be stored in the stack map.
-            if ((l.status & Label.TARGET) != 0) {
-               l.status |= Label.STORE;
-            }
+         // Computes the kind of the edges to 'h'.
+         String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
+         int kind = Frame.OBJECT | cw.addType(t);
 
-            // All visited labels are reachable, by definition.
-            l.status |= Label.REACHABLE;
+         // h is an exception handler.
+         h.status |= Label.TARGET;
 
-            // Updates the (absolute) maximum stack size.
-            int blockMax = f.inputStack.length + l.outputStackMax;
+         // Adds 'h' as a successor of labels between 'start' and 'end'.
+         while (l != e) {
+            // Creates an edge to 'h'.
+            Edge b = new Edge();
+            b.info = kind;
+            b.successor = h;
 
-            if (blockMax > max) {
-               max = blockMax;
-            }
+            // Adds it to the successors of 'l'.
+            b.next = l.successors;
+            l.successors = b;
 
-            // Updates the successors of the current basic block.
-            Edge e = l.successors;
-
-            while (e != null) {
-               Label n = e.successor.getFirst();
-               boolean change = f.merge(cw, n.frame, e.info);
-
-               if (change && n.next == null) {
-                  // If n has changed and is not already in the 'changed' list, adds it to this list.
-                  n.next = changed;
-                  changed = n;
-               }
-
-               e = e.next;
-            }
-         }
-
-         // Visits all the frames that must be stored in the stack map.
-         Label l = labels;
-
-         while (l != null) {
-            f = l.frame;
-
-            if ((l.status & Label.STORE) != 0) {
-               visitFrame(f);
-            }
-
-            if ((l.status & Label.REACHABLE) == 0) {
-               // Finds start and end of dead basic block.
-               Label k = l.successor;
-               int start = l.position;
-               int end = (k == null ? code.length : k.position) - 1;
-
-               // If non empty basic block.
-               if (end >= start) {
-                  max = Math.max(max, 1);
-
-                  // replaces instructions with NOP ... NOP ATHROW
-                  for (int i = start; i < end; ++i) {
-                     code.data[i] = NOP;
-                  }
-
-                  code.data[end] = (byte) ATHROW;
-
-                  // emits a frame for this unreachable block
-                  int frameIndex = startFrame(start, 0, 1);
-                  frame[frameIndex] = Frame.OBJECT | cw.addType("java/lang/Throwable");
-                  endFrame();
-
-                  // removes the start-end range from the exception handlers
-                  firstHandler = Handler.remove(firstHandler, l, k);
-               }
-            }
-
+            // Goes to the next label.
             l = l.successor;
          }
 
-         handler = firstHandler;
-         handlerCount = 0;
-
-         while (handler != null) {
-            handlerCount += 1;
-            handler = handler.next;
-         }
-
-         this.maxStack = max;
+         handler = handler.next;
       }
-      else if (compute == MAXS) {
-         // completes the control flow graph with exception handler blocks
-         Handler handler = firstHandler;
+   }
 
-         while (handler != null) {
-            Label l = handler.start;
-            Label h = handler.handler;
-            Label e = handler.end;
+   // Creates and visits the first (implicit) frame.
+   private void createAndVisitFirstFrame() {
+      Type[] args = Type.getArgumentTypes(descriptor);
+      Frame f = labels.frame;
+      f.initInputFrame(cw, access, args, maxLocals);
+      visitFrame(f);
+   }
 
-            // adds 'h' as a successor of labels between 'start' and 'end'
-            while (l != e) {
-               // creates an edge to 'h'
-               Edge b = new Edge();
-               b.info = Edge.EXCEPTION;
-               b.successor = h;
+   /**
+    * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while there
+    * are changed basic blocks, choose one, mark it as unchanged, and update its successors (which can be changed in the
+    * process).
+    */
+   private int computeMaxStackSizeFromComputedFrames() {
+      int max = 0;
+      Label changed = labels;
+      Frame f;
 
-               // adds it to the successors of 'l'
-               if ((l.status & Label.JSR) == 0) {
-                  b.next = l.successors;
-                  l.successors = b;
-               }
-               else {
-                  // if l is a JSR block, adds b after the first two edges
-                  // to preserve the hypothesis about JSR block successors
-                  // order (see {@link #visitJumpInsn})
-                  b.next = l.successors.next.next;
-                  l.successors.next.next = b;
-               }
+      while (changed != null) {
+         // Removes a basic block from the list of changed basic blocks.
+         Label l = changed;
+         changed = changed.next;
+         l.next = null;
+         f = l.frame;
 
-               // goes to the next label
-               l = l.successor;
-            }
-
-            handler = handler.next;
+         // A reachable jump target must be stored in the stack map.
+         if ((l.status & Label.TARGET) != 0) {
+            l.status |= Label.STORE;
          }
 
-         if (subroutines > 0) {
-            // completes the control flow graph with the RET successors
-                /*
-                 * first step: finds the subroutines. This step determines, for
-                 * each basic block, to which subroutine(s) it belongs.
-                 */
-            // finds the basic blocks that belong to the "main" subroutine
-            int id = 0;
-            labels.visitSubroutine(null, 1, subroutines);
+         // All visited labels are reachable, by definition.
+         l.status |= Label.REACHABLE;
 
-            // finds the basic blocks that belong to the real subroutines
-            Label l = labels;
+         // Updates the (absolute) maximum stack size.
+         int blockMax = f.inputStack.length + l.outputStackMax;
 
-            while (l != null) {
-               if ((l.status & Label.JSR) != 0) {
-                  // the subroutine is defined by l's TARGET, not by l
-                  Label subroutine = l.successors.next.successor;
-
-                  // if this subroutine has not been visited yet...
-                  if ((subroutine.status & Label.VISITED) == 0) {
-                     // ...assigns it a new id and finds its basic blocks
-                     id += 1;
-                     subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
-                  }
-               }
-
-               l = l.successor;
-            }
-
-            // second step: finds the successors of RET blocks
-            l = labels;
-
-            while (l != null) {
-               if ((l.status & Label.JSR) != 0) {
-                  Label L = labels;
-
-                  while (L != null) {
-                     L.status &= ~Label.VISITED2;
-                     L = L.successor;
-                  }
-
-                  // the subroutine is defined by l's TARGET, not by l
-                  Label subroutine = l.successors.next.successor;
-                  subroutine.visitSubroutine(l, 0, subroutines);
-               }
-
-               l = l.successor;
-            }
+         if (blockMax > max) {
+            max = blockMax;
          }
 
-         /*
-          * control flow analysis algorithm: while the block stack is not
-          * empty, pop a block from this stack, update the max stack size,
-          * compute the true (non relative) begin stack size of the
-          * successors of this block, and push these successors onto the
-          * stack (unless they have already been pushed onto the stack).
-          * Note: by hypothesis, the {@link Label#inputStackTop} of the
-          * blocks in the block stack are the true (non relative) beginning
-          * stack sizes of these blocks.
-          */
-         int max = 0;
-         Label stack = labels;
+         // Updates the successors of the current basic block.
+         Edge e = l.successors;
 
-         while (stack != null) {
-            // pops a block from the stack
-            Label l = stack;
-            stack = stack.next;
+         while (e != null) {
+            Label n = e.successor.getFirst();
+            boolean change = f.merge(cw, n.frame, e.info);
 
-            // computes the true (non relative) max stack size of this block
-            int start = l.inputStackTop;
-            int blockMax = start + l.outputStackMax;
-
-            // updates the global max stack size
-            if (blockMax > max) {
-               max = blockMax;
+            if (change && n.next == null) {
+               // If n has changed and is not already in the 'changed' list, adds it to this list.
+               n.next = changed;
+               changed = n;
             }
 
-            // analyzes the successors of the block
-            Edge b = l.successors;
-
-            if ((l.status & Label.JSR) != 0) {
-               // ignores the first edge of JSR blocks (virtual successor)
-               b = b.next;
-            }
-
-            while (b != null) {
-               l = b.successor;
-
-               // if this successor has not already been pushed...
-               if ((l.status & Label.PUSHED) == 0) {
-                  // computes its true beginning stack size...
-                  l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
-
-                  // ...and pushes it onto the stack
-                  l.status |= Label.PUSHED;
-                  l.next = stack;
-                  stack = l;
-               }
-
-               b = b.next;
-            }
+            e = e.next;
          }
-
-         this.maxStack = Math.max(maxStack, max);
       }
-      else {
-         this.maxStack = maxStack;
-         this.maxLocals = maxLocals;
+
+      return max;
+   }
+
+   // Visits all the frames that must be stored in the stack map.
+   private int visitAllFramesToBeStoredInStackMap(int max) {
+      Label l = labels;
+      Frame f;
+
+      while (l != null) {
+         f = l.frame;
+
+         if ((l.status & Label.STORE) != 0) {
+            visitFrame(f);
+         }
+
+         if ((l.status & Label.REACHABLE) == 0) {
+            // Finds start and end of dead basic block.
+            Label k = l.successor;
+            int start = l.position;
+            int end = (k == null ? code.length : k.position) - 1;
+
+            // If non empty basic block.
+            if (end >= start) {
+               max = Math.max(max, 1);
+
+               // Replaces instructions with NOP ... NOP ATHROW.
+               for (int i = start; i < end; ++i) {
+                  code.data[i] = NOP;
+               }
+
+               code.data[end] = (byte) ATHROW;
+
+               // Emits a frame for this unreachable block.
+               int frameIndex = startFrame(start, 0, 1);
+               frame[frameIndex] = Frame.OBJECT | cw.addType("java/lang/Throwable");
+               endFrame();
+
+               // Removes the start-end range from the exception handlers.
+               firstHandler = Handler.remove(firstHandler, l, k);
+            }
+         }
+
+         l = l.successor;
       }
+
+      return max;
+   }
+
+   private void countNumberOfHandlers() {
+      Handler handler = firstHandler;
+      handlerCount = 0;
+
+      while (handler != null) {
+         handlerCount++;
+         handler = handler.next;
+      }
+   }
+
+   private void completeControlFlowGraphWithExceptionHandlerBlocks() {
+      Handler handler = firstHandler;
+
+      while (handler != null) {
+         Label l = handler.start;
+         Label h = handler.handler;
+         Label e = handler.end;
+
+         // Adds 'h' as a successor of labels between 'start' and 'end'.
+         while (l != e) {
+            // Creates an edge to 'h'.
+            Edge b = new Edge();
+            b.info = Edge.EXCEPTION;
+            b.successor = h;
+
+            // Adds it to the successors of 'l'.
+            if ((l.status & Label.JSR) == 0) {
+               b.next = l.successors;
+               l.successors = b;
+            }
+            else {
+               // If l is a JSR block, adds b after the first two edges to preserve the hypothesis about JSR block
+               // successors order (see {@link #visitJumpInsn}).
+               b.next = l.successors.next.next;
+               l.successors.next.next = b;
+            }
+
+            // Goes to the next label.
+            l = l.successor;
+         }
+
+         handler = handler.next;
+      }
+   }
+
+   /**
+    * First step: finds the subroutines. This step determines, for each basic block, to which subroutine(s) it
+    * belongs. Second step: finds the successors of RET blocks.
+    */
+   private void completeControlFlowGraphWithRETSuccessors() {
+      // Finds the basic blocks that belong to the "main" subroutine.
+      int id = 0;
+      labels.visitSubroutine(null, 1, subroutines);
+
+      // Finds the basic blocks that belong to the real subroutines.
+      Label l = labels;
+
+      while (l != null) {
+         if ((l.status & Label.JSR) != 0) {
+            // The subroutine is defined by l's TARGET, not by l.
+            Label subroutine = l.successors.next.successor;
+
+            // If this subroutine has not been visited yet...
+            if ((subroutine.status & Label.VISITED) == 0) {
+               // ...assigns it a new id and finds its basic blocks.
+               id += 1;
+               subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
+            }
+         }
+
+         l = l.successor;
+      }
+
+      // Second step: finds the successors of RET blocks.
+      l = labels;
+
+      while (l != null) {
+         if ((l.status & Label.JSR) != 0) {
+            Label L = labels;
+
+            while (L != null) {
+               L.status &= ~Label.VISITED2;
+               L = L.successor;
+            }
+
+            // The subroutine is defined by l's TARGET, not by l.
+            Label subroutine = l.successors.next.successor;
+            subroutine.visitSubroutine(l, 0, subroutines);
+         }
+
+         l = l.successor;
+      }
+   }
+
+   /**
+    * Control flow analysis algorithm: while the block stack is not empty, pop a block from this stack, update the max
+    * stack size, compute the true (non relative) begin stack size of the successors of this block, and push these
+    * successors onto the stack (unless they have already been pushed onto the stack).
+    * Note: by hypothesis, the {@link Label#inputStackTop} of the blocks in the block stack are the true (non relative)
+    * beginning stack sizes of these blocks.
+    */
+   private int computeMaxStackSize() {
+      int max = 0;
+      Label stack = labels;
+
+      while (stack != null) {
+         // Pops a block from the stack.
+         Label l = stack;
+         stack = stack.next;
+
+         // Computes the true (non relative) max stack size of this block.
+         int start = l.inputStackTop;
+         int blockMax = start + l.outputStackMax;
+
+         // Updates the global max stack size.
+         if (blockMax > max) {
+            max = blockMax;
+         }
+
+         // Analyzes the successors of the block.
+         Edge b = l.successors;
+
+         if ((l.status & Label.JSR) != 0) {
+            // Ignores the first edge of JSR blocks (virtual successor).
+            b = b.next;
+         }
+
+         while (b != null) {
+            l = b.successor;
+
+            // If this successor has not already been pushed...
+            if ((l.status & Label.PUSHED) == 0) {
+               // computes its true beginning stack size...
+               l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
+
+               // ...and pushes it onto the stack.
+               l.status |= Label.PUSHED;
+               l.next = stack;
+               stack = l;
+            }
+
+            b = b.next;
+         }
+      }
+
+      return max;
    }
 
    // ------------------------------------------------------------------------
@@ -1550,11 +1527,11 @@ public final class MethodWriter extends MethodVisitor
    }
 
    /**
-    * Ends the current basic block. This method must be used in the case where
-    * the current basic block does not have any successor.
+    * Ends the current basic block. This method must be used in the case where the current basic block does not have any
+    * successor.
     */
    private void noSuccessor() {
-      if (compute == FRAMES) {
+      if (computeFrames) {
          Label l = new Label();
          l.frame = new Frame();
          l.frame.owner = l;
@@ -1586,8 +1563,8 @@ public final class MethodWriter extends MethodVisitor
       int[] locals = f.inputLocals;
       int[] stacks = f.inputStack;
 
-      // computes the number of locals (ignores TOP types that are just after
-      // a LONG or a DOUBLE, and all trailing TOP types)
+      // Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP
+      // types).
       for (i = 0; i < locals.length; ++i) {
          t = locals[i];
 
@@ -1604,8 +1581,7 @@ public final class MethodWriter extends MethodVisitor
          }
       }
 
-      // computes the stack size (ignores TOP types that are just after
-      // a LONG or a DOUBLE)
+      // Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
       for (i = 0; i < stacks.length; ++i) {
          t = stacks[i];
          ++nStack;
@@ -1615,7 +1591,7 @@ public final class MethodWriter extends MethodVisitor
          }
       }
 
-      // visits the frame and its content
+      // Visits the frame and its content.
       int frameIndex = startFrame(f.owner.position, nLocal, nStack);
 
       for (i = 0; nLocal > 0; ++i, --nLocal) {
@@ -1643,7 +1619,7 @@ public final class MethodWriter extends MethodVisitor
     * Visit the implicit first frame of this method.
     */
    private void visitImplicitFirstFrame() {
-      // There can be at most descriptor.length() + 1 locals
+      // There can be at most descriptor.length() + 1 locals.
       int frameIndex = startFrame(0, descriptor.length() + 1, 0);
 
       if ((access & ACC_STATIC) == 0) {
@@ -1799,7 +1775,7 @@ public final class MethodWriter extends MethodVisitor
       }
 
       if (type != FULL_FRAME) {
-         // verify if locals are the same
+         // Verify if locals are the same.
          int l = 3;
 
          for (int j = 0; j < localsSize; j++) {
@@ -2559,16 +2535,16 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void updateStackMapFrameLabels(int[] allIndexes, int[] allSizes, boolean[] resize) {
-      if (compute == FRAMES) {
+      if (computeFrames) {
          Label l = labels;
 
          while (l != null) {
-                /*
-                 * Detects the labels that are just after an IF instruction that has been resized with the IFNOT GOTO_W
-                 * pattern. These labels are now the target of a jump instruction (the IFNOT instruction).
-                 * Note that we need the original label position here.
-                 * getNewOffset must therefore never have been called for this label.
-                 */
+            /*
+             * Detects the labels that are just after an IF instruction that has been resized with the IFNOT GOTO_W
+             * pattern. These labels are now the target of a jump instruction (the IFNOT instruction).
+             * Note that we need the original label position here.
+             * getNewOffset must therefore never have been called for this label.
+             */
             int u = l.position - 3;
 
             if (u >= 0 && resize[u]) {
@@ -2589,22 +2565,22 @@ public final class MethodWriter extends MethodVisitor
          }
 
          // The stack map frames are not serialized yet, so we don't need to update them.
-         // They will be serialized in visitMaxs.
+         // They will be serialized in visitMaxStack.
       }
       else if (frameCount > 0) {
-            /*
-             * Resizing an existing stack map frame table is really hard.
-             * Not only the table must be parsed to update the offsets, but new frames may be needed for jump
-             * instructions that were inserted by this method.
-             * And updating the offsets or inserting frames can change the format of the following frames, in case of
-             * packed frames.
-             * In practice the whole table must be recomputed.
-             * For this the frames are marked as potentially invalid.
-             * This will cause the whole class to be reread and rewritten with the COMPUTE_FRAMES option (see the
-             * ClassWriter.toByteArray method).
-             * This is not very efficient but is much easier and requires much less code than any other method I can
-             * think of.
-             */
+         /*
+          * Resizing an existing stack map frame table is really hard.
+          * Not only the table must be parsed to update the offsets, but new frames may be needed for jump instructions
+          * that were inserted by this method.
+          * And updating the offsets or inserting frames can change the format of the following frames, in case of
+          * packed frames.
+          * In practice the whole table must be recomputed.
+          * For this the frames are marked as potentially invalid.
+          * This will cause the whole class to be reread and rewritten with the COMPUTE_FRAMES option (see the
+          * ClassWriter.toByteArray method).
+          * This is not very efficient but is much easier and requires much less code than any other method I can think
+          * of.
+          */
          cw.invalidFrames = true;
       }
    }
@@ -2726,11 +2702,11 @@ public final class MethodWriter extends MethodVisitor
 
       for (int i = 0; i < indexes.length; ++i) {
          if (begin < indexes[i] && indexes[i] <= end) {
-            // forward jump
+            // Forward jump.
             offset += sizes[i];
          }
          else if (end < indexes[i] && indexes[i] <= begin) {
-            // backward jump
+            // Backward jump.
             offset -= sizes[i];
          }
       }

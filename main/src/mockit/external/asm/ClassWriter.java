@@ -418,20 +418,11 @@ public final class ClassWriter extends ClassVisitor
    MethodWriter lastMethod;
 
    /**
-    * <tt>true</tt> if the maximum stack size and number of local variables must be automatically computed.
-    * <p/>
-    * If this flag is set, then the arguments of the {@link MethodVisitor#visitMaxs visitMaxs} method of the
-    * {@link MethodVisitor} returned by the {@link #visitMethod} method will be ignored, and computed automatically from
-    * the signature and the bytecode of each method.
-    */
-   private boolean computeMaxs;
-
-   /**
     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
     * <p/>
     * If this flag is set, then the calls to the {@link MethodVisitor#visitFrame} method are ignored, and the stack map
-    * frames are recomputed from the methods bytecode. The arguments of the {@link MethodVisitor#visitMaxs visitMaxs}
-    * method are also ignored and recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
+    * frames are recomputed from the methods bytecode. The arguments of the {@link MethodVisitor#visitMaxStack} method
+    * are also ignored and recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
     */
    private boolean computeFrames;
 
@@ -489,7 +480,6 @@ public final class ClassWriter extends ClassVisitor
       key4 = new Item();
 
       int version = classReader.getVersion();
-      computeMaxs = version < Opcodes.V1_7;
       computeFrames = version >= Opcodes.V1_7;
 
       classReader.copyPool(this);
@@ -594,7 +584,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public MethodWriter visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-      return new MethodWriter(this, access, name, desc, signature, exceptions, computeMaxs, computeFrames);
+      return new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
    }
 
    // ------------------------------------------------------------------------
@@ -779,7 +769,6 @@ public final class ClassWriter extends ClassVisitor
          lastField = null;
          firstMethod = null;
          lastMethod = null;
-         computeMaxs = false;
          computeFrames = true;
          invalidFrames = false;
          new ClassReader(out.data).accept(this, 0);

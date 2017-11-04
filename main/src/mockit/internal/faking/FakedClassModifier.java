@@ -111,7 +111,7 @@ final class FakedClassModifier extends BaseClassModifier
          generateCallToUpdateFakeState();
          generateCallToFakeMethod();
          generateMethodReturn();
-         mw.visitMaxs(1, 0); // dummy values, real ones are calculated by ASM
+         mw.visitMaxStack(1); // dummy value, real one is calculated by ASM
          return methodAnnotationsVisitor;
       }
 

@@ -40,7 +40,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
       else {
          generateDirectCallToHandler(mw, className, access, name, desc, signature);
          generateReturnWithObjectAtTopOfTheStack(desc);
-         mw.visitMaxs(1, 0);
+         mw.visitMaxStack(1);
       }
    }
 }
