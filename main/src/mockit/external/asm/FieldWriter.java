@@ -29,6 +29,9 @@
  */
 package mockit.external.asm;
 
+import static mockit.external.asm.ClassWriter.*;
+import static mockit.external.asm.Opcodes.*;
+
 /**
  * An {@link FieldVisitor} that generates Java fields in bytecode form.
  *
@@ -141,14 +144,14 @@ final class FieldWriter extends FieldVisitor
          size += 8;
       }
 
-      if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-         if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             cw.newUTF8("Synthetic");
             size += 6;
          }
       }
 
-      if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
          cw.newUTF8("Deprecated");
          size += 6;
       }
@@ -172,9 +175,7 @@ final class FieldWriter extends FieldVisitor
     * @param out where the content of this field must be put.
     */
    void put(ByteVector out) {
-      int mask =
-         Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE |
-         ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / ClassWriter.TO_ACC_SYNTHETIC);
+      int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(desc);
 
       int attributeCount = 0;
@@ -183,13 +184,13 @@ final class FieldWriter extends FieldVisitor
          ++attributeCount;
       }
 
-      if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-         if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             ++attributeCount;
          }
       }
 
-      if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
          ++attributeCount;
       }
 
@@ -208,13 +209,13 @@ final class FieldWriter extends FieldVisitor
          out.putInt(2).putShort(value);
       }
 
-      if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-         if ((cw.version & 0xFFFF) < Opcodes.V1_5 || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             out.putShort(cw.newUTF8("Synthetic")).putInt(0);
          }
       }
 
-      if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
          out.putShort(cw.newUTF8("Deprecated")).putInt(0);
       }
 

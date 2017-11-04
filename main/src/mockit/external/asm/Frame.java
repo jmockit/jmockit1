@@ -36,43 +36,41 @@ package mockit.external.asm;
  */
 public final class Frame
 {
-   /*
-    * Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the
-    * end of current basic block is updated by simulating the action of the instruction on the previous state of this so
-    * called "output frame". In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic
-    * block, i.e. the stack map frame at the beginning of the basic block, starting from the input frame of the first
-    * basic block (which is computed from the method descriptor), and by using the previously computed output frames to
-    * compute the input state of the other blocks.
-    *
-    * All output and input frames are stored as arrays of integers. Reference and array types are represented by an
-    * index into a type table (which is not the same as the constant pool of the class, in order to avoid adding
-    * unnecessary constants in the pool - not all computed frames will end up being stored in the stack map table).
-    * This allows very fast type comparisons.
-    *
-    * Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when
-    * output frames are computed. It is therefore necessary to be able to represent abstract types such as "the type at
-    * position x in the input frame locals" or "the type at position x from the top of the input frame stack" or even
-    * "the type at position x in the input frame, with y more (or less) array dimensions".
-    * This explains the rather complicated type format used in output frames.
-    *
-    * This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from
-    * -8 to 7). KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame.
-    * LOCAL is used for types that are relative to the input local variable types. STACK is used for types that are
-    * relative to the input stack types. VALUE depends on KIND. For LOCAL types, it is an index in the input local
-    * variable types. For STACK types, it is a position relatively to the top of input frame stack. For BASE types, it
-    * is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an index in the
-    * type table.
-    *
-    * Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types,
-    * represented by 0 - which does not correspond to any valid type value). Input frames can only contain BASE types of
-    * positive or null dimension. In all cases the type table contains only internal type names (array type descriptors
-    * are forbidden - dimensions must be represented through the DIM field).
-    *
-    * The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local
-    * variable types as well as in the operand stack. This is necessary to be able to simulate DUPx_y instructions,
-    * whose effect would be dependent on the actual type values if types were always represented by a single slot in the
-    * stack (and this is not possible, since actual type values are not always known - cf LOCAL and STACK type kinds).
-    */
+   // Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the
+   // end of current basic block is updated by simulating the action of the instruction on the previous state of this so
+   // called "output frame". In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic
+   // block, i.e. the stack map frame at the beginning of the basic block, starting from the input frame of the first
+   // basic block (which is computed from the method descriptor), and by using the previously computed output frames to
+   // compute the input state of the other blocks.
+   //
+   // All output and input frames are stored as arrays of integers. Reference and array types are represented by an
+   // index into a type table (which is not the same as the constant pool of the class, in order to avoid adding
+   // unnecessary constants in the pool - not all computed frames will end up being stored in the stack map table).
+   // This allows very fast type comparisons.
+   //
+   // Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when
+   // output frames are computed. It is therefore necessary to be able to represent abstract types such as "the type at
+   // position x in the input frame locals" or "the type at position x from the top of the input frame stack" or even
+   // "the type at position x in the input frame, with y more (or less) array dimensions".
+   // This explains the rather complicated type format used in output frames.
+   //
+   // This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from
+   // -8 to 7). KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame.
+   // LOCAL is used for types that are relative to the input local variable types. STACK is used for types that are
+   // relative to the input stack types. VALUE depends on KIND. For LOCAL types, it is an index in the input local
+   // variable types. For STACK types, it is a position relatively to the top of input frame stack. For BASE types, it
+   // is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an index in the
+   // type table.
+   //
+   // Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types,
+   // represented by 0 - which does not correspond to any valid type value). Input frames can only contain BASE types of
+   // positive or null dimension. In all cases the type table contains only internal type names (array type descriptors
+   // are forbidden - dimensions must be represented through the DIM field).
+   //
+   // The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local
+   // variable types as well as in the operand stack. This is necessary to be able to simulate DUPx_y instructions,
+   // whose effect would be dependent on the actual type values if types were always represented by a single slot in the
+   // stack (and this is not possible, since actual type values are not always known - cf LOCAL and STACK type kinds).
 
    /**
     * Mask to get the dimension of a frame type. This dimension is a signed integer between -8 and 7.
@@ -209,9 +207,7 @@ public final class Frame
     */
    public static final int[] SIZE;
 
-   /*
-    * Computes the stack size variation corresponding to each JVM instruction.
-    */
+   // Computes the stack size variation corresponding to each JVM instruction.
    static {
       int[] b = new int[202];
       String s =
@@ -230,7 +226,7 @@ public final class Frame
    /**
     * The label (i.e. basic block) to which these input and output stack map frames correspond.
     */
-   Label owner;
+   final Label owner;
 
    /**
     * The input stack map frame locals.
@@ -280,6 +276,10 @@ public final class Frame
     * locals or to the input stack (see below for the description of the algorithm).
     */
    private int[] initializations;
+
+   Frame(Label owner) {
+      this.owner = owner;
+   }
 
    /**
     * Returns the output frame local variable type at the given index.

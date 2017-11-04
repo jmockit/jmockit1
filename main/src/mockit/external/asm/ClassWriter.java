@@ -30,6 +30,7 @@
 package mockit.external.asm;
 
 import mockit.internal.util.*;
+import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
 
 /**
@@ -50,7 +51,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Factor to convert from ACC_SYNTHETIC_ATTRIBUTE to Opcode.ACC_SYNTHETIC.
     */
-   static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / Opcodes.ACC_SYNTHETIC;
+   static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / ACC_SYNTHETIC;
 
    /**
     * The type of instructions without any argument.
@@ -480,7 +481,7 @@ public final class ClassWriter extends ClassVisitor
       key4 = new Item();
 
       int version = classReader.getVersion();
-      computeFrames = version >= Opcodes.V1_7;
+      computeFrames = version >= V1_7;
 
       classReader.copyPool(this);
       cr = classReader;
@@ -653,14 +654,14 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("EnclosingMethod");
       }
 
-      if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
          ++attributeCount;
          size += 6;
          newUTF8("Deprecated");
       }
 
-      if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-         if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if (isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             ++attributeCount;
             size += 6;
             newUTF8("Synthetic");
@@ -686,8 +687,7 @@ public final class ClassWriter extends ClassVisitor
       ByteVector out = new ByteVector(size);
       out.putInt(0xCAFEBABE).putInt(version);
       out.putShort(index).putByteArray(pool.data, 0, pool.length);
-      int mask =
-         Opcodes.ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+      int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(superName);
       out.putShort(interfaceCount);
 
@@ -738,12 +738,12 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
       }
 
-      if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
          out.putShort(newUTF8("Deprecated")).putInt(0);
       }
 
-      if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-         if ((version & 0xFFFF) < Opcodes.V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if (isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             out.putShort(newUTF8("Synthetic")).putInt(0);
          }
       }
@@ -779,8 +779,11 @@ public final class ClassWriter extends ClassVisitor
    }
 
    // ------------------------------------------------------------------------
-   // Utility methods: constant pool management
+   // Utility methods: version, constant pool management
    // ------------------------------------------------------------------------
+
+   int getClassVersion() { return version & 0xFFFF; }
+   boolean isPreJava5() { return getClassVersion() < V1_5; }
 
    /**
     * Adds a number or string constant to the constant pool of the class being build.
@@ -959,9 +962,9 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key4);
 
       if (result == null) {
-         Item item = tag <= Opcodes.H_PUTSTATIC ?
+         Item item = tag <= H_PUTSTATIC ?
             newFieldItem(owner, name, desc) :
-            newMethodItem(owner, name, desc, tag == Opcodes.H_INVOKEINTERFACE);
+            newMethodItem(owner, name, desc, tag == H_INVOKEINTERFACE);
          put112(HANDLE, tag, item.index);
 
          result = new Item(index++, key4);

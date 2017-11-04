@@ -443,9 +443,7 @@ public final class Label
             // adds JSR to the successors of l, if it is a RET block
             if ((l.status & RET) != 0) {
                if (!l.inSameSubroutine(JSR)) {
-                  Edge e = new Edge();
-                  e.info = l.inputStackTop;
-                  e.successor = JSR.successors.successor;
+                  Edge e = new Edge(l.inputStackTop, JSR.successors.successor);
                   e.next = l.successors;
                   l.successors = e;
                }
