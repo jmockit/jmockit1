@@ -54,11 +54,6 @@ final class ByteVector
       data = new byte[64];
    }
 
-   ByteVector(byte[] data) {
-      this.data = data;
-      length = data.length;
-   }
-
    /**
     * Constructs a new {@link ByteVector ByteVector} with the given initial size.
     */

@@ -38,47 +38,47 @@ import static mockit.external.asm.ClassReader.*;
  */
 final class Context
 {
-    Context(int flags, char[] buffer) {
-        this.flags = flags;
-        this.buffer = buffer;
-    }
+   Context(int flags, char[] buffer) {
+      this.flags = flags;
+      this.buffer = buffer;
+   }
 
-    /**
-     * The {@link ClassReader} option flags for the parsing of this class.
-     */
-    private final int flags;
+   /**
+    * The {@link ClassReader} option flags for the parsing of this class.
+    */
+   private final int flags;
 
-    /**
-     * The buffer used to read strings.
-     */
-    final char[] buffer;
+   /**
+    * The buffer used to read strings.
+    */
+   final char[] buffer;
 
-    /**
-     * The start index of each bootstrap method.
-     */
-    int[] bootstrapMethods;
+   /**
+    * The start index of each bootstrap method.
+    */
+   int[] bootstrapMethods;
 
-    /**
-     * The access flags of the method currently being parsed.
-     */
-    int access;
+   /**
+    * The access flags of the method currently being parsed.
+    */
+   int access;
 
-    /**
-     * The name of the method currently being parsed.
-     */
-    String name;
+   /**
+    * The name of the method currently being parsed.
+    */
+   String name;
 
-    /**
-     * The descriptor of the method currently being parsed.
-     */
-    String desc;
+   /**
+    * The descriptor of the method currently being parsed.
+    */
+   String desc;
 
-    /**
-     * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
-     * which a label is needed have a non null associated Label object).
-     */
-    Label[] labels;
+   /**
+    * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
+    * which a label is needed have a non null associated Label object).
+    */
+   Label[] labels;
 
-    boolean readCode() { return (flags & SKIP_CODE) == 0; }
-    boolean readDebugInfo() { return (flags & SKIP_DEBUG) == 0; }
+   boolean readCode() { return (flags & SKIP_CODE) == 0; }
+   boolean readDebugInfo() { return (flags & SKIP_DEBUG) == 0; }
 }
