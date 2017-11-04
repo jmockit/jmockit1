@@ -32,18 +32,15 @@ package mockit.external.asm;
 /**
  * A visitor to visit a Java method. The methods of this class must be called in the following order:
  * <p/>
- * ( <tt>visitParameter</tt> )* [ <tt>visitAnnotationDefault</tt> ] ( <tt>visitAnnotation</tt> |
- * <tt>visitTypeAnnotation</tt> | <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
- * <tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitInsnAnnotation</tt> | <tt>visitTryCatchBlock</tt> |
- * <tt>visitTryCatchBlockAnnotation</tt> | <tt>visitLocalVariable</tt> | <tt>visitLocalVariableAnnotation</tt> |
- * <tt>visitLineNumber</tt> )* <tt>visitMaxs</tt> ] <tt>visitEnd</tt>.
+ * [<tt>visitAnnotationDefault</tt>] (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
+ * [<tt>visitCode</tt> (<tt>visitFrame</tt> | <tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> |
+ * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)*
+ * <tt>visitMaxs</tt>] <tt>visitEnd</tt>.
  * <p/>
  * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must be called in the sequential order of
- * the bytecode instructions of the visited code, <tt>visitInsnAnnotation</tt> must be called <i>after</i> the annotated
- * instruction, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the labels passed as arguments have been
- * visited, <tt>visitTryCatchBlockAnnotation</tt> must be called <i>after</i> the corresponding try catch block has been
- * visited, and the <tt>visitLocalVariable</tt>, <tt>visitLocalVariableAnnotation</tt> and <tt>visitLineNumber</tt>
- * methods must be called <i>after</i> the labels passed as arguments have been visited.
+ * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the labels
+ * passed as arguments have been visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods must
+ * be called <i>after</i> the labels passed as arguments have been visited.
  *
  * @author Eric Bruneton
  */
