@@ -52,6 +52,19 @@ public final class OwnerScreenTest
    }
 
    @Test
+   public void findOwnersWithAnyLastName()
+   {
+      Owner davis = ownerData.create("Tom Davis");
+      Owner esteban = ownerData.create("Jaime Esteban");
+
+      ownerScreen.findOwners();
+      List<Owner> allOwners = ownerScreen.getOwners();
+
+      assertTrue(allOwners.contains(davis));
+      assertTrue(allOwners.contains(esteban));
+   }
+
+   @Test
    public void createNewOwner()
    {
       ownerScreen.requestNewOwner();

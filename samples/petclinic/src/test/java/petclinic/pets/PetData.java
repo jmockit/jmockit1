@@ -40,7 +40,7 @@ public final class PetData extends TestDatabase
       PetType type = findOrCreatePetType(petType);
 
       Pet pet = new Pet();
-      pet.setOwner(owner);
+      owner.addPet(pet);
       pet.setName(name);
       pet.setBirthDate(birthDate);
       pet.setType(type);

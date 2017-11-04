@@ -53,7 +53,7 @@ public class PetScreen
    {
       if (pet != null) {
          if (pet.isNew()) {
-            assert owner != null;
+            //noinspection ConstantConditions
             petMaintenance.createPet(owner, pet);
          }
          else {

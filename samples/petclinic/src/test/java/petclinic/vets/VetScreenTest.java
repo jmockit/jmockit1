@@ -31,6 +31,10 @@ public final class VetScreenTest
       vets.retainAll(vetsInOrderOfLastName);
       assertEquals(vetsInOrderOfLastName, vets);
 
+      Vet vetWithOneSpecialty = vets.get(2);
+      assertEquals(1, vetWithOneSpecialty.getNrOfSpecialties());
+      assertEquals("radiology", vetWithOneSpecialty.getSpecialties().get(0).getName());
+
       Vet vetWithSpecialties = vets.get(1);
       assertEquals(2, vetWithSpecialties.getNrOfSpecialties());
 

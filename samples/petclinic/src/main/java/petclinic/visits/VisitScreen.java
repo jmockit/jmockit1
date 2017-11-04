@@ -32,8 +32,7 @@ public class VisitScreen
    public void selectVisit(int visitId)
    {
       visit = visitMaintenance.findById(visitId);
-      assert visit != null;
-      pet = visit.getPet();
+      pet = visit == null ? null : visit.getPet();
    }
 
    public void requestNewVisit()
@@ -43,14 +42,15 @@ public class VisitScreen
 
    public void createOrUpdateVisit()
    {
-      assert pet != null : "Pet not selected";
-      assert visit != null : "Visit not selected";
-      visitMaintenance.create(pet, visit);
+      if (pet != null && visit != null) {
+         visitMaintenance.create(pet, visit);
+      }
    }
 
    public void showVisits()
    {
-      assert pet != null : "Pet not selected";
-      visits = visitMaintenance.findByPetId(pet.getId());
+      if (pet != null) {
+         visits = visitMaintenance.findByPetId(pet.getId());
+      }
    }
 }
