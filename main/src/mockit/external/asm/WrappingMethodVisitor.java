@@ -25,13 +25,13 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-      return mw.visitAnnotation(desc, visible);
+   public AnnotationVisitor visitAnnotation(String desc) {
+      return mw.visitAnnotation(desc);
    }
 
    @Override
-   public final AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-      return mw.visitParameterAnnotation(parameter, desc, visible);
+   public final AnnotationVisitor visitParameterAnnotation(int parameter, String desc) {
+      return mw.visitParameterAnnotation(parameter, desc);
    }
 
    @Override

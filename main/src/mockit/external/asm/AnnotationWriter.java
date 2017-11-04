@@ -33,317 +33,317 @@ import java.lang.reflect.*;
 
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
 final class AnnotationWriter extends AnnotationVisitor
 {
-    /**
-     * The class writer to which this annotation must be added.
-     */
-    private final ClassWriter cw;
+   /**
+    * The class writer to which this annotation must be added.
+    */
+   private final ClassWriter cw;
 
-    /**
-     * The number of values in this annotation.
-     */
-    private int size;
+   /**
+    * The number of values in this annotation.
+    */
+   private int size;
 
-    /**
-     * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
-     * Annotation writers used for annotation default and annotation arrays use unnamed values.
-     */
-    private final boolean named;
+   /**
+    * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+    * Annotation writers used for annotation default and annotation arrays use unnamed values.
+    */
+   private final boolean named;
 
-    /**
-     * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of
-     * values must be stored as a unsigned short just before these bytes.
-     */
-    private final ByteVector bv;
+   /**
+    * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of
+    * values must be stored as an unsigned short just before these bytes.
+    */
+   private final ByteVector bv;
 
-    /**
-     * The byte vector to be used to store the number of values of this
-     * annotation. See {@link #bv}.
-     */
-    private final ByteVector parent;
+   /**
+    * The byte vector to be used to store the number of values of this annotation. See {@link #bv}.
+    */
+   private final ByteVector parent;
 
-    /**
-     * Where the number of values of this annotation must be stored in {@link #parent}.
-     */
-    private final int offset;
+   /**
+    * Where the number of values of this annotation must be stored in {@link #parent}.
+    */
+   private final int offset;
 
-    /**
-     * Next annotation writer. This field is used to store annotation lists.
-     */
-    AnnotationWriter next;
+   /**
+    * Next annotation writer. This field is used to store annotation lists.
+    */
+   AnnotationWriter next;
 
-    /**
-     * Previous annotation writer. This field is used to store annotation lists.
-     */
-    AnnotationWriter prev;
+   /**
+    * Previous annotation writer. This field is used to store annotation lists.
+    */
+   AnnotationWriter prev;
 
-    /**
-     * Constructs a new {@link AnnotationWriter}.
-     * 
-     * @param cw the class writer to which this annotation must be added.
-     * @param named <tt>true<tt> if values are named, <tt>false</tt> otherwise.
-     * @param bv where the annotation values must be stored.
-     * @param parent where the number of annotation values must be stored.
-     * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
-     */
-    AnnotationWriter(ClassWriter cw, boolean named, ByteVector bv, ByteVector parent, int offset) {
-        this.cw = cw;
-        this.named = named;
-        this.bv = bv;
-        this.parent = parent;
-        this.offset = offset;
-    }
+   /**
+    * Constructs a new {@link AnnotationWriter}.
+    *
+    * @param cw     the class writer to which this annotation must be added.
+    * @param named  <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+    * @param bv     where the annotation values must be stored.
+    * @param parent where the number of annotation values must be stored.
+    * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
+    */
+   AnnotationWriter(ClassWriter cw, boolean named, ByteVector bv, ByteVector parent, int offset) {
+      this.cw = cw;
+      this.named = named;
+      this.bv = bv;
+      this.parent = parent;
+      this.offset = offset;
+   }
 
-    @Override
-    public void visit(String name, Object value) {
-        ++size;
+   @Override
+   public void visit(String name, Object value) {
+      ++size;
 
-        if (named) {
-            putString(name);
-        }
+      if (named) {
+         putString(name);
+      }
 
-        if (value instanceof String) {
-            putString('s', (String) value);
-        }
-        else if (value instanceof Byte) {
-            putInteger('B', (Byte) value);
-        }
-        else if (value instanceof Boolean) {
-            int v = (Boolean) value ? 1 : 0;
-            putInteger('Z', v);
-        }
-        else if (value instanceof Character) {
-            putInteger('C', (Character) value);
-        }
-        else if (value instanceof Short) {
-            putInteger('S', (Short) value);
-        }
-        else if (value instanceof Type) {
-            String typeDescriptor = ((Type) value).getDescriptor();
-            putString('c', typeDescriptor);
-        }
-        else if (value instanceof byte[]) {
-            readAnnotationValues('B', value);
-        }
-        else if (value instanceof boolean[]) {
-            readAnnotationValues('Z', value);
-        }
-        else if (value instanceof short[]) {
-            readAnnotationValues('S', value);
-        }
-        else if (value instanceof char[]) {
-            readAnnotationValues('C', value);
-        }
-        else if (value instanceof int[]) {
-            readAnnotationValues('I', value);
-        }
-        else if (value instanceof long[]) {
-            readAnnotationValues('J', value);
-        }
-        else if (value instanceof float[]) {
-            readAnnotationValues('F', value);
-        }
-        else if (value instanceof double[]) {
-            readAnnotationValues('D', value);
-        }
-        else {
-            Item item = cw.newConstItem(value);
-            char itemType = ".s.IFJDCS".charAt(item.type);
-            putItem(itemType, item);
-        }
-    }
+      if (value instanceof String) {
+         putString('s', (String) value);
+      }
+      else if (value instanceof Byte) {
+         putInteger('B', (Byte) value);
+      }
+      else if (value instanceof Boolean) {
+         int v = (Boolean) value ? 1 : 0;
+         putInteger('Z', v);
+      }
+      else if (value instanceof Character) {
+         putInteger('C', (Character) value);
+      }
+      else if (value instanceof Short) {
+         putInteger('S', (Short) value);
+      }
+      else if (value instanceof Type) {
+         String typeDescriptor = ((Type) value).getDescriptor();
+         putString('c', typeDescriptor);
+      }
+      else if (value instanceof byte[]) {
+         readAnnotationValues('B', value);
+      }
+      else if (value instanceof boolean[]) {
+         readAnnotationValues('Z', value);
+      }
+      else if (value instanceof short[]) {
+         readAnnotationValues('S', value);
+      }
+      else if (value instanceof char[]) {
+         readAnnotationValues('C', value);
+      }
+      else if (value instanceof int[]) {
+         readAnnotationValues('I', value);
+      }
+      else if (value instanceof long[]) {
+         readAnnotationValues('J', value);
+      }
+      else if (value instanceof float[]) {
+         readAnnotationValues('F', value);
+      }
+      else if (value instanceof double[]) {
+         readAnnotationValues('D', value);
+      }
+      else {
+         Item item = cw.newConstItem(value);
+         char itemType = ".s.IFJDCS".charAt(item.type);
+         putItem(itemType, item);
+      }
+   }
 
-    private void putItem(int b, Item item) {
-        bv.put12(b, item.index);
-    }
+   private void putItem(int b, Item item) {
+      bv.put12(b, item.index);
+   }
 
-    private void putInteger(int b, int value) {
-        int itemIndex = cw.newInteger(value).index;
-        bv.put12(b, itemIndex);
-    }
+   private void putInteger(int b, int value) {
+      int itemIndex = cw.newInteger(value).index;
+      bv.put12(b, itemIndex);
+   }
 
-    private void putString(int b, String value) {
-        int itemIndex = cw.newUTF8(value);
-        bv.put12(b, itemIndex);
-    }
+   private void putString(int b, String value) {
+      int itemIndex = cw.newUTF8(value);
+      bv.put12(b, itemIndex);
+   }
 
-    private void putString(String value) {
-        int itemIndex = cw.newUTF8(value);
-        bv.putShort(itemIndex);
-    }
+   private void putString(String value) {
+      int itemIndex = cw.newUTF8(value);
+      bv.putShort(itemIndex);
+   }
 
-    private void putArrayLength(int length) {
-        bv.put12('[', length);
-    }
+   private void putArrayLength(int length) {
+      bv.put12('[', length);
+   }
 
-    private void readAnnotationValues(char arrayType, Object arrayValue) {
-        int length = Array.getLength(arrayValue);
-        putArrayLength(length);
+   private void readAnnotationValues(char arrayType, Object arrayValue) {
+      int length = Array.getLength(arrayValue);
+      putArrayLength(length);
 
-        for (int i = 0; i < length; i++) {
-            Item item;
+      for (int i = 0; i < length; i++) {
+         Item item;
 
-            if (arrayType == 'J') {
-                long elementValue = Array.getLong(arrayValue, i);
-                item = cw.newLong(elementValue);
-            }
-            else if (arrayType == 'F') {
-                float elementValue = Array.getFloat(arrayValue, i);
-                item = cw.newFloat(elementValue);
-            }
-            else if (arrayType == 'D') {
-                double elementValue = Array.getDouble(arrayValue, i);
-                item = cw.newDouble(elementValue);
-            }
-            else {
-                int value = arrayType == 'Z' ? Array.getBoolean(arrayValue, i) ? 1 : 0 : Array.getInt(arrayValue, i);
-                item = cw.newInteger(value);
-            }
+         if (arrayType == 'J') {
+            long elementValue = Array.getLong(arrayValue, i);
+            item = cw.newLong(elementValue);
+         }
+         else if (arrayType == 'F') {
+            float elementValue = Array.getFloat(arrayValue, i);
+            item = cw.newFloat(elementValue);
+         }
+         else if (arrayType == 'D') {
+            double elementValue = Array.getDouble(arrayValue, i);
+            item = cw.newDouble(elementValue);
+         }
+         else {
+            int value = arrayType == 'Z' ? Array.getBoolean(arrayValue, i) ? 1 : 0 : Array.getInt(arrayValue, i);
+            item = cw.newInteger(value);
+         }
 
-            putItem(arrayType, item);
-        }
-    }
+         putItem(arrayType, item);
+      }
+   }
 
-    @Override
-    public void visitEnum(String name, String desc, String value) {
-        ++size;
+   @Override
+   public void visitEnum(String name, String desc, String value) {
+      ++size;
 
-        if (named) {
-            putString(name);
-        }
+      if (named) {
+         putString(name);
+      }
 
-        putString('e', desc);
-        putString(value);
-    }
+      putString('e', desc);
+      putString(value);
+   }
 
-    @Override
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
-        ++size;
+   @Override
+   public AnnotationVisitor visitAnnotation(String name, String desc) {
+      ++size;
 
-        if (named) {
-            putString(name);
-        }
+      if (named) {
+         putString(name);
+      }
 
-        // write tag and type, and reserve space for values count
-        putString('@', desc);
-        bv.putShort(0);
+      // Write tag and type, and reserve space for values count.
+      putString('@', desc);
+      bv.putShort(0);
 
-        return new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
-    }
+      return new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
+   }
 
-    @Override
-    public AnnotationVisitor visitArray(String name) {
-        ++size;
+   @Override
+   public AnnotationVisitor visitArray(String name) {
+      ++size;
 
-        if (named) {
-            putString(name);
-        }
+      if (named) {
+         putString(name);
+      }
 
-        // write tag, and reserve space for array size
-        putArrayLength(0);
+      // Write tag, and reserve space for array size.
+      putArrayLength(0);
 
-        return new AnnotationWriter(cw, false, bv, bv, bv.length - 2);
-    }
+      return new AnnotationWriter(cw, false, bv, bv, bv.length - 2);
+   }
 
-    @Override
-    public void visitEnd() {
-        if (parent != null) {
-            byte[] data = parent.data;
-            data[offset] = (byte) (size >>> 8);
-            data[offset + 1] = (byte) size;
-        }
-    }
+   @Override
+   public void visitEnd() {
+      if (parent != null) {
+         byte[] data = parent.data;
+         data[offset] = (byte) (size >>> 8);
+         data[offset + 1] = (byte) size;
+      }
+   }
 
-    // ------------------------------------------------------------------------
-    // Utility methods
-    // ------------------------------------------------------------------------
+   // ------------------------------------------------------------------------
+   // Utility methods
+   // ------------------------------------------------------------------------
 
-    /**
-     * Returns the size of this annotation writer list.
-     */
-    int getSize() {
-        int size = 0;
-        AnnotationWriter aw = this;
+   /**
+    * Returns the size of this annotation writer list.
+    */
+   int getSize() {
+      int size = 0;
+      AnnotationWriter aw = this;
 
-        while (aw != null) {
-            size += aw.bv.length;
-            aw = aw.next;
-        }
+      while (aw != null) {
+         size += aw.bv.length;
+         aw = aw.next;
+      }
 
-        return size;
-    }
+      return size;
+   }
 
-    /**
-     * Puts the annotations of this annotation writer list into the given byte vector.
-     * 
-     * @param out where the annotations must be put.
-     */
-    void put(ByteVector out) {
-        int n = 0;
-        int size = 2;
-        AnnotationWriter aw = this;
-        AnnotationWriter last = null;
+   /**
+    * Puts the annotations of this annotation writer list into the given byte vector.
+    *
+    * @param out where the annotations must be put.
+    */
+   void put(ByteVector out) {
+      int n = 0;
+      int size = 2;
+      AnnotationWriter aw = this;
+      AnnotationWriter last = null;
 
-        while (aw != null) {
+      while (aw != null) {
+         ++n;
+         size += aw.bv.length;
+         aw.visitEnd(); // in case user forgot to call visitEnd
+         aw.prev = last;
+         last = aw;
+         aw = aw.next;
+      }
+
+      out.putInt(size);
+      out.putShort(n);
+      aw = last;
+
+      while (aw != null) {
+         out.putByteArray(aw.bv.data, 0, aw.bv.length);
+         aw = aw.prev;
+      }
+   }
+
+   /**
+    * Puts the given annotation lists into the given byte vector.
+    *
+    * @param anns an array of annotation writer lists.
+    * @param out  where the annotations must be put.
+    */
+   static void put(AnnotationWriter[] anns, ByteVector out) {
+      int numAnns = anns.length;
+      int size = 1 + 2 * numAnns;
+
+      for (int i = 0; i < numAnns; ++i) {
+         AnnotationWriter aw = anns[i];
+         size += aw == null ? 0 : aw.getSize();
+      }
+
+      out.putInt(size).putByte(numAnns);
+
+      for (int i = 0; i < numAnns; ++i) {
+         AnnotationWriter aw = anns[i];
+         AnnotationWriter last = null;
+         int n = 0;
+
+         while (aw != null) {
             ++n;
-            size += aw.bv.length;
             aw.visitEnd(); // in case user forgot to call visitEnd
             aw.prev = last;
             last = aw;
             aw = aw.next;
-        }
+         }
 
-        out.putInt(size);
-        out.putShort(n);
-        aw = last;
+         out.putShort(n);
+         aw = last;
 
-        while (aw != null) {
+         while (aw != null) {
             out.putByteArray(aw.bv.data, 0, aw.bv.length);
             aw = aw.prev;
-        }
-    }
-
-    /**
-     * Puts the given annotation lists into the given byte vector.
-     * 
-     * @param anns an array of annotation writer lists.
-     * @param off index of the first annotation to be written.
-     * @param out where the annotations must be put.
-     */
-    static void put(AnnotationWriter[] anns, int off, ByteVector out) {
-        int size = 1 + 2 * (anns.length - off);
-
-        for (int i = off; i < anns.length; ++i) {
-            size += anns[i] == null ? 0 : anns[i].getSize();
-        }
-
-        out.putInt(size).putByte(anns.length - off);
-
-        for (int i = off; i < anns.length; ++i) {
-            AnnotationWriter aw = anns[i];
-            AnnotationWriter last = null;
-            int n = 0;
-
-            while (aw != null) {
-                ++n;
-                aw.visitEnd(); // in case user forgot to call visitEnd
-                aw.prev = last;
-                last = aw;
-                aw = aw.next;
-            }
-
-            out.putShort(n);
-            aw = last;
-
-            while (aw != null) {
-                out.putByteArray(aw.bv.data, 0, aw.bv.length);
-                aw = aw.prev;
-            }
-        }
-    }
+         }
+      }
+   }
 }

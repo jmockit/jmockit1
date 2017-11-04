@@ -179,24 +179,9 @@ public final class MethodWriter extends MethodVisitor
    private AnnotationWriter anns;
 
    /**
-    * The runtime invisible annotations of this method. May be <tt>null</tt>.
-    */
-   private AnnotationWriter ianns;
-
-   /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
     */
    private AnnotationWriter[] parameterAnnotations;
-
-   /**
-    * The runtime invisible parameter annotations of this method. May be <tt>null</tt>.
-    */
-   private AnnotationWriter[] invisibleParameterAnnotations;
-
-   /**
-    * The number of synthetic parameters of this method.
-    */
-   private int synthetics;
 
    /**
     * The bytecode of this method.
@@ -306,12 +291,12 @@ public final class MethodWriter extends MethodVisitor
     */
    private int subroutines;
 
-    /*
-     * Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
-     * graph contains one node per "basic block", and one edge per "jump" from one basic block to another. Each node
-     * (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this
-     * basic block. Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
-     */
+   /*
+    * Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
+    * graph contains one node per "basic block", and one edge per "jump" from one basic block to another. Each node
+    * (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this
+    * basic block. Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
+    */
 
    /**
     * Indicates what must be automatically computed.
@@ -429,55 +414,33 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+   public AnnotationVisitor visitAnnotation(String desc) {
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
       bv.putShort(cw.newUTF8(desc)).putShort(0);
+
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-
-      if (visible) {
-         aw.next = anns;
-         anns = aw;
-      }
-      else {
-         aw.next = ianns;
-         ianns = aw;
-      }
-
+      aw.next = anns;
+      anns = aw;
       return aw;
    }
 
    @Override
-   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
+   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc) {
       ByteVector bv = new ByteVector();
-
-      if ("Ljava/lang/Synthetic;".equals(desc)) {
-         // Workaround for a bug in javac with synthetic parameters; see ClassReader.readParameterAnnotations.
-         synthetics = Math.max(synthetics, parameter + 1);
-         return new AnnotationWriter(cw, false, bv, null, 0);
-      }
 
       // Write type, and reserve space for values count.
       bv.putShort(cw.newUTF8(desc)).putShort(0);
+
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
 
-      if (visible) {
-         if (parameterAnnotations == null) {
-            parameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
-         }
-
-         aw.next = parameterAnnotations[parameter];
-         parameterAnnotations[parameter] = aw;
+      if (parameterAnnotations == null) {
+         parameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
       }
-      else {
-         if (invisibleParameterAnnotations == null) {
-            invisibleParameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
-         }
 
-         aw.next = invisibleParameterAnnotations[parameter];
-         invisibleParameterAnnotations[parameter] = aw;
-      }
+      aw.next = parameterAnnotations[parameter];
+      parameterAnnotations[parameter] = aw;
 
       return aw;
    }
@@ -940,13 +903,11 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if ((label.status & Label.RESOLVED) != 0 && label.position - code.length < Short.MIN_VALUE) {
-            /*
-             * case of a backward jump with an offset < -32768. In this case we
-             * automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
-             * <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the
-             * "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'>
-             * designates the instruction just after the GOTO_W.
-             */
+         /*
+          * Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W,
+          * JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
+          * (i.e., IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
+          */
          if (opcode == GOTO) {
             code.putByte(200); // GOTO_W
          }
@@ -968,12 +929,10 @@ public final class MethodWriter extends MethodVisitor
          label.put(code, code.length - 1, true);
       }
       else {
-            /*
-             * case of a backward jump with an offset >= -32768, or of a forward
-             * jump with, of course, an unknown offset. In these cases we store
-             * the offset in 2 bytes (which will be increased in
-             * resizeInstructions, if needed).
-             */
+         /*
+          * Case of a backward jump with an offset >= -32768, or of a forward jump with, of course, an unknown offset.
+          * In these cases we store the offset in 2 bytes (which will be increased in resizeInstructions, if needed).
+          */
          code.putByte(opcode);
          label.put(code, code.length - 1, false);
       }
@@ -2047,26 +2006,12 @@ public final class MethodWriter extends MethodVisitor
          size += 8 + anns.getSize();
       }
 
-      if (ianns != null) {
-         cw.newUTF8("RuntimeInvisibleAnnotations");
-         size += 8 + ianns.getSize();
-      }
-
       if (parameterAnnotations != null) {
          cw.newUTF8("RuntimeVisibleParameterAnnotations");
-         size += 7 + 2 * (parameterAnnotations.length - synthetics);
+         size += 7 + 2 * parameterAnnotations.length;
 
-         for (int i = parameterAnnotations.length - 1; i >= synthetics; --i) {
+         for (int i = parameterAnnotations.length - 1; i >= 0; --i) {
             size += parameterAnnotations[i] == null ? 0 : parameterAnnotations[i].getSize();
-         }
-      }
-
-      if (invisibleParameterAnnotations != null) {
-         cw.newUTF8("RuntimeInvisibleParameterAnnotations");
-         size += 7 + 2 * (invisibleParameterAnnotations.length - synthetics);
-
-         for (int i = invisibleParameterAnnotations.length - 1; i >= synthetics; --i) {
-            size += invisibleParameterAnnotations[i] == null ? 0 : invisibleParameterAnnotations[i].getSize();
          }
       }
 
@@ -2121,15 +2066,7 @@ public final class MethodWriter extends MethodVisitor
          ++attributeCount;
       }
 
-      if (ianns != null) {
-         ++attributeCount;
-      }
-
       if (parameterAnnotations != null) {
-         ++attributeCount;
-      }
-
-      if (invisibleParameterAnnotations != null) {
          ++attributeCount;
       }
 
@@ -2249,19 +2186,9 @@ public final class MethodWriter extends MethodVisitor
          anns.put(out);
       }
 
-      if (ianns != null) {
-         out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
-         ianns.put(out);
-      }
-
       if (parameterAnnotations != null) {
          out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
-         AnnotationWriter.put(parameterAnnotations, synthetics, out);
-      }
-
-      if (invisibleParameterAnnotations != null) {
-         out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
-         AnnotationWriter.put(invisibleParameterAnnotations, synthetics, out);
+         AnnotationWriter.put(parameterAnnotations, out);
       }
    }
 
@@ -2396,8 +2323,8 @@ public final class MethodWriter extends MethodVisitor
       while (state != 0);
 
       // 2nd step:
-      // copies the bytecode of the method into a new byte vector, updates the
-      // offsets, and inserts (or removes) bytes as requested.
+      // copies the bytecode of the method into a new byte vector, updates the offsets, and inserts (or removes) bytes
+      // as requested.
       ByteVector newCode = resizeInstructionsSecondStep(b, allIndexes, allSizes, resize);
 
       updateStackMapFrameLabels(allIndexes, allSizes, resize);
@@ -2406,7 +2333,7 @@ public final class MethodWriter extends MethodVisitor
       updateInstructionAddressesInLocalVarTable(allIndexes, allSizes);
       updateInstructionAddressesInLineNumberTable(allIndexes, allSizes);
 
-      // replaces old bytecodes with new ones
+      // Replaces old bytecodes with new ones.
       code = newCode;
    }
 

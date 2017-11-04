@@ -788,7 +788,7 @@ final class CoverageModifier extends WrappingClassVisitor
       MethodModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
-      public AnnotationVisitor visitAnnotation(@Nonnull String desc, boolean visible)
+      public AnnotationVisitor visitAnnotation(@Nonnull String desc)
       {
          boolean isTestMethod = desc.startsWith("Lorg/junit/") || desc.startsWith("Lorg/testng/");
 
@@ -796,7 +796,7 @@ final class CoverageModifier extends WrappingClassVisitor
             throw VisitInterruptedException.INSTANCE;
          }
 
-         return mw.visitAnnotation(desc, visible);
+         return mw.visitAnnotation(desc);
       }
    }
 

@@ -20,10 +20,7 @@ public class BaseClassModifier extends WrappingClassVisitor
    @Nonnull
    protected final MethodVisitor methodAnnotationsVisitor = new MethodVisitor() {
       @Override
-      public AnnotationVisitor visitAnnotation(String desc, boolean visible)
-      {
-         return mw.visitAnnotation(desc, visible);
-      }
+      public AnnotationVisitor visitAnnotation(String desc) { return mw.visitAnnotation(desc); }
    };
 
    protected MethodWriter mw;

@@ -102,7 +102,7 @@ final class FakeMethodCollector extends ClassVisitor
       }
 
       @Nullable @Override
-      public AnnotationVisitor visitAnnotation(@Nullable String desc, boolean visible)
+      public AnnotationVisitor visitAnnotation(@Nullable String desc)
       {
          if ("Lmockit/Mock;".equals(desc)) {
             FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);

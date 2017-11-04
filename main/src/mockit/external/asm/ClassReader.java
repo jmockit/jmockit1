@@ -681,10 +681,8 @@ public final class ClassReader
       exceptions = null;
       String signature = null;
       int anns = 0;
-      int ianns = 0;
       int annDefault = 0;
       int paramAnns = 0;
-      int invParamAnns = 0;
       char[] c = context.buffer;
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
@@ -711,27 +709,20 @@ public final class ClassReader
          else if ("Synthetic".equals(attrName)) {
             context.access |= Opcodes.ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
          }
-         else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
-            ianns = u + 8;
-         }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             paramAnns = u + 8;
-         }
-         else if ("RuntimeInvisibleParameterAnnotations".equals(attrName)) {
-            invParamAnns = u + 8;
          }
 
          u += 6 + readInt(u + 4);
       }
 
       u += 2;
-      readMethodBody(context, u0, u, code, exception, signature, anns, ianns, annDefault, paramAnns, invParamAnns);
+      readMethodBody(context, u0, u, code, exception, signature, anns, annDefault, paramAnns);
       return u;
    }
 
    private void readMethodBody(
-      Context context, int u0, int u, int code, int exception, String signature, int anns, int ianns, int annDefault,
-      int paramAnns, int invParamAnns
+      Context context, int u0, int u, int code, int exception, String signature, int anns, int annDefault, int paramAnns
    ) {
       MethodVisitor mv = cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
 
@@ -741,10 +732,8 @@ public final class ClassReader
 
       char[] c = context.buffer;
       readAnnotationDefaultValue(mv, c, annDefault);
-      readAnnotationValues(mv, c, anns, true);
-      readAnnotationValues(mv, c, ianns, false);
-      readParameterAnnotations(mv, context, paramAnns, true);
-      readParameterAnnotations(mv, context, invParamAnns, false);
+      readAnnotationValues(mv, c, anns);
+      readParameterAnnotations(mv, context, paramAnns);
       readMethodCode(mv, context, code);
       mv.visitEnd();
    }
@@ -830,11 +819,11 @@ public final class ClassReader
       return false;
    }
 
-   private void readAnnotationValues(MethodVisitor mv, char[] c, int anns, boolean visible) {
+   private void readAnnotationValues(MethodVisitor mv, char[] c, int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
             String desc = readUTF8(v, c);
-            AnnotationVisitor av = mv.visitAnnotation(desc, visible);
+            AnnotationVisitor av = mv.visitAnnotation(desc);
             v = readAnnotationValues(v + 2, c, true, av);
          }
       }
@@ -1304,39 +1293,21 @@ public final class ClassReader
     *
     * @param mv      the visitor that must visit the annotations.
     * @param context information about the class being parsed.
-    * @param v       start offset in {@link #b b} of the annotations to be read.
-    * @param visible <tt>true</tt> if the annotations to be read are visible at runtime.
+    * @param v       start offset in {@link #b} of the annotations to be read.
     */
-   private void readParameterAnnotations(MethodVisitor mv, Context context, int v, boolean visible) {
+   private void readParameterAnnotations(MethodVisitor mv, Context context, int v) {
       if (v != 0) {
-         int n = b[v++] & 0xFF;
-
-         // Workaround for a bug in javac (javac compiler generates a parameter annotation array whose size is equal to
-         // the number of parameters in the Java source file, while it should generate an array whose size is equal to
-         // the number of parameters in the method descriptor - which includes the synthetic parameters added by the
-         // compiler). This work-around supposes that the synthetic parameters are the first ones.
-         int synthetics = Type.getArgumentTypes(context.desc).length - n;
-         AnnotationVisitor av;
-         int i;
-
-         for (i = 0; i < synthetics; ++i) {
-            // Virtual annotation to detect synthetic parameters in MethodWriter.
-            av = mv.visitParameterAnnotation(i, "Ljava/lang/Synthetic;", false);
-
-            if (av != null) {
-               av.visitEnd();
-            }
-         }
-
          char[] c = context.buffer;
+         int parameters = b[v++] & 0xFF;
+         AnnotationVisitor av;
 
-         for (; i < n + synthetics; ++i) {
+         for (int i = 0; i < parameters; ++i) {
             int j = readUnsignedShort(v);
             v += 2;
 
             for (; j > 0; --j) {
                String desc = readUTF8(v, c);
-               av = mv.visitParameterAnnotation(i, desc, visible);
+               av = mv.visitParameterAnnotation(i, desc);
                v = readAnnotationValues(v + 2, c, true, av);
             }
          }
