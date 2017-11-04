@@ -133,13 +133,12 @@ public class MethodVisitor
     * @param local  the local variable types in this frame. This array must not be modified. Primitive types are
     *               represented by {@link Opcodes#TOP}, {@link Opcodes#INTEGER}, {@link Opcodes#FLOAT},
     *               {@link Opcodes#LONG}, {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
-    *               {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element).
-    *               Reference types are represented by String objects (representing internal names), and uninitialized
-    *               types by Label objects (this label designates the NEW instruction that created this uninitialized
-    *               value).
+    *               {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a single element). Reference
+    *               types are represented by String objects (representing internal names), and uninitialized types by
+    *               Label objects (this label designates the NEW instruction that created this uninitialized value).
     * @param nStack the number of operand stack elements in the visited frame.
-    * @param stack  the operand stack types in this frame. This array must not be
-    *               modified. Its content has the same format as the "local" array.
+    * @param stack  the operand stack types in this frame. This array must not be modified.
+    *               Its content has the same format as the "local" array.
     * @throws IllegalStateException if a frame is visited just after another one, without any instruction between the
     * two (unless this frame is a Opcodes#F_SAME frame, in which case it is silently ignored).
     */
@@ -152,19 +151,14 @@ public class MethodVisitor
    /**
     * Visits a zero operand instruction.
     *
-    * @param opcode the opcode of the instruction to be visited. This opcode is
-    *               either NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1,
-    *               ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1,
-    *               FCONST_0, FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD,
-    *               LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
-    *               IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE,
-    *               SASTORE, POP, POP2, DUP, DUP_X1, DUP_X2, DUP2, DUP2_X1,
-    *               DUP2_X2, SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB,
-    *               IMUL, LMUL, FMUL, DMUL, IDIV, LDIV, FDIV, DDIV, IREM, LREM,
-    *               FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL, ISHR, LSHR,
-    *               IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D,
-    *               L2I, L2F, L2D, F2I, F2L, F2D, D2I, D2L, D2F, I2B, I2C, I2S,
-    *               LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
+    * @param opcode the opcode of the instruction to be visited. This opcode is either NOP, ACONST_NULL, ICONST_M1,
+    *               ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1,
+    *               FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
+    *               IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2, DUP, DUP_X1,
+    *               DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL,
+    *               FMUL, DMUL, IDIV, LDIV, FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL,
+    *               ISHR, LSHR, IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L,
+    *               F2D, D2I, D2L, D2F, I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
     *               DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER, or MONITOREXIT.
     */
    public void visitInsn(int opcode) {}
@@ -172,18 +166,13 @@ public class MethodVisitor
    /**
     * Visits an instruction with a single int operand.
     *
-    * @param opcode  the opcode of the instruction to be visited. This opcode is
-    *                either BIPUSH, SIPUSH or NEWARRAY.
+    * @param opcode  the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH or NEWARRAY.
     * @param operand the operand of the instruction to be visited.<br>
-    *                When opcode is BIPUSH, operand value should be between
-    *                Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
-    *                When opcode is SIPUSH, operand value should be between
-    *                Short.MIN_VALUE and Short.MAX_VALUE.<br>
-    *                When opcode is NEWARRAY, operand value should be one of
-    *                {@link Opcodes#T_BOOLEAN}, {@link Opcodes#T_CHAR},
-    *                {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE},
-    *                {@link Opcodes#T_BYTE}, {@link Opcodes#T_SHORT},
-    *                {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
+    *                When opcode is BIPUSH, operand value should be between Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
+    *                When opcode is SIPUSH, operand value should be between Short.MIN_VALUE and Short.MAX_VALUE.<br>
+    *                When opcode is NEWARRAY, operand value should be one of {@link Opcodes#T_BOOLEAN},
+    *                {@link Opcodes#T_CHAR}, {@link Opcodes#T_FLOAT}, {@link Opcodes#T_DOUBLE}, {@link Opcodes#T_BYTE},
+    *                {@link Opcodes#T_SHORT}, {@link Opcodes#T_INT} or {@link Opcodes#T_LONG}.
     */
    public void visitIntInsn(int opcode, int operand) {}
 
@@ -339,7 +328,7 @@ public class MethodVisitor
    /**
     * Visits a MULTIANEWARRAY instruction.
     *
-    * @param desc an array type descriptor (see {@link Type Type}).
+    * @param desc an array type descriptor (see {@link Type}).
     * @param dims number of dimensions of the array to allocate.
     */
    public void visitMultiANewArrayInsn(String desc, int dims) {}
@@ -357,7 +346,7 @@ public class MethodVisitor
     * @param type    internal name of the type of exceptions handled by the handler, or <tt>null</tt> to catch any
     *                exceptions (for "finally" blocks).
     * @throws IllegalArgumentException if one of the labels has already been visited by this visitor (by the
-    *                                  {@link #visitLabel visitLabel} method).
+    *                                  {@link #visitLabel} method).
     */
    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {}
 
@@ -372,7 +361,7 @@ public class MethodVisitor
     * @param end       the last instruction corresponding to the scope of this local variable (exclusive).
     * @param index     the local variable's index.
     * @throws IllegalArgumentException if one of the labels has not already been visited by this visitor (by the
-    *                                  {@link #visitLabel visitLabel} method).
+    *                                  {@link #visitLabel} method).
     */
    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {}
 
@@ -382,7 +371,7 @@ public class MethodVisitor
     * @param line  a line number. This number refers to the source file from which the class was compiled.
     * @param start the first instruction corresponding to this line number.
     * @throws IllegalArgumentException if <tt>start</tt> has not already been visited by this visitor (by the
-    *                                  {@link #visitLabel visitLabel} method).
+    *                                  {@link #visitLabel} method).
     */
    public void visitLineNumber(int line, Label start) {}
 
