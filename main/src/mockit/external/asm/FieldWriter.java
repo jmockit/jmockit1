@@ -82,11 +82,6 @@ final class FieldWriter extends FieldVisitor
    private AnnotationWriter ianns;
 
    /**
-    * The non standard attributes of this field. May be <tt>null</tt>.
-    */
-   private Attribute attrs;
-
-   /**
     * Constructs a new {@link FieldWriter}.
     *
     * @param cw        the class writer to which this field must be added.
@@ -143,12 +138,6 @@ final class FieldWriter extends FieldVisitor
       return aw;
    }
 
-   @Override
-   public void visitAttribute(Attribute attr) {
-      attr.next = attrs;
-      attrs = attr;
-   }
-
    // ------------------------------------------------------------------------
    // Utility methods
    // ------------------------------------------------------------------------
@@ -191,10 +180,6 @@ final class FieldWriter extends FieldVisitor
          size += 8 + ianns.getSize();
       }
 
-      if (attrs != null) {
-         size += attrs.getSize(cw);
-      }
-
       return size;
    }
 
@@ -204,11 +189,11 @@ final class FieldWriter extends FieldVisitor
     * @param out where the content of this field must be put.
     */
    void put(ByteVector out) {
-      int FACTOR = ClassWriter.TO_ACC_SYNTHETIC;
       int mask =
          Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE |
-            ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
+         ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / ClassWriter.TO_ACC_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(desc);
+
       int attributeCount = 0;
 
       if (value != 0) {
@@ -235,10 +220,6 @@ final class FieldWriter extends FieldVisitor
 
       if (ianns != null) {
          ++attributeCount;
-      }
-
-      if (attrs != null) {
-         attributeCount += attrs.getCount();
       }
 
       out.putShort(attributeCount);
@@ -271,10 +252,6 @@ final class FieldWriter extends FieldVisitor
       if (ianns != null) {
          out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
          ianns.put(out);
-      }
-
-      if (attrs != null) {
-         attrs.put(cw, out);
       }
    }
 }

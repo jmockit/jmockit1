@@ -35,11 +35,6 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public final void visitAttribute(Attribute attr) {
-      mw.visitAttribute(attr);
-   }
-
-   @Override
    public final void visitCode() {
       mw.visitCode();
    }

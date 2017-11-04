@@ -92,11 +92,6 @@ public class ClassVisitor
    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
    /**
-    * Visits a non standard attribute of the class.
-    */
-   public void visitAttribute(Attribute attr) {}
-
-   /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
     *
     * @param name      the internal name of an inner class (see {@link Type#getInternalName() getInternalName}).

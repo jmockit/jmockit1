@@ -63,9 +63,6 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    public final void visitOuterClass(String owner, @Nullable String name, @Nullable String desc) {}
 
    @Override
-   public final void visitAttribute(Attribute attr) {}
-
-   @Override
    public final void visitSource(@Nullable String source, @Nullable String debug) {}
 
    @Nullable @Override

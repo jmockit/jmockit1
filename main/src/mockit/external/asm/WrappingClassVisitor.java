@@ -40,11 +40,6 @@ public class WrappingClassVisitor extends ClassVisitor
    }
 
    @Override
-   public void visitAttribute(Attribute attr) {
-      cw.visitAttribute(attr);
-   }
-
-   @Override
    public void visitInnerClass(String name, String outerName, String innerName, int access) {
       cw.visitInnerClass(name, outerName, innerName, access);
    }

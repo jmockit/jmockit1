@@ -92,7 +92,6 @@ public final class ClassReader
    private String superClass;
    private String[] interfaces;
    private String[] exceptions;
-   private Attribute attributes;
    private String signature;
    private String sourceFile;
    private String sourceDebug;
@@ -309,7 +308,7 @@ public final class ClassReader
     */
    private void copyBootstrapMethods(ClassWriter classWriter, Item[] items, char[] c) {
       // Finds the "BootstrapMethods" attribute.
-      int u = getAttributes();
+      int u = getAttributesStartIndex();
       boolean found = false;
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
@@ -452,8 +451,7 @@ public final class ClassReader
       int ianns = 0;
       int innerClasses = 0;
 
-      attributes = null;
-      u = getAttributes();
+      u = getAttributesStartIndex();
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
          String attrName = readUTF8(u + 2, c);
@@ -489,9 +487,6 @@ public final class ClassReader
          else if ("BootstrapMethods".equals(attrName)) {
             readBootstrapMethods(context, u);
          }
-         else {
-            readAttribute(u, attrName);
-         }
 
          u += 6 + readInt(u + 4);
       }
@@ -501,7 +496,6 @@ public final class ClassReader
       readOuterClass();
       readAnnotations(c, anns, true);
       readAnnotations(c, ianns, false);
-      readClassAttributes();
       readInnerClasses(c, innerClasses);
       readFieldsAndMethods(context);
       cv.visitEnd();
@@ -557,17 +551,6 @@ public final class ClassReader
             AnnotationVisitor av = cv.visitAnnotation(desc, visible);
             v = readAnnotationValues(v + 2, c, true, av);
          }
-      }
-   }
-
-   private void readClassAttributes() {
-      Attribute attributes = this.attributes;
-
-      while (attributes != null) {
-         Attribute attr = attributes.next;
-         attributes.next = null;
-         cv.visitAttribute(attributes);
-         attributes = attr;
       }
    }
 
@@ -631,7 +614,6 @@ public final class ClassReader
       int anns = 0;
       int ianns = 0;
       Object value = null;
-      attributes = null;
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
          String attrName = readUTF8(u + 2, c);
@@ -655,9 +637,6 @@ public final class ClassReader
          else if ("RuntimeInvisibleAnnotations".equals(attrName)) {
             ianns = u + 8;
          }
-         else {
-            readAttribute(u, attrName);
-         }
 
          u += 6 + readInt(u + 4);
       }
@@ -672,8 +651,6 @@ public final class ClassReader
 
       readFieldAnnotations(fv, c, anns, true);
       readFieldAnnotations(fv, c, ianns, false);
-      readFieldAttributes(fv);
-
       fv.visitEnd();
       return u;
    }
@@ -685,17 +662,6 @@ public final class ClassReader
             AnnotationVisitor av = fv.visitAnnotation(desc, visible);
             v = readAnnotationValues(v + 2, c, true, av);
          }
-      }
-   }
-
-   private void readFieldAttributes(FieldVisitor fv) {
-      Attribute attributes = this.attributes;
-
-      while (attributes != null) {
-         Attribute attr = attributes.next;
-         attributes.next = null;
-         fv.visitAttribute(attributes);
-         attributes = attr;
       }
    }
 
@@ -719,7 +685,6 @@ public final class ClassReader
       int annDefault = 0;
       int paramAnns = 0;
       int invParamAnns = 0;
-      attributes = null;
       char[] c = context.buffer;
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
@@ -755,9 +720,6 @@ public final class ClassReader
          else if ("RuntimeInvisibleParameterAnnotations".equals(attrName)) {
             invParamAnns = u + 8;
          }
-         else {
-            readAttribute(u, attrName);
-         }
 
          u += 6 + readInt(u + 4);
       }
@@ -783,7 +745,6 @@ public final class ClassReader
       readAnnotationValues(mv, c, ianns, false);
       readParameterAnnotations(mv, context, paramAnns, true);
       readParameterAnnotations(mv, context, invParamAnns, false);
-      readMethodAttributes(mv);
       readMethodCode(mv, context, code);
       mv.visitEnd();
    }
@@ -807,13 +768,6 @@ public final class ClassReader
       }
 
       return exception;
-   }
-
-   private void readAttribute(int u, String attrName) {
-      int len = readInt(u + 4);
-      Attribute attr = new Attribute(attrName, this, u + 8, len);
-      attr.next = attributes;
-      attributes = attr;
    }
 
    private void readAnnotationDefaultValue(MethodVisitor mv, char[] c, int annotationDefault) {
@@ -883,17 +837,6 @@ public final class ClassReader
             AnnotationVisitor av = mv.visitAnnotation(desc, visible);
             v = readAnnotationValues(v + 2, c, true, av);
          }
-      }
-   }
-
-   private void readMethodAttributes(MethodVisitor mv) {
-      Attribute attributes = this.attributes;
-
-      while (attributes != null) {
-         Attribute attr = attributes.next;
-         attributes.next = null;
-         mv.visitAttribute(attributes);
-         attributes = attr;
       }
    }
 
@@ -1653,7 +1596,7 @@ public final class ClassReader
    /**
     * Returns the start index of the attribute_info structure of this class.
     */
-   private int getAttributes() {
+   private int getAttributesStartIndex() {
       // Skips the header.
       int u = header + 8 + readUnsignedShort(header + 6) * 2;
 

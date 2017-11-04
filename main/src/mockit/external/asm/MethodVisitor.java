@@ -92,13 +92,6 @@ public class MethodVisitor
    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) { return null; }
 
    /**
-    * Visits a non standard attribute of this method.
-    *
-    * @param attr an attribute.
-    */
-   public void visitAttribute(Attribute attr) {}
-
-   /**
     * Starts the visit of the method's code, if any (i.e. non abstract method).
     */
    public void visitCode() {}

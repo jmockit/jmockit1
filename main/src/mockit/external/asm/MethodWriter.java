@@ -37,281 +37,274 @@ import static mockit.external.asm.Opcodes.*;
 /**
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
 public final class MethodWriter extends MethodVisitor
 {
-    /**
-     * Pseudo access flag used to denote constructors.
-     */
-    static final int ACC_CONSTRUCTOR = 0x80000;
+   /**
+    * Pseudo access flag used to denote constructors.
+    */
+   static final int ACC_CONSTRUCTOR = 0x80000;
 
-    /**
-     * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
-     */
-    static final int SAME_FRAME = 0; // to 63 (0-3f)
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
+    */
+   static final int SAME_FRAME = 0; // to 63 (0-3f)
 
-    /**
-     * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
-     */
-    static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
+    */
+   static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
 
-    /**
-     * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
-     * Offset is bigger then 63.
-     */
-    static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
+    * Offset is bigger then 63.
+    */
+   static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
 
-    /**
-     * Frame where current locals are the same as the locals in the previous frame, except that the k last locals are
-     * absent. The value of k is given by the formula 251-frame_type.
-     */
-    static final int CHOP_FRAME = 248; // to 250 (f8-fA)
+   /**
+    * Frame where current locals are the same as the locals in the previous frame, except that the k last locals are
+    * absent. The value of k is given by the formula 251-frame_type.
+    */
+   static final int CHOP_FRAME = 248; // to 250 (f8-fA)
 
-    /**
-     * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
-     * Offset is bigger then 63.
-     */
-    static final int SAME_FRAME_EXTENDED = 251; // fb
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
+    * Offset is bigger then 63.
+    */
+   static final int SAME_FRAME_EXTENDED = 251; // fb
 
-    /**
-     * Frame where current locals are the same as the locals in the previous frame, except that k additional locals are
-     * defined. The value of k is given by the formula frame_type-251.
-     */
-    static final int APPEND_FRAME = 252; // to 254 // fc-fe
+   /**
+    * Frame where current locals are the same as the locals in the previous frame, except that k additional locals are
+    * defined. The value of k is given by the formula frame_type-251.
+    */
+   static final int APPEND_FRAME = 252; // to 254 // fc-fe
 
-    /**
-     * Full frame.
-     */
-    static final int FULL_FRAME = 255; // ff
+   /**
+    * Full frame.
+    */
+   static final int FULL_FRAME = 255; // ff
 
-    /**
-     * Indicates that the stack map frames must be recomputed from scratch. In this case the maximum stack size and
-     * number of local variables is also recomputed from scratch.
-     * 
-     * @see #compute
-     */
-    private static final int FRAMES = 0;
+   /**
+    * Indicates that the stack map frames must be recomputed from scratch. In this case the maximum stack size and
+    * number of local variables is also recomputed from scratch.
+    *
+    * @see #compute
+    */
+   private static final int FRAMES = 0;
 
-    /**
-     * Indicates that the maximum stack size and number of local variables must be automatically computed.
-     * 
-     * @see #compute
-     */
-    private static final int MAXS = 1;
+   /**
+    * Indicates that the maximum stack size and number of local variables must be automatically computed.
+    *
+    * @see #compute
+    */
+   private static final int MAXS = 1;
 
-    /**
-     * Indicates that nothing must be automatically computed.
-     * 
-     * @see #compute
-     */
-    private static final int NOTHING = 2;
+   /**
+    * Indicates that nothing must be automatically computed.
+    *
+    * @see #compute
+    */
+   private static final int NOTHING = 2;
 
-    /**
-     * The class writer to which this method must be added.
-     */
-    final ClassWriter cw;
+   /**
+    * The class writer to which this method must be added.
+    */
+   final ClassWriter cw;
 
-    /**
-     * The next method writer in a linked list for the methods of a class.
-     */
-    MethodWriter mw;
+   /**
+    * The next method writer in a linked list for the methods of a class.
+    */
+   MethodWriter mw;
 
-    /**
-     * Access flags of this method.
-     */
-    private int access;
+   /**
+    * Access flags of this method.
+    */
+   private int access;
 
-    /**
-     * The index of the constant pool item that contains the name of this method.
-     */
-    private final int name;
+   /**
+    * The index of the constant pool item that contains the name of this method.
+    */
+   private final int name;
 
-    /**
-     * The index of the constant pool item that contains the descriptor of this method.
-     */
-    private final int desc;
+   /**
+    * The index of the constant pool item that contains the descriptor of this method.
+    */
+   private final int desc;
 
-    /**
-     * The descriptor of this method.
-     */
-    private final String descriptor;
+   /**
+    * The descriptor of this method.
+    */
+   private final String descriptor;
 
-    /**
-     * The signature of this method.
-     */
-    String signature;
+   /**
+    * The signature of this method.
+    */
+   String signature;
 
-    /**
-     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
-     * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
-     * <code>cw.cr.b</code>.
-     */
-    int classReaderOffset;
+   /**
+    * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
+    * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
+    * <code>cw.cr.b</code>.
+    */
+   int classReaderOffset;
 
-    /**
-     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
-     * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.b</code>.
-     */
-    int classReaderLength;
+   /**
+    * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
+    * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.b</code>.
+    */
+   int classReaderLength;
 
-    /**
-     * Number of exceptions that can be thrown by this method.
-     */
-    int exceptionCount;
+   /**
+    * Number of exceptions that can be thrown by this method.
+    */
+   int exceptionCount;
 
-    /**
-     * The exceptions that can be thrown by this method. More precisely, this array contains the indexes of the constant
-     * pool items that contain the internal names of these exception classes.
-     */
-    int[] exceptions;
+   /**
+    * The exceptions that can be thrown by this method. More precisely, this array contains the indexes of the constant
+    * pool items that contain the internal names of these exception classes.
+    */
+   int[] exceptions;
 
-    /**
-     * The annotation default attribute of this method. May be <tt>null</tt>.
-     */
-    private ByteVector annotationDefault;
+   /**
+    * The annotation default attribute of this method. May be <tt>null</tt>.
+    */
+   private ByteVector annotationDefault;
 
-    /**
-     * The runtime visible annotations of this method. May be <tt>null</tt>.
-     */
-    private AnnotationWriter anns;
+   /**
+    * The runtime visible annotations of this method. May be <tt>null</tt>.
+    */
+   private AnnotationWriter anns;
 
-    /**
-     * The runtime invisible annotations of this method. May be <tt>null</tt>.
-     */
-    private AnnotationWriter ianns;
+   /**
+    * The runtime invisible annotations of this method. May be <tt>null</tt>.
+    */
+   private AnnotationWriter ianns;
 
-    /**
-     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
-     */
-    private AnnotationWriter[] parameterAnnotations;
+   /**
+    * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
+    */
+   private AnnotationWriter[] parameterAnnotations;
 
-    /**
-     * The runtime invisible parameter annotations of this method. May be <tt>null</tt>.
-     */
-    private AnnotationWriter[] invisibleParameterAnnotations;
+   /**
+    * The runtime invisible parameter annotations of this method. May be <tt>null</tt>.
+    */
+   private AnnotationWriter[] invisibleParameterAnnotations;
 
-    /**
-     * The number of synthetic parameters of this method.
-     */
-    private int synthetics;
+   /**
+    * The number of synthetic parameters of this method.
+    */
+   private int synthetics;
 
-    /**
-     * The non standard attributes of the method.
-     */
-    private Attribute attrs;
+   /**
+    * The bytecode of this method.
+    */
+   private ByteVector code = new ByteVector();
 
-    /**
-     * The bytecode of this method.
-     */
-    private ByteVector code = new ByteVector();
+   /**
+    * Maximum stack size of this method.
+    */
+   private int maxStack;
 
-    /**
-     * Maximum stack size of this method.
-     */
-    private int maxStack;
+   /**
+    * Maximum number of local variables for this method.
+    */
+   private int maxLocals;
 
-    /**
-     * Maximum number of local variables for this method.
-     */
-    private int maxLocals;
+   /**
+    * Number of local variables in the current stack map frame.
+    */
+   private int currentLocals;
 
-    /**
-     * Number of local variables in the current stack map frame.
-     */
-    private int currentLocals;
+   /**
+    * Number of stack map frames in the StackMapTable attribute.
+    */
+   private int frameCount;
 
-    /**
-     * Number of stack map frames in the StackMapTable attribute.
-     */
-    private int frameCount;
+   /**
+    * The StackMapTable attribute.
+    */
+   private ByteVector stackMap;
 
-    /**
-     * The StackMapTable attribute.
-     */
-    private ByteVector stackMap;
+   /**
+    * The offset of the last frame that was written in the StackMapTable attribute.
+    */
+   private int previousFrameOffset;
 
-    /**
-     * The offset of the last frame that was written in the StackMapTable attribute.
-     */
-    private int previousFrameOffset;
+   /**
+    * The last frame that was written in the StackMapTable attribute.
+    *
+    * @see #frame
+    */
+   private int[] previousFrame;
 
-    /**
-     * The last frame that was written in the StackMapTable attribute.
-     * 
-     * @see #frame
-     */
-    private int[] previousFrame;
+   /**
+    * The current stack map frame. The first element contains the offset of the
+    * instruction to which the frame corresponds, the second element is the
+    * number of locals and the third one is the number of stack elements. The
+    * local variables start at index 3 and are followed by the operand stack
+    * values. In summary frame[0] = offset, frame[1] = nLocal, frame[2] =
+    * nStack, frame[3] = nLocal. All types are encoded as integers, with the
+    * same format as the one used in {@link Label}, but limited to BASE types.
+    */
+   private int[] frame;
 
-    /**
-     * The current stack map frame. The first element contains the offset of the
-     * instruction to which the frame corresponds, the second element is the
-     * number of locals and the third one is the number of stack elements. The
-     * local variables start at index 3 and are followed by the operand stack
-     * values. In summary frame[0] = offset, frame[1] = nLocal, frame[2] =
-     * nStack, frame[3] = nLocal. All types are encoded as integers, with the
-     * same format as the one used in {@link Label}, but limited to BASE types.
-     */
-    private int[] frame;
+   /**
+    * Number of elements in the exception handler list.
+    */
+   private int handlerCount;
 
-    /**
-     * Number of elements in the exception handler list.
-     */
-    private int handlerCount;
+   /**
+    * The first element in the exception handler list.
+    */
+   private Handler firstHandler;
 
-    /**
-     * The first element in the exception handler list.
-     */
-    private Handler firstHandler;
+   /**
+    * The last element in the exception handler list.
+    */
+   private Handler lastHandler;
 
-    /**
-     * The last element in the exception handler list.
-     */
-    private Handler lastHandler;
+   /**
+    * Number of entries in the LocalVariableTable attribute.
+    */
+   private int localVarCount;
 
-    /**
-     * Number of entries in the LocalVariableTable attribute.
-     */
-    private int localVarCount;
+   /**
+    * The LocalVariableTable attribute.
+    */
+   private ByteVector localVar;
 
-    /**
-     * The LocalVariableTable attribute.
-     */
-    private ByteVector localVar;
+   /**
+    * Number of entries in the LocalVariableTypeTable attribute.
+    */
+   private int localVarTypeCount;
 
-    /**
-     * Number of entries in the LocalVariableTypeTable attribute.
-     */
-    private int localVarTypeCount;
+   /**
+    * The LocalVariableTypeTable attribute.
+    */
+   private ByteVector localVarType;
 
-    /**
-     * The LocalVariableTypeTable attribute.
-     */
-    private ByteVector localVarType;
+   /**
+    * Number of entries in the LineNumberTable attribute.
+    */
+   private int lineNumberCount;
 
-    /**
-     * Number of entries in the LineNumberTable attribute.
-     */
-    private int lineNumberCount;
+   /**
+    * The LineNumberTable attribute.
+    */
+   private ByteVector lineNumber;
 
-    /**
-     * The LineNumberTable attribute.
-     */
-    private ByteVector lineNumber;
+   /**
+    * Indicates if some jump instructions are too small and need to be resized.
+    */
+   private boolean resize;
 
-    /**
-     * Indicates if some jump instructions are too small and need to be resized.
-     */
-    private boolean resize;
-
-    /**
-     * The number of subroutines in this method.
-     */
-    private int subroutines;
-
-    // ------------------------------------------------------------------------
+   /**
+    * The number of subroutines in this method.
+    */
+   private int subroutines;
 
     /*
      * Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
@@ -320,640 +313,633 @@ public final class MethodWriter extends MethodVisitor
      * basic block. Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
      */
 
-    /**
-     * Indicates what must be automatically computed.
-     * 
-     * @see #FRAMES
-     * @see #MAXS
-     * @see #NOTHING
-     */
-    private final int compute;
+   /**
+    * Indicates what must be automatically computed.
+    *
+    * @see #FRAMES
+    * @see #MAXS
+    * @see #NOTHING
+    */
+   private final int compute;
 
-    /**
-     * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to
-     * each other by their {@link Label#successor} field, in the order they are visited by
-     * {@link MethodVisitor#visitLabel}, and starting with the first basic block.
-     */
-    private Label labels;
+   /**
+    * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to
+    * each other by their {@link Label#successor} field, in the order they are visited by
+    * {@link MethodVisitor#visitLabel}, and starting with the first basic block.
+    */
+   private Label labels;
 
-    /**
-     * The previous basic block.
-     */
-    private Label previousBlock;
+   /**
+    * The previous basic block.
+    */
+   private Label previousBlock;
 
-    /**
-     * The current basic block.
-     */
-    public Label currentBlock;
+   /**
+    * The current basic block.
+    */
+   public Label currentBlock;
 
-    /**
-     * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the
-     * current basic block, i.e., the true stack size after the last visited instruction is equal to the
-     * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
-     */
-    public int stackSize;
+   /**
+    * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the
+    * current basic block, i.e., the true stack size after the last visited instruction is equal to the
+    * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
+    */
+   public int stackSize;
 
-    /**
-     * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of
-     * the current basic block, i.e., the true maximum stack size after the last visited instruction is equal to the
-     * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
-     */
-    private int maxStackSize;
+   /**
+    * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of
+    * the current basic block, i.e., the true maximum stack size after the last visited instruction is equal to the
+    * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
+    */
+   private int maxStackSize;
 
-    /**
-     * Constructs a new {@link MethodWriter}.
-     * 
-     * @param cw the class writer in which the method must be added.
-     * @param access the method's access flags (see {@link Opcodes}).
-     * @param name the method's name.
-     * @param desc the method's descriptor (see {@link Type}).
-     * @param signature the method's signature. May be <tt>null</tt>.
-     * @param exceptions the internal names of the method's exceptions. May be <tt>null</tt>.
-     * @param computeMaxs
-     *        {@code true} if the maximum stack size and number of local variables must be automatically computed.
-     * @param computeFrames {@code true} if the stack map tables must be recomputed from scratch.
-     */
-    MethodWriter(
-        ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions,
-        boolean computeMaxs, boolean computeFrames
-    ) {
-        if (cw.firstMethod == null) {
-            cw.firstMethod = this;
-        }
-        else {
-            cw.lastMethod.mw = this;
-        }
+   /**
+    * Constructs a new {@link MethodWriter}.
+    *
+    * @param cw            the class writer in which the method must be added.
+    * @param access        the method's access flags (see {@link Opcodes}).
+    * @param name          the method's name.
+    * @param desc          the method's descriptor (see {@link Type}).
+    * @param signature     the method's signature. May be <tt>null</tt>.
+    * @param exceptions    the internal names of the method's exceptions. May be <tt>null</tt>.
+    * @param computeMaxs   {@code true} if the maximum stack size and number of local variables must be automatically computed.
+    * @param computeFrames {@code true} if the stack map tables must be recomputed from scratch.
+    */
+   MethodWriter(
+      ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions,
+      boolean computeMaxs, boolean computeFrames
+   ) {
+      if (cw.firstMethod == null) {
+         cw.firstMethod = this;
+      }
+      else {
+         cw.lastMethod.mw = this;
+      }
 
-        cw.lastMethod = this;
-        this.cw = cw;
-        this.access = access;
+      cw.lastMethod = this;
+      this.cw = cw;
+      this.access = access;
 
-        if ("<init>".equals(name)) {
-            this.access |= ACC_CONSTRUCTOR;
-        }
+      if ("<init>".equals(name)) {
+         this.access |= ACC_CONSTRUCTOR;
+      }
 
-        this.name = cw.newUTF8(name);
-        this.desc = cw.newUTF8(desc);
-        descriptor = desc;
-        this.signature = signature;
+      this.name = cw.newUTF8(name);
+      this.desc = cw.newUTF8(desc);
+      descriptor = desc;
+      this.signature = signature;
 
-        if (exceptions != null && exceptions.length > 0) {
-            exceptionCount = exceptions.length;
-            this.exceptions = new int[exceptionCount];
+      if (exceptions != null && exceptions.length > 0) {
+         exceptionCount = exceptions.length;
+         this.exceptions = new int[exceptionCount];
 
-            for (int i = 0; i < exceptionCount; ++i) {
-                this.exceptions[i] = cw.newClass(exceptions[i]);
+         for (int i = 0; i < exceptionCount; ++i) {
+            this.exceptions[i] = cw.newClass(exceptions[i]);
+         }
+      }
+
+      compute = computeFrames ? FRAMES : computeMaxs ? MAXS : NOTHING;
+
+      if (computeMaxs || computeFrames) {
+         // Updates maxLocals.
+         int size = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
+
+         if ((access & ACC_STATIC) != 0) {
+            --size;
+         }
+
+         maxLocals = size;
+         currentLocals = size;
+
+         // Creates and visits the label for the first basic block.
+         labels = new Label();
+         labels.status |= Label.PUSHED;
+         visitLabel(labels);
+      }
+   }
+
+   // ------------------------------------------------------------------------
+   // Implementation of the MethodVisitor abstract class
+   // ------------------------------------------------------------------------
+
+   @Override
+   public AnnotationVisitor visitAnnotationDefault() {
+      annotationDefault = new ByteVector();
+      return new AnnotationWriter(cw, false, annotationDefault, null, 0);
+   }
+
+   @Override
+   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+      ByteVector bv = new ByteVector();
+
+      // Write type, and reserve space for values count.
+      bv.putShort(cw.newUTF8(desc)).putShort(0);
+      AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+
+      if (visible) {
+         aw.next = anns;
+         anns = aw;
+      }
+      else {
+         aw.next = ianns;
+         ianns = aw;
+      }
+
+      return aw;
+   }
+
+   @Override
+   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
+      ByteVector bv = new ByteVector();
+
+      if ("Ljava/lang/Synthetic;".equals(desc)) {
+         // Workaround for a bug in javac with synthetic parameters; see ClassReader.readParameterAnnotations.
+         synthetics = Math.max(synthetics, parameter + 1);
+         return new AnnotationWriter(cw, false, bv, null, 0);
+      }
+
+      // Write type, and reserve space for values count.
+      bv.putShort(cw.newUTF8(desc)).putShort(0);
+      AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+
+      if (visible) {
+         if (parameterAnnotations == null) {
+            parameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
+         }
+
+         aw.next = parameterAnnotations[parameter];
+         parameterAnnotations[parameter] = aw;
+      }
+      else {
+         if (invisibleParameterAnnotations == null) {
+            invisibleParameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
+         }
+
+         aw.next = invisibleParameterAnnotations[parameter];
+         invisibleParameterAnnotations[parameter] = aw;
+      }
+
+      return aw;
+   }
+
+   @Override
+   public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+      if (compute == FRAMES) {
+         return;
+      }
+
+      if (type == F_NEW) {
+         if (previousFrame == null) {
+            visitImplicitFirstFrame();
+         }
+
+         currentLocals = nLocal;
+         int frameIndex = startFrame(code.length, nLocal, nStack);
+
+         for (int i = 0; i < nLocal; ++i) {
+            if (local[i] instanceof String) {
+               frame[frameIndex++] = Frame.OBJECT | cw.addType((String) local[i]);
             }
-        }
-
-        compute = computeFrames ? FRAMES : computeMaxs ? MAXS : NOTHING;
-
-        if (computeMaxs || computeFrames) {
-            // Updates maxLocals.
-            int size = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
-
-            if ((access & ACC_STATIC) != 0) {
-                --size;
-            }
-
-            maxLocals = size;
-            currentLocals = size;
-
-            // Creates and visits the label for the first basic block.
-            labels = new Label();
-            labels.status |= Label.PUSHED;
-            visitLabel(labels);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // Implementation of the MethodVisitor abstract class
-    // ------------------------------------------------------------------------
-
-    @Override
-    public AnnotationVisitor visitAnnotationDefault() {
-        annotationDefault = new ByteVector();
-        return new AnnotationWriter(cw, false, annotationDefault, null, 0);
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        ByteVector bv = new ByteVector();
-
-        // Write type, and reserve space for values count.
-        bv.putShort(cw.newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-
-        if (visible) {
-            aw.next = anns;
-            anns = aw;
-        }
-        else {
-            aw.next = ianns;
-            ianns = aw;
-        }
-
-        return aw;
-    }
-
-    @Override
-    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-        ByteVector bv = new ByteVector();
-
-        if ("Ljava/lang/Synthetic;".equals(desc)) {
-            // Workaround for a bug in javac with synthetic parameters; see ClassReader.readParameterAnnotations.
-            synthetics = Math.max(synthetics, parameter + 1);
-            return new AnnotationWriter(cw, false, bv, null, 0);
-        }
-
-        // Write type, and reserve space for values count.
-        bv.putShort(cw.newUTF8(desc)).putShort(0);
-        AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-
-        if (visible) {
-            if (parameterAnnotations == null) {
-                parameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
-            }
-
-            aw.next = parameterAnnotations[parameter];
-            parameterAnnotations[parameter] = aw;
-        }
-        else {
-            if (invisibleParameterAnnotations == null) {
-                invisibleParameterAnnotations = new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
-            }
-
-            aw.next = invisibleParameterAnnotations[parameter];
-            invisibleParameterAnnotations[parameter] = aw;
-        }
-
-        return aw;
-    }
-
-    @Override
-    public void visitAttribute(Attribute attr) {
-        attr.next = attrs;
-        attrs = attr;
-    }
-
-    @Override
-    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-        if (compute == FRAMES) {
-            return;
-        }
-
-        if (type == F_NEW) {
-            if (previousFrame == null) {
-                visitImplicitFirstFrame();
-            }
-
-            currentLocals = nLocal;
-            int frameIndex = startFrame(code.length, nLocal, nStack);
-
-            for (int i = 0; i < nLocal; ++i) {
-                if (local[i] instanceof String) {
-                    frame[frameIndex++] = Frame.OBJECT | cw.addType((String) local[i]);
-                }
-                else if (local[i] instanceof Integer) {
-                    frame[frameIndex++] = (Integer) local[i];
-                }
-                else {
-                    frame[frameIndex++] =
-                       Frame.UNINITIALIZED | cw.addUninitializedType("", ((Label) local[i]).position);
-                }
-            }
-
-            for (int i = 0; i < nStack; ++i) {
-                if (stack[i] instanceof String) {
-                    frame[frameIndex++] = Frame.OBJECT | cw.addType((String) stack[i]);
-                }
-                else if (stack[i] instanceof Integer) {
-                    frame[frameIndex++] = (Integer) stack[i];
-                }
-                else {
-                    frame[frameIndex++] =
-                       Frame.UNINITIALIZED | cw.addUninitializedType("", ((Label) stack[i]).position);
-                }
-            }
-
-            endFrame();
-        }
-        else {
-            int delta;
-
-            if (stackMap == null) {
-                stackMap = new ByteVector();
-                delta = code.length;
+            else if (local[i] instanceof Integer) {
+               frame[frameIndex++] = (Integer) local[i];
             }
             else {
-                delta = code.length - previousFrameOffset - 1;
-
-                if (delta < 0) {
-                    if (type == F_SAME) {
-                        return;
-                    }
-
-                    throw new IllegalStateException();
-                }
+               frame[frameIndex++] =
+                  Frame.UNINITIALIZED | cw.addUninitializedType("", ((Label) local[i]).position);
             }
+         }
 
-            switch (type) {
+         for (int i = 0; i < nStack; ++i) {
+            if (stack[i] instanceof String) {
+               frame[frameIndex++] = Frame.OBJECT | cw.addType((String) stack[i]);
+            }
+            else if (stack[i] instanceof Integer) {
+               frame[frameIndex++] = (Integer) stack[i];
+            }
+            else {
+               frame[frameIndex++] =
+                  Frame.UNINITIALIZED | cw.addUninitializedType("", ((Label) stack[i]).position);
+            }
+         }
+
+         endFrame();
+      }
+      else {
+         int delta;
+
+         if (stackMap == null) {
+            stackMap = new ByteVector();
+            delta = code.length;
+         }
+         else {
+            delta = code.length - previousFrameOffset - 1;
+
+            if (delta < 0) {
+               if (type == F_SAME) {
+                  return;
+               }
+
+               throw new IllegalStateException();
+            }
+         }
+
+         switch (type) {
             case F_FULL:
-                currentLocals = nLocal;
-                stackMap.putByte(FULL_FRAME).putShort(delta).putShort(nLocal);
+               currentLocals = nLocal;
+               stackMap.putByte(FULL_FRAME).putShort(delta).putShort(nLocal);
 
-                for (int i = 0; i < nLocal; ++i) {
-                    writeFrameType(local[i]);
-                }
+               for (int i = 0; i < nLocal; ++i) {
+                  writeFrameType(local[i]);
+               }
 
-                stackMap.putShort(nStack);
+               stackMap.putShort(nStack);
 
-                for (int i = 0; i < nStack; ++i) {
-                    writeFrameType(stack[i]);
-                }
+               for (int i = 0; i < nStack; ++i) {
+                  writeFrameType(stack[i]);
+               }
 
-                break;
+               break;
             case F_APPEND:
-                currentLocals += nLocal;
-                stackMap.putByte(SAME_FRAME_EXTENDED + nLocal).putShort(delta);
+               currentLocals += nLocal;
+               stackMap.putByte(SAME_FRAME_EXTENDED + nLocal).putShort(delta);
 
-                for (int i = 0; i < nLocal; ++i) {
-                    writeFrameType(local[i]);
-                }
+               for (int i = 0; i < nLocal; ++i) {
+                  writeFrameType(local[i]);
+               }
 
-                break;
+               break;
             case F_CHOP:
-                currentLocals -= nLocal;
-                stackMap.putByte(SAME_FRAME_EXTENDED - nLocal).putShort(delta);
-                break;
+               currentLocals -= nLocal;
+               stackMap.putByte(SAME_FRAME_EXTENDED - nLocal).putShort(delta);
+               break;
             case F_SAME:
-                if (delta < 64) {
-                    stackMap.putByte(delta);
-                }
-                else {
-                    stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
-                }
+               if (delta < 64) {
+                  stackMap.putByte(delta);
+               }
+               else {
+                  stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
+               }
 
-                break;
+               break;
             case F_SAME1:
-                if (delta < 64) {
-                    stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-                }
-                else {
-                    stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
-                            .putShort(delta);
-                }
+               if (delta < 64) {
+                  stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+               }
+               else {
+                  stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED)
+                     .putShort(delta);
+               }
 
-                writeFrameType(stack[0]);
-                break;
+               writeFrameType(stack[0]);
+               break;
+         }
+
+         previousFrameOffset = code.length;
+         ++frameCount;
+      }
+
+      maxStack = Math.max(maxStack, nStack);
+      maxLocals = Math.max(maxLocals, currentLocals);
+   }
+
+   @Override
+   public void visitInsn(int opcode) {
+      // Adds the instruction to the bytecode of the method.
+      code.putByte(opcode);
+
+      // Update currentBlock.
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, 0, null, null);
+         }
+         else {
+            // Updates current and max stack sizes.
+            int size = stackSize + Frame.SIZE[opcode];
+
+            if (size > maxStackSize) {
+               maxStackSize = size;
             }
 
-            previousFrameOffset = code.length;
-            ++frameCount;
-        }
+            stackSize = size;
+         }
 
-        maxStack = Math.max(maxStack, nStack);
-        maxLocals = Math.max(maxLocals, currentLocals);
-    }
+         // If opcode == ATHROW or xRETURN, ends current block (no successor).
+         if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
+            noSuccessor();
+         }
+      }
+   }
 
-    @Override
-    public void visitInsn(int opcode) {
-        // Adds the instruction to the bytecode of the method.
-        code.putByte(opcode);
+   @Override
+   public void visitIntInsn(int opcode, int operand) {
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, operand, null, null);
+         }
+         else if (opcode != NEWARRAY) {
+            // Updates current and max stack sizes only for NEWARRAY
+            // (stack size variation = 0 for BIPUSH or SIPUSH).
+            int size = stackSize + 1;
 
-        // Update currentBlock.
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, 0, null, null);
-            }
-            else {
-                // Updates current and max stack sizes.
-                int size = stackSize + Frame.SIZE[opcode];
-
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
+            if (size > maxStackSize) {
+               maxStackSize = size;
             }
 
-            // If opcode == ATHROW or xRETURN, ends current block (no successor).
-            if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-                noSuccessor();
+            stackSize = size;
+         }
+      }
+
+      // Adds the instruction to the bytecode of the method.
+      if (opcode == SIPUSH) {
+         code.put12(opcode, operand);
+      }
+      else { // BIPUSH or NEWARRAY
+         code.put11(opcode, operand);
+      }
+   }
+
+   @Override
+   public void visitVarInsn(int opcode, int var) {
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, var, null, null);
+         }
+         else {
+            // Updates current and max stack sizes.
+            if (opcode == RET) {
+               // No stack change, but end of current block (no successor).
+               currentBlock.status |= Label.RET;
+
+               // Save 'stackSize' here for future use (see {@link #findSubroutineSuccessors}).
+               currentBlock.inputStackTop = stackSize;
+               noSuccessor();
             }
-        }
-    }
+            else { // xLOAD or xSTORE
+               int size = stackSize + Frame.SIZE[opcode];
 
-    @Override
-    public void visitIntInsn(int opcode, int operand) {
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, operand, null, null);
+               if (size > maxStackSize) {
+                  maxStackSize = size;
+               }
+
+               stackSize = size;
             }
-            else if (opcode != NEWARRAY) {
-                // Updates current and max stack sizes only for NEWARRAY
-                // (stack size variation = 0 for BIPUSH or SIPUSH).
-                int size = stackSize + 1;
+         }
+      }
 
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
+      if (compute != NOTHING) {
+         // Updates max locals.
+         int n;
 
-                stackSize = size;
-            }
-        }
+         if (opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE) {
+            n = var + 2;
+         }
+         else {
+            n = var + 1;
+         }
 
-        // Adds the instruction to the bytecode of the method.
-        if (opcode == SIPUSH) {
-            code.put12(opcode, operand);
-        }
-        else { // BIPUSH or NEWARRAY
-            code.put11(opcode, operand);
-        }
-    }
+         if (n > maxLocals) {
+            maxLocals = n;
+         }
+      }
 
-    @Override
-    public void visitVarInsn(int opcode, int var) {
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, var, null, null);
-            }
-            else {
-                // Updates current and max stack sizes.
-                if (opcode == RET) {
-                    // No stack change, but end of current block (no successor).
-                    currentBlock.status |= Label.RET;
+      // Adds the instruction to the bytecode of the method.
+      if (var < 4 && opcode != RET) {
+         int opt;
 
-                    // Save 'stackSize' here for future use (see {@link #findSubroutineSuccessors}).
-                    currentBlock.inputStackTop = stackSize;
-                    noSuccessor();
-                }
-                else { // xLOAD or xSTORE
-                    int size = stackSize + Frame.SIZE[opcode];
+         if (opcode < ISTORE) { // ILOAD_0
+            opt = 26 + ((opcode - ILOAD) << 2) + var;
+         }
+         else { // ISTORE_0
+            opt = 59 + ((opcode - ISTORE) << 2) + var;
+         }
 
-                    if (size > maxStackSize) {
-                        maxStackSize = size;
-                    }
+         code.putByte(opt);
+      }
+      else if (var >= 256) {
+         code.putByte(196 /* WIDE */).put12(opcode, var);
+      }
+      else {
+         code.put11(opcode, var);
+      }
 
-                    stackSize = size;
-                }
-            }
-        }
+      if (opcode >= ISTORE && compute == FRAMES && handlerCount > 0) {
+         visitLabel(new Label());
+      }
+   }
 
-        if (compute != NOTHING) {
-            // Updates max locals.
-            int n;
+   @Override
+   public void visitTypeInsn(int opcode, String type) {
+      Item i = cw.newClassItem(type);
 
-            if (opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE) {
-                n = var + 2;
-            }
-            else {
-                n = var + 1;
-            }
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, code.length, cw, i);
+         }
+         else if (opcode == NEW) {
+            // Updates current and max stack sizes only if opcode == NEW
+            // (no stack change for ANEWARRAY, CHECKCAST, INSTANCEOF).
+            int size = stackSize + 1;
 
-            if (n > maxLocals) {
-                maxLocals = n;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        if (var < 4 && opcode != RET) {
-            int opt;
-
-            if (opcode < ISTORE) { // ILOAD_0
-                opt = 26 + ((opcode - ILOAD) << 2) + var;
-            }
-            else { // ISTORE_0
-                opt = 59 + ((opcode - ISTORE) << 2) + var;
+            if (size > maxStackSize) {
+               maxStackSize = size;
             }
 
-            code.putByte(opt);
-        }
-        else if (var >= 256) {
-            code.putByte(196 /* WIDE */).put12(opcode, var);
-        }
-        else {
-            code.put11(opcode, var);
-        }
+            stackSize = size;
+         }
+      }
 
-        if (opcode >= ISTORE && compute == FRAMES && handlerCount > 0) {
-            visitLabel(new Label());
-        }
-    }
+      // Adds the instruction to the bytecode of the method.
+      code.put12(opcode, i.index);
+   }
 
-    @Override
-    public void visitTypeInsn(int opcode, String type) {
-        Item i = cw.newClassItem(type);
+   @Override
+   public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+      Item i = cw.newFieldItem(owner, name, desc);
 
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, code.length, cw, i);
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, 0, cw, i);
+         }
+         else {
+            char c = desc.charAt(0);
+            int size;
+
+            // Computes the stack size variation.
+            switch (opcode) {
+               case GETSTATIC:
+                  size = stackSize + (c == 'D' || c == 'J' ? 2 : 1);
+                  break;
+               case PUTSTATIC:
+                  size = stackSize + (c == 'D' || c == 'J' ? -2 : -1);
+                  break;
+               case GETFIELD:
+                  size = stackSize + (c == 'D' || c == 'J' ? 1 : 0);
+                  break;
+               // case Constants.PUTFIELD:
+               default:
+                  size = stackSize + (c == 'D' || c == 'J' ? -3 : -2);
+                  break;
             }
-            else if (opcode == NEW) {
-                // Updates current and max stack sizes only if opcode == NEW
-                // (no stack change for ANEWARRAY, CHECKCAST, INSTANCEOF).
-                int size = stackSize + 1;
 
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
+            // Updates current and max stack sizes.
+            if (size > maxStackSize) {
+               maxStackSize = size;
             }
-        }
 
-        // Adds the instruction to the bytecode of the method.
-        code.put12(opcode, i.index);
-    }
+            stackSize = size;
+         }
+      }
 
-    @Override
-    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-        Item i = cw.newFieldItem(owner, name, desc);
+      // Adds the instruction to the bytecode of the method.
+      code.put12(opcode, i.index);
+   }
 
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, 0, cw, i);
-            }
-            else {
-                char c = desc.charAt(0);
-                int size;
+   @Override
+   public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+      Item i = cw.newMethodItem(owner, name, desc, itf);
+      int argSize = i.intVal;
 
-                // Computes the stack size variation.
-                switch (opcode) {
-                case GETSTATIC:
-                    size = stackSize + (c == 'D' || c == 'J' ? 2 : 1);
-                    break;
-                case PUTSTATIC:
-                    size = stackSize + (c == 'D' || c == 'J' ? -2 : -1);
-                    break;
-                case GETFIELD:
-                    size = stackSize + (c == 'D' || c == 'J' ? 1 : 0);
-                    break;
-                // case Constants.PUTFIELD:
-                default:
-                    size = stackSize + (c == 'D' || c == 'J' ? -3 : -2);
-                    break;
-                }
-
-                // Updates current and max stack sizes.
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        code.put12(opcode, i.index);
-    }
-
-    @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        Item i = cw.newMethodItem(owner, name, desc, itf);
-        int argSize = i.intVal;
-
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, 0, cw, i);
-            }
-            else {
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, 0, cw, i);
+         }
+         else {
                 /*
                  * Computes the stack size variation. In order not to recompute several times this variation for the
                  * same Item, we use the intVal field of this item to store this variation, once it has been computed.
                  * More precisely this intVal field stores the sizes of the arguments and of the return value
                  * corresponding to desc.
                  */
-                if (argSize == 0) {
-                    // The above sizes have not been computed yet, so we compute them...
-                    argSize = Type.getArgumentsAndReturnSizes(desc);
-
-                    // ... and we save them in order not to recompute them in the future.
-                    i.intVal = argSize;
-                }
-
-                int size;
-
-                if (opcode == INVOKESTATIC) {
-                    size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
-                }
-                else {
-                    size = stackSize - (argSize >> 2) + (argSize & 0x03);
-                }
-
-                // Updates current and max stack sizes.
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        if (opcode == INVOKEINTERFACE) {
             if (argSize == 0) {
-                argSize = Type.getArgumentsAndReturnSizes(desc);
-                i.intVal = argSize;
+               // The above sizes have not been computed yet, so we compute them...
+               argSize = Type.getArgumentsAndReturnSizes(desc);
+
+               // ... and we save them in order not to recompute them in the future.
+               i.intVal = argSize;
             }
 
-            code.put12(INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
-        }
-        else {
-            code.put12(opcode, i.index);
-        }
-    }
+            int size;
 
-    @Override
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-        Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
-        int argSize = i.intVal;
-
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(INVOKEDYNAMIC, 0, cw, i);
+            if (opcode == INVOKESTATIC) {
+               size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
             }
             else {
+               size = stackSize - (argSize >> 2) + (argSize & 0x03);
+            }
+
+            // Updates current and max stack sizes.
+            if (size > maxStackSize) {
+               maxStackSize = size;
+            }
+
+            stackSize = size;
+         }
+      }
+
+      // Adds the instruction to the bytecode of the method.
+      if (opcode == INVOKEINTERFACE) {
+         if (argSize == 0) {
+            argSize = Type.getArgumentsAndReturnSizes(desc);
+            i.intVal = argSize;
+         }
+
+         code.put12(INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
+      }
+      else {
+         code.put12(opcode, i.index);
+      }
+   }
+
+   @Override
+   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+      Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
+      int argSize = i.intVal;
+
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(INVOKEDYNAMIC, 0, cw, i);
+         }
+         else {
                 /*
                  * Computes the stack size variation. In order not to recompute several times this variation for the
                  * same Item, we use the intVal field of this item to store this variation, once it has been computed.
                  * More precisely this intVal field stores the sizes of the arguments and of the return value
                  * corresponding to desc.
                  */
-                if (argSize == 0) {
-                    // The above sizes have not been computed yet, so we compute them...
-                    argSize = Type.getArgumentsAndReturnSizes(desc);
+            if (argSize == 0) {
+               // The above sizes have not been computed yet, so we compute them...
+               argSize = Type.getArgumentsAndReturnSizes(desc);
 
-                    // ... and we save them in order not to recompute them in the future.
-                    i.intVal = argSize;
-                }
-
-                int size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
-
-                // Updates current and max stack sizes.
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
+               // ... and we save them in order not to recompute them in the future.
+               i.intVal = argSize;
             }
-        }
 
-        // Adds the instruction to the bytecode of the method.
-        code.put12(INVOKEDYNAMIC, i.index);
-        code.putShort(0);
-    }
+            int size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
 
-    @Override
-    public void visitJumpInsn(int opcode, Label label) {
-        Label nextInsn = null;
-
-        // Label currentBlock = this.currentBlock;
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(opcode, 0, null, null);
-
-                // 'label' is the target of a jump instruction
-                label.getFirst().status |= Label.TARGET;
-
-                // Adds 'label' as a successor of this basic block.
-                addSuccessor(Edge.NORMAL, label);
-
-                if (opcode != GOTO) {
-                    // Creates a Label for the next basic block.
-                    nextInsn = new Label();
-                }
+            // Updates current and max stack sizes.
+            if (size > maxStackSize) {
+               maxStackSize = size;
             }
-            else {
-                if (opcode == JSR) {
-                    if ((label.status & Label.SUBROUTINE) == 0) {
-                        label.status |= Label.SUBROUTINE;
-                        ++subroutines;
-                    }
 
-                    currentBlock.status |= Label.JSR;
-                    addSuccessor(stackSize + 1, label);
+            stackSize = size;
+         }
+      }
 
-                    // Creates a Label for the next basic block.
-                    nextInsn = new Label();
+      // Adds the instruction to the bytecode of the method.
+      code.put12(INVOKEDYNAMIC, i.index);
+      code.putShort(0);
+   }
+
+   @Override
+   public void visitJumpInsn(int opcode, Label label) {
+      Label nextInsn = null;
+
+      // Label currentBlock = this.currentBlock;
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(opcode, 0, null, null);
+
+            // 'label' is the target of a jump instruction
+            label.getFirst().status |= Label.TARGET;
+
+            // Adds 'label' as a successor of this basic block.
+            addSuccessor(Edge.NORMAL, label);
+
+            if (opcode != GOTO) {
+               // Creates a Label for the next basic block.
+               nextInsn = new Label();
+            }
+         }
+         else {
+            if (opcode == JSR) {
+               if ((label.status & Label.SUBROUTINE) == 0) {
+                  label.status |= Label.SUBROUTINE;
+                  ++subroutines;
+               }
+
+               currentBlock.status |= Label.JSR;
+               addSuccessor(stackSize + 1, label);
+
+               // Creates a Label for the next basic block.
+               nextInsn = new Label();
                     /*
                      * note that, by construction in this method, a JSR block
                      * has at least two successors in the control flow graph:
                      * the first one leads the next instruction after the JSR,
                      * while the second one leads to the JSR target.
                      */
-                }
-                else {
-                    // Updates current stack size (max stack size unchanged
-                    // because stack size variation always negative in this case).
-                    stackSize += Frame.SIZE[opcode];
-                    addSuccessor(stackSize, label);
-                }
             }
-        }
+            else {
+               // Updates current stack size (max stack size unchanged
+               // because stack size variation always negative in this case).
+               stackSize += Frame.SIZE[opcode];
+               addSuccessor(stackSize, label);
+            }
+         }
+      }
 
-        // Adds the instruction to the bytecode of the method.
-        if ((label.status & Label.RESOLVED) != 0 && label.position - code.length < Short.MIN_VALUE) {
+      // Adds the instruction to the bytecode of the method.
+      if ((label.status & Label.RESOLVED) != 0 && label.position - code.length < Short.MIN_VALUE) {
             /*
              * case of a backward jump with an offset < -32768. In this case we
              * automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
@@ -961,1751 +947,1724 @@ public final class MethodWriter extends MethodVisitor
              * "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'>
              * designates the instruction just after the GOTO_W.
              */
-            if (opcode == GOTO) {
-                code.putByte(200); // GOTO_W
-            }
-            else if (opcode == JSR) {
-                code.putByte(201); // JSR_W
-            }
-            else {
-                // If the IF instruction is transformed into IFNOT GOTO_W the
-                // next instruction becomes the target of the IFNOT instruction.
-                if (nextInsn != null) {
-                    nextInsn.status |= Label.TARGET;
-                }
-
-                code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
-                code.putShort(8); // jump offset
-                code.putByte(200); // GOTO_W
+         if (opcode == GOTO) {
+            code.putByte(200); // GOTO_W
+         }
+         else if (opcode == JSR) {
+            code.putByte(201); // JSR_W
+         }
+         else {
+            // If the IF instruction is transformed into IFNOT GOTO_W the
+            // next instruction becomes the target of the IFNOT instruction.
+            if (nextInsn != null) {
+               nextInsn.status |= Label.TARGET;
             }
 
-            label.put(code, code.length - 1, true);
-        }
-        else {
+            code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
+            code.putShort(8); // jump offset
+            code.putByte(200); // GOTO_W
+         }
+
+         label.put(code, code.length - 1, true);
+      }
+      else {
             /*
              * case of a backward jump with an offset >= -32768, or of a forward
              * jump with, of course, an unknown offset. In these cases we store
              * the offset in 2 bytes (which will be increased in
              * resizeInstructions, if needed).
              */
-            code.putByte(opcode);
-            label.put(code, code.length - 1, false);
-        }
+         code.putByte(opcode);
+         label.put(code, code.length - 1, false);
+      }
 
-        if (currentBlock != null) {
-            if (nextInsn != null) {
-                // If the jump instruction is not a GOTO, the next instruction is also a successor of this instruction.
-                // Calling visitLabel adds the label of this next instruction as a successor of the current block, and
-                // starts a new basic block.
-                visitLabel(nextInsn);
-            }
+      if (currentBlock != null) {
+         if (nextInsn != null) {
+            // If the jump instruction is not a GOTO, the next instruction is also a successor of this instruction.
+            // Calling visitLabel adds the label of this next instruction as a successor of the current block, and
+            // starts a new basic block.
+            visitLabel(nextInsn);
+         }
 
-            if (opcode == GOTO) {
-                noSuccessor();
-            }
-        }
-    }
-
-    @Override
-    public void visitLabel(Label label) {
-        // Resolves previous forward references to label, if any.
-        resize |= label.resolve(code.length, code.data);
-
-        // Updates currentBlock.
-        if ((label.status & Label.DEBUG) != 0) {
-            return;
-        }
-
-        if (compute == FRAMES) {
-            if (currentBlock != null) {
-                if (label.position == currentBlock.position) {
-                    // successive labels, do not start a new basic block
-                    currentBlock.status |= label.status & Label.TARGET;
-                    label.frame = currentBlock.frame;
-                    return;
-                }
-
-                // Ends current block (with one new successor).
-                addSuccessor(Edge.NORMAL, label);
-            }
-
-            // Begins a new current block.
-            currentBlock = label;
-
-            if (label.frame == null) {
-                label.frame = new Frame();
-                label.frame.owner = label;
-            }
-
-            // Updates the basic block list.
-            if (previousBlock != null) {
-                if (label.position == previousBlock.position) {
-                    previousBlock.status |= label.status & Label.TARGET;
-                    label.frame = previousBlock.frame;
-                    currentBlock = previousBlock;
-                    return;
-                }
-
-                previousBlock.successor = label;
-            }
-
-            previousBlock = label;
-        }
-        else if (compute == MAXS) {
-            if (currentBlock != null) {
-                // Ends current block (with one new successor).
-                currentBlock.outputStackMax = maxStackSize;
-                addSuccessor(stackSize, label);
-            }
-
-            // Begins a new current block
-            currentBlock = label;
-
-            // Resets the relative current and max stack sizes.
-            stackSize = 0;
-            maxStackSize = 0;
-
-            // Updates the basic block list.
-            if (previousBlock != null) {
-                previousBlock.successor = label;
-            }
-
-            previousBlock = label;
-        }
-    }
-
-    @Override
-    public void visitLdcInsn(Object cst) {
-        Item i = cw.newConstItem(cst);
-
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(LDC, 0, cw, i);
-            }
-            else {
-                int size;
-
-                // Computes the stack size variation.
-                if (i.type == LONG || i.type == DOUBLE) {
-                    size = stackSize + 2;
-                }
-                else {
-                    size = stackSize + 1;
-                }
-
-                // Updates current and max stack sizes.
-                if (size > maxStackSize) {
-                    maxStackSize = size;
-                }
-
-                stackSize = size;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        int index = i.index;
-
-        if (i.type == LONG || i.type == DOUBLE) {
-            code.put12(20 /* LDC2_W */, index);
-        }
-        else if (index >= 256) {
-            code.put12(19 /* LDC_W */, index);
-        }
-        else {
-            code.put11(LDC, index);
-        }
-    }
-
-    @Override
-    public void visitIincInsn(int var, int increment) {
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(IINC, var, null, null);
-            }
-        }
-
-        if (compute != NOTHING) {
-            // updates max locals
-            int n = var + 1;
-
-            if (n > maxLocals) {
-                maxLocals = n;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        if ((var > 255) || (increment > 127) || (increment < -128)) {
-            code.putByte(196 /* WIDE */).put12(IINC, var).putShort(increment);
-        }
-        else {
-            code.putByte(IINC).put11(var, increment);
-        }
-    }
-
-    @Override
-    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
-        // Adds the instruction to the bytecode of the method.
-        int source = code.length;
-        code.putByte(TABLESWITCH);
-        code.putByteArray(null, 0, (4 - code.length % 4) % 4);
-        dflt.put(code, source, true);
-        code.putInt(min).putInt(max);
-
-        for (int i = 0; i < labels.length; ++i) {
-            labels[i].put(code, source, true);
-        }
-
-        // Updates currentBlock.
-        visitSwitchInsn(dflt, labels);
-    }
-
-    @Override
-    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-        // Adds the instruction to the bytecode of the method.
-        int source = code.length;
-        code.putByte(LOOKUPSWITCH);
-        code.putByteArray(null, 0, (4 - code.length % 4) % 4);
-        dflt.put(code, source, true);
-        code.putInt(labels.length);
-
-        for (int i = 0; i < labels.length; ++i) {
-            code.putInt(keys[i]);
-            labels[i].put(code, source, true);
-        }
-
-        // updates currentBlock
-        visitSwitchInsn(dflt, labels);
-    }
-
-    private void visitSwitchInsn(Label dflt, Label[] labels) {
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
-                // adds current block successors
-                addSuccessor(Edge.NORMAL, dflt);
-                dflt.getFirst().status |= Label.TARGET;
-                for (int i = 0; i < labels.length; ++i) {
-                    addSuccessor(Edge.NORMAL, labels[i]);
-                    labels[i].getFirst().status |= Label.TARGET;
-                }
-            }
-            else {
-                // Updates current stack size (max stack size unchanged).
-                --stackSize;
-
-                // Adds current block successors.
-                addSuccessor(stackSize, dflt);
-
-                for (int i = 0; i < labels.length; ++i) {
-                    addSuccessor(stackSize, labels[i]);
-                }
-            }
-
-            // Ends current block.
+         if (opcode == GOTO) {
             noSuccessor();
-        }
-    }
+         }
+      }
+   }
 
-    @Override
-    public void visitMultiANewArrayInsn(String desc, int dims) {
-        Item i = cw.newClassItem(desc);
+   @Override
+   public void visitLabel(Label label) {
+      // Resolves previous forward references to label, if any.
+      resize |= label.resolve(code.length, code.data);
 
-        if (currentBlock != null) {
-            if (compute == FRAMES) {
-                currentBlock.frame.execute(MULTIANEWARRAY, dims, cw, i);
+      // Updates currentBlock.
+      if ((label.status & Label.DEBUG) != 0) {
+         return;
+      }
+
+      if (compute == FRAMES) {
+         if (currentBlock != null) {
+            if (label.position == currentBlock.position) {
+               // successive labels, do not start a new basic block
+               currentBlock.status |= label.status & Label.TARGET;
+               label.frame = currentBlock.frame;
+               return;
+            }
+
+            // Ends current block (with one new successor).
+            addSuccessor(Edge.NORMAL, label);
+         }
+
+         // Begins a new current block.
+         currentBlock = label;
+
+         if (label.frame == null) {
+            label.frame = new Frame();
+            label.frame.owner = label;
+         }
+
+         // Updates the basic block list.
+         if (previousBlock != null) {
+            if (label.position == previousBlock.position) {
+               previousBlock.status |= label.status & Label.TARGET;
+               label.frame = previousBlock.frame;
+               currentBlock = previousBlock;
+               return;
+            }
+
+            previousBlock.successor = label;
+         }
+
+         previousBlock = label;
+      }
+      else if (compute == MAXS) {
+         if (currentBlock != null) {
+            // Ends current block (with one new successor).
+            currentBlock.outputStackMax = maxStackSize;
+            addSuccessor(stackSize, label);
+         }
+
+         // Begins a new current block
+         currentBlock = label;
+
+         // Resets the relative current and max stack sizes.
+         stackSize = 0;
+         maxStackSize = 0;
+
+         // Updates the basic block list.
+         if (previousBlock != null) {
+            previousBlock.successor = label;
+         }
+
+         previousBlock = label;
+      }
+   }
+
+   @Override
+   public void visitLdcInsn(Object cst) {
+      Item i = cw.newConstItem(cst);
+
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(LDC, 0, cw, i);
+         }
+         else {
+            int size;
+
+            // Computes the stack size variation.
+            if (i.type == LONG || i.type == DOUBLE) {
+               size = stackSize + 2;
             }
             else {
-                // Updates current stack size (max stack size unchanged because stack size variation always negative or
-                // null).
-                stackSize += 1 - dims;
-            }
-        }
-
-        // Adds the instruction to the bytecode of the method.
-        code.put12(MULTIANEWARRAY, i.index).putByte(dims);
-    }
-
-    @Override
-    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-        ++handlerCount;
-
-        Handler h = new Handler();
-        h.start = start;
-        h.end = end;
-        h.handler = handler;
-        h.desc = type;
-        h.type = type != null ? cw.newClass(type) : 0;
-
-        if (lastHandler == null) {
-            firstHandler = h;
-        }
-        else {
-            lastHandler.next = h;
-        }
-
-        lastHandler = h;
-    }
-
-    @Override
-    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-        if (signature != null) {
-            if (localVarType == null) {
-                localVarType = new ByteVector();
+               size = stackSize + 1;
             }
 
-            ++localVarTypeCount;
-            localVarType.putShort(start.position)
-                .putShort(end.position - start.position)
-                .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(signature))
-                .putShort(index);
-        }
+            // Updates current and max stack sizes.
+            if (size > maxStackSize) {
+               maxStackSize = size;
+            }
 
-        if (localVar == null) {
-            localVar = new ByteVector();
-        }
+            stackSize = size;
+         }
+      }
 
-        ++localVarCount;
-        localVar.putShort(start.position)
+      // Adds the instruction to the bytecode of the method.
+      int index = i.index;
+
+      if (i.type == LONG || i.type == DOUBLE) {
+         code.put12(20 /* LDC2_W */, index);
+      }
+      else if (index >= 256) {
+         code.put12(19 /* LDC_W */, index);
+      }
+      else {
+         code.put11(LDC, index);
+      }
+   }
+
+   @Override
+   public void visitIincInsn(int var, int increment) {
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(IINC, var, null, null);
+         }
+      }
+
+      if (compute != NOTHING) {
+         // updates max locals
+         int n = var + 1;
+
+         if (n > maxLocals) {
+            maxLocals = n;
+         }
+      }
+
+      // Adds the instruction to the bytecode of the method.
+      if ((var > 255) || (increment > 127) || (increment < -128)) {
+         code.putByte(196 /* WIDE */).put12(IINC, var).putShort(increment);
+      }
+      else {
+         code.putByte(IINC).put11(var, increment);
+      }
+   }
+
+   @Override
+   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+      // Adds the instruction to the bytecode of the method.
+      int source = code.length;
+      code.putByte(TABLESWITCH);
+      code.putByteArray(null, 0, (4 - code.length % 4) % 4);
+      dflt.put(code, source, true);
+      code.putInt(min).putInt(max);
+
+      for (int i = 0; i < labels.length; ++i) {
+         labels[i].put(code, source, true);
+      }
+
+      // Updates currentBlock.
+      visitSwitchInsn(dflt, labels);
+   }
+
+   @Override
+   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+      // Adds the instruction to the bytecode of the method.
+      int source = code.length;
+      code.putByte(LOOKUPSWITCH);
+      code.putByteArray(null, 0, (4 - code.length % 4) % 4);
+      dflt.put(code, source, true);
+      code.putInt(labels.length);
+
+      for (int i = 0; i < labels.length; ++i) {
+         code.putInt(keys[i]);
+         labels[i].put(code, source, true);
+      }
+
+      // Updates currentBlock.
+      visitSwitchInsn(dflt, labels);
+   }
+
+   private void visitSwitchInsn(Label dflt, Label[] labels) {
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
+            // adds current block successors
+            addSuccessor(Edge.NORMAL, dflt);
+            dflt.getFirst().status |= Label.TARGET;
+            for (int i = 0; i < labels.length; ++i) {
+               addSuccessor(Edge.NORMAL, labels[i]);
+               labels[i].getFirst().status |= Label.TARGET;
+            }
+         }
+         else {
+            // Updates current stack size (max stack size unchanged).
+            --stackSize;
+
+            // Adds current block successors.
+            addSuccessor(stackSize, dflt);
+
+            for (int i = 0; i < labels.length; ++i) {
+               addSuccessor(stackSize, labels[i]);
+            }
+         }
+
+         // Ends current block.
+         noSuccessor();
+      }
+   }
+
+   @Override
+   public void visitMultiANewArrayInsn(String desc, int dims) {
+      Item i = cw.newClassItem(desc);
+
+      if (currentBlock != null) {
+         if (compute == FRAMES) {
+            currentBlock.frame.execute(MULTIANEWARRAY, dims, cw, i);
+         }
+         else {
+            // Updates current stack size (max stack size unchanged because stack size variation always negative or
+            // null).
+            stackSize += 1 - dims;
+         }
+      }
+
+      // Adds the instruction to the bytecode of the method.
+      code.put12(MULTIANEWARRAY, i.index).putByte(dims);
+   }
+
+   @Override
+   public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+      ++handlerCount;
+
+      Handler h = new Handler();
+      h.start = start;
+      h.end = end;
+      h.handler = handler;
+      h.desc = type;
+      h.type = type != null ? cw.newClass(type) : 0;
+
+      if (lastHandler == null) {
+         firstHandler = h;
+      }
+      else {
+         lastHandler.next = h;
+      }
+
+      lastHandler = h;
+   }
+
+   @Override
+   public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+      if (signature != null) {
+         if (localVarType == null) {
+            localVarType = new ByteVector();
+         }
+
+         ++localVarTypeCount;
+         localVarType.putShort(start.position)
             .putShort(end.position - start.position)
-            .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc))
+            .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(signature))
             .putShort(index);
+      }
 
-        if (compute != NOTHING) {
-            // updates max locals
-            char c = desc.charAt(0);
-            int n = index + (c == 'J' || c == 'D' ? 2 : 1);
+      if (localVar == null) {
+         localVar = new ByteVector();
+      }
 
-            if (n > maxLocals) {
-                maxLocals = n;
-            }
-        }
-    }
+      ++localVarCount;
+      localVar.putShort(start.position)
+         .putShort(end.position - start.position)
+         .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc))
+         .putShort(index);
 
-    @Override
-    public void visitLineNumber(int line, Label start) {
-        if (lineNumber == null) {
-            lineNumber = new ByteVector();
-        }
+      if (compute != NOTHING) {
+         // updates max locals
+         char c = desc.charAt(0);
+         int n = index + (c == 'J' || c == 'D' ? 2 : 1);
 
-        ++lineNumberCount;
-        lineNumber.putShort(start.position);
-        lineNumber.putShort(line);
-    }
+         if (n > maxLocals) {
+            maxLocals = n;
+         }
+      }
+   }
 
-    @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
-        if (resize) {
-            // replaces the temporary jump opcodes introduced by Label.resolve.
-            resizeInstructions();
-        }
+   @Override
+   public void visitLineNumber(int line, Label start) {
+      if (lineNumber == null) {
+         lineNumber = new ByteVector();
+      }
 
-        if (compute == FRAMES) {
-            // completes the control flow graph with exception handler blocks
-            Handler handler = firstHandler;
+      ++lineNumberCount;
+      lineNumber.putShort(start.position);
+      lineNumber.putShort(line);
+   }
 
-            while (handler != null) {
-                Label l = handler.start.getFirst();
-                Label h = handler.handler.getFirst();
-                Label e = handler.end.getFirst();
+   @Override
+   public void visitMaxs(int maxStack, int maxLocals) {
+      if (resize) {
+         // Replaces the temporary jump opcodes introduced by Label.resolve.
+         resizeInstructions();
+      }
 
-                // computes the kind of the edges to 'h'
-                String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
-                int kind = Frame.OBJECT | cw.addType(t);
+      if (compute == FRAMES) {
+         // Completes the control flow graph with exception handler blocks.
+         Handler handler = firstHandler;
 
-                // h is an exception handler
-                h.status |= Label.TARGET;
+         while (handler != null) {
+            Label l = handler.start.getFirst();
+            Label h = handler.handler.getFirst();
+            Label e = handler.end.getFirst();
 
-                // adds 'h' as a successor of labels between 'start' and 'end'
-                while (l != e) {
-                    // creates an edge to 'h'
-                    Edge b = new Edge();
-                    b.info = kind;
-                    b.successor = h;
+            // Computes the kind of the edges to 'h'.
+            String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
+            int kind = Frame.OBJECT | cw.addType(t);
 
-                    // adds it to the successors of 'l'
-                    b.next = l.successors;
-                    l.successors = b;
+            // h is an exception handler
+            h.status |= Label.TARGET;
 
-                    // goes to the next label
-                    l = l.successor;
-                }
+            // Adds 'h' as a successor of labels between 'start' and 'end'.
+            while (l != e) {
+               // creates an edge to 'h'
+               Edge b = new Edge();
+               b.info = kind;
+               b.successor = h;
 
-                handler = handler.next;
-            }
+               // adds it to the successors of 'l'
+               b.next = l.successors;
+               l.successors = b;
 
-            // creates and visits the first (implicit) frame
-            Frame f = labels.frame;
-            Type[] args = Type.getArgumentTypes(descriptor);
-            f.initInputFrame(cw, access, args, this.maxLocals);
-            visitFrame(f);
-
-            /*
-             * fix point algorithm: mark the first basic block as 'changed'
-             * (i.e. put it in the 'changed' list) and, while there are changed
-             * basic blocks, choose one, mark it as unchanged, and update its
-             * successors (which can be changed in the process).
-             */
-            int max = 0;
-            Label changed = labels;
-
-            while (changed != null) {
-                // removes a basic block from the list of changed basic blocks
-                Label l = changed;
-                changed = changed.next;
-                l.next = null;
-                f = l.frame;
-
-                // a reachable jump target must be stored in the stack map
-                if ((l.status & Label.TARGET) != 0) {
-                    l.status |= Label.STORE;
-                }
-
-                // all visited labels are reachable, by definition
-                l.status |= Label.REACHABLE;
-
-                // updates the (absolute) maximum stack size
-                int blockMax = f.inputStack.length + l.outputStackMax;
-
-                if (blockMax > max) {
-                    max = blockMax;
-                }
-
-                // updates the successors of the current basic block
-                Edge e = l.successors;
-
-                while (e != null) {
-                    Label n = e.successor.getFirst();
-                    boolean change = f.merge(cw, n.frame, e.info);
-
-                    if (change && n.next == null) {
-                        // if n has changed and is not already in the 'changed'
-                        // list, adds it to this list
-                        n.next = changed;
-                        changed = n;
-                    }
-
-                    e = e.next;
-                }
+               // goes to the next label
+               l = l.successor;
             }
 
-            // visits all the frames that must be stored in the stack map
-            Label l = labels;
+            handler = handler.next;
+         }
 
-            while (l != null) {
-                f = l.frame;
+         // Creates and visits the first (implicit) frame.
+         Frame f = labels.frame;
+         Type[] args = Type.getArgumentTypes(descriptor);
+         f.initInputFrame(cw, access, args, this.maxLocals);
+         visitFrame(f);
 
-                if ((l.status & Label.STORE) != 0) {
-                    visitFrame(f);
-                }
+         /*
+          * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while
+          * there are changed basic blocks, choose one, mark it as unchanged, and update its successors (which can be
+          * changed in the process).
+          */
+         int max = 0;
+         Label changed = labels;
 
-                if ((l.status & Label.REACHABLE) == 0) {
-                    // finds start and end of dead basic block
-                    Label k = l.successor;
-                    int start = l.position;
-                    int end = (k == null ? code.length : k.position) - 1;
+         while (changed != null) {
+            // Removes a basic block from the list of changed basic blocks.
+            Label l = changed;
+            changed = changed.next;
+            l.next = null;
+            f = l.frame;
 
-                    // if non empty basic block
-                    if (end >= start) {
-                        max = Math.max(max, 1);
-
-                        // replaces instructions with NOP ... NOP ATHROW
-                        for (int i = start; i < end; ++i) {
-                            code.data[i] = NOP;
-                        }
-
-                        code.data[end] = (byte) ATHROW;
-
-                        // emits a frame for this unreachable block
-                        int frameIndex = startFrame(start, 0, 1);
-                        frame[frameIndex] = Frame.OBJECT | cw.addType("java/lang/Throwable");
-                        endFrame();
-
-                        // removes the start-end range from the exception handlers
-                        firstHandler = Handler.remove(firstHandler, l, k);
-                    }
-                }
-
-                l = l.successor;
+            // A reachable jump target must be stored in the stack map.
+            if ((l.status & Label.TARGET) != 0) {
+               l.status |= Label.STORE;
             }
 
-            handler = firstHandler;
-            handlerCount = 0;
+            // All visited labels are reachable, by definition.
+            l.status |= Label.REACHABLE;
 
-            while (handler != null) {
-                handlerCount += 1;
-                handler = handler.next;
+            // Updates the (absolute) maximum stack size.
+            int blockMax = f.inputStack.length + l.outputStackMax;
+
+            if (blockMax > max) {
+               max = blockMax;
             }
 
-            this.maxStack = max;
-        }
-        else if (compute == MAXS) {
-            // completes the control flow graph with exception handler blocks
-            Handler handler = firstHandler;
+            // Updates the successors of the current basic block.
+            Edge e = l.successors;
 
-            while (handler != null) {
-                Label l = handler.start;
-                Label h = handler.handler;
-                Label e = handler.end;
+            while (e != null) {
+               Label n = e.successor.getFirst();
+               boolean change = f.merge(cw, n.frame, e.info);
 
-                // adds 'h' as a successor of labels between 'start' and 'end'
-                while (l != e) {
-                    // creates an edge to 'h'
-                    Edge b = new Edge();
-                    b.info = Edge.EXCEPTION;
-                    b.successor = h;
+               if (change && n.next == null) {
+                  // If n has changed and is not already in the 'changed' list, adds it to this list.
+                  n.next = changed;
+                  changed = n;
+               }
 
-                    // adds it to the successors of 'l'
-                    if ((l.status & Label.JSR) == 0) {
-                        b.next = l.successors;
-                        l.successors = b;
-                    }
-                    else {
-                        // if l is a JSR block, adds b after the first two edges
-                        // to preserve the hypothesis about JSR block successors
-                        // order (see {@link #visitJumpInsn})
-                        b.next = l.successors.next.next;
-                        l.successors.next.next = b;
-                    }
+               e = e.next;
+            }
+         }
 
-                    // goes to the next label
-                    l = l.successor;
-                }
+         // Visits all the frames that must be stored in the stack map.
+         Label l = labels;
 
-                handler = handler.next;
+         while (l != null) {
+            f = l.frame;
+
+            if ((l.status & Label.STORE) != 0) {
+               visitFrame(f);
             }
 
-            if (subroutines > 0) {
-                // completes the control flow graph with the RET successors
+            if ((l.status & Label.REACHABLE) == 0) {
+               // Finds start and end of dead basic block.
+               Label k = l.successor;
+               int start = l.position;
+               int end = (k == null ? code.length : k.position) - 1;
+
+               // If non empty basic block.
+               if (end >= start) {
+                  max = Math.max(max, 1);
+
+                  // replaces instructions with NOP ... NOP ATHROW
+                  for (int i = start; i < end; ++i) {
+                     code.data[i] = NOP;
+                  }
+
+                  code.data[end] = (byte) ATHROW;
+
+                  // emits a frame for this unreachable block
+                  int frameIndex = startFrame(start, 0, 1);
+                  frame[frameIndex] = Frame.OBJECT | cw.addType("java/lang/Throwable");
+                  endFrame();
+
+                  // removes the start-end range from the exception handlers
+                  firstHandler = Handler.remove(firstHandler, l, k);
+               }
+            }
+
+            l = l.successor;
+         }
+
+         handler = firstHandler;
+         handlerCount = 0;
+
+         while (handler != null) {
+            handlerCount += 1;
+            handler = handler.next;
+         }
+
+         this.maxStack = max;
+      }
+      else if (compute == MAXS) {
+         // completes the control flow graph with exception handler blocks
+         Handler handler = firstHandler;
+
+         while (handler != null) {
+            Label l = handler.start;
+            Label h = handler.handler;
+            Label e = handler.end;
+
+            // adds 'h' as a successor of labels between 'start' and 'end'
+            while (l != e) {
+               // creates an edge to 'h'
+               Edge b = new Edge();
+               b.info = Edge.EXCEPTION;
+               b.successor = h;
+
+               // adds it to the successors of 'l'
+               if ((l.status & Label.JSR) == 0) {
+                  b.next = l.successors;
+                  l.successors = b;
+               }
+               else {
+                  // if l is a JSR block, adds b after the first two edges
+                  // to preserve the hypothesis about JSR block successors
+                  // order (see {@link #visitJumpInsn})
+                  b.next = l.successors.next.next;
+                  l.successors.next.next = b;
+               }
+
+               // goes to the next label
+               l = l.successor;
+            }
+
+            handler = handler.next;
+         }
+
+         if (subroutines > 0) {
+            // completes the control flow graph with the RET successors
                 /*
                  * first step: finds the subroutines. This step determines, for
                  * each basic block, to which subroutine(s) it belongs.
                  */
-                // finds the basic blocks that belong to the "main" subroutine
-                int id = 0;
-                labels.visitSubroutine(null, 1, subroutines);
+            // finds the basic blocks that belong to the "main" subroutine
+            int id = 0;
+            labels.visitSubroutine(null, 1, subroutines);
 
-                // finds the basic blocks that belong to the real subroutines
-                Label l = labels;
+            // finds the basic blocks that belong to the real subroutines
+            Label l = labels;
 
-                while (l != null) {
-                    if ((l.status & Label.JSR) != 0) {
-                        // the subroutine is defined by l's TARGET, not by l
-                        Label subroutine = l.successors.next.successor;
+            while (l != null) {
+               if ((l.status & Label.JSR) != 0) {
+                  // the subroutine is defined by l's TARGET, not by l
+                  Label subroutine = l.successors.next.successor;
 
-                        // if this subroutine has not been visited yet...
-                        if ((subroutine.status & Label.VISITED) == 0) {
-                            // ...assigns it a new id and finds its basic blocks
-                            id += 1;
-                            subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
-                        }
-                    }
+                  // if this subroutine has not been visited yet...
+                  if ((subroutine.status & Label.VISITED) == 0) {
+                     // ...assigns it a new id and finds its basic blocks
+                     id += 1;
+                     subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
+                  }
+               }
 
-                    l = l.successor;
-                }
-
-                // second step: finds the successors of RET blocks
-                l = labels;
-
-                while (l != null) {
-                    if ((l.status & Label.JSR) != 0) {
-                        Label L = labels;
-
-                        while (L != null) {
-                            L.status &= ~Label.VISITED2;
-                            L = L.successor;
-                        }
-
-                        // the subroutine is defined by l's TARGET, not by l
-                        Label subroutine = l.successors.next.successor;
-                        subroutine.visitSubroutine(l, 0, subroutines);
-                    }
-
-                    l = l.successor;
-                }
+               l = l.successor;
             }
 
-            /*
-             * control flow analysis algorithm: while the block stack is not
-             * empty, pop a block from this stack, update the max stack size,
-             * compute the true (non relative) begin stack size of the
-             * successors of this block, and push these successors onto the
-             * stack (unless they have already been pushed onto the stack).
-             * Note: by hypothesis, the {@link Label#inputStackTop} of the
-             * blocks in the block stack are the true (non relative) beginning
-             * stack sizes of these blocks.
-             */
-            int max = 0;
-            Label stack = labels;
+            // second step: finds the successors of RET blocks
+            l = labels;
 
-            while (stack != null) {
-                // pops a block from the stack
-                Label l = stack;
-                stack = stack.next;
+            while (l != null) {
+               if ((l.status & Label.JSR) != 0) {
+                  Label L = labels;
 
-                // computes the true (non relative) max stack size of this block
-                int start = l.inputStackTop;
-                int blockMax = start + l.outputStackMax;
+                  while (L != null) {
+                     L.status &= ~Label.VISITED2;
+                     L = L.successor;
+                  }
 
-                // updates the global max stack size
-                if (blockMax > max) {
-                    max = blockMax;
-                }
+                  // the subroutine is defined by l's TARGET, not by l
+                  Label subroutine = l.successors.next.successor;
+                  subroutine.visitSubroutine(l, 0, subroutines);
+               }
 
-                // analyzes the successors of the block
-                Edge b = l.successors;
+               l = l.successor;
+            }
+         }
 
-                if ((l.status & Label.JSR) != 0) {
-                    // ignores the first edge of JSR blocks (virtual successor)
-                    b = b.next;
-                }
+         /*
+          * control flow analysis algorithm: while the block stack is not
+          * empty, pop a block from this stack, update the max stack size,
+          * compute the true (non relative) begin stack size of the
+          * successors of this block, and push these successors onto the
+          * stack (unless they have already been pushed onto the stack).
+          * Note: by hypothesis, the {@link Label#inputStackTop} of the
+          * blocks in the block stack are the true (non relative) beginning
+          * stack sizes of these blocks.
+          */
+         int max = 0;
+         Label stack = labels;
 
-                while (b != null) {
-                    l = b.successor;
+         while (stack != null) {
+            // pops a block from the stack
+            Label l = stack;
+            stack = stack.next;
 
-                    // if this successor has not already been pushed...
-                    if ((l.status & Label.PUSHED) == 0) {
-                        // computes its true beginning stack size...
-                        l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
+            // computes the true (non relative) max stack size of this block
+            int start = l.inputStackTop;
+            int blockMax = start + l.outputStackMax;
 
-                        // ...and pushes it onto the stack
-                        l.status |= Label.PUSHED;
-                        l.next = stack;
-                        stack = l;
-                    }
-
-                    b = b.next;
-                }
+            // updates the global max stack size
+            if (blockMax > max) {
+               max = blockMax;
             }
 
-            this.maxStack = Math.max(maxStack, max);
-        }
-        else {
-            this.maxStack = maxStack;
-            this.maxLocals = maxLocals;
-        }
-    }
+            // analyzes the successors of the block
+            Edge b = l.successors;
 
-    // ------------------------------------------------------------------------
-    // Utility methods: control flow analysis algorithm
-    // ------------------------------------------------------------------------
-
-    /**
-     * Adds a successor to the {@link #currentBlock currentBlock} block.
-     * 
-     * @param info
-     *            information about the control flow edge to be added.
-     * @param successor
-     *            the successor block to be added to the current block.
-     */
-    private void addSuccessor(int info, Label successor) {
-        // creates and initializes an Edge object...
-        Edge b = new Edge();
-        b.info = info;
-        b.successor = successor;
-        // ...and adds it to the successor list of the currentBlock block
-        b.next = currentBlock.successors;
-        currentBlock.successors = b;
-    }
-
-    /**
-     * Ends the current basic block. This method must be used in the case where
-     * the current basic block does not have any successor.
-     */
-    private void noSuccessor() {
-        if (compute == FRAMES) {
-            Label l = new Label();
-            l.frame = new Frame();
-            l.frame.owner = l;
-            l.resolve(code.length, code.data);
-            previousBlock.successor = l;
-            previousBlock = l;
-        }
-        else {
-            currentBlock.outputStackMax = maxStackSize;
-        }
-
-        currentBlock = null;
-    }
-
-    // ------------------------------------------------------------------------
-    // Utility methods: stack map frames
-    // ------------------------------------------------------------------------
-
-    /**
-     * Visits a frame that has been computed from scratch.
-     * 
-     * @param f
-     *            the frame that must be visited.
-     */
-    private void visitFrame(Frame f) {
-        int i, t;
-        int nTop = 0;
-        int nLocal = 0;
-        int nStack = 0;
-        int[] locals = f.inputLocals;
-        int[] stacks = f.inputStack;
-
-        // computes the number of locals (ignores TOP types that are just after
-        // a LONG or a DOUBLE, and all trailing TOP types)
-        for (i = 0; i < locals.length; ++i) {
-            t = locals[i];
-
-            if (t == Frame.TOP) {
-                ++nTop;
-            }
-            else {
-                nLocal += nTop + 1;
-                nTop = 0;
+            if ((l.status & Label.JSR) != 0) {
+               // ignores the first edge of JSR blocks (virtual successor)
+               b = b.next;
             }
 
-            if (t == Frame.LONG || t == Frame.DOUBLE) {
-                ++i;
+            while (b != null) {
+               l = b.successor;
+
+               // if this successor has not already been pushed...
+               if ((l.status & Label.PUSHED) == 0) {
+                  // computes its true beginning stack size...
+                  l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
+
+                  // ...and pushes it onto the stack
+                  l.status |= Label.PUSHED;
+                  l.next = stack;
+                  stack = l;
+               }
+
+               b = b.next;
             }
-        }
+         }
 
-        // computes the stack size (ignores TOP types that are just after
-        // a LONG or a DOUBLE)
-        for (i = 0; i < stacks.length; ++i) {
-            t = stacks[i];
-            ++nStack;
+         this.maxStack = Math.max(maxStack, max);
+      }
+      else {
+         this.maxStack = maxStack;
+         this.maxLocals = maxLocals;
+      }
+   }
 
-            if (t == Frame.LONG || t == Frame.DOUBLE) {
-                ++i;
-            }
-        }
+   // ------------------------------------------------------------------------
+   // Utility methods: control flow analysis algorithm
+   // ------------------------------------------------------------------------
 
-        // visits the frame and its content
-        int frameIndex = startFrame(f.owner.position, nLocal, nStack);
+   /**
+    * Adds a successor to the {@link #currentBlock currentBlock} block.
+    *
+    * @param info      information about the control flow edge to be added.
+    * @param successor the successor block to be added to the current block.
+    */
+   private void addSuccessor(int info, Label successor) {
+      // Creates and initializes an Edge object...
+      Edge b = new Edge();
+      b.info = info;
+      b.successor = successor;
 
-        for (i = 0; nLocal > 0; ++i, --nLocal) {
-            t = locals[i];
-            frame[frameIndex++] = t;
+      // ...and adds it to the successor list of the currentBlock block.
+      b.next = currentBlock.successors;
+      currentBlock.successors = b;
+   }
 
-            if (t == Frame.LONG || t == Frame.DOUBLE) {
-                ++i;
-            }
-        }
+   /**
+    * Ends the current basic block. This method must be used in the case where
+    * the current basic block does not have any successor.
+    */
+   private void noSuccessor() {
+      if (compute == FRAMES) {
+         Label l = new Label();
+         l.frame = new Frame();
+         l.frame.owner = l;
+         l.resolve(code.length, code.data);
+         previousBlock.successor = l;
+         previousBlock = l;
+      }
+      else {
+         currentBlock.outputStackMax = maxStackSize;
+      }
 
-        for (i = 0; i < stacks.length; ++i) {
-            t = stacks[i];
-            frame[frameIndex++] = t;
+      currentBlock = null;
+   }
 
-            if (t == Frame.LONG || t == Frame.DOUBLE) {
-                ++i;
-            }
-        }
+   // ------------------------------------------------------------------------
+   // Utility methods: stack map frames
+   // ------------------------------------------------------------------------
 
-        endFrame();
-    }
+   /**
+    * Visits a frame that has been computed from scratch.
+    *
+    * @param f the frame that must be visited.
+    */
+   private void visitFrame(Frame f) {
+      int i, t;
+      int nTop = 0;
+      int nLocal = 0;
+      int nStack = 0;
+      int[] locals = f.inputLocals;
+      int[] stacks = f.inputStack;
 
-    /**
-     * Visit the implicit first frame of this method.
-     */
-    private void visitImplicitFirstFrame() {
-        // There can be at most descriptor.length() + 1 locals
-        int frameIndex = startFrame(0, descriptor.length() + 1, 0);
+      // computes the number of locals (ignores TOP types that are just after
+      // a LONG or a DOUBLE, and all trailing TOP types)
+      for (i = 0; i < locals.length; ++i) {
+         t = locals[i];
 
-        if ((access & ACC_STATIC) == 0) {
-            if ((access & ACC_CONSTRUCTOR) == 0) {
-                frame[frameIndex++] = Frame.OBJECT | cw.addType(cw.thisName);
-            }
-            else {
-                frame[frameIndex++] = 6; // Opcodes.UNINITIALIZED_THIS;
-            }
-        }
+         if (t == Frame.TOP) {
+            ++nTop;
+         }
+         else {
+            nLocal += nTop + 1;
+            nTop = 0;
+         }
 
-        int i = 1;
+         if (t == Frame.LONG || t == Frame.DOUBLE) {
+            ++i;
+         }
+      }
 
-        loop: while (true) {
-            int j = i;
-            switch (descriptor.charAt(i++)) {
+      // computes the stack size (ignores TOP types that are just after
+      // a LONG or a DOUBLE)
+      for (i = 0; i < stacks.length; ++i) {
+         t = stacks[i];
+         ++nStack;
+
+         if (t == Frame.LONG || t == Frame.DOUBLE) {
+            ++i;
+         }
+      }
+
+      // visits the frame and its content
+      int frameIndex = startFrame(f.owner.position, nLocal, nStack);
+
+      for (i = 0; nLocal > 0; ++i, --nLocal) {
+         t = locals[i];
+         frame[frameIndex++] = t;
+
+         if (t == Frame.LONG || t == Frame.DOUBLE) {
+            ++i;
+         }
+      }
+
+      for (i = 0; i < stacks.length; ++i) {
+         t = stacks[i];
+         frame[frameIndex++] = t;
+
+         if (t == Frame.LONG || t == Frame.DOUBLE) {
+            ++i;
+         }
+      }
+
+      endFrame();
+   }
+
+   /**
+    * Visit the implicit first frame of this method.
+    */
+   private void visitImplicitFirstFrame() {
+      // There can be at most descriptor.length() + 1 locals
+      int frameIndex = startFrame(0, descriptor.length() + 1, 0);
+
+      if ((access & ACC_STATIC) == 0) {
+         if ((access & ACC_CONSTRUCTOR) == 0) {
+            frame[frameIndex++] = Frame.OBJECT | cw.addType(cw.thisName);
+         }
+         else {
+            frame[frameIndex++] = 6; // Opcodes.UNINITIALIZED_THIS;
+         }
+      }
+
+      int i = 1;
+
+      loop:
+      while (true) {
+         int j = i;
+         switch (descriptor.charAt(i++)) {
             case 'Z':
             case 'C':
             case 'B':
             case 'S':
             case 'I':
-                frame[frameIndex++] = 1; // Opcodes.INTEGER;
-                break;
+               frame[frameIndex++] = 1; // Opcodes.INTEGER;
+               break;
             case 'F':
-                frame[frameIndex++] = 2; // Opcodes.FLOAT;
-                break;
+               frame[frameIndex++] = 2; // Opcodes.FLOAT;
+               break;
             case 'J':
-                frame[frameIndex++] = 4; // Opcodes.LONG;
-                break;
+               frame[frameIndex++] = 4; // Opcodes.LONG;
+               break;
             case 'D':
-                frame[frameIndex++] = 3; // Opcodes.DOUBLE;
-                break;
+               frame[frameIndex++] = 3; // Opcodes.DOUBLE;
+               break;
             case '[':
-                while (descriptor.charAt(i) == '[') {
-                    ++i;
-                }
+               while (descriptor.charAt(i) == '[') {
+                  ++i;
+               }
 
-                if (descriptor.charAt(i) == 'L') {
-                    ++i;
+               if (descriptor.charAt(i) == 'L') {
+                  ++i;
 
-                    while (descriptor.charAt(i) != ';') {
-                        ++i;
-                    }
-                }
+                  while (descriptor.charAt(i) != ';') {
+                     ++i;
+                  }
+               }
 
-                frame[frameIndex++] = Frame.OBJECT | cw.addType(descriptor.substring(j, ++i));
-                break;
+               frame[frameIndex++] = Frame.OBJECT | cw.addType(descriptor.substring(j, ++i));
+               break;
             case 'L':
-                while (descriptor.charAt(i) != ';') {
-                    ++i;
-                }
+               while (descriptor.charAt(i) != ';') {
+                  ++i;
+               }
 
-                frame[frameIndex++] = Frame.OBJECT | cw.addType(descriptor.substring(j + 1, i++));
-                break;
+               frame[frameIndex++] = Frame.OBJECT | cw.addType(descriptor.substring(j + 1, i++));
+               break;
             default:
-                break loop;
-            }
-        }
+               break loop;
+         }
+      }
 
-        frame[1] = frameIndex - 3;
-        endFrame();
-    }
+      frame[1] = frameIndex - 3;
+      endFrame();
+   }
 
-    /**
-     * Starts the visit of a stack map frame.
-     * 
-     * @param offset
-     *            the offset of the instruction to which the frame corresponds.
-     * @param nLocal
-     *            the number of local variables in the frame.
-     * @param nStack
-     *            the number of stack elements in the frame.
-     * @return the index of the next element to be written in this frame.
-     */
-    private int startFrame(int offset, int nLocal, int nStack) {
-        int n = 3 + nLocal + nStack;
+   /**
+    * Starts the visit of a stack map frame.
+    *
+    * @param offset the offset of the instruction to which the frame corresponds.
+    * @param nLocal the number of local variables in the frame.
+    * @param nStack the number of stack elements in the frame.
+    * @return the index of the next element to be written in this frame.
+    */
+   private int startFrame(int offset, int nLocal, int nStack) {
+      int n = 3 + nLocal + nStack;
 
-        if (frame == null || frame.length < n) {
-            frame = new int[n];
-        }
+      if (frame == null || frame.length < n) {
+         frame = new int[n];
+      }
 
-        frame[0] = offset;
-        frame[1] = nLocal;
-        frame[2] = nStack;
-        return 3;
-    }
+      frame[0] = offset;
+      frame[1] = nLocal;
+      frame[2] = nStack;
+      return 3;
+   }
 
-    /**
-     * Checks if the visit of the current frame {@link #frame} is finished, and
-     * if yes, write it in the StackMapTable attribute.
-     */
-    private void endFrame() {
-        if (previousFrame != null) { // do not write the first frame
-            if (stackMap == null) {
-                stackMap = new ByteVector();
-            }
+   /**
+    * Checks if the visit of the current frame {@link #frame} is finished, and
+    * if yes, write it in the StackMapTable attribute.
+    */
+   private void endFrame() {
+      if (previousFrame != null) { // do not write the first frame
+         if (stackMap == null) {
+            stackMap = new ByteVector();
+         }
 
-            writeFrame();
-            ++frameCount;
-        }
+         writeFrame();
+         ++frameCount;
+      }
 
-        previousFrame = frame;
-        frame = null;
-    }
+      previousFrame = frame;
+      frame = null;
+   }
 
-    /**
-     * Compress and writes the current frame {@link #frame} in the StackMapTable attribute.
-     */
-    private void writeFrame() {
-        int clocalsSize = frame[1];
-        int cstackSize = frame[2];
+   /**
+    * Compress and writes the current frame {@link #frame} in the StackMapTable attribute.
+    */
+   private void writeFrame() {
+      int clocalsSize = frame[1];
+      int cstackSize = frame[2];
 
-        if ((cw.version & 0xFFFF) < V1_6) {
-            stackMap.putShort(frame[0]).putShort(clocalsSize);
-            writeFrameTypes(3, 3 + clocalsSize);
-            stackMap.putShort(cstackSize);
-            writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);
-            return;
-        }
+      if ((cw.version & 0xFFFF) < V1_6) {
+         stackMap.putShort(frame[0]).putShort(clocalsSize);
+         writeFrameTypes(3, 3 + clocalsSize);
+         stackMap.putShort(cstackSize);
+         writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);
+         return;
+      }
 
-        int localsSize = previousFrame[1];
-        int type = FULL_FRAME;
-        int k = 0;
-        int delta;
+      int localsSize = previousFrame[1];
+      int type = FULL_FRAME;
+      int k = 0;
+      int delta;
 
-        if (frameCount == 0) {
-            delta = frame[0];
-        }
-        else {
-            delta = frame[0] - previousFrame[0] - 1;
-        }
+      if (frameCount == 0) {
+         delta = frame[0];
+      }
+      else {
+         delta = frame[0] - previousFrame[0] - 1;
+      }
 
-        if (cstackSize == 0) {
-            k = clocalsSize - localsSize;
+      if (cstackSize == 0) {
+         k = clocalsSize - localsSize;
 
-            switch (k) {
+         switch (k) {
             case -3:
             case -2:
             case -1:
-                type = CHOP_FRAME;
-                localsSize = clocalsSize;
-                break;
+               type = CHOP_FRAME;
+               localsSize = clocalsSize;
+               break;
             case 0:
-                type = delta < 64 ? SAME_FRAME : SAME_FRAME_EXTENDED;
-                break;
+               type = delta < 64 ? SAME_FRAME : SAME_FRAME_EXTENDED;
+               break;
             case 1:
             case 2:
             case 3:
-                type = APPEND_FRAME;
-                break;
+               type = APPEND_FRAME;
+               break;
+         }
+      }
+      else if (clocalsSize == localsSize && cstackSize == 1) {
+         type = delta < 63 ? SAME_LOCALS_1_STACK_ITEM_FRAME : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
+      }
+
+      if (type != FULL_FRAME) {
+         // verify if locals are the same
+         int l = 3;
+
+         for (int j = 0; j < localsSize; j++) {
+            if (frame[l] != previousFrame[l]) {
+               type = FULL_FRAME;
+               break;
             }
-        }
-        else if (clocalsSize == localsSize && cstackSize == 1) {
-            type = delta < 63 ? SAME_LOCALS_1_STACK_ITEM_FRAME : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
-        }
 
-        if (type != FULL_FRAME) {
-            // verify if locals are the same
-            int l = 3;
+            l++;
+         }
+      }
 
-            for (int j = 0; j < localsSize; j++) {
-                if (frame[l] != previousFrame[l]) {
-                    type = FULL_FRAME;
-                    break;
-                }
-
-                l++;
-            }
-        }
-
-        switch (type) {
-        case SAME_FRAME:
+      switch (type) {
+         case SAME_FRAME:
             stackMap.putByte(delta);
             break;
-        case SAME_LOCALS_1_STACK_ITEM_FRAME:
+         case SAME_LOCALS_1_STACK_ITEM_FRAME:
             stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
             writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
             break;
-        case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
+         case SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
             stackMap.putByte(SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED).putShort(delta);
             writeFrameTypes(3 + clocalsSize, 4 + clocalsSize);
             break;
-        case SAME_FRAME_EXTENDED:
+         case SAME_FRAME_EXTENDED:
             stackMap.putByte(SAME_FRAME_EXTENDED).putShort(delta);
             break;
-        case CHOP_FRAME:
+         case CHOP_FRAME:
             stackMap.putByte(SAME_FRAME_EXTENDED + k).putShort(delta);
             break;
-        case APPEND_FRAME:
+         case APPEND_FRAME:
             stackMap.putByte(SAME_FRAME_EXTENDED + k).putShort(delta);
             writeFrameTypes(3 + localsSize, 3 + clocalsSize);
             break;
-        // case FULL_FRAME:
-        default:
+         // case FULL_FRAME:
+         default:
             stackMap.putByte(FULL_FRAME).putShort(delta).putShort(clocalsSize);
             writeFrameTypes(3, 3 + clocalsSize);
             stackMap.putShort(cstackSize);
             writeFrameTypes(3 + clocalsSize, 3 + clocalsSize + cstackSize);
-        }
-    }
+      }
+   }
 
-    /**
-     * Writes some types of the current frame {@link #frame} into the
-     * StackMapTableAttribute. This method converts types from the format used
-     * in {@link Label} to the format used in StackMapTable attributes. In
-     * particular, it converts type table indexes to constant pool indexes.
-     * 
-     * @param start
-     *            index of the first type in {@link #frame} to write.
-     * @param end
-     *            index of last type in {@link #frame} to write (exclusive).
-     */
-    private void writeFrameTypes(int start, int end) {
-        for (int i = start; i < end; ++i) {
-            int t = frame[i];
-            int d = t & Frame.DIM;
+   /**
+    * Writes some types of the current frame {@link #frame} into the
+    * StackMapTableAttribute. This method converts types from the format used
+    * in {@link Label} to the format used in StackMapTable attributes. In
+    * particular, it converts type table indexes to constant pool indexes.
+    *
+    * @param start index of the first type in {@link #frame} to write.
+    * @param end   index of last type in {@link #frame} to write (exclusive).
+    */
+   private void writeFrameTypes(int start, int end) {
+      for (int i = start; i < end; ++i) {
+         int t = frame[i];
+         int d = t & Frame.DIM;
 
-            if (d == 0) {
-                int v = t & Frame.BASE_VALUE;
+         if (d == 0) {
+            int v = t & Frame.BASE_VALUE;
 
-                switch (t & Frame.BASE_KIND) {
-                case Frame.OBJECT:
-                    stackMap.putByte(7).putShort(cw.newClass(cw.typeTable[v].strVal1));
-                    break;
-                case Frame.UNINITIALIZED:
-                    stackMap.putByte(8).putShort(cw.typeTable[v].intVal);
-                    break;
-                default:
-                    stackMap.putByte(v);
-                }
+            switch (t & Frame.BASE_KIND) {
+               case Frame.OBJECT:
+                  stackMap.putByte(7).putShort(cw.newClass(cw.typeTable[v].strVal1));
+                  break;
+               case Frame.UNINITIALIZED:
+                  stackMap.putByte(8).putShort(cw.typeTable[v].intVal);
+                  break;
+               default:
+                  stackMap.putByte(v);
+            }
+         }
+         else {
+            StringBuilder sb = new StringBuilder();
+            d >>= 28;
+
+            while (d-- > 0) {
+               sb.append('[');
+            }
+
+            if ((t & Frame.BASE_KIND) == Frame.OBJECT) {
+               sb.append('L');
+               sb.append(cw.typeTable[t & Frame.BASE_VALUE].strVal1);
+               sb.append(';');
             }
             else {
-                StringBuilder sb = new StringBuilder();
-                d >>= 28;
-
-                while (d-- > 0) {
-                    sb.append('[');
-                }
-
-                if ((t & Frame.BASE_KIND) == Frame.OBJECT) {
-                    sb.append('L');
-                    sb.append(cw.typeTable[t & Frame.BASE_VALUE].strVal1);
-                    sb.append(';');
-                }
-                else {
-                    switch (t & 0xF) {
-                    case 1:
-                        sb.append('I');
-                        break;
-                    case 2:
-                        sb.append('F');
-                        break;
-                    case 3:
-                        sb.append('D');
-                        break;
-                    case 9:
-                        sb.append('Z');
-                        break;
-                    case 10:
-                        sb.append('B');
-                        break;
-                    case 11:
-                        sb.append('C');
-                        break;
-                    case 12:
-                        sb.append('S');
-                        break;
-                    default:
-                        sb.append('J');
-                    }
-                }
-
-                stackMap.putByte(7).putShort(cw.newClass(sb.toString()));
-            }
-        }
-    }
-
-    private void writeFrameType(Object type) {
-        if (type instanceof String) {
-            stackMap.putByte(7).putShort(cw.newClass((String) type));
-        }
-        else if (type instanceof Integer) {
-            stackMap.putByte((Integer) type);
-        }
-        else {
-            stackMap.putByte(8).putShort(((Label) type).position);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // Utility methods: dump bytecode array
-    // ------------------------------------------------------------------------
-
-    /**
-     * Returns the size of the bytecode of this method.
-     */
-    int getSize() {
-        if (classReaderOffset != 0) {
-            return 6 + classReaderLength;
-        }
-
-        int size = 8;
-
-        if (code.length > 0) {
-            if (code.length > 65536) {
-                throw new RuntimeException("Method code too large!");
+               switch (t & 0xF) {
+                  case 1:
+                     sb.append('I');
+                     break;
+                  case 2:
+                     sb.append('F');
+                     break;
+                  case 3:
+                     sb.append('D');
+                     break;
+                  case 9:
+                     sb.append('Z');
+                     break;
+                  case 10:
+                     sb.append('B');
+                     break;
+                  case 11:
+                     sb.append('C');
+                     break;
+                  case 12:
+                     sb.append('S');
+                     break;
+                  default:
+                     sb.append('J');
+               }
             }
 
-            cw.newUTF8("Code");
-            size += 18 + code.length + 8 * handlerCount;
+            stackMap.putByte(7).putShort(cw.newClass(sb.toString()));
+         }
+      }
+   }
 
-            if (localVar != null) {
-                cw.newUTF8("LocalVariableTable");
-                size += 8 + localVar.length;
-            }
+   private void writeFrameType(Object type) {
+      if (type instanceof String) {
+         stackMap.putByte(7).putShort(cw.newClass((String) type));
+      }
+      else if (type instanceof Integer) {
+         stackMap.putByte((Integer) type);
+      }
+      else {
+         stackMap.putByte(8).putShort(((Label) type).position);
+      }
+   }
 
-            if (localVarType != null) {
-                cw.newUTF8("LocalVariableTypeTable");
-                size += 8 + localVarType.length;
-            }
+   // ------------------------------------------------------------------------
+   // Utility methods: dump bytecode array
+   // ------------------------------------------------------------------------
 
-            if (lineNumber != null) {
-                cw.newUTF8("LineNumberTable");
-                size += 8 + lineNumber.length;
-            }
+   /**
+    * Returns the size of the bytecode of this method.
+    */
+   int getSize() {
+      if (classReaderOffset != 0) {
+         return 6 + classReaderLength;
+      }
 
-            if (stackMap != null) {
-                boolean zip = (cw.version & 0xFFFF) >= V1_6;
-                cw.newUTF8(zip ? "StackMapTable" : "StackMap");
-                size += 8 + stackMap.length;
-            }
-        }
+      int size = 8;
 
-        if (exceptionCount > 0) {
-            cw.newUTF8("Exceptions");
-            size += 8 + 2 * exceptionCount;
-        }
+      if (code.length > 0) {
+         if (code.length > 65536) {
+            throw new RuntimeException("Method code too large!");
+         }
 
-        if ((access & ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-                cw.newUTF8("Synthetic");
-                size += 6;
-            }
-        }
+         cw.newUTF8("Code");
+         size += 18 + code.length + 8 * handlerCount;
 
-        if ((access & ACC_DEPRECATED) != 0) {
-            cw.newUTF8("Deprecated");
+         if (localVar != null) {
+            cw.newUTF8("LocalVariableTable");
+            size += 8 + localVar.length;
+         }
+
+         if (localVarType != null) {
+            cw.newUTF8("LocalVariableTypeTable");
+            size += 8 + localVarType.length;
+         }
+
+         if (lineNumber != null) {
+            cw.newUTF8("LineNumberTable");
+            size += 8 + lineNumber.length;
+         }
+
+         if (stackMap != null) {
+            boolean zip = (cw.version & 0xFFFF) >= V1_6;
+            cw.newUTF8(zip ? "StackMapTable" : "StackMap");
+            size += 8 + stackMap.length;
+         }
+      }
+
+      if (exceptionCount > 0) {
+         cw.newUTF8("Exceptions");
+         size += 8 + 2 * exceptionCount;
+      }
+
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            cw.newUTF8("Synthetic");
             size += 6;
-        }
+         }
+      }
 
-        if (signature != null) {
-            cw.newUTF8("Signature");
-            cw.newUTF8(signature);
-            size += 8;
-        }
+      if ((access & ACC_DEPRECATED) != 0) {
+         cw.newUTF8("Deprecated");
+         size += 6;
+      }
 
-        if (annotationDefault != null) {
-            cw.newUTF8("AnnotationDefault");
-            size += 6 + annotationDefault.length;
-        }
+      if (signature != null) {
+         cw.newUTF8("Signature");
+         cw.newUTF8(signature);
+         size += 8;
+      }
 
-        if (anns != null) {
-            cw.newUTF8("RuntimeVisibleAnnotations");
-            size += 8 + anns.getSize();
-        }
+      if (annotationDefault != null) {
+         cw.newUTF8("AnnotationDefault");
+         size += 6 + annotationDefault.length;
+      }
 
-        if (ianns != null) {
-            cw.newUTF8("RuntimeInvisibleAnnotations");
-            size += 8 + ianns.getSize();
-        }
+      if (anns != null) {
+         cw.newUTF8("RuntimeVisibleAnnotations");
+         size += 8 + anns.getSize();
+      }
 
-        if (parameterAnnotations != null) {
-            cw.newUTF8("RuntimeVisibleParameterAnnotations");
-            size += 7 + 2 * (parameterAnnotations.length - synthetics);
+      if (ianns != null) {
+         cw.newUTF8("RuntimeInvisibleAnnotations");
+         size += 8 + ianns.getSize();
+      }
 
-            for (int i = parameterAnnotations.length - 1; i >= synthetics; --i) {
-                size += parameterAnnotations[i] == null ? 0 : parameterAnnotations[i].getSize();
-            }
-        }
+      if (parameterAnnotations != null) {
+         cw.newUTF8("RuntimeVisibleParameterAnnotations");
+         size += 7 + 2 * (parameterAnnotations.length - synthetics);
 
-        if (invisibleParameterAnnotations != null) {
-            cw.newUTF8("RuntimeInvisibleParameterAnnotations");
-            size += 7 + 2 * (invisibleParameterAnnotations.length - synthetics);
+         for (int i = parameterAnnotations.length - 1; i >= synthetics; --i) {
+            size += parameterAnnotations[i] == null ? 0 : parameterAnnotations[i].getSize();
+         }
+      }
 
-            for (int i = invisibleParameterAnnotations.length - 1; i >= synthetics; --i) {
-                size += invisibleParameterAnnotations[i] == null ? 0 : invisibleParameterAnnotations[i].getSize();
-            }
-        }
+      if (invisibleParameterAnnotations != null) {
+         cw.newUTF8("RuntimeInvisibleParameterAnnotations");
+         size += 7 + 2 * (invisibleParameterAnnotations.length - synthetics);
 
-        if (attrs != null) {
-            size += attrs.getSize(cw);
-        }
+         for (int i = invisibleParameterAnnotations.length - 1; i >= synthetics; --i) {
+            size += invisibleParameterAnnotations[i] == null ? 0 : invisibleParameterAnnotations[i].getSize();
+         }
+      }
 
-        return size;
-    }
+      return size;
+   }
 
-    /**
-     * Puts the bytecode of this method in the given byte vector.
-     * 
-     * @param out the byte vector into which the bytecode of this method must be copied.
-     */
-    void put(ByteVector out) {
-        int mask =
-           ACC_CONSTRUCTOR | ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE |
-          ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+   /**
+    * Puts the bytecode of this method in the given byte vector.
+    *
+    * @param out the byte vector into which the bytecode of this method must be copied.
+    */
+   void put(ByteVector out) {
+      int mask =
+         ACC_CONSTRUCTOR | ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE |
+         ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+      out.putShort(access & ~mask).putShort(name).putShort(desc);
 
-        out.putShort(access & ~mask).putShort(name).putShort(desc);
+      if (classReaderOffset != 0) {
+         out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
+         return;
+      }
 
-        if (classReaderOffset != 0) {
-            out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
-            return;
-        }
+      int attributeCount = 0;
 
-        int attributeCount = 0;
+      if (code.length > 0) {
+         ++attributeCount;
+      }
 
-        if (code.length > 0) {
+      if (exceptionCount > 0) {
+         ++attributeCount;
+      }
+
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
             ++attributeCount;
-        }
+         }
+      }
 
-        if (exceptionCount > 0) {
+      if ((access & ACC_DEPRECATED) != 0) {
+         ++attributeCount;
+      }
+
+      if (signature != null) {
+         ++attributeCount;
+      }
+
+      if (annotationDefault != null) {
+         ++attributeCount;
+      }
+
+      if (anns != null) {
+         ++attributeCount;
+      }
+
+      if (ianns != null) {
+         ++attributeCount;
+      }
+
+      if (parameterAnnotations != null) {
+         ++attributeCount;
+      }
+
+      if (invisibleParameterAnnotations != null) {
+         ++attributeCount;
+      }
+
+      out.putShort(attributeCount);
+
+      if (code.length > 0) {
+         int size = 12 + code.length + 8 * handlerCount;
+
+         if (localVar != null) {
+            size += 8 + localVar.length;
+         }
+
+         if (localVarType != null) {
+            size += 8 + localVarType.length;
+         }
+
+         if (lineNumber != null) {
+            size += 8 + lineNumber.length;
+         }
+
+         if (stackMap != null) {
+            size += 8 + stackMap.length;
+         }
+
+         out.putShort(cw.newUTF8("Code")).putInt(size);
+         out.putShort(maxStack).putShort(maxLocals);
+         out.putInt(code.length).putByteArray(code.data, 0, code.length);
+         out.putShort(handlerCount);
+
+         if (handlerCount > 0) {
+            Handler h = firstHandler;
+
+            while (h != null) {
+               out.putShort(h.start.position).putShort(h.end.position);
+               out.putShort(h.handler.position).putShort(h.type);
+               h = h.next;
+            }
+         }
+
+         attributeCount = 0;
+
+         if (localVar != null) {
             ++attributeCount;
-        }
+         }
 
-        if ((access & ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-                ++attributeCount;
-            }
-        }
-
-        if ((access & ACC_DEPRECATED) != 0) {
+         if (localVarType != null) {
             ++attributeCount;
-        }
+         }
 
-        if (signature != null) {
+         if (lineNumber != null) {
             ++attributeCount;
-        }
+         }
 
-        if (annotationDefault != null) {
+         if (stackMap != null) {
             ++attributeCount;
-        }
+         }
 
-        if (anns != null) {
-            ++attributeCount;
-        }
+         out.putShort(attributeCount);
 
-        if (ianns != null) {
-            ++attributeCount;
-        }
+         if (localVar != null) {
+            out.putShort(cw.newUTF8("LocalVariableTable"));
+            out.putInt(localVar.length + 2).putShort(localVarCount);
+            out.putByteArray(localVar.data, 0, localVar.length);
+         }
 
-        if (parameterAnnotations != null) {
-            ++attributeCount;
-        }
+         if (localVarType != null) {
+            out.putShort(cw.newUTF8("LocalVariableTypeTable"));
+            out.putInt(localVarType.length + 2).putShort(localVarTypeCount);
+            out.putByteArray(localVarType.data, 0, localVarType.length);
+         }
 
-        if (invisibleParameterAnnotations != null) {
-            ++attributeCount;
-        }
+         if (lineNumber != null) {
+            out.putShort(cw.newUTF8("LineNumberTable"));
+            out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
+            out.putByteArray(lineNumber.data, 0, lineNumber.length);
+         }
 
-        if (attrs != null) {
-            attributeCount += attrs.getCount();
-        }
+         if (stackMap != null) {
+            boolean zip = (cw.version & 0xFFFF) >= V1_6;
+            out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
+            out.putInt(stackMap.length + 2).putShort(frameCount);
+            out.putByteArray(stackMap.data, 0, stackMap.length);
+         }
+      }
 
-        out.putShort(attributeCount);
+      if (exceptionCount > 0) {
+         out.putShort(cw.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
+         out.putShort(exceptionCount);
 
-        if (code.length > 0) {
-            int size = 12 + code.length + 8 * handlerCount;
+         for (int i = 0; i < exceptionCount; ++i) {
+            out.putShort(exceptions[i]);
+         }
+      }
 
-            if (localVar != null) {
-                size += 8 + localVar.length;
-            }
+      if ((access & ACC_SYNTHETIC) != 0) {
+         if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+            out.putShort(cw.newUTF8("Synthetic")).putInt(0);
+         }
+      }
 
-            if (localVarType != null) {
-                size += 8 + localVarType.length;
-            }
+      if ((access & ACC_DEPRECATED) != 0) {
+         out.putShort(cw.newUTF8("Deprecated")).putInt(0);
+      }
 
-            if (lineNumber != null) {
-                size += 8 + lineNumber.length;
-            }
+      if (signature != null) {
+         out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(cw.newUTF8(signature));
+      }
 
-            if (stackMap != null) {
-                size += 8 + stackMap.length;
-            }
+      if (annotationDefault != null) {
+         out.putShort(cw.newUTF8("AnnotationDefault"));
+         out.putInt(annotationDefault.length);
+         out.putByteArray(annotationDefault.data, 0, annotationDefault.length);
+      }
 
-            out.putShort(cw.newUTF8("Code")).putInt(size);
-            out.putShort(maxStack).putShort(maxLocals);
-            out.putInt(code.length).putByteArray(code.data, 0, code.length);
-            out.putShort(handlerCount);
+      if (anns != null) {
+         out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
+         anns.put(out);
+      }
 
-            if (handlerCount > 0) {
-                Handler h = firstHandler;
+      if (ianns != null) {
+         out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
+         ianns.put(out);
+      }
 
-                while (h != null) {
-                    out.putShort(h.start.position).putShort(h.end.position);
-                    out.putShort(h.handler.position).putShort(h.type);
-                    h = h.next;
-                }
-            }
+      if (parameterAnnotations != null) {
+         out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
+         AnnotationWriter.put(parameterAnnotations, synthetics, out);
+      }
 
-            attributeCount = 0;
+      if (invisibleParameterAnnotations != null) {
+         out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
+         AnnotationWriter.put(invisibleParameterAnnotations, synthetics, out);
+      }
+   }
 
-            if (localVar != null) {
-                ++attributeCount;
-            }
+   // ------------------------------------------------------------------------
+   // Utility methods: instruction resizing (used to handle GOTO_W and JSR_W)
+   // ------------------------------------------------------------------------
 
-            if (localVarType != null) {
-                ++attributeCount;
-            }
+   /**
+    * Resizes and replaces the temporary instructions inserted by {@link Label#resolve} for wide forward jumps, while
+    * keeping jump offsets and instruction addresses consistent. This may require to resize other existing
+    * instructions, or even to introduce new instructions: for example, increasing the size of an instruction by 2 at
+    * the middle of a method can increases the offset of an IFEQ instruction from 32766 to 32768, in which case IFEQ
+    * 32766 must be replaced with IFNEQ 8 GOTO_W 32765. This, in turn, may require to increase the size of another jump
+    * instruction, and so on... All these operations are handled automatically by this method.
+    * <p>
+    * <i>This method must be called after all the method that is being built has been visited</i>. In particular, the
+    * {@link Label Label} objects used to construct the method are no longer valid after this method has been called.
+    */
+   private void resizeInstructions() {
+      byte[] b = code.data; // bytecode of the method
 
-            if (lineNumber != null) {
-                ++attributeCount;
-            }
+      /*
+       * 1st step: As explained above, resizing an instruction may require to resize another one, which may require to
+       * resize yet another one, and so on. The first step of the algorithm consists in finding all the instructions
+       * that need to be resized, without modifying the code.
+       * This is done by the following "fix point" algorithm:
+       *
+       * Parse the code to find the jump instructions whose offset will need more than 2 bytes to be stored (the future
+       * offset is computed from the current offset and from the number of bytes that will be inserted or removed
+       * between the source and target instructions). For each such instruction, adds an entry in (a copy of) the
+       * indexes and sizes arrays (if this has not already been done in a previous iteration!).
+       *
+       * If at least one entry has been added during the previous step, go back to the beginning, otherwise stop.
+       *
+       * In fact the real algorithm is complicated by the fact that the size of TABLESWITCH and LOOKUPSWITCH
+       * instructions depends on their position in the bytecode (because of padding). In order to ensure the convergence
+       * of the algorithm, the number of bytes to be added or removed from these instructions is over estimated during
+       * the previous loop, and computed exactly only after the loop is finished (this requires another pass to parse
+       * the bytecode of the method).
+       */
+      int[] allIndexes = new int[0]; // copy of indexes
+      int[] allSizes = new int[0]; // copy of sizes
+      boolean[] resize = new boolean[code.length]; // instructions to be resized
 
-            if (stackMap != null) {
-                ++attributeCount;
-            }
+      // 3 = loop again, 2 = loop ended, 1 = last pass, 0 = done
+      int state = 3;
 
-            out.putShort(attributeCount);
+      do {
+         if (state == 3) {
+            state = 2;
+         }
 
-            if (localVar != null) {
-                out.putShort(cw.newUTF8("LocalVariableTable"));
-                out.putInt(localVar.length + 2).putShort(localVarCount);
-                out.putByteArray(localVar.data, 0, localVar.length);
-            }
+         int u = 0;
 
-            if (localVarType != null) {
-                out.putShort(cw.newUTF8("LocalVariableTypeTable"));
-                out.putInt(localVarType.length + 2).putShort(localVarTypeCount);
-                out.putByteArray(localVarType.data, 0, localVarType.length);
-            }
-
-            if (lineNumber != null) {
-                out.putShort(cw.newUTF8("LineNumberTable"));
-                out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
-                out.putByteArray(lineNumber.data, 0, lineNumber.length);
-            }
-
-            if (stackMap != null) {
-                boolean zip = (cw.version & 0xFFFF) >= V1_6;
-                out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
-                out.putInt(stackMap.length + 2).putShort(frameCount);
-                out.putByteArray(stackMap.data, 0, stackMap.length);
-            }
-        }
-
-        if (exceptionCount > 0) {
-            out.putShort(cw.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
-            out.putShort(exceptionCount);
-
-            for (int i = 0; i < exceptionCount; ++i) {
-                out.putShort(exceptions[i]);
-            }
-        }
-
-        if ((access & ACC_SYNTHETIC) != 0) {
-            if ((cw.version & 0xFFFF) < V1_5 || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-                out.putShort(cw.newUTF8("Synthetic")).putInt(0);
-            }
-        }
-
-        if ((access & ACC_DEPRECATED) != 0) {
-            out.putShort(cw.newUTF8("Deprecated")).putInt(0);
-        }
-
-        if (signature != null) {
-            out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(cw.newUTF8(signature));
-        }
-
-        if (annotationDefault != null) {
-            out.putShort(cw.newUTF8("AnnotationDefault"));
-            out.putInt(annotationDefault.length);
-            out.putByteArray(annotationDefault.data, 0, annotationDefault.length);
-        }
-
-        if (anns != null) {
-            out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
-            anns.put(out);
-        }
-
-        if (ianns != null) {
-            out.putShort(cw.newUTF8("RuntimeInvisibleAnnotations"));
-            ianns.put(out);
-        }
-
-        if (parameterAnnotations != null) {
-            out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
-            AnnotationWriter.put(parameterAnnotations, synthetics, out);
-        }
-
-        if (invisibleParameterAnnotations != null) {
-            out.putShort(cw.newUTF8("RuntimeInvisibleParameterAnnotations"));
-            AnnotationWriter.put(invisibleParameterAnnotations, synthetics, out);
-        }
-
-        if (attrs != null) {
-            attrs.put(cw, out);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // Utility methods: instruction resizing (used to handle GOTO_W and JSR_W)
-    // ------------------------------------------------------------------------
-
-    /**
-     * Resizes and replaces the temporary instructions inserted by {@link Label#resolve} for wide forward jumps, while
-     * keeping jump offsets and instruction addresses consistent. This may require to resize other existing
-     * instructions, or even to introduce new instructions: for example, increasing the size of an instruction by 2 at
-     * the middle of a method can increases the offset of an IFEQ instruction from 32766 to 32768, in which case IFEQ
-     * 32766 must be replaced with IFNEQ 8 GOTO_W 32765. This, in turn, may require to increase the size of another jump
-     * instruction, and so on... All these operations are handled automatically by this method.
-     * <p>
-     * <i>This method must be called after all the method that is being built has been visited</i>. In particular, the
-     * {@link Label Label} objects used to construct the method are no longer valid after this method has been called.
-     */
-    private void resizeInstructions() {
-        byte[] b = code.data; // bytecode of the method
-
-        /*
-         * 1st step: As explained above, resizing an instruction may require to
-         * resize another one, which may require to resize yet another one, and
-         * so on. The first step of the algorithm consists in finding all the
-         * instructions that need to be resized, without modifying the code.
-         * This is done by the following "fix point" algorithm:
-         * 
-         * Parse the code to find the jump instructions whose offset will need
-         * more than 2 bytes to be stored (the future offset is computed from
-         * the current offset and from the number of bytes that will be inserted
-         * or removed between the source and target instructions). For each such
-         * instruction, adds an entry in (a copy of) the indexes and sizes
-         * arrays (if this has not already been done in a previous iteration!).
-         * 
-         * If at least one entry has been added during the previous step, go
-         * back to the beginning, otherwise stop.
-         * 
-         * In fact the real algorithm is complicated by the fact that the size
-         * of TABLESWITCH and LOOKUPSWITCH instructions depends on their
-         * position in the bytecode (because of padding). In order to ensure the
-         * convergence of the algorithm, the number of bytes to be added or
-         * removed from these instructions is over estimated during the previous
-         * loop, and computed exactly only after the loop is finished (this
-         * requires another pass to parse the bytecode of the method).
-         */
-        int[] allIndexes = new int[0]; // copy of indexes
-        int[] allSizes = new int[0]; // copy of sizes
-        boolean[] resize = new boolean[code.length]; // instructions to be resized
-
-        // 3 = loop again, 2 = loop ended, 1 = last pass, 0 = done
-        int state = 3;
-
-        do {
-            if (state == 3) {
-                state = 2;
-            }
-
-            int u = 0;
-
-            while (u < b.length) {
-                int opcode = b[u] & 0xFF; // opcode of current instruction
-                int insert = 0; // bytes to be added after this instruction
-
-                switch (TYPE[opcode]) {
-                case NOARG_INSN:
-                case IMPLVAR_INSN:
-                    u += 1;
-                    break;
-                case LABEL_INSN:
-                    insert = resizeLabelInstruction(b, allIndexes, allSizes, resize, u, opcode, insert);
-                    u += 3;
-                    break;
-                case LABELW_INSN:
-                    u += 5;
-                    break;
-                case TABL_INSN:
-                    insert = resizeTableInstruction(allIndexes, allSizes, resize, state, u, insert);
-
-                    // skips instruction
-                    u = u + 4 - (u & 3);
-                    u += 4 * (readInt(b, u + 8) - readInt(b, u + 4) + 1) + 12;
-                    break;
-                case LOOK_INSN:
-                    insert = resizeTableInstruction(allIndexes, allSizes, resize, state, u, insert);
-
-                    // skips instruction
-                    u = u + 4 - (u & 3);
-                    u += 8 * readInt(b, u + 4) + 8;
-                    break;
-                case WIDE_INSN:
-                    opcode = b[u + 1] & 0xFF;
-                    u += opcode == IINC ? 6 : 4;
-                    break;
-                case VAR_INSN:
-                case SBYTE_INSN:
-                case LDC_INSN:
-                    u += 2;
-                    break;
-                case SHORT_INSN:
-                case LDCW_INSN:
-                case FIELDORMETH_INSN:
-                case TYPE_INSN:
-                case IINC_INSN:
-                    u += 3;
-                    break;
-                case ITFMETH_INSN:
-                case INDYMETH_INSN:
-                    u += 5;
-                    break;
-                // case ClassWriter.MANA_INSN:
-                default:
-                    u += 4;
-                    break;
-                }
-
-                if (insert != 0) {
-                    // Adds a new (u, insert) entry in the allIndexes and allSizes arrays.
-                    int[] newIndexes = new int[allIndexes.length + 1];
-                    int[] newSizes = new int[allSizes.length + 1];
-                    System.arraycopy(allIndexes, 0, newIndexes, 0, allIndexes.length);
-                    System.arraycopy(allSizes, 0, newSizes, 0, allSizes.length);
-                    newIndexes[allIndexes.length] = u;
-                    newSizes[allSizes.length] = insert;
-                    allIndexes = newIndexes;
-                    allSizes = newSizes;
-
-                    if (insert > 0) {
-                        state = 3;
-                    }
-                }
-            }
-
-            if (state < 3) {
-                --state;
-            }
-        }
-        while (state != 0);
-
-        // 2nd step:
-        // copies the bytecode of the method into a new byte vector, updates the
-        // offsets, and inserts (or removes) bytes as requested.
-        ByteVector newCode = resizeInstructionsSecondStep(b, allIndexes, allSizes, resize);
-
-        updateStackMapFrameLabels(allIndexes, allSizes, resize);
-        updateExceptionHandlerBlockLabels(allIndexes, allSizes);
-
-        updateInstructionAddressesInLocalVarTable(allIndexes, allSizes);
-        updateInstructionAddressesInLineNumberTable(allIndexes, allSizes);
-
-        // replaces old bytecodes with new ones
-        code = newCode;
-    }
-
-    private int resizeLabelInstruction(
-       byte[] b, int[] allIndexes, int[] allSizes, boolean[] resize, int u, int opcode, int insert
-    ) {
-        int label;
-
-        if (opcode > 201) {
-            // Converts temporary opcodes 202 to 217, 218 and 219 to IFEQ ... JSR (inclusive), IFNULL and IFNONNULL.
-            opcode = opcode < 218 ? opcode - 49 : opcode - 20;
-            label = u + readUnsignedShort(b, u + 1);
-        }
-        else {
-            label = u + readShort(b, u + 1);
-        }
-
-        int newOffset = getNewOffset(allIndexes, allSizes, u, label);
-
-        if (newOffset < Short.MIN_VALUE || newOffset > Short.MAX_VALUE) {
-            if (!resize[u]) {
-                if (opcode == GOTO || opcode == JSR) {
-                    // Two additional bytes will be required to replace this GOTO or JSR instruction with
-                    // a GOTO_W or a JSR_W.
-                    insert = 2;
-                }
-                else {
-                    // Five additional bytes will be required to replace this IFxxx <l> instruction with
-                    // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx (i.e.,
-                    // IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
-                    insert = 5;
-                }
-
-                resize[u] = true;
-            }
-        }
-
-        return insert;
-    }
-
-    private int resizeTableInstruction(
-       int[] allIndexes, int[] allSizes, boolean[] resize, int state, int u, int insert
-    ) {
-        int newOffset;
-
-        if (state == 1) {
-            // True number of bytes to be added (or removed) from this instruction = (future number of padding bytes -
-            // current number of padding byte) - previously over estimated variation =
-            // = ((3 - newOffset%4) - (3 - u%4)) - u%4
-            // = (-newOffset%4 + u%4) - u%4
-            // = -(newOffset & 3).
-            newOffset = getNewOffset(allIndexes, allSizes, 0, u);
-            insert = -(newOffset & 3);
-        }
-        else if (!resize[u]) {
-            // Over estimation of the number of bytes to be added to this instruction = 3 - current number
-            // of padding bytes = 3 - (3 - u%4) = u%4 = u & 3.
-            insert = u & 3;
-            resize[u] = true;
-        }
-
-        return insert;
-    }
-
-    private ByteVector resizeInstructionsSecondStep(byte[] b, int[] allIndexes, int[] allSizes, boolean[] resize) {
-        ByteVector newCode = new ByteVector(code.length);
-        int u = 0;
-        int v;
-        int j;
-        int label;
-        int newOffset;
-
-        while (u < code.length) {
-            int opcode = b[u] & 0xFF;
+         while (u < b.length) {
+            int opcode = b[u] & 0xFF; // opcode of current instruction
+            int insert = 0; // bytes to be added after this instruction
 
             switch (TYPE[opcode]) {
+               case NOARG_INSN:
+               case IMPLVAR_INSN:
+                  u += 1;
+                  break;
+               case LABEL_INSN:
+                  insert = resizeLabelInstruction(b, allIndexes, allSizes, resize, u, opcode, insert);
+                  u += 3;
+                  break;
+               case LABELW_INSN:
+                  u += 5;
+                  break;
+               case TABL_INSN:
+                  insert = resizeTableInstruction(allIndexes, allSizes, resize, state, u, insert);
+
+                  // skips instruction
+                  u = u + 4 - (u & 3);
+                  u += 4 * (readInt(b, u + 8) - readInt(b, u + 4) + 1) + 12;
+                  break;
+               case LOOK_INSN:
+                  insert = resizeTableInstruction(allIndexes, allSizes, resize, state, u, insert);
+
+                  // skips instruction
+                  u = u + 4 - (u & 3);
+                  u += 8 * readInt(b, u + 4) + 8;
+                  break;
+               case WIDE_INSN:
+                  opcode = b[u + 1] & 0xFF;
+                  u += opcode == IINC ? 6 : 4;
+                  break;
+               case VAR_INSN:
+               case SBYTE_INSN:
+               case LDC_INSN:
+                  u += 2;
+                  break;
+               case SHORT_INSN:
+               case LDCW_INSN:
+               case FIELDORMETH_INSN:
+               case TYPE_INSN:
+               case IINC_INSN:
+                  u += 3;
+                  break;
+               case ITFMETH_INSN:
+               case INDYMETH_INSN:
+                  u += 5;
+                  break;
+               // case ClassWriter.MANA_INSN:
+               default:
+                  u += 4;
+                  break;
+            }
+
+            if (insert != 0) {
+               // Adds a new (u, insert) entry in the allIndexes and allSizes arrays.
+               int[] newIndexes = new int[allIndexes.length + 1];
+               int[] newSizes = new int[allSizes.length + 1];
+               System.arraycopy(allIndexes, 0, newIndexes, 0, allIndexes.length);
+               System.arraycopy(allSizes, 0, newSizes, 0, allSizes.length);
+               newIndexes[allIndexes.length] = u;
+               newSizes[allSizes.length] = insert;
+               allIndexes = newIndexes;
+               allSizes = newSizes;
+
+               if (insert > 0) {
+                  state = 3;
+               }
+            }
+         }
+
+         if (state < 3) {
+            --state;
+         }
+      }
+      while (state != 0);
+
+      // 2nd step:
+      // copies the bytecode of the method into a new byte vector, updates the
+      // offsets, and inserts (or removes) bytes as requested.
+      ByteVector newCode = resizeInstructionsSecondStep(b, allIndexes, allSizes, resize);
+
+      updateStackMapFrameLabels(allIndexes, allSizes, resize);
+      updateExceptionHandlerBlockLabels(allIndexes, allSizes);
+
+      updateInstructionAddressesInLocalVarTable(allIndexes, allSizes);
+      updateInstructionAddressesInLineNumberTable(allIndexes, allSizes);
+
+      // replaces old bytecodes with new ones
+      code = newCode;
+   }
+
+   private int resizeLabelInstruction(
+      byte[] b, int[] allIndexes, int[] allSizes, boolean[] resize, int u, int opcode, int insert
+   ) {
+      int label;
+
+      if (opcode > 201) {
+         // Converts temporary opcodes 202 to 217, 218 and 219 to IFEQ ... JSR (inclusive), IFNULL and IFNONNULL.
+         opcode = opcode < 218 ? opcode - 49 : opcode - 20;
+         label = u + readUnsignedShort(b, u + 1);
+      }
+      else {
+         label = u + readShort(b, u + 1);
+      }
+
+      int newOffset = getNewOffset(allIndexes, allSizes, u, label);
+
+      if (newOffset < Short.MIN_VALUE || newOffset > Short.MAX_VALUE) {
+         if (!resize[u]) {
+            if (opcode == GOTO || opcode == JSR) {
+               // Two additional bytes will be required to replace this GOTO or JSR instruction with
+               // a GOTO_W or a JSR_W.
+               insert = 2;
+            }
+            else {
+               // Five additional bytes will be required to replace this IFxxx <l> instruction with
+               // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx (i.e.,
+               // IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
+               insert = 5;
+            }
+
+            resize[u] = true;
+         }
+      }
+
+      return insert;
+   }
+
+   private int resizeTableInstruction(
+      int[] allIndexes, int[] allSizes, boolean[] resize, int state, int u, int insert
+   ) {
+      int newOffset;
+
+      if (state == 1) {
+         // True number of bytes to be added (or removed) from this instruction = (future number of padding bytes -
+         // current number of padding byte) - previously over estimated variation =
+         // = ((3 - newOffset%4) - (3 - u%4)) - u%4
+         // = (-newOffset%4 + u%4) - u%4
+         // = -(newOffset & 3).
+         newOffset = getNewOffset(allIndexes, allSizes, 0, u);
+         insert = -(newOffset & 3);
+      }
+      else if (!resize[u]) {
+         // Over estimation of the number of bytes to be added to this instruction = 3 - current number
+         // of padding bytes = 3 - (3 - u%4) = u%4 = u & 3.
+         insert = u & 3;
+         resize[u] = true;
+      }
+
+      return insert;
+   }
+
+   private ByteVector resizeInstructionsSecondStep(byte[] b, int[] allIndexes, int[] allSizes, boolean[] resize) {
+      ByteVector newCode = new ByteVector(code.length);
+      int u = 0;
+      int v;
+      int j;
+      int label;
+      int newOffset;
+
+      while (u < code.length) {
+         int opcode = b[u] & 0xFF;
+
+         switch (TYPE[opcode]) {
             case NOARG_INSN:
             case IMPLVAR_INSN:
-                newCode.putByte(opcode);
-                u += 1;
-                break;
+               newCode.putByte(opcode);
+               u += 1;
+               break;
             case LABEL_INSN:
-                if (opcode > 201) {
-                    // Changes temporary opcodes 202 to 217 (inclusive), 218 and 219 to IFEQ ... JSR (inclusive),
-                    // IFNULL and IFNONNULL.
-                    opcode = opcode < 218 ? opcode - 49 : opcode - 20;
-                    label = u + readUnsignedShort(b, u + 1);
-                }
-                else {
-                    label = u + readShort(b, u + 1);
-                }
+               if (opcode > 201) {
+                  // Changes temporary opcodes 202 to 217 (inclusive), 218 and 219 to IFEQ ... JSR (inclusive),
+                  // IFNULL and IFNONNULL.
+                  opcode = opcode < 218 ? opcode - 49 : opcode - 20;
+                  label = u + readUnsignedShort(b, u + 1);
+               }
+               else {
+                  label = u + readShort(b, u + 1);
+               }
 
-                newOffset = getNewOffset(allIndexes, allSizes, u, label);
+               newOffset = getNewOffset(allIndexes, allSizes, u, label);
 
-                if (resize[u]) {
-                    // Replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where
-                    // IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ)
-                    // and where <l'> designates the instruction just after the GOTO_W.
-                    if (opcode == GOTO) {
-                        newCode.putByte(200); // GOTO_W
-                    }
-                    else if (opcode == JSR) {
-                        newCode.putByte(201); // JSR_W
-                    }
-                    else {
-                        newCode.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
-                        newCode.putShort(8); // jump offset
-                        newCode.putByte(200); // GOTO_W
-                        // newOffset now computed from start of GOTO_W
-                        newOffset -= 3;
-                    }
+               if (resize[u]) {
+                  // Replaces GOTO with GOTO_W, JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where
+                  // IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ)
+                  // and where <l'> designates the instruction just after the GOTO_W.
+                  if (opcode == GOTO) {
+                     newCode.putByte(200); // GOTO_W
+                  }
+                  else if (opcode == JSR) {
+                     newCode.putByte(201); // JSR_W
+                  }
+                  else {
+                     newCode.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
+                     newCode.putShort(8); // jump offset
+                     newCode.putByte(200); // GOTO_W
+                     // newOffset now computed from start of GOTO_W
+                     newOffset -= 3;
+                  }
 
-                    newCode.putInt(newOffset);
-                }
-                else {
-                    newCode.putByte(opcode);
-                    newCode.putShort(newOffset);
-                }
+                  newCode.putInt(newOffset);
+               }
+               else {
+                  newCode.putByte(opcode);
+                  newCode.putShort(newOffset);
+               }
 
-                u += 3;
-                break;
+               u += 3;
+               break;
             case LABELW_INSN:
-                label = u + readInt(b, u + 1);
-                newOffset = getNewOffset(allIndexes, allSizes, u, label);
-                newCode.putByte(opcode);
-                newCode.putInt(newOffset);
-                u += 5;
-                break;
+               label = u + readInt(b, u + 1);
+               newOffset = getNewOffset(allIndexes, allSizes, u, label);
+               newCode.putByte(opcode);
+               newCode.putInt(newOffset);
+               u += 5;
+               break;
             case TABL_INSN:
-                // Skips 0 to 3 padding bytes.
-                v = u;
-                u = u + 4 - (v & 3);
+               // Skips 0 to 3 padding bytes.
+               v = u;
+               u = u + 4 - (v & 3);
 
-                // Reads and copies instruction.
-                newCode.putByte(TABLESWITCH);
-                newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
-                label = v + readInt(b, u);
-                u += 4;
-                newOffset = getNewOffset(allIndexes, allSizes, v, label);
-                newCode.putInt(newOffset);
-                j = readInt(b, u);
-                u += 4;
-                newCode.putInt(j);
-                j = readInt(b, u) - j + 1;
-                u += 4;
-                newCode.putInt(readInt(b, u - 4));
+               // Reads and copies instruction.
+               newCode.putByte(TABLESWITCH);
+               newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
+               label = v + readInt(b, u);
+               u += 4;
+               newOffset = getNewOffset(allIndexes, allSizes, v, label);
+               newCode.putInt(newOffset);
+               j = readInt(b, u);
+               u += 4;
+               newCode.putInt(j);
+               j = readInt(b, u) - j + 1;
+               u += 4;
+               newCode.putInt(readInt(b, u - 4));
 
-                for (; j > 0; --j) {
-                    label = v + readInt(b, u);
-                    u += 4;
-                    newOffset = getNewOffset(allIndexes, allSizes, v, label);
-                    newCode.putInt(newOffset);
-                }
+               for (; j > 0; --j) {
+                  label = v + readInt(b, u);
+                  u += 4;
+                  newOffset = getNewOffset(allIndexes, allSizes, v, label);
+                  newCode.putInt(newOffset);
+               }
 
-                break;
+               break;
             case LOOK_INSN:
-                // Skips 0 to 3 padding bytes.
-                v = u;
-                u = u + 4 - (v & 3);
+               // Skips 0 to 3 padding bytes.
+               v = u;
+               u = u + 4 - (v & 3);
 
-                // Reads and copies instruction.
-                newCode.putByte(LOOKUPSWITCH);
-                newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
-                label = v + readInt(b, u);
-                u += 4;
-                newOffset = getNewOffset(allIndexes, allSizes, v, label);
-                newCode.putInt(newOffset);
-                j = readInt(b, u);
-                u += 4;
-                newCode.putInt(j);
+               // Reads and copies instruction.
+               newCode.putByte(LOOKUPSWITCH);
+               newCode.putByteArray(null, 0, (4 - newCode.length % 4) % 4);
+               label = v + readInt(b, u);
+               u += 4;
+               newOffset = getNewOffset(allIndexes, allSizes, v, label);
+               newCode.putInt(newOffset);
+               j = readInt(b, u);
+               u += 4;
+               newCode.putInt(j);
 
-                for (; j > 0; --j) {
-                    newCode.putInt(readInt(b, u));
-                    u += 4;
-                    label = v + readInt(b, u);
-                    u += 4;
-                    newOffset = getNewOffset(allIndexes, allSizes, v, label);
-                    newCode.putInt(newOffset);
-                }
+               for (; j > 0; --j) {
+                  newCode.putInt(readInt(b, u));
+                  u += 4;
+                  label = v + readInt(b, u);
+                  u += 4;
+                  newOffset = getNewOffset(allIndexes, allSizes, v, label);
+                  newCode.putInt(newOffset);
+               }
 
-                break;
+               break;
             case WIDE_INSN:
-                opcode = b[u + 1] & 0xFF;
+               opcode = b[u + 1] & 0xFF;
 
-                if (opcode == IINC) {
-                    newCode.putByteArray(b, u, 6);
-                    u += 6;
-                }
-                else {
-                    newCode.putByteArray(b, u, 4);
-                    u += 4;
-                }
+               if (opcode == IINC) {
+                  newCode.putByteArray(b, u, 6);
+                  u += 6;
+               }
+               else {
+                  newCode.putByteArray(b, u, 4);
+                  u += 4;
+               }
 
-                break;
+               break;
             case VAR_INSN:
             case SBYTE_INSN:
             case LDC_INSN:
-                newCode.putByteArray(b, u, 2);
-                u += 2;
-                break;
+               newCode.putByteArray(b, u, 2);
+               u += 2;
+               break;
             case SHORT_INSN:
             case LDCW_INSN:
             case FIELDORMETH_INSN:
             case TYPE_INSN:
             case IINC_INSN:
-                newCode.putByteArray(b, u, 3);
-                u += 3;
-                break;
+               newCode.putByteArray(b, u, 3);
+               u += 3;
+               break;
             case ITFMETH_INSN:
             case INDYMETH_INSN:
-                newCode.putByteArray(b, u, 5);
-                u += 5;
-                break;
+               newCode.putByteArray(b, u, 5);
+               u += 5;
+               break;
             // case MANA_INSN:
             default:
-                newCode.putByteArray(b, u, 4);
-                u += 4;
-                break;
-            }
-        }
+               newCode.putByteArray(b, u, 4);
+               u += 4;
+               break;
+         }
+      }
 
-        return newCode;
-    }
+      return newCode;
+   }
 
-    private void updateStackMapFrameLabels(int[] allIndexes, int[] allSizes, boolean[] resize) {
-        if (compute == FRAMES) {
-            Label l = labels;
+   private void updateStackMapFrameLabels(int[] allIndexes, int[] allSizes, boolean[] resize) {
+      if (compute == FRAMES) {
+         Label l = labels;
 
-            while (l != null) {
+         while (l != null) {
                 /*
                  * Detects the labels that are just after an IF instruction that has been resized with the IFNOT GOTO_W
                  * pattern. These labels are now the target of a jump instruction (the IFNOT instruction).
                  * Note that we need the original label position here.
                  * getNewOffset must therefore never have been called for this label.
                  */
-                int u = l.position - 3;
+            int u = l.position - 3;
 
-                if (u >= 0 && resize[u]) {
-                    l.status |= Label.TARGET;
-                }
-
-                getNewOffset(allIndexes, allSizes, l);
-                l = l.successor;
+            if (u >= 0 && resize[u]) {
+               l.status |= Label.TARGET;
             }
 
-            // Update the offsets in the uninitialized types.
-            for (int i = 0; i < cw.typeTable.length; ++i) {
-                Item item = cw.typeTable[i];
+            getNewOffset(allIndexes, allSizes, l);
+            l = l.successor;
+         }
 
-                if (item != null && item.type == TYPE_UNINIT) {
-                    item.intVal = getNewOffset(allIndexes, allSizes, 0, item.intVal);
-                }
+         // Update the offsets in the uninitialized types.
+         for (int i = 0; i < cw.typeTable.length; ++i) {
+            Item item = cw.typeTable[i];
+
+            if (item != null && item.type == TYPE_UNINIT) {
+               item.intVal = getNewOffset(allIndexes, allSizes, 0, item.intVal);
             }
+         }
 
-            // The stack map frames are not serialized yet, so we don't need to update them.
-            // They will be serialized in visitMaxs.
-        }
-        else if (frameCount > 0) {
+         // The stack map frames are not serialized yet, so we don't need to update them.
+         // They will be serialized in visitMaxs.
+      }
+      else if (frameCount > 0) {
             /*
              * Resizing an existing stack map frame table is really hard.
              * Not only the table must be parsed to update the offsets, but new frames may be needed for jump
@@ -2719,175 +2678,160 @@ public final class MethodWriter extends MethodVisitor
              * This is not very efficient but is much easier and requires much less code than any other method I can
              * think of.
              */
-            cw.invalidFrames = true;
-        }
-    }
+         cw.invalidFrames = true;
+      }
+   }
 
-    private void updateExceptionHandlerBlockLabels(int[] allIndexes, int[] allSizes) {
-        Handler h = firstHandler;
+   private void updateExceptionHandlerBlockLabels(int[] allIndexes, int[] allSizes) {
+      Handler h = firstHandler;
 
-        while (h != null) {
-            getNewOffset(allIndexes, allSizes, h.start);
-            getNewOffset(allIndexes, allSizes, h.end);
-            getNewOffset(allIndexes, allSizes, h.handler);
-            h = h.next;
-        }
-    }
+      while (h != null) {
+         getNewOffset(allIndexes, allSizes, h.start);
+         getNewOffset(allIndexes, allSizes, h.end);
+         getNewOffset(allIndexes, allSizes, h.handler);
+         h = h.next;
+      }
+   }
 
-    private void updateInstructionAddressesInLocalVarTable(int[] allIndexes, int[] allSizes) {
-        for (int i = 0; i < 2; ++i) {
-            ByteVector bv = i == 0 ? localVar : localVarType;
+   private void updateInstructionAddressesInLocalVarTable(int[] allIndexes, int[] allSizes) {
+      for (int i = 0; i < 2; ++i) {
+         ByteVector bv = i == 0 ? localVar : localVarType;
 
-            if (bv != null) {
-                byte[] b = bv.data;
-                int u = 0;
+         if (bv != null) {
+            byte[] b = bv.data;
+            int u = 0;
 
-                while (u < bv.length) {
-                    int label = readUnsignedShort(b, u);
-                    int newOffset = getNewOffset(allIndexes, allSizes, 0, label);
-                    writeShort(b, u, newOffset);
-                    label += readUnsignedShort(b, u + 2);
-                    newOffset = getNewOffset(allIndexes, allSizes, 0, label) - newOffset;
-                    writeShort(b, u + 2, newOffset);
-                    u += 10;
-                }
+            while (u < bv.length) {
+               int label = readUnsignedShort(b, u);
+               int newOffset = getNewOffset(allIndexes, allSizes, 0, label);
+               writeShort(b, u, newOffset);
+               label += readUnsignedShort(b, u + 2);
+               newOffset = getNewOffset(allIndexes, allSizes, 0, label) - newOffset;
+               writeShort(b, u + 2, newOffset);
+               u += 10;
             }
-        }
-    }
+         }
+      }
+   }
 
-    private void updateInstructionAddressesInLineNumberTable(int[] allIndexes, int[] allSizes) {
-        if (lineNumber != null) {
-            byte[] b = lineNumber.data;
+   private void updateInstructionAddressesInLineNumberTable(int[] allIndexes, int[] allSizes) {
+      if (lineNumber != null) {
+         byte[] b = lineNumber.data;
 
-            for (int u = 0, n = lineNumber.length; u < n; u += 4) {
-                writeShort(b, u, getNewOffset(allIndexes, allSizes, 0, readUnsignedShort(b, u)));
-            }
-        }
-    }
+         for (int u = 0, n = lineNumber.length; u < n; u += 4) {
+            writeShort(b, u, getNewOffset(allIndexes, allSizes, 0, readUnsignedShort(b, u)));
+         }
+      }
+   }
 
-    /**
-     * Reads an unsigned short value in the given byte array.
-     * 
-     * @param b
-     *            a byte array.
-     * @param index
-     *            the start index of the value to be read.
-     * @return the read value.
-     */
-    static int readUnsignedShort(byte[] b, int index) {
-        return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
-    }
+   /**
+    * Reads an unsigned short value in the given byte array.
+    *
+    * @param b     a byte array.
+    * @param index the start index of the value to be read.
+    * @return the read value.
+    */
+   static int readUnsignedShort(byte[] b, int index) {
+      return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
+   }
 
-    /**
-     * Reads a signed short value in the given byte array.
-     * 
-     * @param b
-     *            a byte array.
-     * @param index
-     *            the start index of the value to be read.
-     * @return the read value.
-     */
-    static short readShort(byte[] b, int index) {
-        return (short) (((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
-    }
+   /**
+    * Reads a signed short value in the given byte array.
+    *
+    * @param b     a byte array.
+    * @param index the start index of the value to be read.
+    * @return the read value.
+    */
+   static short readShort(byte[] b, int index) {
+      return (short) (((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF));
+   }
 
-    /**
-     * Reads a signed int value in the given byte array.
-     * 
-     * @param b
-     *            a byte array.
-     * @param index
-     *            the start index of the value to be read.
-     * @return the read value.
-     */
-    static int readInt(byte[] b, int index) {
-        return ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16)
-                | ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
-    }
+   /**
+    * Reads a signed int value in the given byte array.
+    *
+    * @param b     a byte array.
+    * @param index the start index of the value to be read.
+    * @return the read value.
+    */
+   static int readInt(byte[] b, int index) {
+      return
+         ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16) |
+         ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
+   }
 
-    /**
-     * Writes a short value in the given byte array.
-     * 
-     * @param b
-     *            a byte array.
-     * @param index
-     *            where the first byte of the short value must be written.
-     * @param s
-     *            the value to be written in the given byte array.
-     */
-    static void writeShort(byte[] b, int index, int s) {
-        b[index] = (byte) (s >>> 8);
-        b[index + 1] = (byte) s;
-    }
+   /**
+    * Writes a short value in the given byte array.
+    *
+    * @param b     a byte array.
+    * @param index where the first byte of the short value must be written.
+    * @param s     the value to be written in the given byte array.
+    */
+   static void writeShort(byte[] b, int index, int s) {
+      b[index] = (byte) (s >>> 8);
+      b[index + 1] = (byte) s;
+   }
 
-    /**
-     * Computes the future value of a bytecode offset.
-     * <p>
-     * Note: it is possible to have several entries for the same instruction in
-     * the <tt>indexes</tt> and <tt>sizes</tt>: two entries (index=a,size=b) and
-     * (index=a,size=b') are equivalent to a single entry (index=a,size=b+b').
-     * 
-     * @param indexes
-     *            current positions of the instructions to be resized. Each
-     *            instruction must be designated by the index of its <i>last</i>
-     *            byte, plus one (or, in other words, by the index of the
-     *            <i>first</i> byte of the <i>next</i> instruction).
-     * @param sizes
-     *            the number of bytes to be <i>added</i> to the above
-     *            instructions. More precisely, for each i < <tt>len</tt>,
-     *            <tt>sizes</tt>[i] bytes will be added at the end of the
-     *            instruction designated by <tt>indexes</tt>[i] or, if
-     *            <tt>sizes</tt>[i] is negative, the <i>last</i> |
-     *            <tt>sizes[i]</tt>| bytes of the instruction will be removed
-     *            (the instruction size <i>must not</i> become negative or
-     *            null).
-     * @param begin
-     *            index of the first byte of the source instruction.
-     * @param end
-     *            index of the first byte of the target instruction.
-     * @return the future value of the given bytecode offset.
-     */
-    static int getNewOffset(int[] indexes, int[] sizes, int begin, int end) {
-        int offset = end - begin;
+   /**
+    * Computes the future value of a bytecode offset.
+    * <p>
+    * Note: it is possible to have several entries for the same instruction in
+    * the <tt>indexes</tt> and <tt>sizes</tt>: two entries (index=a,size=b) and
+    * (index=a,size=b') are equivalent to a single entry (index=a,size=b+b').
+    *
+    * @param indexes current positions of the instructions to be resized. Each
+    *                instruction must be designated by the index of its <i>last</i>
+    *                byte, plus one (or, in other words, by the index of the
+    *                <i>first</i> byte of the <i>next</i> instruction).
+    * @param sizes   the number of bytes to be <i>added</i> to the above
+    *                instructions. More precisely, for each i < <tt>len</tt>,
+    *                <tt>sizes</tt>[i] bytes will be added at the end of the
+    *                instruction designated by <tt>indexes</tt>[i] or, if
+    *                <tt>sizes</tt>[i] is negative, the <i>last</i> |
+    *                <tt>sizes[i]</tt>| bytes of the instruction will be removed
+    *                (the instruction size <i>must not</i> become negative or
+    *                null).
+    * @param begin   index of the first byte of the source instruction.
+    * @param end     index of the first byte of the target instruction.
+    * @return the future value of the given bytecode offset.
+    */
+   static int getNewOffset(int[] indexes, int[] sizes, int begin, int end) {
+      int offset = end - begin;
 
-        for (int i = 0; i < indexes.length; ++i) {
-            if (begin < indexes[i] && indexes[i] <= end) {
-                // forward jump
-                offset += sizes[i];
-            }
-            else if (end < indexes[i] && indexes[i] <= begin) {
-                // backward jump
-                offset -= sizes[i];
-            }
-        }
+      for (int i = 0; i < indexes.length; ++i) {
+         if (begin < indexes[i] && indexes[i] <= end) {
+            // forward jump
+            offset += sizes[i];
+         }
+         else if (end < indexes[i] && indexes[i] <= begin) {
+            // backward jump
+            offset -= sizes[i];
+         }
+      }
 
-        return offset;
-    }
+      return offset;
+   }
 
-    /**
-     * Updates the offset of the given label.
-     * 
-     * @param indexes
-     *            current positions of the instructions to be resized. Each
-     *            instruction must be designated by the index of its <i>last</i>
-     *            byte, plus one (or, in other words, by the index of the
-     *            <i>first</i> byte of the <i>next</i> instruction).
-     * @param sizes
-     *            the number of bytes to be <i>added</i> to the above
-     *            instructions. More precisely, for each i < <tt>len</tt>,
-     *            <tt>sizes</tt>[i] bytes will be added at the end of the
-     *            instruction designated by <tt>indexes</tt>[i] or, if
-     *            <tt>sizes</tt>[i] is negative, the <i>last</i> |
-     *            <tt>sizes[i]</tt>| bytes of the instruction will be removed
-     *            (the instruction size <i>must not</i> become negative or
-     *            null).
-     * @param label
-     *            the label whose offset must be updated.
-     */
-    static void getNewOffset(int[] indexes, int[] sizes, Label label) {
-        if ((label.status & Label.RESIZED) == 0) {
-            label.position = getNewOffset(indexes, sizes, 0, label.position);
-            label.status |= Label.RESIZED;
-        }
-    }
+   /**
+    * Updates the offset of the given label.
+    *
+    * @param indexes current positions of the instructions to be resized. Each
+    *                instruction must be designated by the index of its <i>last</i>
+    *                byte, plus one (or, in other words, by the index of the
+    *                <i>first</i> byte of the <i>next</i> instruction).
+    * @param sizes   the number of bytes to be <i>added</i> to the above
+    *                instructions. More precisely, for each i < <tt>len</tt>,
+    *                <tt>sizes</tt>[i] bytes will be added at the end of the
+    *                instruction designated by <tt>indexes</tt>[i] or, if
+    *                <tt>sizes</tt>[i] is negative, the <i>last</i> |
+    *                <tt>sizes[i]</tt>| bytes of the instruction will be removed
+    *                (the instruction size <i>must not</i> become negative or
+    *                null).
+    * @param label   the label whose offset must be updated.
+    */
+   static void getNewOffset(int[] indexes, int[] sizes, Label label) {
+      if ((label.status & Label.RESIZED) == 0) {
+         label.position = getNewOffset(indexes, sizes, 0, label.position);
+         label.status |= Label.RESIZED;
+      }
+   }
 }

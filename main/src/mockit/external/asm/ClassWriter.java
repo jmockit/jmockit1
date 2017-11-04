@@ -379,11 +379,6 @@ public final class ClassWriter extends ClassVisitor
    private AnnotationWriter ianns;
 
    /**
-    * The non standard attributes of this class.
-    */
-   private Attribute attrs;
-
-   /**
     * The number of entries in the InnerClasses attribute.
     */
    private int innerClassesCount;
@@ -578,12 +573,6 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visitAttribute(Attribute attr) {
-      attr.next = attrs;
-      attrs = attr;
-   }
-
-   @Override
    public void visitInnerClass(String name, String outerName, String innerName, int access) {
       if (innerClasses == null) {
          innerClasses = new ByteVector();
@@ -719,11 +708,6 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("RuntimeInvisibleAnnotations");
       }
 
-      if (attrs != null) {
-         attributeCount += attrs.getCount();
-         size += attrs.getSize(this);
-      }
-
       size += pool.length;
 
       // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
@@ -809,14 +793,9 @@ public final class ClassWriter extends ClassVisitor
          ianns.put(out);
       }
 
-      if (attrs != null) {
-         attrs.put(this, out);
-      }
-
       if (invalidFrames) {
          anns = null;
          ianns = null;
-         attrs = null;
          innerClassesCount = 0;
          innerClasses = null;
          bootstrapMethodsCount = 0;

@@ -54,11 +54,6 @@ public class FieldVisitor
    public AnnotationVisitor visitAnnotation(String desc, boolean visible) { return null; }
 
    /**
-    * Visits a non standard attribute of the field.
-    */
-   public void visitAttribute(Attribute attr) {}
-
-   /**
     * Visits the end of the field.
     * This method, which is the last one to be called, is used to inform the visitor that all the annotations and
     * attributes of the field have been visited.
