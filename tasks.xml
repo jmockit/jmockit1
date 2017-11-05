@@ -116,7 +116,6 @@
                <exclude name="**/*CodeUnderTest.class"/>
                <exclude name="**/Base*Test.class"/>
                <exclude name="mockit/integration/testng/*Test.class"/>
-               <exclude name="**/MockStateBetweenTestMethodsNGTest.class"/>
                <exclude name="**/ExecutingTest.class"/>
             </fileset>
          </batchtest>
@@ -168,7 +167,6 @@
             </dirset>
          </classpath>
          <batchtest>
-            <fileset dir="samples/orderMngmntWebapp/target/test-classes" includes="**/*Test.class"/>
             <fileset dir="samples/tutorial/target/test-classes" includes="**/*Test.class"/>
          </batchtest>
          <formatter type="xml"/>

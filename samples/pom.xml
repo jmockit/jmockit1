@@ -9,7 +9,6 @@
 
    <modules>
       <module>tutorial</module>
-      <module>orderMngmntWebapp</module>
       <module>LoginService</module>
       <module>java8testing</module>
    </modules>
