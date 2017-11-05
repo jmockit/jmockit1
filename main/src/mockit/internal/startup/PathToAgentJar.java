@@ -5,7 +5,6 @@
 package mockit.internal.startup;
 
 import java.io.*;
-import java.security.*;
 import java.util.jar.*;
 import java.util.regex.*;
 import javax.annotation.*;
@@ -65,10 +64,7 @@ final class PathToAgentJar
       String currentVersion = thisClass.getPackage().getImplementationVersion();
 
       if (currentVersion == null) { // only happens when the class is loaded from the main/target/classes dir
-         ProtectionDomain pd = thisClass.getProtectionDomain();
-         String versionFile = pd.getCodeSource().getLocation().getPath() + "../../../version.txt";
-         try { currentVersion = new RandomAccessFile(versionFile, "r").readLine(); }
-         catch (IOException e) { throw new RuntimeException(e); }
+         currentVersion = "current";
       }
 
       return currentVersion;
