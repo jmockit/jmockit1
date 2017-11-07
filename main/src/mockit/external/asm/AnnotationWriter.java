@@ -109,12 +109,24 @@ final class AnnotationWriter extends AnnotationVisitor
       if (value instanceof String) {
          putString('s', (String) value);
       }
-      else if (value instanceof Byte) {
-         putInteger('B', (Byte) value);
-      }
       else if (value instanceof Boolean) {
          int v = (Boolean) value ? 1 : 0;
          putInteger('Z', v);
+      }
+      else if (value instanceof Integer) {
+         putInteger('I', (Integer) value);
+      }
+      else if (value instanceof Double) {
+         putDouble((Double) value);
+      }
+      else if (value instanceof Float) {
+         putFloat((Float) value);
+      }
+      else if (value instanceof Long) {
+         putLong((Long) value);
+      }
+      else if (value instanceof Byte) {
+         putInteger('B', (Byte) value);
       }
       else if (value instanceof Character) {
          putInteger('C', (Character) value);
@@ -150,11 +162,6 @@ final class AnnotationWriter extends AnnotationVisitor
       else if (value instanceof double[]) {
          readAnnotationValues('D', value);
       }
-      else {
-         Item item = cw.newConstItem(value);
-         char itemType = ".s.IFJDCS".charAt(item.type);
-         putItem(itemType, item);
-      }
    }
 
    private void putItem(int b, Item item) {
@@ -164,6 +171,21 @@ final class AnnotationWriter extends AnnotationVisitor
    private void putInteger(int b, int value) {
       int itemIndex = cw.newInteger(value).index;
       bv.put12(b, itemIndex);
+   }
+
+   private void putDouble(double value) {
+      int itemIndex = cw.newDouble(value).index;
+      bv.put12('D', itemIndex);
+   }
+
+   private void putFloat(float value) {
+      int itemIndex = cw.newFloat(value).index;
+      bv.put12('F', itemIndex);
+   }
+
+   private void putLong(long value) {
+      int itemIndex = cw.newLong(value).index;
+      bv.put12('J', itemIndex);
    }
 
    private void putString(int b, String value) {

@@ -59,12 +59,12 @@ public final class ClassWriter extends ClassVisitor
    static final int NOARG_INSN = 0;
 
    /**
-    * The type of instructions with an signed byte argument.
+    * The type of instructions with a signed byte argument.
     */
    static final int SBYTE_INSN = 1;
 
    /**
-    * The type of instructions with an signed short argument.
+    * The type of instructions with a signed short argument.
     */
    static final int SHORT_INSN = 2;
 
@@ -507,6 +507,7 @@ public final class ClassWriter extends ClassVisitor
       if (interfaces != null && interfaces.length > 0) {
          interfaceCount = interfaces.length;
          this.interfaces = new int[interfaceCount];
+
          for (int i = 0; i < interfaceCount; ++i) {
             this.interfaces[i] = newClass(interfaces[i]);
          }
@@ -786,7 +787,7 @@ public final class ClassWriter extends ClassVisitor
    boolean isPreJava5() { return getClassVersion() < V1_5; }
 
    /**
-    * Adds a number or string constant to the constant pool of the class being build.
+    * Adds a number or string constant to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
@@ -794,9 +795,12 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing constant item with the given value.
     */
    Item newConstItem(Object cst) {
+      if (cst instanceof String) {
+         return newString((String) cst);
+      }
+
       if (cst instanceof Integer) {
-         int val = (Integer) cst;
-         return newInteger(val);
+         return newInteger((Integer) cst);
       }
 
       if (cst instanceof Byte) {
@@ -805,8 +809,7 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (cst instanceof Character) {
-         int val = (Character) cst;
-         return newInteger(val);
+         return newInteger((int) (Character) cst);
       }
 
       if (cst instanceof Short) {
@@ -820,22 +823,15 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (cst instanceof Float) {
-         float val = (Float) cst;
-         return newFloat(val);
+         return newFloat((Float) cst);
       }
 
       if (cst instanceof Long) {
-         long val = (Long) cst;
-         return newLong(val);
+         return newLong((Long) cst);
       }
 
       if (cst instanceof Double) {
-         double val = (Double) cst;
-         return newDouble(val);
-      }
-
-      if (cst instanceof String) {
-         return newString((String) cst);
+         return newDouble((Double) cst);
       }
 
       if (cst instanceof Type) {
@@ -854,27 +850,14 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (cst instanceof Handle) {
-         Handle h = (Handle) cst;
-         return newHandleItem(h.tag, h.owner, h.name, h.desc);
+         return newHandleItem((Handle) cst);
       }
 
       throw new IllegalArgumentException("value " + cst);
    }
 
    /**
-    * Adds a number or string constant to the constant pool of the class being build.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
-    *            a {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
-    * @return the index of a new or already existing constant item with the given value.
-    */
-   private int newConst(Object cst) {
-      return newConstItem(cst).index;
-   }
-
-   /**
-    * Adds an UTF8 string to the constant pool of the class being build.
+    * Adds an UTF8 string to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the String value.
@@ -894,7 +877,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a class reference to the constant pool of the class being build.
+    * Adds a class reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the internal name of the class.
@@ -914,7 +897,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a class reference to the constant pool of the class being build.
+    * Adds a class reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the internal name of the class.
@@ -925,7 +908,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a method type reference to the constant pool of the class being build.
+    * Adds a method type reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param methodDesc method descriptor of the method type.
@@ -936,7 +919,8 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key2);
 
       if (result == null) {
-         pool.put12(MTYPE, newUTF8(methodDesc));
+         int itemIndex = newUTF8(methodDesc);
+         pool.put12(MTYPE, itemIndex);
          result = new Item(index++, key2);
          put(result);
       }
@@ -945,26 +929,20 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a handle to the constant pool of the class being build.
+    * Adds a handle to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param tag   the kind of this handle. Must be {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-    *              {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
-    *              {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL}
-    *              or {@link Opcodes#H_INVOKEINTERFACE}.
-    * @param owner the internal name of the field or method owner class.
-    * @param name  the name of the field or method.
-    * @param desc  the descriptor of the field or method.
     * @return a new or an already existing method type reference item.
     */
-   private Item newHandleItem(int tag, String owner, String name, String desc) {
-      key4.set(HANDLE_BASE + tag, owner, name, desc);
+   private Item newHandleItem(Handle handle) {
+      int tag = handle.tag;
+      key4.set(HANDLE_BASE + tag, handle.owner, handle.name, handle.desc);
       Item result = get(key4);
 
       if (result == null) {
          Item item = tag <= H_PUTSTATIC ?
-            newFieldItem(owner, name, desc) :
-            newMethodItem(owner, name, desc, tag == H_INVOKEINTERFACE);
+            newFieldItem(handle.owner, handle.name, handle.desc) :
+            newMethodItem(handle.owner, handle.name, handle.desc, tag == H_INVOKEINTERFACE);
          put112(HANDLE, tag, item.index);
 
          result = new Item(index++, key4);
@@ -975,24 +953,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a handle to the constant pool of the class being build.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param tag   the kind of this handle. Must be {@link Opcodes#H_GETFIELD}, {@link Opcodes#H_GETSTATIC},
-    *              {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC}, {@link Opcodes#H_INVOKEVIRTUAL},
-    *              {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL}
-    *              or {@link Opcodes#H_INVOKEINTERFACE}.
-    * @param owner the internal name of the field or method owner class.
-    * @param name  the name of the field or method.
-    * @param desc  the descriptor of the field or method.
-    * @return the index of a new or already existing method type reference item.
-    */
-   private int newHandle(int tag, String owner, String name, String desc) {
-      return newHandleItem(tag, owner, name, desc).index;
-   }
-
-   /**
-    * Adds an invokedynamic reference to the constant pool of the class being build.
+    * Adds an invokedynamic reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param name    name of the invoked method.
@@ -1012,7 +973,8 @@ public final class ClassWriter extends ClassVisitor
       int position = bootstrapMethods.length; // record current position
 
       int hashCode = bsm.hashCode();
-      bootstrapMethods.putShort(newHandle(bsm.tag, bsm.owner, bsm.name, bsm.desc));
+      Item handleItem = newHandleItem(bsm);
+      bootstrapMethods.putShort(handleItem.index);
 
       int argsLength = bsmArgs.length;
       bootstrapMethods.putShort(argsLength);
@@ -1020,7 +982,8 @@ public final class ClassWriter extends ClassVisitor
       for (int i = 0; i < argsLength; i++) {
          Object bsmArg = bsmArgs[i];
          hashCode ^= bsmArg.hashCode();
-         bootstrapMethods.putShort(newConst(bsmArg));
+         Item constItem = newConstItem(bsmArg);
+         bootstrapMethods.putShort(constItem.index);
       }
 
       byte[] data = bootstrapMethods.data;
@@ -1075,7 +1038,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a field reference to the constant pool of the class being build.
+    * Adds a field reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param owner the internal name of the field's owner class.
@@ -1097,7 +1060,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a method reference to the constant pool of the class being build.
+    * Adds a method reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param owner the internal name of the method's owner class.
@@ -1121,7 +1084,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds an integer to the constant pool of the class being build.
+    * Adds an integer to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the int value.
@@ -1141,7 +1104,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a float to the constant pool of the class being build.
+    * Adds a float to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the float value.
@@ -1161,7 +1124,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a long to the constant pool of the class being build.
+    * Adds a long to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the long value.
@@ -1182,7 +1145,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a double to the constant pool of the class being build.
+    * Adds a double to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the double value.
@@ -1203,7 +1166,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Adds a string to the constant pool of the class being build.
+    * Adds a string to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param value the String value.
@@ -1388,13 +1351,13 @@ public final class ClassWriter extends ClassVisitor
     * such item.
     */
    private Item get(Item key) {
-      Item i = items[key.hashCode % items.length];
+      Item item = items[key.hashCode % items.length];
 
-      while (i != null && (i.type != key.type || !key.isEqualTo(i))) {
-         i = i.next;
+      while (item != null && (item.type != key.type || !key.isEqualTo(item))) {
+         item = item.next;
       }
 
-      return i;
+      return item;
    }
 
    /**
