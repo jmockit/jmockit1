@@ -52,11 +52,6 @@ public final class Label
    static final int RESOLVED = 2;
 
    /**
-    * Indicates if this label has been updated, after instruction resizing.
-    */
-   static final int RESIZED = 4;
-
-   /**
     * Indicates if this basic block has been pushed in the basic block stack. See {@link MethodWriter#visitMaxStack}.
     */
    static final int PUSHED = 8;
@@ -111,7 +106,6 @@ public final class Label
     *
     * @see #DEBUG
     * @see #RESOLVED
-    * @see #RESIZED
     * @see #PUSHED
     * @see #TARGET
     * @see #STORE
@@ -291,63 +285,32 @@ public final class Label
     * bytecode by each forward reference previously added to this label.
     *
     * @param methodBytecode bytecode of the method containing this label
-    * @return <tt>true</tt> if a blank that was left for this label was too small to store the offset. In such a case
-    * the corresponding jump instruction is replaced with a pseudo instruction (using unused opcodes) using an unsigned
-    * two bytes offset. These pseudo instructions will need to be replaced with true instructions with wider offsets (4
-    * bytes instead of 2). This is done in {@link MethodWriter#resizeInstructions}.
-    * @throws IllegalArgumentException if this label has already been resolved, or if it has not been created by the
-    * given code writer.
     */
-   boolean resolve(ByteVector methodBytecode) {
+   void resolve(ByteVector methodBytecode) {
       status |= RESOLVED;
 
       byte[] data = methodBytecode.data;
       int position = methodBytecode.length;
       this.position = position;
+      int[] srcAndRefPos = srcAndRefPositions;
 
-      boolean needUpdate = false;
-      int i = 0;
-
-      while (i < referenceCount) {
-         int source = srcAndRefPositions[i++];
-         int reference = srcAndRefPositions[i++];
+      for (int i = 0, refCount = referenceCount; i < refCount; ) {
+         int source = srcAndRefPos[i++];
+         int reference = srcAndRefPos[i++];
          int offset;
 
          if (source >= 0) {
             offset = position - source;
-
-            if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
-               // Changes the opcode of the jump instruction, in order to be able to find it later (see
-               // resizeInstructions in MethodWriter). These temporary opcodes are similar to jump instruction opcodes,
-               // except that the 2 bytes offset is unsigned (and can therefore represent values from 0 to 65535, which
-               // is sufficient since the size of a method is limited to 65535 bytes).
-               int opcode = data[reference - 1] & 0xFF;
-
-               if (opcode <= Opcodes.JSR) {
-                  // Changes IFEQ ... JSR to opcodes 202 to 217.
-                  data[reference - 1] = (byte) (opcode + 49);
-               }
-               else {
-                  // Changes IFNULL and IFNONNULL to opcodes 218 and 219.
-                  data[reference - 1] = (byte) (opcode + 20);
-               }
-
-               needUpdate = true;
-            }
-
-            data[reference++] = (byte) (offset >>> 8);
-            data[reference] = (byte) offset;
          }
          else {
             offset = position + source + 1;
             data[reference++] = (byte) (offset >>> 24);
             data[reference++] = (byte) (offset >>> 16);
-            data[reference++] = (byte) (offset >>> 8);
-            data[reference] = (byte) offset;
          }
-      }
 
-      return needUpdate;
+         data[reference++] = (byte) (offset >>> 8);
+         data[reference] = (byte) offset;
+      }
    }
 
    /**
