@@ -40,12 +40,11 @@ package mockit.external.asm;
 public final class Label
 {
    /**
-    * Indicates if this label is only used for debug attributes. Such a label
-    * is not the start of a basic block, the target of a jump instruction, or
-    * an exception handler. It can be safely ignored in control flow graph
-    * analysis algorithms (for optimization purposes).
+    * Indicates if this label is only used for debug attributes. Such a label is not the start of a basic block, the
+    * target of a jump instruction, or an exception handler. It can be safely ignored in control flow graph analysis
+    * algorithms (for optimization purposes).
     */
-   static final int DEBUG = 1;
+   private static final int DEBUG = 1;
 
    /**
     * Indicates if the position of this label is known.
@@ -63,8 +62,7 @@ public final class Label
    static final int PUSHED = 8;
 
    /**
-    * Indicates if this label is the target of a jump instruction, or the start
-    * of an exception handler.
+    * Indicates if this label is the target of a jump instruction, or the start of an exception handler.
     */
    static final int TARGET = 16;
 
@@ -81,7 +79,7 @@ public final class Label
    /**
     * Indicates if this basic block ends with a JSR instruction.
     */
-   static final int JSR = 128;
+   private static final int JSR = 128;
 
    /**
     * Indicates if this basic block ends with a RET instruction.
@@ -94,22 +92,17 @@ public final class Label
    static final int SUBROUTINE = 512;
 
    /**
-    * Indicates if this subroutine basic block has been visited by a
-    * visitSubroutine(null, ...) call.
+    * Indicates if this subroutine basic block has been visited by a visitSubroutine(null, ...) call.
     */
-   static final int VISITED = 1024;
+   private static final int VISITED = 1024;
 
    /**
-    * Indicates if this subroutine basic block has been visited by a
-    * visitSubroutine(!null, ...) call.
+    * Indicates if this subroutine basic block has been visited by a visitSubroutine(!null, ...) call.
     */
    static final int VISITED2 = 2048;
 
    /**
-    * Field used to associate user information to a label. Warning: this field
-    * is used by the ASM tree package. In order to use it with the ASM tree
-    * package you must override the
-    * org.objectweb.asm.tree.MethodNode#getLabelNode method.
+    * Field used to associate user information to a label.
     */
    public Object info;
 
@@ -125,6 +118,8 @@ public final class Label
     * @see #REACHABLE
     * @see #JSR
     * @see #RET
+    * @see #VISITED
+    * @see #VISITED2
     */
    int status;
 
@@ -154,25 +149,23 @@ public final class Label
     */
    private int[] srcAndRefPositions;
 
-   /*
-    * Fields for the control flow and data flow graph analysis algorithms (used to compute the maximum stack size or the
-    * stack map frames). A control flow graph contains one node per "basic block", and one edge per "jump" from one
-    * basic block to another. Each node (i.e., each basic block) is represented by the Label object that corresponds to
-    * the first instruction of this basic block. Each node also stores the list of its successors in the graph, as a
-    * linked list of Edge objects.
-    *
-    * The control flow analysis algorithms used to compute the maximum stack size or the stack map frames are similar
-    * and use two steps. The first step, during the visit of each instruction, builds information about the state of
-    * the local variables and the operand stack at the end of each basic block, called the "output frame",
-    * <i>relatively</i> to the frame state at the beginning of the basic block, which is called the "input frame", and
-    * which is <i>unknown</i> during this step. The second step, in {@link MethodWriter#visitMaxStack}, is a fix point
-    * algorithm that computes information about the input frame of each basic block, from the input state of the first
-    * basic block (known from the method signature), and by the using the previously computed relative output frames.
-    *
-    * The algorithm used to compute the maximum stack size only computes the relative output and absolute input stack
-    * heights, while the algorithm used to compute stack map frames computes relative output frames and absolute input
-    * frames.
-    */
+   // Fields for the control flow and data flow graph analysis algorithms (used to compute the maximum stack size or the
+   // stack map frames). A control flow graph contains one node per "basic block", and one edge per "jump" from one
+   // basic block to another. Each node (i.e., each basic block) is represented by the Label object that corresponds to
+   // the first instruction of this basic block. Each node also stores the list of its successors in the graph, as a
+   // linked list of Edge objects.
+   //
+   // The control flow analysis algorithms used to compute the maximum stack size or the stack map frames are similar
+   // and use two steps. The first step, during the visit of each instruction, builds information about the state of
+   // the local variables and the operand stack at the end of each basic block, called the "output frame",
+   // <i>relatively</i> to the frame state at the beginning of the basic block, which is called the "input frame", and
+   // which is <i>unknown</i> during this step. The second step, in {@link MethodWriter#visitMaxStack}, is a fix point
+   // algorithm that computes information about the input frame of each basic block, from the input state of the first
+   // basic block (known from the method signature), and by the using the previously computed relative output frames.
+   //
+   // The algorithm used to compute the maximum stack size only computes the relative output and absolute input stack
+   // heights, while the algorithm used to compute stack map frames computes relative output frames and absolute input
+   // frames.
 
    /**
     * Start of the output stack relatively to the input stack. The exact semantics of this field depends on the
@@ -220,6 +213,17 @@ public final class Label
     * @see MethodWriter#visitMaxStack
     */
    Label next;
+
+   public boolean isDebug() { return (status & DEBUG) != 0; }
+   void setAsDebug() { status |= DEBUG; }
+
+   boolean isTarget() { return (status & TARGET) != 0; }
+   void setAsTarget() { status |= TARGET; }
+
+   boolean isJSR() { return (status & JSR) != 0; }
+   void setAsJSR() { status |= JSR; }
+
+   boolean isVisited() { return (status & VISITED) != 0; }
 
    // ------------------------------------------------------------------------
    // Methods to compute offsets and to manage forward references
@@ -286,19 +290,22 @@ public final class Label
     * of the method, i.e. when its position becomes known. This method fills in the blanks that where left in the
     * bytecode by each forward reference previously added to this label.
     *
-    * @param position the position of this label in the bytecode.
-    * @param data     the bytecode of the method.
-    * @return <tt>true</tt> if a blank that was left for this label was to small to store the offset. In such a case the
-    * corresponding jump instruction is replaced with a pseudo instruction (using unused opcodes) using an unsigned two
-    * bytes offset. These pseudo instructions will need to be replaced with true instructions with wider offsets (4
+    * @param methodBytecode bytecode of the method containing this label
+    * @return <tt>true</tt> if a blank that was left for this label was too small to store the offset. In such a case
+    * the corresponding jump instruction is replaced with a pseudo instruction (using unused opcodes) using an unsigned
+    * two bytes offset. These pseudo instructions will need to be replaced with true instructions with wider offsets (4
     * bytes instead of 2). This is done in {@link MethodWriter#resizeInstructions}.
     * @throws IllegalArgumentException if this label has already been resolved, or if it has not been created by the
     * given code writer.
     */
-   boolean resolve(int position, byte[] data) {
-      boolean needUpdate = false;
+   boolean resolve(ByteVector methodBytecode) {
       status |= RESOLVED;
+
+      byte[] data = methodBytecode.data;
+      int position = methodBytecode.length;
       this.position = position;
+
+      boolean needUpdate = false;
       int i = 0;
 
       while (i < referenceCount) {
@@ -310,12 +317,10 @@ public final class Label
             offset = position - source;
 
             if (offset < Short.MIN_VALUE || offset > Short.MAX_VALUE) {
-               /*
-                * Changes the opcode of the jump instruction, in order to be able to find it later (see
-                * resizeInstructions in MethodWriter). These temporary opcodes are similar to jump instruction opcodes,
-                * except that the 2 bytes offset is unsigned (and can therefore represent values from 0 to 65535, which
-                * is sufficient since the size of a method is limited to 65535 bytes).
-                */
+               // Changes the opcode of the jump instruction, in order to be able to find it later (see
+               // resizeInstructions in MethodWriter). These temporary opcodes are similar to jump instruction opcodes,
+               // except that the 2 bytes offset is unsigned (and can therefore represent values from 0 to 65535, which
+               // is sufficient since the size of a method is limited to 65535 bytes).
                int opcode = data[reference - 1] & 0xFF;
 
                if (opcode <= Opcodes.JSR) {
@@ -364,11 +369,10 @@ public final class Label
     * Returns true is this basic block belongs to the given subroutine.
     *
     * @param id a subroutine id.
-    * @return true is this basic block belongs to the given subroutine.
     */
    private boolean inSubroutine(long id) {
       //noinspection SimplifiableIfStatement
-      if ((status & VISITED) != 0) {
+      if (isVisited()) {
          return (srcAndRefPositions[(int) (id >>> 32)] & (int) id) != 0;
       }
 
@@ -376,15 +380,12 @@ public final class Label
    }
 
    /**
-    * Returns true if this basic block and the given one belong to a common
-    * subroutine.
+    * Returns true if this basic block and the given one belong to a common subroutine.
     *
     * @param block another basic block.
-    * @return true if this basic block and the given one belong to a common
-    * subroutine.
     */
    private boolean inSameSubroutine(Label block) {
-      if ((status & VISITED) == 0 || (block.status & VISITED) == 0) {
+      if (!isVisited() || !block.isVisited()) {
          return false;
       }
 
@@ -404,7 +405,7 @@ public final class Label
     * @param nbSubroutines the total number of subroutines in the method.
     */
    private void addToSubroutine(long id, int nbSubroutines) {
-      if ((status & VISITED) == 0) {
+      if (!isVisited()) {
          status |= VISITED;
          srcAndRefPositions = new int[nbSubroutines / 32 + 1];
       }
@@ -428,7 +429,7 @@ public final class Label
       Label stack = this;
 
       while (stack != null) {
-         // removes a label l from the stack
+         // Removes a label l from the stack.
          Label l = stack;
          stack = l.next;
          l.next = null;
@@ -440,7 +441,7 @@ public final class Label
 
             l.status |= VISITED2;
 
-            // adds JSR to the successors of l, if it is a RET block
+            // Adds JSR to the successors of l, if it is a RET block.
             if ((l.status & RET) != 0) {
                if (!l.inSameSubroutine(JSR)) {
                   Edge e = new Edge(l.inputStackTop, JSR.successors.successor);
@@ -450,24 +451,23 @@ public final class Label
             }
          }
          else {
-            // if the l block already belongs to subroutine 'id', continue
+            // If the l block already belongs to subroutine 'id', continue.
             if (l.inSubroutine(id)) {
                continue;
             }
 
-            // marks the l block as belonging to subroutine 'id'
+            // Marks the l block as belonging to subroutine 'id'.
             l.addToSubroutine(id, nbSubroutines);
          }
 
-         // pushes each successor of l on the stack, except JSR targets
+         // Pushes each successor of l on the stack, except JSR targets.
          Edge e = l.successors;
 
          while (e != null) {
-            // if the l block is a JSR block, then 'l.successors.next' leads
-            // to the JSR target (see {@link #visitJumpInsn}) and must
-            // therefore not be followed
-            if ((l.status & Label.JSR) == 0 || e != l.successors.next) {
-               // pushes e.successor on the stack if it not already added
+            // If the l block is a JSR block, then 'l.successors.next' leads to the JSR target
+            // (see {@link #visitJumpInsn}) and must therefore not be followed.
+            if (!l.isJSR() || e != l.successors.next) {
+               // Pushes e.successor on the stack if it not already added.
                if (e.successor.next == null) {
                   e.successor.next = stack;
                   stack = e.successor;
@@ -490,6 +490,4 @@ public final class Label
    public String toString() {
       return "L" + System.identityHashCode(this);
    }
-
-   public boolean isDebug() { return (status & DEBUG) != 0; }
 }

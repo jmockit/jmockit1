@@ -1550,7 +1550,7 @@ public final class ClassReader
 
    private static void readDebugLabel(int index, Label[] labels) {
       Label label = readLabel(index, labels);
-      label.status |= Label.DEBUG;
+      label.setAsDebug();
    }
 
    /**

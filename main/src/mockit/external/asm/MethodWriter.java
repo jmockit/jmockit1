@@ -829,7 +829,7 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(opcode, 0, null, null);
 
             // 'label' is the target of a jump instruction.
-            label.getFirst().status |= Label.TARGET;
+            label.getFirst().setAsTarget();
 
             // Adds 'label' as a successor of this basic block.
             addSuccessor(Edge.NORMAL, label);
@@ -846,7 +846,7 @@ public final class MethodWriter extends MethodVisitor
                   ++subroutines;
                }
 
-               currentBlock.status |= Label.JSR;
+               currentBlock.setAsJSR();
                addSuccessor(stackSize + 1, label);
 
                // Creates a Label for the next basic block.
@@ -883,7 +883,7 @@ public final class MethodWriter extends MethodVisitor
             // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
             // IFNOT instruction.
             if (nextInsn != null) {
-               nextInsn.status |= Label.TARGET;
+               nextInsn.setAsTarget();
             }
 
             code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
@@ -919,10 +919,10 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitLabel(Label label) {
       // Resolves previous forward references to label, if any.
-      resize |= label.resolve(code.length, code.data);
+      resize |= label.resolve(code);
 
       // Updates currentBlock.
-      if ((label.status & Label.DEBUG) != 0) {
+      if (label.isDebug()) {
          return;
       }
 
@@ -1090,11 +1090,11 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
             // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);
-            dflt.getFirst().status |= Label.TARGET;
+            dflt.getFirst().setAsTarget();
 
             for (int i = 0; i < labels.length; ++i) {
                addSuccessor(Edge.NORMAL, labels[i]);
-               labels[i].getFirst().status |= Label.TARGET;
+               labels[i].getFirst().setAsTarget();
             }
          }
          else {
@@ -1235,7 +1235,7 @@ public final class MethodWriter extends MethodVisitor
          int kind = Frame.OBJECT | cw.addType(t);
 
          // h is an exception handler.
-         h.status |= Label.TARGET;
+         h.setAsTarget();
 
          // Adds 'h' as a successor of labels between 'start' and 'end'.
          while (l != e) {
@@ -1280,7 +1280,7 @@ public final class MethodWriter extends MethodVisitor
          f = l.frame;
 
          // A reachable jump target must be stored in the stack map.
-         if ((l.status & Label.TARGET) != 0) {
+         if (l.isTarget()) {
             l.status |= Label.STORE;
          }
 
@@ -1383,7 +1383,7 @@ public final class MethodWriter extends MethodVisitor
             Edge b = new Edge(Edge.EXCEPTION, h);
 
             // Adds it to the successors of 'l'.
-            if ((l.status & Label.JSR) == 0) {
+            if (!l.isJSR()) {
                b.next = l.successors;
                l.successors = b;
             }
@@ -1415,12 +1415,12 @@ public final class MethodWriter extends MethodVisitor
       Label l = labels;
 
       while (l != null) {
-         if ((l.status & Label.JSR) != 0) {
+         if (l.isJSR()) {
             // The subroutine is defined by l's TARGET, not by l.
             Label subroutine = l.successors.next.successor;
 
             // If this subroutine has not been visited yet...
-            if ((subroutine.status & Label.VISITED) == 0) {
+            if (!subroutine.isVisited()) {
                // ...assigns it a new id and finds its basic blocks.
                id += 1;
                subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
@@ -1434,7 +1434,7 @@ public final class MethodWriter extends MethodVisitor
       l = labels;
 
       while (l != null) {
-         if ((l.status & Label.JSR) != 0) {
+         if (l.isJSR()) {
             Label L = labels;
 
             while (L != null) {
@@ -1479,7 +1479,7 @@ public final class MethodWriter extends MethodVisitor
          // Analyzes the successors of the block.
          Edge b = l.successors;
 
-         if ((l.status & Label.JSR) != 0) {
+         if (l.isJSR()) {
             // Ignores the first edge of JSR blocks (virtual successor).
             b = b.next;
          }
@@ -1532,7 +1532,7 @@ public final class MethodWriter extends MethodVisitor
       if (computeFrames) {
          Label l = new Label();
          l.frame = new Frame(l);
-         l.resolve(code.length, code.data);
+         l.resolve(code);
          previousBlock.successor = l;
          previousBlock = l;
       }
@@ -2179,7 +2179,7 @@ public final class MethodWriter extends MethodVisitor
     * instruction, and so on... All these operations are handled automatically by this method.
     * <p>
     * <i>This method must be called after all the method that is being built has been visited</i>. In particular, the
-    * {@link Label Label} objects used to construct the method are no longer valid after this method has been called.
+    * {@link Label} objects used to construct the method are no longer valid after this method has been called.
     */
    private void resizeInstructions() {
       byte[] b = code.data; // bytecode of the method
@@ -2546,7 +2546,7 @@ public final class MethodWriter extends MethodVisitor
             int u = l.position - 3;
 
             if (u >= 0 && resize[u]) {
-               l.status |= Label.TARGET;
+               l.setAsTarget();
             }
 
             getNewOffset(allIndexes, allSizes, l);
