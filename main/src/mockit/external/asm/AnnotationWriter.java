@@ -324,7 +324,7 @@ final class AnnotationWriter extends AnnotationVisitor
       aw = last;
 
       while (aw != null) {
-         out.putByteArray(aw.bv.data, 0, aw.bv.length);
+         out.putByteVector(aw.bv);
          aw = aw.prev;
       }
    }
@@ -363,7 +363,7 @@ final class AnnotationWriter extends AnnotationVisitor
          aw = last;
 
          while (aw != null) {
-            out.putByteArray(aw.bv.data, 0, aw.bv.length);
+            out.putByteVector(aw.bv);
             aw = aw.prev;
          }
       }

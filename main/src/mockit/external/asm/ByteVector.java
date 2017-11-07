@@ -84,6 +84,19 @@ final class ByteVector
    }
 
    /**
+    * Enlarge this byte vector so that it can receive n more bytes.
+    *
+    * @param size number of additional bytes that this byte vector should be able to receive.
+    */
+   private void enlarge(int size) {
+      int length1 = 2 * data.length;
+      int length2 = length + size;
+      byte[] newData = new byte[length1 > length2 ? length1 : length2];
+      System.arraycopy(data, 0, newData, 0, length);
+      data = newData;
+   }
+
+   /**
     * Puts two bytes into this byte vector. The byte vector is automatically enlarged if necessary.
     *
     * @return this byte vector.
@@ -269,16 +282,12 @@ final class ByteVector
       this.length += len;
    }
 
-   /**
-    * Enlarge this byte vector so that it can receive n more bytes.
-    *
-    * @param size number of additional bytes that this byte vector should be able to receive.
-    */
-   private void enlarge(int size) {
-      int length1 = 2 * data.length;
-      int length2 = length + size;
-      byte[] newData = new byte[length1 > length2 ? length1 : length2];
-      System.arraycopy(data, 0, newData, 0, length);
-      data = newData;
+   void putByteVector(ByteVector another) {
+      putByteArray(another.data, 0, another.length);
+   }
+
+   void increaseLengthBy(int len) {
+      getLengthEnlargingIfNeeded(len);
+      length += len;
    }
 }

@@ -1050,7 +1050,7 @@ public final class MethodWriter extends MethodVisitor
       // Adds the instruction to the bytecode of the method.
       int source = code.length;
       code.putByte(TABLESWITCH);
-      code.putByteArray(null, 0, (4 - code.length % 4) % 4);
+      code.increaseLengthBy((4 - code.length % 4) % 4);
       dflt.put(code, source, true);
       code.putInt(min).putInt(max);
 
@@ -1067,7 +1067,7 @@ public final class MethodWriter extends MethodVisitor
       // Adds the instruction to the bytecode of the method.
       int source = code.length;
       code.putByte(LOOKUPSWITCH);
-      code.putByteArray(null, 0, (4 - code.length % 4) % 4);
+      code.increaseLengthBy((4 - code.length % 4) % 4);
       dflt.put(code, source, true);
       code.putInt(labels.length);
 
@@ -2059,7 +2059,7 @@ public final class MethodWriter extends MethodVisitor
 
          out.putShort(cw.newUTF8("Code")).putInt(size);
          out.putShort(maxStack).putShort(maxLocals);
-         out.putInt(code.length).putByteArray(code.data, 0, code.length);
+         out.putInt(code.length).putByteVector(code);
          out.putShort(handlerCount);
 
          if (handlerCount > 0) {
@@ -2095,26 +2095,26 @@ public final class MethodWriter extends MethodVisitor
          if (localVar != null) {
             out.putShort(cw.newUTF8("LocalVariableTable"));
             out.putInt(localVar.length + 2).putShort(localVarCount);
-            out.putByteArray(localVar.data, 0, localVar.length);
+            out.putByteVector(localVar);
          }
 
          if (localVarType != null) {
             out.putShort(cw.newUTF8("LocalVariableTypeTable"));
             out.putInt(localVarType.length + 2).putShort(localVarTypeCount);
-            out.putByteArray(localVarType.data, 0, localVarType.length);
+            out.putByteVector(localVarType);
          }
 
          if (lineNumber != null) {
             out.putShort(cw.newUTF8("LineNumberTable"));
             out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
-            out.putByteArray(lineNumber.data, 0, lineNumber.length);
+            out.putByteVector(lineNumber);
          }
 
          if (stackMap != null) {
             boolean zip = cw.getClassVersion() >= V1_6;
             out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
             out.putInt(stackMap.length + 2).putShort(frameCount);
-            out.putByteArray(stackMap.data, 0, stackMap.length);
+            out.putByteVector(stackMap);
          }
       }
 
@@ -2144,7 +2144,7 @@ public final class MethodWriter extends MethodVisitor
       if (annotationDefault != null) {
          out.putShort(cw.newUTF8("AnnotationDefault"));
          out.putInt(annotationDefault.length);
-         out.putByteArray(annotationDefault.data, 0, annotationDefault.length);
+         out.putByteVector(annotationDefault);
       }
 
       if (anns != null) {

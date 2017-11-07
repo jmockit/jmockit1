@@ -425,15 +425,7 @@ public final class ClassWriter extends ClassVisitor
     * frames are recomputed from the methods bytecode. The arguments of the {@link MethodVisitor#visitMaxStack} method
     * are also ignored and recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
     */
-   private boolean computeFrames;
-
-   /**
-    * <tt>true</tt> if the stack map tables of this class are invalid. The {@link MethodWriter#resizeInstructions}
-    * method cannot transform existing stack map tables, and so produces potentially invalid classes when it is
-    * executed. In this case the class is reread and rewritten with the {@link #computeFrames} option (the
-    * resizeInstructions method can resize stack map tables when this option is used).
-    */
-   boolean invalidFrames;
+   private final boolean computeFrames;
 
    /*
     * Computes the instruction types of JVM opcodes.
@@ -687,9 +679,11 @@ public final class ClassWriter extends ClassVisitor
       // ByteVector.enlarge() method.
       ByteVector out = new ByteVector(size);
       out.putInt(0xCAFEBABE).putInt(version);
-      out.putShort(index).putByteArray(pool.data, 0, pool.length);
+      out.putShort(index).putByteVector(pool);
+
       int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(superName);
+
       out.putShort(interfaceCount);
 
       for (int i = 0; i < interfaceCount; ++i) {
@@ -717,7 +711,7 @@ public final class ClassWriter extends ClassVisitor
       if (bootstrapMethods != null) {
          out.putShort(newUTF8("BootstrapMethods"));
          out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
-         out.putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
+         out.putByteVector(bootstrapMethods);
       }
 
       if (signature != 0) {
@@ -729,9 +723,8 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (sourceDebug != null) {
-         int len = sourceDebug.length;
-         out.putShort(newUTF8("SourceDebugExtension")).putInt(len);
-         out.putByteArray(sourceDebug.data, 0, len);
+         out.putShort(newUTF8("SourceDebugExtension")).putInt(sourceDebug.length);
+         out.putByteVector(sourceDebug);
       }
 
       if (enclosingMethodOwner != 0) {
@@ -752,28 +745,12 @@ public final class ClassWriter extends ClassVisitor
       if (innerClasses != null) {
          out.putShort(newUTF8("InnerClasses"));
          out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
-         out.putByteArray(innerClasses.data, 0, innerClasses.length);
+         out.putByteVector(innerClasses);
       }
 
       if (anns != null) {
          out.putShort(newUTF8("RuntimeVisibleAnnotations"));
          anns.put(out);
-      }
-
-      if (invalidFrames) {
-         anns = null;
-         innerClassesCount = 0;
-         innerClasses = null;
-         bootstrapMethodsCount = 0;
-         bootstrapMethods = null;
-         firstField = null;
-         lastField = null;
-         firstMethod = null;
-         lastMethod = null;
-         computeFrames = true;
-         invalidFrames = false;
-         new ClassReader(out.data).accept(this, 0);
-         return toByteArray();
       }
 
       return out.data;
