@@ -93,11 +93,6 @@ public final class MethodWriter extends MethodVisitor
    final ClassWriter cw;
 
    /**
-    * The next method writer in a linked list for the methods of a class.
-    */
-   MethodWriter mw;
-
-   /**
     * Access flags of this method.
     */
    private int access;
@@ -320,14 +315,6 @@ public final class MethodWriter extends MethodVisitor
    MethodWriter(
       ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
    ) {
-      if (cw.firstMethod == null) {
-         cw.firstMethod = this;
-      }
-      else {
-         cw.lastMethod.mw = this;
-      }
-
-      cw.lastMethod = this;
       this.cw = cw;
       this.access = access;
 

@@ -45,11 +45,6 @@ final class FieldWriter extends FieldVisitor
    private final ClassWriter cw;
 
    /**
-    * Next field in a linked list of field writers for a class.
-    */
-   FieldWriter fw;
-
-   /**
     * Access flags of this field.
     */
    private final int access;
@@ -90,14 +85,6 @@ final class FieldWriter extends FieldVisitor
     * @param value     the field's constant value. May be <tt>null</tt>.
     */
    FieldWriter(ClassWriter cw, int access, String name, String desc, String signature, Object value) {
-      if (cw.firstField == null) {
-         cw.firstField = this;
-      }
-      else {
-         cw.lastField.fw = this;
-      }
-
-      cw.lastField = this;
       this.cw = cw;
       this.access = access;
       this.name = cw.newUTF8(name);

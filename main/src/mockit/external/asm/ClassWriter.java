@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import java.util.*;
+
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
@@ -249,7 +251,7 @@ public final class ClassWriter extends ClassVisitor
    static final int BSM = 33;
 
    /**
-    * The class reader from which this class writer was constructed, if any.
+    * The class reader from which this class writer was constructed.
     */
    final ClassReader cr;
 
@@ -395,28 +397,14 @@ public final class ClassWriter extends ClassVisitor
    ByteVector bootstrapMethods;
 
    /**
-    * The fields of this class. These fields are stored in a linked list of {@link FieldWriter} objects, linked to each
-    * other by their {@link FieldWriter#fw} field. This field stores the first element of this list.
+    * The fields of this class.
     */
-   FieldWriter firstField;
+   private final List<FieldWriter> fields;
 
    /**
-    * The fields of this class. These fields are stored in a linked list of {@link FieldWriter} objects, linked to each
-    * other by their {@link FieldWriter#fw} field. This field stores the last element of this list.
+    * The methods of this class.
     */
-   FieldWriter lastField;
-
-   /**
-    * The methods of this class. These methods are stored in a linked list of {@link MethodWriter} objects, linked to
-    * each other by their {@link MethodWriter#mw} field. This field stores the first element of this list.
-    */
-   MethodWriter firstMethod;
-
-   /**
-    * The methods of this class. These methods are stored in a linked list of {@link MethodWriter} objects, linked to
-    * each other by their {@link MethodWriter#mw} field. This field stores the last element of this list.
-    */
-   MethodWriter lastMethod;
+   private final List<MethodWriter> methods;
 
    /**
     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
@@ -477,6 +465,9 @@ public final class ClassWriter extends ClassVisitor
 
       classReader.copyPool(this);
       cr = classReader;
+
+      fields = new ArrayList<FieldWriter>();
+      methods = new ArrayList<MethodWriter>();
    }
 
    // ------------------------------------------------------------------------
@@ -573,12 +564,16 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-      return new FieldWriter(this, access, name, desc, signature, value);
+      FieldWriter field = new FieldWriter(this, access, name, desc, signature, value);
+      fields.add(field);
+      return field;
    }
 
    @Override
    public MethodWriter visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-      return new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
+      MethodWriter method = new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
+      methods.add(method);
+      return method;
    }
 
    // ------------------------------------------------------------------------
@@ -596,22 +591,13 @@ public final class ClassWriter extends ClassVisitor
 
       // Computes the real size of the bytecode of this class.
       int size = 24 + 2 * interfaceCount;
-      int nbFields = 0;
-      FieldWriter fb = firstField;
 
-      while (fb != null) {
-         ++nbFields;
+      for (FieldWriter fb : fields) {
          size += fb.getSize();
-         fb = fb.fw;
       }
 
-      int nbMethods = 0;
-      MethodWriter mb = firstMethod;
-
-      while (mb != null) {
-         ++nbMethods;
+      for (MethodWriter mb : methods) {
          size += mb.getSize();
-         mb = mb.mw;
       }
 
       int attributeCount = 0;
@@ -690,20 +676,16 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(interfaces[i]);
       }
 
-      out.putShort(nbFields);
-      fb = firstField;
+      out.putShort(fields.size());
 
-      while (fb != null) {
+      for (FieldWriter fb : fields) {
          fb.put(out);
-         fb = fb.fw;
       }
 
-      out.putShort(nbMethods);
-      mb = firstMethod;
+      out.putShort(methods.size());
 
-      while (mb != null) {
+      for (MethodWriter mb : methods) {
          mb.put(out);
-         mb = mb.mw;
       }
 
       out.putShort(attributeCount);
