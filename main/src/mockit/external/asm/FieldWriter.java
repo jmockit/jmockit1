@@ -33,7 +33,7 @@ import static mockit.external.asm.ClassWriter.*;
 import static mockit.external.asm.Opcodes.*;
 
 /**
- * An {@link FieldVisitor} that generates Java fields in bytecode form.
+ * A {@link FieldVisitor} that generates Java fields in bytecode form.
  *
  * @author Eric Bruneton
  */
@@ -55,7 +55,7 @@ final class FieldWriter extends FieldVisitor
    private final int access;
 
    /**
-    * The index of the constant pool item that contains the name of this method.
+    * The index of the constant pool item that contains the name of this field.
     */
    private final int name;
 
@@ -144,14 +144,12 @@ final class FieldWriter extends FieldVisitor
          size += 8;
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            cw.newUTF8("Synthetic");
-            size += 6;
-         }
+      if (isSynthetic()) {
+         cw.newUTF8("Synthetic");
+         size += 6;
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if (isDeprecated()) {
          cw.newUTF8("Deprecated");
          size += 6;
       }
@@ -169,6 +167,14 @@ final class FieldWriter extends FieldVisitor
       return size;
    }
 
+   private boolean isSynthetic() {
+      return (access & ACC_SYNTHETIC) != 0 && ((access & ACC_SYNTHETIC_ATTRIBUTE) != 0 || cw.isPreJava5());
+   }
+
+   private boolean isDeprecated() {
+      return (access & ACC_DEPRECATED) != 0;
+   }
+
    /**
     * Puts the content of this field into the given byte vector.
     *
@@ -176,7 +182,10 @@ final class FieldWriter extends FieldVisitor
     */
    void put(ByteVector out) {
       int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
-      out.putShort(access & ~mask).putShort(name).putShort(desc);
+      out.putShort(access & ~mask);
+
+      out.putShort(name);
+      out.putShort(desc);
 
       int attributeCount = 0;
 
@@ -184,13 +193,15 @@ final class FieldWriter extends FieldVisitor
          ++attributeCount;
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            ++attributeCount;
-         }
+      boolean synthetic = isSynthetic();
+
+      if (synthetic) {
+         ++attributeCount;
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      boolean deprecated = isDeprecated();
+
+      if (deprecated) {
          ++attributeCount;
       }
 
@@ -209,13 +220,11 @@ final class FieldWriter extends FieldVisitor
          out.putInt(2).putShort(value);
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            out.putShort(cw.newUTF8("Synthetic")).putInt(0);
-         }
+      if (synthetic) {
+         out.putShort(cw.newUTF8("Synthetic")).putInt(0);
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if (deprecated) {
          out.putShort(cw.newUTF8("Deprecated")).putInt(0);
       }
 

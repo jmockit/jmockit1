@@ -100,11 +100,7 @@ final class AnnotationWriter extends AnnotationVisitor
 
    @Override
    public void visit(String name, Object value) {
-      ++size;
-
-      if (named) {
-         putString(name);
-      }
+      putName(name);
 
       if (value instanceof String) {
          putString('s', (String) value);
@@ -164,28 +160,36 @@ final class AnnotationWriter extends AnnotationVisitor
       }
    }
 
+   private void putName(String name) {
+      ++size;
+
+      if (named) {
+         putString(name);
+      }
+   }
+
    private void putItem(int b, Item item) {
       bv.put12(b, item.index);
    }
 
    private void putInteger(int b, int value) {
-      int itemIndex = cw.newInteger(value).index;
-      bv.put12(b, itemIndex);
+      Item item = cw.newInteger(value);
+      putItem(b, item);
    }
 
    private void putDouble(double value) {
-      int itemIndex = cw.newDouble(value).index;
-      bv.put12('D', itemIndex);
+      Item item = cw.newDouble(value);
+      putItem('D', item);
    }
 
    private void putFloat(float value) {
-      int itemIndex = cw.newFloat(value).index;
-      bv.put12('F', itemIndex);
+      Item item = cw.newFloat(value);
+      putItem('F', item);
    }
 
    private void putLong(long value) {
-      int itemIndex = cw.newLong(value).index;
-      bv.put12('J', itemIndex);
+      Item item = cw.newLong(value);
+      putItem('J', item);
    }
 
    private void putString(int b, String value) {
@@ -232,23 +236,14 @@ final class AnnotationWriter extends AnnotationVisitor
 
    @Override
    public void visitEnum(String name, String desc, String value) {
-      ++size;
-
-      if (named) {
-         putString(name);
-      }
-
+      putName(name);
       putString('e', desc);
       putString(value);
    }
 
    @Override
    public AnnotationVisitor visitAnnotation(String name, String desc) {
-      ++size;
-
-      if (named) {
-         putString(name);
-      }
+      putName(name);
 
       // Write tag and type, and reserve space for values count.
       putString('@', desc);
@@ -259,11 +254,7 @@ final class AnnotationWriter extends AnnotationVisitor
 
    @Override
    public AnnotationVisitor visitArray(String name) {
-      ++size;
-
-      if (named) {
-         putString(name);
-      }
+      putName(name);
 
       // Write tag, and reserve space for array size.
       putArrayLength(0);
@@ -305,10 +296,10 @@ final class AnnotationWriter extends AnnotationVisitor
     * @param out where the annotations must be put.
     */
    void put(ByteVector out) {
-      int n = 0;
-      int size = 2;
       AnnotationWriter aw = this;
       AnnotationWriter last = null;
+      int n = 0;
+      int size = 2;
 
       while (aw != null) {
          ++n;
@@ -321,8 +312,10 @@ final class AnnotationWriter extends AnnotationVisitor
 
       out.putInt(size);
       out.putShort(n);
-      aw = last;
+      putFromLastToFirst(out, last);
+   }
 
+   private static void putFromLastToFirst(ByteVector out, AnnotationWriter aw) {
       while (aw != null) {
          out.putByteVector(aw.bv);
          aw = aw.prev;
@@ -360,12 +353,7 @@ final class AnnotationWriter extends AnnotationVisitor
          }
 
          out.putShort(n);
-         aw = last;
-
-         while (aw != null) {
-            out.putByteVector(aw.bv);
-            aw = aw.prev;
-         }
+         putFromLastToFirst(out, last);
       }
    }
 }

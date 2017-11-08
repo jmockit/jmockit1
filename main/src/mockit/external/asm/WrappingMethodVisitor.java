@@ -10,7 +10,7 @@ public class WrappingMethodVisitor extends MethodVisitor
    /**
     * The method writer to which this visitor must delegate method calls.
     */
-   @Nonnull private final MethodVisitor mw;
+   @Nonnull protected final MethodWriter mw;
 
    /**
     * Constructs a new {@link WrappingMethodVisitor}.

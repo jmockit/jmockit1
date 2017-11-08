@@ -274,7 +274,7 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    private class DynamicModifier extends WrappingMethodVisitor
    {
-      DynamicModifier() { super(mw); }
+      DynamicModifier() { super(BaseClassModifier.this.mw); }
 
       @Override
       public final void visitLocalVariable(

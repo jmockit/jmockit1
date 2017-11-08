@@ -14,8 +14,6 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
 {
    private static final String CLASS_DESC = "mockit/internal/expectations/ActiveInvocations";
 
-   @Nonnull private final MethodWriter mw;
-
    // Input data:
    @Nonnull private final String blockOwner;
    private final boolean callEndInvocations;
@@ -34,7 +32,6 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations)
    {
       super(mw);
-      this.mw = mw;
       this.blockOwner = blockOwner;
       this.callEndInvocations = callEndInvocations;
       argumentMatching = new ArgumentMatching(this);

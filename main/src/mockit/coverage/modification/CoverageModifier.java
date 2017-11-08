@@ -237,7 +237,6 @@ final class CoverageModifier extends WrappingClassVisitor
    {
       static final String DATA_RECORDING_CLASS = "mockit/coverage/TestRun";
 
-      @Nonnull protected final MethodWriter mw;
       @Nonnull protected final List<Label> visitedLabels;
       @Nonnull private final List<Label> jumpTargetsForCurrentLine;
       @Nonnull private final List<Integer> pendingBranches;
@@ -252,7 +251,6 @@ final class CoverageModifier extends WrappingClassVisitor
       BaseMethodModifier(@Nonnull MethodWriter mw)
       {
          super(mw);
-         this.mw = mw;
          visitedLabels = new ArrayList<Label>();
          jumpTargetsForCurrentLine = new ArrayList<Label>(4);
          pendingBranches = new ArrayList<Integer>(6);
