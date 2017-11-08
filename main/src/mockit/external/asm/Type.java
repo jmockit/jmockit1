@@ -40,118 +40,74 @@ import java.lang.reflect.*;
 public final class Type
 {
    /**
-    * The sort of the <tt>void</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>void</tt> type. See {@link #getSort}.
     */
    public static final int VOID = 0;
 
    /**
-    * The sort of the <tt>boolean</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>boolean</tt> type. See {@link #getSort}.
     */
    public static final int BOOLEAN = 1;
 
    /**
-    * The sort of the <tt>char</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>char</tt> type. See {@link #getSort}.
     */
    public static final int CHAR = 2;
 
    /**
-    * The sort of the <tt>byte</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>byte</tt> type. See {@link #getSort}.
     */
    public static final int BYTE = 3;
 
    /**
-    * The sort of the <tt>short</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>short</tt> type. See {@link #getSort}.
     */
    public static final int SHORT = 4;
 
    /**
-    * The sort of the <tt>int</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>int</tt> type. See {@link #getSort}.
     */
    public static final int INT = 5;
 
    /**
-    * The sort of the <tt>float</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>float</tt> type. See {@link #getSort}.
     */
    public static final int FLOAT = 6;
 
    /**
-    * The sort of the <tt>long</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>long</tt> type. See {@link #getSort}.
     */
    public static final int LONG = 7;
 
    /**
-    * The sort of the <tt>double</tt> type. See {@link #getSort getSort}.
+    * The sort of the <tt>double</tt> type. See {@link #getSort}.
     */
    public static final int DOUBLE = 8;
 
    /**
-    * The sort of array reference types. See {@link #getSort getSort}.
+    * The sort of array reference types. See {@link #getSort}.
     */
    public static final int ARRAY = 9;
 
    /**
-    * The sort of object reference types. See {@link #getSort getSort}.
+    * The sort of object reference types. See {@link #getSort}.
     */
    public static final int OBJECT = 10;
 
    /**
-    * The sort of method types. See {@link #getSort getSort}.
+    * The sort of method types. See {@link #getSort}.
     */
-   public static final int METHOD = 11;
+   static final int METHOD = 11;
 
-   /**
-    * The <tt>void</tt> type.
-    */
-   public static final Type VOID_TYPE = new Type(VOID, null, ('V' << 24)
-      | (5 << 16) | (0 << 8) | 0, 1);
-
-   /**
-    * The <tt>boolean</tt> type.
-    */
-   public static final Type BOOLEAN_TYPE = new Type(BOOLEAN, null, ('Z' << 24)
-      | (0 << 16) | (5 << 8) | 1, 1);
-
-   /**
-    * The <tt>char</tt> type.
-    */
-   public static final Type CHAR_TYPE = new Type(CHAR, null, ('C' << 24)
-      | (0 << 16) | (6 << 8) | 1, 1);
-
-   /**
-    * The <tt>byte</tt> type.
-    */
-   public static final Type BYTE_TYPE = new Type(BYTE, null, ('B' << 24)
-      | (0 << 16) | (5 << 8) | 1, 1);
-
-   /**
-    * The <tt>short</tt> type.
-    */
-   public static final Type SHORT_TYPE = new Type(SHORT, null, ('S' << 24)
-      | (0 << 16) | (7 << 8) | 1, 1);
-
-   /**
-    * The <tt>int</tt> type.
-    */
-   public static final Type INT_TYPE = new Type(INT, null, ('I' << 24)
-      | (0 << 16) | (0 << 8) | 1, 1);
-
-   /**
-    * The <tt>float</tt> type.
-    */
-   public static final Type FLOAT_TYPE = new Type(FLOAT, null, ('F' << 24)
-      | (2 << 16) | (2 << 8) | 1, 1);
-
-   /**
-    * The <tt>long</tt> type.
-    */
-   public static final Type LONG_TYPE = new Type(LONG, null, ('J' << 24)
-      | (1 << 16) | (1 << 8) | 2, 1);
-
-   /**
-    * The <tt>double</tt> type.
-    */
-   public static final Type DOUBLE_TYPE = new Type(DOUBLE, null, ('D' << 24)
-      | (3 << 16) | (3 << 8) | 2, 1);
+   private static final Type VOID_TYPE    = new Type(VOID,    'V', 5, 0, 0);
+   private static final Type BOOLEAN_TYPE = new Type(BOOLEAN, 'Z', 0, 5, 1);
+   private static final Type CHAR_TYPE    = new Type(CHAR,    'C', 0, 6, 1);
+   private static final Type BYTE_TYPE    = new Type(BYTE,    'B', 0, 5, 1);
+   private static final Type SHORT_TYPE   = new Type(SHORT,   'S', 0, 7, 1);
+   private static final Type INT_TYPE     = new Type(INT,     'I', 0, 0, 1);
+   private static final Type FLOAT_TYPE   = new Type(FLOAT,   'F', 2, 2, 1);
+   private static final Type LONG_TYPE    = new Type(LONG,    'J', 1, 1, 2);
+   private static final Type DOUBLE_TYPE  = new Type(DOUBLE,  'D', 3, 3, 2);
 
    // ------------------------------------------------------------------------
    // Fields
@@ -169,8 +125,8 @@ public final class Type
 
    /**
     * The offset of the internal name of this Java type in {@link #buf buf} or, for primitive types, the size,
-    * descriptor and getOpcode offsets for this type (byte 0 contains the size, byte 1 the descriptor, byte 2 the offset
-    * for IALOAD or IASTORE, byte 3 the offset for all other instructions).
+    * descriptor and getOpcode offsets for this type (byte 0 contains the size, byte 1 the offset for IALOAD or IASTORE,
+    * byte 2 the offset for all other instructions, byte 3 the descriptor).
     */
    private final int off;
 
@@ -182,6 +138,22 @@ public final class Type
    // ------------------------------------------------------------------------
    // Constructors
    // ------------------------------------------------------------------------
+
+   /**
+    * Constructs a primitive type.
+    *
+    * @param sort the sort of the primitive type to be constructed.
+    * @param desc the primitive type descriptor
+    * @param loadOrStoreOffset opcode offset for a IALOAD or IASTORE instruction.
+    * @param otherOffset opcode offset for any other instruction.
+    * @param size the size in words of the primitive type
+    */
+   private Type(int sort, char desc, int loadOrStoreOffset, int otherOffset, int size) {
+      this.sort = sort;
+      buf = null;
+      off = (desc << 24) | (loadOrStoreOffset << 16) | (otherOffset << 8) | size;
+      len = 1;
+   }
 
    /**
     * Constructs a reference type.
@@ -451,6 +423,7 @@ public final class Type
    public int getDimensions() {
       int i = 1;
 
+      //noinspection ConstantConditions
       while (buf[off + i] == '[') {
          ++i;
       }
@@ -499,6 +472,7 @@ public final class Type
 
             return sb.toString();
          case OBJECT:
+            //noinspection ConstantConditions
             return new String(buf, off, len).replace('/', '.');
          default:
             return null;
@@ -513,6 +487,7 @@ public final class Type
     * @return the internal name of the class corresponding to this object type.
     */
    public String getInternalName() {
+      //noinspection ConstantConditions
       return new String(buf, off, len);
    }
 
@@ -698,14 +673,19 @@ public final class Type
     * <tt>float</tt> and <tt>opcode</tt> is IRETURN, this method returns FRETURN.
     */
    public int getOpcode(int opcode) {
-      if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
-         // The offset for IALOAD or IASTORE is in byte 1 of 'off' for primitive types (buf == null).
-         return opcode + (buf == null ? (off & 0xFF00) >> 8 : 4);
+      int offset;
+
+      if (buf != null) {
+         offset = 4; // for non-primitive types
       }
-      else {
-         // The offset for other instructions is in byte 2 of 'off' for primitive types (buf == null).
-         return opcode + (buf == null ? (off & 0xFF0000) >> 16 : 4);
+      else if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) { // for IALOAD or IASTORE it's in byte 1 of 'off'
+         offset = (off & 0xFF00) >> 8;
       }
+      else { // for other instructions it's in byte 2 of 'off'
+         offset = (off & 0xFF0000) >> 16;
+      }
+
+      return opcode + offset;
    }
 
    // ------------------------------------------------------------------------
@@ -740,6 +720,7 @@ public final class Type
          }
 
          for (int i = off, j = t.off, end = i + len; i < end; i++, j++) {
+            //noinspection ConstantConditions
             if (buf[i] != t.buf[j]) {
                return false;
             }
@@ -758,6 +739,7 @@ public final class Type
 
       if (sort >= ARRAY) {
          for (int i = off, end = i + len; i < end; i++) {
+            //noinspection ConstantConditions
             hc = 17 * (hc + buf[i]);
          }
       }
