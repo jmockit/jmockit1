@@ -617,7 +617,6 @@ public final class Frame
     */
    void execute(int opcode, int arg, ClassWriter cw, Item item) {
       int t1, t2, t3, t4;
-      String s;
 
       switch (opcode) {
          case Opcodes.NOP:
@@ -665,34 +664,7 @@ public final class Frame
             push(TOP);
             break;
          case Opcodes.LDC:
-            switch (item.type) {
-               case ClassWriter.INT:
-                  push(INTEGER);
-                  break;
-               case ClassWriter.LONG:
-                  push(LONG);
-                  push(TOP);
-                  break;
-               case ClassWriter.FLOAT:
-                  push(FLOAT);
-                  break;
-               case ClassWriter.DOUBLE:
-                  push(DOUBLE);
-                  push(TOP);
-                  break;
-               case ClassWriter.CLASS:
-                  push(OBJECT | cw.addType("java/lang/Class"));
-                  break;
-               case ClassWriter.STR:
-                  push(OBJECT | cw.addType("java/lang/String"));
-                  break;
-               case ClassWriter.MTYPE:
-                  push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
-                  break;
-               // case ClassWriter.HANDLE_BASE + [1..9]:
-               default:
-                  push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
-            }
+            executeLDC(cw, item);
             break;
          case Opcodes.ALOAD:
             push(get(arg));
@@ -728,38 +700,11 @@ public final class Frame
          case Opcodes.ISTORE:
          case Opcodes.FSTORE:
          case Opcodes.ASTORE:
-            t1 = pop();
-            set(arg, t1);
-            if (arg > 0) {
-               t2 = get(arg - 1);
-               // if t2 is of kind STACK or LOCAL we cannot know its size!
-               if (t2 == LONG || t2 == DOUBLE) {
-                  set(arg - 1, TOP);
-               }
-               else if ((t2 & KIND) != BASE) {
-                  set(arg - 1, t2 | TOP_IF_LONG_OR_DOUBLE);
-               }
-            }
+            executeSingleWordStore(arg);
             break;
          case Opcodes.LSTORE:
          case Opcodes.DSTORE:
-            pop(1);
-            t1 = pop();
-            set(arg, t1);
-            set(arg + 1, TOP);
-
-            if (arg > 0) {
-               t2 = get(arg - 1);
-
-               // If t2 is of kind STACK or LOCAL we cannot know its size!
-               if (t2 == LONG || t2 == DOUBLE) {
-                  set(arg - 1, TOP);
-               }
-               else if ((t2 & KIND) != BASE) {
-                  set(arg - 1, t2 | TOP_IF_LONG_OR_DOUBLE);
-               }
-            }
-
+            executeDoubleWordStore(arg);
             break;
          case Opcodes.IASTORE:
          case Opcodes.BASTORE:
@@ -951,8 +896,7 @@ public final class Frame
             break;
          case Opcodes.JSR:
          case Opcodes.RET:
-            throw new RuntimeException(
-               "JSR/RET are not supported with computeFrames option");
+            throw new RuntimeException("JSR/RET are not supported with computeFrames option");
          case Opcodes.GETSTATIC:
             push(cw, item.strVal3);
             break;
@@ -971,17 +915,7 @@ public final class Frame
          case Opcodes.INVOKESPECIAL:
          case Opcodes.INVOKESTATIC:
          case Opcodes.INVOKEINTERFACE:
-            pop(item.strVal3);
-
-            if (opcode != Opcodes.INVOKESTATIC) {
-               t1 = pop();
-
-               if (opcode == Opcodes.INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
-                  init(t1);
-               }
-            }
-
-            push(cw, item.strVal3);
+            executeInvoke(opcode, cw, item);
             break;
          case Opcodes.INVOKEDYNAMIC:
             pop(item.strVal2);
@@ -991,65 +925,150 @@ public final class Frame
             push(UNINITIALIZED | cw.addUninitializedType(item.strVal1, arg));
             break;
          case Opcodes.NEWARRAY:
-            pop();
-
-            switch (arg) {
-               case Opcodes.T_BOOLEAN:
-                  push(ARRAY_OF | BOOLEAN);
-                  break;
-               case Opcodes.T_CHAR:
-                  push(ARRAY_OF | CHAR);
-                  break;
-               case Opcodes.T_BYTE:
-                  push(ARRAY_OF | BYTE);
-                  break;
-               case Opcodes.T_SHORT:
-                  push(ARRAY_OF | SHORT);
-                  break;
-               case Opcodes.T_INT:
-                  push(ARRAY_OF | INTEGER);
-                  break;
-               case Opcodes.T_FLOAT:
-                  push(ARRAY_OF | FLOAT);
-                  break;
-               case Opcodes.T_DOUBLE:
-                  push(ARRAY_OF | DOUBLE);
-                  break;
-               // case Opcodes.T_LONG:
-               default:
-                  push(ARRAY_OF | LONG);
-                  break;
-            }
+            executeNewArray(arg);
             break;
          case Opcodes.ANEWARRAY:
-            s = item.strVal1;
-            pop();
-
-            if (s.charAt(0) == '[') {
-               push(cw, '[' + s);
-            }
-            else {
-               push(ARRAY_OF | OBJECT | cw.addType(s));
-            }
-
+            executeANewArray(cw, item);
             break;
          case Opcodes.CHECKCAST:
-            s = item.strVal1;
-            pop();
-
-            if (s.charAt(0) == '[') {
-               push(cw, s);
-            }
-            else {
-               push(OBJECT | cw.addType(s));
-            }
-
+            executeCheckCast(cw, item);
             break;
          // case Opcodes.MULTIANEWARRAY:
          default:
             pop(arg);
             push(cw, item.strVal1);
             break;
+      }
+   }
+
+   private void executeLDC(ClassWriter cw, Item item) {
+      switch (item.type) {
+         case ClassWriter.INT:
+            push(INTEGER);
+            break;
+         case ClassWriter.LONG:
+            push(LONG);
+            push(TOP);
+            break;
+         case ClassWriter.FLOAT:
+            push(FLOAT);
+            break;
+         case ClassWriter.DOUBLE:
+            push(DOUBLE);
+            push(TOP);
+            break;
+         case ClassWriter.CLASS:
+            push(OBJECT | cw.addType("java/lang/Class"));
+            break;
+         case ClassWriter.STR:
+            push(OBJECT | cw.addType("java/lang/String"));
+            break;
+         case ClassWriter.MTYPE:
+            push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
+            break;
+         // case ClassWriter.HANDLE_BASE + [1..9]:
+         default:
+            push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
+      }
+   }
+
+   private void executeSingleWordStore(int arg) {
+      int type1 = pop();
+      set(arg, type1);
+      executeStore(arg);
+   }
+
+   private void executeStore(int arg) {
+      if (arg > 0) {
+         int type2 = get(arg - 1);
+
+         // If type2 is of kind STACK or LOCAL we cannot know its size!
+         if (type2 == LONG || type2 == DOUBLE) {
+            set(arg - 1, TOP);
+         }
+         else if ((type2 & KIND) != BASE) {
+            set(arg - 1, type2 | TOP_IF_LONG_OR_DOUBLE);
+         }
+      }
+   }
+
+   private void executeDoubleWordStore(int arg) {
+      pop(1);
+
+      int type1 = pop();
+      set(arg, type1);
+      set(arg + 1, TOP);
+
+      executeStore(arg);
+   }
+
+   private void executeInvoke(int opcode, ClassWriter cw, Item item) {
+      pop(item.strVal3);
+
+      if (opcode != Opcodes.INVOKESTATIC) {
+         int var = pop();
+
+         if (opcode == Opcodes.INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
+            init(var);
+         }
+      }
+
+      push(cw, item.strVal3);
+   }
+
+   private void executeNewArray(int arg) {
+      pop();
+
+      switch (arg) {
+         case Opcodes.T_BOOLEAN:
+            push(ARRAY_OF | BOOLEAN);
+            break;
+         case Opcodes.T_CHAR:
+            push(ARRAY_OF | CHAR);
+            break;
+         case Opcodes.T_BYTE:
+            push(ARRAY_OF | BYTE);
+            break;
+         case Opcodes.T_SHORT:
+            push(ARRAY_OF | SHORT);
+            break;
+         case Opcodes.T_INT:
+            push(ARRAY_OF | INTEGER);
+            break;
+         case Opcodes.T_FLOAT:
+            push(ARRAY_OF | FLOAT);
+            break;
+         case Opcodes.T_DOUBLE:
+            push(ARRAY_OF | DOUBLE);
+            break;
+         // case Opcodes.T_LONG:
+         default:
+            push(ARRAY_OF | LONG);
+            break;
+      }
+   }
+
+   private void executeANewArray(ClassWriter cw, Item item) {
+      String s = item.strVal1;
+      pop();
+
+      if (s.charAt(0) == '[') {
+         push(cw, '[' + s);
+      }
+      else {
+         push(ARRAY_OF | OBJECT | cw.addType(s));
+      }
+   }
+
+   private void executeCheckCast(ClassWriter cw, Item item) {
+      String s = item.strVal1;
+      pop();
+
+      if (s.charAt(0) == '[') {
+         push(cw, s);
+      }
+      else {
+         push(OBJECT | cw.addType(s));
       }
    }
 
