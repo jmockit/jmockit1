@@ -232,7 +232,7 @@ public abstract class MockUp<T>
     * Returns the mock instance exclusively associated with this fake instance.
     * If the faked type was an interface, then said instance is the one that was automatically created when the fake was
     * applied.
-    * If it was a class, and no such instance is currently associated with this (stateful) fake object, then a new
+    * If it was a class, and no such instance is currently associated with this fake object, then a new
     * <em>uninitialized</em> instance of the faked class is created and returned, becoming associated with the fake.
     * <p/>
     * In any case, for a given fake instance this method will always return the same fake instance.
