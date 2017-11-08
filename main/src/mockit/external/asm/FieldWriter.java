@@ -62,12 +62,12 @@ final class FieldWriter extends FieldVisitor
    /**
     * The index of the constant pool item that contains the signature of this field.
     */
-   private int signature;
+   private final int signature;
 
    /**
     * The index of the constant pool item that contains the constant value of this field.
     */
-   private int value;
+   private final int value;
 
    /**
     * The runtime visible annotations of this field. May be <tt>null</tt>.
@@ -89,14 +89,8 @@ final class FieldWriter extends FieldVisitor
       this.access = access;
       this.name = cw.newUTF8(name);
       this.desc = cw.newUTF8(desc);
-
-      if (signature != null) {
-         this.signature = cw.newUTF8(signature);
-      }
-
-      if (value != null) {
-         this.value = cw.newConstItem(value).index;
-      }
+      this.signature = signature == null ? 0 : cw.newUTF8(signature);
+      this.value = value == null ? 0 : cw.newConstItem(value).index;
    }
 
    // ------------------------------------------------------------------------
@@ -108,7 +102,8 @@ final class FieldWriter extends FieldVisitor
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
-      bv.putShort(cw.newUTF8(desc)).putShort(0);
+      int type = cw.newUTF8(desc);
+      bv.putShort(type).putShort(0);
 
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
       aw.next = anns;
