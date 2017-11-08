@@ -56,6 +56,28 @@ public final class ClassReader
     */
    public static final int SKIP_DEBUG = 2;
 
+   interface InstructionType
+   {
+      int NOARG       = 0; // instructions without any argument
+      int SBYTE       = 1; // instructions with a signed byte argument
+      int SHORT       = 2; // instructions with a signed short argument
+      int VAR         = 3; // instructions with a local variable index argument
+      int IMPLVAR     = 4; // instructions with an implicit local variable index argument
+      int TYPE        = 5; // instructions with a type descriptor argument
+      int FIELDORMETH = 6; // field and method invocations instructions
+      int ITFMETH     = 7; // INVOKEINTERFACE/INVOKEDYNAMIC instruction
+      int INDYMETH    = 8; // INVOKEDYNAMIC instruction
+      int LABEL       = 9; // instructions with a 2 bytes bytecode offset label
+      int LABELW     = 10; // instructions with a 4 bytes bytecode offset label
+      int LDC        = 11; // the LDC instruction
+      int LDCW       = 12; // the LDC_W and LDC2_W instructions
+      int IINC       = 13; // the IINC instruction
+      int TABL       = 14; // the TABLESWITCH instruction
+      int LOOK       = 15; // the LOOKUPSWITCH instruction
+      int MANA_INSN  = 16; // the MULTIANEWARRAY instruction
+      int WIDE       = 17; // the WIDE instruction
+   }
+
    /**
     * The class to be parsed. <em>The content of this array must not be modified.</em>
     */
@@ -900,19 +922,19 @@ public final class ClassReader
          int opcode = b[u] & 0xFF;
 
          switch (TYPE[opcode]) {
-            case NOARG_INSN:
-            case IMPLVAR_INSN:
+            case InstructionType.NOARG:
+            case InstructionType.IMPLVAR:
                u += 1;
                break;
-            case LABEL_INSN:
+            case InstructionType.LABEL:
                readLabel(offset + readShort(u + 1), labels);
                u += 3;
                break;
-            case LABELW_INSN:
+            case InstructionType.LABELW:
                readLabel(offset + readInt(u + 1), labels);
                u += 5;
                break;
-            case WIDE_INSN:
+            case InstructionType.WIDE:
                opcode = b[u + 1] & 0xFF;
 
                if (opcode == Opcodes.IINC) {
@@ -923,26 +945,26 @@ public final class ClassReader
                }
 
                break;
-            case TABL_INSN:
+            case InstructionType.TABL:
                u = readTableSwitchInstruction(labels, u, offset);
                break;
-            case LOOK_INSN:
+            case InstructionType.LOOK:
                u = readLookupSwitchInstruction(labels, u, offset);
                break;
-            case VAR_INSN:
-            case SBYTE_INSN:
-            case LDC_INSN:
+            case InstructionType.VAR:
+            case InstructionType.SBYTE:
+            case InstructionType.LDC:
                u += 2;
                break;
-            case SHORT_INSN:
-            case LDCW_INSN:
-            case FIELDORMETH_INSN:
-            case TYPE_INSN:
-            case IINC_INSN:
+            case InstructionType.SHORT:
+            case InstructionType.LDCW:
+            case InstructionType.FIELDORMETH:
+            case InstructionType.TYPE:
+            case InstructionType.IINC:
                u += 3;
                break;
-            case ITFMETH_INSN:
-            case INDYMETH_INSN:
+            case InstructionType.ITFMETH:
+            case InstructionType.INDYMETH:
                u += 5;
                break;
             // case MANA_INSN:
@@ -1070,11 +1092,11 @@ public final class ClassReader
          int opcode = b[u] & 0xFF;
 
          switch (TYPE[opcode]) {
-            case NOARG_INSN:
+            case InstructionType.NOARG:
                mv.visitInsn(opcode);
                u += 1;
                break;
-            case IMPLVAR_INSN:
+            case InstructionType.IMPLVAR:
                if (opcode > Opcodes.ISTORE) {
                   opcode -= 59; // ISTORE_0
                   mv.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
@@ -1086,15 +1108,15 @@ public final class ClassReader
 
                u += 1;
                break;
-            case LABEL_INSN:
+            case InstructionType.LABEL:
                mv.visitJumpInsn(opcode, labels[offset + readShort(u + 1)]);
                u += 3;
                break;
-            case LABELW_INSN:
+            case InstructionType.LABELW:
                mv.visitJumpInsn(opcode - 33, labels[offset + readInt(u + 1)]);
                u += 5;
                break;
-            case WIDE_INSN:
+            case InstructionType.WIDE:
                opcode = b[u + 1] & 0xFF;
 
                if (opcode == Opcodes.IINC) {
@@ -1107,7 +1129,7 @@ public final class ClassReader
                }
 
                break;
-            case TABL_INSN: {
+            case InstructionType.TABL: {
                // Skips 0 to 3 padding bytes.
                u = u + 4 - (offset & 3);
 
@@ -1126,7 +1148,7 @@ public final class ClassReader
                mv.visitTableSwitchInsn(min, max, labels[label], table);
                break;
             }
-            case LOOK_INSN: {
+            case InstructionType.LOOK: {
                // Skips 0 to 3 padding bytes.
                u = u + 4 - (offset & 3);
 
@@ -1146,28 +1168,28 @@ public final class ClassReader
                mv.visitLookupSwitchInsn(labels[label], keys, values);
                break;
             }
-            case VAR_INSN:
+            case InstructionType.VAR:
                mv.visitVarInsn(opcode, b[u + 1] & 0xFF);
                u += 2;
                break;
-            case SBYTE_INSN:
+            case InstructionType.SBYTE:
                mv.visitIntInsn(opcode, b[u + 1]);
                u += 2;
                break;
-            case SHORT_INSN:
+            case InstructionType.SHORT:
                mv.visitIntInsn(opcode, readShort(u + 1));
                u += 3;
                break;
-            case LDC_INSN:
+            case InstructionType.LDC:
                mv.visitLdcInsn(readConst(b[u + 1] & 0xFF, c));
                u += 2;
                break;
-            case LDCW_INSN:
+            case InstructionType.LDCW:
                mv.visitLdcInsn(readConst(readUnsignedShort(u + 1), c));
                u += 3;
                break;
-            case FIELDORMETH_INSN:
-            case ITFMETH_INSN: {
+            case InstructionType.FIELDORMETH:
+            case InstructionType.ITFMETH: {
                int cpIndex = items[readUnsignedShort(u + 1)];
                boolean itf = b[cpIndex - 1] == IMETH;
                String owner = readClass(cpIndex, c);
@@ -1191,15 +1213,15 @@ public final class ClassReader
 
                break;
             }
-            case INDYMETH_INSN: {
+            case InstructionType.INDYMETH: {
                u = readInvokeDynamicInstruction(mv, context, u);
                break;
             }
-            case TYPE_INSN:
+            case InstructionType.TYPE:
                mv.visitTypeInsn(opcode, readClass(u + 1, c));
                u += 3;
                break;
-            case IINC_INSN:
+            case InstructionType.IINC:
                mv.visitIincInsn(b[u + 1] & 0xFF, b[u + 2]);
                u += 3;
                break;
