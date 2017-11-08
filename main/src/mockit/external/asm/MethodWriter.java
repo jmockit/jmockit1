@@ -222,12 +222,12 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The first element in the exception handler list.
     */
-   private Handler firstHandler;
+   private ExceptionHandler firstExceptionHandler;
 
    /**
     * The last element in the exception handler list.
     */
-   private Handler lastHandler;
+   private ExceptionHandler lastExceptionHandler;
 
    /**
     * Number of entries in the LocalVariableTable attribute.
@@ -1134,16 +1134,16 @@ public final class MethodWriter extends MethodVisitor
       ++handlerCount;
 
       int handlerType = type != null ? cw.newClass(type) : 0;
-      Handler h = new Handler(start, end, handler, type, handlerType);
+      ExceptionHandler h = new ExceptionHandler(start, end, handler, type, handlerType);
 
-      if (lastHandler == null) {
-         firstHandler = h;
+      if (lastExceptionHandler == null) {
+         firstExceptionHandler = h;
       }
       else {
-         lastHandler.next = h;
+         lastExceptionHandler.next = h;
       }
 
-      lastHandler = h;
+      lastExceptionHandler = h;
    }
 
    @Override
@@ -1215,15 +1215,15 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
-      Handler handler = firstHandler;
+      ExceptionHandler exceptionHandler = firstExceptionHandler;
 
-      while (handler != null) {
-         Label l = handler.start.getFirst();
-         Label h = handler.handler.getFirst();
-         Label e = handler.end.getFirst();
+      while (exceptionHandler != null) {
+         Label l = exceptionHandler.start.getFirst();
+         Label h = exceptionHandler.handler.getFirst();
+         Label e = exceptionHandler.end.getFirst();
 
          // Computes the kind of the edges to 'h'.
-         String t = handler.desc == null ? "java/lang/Throwable" : handler.desc;
+         String t = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
          int kind = Frame.OBJECT | cw.addType(t);
 
          // h is an exception handler.
@@ -1242,7 +1242,7 @@ public final class MethodWriter extends MethodVisitor
             l = l.successor;
          }
 
-         handler = handler.next;
+         exceptionHandler = exceptionHandler.next;
       }
    }
 
@@ -1341,7 +1341,7 @@ public final class MethodWriter extends MethodVisitor
                endFrame();
 
                // Removes the start-end range from the exception handlers.
-               firstHandler = Handler.remove(firstHandler, l, k);
+               firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, l, k);
             }
          }
 
@@ -1352,22 +1352,22 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void countNumberOfHandlers() {
-      Handler handler = firstHandler;
+      ExceptionHandler exceptionHandler = firstExceptionHandler;
       handlerCount = 0;
 
-      while (handler != null) {
+      while (exceptionHandler != null) {
          handlerCount++;
-         handler = handler.next;
+         exceptionHandler = exceptionHandler.next;
       }
    }
 
    private void completeControlFlowGraphWithExceptionHandlerBlocks() {
-      Handler handler = firstHandler;
+      ExceptionHandler exceptionHandler = firstExceptionHandler;
 
-      while (handler != null) {
-         Label l = handler.start;
-         Label h = handler.handler;
-         Label e = handler.end;
+      while (exceptionHandler != null) {
+         Label l = exceptionHandler.start;
+         Label h = exceptionHandler.handler;
+         Label e = exceptionHandler.end;
 
          // Adds 'h' as a successor of labels between 'start' and 'end'.
          while (l != e) {
@@ -1390,7 +1390,7 @@ public final class MethodWriter extends MethodVisitor
             l = l.successor;
          }
 
-         handler = handler.next;
+         exceptionHandler = exceptionHandler.next;
       }
    }
 
@@ -2063,7 +2063,7 @@ public final class MethodWriter extends MethodVisitor
          out.putShort(handlerCount);
 
          if (handlerCount > 0) {
-            Handler h = firstHandler;
+            ExceptionHandler h = firstExceptionHandler;
 
             while (h != null) {
                out.putShort(h.start.position).putShort(h.end.position);

@@ -34,7 +34,7 @@ package mockit.external.asm;
  *
  * @author Eric Bruneton
  */
-final class Handler
+final class ExceptionHandler
 {
    /**
     * Beginning of the exception handler's scope (inclusive).
@@ -65,9 +65,9 @@ final class Handler
    /**
     * Next exception handler block info.
     */
-   Handler next;
+   ExceptionHandler next;
 
-   Handler(Label start, Label end, Label handler, String desc, int type) {
+   ExceptionHandler(Label start, Label end, Label handler, String desc, int type) {
       this.start = start;
       this.end = end;
       this.handler = handler;
@@ -83,7 +83,7 @@ final class Handler
     * @param end   the end of the range to be removed. Maybe null.
     * @return the exception handler list with the start-end range removed.
     */
-   static Handler remove(Handler h, Label start, Label end) {
+   static ExceptionHandler remove(ExceptionHandler h, Label start, Label end) {
       if (h == null) {
          return null;
       }
@@ -112,7 +112,7 @@ final class Handler
          }
          else {
             // [hStart,hEnd[ minus [s,e[ = [hStart,s[ + [e,hEnd[
-            Handler g = new Handler(end, h.end, h.handler, h.desc, h.type);
+            ExceptionHandler g = new ExceptionHandler(end, h.end, h.handler, h.desc, h.type);
             g.next = h.next;
             h.end = start;
             h.next = g;

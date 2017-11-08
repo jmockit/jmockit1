@@ -30,17 +30,17 @@
 package mockit.external.asm;
 
 /**
- * A visitor to visit a Java method. The methods of this class must be called in the following order:
+ * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:
  * <p/>
  * [<tt>visitAnnotationDefault</tt>] (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
  * [<tt>visitCode</tt> (<tt>visitFrame</tt> | <tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> |
  * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)*
  * <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
  * <p/>
- * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods must be called in the sequential order of
- * the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> must be called <i>before</i> the labels
- * passed as arguments have been visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods must
- * be called <i>after</i> the labels passed as arguments have been visited.
+ * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods are called in the sequential order of the
+ * bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> is called <i>before</i> the labels passed as
+ * arguments have been visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods are called
+ * <i>after</i> the labels passed as arguments have been visited.
  *
  * @author Eric Bruneton
  */
