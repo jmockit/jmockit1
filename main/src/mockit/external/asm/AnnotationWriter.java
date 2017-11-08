@@ -79,7 +79,7 @@ final class AnnotationWriter extends AnnotationVisitor
    /**
     * Previous annotation writer. This field is used to store annotation lists.
     */
-   AnnotationWriter prev;
+   private AnnotationWriter prev;
 
    /**
     * Constructs a new {@link AnnotationWriter}.
