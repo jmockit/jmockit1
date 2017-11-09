@@ -36,7 +36,7 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public abstract class AnnotationVisitor extends BaseVisitor
+public abstract class AnnotationVisitor
 {
    /**
     * Next annotation visitor. This field is used to store annotation lists.
