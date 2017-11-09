@@ -60,75 +60,23 @@ public final class ClassWriter extends ClassVisitor
     */
    static final byte[] TYPE;
 
-   /**
-    * The type of CONSTANT_Class constant pool items.
-    */
-   static final int CLASS = 7;
-
-   /**
-    * The type of CONSTANT_Fieldref constant pool items.
-    */
-   static final int FIELD = 9;
-
-   /**
-    * The type of CONSTANT_Methodref constant pool items.
-    */
-   static final int METH = 10;
-
-   /**
-    * The type of CONSTANT_InterfaceMethodref constant pool items.
-    */
-   static final int IMETH = 11;
-
-   /**
-    * The type of CONSTANT_String constant pool items.
-    */
-   static final int STR = 8;
-
-   /**
-    * The type of CONSTANT_Integer constant pool items.
-    */
-   static final int INT = 3;
-
-   /**
-    * The type of CONSTANT_Float constant pool items.
-    */
-   static final int FLOAT = 4;
-
-   /**
-    * The type of CONSTANT_Long constant pool items.
-    */
-   static final int LONG = 5;
-
-   /**
-    * The type of CONSTANT_Double constant pool items.
-    */
-   static final int DOUBLE = 6;
-
-   /**
-    * The type of CONSTANT_NameAndType constant pool items.
-    */
-   static final int NAME_TYPE = 12;
-
-   /**
-    * The type of CONSTANT_Utf8 constant pool items.
-    */
-   static final int UTF8 = 1;
-
-   /**
-    * The type of CONSTANT_MethodType constant pool items.
-    */
-   static final int MTYPE = 16;
-
-   /**
-    * The type of CONSTANT_MethodHandle constant pool items.
-    */
-   static final int HANDLE = 15;
-
-   /**
-    * The type of CONSTANT_InvokeDynamic constant pool items.
-    */
-   static final int INDY = 18;
+   interface ConstantPoolItemType
+   {
+      int CLASS     =  7; // CONSTANT_Class
+      int FIELD     =  9; // CONSTANT_Fieldref
+      int METH      = 10; // CONSTANT_Methodref
+      int IMETH     = 11; // CONSTANT_InterfaceMethodref
+      int STR       =  8; // CONSTANT_String
+      int INT       =  3; // CONSTANT_Integer
+      int FLOAT     =  4; // CONSTANT_Float
+      int LONG      =  5; // CONSTANT_Long
+      int DOUBLE    =  6; // CONSTANT_Double
+      int NAME_TYPE = 12; // CONSTANT_NameAndType
+      int UTF8      =  1; // CONSTANT_Utf8
+      int MTYPE     = 16; // CONSTANT_MethodType
+      int HANDLE    = 15; // CONSTANT_MethodHandle
+      int INDY      = 18; // CONSTANT_InvokeDynamic
+   }
 
    /**
     * The base value for all CONSTANT_MethodHandle constant pool items.
@@ -733,11 +681,11 @@ public final class ClassWriter extends ClassVisitor
     * @return the index of a new or already existing UTF8 item.
     */
    int newUTF8(String value) {
-      key.set(UTF8, value, null, null);
+      key.set(ConstantPoolItemType.UTF8, value, null, null);
       Item result = get(key);
 
       if (result == null) {
-         pool.putByte(UTF8).putUTF8(value);
+         pool.putByte(ConstantPoolItemType.UTF8).putUTF8(value);
          result = new Item(index++, key);
          put(result);
       }
@@ -753,11 +701,11 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing class reference item.
     */
    Item newClassItem(String value) {
-      key2.set(CLASS, value, null, null);
+      key2.set(ConstantPoolItemType.CLASS, value, null, null);
       Item result = get(key2);
 
       if (result == null) {
-         pool.put12(CLASS, newUTF8(value));
+         pool.put12(ConstantPoolItemType.CLASS, newUTF8(value));
          result = new Item(index++, key2);
          put(result);
       }
@@ -784,12 +732,12 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing method type reference item.
     */
    private Item newMethodTypeItem(String methodDesc) {
-      key2.set(MTYPE, methodDesc, null, null);
+      key2.set(ConstantPoolItemType.MTYPE, methodDesc, null, null);
       Item result = get(key2);
 
       if (result == null) {
          int itemIndex = newUTF8(methodDesc);
-         pool.put12(MTYPE, itemIndex);
+         pool.put12(ConstantPoolItemType.MTYPE, itemIndex);
          result = new Item(index++, key2);
          put(result);
       }
@@ -812,7 +760,7 @@ public final class ClassWriter extends ClassVisitor
          Item item = tag <= H_PUTSTATIC ?
             newFieldItem(handle.owner, handle.name, handle.desc) :
             newMethodItem(handle.owner, handle.name, handle.desc, tag == H_INVOKEINTERFACE);
-         put112(HANDLE, tag, item.index);
+         put112(ConstantPoolItemType.HANDLE, tag, item.index);
 
          result = new Item(index++, key4);
          put(result);
@@ -898,7 +846,7 @@ public final class ClassWriter extends ClassVisitor
       result = get(key3);
 
       if (result == null) {
-         put122(INDY, bootstrapMethodIndex, newNameType(name, desc));
+         put122(ConstantPoolItemType.INDY, bootstrapMethodIndex, newNameType(name, desc));
          result = new Item(index++, key3);
          put(result);
       }
@@ -916,11 +864,11 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing field reference item.
     */
    Item newFieldItem(String owner, String name, String desc) {
-      key3.set(FIELD, owner, name, desc);
+      key3.set(ConstantPoolItemType.FIELD, owner, name, desc);
       Item result = get(key3);
 
       if (result == null) {
-         put122(FIELD, newClass(owner), newNameType(name, desc));
+         put122(ConstantPoolItemType.FIELD, newClass(owner), newNameType(name, desc));
          result = new Item(index++, key3);
          put(result);
       }
@@ -939,7 +887,7 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing method reference item.
     */
    Item newMethodItem(String owner, String name, String desc, boolean itf) {
-      int type = itf ? IMETH : METH;
+      int type = itf ? ConstantPoolItemType.IMETH : ConstantPoolItemType.METH;
       key3.set(type, owner, name, desc);
       Item result = get(key3);
 
@@ -964,7 +912,7 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key);
 
       if (result == null) {
-         pool.putByte(INT).putInt(value);
+         pool.putByte(ConstantPoolItemType.INT).putInt(value);
          result = new Item(index++, key);
          put(result);
       }
@@ -984,7 +932,7 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key);
 
       if (result == null) {
-         pool.putByte(FLOAT).putInt(key.intVal);
+         pool.putByte(ConstantPoolItemType.FLOAT).putInt(key.intVal);
          result = new Item(index++, key);
          put(result);
       }
@@ -1004,7 +952,7 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key);
 
       if (result == null) {
-         pool.putByte(LONG).putLong(value);
+         pool.putByte(ConstantPoolItemType.LONG).putLong(value);
          result = new Item(index, key);
          index += 2;
          put(result);
@@ -1025,7 +973,7 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key);
 
       if (result == null) {
-         pool.putByte(DOUBLE).putLong(key.longVal);
+         pool.putByte(ConstantPoolItemType.DOUBLE).putLong(key.longVal);
          result = new Item(index, key);
          index += 2;
          put(result);
@@ -1042,11 +990,11 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing string item.
     */
    private Item newString(String value) {
-      key2.set(STR, value, null, null);
+      key2.set(ConstantPoolItemType.STR, value, null, null);
       Item result = get(key2);
 
       if (result == null) {
-         pool.put12(STR, newUTF8(value));
+         pool.put12(ConstantPoolItemType.STR, newUTF8(value));
          result = new Item(index++, key2);
          put(result);
       }
@@ -1075,11 +1023,11 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or already existing name and type item.
     */
    private Item newNameTypeItem(String name, String desc) {
-      key2.set(NAME_TYPE, name, desc, null);
+      key2.set(ConstantPoolItemType.NAME_TYPE, name, desc, null);
       Item result = get(key2);
 
       if (result == null) {
-         put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
+         put122(ConstantPoolItemType.NAME_TYPE, newUTF8(name), newUTF8(desc));
          result = new Item(index++, key2);
          put(result);
       }

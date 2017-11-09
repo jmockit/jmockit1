@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import mockit.external.asm.ClassWriter.*;
+
 /**
  * Information about the input and output stack map frames of a basic block.
  *
@@ -943,27 +945,27 @@ public final class Frame
 
    private void executeLDC(ClassWriter cw, Item item) {
       switch (item.type) {
-         case ClassWriter.INT:
+         case ConstantPoolItemType.INT:
             push(INTEGER);
             break;
-         case ClassWriter.LONG:
+         case ConstantPoolItemType.LONG:
             push(LONG);
             push(TOP);
             break;
-         case ClassWriter.FLOAT:
+         case ConstantPoolItemType.FLOAT:
             push(FLOAT);
             break;
-         case ClassWriter.DOUBLE:
+         case ConstantPoolItemType.DOUBLE:
             push(DOUBLE);
             push(TOP);
             break;
-         case ClassWriter.CLASS:
+         case ConstantPoolItemType.CLASS:
             push(OBJECT | cw.addType("java/lang/Class"));
             break;
-         case ClassWriter.STR:
+         case ConstantPoolItemType.STR:
             push(OBJECT | cw.addType("java/lang/String"));
             break;
-         case ClassWriter.MTYPE:
+         case ConstantPoolItemType.MTYPE:
             push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
             break;
          // case ClassWriter.HANDLE_BASE + [1..9]:

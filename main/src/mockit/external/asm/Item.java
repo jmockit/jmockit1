@@ -45,10 +45,10 @@ final class Item
 
    /**
     * Type of this constant pool item. A single class is used to represent all constant pool item types, in order to
-    * minimize the bytecode size of this package. The value of this field is one of {@link ClassWriter#INT},
-    * {@link ClassWriter#LONG}, {@link ClassWriter#FLOAT}, {@link ClassWriter#DOUBLE}, {@link ClassWriter#UTF8},
-    * {@link ClassWriter#STR}, {@link ClassWriter#CLASS}, {@link ClassWriter#NAME_TYPE}, {@link ClassWriter#FIELD},
-    * {@link ClassWriter#METH}, {@link ClassWriter#IMETH}, {@link ClassWriter#MTYPE}, {@link ClassWriter#INDY}.
+    * minimize the bytecode size of this package. The value of this field is one of {@link ConstantPoolItemType#INT},
+    * {@link ConstantPoolItemType#LONG}, {@link ConstantPoolItemType#FLOAT}, {@link ConstantPoolItemType#DOUBLE}, {@link ConstantPoolItemType#UTF8},
+    * {@link ConstantPoolItemType#STR}, {@link ConstantPoolItemType#CLASS}, {@link ConstantPoolItemType#NAME_TYPE}, {@link ConstantPoolItemType#FIELD},
+    * {@link ConstantPoolItemType#METH}, {@link ConstantPoolItemType#IMETH}, {@link ConstantPoolItemType#MTYPE}, {@link ConstantPoolItemType#INDY}.
     * <p/>
     * MethodHandle constant 9 variations are stored using a range of 9 values from {@link ClassWriter#HANDLE_BASE} + 1
     * to {@link ClassWriter#HANDLE_BASE} + 9.
@@ -136,7 +136,7 @@ final class Item
     * @param intVal the value of this item.
     */
    void set(int intVal) {
-      type = INT;
+      type = ConstantPoolItemType.INT;
       this.intVal = intVal;
       hashCode = 0x7FFFFFFF & (type + intVal);
    }
@@ -147,7 +147,7 @@ final class Item
     * @param longVal the value of this item.
     */
    void set(long longVal) {
-      type = LONG;
+      type = ConstantPoolItemType.LONG;
       this.longVal = longVal;
       hashCode = 0x7FFFFFFF & (type + (int) longVal);
    }
@@ -158,7 +158,7 @@ final class Item
     * @param floatVal the value of this item.
     */
    void set(float floatVal) {
-      type = FLOAT;
+      type = ConstantPoolItemType.FLOAT;
       intVal = Float.floatToRawIntBits(floatVal);
       hashCode = 0x7FFFFFFF & (type + (int) floatVal);
    }
@@ -169,7 +169,7 @@ final class Item
     * @param doubleVal the value of this item.
     */
    void set(double doubleVal) {
-      type = DOUBLE;
+      type = ConstantPoolItemType.DOUBLE;
       longVal = Double.doubleToRawLongBits(doubleVal);
       hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
    }
@@ -189,16 +189,16 @@ final class Item
       this.strVal3 = strVal3;
 
       switch (type) {
-         case CLASS:
+         case ConstantPoolItemType.CLASS:
             intVal = 0;     // intVal of a class must be zero, see visitInnerClass
             // fall through
-         case UTF8:
-         case STR:
-         case MTYPE:
+         case ConstantPoolItemType.UTF8:
+         case ConstantPoolItemType.STR:
+         case ConstantPoolItemType.MTYPE:
          case TYPE_NORMAL:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
             return;
-         case NAME_TYPE: {
+         case ConstantPoolItemType.NAME_TYPE: {
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
             return;
          }
@@ -219,11 +219,11 @@ final class Item
     * @param bsmIndex zero based index into the class attribute BootstrapMethods.
     */
    void set(String name, String desc, int bsmIndex) {
-      type = INDY;
+      type = ConstantPoolItemType.INDY;
       longVal = bsmIndex;
       strVal1 = name;
       strVal2 = desc;
-      hashCode = 0x7FFFFFFF & (INDY + bsmIndex * strVal1.hashCode() * strVal2.hashCode());
+      hashCode = 0x7FFFFFFF & (ConstantPoolItemType.INDY + bsmIndex * strVal1.hashCode() * strVal2.hashCode());
    }
 
    /**
@@ -248,24 +248,24 @@ final class Item
     */
    boolean isEqualTo(Item i) {
       switch (type) {
-         case UTF8:
-         case STR:
-         case CLASS:
-         case MTYPE:
+         case ConstantPoolItemType.UTF8:
+         case ConstantPoolItemType.STR:
+         case ConstantPoolItemType.CLASS:
+         case ConstantPoolItemType.MTYPE:
          case TYPE_NORMAL:
             return i.strVal1.equals(strVal1);
          case TYPE_MERGED:
-         case LONG:
-         case DOUBLE:
+         case ConstantPoolItemType.LONG:
+         case ConstantPoolItemType.DOUBLE:
             return i.longVal == longVal;
-         case INT:
-         case FLOAT:
+         case ConstantPoolItemType.INT:
+         case ConstantPoolItemType.FLOAT:
             return i.intVal == intVal;
          case TYPE_UNINIT:
             return i.intVal == intVal && i.strVal1.equals(strVal1);
-         case NAME_TYPE:
+         case ConstantPoolItemType.NAME_TYPE:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
-         case INDY: {
+         case ConstantPoolItemType.INDY: {
             return i.longVal == longVal && i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
          }
          // case ClassWriter.FIELD:

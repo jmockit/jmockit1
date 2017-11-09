@@ -141,27 +141,27 @@ public final class ClassReader
          int size;
 
          switch (b[index]) {
-            case FIELD:
-            case METH:
-            case IMETH:
-            case INT:
-            case FLOAT:
-            case NAME_TYPE:
-            case INDY:
+            case ConstantPoolItemType.FIELD:
+            case ConstantPoolItemType.METH:
+            case ConstantPoolItemType.IMETH:
+            case ConstantPoolItemType.INT:
+            case ConstantPoolItemType.FLOAT:
+            case ConstantPoolItemType.NAME_TYPE:
+            case ConstantPoolItemType.INDY:
                size = 5;
                break;
-            case LONG:
-            case DOUBLE:
+            case ConstantPoolItemType.LONG:
+            case ConstantPoolItemType.DOUBLE:
                size = 9;
                ++i;
                break;
-            case UTF8:
+            case ConstantPoolItemType.UTF8:
                size = 3 + readUnsignedShort(index + 1);
                if (size > max) {
                   max = size;
                }
                break;
-            case HANDLE:
+            case ConstantPoolItemType.HANDLE:
                size = 4;
                break;
             // case ClassWriter.CLASS:
@@ -255,30 +255,30 @@ public final class ClassReader
          int nameType;
 
          switch (tag) {
-            case FIELD:
-            case METH:
-            case IMETH:
+            case ConstantPoolItemType.FIELD:
+            case ConstantPoolItemType.METH:
+            case ConstantPoolItemType.IMETH:
                nameType = items[readUnsignedShort(index + 2)];
                item.set(tag, readClass(index, buf), readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
                break;
-            case INT:
+            case ConstantPoolItemType.INT:
                item.set(readInt(index));
                break;
-            case FLOAT:
+            case ConstantPoolItemType.FLOAT:
                item.set(Float.intBitsToFloat(readInt(index)));
                break;
-            case NAME_TYPE:
+            case ConstantPoolItemType.NAME_TYPE:
                item.set(tag, readUTF8(index, buf), readUTF8(index + 2, buf), null);
                break;
-            case LONG:
+            case ConstantPoolItemType.LONG:
                item.set(readLong(index));
                ++i;
                break;
-            case DOUBLE:
+            case ConstantPoolItemType.DOUBLE:
                item.set(Double.longBitsToDouble(readLong(index)));
                ++i;
                break;
-            case UTF8: {
+            case ConstantPoolItemType.UTF8: {
                String s = strings[i];
 
                if (s == null) {
@@ -289,7 +289,7 @@ public final class ClassReader
                item.set(tag, s, null, null);
                break;
             }
-            case HANDLE: {
+            case ConstantPoolItemType.HANDLE: {
                int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
                nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
                item.set(
@@ -297,7 +297,7 @@ public final class ClassReader
                   readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
                break;
             }
-            case INDY:
+            case ConstantPoolItemType.INDY:
                if (classWriter.bootstrapMethods == null) {
                   copyBootstrapMethods(classWriter, items2, buf);
                }
@@ -1191,7 +1191,7 @@ public final class ClassReader
             case InstructionType.FIELDORMETH:
             case InstructionType.ITFMETH: {
                int cpIndex = items[readUnsignedShort(u + 1)];
-               boolean itf = b[cpIndex - 1] == IMETH;
+               boolean itf = b[cpIndex - 1] == ConstantPoolItemType.IMETH;
                String owner = readClass(cpIndex, c);
                cpIndex = items[readUnsignedShort(cpIndex + 2)];
                String name = readUTF8(cpIndex, c);
@@ -1769,19 +1769,19 @@ public final class ClassReader
       int index = items[item];
 
       switch (b[index - 1]) {
-         case INT:
+         case ConstantPoolItemType.INT:
             return readInt(index);
-         case FLOAT:
+         case ConstantPoolItemType.FLOAT:
             return Float.intBitsToFloat(readInt(index));
-         case LONG:
+         case ConstantPoolItemType.LONG:
             return readLong(index);
-         case DOUBLE:
+         case ConstantPoolItemType.DOUBLE:
             return Double.longBitsToDouble(readLong(index));
-         case CLASS:
+         case ConstantPoolItemType.CLASS:
             return Type.getObjectType(readUTF8(index, buf));
-         case STR:
+         case ConstantPoolItemType.STR:
             return readUTF8(index, buf);
-         case MTYPE:
+         case ConstantPoolItemType.MTYPE:
             return Type.getMethodType(readUTF8(index, buf));
          default: // case ClassWriter.HANDLE_BASE + [1..9]:
             int tag = readByte(index);

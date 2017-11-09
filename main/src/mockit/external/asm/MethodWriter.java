@@ -30,8 +30,8 @@
 package mockit.external.asm;
 
 import static mockit.external.asm.ClassWriter.*;
-import static mockit.external.asm.ClassWriter.DOUBLE;
-import static mockit.external.asm.ClassWriter.LONG;
+import static mockit.external.asm.ClassWriter.ConstantPoolItemType.DOUBLE;
+import static mockit.external.asm.ClassWriter.ConstantPoolItemType.LONG;
 import static mockit.external.asm.Opcodes.*;
 
 /**
