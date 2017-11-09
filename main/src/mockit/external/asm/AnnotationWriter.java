@@ -72,16 +72,6 @@ final class AnnotationWriter extends AnnotationVisitor
    private final int offset;
 
    /**
-    * Next annotation writer. This field is used to store annotation lists.
-    */
-   AnnotationWriter next;
-
-   /**
-    * Previous annotation writer. This field is used to store annotation lists.
-    */
-   private AnnotationWriter prev;
-
-   /**
     * Constructs a new {@link AnnotationWriter}.
     *
     * @param cw     the class writer to which this annotation must be added.
@@ -97,6 +87,9 @@ final class AnnotationWriter extends AnnotationVisitor
       this.parent = parent;
       this.offset = offset;
    }
+
+   @Override
+   protected int getByteLength() { return bv.length; }
 
    @Override
    public void visit(String name, Object value) {
@@ -276,21 +269,6 @@ final class AnnotationWriter extends AnnotationVisitor
    // ------------------------------------------------------------------------
 
    /**
-    * Returns the size of this annotation writer list.
-    */
-   int getSize() {
-      int size = 0;
-      AnnotationWriter aw = this;
-
-      while (aw != null) {
-         size += aw.bv.length;
-         aw = aw.next;
-      }
-
-      return size;
-   }
-
-   /**
     * Puts the annotations of this annotation writer list into the given byte vector.
     *
     * @param out where the annotations must be put.
@@ -303,7 +281,7 @@ final class AnnotationWriter extends AnnotationVisitor
 
       while (aw != null) {
          ++n;
-         size += aw.bv.length;
+         size += aw.getByteLength();
          aw.visitEnd(); // in case user forgot to call visitEnd
          aw.prev = last;
          last = aw;

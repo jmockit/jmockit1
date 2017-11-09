@@ -95,7 +95,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * Access flags of this method.
     */
-   private int access;
+   private final int access;
 
    /**
     * The index of the constant pool item that contains the name of this method.
@@ -145,11 +145,6 @@ public final class MethodWriter extends MethodVisitor
     * The annotation default attribute of this method. May be <tt>null</tt>.
     */
    private ByteVector annotationDefault;
-
-   /**
-    * The runtime visible annotations of this method. May be <tt>null</tt>.
-    */
-   private AnnotationWriter anns;
 
    /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
@@ -316,12 +311,7 @@ public final class MethodWriter extends MethodVisitor
       ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
    ) {
       this.cw = cw;
-      this.access = access;
-
-      if ("<init>".equals(name)) {
-         this.access |= ACC_CONSTRUCTOR;
-      }
-
+      this.access = "<init>".equals(name) ? (access | ACC_CONSTRUCTOR) : access;
       this.name = cw.newUTF8(name);
       this.desc = cw.newUTF8(desc);
       descriptor = desc;
@@ -377,15 +367,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      ByteVector bv = new ByteVector();
-
-      // Write type, and reserve space for values count.
-      bv.putShort(cw.newUTF8(desc)).putShort(0);
-
-      AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-      aw.next = anns;
-      anns = aw;
-      return aw;
+      return visitAnnotation(cw, desc);
    }
 
    @Override
@@ -1954,10 +1936,7 @@ public final class MethodWriter extends MethodVisitor
          size += 6 + annotationDefault.length;
       }
 
-      if (anns != null) {
-         cw.newUTF8("RuntimeVisibleAnnotations");
-         size += 8 + anns.getSize();
-      }
+      size += getAnnotationsSize(cw);
 
       if (parameterAnnotations != null) {
          cw.newUTF8("RuntimeVisibleParameterAnnotations");
@@ -2134,10 +2113,7 @@ public final class MethodWriter extends MethodVisitor
          out.putByteVector(annotationDefault);
       }
 
-      if (anns != null) {
-         out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
-         anns.put(out);
-      }
+      putAnnotations(out, cw);
 
       if (parameterAnnotations != null) {
          out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));

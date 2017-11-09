@@ -36,12 +36,24 @@ package mockit.external.asm;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class AnnotationVisitor
+public abstract class AnnotationVisitor extends BaseVisitor
 {
+   /**
+    * Next annotation visitor. This field is used to store annotation lists.
+    */
+   AnnotationWriter next;
+
+   /**
+    * Previous annotation visitor. This field is used to store annotation lists.
+    */
+   AnnotationWriter prev;
+
    /**
     * Constructs a new {@link AnnotationVisitor}.
     */
    protected AnnotationVisitor() {}
+
+   protected abstract int getByteLength();
 
    /**
     * Visits a primitive value of the annotation.
@@ -91,4 +103,19 @@ public class AnnotationVisitor
     * Visits the end of the annotation.
     */
    public void visitEnd() {}
+
+   /**
+    * Returns the size of this annotation list.
+    */
+   final int getSize() {
+      int size = 0;
+      AnnotationVisitor annotation = this;
+
+      while (annotation != null) {
+         size += annotation.getByteLength();
+         annotation = annotation.next;
+      }
+
+      return size;
+   }
 }

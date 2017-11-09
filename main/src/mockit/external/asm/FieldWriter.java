@@ -70,11 +70,6 @@ final class FieldWriter extends FieldVisitor
    private final int value;
 
    /**
-    * The runtime visible annotations of this field. May be <tt>null</tt>.
-    */
-   private AnnotationWriter anns;
-
-   /**
     * Constructs a new {@link FieldWriter}.
     *
     * @param cw        the class writer to which this field must be added.
@@ -99,16 +94,7 @@ final class FieldWriter extends FieldVisitor
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      ByteVector bv = new ByteVector();
-
-      // Write type, and reserve space for values count.
-      int type = cw.newUTF8(desc);
-      bv.putShort(type).putShort(0);
-
-      AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-      aw.next = anns;
-      anns = aw;
-      return aw;
+      return visitAnnotation(cw, desc);
    }
 
    // ------------------------------------------------------------------------
@@ -141,10 +127,7 @@ final class FieldWriter extends FieldVisitor
          size += 8;
       }
 
-      if (anns != null) {
-         cw.newUTF8("RuntimeVisibleAnnotations");
-         size += 8 + anns.getSize();
-      }
+      size += getAnnotationsSize(cw);
 
       return size;
    }
@@ -215,9 +198,6 @@ final class FieldWriter extends FieldVisitor
          out.putInt(2).putShort(signature);
       }
 
-      if (anns != null) {
-         out.putShort(cw.newUTF8("RuntimeVisibleAnnotations"));
-         anns.put(out);
-      }
+      putAnnotations(out, cw);
    }
 }

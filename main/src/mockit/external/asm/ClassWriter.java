@@ -230,11 +230,6 @@ public final class ClassWriter extends ClassVisitor
    private int enclosingMethod;
 
    /**
-    * The runtime visible annotations of this class.
-    */
-   private AnnotationWriter anns;
-
-   /**
     * The number of entries in the InnerClasses attribute.
     */
    private int innerClassesCount;
@@ -273,9 +268,7 @@ public final class ClassWriter extends ClassVisitor
     */
    private final boolean computeFrames;
 
-   /*
-    * Computes the instruction types of JVM opcodes.
-    */
+   // Computes the instruction types of JVM opcodes.
    static {
       byte[] b = new byte[220];
       String s =
@@ -381,15 +374,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      ByteVector bv = new ByteVector();
-
-      // Write type, and reserve space for values count.
-      bv.putShort(newUTF8(desc)).putShort(0);
-
-      AnnotationWriter aw = new AnnotationWriter(this, true, bv, bv, 2);
-      aw.next = anns;
-      anns = aw;
-      return aw;
+      return visitAnnotation(this, desc);
    }
 
    @Override
@@ -513,8 +498,7 @@ public final class ClassWriter extends ClassVisitor
 
       if (anns != null) {
          ++attributeCount;
-         size += 8 + anns.getSize();
-         newUTF8("RuntimeVisibleAnnotations");
+         size += getAnnotationsSize(this);
       }
 
       size += pool.length;
@@ -588,10 +572,7 @@ public final class ClassWriter extends ClassVisitor
          out.putByteVector(innerClasses);
       }
 
-      if (anns != null) {
-         out.putShort(newUTF8("RuntimeVisibleAnnotations"));
-         anns.put(out);
-      }
+      putAnnotations(out, this);
 
       return out.data;
    }

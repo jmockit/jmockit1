@@ -35,7 +35,7 @@ package mockit.external.asm;
  *
  * @author Eric Bruneton
  */
-public class FieldVisitor
+public class FieldVisitor extends BaseVisitor
 {
    /**
     * Constructs a new {@link FieldVisitor}.
