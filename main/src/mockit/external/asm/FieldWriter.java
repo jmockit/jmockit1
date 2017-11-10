@@ -174,7 +174,7 @@ final class FieldWriter extends FieldVisitor
          ++attributeCount;
       }
 
-      if (anns != null) {
+      if (annotations != null) {
          ++attributeCount;
       }
 

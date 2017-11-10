@@ -1994,7 +1994,7 @@ public final class MethodWriter extends MethodVisitor
          ++attributeCount;
       }
 
-      if (anns != null) {
+      if (annotations != null) {
          ++attributeCount;
       }
 

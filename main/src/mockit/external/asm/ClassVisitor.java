@@ -36,7 +36,7 @@ package mockit.external.asm;
  *
  * @author Eric Bruneton
  */
-public class ClassVisitor extends BaseVisitor
+public class ClassVisitor extends BaseWriter
 {
    /**
     * Constructs a new {@link ClassVisitor}.

@@ -116,7 +116,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Minor and major version numbers of the class to be generated.
     */
-   int version;
+   private int version;
 
    /**
     * Index of the next item to be added in the constant pool.
@@ -311,7 +311,7 @@ public final class ClassWriter extends ClassVisitor
       key3 = new Item();
       key4 = new Item();
 
-      int version = classReader.getVersion();
+      version = classReader.getVersion();
       computeFrames = version >= V1_7;
 
       classReader.copyPool(this);
@@ -496,7 +496,7 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("InnerClasses");
       }
 
-      if (anns != null) {
+      if (annotations != null) {
          ++attributeCount;
          size += getAnnotationsSize(this);
       }

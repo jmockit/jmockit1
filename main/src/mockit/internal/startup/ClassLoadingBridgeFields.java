@@ -64,7 +64,7 @@ final class ClassLoadingBridgeFields
       @Nonnull
       private byte[] getModifiedJREClassWithAddedFields(@Nonnull ClassReader classReader)
       {
-         final ClassWriter cw = new ClassWriter(classReader);
+         ClassWriter cw = new ClassWriter(classReader);
 
          ClassVisitor cv = new WrappingClassVisitor(cw) {
             @Override

@@ -74,7 +74,7 @@ public final class ClassReader
       int IINC       = 13; // the IINC instruction
       int TABL       = 14; // the TABLESWITCH instruction
       int LOOK       = 15; // the LOOKUPSWITCH instruction
-      int MANA_INSN  = 16; // the MULTIANEWARRAY instruction
+      @SuppressWarnings("unused") int MANA_INSN  = 16; // the MULTIANEWARRAY instruction
       int WIDE       = 17; // the WIDE instruction
    }
 

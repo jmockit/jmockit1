@@ -1,11 +1,11 @@
 package mockit.external.asm;
 
-class BaseVisitor
+class BaseWriter
 {
    /**
     * The runtime visible annotations of this class/field/method. May be <tt>null</tt>.
     */
-   AnnotationWriter anns;
+   AnnotationWriter annotations;
 
    final AnnotationVisitor visitAnnotation(ClassWriter cw, String desc) {
       ByteVector bv = new ByteVector();
@@ -15,15 +15,15 @@ class BaseVisitor
       bv.putShort(type).putShort(0);
 
       AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
-      aw.next = anns;
-      anns = aw;
+      aw.next = annotations;
+      annotations = aw;
       return aw;
    }
 
    final int getAnnotationsSize(ClassWriter cw) {
-      if (anns != null) {
+      if (annotations != null) {
          getConstantPoolItemForRuntimeVisibleAnnotationsAttribute(cw);
-         return 8 + anns.getSize();
+         return 8 + annotations.getSize();
       }
 
       return 0;
@@ -34,10 +34,10 @@ class BaseVisitor
    }
 
    final void putAnnotations(ByteVector out, ClassWriter cw) {
-      if (anns != null) {
+      if (annotations != null) {
          int item = getConstantPoolItemForRuntimeVisibleAnnotationsAttribute(cw);
          out.putShort(item);
-         anns.put(out);
+         annotations.put(out);
       }
    }
 }
