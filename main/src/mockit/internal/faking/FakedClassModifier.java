@@ -331,7 +331,7 @@ final class FakedClassModifier extends BaseClassModifier
             int opcode = argType.getOpcode(ILOAD);
             mw.visitVarInsn(opcode, varIndex);
 
-            if (forGenericMethod && argType.getSort() >= Type.ARRAY) {
+            if (forGenericMethod && argType.getSort() >= Type.Sort.ARRAY) {
                mw.visitTypeInsn(CHECKCAST, argType.getInternalName());
             }
 

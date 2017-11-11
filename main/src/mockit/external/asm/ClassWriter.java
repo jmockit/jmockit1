@@ -564,10 +564,10 @@ public final class ClassWriter extends ClassVisitor
          Type t = (Type) cst;
          int s = t.getSort();
 
-         if (s == Type.OBJECT) {
+         if (s == Type.Sort.OBJECT) {
             return newClassItem(t.getInternalName());
          }
-         else if (s == Type.METHOD) {
+         else if (s == Type.Sort.METHOD) {
             return newMethodTypeItem(t.getDescriptor());
          }
          else { // s == primitive type or array

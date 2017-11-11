@@ -11,6 +11,7 @@ import javax.annotation.*;
 import static java.util.Arrays.*;
 
 import mockit.external.asm.*;
+import mockit.external.asm.Type.Sort;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
@@ -113,14 +114,14 @@ public class BaseSubclassGenerator extends BaseClassModifier
 
    private static int getLoadOpcodeForParameterType(int paramType)
    {
-      if (paramType <= mockit.external.asm.Type.INT) {
+      if (paramType <= Sort.INT) {
          return ILOAD;
       }
 
       switch (paramType) {
-         case mockit.external.asm.Type.FLOAT:  return FLOAD;
-         case mockit.external.asm.Type.LONG:   return LLOAD;
-         case mockit.external.asm.Type.DOUBLE: return DLOAD;
+         case Sort.FLOAT:  return FLOAD;
+         case Sort.LONG:   return LLOAD;
+         case Sort.DOUBLE: return DLOAD;
          default: return ALOAD;
       }
    }

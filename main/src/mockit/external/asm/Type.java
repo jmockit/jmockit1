@@ -40,74 +40,80 @@ import java.lang.reflect.*;
 public final class Type
 {
    /**
-    * The sort of the <tt>void</tt> type. See {@link #getSort}.
+    * See {@link #getSort()}.
     */
-   public static final int VOID = 0;
+   public interface Sort
+   {
+      /**
+       * The sort of the <tt>void</tt> type.
+       */
+      int VOID = 0;
 
-   /**
-    * The sort of the <tt>boolean</tt> type. See {@link #getSort}.
-    */
-   public static final int BOOLEAN = 1;
+      /**
+       * The sort of the <tt>boolean</tt> type.
+       */
+      int BOOLEAN = 1;
 
-   /**
-    * The sort of the <tt>char</tt> type. See {@link #getSort}.
-    */
-   public static final int CHAR = 2;
+      /**
+       * The sort of the <tt>char</tt> type.
+       */
+      int CHAR = 2;
 
-   /**
-    * The sort of the <tt>byte</tt> type. See {@link #getSort}.
-    */
-   public static final int BYTE = 3;
+      /**
+       * The sort of the <tt>byte</tt> type.
+       */
+      int BYTE = 3;
 
-   /**
-    * The sort of the <tt>short</tt> type. See {@link #getSort}.
-    */
-   public static final int SHORT = 4;
+      /**
+       * The sort of the <tt>short</tt> type.
+       */
+      int SHORT = 4;
 
-   /**
-    * The sort of the <tt>int</tt> type. See {@link #getSort}.
-    */
-   public static final int INT = 5;
+      /**
+       * The sort of the <tt>int</tt> type.
+       */
+      int INT = 5;
 
-   /**
-    * The sort of the <tt>float</tt> type. See {@link #getSort}.
-    */
-   public static final int FLOAT = 6;
+      /**
+       * The sort of the <tt>float</tt> type.
+       */
+      int FLOAT = 6;
 
-   /**
-    * The sort of the <tt>long</tt> type. See {@link #getSort}.
-    */
-   public static final int LONG = 7;
+      /**
+       * The sort of the <tt>long</tt> type.
+       */
+      int LONG = 7;
 
-   /**
-    * The sort of the <tt>double</tt> type. See {@link #getSort}.
-    */
-   public static final int DOUBLE = 8;
+      /**
+       * The sort of the <tt>double</tt> type.
+       */
+      int DOUBLE = 8;
 
-   /**
-    * The sort of array reference types. See {@link #getSort}.
-    */
-   public static final int ARRAY = 9;
+      /**
+       * The sort of array reference types.
+       */
+      int ARRAY = 9;
 
-   /**
-    * The sort of object reference types. See {@link #getSort}.
-    */
-   public static final int OBJECT = 10;
+      /**
+       * The sort of object reference types.
+       */
+      int OBJECT = 10;
 
-   /**
-    * The sort of method types. See {@link #getSort}.
-    */
-   static final int METHOD = 11;
+      /**
+       * The sort of method types.
+       */
+      int METHOD = 11;
+   }
 
-   private static final Type VOID_TYPE    = new Type(VOID,    'V', 5, 0, 0);
-   private static final Type BOOLEAN_TYPE = new Type(BOOLEAN, 'Z', 0, 5, 1);
-   private static final Type CHAR_TYPE    = new Type(CHAR,    'C', 0, 6, 1);
-   private static final Type BYTE_TYPE    = new Type(BYTE,    'B', 0, 5, 1);
-   private static final Type SHORT_TYPE   = new Type(SHORT,   'S', 0, 7, 1);
-   private static final Type INT_TYPE     = new Type(INT,     'I', 0, 0, 1);
-   private static final Type FLOAT_TYPE   = new Type(FLOAT,   'F', 2, 2, 1);
-   private static final Type LONG_TYPE    = new Type(LONG,    'J', 1, 1, 2);
-   private static final Type DOUBLE_TYPE  = new Type(DOUBLE,  'D', 3, 3, 2);
+   private static final Type VOID_TYPE    = new Type(Sort.VOID,    'V', 5, 0, 0);
+   private static final Type BOOLEAN_TYPE = new Type(Sort.BOOLEAN, 'Z', 0, 5, 1);
+   private static final Type CHAR_TYPE    = new Type(Sort.CHAR,    'C', 0, 6, 1);
+   private static final Type BYTE_TYPE    = new Type(Sort.BYTE,    'B', 0, 5, 1);
+   private static final Type SHORT_TYPE   = new Type(Sort.SHORT,   'S', 0, 7, 1);
+   private static final Type INT_TYPE     = new Type(Sort.INT,     'I', 0, 0, 1);
+   private static final Type FLOAT_TYPE   = new Type(Sort.FLOAT,   'F', 2, 2, 1);
+   private static final Type LONG_TYPE    = new Type(Sort.LONG,    'J', 1, 1, 2);
+   private static final Type DOUBLE_TYPE  = new Type(Sort.DOUBLE,  'D', 3, 3, 2);
 
    // ------------------------------------------------------------------------
    // Fields
@@ -135,15 +141,18 @@ public final class Type
     */
    private final int len;
 
+   /**
+    * Maps a {@link Sort} to the corresponding {@link ArrayElementType}.
+    */
    public static int getArrayElementType(int elementSort) {
       switch (elementSort) {
-         case BOOLEAN: return ArrayElementType.BOOLEAN;
-         case CHAR:    return ArrayElementType.CHAR;
-         case BYTE:    return ArrayElementType.BYTE;
-         case SHORT:   return ArrayElementType.SHORT;
-         case INT:     return ArrayElementType.INT;
-         case FLOAT:   return ArrayElementType.FLOAT;
-         case LONG:    return ArrayElementType.LONG;
+         case Sort.BOOLEAN: return ArrayElementType.BOOLEAN;
+         case Sort.CHAR:    return ArrayElementType.CHAR;
+         case Sort.BYTE:    return ArrayElementType.BYTE;
+         case Sort.SHORT:   return ArrayElementType.SHORT;
+         case Sort.INT:     return ArrayElementType.INT;
+         case Sort.FLOAT:   return ArrayElementType.FLOAT;
+         case Sort.LONG:    return ArrayElementType.LONG;
          default:      return ArrayElementType.DOUBLE;
       }
    }
@@ -194,19 +203,15 @@ public final class Type
 
    /**
     * Returns the Java type corresponding to the given internal name.
-    *
-    * @param internalName an internal name.
     */
    public static Type getObjectType(String internalName) {
       char[] buf = internalName.toCharArray();
-      return new Type(buf[0] == '[' ? ARRAY : OBJECT, buf, 0, buf.length);
+      return new Type(buf[0] == '[' ? Sort.ARRAY : Sort.OBJECT, buf, 0, buf.length);
    }
 
    /**
     * Returns the Java type corresponding to the given method descriptor.
     * Equivalent to <code>Type.getType(methodDescriptor)</code>.
-    *
-    * @param methodDescriptor a method descriptor.
     */
    public static Type getMethodType(String methodDescriptor) {
       return getType(methodDescriptor.toCharArray(), 0);
@@ -214,8 +219,6 @@ public final class Type
 
    /**
     * Returns the Java type corresponding to the given class.
-    *
-    * @param c a class.
     */
    public static Type getType(Class<?> c) {
       if (c.isPrimitive()) {
@@ -253,8 +256,6 @@ public final class Type
 
    /**
     * Returns the Java method type corresponding to the given constructor.
-    *
-    * @param c a {@link Constructor} object.
     */
    public static Type getType(Constructor<?> c) {
       return getType(getConstructorDescriptor(c));
@@ -262,8 +263,6 @@ public final class Type
 
    /**
     * Returns the Java method type corresponding to the given method.
-    *
-    * @param m a {@link Method} object.
     */
    public static Type getType(Method m) {
       return getType(getMethodDescriptor(m));
@@ -271,8 +270,6 @@ public final class Type
 
    /**
     * Returns the Java types corresponding to the argument types of the given method descriptor.
-    *
-    * @param methodDescriptor a method descriptor.
     */
    public static Type[] getArgumentTypes(String methodDescriptor) {
       char[] buf = methodDescriptor.toCharArray();
@@ -300,7 +297,7 @@ public final class Type
 
       while (buf[off] != ')') {
          args[size] = getType(buf, off);
-         off += args[size].len + (args[size].sort == OBJECT ? 2 : 0);
+         off += args[size].len + (args[size].sort == Sort.OBJECT ? 2 : 0);
          size += 1;
       }
 
@@ -309,8 +306,6 @@ public final class Type
 
    /**
     * Returns the Java type corresponding to the return type of the given method descriptor.
-    *
-    * @param methodDescriptor a method descriptor.
     */
    public static Type getReturnType(String methodDescriptor) {
       char[] buf = methodDescriptor.toCharArray();
@@ -403,7 +398,7 @@ public final class Type
                }
             }
 
-            return new Type(ARRAY, buf, off, len + 1);
+            return new Type(Sort.ARRAY, buf, off, len + 1);
          case 'L':
             len = 1;
 
@@ -411,10 +406,10 @@ public final class Type
                ++len;
             }
 
-            return new Type(OBJECT, buf, off + 1, len - 1);
+            return new Type(Sort.OBJECT, buf, off + 1, len - 1);
          // case '(':
          default:
-            return new Type(METHOD, buf, off, buf.length - off);
+            return new Type(Sort.METHOD, buf, off, buf.length - off);
       }
    }
 
@@ -423,10 +418,7 @@ public final class Type
    // ------------------------------------------------------------------------
 
    /**
-    * Returns the sort of this Java type.
-    *
-    * @return {@link #VOID}, {@link #BOOLEAN}, {@link #CHAR}, {@link #BYTE}, {@link #SHORT}, {@link #INT},
-    * {@link #FLOAT}, {@link #LONG}, {@link #DOUBLE}, {@link #ARRAY}, {@link #OBJECT} or {@link #METHOD}.
+    * Returns the {@link Sort} of this Java type.
     */
    public int getSort() { return sort; }
 
@@ -456,25 +448,25 @@ public final class Type
     */
    public String getClassName() {
       switch (sort) {
-         case VOID:
+         case Sort.VOID:
             return "void";
-         case BOOLEAN:
+         case Sort.BOOLEAN:
             return "boolean";
-         case CHAR:
+         case Sort.CHAR:
             return "char";
-         case BYTE:
+         case Sort.BYTE:
             return "byte";
-         case SHORT:
+         case Sort.SHORT:
             return "short";
-         case INT:
+         case Sort.INT:
             return "int";
-         case FLOAT:
+         case Sort.FLOAT:
             return "float";
-         case LONG:
+         case Sort.LONG:
             return "long";
-         case DOUBLE:
+         case Sort.DOUBLE:
             return "double";
-         case ARRAY:
+         case Sort.ARRAY:
             String className = getElementType().getClassName();
             //noinspection ConstantConditions
             StringBuilder sb = new StringBuilder(className);
@@ -484,7 +476,7 @@ public final class Type
             }
 
             return sb.toString();
-         case OBJECT:
+         case Sort.OBJECT:
             //noinspection ConstantConditions
             return new String(buf, off, len).replace('/', '.');
          default:
@@ -527,7 +519,7 @@ public final class Type
          // Descriptor is in byte 3 of 'off' for primitive types (buf == null).
          buf.append((char) ((off & 0xFF000000) >>> 24));
       }
-      else if (sort == OBJECT) {
+      else if (sort == Sort.OBJECT) {
          buf.append('L');
          buf.append(this.buf, off, len);
          buf.append(';');
@@ -581,8 +573,6 @@ public final class Type
 
    /**
     * Returns the descriptor corresponding to the given method.
-    *
-    * @param m a {@link Method Method} object.
     */
    public static String getMethodDescriptor(Method m) {
       Class<?>[] parameters = m.getParameterTypes();
@@ -727,7 +717,7 @@ public final class Type
          return false;
       }
 
-      if (sort >= ARRAY) {
+      if (sort >= Sort.ARRAY) {
          if (len != t.len) {
             return false;
          }
@@ -750,7 +740,7 @@ public final class Type
    public int hashCode() {
       int hc = 13 * sort;
 
-      if (sort >= ARRAY) {
+      if (sort >= Sort.ARRAY) {
          for (int i = off, end = i + len; i < end; i++) {
             //noinspection ConstantConditions
             hc = 17 * (hc + buf[i]);

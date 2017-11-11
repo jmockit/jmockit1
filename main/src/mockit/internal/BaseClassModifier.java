@@ -183,17 +183,17 @@ public class BaseClassModifier extends WrappingClassVisitor
    private void pushDefaultValueForType(@Nonnull Type type)
    {
       switch (type.getSort()) {
-         case Type.VOID: break;
-         case Type.BOOLEAN:
-         case Type.CHAR:
-         case Type.BYTE:
-         case Type.SHORT:
-         case Type.INT:    mw.visitInsn(ICONST_0); break;
-         case Type.LONG:   mw.visitInsn(LCONST_0); break;
-         case Type.FLOAT:  mw.visitInsn(FCONST_0); break;
-         case Type.DOUBLE: mw.visitInsn(DCONST_0); break;
-         case Type.ARRAY:  generateCreationOfEmptyArray(type); break;
-         default:          mw.visitInsn(ACONST_NULL);
+         case Type.Sort.VOID: break;
+         case Type.Sort.BOOLEAN:
+         case Type.Sort.CHAR:
+         case Type.Sort.BYTE:
+         case Type.Sort.SHORT:
+         case Type.Sort.INT:    mw.visitInsn(ICONST_0); break;
+         case Type.Sort.LONG:   mw.visitInsn(LCONST_0); break;
+         case Type.Sort.FLOAT:  mw.visitInsn(FCONST_0); break;
+         case Type.Sort.DOUBLE: mw.visitInsn(DCONST_0); break;
+         case Type.Sort.ARRAY:  generateCreationOfEmptyArray(type); break;
+         default: mw.visitInsn(ACONST_NULL);
       }
    }
 
@@ -213,7 +213,7 @@ public class BaseClassModifier extends WrappingClassVisitor
       Type elementType = arrayType.getElementType();
       int elementSort = elementType.getSort();
 
-      if (elementSort == Type.OBJECT) {
+      if (elementSort == Type.Sort.OBJECT) {
          mw.visitTypeInsn(ANEWARRAY, elementType.getInternalName());
       }
       else {

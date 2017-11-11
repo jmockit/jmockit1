@@ -107,7 +107,7 @@ final class Capture
       Type parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       int sort = parameterType.getSort();
 
-      if (sort == Type.OBJECT || sort == Type.ARRAY) {
+      if (sort == Type.Sort.OBJECT || sort == Type.Sort.ARRAY) {
          return typeDesc.equals(parameterType.getInternalName());
       }
 

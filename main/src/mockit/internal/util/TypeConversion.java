@@ -29,7 +29,7 @@ public final class TypeConversion
    {
       int sort = type.getSort();
 
-      if (sort < Type.ARRAY) {
+      if (sort < Type.Sort.ARRAY) {
          String wrapperType = PRIMITIVE_WRAPPER_TYPE[sort];
          String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
          mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
@@ -40,13 +40,13 @@ public final class TypeConversion
    {
       int sort = toType.getSort();
 
-      if (sort == Type.VOID) {
+      if (sort == Type.Sort.VOID) {
          mv.visitInsn(POP);
       }
       else {
          generateTypeCheck(mv, toType);
 
-         if (sort < Type.ARRAY) {
+         if (sort < Type.Sort.ARRAY) {
             mv.visitMethodInsn(
                INVOKEVIRTUAL, PRIMITIVE_WRAPPER_TYPE[sort], UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
          }
@@ -59,8 +59,8 @@ public final class TypeConversion
       String typeDesc;
 
       switch (sort) {
-         case Type.ARRAY: typeDesc = toType.getDescriptor(); break;
-         case Type.OBJECT: typeDesc = toType.getInternalName(); break;
+         case Type.Sort.ARRAY: typeDesc = toType.getDescriptor(); break;
+         case Type.Sort.OBJECT: typeDesc = toType.getInternalName(); break;
          default: typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
       }
 
@@ -77,7 +77,7 @@ public final class TypeConversion
       int sort = parameterType.getSort();
       String typeDesc;
 
-      if (sort < Type.ARRAY) {
+      if (sort < Type.Sort.ARRAY) {
          typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
       }
       else {
@@ -88,16 +88,16 @@ public final class TypeConversion
             sort = i / 20 + 1;
          }
          else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) {
-            sort = Type.INT;
+            sort = Type.Sort.INT;
          }
          else {
-            sort = Type.INT;
+            sort = Type.Sort.INT;
 
             //noinspection SwitchStatementWithoutDefaultBranch
             switch (opcode) {
-               case FSTORE: sort = Type.FLOAT; break;
-               case LSTORE: sort = Type.LONG; break;
-               case DSTORE: sort = Type.DOUBLE;
+               case FSTORE: sort = Type.Sort.FLOAT; break;
+               case LSTORE: sort = Type.Sort.LONG; break;
+               case DSTORE: sort = Type.Sort.DOUBLE;
             }
 
             typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];

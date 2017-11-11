@@ -76,7 +76,7 @@ public final class TypeDescriptor
 
       String className;
 
-      if (sort == Type.ARRAY) {
+      if (sort == Type.Sort.ARRAY) {
          className = type.getDescriptor().replace('/', '.');
       }
       else {
