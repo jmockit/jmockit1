@@ -114,7 +114,7 @@ final class FieldWriter extends FieldVisitor
          size += 6;
       }
 
-      if (isDeprecated()) {
+      if (Access.isDeprecated(access)) {
          cw.newUTF8("Deprecated");
          size += 6;
       }
@@ -133,19 +133,14 @@ final class FieldWriter extends FieldVisitor
       return cw.isSynthetic(access);
    }
 
-   private boolean isDeprecated() {
-      return (access & Access.DEPRECATED) != 0;
-   }
-
    /**
     * Puts the content of this field into the given byte vector.
     *
     * @param out where the content of this field must be put.
     */
    void put(ByteVector out) {
-      int mask =
-         Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE | ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
-      out.putShort(access & ~mask);
+      int accessFlag = Access.computeFlag(access, 0);
+      out.putShort(accessFlag);
 
       out.putShort(name);
       out.putShort(desc);
@@ -162,7 +157,7 @@ final class FieldWriter extends FieldVisitor
          ++attributeCount;
       }
 
-      boolean deprecated = isDeprecated();
+      boolean deprecated = Access.isDeprecated(access);
 
       if (deprecated) {
          ++attributeCount;

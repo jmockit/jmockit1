@@ -588,12 +588,8 @@ public final class Frame
       int i = 0;
 
       if ((access & Access.STATIC) == 0) {
-         if ((access & Access.CONSTRUCTOR) == 0) {
-            inputLocals[i++] = OBJECT | cw.addType(cw.thisName);
-         }
-         else {
-            inputLocals[i++] = UNINITIALIZED_THIS;
-         }
+         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cw.addType(cw.thisName);
+         inputLocals[i++] = inputLocal;
       }
 
       for (int j = 0; j < args.length; ++j) {

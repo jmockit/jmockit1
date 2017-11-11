@@ -1128,7 +1128,7 @@ public final class MethodWriter extends MethodVisitor
          size += 6;
       }
 
-      if (isDeprecated()) {
+      if (Access.isDeprecated(access)) {
          cw.newUTF8("Deprecated");
          size += 6;
       }
@@ -1174,10 +1174,11 @@ public final class MethodWriter extends MethodVisitor
     * @param out the byte vector into which the bytecode of this method must be copied.
     */
    void put(ByteVector out) {
-      int mask =
-         Access.CONSTRUCTOR | Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE |
-         ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
-      out.putShort(access & ~mask).putShort(name).putShort(desc);
+      int accessFlag = Access.computeFlag(access, Access.CONSTRUCTOR);
+      out.putShort(accessFlag);
+
+      out.putShort(name);
+      out.putShort(desc);
 
       if (classReaderOffset != 0) {
          out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
@@ -1200,7 +1201,9 @@ public final class MethodWriter extends MethodVisitor
          attributeCount++;
       }
 
-      if (isDeprecated()) {
+      boolean deprecated = Access.isDeprecated(access);
+
+      if (deprecated) {
          attributeCount++;
       }
 
@@ -1255,7 +1258,7 @@ public final class MethodWriter extends MethodVisitor
          out.putShort(cw.newUTF8("Synthetic")).putInt(0);
       }
 
-      if (isDeprecated()) {
+      if (deprecated) {
          out.putShort(cw.newUTF8("Deprecated")).putInt(0);
       }
 
@@ -1265,8 +1268,6 @@ public final class MethodWriter extends MethodVisitor
 
       putAnnotationAttributes(out);
    }
-
-   private boolean isDeprecated() { return (access & Access.DEPRECATED) != 0; }
 
    private void putAnnotationAttributes(ByteVector out) {
       if (annotationDefault != null) {

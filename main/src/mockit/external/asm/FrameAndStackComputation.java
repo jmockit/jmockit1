@@ -241,12 +241,10 @@ final class FrameAndStackComputation
       int frameIndex = startFrame(0, desc.length() + 1, 0);
 
       if ((access & Access.STATIC) == 0) {
-         if ((access & Access.CONSTRUCTOR) == 0) {
-            frameDefinition[frameIndex++] = Frame.OBJECT | cw.addType(cw.thisName);
-         }
-         else {
-            frameDefinition[frameIndex++] = 6; // Opcodes.UNINITIALIZED_THIS;
-         }
+         int frame = Access.isConstructor(access) ? 6 /* Frame.UNINITIALIZED_THIS */ :
+            Frame.OBJECT | cw.addType(cw.thisName);
+
+         frameDefinition[frameIndex++] = frame;
       }
 
       int i = 1;

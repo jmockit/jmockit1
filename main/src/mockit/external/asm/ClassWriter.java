@@ -427,7 +427,9 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("EnclosingMethod");
       }
 
-      if ((access & Access.DEPRECATED) != 0) {
+      boolean deprecated = Access.isDeprecated(access);
+
+      if (deprecated) {
          ++attributeCount;
          size += 6;
          newUTF8("Deprecated");
@@ -458,10 +460,11 @@ public final class ClassWriter extends ClassVisitor
       out.putInt(0xCAFEBABE).putInt(version);
       out.putShort(index).putByteVector(pool);
 
-      int mask =
-         Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE | ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
-      out.putShort(access & ~mask).putShort(name).putShort(superName);
+      int accessFlag = Access.computeFlag(access, 0);
+      out.putShort(accessFlag);
 
+      out.putShort(name);
+      out.putShort(superName);
       out.putShort(interfaceCount);
 
       for (int i = 0; i < interfaceCount; ++i) {
@@ -506,7 +509,7 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
       }
 
-      if ((access & Access.DEPRECATED) != 0) {
+      if (deprecated) {
          out.putShort(newUTF8("Deprecated")).putInt(0);
       }
 
@@ -534,7 +537,7 @@ public final class ClassWriter extends ClassVisitor
    private boolean isSynthetic() { return isSynthetic(access); }
 
    boolean isSynthetic(int access) {
-      return (access & Access.SYNTHETIC) != 0 && ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
+      return Access.isSynthetic(access) && ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
    }
 
    /**

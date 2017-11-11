@@ -5,6 +5,7 @@ package mockit.external.asm;
  */
 public final class Access
 {
+   // Constants for standard JVM access flags.
    public static final int PUBLIC       = 0x0001; // class, field, method
    public static final int PRIVATE      = 0x0002; // class, field, method
    public static final int PROTECTED    = 0x0004; // class, field, method
@@ -25,19 +26,35 @@ public final class Access
    public static final int ENUM         = 0x4000; // class(?) field inner
 // public static final int MANDATED     = 0x8000; // parameter
 
-   // Pseudo access flags.
-   public static final int DEPRECATED  = 0x20000; // class, field, method
-   public static final int CONSTRUCTOR = 0x80000; // method
+   // Constants for pseudo access flags.
+   private static final int DEPRECATED  = 0x20000; // class, field, method
+   private static final int CONSTRUCTOR = 0x80000; // method
+
+   // Other constants /////////////////////////////////////////////////////////////////////////////
 
    /**
     * To distinguish between the synthetic attribute and the synthetic access flag.
     */
-   public static final int SYNTHETIC_ATTRIBUTE = 0x40000;
+   static final int SYNTHETIC_ATTRIBUTE = 0x40000; // class, field, method
 
    /**
     * Factor to convert from SYNTHETIC_ATTRIBUTE to SYNTHETIC.
     */
-   public static final int TO_SYNTHETIC = SYNTHETIC_ATTRIBUTE / SYNTHETIC;
+   private static final int TO_SYNTHETIC = SYNTHETIC_ATTRIBUTE / SYNTHETIC;
+
+   // Helper methods //////////////////////////////////////////////////////////////////////////////
 
    private Access() {}
+
+   static boolean isDeprecated(int access)  { return (access & DEPRECATED) != 0; }
+   static boolean isSynthetic(int access)   { return (access & SYNTHETIC) != 0; }
+   static boolean isConstructor(int access) { return (access & CONSTRUCTOR) != 0; }
+
+   static int computeFlag(int access, int baseMask) {
+      int mask = baseMask | DEPRECATED | SYNTHETIC_ATTRIBUTE | ((access & SYNTHETIC_ATTRIBUTE) / TO_SYNTHETIC);
+      return access & ~mask;
+   }
+
+   static int asDeprecated(int access) { return access | DEPRECATED; }
+   static int asSynthetic(int access)  { return access | SYNTHETIC | SYNTHETIC_ATTRIBUTE; }
 }
