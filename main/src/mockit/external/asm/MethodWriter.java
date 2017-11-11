@@ -186,7 +186,7 @@ public final class MethodWriter extends MethodVisitor
 
    private Label createAndVisitLabelForFirstBasicBlock() {
       Label label = new Label();
-      label.status |= Label.PUSHED;
+      label.markAsPushed();
       visitLabel(label);
       return label;
    }
@@ -300,7 +300,7 @@ public final class MethodWriter extends MethodVisitor
             // Updates current and max stack sizes.
             if (opcode == RET) {
                // No stack change, but end of current block (no successor).
-               currentBlock.status |= Label.RET;
+               currentBlock.markAsEndingWithRET();
 
                // Save 'stackSize' here for future use (see {@link #findSubroutineSuccessors}).
                currentBlock.inputStackTop = stackSize;
@@ -516,7 +516,7 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(opcode, 0, null, null);
 
             // 'label' is the target of a jump instruction.
-            label.getFirst().setAsTarget();
+            label.getFirst().markAsTarget();
 
             // Adds 'label' as a successor of this basic block.
             addSuccessor(Edge.NORMAL, label);
@@ -528,12 +528,11 @@ public final class MethodWriter extends MethodVisitor
          }
          else {
             if (opcode == JSR) {
-               if ((label.status & Label.SUBROUTINE) == 0) {
-                  label.status |= Label.SUBROUTINE;
+               if (label.markAsSubroutine()) {
                   subroutines++;
                }
 
-               currentBlock.setAsJSR();
+               currentBlock.markAsJSR();
                addSuccessor(stackSize + 1, label);
 
                // Creates a Label for the next basic block.
@@ -554,7 +553,7 @@ public final class MethodWriter extends MethodVisitor
       }
 
       // Adds the instruction to the bytecode of the method.
-      if ((label.status & Label.RESOLVED) != 0 && label.position - code.length < Short.MIN_VALUE) {
+      if (label.isResolved() && label.position - code.length < Short.MIN_VALUE) {
          /*
           * Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W,
           * JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
@@ -570,7 +569,7 @@ public final class MethodWriter extends MethodVisitor
             // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
             // IFNOT instruction.
             if (nextInsn != null) {
-               nextInsn.setAsTarget();
+               nextInsn.markAsTarget();
             }
 
             code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
@@ -617,7 +616,7 @@ public final class MethodWriter extends MethodVisitor
          if (currentBlock != null) {
             if (label.position == currentBlock.position) {
                // Successive labels, do not start a new basic block.
-               currentBlock.status |= label.status & Label.TARGET;
+               currentBlock.markAsTarget(label);
                label.frame = currentBlock.frame;
                return;
             }
@@ -636,7 +635,7 @@ public final class MethodWriter extends MethodVisitor
          // Updates the basic block list.
          if (previousBlock != null) {
             if (label.position == previousBlock.position) {
-               previousBlock.status |= label.status & Label.TARGET;
+               previousBlock.markAsTarget(label);
                label.frame = previousBlock.frame;
                currentBlock = previousBlock;
                return;
@@ -774,11 +773,11 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
             // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);
-            dflt.getFirst().setAsTarget();
+            dflt.getFirst().markAsTarget();
 
             for (int i = 0; i < labels.length; ++i) {
                addSuccessor(Edge.NORMAL, labels[i]);
-               labels[i].getFirst().setAsTarget();
+               labels[i].getFirst().markAsTarget();
             }
          }
          else {
@@ -879,11 +878,11 @@ public final class MethodWriter extends MethodVisitor
 
          // A reachable jump target must be stored in the stack map.
          if (l.isTarget()) {
-            l.status |= Label.STORE;
+            l.markAsStoringFrame();
          }
 
          // All visited labels are reachable, by definition.
-         l.status |= Label.REACHABLE;
+         l.markAsReachable();
 
          // Updates the (absolute) maximum stack size.
          int blockMax = f.inputStack.length + l.outputStackMax;
@@ -920,11 +919,11 @@ public final class MethodWriter extends MethodVisitor
       while (label != null) {
          frame = label.frame;
 
-         if ((label.status & Label.STORE) != 0) {
+         if (label.isStoringFrame()) {
             frameAndStack.visitFrame(frame);
          }
 
-         if ((label.status & Label.REACHABLE) == 0) {
+         if (!label.isReachable()) {
             // Finds start and end of dead basic block.
             Label k = label.successor;
             int start = label.position;
@@ -985,12 +984,7 @@ public final class MethodWriter extends MethodVisitor
 
       while (l != null) {
          if (l.isJSR()) {
-            Label L = labels;
-
-            while (L != null) {
-               L.status &= ~Label.VISITED2;
-               L = L.successor;
-            }
+            labels.markThisAndSuccessorsAsNotVisitedBySubroutine();
 
             // The subroutine is defined by l's TARGET, not by l.
             Label subroutine = l.successors.next.successor;
@@ -1038,12 +1032,12 @@ public final class MethodWriter extends MethodVisitor
             l = b.successor;
 
             // If this successor has not already been pushed...
-            if ((l.status & Label.PUSHED) == 0) {
+            if (!l.isPushed()) {
                // computes its true beginning stack size...
                l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
 
                // ...and pushes it onto the stack.
-               l.status |= Label.PUSHED;
+               l.markAsPushed();
                l.next = stack;
                stack = l;
             }

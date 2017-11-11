@@ -62,7 +62,7 @@ final class ExceptionHandling
          int kind = Frame.TypeMask.OBJECT | cw.addType(t);
 
          // h is an exception handler.
-         h.setAsTarget();
+         h.markAsTarget();
 
          // Adds 'h' as a successor of labels between 'start' and 'end'.
          while (l != e) {

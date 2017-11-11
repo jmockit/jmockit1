@@ -40,61 +40,67 @@ package mockit.external.asm;
 public final class Label
 {
    /**
-    * Indicates if this label is only used for debug attributes. Such a label is not the start of a basic block, the
-    * target of a jump instruction, or an exception handler. It can be safely ignored in control flow graph analysis
-    * algorithms (for optimization purposes).
+    * Constants for the current status of a label.
     */
-   private static final int DEBUG = 1;
+   interface Status
+   {
+      /**
+       * Indicates if this label is only used for debug attributes. Such a label is not the start of a basic block, the
+       * target of a jump instruction, or an exception handler. It can be safely ignored in control flow graph analysis
+       * algorithms (for optimization purposes).
+       */
+      int DEBUG = 1;
 
-   /**
-    * Indicates if the position of this label is known.
-    */
-   static final int RESOLVED = 2;
+      /**
+       * Indicates if the position of this label is known.
+       */
+      int RESOLVED = 2;
 
-   /**
-    * Indicates if this basic block has been pushed in the basic block stack. See {@link MethodWriter#visitMaxStack}.
-    */
-   static final int PUSHED = 8;
+      /**
+       * Indicates if this basic block has been pushed in the basic block stack. See {@link MethodWriter#visitMaxStack}.
+       */
+      int PUSHED = 8;
 
-   /**
-    * Indicates if this label is the target of a jump instruction, or the start of an exception handler.
-    */
-   static final int TARGET = 16;
+      /**
+       * Indicates if this label is the target of a jump instruction, or the start of an exception handler.
+       */
+      int TARGET = 16;
 
-   /**
-    * Indicates if a stack map frame must be stored for this label.
-    */
-   static final int STORE = 32;
+      /**
+       * Indicates if a stack map frame must be stored for this label.
+       */
+      int STORE = 32;
 
-   /**
-    * Indicates if this label corresponds to a reachable basic block.
-    */
-   static final int REACHABLE = 64;
+      /**
+       * Indicates if this label corresponds to a reachable basic block.
+       */
+      int REACHABLE = 64;
 
-   /**
-    * Indicates if this basic block ends with a JSR instruction.
-    */
-   private static final int JSR = 128;
+      /**
+       * Indicates if this basic block ends with a JSR instruction.
+       */
+      int JSR = 128;
 
-   /**
-    * Indicates if this basic block ends with a RET instruction.
-    */
-   static final int RET = 256;
+      /**
+       * Indicates if this basic block ends with a RET instruction.
+       */
+      int RET = 256;
 
-   /**
-    * Indicates if this basic block is the start of a subroutine.
-    */
-   static final int SUBROUTINE = 512;
+      /**
+       * Indicates if this basic block is the start of a subroutine.
+       */
+      int SUBROUTINE = 512;
 
-   /**
-    * Indicates if this subroutine basic block has been visited by a visitSubroutine(null, ...) call.
-    */
-   private static final int VISITED = 1024;
+      /**
+       * Indicates if this subroutine basic block has been visited by a visitSubroutine(null, ...) call.
+       */
+      int VISITED = 1024;
 
-   /**
-    * Indicates if this subroutine basic block has been visited by a visitSubroutine(!null, ...) call.
-    */
-   static final int VISITED2 = 2048;
+      /**
+       * Indicates if this subroutine basic block has been visited by a visitSubroutine(!null, ...) call.
+       */
+      int VISITED2 = 2048;
+   }
 
    /**
     * Field used to associate user information to a label.
@@ -102,18 +108,7 @@ public final class Label
    public Object info;
 
    /**
-    * Flags that indicate the status of this label.
-    *
-    * @see #DEBUG
-    * @see #RESOLVED
-    * @see #PUSHED
-    * @see #TARGET
-    * @see #STORE
-    * @see #REACHABLE
-    * @see #JSR
-    * @see #RET
-    * @see #VISITED
-    * @see #VISITED2
+    * Flags that indicate the {@link Status} of this label.
     */
    int status;
 
@@ -208,16 +203,53 @@ public final class Label
     */
    Label next;
 
-   public boolean isDebug() { return (status & DEBUG) != 0; }
-   void setAsDebug() { status |= DEBUG; }
+   public boolean isDebug() { return (status & Status.DEBUG) != 0; }
+   boolean isResolved()     { return (status & Status.RESOLVED) != 0; }
+   boolean isPushed()       { return (status & Status.PUSHED) != 0; }
+   boolean isTarget()       { return (status & Status.TARGET) != 0; }
+   boolean isStoringFrame() { return (status & Status.STORE) != 0; }
+   boolean isReachable()    { return (status & Status.REACHABLE) != 0; }
+   boolean isJSR()          { return (status & Status.JSR) != 0; }
+   boolean isRET()          { return (status & Status.RET) != 0; }
+   boolean isVisited()      { return (status & Status.VISITED) != 0; }
 
-   boolean isTarget() { return (status & TARGET) != 0; }
-   void setAsTarget() { status |= TARGET; }
+   void markAsDebug()              { status |= Status.DEBUG; }
+   void markAsResolved()           { status |= Status.RESOLVED; }
+   void markAsPushed()             { status |= Status.PUSHED; }
+   void markAsTarget()             { status |= Status.TARGET; }
+   void markAsStoringFrame()       { status |= Status.STORE; }
+   void markAsReachable()          { status |= Status.REACHABLE; }
+   void markAsJSR()                { status |= Status.JSR; }
+   void markAsEndingWithRET()      { status |= Status.RET; }
+   void markAsVisitedSubroutine()  { status |= Status.VISITED; }
+   void markAsTarget(Label target) { status |= target.status & Status.TARGET; }
 
-   boolean isJSR() { return (status & JSR) != 0; }
-   void setAsJSR() { status |= JSR; }
+   boolean markAsSubroutine() {
+      if ((status & Status.SUBROUTINE) == 0) {
+         status |= Status.SUBROUTINE;
+         return true;
+      }
 
-   boolean isVisited() { return (status & VISITED) != 0; }
+      return false;
+   }
+
+   boolean markAsVisitedSubroutine2() {
+      if ((status & Status.VISITED2) != 0) {
+         return true;
+      }
+
+      status |= Status.VISITED2;
+      return false;
+   }
+
+   void markThisAndSuccessorsAsNotVisitedBySubroutine() {
+      Label label = this;
+
+      while (label != null) {
+         label.status &= ~Status.VISITED2;
+         label = label.successor;
+      }
+   }
 
    // ------------------------------------------------------------------------
    // Methods to compute offsets and to manage forward references
@@ -235,7 +267,7 @@ public final class Label
     * @throws IllegalArgumentException if this label has not been created by the given code writer.
     */
    void put(ByteVector out, int source, boolean wideOffset) {
-      if ((status & RESOLVED) == 0) {
+      if (!isResolved()) {
          if (wideOffset) {
             addReference(-1 - source, out.length);
             out.putInt(-1);
@@ -287,7 +319,7 @@ public final class Label
     * @param methodBytecode bytecode of the method containing this label
     */
    void resolve(ByteVector methodBytecode) {
-      status |= RESOLVED;
+      markAsResolved();
 
       byte[] data = methodBytecode.data;
       int position = methodBytecode.length;
@@ -369,7 +401,7 @@ public final class Label
     */
    private void addToSubroutine(long id, int nbSubroutines) {
       if (!isVisited()) {
-         status |= VISITED;
+         markAsVisitedSubroutine();
          srcAndRefPositions = new int[nbSubroutines / 32 + 1];
       }
 
@@ -398,14 +430,12 @@ public final class Label
          l.next = null;
 
          if (JSR != null) {
-            if ((l.status & VISITED2) != 0) {
+            if (l.markAsVisitedSubroutine2()) {
                continue;
             }
 
-            l.status |= VISITED2;
-
             // Adds JSR to the successors of l, if it is a RET block.
-            if ((l.status & RET) != 0) {
+            if (l.isRET()) {
                if (!l.inSameSubroutine(JSR)) {
                   Edge e = new Edge(l.inputStackTop, JSR.successors.successor);
                   e.next = l.successors;
