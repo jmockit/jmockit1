@@ -49,45 +49,6 @@ public final class MethodWriter extends MethodVisitor
    static final int ACC_CONSTRUCTOR = 0x80000;
 
    /**
-    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
-    */
-   static final int SAME_FRAME = 0; // to 63 (0-3f)
-
-   /**
-    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
-    */
-   static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
-
-   /**
-    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
-    * Offset is bigger then 63.
-    */
-   static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
-
-   /**
-    * Frame where current locals are the same as the locals in the previous frame, except that the k last locals are
-    * absent. The value of k is given by the formula 251-frame_type.
-    */
-   static final int CHOP_FRAME = 248; // to 250 (f8-fA)
-
-   /**
-    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
-    * Offset is bigger then 63.
-    */
-   static final int SAME_FRAME_EXTENDED = 251; // fb
-
-   /**
-    * Frame where current locals are the same as the locals in the previous frame, except that k additional locals are
-    * defined. The value of k is given by the formula frame_type-251.
-    */
-   static final int APPEND_FRAME = 252; // to 254 // fc-fe
-
-   /**
-    * Full frame.
-    */
-   static final int FULL_FRAME = 255; // ff
-
-   /**
     * The class writer to which this method must be added.
     */
    final ClassWriter cw;
@@ -130,16 +91,7 @@ public final class MethodWriter extends MethodVisitor
     */
    int classReaderLength;
 
-   /**
-    * Number of exceptions that can be thrown by this method.
-    */
-   final int exceptionCount;
-
-   /**
-    * The exceptions that can be thrown by this method. More precisely, this array contains the indexes of the constant
-    * pool items that contain the internal names of these exception classes.
-    */
-   final int[] exceptions;
+   final ThrowsClause throwsClause;
 
    /**
     * The annotation default attribute of this method. May be <tt>null</tt>.
@@ -157,51 +109,9 @@ public final class MethodWriter extends MethodVisitor
    final ByteVector code;
 
    private final FrameAndStackComputation frameAndStack;
-
-   /**
-    * Number of elements in the exception handler list.
-    */
-   private int handlerCount;
-
-   /**
-    * The first element in the exception handler list.
-    */
-   private ExceptionHandler firstExceptionHandler;
-
-   /**
-    * The last element in the exception handler list.
-    */
-   private ExceptionHandler lastExceptionHandler;
-
-   /**
-    * Number of entries in the LocalVariableTable attribute.
-    */
-   private int localVarCount;
-
-   /**
-    * The LocalVariableTable attribute.
-    */
-   private ByteVector localVar;
-
-   /**
-    * Number of entries in the LocalVariableTypeTable attribute.
-    */
-   private int localVarTypeCount;
-
-   /**
-    * The LocalVariableTypeTable attribute.
-    */
-   private ByteVector localVarType;
-
-   /**
-    * Number of entries in the LineNumberTable attribute.
-    */
-   private int lineNumberCount;
-
-   /**
-    * The LineNumberTable attribute.
-    */
-   private ByteVector lineNumber;
+   private final ExceptionHandling exceptionHandling;
+   private final LocalVariables localVariables;
+   private final LineNumbers lineNumbers;
 
    /**
     * The number of subroutines in this method.
@@ -270,30 +180,14 @@ public final class MethodWriter extends MethodVisitor
       this.desc = cw.newUTF8(desc);
       descriptor = desc;
       this.signature = signature;
-      exceptionCount = exceptions == null ? 0 : exceptions.length;
-      this.exceptions = initializeExceptions(exceptions);
+      throwsClause = new ThrowsClause(cw, exceptions);
       code = new ByteVector();
-
       this.computeFrames = computeFrames;
       frameAndStack = new FrameAndStackComputation(this, access, desc);
-
+      exceptionHandling = new ExceptionHandling(cw);
+      localVariables = new LocalVariables(cw);
+      lineNumbers = new LineNumbers(cw);
       labels = createAndVisitLabelForFirstBasicBlock();
-   }
-
-   private int[] initializeExceptions(String[] exceptions) {
-      int n = exceptionCount;
-
-      if (n > 0) {
-         int[] exceptionIndices = new int[n];
-
-         for (int i = 0; i < n; ++i) {
-            exceptionIndices[i] = cw.newClass(exceptions[i]);
-         }
-
-         return exceptionIndices;
-      }
-
-      return null;
    }
 
    private Label createAndVisitLabelForFirstBasicBlock() {
@@ -454,7 +348,7 @@ public final class MethodWriter extends MethodVisitor
          code.put11(opcode, var);
       }
 
-      if (opcode >= ISTORE && computeFrames && handlerCount > 0) {
+      if (opcode >= ISTORE && computeFrames && exceptionHandling.hasHandlers()) {
          visitLabel(new Label());
       }
    }
@@ -642,7 +536,7 @@ public final class MethodWriter extends MethodVisitor
             if (opcode == JSR) {
                if ((label.status & Label.SUBROUTINE) == 0) {
                   label.status |= Label.SUBROUTINE;
-                  ++subroutines;
+                  subroutines++;
                }
 
                currentBlock.setAsJSR();
@@ -931,124 +825,45 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-      ++handlerCount;
-
-      int handlerType = type != null ? cw.newClass(type) : 0;
-      ExceptionHandler h = new ExceptionHandler(start, end, handler, type, handlerType);
-
-      if (lastExceptionHandler == null) {
-         firstExceptionHandler = h;
-      }
-      else {
-         lastExceptionHandler.next = h;
-      }
-
-      lastExceptionHandler = h;
+      exceptionHandling.addHandler(start, end, handler, type);
    }
 
    @Override
    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
-      if (signature != null) {
-         if (localVarType == null) {
-            localVarType = new ByteVector();
-         }
-
-         ++localVarTypeCount;
-         localVarType.putShort(start.position)
-            .putShort(end.position - start.position)
-            .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(signature))
-            .putShort(index);
-      }
-
-      if (localVar == null) {
-         localVar = new ByteVector();
-      }
-
-      ++localVarCount;
-      localVar.putShort(start.position)
-         .putShort(end.position - start.position)
-         .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc))
-         .putShort(index);
-
-      // Updates max locals.
-      char c = desc.charAt(0);
-      int n = index + (c == 'J' || c == 'D' ? 2 : 1);
-      frameAndStack.updateMaxLocals(n);
+      int localsCount = localVariables.addLocalVariable(name, desc, signature, start, end, index);
+      frameAndStack.updateMaxLocals(localsCount);
    }
 
    @Override
    public void visitLineNumber(int line, Label start) {
-      if (lineNumber == null) {
-         lineNumber = new ByteVector();
-      }
-
-      ++lineNumberCount;
-      lineNumber.putShort(start.position);
-      lineNumber.putShort(line);
+      lineNumbers.addLineNumber(line, start);
    }
 
    @Override
    public void visitMaxStack(int maxStack) {
+      int computedMaxStack;
+
       if (computeFrames) {
-         completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames();
-         createAndVisitFirstFrame();
+         exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames();
+         frameAndStack.createAndVisitFirstFrame(labels.frame);
 
-         int max = computeMaxStackSizeFromComputedFrames();
-         max = visitAllFramesToBeStoredInStackMap(max);
+         computedMaxStack = computeMaxStackSizeFromComputedFrames();
+         computedMaxStack = visitAllFramesToBeStoredInStackMap(computedMaxStack);
 
-         countNumberOfHandlers();
-         frameAndStack.maxStack = max;
+         exceptionHandling.countNumberOfHandlers();
       }
       else {
-         completeControlFlowGraphWithExceptionHandlerBlocks();
+         exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocks();
 
          if (subroutines > 0) {
             completeControlFlowGraphWithRETSuccessors();
          }
 
-         int computedMaxStack = computeMaxStackSize();
-         frameAndStack.maxStack = Math.max(maxStack, computedMaxStack);
+         computedMaxStack = computeMaxStackSize();
+         computedMaxStack = Math.max(maxStack, computedMaxStack);
       }
-   }
 
-   private void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-
-      while (exceptionHandler != null) {
-         Label l = exceptionHandler.start.getFirst();
-         Label h = exceptionHandler.handler.getFirst();
-         Label e = exceptionHandler.end.getFirst();
-
-         // Computes the kind of the edges to 'h'.
-         String t = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.OBJECT | cw.addType(t);
-
-         // h is an exception handler.
-         h.setAsTarget();
-
-         // Adds 'h' as a successor of labels between 'start' and 'end'.
-         while (l != e) {
-            // Creates an edge to 'h'.
-            Edge b = new Edge(kind, h);
-
-            // Adds it to the successors of 'l'.
-            b.next = l.successors;
-            l.successors = b;
-
-            // Goes to the next label.
-            l = l.successor;
-         }
-
-         exceptionHandler = exceptionHandler.next;
-      }
-   }
-
-   // Creates and visits the first (implicit) frame.
-   private void createAndVisitFirstFrame() {
-      Type[] args = Type.getArgumentTypes(descriptor);
-      Frame f = labels.frame;
-      f.initInputFrame(cw, access, args, frameAndStack.maxLocals);
-      frameAndStack.visitFrame(f);
+      frameAndStack.setMaxStack(computedMaxStack);
    }
 
    /**
@@ -1133,9 +948,7 @@ public final class MethodWriter extends MethodVisitor
                code.data[end] = (byte) ATHROW;
 
                frameAndStack.emitFrameForUnreachableBlock(start);
-
-               // Removes the start-end range from the exception handlers.
-               firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, label, k);
+               exceptionHandling.removeStartEndRange(label, k);
             }
          }
 
@@ -1143,49 +956,6 @@ public final class MethodWriter extends MethodVisitor
       }
 
       return max;
-   }
-
-   private void countNumberOfHandlers() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-      handlerCount = 0;
-
-      while (exceptionHandler != null) {
-         handlerCount++;
-         exceptionHandler = exceptionHandler.next;
-      }
-   }
-
-   private void completeControlFlowGraphWithExceptionHandlerBlocks() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-
-      while (exceptionHandler != null) {
-         Label l = exceptionHandler.start;
-         Label h = exceptionHandler.handler;
-         Label e = exceptionHandler.end;
-
-         // Adds 'h' as a successor of labels between 'start' and 'end'.
-         while (l != e) {
-            // Creates an edge to 'h'.
-            Edge b = new Edge(Edge.EXCEPTION, h);
-
-            // Adds it to the successors of 'l'.
-            if (!l.isJSR()) {
-               b.next = l.successors;
-               l.successors = b;
-            }
-            else {
-               // If l is a JSR block, adds b after the first two edges to preserve the hypothesis about JSR block
-               // successors order (see {@link #visitJumpInsn}).
-               b.next = l.successors.next.next;
-               l.successors.next.next = b;
-            }
-
-            // Goes to the next label.
-            l = l.successor;
-         }
-
-         exceptionHandler = exceptionHandler.next;
-      }
    }
 
    /**
@@ -1342,44 +1112,29 @@ public final class MethodWriter extends MethodVisitor
       }
 
       int size = 8;
+      int codeLength = code.length;
 
-      if (code.length > 0) {
-         if (code.length > 65536) {
+      if (codeLength > 0) {
+         if (codeLength > 65536) {
             throw new RuntimeException("Method code too large!");
          }
 
          cw.newUTF8("Code");
-         size += 18 + code.length + 8 * handlerCount;
 
-         if (localVar != null) {
-            cw.newUTF8("LocalVariableTable");
-            size += 8 + localVar.length;
-         }
-
-         if (localVarType != null) {
-            cw.newUTF8("LocalVariableTypeTable");
-            size += 8 + localVarType.length;
-         }
-
-         if (lineNumber != null) {
-            cw.newUTF8("LineNumberTable");
-            size += 8 + lineNumber.length;
-         }
-
+         size += 18 + codeLength + exceptionHandling.getSize();
+         size += localVariables.getSizeWhileAddingConstantPoolItems();
+         size += lineNumbers.getSizeWhileAddingConstantPoolItem();
          size += frameAndStack.getSizeWhileAddingConstantPoolItem();
       }
 
-      if (exceptionCount > 0) {
-         cw.newUTF8("Exceptions");
-         size += 8 + 2 * exceptionCount;
-      }
+      size += throwsClause.getSize();
 
       if (cw.isSynthetic(access)) {
          cw.newUTF8("Synthetic");
          size += 6;
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if (isDeprecated()) {
          cw.newUTF8("Deprecated");
          size += 6;
       }
@@ -1396,13 +1151,23 @@ public final class MethodWriter extends MethodVisitor
       }
 
       size += getAnnotationsSize(cw);
+      size += getSizeOfParameterAnnotations();
+
+      return size;
+   }
+
+   private int getSizeOfParameterAnnotations() {
+      int size = 0;
 
       if (parameterAnnotations != null) {
          cw.newUTF8("RuntimeVisibleParameterAnnotations");
-         size += 7 + 2 * parameterAnnotations.length;
 
-         for (int i = parameterAnnotations.length - 1; i >= 0; --i) {
-            size += parameterAnnotations[i] == null ? 0 : parameterAnnotations[i].getSize();
+         int n = parameterAnnotations.length;
+         size += 7 + 2 * n;
+
+         for (int i = n - 1; i >= 0; --i) {
+            AnnotationWriter parameterAnnotation = parameterAnnotations[i];
+            size += parameterAnnotation == null ? 0 : parameterAnnotation.getSize();
          }
       }
 
@@ -1428,129 +1193,75 @@ public final class MethodWriter extends MethodVisitor
       int attributeCount = 0;
 
       if (code.length > 0) {
-         ++attributeCount;
+         attributeCount++;
       }
 
-      if (exceptionCount > 0) {
-         ++attributeCount;
+      if (throwsClause.hasExceptions()) {
+         attributeCount++;
       }
-
 
       boolean synthetic = cw.isSynthetic(access);
 
       if (synthetic) {
-         ++attributeCount;
+         attributeCount++;
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
-         ++attributeCount;
+      if (isDeprecated()) {
+         attributeCount++;
       }
 
       if (signature != null) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       if (annotationDefault != null) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       if (annotations != null) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       if (parameterAnnotations != null) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       out.putShort(attributeCount);
 
       if (code.length > 0) {
-         int size = 12 + code.length + 8 * handlerCount;
-
-         if (localVar != null) {
-            size += 8 + localVar.length;
-         }
-
-         if (localVarType != null) {
-            size += 8 + localVarType.length;
-         }
-
-         if (lineNumber != null) {
-            size += 8 + lineNumber.length;
-         }
-
+         int size = 12 + code.length + exceptionHandling.getSize();
+         size += localVariables.getSize();
+         size += lineNumbers.getSize();
          size += frameAndStack.getSize();
 
          out.putShort(cw.newUTF8("Code")).putInt(size);
          frameAndStack.putMaxStackAndLocals(out);
          out.putInt(code.length).putByteVector(code);
-         out.putShort(handlerCount);
+         exceptionHandling.put(out);
 
-         if (handlerCount > 0) {
-            ExceptionHandler h = firstExceptionHandler;
+         attributeCount = localVariables.getAttributeCount();
 
-            while (h != null) {
-               out.putShort(h.start.position).putShort(h.end.position);
-               out.putShort(h.handler.position).putShort(h.type);
-               h = h.next;
-            }
-         }
-
-         attributeCount = 0;
-
-         if (localVar != null) {
-            ++attributeCount;
-         }
-
-         if (localVarType != null) {
-            ++attributeCount;
-         }
-
-         if (lineNumber != null) {
-            ++attributeCount;
+         if (lineNumbers.hasLineNumbers()) {
+            attributeCount++;
          }
 
          if (frameAndStack.hasStackMap()) {
-            ++attributeCount;
+            attributeCount++;
          }
 
          out.putShort(attributeCount);
-
-         if (localVar != null) {
-            out.putShort(cw.newUTF8("LocalVariableTable"));
-            out.putInt(localVar.length + 2).putShort(localVarCount);
-            out.putByteVector(localVar);
-         }
-
-         if (localVarType != null) {
-            out.putShort(cw.newUTF8("LocalVariableTypeTable"));
-            out.putInt(localVarType.length + 2).putShort(localVarTypeCount);
-            out.putByteVector(localVarType);
-         }
-
-         if (lineNumber != null) {
-            out.putShort(cw.newUTF8("LineNumberTable"));
-            out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
-            out.putByteVector(lineNumber);
-         }
-
+         localVariables.put(out);
+         lineNumbers.put(out);
          frameAndStack.put(out);
       }
 
-      if (exceptionCount > 0) {
-         out.putShort(cw.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
-         out.putShort(exceptionCount);
-
-         for (int i = 0; i < exceptionCount; ++i) {
-            out.putShort(exceptions[i]);
-         }
-      }
+      throwsClause.put(out);
 
       if (synthetic) {
          out.putShort(cw.newUTF8("Synthetic")).putInt(0);
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if (isDeprecated()) {
          out.putShort(cw.newUTF8("Deprecated")).putInt(0);
       }
 
@@ -1558,6 +1269,12 @@ public final class MethodWriter extends MethodVisitor
          out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(cw.newUTF8(signature));
       }
 
+      putAnnotationAttributes(out);
+   }
+
+   private boolean isDeprecated() { return (access & ACC_DEPRECATED) != 0; }
+
+   private void putAnnotationAttributes(ByteVector out) {
       if (annotationDefault != null) {
          out.putShort(cw.newUTF8("AnnotationDefault"));
          out.putInt(annotationDefault.length);

@@ -5,18 +5,57 @@ import static mockit.external.asm.Opcodes.*;
 
 final class FrameAndStackComputation
 {
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
+    */
+   private static final int SAME_FRAME = 0; // to 63 (0-3f)
+
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
+    */
+   private static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64; // to 127 (40-7f)
+
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is 1.
+    * Offset is bigger then 63.
+    */
+   private static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247; // f7
+
+   /**
+    * Frame where current locals are the same as the locals in the previous frame, except that the k last locals are
+    * absent. The value of k is given by the formula 251-frame_type.
+    */
+   private static final int CHOP_FRAME = 248; // to 250 (f8-fA)
+
+   /**
+    * Frame has exactly the same locals as the previous stack map frame and number of stack items is zero.
+    * Offset is bigger then 63.
+    */
+   private static final int SAME_FRAME_EXTENDED = 251; // fb
+
+   /**
+    * Frame where current locals are the same as the locals in the previous frame, except that k additional locals are
+    * defined. The value of k is given by the formula frame_type-251.
+    */
+   private static final int APPEND_FRAME = 252; // to 254 // fc-fe
+
+   /**
+    * Full frame.
+    */
+   private static final int FULL_FRAME = 255; // ff
+
    private final MethodWriter mw;
    private final ClassWriter cw;
 
    /**
     * Maximum stack size of this method.
     */
-   int maxStack;
+   private int maxStack;
 
    /**
     * Maximum number of local variables for this method.
     */
-   int maxLocals;
+   private int maxLocals;
 
    /**
     * Number of local variables in the current stack map frame.
@@ -66,6 +105,10 @@ final class FrameAndStackComputation
 
       maxLocals = size;
       currentLocals = size;
+   }
+
+   void setMaxStack(int maxStack) {
+      this.maxStack = maxStack;
    }
 
    void updateMaxLocals(int n) {
@@ -481,6 +524,13 @@ final class FrameAndStackComputation
             stackMap.putByte(7).putShort(cw.newClass(sb.toString()));
          }
       }
+   }
+
+   // Creates and visits the first (implicit) frame.
+   void createAndVisitFirstFrame(Frame frame) {
+      Type[] args = Type.getArgumentTypes(mw.descriptor);
+      frame.initInputFrame(cw, mw.access, args, maxLocals);
+      visitFrame(frame);
    }
 
    /**

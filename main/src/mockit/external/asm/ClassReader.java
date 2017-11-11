@@ -831,17 +831,20 @@ public final class ClassReader
          //noinspection StringEquality
          if (mw.cw.cr == this && signature == mw.signature) {
             boolean sameExceptions = false;
+            ThrowsClause throwsClause = mw.throwsClause;
+            int exceptionCount = throwsClause.getExceptionCount();
 
             if (exceptions == null) {
-               sameExceptions = mw.exceptionCount == 0;
+               sameExceptions = exceptionCount == 0;
             }
-            else if (exceptions.length == mw.exceptionCount) {
+            else if (exceptions.length == exceptionCount) {
                sameExceptions = true;
 
                for (int j = exceptions.length - 1; j >= 0; --j) {
                   exception -= 2;
+                  int exceptionIndex = readUnsignedShort(exception);
 
-                  if (mw.exceptions[j] != readUnsignedShort(exception)) {
+                  if (throwsClause.getExceptionIndex(j) != exceptionIndex) {
                      sameExceptions = false;
                      break;
                   }
@@ -849,10 +852,8 @@ public final class ClassReader
             }
 
             if (sameExceptions) {
-               /*
-                * We do not copy directly the code into MethodWriter to save a byte array copy operation.
-                * The real copy will be done in ClassWriter.toByteArray().
-                */
+               // We do not copy directly the code into MethodWriter to save a byte array copy operation.
+               // The real copy will be done in ClassWriter.toByteArray().
                mw.classReaderOffset = firstAttribute;
                mw.classReaderLength = u - firstAttribute;
                return true;
