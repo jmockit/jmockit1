@@ -29,9 +29,6 @@
  */
 package mockit.external.asm;
 
-import static mockit.external.asm.ClassWriter.*;
-import static mockit.external.asm.Opcodes.*;
-
 /**
  * A {@link FieldVisitor} that generates Java fields in bytecode form.
  *
@@ -137,7 +134,7 @@ final class FieldWriter extends FieldVisitor
    }
 
    private boolean isDeprecated() {
-      return (access & ACC_DEPRECATED) != 0;
+      return (access & Access.DEPRECATED) != 0;
    }
 
    /**
@@ -146,7 +143,8 @@ final class FieldWriter extends FieldVisitor
     * @param out where the content of this field must be put.
     */
    void put(ByteVector out) {
-      int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+      int mask =
+         Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE | ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
       out.putShort(access & ~mask);
 
       out.putShort(name);

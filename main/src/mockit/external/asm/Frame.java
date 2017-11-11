@@ -30,6 +30,7 @@
 package mockit.external.asm;
 
 import mockit.external.asm.ClassWriter.*;
+import static mockit.external.asm.Opcodes.*;
 
 /**
  * Information about the input and output stack map frames of a basic block.
@@ -586,8 +587,8 @@ public final class Frame
       inputStack = new int[0];
       int i = 0;
 
-      if ((access & Opcodes.ACC_STATIC) == 0) {
-         if ((access & MethodWriter.ACC_CONSTRUCTOR) == 0) {
+      if ((access & Access.STATIC) == 0) {
+         if ((access & Access.CONSTRUCTOR) == 0) {
             inputLocals[i++] = OBJECT | cw.addType(cw.thisName);
          }
          else {
@@ -621,150 +622,150 @@ public final class Frame
       int t1, t2, t3, t4;
 
       switch (opcode) {
-         case Opcodes.NOP:
-         case Opcodes.INEG:
-         case Opcodes.LNEG:
-         case Opcodes.FNEG:
-         case Opcodes.DNEG:
-         case Opcodes.I2B:
-         case Opcodes.I2C:
-         case Opcodes.I2S:
-         case Opcodes.GOTO:
-         case Opcodes.RETURN:
+         case NOP:
+         case INEG:
+         case LNEG:
+         case FNEG:
+         case DNEG:
+         case I2B:
+         case I2C:
+         case I2S:
+         case GOTO:
+         case RETURN:
             break;
-         case Opcodes.ACONST_NULL:
+         case ACONST_NULL:
             push(NULL);
             break;
-         case Opcodes.ICONST_M1:
-         case Opcodes.ICONST_0:
-         case Opcodes.ICONST_1:
-         case Opcodes.ICONST_2:
-         case Opcodes.ICONST_3:
-         case Opcodes.ICONST_4:
-         case Opcodes.ICONST_5:
-         case Opcodes.BIPUSH:
-         case Opcodes.SIPUSH:
-         case Opcodes.ILOAD:
+         case ICONST_M1:
+         case ICONST_0:
+         case ICONST_1:
+         case ICONST_2:
+         case ICONST_3:
+         case ICONST_4:
+         case ICONST_5:
+         case BIPUSH:
+         case SIPUSH:
+         case ILOAD:
             push(INTEGER);
             break;
-         case Opcodes.LCONST_0:
-         case Opcodes.LCONST_1:
-         case Opcodes.LLOAD:
+         case LCONST_0:
+         case LCONST_1:
+         case LLOAD:
             push(LONG);
             push(TOP);
             break;
-         case Opcodes.FCONST_0:
-         case Opcodes.FCONST_1:
-         case Opcodes.FCONST_2:
-         case Opcodes.FLOAD:
+         case FCONST_0:
+         case FCONST_1:
+         case FCONST_2:
+         case FLOAD:
             push(FLOAT);
             break;
-         case Opcodes.DCONST_0:
-         case Opcodes.DCONST_1:
-         case Opcodes.DLOAD:
+         case DCONST_0:
+         case DCONST_1:
+         case DLOAD:
             push(DOUBLE);
             push(TOP);
             break;
-         case Opcodes.LDC:
+         case LDC:
             executeLDC(cw, item);
             break;
-         case Opcodes.ALOAD:
+         case ALOAD:
             push(get(arg));
             break;
-         case Opcodes.IALOAD:
-         case Opcodes.BALOAD:
-         case Opcodes.CALOAD:
-         case Opcodes.SALOAD:
+         case IALOAD:
+         case BALOAD:
+         case CALOAD:
+         case SALOAD:
             pop(2);
             push(INTEGER);
             break;
-         case Opcodes.LALOAD:
-         case Opcodes.D2L:
+         case LALOAD:
+         case D2L:
             pop(2);
             push(LONG);
             push(TOP);
             break;
-         case Opcodes.FALOAD:
+         case FALOAD:
             pop(2);
             push(FLOAT);
             break;
-         case Opcodes.DALOAD:
-         case Opcodes.L2D:
+         case DALOAD:
+         case L2D:
             pop(2);
             push(DOUBLE);
             push(TOP);
             break;
-         case Opcodes.AALOAD:
+         case AALOAD:
             pop(1);
             t1 = pop();
             push(ELEMENT_OF + t1);
             break;
-         case Opcodes.ISTORE:
-         case Opcodes.FSTORE:
-         case Opcodes.ASTORE:
+         case ISTORE:
+         case FSTORE:
+         case ASTORE:
             executeSingleWordStore(arg);
             break;
-         case Opcodes.LSTORE:
-         case Opcodes.DSTORE:
+         case LSTORE:
+         case DSTORE:
             executeDoubleWordStore(arg);
             break;
-         case Opcodes.IASTORE:
-         case Opcodes.BASTORE:
-         case Opcodes.CASTORE:
-         case Opcodes.SASTORE:
-         case Opcodes.FASTORE:
-         case Opcodes.AASTORE:
+         case IASTORE:
+         case BASTORE:
+         case CASTORE:
+         case SASTORE:
+         case FASTORE:
+         case AASTORE:
             pop(3);
             break;
-         case Opcodes.LASTORE:
-         case Opcodes.DASTORE:
+         case LASTORE:
+         case DASTORE:
             pop(4);
             break;
-         case Opcodes.POP:
-         case Opcodes.IFEQ:
-         case Opcodes.IFNE:
-         case Opcodes.IFLT:
-         case Opcodes.IFGE:
-         case Opcodes.IFGT:
-         case Opcodes.IFLE:
-         case Opcodes.IRETURN:
-         case Opcodes.FRETURN:
-         case Opcodes.ARETURN:
-         case Opcodes.TABLESWITCH:
-         case Opcodes.LOOKUPSWITCH:
-         case Opcodes.ATHROW:
-         case Opcodes.MONITORENTER:
-         case Opcodes.MONITOREXIT:
-         case Opcodes.IFNULL:
-         case Opcodes.IFNONNULL:
+         case POP:
+         case IFEQ:
+         case IFNE:
+         case IFLT:
+         case IFGE:
+         case IFGT:
+         case IFLE:
+         case IRETURN:
+         case FRETURN:
+         case ARETURN:
+         case TABLESWITCH:
+         case LOOKUPSWITCH:
+         case ATHROW:
+         case MONITORENTER:
+         case MONITOREXIT:
+         case IFNULL:
+         case IFNONNULL:
             pop(1);
             break;
-         case Opcodes.POP2:
-         case Opcodes.IF_ICMPEQ:
-         case Opcodes.IF_ICMPNE:
-         case Opcodes.IF_ICMPLT:
-         case Opcodes.IF_ICMPGE:
-         case Opcodes.IF_ICMPGT:
-         case Opcodes.IF_ICMPLE:
-         case Opcodes.IF_ACMPEQ:
-         case Opcodes.IF_ACMPNE:
-         case Opcodes.LRETURN:
-         case Opcodes.DRETURN:
+         case POP2:
+         case IF_ICMPEQ:
+         case IF_ICMPNE:
+         case IF_ICMPLT:
+         case IF_ICMPGE:
+         case IF_ICMPGT:
+         case IF_ICMPLE:
+         case IF_ACMPEQ:
+         case IF_ACMPNE:
+         case LRETURN:
+         case DRETURN:
             pop(2);
             break;
-         case Opcodes.DUP:
+         case DUP:
             t1 = pop();
             push(t1);
             push(t1);
             break;
-         case Opcodes.DUP_X1:
+         case DUP_X1:
             t1 = pop();
             t2 = pop();
             push(t1);
             push(t2);
             push(t1);
             break;
-         case Opcodes.DUP_X2:
+         case DUP_X2:
             t1 = pop();
             t2 = pop();
             t3 = pop();
@@ -773,7 +774,7 @@ public final class Frame
             push(t2);
             push(t1);
             break;
-         case Opcodes.DUP2:
+         case DUP2:
             t1 = pop();
             t2 = pop();
             push(t2);
@@ -781,7 +782,7 @@ public final class Frame
             push(t2);
             push(t1);
             break;
-         case Opcodes.DUP2_X1:
+         case DUP2_X1:
             t1 = pop();
             t2 = pop();
             t3 = pop();
@@ -791,7 +792,7 @@ public final class Frame
             push(t2);
             push(t1);
             break;
-         case Opcodes.DUP2_X2:
+         case DUP2_X2:
             t1 = pop();
             t2 = pop();
             t3 = pop();
@@ -803,139 +804,139 @@ public final class Frame
             push(t2);
             push(t1);
             break;
-         case Opcodes.SWAP:
+         case SWAP:
             t1 = pop();
             t2 = pop();
             push(t1);
             push(t2);
             break;
-         case Opcodes.IADD:
-         case Opcodes.ISUB:
-         case Opcodes.IMUL:
-         case Opcodes.IDIV:
-         case Opcodes.IREM:
-         case Opcodes.IAND:
-         case Opcodes.IOR:
-         case Opcodes.IXOR:
-         case Opcodes.ISHL:
-         case Opcodes.ISHR:
-         case Opcodes.IUSHR:
-         case Opcodes.L2I:
-         case Opcodes.D2I:
-         case Opcodes.FCMPL:
-         case Opcodes.FCMPG:
+         case IADD:
+         case ISUB:
+         case IMUL:
+         case IDIV:
+         case IREM:
+         case IAND:
+         case IOR:
+         case IXOR:
+         case ISHL:
+         case ISHR:
+         case IUSHR:
+         case L2I:
+         case D2I:
+         case FCMPL:
+         case FCMPG:
             pop(2);
             push(INTEGER);
             break;
-         case Opcodes.LADD:
-         case Opcodes.LSUB:
-         case Opcodes.LMUL:
-         case Opcodes.LDIV:
-         case Opcodes.LREM:
-         case Opcodes.LAND:
-         case Opcodes.LOR:
-         case Opcodes.LXOR:
+         case LADD:
+         case LSUB:
+         case LMUL:
+         case LDIV:
+         case LREM:
+         case LAND:
+         case LOR:
+         case LXOR:
             pop(4);
             push(LONG);
             push(TOP);
             break;
-         case Opcodes.FADD:
-         case Opcodes.FSUB:
-         case Opcodes.FMUL:
-         case Opcodes.FDIV:
-         case Opcodes.FREM:
-         case Opcodes.L2F:
-         case Opcodes.D2F:
+         case FADD:
+         case FSUB:
+         case FMUL:
+         case FDIV:
+         case FREM:
+         case L2F:
+         case D2F:
             pop(2);
             push(FLOAT);
             break;
-         case Opcodes.DADD:
-         case Opcodes.DSUB:
-         case Opcodes.DMUL:
-         case Opcodes.DDIV:
-         case Opcodes.DREM:
+         case DADD:
+         case DSUB:
+         case DMUL:
+         case DDIV:
+         case DREM:
             pop(4);
             push(DOUBLE);
             push(TOP);
             break;
-         case Opcodes.LSHL:
-         case Opcodes.LSHR:
-         case Opcodes.LUSHR:
+         case LSHL:
+         case LSHR:
+         case LUSHR:
             pop(3);
             push(LONG);
             push(TOP);
             break;
-         case Opcodes.IINC:
+         case IINC:
             set(arg, INTEGER);
             break;
-         case Opcodes.I2L:
-         case Opcodes.F2L:
+         case I2L:
+         case F2L:
             pop(1);
             push(LONG);
             push(TOP);
             break;
-         case Opcodes.I2F:
+         case I2F:
             pop(1);
             push(FLOAT);
             break;
-         case Opcodes.I2D:
-         case Opcodes.F2D:
+         case I2D:
+         case F2D:
             pop(1);
             push(DOUBLE);
             push(TOP);
             break;
-         case Opcodes.F2I:
-         case Opcodes.ARRAYLENGTH:
-         case Opcodes.INSTANCEOF:
+         case F2I:
+         case ARRAYLENGTH:
+         case INSTANCEOF:
             pop(1);
             push(INTEGER);
             break;
-         case Opcodes.LCMP:
-         case Opcodes.DCMPL:
-         case Opcodes.DCMPG:
+         case LCMP:
+         case DCMPL:
+         case DCMPG:
             pop(4);
             push(INTEGER);
             break;
-         case Opcodes.JSR:
-         case Opcodes.RET:
+         case JSR:
+         case RET:
             throw new RuntimeException("JSR/RET are not supported with computeFrames option");
-         case Opcodes.GETSTATIC:
+         case GETSTATIC:
             push(cw, item.strVal3);
             break;
-         case Opcodes.PUTSTATIC:
+         case PUTSTATIC:
             pop(item.strVal3);
             break;
-         case Opcodes.GETFIELD:
+         case GETFIELD:
             pop(1);
             push(cw, item.strVal3);
             break;
-         case Opcodes.PUTFIELD:
+         case PUTFIELD:
             pop(item.strVal3);
             pop();
             break;
-         case Opcodes.INVOKEVIRTUAL:
-         case Opcodes.INVOKESPECIAL:
-         case Opcodes.INVOKESTATIC:
-         case Opcodes.INVOKEINTERFACE:
+         case INVOKEVIRTUAL:
+         case INVOKESPECIAL:
+         case INVOKESTATIC:
+         case INVOKEINTERFACE:
             executeInvoke(opcode, cw, item);
             break;
-         case Opcodes.INVOKEDYNAMIC:
+         case INVOKEDYNAMIC:
             pop(item.strVal2);
             push(cw, item.strVal2);
             break;
-         case Opcodes.NEW:
+         case NEW:
             push(UNINITIALIZED | cw.addUninitializedType(item.strVal1, arg));
             break;
-         case Opcodes.NEWARRAY:
+         case NEWARRAY:
             executeNewArray(arg);
             break;
-         case Opcodes.ANEWARRAY:
+         case ANEWARRAY:
             executeANewArray(cw, item);
             break;
-         case Opcodes.CHECKCAST:
+         case CHECKCAST:
             executeCheckCast(cw, item);
             break;
-         // case Opcodes.MULTIANEWARRAY:
+         // case MULTIANEWARRAY:
          default:
             pop(arg);
             push(cw, item.strVal1);
@@ -968,7 +969,7 @@ public final class Frame
          case ConstantPoolItemType.MTYPE:
             push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
             break;
-         // case ClassWriter.HANDLE_BASE + [1..9]:
+         // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
          default:
             push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
       }
@@ -1007,10 +1008,10 @@ public final class Frame
    private void executeInvoke(int opcode, ClassWriter cw, Item item) {
       pop(item.strVal3);
 
-      if (opcode != Opcodes.INVOKESTATIC) {
+      if (opcode != INVOKESTATIC) {
          int var = pop();
 
-         if (opcode == Opcodes.INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
+         if (opcode == INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
             init(var);
          }
       }
@@ -1022,28 +1023,28 @@ public final class Frame
       pop();
 
       switch (arg) {
-         case Opcodes.T_BOOLEAN:
+         case T_BOOLEAN:
             push(ARRAY_OF | BOOLEAN);
             break;
-         case Opcodes.T_CHAR:
+         case T_CHAR:
             push(ARRAY_OF | CHAR);
             break;
-         case Opcodes.T_BYTE:
+         case T_BYTE:
             push(ARRAY_OF | BYTE);
             break;
-         case Opcodes.T_SHORT:
+         case T_SHORT:
             push(ARRAY_OF | SHORT);
             break;
-         case Opcodes.T_INT:
+         case T_INT:
             push(ARRAY_OF | INTEGER);
             break;
-         case Opcodes.T_FLOAT:
+         case T_FLOAT:
             push(ARRAY_OF | FLOAT);
             break;
-         case Opcodes.T_DOUBLE:
+         case T_DOUBLE:
             push(ARRAY_OF | DOUBLE);
             break;
-         // case Opcodes.T_LONG:
+         // case T_LONG:
          default:
             push(ARRAY_OF | LONG);
             break;

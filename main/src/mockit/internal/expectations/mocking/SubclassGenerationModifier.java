@@ -10,7 +10,6 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
@@ -32,7 +31,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
          signature = mockedTypeInfo.genericTypeMap.resolveSignature(className, signature);
       }
 
-      mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
+      mw = cw.visitMethod(Access.PUBLIC, name, desc, signature, exceptions);
 
       if (ObjectMethods.isMethodFromObject(name, desc)) {
          generateEmptyImplementation(desc);

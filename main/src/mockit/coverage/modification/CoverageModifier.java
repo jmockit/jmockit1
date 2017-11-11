@@ -18,7 +18,7 @@ import static mockit.external.asm.Opcodes.*;
 final class CoverageModifier extends WrappingClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
-   private static final int FIELD_MODIFIERS_TO_IGNORE = ACC_FINAL + ACC_SYNTHETIC;
+   private static final int FIELD_MODIFIERS_TO_IGNORE = Access.FINAL + Access.SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
    private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
@@ -88,7 +88,7 @@ final class CoverageModifier extends WrappingClassVisitor
       int version, int access, @Nonnull String name, @Nullable String signature, String superName,
       @Nullable String[] interfaces)
    {
-      if ((access & ACC_SYNTHETIC) != 0) {
+      if ((access & Access.SYNTHETIC) != 0) {
          throw new VisitInterruptedException();
       }
 
@@ -98,7 +98,7 @@ final class CoverageModifier extends WrappingClassVisitor
          kindOfTopLevelType = getKindOfJavaType(access, superName);
       }
 
-      forEnumClass = (access & ACC_ENUM) != 0;
+      forEnumClass = (access & Access.ENUM) != 0;
 
       if (!forInnerClass) {
          internalClassName = name;
@@ -113,9 +113,9 @@ final class CoverageModifier extends WrappingClassVisitor
             sourceFileName = name.substring(0, p + 1);
          }
 
-         cannotModify = (access & ACC_ANNOTATION) != 0;
+         cannotModify = (access & Access.ANNOTATION) != 0;
 
-         if (!forEnumClass && (access & ACC_SUPER) != 0 && nestedType) {
+         if (!forEnumClass && (access & Access.SUPER) != 0 && nestedType) {
             INNER_CLASS_MODIFIERS.put(name.replace('/', '.'), this);
          }
       }
@@ -126,10 +126,10 @@ final class CoverageModifier extends WrappingClassVisitor
    @Nonnull
    private static String getKindOfJavaType(int typeModifiers, @Nonnull String superName)
    {
-      if ((typeModifiers & ACC_ANNOTATION) != 0) return "annotation";
-      if ((typeModifiers & ACC_INTERFACE) != 0) return "interface";
-      if ((typeModifiers & ACC_ENUM) != 0) return "enum";
-      if ((typeModifiers & ACC_ABSTRACT) != 0) return "abstractClass";
+      if ((typeModifiers & Access.ANNOTATION) != 0) return "annotation";
+      if ((typeModifiers & Access.INTERFACE) != 0) return "interface";
+      if ((typeModifiers & Access.ENUM) != 0) return "enum";
+      if ((typeModifiers & Access.ABSTRACT) != 0) return "abstractClass";
       if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exception";
       return "class";
    }
@@ -184,7 +184,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
    private static boolean isSyntheticOrEnumClass(int access)
    {
-      return (access & ACC_SYNTHETIC) != 0 || access == ACC_STATIC + ACC_ENUM;
+      return (access & Access.SYNTHETIC) != 0 || access == Access.STATIC + Access.ENUM;
    }
 
    private boolean isNestedInsideClassBeingModified(@Nonnull String internalName, @Nullable String outerName)
@@ -204,7 +204,7 @@ final class CoverageModifier extends WrappingClassVisitor
          fileData != null && simpleClassName != null &&
          (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && DataCoverage.active
       ) {
-         fileData.dataCoverageInfo.addField(simpleClassName, name, (access & ACC_STATIC) != 0);
+         fileData.dataCoverageInfo.addField(simpleClassName, name, (access & Access.STATIC) != 0);
       }
 
       return cw.visitField(access, name, desc, signature, value);
@@ -216,7 +216,7 @@ final class CoverageModifier extends WrappingClassVisitor
    {
       MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
 
-      if (fileData == null || (access & ACC_SYNTHETIC) != 0) {
+      if (fileData == null || (access & Access.SYNTHETIC) != 0) {
          return mw;
       }
 

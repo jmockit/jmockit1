@@ -8,7 +8,6 @@ import javax.annotation.*;
 
 import mockit.external.asm.*;
 import mockit.internal.classGeneration.*;
-import static mockit.external.asm.Opcodes.*;
 
 final class InterfaceImplementationGenerator extends BaseImplementationGenerator
 {
@@ -21,7 +20,7 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
    protected void generateMethodBody(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      mw = cw.visitMethod(ACC_PUBLIC, name, desc, signature, exceptions);
+      mw = cw.visitMethod(Access.PUBLIC, name, desc, signature, exceptions);
       generateEmptyImplementation(desc);
    }
 }

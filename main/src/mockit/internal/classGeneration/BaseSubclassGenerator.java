@@ -17,8 +17,8 @@ import static mockit.external.asm.Opcodes.*;
 
 public class BaseSubclassGenerator extends BaseClassModifier
 {
-   private static final int CLASS_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT;
-   private static final int CONSTRUCTOR_ACCESS_MASK = ACC_PUBLIC + ACC_PROTECTED;
+   private static final int CLASS_ACCESS_MASK = 0xFFFF - Access.ABSTRACT;
+   private static final int CONSTRUCTOR_ACCESS_MASK = Access.PUBLIC + Access.PROTECTED;
 
    // Fixed initial state:
    @Nonnull Class<?> baseClass;
@@ -49,7 +49,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
       @Nullable String[] interfaces)
    {
-      int subclassAccess = access & CLASS_ACCESS_MASK | ACC_FINAL;
+      int subclassAccess = access & CLASS_ACCESS_MASK | Access.FINAL;
       String subclassSignature = mockedTypeInfo == null ? signature : mockedTypeInfo.implementationSignature;
 
       super.visit(version, subclassAccess, subclassName, subclassSignature, name, null);
@@ -97,7 +97,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
    private void generateConstructorDelegatingToSuper(
       @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      mw = cw.visitMethod(ACC_PUBLIC, "<init>", desc, signature, exceptions);
+      mw = cw.visitMethod(Access.PUBLIC, "<init>", desc, signature, exceptions);
       mw.visitVarInsn(ALOAD, 0);
       int varIndex = 1;
 
@@ -133,7 +133,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
          String methodNameAndDesc = name + desc;
 
          if (!implementedMethods.contains(methodNameAndDesc)) {
-            if ((access & ACC_ABSTRACT) != 0) {
+            if ((access & Access.ABSTRACT) != 0) {
                generateMethodImplementation(className, access, name, desc, signature, exceptions);
             }
 

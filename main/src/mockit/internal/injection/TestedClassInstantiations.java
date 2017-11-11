@@ -6,18 +6,20 @@ package mockit.internal.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
+import mockit.external.asm.*;
 import mockit.internal.expectations.mocking.*;
-import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.injection.TestedObject.*;
 
 public final class TestedClassInstantiations
 {
-   private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
-   private static final int METHOD_ACCESS_MASK = ACC_BRIDGE + ACC_VARARGS + ACC_NATIVE + ACC_ABSTRACT + ACC_SYNTHETIC;
+   private static final int FIELD_ACCESS_MASK = Access.SYNTHETIC + Access.STATIC;
+   private static final int METHOD_ACCESS_MASK =
+      Access.BRIDGE + Access.VARARGS + Access.NATIVE + Access.ABSTRACT + Access.SYNTHETIC;
 
    @Nonnull private final List<TestedField> testedFields;
    @Nonnull private final List<MockedType> injectableFields;

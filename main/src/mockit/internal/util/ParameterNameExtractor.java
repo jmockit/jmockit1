@@ -9,7 +9,6 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
-import static mockit.external.asm.Opcodes.*;
 
 public final class ParameterNameExtractor extends ClassVisitor
 {
@@ -42,7 +41,7 @@ public final class ParameterNameExtractor extends ClassVisitor
    public MethodVisitor visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
-      if ((access & ACC_SYNTHETIC) == 0) {
+      if ((access & Access.SYNTHETIC) == 0) {
          memberAccess = access;
          memberName = name;
          memberDesc = desc;

@@ -14,7 +14,7 @@ import static mockit.external.asm.Opcodes.*;
 
 public class BaseClassModifier extends WrappingClassVisitor
 {
-   private static final int METHOD_ACCESS_MASK = 0xFFFF - ACC_ABSTRACT - ACC_NATIVE;
+   private static final int METHOD_ACCESS_MASK = 0xFFFF - Access.ABSTRACT - Access.NATIVE;
    protected static final Type VOID_TYPE = Type.getType("Ljava/lang/Void;");
 
    @Nonnull

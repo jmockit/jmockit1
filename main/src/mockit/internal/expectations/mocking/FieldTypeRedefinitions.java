@@ -10,16 +10,15 @@ import java.util.Map.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.external.asm.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
-import static mockit.external.asm.Opcodes.*;
-
 @SuppressWarnings("UnnecessaryFullyQualifiedName")
 public final class FieldTypeRedefinitions extends TypeRedefinitions
 {
-   private static final int FIELD_ACCESS_MASK = ACC_SYNTHETIC + ACC_STATIC;
+   private static final int FIELD_ACCESS_MASK = Access.SYNTHETIC + Access.STATIC;
 
    @Nonnull private final Map<MockedType, InstanceFactory> mockInstanceFactories;
    @Nonnull private final List<MockedType> mockFieldsNotSet;

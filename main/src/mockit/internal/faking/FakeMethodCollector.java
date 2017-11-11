@@ -13,7 +13,6 @@ import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ClassReader.*;
-import static mockit.external.asm.Opcodes.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated
@@ -21,7 +20,8 @@ import static mockit.external.asm.Opcodes.*;
  */
 final class FakeMethodCollector extends ClassVisitor
 {
-   private static final int INVALID_METHOD_ACCESSES = ACC_BRIDGE + ACC_SYNTHETIC + ACC_ABSTRACT + ACC_NATIVE;
+   private static final int INVALID_METHOD_ACCESSES =
+      Access.BRIDGE + Access.SYNTHETIC + Access.ABSTRACT + Access.NATIVE;
 
    @Nonnull private final FakeMethods fakeMethods;
 

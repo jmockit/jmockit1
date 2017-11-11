@@ -45,16 +45,6 @@ import static mockit.internal.util.ClassLoad.OBJECT;
  */
 public final class ClassWriter extends ClassVisitor
 {
-   /**
-    * Pseudo access flag to distinguish between the synthetic attribute and the synthetic access flag.
-    */
-   static final int ACC_SYNTHETIC_ATTRIBUTE = 0x40000;
-
-   /**
-    * Factor to convert from ACC_SYNTHETIC_ATTRIBUTE to Opcode.ACC_SYNTHETIC.
-    */
-   static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / ACC_SYNTHETIC;
-
    interface ConstantPoolItemType
    {
       int CLASS     =  7; // CONSTANT_Class
@@ -437,7 +427,7 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("EnclosingMethod");
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if ((access & Access.DEPRECATED) != 0) {
          ++attributeCount;
          size += 6;
          newUTF8("Deprecated");
@@ -468,7 +458,8 @@ public final class ClassWriter extends ClassVisitor
       out.putInt(0xCAFEBABE).putInt(version);
       out.putShort(index).putByteVector(pool);
 
-      int mask = ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE | ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+      int mask =
+         Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE | ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(superName);
 
       out.putShort(interfaceCount);
@@ -515,7 +506,7 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
       }
 
-      if ((access & ACC_DEPRECATED) != 0) {
+      if ((access & Access.DEPRECATED) != 0) {
          out.putShort(newUTF8("Deprecated")).putInt(0);
       }
 
@@ -543,7 +534,7 @@ public final class ClassWriter extends ClassVisitor
    private boolean isSynthetic() { return isSynthetic(access); }
 
    boolean isSynthetic(int access) {
-      return (access & ACC_SYNTHETIC) != 0 && ((access & ACC_SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
+      return (access & Access.SYNTHETIC) != 0 && ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
    }
 
    /**

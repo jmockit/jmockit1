@@ -31,7 +31,7 @@ public final class InvocationArguments
       this.methodNameAndDesc = methodNameAndDesc;
       this.genericSignature = genericSignature;
       valuesAndMatchers =
-         (access & Opcodes.ACC_VARARGS) == 0 ?
+         (access & Access.VARARGS) == 0 ?
             new ArgumentValuesAndMatchersWithoutVarargs(this, args) :
             new ArgumentValuesAndMatchersWithVarargs(this, args);
    }

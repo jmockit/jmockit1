@@ -6,6 +6,7 @@ package mockit.internal.injection.full;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.logging.*;
 import javax.annotation.*;
 import javax.enterprise.context.*;
@@ -13,8 +14,8 @@ import javax.inject.*;
 import javax.sql.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.external.asm.*;
 import mockit.internal.injection.*;
-import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
@@ -24,7 +25,7 @@ import static mockit.internal.util.Utilities.*;
  */
 public final class FullInjection
 {
-   private static final int INVALID_TYPES = ACC_ABSTRACT + ACC_ANNOTATION + ACC_ENUM;
+   private static final int INVALID_TYPES = Access.ABSTRACT + Access.ANNOTATION + Access.ENUM;
 
    @Nonnull private final InjectionState injectionState;
    @Nonnull private final Class<?> testedClass;

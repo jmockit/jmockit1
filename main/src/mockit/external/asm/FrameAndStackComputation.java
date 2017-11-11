@@ -1,6 +1,5 @@
 package mockit.external.asm;
 
-import static mockit.external.asm.MethodWriter.*;
 import static mockit.external.asm.Opcodes.*;
 
 final class FrameAndStackComputation
@@ -99,7 +98,7 @@ final class FrameAndStackComputation
 
       int size = Type.getArgumentsAndReturnSizes(methodDesc) >> 2;
 
-      if ((methodAccess & ACC_STATIC) != 0) {
+      if ((methodAccess & Access.STATIC) != 0) {
          --size;
       }
 
@@ -241,8 +240,8 @@ final class FrameAndStackComputation
       // There can be at most descriptor.length() + 1 locals.
       int frameIndex = startFrame(0, desc.length() + 1, 0);
 
-      if ((access & ACC_STATIC) == 0) {
-         if ((access & ACC_CONSTRUCTOR) == 0) {
+      if ((access & Access.STATIC) == 0) {
+         if ((access & Access.CONSTRUCTOR) == 0) {
             frameDefinition[frameIndex++] = Frame.OBJECT | cw.addType(cw.thisName);
          }
          else {

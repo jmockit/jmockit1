@@ -17,7 +17,7 @@ import static mockit.external.asm.Opcodes.*;
 @SuppressWarnings("AbstractClassExtendsConcreteClass")
 public abstract class BaseImplementationGenerator extends BaseClassModifier
 {
-   private static final int CLASS_ACCESS = ACC_PUBLIC + ACC_FINAL;
+   private static final int CLASS_ACCESS = Access.PUBLIC + Access.FINAL;
 
    @Nonnull private final List<String> implementedMethods;
    @Nonnull private final String implementationClassDesc;
@@ -47,7 +47,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    private void generateNoArgsConstructor()
    {
-      mw = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+      mw = cw.visitMethod(Access.PUBLIC, "<init>", "()V", null, null);
       mw.visitVarInsn(ALOAD, 0);
       mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
       generateEmptyImplementation();

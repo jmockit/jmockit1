@@ -517,10 +517,10 @@ public final class ClassReader
             annotations = u + 8;
          }
          else if ("Deprecated".equals(attrName)) {
-            access |= ACC_DEPRECATED;
+            access |= Access.DEPRECATED;
          }
          else if ("Synthetic".equals(attrName)) {
-            access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            access |= Access.SYNTHETIC | Access.SYNTHETIC_ATTRIBUTE;
          }
          else if ("SourceDebugExtension".equals(attrName)) {
             int len = readInt(u + 4);
@@ -674,10 +674,10 @@ public final class ClassReader
             signature = readUTF8(u + 8, c);
          }
          else if ("Deprecated".equals(attrName)) {
-            access |= ACC_DEPRECATED;
+            access |= Access.DEPRECATED;
          }
          else if ("Synthetic".equals(attrName)) {
-            access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            access |= Access.SYNTHETIC | Access.SYNTHETIC_ATTRIBUTE;
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
@@ -742,7 +742,7 @@ public final class ClassReader
             signature = readUTF8(u + 8, c);
          }
          else if ("Deprecated".equals(attrName)) {
-            context.access |= ACC_DEPRECATED;
+            context.access |= Access.DEPRECATED;
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
@@ -751,7 +751,7 @@ public final class ClassReader
             annDefault = u + 8;
          }
          else if ("Synthetic".equals(attrName)) {
-            context.access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            context.access |= Access.SYNTHETIC | Access.SYNTHETIC_ATTRIBUTE;
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             paramAnns = u + 8;

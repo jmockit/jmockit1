@@ -29,7 +29,6 @@
  */
 package mockit.external.asm;
 
-import static mockit.external.asm.ClassWriter.*;
 import static mockit.external.asm.ClassWriter.ConstantPoolItemType.DOUBLE;
 import static mockit.external.asm.ClassWriter.ConstantPoolItemType.LONG;
 import static mockit.external.asm.Opcodes.*;
@@ -43,11 +42,6 @@ import static mockit.external.asm.Opcodes.*;
  */
 public final class MethodWriter extends MethodVisitor
 {
-   /**
-    * Pseudo access flag used to denote constructors.
-    */
-   static final int ACC_CONSTRUCTOR = 0x80000;
-
    /**
     * The class writer to which this method must be added.
     */
@@ -175,7 +169,7 @@ public final class MethodWriter extends MethodVisitor
       ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
    ) {
       this.cw = cw;
-      this.access = "<init>".equals(name) ? (access | ACC_CONSTRUCTOR) : access;
+      this.access = "<init>".equals(name) ? (access | Access.CONSTRUCTOR) : access;
       this.name = cw.newUTF8(name);
       this.desc = cw.newUTF8(desc);
       descriptor = desc;
@@ -1181,8 +1175,8 @@ public final class MethodWriter extends MethodVisitor
     */
    void put(ByteVector out) {
       int mask =
-         ACC_CONSTRUCTOR | ACC_DEPRECATED | ACC_SYNTHETIC_ATTRIBUTE |
-         ((access & ACC_SYNTHETIC_ATTRIBUTE) / TO_ACC_SYNTHETIC);
+         Access.CONSTRUCTOR | Access.DEPRECATED | Access.SYNTHETIC_ATTRIBUTE |
+         ((access & Access.SYNTHETIC_ATTRIBUTE) / Access.TO_SYNTHETIC);
       out.putShort(access & ~mask).putShort(name).putShort(desc);
 
       if (classReaderOffset != 0) {
@@ -1272,7 +1266,7 @@ public final class MethodWriter extends MethodVisitor
       putAnnotationAttributes(out);
    }
 
-   private boolean isDeprecated() { return (access & ACC_DEPRECATED) != 0; }
+   private boolean isDeprecated() { return (access & Access.DEPRECATED) != 0; }
 
    private void putAnnotationAttributes(ByteVector out) {
       if (annotationDefault != null) {

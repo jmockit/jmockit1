@@ -13,7 +13,6 @@ import mockit.external.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.faking.*;
-import static mockit.external.asm.Opcodes.*;
 
 final class ClassLoadingBridgeFields
 {
@@ -37,7 +36,7 @@ final class ClassLoadingBridgeFields
 
    private static final class FieldAdditionTransformer implements ClassFileTransformer
    {
-      private static final int FIELD_ACCESS = ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC;
+      private static final int FIELD_ACCESS = Access.PUBLIC + Access.STATIC + Access.SYNTHETIC;
       @Nonnull private final Instrumentation instrumentation;
       String hostClassName;
 

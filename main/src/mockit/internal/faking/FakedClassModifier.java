@@ -26,7 +26,7 @@ import static mockit.external.asm.Opcodes.*;
  */
 final class FakedClassModifier extends BaseClassModifier
 {
-   private static final int ABSTRACT_OR_SYNTHETIC = ACC_ABSTRACT + ACC_SYNTHETIC;
+   private static final int ABSTRACT_OR_SYNTHETIC = Access.ABSTRACT + Access.SYNTHETIC;
 
    @Nonnull private final FakeMethods fakeMethods;
    private final boolean useClassLoadingBridgeForUpdatingFakeState;
