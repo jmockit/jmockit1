@@ -31,8 +31,8 @@ package mockit.external.asm;
 
 import java.util.*;
 
+import mockit.external.asm.Handle.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
 
 /**
@@ -233,7 +233,7 @@ public final class ClassWriter extends ClassVisitor
       key4 = new Item();
 
       version = classReader.getVersion();
-      computeFrames = version >= V1_7;
+      computeFrames = version >= ClassVersion.V1_7;
 
       classReader.copyPool(this);
       cr = classReader;
@@ -507,7 +507,9 @@ public final class ClassWriter extends ClassVisitor
    private boolean isSynthetic() { return isSynthetic(access); }
 
    boolean isSynthetic(int access) {
-      return Access.isSynthetic(access) && ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
+      return
+         Access.isSynthetic(access) &&
+         ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < ClassVersion.V1_5);
    }
 
    /**
@@ -664,9 +666,16 @@ public final class ClassWriter extends ClassVisitor
       Item result = get(key4);
 
       if (result == null) {
-         Item item = tag <= H_PUTSTATIC ?
-            newFieldItem(handle.owner, handle.name, handle.desc) :
-            newMethodItem(handle.owner, handle.name, handle.desc, tag == H_INVOKEINTERFACE);
+         Item item;
+
+         if (tag <= Handle.Tag.PUTSTATIC) {
+            item = newFieldItem(handle.owner, handle.name, handle.desc);
+         }
+         else {
+            boolean itf = tag == Tag.INVOKEINTERFACE;
+            item = newMethodItem(handle.owner, handle.name, handle.desc, itf);
+         }
+
          put112(ConstantPoolItemType.HANDLE, tag, item.index);
 
          result = new Item(index++, key4);

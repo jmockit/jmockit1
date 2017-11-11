@@ -135,6 +135,19 @@ public final class Type
     */
    private final int len;
 
+   public static int getArrayElementType(int elementSort) {
+      switch (elementSort) {
+         case BOOLEAN: return ArrayElementType.BOOLEAN;
+         case CHAR:    return ArrayElementType.CHAR;
+         case BYTE:    return ArrayElementType.BYTE;
+         case SHORT:   return ArrayElementType.SHORT;
+         case INT:     return ArrayElementType.INT;
+         case FLOAT:   return ArrayElementType.FLOAT;
+         case LONG:    return ArrayElementType.LONG;
+         default:      return ArrayElementType.DOUBLE;
+      }
+   }
+
    // ------------------------------------------------------------------------
    // Constructors
    // ------------------------------------------------------------------------

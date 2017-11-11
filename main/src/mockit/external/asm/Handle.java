@@ -37,11 +37,24 @@ package mockit.external.asm;
  */
 final class Handle
 {
+   interface Tag
+   {
+      // Field access.
+//    int GETFIELD  = 1;
+//    int GETSTATIC = 2;
+//    int PUTFIELD  = 3;
+      int PUTSTATIC = 4;
+
+      // Method invocation.
+//    int INVOKEVIRTUAL    = 5;
+      int INVOKESTATIC     = 6;
+//    int INVOKESPECIAL    = 7;
+//    int NEWINVOKESPECIAL = 8;
+      int INVOKEINTERFACE  = 9;
+   }
+
    /**
-    * The kind of field or method designated by this Handle. Should be {@link Opcodes#H_GETFIELD},
-    * {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-    * {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL},
-    * {@link Opcodes#H_NEWINVOKESPECIAL} or {@link Opcodes#H_INVOKEINTERFACE}.
+    * The kind of field or method designated by this Handle. Should be one of the {@link Tag} constants.
     */
    final int tag;
 
@@ -63,10 +76,7 @@ final class Handle
    /**
     * Constructs a new field or method handle.
     *
-    * @param tag   the kind of field or method designated by this Handle. Must be {@link Opcodes#H_GETFIELD},
-    *              {@link Opcodes#H_GETSTATIC}, {@link Opcodes#H_PUTFIELD}, {@link Opcodes#H_PUTSTATIC},
-    *              {@link Opcodes#H_INVOKEVIRTUAL}, {@link Opcodes#H_INVOKESTATIC}, {@link Opcodes#H_INVOKESPECIAL},
-    *              {@link Opcodes#H_NEWINVOKESPECIAL} or {@link Opcodes#H_INVOKEINTERFACE}.
+    * @param tag   the kind of field or method designated by this Handle. Must be one of the {@link Tag} constants.
     * @param owner the internal name of the class that owns the field or method designated by this handle.
     * @param name  the name of the field or method designated by this handle.
     * @param desc  the descriptor of the field or method designated by this handle.

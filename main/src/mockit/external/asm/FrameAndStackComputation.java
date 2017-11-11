@@ -1,10 +1,44 @@
 package mockit.external.asm;
 
 import mockit.external.asm.Frame.*;
-import static mockit.external.asm.Opcodes.*;
 
 final class FrameAndStackComputation
 {
+   interface FrameType
+   {
+      /**
+       * An expanded frame.
+       */
+      int NEW = -1;
+
+      /**
+       * A compressed frame with complete frame data.
+       */
+      int FULL = 0;
+
+      /**
+       * A compressed frame where locals are the same as the locals in the previous frame, except that additional 1-3
+       * locals are defined, and with an empty stack.
+       */
+      int APPEND = 1;
+
+      /**
+       * A compressed frame where locals are the same as the locals in the previous frame, except that the last 1-3
+       * locals are absent and with an empty stack.
+       */
+      int CHOP = 2;
+
+      /**
+       * A compressed frame with exactly the same locals as the previous frame and with an empty stack.
+       */
+      int SAME = 3;
+
+      /**
+       * A compressed frame with exactly the same locals as the previous frame and with a single value on the stack.
+       */
+      int SAME1 = 4;
+   }
+
    /**
     * Constants that identify how many locals and stack items a frame has, with respect to its previous frame.
     */
@@ -136,7 +170,7 @@ final class FrameAndStackComputation
    }
 
    void readFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-      if (type == F_NEW) {
+      if (type == FrameType.NEW) {
          readExpandedFrame(nLocal, local, nStack, stack);
       }
       else {
@@ -147,19 +181,19 @@ final class FrameAndStackComputation
          }
 
          switch (type) {
-            case F_FULL:
+            case FrameType.FULL:
                readFullCompressedFrame(nLocal, local, nStack, stack, delta);
                break;
-            case F_APPEND:
+            case FrameType.APPEND:
                readCompressedFrame(nLocal, local, delta);
                break;
-            case F_CHOP:
+            case FrameType.CHOP:
                readCompressedFrameWithChoppedLocals(nLocal, delta);
                break;
-            case F_SAME:
+            case FrameType.SAME:
                readCompressedFrameWithEmptyStack(delta);
                break;
-            case F_SAME1:
+            case FrameType.SAME1:
                readCompressedWithSingleValueOnStack(stack[0], delta);
                break;
          }
@@ -183,7 +217,7 @@ final class FrameAndStackComputation
       int delta = codeLength - previousFrameOffset - 1;
 
       if (delta < 0) {
-         if (type == F_SAME) {
+         if (type == FrameType.SAME) {
             return delta;
          }
 
@@ -439,7 +473,7 @@ final class FrameAndStackComputation
       int currentFrameLocalsSize = getNumLocals();
       int currentFrameStackSize = getStackSize();
 
-      if (cw.getClassVersion() < V1_6) {
+      if (cw.getClassVersion() < ClassVersion.V1_6) {
          writeFrameForOldVersionOfJava(currentFrameLocalsSize, currentFrameStackSize);
          return;
       }
@@ -709,7 +743,7 @@ final class FrameAndStackComputation
       int size = getSize();
 
       if (size > 0) {
-         boolean zip = cw.getClassVersion() >= V1_6;
+         boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
          cw.newUTF8(zip ? "StackMapTable" : "StackMap");
       }
 
@@ -718,7 +752,7 @@ final class FrameAndStackComputation
 
    void put(ByteVector out) {
       if (stackMap != null) {
-         boolean zip = cw.getClassVersion() >= V1_6;
+         boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
          out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
          out.putInt(stackMap.length + 2).putShort(frameCount);
          out.putByteVector(stackMap);

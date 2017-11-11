@@ -1025,28 +1025,28 @@ public final class Frame
       pop();
 
       switch (arg) {
-         case T_BOOLEAN:
+         case ArrayElementType.BOOLEAN:
             push(ARRAY_OF | BOOLEAN);
             break;
-         case T_CHAR:
+         case ArrayElementType.CHAR:
             push(ARRAY_OF | CHAR);
             break;
-         case T_BYTE:
+         case ArrayElementType.BYTE:
             push(ARRAY_OF | BYTE);
             break;
-         case T_SHORT:
+         case ArrayElementType.SHORT:
             push(ARRAY_OF | SHORT);
             break;
-         case T_INT:
+         case ArrayElementType.INT:
             push(ARRAY_OF | INTEGER);
             break;
-         case T_FLOAT:
+         case ArrayElementType.FLOAT:
             push(ARRAY_OF | FLOAT);
             break;
-         case T_DOUBLE:
+         case ArrayElementType.DOUBLE:
             push(ARRAY_OF | DOUBLE);
             break;
-         // case T_LONG:
+         // case ArrayElementType.LONG:
          default:
             push(ARRAY_OF | LONG);
             break;

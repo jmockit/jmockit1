@@ -228,11 +228,9 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-      if (computeFrames) {
-         return;
+      if (!computeFrames) {
+         frameAndStack.readFrame(type, nLocal, local, nStack, stack);
       }
-
-      frameAndStack.readFrame(type, nLocal, local, nStack, stack);
    }
 
    @Override

@@ -49,10 +49,10 @@ public class BaseClassModifier extends WrappingClassVisitor
       int modifiedVersion = version;
       int originalVersion = version & 0xFFFF;
 
-      if (originalVersion < V1_5) {
+      if (originalVersion < ClassVersion.V1_5) {
          // LDC instructions (see MethodVisitor#visitLdcInsn) are more capable in JVMs with support for class files of
          // version 49 (Java 5) or newer, so we "upgrade" it to avoid a VerifyError:
-         modifiedVersion = V1_5;
+         modifiedVersion = ClassVersion.V1_5;
       }
 
       cw.visit(modifiedVersion, access, name, signature, superName, interfaces);
@@ -217,22 +217,8 @@ public class BaseClassModifier extends WrappingClassVisitor
          mw.visitTypeInsn(ANEWARRAY, elementType.getInternalName());
       }
       else {
-         int typ = getArrayElementTypeCode(elementSort);
-         mw.visitIntInsn(NEWARRAY, typ);
-      }
-   }
-
-   private static int getArrayElementTypeCode(int elementSort)
-   {
-      switch (elementSort) {
-          case Type.BOOLEAN: return T_BOOLEAN;
-          case Type.CHAR:    return T_CHAR;
-          case Type.BYTE:    return T_BYTE;
-          case Type.SHORT:   return T_SHORT;
-          case Type.INT:     return T_INT;
-          case Type.FLOAT:   return T_FLOAT;
-          case Type.LONG:    return T_LONG;
-          default:           return T_DOUBLE;
+         int typeCode = Type.getArrayElementType(elementSort);
+         mw.visitIntInsn(NEWARRAY, typeCode);
       }
    }
 
