@@ -59,7 +59,7 @@ final class ExceptionHandling
 
          // Computes the kind of the edges to 'h'.
          String t = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.OBJECT | cw.addType(t);
+         int kind = Frame.TypeMask.OBJECT | cw.addType(t);
 
          // h is an exception handler.
          h.setAsTarget();

@@ -29,8 +29,6 @@
  */
 package mockit.external.asm;
 
-import static mockit.external.asm.ClassWriter.*;
-
 /**
  * A constant pool item. Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
  *
@@ -240,7 +238,7 @@ final class Item
     *                 hashcode of the bootstrap method and the hashcode of all bootstrap arguments.
     */
    void set(int position, int hashCode) {
-      type = BSM;
+      type = ConstantPoolItemType.BSM;
       intVal = position;
       this.hashCode = hashCode;
    }

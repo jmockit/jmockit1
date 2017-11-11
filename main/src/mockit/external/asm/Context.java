@@ -38,11 +38,6 @@ import static mockit.external.asm.ClassReader.*;
  */
 final class Context
 {
-   Context(int flags, char[] buffer) {
-      this.flags = flags;
-      this.buffer = buffer;
-   }
-
    /**
     * The {@link ClassReader} option flags for the parsing of this class.
     */
@@ -78,6 +73,11 @@ final class Context
     * which a label is needed have a non null associated Label object).
     */
    Label[] labels;
+
+   Context(int flags, char[] buffer) {
+      this.flags = flags;
+      this.buffer = buffer;
+   }
 
    boolean readCode() { return (flags & SKIP_CODE) == 0; }
    boolean readDebugInfo() { return (flags & SKIP_DEBUG) == 0; }

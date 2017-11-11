@@ -31,7 +31,6 @@ package mockit.external.asm;
 
 import java.io.*;
 
-import static mockit.external.asm.ClassWriter.*;
 import static mockit.external.asm.Opcodes.*;
 
 /**

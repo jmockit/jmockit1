@@ -29,8 +29,8 @@
  */
 package mockit.external.asm;
 
-import static mockit.external.asm.ClassWriter.ConstantPoolItemType.DOUBLE;
-import static mockit.external.asm.ClassWriter.ConstantPoolItemType.LONG;
+import static mockit.external.asm.ConstantPoolItemType.DOUBLE;
+import static mockit.external.asm.ConstantPoolItemType.LONG;
 import static mockit.external.asm.Opcodes.*;
 
 /**

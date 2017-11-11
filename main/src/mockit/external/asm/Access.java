@@ -28,7 +28,7 @@ public final class Access
 
    // Constants for pseudo access flags.
    private static final int DEPRECATED  = 0x20000; // class, field, method
-   private static final int CONSTRUCTOR = 0x80000; // method
+   static final int CONSTRUCTOR = 0x80000; // method
 
    // Other constants /////////////////////////////////////////////////////////////////////////////
 
