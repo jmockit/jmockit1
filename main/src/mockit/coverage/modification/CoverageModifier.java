@@ -177,7 +177,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
       if (innerCR != null) {
          CoverageModifier innerClassModifier = new CoverageModifier(innerCR, this, innerName);
-         innerCR.accept(innerClassModifier, 0);
+         innerCR.accept(innerClassModifier);
          INNER_CLASS_MODIFIERS.put(innerClassName, innerClassModifier);
       }
    }

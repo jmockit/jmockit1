@@ -50,7 +50,7 @@ public abstract class CaptureOfImplementations<M>
          TestRun.ensureThatClassIsInitialized(realClass);
 
          BaseClassModifier modifier = createModifier(realClass.getClassLoader(), classReader, baseType, typeMetadata);
-         classReader.accept(modifier, 0);
+         classReader.accept(modifier);
 
          if (modifier.wasModified()) {
             byte[] modifiedClass = modifier.toByteArray();

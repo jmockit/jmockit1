@@ -196,7 +196,7 @@ public class MethodVisitor extends BaseWriter
 
    /**
     * Visits a field instruction. A field instruction is an instruction that loads or stores the value of a field of an
-    * object.
+    * object or a class.
     *
     * @param opcode the opcode of the type instruction to be visited. This opcode
     *               is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
@@ -243,8 +243,6 @@ public class MethodVisitor extends BaseWriter
 
    /**
     * Visits a label. A label designates the instruction that will be visited just after it.
-    *
-    * @param label a {@link Label} object.
     */
    public void visitLabel(Label label) {}
 
@@ -331,7 +329,7 @@ public class MethodVisitor extends BaseWriter
    public void visitMultiANewArrayInsn(String desc, int dims) {}
 
    // -------------------------------------------------------------------------
-   // Exceptions table entries, debug information, max stack and max locals
+   // Exceptions table entries, debug information, max stack
    // -------------------------------------------------------------------------
 
    /**

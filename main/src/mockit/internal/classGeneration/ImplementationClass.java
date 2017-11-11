@@ -39,7 +39,7 @@ public abstract class ImplementationClass<T>
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(sourceClass);
 
       ClassVisitor modifier = createMethodBodyGenerator(classReader);
-      classReader.accept(modifier, 0);
+      classReader.accept(modifier);
 
       return defineNewClass(modifier);
    }

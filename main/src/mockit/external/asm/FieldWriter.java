@@ -133,7 +133,7 @@ final class FieldWriter extends FieldVisitor
    }
 
    private boolean isSynthetic() {
-      return (access & ACC_SYNTHETIC) != 0 && ((access & ACC_SYNTHETIC_ATTRIBUTE) != 0 || cw.isPreJava5());
+      return cw.isSynthetic(access);
    }
 
    private boolean isDeprecated() {

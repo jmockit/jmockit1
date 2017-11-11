@@ -39,24 +39,33 @@ import static mockit.external.asm.ClassWriter.*;
 final class Item
 {
    /**
+    * Defines constants for {@link #NORMAL normal}, {@link #UNINIT uninitialized}, and {@link #MERGED merged} special
+    * item types stored in the {@link ClassWriter#typeTable}, instead of the constant pool, in order to avoid clashes
+    * with normal constant pool items in the ClassWriter constant pool's hash table.
+    */
+   interface SpecialType
+   {
+      int NORMAL = 30;
+      int UNINIT = 31;
+      int MERGED = 32;
+   }
+
+   /**
     * Index of this item in the constant pool.
     */
    final int index;
 
    /**
     * Type of this constant pool item. A single class is used to represent all constant pool item types, in order to
-    * minimize the bytecode size of this package. The value of this field is one of {@link ConstantPoolItemType#INT},
-    * {@link ConstantPoolItemType#LONG}, {@link ConstantPoolItemType#FLOAT}, {@link ConstantPoolItemType#DOUBLE}, {@link ConstantPoolItemType#UTF8},
-    * {@link ConstantPoolItemType#STR}, {@link ConstantPoolItemType#CLASS}, {@link ConstantPoolItemType#NAME_TYPE}, {@link ConstantPoolItemType#FIELD},
-    * {@link ConstantPoolItemType#METH}, {@link ConstantPoolItemType#IMETH}, {@link ConstantPoolItemType#MTYPE}, {@link ConstantPoolItemType#INDY}.
+    * minimize the bytecode size of this package. The value of this field is one of the {@link ConstantPoolItemType}
+    * constants.
     * <p/>
-    * MethodHandle constant 9 variations are stored using a range of 9 values from {@link ClassWriter#HANDLE_BASE} + 1
-    * to {@link ClassWriter#HANDLE_BASE} + 9.
+    * MethodHandle constant 9 variations are stored using a range of 9 values from
+    * {@link ConstantPoolItemType#HANDLE_BASE} + 1 to {@link ConstantPoolItemType#HANDLE_BASE} + 9.
     * <p/>
     * Special Item types are used for Items that are stored in the ClassWriter {@link ClassWriter#typeTable}, instead of
     * the constant pool, in order to avoid clashes with normal constant pool items in the ClassWriter constant pool's
-    * hash table. These special item types are {@link ClassWriter#TYPE_NORMAL}, {@link ClassWriter#TYPE_UNINIT} and
-    * {@link ClassWriter#TYPE_MERGED}.
+    * hash table. These special item types are defined in {@link SpecialType}.
     */
    int type;
 
@@ -190,22 +199,19 @@ final class Item
 
       switch (type) {
          case ConstantPoolItemType.CLASS:
-            intVal = 0;     // intVal of a class must be zero, see visitInnerClass
+            intVal = 0; // intVal of a class must be zero, see visitInnerClass
             // fall through
          case ConstantPoolItemType.UTF8:
          case ConstantPoolItemType.STR:
          case ConstantPoolItemType.MTYPE:
-         case TYPE_NORMAL:
+         case SpecialType.NORMAL:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
             return;
          case ConstantPoolItemType.NAME_TYPE: {
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
             return;
          }
-         // ClassWriter.FIELD:
-         // ClassWriter.METH:
-         // ClassWriter.IMETH:
-         // ClassWriter.HANDLE_BASE + 1..9
+         // ConstantPoolItemType.FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
       }
@@ -252,26 +258,23 @@ final class Item
          case ConstantPoolItemType.STR:
          case ConstantPoolItemType.CLASS:
          case ConstantPoolItemType.MTYPE:
-         case TYPE_NORMAL:
+         case SpecialType.NORMAL:
             return i.strVal1.equals(strVal1);
-         case TYPE_MERGED:
+         case SpecialType.MERGED:
          case ConstantPoolItemType.LONG:
          case ConstantPoolItemType.DOUBLE:
             return i.longVal == longVal;
          case ConstantPoolItemType.INT:
          case ConstantPoolItemType.FLOAT:
             return i.intVal == intVal;
-         case TYPE_UNINIT:
+         case SpecialType.UNINIT:
             return i.intVal == intVal && i.strVal1.equals(strVal1);
          case ConstantPoolItemType.NAME_TYPE:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
          case ConstantPoolItemType.INDY: {
             return i.longVal == longVal && i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
          }
-         // case ClassWriter.FIELD:
-         // case ClassWriter.METH:
-         // case ClassWriter.IMETH:
-         // case ClassWriter.HANDLE_BASE + 1..9
+         // case ConstantPoolItemType.FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2) && i.strVal3.equals(strVal3);
       }

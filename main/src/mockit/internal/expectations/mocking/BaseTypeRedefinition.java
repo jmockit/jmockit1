@@ -225,7 +225,7 @@ class BaseTypeRedefinition
    private void redefineClass(
       @Nonnull Class<?> realClass, @Nonnull ClassReader classReader, @Nonnull MockedClassModifier modifier)
    {
-      classReader.accept(modifier, 0);
+      classReader.accept(modifier);
 
       if (modifier.wasModified()) {
          byte[] modifiedClass = modifier.toByteArray();

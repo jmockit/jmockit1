@@ -1913,11 +1913,9 @@ public final class MethodWriter extends MethodVisitor
          size += 8 + 2 * exceptionCount;
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            cw.newUTF8("Synthetic");
-            size += 6;
-         }
+      if (cw.isSynthetic(access)) {
+         cw.newUTF8("Synthetic");
+         size += 6;
       }
 
       if ((access & ACC_DEPRECATED) != 0) {
@@ -1976,10 +1974,11 @@ public final class MethodWriter extends MethodVisitor
          ++attributeCount;
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            ++attributeCount;
-         }
+
+      boolean synthetic = cw.isSynthetic(access);
+
+      if (synthetic) {
+         ++attributeCount;
       }
 
       if ((access & ACC_DEPRECATED) != 0) {
@@ -2093,10 +2092,8 @@ public final class MethodWriter extends MethodVisitor
          }
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (cw.isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            out.putShort(cw.newUTF8("Synthetic")).putInt(0);
-         }
+      if (synthetic) {
+         out.putShort(cw.newUTF8("Synthetic")).putInt(0);
       }
 
       if ((access & ACC_DEPRECATED) != 0) {

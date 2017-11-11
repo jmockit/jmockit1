@@ -104,7 +104,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       ClassVisitor modifier = new EndOfBlockModifier(cr, loader, baseSubclasses, finalClass);
 
       try {
-         cr.accept(modifier, 0);
+         cr.accept(modifier);
          return modifier.toByteArray();
       }
       catch (VisitInterruptedException ignore) {}

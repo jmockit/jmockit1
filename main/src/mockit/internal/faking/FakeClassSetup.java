@@ -94,7 +94,7 @@ public final class FakeClassSetup
       }
 
       FakedClassModifier modifier = new FakedClassModifier(rcReader, classToModify, fake, fakeMethods);
-      rcReader.accept(modifier, 0);
+      rcReader.accept(modifier);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }

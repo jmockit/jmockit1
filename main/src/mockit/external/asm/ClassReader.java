@@ -32,6 +32,7 @@ package mockit.external.asm;
 import java.io.*;
 
 import static mockit.external.asm.ClassWriter.*;
+import static mockit.external.asm.Opcodes.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
@@ -55,6 +56,23 @@ public final class ClassReader
     * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be called.
     */
    public static final int SKIP_DEBUG = 2;
+
+   /**
+    * The instruction types of all JVM opcodes.
+    */
+   private static final byte[] TYPE = new byte[220];
+   static {
+      String s =
+         "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD" +
+         "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+         "AAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAJJJJJJJJJJJJJJJJDOPAA" +
+         "AAAAGGGGGGGHIFBFAAFFAARQJJKKJJJJJJJJJJJJJJJJJJ";
+      byte[] b = TYPE;
+
+      for (int i = 0; i < b.length; ++i) {
+         b[i] = (byte) (s.charAt(i) - 'A');
+      }
+   }
 
    interface InstructionType
    {
@@ -109,6 +127,7 @@ public final class ClassReader
 
    // Helper fields.
    private ClassVisitor cv;
+   private Context context;
    private int access;
    private String name;
    private String superClass;
@@ -124,23 +143,23 @@ public final class ClassReader
    /**
     * Constructs a new {@link ClassReader} object.
     *
-    * @param b the bytecode of the class to be read.
+    * @param bytecode the bytecode of the class to be read.
     */
-   public ClassReader(byte[] b) {
-      this.b = b;
+   public ClassReader(byte[] bytecode) {
+      b = bytecode;
 
       // Parses the constant pool.
       int n = readUnsignedShort(8);
       items = new int[n];
       strings = new String[n];
-      int max = 0;
+      int maxSize = 0;
       int index = 10;
 
       for (int i = 1; i < n; ++i) {
          items[i] = index + 1;
          int size;
 
-         switch (b[index]) {
+         switch (bytecode[index]) {
             case ConstantPoolItemType.FIELD:
             case ConstantPoolItemType.METH:
             case ConstantPoolItemType.IMETH:
@@ -157,16 +176,16 @@ public final class ClassReader
                break;
             case ConstantPoolItemType.UTF8:
                size = 3 + readUnsignedShort(index + 1);
-               if (size > max) {
-                  max = size;
+
+               if (size > maxSize) {
+                  maxSize = size;
                }
+
                break;
             case ConstantPoolItemType.HANDLE:
                size = 4;
                break;
-            // case ClassWriter.CLASS:
-            // case ClassWriter.STR:
-            // case ClassWriter.MTYPE
+            // case ConstantPoolItemType.CLASS|STR|MTYPE
             default:
                size = 3;
                break;
@@ -175,12 +194,13 @@ public final class ClassReader
          index += size;
       }
 
-      maxStringLength = max;
-
-      // The class header information starts just after the constant pool.
-      header = index;
+      maxStringLength = maxSize;
+      header = index; // the class header information starts just after the constant pool
    }
 
+   /**
+    * Returns the classfile version of the class being read.
+    */
    public int getVersion() {
       return readShort(6);
    }
@@ -197,7 +217,7 @@ public final class ClassReader
    }
 
    /**
-    * Returns the internal name of the class (see {@link Type#getInternalName() getInternalName}).
+    * Returns the internal name of the class (see {@link Type#getInternalName()}).
     *
     * @return the internal class name
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
@@ -207,7 +227,7 @@ public final class ClassReader
    }
 
    /**
-    * Returns the internal of name of the super class (see {@link Type#getInternalName() getInternalName}).
+    * Returns the internal of name of the super class (see {@link Type#getInternalName()}).
     * For interfaces, the super class is {@link Object}.
     *
     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
@@ -218,7 +238,7 @@ public final class ClassReader
    }
 
    /**
-    * Returns the internal names of the class's interfaces (see {@link Type#getInternalName() getInternalName}).
+    * Returns the internal names of the class's interfaces (see {@link Type#getInternalName()}).
     *
     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
@@ -293,7 +313,7 @@ public final class ClassReader
                int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
                nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
                item.set(
-                  HANDLE_BASE + readByte(index), readClass(fieldOrMethodRef, buf),
+                  ConstantPoolItemType.HANDLE_BASE + readByte(index), readClass(fieldOrMethodRef, buf),
                   readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
                break;
             }
@@ -305,9 +325,7 @@ public final class ClassReader
                nameType = items[readUnsignedShort(index + 2)];
                item.set(readUTF8(nameType, buf), readUTF8(nameType + 2, buf), readUnsignedShort(index));
                break;
-            // case ClassWriter.STR:
-            // case ClassWriter.CLASS:
-            // case ClassWriter.MTYPE
+            // case ConstantPoolItemType.STR|CLASS|MTYPE:
             default:
                item.set(tag, readUTF8(index, buf), null, null);
                break;
@@ -446,6 +464,13 @@ public final class ClassReader
    }
 
    /**
+    * Makes the given visitor visit the Java class of this {@link ClassReader}, all attributes included.
+    */
+   public void accept(ClassVisitor cv) {
+      accept(cv, 0);
+   }
+
+   /**
     * Makes the given visitor visit the Java class of this {@link ClassReader}.
     *
     * @param cv    the visitor that must visit this class.
@@ -456,11 +481,10 @@ public final class ClassReader
       this.cv = cv;
 
       char[] c = new char[maxStringLength]; // buffer used to read strings
-      Context context = new Context(flags, c);
+      context = new Context(flags, c);
 
-      int u = header; // current offset in the class file
-      readClassDeclaration(u, c);
-      readInterfaces(u, c);
+      readClassDeclaration();
+      readInterfaces();
 
       // Reads the class attributes.
       signature = null;
@@ -469,10 +493,10 @@ public final class ClassReader
       enclosingOwner = null;
       enclosingName = null;
       enclosingDesc = null;
-      int anns = 0;
+      int annotations = 0;
       int innerClasses = 0;
 
-      u = getAttributesStartIndex();
+      int u = getAttributesStartIndex();
 
       for (int i = readUnsignedShort(u); i > 0; --i) {
          String attrName = readUTF8(u + 2, c);
@@ -484,19 +508,19 @@ public final class ClassReader
             innerClasses = u + 8;
          }
          else if ("EnclosingMethod".equals(attrName)) {
-            readEnclosingMethodInfo(u, c);
+            readEnclosingMethodInfo(u);
          }
          else if ("Signature".equals(attrName)) {
             signature = readUTF8(u + 8, c);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            anns = u + 8;
+            annotations = u + 8;
          }
          else if ("Deprecated".equals(attrName)) {
-            access |= Opcodes.ACC_DEPRECATED;
+            access |= ACC_DEPRECATED;
          }
          else if ("Synthetic".equals(attrName)) {
-            access |= Opcodes.ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
          }
          else if ("SourceDebugExtension".equals(attrName)) {
             int len = readInt(u + 4);
@@ -510,21 +534,25 @@ public final class ClassReader
       }
 
       readClass();
-      readSourceAndDebugInfo(context);
+      readSourceAndDebugInfo();
       readOuterClass();
-      readAnnotations(c, anns);
-      readInnerClasses(c, innerClasses);
-      readFieldsAndMethods(context);
+      readAnnotations(annotations);
+      readInnerClasses(innerClasses);
+      readFieldsAndMethods();
       cv.visitEnd();
    }
 
-   private void readClassDeclaration(int u, char[] c) {
+   private void readClassDeclaration() {
+      int u = header;
+      char[] c = context.buffer;
       access = readUnsignedShort(u);
       name = readClass(u + 2, c);
       superClass = readClass(u + 4, c);
    }
 
-   private void readInterfaces(int u, char[] c) {
+   private void readInterfaces() {
+      int u = header;
+      char[] c = context.buffer;
       interfaces = new String[readUnsignedShort(u + 6)];
       u += 8;
 
@@ -534,7 +562,8 @@ public final class ClassReader
       }
    }
 
-   private void readEnclosingMethodInfo(int u, char[] c) {
+   private void readEnclosingMethodInfo(int u) {
+      char[] c = context.buffer;
       enclosingOwner = readClass(u + 8, c);
       int item = readUnsignedShort(u + 10);
 
@@ -549,7 +578,7 @@ public final class ClassReader
       cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
-   private void readSourceAndDebugInfo(Context context) {
+   private void readSourceAndDebugInfo() {
       if (context.readDebugInfo() && (sourceFile != null || sourceDebug != null)) {
          cv.visitSource(sourceFile, sourceDebug);
       }
@@ -561,9 +590,11 @@ public final class ClassReader
       }
    }
 
-   private void readAnnotations(char[] c, int anns) {
-      if (anns != 0) {
-         for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
+   private void readAnnotations(int annotations) {
+      if (annotations != 0) {
+         char[] c = context.buffer;
+
+         for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; --i) {
             String desc = readUTF8(v, c);
             AnnotationVisitor av = cv.visitAnnotation(desc);
             v = readAnnotationValues(v + 2, c, true, av);
@@ -571,9 +602,10 @@ public final class ClassReader
       }
    }
 
-   private void readInnerClasses(char[] c, int innerClasses) {
+   private void readInnerClasses(int innerClasses) {
       if (innerClasses != 0) {
          int v = innerClasses + 2;
+         char[] c = context.buffer;
 
          for (int i = readUnsignedShort(innerClasses); i > 0; --i) {
             String name = readClass(v, c);
@@ -586,7 +618,7 @@ public final class ClassReader
       }
    }
 
-   private void readFieldsAndMethods(Context context) {
+   private void readFieldsAndMethods() {
       int u = header + 10 + 2 * interfaces.length;
 
       for (int i = readUnsignedShort(u - 2); i > 0; --i) {
@@ -642,10 +674,10 @@ public final class ClassReader
             signature = readUTF8(u + 8, c);
          }
          else if ("Deprecated".equals(attrName)) {
-            access |= Opcodes.ACC_DEPRECATED;
+            access |= ACC_DEPRECATED;
          }
          else if ("Synthetic".equals(attrName)) {
-            access |= Opcodes.ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
@@ -710,7 +742,7 @@ public final class ClassReader
             signature = readUTF8(u + 8, c);
          }
          else if ("Deprecated".equals(attrName)) {
-            context.access |= Opcodes.ACC_DEPRECATED;
+            context.access |= ACC_DEPRECATED;
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
@@ -719,7 +751,7 @@ public final class ClassReader
             annDefault = u + 8;
          }
          else if ("Synthetic".equals(attrName)) {
-            context.access |= Opcodes.ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
+            context.access |= ACC_SYNTHETIC | ACC_SYNTHETIC_ATTRIBUTE;
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             paramAnns = u + 8;
@@ -937,7 +969,7 @@ public final class ClassReader
             case InstructionType.WIDE:
                opcode = b[u + 1] & 0xFF;
 
-               if (opcode == Opcodes.IINC) {
+               if (opcode == IINC) {
                   u += 6;
                }
                else {
@@ -1097,13 +1129,13 @@ public final class ClassReader
                u += 1;
                break;
             case InstructionType.IMPLVAR:
-               if (opcode > Opcodes.ISTORE) {
+               if (opcode > ISTORE) {
                   opcode -= 59; // ISTORE_0
-                  mv.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
+                  mv.visitVarInsn(ISTORE + (opcode >> 2), opcode & 0x3);
                }
                else {
                   opcode -= 26; // ILOAD_0
-                  mv.visitVarInsn(Opcodes.ILOAD + (opcode >> 2), opcode & 0x3);
+                  mv.visitVarInsn(ILOAD + (opcode >> 2), opcode & 0x3);
                }
 
                u += 1;
@@ -1119,7 +1151,7 @@ public final class ClassReader
             case InstructionType.WIDE:
                opcode = b[u + 1] & 0xFF;
 
-               if (opcode == Opcodes.IINC) {
+               if (opcode == IINC) {
                   mv.visitIincInsn(readUnsignedShort(u + 2), readShort(u + 4));
                   u += 6;
                }
@@ -1197,14 +1229,14 @@ public final class ClassReader
                String name = readUTF8(cpIndex, c);
                String desc = readUTF8(cpIndex + 2, c);
 
-               if (opcode < Opcodes.INVOKEVIRTUAL) {
+               if (opcode < INVOKEVIRTUAL) {
                   mv.visitFieldInsn(opcode, owner, name, desc);
                }
                else {
                   mv.visitMethodInsn(opcode, owner, name, desc, itf);
                }
 
-               if (opcode == Opcodes.INVOKEINTERFACE) {
+               if (opcode == INVOKEINTERFACE) {
                   u += 5;
                }
                else {

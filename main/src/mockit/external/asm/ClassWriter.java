@@ -55,11 +55,6 @@ public final class ClassWriter extends ClassVisitor
     */
    static final int TO_ACC_SYNTHETIC = ACC_SYNTHETIC_ATTRIBUTE / ACC_SYNTHETIC;
 
-   /**
-    * The instruction types of all JVM opcodes.
-    */
-   static final byte[] TYPE;
-
    interface ConstantPoolItemType
    {
       int CLASS     =  7; // CONSTANT_Class
@@ -76,31 +71,13 @@ public final class ClassWriter extends ClassVisitor
       int MTYPE     = 16; // CONSTANT_MethodType
       int HANDLE    = 15; // CONSTANT_MethodHandle
       int INDY      = 18; // CONSTANT_InvokeDynamic
+
+      /**
+       * The base value for all CONSTANT_MethodHandle constant pool items.
+       * Internally, ASM store the 9 variations of CONSTANT_MethodHandle into 9 different items.
+       */
+      int HANDLE_BASE = 20;
    }
-
-   /**
-    * The base value for all CONSTANT_MethodHandle constant pool items.
-    * Internally, ASM store the 9 variations of CONSTANT_MethodHandle into 9 different items.
-    */
-   static final int HANDLE_BASE = 20;
-
-   /**
-    * Normal type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order
-    * to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-    */
-   static final int TYPE_NORMAL = 30;
-
-   /**
-    * Uninitialized type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in
-    * order to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-    */
-   static final int TYPE_UNINIT = 31;
-
-   /**
-    * Merged type Item stored in the ClassWriter {@link ClassWriter#typeTable}, instead of the constant pool, in order
-    * to avoid clashes with normal constant pool items in the ClassWriter constant pool's hash table.
-    */
-   static final int TYPE_MERGED = 32;
 
    /**
     * The type of BootstrapMethods items. These items are stored in a special class attribute named BootstrapMethods
@@ -267,22 +244,6 @@ public final class ClassWriter extends ClassVisitor
     * are also ignored and recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
     */
    private final boolean computeFrames;
-
-   // Computes the instruction types of JVM opcodes.
-   static {
-      byte[] b = new byte[220];
-      String s =
-         "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD" +
-         "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-         "AAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAJJJJJJJJJJJJJJJJDOPAA" +
-         "AAAAGGGGGGGHIFBFAAFFAARQJJKKJJJJJJJJJJJJJJJJJJ";
-
-      for (int i = 0; i < b.length; ++i) {
-         b[i] = (byte) (s.charAt(i) - 'A');
-      }
-
-      TYPE = b;
-   }
 
    /**
     * Constructs a new {@link ClassWriter} object and enables optimizations for "mostly add" bytecode transformations.
@@ -482,12 +443,10 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("Deprecated");
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            ++attributeCount;
-            size += 6;
-            newUTF8("Synthetic");
-         }
+      if (isSynthetic()) {
+         ++attributeCount;
+         size += 6;
+         newUTF8("Synthetic");
       }
 
       if (innerClasses != null) {
@@ -560,10 +519,8 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(newUTF8("Deprecated")).putInt(0);
       }
 
-      if ((access & ACC_SYNTHETIC) != 0) {
-         if (isPreJava5() || (access & ACC_SYNTHETIC_ATTRIBUTE) != 0) {
-            out.putShort(newUTF8("Synthetic")).putInt(0);
-         }
+      if (isSynthetic()) {
+         out.putShort(newUTF8("Synthetic")).putInt(0);
       }
 
       if (innerClasses != null) {
@@ -582,7 +539,12 @@ public final class ClassWriter extends ClassVisitor
    // ------------------------------------------------------------------------
 
    int getClassVersion() { return version & 0xFFFF; }
-   boolean isPreJava5() { return getClassVersion() < V1_5; }
+
+   private boolean isSynthetic() { return isSynthetic(access); }
+
+   boolean isSynthetic(int access) {
+      return (access & ACC_SYNTHETIC) != 0 && ((access & ACC_SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < V1_5);
+   }
 
    /**
     * Adds a number or string constant to the constant pool of the class being built.
@@ -734,7 +696,7 @@ public final class ClassWriter extends ClassVisitor
     */
    private Item newHandleItem(Handle handle) {
       int tag = handle.tag;
-      key4.set(HANDLE_BASE + tag, handle.owner, handle.name, handle.desc);
+      key4.set(ConstantPoolItemType.HANDLE_BASE + tag, handle.owner, handle.name, handle.desc);
       Item result = get(key4);
 
       if (result == null) {
@@ -1024,7 +986,7 @@ public final class ClassWriter extends ClassVisitor
     * @return the index of this internal name in the type table.
     */
    int addType(String type) {
-      key.set(TYPE_NORMAL, type, null, null);
+      key.set(Item.SpecialType.NORMAL, type, null, null);
       Item result = get(key);
 
       if (result == null) {
@@ -1043,10 +1005,10 @@ public final class ClassWriter extends ClassVisitor
     * @return the index of this internal name in the type table.
     */
    int addUninitializedType(String type, int offset) {
-      key.type = TYPE_UNINIT;
+      key.type = Item.SpecialType.UNINIT;
       key.intVal = offset;
       key.strVal1 = type;
-      key.hashCode = 0x7FFFFFFF & (TYPE_UNINIT + type.hashCode() + offset);
+      key.hashCode = 0x7FFFFFFF & (Item.SpecialType.UNINIT + type.hashCode() + offset);
       Item result = get(key);
 
       if (result == null) {
@@ -1089,9 +1051,9 @@ public final class ClassWriter extends ClassVisitor
     * @return the index of the common super type of the two given types.
     */
    int getMergedType(int type1, int type2) {
-      key2.type = TYPE_MERGED;
+      key2.type = Item.SpecialType.MERGED;
       key2.longVal = type1 | ((long) type2 << 32);
-      key2.hashCode = 0x7FFFFFFF & (TYPE_MERGED + type1 + type2);
+      key2.hashCode = 0x7FFFFFFF & (Item.SpecialType.MERGED + type1 + type2);
       Item result = get(key2);
 
       if (result == null) {

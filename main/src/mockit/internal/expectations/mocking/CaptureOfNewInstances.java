@@ -90,7 +90,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 
       MockedClassModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
       modifier.useDynamicMocking(true);
-      classReader.accept(modifier, 0);
+      classReader.accept(modifier);
       byte[] modifiedClassfile = modifier.toByteArray();
 
       Startup.redefineMethods(mockedClass, modifiedClassfile);

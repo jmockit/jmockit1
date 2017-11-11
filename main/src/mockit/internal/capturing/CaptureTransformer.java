@@ -90,7 +90,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String className, @Nonnull ClassReader cr)
    {
       ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedType.baseType, typeMetadata);
-      cr.accept(modifier, 0);
+      cr.accept(modifier);
 
       ClassIdentification classId = new ClassIdentification(loader, className);
       byte[] originalBytecode = cr.b;

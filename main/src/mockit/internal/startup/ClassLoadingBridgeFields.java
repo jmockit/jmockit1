@@ -81,7 +81,7 @@ final class ClassLoadingBridgeFields
             }
          };
 
-         classReader.accept(cv, 0);
+         classReader.accept(cv);
          return cw.toByteArray();
       }
    }
