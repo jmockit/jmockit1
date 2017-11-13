@@ -262,7 +262,7 @@ public final class ClassReader
    /**
     * Copies the constant pool data into the given {@link ClassWriter}.
     */
-   void copyPool(ClassWriter classWriter) {
+   void copyPool(ClassWriter cw) {
       char[] buf = new char[maxStringLength];
       int ll = items.length;
       Item[] items2 = new Item[ll];
@@ -317,8 +317,8 @@ public final class ClassReader
                break;
             }
             case ConstantPoolItemType.INDY:
-               if (classWriter.bootstrapMethods == null) {
-                  copyBootstrapMethods(classWriter, items2, buf);
+               if (!cw.bootstrapMethods.hasMethods()) {
+                  cw.bootstrapMethods.copyBootstrapMethods(items2, buf);
                }
 
                nameType = items[readUnsignedShort(index + 2)];
@@ -336,60 +336,10 @@ public final class ClassReader
       }
 
       int off = items[1] - 1;
-      classWriter.pool.putByteArray(b, off, header - off);
-      classWriter.items = items2;
-      classWriter.threshold = (int) (0.75d * ll);
-      classWriter.index = ll;
-   }
-
-   /**
-    * Copies the bootstrap method data into the given {@link ClassWriter}.
-    */
-   private void copyBootstrapMethods(ClassWriter classWriter, Item[] items, char[] c) {
-      // Finds the "BootstrapMethods" attribute.
-      int u = getAttributesStartIndex();
-      boolean found = false;
-
-      for (int i = readUnsignedShort(u); i > 0; --i) {
-         String attrName = readUTF8(u + 2, c);
-
-         if ("BootstrapMethods".equals(attrName)) {
-            found = true;
-            break;
-         }
-
-         u += 6 + readInt(u + 4);
-      }
-
-      if (!found) {
-         return;
-      }
-
-      // Copies the bootstrap methods in the class writer.
-      int bootstrapMethodCount = readUnsignedShort(u + 8);
-
-      for (int j = 0, v = u + 10; j < bootstrapMethodCount; j++) {
-         int position = v - u - 10;
-         int hashCode = readConst(readUnsignedShort(v), c).hashCode();
-
-         for (int k = readUnsignedShort(v + 2); k > 0; --k) {
-            hashCode ^= readConst(readUnsignedShort(v + 4), c).hashCode();
-            v += 2;
-         }
-
-         v += 4;
-         Item item = new Item(j);
-         item.set(position, hashCode & 0x7FFFFFFF);
-         int index = item.hashCode % items.length;
-         item.next = items[index];
-         items[index] = item;
-      }
-
-      int attrSize = readInt(u + 4);
-      ByteVector bootstrapMethods = new ByteVector(attrSize + 62);
-      bootstrapMethods.putByteArray(b, u + 10, attrSize - 2);
-      classWriter.bootstrapMethodsCount = bootstrapMethodCount;
-      classWriter.bootstrapMethods = bootstrapMethods;
+      cw.pool.putByteArray(b, off, header - off);
+      cw.items = items2;
+      cw.threshold = (int) (0.75d * ll);
+      cw.index = ll;
    }
 
    /**
@@ -1610,7 +1560,7 @@ public final class ClassReader
    /**
     * Returns the start index of the attribute_info structure of this class.
     */
-   private int getAttributesStartIndex() {
+   int getAttributesStartIndex() {
       // Skips the header.
       int u = header + 8 + readUnsignedShort(header + 6) * 2;
 
@@ -1651,7 +1601,7 @@ public final class ClassReader
     * @param index the start index of the value to be read in {@link #b b}.
     * @return the read value.
     */
-   private int readUnsignedShort(int index) {
+   int readUnsignedShort(int index) {
       byte[] b = this.b;
       return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
    }
@@ -1672,7 +1622,7 @@ public final class ClassReader
     * @param index the start index of the value to be read in {@link #b b}.
     * @return the read value.
     */
-   private int readInt(int index) {
+   int readInt(int index) {
       byte[] b = this.b;
       return
          ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16) |
@@ -1700,7 +1650,7 @@ public final class ClassReader
     *              resized.
     * @return the String corresponding to the specified UTF8 item.
     */
-   private String readUTF8(int index, char[] buf) {
+   String readUTF8(int index, char[] buf) {
       int item = readUnsignedShort(index);
 
       if (index == 0 || item == 0) {
@@ -1797,7 +1747,7 @@ public final class ClassReader
     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link Type} or
     * {@link Handle} corresponding to the given constant pool item.
     */
-   private Object readConst(int item, char[] buf) {
+   Object readConst(int item, char[] buf) {
       int index = items[item];
 
       switch (b[index - 1]) {

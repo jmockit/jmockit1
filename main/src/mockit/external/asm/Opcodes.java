@@ -148,7 +148,6 @@ public interface Opcodes
    int ATHROW      = 191;
    int MONITORENTER = 194;
    int MONITOREXIT  = 195;
-// int WIDE = 196; // NOT VISITED
 
    // visitIntInsn
    int BIPUSH = 16;
@@ -157,8 +156,8 @@ public interface Opcodes
 
    // visitLdcInsn
    int LDC    = 18;
-// int LDC_W  = 19;
-// int LDC2_W = 20;
+   int LDC_W  = 19;
+   int LDC2_W = 20;
 
    // visitVarInsn
    int ILOAD = 21;
@@ -211,7 +210,8 @@ public interface Opcodes
 // int ASTORE_1 = 76;
 // int ASTORE_2 = 77;
 // int ASTORE_3 = 78;
-   int RET = 169;
+   int RET  = 169;
+   int WIDE = 196; // NOT VISITED
 
    // visitIincInsn
    int IINC = 132;
@@ -231,12 +231,12 @@ public interface Opcodes
    int IF_ICMPLE = 164;
    int IF_ACMPEQ = 165;
    int IF_ACMPNE = 166;
-   int GOTO = 167;
-   int JSR  = 168;
+   int GOTO      = 167;
+   int JSR       = 168;
    int IFNULL    = 198;
    int IFNONNULL = 199;
-// int GOTO_W    = 200;
-// int JSR_W     = 201;
+   int GOTO_W    = 200;
+   int JSR_W     = 201;
 
    // visitTableSwitchInsn, visitLookupSwitch
    int TABLESWITCH  = 170;

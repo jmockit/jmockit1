@@ -30,13 +30,6 @@
 package mockit.external.asm;
 
 import static mockit.external.asm.Frame.TypeMask.*;
-import static mockit.external.asm.Frame.TypeMask.DOUBLE;
-import static mockit.external.asm.Frame.TypeMask.FLOAT;
-import static mockit.external.asm.Frame.TypeMask.INTEGER;
-import static mockit.external.asm.Frame.TypeMask.LONG;
-import static mockit.external.asm.Frame.TypeMask.NULL;
-import static mockit.external.asm.Frame.TypeMask.TOP;
-import static mockit.external.asm.Frame.TypeMask.UNINITIALIZED_THIS;
 import static mockit.external.asm.Opcodes.*;
 
 /**

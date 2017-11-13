@@ -29,8 +29,6 @@
  */
 package mockit.external.asm;
 
-import static mockit.external.asm.ConstantPoolItemType.DOUBLE;
-import static mockit.external.asm.ConstantPoolItemType.LONG;
 import static mockit.external.asm.Opcodes.*;
 
 /**
@@ -244,14 +242,8 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(opcode, 0, null, null);
          }
          else {
-            // Updates current and max stack sizes.
-            int size = stackSize + Frame.SIZE[opcode];
-
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
+            int sizeVariation = Frame.SIZE[opcode];
+            updateStackSize(sizeVariation);
          }
 
          // If opcode == ATHROW or xRETURN, ends current block (no successor).
@@ -261,21 +253,25 @@ public final class MethodWriter extends MethodVisitor
       }
    }
 
+   // Updates current and max stack sizes.
+   private void updateStackSize(int sizeVariation) {
+      int newSize = stackSize + sizeVariation;
+
+      if (newSize > maxStackSize) {
+         maxStackSize = newSize;
+      }
+
+      stackSize = newSize;
+   }
+
    @Override
    public void visitIntInsn(int opcode, int operand) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.execute(opcode, operand, null, null);
          }
-         else if (opcode != NEWARRAY) {
-            // Updates current and max stack sizes only for NEWARRAY (stack size variation = 0 for BIPUSH or SIPUSH).
-            int size = stackSize + 1;
-
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
+         else if (opcode != NEWARRAY) { // updates stack size only for NEWARRAY (variation = 0 for BIPUSH or SIPUSH)
+            updateStackSize(1);
          }
       }
 
@@ -300,18 +296,13 @@ public final class MethodWriter extends MethodVisitor
                // No stack change, but end of current block (no successor).
                currentBlock.markAsEndingWithRET();
 
-               // Save 'stackSize' here for future use (see {@link #findSubroutineSuccessors}).
+               // Save 'stackSize' here for future use.
                currentBlock.inputStackTop = stackSize;
                noSuccessor();
             }
             else { // xLOAD or xSTORE
-               int size = stackSize + Frame.SIZE[opcode];
-
-               if (size > maxStackSize) {
-                  maxStackSize = size;
-               }
-
-               stackSize = size;
+               int sizeVariation = Frame.SIZE[opcode];
+               updateStackSize(sizeVariation);
             }
          }
       }
@@ -334,7 +325,7 @@ public final class MethodWriter extends MethodVisitor
          code.putByte(opt);
       }
       else if (var >= 256) {
-         code.putByte(196 /* WIDE */).put12(opcode, var);
+         code.putByte(WIDE).put12(opcode, var);
       }
       else {
          code.put11(opcode, var);
@@ -353,16 +344,8 @@ public final class MethodWriter extends MethodVisitor
          if (computeFrames) {
             currentBlock.frame.execute(opcode, code.length, cw, i);
          }
-         else if (opcode == NEW) {
-            // Updates current and max stack sizes only if opcode == NEW
-            // (no stack change for ANEWARRAY, CHECKCAST, INSTANCEOF).
-            int size = stackSize + 1;
-
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
+         else if (opcode == NEW) { // updates stack size for NEW only; no change for ANEWARRAY, CHECKCAST, INSTANCEOF
+            updateStackSize(1);
          }
       }
 
@@ -379,32 +362,28 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(opcode, 0, cw, i);
          }
          else {
-            char c = desc.charAt(0);
-            int size;
+            char typeCode = desc.charAt(0);
+            boolean doubleSizeType = typeCode == 'D' || typeCode == 'J';
+            int sizeVariation;
 
             // Computes the stack size variation.
             switch (opcode) {
                case GETSTATIC:
-                  size = stackSize + (c == 'D' || c == 'J' ? 2 : 1);
+                  sizeVariation = doubleSizeType ? 2 : 1;
                   break;
                case PUTSTATIC:
-                  size = stackSize + (c == 'D' || c == 'J' ? -2 : -1);
+                  sizeVariation = doubleSizeType ? -2 : -1;
                   break;
                case GETFIELD:
-                  size = stackSize + (c == 'D' || c == 'J' ? 1 : 0);
+                  sizeVariation = doubleSizeType ? 1 : 0;
                   break;
-               // case Constants.PUTFIELD:
+               // case PUTFIELD:
                default:
-                  size = stackSize + (c == 'D' || c == 'J' ? -3 : -2);
+                  sizeVariation = doubleSizeType ? -3 : -2;
                   break;
             }
 
-            // Updates current and max stack sizes.
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
+            updateStackSize(sizeVariation);
          }
       }
 
@@ -414,94 +393,43 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-      Item i = cw.newMethodItem(owner, name, desc, itf);
-      int argSize = i.intVal;
-
-      if (currentBlock != null) {
-         if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, cw, i);
-         }
-         else {
-            /*
-             * Computes the stack size variation. In order not to recompute several times this variation for the same
-             * Item, we use the intVal field of this item to store this variation, once it has been computed. More
-             * precisely this intVal field stores the sizes of the arguments and of the return value corresponding to
-             * desc.
-             */
-            if (argSize == 0) {
-               // The above sizes have not been computed yet, so we compute them...
-               argSize = Type.getArgumentsAndReturnSizes(desc);
-
-               // ... and we save them in order not to recompute them in the future.
-               i.intVal = argSize;
-            }
-
-            int size = stackSize - (argSize >> 2) + (argSize & 0x03);
-
-            if (opcode == INVOKESTATIC) {
-               size++;
-            }
-
-            // Updates current and max stack sizes.
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
-         }
-      }
+      Item cpItem = cw.newMethodItem(owner, name, desc, itf);
+      writeInvokeInsn(cpItem, opcode, desc);
 
       // Adds the instruction to the bytecode of the method.
-      if (opcode == INVOKEINTERFACE) {
-         if (argSize == 0) {
-            argSize = Type.getArgumentsAndReturnSizes(desc);
-            i.intVal = argSize;
-         }
+      code.put12(opcode, cpItem.index);
 
-         code.put12(INVOKEINTERFACE, i.index).put11(argSize >> 2, 0);
+      if (opcode == INVOKEINTERFACE) {
+         int argSize = cpItem.getArgSizeComputingIfNeeded(desc);
+         code.put11(argSize >> 2, 0);
       }
-      else {
-         code.put12(opcode, i.index);
+   }
+
+   private void writeInvokeInsn(Item cpItem, int opcode, String desc) {
+      if (currentBlock != null) {
+         if (computeFrames) {
+            currentBlock.frame.execute(opcode, 0, cw, cpItem);
+         }
+         else {
+            int argSize = cpItem.getArgSizeComputingIfNeeded(desc);
+            int sizeVariation = -(argSize >> 2) + (argSize & 0x03);
+
+            if (opcode == INVOKESTATIC || opcode == INVOKEDYNAMIC) {
+               sizeVariation++;
+            }
+
+            updateStackSize(sizeVariation);
+         }
       }
    }
 
    @Override
    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
-      Item i = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
-      int argSize = i.intVal;
-
-      if (currentBlock != null) {
-         if (computeFrames) {
-            currentBlock.frame.execute(INVOKEDYNAMIC, 0, cw, i);
-         }
-         else {
-            /*
-             * Computes the stack size variation. In order not to recompute several times this variation for the same
-             * Item, we use the intVal field of this item to store this variation, once it has been computed. More
-             * precisely this intVal field stores the sizes of the arguments and of the return value corresponding to
-             * desc.
-             */
-            if (argSize == 0) {
-               // The above sizes have not been computed yet, so we compute them...
-               argSize = Type.getArgumentsAndReturnSizes(desc);
-
-               // ... and we save them in order not to recompute them in the future.
-               i.intVal = argSize;
-            }
-
-            int size = stackSize - (argSize >> 2) + (argSize & 0x03) + 1;
-
-            // Updates current and max stack sizes.
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
-         }
-      }
+      Item cpItem = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
+      writeInvokeInsn(cpItem, INVOKEDYNAMIC, desc);
 
       // Adds the instruction to the bytecode of the method.
-      code.put12(INVOKEDYNAMIC, i.index);
+      code.put12(INVOKEDYNAMIC, cpItem.index);
       code.putShort(0);
    }
 
@@ -552,16 +480,14 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if (label.isResolved() && label.position - code.length < Short.MIN_VALUE) {
-         /*
-          * Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W,
-          * JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
-          * (i.e., IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
-          */
+         // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W,
+         // JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
+         //(i.e., IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
          if (opcode == GOTO) {
-            code.putByte(200); // GOTO_W
+            code.putByte(GOTO_W);
          }
          else if (opcode == JSR) {
-            code.putByte(201); // JSR_W
+            code.putByte(JSR_W);
          }
          else {
             // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
@@ -572,16 +498,14 @@ public final class MethodWriter extends MethodVisitor
 
             code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
             code.putShort(8); // jump offset
-            code.putByte(200); // GOTO_W
+            code.putByte(GOTO_W);
          }
 
          label.put(code, code.length - 1, true);
       }
       else {
-         /*
-          * Case of a backward jump with an offset >= -32768, or of a forward jump with, of course, an unknown offset.
-          * In these cases we store the offset in 2 bytes (which will be increased in resizeInstructions, if needed).
-          */
+         // Case of a backward jump with an offset >= -32768, or of a forward jump with, of course, an unknown offset.
+         // In these cases we store the offset in 2 bytes (which will be increased in resizeInstructions, if needed).
          code.putByte(opcode);
          label.put(code, code.length - 1, false);
       }
@@ -669,40 +593,26 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitLdcInsn(Object cst) {
-      Item i = cw.newConstItem(cst);
+      Item cpItem = cw.newConstItem(cst);
+      boolean doubleSizeItem = cpItem.isDoubleSized();
 
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(LDC, 0, cw, i);
+            currentBlock.frame.execute(LDC, 0, cw, cpItem);
          }
          else {
-            int size;
-
-            // Computes the stack size variation.
-            if (i.type == LONG || i.type == DOUBLE) {
-               size = stackSize + 2;
-            }
-            else {
-               size = stackSize + 1;
-            }
-
-            // Updates current and max stack sizes.
-            if (size > maxStackSize) {
-               maxStackSize = size;
-            }
-
-            stackSize = size;
+            updateStackSize(doubleSizeItem ? 2 : 1);
          }
       }
 
       // Adds the instruction to the bytecode of the method.
-      int index = i.index;
+      int index = cpItem.index;
 
-      if (i.type == LONG || i.type == DOUBLE) {
-         code.put12(20 /* LDC2_W */, index);
+      if (doubleSizeItem) {
+         code.put12(LDC2_W, index);
       }
       else if (index >= 256) {
-         code.put12(19 /* LDC_W */, index);
+         code.put12(LDC_W, index);
       }
       else {
          code.put11(LDC, index);
@@ -723,7 +633,7 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if (var > 255 || increment > 127 || increment < -128) {
-         code.putByte(196 /* WIDE */).put12(IINC, var).putShort(increment);
+         code.putByte(WIDE).put12(IINC, var).putShort(increment);
       }
       else {
          code.putByte(IINC).put11(var, increment);
@@ -804,8 +714,7 @@ public final class MethodWriter extends MethodVisitor
             currentBlock.frame.execute(MULTIANEWARRAY, dims, cw, i);
          }
          else {
-            // Updates current stack size (max stack size unchanged because stack size variation always negative or
-            // null).
+            // Updates current stack size (max stack size unchanged because stack size variation always negative or 0).
             stackSize += 1 - dims;
          }
       }

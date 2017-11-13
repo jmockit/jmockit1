@@ -156,35 +156,9 @@ public final class ClassWriter extends ClassVisitor
     */
    private ByteVector sourceDebug;
 
-   /**
-    * The constant pool item that contains the name of the enclosing class of this class.
-    */
-   private int enclosingMethodOwner;
-
-   /**
-    * The constant pool item that contains the name and descriptor of the enclosing method of this class.
-    */
-   private int enclosingMethod;
-
-   /**
-    * The number of entries in the InnerClasses attribute.
-    */
-   private int innerClassesCount;
-
-   /**
-    * The InnerClasses attribute.
-    */
-   private ByteVector innerClasses;
-
-   /**
-    * The number of entries in the BootstrapMethods attribute.
-    */
-   int bootstrapMethodsCount;
-
-   /**
-    * The BootstrapMethods attribute.
-    */
-   ByteVector bootstrapMethods;
+   private OuterClass outerClass;
+   private InnerClasses innerClasses;
+   final BootstrapMethods bootstrapMethods;
 
    /**
     * The fields of this class.
@@ -232,11 +206,13 @@ public final class ClassWriter extends ClassVisitor
       key3 = new Item();
       key4 = new Item();
 
+      bootstrapMethods = new BootstrapMethods(this);
+
       version = classReader.getVersion();
       computeFrames = version >= ClassVersion.V1_7;
 
-      classReader.copyPool(this);
       cr = classReader;
+      classReader.copyPool(this);
 
       fields = new ArrayList<FieldWriter>();
       methods = new ArrayList<MethodWriter>();
@@ -286,11 +262,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visitOuterClass(String owner, String name, String desc) {
-      enclosingMethodOwner = newClass(owner);
-
-      if (name != null && desc != null) {
-         enclosingMethod = newNameType(name, desc);
-      }
+      outerClass = new OuterClass(this, owner, name, desc);
    }
 
    @Override
@@ -301,29 +273,10 @@ public final class ClassWriter extends ClassVisitor
    @Override
    public void visitInnerClass(String name, String outerName, String innerName, int access) {
       if (innerClasses == null) {
-         innerClasses = new ByteVector();
+         innerClasses = new InnerClasses(this);
       }
 
-      // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table which represents a
-      // class or interface C that is not a package member must have exactly one corresponding entry in the classes
-      // array". To avoid duplicates we keep track in the intVal field of the Item of each CONSTANT_Class_info entry C
-      // whether an inner class entry has already been added for C (this field is unused for class entries, and
-      // changing its value does not change the hashcode and equality tests). If so we store the index of this inner
-      // class entry (plus one) in intVal. This hack allows duplicate detection in O(1) time.
-      Item nameItem = newClassItem(name);
-
-      if (nameItem.intVal == 0) {
-         ++innerClassesCount;
-         innerClasses.putShort(nameItem.index);
-         innerClasses.putShort(outerName == null ? 0 : newClass(outerName));
-         innerClasses.putShort(innerName == null ? 0 : newUTF8(innerName));
-         innerClasses.putShort(access);
-         nameItem.intVal = innerClassesCount;
-      }
-      else {
-         // Compare the inner classes entry nameItem.intVal - 1 with the arguments of this method and throw an
-         // exception if there is a difference?
-      }
+      innerClasses.add(name, outerName, innerName, access);
    }
 
    @Override
@@ -366,59 +319,56 @@ public final class ClassWriter extends ClassVisitor
 
       int attributeCount = 0;
 
-      if (bootstrapMethods != null) {
-         // We put it as first attribute in order to improve a bit ClassReader.copyBootstrapMethods.
-         ++attributeCount;
-         size += 8 + bootstrapMethods.length;
-         newUTF8("BootstrapMethods");
+      if (bootstrapMethods.hasMethods()) {
+         // We put it as first attribute in order to improve a bit the performance of copyBootstrapMethods.
+         attributeCount++;
+         size += bootstrapMethods.getSize();
       }
 
       if (signature != 0) {
-         ++attributeCount;
+         attributeCount++;
          size += 8;
          newUTF8("Signature");
       }
 
       if (sourceFile != 0) {
-         ++attributeCount;
+         attributeCount++;
          size += 8;
          newUTF8("SourceFile");
       }
 
       if (sourceDebug != null) {
-         ++attributeCount;
+         attributeCount++;
          size += sourceDebug.length + 6;
          newUTF8("SourceDebugExtension");
       }
 
-      if (enclosingMethodOwner != 0) {
-         ++attributeCount;
-         size += 10;
-         newUTF8("EnclosingMethod");
+      if (outerClass != null) {
+         attributeCount++;
+         size += outerClass.getSize();
       }
 
       boolean deprecated = Access.isDeprecated(access);
 
       if (deprecated) {
-         ++attributeCount;
+         attributeCount++;
          size += 6;
          newUTF8("Deprecated");
       }
 
       if (isSynthetic()) {
-         ++attributeCount;
+         attributeCount++;
          size += 6;
          newUTF8("Synthetic");
       }
 
       if (innerClasses != null) {
-         ++attributeCount;
-         size += 8 + innerClasses.length;
-         newUTF8("InnerClasses");
+         attributeCount++;
+         size += innerClasses.getSize();
       }
 
       if (annotations != null) {
-         ++attributeCount;
+         attributeCount++;
          size += getAnnotationsSize(this);
       }
 
@@ -454,12 +404,7 @@ public final class ClassWriter extends ClassVisitor
       }
 
       out.putShort(attributeCount);
-
-      if (bootstrapMethods != null) {
-         out.putShort(newUTF8("BootstrapMethods"));
-         out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
-         out.putByteVector(bootstrapMethods);
-      }
+      bootstrapMethods.put(out);
 
       if (signature != 0) {
          out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
@@ -474,9 +419,8 @@ public final class ClassWriter extends ClassVisitor
          out.putByteVector(sourceDebug);
       }
 
-      if (enclosingMethodOwner != 0) {
-         out.putShort(newUTF8("EnclosingMethod")).putInt(4);
-         out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
+      if (outerClass != null) {
+         outerClass.put(out);
       }
 
       if (deprecated) {
@@ -488,9 +432,7 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (innerClasses != null) {
-         out.putShort(newUTF8("InnerClasses"));
-         out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
-         out.putByteVector(innerClasses);
+         innerClasses.put(out);
       }
 
       putAnnotations(out, this);
@@ -660,7 +602,7 @@ public final class ClassWriter extends ClassVisitor
     *
     * @return a new or an already existing method type reference item.
     */
-   private Item newHandleItem(Handle handle) {
+   Item newHandleItem(Handle handle) {
       int tag = handle.tag;
       key4.set(ConstantPoolItemType.HANDLE_BASE + tag, handle.owner, handle.name, handle.desc);
       Item result = get(key4);
@@ -696,78 +638,7 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or an already existing invokedynamic type reference item.
     */
    Item newInvokeDynamicItem(String name, String desc, Handle bsm, Object... bsmArgs) {
-      // Cache for performance.
-      ByteVector bootstrapMethods = this.bootstrapMethods;
-
-      if (bootstrapMethods == null) {
-         bootstrapMethods = this.bootstrapMethods = new ByteVector();
-      }
-
-      int position = bootstrapMethods.length; // record current position
-
-      int hashCode = bsm.hashCode();
-      Item handleItem = newHandleItem(bsm);
-      bootstrapMethods.putShort(handleItem.index);
-
-      int argsLength = bsmArgs.length;
-      bootstrapMethods.putShort(argsLength);
-
-      for (int i = 0; i < argsLength; i++) {
-         Object bsmArg = bsmArgs[i];
-         hashCode ^= bsmArg.hashCode();
-         Item constItem = newConstItem(bsmArg);
-         bootstrapMethods.putShort(constItem.index);
-      }
-
-      byte[] data = bootstrapMethods.data;
-      int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
-      hashCode &= 0x7FFFFFFF;
-      Item result = items[hashCode % items.length];
-
-   loop:
-      while (result != null) {
-         if (result.type != ConstantPoolItemType.BSM || result.hashCode != hashCode) {
-            result = result.next;
-            continue;
-         }
-
-         // Because the data encode the size of the argument we don't need to test if these size are equals.
-         int resultPosition = result.intVal;
-
-         for (int p = 0; p < length; p++) {
-            if (data[position + p] != data[resultPosition + p]) {
-               result = result.next;
-               continue loop;
-            }
-         }
-
-         break;
-      }
-
-      int bootstrapMethodIndex;
-
-      if (result != null) {
-         bootstrapMethodIndex = result.index;
-         bootstrapMethods.length = position; // revert to old position
-      }
-      else {
-         bootstrapMethodIndex = bootstrapMethodsCount++;
-         result = new Item(bootstrapMethodIndex);
-         result.set(position, hashCode);
-         put(result);
-      }
-
-      // Now, create the InvokeDynamic constant.
-      key3.set(name, desc, bootstrapMethodIndex);
-      result = get(key3);
-
-      if (result == null) {
-         put122(ConstantPoolItemType.INDY, bootstrapMethodIndex, newNameType(name, desc));
-         result = new Item(index++, key3);
-         put(result);
-      }
-
-      return result;
+      return bootstrapMethods.add(name, desc, bsm, bsmArgs);
    }
 
    /**
@@ -926,7 +797,7 @@ public final class ClassWriter extends ClassVisitor
     * @param desc a type descriptor.
     * @return the index of a new or already existing name and type item.
     */
-   private int newNameType(String name, String desc) {
+   int newNameType(String name, String desc) {
       return newNameTypeItem(name, desc).index;
    }
 
@@ -1083,7 +954,7 @@ public final class ClassWriter extends ClassVisitor
     * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
     * such item.
     */
-   private Item get(Item key) {
+   Item get(Item key) {
       Item item = items[key.hashCode % items.length];
 
       while (item != null && (item.type != key.type || !key.isEqualTo(item))) {
@@ -1096,9 +967,9 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Puts the given item in the constant pool's hash table. The hash table <i>must</i> not already contains this item.
     *
-    * @param i the item to be added to the constant pool's hash table.
+    * @param item the item to be added to the constant pool's hash table.
     */
-   private void put(Item i) {
+   void put(Item item) {
       if (index + typeCount > threshold) {
          int ll = items.length;
          int nl = ll * 2 + 1;
@@ -1120,9 +991,9 @@ public final class ClassWriter extends ClassVisitor
          threshold = (int) (nl * 0.75);
       }
 
-      int index = i.hashCode % items.length;
-      i.next = items[index];
-      items[index] = i;
+      int index = item.hashCode % items.length;
+      item.next = items[index];
+      items[index] = item;
    }
 
    /**
@@ -1132,7 +1003,7 @@ public final class ClassWriter extends ClassVisitor
     * @param s1 a short.
     * @param s2 another short.
     */
-   private void put122(int b, int s1, int s2) {
+   void put122(int b, int s1, int s2) {
       pool.put12(b, s1).putShort(s2);
    }
 

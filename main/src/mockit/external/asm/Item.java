@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import static mockit.external.asm.ConstantPoolItemType.*;
+
 /**
  * A constant pool item. Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
  *
@@ -143,7 +145,7 @@ final class Item
     * @param intVal the value of this item.
     */
    void set(int intVal) {
-      type = ConstantPoolItemType.INT;
+      type = INT;
       this.intVal = intVal;
       hashCode = 0x7FFFFFFF & (type + intVal);
    }
@@ -154,7 +156,7 @@ final class Item
     * @param longVal the value of this item.
     */
    void set(long longVal) {
-      type = ConstantPoolItemType.LONG;
+      type = LONG;
       this.longVal = longVal;
       hashCode = 0x7FFFFFFF & (type + (int) longVal);
    }
@@ -165,7 +167,7 @@ final class Item
     * @param floatVal the value of this item.
     */
    void set(float floatVal) {
-      type = ConstantPoolItemType.FLOAT;
+      type = FLOAT;
       intVal = Float.floatToRawIntBits(floatVal);
       hashCode = 0x7FFFFFFF & (type + (int) floatVal);
    }
@@ -176,7 +178,7 @@ final class Item
     * @param doubleVal the value of this item.
     */
    void set(double doubleVal) {
-      type = ConstantPoolItemType.DOUBLE;
+      type = DOUBLE;
       longVal = Double.doubleToRawLongBits(doubleVal);
       hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
    }
@@ -196,20 +198,20 @@ final class Item
       this.strVal3 = strVal3;
 
       switch (type) {
-         case ConstantPoolItemType.CLASS:
+         case CLASS:
             intVal = 0; // intVal of a class must be zero, see visitInnerClass
             // fall through
-         case ConstantPoolItemType.UTF8:
-         case ConstantPoolItemType.STR:
-         case ConstantPoolItemType.MTYPE:
+         case UTF8:
+         case STR:
+         case MTYPE:
          case SpecialType.NORMAL:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
             return;
-         case ConstantPoolItemType.NAME_TYPE: {
+         case NAME_TYPE: {
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
             return;
          }
-         // ConstantPoolItemType.FIELD|METH|IMETH|HANDLE_BASE + 1..9:
+         // FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
       }
@@ -223,11 +225,11 @@ final class Item
     * @param bsmIndex zero based index into the class attribute BootstrapMethods.
     */
    void set(String name, String desc, int bsmIndex) {
-      type = ConstantPoolItemType.INDY;
+      type = INDY;
       longVal = bsmIndex;
       strVal1 = name;
       strVal2 = desc;
-      hashCode = 0x7FFFFFFF & (ConstantPoolItemType.INDY + bsmIndex * strVal1.hashCode() * strVal2.hashCode());
+      hashCode = 0x7FFFFFFF & (INDY + bsmIndex * strVal1.hashCode() * strVal2.hashCode());
    }
 
    /**
@@ -238,7 +240,7 @@ final class Item
     *                 hashcode of the bootstrap method and the hashcode of all bootstrap arguments.
     */
    void set(int position, int hashCode) {
-      type = ConstantPoolItemType.BSM;
+      type = BSM;
       intVal = position;
       this.hashCode = hashCode;
    }
@@ -252,29 +254,50 @@ final class Item
     */
    boolean isEqualTo(Item i) {
       switch (type) {
-         case ConstantPoolItemType.UTF8:
-         case ConstantPoolItemType.STR:
-         case ConstantPoolItemType.CLASS:
-         case ConstantPoolItemType.MTYPE:
+         case UTF8:
+         case STR:
+         case CLASS:
+         case MTYPE:
          case SpecialType.NORMAL:
             return i.strVal1.equals(strVal1);
          case SpecialType.MERGED:
-         case ConstantPoolItemType.LONG:
-         case ConstantPoolItemType.DOUBLE:
+         case LONG:
+         case DOUBLE:
             return i.longVal == longVal;
-         case ConstantPoolItemType.INT:
-         case ConstantPoolItemType.FLOAT:
+         case INT:
+         case FLOAT:
             return i.intVal == intVal;
          case SpecialType.UNINIT:
             return i.intVal == intVal && i.strVal1.equals(strVal1);
-         case ConstantPoolItemType.NAME_TYPE:
+         case NAME_TYPE:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
-         case ConstantPoolItemType.INDY: {
+         case INDY: {
             return i.longVal == longVal && i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
          }
-         // case ConstantPoolItemType.FIELD|METH|IMETH|HANDLE_BASE + 1..9:
+         // case FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
             return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2) && i.strVal3.equals(strVal3);
       }
+   }
+
+   boolean isDoubleSized() {
+      return type == LONG || type == DOUBLE;
+   }
+
+   /**
+    * Recovers the stack size variation from this constant pool item, computing and storing it if needed.
+    * In order not to recompute several times this variation for the same Item, we use the intVal field of this item to
+    * store this variation, once it has been computed. More precisely this intVal field stores the sizes of the
+    * arguments and of the return value corresponding to desc.
+    */
+   int getArgSizeComputingIfNeeded(String desc) {
+      int argSize = intVal;
+
+      if (argSize == 0) {
+         argSize = Type.getArgumentsAndReturnSizes(desc);
+         intVal = argSize;
+      }
+
+      return argSize;
    }
 }
