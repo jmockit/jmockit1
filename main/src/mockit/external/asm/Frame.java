@@ -546,7 +546,7 @@ public final class Frame
          s = OBJECT | cw.addType(cw.thisName);
       }
       else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
-         String type = cw.typeTable[t & BASE_VALUE].strVal1;
+         String type = cw.constantPool.getInternalName(t & BASE_VALUE);
          s = OBJECT | cw.addType(type);
       }
       else {

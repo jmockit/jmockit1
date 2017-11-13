@@ -393,7 +393,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-      Item cpItem = cw.newMethodItem(owner, name, desc, itf);
+      Item cpItem = cw.constantPool.newMethodItem(owner, name, desc, itf);
       writeInvokeInsn(cpItem, opcode, desc);
 
       // Adds the instruction to the bytecode of the method.

@@ -597,11 +597,11 @@ final class FrameAndStackComputation
 
       switch (type & TypeMask.BASE_KIND) {
          case TypeMask.OBJECT:
-            String classDesc = cw.typeTable[v].strVal1;
+            String classDesc = cw.constantPool.getInternalName(v);
             stackMap.putByte(7).putShort(cw.newClass(classDesc));
             break;
          case TypeMask.UNINITIALIZED:
-            int typeDesc = cw.typeTable[v].intVal;
+            int typeDesc = cw.constantPool.getIntegerItemValue(v);
             stackMap.putByte(8).putShort(typeDesc);
             break;
          default:
@@ -618,8 +618,8 @@ final class FrameAndStackComputation
       }
 
       if ((arrayElementType & TypeMask.BASE_KIND) == TypeMask.OBJECT) {
-         Item arrayElementTypeItem = cw.typeTable[arrayElementType & TypeMask.BASE_VALUE];
-         sb.append('L').append(arrayElementTypeItem.strVal1).append(';');
+         String arrayElementTypeDesc = cw.constantPool.getInternalName(arrayElementType & TypeMask.BASE_VALUE);
+         sb.append('L').append(arrayElementTypeDesc).append(';');
       }
       else {
          switch (arrayElementType & 0xF) {

@@ -42,7 +42,7 @@ final class BootstrapMethods
       byte[] data = methods.data;
       int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
       hashCode &= 0x7FFFFFFF;
-      Item[] items = cw.items;
+      Item[] items = cw.constantPool.items;
       Item result = items[hashCode % items.length];
 
    loop:
@@ -79,13 +79,13 @@ final class BootstrapMethods
       }
 
       // Now, create the InvokeDynamic constant.
-      Item key3 = cw.key3;
+      Item key3 = cw.constantPool.key3;
       key3.set(name, desc, bootstrapMethodIndex);
       result = cw.get(key3);
 
       if (result == null) {
          cw.put122(ConstantPoolItemType.INDY, bootstrapMethodIndex, cw.newNameType(name, desc));
-         result = new Item(cw.index++, key3);
+         result = new Item(cw.constantPool.index++, key3);
          cw.put(result);
       }
 

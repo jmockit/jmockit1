@@ -336,10 +336,7 @@ public final class ClassReader
       }
 
       int off = items[1] - 1;
-      cw.pool.putByteArray(b, off, header - off);
-      cw.items = items2;
-      cw.threshold = (int) (0.75d * ll);
-      cw.index = ll;
+      cw.constantPool.copy(b, off, header, items2);
    }
 
    /**
