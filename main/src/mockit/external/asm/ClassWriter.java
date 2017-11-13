@@ -146,16 +146,7 @@ public final class ClassWriter extends ClassVisitor
     */
    private int[] interfaces;
 
-   /**
-    * The index of the constant pool item that contains the name of the source file from which this class was compiled.
-    */
-   private int sourceFile;
-
-   /**
-    * The SourceDebug attribute of this class.
-    */
-   private ByteVector sourceDebug;
-
+   private final SourceInfo sourceInfo;
    private OuterClass outerClass;
    private InnerClasses innerClasses;
    final BootstrapMethods bootstrapMethods;
@@ -206,6 +197,7 @@ public final class ClassWriter extends ClassVisitor
       key3 = new Item();
       key4 = new Item();
 
+      sourceInfo = new SourceInfo(this);
       bootstrapMethods = new BootstrapMethods(this);
 
       version = classReader.getVersion();
@@ -251,13 +243,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visitSource(String file, String debug) {
-      if (file != null) {
-         sourceFile = newUTF8(file);
-      }
-
-      if (debug != null) {
-         sourceDebug = new ByteVector().encodeUTF8(debug, 0, Integer.MAX_VALUE);
-      }
+      sourceInfo.add(file, debug);
    }
 
    @Override
@@ -331,17 +317,8 @@ public final class ClassWriter extends ClassVisitor
          newUTF8("Signature");
       }
 
-      if (sourceFile != 0) {
-         attributeCount++;
-         size += 8;
-         newUTF8("SourceFile");
-      }
-
-      if (sourceDebug != null) {
-         attributeCount++;
-         size += sourceDebug.length + 6;
-         newUTF8("SourceDebugExtension");
-      }
+      attributeCount += sourceInfo.getAttributeCount();
+      size += sourceInfo.getSize();
 
       if (outerClass != null) {
          attributeCount++;
@@ -410,14 +387,7 @@ public final class ClassWriter extends ClassVisitor
          out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
       }
 
-      if (sourceFile != 0) {
-         out.putShort(newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
-      }
-
-      if (sourceDebug != null) {
-         out.putShort(newUTF8("SourceDebugExtension")).putInt(sourceDebug.length);
-         out.putByteVector(sourceDebug);
-      }
+      sourceInfo.put(out);
 
       if (outerClass != null) {
          outerClass.put(out);
