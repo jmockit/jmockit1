@@ -80,17 +80,7 @@ public final class ClassWriter extends ClassVisitor
     */
    private int superName;
 
-   /**
-    * Number of interfaces implemented or extended by this class or interface.
-    */
-   private int interfaceCount;
-
-   /**
-    * The interfaces implemented or extended by this class or interface. More precisely, this array contains the
-    * indexes of the constant pool items that contain the internal names of these interfaces.
-    */
-   private int[] interfaces;
-
+   private Interfaces interfaces;
    private final SourceInfo sourceInfo;
    private OuterClass outerClass;
    private InnerClasses innerClasses;
@@ -165,12 +155,7 @@ public final class ClassWriter extends ClassVisitor
       this.superName = superName == null ? 0 : newClass(superName);
 
       if (interfaces != null && interfaces.length > 0) {
-         interfaceCount = interfaces.length;
-         this.interfaces = new int[interfaceCount];
-
-         for (int i = 0; i < interfaceCount; ++i) {
-            this.interfaces[i] = newClass(interfaces[i]);
-         }
+         this.interfaces = new Interfaces(this, interfaces);
       }
 
       if (superName != null) {
@@ -228,15 +213,11 @@ public final class ClassWriter extends ClassVisitor
       constantPool.checkConstantPoolMaxSize();
 
       // Computes the real size of the bytecode of this class.
+      int interfaceCount = interfaces == null ? 0 : interfaces.getCount();
       int size = 24 + 2 * interfaceCount;
 
-      for (FieldWriter fb : fields) {
-         size += fb.getSize();
-      }
-
-      for (MethodWriter mb : methods) {
-         size += mb.getSize();
-      }
+      size += getFieldsSize();
+      size += getMethodsSize();
 
       int attributeCount = 0;
 
@@ -300,28 +281,17 @@ public final class ClassWriter extends ClassVisitor
       out.putShort(superName);
       out.putShort(interfaceCount);
 
-      for (int i = 0; i < interfaceCount; ++i) {
-         out.putShort(interfaces[i]);
+      if (interfaceCount > 0) {
+         interfaces.put(out);
       }
 
-      out.putShort(fields.size());
-
-      for (FieldWriter fb : fields) {
-         fb.put(out);
-      }
-
-      out.putShort(methods.size());
-
-      for (MethodWriter mb : methods) {
-         mb.put(out);
-      }
+      putFields(out);
+      putMethods(out);
 
       out.putShort(attributeCount);
       bootstrapMethods.put(out);
 
-      if (signature != 0) {
-         out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
-      }
+      putSignature(out);
 
       sourceInfo.put(out);
 
@@ -344,6 +314,48 @@ public final class ClassWriter extends ClassVisitor
       putAnnotations(out, this);
 
       return out.data;
+   }
+
+   private int getMethodsSize() {
+      int size = 0;
+
+      for (MethodWriter mb : methods) {
+         size += mb.getSize();
+      }
+
+      return size;
+   }
+
+   private int getFieldsSize() {
+      int size = 0;
+
+      for (FieldWriter fb : fields) {
+         size += fb.getSize();
+      }
+
+      return size;
+   }
+
+   private void putFields(ByteVector out) {
+      out.putShort(fields.size());
+
+      for (FieldWriter fb : fields) {
+         fb.put(out);
+      }
+   }
+
+   private void putMethods(ByteVector out) {
+      out.putShort(methods.size());
+
+      for (MethodWriter mb : methods) {
+         mb.put(out);
+      }
+   }
+
+   private void putSignature(ByteVector out) {
+      if (signature != 0) {
+         out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
+      }
    }
 
    // ------------------------------------------------------------------------
