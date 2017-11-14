@@ -318,7 +318,7 @@ final class CoverageModifier extends WrappingClassVisitor
             return;
          }
 
-         Label jumpingFrom = mw.currentBlock;
+         Label jumpingFrom = mw.getCurrentBlock();
          assert jumpingFrom != null;
          jumpingFrom.info = currentLine;
 
