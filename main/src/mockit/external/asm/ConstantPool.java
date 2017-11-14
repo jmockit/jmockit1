@@ -5,22 +5,27 @@ import mockit.internal.util.*;
 import static mockit.external.asm.ConstantPoolItemType.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
 
+/**
+ * Allows the constant pool for a classfile to be created from scratch, when that classfile itself is being generated or
+ * modified from an existing class file.
+ * Used only by {@link ClassWriter}.
+ */
 final class ConstantPool
 {
    /**
-    * Index of the next item to be added in the constant pool.
-    */
-   int index;
-
-   /**
-    * The constant pool of this class.
+    * The constant pool of the class file being generated/modified.
     */
    private final ByteVector pool;
 
    /**
     * The constant pool's hash table data.
     */
-   Item[] items;
+   private Item[] items;
+
+   /**
+    * Index of the next item to be added in the constant pool.
+    */
+   private int index;
 
    /**
     * The threshold of the constant pool's hash table.
@@ -40,7 +45,7 @@ final class ConstantPool
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   final Item key3;
+   private final Item key3;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
@@ -482,6 +487,8 @@ final class ConstantPool
       }
    }
 
+   Item getItem(int hashCode) { return items[hashCode % items.length]; }
+
    /**
     * Returns the constant pool's hash table item which is equal to the given item.
     *
@@ -490,7 +497,7 @@ final class ConstantPool
     * such item.
     */
    Item get(Item key) {
-      Item item = items[key.hashCode % items.length];
+      Item item = getItem(key.hashCode);
 
       while (item != null && (item.type != key.type || !key.isEqualTo(item))) {
          item = item.next;
@@ -538,7 +545,7 @@ final class ConstantPool
     * @param s1 a short.
     * @param s2 another short.
     */
-   void put122(int b, int s1, int s2) {
+   private void put122(int b, int s1, int s2) {
       pool.put12(b, s1).putShort(s2);
    }
 
@@ -565,4 +572,17 @@ final class ConstantPool
 
    String getInternalName(int index) { return typeTable[index].strVal1; }
    int getIntegerItemValue(int index) { return typeTable[index].intVal; }
+
+   Item createInvokeDynamicConstant(String name, String desc, int bsmIndex) {
+      key3.set(name, desc, bsmIndex);
+      Item result = get(key3);
+
+      if (result == null) {
+         put122(INDY, bsmIndex, newNameType(name, desc));
+         result = new Item(index++, key3);
+         put(result);
+      }
+
+      return result;
+   }
 }

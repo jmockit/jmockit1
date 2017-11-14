@@ -467,9 +467,7 @@ public final class ClassWriter extends ClassVisitor
    int addType(String type) { return constantPool.addType(type); }
    int addUninitializedType(String type, int offset) { return constantPool.addUninitializedType(type, offset); }
    int getMergedType(int type1, int type2) { return constantPool.getMergedType(type1, type2); }
-   Item get(Item key) { return constantPool.get(key); }
    void put(Item item) { constantPool.put(item); }
-   void put122(int b, int s1, int s2) { constantPool.put122(b, s1, s2); }
 
    /**
     * Adds an invokedynamic reference to the constant pool of the class being built.

@@ -51,8 +51,8 @@ public final class ClassReader
 
    /**
     * Flag to skip the debug information in the class. If this flag is set the debug information of the class is not
-    * visited, i.e. the {@link MethodVisitor#visitLocalVariable visitLocalVariable} and
-    * {@link MethodVisitor#visitLineNumber visitLineNumber} methods will not be called.
+    * visited, i.e. the {@link MethodVisitor#visitLocalVariable} and {@link MethodVisitor#visitLineNumber} methods will
+    * not be called.
     */
    public static final int SKIP_DEBUG = 2;
 
@@ -101,7 +101,7 @@ public final class ClassReader
    public final byte[] b;
 
    /**
-    * The start index of each constant pool item in {@link #b b}, plus one.
+    * The start index of each constant pool item in {@link #b}, plus one.
     * The one byte offset skips the constant pool item tag that indicates its type.
     */
    private final int[] items;
@@ -120,7 +120,7 @@ public final class ClassReader
    private final int maxStringLength;
 
    /**
-    * Start index of the class header information (access, name...) in {@link #b b}.
+    * Start index of the class header information (access, name...) in {@link #b}.
     */
    private final int header;
 
