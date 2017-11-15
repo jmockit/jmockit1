@@ -610,10 +610,8 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     * @param arg    the operand of the instruction, if any.
-    * @param cp     the constant pool to which this label belongs.
-    * @param item   the operand of the instructions, if any.
     */
-   void execute(int opcode, int arg, ConstantPoolGeneration cp, Item item) {
+   void execute(int opcode, int arg) {
       int t1, t2, t3, t4;
 
       switch (opcode) {
@@ -660,9 +658,6 @@ public final class Frame
          case DLOAD:
             push(DOUBLE);
             push(TOP);
-            break;
-         case LDC:
-            executeLDC(cp, item);
             break;
          case ALOAD:
             push(get(arg));
@@ -895,6 +890,25 @@ public final class Frame
          case JSR:
          case RET:
             throw new RuntimeException("JSR/RET are not supported with computeFrames option");
+         case NEWARRAY:
+            executeNewArray(arg);
+            break;
+      }
+   }
+
+   /**
+    * Simulates the action of the given instruction on the output stack frame.
+    *
+    * @param opcode the opcode of the instruction.
+    * @param arg    the operand of the instruction, if any.
+    * @param cp     the constant pool to which this label belongs.
+    * @param item   the operand of the instructions.
+    */
+   void execute(int opcode, int arg, ConstantPoolGeneration cp, Item item) {
+      switch (opcode) {
+         case LDC:
+            executeLDC(cp, item);
+            break;
          case GETSTATIC:
             push(cp, item.strVal3);
             break;
@@ -922,17 +936,13 @@ public final class Frame
          case NEW:
             push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, arg));
             break;
-         case NEWARRAY:
-            executeNewArray(arg);
-            break;
          case ANEWARRAY:
             executeANewArray(cp, item);
             break;
          case CHECKCAST:
             executeCheckCast(cp, item);
             break;
-         // case MULTIANEWARRAY:
-         default:
+         case MULTIANEWARRAY:
             pop(arg);
             push(cp, item.strVal1);
             break;

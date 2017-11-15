@@ -73,7 +73,7 @@ final class CFGAnalysis
    void updateCurrentBlockForZeroOperandInstruction(int opcode) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, null, null);
+            currentBlock.frame.execute(opcode, 0);
          }
          else {
             int sizeVariation = Frame.SIZE[opcode];
@@ -135,7 +135,7 @@ final class CFGAnalysis
    void updateCurrentBlockForSingleIntOperandInstruction(int opcode, int operand) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, operand, null, null);
+            currentBlock.frame.execute(opcode, operand);
          }
          else if (opcode != NEWARRAY) { // updates stack size only for NEWARRAY (variation = 0 for BIPUSH or SIPUSH)
             updateStackSize(1);
@@ -146,7 +146,7 @@ final class CFGAnalysis
    void updateCurrentBlockForLocalVariableInstruction(int opcode, int var) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, var, null, null);
+            currentBlock.frame.execute(opcode, var);
          }
          else {
             // Updates current and max stack sizes.
@@ -232,7 +232,7 @@ final class CFGAnalysis
 
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, null, null);
+            currentBlock.frame.execute(opcode, 0);
 
             // 'label' is the target of a jump instruction.
             label.getFirst().markAsTarget();
@@ -366,14 +366,14 @@ final class CFGAnalysis
 
    void updateCurrentBlockForIINCInstruction(int var) {
       if (currentBlock != null && computeFrames) {
-         currentBlock.frame.execute(IINC, var, null, null);
+         currentBlock.frame.execute(IINC, var);
       }
    }
 
-   void updateCurrentBlockForSwitchInsn(Label dflt, Label[] labels) {
+   void updateCurrentBlockForSwitchInstruction(Label dflt, Label[] labels) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(LOOKUPSWITCH, 0, null, null);
+            currentBlock.frame.execute(LOOKUPSWITCH, 0);
 
             // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);

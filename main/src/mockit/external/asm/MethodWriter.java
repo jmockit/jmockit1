@@ -369,7 +369,7 @@ public final class MethodWriter extends MethodVisitor
          labels[i].put(code, source, true);
       }
 
-      cfgAnalysis.updateCurrentBlockForSwitchInsn(dflt, labels);
+      cfgAnalysis.updateCurrentBlockForSwitchInstruction(dflt, labels);
    }
 
    @Override
@@ -386,7 +386,7 @@ public final class MethodWriter extends MethodVisitor
          labels[i].put(code, source, true);
       }
 
-      cfgAnalysis.updateCurrentBlockForSwitchInsn(dflt, labels);
+      cfgAnalysis.updateCurrentBlockForSwitchInstruction(dflt, labels);
    }
 
    @Override
