@@ -169,7 +169,7 @@ final class CFGAnalysis
    void updateCurrentBlockForTypeInstruction(int opcode, Item typeItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, code.length, cw, typeItem);
+            currentBlock.frame.execute(opcode, code.length, cp, typeItem);
          }
          else if (opcode == NEW) { // updates stack size for NEW only; no change for ANEWARRAY, CHECKCAST, INSTANCEOF
             updateStackSize(1);
@@ -180,7 +180,7 @@ final class CFGAnalysis
    void updateCurrentBlockForFieldInstruction(int opcode, Item fieldItem, String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, cw, fieldItem);
+            currentBlock.frame.execute(opcode, 0, cp, fieldItem);
          }
          else {
             char typeCode = desc.charAt(0);
@@ -212,7 +212,7 @@ final class CFGAnalysis
    void updateCurrentBlockForInvokeInstruction(Item invokeItem, int opcode, String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, cw, invokeItem);
+            currentBlock.frame.execute(opcode, 0, cp, invokeItem);
          }
          else {
             int argSize = invokeItem.getArgSizeComputingIfNeeded(desc);
@@ -356,7 +356,7 @@ final class CFGAnalysis
    void updateCurrentBlockForLDCInstruction(Item constItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(LDC, 0, cw, constItem);
+            currentBlock.frame.execute(LDC, 0, cp, constItem);
          }
          else {
             updateStackSize(constItem.isDoubleSized() ? 2 : 1);
@@ -404,7 +404,7 @@ final class CFGAnalysis
    void updateCurrentBlockForMULTIANEWARRAYInstruction(Item arrayTypeItem, int dims) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(MULTIANEWARRAY, dims, cw, arrayTypeItem);
+            currentBlock.frame.execute(MULTIANEWARRAY, dims, cp, arrayTypeItem);
          }
          else {
             // Updates current stack size (max stack size unchanged because stack size variation always negative or 0).
@@ -450,7 +450,7 @@ final class CFGAnalysis
 
          while (e != null) {
             Label n = e.successor.getFirst();
-            boolean change = f.merge(cw, n.frame, e.info);
+            boolean change = f.merge(cw.thisName, cp, n.frame, e.info);
 
             if (change && n.next == null) {
                // If n has changed and is not already in the 'changed' list, adds it to this list.

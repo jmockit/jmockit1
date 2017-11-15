@@ -363,12 +363,12 @@ public final class Frame
    /**
     * Pushes a new type onto the output frame stack.
     *
-    * @param cw   the ClassWriter to which this label belongs.
+    * @param cp   the constant pool to which this label belongs.
     * @param desc the descriptor of the type to be pushed. Can also be a method
     *             descriptor (in this case this method pushes its return type onto the output frame stack).
     */
-   private void push(ClassWriter cw, String desc) {
-      int type = type(cw, desc);
+   private void push(ConstantPoolGeneration cp, String desc) {
+      int type = type(cp, desc);
 
       if (type != 0) {
          push(type);
@@ -382,11 +382,11 @@ public final class Frame
    /**
     * Returns the int encoding of the given type.
     *
-    * @param cw   the ClassWriter to which this label belongs.
+    * @param cp   the constant pool to which this label belongs.
     * @param desc a type descriptor.
     * @return the int encoding of the given type.
     */
-   private static int type(ClassWriter cw, String desc) {
+   private static int type(ConstantPoolGeneration cp, String desc) {
       int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
       String t;
 
@@ -408,7 +408,7 @@ public final class Frame
          case 'L':
             // Stores the internal name, not the descriptor!
             t = desc.substring(index + 1, desc.length() - 1);
-            return OBJECT | cw.cp.addType(t);
+            return OBJECT | cp.addType(t);
          // case '[':
          default:
             // Extracts the dimensions and the element type.
@@ -448,7 +448,7 @@ public final class Frame
                default:
                   // Stores the internal name, not the descriptor.
                   t = desc.substring(dims + 1, desc.length() - 1);
-                  data = OBJECT | cw.cp.addType(t);
+                  data = OBJECT | cp.addType(t);
             }
 
             return (dims - index) << 28 | data;
@@ -534,20 +534,20 @@ public final class Frame
     * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in
     * the basic block.
     *
-    * @param cw the ClassWriter to which this label belongs.
+    * @param cp the constant pool to which this label belongs.
     * @param t  a type
     * @return t or, if t is one of the types on which a constructor is invoked
     * in the basic block, the type corresponding to this constructor.
     */
-   private int init(ClassWriter cw, int t) {
+   private int init(String classDesc, ConstantPoolGeneration cp, int t) {
       int s;
 
       if (t == UNINITIALIZED_THIS) {
-         s = OBJECT | cw.cp.addType(cw.thisName);
+         s = OBJECT | cp.addType(classDesc);
       }
       else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
-         String type = cw.cp.getInternalName(t & BASE_VALUE);
-         s = OBJECT | cw.cp.addType(type);
+         String type = cp.getInternalName(t & BASE_VALUE);
+         s = OBJECT | cp.addType(type);
       }
       else {
          return t;
@@ -592,7 +592,7 @@ public final class Frame
       }
 
       for (int j = 0; j < args.length; ++j) {
-         int t = type(cw, args[j].getDescriptor());
+         int t = type(cw.cp, args[j].getDescriptor());
          inputLocals[i++] = t;
 
          if (t == LONG || t == DOUBLE) {
@@ -610,10 +610,10 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     * @param arg    the operand of the instruction, if any.
-    * @param cw     the class writer to which this label belongs.
+    * @param cp     the constant pool to which this label belongs.
     * @param item   the operand of the instructions, if any.
     */
-   void execute(int opcode, int arg, ClassWriter cw, Item item) {
+   void execute(int opcode, int arg, ConstantPoolGeneration cp, Item item) {
       int t1, t2, t3, t4;
 
       switch (opcode) {
@@ -662,7 +662,7 @@ public final class Frame
             push(TOP);
             break;
          case LDC:
-            executeLDC(cw, item);
+            executeLDC(cp, item);
             break;
          case ALOAD:
             push(get(arg));
@@ -896,14 +896,14 @@ public final class Frame
          case RET:
             throw new RuntimeException("JSR/RET are not supported with computeFrames option");
          case GETSTATIC:
-            push(cw, item.strVal3);
+            push(cp, item.strVal3);
             break;
          case PUTSTATIC:
             pop(item.strVal3);
             break;
          case GETFIELD:
             pop(1);
-            push(cw, item.strVal3);
+            push(cp, item.strVal3);
             break;
          case PUTFIELD:
             pop(item.strVal3);
@@ -913,33 +913,33 @@ public final class Frame
          case INVOKESPECIAL:
          case INVOKESTATIC:
          case INVOKEINTERFACE:
-            executeInvoke(opcode, cw, item);
+            executeInvoke(cp, opcode, item);
             break;
          case INVOKEDYNAMIC:
             pop(item.strVal2);
-            push(cw, item.strVal2);
+            push(cp, item.strVal2);
             break;
          case NEW:
-            push(UNINITIALIZED | cw.cp.addUninitializedType(item.strVal1, arg));
+            push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, arg));
             break;
          case NEWARRAY:
             executeNewArray(arg);
             break;
          case ANEWARRAY:
-            executeANewArray(cw, item);
+            executeANewArray(cp, item);
             break;
          case CHECKCAST:
-            executeCheckCast(cw, item);
+            executeCheckCast(cp, item);
             break;
          // case MULTIANEWARRAY:
          default:
             pop(arg);
-            push(cw, item.strVal1);
+            push(cp, item.strVal1);
             break;
       }
    }
 
-   private void executeLDC(ClassWriter cw, Item item) {
+   private void executeLDC(ConstantPoolGeneration cp, Item item) {
       switch (item.type) {
          case ConstantPoolItemType.INT:
             push(INTEGER);
@@ -956,17 +956,17 @@ public final class Frame
             push(TOP);
             break;
          case ConstantPoolItemType.CLASS:
-            push(OBJECT | cw.cp.addType("java/lang/Class"));
+            push(OBJECT | cp.addType("java/lang/Class"));
             break;
          case ConstantPoolItemType.STR:
-            push(OBJECT | cw.cp.addType("java/lang/String"));
+            push(OBJECT | cp.addType("java/lang/String"));
             break;
          case ConstantPoolItemType.MTYPE:
-            push(OBJECT | cw.cp.addType("java/lang/invoke/MethodType"));
+            push(OBJECT | cp.addType("java/lang/invoke/MethodType"));
             break;
          // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
          default:
-            push(OBJECT | cw.cp.addType("java/lang/invoke/MethodHandle"));
+            push(OBJECT | cp.addType("java/lang/invoke/MethodHandle"));
       }
    }
 
@@ -1000,7 +1000,7 @@ public final class Frame
       executeStore(arg);
    }
 
-   private void executeInvoke(int opcode, ClassWriter cw, Item item) {
+   private void executeInvoke(ConstantPoolGeneration cp, int opcode, Item item) {
       pop(item.strVal3);
 
       if (opcode != INVOKESTATIC) {
@@ -1011,7 +1011,7 @@ public final class Frame
          }
       }
 
-      push(cw, item.strVal3);
+      push(cp, item.strVal3);
    }
 
    private void executeNewArray(int arg) {
@@ -1046,27 +1046,27 @@ public final class Frame
       }
    }
 
-   private void executeANewArray(ClassWriter cw, Item item) {
+   private void executeANewArray(ConstantPoolGeneration cp, Item item) {
       String s = item.strVal1;
       pop();
 
       if (s.charAt(0) == '[') {
-         push(cw, '[' + s);
+         push(cp, '[' + s);
       }
       else {
-         push(ARRAY_OF | OBJECT | cw.cp.addType(s));
+         push(ARRAY_OF | OBJECT | cp.addType(s));
       }
    }
 
-   private void executeCheckCast(ClassWriter cw, Item item) {
+   private void executeCheckCast(ConstantPoolGeneration cp, Item item) {
       String s = item.strVal1;
       pop();
 
       if (s.charAt(0) == '[') {
-         push(cw, s);
+         push(cp, s);
       }
       else {
-         push(OBJECT | cw.cp.addType(s));
+         push(OBJECT | cp.addType(s));
       }
    }
 
@@ -1074,12 +1074,12 @@ public final class Frame
     * Merges the input frame of the given basic block with the input and output frames of this basic block.
     * Returns <tt>true</tt> if the input frame of the given label has been changed by this operation.
     *
-    * @param cw    the ClassWriter to which this label belongs.
+    * @param cp    the constant pool to which this label belongs.
     * @param frame the basic block whose input frame must be updated.
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(ClassWriter cw, Frame frame, int edge) {
+   boolean merge(String classDesc, ConstantPoolGeneration cp, Frame frame, int edge) {
       boolean changed = false;
       int i, s, dim, kind, t;
 
@@ -1124,16 +1124,16 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(cw, t);
+            t = init(classDesc, cp, t);
          }
 
-         changed |= merge(cw, t, frame.inputLocals, i);
+         changed |= merge(cp, t, frame.inputLocals, i);
       }
 
       if (edge > 0) {
          for (i = 0; i < nLocal; ++i) {
             t = inputLocals[i];
-            changed |= merge(cw, t, frame.inputLocals, i);
+            changed |= merge(cp, t, frame.inputLocals, i);
          }
 
          if (frame.inputStack == null) {
@@ -1141,7 +1141,7 @@ public final class Frame
             changed = true;
          }
 
-         changed |= merge(cw, edge, frame.inputStack, 0);
+         changed |= merge(cp, edge, frame.inputStack, 0);
          return changed;
       }
 
@@ -1156,10 +1156,10 @@ public final class Frame
          t = inputStack[i];
 
          if (initializations != null) {
-            t = init(cw, t);
+            t = init(classDesc, cp, t);
          }
 
-         changed |= merge(cw, t, frame.inputStack, i);
+         changed |= merge(cp, t, frame.inputStack, i);
       }
 
       for (i = 0; i < outputStackTop; ++i) {
@@ -1184,10 +1184,10 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(cw, t);
+            t = init(classDesc, cp, t);
          }
 
-         changed |= merge(cw, t, frame.inputStack, nInputStack + i);
+         changed |= merge(cp, t, frame.inputStack, nInputStack + i);
       }
 
       return changed;
@@ -1197,13 +1197,13 @@ public final class Frame
     * Merges the type at the given index in the given type array with the given type.
     * Returns <tt>true</tt> if the type array has been modified by this operation.
     *
-    * @param cw    the ClassWriter to which this label belongs.
+    * @param cp    the constant pool to which this label belongs.
     * @param t     the type with which the type array element must be merged.
     * @param types an array of types.
     * @param index the index of the type that must be merged in 'types'.
     * @return <tt>true</tt> if the type array has been modified by this operation.
     */
-   private static boolean merge(ClassWriter cw, int t, int[] types, int index) {
+   private static boolean merge(ConstantPoolGeneration cp, int t, int[] types, int index) {
       int u = types[index];
 
       if (u == t) {
@@ -1238,13 +1238,13 @@ public final class Frame
             if ((u & BASE_KIND) == OBJECT) {
                // If t is also a reference type, and if u and t have the same dimension
                // merge(u,t) = dim(t) | common parent of the element types of u and t.
-               v = (t & DIM) | OBJECT | cw.cp.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
+               v = (t & DIM) | OBJECT | cp.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
             }
             else {
                // If u and t are array types, but not with the same element type,
                // merge(u,t) = dim(u) - 1 | java/lang/Object.
                int dim = ELEMENT_OF + (u & DIM);
-               v = dim | OBJECT | cw.cp.addType("java/lang/Object");
+               v = dim | OBJECT | cp.addType("java/lang/Object");
             }
          }
          else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
@@ -1253,7 +1253,7 @@ public final class Frame
             // (and similarly for tDim).
             int tDim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (t & DIM);
             int uDim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (u & DIM);
-            v = Math.min(tDim, uDim) | OBJECT | cw.cp.addType("java/lang/Object");
+            v = Math.min(tDim, uDim) | OBJECT | cp.addType("java/lang/Object");
          }
          else {
             // If t is any other type, merge(u,t)=TOP.
