@@ -10,7 +10,7 @@ import static mockit.internal.util.ClassLoad.OBJECT;
  * modified from an existing class file.
  * Used only by {@link ClassWriter}.
  */
-final class ConstantPool
+final class ConstantPoolGeneration
 {
    /**
     * The constant pool of the class file being generated/modified.
@@ -21,11 +21,6 @@ final class ConstantPool
     * The constant pool's hash table data.
     */
    private Item[] items;
-
-   /**
-    * Index of the next item to be added in the constant pool.
-    */
-   private int index;
 
    /**
     * The threshold of the constant pool's hash table.
@@ -53,6 +48,11 @@ final class ConstantPool
    private final Item key4;
 
    /**
+    * Index of the next item to be added in the constant pool.
+    */
+   private int index;
+
+   /**
     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
     * This type table is used by the control flow and data flow analysis algorithm used to compute stack map frames
     * from scratch. This array associates to each index <tt>i</tt> the Item whose index is <tt>i</tt>. All Item objects
@@ -67,8 +67,7 @@ final class ConstantPool
     */
    private short typeCount;
 
-   ConstantPool() {
-      index = 1;
+   ConstantPoolGeneration() {
       pool = new ByteVector();
       items = new Item[256];
       threshold = (int) (0.75d * items.length);
@@ -76,6 +75,7 @@ final class ConstantPool
       key2 = new Item();
       key3 = new Item();
       key4 = new Item();
+      index = 1;
    }
 
    /**
@@ -363,6 +363,77 @@ final class ConstantPool
    }
 
    /**
+    * Adds a number or string constant to the constant pool of the class being built.
+    * Does nothing if the constant pool already contains a similar item.
+    *
+    * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
+    *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
+    * @return a new or already existing constant item with the given value.
+    */
+   Item newConstItem(Object cst) {
+      if (cst instanceof String) {
+         return newString((String) cst);
+      }
+
+      if (cst instanceof Integer) {
+         return newInteger((Integer) cst);
+      }
+
+      if (cst instanceof Byte) {
+         int val = ((Byte) cst).intValue();
+         return newInteger(val);
+      }
+
+      if (cst instanceof Character) {
+         return newInteger((int) (Character) cst);
+      }
+
+      if (cst instanceof Short) {
+         int val = ((Short) cst).intValue();
+         return newInteger(val);
+      }
+
+      if (cst instanceof Boolean) {
+         int val = (Boolean) cst ? 1 : 0;
+         return newInteger(val);
+      }
+
+      if (cst instanceof Float) {
+         return newFloat((Float) cst);
+      }
+
+      if (cst instanceof Long) {
+         return newLong((Long) cst);
+      }
+
+      if (cst instanceof Double) {
+         return newDouble((Double) cst);
+      }
+
+      if (cst instanceof Type) {
+         Type t = (Type) cst;
+         int s = t.getSort();
+
+         if (s == Type.Sort.OBJECT) {
+            return newClassItem(t.getInternalName());
+         }
+
+         if (s == Type.Sort.METHOD) {
+            return newMethodTypeItem(t.getDescriptor());
+         }
+
+         // s == primitive type or array
+         return newClassItem(t.getDescriptor());
+      }
+
+      if (cst instanceof Handle) {
+         return newHandleItem((Handle) cst);
+      }
+
+      throw new IllegalArgumentException("value " + cst);
+   }
+
+   /**
     * Adds the given internal name to {@link #typeTable} and returns its index.
     * Does nothing if the type table already contains this internal name.
     *
@@ -408,7 +479,7 @@ final class ConstantPool
     * @return the added Item, which a new Item instance with the same value as the given Item.
     */
    private Item addType() {
-      ++typeCount;
+      typeCount++;
       Item result = new Item(typeCount, key);
       put(result);
 

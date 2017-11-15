@@ -53,7 +53,7 @@ public final class ClassWriter extends ClassVisitor
     */
    private int version;
 
-   final ConstantPool constantPool;
+   final ConstantPoolGeneration constantPool;
 
    /**
     * The access flags of this class.
@@ -123,7 +123,7 @@ public final class ClassWriter extends ClassVisitor
     *                    where applicable.
     */
    public ClassWriter(ClassReader classReader) {
-      constantPool = new ConstantPool();
+      constantPool = new ConstantPoolGeneration();
       sourceInfo = new SourceInfo(this);
       bootstrapMethods = new BootstrapMethods(this);
 
@@ -145,14 +145,14 @@ public final class ClassWriter extends ClassVisitor
    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
       this.version = version;
       this.access = access;
-      this.name = newClass(name);
+      this.name = constantPool.newClass(name);
       thisName = name;
 
       if (signature != null) {
          this.signature = newUTF8(signature);
       }
 
-      this.superName = superName == null ? 0 : newClass(superName);
+      this.superName = superName == null ? 0 : constantPool.newClass(superName);
 
       if (interfaces != null && interfaces.length > 0) {
          this.interfaces = new Interfaces(this, interfaces);
@@ -372,80 +372,10 @@ public final class ClassWriter extends ClassVisitor
          ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < ClassVersion.V1_5);
    }
 
-   /**
-    * Adds a number or string constant to the constant pool of the class being built.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
-    *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
-    * @return a new or already existing constant item with the given value.
-    */
-   Item newConstItem(Object cst) {
-      if (cst instanceof String) {
-         return constantPool.newString((String) cst);
-      }
-
-      if (cst instanceof Integer) {
-         return newInteger((Integer) cst);
-      }
-
-      if (cst instanceof Byte) {
-         int val = ((Byte) cst).intValue();
-         return newInteger(val);
-      }
-
-      if (cst instanceof Character) {
-         return newInteger((int) (Character) cst);
-      }
-
-      if (cst instanceof Short) {
-         int val = ((Short) cst).intValue();
-         return newInteger(val);
-      }
-
-      if (cst instanceof Boolean) {
-         int val = (Boolean) cst ? 1 : 0;
-         return newInteger(val);
-      }
-
-      if (cst instanceof Float) {
-         return newFloat((Float) cst);
-      }
-
-      if (cst instanceof Long) {
-         return newLong((Long) cst);
-      }
-
-      if (cst instanceof Double) {
-         return newDouble((Double) cst);
-      }
-
-      if (cst instanceof Type) {
-         Type t = (Type) cst;
-         int s = t.getSort();
-
-         if (s == Type.Sort.OBJECT) {
-            return newClassItem(t.getInternalName());
-         }
-         else if (s == Type.Sort.METHOD) {
-            return constantPool.newMethodTypeItem(t.getDescriptor());
-         }
-         else { // s == primitive type or array
-            return newClassItem(t.getDescriptor());
-         }
-      }
-
-      if (cst instanceof Handle) {
-         return newHandleItem((Handle) cst);
-      }
-
-      throw new IllegalArgumentException("value " + cst);
-   }
-
+   Item newConstItem(Object cst) { return constantPool.newConstItem(cst); }
    int newUTF8(String value) { return constantPool.newUTF8(value); }
    Item newClassItem(String value) { return constantPool.newClassItem(value); }
    int newClass(String value) { return constantPool.newClass(value); }
-   Item newHandleItem(Handle handle) { return constantPool.newHandleItem(handle); }
    Item newFieldItem(String owner, String name, String desc) { return constantPool.newFieldItem(owner, name, desc); }
    Item newInteger(int value) { return constantPool.newInteger(value); }
    Item newFloat(float value) { return constantPool.newFloat(value); }
@@ -467,7 +397,6 @@ public final class ClassWriter extends ClassVisitor
    int addType(String type) { return constantPool.addType(type); }
    int addUninitializedType(String type, int offset) { return constantPool.addUninitializedType(type, offset); }
    int getMergedType(int type1, int type2) { return constantPool.getMergedType(type1, type2); }
-   void put(Item item) { constantPool.put(item); }
 
    /**
     * Adds an invokedynamic reference to the constant pool of the class being built.
@@ -480,6 +409,6 @@ public final class ClassWriter extends ClassVisitor
     * @return a new or an already existing invokedynamic type reference item.
     */
    Item newInvokeDynamicItem(String name, String desc, Handle bsm, Object... bsmArgs) {
-      return bootstrapMethods.add(name, desc, bsm, bsmArgs);
+      return bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
    }
 }

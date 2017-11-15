@@ -1,22 +1,29 @@
 package mockit.external.asm;
 
+/**
+ * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
+ */
 final class BootstrapMethods
 {
    private final ClassWriter cw;
+   private final ConstantPoolGeneration constantPool;
 
    /**
     * The number of entries in the BootstrapMethods attribute.
     */
-   int bootstrapMethodsCount;
+   private int bootstrapMethodsCount;
 
    /**
     * The BootstrapMethods attribute.
     */
-   ByteVector bootstrapMethods;
+   private ByteVector bootstrapMethods;
 
-   BootstrapMethods(ClassWriter cw) { this.cw = cw; }
+   BootstrapMethods(ClassWriter cw) {
+      this.cw = cw;
+      constantPool = cw.constantPool;
+   }
 
-   Item add(String name, String desc, Handle bsm, Object... bsmArgs) {
+   Item addInvokeDynamicReference(String name, String desc, Handle bsm, Object... bsmArgs) {
       ByteVector methods = bootstrapMethods;
 
       if (methods == null) {
@@ -26,37 +33,67 @@ final class BootstrapMethods
       int position = methods.length; // record current position
 
       int hashCode = bsm.hashCode();
-      Item handleItem = cw.newHandleItem(bsm);
+      Item handleItem = constantPool.newHandleItem(bsm);
       methods.putShort(handleItem.index);
 
       int argsLength = bsmArgs.length;
       methods.putShort(argsLength);
 
-      for (int i = 0; i < argsLength; i++) {
-         Object bsmArg = bsmArgs[i];
-         hashCode ^= bsmArg.hashCode();
-         Item constItem = cw.newConstItem(bsmArg);
-         methods.putShort(constItem.index);
-      }
+      hashCode = putBSMArgs(hashCode, bsmArgs);
 
       byte[] data = methods.data;
       int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
       hashCode &= 0x7FFFFFFF;
-      Item result = cw.constantPool.getItem(hashCode);
+
+      Item bsmItem = getBSMItem(position, hashCode, data, length);
+      int bsmIndex;
+
+      if (bsmItem != null) {
+         bsmIndex = bsmItem.index;
+         methods.length = position; // revert to old position
+      }
+      else {
+         bsmIndex = bootstrapMethodsCount++;
+         bsmItem = new Item(bsmIndex);
+         bsmItem.set(position, hashCode);
+         constantPool.put(bsmItem);
+      }
+
+      // Now, create the InvokeDynamic constant.
+      Item result = constantPool.createInvokeDynamicConstant(name, desc, bsmIndex);
+      return result;
+   }
+
+   private int putBSMArgs(int hashCode, Object[] bsmArgs) {
+      ByteVector methods = bootstrapMethods;
+
+      for (int i = 0; i < bsmArgs.length; i++) {
+         Object bsmArg = bsmArgs[i];
+         hashCode ^= bsmArg.hashCode();
+
+         Item constItem = cw.newConstItem(bsmArg);
+         methods.putShort(constItem.index);
+      }
+
+      return hashCode;
+   }
+
+   private Item getBSMItem(int position, int hashCode, byte[] data, int length) {
+      Item bsmItem = constantPool.getItem(hashCode);
 
    loop:
-      while (result != null) {
-         if (result.type != ConstantPoolItemType.BSM || result.hashCode != hashCode) {
-            result = result.next;
+      while (bsmItem != null) {
+         if (bsmItem.type != ConstantPoolItemType.BSM || bsmItem.hashCode != hashCode) {
+            bsmItem = bsmItem.next;
             continue;
          }
 
          // Because the data encode the size of the argument we don't need to test if these size are equals.
-         int resultPosition = result.intVal;
+         int resultPosition = bsmItem.intVal;
 
          for (int p = 0; p < length; p++) {
             if (data[position + p] != data[resultPosition + p]) {
-               result = result.next;
+               bsmItem = bsmItem.next;
                continue loop;
             }
          }
@@ -64,23 +101,7 @@ final class BootstrapMethods
          break;
       }
 
-      int bsmIndex;
-
-      if (result != null) {
-         bsmIndex = result.index;
-         methods.length = position; // revert to old position
-      }
-      else {
-         bsmIndex = bootstrapMethodsCount++;
-         result = new Item(bsmIndex);
-         result.set(position, hashCode);
-         cw.put(result);
-      }
-
-      // Now, create the InvokeDynamic constant.
-      result = cw.constantPool.createInvokeDynamicConstant(name, desc, bsmIndex);
-
-      return result;
+      return bsmItem;
    }
 
    boolean hasMethods() { return bootstrapMethods != null; }
@@ -108,7 +129,7 @@ final class BootstrapMethods
       int u = cr.getAttributesStartIndex();
       boolean found = false;
 
-      for (int i = cr.readUnsignedShort(u); i > 0; --i) {
+      for (int i = cr.readUnsignedShort(u); i > 0; i--) {
          String attrName = cr.readUTF8(u + 2, c);
 
          if ("BootstrapMethods".equals(attrName)) {
@@ -130,7 +151,7 @@ final class BootstrapMethods
          int position = v - u - 10;
          int hashCode = cr.readConst(cr.readUnsignedShort(v), c).hashCode();
 
-         for (int k = cr.readUnsignedShort(v + 2); k > 0; --k) {
+         for (int k = cr.readUnsignedShort(v + 2); k > 0; k--) {
             hashCode ^= cr.readConst(cr.readUnsignedShort(v + 4), c).hashCode();
             v += 2;
          }

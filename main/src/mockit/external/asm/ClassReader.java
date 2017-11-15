@@ -1762,7 +1762,7 @@ public final class ClassReader
             return readUTF8(index, buf);
          case ConstantPoolItemType.MTYPE:
             return Type.getMethodType(readUTF8(index, buf));
-         default: // case ClassWriter.HANDLE_BASE + [1..9]:
+         default: // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
             int tag = readByte(index);
             int[] items = this.items;
             int cpIndex = items[readUnsignedShort(index + 1)];

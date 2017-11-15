@@ -40,8 +40,8 @@ final class Item
 {
    /**
     * Defines constants for {@link #NORMAL normal}, {@link #UNINIT uninitialized}, and {@link #MERGED merged} special
-    * item types stored in the {@link ClassWriter#typeTable}, instead of the constant pool, in order to avoid clashes
-    * with normal constant pool items in the ClassWriter constant pool's hash table.
+    * item types stored in the {@link ConstantPoolGeneration#typeTable}, instead of the constant pool, in order to avoid
+    * clashes with normal constant pool items in the ClassWriter constant pool's hash table.
     */
    interface SpecialType
    {
@@ -63,9 +63,9 @@ final class Item
     * MethodHandle constant 9 variations are stored using a range of 9 values from
     * {@link ConstantPoolItemType#HANDLE_BASE} + 1 to {@link ConstantPoolItemType#HANDLE_BASE} + 9.
     * <p/>
-    * Special Item types are used for Items that are stored in the ClassWriter {@link ClassWriter#typeTable}, instead of
-    * the constant pool, in order to avoid clashes with normal constant pool items in the ClassWriter constant pool's
-    * hash table. These special item types are defined in {@link SpecialType}.
+    * Special Item types are used for Items that are stored in the ClassWriter {@link ConstantPoolGeneration#typeTable},
+    * instead of the constant pool, in order to avoid clashes with normal constant pool items in the ClassWriter
+    * constant pool's hash table. These special item types are defined in {@link SpecialType}.
     */
    int type;
 
@@ -80,20 +80,17 @@ final class Item
    long longVal;
 
    /**
-    * First part of the value of this item, for items that do not hold a
-    * primitive value.
+    * First part of the value of this item, for items that do not hold a primitive value.
     */
    String strVal1;
 
    /**
-    * Second part of the value of this item, for items that do not hold a
-    * primitive value.
+    * Second part of the value of this item, for items that do not hold a primitive value.
     */
    String strVal2;
 
    /**
-    * Third part of the value of this item, for items that do not hold a
-    * primitive value.
+    * Third part of the value of this item, for items that do not hold a primitive value.
     */
    String strVal3;
 
@@ -103,8 +100,7 @@ final class Item
    int hashCode;
 
    /**
-    * Link to another constant pool item, used for collision lists in the
-    * constant pool's hash table.
+    * Link to another constant pool item, used for collision lists in the constant pool's hash table.
     */
    Item next;
 
