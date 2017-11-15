@@ -6,6 +6,7 @@ package mockit.internal.injection;
 
 import javax.annotation.*;
 
+import mockit.internal.injection.field.*;
 import mockit.internal.injection.full.*;
 
 public final class BeanExporter
@@ -28,7 +29,7 @@ public final class BeanExporter
       TestedClass testedClass = new TestedClass(beanType, beanType);
       String beanName = getBeanNameFromType(beanType);
       FullInjection injection = new FullInjection(injectionState, beanType, beanName);
-      Injector injector = new Injector(injectionState, injection);
+      Injector injector = new FieldInjection(injectionState, injection);
 
       @SuppressWarnings("unchecked")
       T bean = (T) injection.createOrReuseInstance(testedClass, injector, null, beanName);

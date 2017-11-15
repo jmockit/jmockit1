@@ -6,7 +6,6 @@ package mockit.integration.springframework;
 
 import org.junit.*;
 import org.junit.rules.*;
-
 import static org.junit.Assert.*;
 
 import mockit.*;
@@ -34,7 +33,7 @@ public final class SpringIntegrationTest
    public interface Dependency {}
    static final class DependencyImpl implements Dependency {}
    public interface AnotherDependency {}
-   static final class AnotherDependencyImpl implements AnotherDependency {}
+   static final class AnotherDependencyImpl implements AnotherDependency { Dependency subDep; }
    static class Collaborator { @Autowired Runnable action; }
 
    @Tested DependencyImpl dependency;
@@ -56,7 +55,7 @@ public final class SpringIntegrationTest
    }
 
    @Test
-   public void lookupTestedObjectsAndInjectedDependenciesThroughStrutsIntegration()
+   public void lookupTestedObjectsAndInjectedDependenciesThroughTheWebApplicationContext()
    {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertTestedObjectsAndDependencies(beanFactory);
@@ -70,7 +69,7 @@ public final class SpringIntegrationTest
    }
 
    @Test
-   public void lookUpBeanByNameWithUnknownNameUsingStrutsIntegration()
+   public void lookUpBeanByNameWithUnknownNameUsingWebApplicationContext()
    {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertNoSuchBeanDefinitionForUnknownBeanName(beanFactory);
@@ -84,7 +83,7 @@ public final class SpringIntegrationTest
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingStrutsIntegration()
+   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingWebApplicationContext()
    {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertNoSuchBeanDefinitionForUnknownBeanNameAndType(beanFactory);
@@ -98,7 +97,7 @@ public final class SpringIntegrationTest
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithWrongTypeUsingStrutsIntegration()
+   public void lookUpBeanByNameAndTypeWithWrongTypeUsingWebApplicationContext()
    {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertBeanNotOfRequiredTypeForWrongBeanType(beanFactory);
@@ -143,6 +142,7 @@ public final class SpringIntegrationTest
 
       anotherDependencyBean = beanFactory.getBean(AnotherDependency.class);
       assertNotNull(anotherDependencyBean);
+      assertSame(dependency, ((AnotherDependencyImpl) anotherDependencyBean).subDep);
    }
 
    void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory)
