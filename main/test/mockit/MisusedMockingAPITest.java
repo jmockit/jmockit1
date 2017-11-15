@@ -24,6 +24,7 @@ public final class MisusedMockingAPITest
       int value() { return -1; }
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
+      void doSomethingElse(Object value) {}
       String getName() { return name.toUpperCase(); }
       Blah same() { return this; }
       Runnable getSomethingElse() { return null; }
@@ -162,5 +163,19 @@ public final class MisusedMockingAPITest
       thrown.expectMessage("CustomException");
 
       new Expectations(CustomException.class) {};
+   }
+
+   static class Unmocked { Unmocked(@SuppressWarnings("unused") String s) {} }
+
+   @Test
+   public void verifyMethodUsingCaptureForParameterOfDifferentAndUnmockedInvocation()
+   {
+      mock.doSomethingElse("test");
+
+      new Verifications() {{
+         String s;
+         mock.doSomethingElse(new Unmocked(s = withCapture()));
+         assertNull(s);
+      }};
    }
 }

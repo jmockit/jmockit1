@@ -44,12 +44,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       this.mockedTypesAndInstancesToFullyVerify = mockedTypesAndInstancesToFullyVerify;
    }
 
-   @Nonnull
-   protected final Expectation expectationBeingVerified()
-   {
-      //noinspection ConstantConditions
-      return currentVerification;
-   }
+   @Nullable
+   protected final Expectation expectationBeingVerified() { return currentVerification; }
 
    @Nullable @Override
    final Object handleInvocation(
@@ -311,7 +307,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       List<VerifiedExpectation> verifiedExpectations = recordAndReplay.executionState.verifiedExpectations;
 
       if (verifiedExpectations.isEmpty()) {
-         return expectationBeingVerified().invocation.getArgumentValues()[parameterIndex];
+         Expectation expectation = expectationBeingVerified();
+         return expectation == null ? null : expectation.invocation.getArgumentValues()[parameterIndex];
       }
 
       VerifiedExpectation lastMatched = verifiedExpectations.get(verifiedExpectations.size() - 1);

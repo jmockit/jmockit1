@@ -48,6 +48,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    protected List<ExpectedInvocation> findNonStrictExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
+      Expectation expectation = expectationBeingVerified();
       int i = replayIndex;
 
       while (i >= 0 && i < expectationCount) {
@@ -70,7 +71,11 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
             i += 1 - indexIncrement;
             indexIncrement = 1;
             replayIndex = i;
-            expectationBeingVerified().constraints.invocationCount++;
+
+            if (expectation != null) {
+               expectation.constraints.invocationCount++;
+            }
+
             mapNewInstanceToReplacementIfApplicable(mock);
             break;
          }
@@ -129,6 +134,11 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       }
 
       Expectation verifying = expectationBeingVerified();
+
+      if (verifying == null) {
+         return;
+      }
+
       ExpectedInvocation invocation = verifying.invocation;
       argMatchers = invocation.arguments.getMatchers();
       int invocationCount = 1;
@@ -136,7 +146,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       while (replayIndex < expectationCount) {
          Expectation replayExpectation = expectationsInReplayOrder.get(replayIndex);
 
-         if (replayExpectation != null && matchesCurrentVerification(replayExpectation)) {
+         if (replayExpectation != null && matchesCurrentVerification(invocation, replayExpectation)) {
             invocationCount++;
             verifying.constraints.invocationCount++;
 
@@ -163,12 +173,12 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
          throw invocation.errorForMissingInvocations(n, Collections.<ExpectedInvocation>emptyList());
       }
 
-      verifyMaxInvocations(maxInvocations);
+      verifyMaxInvocations(verifying, maxInvocations);
    }
 
-   private boolean matchesCurrentVerification(@Nonnull Expectation replayExpectation)
+   private boolean matchesCurrentVerification(
+      @Nonnull ExpectedInvocation invocation, @Nonnull Expectation replayExpectation)
    {
-      ExpectedInvocation invocation = expectationBeingVerified().invocation;
       Object mock = invocation.instance;
       String mockClassDesc = invocation.getClassDesc();
       String mockNameAndDesc = invocation.getMethodNameAndDescription();
@@ -185,10 +195,9 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs);
    }
 
-   private void verifyMaxInvocations(int maxInvocations)
+   private void verifyMaxInvocations(@Nonnull Expectation verifying, int maxInvocations)
    {
       if (maxInvocations >= 0) {
-         Expectation verifying = expectationBeingVerified();
          int n = verifying.constraints.invocationCount - maxInvocations;
 
          if (n > 0) {

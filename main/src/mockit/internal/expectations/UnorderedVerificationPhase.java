@@ -34,6 +34,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       }
 
       replayIndex = -1;
+      Expectation verification = expectationBeingVerified();
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<ExpectedInvocation>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
@@ -42,9 +43,12 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
          Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
 
          if (matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs)) {
-            Expectation verification = expectationBeingVerified();
             replayIndex = i;
-            verification.constraints.invocationCount++;
+
+            if (verification != null) {
+               verification.constraints.invocationCount++;
+            }
+
             currentExpectation = replayExpectation;
             mapNewInstanceToReplacementIfApplicable(mock);
          }
@@ -53,20 +57,19 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
          }
       }
 
-      if (replayIndex >= 0) {
-         pendingError = verifyConstraints();
+      if (verification != null && replayIndex >= 0) {
+         pendingError = verifyConstraints(verification);
       }
 
       return matchingInvocationsWithDifferentArgs;
    }
 
    @Nullable
-   private Error verifyConstraints()
+   private Error verifyConstraints(@Nonnull Expectation verification)
    {
       ExpectedInvocation lastInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
       Object[] lastArgs = invocationArgumentsInReplayOrder.get(replayIndex);
-      Expectation expectation = expectationBeingVerified();
-      return expectation.verifyConstraints(lastInvocation, lastArgs, 1, -1);
+      return verification.verifyConstraints(lastInvocation, lastArgs, 1, -1);
    }
 
    @Override
@@ -82,6 +85,11 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       pendingError = null;
 
       Expectation verifying = expectationBeingVerified();
+
+      if (verifying == null) {
+         return;
+      }
+
       Error errorThrown;
 
       if (replayIndex >= 0) {
