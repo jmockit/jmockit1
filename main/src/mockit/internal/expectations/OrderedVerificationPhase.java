@@ -45,7 +45,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nonnull @Override
-   protected List<ExpectedInvocation> findNonStrictExpectation(
+   protected List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
       Expectation expectation = expectationBeingVerified();

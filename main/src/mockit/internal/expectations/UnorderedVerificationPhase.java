@@ -26,7 +26,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nonnull @Override
-   protected List<ExpectedInvocation> findNonStrictExpectation(
+   protected List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
    {
       if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {

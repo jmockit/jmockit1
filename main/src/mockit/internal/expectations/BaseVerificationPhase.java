@@ -72,7 +72,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       currentExpectation = null;
       currentVerifiedExpectations.clear();
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs =
-         findNonStrictExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+         findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       argMatchers = null;
 
       if (recordAndReplay.getErrorThrown() != null) {
@@ -88,7 +88,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    @Nonnull
-   abstract List<ExpectedInvocation> findNonStrictExpectation(
+   abstract List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args);
 
    final boolean matches(
