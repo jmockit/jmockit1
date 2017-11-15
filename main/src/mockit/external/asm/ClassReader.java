@@ -202,9 +202,7 @@ public final class ClassReader extends AnnotatedReader
                break;
             }
             case ConstantPoolItemType.INDY:
-               if (!cw.bootstrapMethods.hasMethods()) {
-                  cw.bootstrapMethods.copyBootstrapMethods(items2, buf);
-               }
+               cw.bootstrapMethods.copyBootstrapMethods(this, items2, buf);
 
                nameType = items[readUnsignedShort(index + 2)];
                item.set(readUTF8(nameType, buf), readUTF8(nameType + 2, buf), readUnsignedShort(index));
@@ -221,7 +219,7 @@ public final class ClassReader extends AnnotatedReader
       }
 
       int off = items[1] - 1;
-      cw.constantPool.copy(b, off, header, items2);
+      cw.cp.copy(b, off, header, items2);
    }
 
    /**

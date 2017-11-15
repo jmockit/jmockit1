@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class LineNumbers
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * Number of entries in the LineNumberTable attribute.
@@ -14,7 +14,7 @@ final class LineNumbers
     */
    private ByteVector lineNumber;
 
-   LineNumbers(ClassWriter cw) { this.cw = cw; }
+   LineNumbers(ConstantPoolGeneration cp) { this.cp = cp; }
 
    void addLineNumber(int line, Label start) {
       if (lineNumber == null) {
@@ -32,7 +32,7 @@ final class LineNumbers
 
    int getSizeWhileAddingConstantPoolItem() {
       if (lineNumber != null) {
-         cw.newUTF8("LineNumberTable");
+         cp.newUTF8("LineNumberTable");
       }
 
       return getSize();
@@ -40,7 +40,7 @@ final class LineNumbers
 
    void put(ByteVector out) {
       if (lineNumber != null) {
-         out.putShort(cw.newUTF8("LineNumberTable"));
+         out.putShort(cp.newUTF8("LineNumberTable"));
          out.putInt(lineNumber.length + 2).putShort(lineNumberCount);
          out.putByteVector(lineNumber);
       }

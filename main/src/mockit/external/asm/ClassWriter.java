@@ -53,8 +53,6 @@ public final class ClassWriter extends ClassVisitor
     */
    private int version;
 
-   final ConstantPoolGeneration constantPool;
-
    /**
     * The access flags of this class.
     */
@@ -123,9 +121,9 @@ public final class ClassWriter extends ClassVisitor
     *                    where applicable.
     */
    public ClassWriter(ClassReader classReader) {
-      constantPool = new ConstantPoolGeneration();
-      sourceInfo = new SourceInfo(this);
-      bootstrapMethods = new BootstrapMethods(this);
+      cp = new ConstantPoolGeneration();
+      sourceInfo = new SourceInfo(cp);
+      bootstrapMethods = new BootstrapMethods(cp);
 
       version = classReader.getVersion();
       computeFrames = version >= ClassVersion.V1_7;
@@ -145,17 +143,17 @@ public final class ClassWriter extends ClassVisitor
    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
       this.version = version;
       this.access = access;
-      this.name = constantPool.newClass(name);
+      this.name = cp.newClass(name);
       thisName = name;
 
       if (signature != null) {
-         this.signature = newUTF8(signature);
+         this.signature = cp.newUTF8(signature);
       }
 
-      this.superName = superName == null ? 0 : constantPool.newClass(superName);
+      this.superName = superName == null ? 0 : cp.newClass(superName);
 
       if (interfaces != null && interfaces.length > 0) {
-         this.interfaces = new Interfaces(this, interfaces);
+         this.interfaces = new Interfaces(cp, interfaces);
       }
 
       if (superName != null) {
@@ -170,18 +168,18 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visitOuterClass(String owner, String name, String desc) {
-      outerClass = new OuterClass(this, owner, name, desc);
+      outerClass = new OuterClass(cp, owner, name, desc);
    }
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      return visitAnnotation(this, desc);
+      return addAnnotation(desc);
    }
 
    @Override
    public void visitInnerClass(String name, String outerName, String innerName, int access) {
       if (innerClasses == null) {
-         innerClasses = new InnerClasses(this);
+         innerClasses = new InnerClasses(cp);
       }
 
       innerClasses.add(name, outerName, innerName, access);
@@ -210,7 +208,7 @@ public final class ClassWriter extends ClassVisitor
     */
    @Override
    public byte[] toByteArray() {
-      constantPool.checkConstantPoolMaxSize();
+      cp.checkConstantPoolMaxSize();
 
       // Computes the real size of the bytecode of this class.
       int interfaceCount = interfaces == null ? 0 : interfaces.getCount();
@@ -230,7 +228,7 @@ public final class ClassWriter extends ClassVisitor
       if (signature != 0) {
          attributeCount++;
          size += 8;
-         newUTF8("Signature");
+         cp.newUTF8("Signature");
       }
 
       attributeCount += sourceInfo.getAttributeCount();
@@ -246,13 +244,13 @@ public final class ClassWriter extends ClassVisitor
       if (deprecated) {
          attributeCount++;
          size += 6;
-         newUTF8("Deprecated");
+         cp.newUTF8("Deprecated");
       }
 
       if (isSynthetic()) {
          attributeCount++;
          size += 6;
-         newUTF8("Synthetic");
+         cp.newUTF8("Synthetic");
       }
 
       if (innerClasses != null) {
@@ -262,17 +260,17 @@ public final class ClassWriter extends ClassVisitor
 
       if (annotations != null) {
          attributeCount++;
-         size += getAnnotationsSize(this);
+         size += getAnnotationsSize();
       }
 
-      size += constantPool.getSize();
+      size += cp.getSize();
 
       // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
       // ByteVector.enlarge() method.
       ByteVector out = new ByteVector(size);
 
       out.putInt(0xCAFEBABE).putInt(version);
-      constantPool.put(out);
+      cp.put(out);
 
       int accessFlag = Access.computeFlag(access, 0);
       out.putShort(accessFlag);
@@ -300,19 +298,18 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (deprecated) {
-         out.putShort(newUTF8("Deprecated")).putInt(0);
+         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
 
       if (isSynthetic()) {
-         out.putShort(newUTF8("Synthetic")).putInt(0);
+         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
       }
 
       if (innerClasses != null) {
          innerClasses.put(out);
       }
 
-      putAnnotations(out, this);
-
+      putAnnotations(out);
       return out.data;
    }
 
@@ -354,12 +351,12 @@ public final class ClassWriter extends ClassVisitor
 
    private void putSignature(ByteVector out) {
       if (signature != 0) {
-         out.putShort(newUTF8("Signature")).putInt(2).putShort(signature);
+         out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(signature);
       }
    }
 
    // ------------------------------------------------------------------------
-   // Utility methods: version, constant pool management
+   // Utility methods: version, others
    // ------------------------------------------------------------------------
 
    int getClassVersion() { return version & 0xFFFF; }
@@ -371,32 +368,6 @@ public final class ClassWriter extends ClassVisitor
          Access.isSynthetic(access) &&
          ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < ClassVersion.V1_5);
    }
-
-   Item newConstItem(Object cst) { return constantPool.newConstItem(cst); }
-   int newUTF8(String value) { return constantPool.newUTF8(value); }
-   Item newClassItem(String value) { return constantPool.newClassItem(value); }
-   int newClass(String value) { return constantPool.newClass(value); }
-   Item newFieldItem(String owner, String name, String desc) { return constantPool.newFieldItem(owner, name, desc); }
-   Item newInteger(int value) { return constantPool.newInteger(value); }
-   Item newFloat(float value) { return constantPool.newFloat(value); }
-   Item newLong(long value) { return constantPool.newLong(value); }
-   Item newDouble(double value) { return constantPool.newDouble(value); }
-
-   /**
-    * Adds a name and type to the constant pool of the class being build.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param name a name.
-    * @param desc a type descriptor.
-    * @return the index of a new or already existing name and type item.
-    */
-   int newNameType(String name, String desc) {
-      return constantPool.newNameTypeItem(name, desc).index;
-   }
-
-   int addType(String type) { return constantPool.addType(type); }
-   int addUninitializedType(String type, int offset) { return constantPool.addUninitializedType(type, offset); }
-   int getMergedType(int type1, int type2) { return constantPool.getMergedType(type1, type2); }
 
    /**
     * Adds an invokedynamic reference to the constant pool of the class being built.

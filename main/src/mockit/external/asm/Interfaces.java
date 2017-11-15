@@ -13,12 +13,12 @@ final class Interfaces
     */
    private final int[] interfaces;
 
-   Interfaces(ClassWriter cw, String[] interfaces) {
+   Interfaces(ConstantPoolGeneration cp, String[] interfaces) {
       int n = interfaceCount = interfaces.length;
       this.interfaces = new int[n];
 
       for (int i = 0; i < n; ++i) {
-         this.interfaces[i] = cw.newClass(interfaces[i]);
+         this.interfaces[i] = cp.newClass(interfaces[i]);
       }
    }
 

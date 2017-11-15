@@ -84,6 +84,7 @@ final class FrameAndStackComputation
 
    private final MethodWriter mw;
    private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * Maximum stack size of this method.
@@ -144,6 +145,7 @@ final class FrameAndStackComputation
    FrameAndStackComputation(MethodWriter mw, int methodAccess, String methodDesc) {
       this.mw = mw;
       cw = mw.cw;
+      cp = cw.cp;
 
       int size = Type.getArgumentsAndReturnSizes(methodDesc) >> 2;
 
@@ -289,13 +291,13 @@ final class FrameAndStackComputation
          int frame;
 
          if (localType instanceof String) {
-            frame = TypeMask.OBJECT | cw.addType((String) localType);
+            frame = TypeMask.OBJECT | cp.addType((String) localType);
          }
          else if (localType instanceof Integer) {
             frame = (Integer) localType;
          }
          else {
-            frame = TypeMask.UNINITIALIZED | cw.addUninitializedType("", ((Label) localType).position);
+            frame = TypeMask.UNINITIALIZED | cp.addUninitializedType("", ((Label) localType).position);
          }
 
          writeFrameDefinition(frame);
@@ -306,13 +308,13 @@ final class FrameAndStackComputation
          int frame;
 
          if (stackType instanceof String) {
-            frame = TypeMask.OBJECT | cw.addType((String) stackType);
+            frame = TypeMask.OBJECT | cp.addType((String) stackType);
          }
          else if (stackType instanceof Integer) {
             frame = (Integer) stackType;
          }
          else {
-            frame = TypeMask.UNINITIALIZED | cw.addUninitializedType("", ((Label) stackType).position);
+            frame = TypeMask.UNINITIALIZED | cp.addUninitializedType("", ((Label) stackType).position);
          }
 
          writeFrameDefinition(frame);
@@ -330,7 +332,7 @@ final class FrameAndStackComputation
 
       if ((access & Access.STATIC) == 0) {
          int frame = Access.isConstructor(access) ? 6 /* Frame.UNINITIALIZED_THIS */ :
-            TypeMask.OBJECT | cw.addType(cw.thisName);
+            TypeMask.OBJECT | cp.addType(cw.thisName);
 
          writeFrameDefinition(frame);
       }
@@ -398,7 +400,7 @@ final class FrameAndStackComputation
          }
       }
 
-      int frameValue = TypeMask.OBJECT | cw.addType(desc.substring(j, ++i));
+      int frameValue = TypeMask.OBJECT | cp.addType(desc.substring(j, ++i));
       writeFrameDefinition(frameValue);
       return i;
    }
@@ -408,14 +410,14 @@ final class FrameAndStackComputation
          i++;
       }
 
-      int frameValue = TypeMask.OBJECT | cw.addType(desc.substring(j + 1, i++));
+      int frameValue = TypeMask.OBJECT | cp.addType(desc.substring(j + 1, i++));
       writeFrameDefinition(frameValue);
       return i;
    }
 
    private void writeFrameType(Object type) {
       if (type instanceof String) {
-         stackMap.putByte(7).putShort(cw.newClass((String) type));
+         stackMap.putByte(7).putShort(cp.newClass((String) type));
       }
       else if (type instanceof Integer) {
          stackMap.putByte((Integer) type);
@@ -597,11 +599,11 @@ final class FrameAndStackComputation
 
       switch (type & TypeMask.BASE_KIND) {
          case TypeMask.OBJECT:
-            String classDesc = cw.constantPool.getInternalName(v);
-            stackMap.putByte(7).putShort(cw.newClass(classDesc));
+            String classDesc = cp.getInternalName(v);
+            stackMap.putByte(7).putShort(cp.newClass(classDesc));
             break;
          case TypeMask.UNINITIALIZED:
-            int typeDesc = cw.constantPool.getIntegerItemValue(v);
+            int typeDesc = cp.getIntegerItemValue(v);
             stackMap.putByte(8).putShort(typeDesc);
             break;
          default:
@@ -618,7 +620,7 @@ final class FrameAndStackComputation
       }
 
       if ((arrayElementType & TypeMask.BASE_KIND) == TypeMask.OBJECT) {
-         String arrayElementTypeDesc = cw.constantPool.getInternalName(arrayElementType & TypeMask.BASE_VALUE);
+         String arrayElementTypeDesc = cp.getInternalName(arrayElementType & TypeMask.BASE_VALUE);
          sb.append('L').append(arrayElementTypeDesc).append(';');
       }
       else {
@@ -650,7 +652,7 @@ final class FrameAndStackComputation
       }
 
       String arrayElementTypeDesc = sb.toString();
-      stackMap.putByte(7).putShort(cw.newClass(arrayElementTypeDesc));
+      stackMap.putByte(7).putShort(cp.newClass(arrayElementTypeDesc));
    }
 
    // Creates and visits the first (implicit) frame.
@@ -730,7 +732,7 @@ final class FrameAndStackComputation
 
    void emitFrameForUnreachableBlock(int startOffset) {
       startFrame(startOffset, 0, 1);
-      int frameValue = TypeMask.OBJECT | cw.addType("java/lang/Throwable");
+      int frameValue = TypeMask.OBJECT | cp.addType("java/lang/Throwable");
       writeFrameDefinition(frameValue);
       endFrame();
    }
@@ -744,7 +746,7 @@ final class FrameAndStackComputation
 
       if (size > 0) {
          boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
-         cw.newUTF8(zip ? "StackMapTable" : "StackMap");
+         cp.newUTF8(zip ? "StackMapTable" : "StackMap");
       }
 
       return size;
@@ -753,7 +755,7 @@ final class FrameAndStackComputation
    void put(ByteVector out) {
       if (stackMap != null) {
          boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
-         out.putShort(cw.newUTF8(zip ? "StackMapTable" : "StackMap"));
+         out.putShort(cp.newUTF8(zip ? "StackMapTable" : "StackMap"));
          out.putInt(stackMap.length + 2).putShort(frameCount);
          out.putByteVector(stackMap);
       }

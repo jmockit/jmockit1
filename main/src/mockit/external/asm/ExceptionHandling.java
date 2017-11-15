@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class ExceptionHandling
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * Number of elements in the exception handler list.
@@ -19,14 +19,12 @@ final class ExceptionHandling
     */
    private ExceptionHandler lastExceptionHandler;
 
-   ExceptionHandling(ClassWriter cw) {
-      this.cw = cw;
-   }
+   ExceptionHandling(ConstantPoolGeneration cp) { this.cp = cp; }
 
    void addHandler(Label start, Label end, Label handler, String type) {
       ++handlerCount;
 
-      int handlerType = type != null ? cw.newClass(type) : 0;
+      int handlerType = type != null ? cp.newClass(type) : 0;
       ExceptionHandler h = new ExceptionHandler(start, end, handler, type, handlerType);
 
       if (lastExceptionHandler == null) {
@@ -59,7 +57,7 @@ final class ExceptionHandling
 
          // Computes the kind of the edges to 'h'.
          String t = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.TypeMask.OBJECT | cw.addType(t);
+         int kind = Frame.TypeMask.OBJECT | cp.addType(t);
 
          // h is an exception handler.
          h.markAsTarget();

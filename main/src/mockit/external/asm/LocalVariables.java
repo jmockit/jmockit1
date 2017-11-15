@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class LocalVariables
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * Number of entries in the LocalVariableTable attribute.
@@ -24,7 +24,7 @@ final class LocalVariables
     */
    private ByteVector localVarType;
 
-   LocalVariables(ClassWriter cw) { this.cw = cw; }
+   LocalVariables(ConstantPoolGeneration cp) { this.cp = cp; }
 
    int addLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
       if (signature != null) {
@@ -47,7 +47,7 @@ final class LocalVariables
 
       attribute.putShort(start.position)
          .putShort(end.position - start.position)
-         .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc))
+         .putShort(cp.newUTF8(name)).putShort(cp.newUTF8(desc))
          .putShort(index);
 
       return attribute;
@@ -61,7 +61,7 @@ final class LocalVariables
 
    private void addItemToConstantPool(String attributeName, ByteVector attribute) {
       if (attribute != null) {
-         cw.newUTF8(attributeName);
+         cp.newUTF8(attributeName);
       }
    }
 
@@ -80,7 +80,7 @@ final class LocalVariables
 
    private void put(ByteVector out, String attributeName, ByteVector attribute, int numEntries) {
       if (attribute != null) {
-         out.putShort(cw.newUTF8(attributeName));
+         out.putShort(cp.newUTF8(attributeName));
          out.putInt(attribute.length + 2).putShort(numEntries);
          out.putByteVector(attribute);
       }

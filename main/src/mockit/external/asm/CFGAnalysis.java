@@ -5,6 +5,7 @@ import static mockit.external.asm.Opcodes.*;
 final class CFGAnalysis
 {
    private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
    private final ByteVector code;
 
    /**
@@ -56,6 +57,7 @@ final class CFGAnalysis
 
    CFGAnalysis(ClassWriter cw, ByteVector code, boolean computeFrames) {
       this.cw = cw;
+      cp = cw.cp;
       this.code = code;
       this.computeFrames = computeFrames;
 

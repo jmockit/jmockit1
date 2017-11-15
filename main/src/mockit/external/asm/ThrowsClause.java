@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class ThrowsClause
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * Number of exceptions that can be thrown by the method/constructor.
@@ -15,8 +15,8 @@ final class ThrowsClause
     */
    private final int[] exceptions;
 
-   ThrowsClause(ClassWriter cw, String[] exceptions) {
-      this.cw = cw;
+   ThrowsClause(ConstantPoolGeneration cp, String[] exceptions) {
+      this.cp = cp;
 
       int n;
 
@@ -32,7 +32,7 @@ final class ThrowsClause
       }
 
       for (int i = 0; i < n; ++i) {
-         this.exceptions[i] = cw.newClass(exceptions[i]);
+         this.exceptions[i] = cp.newClass(exceptions[i]);
       }
    }
 
@@ -42,7 +42,7 @@ final class ThrowsClause
 
    int getSize() {
       if (exceptionCount > 0) {
-         cw.newUTF8("Exceptions");
+         cp.newUTF8("Exceptions");
          return 8 + 2 * exceptionCount;
       }
 
@@ -51,7 +51,7 @@ final class ThrowsClause
 
    void put(ByteVector out) {
       if (exceptionCount > 0) {
-         out.putShort(cw.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
+         out.putShort(cp.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
          out.putShort(exceptionCount);
 
          for (int i = 0; i < exceptionCount; ++i) {

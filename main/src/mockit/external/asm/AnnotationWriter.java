@@ -40,9 +40,9 @@ import java.lang.reflect.*;
 final class AnnotationWriter extends AnnotationVisitor
 {
    /**
-    * The class writer to which this annotation must be added.
+    * The constant pool to which this annotation must be added.
     */
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * The number of values in this annotation.
@@ -74,14 +74,14 @@ final class AnnotationWriter extends AnnotationVisitor
    /**
     * Constructs a new {@link AnnotationWriter}.
     *
-    * @param cw     the class writer to which this annotation must be added.
+    * @param cp     the constant pool to which this annotation must be added.
     * @param named  <tt>true<tt> if values are named, <tt>false</tt> otherwise.
     * @param bv     where the annotation values must be stored.
     * @param parent where the number of annotation values must be stored.
     * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
     */
-   AnnotationWriter(ClassWriter cw, boolean named, ByteVector bv, ByteVector parent, int offset) {
-      this.cw = cw;
+   AnnotationWriter(ConstantPoolGeneration cp, boolean named, ByteVector bv, ByteVector parent, int offset) {
+      this.cp = cp;
       this.named = named;
       this.bv = bv;
       this.parent = parent;
@@ -166,32 +166,32 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    private void putInteger(int b, int value) {
-      Item item = cw.newInteger(value);
+      Item item = cp.newInteger(value);
       putItem(b, item);
    }
 
    private void putDouble(double value) {
-      Item item = cw.newDouble(value);
+      Item item = cp.newDouble(value);
       putItem('D', item);
    }
 
    private void putFloat(float value) {
-      Item item = cw.newFloat(value);
+      Item item = cp.newFloat(value);
       putItem('F', item);
    }
 
    private void putLong(long value) {
-      Item item = cw.newLong(value);
+      Item item = cp.newLong(value);
       putItem('J', item);
    }
 
    private void putString(int b, String value) {
-      int itemIndex = cw.newUTF8(value);
+      int itemIndex = cp.newUTF8(value);
       bv.put12(b, itemIndex);
    }
 
    private void putString(String value) {
-      int itemIndex = cw.newUTF8(value);
+      int itemIndex = cp.newUTF8(value);
       bv.putShort(itemIndex);
    }
 
@@ -208,19 +208,19 @@ final class AnnotationWriter extends AnnotationVisitor
 
          if (arrayType == 'J') {
             long elementValue = Array.getLong(arrayValue, i);
-            item = cw.newLong(elementValue);
+            item = cp.newLong(elementValue);
          }
          else if (arrayType == 'F') {
             float elementValue = Array.getFloat(arrayValue, i);
-            item = cw.newFloat(elementValue);
+            item = cp.newFloat(elementValue);
          }
          else if (arrayType == 'D') {
             double elementValue = Array.getDouble(arrayValue, i);
-            item = cw.newDouble(elementValue);
+            item = cp.newDouble(elementValue);
          }
          else {
             int value = arrayType == 'Z' ? Array.getBoolean(arrayValue, i) ? 1 : 0 : Array.getInt(arrayValue, i);
-            item = cw.newInteger(value);
+            item = cp.newInteger(value);
          }
 
          putItem(arrayType, item);
@@ -242,7 +242,7 @@ final class AnnotationWriter extends AnnotationVisitor
       putString('@', desc);
       bv.putShort(0);
 
-      return new AnnotationWriter(cw, true, bv, bv, bv.length - 2);
+      return new AnnotationWriter(cp, true, bv, bv, bv.length - 2);
    }
 
    @Override
@@ -252,7 +252,7 @@ final class AnnotationWriter extends AnnotationVisitor
       // Write tag, and reserve space for array size.
       putArrayLength(0);
 
-      return new AnnotationWriter(cw, false, bv, bv, bv.length - 2);
+      return new AnnotationWriter(cp, false, bv, bv, bv.length - 2);
    }
 
    @Override

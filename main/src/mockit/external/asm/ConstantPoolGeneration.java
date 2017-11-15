@@ -330,26 +330,14 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Adds a name and type to the constant pool of the class being build.
+    * Adds a name and type to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param name a name.
     * @param desc a type descriptor.
     * @return the index of a new or already existing name and type item.
     */
-   private int newNameType(String name, String desc) {
-      return newNameTypeItem(name, desc).index;
-   }
-
-   /**
-    * Adds a name and type to the constant pool of the class being build.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param name a name.
-    * @param desc a type descriptor.
-    * @return a new or already existing name and type item.
-    */
-   Item newNameTypeItem(String name, String desc) {
+   int newNameType(String name, String desc) {
       key2.set(NAME_TYPE, name, desc, null);
       Item result = get(key2);
 
@@ -359,7 +347,7 @@ final class ConstantPoolGeneration
          put(result);
       }
 
-      return result;
+      return result.index;
    }
 
    /**

@@ -408,7 +408,7 @@ public final class Frame
          case 'L':
             // Stores the internal name, not the descriptor!
             t = desc.substring(index + 1, desc.length() - 1);
-            return OBJECT | cw.addType(t);
+            return OBJECT | cw.cp.addType(t);
          // case '[':
          default:
             // Extracts the dimensions and the element type.
@@ -448,7 +448,7 @@ public final class Frame
                default:
                   // Stores the internal name, not the descriptor.
                   t = desc.substring(dims + 1, desc.length() - 1);
-                  data = OBJECT | cw.addType(t);
+                  data = OBJECT | cw.cp.addType(t);
             }
 
             return (dims - index) << 28 | data;
@@ -543,11 +543,11 @@ public final class Frame
       int s;
 
       if (t == UNINITIALIZED_THIS) {
-         s = OBJECT | cw.addType(cw.thisName);
+         s = OBJECT | cw.cp.addType(cw.thisName);
       }
       else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
-         String type = cw.constantPool.getInternalName(t & BASE_VALUE);
-         s = OBJECT | cw.addType(type);
+         String type = cw.cp.getInternalName(t & BASE_VALUE);
+         s = OBJECT | cw.cp.addType(type);
       }
       else {
          return t;
@@ -587,7 +587,7 @@ public final class Frame
       int i = 0;
 
       if ((access & Access.STATIC) == 0) {
-         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cw.addType(cw.thisName);
+         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cw.cp.addType(cw.thisName);
          inputLocals[i++] = inputLocal;
       }
 
@@ -920,7 +920,7 @@ public final class Frame
             push(cw, item.strVal2);
             break;
          case NEW:
-            push(UNINITIALIZED | cw.addUninitializedType(item.strVal1, arg));
+            push(UNINITIALIZED | cw.cp.addUninitializedType(item.strVal1, arg));
             break;
          case NEWARRAY:
             executeNewArray(arg);
@@ -956,17 +956,17 @@ public final class Frame
             push(TOP);
             break;
          case ConstantPoolItemType.CLASS:
-            push(OBJECT | cw.addType("java/lang/Class"));
+            push(OBJECT | cw.cp.addType("java/lang/Class"));
             break;
          case ConstantPoolItemType.STR:
-            push(OBJECT | cw.addType("java/lang/String"));
+            push(OBJECT | cw.cp.addType("java/lang/String"));
             break;
          case ConstantPoolItemType.MTYPE:
-            push(OBJECT | cw.addType("java/lang/invoke/MethodType"));
+            push(OBJECT | cw.cp.addType("java/lang/invoke/MethodType"));
             break;
          // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
          default:
-            push(OBJECT | cw.addType("java/lang/invoke/MethodHandle"));
+            push(OBJECT | cw.cp.addType("java/lang/invoke/MethodHandle"));
       }
    }
 
@@ -1054,7 +1054,7 @@ public final class Frame
          push(cw, '[' + s);
       }
       else {
-         push(ARRAY_OF | OBJECT | cw.addType(s));
+         push(ARRAY_OF | OBJECT | cw.cp.addType(s));
       }
    }
 
@@ -1066,7 +1066,7 @@ public final class Frame
          push(cw, s);
       }
       else {
-         push(OBJECT | cw.addType(s));
+         push(OBJECT | cw.cp.addType(s));
       }
    }
 
@@ -1238,13 +1238,13 @@ public final class Frame
             if ((u & BASE_KIND) == OBJECT) {
                // If t is also a reference type, and if u and t have the same dimension
                // merge(u,t) = dim(t) | common parent of the element types of u and t.
-               v = (t & DIM) | OBJECT | cw.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
+               v = (t & DIM) | OBJECT | cw.cp.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
             }
             else {
                // If u and t are array types, but not with the same element type,
                // merge(u,t) = dim(u) - 1 | java/lang/Object.
                int dim = ELEMENT_OF + (u & DIM);
-               v = dim | OBJECT | cw.addType("java/lang/Object");
+               v = dim | OBJECT | cw.cp.addType("java/lang/Object");
             }
          }
          else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
@@ -1253,7 +1253,7 @@ public final class Frame
             // (and similarly for tDim).
             int tDim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (t & DIM);
             int uDim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (u & DIM);
-            v = Math.min(tDim, uDim) | OBJECT | cw.addType("java/lang/Object");
+            v = Math.min(tDim, uDim) | OBJECT | cw.cp.addType("java/lang/Object");
          }
          else {
             // If t is any other type, merge(u,t)=TOP.

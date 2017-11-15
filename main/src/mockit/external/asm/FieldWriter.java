@@ -78,11 +78,12 @@ final class FieldWriter extends FieldVisitor
     */
    FieldWriter(ClassWriter cw, int access, String name, String desc, String signature, Object value) {
       this.cw = cw;
+      cp = cw.cp;
       this.access = access;
-      this.name = cw.newUTF8(name);
-      this.desc = cw.newUTF8(desc);
-      this.signature = signature == null ? 0 : cw.newUTF8(signature);
-      this.value = value == null ? 0 : cw.newConstItem(value).index;
+      this.name = cp.newUTF8(name);
+      this.desc = cp.newUTF8(desc);
+      this.signature = signature == null ? 0 : cp.newUTF8(signature);
+      this.value = value == null ? 0 : cp.newConstItem(value).index;
    }
 
    // ------------------------------------------------------------------------
@@ -91,7 +92,7 @@ final class FieldWriter extends FieldVisitor
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      return visitAnnotation(cw, desc);
+      return addAnnotation(desc);
    }
 
    // ------------------------------------------------------------------------
@@ -105,26 +106,26 @@ final class FieldWriter extends FieldVisitor
       int size = 8;
 
       if (value != 0) {
-         cw.newUTF8("ConstantValue");
+         cp.newUTF8("ConstantValue");
          size += 8;
       }
 
       if (isSynthetic()) {
-         cw.newUTF8("Synthetic");
+         cp.newUTF8("Synthetic");
          size += 6;
       }
 
       if (Access.isDeprecated(access)) {
-         cw.newUTF8("Deprecated");
+         cp.newUTF8("Deprecated");
          size += 6;
       }
 
       if (signature != 0) {
-         cw.newUTF8("Signature");
+         cp.newUTF8("Signature");
          size += 8;
       }
 
-      size += getAnnotationsSize(cw);
+      size += getAnnotationsSize();
 
       return size;
    }
@@ -174,23 +175,23 @@ final class FieldWriter extends FieldVisitor
       out.putShort(attributeCount);
 
       if (value != 0) {
-         out.putShort(cw.newUTF8("ConstantValue"));
+         out.putShort(cp.newUTF8("ConstantValue"));
          out.putInt(2).putShort(value);
       }
 
       if (synthetic) {
-         out.putShort(cw.newUTF8("Synthetic")).putInt(0);
+         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
       }
 
       if (deprecated) {
-         out.putShort(cw.newUTF8("Deprecated")).putInt(0);
+         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
 
       if (signature != 0) {
-         out.putShort(cw.newUTF8("Signature"));
+         out.putShort(cp.newUTF8("Signature"));
          out.putInt(2).putShort(signature);
       }
 
-      putAnnotations(out, cw);
+      putAnnotations(out);
    }
 }

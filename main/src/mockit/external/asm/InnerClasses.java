@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class InnerClasses
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * The constant pool item that contains the name of the attribute to be produced.
@@ -19,14 +19,14 @@ final class InnerClasses
     */
    private int innerClassesCount;
 
-   InnerClasses(ClassWriter cw) {
-      this.cw = cw;
-      attributeName = cw.newUTF8("InnerClasses");
+   InnerClasses(ConstantPoolGeneration cp) {
+      this.cp = cp;
+      attributeName = cp.newUTF8("InnerClasses");
       innerClasses = new ByteVector();
    }
 
    void add(String name, String outerName, String innerName, int access) {
-      Item nameItem = cw.newClassItem(name);
+      Item nameItem = cp.newClassItem(name);
 
       // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table which represents a
       // class or interface C that is not a package member must have exactly one corresponding entry in the classes
@@ -37,8 +37,8 @@ final class InnerClasses
       if (nameItem.intVal == 0) {
          innerClassesCount++;
          innerClasses.putShort(nameItem.index);
-         innerClasses.putShort(outerName == null ? 0 : cw.newClass(outerName));
-         innerClasses.putShort(innerName == null ? 0 : cw.newUTF8(innerName));
+         innerClasses.putShort(outerName == null ? 0 : cp.newClass(outerName));
+         innerClasses.putShort(innerName == null ? 0 : cp.newUTF8(innerName));
          innerClasses.putShort(access);
          nameItem.intVal = innerClassesCount;
       }

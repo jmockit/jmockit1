@@ -5,7 +5,6 @@ package mockit.external.asm;
  */
 final class BootstrapMethods
 {
-   private final ClassWriter cw;
    private final ConstantPoolGeneration constantPool;
 
    /**
@@ -18,10 +17,7 @@ final class BootstrapMethods
     */
    private ByteVector bootstrapMethods;
 
-   BootstrapMethods(ClassWriter cw) {
-      this.cw = cw;
-      constantPool = cw.constantPool;
-   }
+   BootstrapMethods(ConstantPoolGeneration constantPool) { this.constantPool = constantPool; }
 
    Item addInvokeDynamicReference(String name, String desc, Handle bsm, Object... bsmArgs) {
       ByteVector methods = bootstrapMethods;
@@ -71,7 +67,7 @@ final class BootstrapMethods
          Object bsmArg = bsmArgs[i];
          hashCode ^= bsmArg.hashCode();
 
-         Item constItem = cw.newConstItem(bsmArg);
+         Item constItem = constantPool.newConstItem(bsmArg);
          methods.putShort(constItem.index);
       }
 
@@ -107,24 +103,22 @@ final class BootstrapMethods
    boolean hasMethods() { return bootstrapMethods != null; }
 
    int getSize() {
-      cw.newUTF8("BootstrapMethods");
+      constantPool.newUTF8("BootstrapMethods");
       return 8 + bootstrapMethods.length;
    }
 
    void put(ByteVector out) {
       if (hasMethods()) {
-         out.putShort(cw.newUTF8("BootstrapMethods"));
+         out.putShort(constantPool.newUTF8("BootstrapMethods"));
          out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
          out.putByteVector(bootstrapMethods);
       }
    }
 
    /**
-    * Copies the bootstrap method data into the {@link #cw ClassWriter}.
+    * Copies the bootstrap method data from the given {@link ClassReader}.
     */
-   void copyBootstrapMethods(Item[] items, char[] c) {
-      ClassReader cr = cw.cr;
-
+   void copyBootstrapMethods(ClassReader cr, Item[] items, char[] c) {
       // Finds the "BootstrapMethods" attribute.
       int u = cr.getAttributesStartIndex();
       boolean found = false;

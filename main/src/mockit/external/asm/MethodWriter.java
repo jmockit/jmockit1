@@ -122,18 +122,19 @@ public final class MethodWriter extends MethodVisitor
       ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
    ) {
       this.cw = cw;
+      cp = cw.cp;
       this.access = "<init>".equals(name) ? (access | Access.CONSTRUCTOR) : access;
-      this.name = cw.newUTF8(name);
-      this.desc = cw.newUTF8(desc);
+      this.name = cp.newUTF8(name);
+      this.desc = cp.newUTF8(desc);
       descriptor = desc;
       this.signature = signature;
-      throwsClause = new ThrowsClause(cw, exceptions);
+      throwsClause = new ThrowsClause(cp, exceptions);
       code = new ByteVector();
       this.computeFrames = computeFrames;
       frameAndStack = new FrameAndStackComputation(this, access, desc);
-      exceptionHandling = new ExceptionHandling(cw);
-      localVariables = new LocalVariables(cw);
-      lineNumbers = new LineNumbers(cw);
+      exceptionHandling = new ExceptionHandling(cp);
+      localVariables = new LocalVariables(cp);
+      lineNumbers = new LineNumbers(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
    }
 
@@ -144,12 +145,12 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public AnnotationVisitor visitAnnotationDefault() {
       annotationDefault = new ByteVector();
-      return new AnnotationWriter(cw, false, annotationDefault, null, 0);
+      return new AnnotationWriter(cp, false, annotationDefault, null, 0);
    }
 
    @Override
    public AnnotationVisitor visitAnnotation(String desc) {
-      return visitAnnotation(cw, desc);
+      return addAnnotation(desc);
    }
 
    @Override
@@ -157,9 +158,9 @@ public final class MethodWriter extends MethodVisitor
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
-      bv.putShort(cw.newUTF8(desc)).putShort(0);
+      bv.putShort(cp.newUTF8(desc)).putShort(0);
 
-      AnnotationWriter aw = new AnnotationWriter(cw, true, bv, bv, 2);
+      AnnotationWriter aw = new AnnotationWriter(cp, true, bv, bv, 2);
 
       if (parameterAnnotations == null) {
          int numParameters = Type.getArgumentTypes(descriptor).length;
@@ -235,7 +236,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitTypeInsn(int opcode, String type) {
-      Item typeItem = cw.newClassItem(type);
+      Item typeItem = cp.newClassItem(type);
       cfgAnalysis.updateCurrentBlockForTypeInstruction(opcode, typeItem);
 
       // Adds the instruction to the bytecode of the method.
@@ -244,7 +245,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-      Item fieldItem = cw.newFieldItem(owner, name, desc);
+      Item fieldItem = cp.newFieldItem(owner, name, desc);
       cfgAnalysis.updateCurrentBlockForFieldInstruction(opcode, fieldItem, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -253,7 +254,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-      Item invokeItem = cw.constantPool.newMethodItem(owner, name, desc, itf);
+      Item invokeItem = cp.newMethodItem(owner, name, desc, itf);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, opcode, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -321,7 +322,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitLdcInsn(Object cst) {
-      Item constItem = cw.newConstItem(cst);
+      Item constItem = cp.newConstItem(cst);
       cfgAnalysis.updateCurrentBlockForLDCInstruction(constItem);
 
       // Adds the instruction to the bytecode of the method.
@@ -390,7 +391,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitMultiANewArrayInsn(String desc, int dims) {
-      Item arrayTypeItem = cw.newClassItem(desc);
+      Item arrayTypeItem = cp.newClassItem(desc);
       cfgAnalysis.updateCurrentBlockForMULTIANEWARRAYInstruction(arrayTypeItem, dims);
 
       // Adds the instruction to the bytecode of the method.
@@ -497,7 +498,7 @@ public final class MethodWriter extends MethodVisitor
             throw new RuntimeException("Method code too large!");
          }
 
-         cw.newUTF8("Code");
+         cp.newUTF8("Code");
 
          size += 18 + codeLength + exceptionHandling.getSize();
          size += localVariables.getSizeWhileAddingConstantPoolItems();
@@ -508,27 +509,27 @@ public final class MethodWriter extends MethodVisitor
       size += throwsClause.getSize();
 
       if (cw.isSynthetic(access)) {
-         cw.newUTF8("Synthetic");
+         cp.newUTF8("Synthetic");
          size += 6;
       }
 
       if (Access.isDeprecated(access)) {
-         cw.newUTF8("Deprecated");
+         cp.newUTF8("Deprecated");
          size += 6;
       }
 
       if (signature != null) {
-         cw.newUTF8("Signature");
-         cw.newUTF8(signature);
+         cp.newUTF8("Signature");
+         cp.newUTF8(signature);
          size += 8;
       }
 
       if (annotationDefault != null) {
-         cw.newUTF8("AnnotationDefault");
+         cp.newUTF8("AnnotationDefault");
          size += 6 + annotationDefault.length;
       }
 
-      size += getAnnotationsSize(cw);
+      size += getAnnotationsSize();
       size += getSizeOfParameterAnnotations();
 
       return size;
@@ -538,7 +539,7 @@ public final class MethodWriter extends MethodVisitor
       int size = 0;
 
       if (parameterAnnotations != null) {
-         cw.newUTF8("RuntimeVisibleParameterAnnotations");
+         cp.newUTF8("RuntimeVisibleParameterAnnotations");
 
          int n = parameterAnnotations.length;
          size += 7 + 2 * n;
@@ -615,7 +616,7 @@ public final class MethodWriter extends MethodVisitor
          size += lineNumbers.getSize();
          size += frameAndStack.getSize();
 
-         out.putShort(cw.newUTF8("Code")).putInt(size);
+         out.putShort(cp.newUTF8("Code")).putInt(size);
          frameAndStack.putMaxStackAndLocals(out);
          out.putInt(code.length).putByteVector(code);
          exceptionHandling.put(out);
@@ -639,15 +640,15 @@ public final class MethodWriter extends MethodVisitor
       throwsClause.put(out);
 
       if (synthetic) {
-         out.putShort(cw.newUTF8("Synthetic")).putInt(0);
+         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
       }
 
       if (deprecated) {
-         out.putShort(cw.newUTF8("Deprecated")).putInt(0);
+         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
 
       if (signature != null) {
-         out.putShort(cw.newUTF8("Signature")).putInt(2).putShort(cw.newUTF8(signature));
+         out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(cp.newUTF8(signature));
       }
 
       putAnnotationAttributes(out);
@@ -655,15 +656,15 @@ public final class MethodWriter extends MethodVisitor
 
    private void putAnnotationAttributes(ByteVector out) {
       if (annotationDefault != null) {
-         out.putShort(cw.newUTF8("AnnotationDefault"));
+         out.putShort(cp.newUTF8("AnnotationDefault"));
          out.putInt(annotationDefault.length);
          out.putByteVector(annotationDefault);
       }
 
-      putAnnotations(out, cw);
+      putAnnotations(out);
 
       if (parameterAnnotations != null) {
-         out.putShort(cw.newUTF8("RuntimeVisibleParameterAnnotations"));
+         out.putShort(cp.newUTF8("RuntimeVisibleParameterAnnotations"));
          AnnotationWriter.put(parameterAnnotations, out);
       }
    }

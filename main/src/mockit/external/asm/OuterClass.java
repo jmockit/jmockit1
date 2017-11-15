@@ -17,10 +17,10 @@ final class OuterClass
     */
    private final int enclosingMethod;
 
-   OuterClass(ClassWriter cw, String owner, String name, String desc) {
-      attributeName = cw.newUTF8("EnclosingMethod");
-      enclosingMethodOwner = cw.newClass(owner);
-      enclosingMethod = name != null && desc != null ? cw.newNameType(name, desc) : 0;
+   OuterClass(ConstantPoolGeneration cp, String owner, String name, String desc) {
+      attributeName = cp.newUTF8("EnclosingMethod");
+      enclosingMethodOwner = cp.newClass(owner);
+      enclosingMethod = name != null && desc != null ? cp.newNameType(name, desc) : 0;
    }
 
    int getSize() { return 10; }

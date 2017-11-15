@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 final class SourceInfo
 {
-   private final ClassWriter cw;
+   private final ConstantPoolGeneration cp;
 
    /**
     * The index of the constant pool item that contains the name of the source file from which this class was compiled.
@@ -14,11 +14,11 @@ final class SourceInfo
     */
    private ByteVector sourceDebug;
 
-   SourceInfo(ClassWriter cw) { this.cw = cw; }
+   SourceInfo(ConstantPoolGeneration cp) { this.cp = cp; }
 
    void add(String file, String debug) {
       if (file != null) {
-         sourceFile = cw.newUTF8(file);
+         sourceFile = cp.newUTF8(file);
       }
 
       if (debug != null) {
@@ -38,12 +38,12 @@ final class SourceInfo
 
       if (sourceFile != 0) {
          size += 8;
-         cw.newUTF8("SourceFile");
+         cp.newUTF8("SourceFile");
       }
 
       if (sourceDebug != null) {
          size += sourceDebug.length + 6;
-         cw.newUTF8("SourceDebugExtension");
+         cp.newUTF8("SourceDebugExtension");
       }
 
       return size;
@@ -51,11 +51,11 @@ final class SourceInfo
 
    void put(ByteVector out) {
       if (sourceFile != 0) {
-         out.putShort(cw.newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
+         out.putShort(cp.newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
       }
 
       if (sourceDebug != null) {
-         out.putShort(cw.newUTF8("SourceDebugExtension")).putInt(sourceDebug.length);
+         out.putShort(cp.newUTF8("SourceDebugExtension")).putInt(sourceDebug.length);
          out.putByteVector(sourceDebug);
       }
    }
