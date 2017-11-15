@@ -576,23 +576,23 @@ public final class Frame
    /**
     * Initializes the input frame of the first basic block from the method descriptor.
     *
-    * @param cw        the ClassWriter to which this label belongs.
+    * @param cp        the constant pool to which this label belongs.
     * @param access    the access flags of the method to which this label belongs.
     * @param args      the formal parameter types of this method.
     * @param maxLocals the maximum number of local variables of this method.
     */
-   void initInputFrame(ClassWriter cw, int access, Type[] args, int maxLocals) {
+   void initInputFrame(String classDesc, ConstantPoolGeneration cp, int access, Type[] args, int maxLocals) {
       inputLocals = new int[maxLocals];
       inputStack = new int[0];
       int i = 0;
 
       if ((access & Access.STATIC) == 0) {
-         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cw.cp.addType(cw.thisName);
+         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cp.addType(classDesc);
          inputLocals[i++] = inputLocal;
       }
 
       for (int j = 0; j < args.length; ++j) {
-         int t = type(cw.cp, args[j].getDescriptor());
+         int t = type(cp, args[j].getDescriptor());
          inputLocals[i++] = t;
 
          if (t == LONG || t == DOUBLE) {

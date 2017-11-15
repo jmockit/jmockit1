@@ -658,7 +658,7 @@ final class FrameAndStackComputation
    // Creates and visits the first (implicit) frame.
    void createAndVisitFirstFrame(Frame frame) {
       Type[] args = Type.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cw, mw.access, args, maxLocals);
+      frame.initInputFrame(cw.thisName, cp, mw.access, args, maxLocals);
       visitFrame(frame);
    }
 
