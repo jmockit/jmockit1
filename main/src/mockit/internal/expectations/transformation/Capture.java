@@ -53,7 +53,16 @@ final class Capture
    {
       if (opcode != ALOAD) {
          mw.visitIntInsn(SIPUSH, parameterIndex);
-         invocationBlockModifier.generateCallToActiveInvocationsMethod("matchedArgument", "(I)Ljava/lang/Object;");
+
+         if (typeToCapture == null) {
+            mw.visitInsn(ACONST_NULL);
+         }
+         else {
+            mw.visitLdcInsn(typeToCapture);
+         }
+
+         invocationBlockModifier.generateCallToActiveInvocationsMethod(
+            "matchedArgument", "(ILjava/lang/String;)Ljava/lang/Object;");
 
          Type argType = getArgumentType();
          generateCastOrUnboxing(mw, argType, opcode);
@@ -68,12 +77,12 @@ final class Capture
       if (typeToCapture == null) {
          return invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       }
-      else if (typeToCapture.charAt(0) == '[') {
+
+      if (typeToCapture.charAt(0) == '[') {
          return Type.getType(typeToCapture);
       }
-      else {
-         return Type.getType('L' + typeToCapture + ';');
-      }
+
+      return Type.getType('L' + typeToCapture + ';');
    }
 
    boolean fixParameterIndex(@Nonnegative int originalIndex, @Nonnegative int newIndex)

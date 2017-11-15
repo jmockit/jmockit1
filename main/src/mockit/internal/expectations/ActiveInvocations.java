@@ -87,7 +87,7 @@ public final class ActiveInvocations
    }
 
    @Nullable
-   public static Object matchedArgument(@Nonnegative int parameterIndex)
+   public static Object matchedArgument(@Nonnegative int parameterIndex, @Nullable String argTypeDesc)
    {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
@@ -95,7 +95,13 @@ public final class ActiveInvocations
          BaseVerificationPhase verificationPhase = (BaseVerificationPhase) instance.getCurrentTestOnlyPhase();
 
          if (verificationPhase != null) {
-            return verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
+            Object value = verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
+
+            if (value == null && argTypeDesc != null) {
+               value = DefaultValues.computeForWrapperType(argTypeDesc);
+            }
+
+            return value;
          }
       }
 
