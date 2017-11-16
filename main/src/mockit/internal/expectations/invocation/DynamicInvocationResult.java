@@ -49,21 +49,6 @@ abstract class DynamicInvocationResult extends InvocationResult
       return classForType;
    }
 
-   @Nonnull
-   private static Class<?> getPrimitiveType(char typeCode)
-   {
-      switch (typeCode) {
-         case 'I': return int.class;
-         case 'Z': return boolean.class;
-         case 'D': return double.class;
-         case 'J': return long.class;
-         case 'C': return char.class;
-         case 'B': return byte.class;
-         case 'S': return short.class;
-         default: return void.class;
-      }
-   }
-
    @Nullable
    public final Object invokeMethodOnTargetObject(
       @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation invocation,

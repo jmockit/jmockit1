@@ -529,9 +529,9 @@ public final class Type
       }
    }
 
-   // --------------------------------------------------------------------------------------
-   // Direct conversion from classes to type descriptors, without intermediate Type objects
-   // --------------------------------------------------------------------------------------
+   // -------------------------------------------------------------------------------------------------------
+   // Direct conversion from classes to type descriptors, and vice-versa, without intermediate Type objects
+   // -------------------------------------------------------------------------------------------------------
 
    /**
     * Returns the internal name of the given class. The internal name of a class is its fully qualified name, as
@@ -649,6 +649,20 @@ public final class Type
             buf.append(';');
             return;
          }
+      }
+   }
+
+   public static Class<?> getPrimitiveType(int typeCode) {
+      switch (typeCode) {
+         case 'I': return int.class;
+         case 'Z': return boolean.class;
+         case 'D': return double.class;
+         case 'J': return long.class;
+         case 'C': return char.class;
+         case 'B': return byte.class;
+         case 'F': return float.class;
+         case 'S': return short.class;
+         default: return void.class;
       }
    }
 

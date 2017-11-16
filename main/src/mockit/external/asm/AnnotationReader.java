@@ -1,5 +1,7 @@
 package mockit.external.asm;
 
+import java.lang.reflect.*;
+
 final class AnnotationReader extends BytecodeReader
 {
    AnnotationReader(BytecodeReader br) { super(br); }
@@ -20,7 +22,7 @@ final class AnnotationReader extends BytecodeReader
       v += 2;
 
       if (named) {
-         for (; i > 0; --i) {
+         for (; i > 0; i--) {
             String name = readUTF8(v, buf);
             v = readAnnotationValue(v + 2, buf, name, av);
          }
@@ -41,7 +43,7 @@ final class AnnotationReader extends BytecodeReader
    /**
     * Reads a value of an annotation and makes the given visitor visit it.
     *
-    * @param v    the start offset in {@link #b b} of the value to be read
+    * @param v    the start offset in {@link #b} of the value to be read
     *             (<i>not including the value name constant pool index</i>).
     * @param buf  buffer to be used to call {@link #readUTF8 readUTF8},
     *             {@link #readClass(int, char[]) readClass} or {@link #readConst readConst}.
@@ -131,101 +133,54 @@ final class AnnotationReader extends BytecodeReader
    }
 
    private int readAnnotationArrayValue(int v, char[] buf, String name, AnnotationVisitor av, int size) {
-      int i;
+      int typeCode = b[v++] & 0xFF;
 
-      switch (b[v++] & 0xFF) {
-         case 'B':
-            byte[] bv = new byte[size];
-
-            for (i = 0; i < size; i++) {
-               bv[i] = (byte) readInt(items[readUnsignedShort(v)]);
-               v += 3;
-            }
-
-            av.visit(name, bv);
-            --v;
-            break;
-         case 'Z':
-            boolean[] zv = new boolean[size];
-
-            for (i = 0; i < size; i++) {
-               zv[i] = readInt(items[readUnsignedShort(v)]) != 0;
-               v += 3;
-            }
-
-            av.visit(name, zv);
-            --v;
-            break;
-         case 'S':
-            short[] sv = new short[size];
-
-            for (i = 0; i < size; i++) {
-               sv[i] = (short) readInt(items[readUnsignedShort(v)]);
-               v += 3;
-            }
-
-            av.visit(name, sv);
-            --v;
-            break;
-         case 'C':
-            char[] cv = new char[size];
-
-            for (i = 0; i < size; i++) {
-               cv[i] = (char) readInt(items[readUnsignedShort(v)]);
-               v += 3;
-            }
-
-            av.visit(name, cv);
-            --v;
-            break;
-         case 'I':
-            int[] iv = new int[size];
-
-            for (i = 0; i < size; i++) {
-               iv[i] = readInt(items[readUnsignedShort(v)]);
-               v += 3;
-            }
-
-            av.visit(name, iv);
-            --v;
-            break;
-         case 'J':
-            long[] lv = new long[size];
-
-            for (i = 0; i < size; i++) {
-               lv[i] = readLong(items[readUnsignedShort(v)]);
-               v += 3;
-            }
-
-            av.visit(name, lv);
-            --v;
-            break;
-         case 'F':
-            float[] fv = new float[size];
-
-            for (i = 0; i < size; i++) {
-               fv[i] = Float.intBitsToFloat(readInt(items[readUnsignedShort(v)]));
-               v += 3;
-            }
-
-            av.visit(name, fv);
-            --v;
-            break;
-         case 'D':
-            double[] dv = new double[size];
-
-            for (i = 0; i < size; i++) {
-               dv[i] = Double.longBitsToDouble(readLong(items[readUnsignedShort(v)]));
-               v += 3;
-            }
-
-            av.visit(name, dv);
-            --v;
-            break;
-         default:
-            v = readAnnotationValues(v - 3, buf, false, av.visitArray(name));
+      if ("BZSCIJFD".indexOf(typeCode) < 0) {
+         AnnotationVisitor arrayVisitor = av.visitArray(name);
+         return readAnnotationValues(v - 3, buf, false, arrayVisitor);
       }
 
+      Class<?> elementType = Type.getPrimitiveType(typeCode);
+      Object array = Array.newInstance(elementType, size);
+
+      for (int i = 0; i < size; i++) {
+         int index = items[readUnsignedShort(v)];
+         Object value;
+
+         switch (typeCode) {
+            case 'B':
+               value = (byte) readInt(index);
+               break;
+            case 'Z':
+               value = readInt(index) != 0;
+               break;
+            case 'S':
+               value = (short) readInt(index);
+               break;
+            case 'C':
+               value = (char) readInt(index);
+               break;
+            case 'I':
+               value = readInt(index);
+               break;
+            case 'J':
+               value = readLong(index);
+               break;
+            case 'F':
+               int floatBits = readInt(index);
+               value = Float.intBitsToFloat(floatBits);
+               break;
+            default: // 'D'
+               long doubleBits = readLong(index);
+               value = Double.longBitsToDouble(doubleBits);
+         }
+
+         Array.set(array, i, value);
+         v += 3;
+      }
+
+      av.visit(name, array);
+      v--;
       return v;
    }
 }
