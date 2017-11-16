@@ -232,7 +232,7 @@ final class CFGAnalysis
 
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0);
+            currentBlock.frame.executeJUMP(opcode);
 
             // 'label' is the target of a jump instruction.
             label.getFirst().markAsTarget();

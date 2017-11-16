@@ -637,6 +637,38 @@ public final class Frame
    }
 
    /**
+    * Simulates the action of a conditional/unconditional jump instruction on the output stack frame.
+    *
+    * @param opcode the opcode of the instruction.
+    */
+   void executeJUMP(int opcode) {
+      switch (opcode) {
+         case IFEQ:
+         case IFNE:
+         case IFLT:
+         case IFGE:
+         case IFGT:
+         case IFLE:
+         case IFNULL:
+         case IFNONNULL:
+            pop(1);
+            break;
+         case IF_ICMPEQ:
+         case IF_ICMPNE:
+         case IF_ICMPLT:
+         case IF_ICMPGE:
+         case IF_ICMPGT:
+         case IF_ICMPLE:
+         case IF_ACMPEQ:
+         case IF_ACMPNE:
+            pop(2);
+            break;
+         case JSR:
+            throw new RuntimeException("JSR is not supported with computeFrames option");
+      }
+   }
+
+   /**
     * Simulates the action of the given instruction on the output stack frame.
     *
     * @param opcode the opcode of the instruction.
@@ -741,31 +773,15 @@ public final class Frame
             pop(4);
             break;
          case POP:
-         case IFEQ:
-         case IFNE:
-         case IFLT:
-         case IFGE:
-         case IFGT:
-         case IFLE:
          case IRETURN:
          case FRETURN:
          case ARETURN:
          case ATHROW:
          case MONITORENTER:
          case MONITOREXIT:
-         case IFNULL:
-         case IFNONNULL:
             pop(1);
             break;
          case POP2:
-         case IF_ICMPEQ:
-         case IF_ICMPNE:
-         case IF_ICMPLT:
-         case IF_ICMPGE:
-         case IF_ICMPGT:
-         case IF_ICMPLE:
-         case IF_ACMPEQ:
-         case IF_ACMPNE:
          case LRETURN:
          case DRETURN:
             pop(2);
@@ -910,9 +926,8 @@ public final class Frame
             pop(4);
             push(INTEGER);
             break;
-         case JSR:
          case RET:
-            throw new RuntimeException("JSR/RET are not supported with computeFrames option");
+            throw new RuntimeException("RET is not supported with computeFrames option");
       }
    }
 
