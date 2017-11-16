@@ -135,7 +135,7 @@ final class CFGAnalysis
    void updateCurrentBlockForSingleIntOperandInstruction(int opcode, int operand) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, operand);
+            currentBlock.frame.executeINT(opcode, operand);
          }
          else if (opcode != NEWARRAY) { // updates stack size only for NEWARRAY (variation = 0 for BIPUSH or SIPUSH)
             updateStackSize(1);
@@ -366,14 +366,14 @@ final class CFGAnalysis
 
    void updateCurrentBlockForIINCInstruction(int var) {
       if (currentBlock != null && computeFrames) {
-         currentBlock.frame.execute(IINC, var);
+         currentBlock.frame.executeIINC(var);
       }
    }
 
    void updateCurrentBlockForSwitchInstruction(Label dflt, Label[] labels) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(LOOKUPSWITCH, 0);
+            currentBlock.frame.executeSWITCH();
 
             // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);

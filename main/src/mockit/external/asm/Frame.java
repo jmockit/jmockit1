@@ -605,6 +605,35 @@ public final class Frame
       }
    }
 
+   void executeIINC(int arg) {
+      set(arg, INTEGER);
+   }
+
+   /**
+    * Simulates the action of a LOOKUPSWITCH or TABLESWITCH instruction on the output stack frame.
+    */
+   void executeSWITCH() {
+      pop(1);
+   }
+
+   /**
+    * Simulates the action of a BIPUSH, SIPUSH, or NEWARRAY instruction on the output stack frame.
+    *
+    * @param opcode  the opcode of the instruction.
+    * @param operand the operand of the instruction, if any.
+    */
+   void executeINT(int opcode, int operand) {
+      switch (opcode) {
+         case BIPUSH:
+         case SIPUSH:
+            push(INTEGER);
+            break;
+         case NEWARRAY:
+            executeNewArray(operand);
+            break;
+      }
+   }
+
    /**
     * Simulates the action of the given instruction on the output stack frame.
     *
@@ -636,8 +665,6 @@ public final class Frame
          case ICONST_3:
          case ICONST_4:
          case ICONST_5:
-         case BIPUSH:
-         case SIPUSH:
          case ILOAD:
             push(INTEGER);
             break;
@@ -721,8 +748,6 @@ public final class Frame
          case IRETURN:
          case FRETURN:
          case ARETURN:
-         case TABLESWITCH:
-         case LOOKUPSWITCH:
          case ATHROW:
          case MONITORENTER:
          case MONITOREXIT:
@@ -856,9 +881,6 @@ public final class Frame
             push(LONG);
             push(TOP);
             break;
-         case IINC:
-            set(arg, INTEGER);
-            break;
          case I2L:
          case F2L:
             pop(1);
@@ -890,9 +912,6 @@ public final class Frame
          case JSR:
          case RET:
             throw new RuntimeException("JSR/RET are not supported with computeFrames option");
-         case NEWARRAY:
-            executeNewArray(arg);
-            break;
       }
    }
 
