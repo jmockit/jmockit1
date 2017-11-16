@@ -9,6 +9,7 @@ import java.util.concurrent.locks.*;
 import javax.annotation.*;
 
 import mockit.*;
+import mockit.external.asm.Type;
 import mockit.internal.expectations.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
@@ -43,17 +44,9 @@ abstract class DynamicInvocationResult extends InvocationResult
    @Nonnull
    private Class<?> getTargetReturnType()
    {
-      String methodNameAndDescription = invocation.getMethodNameAndDescription();
-      int rightParen = methodNameAndDescription.indexOf(')') + 1;
-      String returnTypeDesc = methodNameAndDescription.substring(rightParen);
-
-      if (returnTypeDesc.length() == 1) {
-         char typeCode = returnTypeDesc.charAt(0);
-         return getPrimitiveType(typeCode);
-      }
-
-      String returnTypeInternalName = returnTypeDesc.substring(1, returnTypeDesc.length() - 1);
-      return ClassLoad.loadByInternalName(returnTypeInternalName);
+      Type returnType = Type.getReturnType(invocation.getMethodNameAndDescription());
+      Class<?> classForType = TypeDescriptor.getClassForType(returnType);
+      return classForType;
    }
 
    @Nonnull

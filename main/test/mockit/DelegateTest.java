@@ -28,6 +28,7 @@ public final class DelegateTest
       final char finalMethod() { return 's'; }
       void addElements(List<String> elements) { elements.add("one element"); }
       Foo getFoo() { return null; }
+      byte[] getArray() { return null ;}
    }
 
    static final class Foo { int doSomething() { return 1; } }
@@ -533,5 +534,14 @@ public final class DelegateTest
       thrown.expectMessage("void return type incompatible with return type int");
 
       mock.getValue();
+   }
+
+   @Test
+   public void returnByteArrayFromDelegateMethod(@Mocked final Collaborator mock)
+   {
+      final byte[] bytes = "test".getBytes();
+      new Expectations() {{ mock.getArray(); result = new Delegate() { byte[] delegate() { return bytes; } }; }};
+
+      assertSame(bytes, mock.getArray());
    }
 }
