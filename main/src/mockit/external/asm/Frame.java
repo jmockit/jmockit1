@@ -897,6 +897,43 @@ public final class Frame
    }
 
    /**
+    * Simulates the action of an LCD instruction on the output stack frame.
+    *
+    * @param cp   the constant pool to which this label belongs.
+    * @param item the operand of the instructions.
+    */
+   void executeLDC(ConstantPoolGeneration cp, Item item) {
+      switch (item.type) {
+         case ConstantPoolItemType.INT:
+            push(INTEGER);
+            break;
+         case ConstantPoolItemType.LONG:
+            push(LONG);
+            push(TOP);
+            break;
+         case ConstantPoolItemType.FLOAT:
+            push(FLOAT);
+            break;
+         case ConstantPoolItemType.DOUBLE:
+            push(DOUBLE);
+            push(TOP);
+            break;
+         case ConstantPoolItemType.CLASS:
+            push(OBJECT | cp.addType("java/lang/Class"));
+            break;
+         case ConstantPoolItemType.STR:
+            push(OBJECT | cp.addType("java/lang/String"));
+            break;
+         case ConstantPoolItemType.MTYPE:
+            push(OBJECT | cp.addType("java/lang/invoke/MethodType"));
+            break;
+         // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
+         default:
+            push(OBJECT | cp.addType("java/lang/invoke/MethodHandle"));
+      }
+   }
+
+   /**
     * Simulates the action of the given instruction on the output stack frame.
     *
     * @param opcode the opcode of the instruction.
@@ -906,9 +943,6 @@ public final class Frame
     */
    void execute(int opcode, int arg, ConstantPoolGeneration cp, Item item) {
       switch (opcode) {
-         case LDC:
-            executeLDC(cp, item);
-            break;
          case GETSTATIC:
             push(cp, item.strVal3);
             break;
@@ -946,37 +980,6 @@ public final class Frame
             pop(arg);
             push(cp, item.strVal1);
             break;
-      }
-   }
-
-   private void executeLDC(ConstantPoolGeneration cp, Item item) {
-      switch (item.type) {
-         case ConstantPoolItemType.INT:
-            push(INTEGER);
-            break;
-         case ConstantPoolItemType.LONG:
-            push(LONG);
-            push(TOP);
-            break;
-         case ConstantPoolItemType.FLOAT:
-            push(FLOAT);
-            break;
-         case ConstantPoolItemType.DOUBLE:
-            push(DOUBLE);
-            push(TOP);
-            break;
-         case ConstantPoolItemType.CLASS:
-            push(OBJECT | cp.addType("java/lang/Class"));
-            break;
-         case ConstantPoolItemType.STR:
-            push(OBJECT | cp.addType("java/lang/String"));
-            break;
-         case ConstantPoolItemType.MTYPE:
-            push(OBJECT | cp.addType("java/lang/invoke/MethodType"));
-            break;
-         // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
-         default:
-            push(OBJECT | cp.addType("java/lang/invoke/MethodHandle"));
       }
    }
 

@@ -165,7 +165,7 @@ public interface Opcodes
    int FLOAD = 23;
    int DLOAD = 24;
    int ALOAD = 25;
-// int ILOAD_0 = 26;
+   int ILOAD_0 = 26;
 // int ILOAD_1 = 27;
 // int ILOAD_2 = 28;
 // int ILOAD_3 = 29;
@@ -190,7 +190,7 @@ public interface Opcodes
    int FSTORE = 56;
    int DSTORE = 57;
    int ASTORE = 58;
-// int ISTORE_0 = 59;
+   int ISTORE_0 = 59;
 // int ISTORE_1 = 60;
 // int ISTORE_2 = 61;
 // int ISTORE_3 = 62;

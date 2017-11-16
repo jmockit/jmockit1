@@ -356,7 +356,7 @@ final class CFGAnalysis
    void updateCurrentBlockForLDCInstruction(Item constItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(LDC, 0, cp, constItem);
+            currentBlock.frame.executeLDC(cp, constItem);
          }
          else {
             updateStackSize(constItem.isDoubleSized() ? 2 : 1);
