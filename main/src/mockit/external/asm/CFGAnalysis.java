@@ -169,7 +169,7 @@ final class CFGAnalysis
    void updateCurrentBlockForTypeInstruction(int opcode, Item typeItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, code.length, cp, typeItem);
+            currentBlock.frame.executeTYPE(opcode, code.length, cp, typeItem);
          }
          else if (opcode == NEW) { // updates stack size for NEW only; no change for ANEWARRAY, CHECKCAST, INSTANCEOF
             updateStackSize(1);
@@ -180,7 +180,7 @@ final class CFGAnalysis
    void updateCurrentBlockForFieldInstruction(int opcode, Item fieldItem, String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, cp, fieldItem);
+            currentBlock.frame.execute(opcode, cp, fieldItem);
          }
          else {
             char typeCode = desc.charAt(0);
@@ -212,7 +212,7 @@ final class CFGAnalysis
    void updateCurrentBlockForInvokeInstruction(Item invokeItem, int opcode, String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0, cp, invokeItem);
+            currentBlock.frame.execute(opcode, cp, invokeItem);
          }
          else {
             int argSize = invokeItem.getArgSizeComputingIfNeeded(desc);
@@ -404,7 +404,7 @@ final class CFGAnalysis
    void updateCurrentBlockForMULTIANEWARRAYInstruction(Item arrayTypeItem, int dims) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(MULTIANEWARRAY, dims, cp, arrayTypeItem);
+            currentBlock.frame.executeMULTIANEWARRAY(dims, cp, arrayTypeItem);
          }
          else {
             // Updates current stack size (max stack size unchanged because stack size variation always negative or 0).

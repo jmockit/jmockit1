@@ -363,7 +363,7 @@ public final class Frame
    /**
     * Pushes a new type onto the output frame stack.
     *
-    * @param cp   the constant pool to which this label belongs.
+    * @param cp   the constant pool to which this type belongs.
     * @param desc the descriptor of the type to be pushed. Can also be a method
     *             descriptor (in this case this method pushes its return type onto the output frame stack).
     */
@@ -382,7 +382,7 @@ public final class Frame
    /**
     * Returns the int encoding of the given type.
     *
-    * @param cp   the constant pool to which this label belongs.
+    * @param cp   the constant pool to which this type belongs.
     * @param desc a type descriptor.
     * @return the int encoding of the given type.
     */
@@ -605,8 +605,11 @@ public final class Frame
       }
    }
 
-   void executeIINC(int arg) {
-      set(arg, INTEGER);
+   /**
+    * Simulates the action of a IINC instruction on the output stack frame.
+    */
+   void executeIINC(int varIndex) {
+      set(varIndex, INTEGER);
    }
 
    /**
@@ -630,7 +633,6 @@ public final class Frame
             break;
          case NEWARRAY:
             executeNewArray(operand);
-            break;
       }
    }
 
@@ -899,7 +901,6 @@ public final class Frame
             break;
          case F2I:
          case ARRAYLENGTH:
-         case INSTANCEOF:
             pop(1);
             push(INTEGER);
             break;
@@ -953,14 +954,50 @@ public final class Frame
    }
 
    /**
+    * Simulates the action of a NEW, ANEWARRAY, CHECKCAST or INSTANCEOF instruction on the output stack frame.
+    *
+    * @param opcode the opcode of the instruction.
+    * @param codeLength the operand of the instruction, if any.
+    * @param cp     the constant pool to which this instruction belongs.
+    * @param item   the operand of the instruction.
+    */
+   void executeTYPE(int opcode, int codeLength, ConstantPoolGeneration cp, Item item) {
+      switch (opcode) {
+         case NEW:
+            push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, codeLength));
+            break;
+         case ANEWARRAY:
+            executeANewArray(cp, item);
+            break;
+         case CHECKCAST:
+            executeCheckCast(cp, item);
+            break;
+         case INSTANCEOF:
+            pop(1);
+            push(INTEGER);
+      }
+   }
+
+   /**
+    * Simulates the action of a MULTIANEWARRAY instruction on the output stack frame.
+    *
+    * @param dims the number of dimensions of the array.
+    * @param cp   the constant pool to which this instruction belongs.
+    * @param arrayType the type of the array elements.
+    */
+   void executeMULTIANEWARRAY(int dims, ConstantPoolGeneration cp, Item arrayType) {
+      pop(dims);
+      push(cp, arrayType.strVal1);
+   }
+
+   /**
     * Simulates the action of the given instruction on the output stack frame.
     *
     * @param opcode the opcode of the instruction.
-    * @param arg    the operand of the instruction, if any.
-    * @param cp     the constant pool to which this label belongs.
-    * @param item   the operand of the instructions.
+    * @param cp     the constant pool to which this instruction belongs.
+    * @param item   the operand of the instruction.
     */
-   void execute(int opcode, int arg, ConstantPoolGeneration cp, Item item) {
+   void execute(int opcode, ConstantPoolGeneration cp, Item item) {
       switch (opcode) {
          case GETSTATIC:
             push(cp, item.strVal3);
@@ -985,20 +1022,6 @@ public final class Frame
          case INVOKEDYNAMIC:
             pop(item.strVal2);
             push(cp, item.strVal2);
-            break;
-         case NEW:
-            push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, arg));
-            break;
-         case ANEWARRAY:
-            executeANewArray(cp, item);
-            break;
-         case CHECKCAST:
-            executeCheckCast(cp, item);
-            break;
-         case MULTIANEWARRAY:
-            pop(arg);
-            push(cp, item.strVal1);
-            break;
       }
    }
 
