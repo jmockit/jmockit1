@@ -73,7 +73,7 @@ final class CFGAnalysis
    void updateCurrentBlockForZeroOperandInstruction(int opcode) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, 0);
+            currentBlock.frame.execute(opcode);
          }
          else {
             int sizeVariation = Frame.SIZE[opcode];
@@ -146,7 +146,7 @@ final class CFGAnalysis
    void updateCurrentBlockForLocalVariableInstruction(int opcode, int var) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, var);
+            currentBlock.frame.executeVAR(opcode, var);
          }
          else {
             // Updates current and max stack sizes.

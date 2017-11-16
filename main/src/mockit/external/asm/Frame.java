@@ -669,12 +669,11 @@ public final class Frame
    }
 
    /**
-    * Simulates the action of the given instruction on the output stack frame.
+    * Simulates the action of the given zero-operand instruction on the output stack frame.
     *
     * @param opcode the opcode of the instruction.
-    * @param arg    the operand of the instruction, if any.
     */
-   void execute(int opcode, int arg) {
+   void execute(int opcode) {
       int t1, t2, t3, t4;
 
       switch (opcode) {
@@ -699,29 +698,22 @@ public final class Frame
          case ICONST_3:
          case ICONST_4:
          case ICONST_5:
-         case ILOAD:
             push(INTEGER);
             break;
          case LCONST_0:
          case LCONST_1:
-         case LLOAD:
             push(LONG);
             push(TOP);
             break;
          case FCONST_0:
          case FCONST_1:
          case FCONST_2:
-         case FLOAD:
             push(FLOAT);
             break;
          case DCONST_0:
          case DCONST_1:
-         case DLOAD:
             push(DOUBLE);
             push(TOP);
-            break;
-         case ALOAD:
-            push(get(arg));
             break;
          case IALOAD:
          case BALOAD:
@@ -750,15 +742,6 @@ public final class Frame
             pop(1);
             t1 = pop();
             push(ELEMENT_OF + t1);
-            break;
-         case ISTORE:
-         case FSTORE:
-         case ASTORE:
-            executeSingleWordStore(arg);
-            break;
-         case LSTORE:
-         case DSTORE:
-            executeDoubleWordStore(arg);
             break;
          case IASTORE:
          case BASTORE:
@@ -925,6 +908,42 @@ public final class Frame
          case DCMPG:
             pop(4);
             push(INTEGER);
+      }
+   }
+
+   /**
+    * Simulates the action of an xLOAD or xSTORE instruction on the output stack frame.
+    *
+    * @param opcode the opcode of the instruction.
+    * @param var    the local variable index.
+    */
+   void executeVAR(int opcode, int var) {
+      switch (opcode) {
+         case ILOAD:
+            push(INTEGER);
+            break;
+         case LLOAD:
+            push(LONG);
+            push(TOP);
+            break;
+         case FLOAD:
+            push(FLOAT);
+            break;
+         case DLOAD:
+            push(DOUBLE);
+            push(TOP);
+            break;
+         case ALOAD:
+            push(get(var));
+            break;
+         case ISTORE:
+         case FSTORE:
+         case ASTORE:
+            executeSingleWordStore(var);
+            break;
+         case LSTORE:
+         case DSTORE:
+            executeDoubleWordStore(var);
             break;
          case RET:
             throw new RuntimeException("RET is not supported with computeFrames option");
