@@ -38,13 +38,14 @@ public final class MockInvocationHandler implements InvocationHandler
    }
 
    @Nullable @Override
-   public Object invoke(@Nonnull Object proxy, @Nonnull Method method, @Nonnull Object[] args)
+   public Object invoke(@Nonnull Object proxy, @Nonnull Method method, @Nullable Object[] args)
    {
       Class<?> declaringClass = method.getDeclaringClass();
       String methodName = method.getName();
 
       if (declaringClass == Object.class) {
          if ("equals".equals(methodName)) {
+            assert args != null;
             return proxy == args[0];
          }
          else if ("hashCode".equals(methodName)) {
