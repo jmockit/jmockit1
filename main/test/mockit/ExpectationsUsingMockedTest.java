@@ -5,7 +5,6 @@
 package mockit;
 
 import java.beans.*;
-import java.util.*;
 
 import static org.junit.Assert.*;
 import org.junit.*;
@@ -13,19 +12,6 @@ import org.junit.*;
 public final class ExpectationsUsingMockedTest
 {
    public interface Dependency { String doSomething(boolean b); }
-
-   static class Collaborator
-   {
-      private int value;
-
-      Collaborator() {}
-      Collaborator(int value) { this.value = value; }
-
-      int getValue() { return value; }
-
-      @SuppressWarnings("UnusedDeclaration")
-      final void simpleOperation(int a, String b, Date c) {}
-   }
 
    public abstract static class AbstractBase {
       protected abstract boolean add(Integer i);
@@ -157,7 +143,8 @@ public final class ExpectationsUsingMockedTest
    public static final class GenericSubclass<S extends Runnable> extends GenericBase<S> { /* bridge method here */ }
 
    @Test
-   public void recordExpectationOnBaseMethodHavingASyntheticBridgeMethodInSubclass(@Mocked final GenericSubclass mock)
+   public void recordExpectationOnBaseMethodHavingASyntheticBridgeMethodInSubclass(
+      @Mocked final GenericSubclass<?> mock)
    {
       new Expectations() {{
          mock.base();
