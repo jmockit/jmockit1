@@ -69,4 +69,17 @@ public final class MockedAnnotationsTest
 
       assertEquals(0, mockClassAnnotations.length);
    }
+
+   static class ClassWithNullabilityAnnotations
+   {
+      @Nonnull String doSomething(@Nonnegative int i, @Nonnull Object obj) { return ""; }
+   }
+
+   @Test
+   public void mockClassWithNullabilityAnnotations(@Injectable final ClassWithNullabilityAnnotations mock)
+   {
+      new Expectations() {{ mock.doSomething(anyInt, any); result = "test"; }};
+
+      assertEquals("test", mock.doSomething(123, "test"));
+   }
 }
