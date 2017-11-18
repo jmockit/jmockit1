@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.ClassReader.*;
 
 /**
@@ -74,7 +76,7 @@ final class Context
     */
    Label[] labels;
 
-   Context(int flags, char[] buffer) {
+   Context(int flags, @Nonnull char[] buffer) {
       this.flags = flags;
       this.buffer = buffer;
    }

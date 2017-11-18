@@ -30,6 +30,9 @@
 package mockit.external.asm;
 
 import java.io.*;
+import javax.annotation.*;
+
+import static mockit.external.asm.ConstantPoolItemType.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
@@ -54,6 +57,8 @@ public final class ClassReader extends AnnotatedReader
     */
    public static final int SKIP_DEBUG = 2;
 
+   private static final String[] NO_INTERFACES = {};
+
    private final FieldReader fieldReader;
    private final MethodReader methodReader;
 
@@ -62,21 +67,19 @@ public final class ClassReader extends AnnotatedReader
    private Context context;
    int access;
    private String name;
-   private String superClass;
-   private String[] interfaces;
-   private String signature;
-   private String sourceFile;
-   private String sourceDebug;
-   private String enclosingOwner;
-   private String enclosingName;
-   private String enclosingDesc;
+   @Nullable private String superClass;
+   @Nonnull private String[] interfaces = NO_INTERFACES;
+   @Nullable private String signature;
+   @Nullable private String sourceFile;
+   @Nullable private String sourceDebug;
+   @Nullable private EnclosingMethod enclosingMethod;
 
    /**
     * Constructs a new {@link ClassReader} object.
     *
     * @param bytecode the bytecode of the class to be read.
     */
-   public ClassReader(byte[] bytecode) {
+   public ClassReader(@Nonnull byte[] bytecode) {
       super(bytecode);
       fieldReader = new FieldReader(this);
       methodReader = new MethodReader(this);
@@ -127,6 +130,7 @@ public final class ClassReader extends AnnotatedReader
     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
+   @Nonnull
    public String[] getInterfaces() {
       int index = header + 6;
       int n = readUnsignedShort(index);
@@ -147,7 +151,7 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Copies the constant pool data into the given {@link ClassWriter}.
     */
-   void copyPool(ClassWriter cw) {
+   void copyPool(@Nonnull ClassWriter cw) {
       char[] buf = new char[maxStringLength];
       int ll = items.length;
       Item[] items2 = new Item[ll];
@@ -159,30 +163,30 @@ public final class ClassReader extends AnnotatedReader
          int nameType;
 
          switch (tag) {
-            case ConstantPoolItemType.FIELD:
-            case ConstantPoolItemType.METH:
-            case ConstantPoolItemType.IMETH:
+            case FIELD:
+            case METH:
+            case IMETH:
                nameType = items[readUnsignedShort(index + 2)];
                item.set(tag, readClass(index, buf), readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
                break;
-            case ConstantPoolItemType.INT:
+            case INT:
                item.set(readInt(index));
                break;
-            case ConstantPoolItemType.FLOAT:
+            case FLOAT:
                item.set(Float.intBitsToFloat(readInt(index)));
                break;
-            case ConstantPoolItemType.NAME_TYPE:
+            case NAME_TYPE:
                item.set(tag, readUTF8(index, buf), readUTF8(index + 2, buf), null);
                break;
-            case ConstantPoolItemType.LONG:
+            case LONG:
                item.set(readLong(index));
                ++i;
                break;
-            case ConstantPoolItemType.DOUBLE:
+            case DOUBLE:
                item.set(Double.longBitsToDouble(readLong(index)));
                ++i;
                break;
-            case ConstantPoolItemType.UTF8: {
+            case UTF8: {
                String s = strings[i];
 
                if (s == null) {
@@ -193,21 +197,21 @@ public final class ClassReader extends AnnotatedReader
                item.set(tag, s, null, null);
                break;
             }
-            case ConstantPoolItemType.HANDLE: {
+            case HANDLE: {
                int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
                nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
                item.set(
-                  ConstantPoolItemType.HANDLE_BASE + readByte(index), readClass(fieldOrMethodRef, buf),
+                  HANDLE_BASE + readByte(index), readClass(fieldOrMethodRef, buf),
                   readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
                break;
             }
-            case ConstantPoolItemType.INDY:
+            case INDY:
                cw.bootstrapMethods.copyBootstrapMethods(this, items2, buf);
 
                nameType = items[readUnsignedShort(index + 2)];
                item.set(readUTF8(nameType, buf), readUTF8(nameType + 2, buf), readUnsignedShort(index));
                break;
-            // case ConstantPoolItemType.STR|CLASS|MTYPE:
+            // case STR|CLASS|MTYPE:
             default:
                item.set(tag, readUTF8(index, buf), null, null);
                break;
@@ -228,7 +232,7 @@ public final class ClassReader extends AnnotatedReader
     * @param is an input stream from which to read the class.
     * @throws IOException if a problem occurs during reading.
     */
-   public ClassReader(InputStream is) throws IOException {
+   public ClassReader(@Nullable InputStream is) throws IOException {
       this(readClass(is));
    }
 
@@ -238,7 +242,7 @@ public final class ClassReader extends AnnotatedReader
     * @param name the binary qualified name of the class to be read.
     * @throws IOException if an exception occurs during reading.
     */
-   public ClassReader(String name) throws IOException {
+   public ClassReader(@Nonnull String name) throws IOException {
       this(readClass(ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class")));
    }
 
@@ -256,7 +260,7 @@ public final class ClassReader extends AnnotatedReader
     * @param flags option flags that can be used to modify the default behavior of this class.
     *              See {@link #SKIP_CODE}, {@link #SKIP_DEBUG}.
     */
-   public void accept(ClassVisitor cv, int flags) {
+   public void accept(@Nonnull ClassVisitor cv, int flags) {
       this.cv = cv;
 
       char[] c = new char[maxStringLength]; // buffer used to read strings
@@ -269,9 +273,7 @@ public final class ClassReader extends AnnotatedReader
       signature = null;
       sourceFile = null;
       sourceDebug = null;
-      enclosingOwner = null;
-      enclosingName = null;
-      enclosingDesc = null;
+      enclosingMethod = null;
       int annotations = 0;
       int innerClasses = 0;
 
@@ -287,7 +289,7 @@ public final class ClassReader extends AnnotatedReader
             innerClasses = u + 8;
          }
          else if ("EnclosingMethod".equals(attrName)) {
-            readEnclosingMethodInfo(u);
+            enclosingMethod = new EnclosingMethod(this, c, u);
          }
          else if ("Signature".equals(attrName)) {
             signature = readUTF8(u + 8, c);
@@ -306,7 +308,7 @@ public final class ClassReader extends AnnotatedReader
             sourceDebug = readUTF(u + 8, len, new char[len]);
          }
          else if ("BootstrapMethods".equals(attrName)) {
-            readBootstrapMethods(context, u);
+            readBootstrapMethods(u);
          }
 
          u += 6 + readInt(u + 4);
@@ -331,24 +333,20 @@ public final class ClassReader extends AnnotatedReader
 
    private void readInterfaces() {
       int u = header;
-      char[] c = context.buffer;
-      interfaces = new String[readUnsignedShort(u + 6)];
+      int interfaceCount = readUnsignedShort(u + 6);
+
+      if (interfaceCount == 0) {
+         return;
+      }
+
+      interfaces = new String[interfaceCount];
       u += 8;
 
-      for (int i = 0; i < interfaces.length; ++i) {
+      char[] c = context.buffer;
+
+      for (int i = 0; i < interfaceCount; i++) {
          interfaces[i] = readClass(u, c);
          u += 2;
-      }
-   }
-
-   private void readEnclosingMethodInfo(int u) {
-      char[] c = context.buffer;
-      enclosingOwner = readClass(u + 8, c);
-      int item = readUnsignedShort(u + 10);
-
-      if (item != 0) {
-         enclosingName = readUTF8(items[item], c);
-         enclosingDesc = readUTF8(items[item] + 2, c);
       }
    }
 
@@ -364,8 +362,8 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void readOuterClass() {
-      if (enclosingOwner != null) {
-         cv.visitOuterClass(enclosingOwner, enclosingName, enclosingDesc);
+      if (enclosingMethod != null) {
+         cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
       }
    }
 
@@ -373,7 +371,7 @@ public final class ClassReader extends AnnotatedReader
       if (annotations != 0) {
          char[] c = context.buffer;
 
-         for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; --i) {
+         for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
             String desc = readUTF8(v, c);
             AnnotationVisitor av = cv.visitAnnotation(desc);
             v = annotationReader.readAnnotationValues(v + 2, c, true, av);
@@ -386,7 +384,7 @@ public final class ClassReader extends AnnotatedReader
          int v = innerClasses + 2;
          char[] c = context.buffer;
 
-         for (int i = readUnsignedShort(innerClasses); i > 0; --i) {
+         for (int i = readUnsignedShort(innerClasses); i > 0; i--) {
             String name = readClass(v, c);
             String outerName = readClass(v + 2, c);
             String innerName = readUTF8(v + 4, c);
@@ -400,18 +398,18 @@ public final class ClassReader extends AnnotatedReader
    private void readFieldsAndMethods() {
       int u = header + 10 + 2 * interfaces.length;
 
-      for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+      for (int i = readUnsignedShort(u - 2); i > 0; i--) {
          u = fieldReader.readField(cv, context, u);
       }
 
       u += 2;
 
-      for (int i = readUnsignedShort(u - 2); i > 0; --i) {
+      for (int i = readUnsignedShort(u - 2); i > 0; i--) {
          u = methodReader.readMethod(context, u);
       }
    }
 
-   private void readBootstrapMethods(Context context, int u) {
+   private void readBootstrapMethods(int u) {
       int[] bootstrapMethods = new int[readUnsignedShort(u + 8)];
 
       for (int j = 0, v = u + 10; j < bootstrapMethods.length; j++) {
@@ -430,8 +428,8 @@ public final class ClassReader extends AnnotatedReader
       int u = header + 8 + readUnsignedShort(header + 6) * 2;
 
       // Skips fields and methods.
-      for (int i = readUnsignedShort(u); i > 0; --i) {
-         for (int j = readUnsignedShort(u + 8); j > 0; --j) {
+      for (int i = readUnsignedShort(u); i > 0; i--) {
+         for (int j = readUnsignedShort(u + 8); j > 0; j--) {
             u += 6 + readInt(u + 12);
          }
 
@@ -440,8 +438,8 @@ public final class ClassReader extends AnnotatedReader
 
       u += 2;
 
-      for (int i = readUnsignedShort(u); i > 0; --i) {
-         for (int j = readUnsignedShort(u + 8); j > 0; --j) {
+      for (int i = readUnsignedShort(u); i > 0; i--) {
+         for (int j = readUnsignedShort(u + 8); j > 0; j--) {
             u += 6 + readInt(u + 12);
          }
 

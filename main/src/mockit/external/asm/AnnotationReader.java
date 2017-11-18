@@ -108,7 +108,8 @@ final class AnnotationReader extends BytecodeReader
             v += 4;
             break;
          case 'c': // class_info
-            value = Type.getType(readUTF8(v, buf));
+            String typeDesc = readUTF8(v, buf);
+            value = Type.getType(typeDesc);
             av.visit(name, value);
             v += 2;
             break;
@@ -140,7 +141,7 @@ final class AnnotationReader extends BytecodeReader
          return readAnnotationValues(v - 3, buf, false, arrayVisitor);
       }
 
-      Class<?> elementType = Type.getPrimitiveType(typeCode);
+      Class<?> elementType = PrimitiveType.getType(typeCode);
       Object array = Array.newInstance(elementType, size);
 
       for (int i = 0; i < size; i++) {

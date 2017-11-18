@@ -52,7 +52,7 @@ final class FieldReader extends AnnotatedReader
 
       u += 2;
 
-      FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
+      @SuppressWarnings("ConstantConditions") FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
 
       if (fv == null) {
          return u;
@@ -63,7 +63,7 @@ final class FieldReader extends AnnotatedReader
       return u;
    }
 
-   private void readAnnotations(FieldVisitor fv, char[] c, int anns) {
+   private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnull char[] c, int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; i--) {
             String desc = readUTF8(v, c);

@@ -203,6 +203,11 @@ class BytecodeReader
       return new String(buf, 0, strLen);
    }
 
+   @Nullable
+   final String readUTF8Item(@Nonnegative int itemIndex, int offset, @Nonnull char[] buf) {
+      return readUTF8(items[itemIndex] + offset, buf);
+   }
+
    /**
     * Reads an UTF8 string constant pool item in {@link #b}.
     *
