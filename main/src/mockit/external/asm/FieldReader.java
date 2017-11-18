@@ -1,8 +1,10 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class FieldReader extends AnnotatedReader
 {
-   FieldReader(BytecodeReader br) { super(br); }
+   FieldReader(@Nonnull BytecodeReader br) { super(br); }
 
    /**
     * Reads a field and makes the given visitor visit it.
@@ -11,7 +13,8 @@ final class FieldReader extends AnnotatedReader
     * @param u       the start offset of the field in the class file.
     * @return the offset of the first byte following the field in the class.
     */
-   int readField(ClassVisitor cv, Context context, int u) {
+   @Nonnegative
+   int readField(@Nonnull ClassVisitor cv, @Nonnull Context context, @Nonnegative int u) {
       // Reads the field declaration.
       char[] c = context.buffer;
       int access = readUnsignedShort(u);

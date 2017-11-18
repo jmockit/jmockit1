@@ -44,8 +44,10 @@ public class WrappingClassVisitor extends ClassVisitor
       cw.visitInnerClass(name, outerName, innerName, access);
    }
 
-   @Override
-   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+   @Nullable @Override
+   public FieldVisitor visitField(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
+   ) {
       return cw.visitField(access, name, desc, signature, value);
    }
 

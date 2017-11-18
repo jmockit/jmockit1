@@ -67,7 +67,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Nullable @Override
    public final FieldVisitor visitField(
-      int access, String name, String desc, @Nullable String signature, @Nullable Object value)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value)
    { return null; }
 
    @Nullable @Override
@@ -160,11 +160,6 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
          methodOwner = name;
          superInterfaces = interfaces;
       }
-
-      @Nullable @Override
-      public FieldVisitor visitField(
-         int access, String name, String desc, @Nullable String signature, @Nullable Object value)
-      { return null; }
 
       @Nullable @Override
       public MethodVisitor visitMethod(

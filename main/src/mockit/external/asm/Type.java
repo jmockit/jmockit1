@@ -30,6 +30,7 @@
 package mockit.external.asm;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and method descriptors.
@@ -37,7 +38,7 @@ import java.lang.reflect.*;
  * @author Eric Bruneton
  * @author Chris Nokleberg
  */
-public final class Type
+public class Type
 {
    /**
     * See {@link #getSort()}.
@@ -130,9 +131,9 @@ public final class Type
    private final char[] buf;
 
    /**
-    * The offset of the internal name of this Java type in {@link #buf buf} or, for primitive types, the size,
-    * descriptor and getOpcode offsets for this type (byte 0 contains the size, byte 1 the offset for IALOAD or IASTORE,
-    * byte 2 the offset for all other instructions, byte 3 the descriptor).
+    * The offset of the internal name of this Java type in {@link #buf} or, for primitive types, the size, descriptor
+    * and getOpcode offsets for this type (byte 0 contains the size, byte 1 the offset for IALOAD or IASTORE, byte 2 the
+    * offset for all other instructions, byte 3 the descriptor).
     */
    private final int off;
 
@@ -153,7 +154,7 @@ public final class Type
          case Sort.INT:     return ArrayElementType.INT;
          case Sort.FLOAT:   return ArrayElementType.FLOAT;
          case Sort.LONG:    return ArrayElementType.LONG;
-         default:      return ArrayElementType.DOUBLE;
+         default:           return ArrayElementType.DOUBLE;
       }
    }
 
@@ -185,7 +186,7 @@ public final class Type
     * @param off  the offset of this descriptor in the previous buffer.
     * @param len  the length of this descriptor.
     */
-   private Type(int sort, char[] buf, int off, int len) {
+   Type(int sort, char[] buf, int off, int len) {
       this.sort = sort;
       this.buf = buf;
       this.off = off;
@@ -360,7 +361,8 @@ public final class Type
     * @param buf a buffer containing a type descriptor.
     * @param off the offset of this descriptor in the previous buffer.
     */
-   private static Type getType(char[] buf, int off)
+   @Nonnull
+   private static Type getType(@Nonnull char[] buf, @Nonnegative int off)
    {
       int len;
 
@@ -439,6 +441,7 @@ public final class Type
    /**
     * Returns the type of the elements of this array type. This method should only be used for an array type.
     */
+   @Nonnull
    public Type getElementType() {
       return getType(buf, off + getDimensions());
    }
@@ -491,6 +494,7 @@ public final class Type
     *
     * @return the internal name of the class corresponding to this object type.
     */
+   @Nonnull
    public String getInternalName() {
       //noinspection ConstantConditions
       return new String(buf, off, len);
@@ -503,6 +507,7 @@ public final class Type
    /**
     * Returns the descriptor corresponding to this Java type.
     */
+   @Nonnull
    public String getDescriptor() {
       StringBuffer buf = new StringBuffer();
       getDescriptor(buf);
@@ -514,7 +519,7 @@ public final class Type
     *
     * @param buf the string buffer to which the descriptor must be appended.
     */
-   private void getDescriptor(StringBuffer buf) {
+   private void getDescriptor(@Nonnull StringBuffer buf) {
       if (this.buf == null) {
          // Descriptor is in byte 3 of 'off' for primitive types (buf == null).
          buf.append((char) ((off & 0xFF000000) >>> 24));
@@ -539,7 +544,8 @@ public final class Type
     *
     * @param c an object or array class.
     */
-   public static String getInternalName(Class<?> c) {
+   @Nonnull
+   public static String getInternalName(@Nonnull Class<?> c) {
       return c.getName().replace('.', '/');
    }
 
@@ -548,7 +554,8 @@ public final class Type
     *
     * @param c an object class, a primitive class or an array class.
     */
-   public static String getDescriptor(Class<?> c) {
+   @Nonnull
+   public static String getDescriptor(@Nonnull Class<?> c) {
       StringBuffer buf = new StringBuffer();
       getDescriptor(buf, c);
       return buf.toString();
@@ -559,7 +566,8 @@ public final class Type
     *
     * @param c a {@link Constructor} object.
     */
-   public static String getConstructorDescriptor(Constructor<?> c) {
+   @Nonnull
+   public static String getConstructorDescriptor(@Nonnull Constructor<?> c) {
       Class<?>[] parameters = c.getParameterTypes();
       StringBuffer buf = new StringBuffer();
       buf.append('(');
@@ -574,7 +582,8 @@ public final class Type
    /**
     * Returns the descriptor corresponding to the given method.
     */
-   public static String getMethodDescriptor(Method m) {
+   @Nonnull
+   public static String getMethodDescriptor(@Nonnull Method m) {
       Class<?>[] parameters = m.getParameterTypes();
       StringBuffer buf = new StringBuffer();
       buf.append('(');
@@ -594,7 +603,7 @@ public final class Type
     * @param buf the string buffer to which the descriptor must be appended.
     * @param c   the class whose descriptor must be computed.
     */
-   private static void getDescriptor(StringBuffer buf, Class<?> c) {
+   private static void getDescriptor(@Nonnull StringBuffer buf, @Nonnull Class<?> c) {
       Class<?> d = c;
 
       while (true) {
@@ -652,6 +661,7 @@ public final class Type
       }
    }
 
+   @Nonnull
    public static Class<?> getPrimitiveType(int typeCode) {
       switch (typeCode) {
          case 'I': return int.class;

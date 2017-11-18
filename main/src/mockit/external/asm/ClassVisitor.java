@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A visitor to visit a Java class. The methods of this class must be called in the following order:
  * <tt>visit</tt> [<tt>visitSource</tt>] [<tt>visitOuterClass</tt>] (<tt>visitAnnotation</tt>)*
@@ -104,10 +106,10 @@ public class ClassVisitor extends BaseWriter
    /**
     * Visits a field of the class.
     *
-    * @param access    the field's access flags (see {@link Opcodes}). This parameter
-    *                  also indicates if the field is synthetic and/or deprecated.
+    * @param access    the field's access flags (see {@link Access}).
+    *                  This parameter also indicates if the field is synthetic and/or deprecated.
     * @param name      the field's name.
-    * @param desc      the field's descriptor (see {@link Type Type}).
+    * @param desc      the field's descriptor (see {@link Type}).
     * @param signature the field's signature. May be <tt>null</tt> if the field's type does not use generic types.
     * @param value     the field's initial value. This parameter, which may be <tt>null</tt> if the field does not have
     *                  an initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}
@@ -118,7 +120,12 @@ public class ClassVisitor extends BaseWriter
     * @return a visitor to visit field annotations and attributes, or <tt>null</tt> if this class visitor is not
     * interested in visiting these annotations and attributes.
     */
-   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) { return null; }
+   @Nullable
+   public FieldVisitor visitField(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
+   ) {
+      return null;
+   }
 
    /**
     * Visits a method of the class. This method <i>must</i> return a new {@link MethodVisitor} instance (or

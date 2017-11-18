@@ -31,6 +31,8 @@ package mockit.external.asm;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import mockit.internal.util.*;
 
 /**
@@ -185,8 +187,10 @@ public final class ClassWriter extends ClassVisitor
       innerClasses.add(name, outerName, innerName, access);
    }
 
-   @Override
-   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+   @Override @Nonnull
+   public FieldVisitor visitField(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
+   ) {
       FieldWriter field = new FieldWriter(this, access, name, desc, signature, value);
       fields.add(field);
       return field;

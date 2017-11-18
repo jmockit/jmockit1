@@ -1,6 +1,9 @@
 package mockit.external.asm;
 
 import java.io.*;
+import javax.annotation.*;
+
+import static mockit.external.asm.ConstantPoolItemType.*;
 
 class BytecodeReader
 {
@@ -33,7 +36,7 @@ class BytecodeReader
     */
    final int header;
 
-   BytecodeReader(byte[] bytecode) {
+   BytecodeReader(@Nonnull byte[] bytecode) {
       b = bytecode;
 
       // Parses the constant pool.
@@ -48,21 +51,21 @@ class BytecodeReader
          int size;
 
          switch (bytecode[index]) {
-            case ConstantPoolItemType.FIELD:
-            case ConstantPoolItemType.METH:
-            case ConstantPoolItemType.IMETH:
-            case ConstantPoolItemType.INT:
-            case ConstantPoolItemType.FLOAT:
-            case ConstantPoolItemType.NAME_TYPE:
-            case ConstantPoolItemType.INDY:
+            case FIELD:
+            case METH:
+            case IMETH:
+            case INT:
+            case FLOAT:
+            case NAME_TYPE:
+            case INDY:
                size = 5;
                break;
-            case ConstantPoolItemType.LONG:
-            case ConstantPoolItemType.DOUBLE:
+            case LONG:
+            case DOUBLE:
                size = 9;
                ++i;
                break;
-            case ConstantPoolItemType.UTF8:
+            case UTF8:
                size = 3 + readUnsignedShort(index + 1);
 
                if (size > maxSize) {
@@ -70,7 +73,7 @@ class BytecodeReader
                }
 
                break;
-            case ConstantPoolItemType.HANDLE:
+            case HANDLE:
                size = 4;
                break;
             // case ConstantPoolItemType.CLASS|STR|MTYPE
@@ -86,7 +89,7 @@ class BytecodeReader
       header = index; // the class header information starts just after the constant pool
    }
 
-   BytecodeReader(BytecodeReader another) {
+   BytecodeReader(@Nonnull BytecodeReader another) {
       b = another.b;
       items = another.items;
       strings = another.strings;
@@ -95,41 +98,41 @@ class BytecodeReader
    }
 
    /**
-    * Reads a byte value in {@link #b b}.
+    * Reads a byte value in {@link #b}.
     *
-    * @param index the start index of the value to be read in {@link #b b}.
+    * @param index the start index of the value to be read in {@link #b}.
     * @return the read value.
     */
-   final int readByte(int index) { return b[index] & 0xFF; }
+   final int readByte(@Nonnegative int index) { return b[index] & 0xFF; }
 
    /**
-    * Reads an unsigned short value in {@link #b b}.
+    * Reads an unsigned short value in {@link #b}.
     *
-    * @param index the start index of the value to be read in {@link #b b}.
+    * @param index the start index of the value to be read in {@link #b}.
     * @return the read value.
     */
-   final int readUnsignedShort(int index) {
+   final int readUnsignedShort(@Nonnegative int index) {
       byte[] b = this.b;
       return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
    }
 
    /**
-    * Reads a signed short value in {@link #b b}.
+    * Reads a signed short value in {@link #b}.
     *
-    * @param index the start index of the value to be read in {@link #b b}.
+    * @param index the start index of the value to be read in {@link #b}.
     * @return the read value.
     */
-   final short readShort(int index) {
+   final short readShort(@Nonnegative int index) {
       return (short) readUnsignedShort(index);
    }
 
    /**
-    * Reads a signed int value in {@link #b b}.
+    * Reads a signed int value in {@link #b}.
     *
-    * @param index the start index of the value to be read in {@link #b b}.
+    * @param index the start index of the value to be read in {@link #b}.
     * @return the read value.
     */
-   final int readInt(int index) {
+   final int readInt(@Nonnegative int index) {
       byte[] b = this.b;
       return
          ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16) |
@@ -142,14 +145,14 @@ class BytecodeReader
     * @param index the start index of the value to be read in {@link #b b}.
     * @return the read value.
     */
-   final long readLong(int index) {
+   final long readLong(@Nonnegative int index) {
       long l1 = readInt(index);
       long l0 = readInt(index + 4) & 0xFFFFFFFFL;
       return (l1 << 32) | l0;
    }
 
    /**
-    * Reads UTF8 string in {@link #b b}.
+    * Reads UTF8 string in {@link #b}.
     *
     * @param index  start offset of the UTF8 string to be read.
     * @param utfLen length of the UTF8 string to be read.
@@ -157,7 +160,8 @@ class BytecodeReader
     *               It is not automatically resized.
     * @return the String corresponding to the specified UTF8 string.
     */
-   final String readUTF(int index, int utfLen, char[] buf) {
+   @Nonnull
+   final String readUTF(@Nonnegative int index, @Nonnegative int utfLen, @Nonnull char[] buf) {
       int endIndex = index + utfLen;
       byte[] b = this.b;
       int strLen = 0;
@@ -200,18 +204,24 @@ class BytecodeReader
    }
 
    /**
-    * Reads an UTF8 string constant pool item in {@link #b b}.
+    * Reads an UTF8 string constant pool item in {@link #b}.
     *
-    * @param index the start index of an unsigned short value in {@link #b b}, whose value is the index of an UTF8
+    * @param index the start index of an unsigned short value in {@link #b}, whose value is the index of an UTF8
     *              constant pool item.
     * @param buf   buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
     *              resized.
-    * @return the String corresponding to the specified UTF8 item.
+    * @return the String corresponding to the specified UTF8 item, or <tt>null</tt> if index is zero or points to an
+    * item whose value is zero.
     */
-   final String readUTF8(int index, char[] buf) {
+   @Nullable
+   final String readUTF8(@Nonnegative int index, @Nonnull char[] buf) {
+      if (index == 0) {
+         return null;
+      }
+
       int item = readUnsignedShort(index);
 
-      if (index == 0 || item == 0) {
+      if (item == 0) {
          return null;
       }
 
@@ -229,36 +239,40 @@ class BytecodeReader
    }
 
    /**
-    * Reads a numeric or string constant pool item in {@link #b b}.
+    * Reads a numeric or string constant pool item in {@link #b}.
     *
-    * @param item the index of a constant pool item.
-    * @param buf  buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
-    *             resized.
+    * @param itemIndex the index of a constant pool item.
+    * @param buf buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
+    *            resized.
     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link Type} or
     * {@link Handle} corresponding to the given constant pool item.
     */
-   final Object readConst(int item, char[] buf) {
-      int index = items[item];
+   final Object readConst(@Nonnegative int itemIndex, @Nonnull char[] buf) {
+      int startIndex = items[itemIndex];
 
-      switch (b[index - 1]) {
-         case ConstantPoolItemType.INT:
-            return readInt(index);
-         case ConstantPoolItemType.FLOAT:
-            return Float.intBitsToFloat(readInt(index));
-         case ConstantPoolItemType.LONG:
-            return readLong(index);
-         case ConstantPoolItemType.DOUBLE:
-            return Double.longBitsToDouble(readLong(index));
-         case ConstantPoolItemType.CLASS:
-            return Type.getObjectType(readUTF8(index, buf));
-         case ConstantPoolItemType.STR:
-            return readUTF8(index, buf);
-         case ConstantPoolItemType.MTYPE:
-            return Type.getMethodType(readUTF8(index, buf));
-         default: // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
-            int tag = readByte(index);
+      switch (b[startIndex - 1]) {
+         case INT:
+            return readInt(startIndex);
+         case FLOAT:
+            int bits = readInt(startIndex);
+            return Float.intBitsToFloat(bits);
+         case LONG:
+            return readLong(startIndex);
+         case DOUBLE:
+            long longBits = readLong(startIndex);
+            return Double.longBitsToDouble(longBits);
+         case CLASS:
+            String typeDesc = readUTF8(startIndex, buf);
+            return Type.getObjectType(typeDesc);
+         case STR:
+            return readUTF8(startIndex, buf);
+         case MTYPE:
+            String methodDesc = readUTF8(startIndex, buf);
+            return Type.getMethodType(methodDesc);
+         default: // case HANDLE_BASE + [1..9]:
+            int tag = readByte(startIndex);
             int[] items = this.items;
-            int cpIndex = items[readUnsignedShort(index + 1)];
+            int cpIndex = items[readUnsignedShort(startIndex + 1)];
             String owner = readClass(cpIndex, buf);
             cpIndex = items[readUnsignedShort(cpIndex + 2)];
             String name = readUTF8(cpIndex, buf);
@@ -274,8 +288,10 @@ class BytecodeReader
     *              constant pool item.
     * @return the String corresponding to the specified class item.
     */
-   final String readClass(int index) {
-      return readClass(index, new char[maxStringLength]);
+   @Nullable
+   final String readClass(@Nonnegative int index) {
+      char[] buf = new char[maxStringLength];
+      return readClass(index, buf);
    }
 
    /**
@@ -287,7 +303,8 @@ class BytecodeReader
     *              resized.
     * @return the String corresponding to the specified class item.
     */
-   final String readClass(int index, char[] buf) {
+   @Nullable
+   final String readClass(@Nonnegative int index, @Nonnull char[] buf) {
       // Computes the start index of the CONSTANT_Class item in b and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
       int itemIndex = readUnsignedShort(index);
@@ -302,7 +319,8 @@ class BytecodeReader
     * @return the bytecode read from the given input stream.
     * @throws IOException if a problem occurs during reading.
     */
-   static byte[] readClass(InputStream is) throws IOException {
+   @Nonnull
+   static byte[] readClass(@Nullable InputStream is) throws IOException {
       if (is == null) {
          throw new IOException("Class not found");
       }
@@ -346,15 +364,15 @@ class BytecodeReader
    }
 
    /**
-    * Returns the label corresponding to the given offset. The default implementation of this method creates a label
-    * for the given offset if it has not been already created.
+    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
+    * already created.
     *
     * @param offset a bytecode offset in a method.
-    * @param labels the already created labels, indexed by their offset. If a label already exists for offset this
-    *               method must not create a new one. Otherwise it must store the new label in this array.
+    * @param labels the already created labels, indexed by their offset.
     * @return a non null Label, which must be equal to labels[offset].
     */
-   static Label readLabel(int offset, Label[] labels) {
+   @Nonnull
+   static Label readLabel(@Nonnegative int offset, @Nonnull Label[] labels) {
       Label label = labels[offset];
 
       if (label == null) {
@@ -365,7 +383,7 @@ class BytecodeReader
       return label;
    }
 
-   static void readDebugLabel(int index, Label[] labels) {
+   static void readDebugLabel(@Nonnegative int index, @Nonnull Label[] labels) {
       Label label = readLabel(index, labels);
       label.markAsDebug();
    }
