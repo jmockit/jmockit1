@@ -1,5 +1,7 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import mockit.external.asm.Frame.*;
 
 final class FrameAndStackComputation
@@ -142,12 +144,12 @@ final class FrameAndStackComputation
     */
    private int frameIndex;
 
-   FrameAndStackComputation(MethodWriter mw, int methodAccess, String methodDesc) {
+   FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
       this.mw = mw;
       cw = mw.cw;
       cp = cw.cp;
 
-      int size = Type.getArgumentsAndReturnSizes(methodDesc) >> 2;
+      int size = JavaType.getArgumentsAndReturnSizes(methodDesc) >> 2;
 
       if ((methodAccess & Access.STATIC) != 0) {
          size--;
@@ -167,7 +169,7 @@ final class FrameAndStackComputation
       }
    }
 
-   void putMaxStackAndLocals(ByteVector out) {
+   void putMaxStackAndLocals(@Nonnull ByteVector out) {
       out.putShort(maxStack).putShort(maxLocals);
    }
 
@@ -248,7 +250,7 @@ final class FrameAndStackComputation
       currentLocals += nLocal;
       stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + nLocal).putShort(delta);
 
-      for (int i = 0; i < nLocal; ++i) {
+      for (int i = 0; i < nLocal; i++) {
          writeFrameType(local[i]);
       }
    }
@@ -286,7 +288,7 @@ final class FrameAndStackComputation
       currentLocals = nLocal;
       startFrame(mw.code.length, nLocal, nStack);
 
-      for (int i = 0; i < nLocal; ++i) {
+      for (int i = 0; i < nLocal; i++) {
          Object localType = local[i];
          int frame;
 
@@ -303,7 +305,7 @@ final class FrameAndStackComputation
          writeFrameDefinition(frame);
       }
 
-      for (int i = 0; i < nStack; ++i) {
+      for (int i = 0; i < nStack; i++) {
          Object stackType = stack[i];
          int frame;
 
@@ -387,7 +389,7 @@ final class FrameAndStackComputation
 
    private void writeFrameDefinition(int value) { frameDefinition[frameIndex++] = value; }
 
-   private int writeArrayType(String desc, int i, int j) {
+   private int writeArrayType(@Nonnull String desc, int i, int j) {
       while (desc.charAt(i) == '[') {
          i++;
       }
@@ -656,8 +658,8 @@ final class FrameAndStackComputation
    }
 
    // Creates and visits the first (implicit) frame.
-   void createAndVisitFirstFrame(Frame frame) {
-      Type[] args = Type.getArgumentTypes(mw.descriptor);
+   void createAndVisitFirstFrame(@Nonnull Frame frame) {
+      JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
       frame.initInputFrame(cw.thisName, cp, mw.access, args, maxLocals);
       visitFrame(frame);
    }
@@ -665,14 +667,14 @@ final class FrameAndStackComputation
    /**
     * Visits a frame that has been computed from scratch.
     */
-   void visitFrame(Frame f) {
-      int[] locals = f.inputLocals;
+   void visitFrame(@Nonnull Frame frame) {
+      int[] locals = frame.inputLocals;
       int nLocal = computeNumberOfLocals(locals);
 
-      int[] stacks = f.inputStack;
+      int[] stacks = frame.inputStack;
       int nStack = computeStackSize(stacks);
 
-      startFrame(f.owner.position, nLocal, nStack);
+      startFrame(frame.owner.position, nLocal, nStack);
       putLocalsOrStackElements(locals, nLocal);
       putLocalsOrStackElements(stacks, nStack);
       endFrame();
@@ -680,7 +682,7 @@ final class FrameAndStackComputation
 
    // Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP
    // types).
-   private int computeNumberOfLocals(int[] locals) {
+   private int computeNumberOfLocals(@Nonnull int[] locals) {
       int nLocal = 0;
       int nTop = 0;
 
@@ -704,7 +706,7 @@ final class FrameAndStackComputation
    }
 
    // Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
-   private int computeStackSize(int[] stacks) {
+   private int computeStackSize(@Nonnull int[] stacks) {
       int nStack = 0;
 
       for (int i = 0; i < stacks.length; i++) {
@@ -719,7 +721,7 @@ final class FrameAndStackComputation
       return nStack;
    }
 
-   private void putLocalsOrStackElements(int[] itemIndices, int nItems) {
+   private void putLocalsOrStackElements(@Nonnull int[] itemIndices, int nItems) {
       for (int i = 0; nItems > 0; i++, nItems--) {
          int itemType = itemIndices[i];
          writeFrameDefinition(itemType);
@@ -752,7 +754,7 @@ final class FrameAndStackComputation
       return size;
    }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       if (stackMap != null) {
          boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
          out.putShort(cp.newUTF8(zip ? "StackMapTable" : "StackMap"));

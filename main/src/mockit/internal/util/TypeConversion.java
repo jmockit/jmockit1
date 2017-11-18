@@ -25,49 +25,49 @@ public final class TypeConversion
 
    private TypeConversion() {}
 
-   public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull Type type)
+   public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull JavaType type)
    {
       int sort = type.getSort();
 
-      if (sort < Type.Sort.ARRAY) {
+      if (sort < JavaType.Sort.ARRAY) {
          String wrapperType = PRIMITIVE_WRAPPER_TYPE[sort];
          String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
          mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
       }
    }
 
-   public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull Type toType)
+   public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
       int sort = toType.getSort();
 
-      if (sort == Type.Sort.VOID) {
+      if (sort == JavaType.Sort.VOID) {
          mv.visitInsn(POP);
       }
       else {
          generateTypeCheck(mv, toType);
 
-         if (sort < Type.Sort.ARRAY) {
+         if (sort < JavaType.Sort.ARRAY) {
             mv.visitMethodInsn(
                INVOKEVIRTUAL, PRIMITIVE_WRAPPER_TYPE[sort], UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
          }
       }
    }
 
-   private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull Type toType)
+   private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
       int sort = toType.getSort();
       String typeDesc;
 
       switch (sort) {
-         case Type.Sort.ARRAY: typeDesc = toType.getDescriptor(); break;
-         case Type.Sort.OBJECT: typeDesc = toType.getInternalName(); break;
+         case JavaType.Sort.ARRAY: typeDesc = toType.getDescriptor(); break;
+         case JavaType.Sort.OBJECT: typeDesc = toType.getInternalName(); break;
          default: typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
       }
 
       mv.visitTypeInsn(CHECKCAST, typeDesc);
    }
 
-   public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull Type parameterType, int opcode)
+   public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode)
    {
       if (opcode == ASTORE) {
          generateTypeCheck(mv, parameterType);
@@ -77,7 +77,7 @@ public final class TypeConversion
       int sort = parameterType.getSort();
       String typeDesc;
 
-      if (sort < Type.Sort.ARRAY) {
+      if (sort < JavaType.Sort.ARRAY) {
          typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
       }
       else {
@@ -88,16 +88,16 @@ public final class TypeConversion
             sort = i / 20 + 1;
          }
          else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) {
-            sort = Type.Sort.INT;
+            sort = JavaType.Sort.INT;
          }
          else {
-            sort = Type.Sort.INT;
+            sort = JavaType.Sort.INT;
 
             //noinspection SwitchStatementWithoutDefaultBranch
             switch (opcode) {
-               case FSTORE: sort = Type.Sort.FLOAT; break;
-               case LSTORE: sort = Type.Sort.LONG; break;
-               case DSTORE: sort = Type.Sort.DOUBLE;
+               case FSTORE: sort = JavaType.Sort.FLOAT; break;
+               case LSTORE: sort = JavaType.Sort.LONG; break;
+               case DSTORE: sort = JavaType.Sort.DOUBLE;
             }
 
             typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];

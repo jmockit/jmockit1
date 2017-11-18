@@ -27,7 +27,7 @@ final class ArrayType extends ReferenceType
    }
 
    @Nonnull @Override
-   public Type getElementType() {
+   public JavaType getElementType() {
       int dimensions = getDimensions();
       return getType(buf, off + dimensions);
    }

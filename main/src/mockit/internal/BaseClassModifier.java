@@ -15,7 +15,7 @@ import static mockit.external.asm.Opcodes.*;
 public class BaseClassModifier extends WrappingClassVisitor
 {
    private static final int METHOD_ACCESS_MASK = 0xFFFF - Access.ABSTRACT - Access.NATIVE;
-   protected static final Type VOID_TYPE = Type.getType("Ljava/lang/Void;");
+   protected static final JavaType VOID_TYPE = JavaType.getType("Ljava/lang/Void;");
 
    @Nonnull
    protected final MethodVisitor methodAnnotationsVisitor = new MethodVisitor() {
@@ -94,7 +94,7 @@ public class BaseClassModifier extends WrappingClassVisitor
          else {
             constructorDesc = SuperConstructorCollector.INSTANCE.findConstructor(classDesc, superClassName);
 
-            for (Type paramType : Type.getArgumentTypes(constructorDesc)) {
+            for (JavaType paramType : JavaType.getArgumentTypes(constructorDesc)) {
                pushDefaultValueForType(paramType);
             }
          }
@@ -105,7 +105,7 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc)
    {
-      Type returnType = Type.getReturnType(mockedMethodDesc);
+      JavaType returnType = JavaType.getReturnType(mockedMethodDesc);
       TypeConversion.generateCastFromObject(mw, returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
    }
@@ -136,12 +136,12 @@ public class BaseClassModifier extends WrappingClassVisitor
    }
 
    public static void generateCodeToFillArrayWithParameterValues(
-      @Nonnull MethodWriter mw, @Nonnull Type[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
+      @Nonnull MethodWriter mw, @Nonnull JavaType[] parameterTypes, int initialArrayIndex, int initialParameterIndex)
    {
       int i = initialArrayIndex;
       int j = initialParameterIndex;
 
-      for (Type parameterType : parameterTypes) {
+      for (JavaType parameterType : parameterTypes) {
          mw.visitInsn(DUP);
          mw.visitIntInsn(SIPUSH, i++);
          mw.visitVarInsn(parameterType.getOpcode(ILOAD), j);
@@ -180,24 +180,24 @@ public class BaseClassModifier extends WrappingClassVisitor
       mw.visitInsn(AASTORE);
    }
 
-   private void pushDefaultValueForType(@Nonnull Type type)
+   private void pushDefaultValueForType(@Nonnull JavaType type)
    {
       switch (type.getSort()) {
-         case Type.Sort.VOID: break;
-         case Type.Sort.BOOLEAN:
-         case Type.Sort.CHAR:
-         case Type.Sort.BYTE:
-         case Type.Sort.SHORT:
-         case Type.Sort.INT:    mw.visitInsn(ICONST_0); break;
-         case Type.Sort.LONG:   mw.visitInsn(LCONST_0); break;
-         case Type.Sort.FLOAT:  mw.visitInsn(FCONST_0); break;
-         case Type.Sort.DOUBLE: mw.visitInsn(DCONST_0); break;
-         case Type.Sort.ARRAY:  generateCreationOfEmptyArray(type); break;
+         case JavaType.Sort.VOID: break;
+         case JavaType.Sort.BOOLEAN:
+         case JavaType.Sort.CHAR:
+         case JavaType.Sort.BYTE:
+         case JavaType.Sort.SHORT:
+         case JavaType.Sort.INT:    mw.visitInsn(ICONST_0); break;
+         case JavaType.Sort.LONG:   mw.visitInsn(LCONST_0); break;
+         case JavaType.Sort.FLOAT:  mw.visitInsn(FCONST_0); break;
+         case JavaType.Sort.DOUBLE: mw.visitInsn(DCONST_0); break;
+         case JavaType.Sort.ARRAY:  generateCreationOfEmptyArray(type); break;
          default: mw.visitInsn(ACONST_NULL);
       }
    }
 
-   private void generateCreationOfEmptyArray(@Nonnull Type arrayType)
+   private void generateCreationOfEmptyArray(@Nonnull JavaType arrayType)
    {
       int dimensions = arrayType.getDimensions();
 
@@ -210,14 +210,14 @@ public class BaseClassModifier extends WrappingClassVisitor
          return;
       }
 
-      Type elementType = arrayType.getElementType();
+      JavaType elementType = arrayType.getElementType();
       int elementSort = elementType.getSort();
 
-      if (elementSort == Type.Sort.OBJECT) {
+      if (elementSort == JavaType.Sort.OBJECT) {
          mw.visitTypeInsn(ANEWARRAY, elementType.getInternalName());
       }
       else {
-         int typeCode = Type.getArrayElementType(elementSort);
+         int typeCode = JavaType.getArrayElementType(elementSort);
          mw.visitIntInsn(NEWARRAY, typeCode);
       }
    }
@@ -231,7 +231,7 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    protected final void generateEmptyImplementation(@Nonnull String desc)
    {
-      Type returnType = Type.getReturnType(desc);
+      JavaType returnType = JavaType.getReturnType(desc);
       pushDefaultValueForType(returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
       mw.visitMaxStack(1);

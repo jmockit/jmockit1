@@ -64,7 +64,7 @@ final class Capture
          invocationBlockModifier.generateCallToActiveInvocationsMethod(
             "matchedArgument", "(ILjava/lang/String;)Ljava/lang/Object;");
 
-         Type argType = getArgumentType();
+         JavaType argType = getArgumentType();
          generateCastOrUnboxing(mw, argType, opcode);
 
          mw.visitVarInsn(opcode, varIndex);
@@ -72,17 +72,17 @@ final class Capture
    }
 
    @Nonnull
-   private Type getArgumentType()
+   private JavaType getArgumentType()
    {
       if (typeToCapture == null) {
          return invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       }
 
       if (typeToCapture.charAt(0) == '[') {
-         return Type.getType(typeToCapture);
+         return JavaType.getType(typeToCapture);
       }
 
-      return Type.getType('L' + typeToCapture + ';');
+      return JavaType.getType('L' + typeToCapture + ';');
    }
 
    boolean fixParameterIndex(@Nonnegative int originalIndex, @Nonnegative int newIndex)
@@ -113,10 +113,10 @@ final class Capture
 
    private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc)
    {
-      Type parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
+      JavaType parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       int sort = parameterType.getSort();
 
-      if (sort == Type.Sort.OBJECT || sort == Type.Sort.ARRAY) {
+      if (sort == JavaType.Sort.OBJECT || sort == JavaType.Sort.ARRAY) {
          return typeDesc.equals(parameterType.getInternalName());
       }
 

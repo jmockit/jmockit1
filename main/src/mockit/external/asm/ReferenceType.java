@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-abstract class ReferenceType extends Type
+abstract class ReferenceType extends JavaType
 {
    /**
     * A buffer containing the internal name of this Java type. This field is only used for reference types.

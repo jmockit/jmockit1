@@ -72,7 +72,7 @@ final class FieldWriter extends FieldVisitor
     * @param cw        the class writer to which this field must be added.
     * @param access    the field's access flags (see {@link Opcodes}).
     * @param name      the field's name.
-    * @param desc      the field's descriptor (see {@link Type}).
+    * @param desc      the field's descriptor (see {@link JavaType}).
     * @param signature the field's signature. May be <tt>null</tt>.
     * @param value     the field's constant value. May be <tt>null</tt>.
     */

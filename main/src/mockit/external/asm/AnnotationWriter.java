@@ -123,8 +123,8 @@ final class AnnotationWriter extends AnnotationVisitor
       else if (value instanceof Short) {
          putInteger('S', (Short) value);
       }
-      else if (value instanceof Type) {
-         String typeDescriptor = ((Type) value).getDescriptor();
+      else if (value instanceof JavaType) {
+         String typeDescriptor = ((JavaType) value).getDescriptor();
          putString('c', typeDescriptor);
       }
       else if (value instanceof byte[]) {

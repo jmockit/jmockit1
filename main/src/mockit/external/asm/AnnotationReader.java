@@ -109,7 +109,7 @@ final class AnnotationReader extends BytecodeReader
             break;
          case 'c': // class_info
             String typeDesc = readUTF8(v, buf);
-            value = Type.getType(typeDesc);
+            value = JavaType.getType(typeDesc);
             av.visit(name, value);
             v += 2;
             break;

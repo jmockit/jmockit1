@@ -45,7 +45,7 @@ final class MockedTypeModifier
       mw.visitLdcInsn(executionMode.ordinal());
 
       // Seventh argument: array with invocation arguments.
-      Type[] argTypes = Type.getArgumentTypes(desc);
+      JavaType[] argTypes = JavaType.getArgumentTypes(desc);
       int argCount = argTypes.length;
 
       if (argCount == 0) {

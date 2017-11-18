@@ -33,7 +33,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       boolean registerTransformedClasses, @Nullable M typeMetadata)
    {
       this.capturedType = capturedType;
-      capturedTypeDesc = Type.getInternalName(capturedType.baseType);
+      capturedTypeDesc = JavaType.getInternalName(capturedType.baseType);
       this.captureOfImplementations = captureOfImplementations;
       transformedClasses = registerTransformedClasses ?
          new HashMap<ClassIdentification, byte[]>(2) : Collections.<ClassIdentification, byte[]>emptyMap();

@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class PrimitiveType extends Type
+final class PrimitiveType extends JavaType
 {
    private static final PrimitiveType VOID_TYPE    = new PrimitiveType(Sort.VOID,    'V', 5, 0, 0);
    private static final PrimitiveType BOOLEAN_TYPE = new PrimitiveType(Sort.BOOLEAN, 'Z', 0, 5, 1);
@@ -37,7 +37,7 @@ final class PrimitiveType extends Type
    }
 
    @Nonnull
-   static Type getPrimitiveType(@Nonnull Class<?> c) {
+   static JavaType getPrimitiveType(@Nonnull Class<?> c) {
       if (c == Integer.TYPE)   return INT_TYPE;
       if (c == Boolean.TYPE)   return BOOLEAN_TYPE;
       if (c == Character.TYPE) return CHAR_TYPE;

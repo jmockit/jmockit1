@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.Frame.TypeMask.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -367,7 +369,7 @@ public final class Frame
     * @param desc the descriptor of the type to be pushed. Can also be a method
     *             descriptor (in this case this method pushes its return type onto the output frame stack).
     */
-   private void push(ConstantPoolGeneration cp, String desc) {
+   private void push(@Nonnull ConstantPoolGeneration cp, @Nonnull String desc) {
       int type = type(cp, desc);
 
       if (type != 0) {
@@ -386,7 +388,7 @@ public final class Frame
     * @param desc a type descriptor.
     * @return the int encoding of the given type.
     */
-   private static int type(ConstantPoolGeneration cp, String desc) {
+   private static int type(@Nonnull ConstantPoolGeneration cp, @Nonnull String desc) {
       int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
       String t;
 
@@ -493,11 +495,12 @@ public final class Frame
     * @param desc the descriptor of the type to be popped. Can also be a method
     *             descriptor (in this case this method pops the types corresponding to the method arguments).
     */
-   private void pop(String desc) {
+   private void pop(@Nonnull String desc) {
       char c = desc.charAt(0);
 
       if (c == '(') {
-         pop((Type.getArgumentsAndReturnSizes(desc) >> 2) - 1);
+         int elements = (JavaType.getArgumentsAndReturnSizes(desc) >> 2) - 1;
+         pop(elements);
       }
       else if (c == 'J' || c == 'D') {
          pop(2);
@@ -539,7 +542,7 @@ public final class Frame
     * @return t or, if t is one of the types on which a constructor is invoked
     * in the basic block, the type corresponding to this constructor.
     */
-   private int init(String classDesc, ConstantPoolGeneration cp, int t) {
+   private int init(String classDesc, @Nonnull ConstantPoolGeneration cp, int t) {
       int s;
 
       if (t == UNINITIALIZED_THIS) {
@@ -581,7 +584,9 @@ public final class Frame
     * @param args      the formal parameter types of this method.
     * @param maxLocals the maximum number of local variables of this method.
     */
-   void initInputFrame(String classDesc, ConstantPoolGeneration cp, int access, Type[] args, int maxLocals) {
+   void initInputFrame(
+      String classDesc, @Nonnull ConstantPoolGeneration cp, int access, @Nonnull JavaType[] args, int maxLocals
+   ) {
       inputLocals = new int[maxLocals];
       inputStack = new int[0];
       int i = 0;
@@ -591,7 +596,7 @@ public final class Frame
          inputLocals[i++] = inputLocal;
       }
 
-      for (int j = 0; j < args.length; ++j) {
+      for (int j = 0; j < args.length; j++) {
          int t = type(cp, args[j].getDescriptor());
          inputLocals[i++] = t;
 
@@ -956,7 +961,7 @@ public final class Frame
     * @param cp   the constant pool to which this label belongs.
     * @param item the operand of the instructions.
     */
-   void executeLDC(ConstantPoolGeneration cp, Item item) {
+   void executeLDC(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
       switch (item.type) {
          case ConstantPoolItemType.INT:
             push(INTEGER);
@@ -995,7 +1000,7 @@ public final class Frame
     * @param cp     the constant pool to which this instruction belongs.
     * @param item   the operand of the instruction.
     */
-   void executeTYPE(int opcode, int codeLength, ConstantPoolGeneration cp, Item item) {
+   void executeTYPE(int opcode, int codeLength, @Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
       switch (opcode) {
          case NEW:
             push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, codeLength));
@@ -1019,7 +1024,7 @@ public final class Frame
     * @param cp   the constant pool to which this instruction belongs.
     * @param arrayType the type of the array elements.
     */
-   void executeMULTIANEWARRAY(int dims, ConstantPoolGeneration cp, Item arrayType) {
+   void executeMULTIANEWARRAY(int dims, @Nonnull ConstantPoolGeneration cp, @Nonnull Item arrayType) {
       pop(dims);
       push(cp, arrayType.strVal1);
    }
@@ -1031,7 +1036,7 @@ public final class Frame
     * @param cp     the constant pool to which this instruction belongs.
     * @param item   the operand of the instruction.
     */
-   void execute(int opcode, ConstantPoolGeneration cp, Item item) {
+   void execute(int opcode, @Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
       switch (opcode) {
          case GETSTATIC:
             push(cp, item.strVal3);
@@ -1089,7 +1094,7 @@ public final class Frame
       executeStore(arg);
    }
 
-   private void executeInvoke(ConstantPoolGeneration cp, int opcode, Item item) {
+   private void executeInvoke(@Nonnull ConstantPoolGeneration cp, int opcode, @Nonnull Item item) {
       pop(item.strVal3);
 
       if (opcode != INVOKESTATIC) {
@@ -1135,7 +1140,7 @@ public final class Frame
       }
    }
 
-   private void executeANewArray(ConstantPoolGeneration cp, Item item) {
+   private void executeANewArray(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
       String s = item.strVal1;
       pop();
 
@@ -1147,7 +1152,7 @@ public final class Frame
       }
    }
 
-   private void executeCheckCast(ConstantPoolGeneration cp, Item item) {
+   private void executeCheckCast(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
       String s = item.strVal1;
       pop();
 
@@ -1168,7 +1173,7 @@ public final class Frame
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(String classDesc, ConstantPoolGeneration cp, Frame frame, int edge) {
+   boolean merge(String classDesc, ConstantPoolGeneration cp, @Nonnull Frame frame, int edge) {
       boolean changed = false;
       int i, s, dim, kind, t;
 
@@ -1292,7 +1297,7 @@ public final class Frame
     * @param index the index of the type that must be merged in 'types'.
     * @return <tt>true</tt> if the type array has been modified by this operation.
     */
-   private static boolean merge(ConstantPoolGeneration cp, int t, int[] types, int index) {
+   private static boolean merge(ConstantPoolGeneration cp, int t, @Nonnull int[] types, int index) {
       int u = types[index];
 
       if (u == t) {

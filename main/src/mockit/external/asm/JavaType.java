@@ -38,7 +38,7 @@ import javax.annotation.*;
  * @author Eric Bruneton
  * @author Chris Nokleberg
  */
-public abstract class Type
+public abstract class JavaType
 {
    /**
     * See {@link #getSort()}.
@@ -142,7 +142,7 @@ public abstract class Type
     * @param sort the sort of the reference type to be constructed.
     * @param len  the length of this descriptor.
     */
-   Type(int sort, int len) {
+   JavaType(int sort, int len) {
       this.sort = sort;
       this.len = len;
    }
@@ -153,7 +153,7 @@ public abstract class Type
     * @param typeDescriptor a field or method type descriptor.
     */
    @Nonnull
-   public static Type getType(@Nonnull String typeDescriptor) {
+   public static JavaType getType(@Nonnull String typeDescriptor) {
       return getType(typeDescriptor.toCharArray(), 0);
    }
 
@@ -161,17 +161,17 @@ public abstract class Type
     * Returns the Java type corresponding to the given internal name.
     */
    @Nonnull
-   public static Type getObjectType(@Nonnull String internalName) {
+   public static JavaType getObjectType(@Nonnull String internalName) {
       char[] buf = internalName.toCharArray();
       return buf[0] == '[' ? new ArrayType(buf, 0, buf.length) : new ObjectType(buf, 0, buf.length);
    }
 
    /**
     * Returns the Java type corresponding to the given method descriptor.
-    * Equivalent to <code>Type.getType(methodDescriptor)</code>.
+    * Equivalent to <code>JavaType.getType(methodDescriptor)</code>.
     */
    @Nonnull
-   public static Type getMethodType(@Nonnull String methodDescriptor) {
+   public static JavaType getMethodType(@Nonnull String methodDescriptor) {
       return getType(methodDescriptor.toCharArray(), 0);
    }
 
@@ -179,7 +179,7 @@ public abstract class Type
     * Returns the Java type corresponding to the given class.
     */
    @Nonnull
-   public static Type getType(@Nonnull Class<?> c) {
+   public static JavaType getType(@Nonnull Class<?> c) {
       if (c.isPrimitive()) {
          return PrimitiveType.getPrimitiveType(c);
       }
@@ -192,7 +192,7 @@ public abstract class Type
     * Returns the Java method type corresponding to the given constructor.
     */
    @Nonnull
-   public static Type getType(@Nonnull Constructor<?> c) {
+   public static JavaType getType(@Nonnull Constructor<?> c) {
       String constructorDesc = getConstructorDescriptor(c);
       return getType(constructorDesc);
    }
@@ -201,7 +201,7 @@ public abstract class Type
     * Returns the Java method type corresponding to the given method.
     */
    @Nonnull
-   public static Type getType(@Nonnull Method m) {
+   public static JavaType getType(@Nonnull Method m) {
       String methodDesc = getMethodDescriptor(m);
       return getType(methodDesc);
    }
@@ -210,7 +210,7 @@ public abstract class Type
     * Returns the Java types corresponding to the argument types of the given method descriptor.
     */
    @Nonnull
-   public static Type[] getArgumentTypes(@Nonnull String methodDescriptor) {
+   public static JavaType[] getArgumentTypes(@Nonnull String methodDescriptor) {
       char[] buf = methodDescriptor.toCharArray();
       int off = 1;
       int size = 0;
@@ -230,12 +230,12 @@ public abstract class Type
          }
       }
 
-      Type[] argTypes = new Type[size];
+      JavaType[] argTypes = new JavaType[size];
       off = 1;
       size = 0;
 
       while (buf[off] != ')') {
-         Type argType = getType(buf, off);
+         JavaType argType = getType(buf, off);
          argTypes[size] = argType;
          off += argType.len + (argType.sort == Sort.OBJECT ? 2 : 0);
          size++;
@@ -248,7 +248,7 @@ public abstract class Type
     * Returns the Java type corresponding to the return type of the given method descriptor.
     */
    @Nonnull
-   public static Type getReturnType(@Nonnull String methodDescriptor) {
+   public static JavaType getReturnType(@Nonnull String methodDescriptor) {
       char[] buf = methodDescriptor.toCharArray();
       return getType(buf, methodDescriptor.indexOf(')') + 1);
    }
@@ -302,9 +302,9 @@ public abstract class Type
     * @param off the offset of this descriptor in the previous buffer.
     */
    @Nonnull
-   static Type getType(@Nonnull char[] buf, @Nonnegative int off) {
+   static JavaType getType(@Nonnull char[] buf, @Nonnegative int off) {
       char typeCode = buf[off];
-      Type type = PrimitiveType.getPrimitiveType(typeCode);
+      JavaType type = PrimitiveType.getPrimitiveType(typeCode);
 
       if (type != null) {
          return type;
@@ -367,7 +367,7 @@ public abstract class Type
     * Returns the type of the elements of this array type. This method should only be used for an array type.
     */
    @Nonnull
-   public Type getElementType() { throw new UnsupportedOperationException("Not an ArrayType"); }
+   public JavaType getElementType() { throw new UnsupportedOperationException("Not an ArrayType"); }
 
    /**
     * Returns the binary name of the class corresponding to this type. This method must not be used on method types.
@@ -406,7 +406,7 @@ public abstract class Type
    abstract void getDescriptor(@Nonnull StringBuffer buf);
 
    // -------------------------------------------------------------------------------------------------------
-   // Direct conversion from classes to type descriptors, and vice-versa, without intermediate Type objects
+   // Direct conversion from classes to type descriptors, and vice-versa, without intermediate JavaType objects
    // -------------------------------------------------------------------------------------------------------
 
    /**

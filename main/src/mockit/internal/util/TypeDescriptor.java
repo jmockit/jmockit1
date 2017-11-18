@@ -20,7 +20,7 @@ public final class TypeDescriptor
    @Nonnull
    public static Class<?>[] getParameterTypes(@Nonnull String methodDesc)
    {
-      Type[] paramTypes = Type.getArgumentTypes(methodDesc);
+      JavaType[] paramTypes = JavaType.getArgumentTypes(methodDesc);
 
       if (paramTypes.length == 0) {
          return NO_PARAMETERS;
@@ -39,7 +39,7 @@ public final class TypeDescriptor
    public static Class<?> getReturnType(@Nonnull String methodSignature)
    {
       String methodDesc = methodDescriptionWithoutTypeArguments(methodSignature);
-      Type returnType = Type.getReturnType(methodDesc);
+      JavaType returnType = JavaType.getReturnType(methodDesc);
       return getClassForType(returnType);
    }
 
@@ -66,7 +66,7 @@ public final class TypeDescriptor
    }
 
    @Nonnull
-   public static Class<?> getClassForType(@Nonnull Type type)
+   public static Class<?> getClassForType(@Nonnull JavaType type)
    {
       int sort = type.getSort();
 
@@ -76,7 +76,7 @@ public final class TypeDescriptor
 
       String className;
 
-      if (sort == Type.Sort.ARRAY) {
+      if (sort == JavaType.Sort.ARRAY) {
          className = type.getDescriptor().replace('/', '.');
       }
       else {

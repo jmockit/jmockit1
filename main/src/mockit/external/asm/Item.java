@@ -290,7 +290,7 @@ final class Item
       int argSize = intVal;
 
       if (argSize == 0) {
-         argSize = Type.getArgumentsAndReturnSizes(desc);
+         argSize = JavaType.getArgumentsAndReturnSizes(desc);
          intVal = argSize;
       }
 

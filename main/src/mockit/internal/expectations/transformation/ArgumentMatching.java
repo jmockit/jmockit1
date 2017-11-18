@@ -11,7 +11,7 @@ import static mockit.external.asm.Opcodes.*;
 
 final class ArgumentMatching
 {
-   private static final Type[] NO_PARAMETERS = new Type[0];
+   private static final JavaType[] NO_PARAMETERS = new JavaType[0];
    private static final String ANY_FIELDS =
       "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
    private static final String WITH_METHODS =
@@ -36,7 +36,7 @@ final class ArgumentMatching
    // Helper fields that allow argument matchers to be moved to the correct positions of their corresponding parameters:
    @Nonnull private final int[] matcherStacks;
    @Nonnegative private int matcherCount;
-   @Nonnull private Type[] parameterTypes;
+   @Nonnull private JavaType[] parameterTypes;
 
    static boolean isAnyField(@Nonnull String name)
    {
@@ -58,7 +58,7 @@ final class ArgumentMatching
    void addMatcher(@Nonnegative int stackSize) { matcherStacks[matcherCount++] = stackSize; }
 
    @Nonnegative int getMatcherCount() { return matcherCount; }
-   @Nonnull Type getParameterType(@Nonnegative int parameterIndex) { return parameterTypes[parameterIndex]; }
+   @Nonnull JavaType getParameterType(@Nonnegative int parameterIndex) { return parameterTypes[parameterIndex]; }
 
    void generateCodeToAddArgumentMatcherForAnyField(
       @Nonnull String fieldOwner, @Nonnull String name, @Nonnull String desc)
@@ -70,7 +70,7 @@ final class ArgumentMatching
 
    boolean handleInvocationParameters(@Nonnegative int stackSize, @Nonnull String desc)
    {
-      parameterTypes = Type.getArgumentTypes(desc);
+      parameterTypes = JavaType.getArgumentTypes(desc);
       int stackAfter = stackSize - getSumOfParameterSizes();
       boolean mockedInvocationUsingTheMatchers = stackAfter < matcherStacks[0];
 
@@ -88,7 +88,7 @@ final class ArgumentMatching
    {
       @Nonnegative int sum = 0;
 
-      for (Type argType : parameterTypes) {
+      for (JavaType argType : parameterTypes) {
          sum += argType.getSize();
       }
 

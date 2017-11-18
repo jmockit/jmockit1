@@ -152,7 +152,7 @@ final class FakedClassModifier extends BaseClassModifier
          if (fakedClass.getClassLoader() == targetClass.getClassLoader()) {
             startOfRealImplementation = new Label();
             mw.visitVarInsn(ALOAD, 0);
-            mw.visitTypeInsn(INSTANCEOF, Type.getInternalName(targetClass));
+            mw.visitTypeInsn(INSTANCEOF, JavaType.getInternalName(targetClass));
             mw.visitJumpInsn(IFEQ, startOfRealImplementation);
          }
       }
@@ -254,7 +254,7 @@ final class FakedClassModifier extends BaseClassModifier
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
-      Type[] argTypes = Type.getArgumentTypes(methodDesc);
+      JavaType[] argTypes = JavaType.getArgumentTypes(methodDesc);
       generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
 
       int i = 0;
@@ -310,7 +310,7 @@ final class FakedClassModifier extends BaseClassModifier
    private boolean generateArgumentsForFakeMethodInvocation()
    {
       String fakedDesc = fakeMethod.isAdvice ? methodDesc : fakeMethod.fakeDescWithoutInvocationParameter;
-      Type[] argTypes = Type.getArgumentTypes(fakedDesc);
+      JavaType[] argTypes = JavaType.getArgumentTypes(fakedDesc);
       int varIndex = isStatic(methodAccess) ? 0 : 1;
       boolean canProceedIntoConstructor = false;
 
@@ -327,11 +327,11 @@ final class FakedClassModifier extends BaseClassModifier
       if (!fakeMethod.isAdvice) {
          boolean forGenericMethod = fakeMethod.isForGenericMethod();
 
-         for (Type argType : argTypes) {
+         for (JavaType argType : argTypes) {
             int opcode = argType.getOpcode(ILOAD);
             mw.visitVarInsn(opcode, varIndex);
 
-            if (forGenericMethod && argType.getSort() >= Type.Sort.ARRAY) {
+            if (forGenericMethod && argType.getSort() >= JavaType.Sort.ARRAY) {
                mw.visitTypeInsn(CHECKCAST, argType.getInternalName());
             }
 
@@ -342,7 +342,7 @@ final class FakedClassModifier extends BaseClassModifier
       return canProceedIntoConstructor;
    }
 
-   private void generateCallToCreateNewFakeInvocation(@Nonnull Type[] argTypes, int initialParameterIndex)
+   private void generateCallToCreateNewFakeInvocation(@Nonnull JavaType[] argTypes, int initialParameterIndex)
    {
       generateCodeToPassThisOrNullIfStaticMethod();
 
@@ -374,7 +374,7 @@ final class FakedClassModifier extends BaseClassModifier
          generateReturnWithObjectAtTopOfTheStack(methodDesc);
       }
       else {
-         Type returnType = Type.getReturnType(methodDesc);
+         JavaType returnType = JavaType.getReturnType(methodDesc);
          mw.visitInsn(returnType.getOpcode(IRETURN));
       }
    }

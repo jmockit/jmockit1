@@ -101,7 +101,8 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata)
    {
       MockedClassModifier modifier = new MockedClassModifier(cl, cr, typeMetadata);
-      modifier.setClassNameForCapturedInstanceMethods(Type.getInternalName(baseType));
+      String baseTypeDesc = JavaType.getInternalName(baseType);
+      modifier.setClassNameForCapturedInstanceMethods(baseTypeDesc);
       return modifier;
    }
 

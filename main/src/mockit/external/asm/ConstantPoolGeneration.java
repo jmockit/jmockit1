@@ -355,7 +355,7 @@ final class ConstantPoolGeneration
     * Does nothing if the constant pool already contains a similar item.
     *
     * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
-    *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
+    *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link JavaType}.
     * @return a new or already existing constant item with the given value.
     */
    Item newConstItem(Object cst) {
@@ -398,15 +398,15 @@ final class ConstantPoolGeneration
          return newDouble((Double) cst);
       }
 
-      if (cst instanceof Type) {
-         Type t = (Type) cst;
+      if (cst instanceof JavaType) {
+         JavaType t = (JavaType) cst;
          int s = t.getSort();
 
-         if (s == Type.Sort.OBJECT) {
+         if (s == JavaType.Sort.OBJECT) {
             return newClassItem(t.getInternalName());
          }
 
-         if (s == Type.Sort.METHOD) {
+         if (s == JavaType.Sort.METHOD) {
             return newMethodTypeItem(t.getDescriptor());
          }
 

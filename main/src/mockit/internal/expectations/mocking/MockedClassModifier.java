@@ -260,7 +260,7 @@ final class MockedClassModifier extends BaseClassModifier
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
-      Type[] argTypes = Type.getArgumentTypes(methodDesc);
+      JavaType[] argTypes = JavaType.getArgumentTypes(methodDesc);
       generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
 
       int i = 0;

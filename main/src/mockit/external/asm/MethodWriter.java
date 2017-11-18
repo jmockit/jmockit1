@@ -113,7 +113,7 @@ public final class MethodWriter extends MethodVisitor
     * @param cw            the class writer in which the method must be added.
     * @param access        the method's access flags (see {@link Opcodes}).
     * @param name          the method's name.
-    * @param desc          the method's descriptor (see {@link Type}).
+    * @param desc          the method's descriptor (see {@link JavaType}).
     * @param signature     the method's signature. May be <tt>null</tt>.
     * @param exceptions    the internal names of the method's exceptions. May be <tt>null</tt>.
     * @param computeFrames {@code true} if the stack map tables must be recomputed from scratch.
@@ -163,7 +163,7 @@ public final class MethodWriter extends MethodVisitor
       AnnotationWriter aw = new AnnotationWriter(cp, true, bv, bv, 2);
 
       if (parameterAnnotations == null) {
-         int numParameters = Type.getArgumentTypes(descriptor).length;
+         int numParameters = JavaType.getArgumentTypes(descriptor).length;
          parameterAnnotations = new AnnotationWriter[numParameters];
       }
 

@@ -249,7 +249,7 @@ class BytecodeReader
     * @param itemIndex the index of a constant pool item.
     * @param buf buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
     *            resized.
-    * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link Type} or
+    * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link JavaType} or
     * {@link Handle} corresponding to the given constant pool item.
     */
    final Object readConst(@Nonnegative int itemIndex, @Nonnull char[] buf) {
@@ -268,12 +268,12 @@ class BytecodeReader
             return Double.longBitsToDouble(longBits);
          case CLASS:
             String typeDesc = readUTF8(startIndex, buf);
-            return Type.getObjectType(typeDesc);
+            return JavaType.getObjectType(typeDesc);
          case STR:
             return readUTF8(startIndex, buf);
          case MTYPE:
             String methodDesc = readUTF8(startIndex, buf);
-            return Type.getMethodType(methodDesc);
+            return JavaType.getMethodType(methodDesc);
          default: // case HANDLE_BASE + [1..9]:
             int tag = readByte(startIndex);
             int[] items = this.items;

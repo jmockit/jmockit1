@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.external.asm.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.injection.*;
 import mockit.internal.injection.full.*;
@@ -123,12 +124,12 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private String getClassDesc() { return mockit.external.asm.Type.getInternalName(constructor.getDeclaringClass()); }
+   private String getClassDesc() { return JavaType.getInternalName(constructor.getDeclaringClass()); }
 
    @Nonnull
    private String getConstructorDesc()
    {
-      return "<init>" + mockit.external.asm.Type.getConstructorDescriptor(constructor);
+      return "<init>" + JavaType.getConstructorDescriptor(constructor);
    }
 
    @Nonnull

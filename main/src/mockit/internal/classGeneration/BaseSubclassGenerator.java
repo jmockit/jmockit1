@@ -5,13 +5,12 @@
 package mockit.internal.classGeneration;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import javax.annotation.*;
 import static java.util.Arrays.*;
 
 import mockit.external.asm.*;
-import mockit.external.asm.Type.Sort;
+import mockit.external.asm.JavaType.Sort;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
@@ -102,7 +101,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
       mw.visitVarInsn(ALOAD, 0);
       int varIndex = 1;
 
-      for (mockit.external.asm.Type paramType : mockit.external.asm.Type.getArgumentTypes(desc)) {
+      for (JavaType paramType : JavaType.getArgumentTypes(desc)) {
          int loadOpcode = getLoadOpcodeForParameterType(paramType.getSort());
          mw.visitVarInsn(loadOpcode, varIndex);
          varIndex++;

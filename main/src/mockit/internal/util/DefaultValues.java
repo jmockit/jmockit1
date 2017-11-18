@@ -11,7 +11,7 @@ import java.util.stream.*;
 import javax.annotation.*;
 import static java.util.Collections.*;
 
-import mockit.external.asm.Type;
+import mockit.external.asm.JavaType;
 import static mockit.internal.util.Utilities.*;
 
 /**
@@ -170,7 +170,7 @@ public final class DefaultValues
    @Nonnull
    private static Object newEmptyArray(@Nonnull String typeDesc)
    {
-      Type type = Type.getType(typeDesc);
+      JavaType type = JavaType.getType(typeDesc);
       Class<?> elementType = TypeDescriptor.getClassForType(type.getElementType());
 
       return Array.newInstance(elementType, new int[type.getDimensions()]);
@@ -221,7 +221,7 @@ public final class DefaultValues
 
    @SuppressWarnings("unchecked")
    @Nullable
-   public static <T> T computeForWrapperType(@Nonnull java.lang.reflect.Type type)
+   public static <T> T computeForWrapperType(@Nonnull Type type)
    {
       if (type == Integer.class) {
          return (T) ZERO_INT;

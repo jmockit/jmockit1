@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
+import mockit.external.asm.*;
 import static mockit.internal.util.Utilities.*;
 
 public final class CascadingTypes
@@ -20,7 +21,7 @@ public final class CascadingTypes
    public void add(boolean fromMockField, @Nonnull Type mockedType)
    {
       Class<?> mockedClass = getClassType(mockedType);
-      String mockedTypeDesc = mockit.external.asm.Type.getInternalName(mockedClass);
+      String mockedTypeDesc = JavaType.getInternalName(mockedClass);
       add(mockedTypeDesc, fromMockField, mockedType);
    }
 

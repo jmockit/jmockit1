@@ -51,14 +51,14 @@ public class ClassVisitor extends BaseWriter
     * @param version    the class version.
     * @param access     the class's access flags (see {@link Opcodes}). This parameter also indicates if the class is
     *                   deprecated.
-    * @param name       the internal name of the class (see {@link Type#getInternalName() getInternalName}).
+    * @param name       the internal name of the class (see {@link JavaType#getInternalName()}).
     * @param signature  the signature of this class. May be <tt>null</tt> if the class is not a generic one, and does
     *                   not extend or implement generic classes or interfaces.
-    * @param superName  the internal of name of the super class (see {@link Type#getInternalName() getInternalName}).
+    * @param superName  the internal of name of the super class (see {@link JavaType#getInternalName()}).
     *                   For interfaces, the super class is {@link Object}. May be <tt>null</tt>, but only for the
     *                   {@link Object} class.
     * @param interfaces the internal names of the class's interfaces (see
-    *                   {@link Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+    *                   {@link JavaType#getInternalName()}). May be <tt>null</tt>.
     */
    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}
 
@@ -94,9 +94,9 @@ public class ClassVisitor extends BaseWriter
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
     *
-    * @param name      the internal name of an inner class (see {@link Type#getInternalName() getInternalName}).
+    * @param name      the internal name of an inner class (see {@link JavaType#getInternalName()}).
     * @param outerName the internal name of the class to which the inner class belongs (see
-    *                  {@link Type#getInternalName() getInternalName}). May be <tt>null</tt> for not member classes.
+    *                  {@link JavaType#getInternalName()}). May be <tt>null</tt> for not member classes.
     * @param innerName the (simple) name of the inner class inside its enclosing class. May be <tt>null</tt> for
     *                  anonymous inner classes.
     * @param access    the access flags of the inner class as originally declared in the enclosing class.
@@ -109,7 +109,7 @@ public class ClassVisitor extends BaseWriter
     * @param access    the field's access flags (see {@link Access}).
     *                  This parameter also indicates if the field is synthetic and/or deprecated.
     * @param name      the field's name.
-    * @param desc      the field's descriptor (see {@link Type}).
+    * @param desc      the field's descriptor (see {@link JavaType}).
     * @param signature the field's signature. May be <tt>null</tt> if the field's type does not use generic types.
     * @param value     the field's initial value. This parameter, which may be <tt>null</tt> if the field does not have
     *                  an initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}
@@ -134,11 +134,11 @@ public class ClassVisitor extends BaseWriter
     * @param access     the method's access flags (see {@link Opcodes}). This parameter also indicates if the method is
     *                   synthetic and/or deprecated.
     * @param name       the method's name.
-    * @param desc       the method's descriptor (see {@link Type Type}).
+    * @param desc       the method's descriptor (see {@link JavaType}).
     * @param signature  the method's signature. May be <tt>null</tt> if the method parameters, return type and
     *                   exceptions do not use generic types.
     * @param exceptions the internal names of the method's exception classes (see
-    *                   {@link Type#getInternalName() getInternalName}). May be <tt>null</tt>.
+    *                   {@link JavaType#getInternalName()}). May be <tt>null</tt>.
     * @return an object to visit the byte code of the method, or <tt>null</tt> if this class visitor is not interested
     * in visiting the code of this method.
     */

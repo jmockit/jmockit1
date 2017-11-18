@@ -188,7 +188,7 @@ public class MethodVisitor extends BaseWriter
     * @param opcode the opcode of the type instruction to be visited. This opcode
     *               is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
     * @param type   the operand of the instruction to be visited. This operand must be the internal name of an object or
-    *               array class (see {@link Type#getInternalName()}).
+    *               array class (see {@link JavaType#getInternalName()}).
     */
    public void visitTypeInsn(int opcode, String type) {}
 
@@ -198,9 +198,9 @@ public class MethodVisitor extends BaseWriter
     *
     * @param opcode the opcode of the type instruction to be visited. This opcode
     *               is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-    * @param owner  the internal name of the field's owner class (see {@link Type#getInternalName()}).
+    * @param owner  the internal name of the field's owner class (see {@link JavaType#getInternalName()}).
     * @param name   the field's name.
-    * @param desc   the field's descriptor (see {@link Type}).
+    * @param desc   the field's descriptor (see {@link JavaType}).
     */
    public void visitFieldInsn(int opcode, String owner, String name, String desc) {}
 
@@ -209,9 +209,9 @@ public class MethodVisitor extends BaseWriter
     *
     * @param opcode the opcode of the type instruction to be visited. This opcode is either INVOKEVIRTUAL,
     *               INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-    * @param owner  the internal name of the method's owner class (see {@link Type#getInternalName()}).
+    * @param owner  the internal name of the method's owner class (see {@link JavaType#getInternalName()}).
     * @param name   the method's name.
-    * @param desc   the method's descriptor (see {@link Type}).
+    * @param desc   the method's descriptor (see {@link JavaType}).
     * @param itf    if the method's owner class is an interface.
     */
    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {}
@@ -220,10 +220,10 @@ public class MethodVisitor extends BaseWriter
     * Visits an invokedynamic instruction.
     *
     * @param name    the method's name.
-    * @param desc    the method's descriptor (see {@link Type}).
+    * @param desc    the method's descriptor (see {@link JavaType}).
     * @param bsm     the bootstrap method.
     * @param bsmArgs the bootstrap method constant arguments. Each argument must be an {@link Integer}, {@link Float},
-    *                {@link Long}, {@link Double}, {@link String}, {@link Type} or {@link Handle} value. This method is
+    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType} or {@link Handle} value. This method is
     *                allowed to modify the content of the array so a caller should expect that this array may change.
     */
    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {}
@@ -264,13 +264,13 @@ public class MethodVisitor extends BaseWriter
     *     // ...
     * } else if (cst instanceof String) {
     *     // ...
-    * } else if (cst instanceof Type) {
-    *     int sort = ((Type) cst).getSort();
-    *     if (sort == Type.OBJECT) {
+    * } else if (cst instanceof JavaType) {
+    *     int sort = ((JavaType) cst).getSort();
+    *     if (sort == Type.Sort.OBJECT) {
     *         // ...
-    *     } else if (sort == Type.ARRAY) {
+    *     } else if (sort == Type.Sort.ARRAY) {
     *         // ...
-    *     } else if (sort == Type.METHOD) {
+    *     } else if (sort == Type.Sort.METHOD) {
     *         // ...
     *     } else {
     *         // throw an exception
@@ -283,8 +283,8 @@ public class MethodVisitor extends BaseWriter
     * </pre>
     *
     * @param cst the constant to be loaded on the stack. This parameter must be a non null {@link Integer}, a
-    *            {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link Type} of OBJECT or ARRAY
-    *            sort for <tt>.class</tt> constants, for classes whose version is 49.0, a {@link Type} of METHOD sort or
+    *            {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link JavaType} of OBJECT or ARRAY
+    *            sort for <tt>.class</tt> constants, for classes whose version is 49.0, a {@link JavaType} of METHOD sort or
     *            a {@link Handle} for MethodType and MethodHandle constants, for classes whose version is 51.0.
     */
    public void visitLdcInsn(Object cst) {}
@@ -321,7 +321,7 @@ public class MethodVisitor extends BaseWriter
    /**
     * Visits a MULTIANEWARRAY instruction.
     *
-    * @param desc an array type descriptor (see {@link Type}).
+    * @param desc an array type descriptor (see {@link JavaType}).
     * @param dims number of dimensions of the array to allocate.
     */
    public void visitMultiANewArrayInsn(String desc, int dims) {}

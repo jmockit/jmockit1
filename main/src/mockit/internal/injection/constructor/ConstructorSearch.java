@@ -10,6 +10,7 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
+import mockit.external.asm.*;
 import mockit.internal.injection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -165,7 +166,7 @@ public final class ConstructorSearch
 
       printCandidateConstructorNameIfRequested(candidate);
 
-      String constructorDesc = "<init>" + mockit.external.asm.Type.getConstructorDescriptor(candidate);
+      String constructorDesc = "<init>" + JavaType.getConstructorDescriptor(candidate);
 
       for (int i = 0; i < n; i++) {
          Type parameterType = parameterTypes[i];
