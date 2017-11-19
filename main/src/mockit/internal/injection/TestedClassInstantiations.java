@@ -6,7 +6,6 @@ package mockit.internal.injection;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import javax.annotation.*;
 
