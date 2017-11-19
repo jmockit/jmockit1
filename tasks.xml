@@ -6,8 +6,6 @@
 <project name="jmockit" basedir=".">
    <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
 
-   <loadfile property="version" srcFile="version.txt"/>
-
    <path id="common.classpath">
       <fileset dir="lib" includes="*.jar"/>
    </path>
@@ -84,7 +82,6 @@
             <attribute name="Agent-Class" value="mockit.internal.startup.Startup"/>
             <attribute name="Can-Redefine-Classes" value="true"/>
             <attribute name="Can-Retransform-Classes" value="true"/>
-            <attribute name="Implementation-Version" value="${version}"/>
          </manifest>
          <service type="org.junit.platform.engine.TestEngine" provider="mockit.integration.junit5.JMockitTestEngine"/>
          <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.TestNGRunnerDecorator"/>
