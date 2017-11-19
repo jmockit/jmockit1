@@ -169,6 +169,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
             clearTestedObjectsCreatedDuringSetup();
          }
 
+         createInstancesForTestedFieldsFromBaseClasses(testInstance);
+
          if (!isMethodWithParametersProvidedByTestNG(method)) {
             Object[] parameters = testResult.getParameters();
             Object[] mockParameters = createInstancesForAnnotatedParameters(testInstance, method, parameters);

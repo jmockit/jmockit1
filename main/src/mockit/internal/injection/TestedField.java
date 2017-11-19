@@ -23,6 +23,8 @@ final class TestedField extends TestedObject
       testedField = field;
    }
 
+   boolean isFromBaseClass(@Nonnull Class<?> testClass) { return testedField.getDeclaringClass() != testClass; }
+
    @Override
    boolean alreadyInstantiated(@Nonnull Object testClassInstance)
    {

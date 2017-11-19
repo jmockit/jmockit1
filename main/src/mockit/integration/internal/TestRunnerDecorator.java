@@ -168,6 +168,22 @@ public class TestRunnerDecorator
       }
    }
 
+   protected static void createInstancesForTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance)
+   {
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
+
+      if (testedClasses != null) {
+         TestRun.enterNoMockingZone();
+
+         try {
+            testedClasses.assignNewInstancesToTestedFieldsFromBaseClasses(testClassInstance);
+         }
+         finally {
+            TestRun.exitNoMockingZone();
+         }
+      }
+   }
+
    protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
    {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();

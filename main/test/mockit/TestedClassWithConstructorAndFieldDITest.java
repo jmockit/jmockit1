@@ -10,6 +10,7 @@ import org.junit.*;
 class BaseTest
 {
    static class Dependency { int doSomething() { return -1; } }
+   static class Collaborator {}
 
    public static class TestedClass
    {
@@ -25,6 +26,7 @@ class BaseTest
 
    @Tested TestedClass tested1;
    @Injectable Dependency dependency;
+   @Tested Collaborator collaborator;
 
    final void verifyTestedObjectFromBaseTestClass(int expectedValueForIntField)
    {
@@ -109,5 +111,18 @@ public final class TestedClassWithConstructorAndFieldDITest extends BaseTest
       assertNull(tested2.dependency3);
       assertSame(anotherAction, tested2.anotherAction);
       assertFalse(tested2.doSomeOperation());
+   }
+
+   static class ClassWithFieldHavingTestedFieldInBaseTestClass { Collaborator collaborator; }
+
+   @Tested ClassWithFieldHavingTestedFieldInBaseTestClass tested3;
+
+   @Test
+   public void createTestedParameterInjectingFromTestedFieldInBaseTestClass(
+      @Tested ClassWithFieldHavingTestedFieldInBaseTestClass tested4)
+   {
+      assertNotNull(collaborator);
+      assertSame(collaborator, tested3.collaborator);
+      assertSame(collaborator, tested4.collaborator);
    }
 }

@@ -57,6 +57,13 @@ public final class InjectionState
       return true;
    }
 
+   void buildListOfInjectableFields(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables)
+   {
+      currentTestClassInstance = testClassInstance;
+      setInjectables(injectables);
+      getServletConfigForInitMethodsIfAny(testClassInstance);
+   }
+
    void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables)
    {
       currentTestClassInstance = testClassInstance;

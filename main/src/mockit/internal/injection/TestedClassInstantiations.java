@@ -123,11 +123,24 @@ public final class TestedClassInstantiations
       }
    }
 
+   public void assignNewInstancesToTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance)
+   {
+      injectionState.buildListOfInjectableFields(testClassInstance, injectableFields);
+
+      Class<?> testClass = testClassInstance.getClass();
+
+      for (TestedField testedField : testedFields) {
+         if (testedField.isFromBaseClass(testClass)) {
+            instantiateTestedObject(testClassInstance, testedField);
+         }
+      }
+   }
+
    public void assignNewInstancesToTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
    {
       injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
 
-      for (TestedObject testedField : testedFields) {
+      for (TestedField testedField : testedFields) {
          if (!beforeSetup || testedField.isAvailableDuringSetup()) {
             instantiateTestedObject(testClassInstance, testedField);
          }
@@ -155,8 +168,10 @@ public final class TestedClassInstantiations
    {
       Object testClassInstance = injectionState.getCurrentTestClassInstance();
 
-      for (TestedObject testedField : testedFields) {
-         testedField.clearIfAutomaticCreation(testClassInstance, duringTearDown);
+      if (testClassInstance != null) {
+         for (TestedObject testedField : testedFields) {
+            testedField.clearIfAutomaticCreation(testClassInstance, duringTearDown);
+         }
       }
    }
 

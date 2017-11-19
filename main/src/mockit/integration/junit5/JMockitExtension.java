@@ -96,19 +96,20 @@ final class JMockitExtension extends TestRunnerDecorator implements
       }
 
       @Nonnull Method method = testMethod.get();
-      @Nonnull Object instance = testInstance.get();
+      @Nonnull Object actualTestInstance = testInstance.get();
       TestRun.enterNoMockingZone();
 
       try {
          savePointForTestMethod = new SavePoint();
-         mockParameters = createInstancesForAnnotatedParameters(instance, method, null);
-         createInstancesForTestedFields(instance, false);
+         createInstancesForTestedFieldsFromBaseClasses(actualTestInstance);
+         mockParameters = createInstancesForAnnotatedParameters(actualTestInstance, method, null);
+         createInstancesForTestedFields(actualTestInstance, false);
       }
       finally {
          TestRun.exitNoMockingZone();
       }
 
-      TestRun.setRunningIndividualTest(instance);
+      TestRun.setRunningIndividualTest(actualTestInstance);
    }
 
    @Override

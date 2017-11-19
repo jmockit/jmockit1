@@ -141,12 +141,12 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void executeTestMethod(
-      @Nonnull FakeInvocation invocation, @Nonnull Object target, @Nullable Object... parameters)
+      @Nonnull FakeInvocation invocation, @Nonnull Object testInstance, @Nullable Object... parameters)
       throws Throwable
    {
       SavePoint savePoint = new SavePoint();
 
-      TestRun.setRunningIndividualTest(target);
+      TestRun.setRunningIndividualTest(testInstance);
 
       FrameworkMethod it = invocation.getInvokedInstance();
       Method testMethod = it.getMethod();
@@ -154,13 +154,14 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       boolean testFailureExpected = false;
 
       try {
-         Object[] annotatedParameters = createInstancesForAnnotatedParameters(target, testMethod, parameters);
-         createInstancesForTestedFields(target, false);
+         createInstancesForTestedFieldsFromBaseClasses(testInstance);
+         Object[] annotatedParameters = createInstancesForAnnotatedParameters(testInstance, testMethod, parameters);
+         createInstancesForTestedFields(testInstance, false);
 
          invocation.prepareToProceedFromNonRecursiveMock();
 
          Object[] params = annotatedParameters == null ? parameters : annotatedParameters;
-         it.invokeExplosively(target, params);
+         it.invokeExplosively(testInstance, params);
       }
       catch (Throwable thrownByTest) {
          testFailure = thrownByTest;
