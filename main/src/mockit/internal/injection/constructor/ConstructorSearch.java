@@ -259,7 +259,7 @@ public final class ConstructorSearch
    private void printCandidateConstructorNameIfRequested(@Nonnull Constructor<?> candidate)
    {
       if (searchResults != null) {
-         String constructorDesc = candidate.toGenericString().replace("java.lang.", "");
+         String constructorDesc = candidate.toGenericString().replace("java.lang.", "").replace(",", ", ");
          searchResults.append("\r\n  ").append(constructorDesc).append("\r\n");
       }
    }
