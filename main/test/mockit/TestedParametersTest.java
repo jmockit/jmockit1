@@ -4,6 +4,8 @@
  */
 package mockit;
 
+import javax.inject.*;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -93,4 +95,15 @@ public final class TestedParametersTest
    }
 
    // TODO: verify API docs about constructor parameters needing to be matched to tested/injectables by type and name
+
+   static class AnotherDependency {}
+   static class TestedClassWithDIAnnotatedField { @Inject AnotherDependency dep; }
+
+   @Injectable AnotherDependency dep;
+
+   @Test
+   public void injectInjectableFieldIntoTestedParameter(@Tested TestedClassWithDIAnnotatedField tested)
+   {
+      assertSame(dep, tested.dep);
+   }
 }

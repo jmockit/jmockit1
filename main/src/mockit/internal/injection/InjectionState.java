@@ -46,18 +46,43 @@ public final class InjectionState
       interfaceResolution = new InterfaceResolution();
    }
 
+   boolean setInjectables(@Nonnull List<MockedType> injectables)
+   {
+      if (injectables.isEmpty()) {
+         this.injectables = Collections.emptyList();
+         return false;
+      }
+
+      this.injectables = new ArrayList<MockedType>(injectables);
+      return true;
+   }
+
    void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables)
    {
       currentTestClassInstance = testClassInstance;
-      this.injectables = new ArrayList<MockedType>(injectables);
+      setInjectables(injectables);
 
       ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
 
       if (paramTypeRedefs != null) {
-         this.injectables.addAll(paramTypeRedefs.getInjectableParameters());
+         addInjectables(paramTypeRedefs);
       }
 
       getServletConfigForInitMethodsIfAny(testClassInstance);
+   }
+
+   private void addInjectables(@Nonnull ParameterTypeRedefinitions paramTypeRedefs)
+   {
+      List<MockedType> injectableParameters = paramTypeRedefs.getInjectableParameters();
+
+      if (!injectableParameters.isEmpty()) {
+         if (injectables.isEmpty()) {
+            injectables = new ArrayList<MockedType>(injectableParameters);
+         }
+         else {
+            injectables.addAll(injectableParameters);
+         }
+      }
    }
 
    private void getServletConfigForInitMethodsIfAny(@Nonnull Object testClassInstance)
@@ -75,8 +100,7 @@ public final class InjectionState
    void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs)
    {
       currentTestClassInstance = testClassInstance;
-      injectables = new ArrayList<MockedType>(paramTypeRedefs.getInjectableParameters());
-
+      addInjectables(paramTypeRedefs);
       getServletConfigForInitMethodsIfAny(testClassInstance);
    }
 
