@@ -50,6 +50,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
             return it.invokeExplosively(target, params);
          }
          catch (Throwable t) {
+            //noinspection ThrowableNotThrown
             RecordAndReplayExecution.endCurrentReplayIfAny();
             filterStackTrace(t);
             throw t;
