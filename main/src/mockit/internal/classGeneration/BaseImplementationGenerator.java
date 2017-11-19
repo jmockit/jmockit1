@@ -54,13 +54,13 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    @Override
-   public final AnnotationVisitor visitAnnotation(String desc) { return null; }
+   public final AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
 
    @Override
-   public final void visitInnerClass(String name, String outerName, String innerName, int access) {}
+   public final void visitInnerClass(@Nonnull String name, String outerName, String innerName, int access) {}
 
    @Override
-   public final void visitOuterClass(String owner, @Nullable String name, @Nullable String desc) {}
+   public final void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    @Override
    public final void visitSource(@Nullable String source, @Nullable String debug) {}
@@ -72,7 +72,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Nullable @Override
    public final MethodVisitor visitMethod(
-      int access, String name, String desc, @Nullable String signature, @Nullable String[] exceptions)
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
    {
       generateMethodImplementation(access, name, desc, signature, exceptions);
       return null;
@@ -154,7 +154,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
       @Override
       public void visit(
-         int version, int access, String name, @Nullable String signature, @Nullable String superName,
+         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
          @Nullable String[] interfaces)
       {
          methodOwner = name;
@@ -163,7 +163,8 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
       @Nullable @Override
       public MethodVisitor visitMethod(
-         int access, String name, String desc, @Nullable String signature, @Nullable String[] exceptions)
+         int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+         @Nullable String[] exceptions)
       {
          generateMethodImplementation(access, name, desc, signature, exceptions);
          return null;

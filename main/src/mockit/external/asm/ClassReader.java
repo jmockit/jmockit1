@@ -367,7 +367,7 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readAnnotations(int annotations) {
+   private void readAnnotations(@Nonnegative int annotations) {
       if (annotations != 0) {
          char[] c = context.buffer;
 
@@ -379,7 +379,7 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readInnerClasses(int innerClasses) {
+   private void readInnerClasses(@Nonnegative int innerClasses) {
       if (innerClasses != 0) {
          int v = innerClasses + 2;
          char[] c = context.buffer;
@@ -409,7 +409,7 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readBootstrapMethods(int u) {
+   private void readBootstrapMethods(@Nonnegative int u) {
       int[] bootstrapMethods = new int[readUnsignedShort(u + 8)];
 
       for (int j = 0, v = u + 10; j < bootstrapMethods.length; j++) {
@@ -423,6 +423,7 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Returns the start index of the attribute_info structure of this class.
     */
+   @Nonnegative
    int getAttributesStartIndex() {
       // Skips the header.
       int u = header + 8 + readUnsignedShort(header + 6) * 2;

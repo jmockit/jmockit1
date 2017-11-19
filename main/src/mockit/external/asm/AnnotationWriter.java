@@ -93,7 +93,7 @@ final class AnnotationWriter extends AnnotationVisitor
    protected int getByteLength() { return bv.length; }
 
    @Override
-   public void visit(@Nonnull String name, @Nonnull Object value) {
+   public void visit(@Nullable String name, @Nonnull Object value) {
       putName(name);
 
       if (value instanceof String) {
@@ -154,10 +154,11 @@ final class AnnotationWriter extends AnnotationVisitor
       }
    }
 
-   private void putName(@Nonnull String name) {
+   private void putName(@Nullable String name) {
       size++;
 
       if (named) {
+         //noinspection ConstantConditions
          putString(name);
       }
    }
@@ -229,14 +230,14 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Override
-   public void visitEnum(@Nonnull String name, @Nonnull String desc, @Nonnull String value) {
+   public void visitEnum(@Nullable String name, @Nonnull String desc, @Nonnull String value) {
       putName(name);
       putString('e', desc);
       putString(value);
    }
 
    @Nonnull @Override
-   public AnnotationVisitor visitAnnotation(@Nonnull String name, @Nonnull String desc) {
+   public AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) {
       putName(name);
 
       // Write tag and type, and reserve space for values count.
@@ -247,7 +248,7 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Nonnull @Override
-   public AnnotationVisitor visitArray(@Nonnull String name) {
+   public AnnotationVisitor visitArray(@Nullable String name) {
       putName(name);
 
       // Write tag, and reserve space for array size.

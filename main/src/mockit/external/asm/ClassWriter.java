@@ -83,7 +83,7 @@ public final class ClassWriter extends ClassVisitor
    private Interfaces interfaces;
    private final SourceInfo sourceInfo;
    private OuterClass outerClass;
-   private InnerClasses innerClasses;
+   @Nullable private InnerClasses innerClasses;
    final BootstrapMethods bootstrapMethods;
 
    /**
@@ -142,7 +142,10 @@ public final class ClassWriter extends ClassVisitor
    // ------------------------------------------------------------------------
 
    @Override
-   public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+   public void visit(
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
+      @Nullable String[] interfaces
+   ) {
       this.version = version;
       this.access = access;
       this.name = cp.newClass(name);
@@ -164,22 +167,24 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visitSource(String file, String debug) {
+   public void visitSource(@Nullable String file, @Nullable String debug) {
       sourceInfo.add(file, debug);
    }
 
    @Override
-   public void visitOuterClass(String owner, String name, String desc) {
+   public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {
       outerClass = new OuterClass(cp, owner, name, desc);
    }
 
-   @Override
-   public AnnotationVisitor visitAnnotation(String desc) {
+   @Nonnull @Override
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
 
    @Override
-   public void visitInnerClass(String name, String outerName, String innerName, int access) {
+   public void visitInnerClass(
+      @Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access
+   ) {
       if (innerClasses == null) {
          innerClasses = new InnerClasses(cp);
       }
@@ -196,8 +201,10 @@ public final class ClassWriter extends ClassVisitor
       return field;
    }
 
-   @Override
-   public MethodWriter visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+   @Nonnull @Override
+   public MethodWriter visitMethod(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       MethodWriter method = new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
       methods.add(method);
       return method;

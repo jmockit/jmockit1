@@ -105,12 +105,18 @@ class BytecodeReader
     */
    final int readByte(@Nonnegative int index) { return b[index] & 0xFF; }
 
+   @Nonnegative
+   final int readUnsignedShortItem(@Nonnegative int index, @Nonnegative int offset) {
+      return readUnsignedShort(items[index] + offset);
+   }
+
    /**
     * Reads an unsigned short value in {@link #b}.
     *
     * @param index the start index of the value to be read in {@link #b}.
     * @return the read value.
     */
+   @Nonnegative
    final int readUnsignedShort(@Nonnegative int index) {
       byte[] b = this.b;
       return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
@@ -204,7 +210,7 @@ class BytecodeReader
    }
 
    @Nullable
-   final String readUTF8Item(@Nonnegative int itemIndex, int offset, @Nonnull char[] buf) {
+   final String readUTF8Item(@Nonnegative int itemIndex, @Nonnegative int offset, @Nonnull char[] buf) {
       return readUTF8(items[itemIndex] + offset, buf);
    }
 
@@ -252,10 +258,12 @@ class BytecodeReader
     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link JavaType} or
     * {@link Handle} corresponding to the given constant pool item.
     */
+   @Nonnull
    final Object readConst(@Nonnegative int itemIndex, @Nonnull char[] buf) {
       int startIndex = items[itemIndex];
+      byte itemType = b[startIndex - 1];
 
-      switch (b[startIndex - 1]) {
+      switch (itemType) {
          case INT:
             return readInt(startIndex);
          case FLOAT:
@@ -268,20 +276,24 @@ class BytecodeReader
             return Double.longBitsToDouble(longBits);
          case CLASS:
             String typeDesc = readUTF8(startIndex, buf);
+            //noinspection ConstantConditions
             return JavaType.getObjectType(typeDesc);
          case STR:
-            return readUTF8(startIndex, buf);
+            String string = readUTF8(startIndex, buf);
+            //noinspection ConstantConditions
+            return string;
          case MTYPE:
             String methodDesc = readUTF8(startIndex, buf);
+            //noinspection ConstantConditions
             return JavaType.getMethodType(methodDesc);
          default: // case HANDLE_BASE + [1..9]:
             int tag = readByte(startIndex);
-            int[] items = this.items;
-            int cpIndex = items[readUnsignedShort(startIndex + 1)];
-            String owner = readClass(cpIndex, buf);
-            cpIndex = items[readUnsignedShort(cpIndex + 2)];
-            String name = readUTF8(cpIndex, buf);
-            String desc = readUTF8(cpIndex + 2, buf);
+            int i = readUnsignedShort(startIndex + 1);
+            String owner = readClassItem(i, buf);
+            i = readUnsignedShortItem(i, 2);
+            String name = readUTF8Item(i, 0, buf);
+            String desc = readUTF8Item(i, 2, buf);
+            //noinspection ConstantConditions
             return new Handle(tag, owner, name, desc);
       }
    }
@@ -299,6 +311,11 @@ class BytecodeReader
       return readClass(index, buf);
    }
 
+   @Nullable
+   final String readClassItem(@Nonnegative int index, @Nonnull char[] buf) {
+      return readClass(items[index], buf);
+   }
+
    /**
     * Reads a class constant pool item in {@link #b}.
     *
@@ -313,8 +330,7 @@ class BytecodeReader
       // Computes the start index of the CONSTANT_Class item in b and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
       int itemIndex = readUnsignedShort(index);
-      int item = items[itemIndex];
-      return readUTF8(item, buf);
+      return readUTF8Item(itemIndex, 0, buf);
    }
 
    /**

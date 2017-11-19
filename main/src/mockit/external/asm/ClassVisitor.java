@@ -60,7 +60,9 @@ public class ClassVisitor extends BaseWriter
     * @param interfaces the internal names of the class's interfaces (see
     *                   {@link JavaType#getInternalName()}). May be <tt>null</tt>.
     */
-   public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}
+   public void visit(
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
+      @Nullable String[] interfaces) {}
 
    /**
     * Visits the source of the class.
@@ -69,7 +71,7 @@ public class ClassVisitor extends BaseWriter
     * @param debug  additional debug information to compute the correspondence between source and compiled elements of
     *               the class. May be <tt>null</tt>.
     */
-   public void visitSource(String source, String debug) {}
+   public void visitSource(@Nullable String source, @Nullable String debug) {}
 
    /**
     * Visits the enclosing class of the class. This method must be called only if the class has an enclosing class.
@@ -89,6 +91,7 @@ public class ClassVisitor extends BaseWriter
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
     * this annotation.
     */
+   @Nullable
    public AnnotationVisitor visitAnnotation(String desc) { return null; }
 
    /**
@@ -142,7 +145,10 @@ public class ClassVisitor extends BaseWriter
     * @return an object to visit the byte code of the method, or <tt>null</tt> if this class visitor is not interested
     * in visiting the code of this method.
     */
-   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+   @Nullable
+   public MethodVisitor visitMethod(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       return null;
    }
 

@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A reference to a field or a method.
  *
@@ -61,17 +63,17 @@ final class Handle
    /**
     * The internal name of the class that owns the field or method designated by this handle.
     */
-   final String owner;
+   @Nonnull final String owner;
 
    /**
     * The name of the field or method designated by this handle.
     */
-   final String name;
+   @Nonnull final String name;
 
    /**
     * The descriptor of the field or method designated by this handle.
     */
-   final String desc;
+   @Nonnull final String desc;
 
    /**
     * Constructs a new field or method handle.
@@ -81,27 +83,12 @@ final class Handle
     * @param name  the name of the field or method designated by this handle.
     * @param desc  the descriptor of the field or method designated by this handle.
     */
-   Handle(int tag, String owner, String name, String desc) {
+   Handle(@Nonnegative int tag, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       this.tag = tag;
       this.owner = owner;
       this.name = name;
       this.desc = desc;
    }
-
-   /**
-    * Returns the internal name of the class that owns the field or method designated by this handle.
-    */
-   String getOwner() { return owner; }
-
-   /**
-    * Returns the name of the field or method designated by this handle.
-    */
-   String getName() { return name; }
-
-   /**
-    * Returns the descriptor of the field or method designated by this handle.
-    */
-   String getDesc() { return desc; }
 
    @Override
    public boolean equals(Object obj) {

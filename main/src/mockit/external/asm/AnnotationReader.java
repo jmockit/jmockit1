@@ -1,10 +1,11 @@
 package mockit.external.asm;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 final class AnnotationReader extends BytecodeReader
 {
-   AnnotationReader(BytecodeReader br) { super(br); }
+   AnnotationReader(@Nonnull BytecodeReader br) { super(br); }
 
    /**
     * Reads the values of an annotation and makes the given visitor visit them.
@@ -17,7 +18,8 @@ final class AnnotationReader extends BytecodeReader
     * @param av    the visitor that must visit the values.
     * @return the end offset of the annotation values.
     */
-   int readAnnotationValues(int v, char[] buf, boolean named, AnnotationVisitor av) {
+   @Nonnegative
+   int readAnnotationValues(@Nonnegative int v, @Nonnull char[] buf, boolean named, @Nullable AnnotationVisitor av) {
       int i = readUnsignedShort(v);
       v += 2;
 
@@ -28,7 +30,7 @@ final class AnnotationReader extends BytecodeReader
          }
       }
       else {
-         for (; i > 0; --i) {
+         for (; i > 0; i--) {
             v = readAnnotationValue(v, buf, null, av);
          }
       }
@@ -51,23 +53,18 @@ final class AnnotationReader extends BytecodeReader
     * @param av   the visitor that must visit the value.
     * @return the end offset of the annotation value.
     */
-   int readAnnotationValue(int v, char[] buf, String name, AnnotationVisitor av) {
+   @Nonnegative
+   int readAnnotationValue(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av
+   ) {
       if (av == null) {
-         switch (b[v] & 0xFF) {
-            case 'e': // enum_const_value
-               return v + 5;
-            case '@': // annotation_value
-               return readAnnotationValues(v + 3, buf, true, null);
-            case '[': // array_value
-               return readAnnotationValues(v + 1, buf, false, null);
-            default:
-               return v + 3;
-         }
+         return readAnnotationValue(v, buf);
       }
 
+      int typeCode = b[v++] & 0xFF;
       Object value;
 
-      switch (b[v++] & 0xFF) {
+      switch (typeCode) {
          case 'I': // pointer to CONSTANT_Integer
          case 'J': // pointer to CONSTANT_Long
          case 'F': // pointer to CONSTANT_Float
@@ -98,23 +95,27 @@ final class AnnotationReader extends BytecodeReader
             break;
          case 's': // pointer to CONSTANT_Utf8
             value = readUTF8(v, buf);
+            //noinspection ConstantConditions
             av.visit(name, value);
             v += 2;
             break;
          case 'e': // enum_const_value
             String enumDesc = readUTF8(v, buf);
             String enumValue = readUTF8(v + 2, buf);
+            //noinspection ConstantConditions
             av.visitEnum(name, enumDesc, enumValue);
             v += 4;
             break;
          case 'c': // class_info
             String typeDesc = readUTF8(v, buf);
+            //noinspection ConstantConditions
             value = JavaType.getType(typeDesc);
             av.visit(name, value);
             v += 2;
             break;
          case '@': // annotation_value
             String desc = readUTF8(v, buf);
+            //noinspection ConstantConditions
             AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
             v = readAnnotationValues(v + 2, buf, true, nestedVisitor);
             break;
@@ -133,7 +134,27 @@ final class AnnotationReader extends BytecodeReader
       return v;
    }
 
-   private int readAnnotationArrayValue(int v, char[] buf, String name, AnnotationVisitor av, int size) {
+   @Nonnegative
+   private int readAnnotationValue(@Nonnegative int v, @Nonnull char[] buf) {
+      int typeCode = b[v] & 0xFF;
+
+      switch (typeCode) {
+         case 'e': // enum_const_value
+            return v + 5;
+         case '@': // annotation_value
+            return readAnnotationValues(v + 3, buf, true, null);
+         case '[': // array_value
+            return readAnnotationValues(v + 1, buf, false, null);
+         default:
+            return v + 3;
+      }
+   }
+
+   @Nonnegative
+   private int readAnnotationArrayValue(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nonnull AnnotationVisitor av,
+      @Nonnegative int size
+   ) {
       int typeCode = b[v++] & 0xFF;
 
       if ("BZSCIJFD".indexOf(typeCode) < 0) {

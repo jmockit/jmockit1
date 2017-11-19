@@ -1,18 +1,21 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 class BaseWriter
 {
    /**
     * The dynamically generated constant pool of the class being built/modified.
     */
-   ConstantPoolGeneration cp;
+   @Nonnull ConstantPoolGeneration cp;
 
    /**
     * The runtime visible annotations of this class/field/method. May be <tt>null</tt>.
     */
-   AnnotationWriter annotations;
+   @Nullable AnnotationWriter annotations;
 
-   final AnnotationVisitor addAnnotation(String desc) {
+   @Nonnull
+   final AnnotationVisitor addAnnotation(@Nonnull String desc) {
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
@@ -25,6 +28,7 @@ class BaseWriter
       return aw;
    }
 
+   @Nonnegative
    final int getAnnotationsSize() {
       if (annotations != null) {
          getConstantPoolItemForRuntimeVisibleAnnotationsAttribute();
@@ -34,11 +38,12 @@ class BaseWriter
       return 0;
    }
 
+   @Nonnegative
    private int getConstantPoolItemForRuntimeVisibleAnnotationsAttribute() {
       return cp.newUTF8("RuntimeVisibleAnnotations");
    }
 
-   final void putAnnotations(ByteVector out) {
+   final void putAnnotations(@Nonnull ByteVector out) {
       if (annotations != null) {
          int item = getConstantPoolItemForRuntimeVisibleAnnotationsAttribute();
          out.putShort(item);

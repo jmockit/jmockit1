@@ -43,12 +43,12 @@ public abstract class AnnotationVisitor
    /**
     * Next annotation visitor. This field is used to store annotation lists.
     */
-   AnnotationWriter next;
+   @Nullable AnnotationWriter next;
 
    /**
     * Previous annotation visitor. This field is used to store annotation lists.
     */
-   AnnotationWriter prev;
+   @Nullable AnnotationWriter prev;
 
    /**
     * Constructs a new {@link AnnotationVisitor}.
@@ -67,7 +67,7 @@ public abstract class AnnotationVisitor
     *              char, int, long, float or double values (this is equivalent to using {@link #visitArray visitArray}
     *              and visiting each array element in turn, but is more convenient).
     */
-   public void visit(@Nonnull String name, @Nonnull Object value) {}
+   public void visit(@Nullable String name, @Nonnull Object value) {}
 
    /**
     * Visits an enumeration value of the annotation.
@@ -76,7 +76,7 @@ public abstract class AnnotationVisitor
     * @param desc  the class descriptor of the enumeration class.
     * @param value the actual enumeration value.
     */
-   public void visitEnum(@Nonnull String name, @Nonnull String desc, @Nonnull String value) {}
+   public void visitEnum(@Nullable String name, @Nonnull String desc, @Nonnull String value) {}
 
    /**
     * Visits a nested annotation value of the annotation.
@@ -88,7 +88,7 @@ public abstract class AnnotationVisitor
     * other methods on this annotation visitor</i>.
     */
    @Nullable
-   public AnnotationVisitor visitAnnotation(@Nonnull String name, @Nonnull String desc) { return null; }
+   public AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) { return null; }
 
    /**
     * Visits an array value of the annotation. Note that arrays of primitive types (such as byte, boolean, short, char,
@@ -101,7 +101,7 @@ public abstract class AnnotationVisitor
     * <i>All the array values must be visited before calling other methods on this annotation visitor</i>.
     */
    @Nullable
-   public AnnotationVisitor visitArray(@Nonnull String name) { return null; }
+   public AnnotationVisitor visitArray(@Nullable String name) { return null; }
 
    /**
     * Visits the end of the annotation.

@@ -121,7 +121,8 @@ public final class MethodWriter extends MethodVisitor
     * @param computeFrames {@code true} if the stack map tables must be recomputed from scratch.
     */
    MethodWriter(
-      ClassWriter cw, int access, String name, String desc, String signature, String[] exceptions, boolean computeFrames
+      @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+      @Nullable String[] exceptions, boolean computeFrames
    ) {
       this.cw = cw;
       cp = cw.cp;

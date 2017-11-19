@@ -1,22 +1,24 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class SourceInfo
 {
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * The index of the constant pool item that contains the name of the source file from which this class was compiled.
     */
-   private int sourceFile;
+   @Nonnegative private int sourceFile;
 
    /**
     * The SourceDebug attribute of this class.
     */
-   private ByteVector sourceDebug;
+   @Nullable private ByteVector sourceDebug;
 
-   SourceInfo(ConstantPoolGeneration cp) { this.cp = cp; }
+   SourceInfo(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
-   void add(String file, String debug) {
+   void add(@Nullable String file, @Nullable String debug) {
       if (file != null) {
          sourceFile = cp.newUTF8(file);
       }
@@ -26,6 +28,7 @@ final class SourceInfo
       }
    }
 
+   @Nonnegative
    int getAttributeCount() {
       int count = 0;
       if (sourceFile != 0) count++;
@@ -33,6 +36,7 @@ final class SourceInfo
       return count;
    }
 
+   @Nonnegative
    int getSize() {
       int size = 0;
 
@@ -49,7 +53,7 @@ final class SourceInfo
       return size;
    }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       if (sourceFile != 0) {
          out.putShort(cp.newUTF8("SourceFile")).putInt(2).putShort(sourceFile);
       }

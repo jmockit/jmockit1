@@ -1,8 +1,10 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class InnerClasses
 {
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * The constant pool item that contains the name of the attribute to be produced.
@@ -19,13 +21,13 @@ final class InnerClasses
     */
    private int innerClassesCount;
 
-   InnerClasses(ConstantPoolGeneration cp) {
+   InnerClasses(@Nonnull ConstantPoolGeneration cp) {
       this.cp = cp;
       attributeName = cp.newUTF8("InnerClasses");
       innerClasses = new ByteVector();
    }
 
-   void add(String name, String outerName, String innerName, int access) {
+   void add(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       Item nameItem = cp.newClassItem(name);
 
       // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table which represents a
@@ -48,9 +50,10 @@ final class InnerClasses
       }
    }
 
+   @Nonnegative
    int getSize() { return 8 + innerClasses.length; }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       out.putShort(attributeName);
       out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
       out.putByteVector(innerClasses);

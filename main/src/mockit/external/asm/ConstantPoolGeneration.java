@@ -87,6 +87,7 @@ final class ConstantPoolGeneration
     * @param value the String value.
     * @return the index of a new or already existing UTF8 item.
     */
+   @Nonnegative
    int newUTF8(@Nonnull String value) {
       key.set(UTF8, value, null, null);
       Item result = get(key);
@@ -128,6 +129,7 @@ final class ConstantPoolGeneration
     * @param value the internal name of the class.
     * @return the index of a new or already existing class reference item.
     */
+   @Nonnegative
    int newClass(@Nonnull String value) {
       return newClassItem(value).index;
    }
