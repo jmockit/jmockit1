@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.Opcodes.*;
 
 /**
@@ -142,19 +144,19 @@ public final class MethodWriter extends MethodVisitor
    // Implementation of the MethodVisitor base class
    // ------------------------------------------------------------------------
 
-   @Override
+   @Nonnull @Override
    public AnnotationVisitor visitAnnotationDefault() {
       annotationDefault = new ByteVector();
       return new AnnotationWriter(cp, false, annotationDefault, null, 0);
    }
 
    @Override
-   public AnnotationVisitor visitAnnotation(String desc) {
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
 
    @Override
-   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc) {
+   public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
       ByteVector bv = new ByteVector();
 
       // Write type, and reserve space for values count.
@@ -174,7 +176,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+   public void visitFrame(int type, int nLocal, @Nonnull Object[] local, int nStack, @Nonnull Object[] stack) {
       if (!computeFrames) {
          frameAndStack.readFrame(type, nLocal, local, nStack, stack);
       }
@@ -235,7 +237,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitTypeInsn(int opcode, String type) {
+   public void visitTypeInsn(int opcode, @Nonnull String type) {
       Item typeItem = cp.newClassItem(type);
       cfgAnalysis.updateCurrentBlockForTypeInstruction(opcode, typeItem);
 
@@ -244,7 +246,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+   public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       Item fieldItem = cp.newFieldItem(owner, name, desc);
       cfgAnalysis.updateCurrentBlockForFieldInstruction(opcode, fieldItem, desc);
 
@@ -253,7 +255,9 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+   public void visitMethodInsn(
+      int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf
+   ) {
       Item invokeItem = cp.newMethodItem(owner, name, desc, itf);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, opcode, desc);
 
@@ -267,7 +271,9 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+   public void visitInvokeDynamicInsn(
+      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
+   ) {
       Item invokeItem = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 
@@ -277,7 +283,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitJumpInsn(int opcode, Label label) {
+   public void visitJumpInsn(int opcode, @Nonnull Label label) {
       Label nextInsn = cfgAnalysis.updateCurrentBlockForJumpInstruction(opcode, label);
 
       // Adds the instruction to the bytecode of the method.
@@ -316,12 +322,12 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitLabel(Label label) {
+   public void visitLabel(@Nonnull Label label) {
       cfgAnalysis.updateCurrentBlockForLabelBeforeNextInstruction(label);
    }
 
    @Override
-   public void visitLdcInsn(Object cst) {
+   public void visitLdcInsn(@Nonnull Object cst) {
       Item constItem = cp.newConstItem(cst);
       cfgAnalysis.updateCurrentBlockForLDCInstruction(constItem);
 
@@ -357,7 +363,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+   public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {
       // Adds the instruction to the bytecode of the method.
       int source = code.length;
       code.putByte(TABLESWITCH);
@@ -373,7 +379,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+   public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {
       // Adds the instruction to the bytecode of the method.
       int source = code.length;
       code.putByte(LOOKUPSWITCH);
@@ -390,7 +396,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitMultiANewArrayInsn(String desc, int dims) {
+   public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {
       Item arrayTypeItem = cp.newClassItem(desc);
       cfgAnalysis.updateCurrentBlockForMULTIANEWARRAYInstruction(arrayTypeItem, dims);
 
@@ -399,23 +405,28 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+   public void visitTryCatchBlock(
+      @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type
+   ) {
       exceptionHandling.addHandler(start, end, handler, type);
    }
 
    @Override
-   public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+   public void visitLocalVariable(
+      @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
+      @Nonnegative int index
+   ) {
       int localsCount = localVariables.addLocalVariable(name, desc, signature, start, end, index);
       frameAndStack.updateMaxLocals(localsCount);
    }
 
    @Override
-   public void visitLineNumber(int line, Label start) {
+   public void visitLineNumber(@Nonnegative int line, @Nonnull Label start) {
       lineNumbers.addLineNumber(line, start);
    }
 
    @Override
-   public void visitMaxStack(int maxStack) {
+   public void visitMaxStack(@Nonnegative int maxStack) {
       int computedMaxStack;
 
       if (computeFrames) {
@@ -558,7 +569,7 @@ public final class MethodWriter extends MethodVisitor
     *
     * @param out the byte vector into which the bytecode of this method must be copied.
     */
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       int accessFlag = Access.computeFlag(access, Access.CONSTRUCTOR);
       out.putShort(accessFlag);
 
@@ -654,7 +665,7 @@ public final class MethodWriter extends MethodVisitor
       putAnnotationAttributes(out);
    }
 
-   private void putAnnotationAttributes(ByteVector out) {
+   private void putAnnotationAttributes(@Nonnull ByteVector out) {
       if (annotationDefault != null) {
          out.putShort(cp.newUTF8("AnnotationDefault"));
          out.putInt(annotationDefault.length);

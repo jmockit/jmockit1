@@ -496,14 +496,14 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
+      public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTableSwitchInsn(min, max, dflt, labels);
       }
 
       @Override
-      public void visitMultiANewArrayInsn(String desc, int dims)
+      public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims)
       {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMultiANewArrayInsn(desc, dims);
@@ -764,7 +764,7 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public final void visitMultiANewArrayInsn(String desc, int dims)
+      public final void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims)
       {
          super.visitMultiANewArrayInsn(desc, dims);
          handleRegularInstruction(MULTIANEWARRAY);

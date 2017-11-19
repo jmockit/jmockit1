@@ -29,10 +29,10 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * Information about an exception handler block.
- *
- * @author Eric Bruneton
  */
 final class ExceptionHandler
 {
@@ -83,7 +83,8 @@ final class ExceptionHandler
     * @param end   the end of the range to be removed. Maybe null.
     * @return the exception handler list with the start-end range removed.
     */
-   static ExceptionHandler remove(ExceptionHandler h, Label start, Label end) {
+   @Nullable
+   static ExceptionHandler remove(@Nullable ExceptionHandler h, @Nonnull Label start, @Nullable Label end) {
       if (h == null) {
          return null;
       }

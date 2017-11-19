@@ -1,5 +1,7 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
  */
@@ -15,11 +17,11 @@ final class BootstrapMethods
    /**
     * The BootstrapMethods attribute.
     */
-   private ByteVector bootstrapMethods;
+   @Nullable private ByteVector bootstrapMethods;
 
    BootstrapMethods(ConstantPoolGeneration constantPool) { this.constantPool = constantPool; }
 
-   Item addInvokeDynamicReference(String name, String desc, Handle bsm, Object... bsmArgs) {
+   Item addInvokeDynamicReference(String name, String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs) {
       ByteVector methods = bootstrapMethods;
 
       if (methods == null) {
@@ -60,8 +62,8 @@ final class BootstrapMethods
       return result;
    }
 
-   private int putBSMArgs(int hashCode, Object[] bsmArgs) {
-      ByteVector methods = bootstrapMethods;
+   private int putBSMArgs(int hashCode, @Nonnull Object[] bsmArgs) {
+      @SuppressWarnings("ConstantConditions") @Nonnull ByteVector methods = bootstrapMethods;
 
       for (int i = 0; i < bsmArgs.length; i++) {
          Object bsmArg = bsmArgs[i];
@@ -74,7 +76,8 @@ final class BootstrapMethods
       return hashCode;
    }
 
-   private Item getBSMItem(int position, int hashCode, byte[] data, int length) {
+   @Nullable
+   private Item getBSMItem(@Nonnegative int position, int hashCode, @Nonnull byte[] data, int length) {
       Item bsmItem = constantPool.getItem(hashCode);
 
    loop:
@@ -104,12 +107,14 @@ final class BootstrapMethods
 
    int getSize() {
       constantPool.newUTF8("BootstrapMethods");
+      //noinspection ConstantConditions
       return 8 + bootstrapMethods.length;
    }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       if (hasMethods()) {
          out.putShort(constantPool.newUTF8("BootstrapMethods"));
+         //noinspection ConstantConditions
          out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
          out.putByteVector(bootstrapMethods);
       }
@@ -118,7 +123,7 @@ final class BootstrapMethods
    /**
     * Copies the bootstrap method data from the given {@link ClassReader}.
     */
-   void copyBootstrapMethods(ClassReader cr, Item[] items, char[] c) {
+   void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items, @Nonnull char[] c) {
       // Finds the "BootstrapMethods" attribute.
       int u = cr.getAttributesStartIndex();
       boolean found = false;

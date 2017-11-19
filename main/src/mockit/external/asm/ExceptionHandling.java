@@ -1,5 +1,7 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class ExceptionHandling
 {
    private final ConstantPoolGeneration cp;
@@ -21,7 +23,7 @@ final class ExceptionHandling
 
    ExceptionHandling(ConstantPoolGeneration cp) { this.cp = cp; }
 
-   void addHandler(Label start, Label end, Label handler, String type) {
+   void addHandler(Label start, Label end, Label handler, @Nullable String type) {
       ++handlerCount;
 
       int handlerType = type != null ? cp.newClass(type) : 0;

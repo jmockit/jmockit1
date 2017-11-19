@@ -30,6 +30,7 @@
 package mockit.external.asm;
 
 import java.lang.reflect.*;
+import javax.annotation.*;
 
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
@@ -92,7 +93,7 @@ final class AnnotationWriter extends AnnotationVisitor
    protected int getByteLength() { return bv.length; }
 
    @Override
-   public void visit(String name, Object value) {
+   public void visit(@Nonnull String name, @Nonnull Object value) {
       putName(name);
 
       if (value instanceof String) {
@@ -153,15 +154,15 @@ final class AnnotationWriter extends AnnotationVisitor
       }
    }
 
-   private void putName(String name) {
-      ++size;
+   private void putName(@Nonnull String name) {
+      size++;
 
       if (named) {
          putString(name);
       }
    }
 
-   private void putItem(int b, Item item) {
+   private void putItem(int b, @Nonnull Item item) {
       bv.put12(b, item.index);
    }
 
@@ -185,12 +186,12 @@ final class AnnotationWriter extends AnnotationVisitor
       putItem('J', item);
    }
 
-   private void putString(int b, String value) {
+   private void putString(int b, @Nonnull String value) {
       int itemIndex = cp.newUTF8(value);
       bv.put12(b, itemIndex);
    }
 
-   private void putString(String value) {
+   private void putString(@Nonnull String value) {
       int itemIndex = cp.newUTF8(value);
       bv.putShort(itemIndex);
    }
@@ -199,7 +200,7 @@ final class AnnotationWriter extends AnnotationVisitor
       bv.put12('[', length);
    }
 
-   private void readAnnotationValues(char arrayType, Object arrayValue) {
+   private void readAnnotationValues(char arrayType, @Nonnull Object arrayValue) {
       int length = Array.getLength(arrayValue);
       putArrayLength(length);
 
@@ -228,14 +229,14 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Override
-   public void visitEnum(String name, String desc, String value) {
+   public void visitEnum(@Nonnull String name, @Nonnull String desc, @Nonnull String value) {
       putName(name);
       putString('e', desc);
       putString(value);
    }
 
-   @Override
-   public AnnotationVisitor visitAnnotation(String name, String desc) {
+   @Nonnull @Override
+   public AnnotationVisitor visitAnnotation(@Nonnull String name, @Nonnull String desc) {
       putName(name);
 
       // Write tag and type, and reserve space for values count.
@@ -245,8 +246,8 @@ final class AnnotationWriter extends AnnotationVisitor
       return new AnnotationWriter(cp, true, bv, bv, bv.length - 2);
    }
 
-   @Override
-   public AnnotationVisitor visitArray(String name) {
+   @Nonnull @Override
+   public AnnotationVisitor visitArray(@Nonnull String name) {
       putName(name);
 
       // Write tag, and reserve space for array size.
@@ -273,14 +274,14 @@ final class AnnotationWriter extends AnnotationVisitor
     *
     * @param out where the annotations must be put.
     */
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       AnnotationWriter aw = this;
       AnnotationWriter last = null;
       int n = 0;
       int size = 2;
 
       while (aw != null) {
-         ++n;
+         n++;
          size += aw.getByteLength();
          aw.visitEnd(); // in case user forgot to call visitEnd
          aw.prev = last;
@@ -293,7 +294,7 @@ final class AnnotationWriter extends AnnotationVisitor
       putFromLastToFirst(out, last);
    }
 
-   private static void putFromLastToFirst(ByteVector out, AnnotationWriter aw) {
+   private static void putFromLastToFirst(@Nonnull ByteVector out, AnnotationWriter aw) {
       while (aw != null) {
          out.putByteVector(aw.bv);
          aw = aw.prev;
@@ -306,7 +307,7 @@ final class AnnotationWriter extends AnnotationVisitor
     * @param anns an array of annotation writer lists.
     * @param out  where the annotations must be put.
     */
-   static void put(AnnotationWriter[] anns, ByteVector out) {
+   static void put(@Nonnull AnnotationWriter[] anns, @Nonnull ByteVector out) {
       int numAnns = anns.length;
       int size = 1 + 2 * numAnns;
 
@@ -317,13 +318,13 @@ final class AnnotationWriter extends AnnotationVisitor
 
       out.putInt(size).putByte(numAnns);
 
-      for (int i = 0; i < numAnns; ++i) {
+      for (int i = 0; i < numAnns; i++) {
          AnnotationWriter aw = anns[i];
          AnnotationWriter last = null;
          int n = 0;
 
          while (aw != null) {
-            ++n;
+            n++;
             aw.visitEnd(); // in case user forgot to call visitEnd
             aw.prev = last;
             last = aw;

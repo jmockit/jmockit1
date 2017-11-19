@@ -1,5 +1,7 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import mockit.external.asm.Handle.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.ConstantPoolItemType.*;
@@ -85,7 +87,7 @@ final class ConstantPoolGeneration
     * @param value the String value.
     * @return the index of a new or already existing UTF8 item.
     */
-   int newUTF8(String value) {
+   int newUTF8(@Nonnull String value) {
       key.set(UTF8, value, null, null);
       Item result = get(key);
 
@@ -105,7 +107,8 @@ final class ConstantPoolGeneration
     * @param value the internal name of the class.
     * @return a new or already existing class reference item.
     */
-   Item newClassItem(String value) {
+   @Nonnull
+   Item newClassItem(@Nonnull String value) {
       key2.set(CLASS, value, null, null);
       Item result = get(key2);
 
@@ -125,7 +128,7 @@ final class ConstantPoolGeneration
     * @param value the internal name of the class.
     * @return the index of a new or already existing class reference item.
     */
-   int newClass(String value) {
+   int newClass(@Nonnull String value) {
       return newClassItem(value).index;
    }
 
@@ -136,7 +139,8 @@ final class ConstantPoolGeneration
     * @param methodDesc method descriptor of the method type.
     * @return a new or already existing method type reference item.
     */
-   Item newMethodTypeItem(String methodDesc) {
+   @Nonnull
+   Item newMethodTypeItem(@Nonnull String methodDesc) {
       key2.set(MTYPE, methodDesc, null, null);
       Item result = get(key2);
 
@@ -156,7 +160,8 @@ final class ConstantPoolGeneration
     *
     * @return a new or an already existing method type reference item.
     */
-   Item newHandleItem(Handle handle) {
+   @Nonnull
+   Item newHandleItem(@Nonnull Handle handle) {
       int tag = handle.tag;
       key4.set(HANDLE_BASE + tag, handle.owner, handle.name, handle.desc);
       Item result = get(key4);
@@ -190,7 +195,8 @@ final class ConstantPoolGeneration
     * @param desc  the field's descriptor.
     * @return a new or already existing field reference item.
     */
-   Item newFieldItem(String owner, String name, String desc) {
+   @Nonnull
+   Item newFieldItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       key3.set(FIELD, owner, name, desc);
       Item result = get(key3);
 
@@ -213,7 +219,8 @@ final class ConstantPoolGeneration
     * @param itf   <tt>true</tt> if <tt>owner</tt> is an interface.
     * @return a new or already existing method reference item.
     */
-   Item newMethodItem(String owner, String name, String desc, boolean itf) {
+   @Nonnull
+   Item newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
       int type = itf ? IMETH : METH;
       key3.set(type, owner, name, desc);
       Item result = get(key3);
@@ -234,6 +241,7 @@ final class ConstantPoolGeneration
     * @param value the int value.
     * @return a new or already existing int item.
     */
+   @Nonnull
    Item newInteger(int value) {
       key.set(value);
       Item result = get(key);
@@ -254,6 +262,7 @@ final class ConstantPoolGeneration
     * @param value the float value.
     * @return a new or already existing float item.
     */
+   @Nonnull
    Item newFloat(float value) {
       key.set(value);
       Item result = get(key);
@@ -274,6 +283,7 @@ final class ConstantPoolGeneration
     * @param value the long value.
     * @return a new or already existing long item.
     */
+   @Nonnull
    Item newLong(long value) {
       key.set(value);
       Item result = get(key);
@@ -295,6 +305,7 @@ final class ConstantPoolGeneration
     * @param value the double value.
     * @return a new or already existing double item.
     */
+   @Nonnull
    Item newDouble(double value) {
       key.set(value);
       Item result = get(key);
@@ -316,7 +327,8 @@ final class ConstantPoolGeneration
     * @param value the String value.
     * @return a new or already existing string item.
     */
-   Item newString(String value) {
+   @Nonnull
+   Item newString(@Nonnull String value) {
       key2.set(STR, value, null, null);
       Item result = get(key2);
 
@@ -337,7 +349,7 @@ final class ConstantPoolGeneration
     * @param desc a type descriptor.
     * @return the index of a new or already existing name and type item.
     */
-   int newNameType(String name, String desc) {
+   int newNameType(@Nonnull String name, @Nonnull String desc) {
       key2.set(NAME_TYPE, name, desc, null);
       Item result = get(key2);
 
@@ -358,7 +370,8 @@ final class ConstantPoolGeneration
     *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link JavaType}.
     * @return a new or already existing constant item with the given value.
     */
-   Item newConstItem(Object cst) {
+   @Nonnull
+   Item newConstItem(@Nonnull Object cst) {
       if (cst instanceof String) {
          return newString((String) cst);
       }
@@ -428,7 +441,7 @@ final class ConstantPoolGeneration
     * @param type the internal name to be added to the type table.
     * @return the index of this internal name in the type table.
     */
-   int addType(String type) {
+   int addType(@Nonnull String type) {
       key.set(Item.SpecialType.NORMAL, type, null, null);
       Item result = get(key);
 
@@ -447,7 +460,7 @@ final class ConstantPoolGeneration
     * @param offset the bytecode offset of the NEW instruction that created this UNINITIALIZED type value.
     * @return the index of this internal name in the type table.
     */
-   int addUninitializedType(String type, int offset) {
+   int addUninitializedType(@Nonnull String type, int offset) {
       key.type = Item.SpecialType.UNINIT;
       key.intVal = offset;
       key.strVal1 = type;
@@ -466,6 +479,7 @@ final class ConstantPoolGeneration
     *
     * @return the added Item, which a new Item instance with the same value as the given Item.
     */
+   @Nonnull
    private Item addType() {
       typeCount++;
       Item result = new Item(typeCount, key);
@@ -546,6 +560,7 @@ final class ConstantPoolGeneration
       }
    }
 
+   @Nullable
    Item getItem(int hashCode) { return items[hashCode % items.length]; }
 
    /**
@@ -555,7 +570,8 @@ final class ConstantPoolGeneration
     * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
     * such item.
     */
-   Item get(Item key) {
+   @Nullable
+   Item get(@Nonnull Item key) {
       Item item = getItem(key.hashCode);
 
       while (item != null && (item.type != key.type || !key.isEqualTo(item))) {
@@ -570,7 +586,7 @@ final class ConstantPoolGeneration
     *
     * @param item the item to be added to the constant pool's hash table.
     */
-   void put(Item item) {
+   void put(@Nonnull Item item) {
       if (index + typeCount > threshold) {
          int ll = items.length;
          int nl = ll * 2 + 1;
@@ -616,11 +632,11 @@ final class ConstantPoolGeneration
       }
    }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       out.putShort(index).putByteVector(pool);
    }
 
-   void copy(byte[] b, int off, int header, Item[] items) {
+   void copy(byte[] b, int off, int header, @Nonnull Item[] items) {
       pool.putByteArray(b, off, header - off);
       this.items = items;
 

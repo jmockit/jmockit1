@@ -230,7 +230,7 @@ public final class Frame
    /**
     * The label (i.e. basic block) to which these input and output stack map frames correspond.
     */
-   final Label owner;
+   @Nonnull final Label owner;
 
    /**
     * The input stack map frame locals.
@@ -245,12 +245,12 @@ public final class Frame
    /**
     * The output stack map frame locals.
     */
-   private int[] outputLocals;
+   @Nullable private int[] outputLocals;
 
    /**
     * The output stack map frame stack.
     */
-   private int[] outputStack;
+   @Nullable private int[] outputStack;
 
    /**
     * Relative size of the output stack. The exact semantics of this field depends on the algorithm that is used.
@@ -279,9 +279,9 @@ public final class Frame
     * algorithm, where the frames are fully computed. Note that this array can contain types that are relative to input
     * locals or to the input stack (see below for the description of the algorithm).
     */
-   private int[] initializations;
+   @Nullable private int[] initializations;
 
-   Frame(Label owner) {
+   Frame(@Nonnull Label owner) {
       this.owner = owner;
    }
 
@@ -1173,7 +1173,7 @@ public final class Frame
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(String classDesc, ConstantPoolGeneration cp, @Nonnull Frame frame, int edge) {
+   boolean merge(String classDesc, @Nonnull ConstantPoolGeneration cp, @Nonnull Frame frame, int edge) {
       boolean changed = false;
       int i, s, dim, kind, t;
 
@@ -1185,7 +1185,7 @@ public final class Frame
          changed = true;
       }
 
-      for (i = 0; i < nLocal; ++i) {
+      for (i = 0; i < nLocal; i++) {
          if (outputLocals != null && i < outputLocals.length) {
             s = outputLocals[i];
 
@@ -1256,7 +1256,7 @@ public final class Frame
          changed |= merge(cp, t, frame.inputStack, i);
       }
 
-      for (i = 0; i < outputStackTop; ++i) {
+      for (i = 0; i < outputStackTop; i++) {
          s = outputStack[i];
          dim = s & DIM;
          kind = s & KIND;
@@ -1297,7 +1297,9 @@ public final class Frame
     * @param index the index of the type that must be merged in 'types'.
     * @return <tt>true</tt> if the type array has been modified by this operation.
     */
-   private static boolean merge(ConstantPoolGeneration cp, int t, @Nonnull int[] types, int index) {
+   private static boolean merge(
+      @Nonnull ConstantPoolGeneration cp, int t, @Nonnull int[] types, @Nonnegative int index
+   ) {
       int u = types[index];
 
       if (u == t) {

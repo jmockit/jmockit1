@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A label represents a position in the bytecode of a method. Labels are used for jump, goto, and switch instructions,
  * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note however that there can
@@ -379,7 +381,7 @@ public final class Label
     *
     * @param block another basic block.
     */
-   private boolean inSameSubroutine(Label block) {
+   private boolean inSameSubroutine(@Nonnull Label block) {
       if (!isVisited() || !block.isVisited()) {
          return false;
       }
@@ -418,7 +420,7 @@ public final class Label
     * @param id the id of this subroutine.
     * @param nbSubroutines the total number of subroutines in the method.
     */
-   void visitSubroutine(Label JSR, long id, int nbSubroutines) {
+   void visitSubroutine(@Nullable Label JSR, long id, int nbSubroutines) {
       // User managed stack of labels, to avoid using a recursive method (recursivity can lead to stack overflow with
       // very large methods).
       Label stack = this;

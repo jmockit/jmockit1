@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A visitor to visit a Java annotation. The methods of this class must be called in the following order:
  * ( <tt>visit</tt> | <tt>visitEnum</tt> | <tt>visitAnnotation</tt> | <tt>visitArray</tt> )* <tt>visitEnd</tt>.
@@ -61,11 +63,11 @@ public abstract class AnnotationVisitor
     * @param name  the value name.
     * @param value the actual value, whose type must be {@link Byte}, {@link Boolean}, {@link Character},
     *              {@link Short}, {@link Integer}, {@link Long}, {@link Float}, {@link Double}, {@link String} or
-    *              {@link JavaType} or OBJECT or ARRAY sort. This value can also be an array of byte, boolean, short, char,
-    *              int, long, float or double values (this is equivalent to using {@link #visitArray visitArray} and
-    *              visiting each array element in turn, but is more convenient).
+    *              {@link JavaType} or OBJECT or ARRAY sort. This value can also be an array of byte, boolean, short,
+    *              char, int, long, float or double values (this is equivalent to using {@link #visitArray visitArray}
+    *              and visiting each array element in turn, but is more convenient).
     */
-   public void visit(String name, Object value) {}
+   public void visit(@Nonnull String name, @Nonnull Object value) {}
 
    /**
     * Visits an enumeration value of the annotation.
@@ -74,7 +76,7 @@ public abstract class AnnotationVisitor
     * @param desc  the class descriptor of the enumeration class.
     * @param value the actual enumeration value.
     */
-   public void visitEnum(String name, String desc, String value) {}
+   public void visitEnum(@Nonnull String name, @Nonnull String desc, @Nonnull String value) {}
 
    /**
     * Visits a nested annotation value of the annotation.
@@ -85,7 +87,8 @@ public abstract class AnnotationVisitor
     * in visiting this nested annotation. <i>The nested annotation value must be fully visited before calling
     * other methods on this annotation visitor</i>.
     */
-   public AnnotationVisitor visitAnnotation(String name, String desc) { return null; }
+   @Nullable
+   public AnnotationVisitor visitAnnotation(@Nonnull String name, @Nonnull String desc) { return null; }
 
    /**
     * Visits an array value of the annotation. Note that arrays of primitive types (such as byte, boolean, short, char,
@@ -97,7 +100,8 @@ public abstract class AnnotationVisitor
     * visiting these values. The 'name' parameters passed to the methods of this visitor are ignored.
     * <i>All the array values must be visited before calling other methods on this annotation visitor</i>.
     */
-   public AnnotationVisitor visitArray(String name) { return null; }
+   @Nullable
+   public AnnotationVisitor visitArray(@Nonnull String name) { return null; }
 
    /**
     * Visits the end of the annotation.

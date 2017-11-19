@@ -20,7 +20,7 @@ public class BaseClassModifier extends WrappingClassVisitor
    @Nonnull
    protected final MethodVisitor methodAnnotationsVisitor = new MethodVisitor() {
       @Override
-      public AnnotationVisitor visitAnnotation(String desc) { return mw.visitAnnotation(desc); }
+      public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return mw.visitAnnotation(desc); }
    };
 
    protected MethodWriter mw;
@@ -318,7 +318,8 @@ public class BaseClassModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitTryCatchBlock(Label start, Label end, Label handler, String type)
+      public void visitTryCatchBlock(
+         @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type)
       {
          if (callToAnotherConstructorAlreadyDisregarded) {
             mw.visitTryCatchBlock(start, end, handler, type);

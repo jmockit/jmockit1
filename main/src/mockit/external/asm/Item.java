@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.ConstantPoolItemType.*;
 
 /**
@@ -102,7 +104,7 @@ final class Item
    /**
     * Link to another constant pool item, used for collision lists in the constant pool's hash table.
     */
-   Item next;
+   @Nullable Item next;
 
    /**
     * Constructs an uninitialized {@link Item}.
@@ -122,17 +124,17 @@ final class Item
     * Constructs a copy of the given item.
     *
     * @param index index of the item to be constructed.
-    * @param i     the item that must be copied into the item to be constructed.
+    * @param item  the item that must be copied into the item to be constructed.
     */
-   Item(int index, Item i) {
+   Item(int index, @Nonnull Item item) {
       this.index = index;
-      type = i.type;
-      intVal = i.intVal;
-      longVal = i.longVal;
-      strVal1 = i.strVal1;
-      strVal2 = i.strVal2;
-      strVal3 = i.strVal3;
-      hashCode = i.hashCode;
+      type = item.type;
+      intVal = item.intVal;
+      longVal = item.longVal;
+      strVal1 = item.strVal1;
+      strVal2 = item.strVal2;
+      strVal3 = item.strVal3;
+      hashCode = item.hashCode;
    }
 
    /**
@@ -245,34 +247,34 @@ final class Item
     * Indicates if the given item is equal to this one. <i>This method assumes that the two items have the same
     * {@link #type}</i>.
     *
-    * @param i the item to be compared to this one. Both items must have the same {@link #type}.
+    * @param item the item to be compared to this one. Both items must have the same {@link #type}.
     * @return <tt>true</tt> if the given item if equal to this one, <tt>false</tt> otherwise.
     */
-   boolean isEqualTo(Item i) {
+   boolean isEqualTo(@Nonnull Item item) {
       switch (type) {
          case UTF8:
          case STR:
          case CLASS:
          case MTYPE:
          case SpecialType.NORMAL:
-            return i.strVal1.equals(strVal1);
+            return item.strVal1.equals(strVal1);
          case SpecialType.MERGED:
          case LONG:
          case DOUBLE:
-            return i.longVal == longVal;
+            return item.longVal == longVal;
          case INT:
          case FLOAT:
-            return i.intVal == intVal;
+            return item.intVal == intVal;
          case SpecialType.UNINIT:
-            return i.intVal == intVal && i.strVal1.equals(strVal1);
+            return item.intVal == intVal && item.strVal1.equals(strVal1);
          case NAME_TYPE:
-            return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
+            return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
          case INDY: {
-            return i.longVal == longVal && i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2);
+            return item.longVal == longVal && item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
          }
          // case FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
-            return i.strVal1.equals(strVal1) && i.strVal2.equals(strVal2) && i.strVal3.equals(strVal3);
+            return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2) && item.strVal3.equals(strVal3);
       }
    }
 
@@ -286,7 +288,7 @@ final class Item
     * store this variation, once it has been computed. More precisely this intVal field stores the sizes of the
     * arguments and of the return value corresponding to desc.
     */
-   int getArgSizeComputingIfNeeded(String desc) {
+   int getArgSizeComputingIfNeeded(@Nonnull String desc) {
       int argSize = intVal;
 
       if (argSize == 0) {

@@ -55,7 +55,8 @@ public final class ParameterNameExtractor extends ClassVisitor
    {
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
+         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
+         @Nonnegative int index)
       {
          ParameterNames.registerName(classDesc, memberAccess, memberName, memberDesc, desc, name, index);
       }

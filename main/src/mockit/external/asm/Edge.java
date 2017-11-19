@@ -29,10 +29,10 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * An edge in the control flow graph of a method body. See {@link Label}.
- *
- * @author Eric Bruneton
  */
 final class Edge
 {
@@ -67,7 +67,7 @@ final class Edge
     */
    Edge next;
 
-   Edge(int info, Label successor) {
+   Edge(int info, @Nonnull Label successor) {
       this.info = info;
       this.successor = successor;
    }

@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A dynamically extensible vector of bytes.
  * This class is roughly equivalent to a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
@@ -66,6 +68,7 @@ final class ByteVector
     *
     * @return this byte vector.
     */
+   @Nonnull
    ByteVector putByte(int b) {
       int length = getLengthEnlargingIfNeeded(1);
       data[length++] = (byte) b;
@@ -101,6 +104,7 @@ final class ByteVector
     *
     * @return this byte vector.
     */
+   @Nonnull
    ByteVector put11(int b1, int b2) {
       int length = getLengthEnlargingIfNeeded(2);
       byte[] data = this.data;
@@ -115,6 +119,7 @@ final class ByteVector
     *
     * @return this byte vector.
     */
+   @Nonnull
    ByteVector putShort(int s) {
       return put11(s >>> 8, s);
    }
@@ -124,6 +129,7 @@ final class ByteVector
     *
     * @return this byte vector.
     */
+   @Nonnull
    ByteVector put12(int b, int s) {
       int length = getLengthEnlargingIfNeeded(3);
       byte[] data = this.data;
@@ -139,6 +145,7 @@ final class ByteVector
     *
     * @return this byte vector.
     */
+   @Nonnull
    ByteVector putInt(int i) {
       int length = getLengthEnlargingIfNeeded(4);
       byte[] data = this.data;
@@ -165,7 +172,7 @@ final class ByteVector
     *
     * @param s a String whose UTF8 encoded length must be less than 65536.
     */
-   void putUTF8(String s) {
+   void putUTF8(@Nonnull String s) {
       int charLength = s.length();
 
       if (charLength > 65535) {
@@ -208,12 +215,13 @@ final class ByteVector
     * @param maxByteLength the maximum byte length of the encoded string, including the already encoded characters.
     * @return this byte vector.
     */
-   ByteVector encodeUTF8(String s, int i, int maxByteLength) {
+   @Nonnull
+   ByteVector encodeUTF8(@Nonnull String s, int i, int maxByteLength) {
       int charLength = s.length();
       int byteLength = i;
       char c;
 
-      for (int j = i; j < charLength; ++j) {
+      for (int j = i; j < charLength; j++) {
          c = s.charAt(j);
 
          if (c >= '\001' && c <= '\177') {
@@ -244,7 +252,7 @@ final class ByteVector
 
       int len = length;
 
-      for (int j = i; j < charLength; ++j) {
+      for (int j = i; j < charLength; j++) {
          c = s.charAt(j);
 
          if (c >= '\001' && c <= '\177') {
@@ -272,7 +280,7 @@ final class ByteVector
     * @param off index of the fist byte of b that must be copied.
     * @param len number of bytes of b that must be copied.
     */
-   void putByteArray(byte[] b, int off, int len) {
+   void putByteArray(@Nullable byte[] b, int off, int len) {
       int length = getLengthEnlargingIfNeeded(len);
 
       if (b != null) {
@@ -282,7 +290,7 @@ final class ByteVector
       this.length += len;
    }
 
-   void putByteVector(ByteVector another) {
+   void putByteVector(@Nonnull ByteVector another) {
       putByteArray(another.data, 0, another.length);
    }
 

@@ -118,7 +118,8 @@ final class FakeMethodCollector extends ClassVisitor
 
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, Label start, Label end, @Nonnegative int index)
+         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
+         @Nonnegative int index)
       {
          String classDesc = fakeMethods.getFakeClassInternalName();
          ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);

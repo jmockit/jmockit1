@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import mockit.external.asm.FrameAndStackComputation.*;
 
 /**
@@ -65,6 +67,7 @@ public class MethodVisitor extends BaseWriter
     * annotation visitor are ignored. Moreover, exactly one visit method must be called on this annotation visitor,
     * followed by visitEnd.
     */
+   @Nullable
    public AnnotationVisitor visitAnnotationDefault() { return null; }
 
    /**
@@ -74,7 +77,8 @@ public class MethodVisitor extends BaseWriter
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
     * this annotation.
     */
-   public AnnotationVisitor visitAnnotation(String desc) { return null; }
+   @Nullable
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
 
    /**
     * Visits an annotation of a parameter this method.
@@ -84,7 +88,8 @@ public class MethodVisitor extends BaseWriter
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
     * this annotation.
     */
-   public AnnotationVisitor visitParameterAnnotation(int parameter, String desc) { return null; }
+   @Nullable
+   public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) { return null; }
 
    /**
     * Starts the visit of the method's code, if any (i.e. non abstract method).
@@ -139,7 +144,7 @@ public class MethodVisitor extends BaseWriter
     * @throws IllegalStateException if a frame is visited just after another one, without any instruction between the
     * two (unless this frame is a {@link FrameType#SAME} frame, in which case it is silently ignored).
     */
-   public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {}
+   public void visitFrame(int type, int nLocal, @Nonnull Object[] local, int nStack, @Nonnull Object[] stack) {}
 
    // -------------------------------------------------------------------------
    // Normal instructions
@@ -190,7 +195,7 @@ public class MethodVisitor extends BaseWriter
     * @param type   the operand of the instruction to be visited. This operand must be the internal name of an object or
     *               array class (see {@link JavaType#getInternalName()}).
     */
-   public void visitTypeInsn(int opcode, String type) {}
+   public void visitTypeInsn(int opcode, @Nonnull String type) {}
 
    /**
     * Visits a field instruction. A field instruction is an instruction that loads or stores the value of a field of an
@@ -202,7 +207,7 @@ public class MethodVisitor extends BaseWriter
     * @param name   the field's name.
     * @param desc   the field's descriptor (see {@link JavaType}).
     */
-   public void visitFieldInsn(int opcode, String owner, String name, String desc) {}
+   public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {}
 
    /**
     * Visits a method instruction. A method instruction is an instruction that invokes a method.
@@ -214,7 +219,8 @@ public class MethodVisitor extends BaseWriter
     * @param desc   the method's descriptor (see {@link JavaType}).
     * @param itf    if the method's owner class is an interface.
     */
-   public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {}
+   public void visitMethodInsn(
+      int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {}
 
    /**
     * Visits an invokedynamic instruction.
@@ -223,10 +229,12 @@ public class MethodVisitor extends BaseWriter
     * @param desc    the method's descriptor (see {@link JavaType}).
     * @param bsm     the bootstrap method.
     * @param bsmArgs the bootstrap method constant arguments. Each argument must be an {@link Integer}, {@link Float},
-    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType} or {@link Handle} value. This method is
-    *                allowed to modify the content of the array so a caller should expect that this array may change.
+    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType} or {@link Handle} value.
+    *                This method is allowed to modify the content of the array so a caller should expect that this array
+    *                may change.
     */
-   public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {}
+   public void visitInvokeDynamicInsn(
+      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs) {}
 
    /**
     * Visits a jump instruction. A jump instruction is an instruction that may jump to another instruction.
@@ -237,12 +245,12 @@ public class MethodVisitor extends BaseWriter
     * @param label  the operand of the instruction to be visited. This operand is a label that designates the
     *               instruction to which the jump instruction may jump.
     */
-   public void visitJumpInsn(int opcode, Label label) {}
+   public void visitJumpInsn(int opcode, @Nonnull Label label) {}
 
    /**
     * Visits a label. A label designates the instruction that will be visited just after it.
     */
-   public void visitLabel(Label label) {}
+   public void visitLabel(@Nonnull Label label) {}
 
    // -------------------------------------------------------------------------
    // Special instructions
@@ -287,7 +295,7 @@ public class MethodVisitor extends BaseWriter
     *            sort for <tt>.class</tt> constants, for classes whose version is 49.0, a {@link JavaType} of METHOD sort or
     *            a {@link Handle} for MethodType and MethodHandle constants, for classes whose version is 51.0.
     */
-   public void visitLdcInsn(Object cst) {}
+   public void visitLdcInsn(@Nonnull Object cst) {}
 
    /**
     * Visits an IINC instruction.
@@ -295,7 +303,7 @@ public class MethodVisitor extends BaseWriter
     * @param var       index of the local variable to be incremented.
     * @param increment amount to increment the local variable by.
     */
-   public void visitIincInsn(int var, int increment) {}
+   public void visitIincInsn(@Nonnegative int var, @Nonnegative int increment) {}
 
    /**
     * Visits a TABLESWITCH instruction.
@@ -306,7 +314,7 @@ public class MethodVisitor extends BaseWriter
     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the beginning of the handler block for the
     *               <tt>min + i</tt> key.
     */
-   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {}
+   public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {}
 
    /**
     * Visits a LOOKUPSWITCH instruction.
@@ -316,7 +324,7 @@ public class MethodVisitor extends BaseWriter
     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the beginning of the handler block for the
     *               <tt>keys[i]</tt> key.
     */
-   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {}
+   public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {}
 
    /**
     * Visits a MULTIANEWARRAY instruction.
@@ -324,7 +332,7 @@ public class MethodVisitor extends BaseWriter
     * @param desc an array type descriptor (see {@link JavaType}).
     * @param dims number of dimensions of the array to allocate.
     */
-   public void visitMultiANewArrayInsn(String desc, int dims) {}
+   public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {}
 
    // -------------------------------------------------------------------------
    // Exceptions table entries, debug information, max stack
@@ -341,7 +349,8 @@ public class MethodVisitor extends BaseWriter
     * @throws IllegalArgumentException if one of the labels has already been visited by this visitor (by the
     *                                  {@link #visitLabel} method).
     */
-   public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {}
+   public void visitTryCatchBlock(
+      @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {}
 
    /**
     * Visits a local variable declaration.
@@ -356,7 +365,9 @@ public class MethodVisitor extends BaseWriter
     * @throws IllegalArgumentException if one of the labels has not already been visited by this visitor (by the
     *                                  {@link #visitLabel} method).
     */
-   public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {}
+   public void visitLocalVariable(
+      @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
+      @Nonnegative int index) {}
 
    /**
     * Visits a line number declaration.
@@ -366,12 +377,12 @@ public class MethodVisitor extends BaseWriter
     * @throws IllegalArgumentException if <tt>start</tt> has not already been visited by this visitor (by the
     *                                  {@link #visitLabel} method).
     */
-   public void visitLineNumber(int line, Label start) {}
+   public void visitLineNumber(@Nonnegative int line, @Nonnull Label start) {}
 
    /**
     * Visits the maximum stack size of the method.
     */
-   public void visitMaxStack(int maxStack) {}
+   public void visitMaxStack(@Nonnegative int maxStack) {}
 
    /**
     * Visits the end of the method. This method, which is the last one to be called, is used to inform the visitor that
