@@ -42,7 +42,7 @@ public class ClassWithFields
    }
 
    /**
-    * Indicates whether {@link #instance1} is {@code true} or {@code false}.
+    * Indicates whether {@link #instance1} is <tt>true</tt> or <tt>false</tt>.
     */
    public boolean isInstance1()
    {

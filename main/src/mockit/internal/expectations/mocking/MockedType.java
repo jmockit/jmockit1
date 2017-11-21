@@ -150,7 +150,7 @@ public final class MockedType extends InjectionProvider
    @Nonnull @Override public Class<?> getClassOfDeclaredType() { return getClassType(); }
 
    /**
-    * @return the class object corresponding to the type to be mocked, or {@code TypeVariable.class} in case the
+    * @return the class object corresponding to the type to be mocked, or <tt>TypeVariable.class</tt> in case the
     * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
     */
    @Nonnull

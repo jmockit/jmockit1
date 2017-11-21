@@ -12,8 +12,9 @@
  * completed.
  * </li>
  * <li>
- * Fake classes applied with the Faking API from inside a method annotated as a {@code @Test} or a {@code @BeforeMethod}
- * will be discarded right after the execution of the test method or the whole test, respectively.
+ * Fake classes applied with the Faking API from inside a method annotated as a <tt>@Test</tt> or a
+ * <tt>@BeforeMethod</tt> will be discarded right after the execution of the test method or the whole test,
+ * respectively.
  * </li>
  * <li>
  * Test methods accept <em>mock parameters</em>, whose values are mocked instances automatically created by JMockit and

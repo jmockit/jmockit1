@@ -26,8 +26,8 @@ import static mockit.internal.util.Utilities.*;
 public final class MockFixture
 {
    /**
-    * Similar to {@link #redefinedClasses}, but for classes modified by a {@code ClassFileTransformer} such as the
-    * {@code CaptureTransformer}, and containing the pre-transform bytecode instead of the modified one.
+    * Similar to {@link #redefinedClasses}, but for classes modified by a <tt>ClassFileTransformer</tt> such as the
+    * <tt>CaptureTransformer</tt>, and containing the pre-transform bytecode instead of the modified one.
     *
     * @see #addTransformedClass(ClassIdentification, byte[])
     * @see #getTransformedClasses()

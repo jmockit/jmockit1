@@ -6,7 +6,6 @@ package mockit.internal.injection.full;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.logging.*;
 import javax.annotation.*;
 import javax.enterprise.context.*;
@@ -21,7 +20,7 @@ import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
- * Responsible for recursive injection of dependencies into a {@code @Tested(fullyInitialized = true)} object.
+ * Responsible for recursive injection of dependencies into a <tt>@Tested(fullyInitialized = true)</tt> object.
  */
 public final class FullInjection
 {

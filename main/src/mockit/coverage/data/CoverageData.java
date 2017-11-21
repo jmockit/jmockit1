@@ -83,9 +83,9 @@ public final class CoverageData implements Serializable
     * Computes the coverage percentage for a given metric, over a subset of the available source files.
     *
     * @param fileNamePrefix a regular expression for matching the names of the source files to be considered, or
-    *                      {@code null} to consider <em>all</em> files
+    *                       <tt>null</tt> to consider <em>all</em> files
     *
-    * @return the computed percentage from {@literal 0} to {@literal 100} (inclusive), or {@literal -1} if no
+    * @return the computed percentage from <tt>0</tt> to <tt>100</tt> (inclusive), or <tt>-1</tt> if no
     * meaningful value could be computed for the metric
     */
    public int getPercentage(@Nonnull Metrics metric, @Nullable String fileNamePrefix)
@@ -110,7 +110,7 @@ public final class CoverageData implements Serializable
    /**
     * Finds the source file with the smallest coverage percentage for a given metric.
     *
-    * @return the percentage value for the file found, or {@code Integer.MAX_VALUE} if no file is found with a
+    * @return the percentage value for the file found, or <tt>Integer.MAX_VALUE</tt> if no file is found with a
     * meaningful coverage percentage
     */
    public int getSmallestPerFilePercentage(@Nonnull Metrics metric)
@@ -221,10 +221,10 @@ public final class CoverageData implements Serializable
    }
 
    /**
-    * Reads a serialized {@code CoverageData} object from the given file (normally, a "<code>coverage.ser</code>" file
+    * Reads a serialized <tt>CoverageData</tt> object from the given file (normally, a "<tt>coverage.ser</tt>" file
     * generated at the end of a previous test run).
     *
-    * @param dataFile the ".ser" file containing a serialized {@code CoverageData} instance
+    * @param dataFile the ".ser" file containing a serialized <tt>CoverageData</tt> instance
     *
     * @return a new object containing all coverage data resulting from a previous test run
     */

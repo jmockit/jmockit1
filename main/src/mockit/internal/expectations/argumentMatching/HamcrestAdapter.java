@@ -12,7 +12,7 @@ import org.hamcrest.*;
 import org.hamcrest.core.*;
 
 /**
- * Adapts the {@code org.hamcrest.Matcher} interface to {@link ArgumentMatcher}.
+ * Adapts the <tt>org.hamcrest.Matcher</tt> interface to {@link ArgumentMatcher}.
  */
 public final class HamcrestAdapter implements ArgumentMatcher<HamcrestAdapter>
 {

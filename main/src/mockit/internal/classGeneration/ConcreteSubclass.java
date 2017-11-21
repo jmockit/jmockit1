@@ -9,7 +9,7 @@ import javax.annotation.*;
 import mockit.external.asm.*;
 
 /**
- * Generates a concrete subclass for an {@code abstract} base class.
+ * Generates a concrete subclass for an <tt>abstract</tt> base class.
  */
 public final class ConcreteSubclass<T> extends ImplementationClass<T>
 {

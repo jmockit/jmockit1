@@ -26,7 +26,7 @@ abstract class Invocations
    static { Startup.verifyInitialization(); }
 
    /**
-    * Matches any {@code Object} reference received by a parameter of a reference type.
+    * Matches any <tt>Object</tt> reference received by a parameter of a reference type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -42,10 +42,10 @@ abstract class Invocations
     * <p/>
     * Notice the use of this field will usually require a cast to the specific parameter type.
     * However, if there is any other parameter for which an argument matching constraint is specified, passing the
-    * {@code null} reference instead will have the same effect.
+    * <tt>null</tt> reference instead will have the same effect.
     * <p/>
-    * To match an entire <em>varargs</em> parameter of element type {@code V} (ie, all arguments in the array), cast it
-    * to the parameter type: "{@code (V[]) any}".
+    * To match an entire <em>varargs</em> parameter of element type <tt>V</tt> (ie, all arguments in the array), cast it
+    * to the parameter type: "<tt>(V[]) any</tt>".
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -61,7 +61,7 @@ abstract class Invocations
    protected final Object any = null;
 
    /**
-    * Matches any {@code String} value received by a parameter of this type.
+    * Matches any <tt>String</tt> value received by a parameter of this type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -91,7 +91,7 @@ abstract class Invocations
    protected final String anyString = new String();
 
    /**
-    * Matches any {@code long} or {@code Long} value received by a parameter of that type.
+    * Matches any <tt>long</tt> or <tt>Long</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -119,7 +119,7 @@ abstract class Invocations
    protected final Long anyLong = 0L;
 
    /**
-    * Matches any {@code int} or {@code Integer} value received by a parameter of that type.
+    * Matches any <tt>int</tt> or <tt>Integer</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -147,7 +147,7 @@ abstract class Invocations
    protected final Integer anyInt = 0;
 
    /**
-    * Matches any {@code short} or {@code Short} value received by a parameter of that type.
+    * Matches any <tt>short</tt> or <tt>Short</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -175,7 +175,7 @@ abstract class Invocations
    protected final Short anyShort = 0;
 
    /**
-    * Matches any {@code byte} or {@code Byte} value received by a parameter of that type.
+    * Matches any <tt>byte</tt> or <tt>Byte</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -203,7 +203,7 @@ abstract class Invocations
    protected final Byte anyByte = 0;
 
    /**
-    * Matches any {@code boolean} or {@code Boolean} value received by a parameter of that type.
+    * Matches any <tt>boolean</tt> or <tt>Boolean</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -231,7 +231,7 @@ abstract class Invocations
    protected final Boolean anyBoolean = false;
 
    /**
-    * Matches any {@code char} or {@code Character} value received by a parameter of that type.
+    * Matches any <tt>char</tt> or <tt>Character</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -259,7 +259,7 @@ abstract class Invocations
    protected final Character anyChar = '\0';
 
    /**
-    * Matches any {@code double} or {@code Double} value received by a parameter of that type.
+    * Matches any <tt>double</tt> or <tt>Double</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -287,7 +287,7 @@ abstract class Invocations
    protected final Double anyDouble = 0.0;
 
    /**
-    * Matches any {@code float} or {@code Float} value received by a parameter of that type.
+    * Matches any <tt>float</tt> or <tt>Float</tt> value received by a parameter of that type.
     * <p/>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor
     * invocation, when recording or verifying an expectation; it cannot be used anywhere else.
@@ -330,11 +330,11 @@ abstract class Invocations
     * <em>Zero</em> or a <em>negative</em> value means there is no lower limit, but only when applied to an expectation
     * recorded in a test setup method, to a strict expectation, or to a full verification.
     * <p/>
-    * If not specified, the default value of {@code 1} (one) is used.
+    * If not specified, the default value of <tt>1</tt> (one) is used.
     * <p/>
     * The <em>maximum</em> number of times is automatically adjusted to allow any number of invocations.
-    * Both {@code minTimes} and {@code maxTimes} can be specified for the same expectation, as long as {@code minTimes}
-    * is assigned first.
+    * Both <tt>minTimes</tt> and <tt>maxTimes</tt> can be specified for the same expectation, as long as
+    * <tt>minTimes</tt> is assigned first.
     *
     * @see #times
     * @see #maxTimes
@@ -348,10 +348,10 @@ abstract class Invocations
     * A <em>negative</em> value implies there is no upper limit.
     * <p/>
     * If not specified, there is no upper limit by default, except in the case of a strict expectation, where the
-    * default is {@code 1} (one).
+    * default is <tt>1</tt> (one).
     * <p/>
-    * Both {@code minTimes} and {@code maxTimes} can be specified for the same expectation, as long as {@code minTimes}
-    * is assigned first.
+    * Both <tt>minTimes</tt> and <tt>maxTimes</tt> can be specified for the same expectation, as long as
+    * <tt>minTimes</tt> is assigned first.
     *
     * @see #times
     * @see #minTimes
@@ -375,9 +375,9 @@ abstract class Invocations
     * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
     * parameter and varargs element.
     *
-    * @param argumentMatcher any {@code org.hamcrest.Matcher} object
+    * @param argumentMatcher any <tt>org.hamcrest.Matcher</tt> object
     *
-    * @return the value recorded inside the given Hamcrest matcher, or {@code null} if there is no such value to be
+    * @return the value recorded inside the given Hamcrest matcher, or <tt>null</tt> if there is no such value to be
     * found
     *
     * @see #with(Delegate)
@@ -395,14 +395,14 @@ abstract class Invocations
     * Applies a custom argument matcher for a parameter in the current expectation.
     * <p/>
     * The class of the given delegate object should define a single non-<code>private</code> <em>delegate</em> method
-    * (plus any number of helper {@code private} methods).
+    * (plus any number of helper <tt>private</tt> methods).
     * The name of the delegate method doesn't matter, but it must have a single parameter capable of receiving the
     * relevant argument values.
     * <p/>
-    * The return type of the delegate method should be {@code boolean} or {@code void}.
-    * In the first case, a return value of {@code true} will indicate a successful match for the actual invocation
-    * argument at replay time, while a return of {@code false} will fail to match the invocation.
-    * In the case of a {@code void} return type, the actual invocation argument should be validated through a suitable
+    * The return type of the delegate method should be <tt>boolean</tt> or <tt>void</tt>.
+    * In the first case, a return value of <tt>true</tt> will indicate a successful match for the actual invocation
+    * argument at replay time, while a return of <tt>false</tt> will fail to match the invocation.
+    * In the case of a <tt>void</tt> return type, the actual invocation argument should be validated through a suitable
     * JUnit/TestNG assertion.
     * <p/>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
@@ -416,7 +416,7 @@ abstract class Invocations
     *
     * @param objectWithDelegateMethod an instance of a class defining a single non-<code>private</code> delegate method
     *
-    * @return the default primitive value corresponding to {@code T} if it's a primitive wrapper type, or {@code null}
+    * @return the default primitive value corresponding to <tt>T</tt> if it's a primitive wrapper type, or <tt>null</tt>
     * otherwise
     *
     * @see #withArgThat(org.hamcrest.Matcher)
@@ -454,7 +454,7 @@ abstract class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type ({@code null}
+    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type (<tt>null</tt>
     * included).
     * <p/>
     * Consider using instead the "anyXyz" field appropriate to the parameter type:
@@ -513,7 +513,7 @@ abstract class Invocations
     * @param valueHolderForMultipleInvocations list into which the arguments received by matching invocations will be
     *                                          added
     *
-    * @return the default value for type {@code T}
+    * @return the default value for type <tt>T</tt>
     *
     * @see Verifications#withCapture()
     * @see Verifications#withCapture(Object)
@@ -536,7 +536,7 @@ abstract class Invocations
     * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
     * Any arguments given as literals, local variables, or fields, will be implicitly matched as if
-    * {@code withEqual(value)} had been used.
+    * <tt>withEqual(value)</tt> had been used.
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any
     * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
     * parameter and varargs element.
@@ -580,7 +580,7 @@ abstract class Invocations
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
     *
-    * @return the given {@code value}
+    * @return the given <tt>value</tt>
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -606,7 +606,7 @@ abstract class Invocations
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
     *
-    * @return the given {@code value}
+    * @return the given <tt>value</tt>
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -620,8 +620,8 @@ abstract class Invocations
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is an instance of
     * the same class as the given object.
     * <p/>
-    * Equivalent to a <code>withInstanceOf(object.getClass())</code> call, except that it returns {@code object} instead
-    * of {@code null}.
+    * Equivalent to a <code>withInstanceOf(object.getClass())</code> call, except that it returns <tt>object</tt>
+    * instead of <tt>null</tt>.
     * <p/>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
     * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
@@ -659,7 +659,7 @@ abstract class Invocations
     *
     * @param argClass the desired class
     *
-    * @return always {@code null}; if you need a specific return value, use {@link #withInstanceLike(Object)}
+    * @return always <tt>null</tt>; if you need a specific return value, use {@link #withInstanceLike(Object)}
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -695,7 +695,7 @@ abstract class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is {@code null}.
+    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is <tt>null</tt>.
     * <p/>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
     * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
@@ -706,7 +706,7 @@ abstract class Invocations
     * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
     * parameter and varargs element.
     *
-    * @return always {@code null}
+    * @return always <tt>null</tt>
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -718,7 +718,7 @@ abstract class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is not
-    * {@code null}.
+    * <tt>null</tt>.
     * <p/>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked
     * method/constructor, it's <em>not</em> necessary to also use matchers for the other parameters.
@@ -729,7 +729,7 @@ abstract class Invocations
     * regular parameter, or for any element in the varargs array, then a matcher <em>must</em> be used for every other
     * parameter and varargs element.
     *
-    * @return always {@code null}
+    * @return always <tt>null</tt>
     *
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -845,7 +845,7 @@ abstract class Invocations
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase matches
     * the given {@link Pattern regular expression}.
     * <p/>
-    * Note that this can be used for any string comparison, including case insensitive ones (with {@code "(?i)"} in the
+    * Note that this can be used for any string comparison, including case insensitive ones (with <tt>"(?i)"</tt> in the
     * regex).
     * <p/>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked

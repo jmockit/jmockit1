@@ -19,7 +19,7 @@ import mockit.internal.expectations.*;
  * executed.
  * <p/>
  * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during
- * the initialization of an {@code Expectations} object.
+ * the initialization of an <tt>Expectations</tt> object.
  * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
  * call it, an <em>expectation block</em>:
  * <pre>
@@ -35,7 +35,7 @@ import mockit.internal.expectations.*;
  * During replay, invocations matching a recorded expectation must occur at least <em>once</em> (unless specified
  * otherwise);
  * if, by the end of the test, no matching invocation occurred for a given recorded expectation, the test will fail with
- * a {@code MissingInvocation} error.
+ * a <tt>MissingInvocation</tt> error.
  * <p/>
  * When multiple expectations are recorded, matching invocations are allowed to occur in a <em>different</em> order.
  * So, the order in which expectations are recorded is not significant.
@@ -78,19 +78,19 @@ public abstract class Expectations extends Invocations
     * If no result is recorded for a given expectation, then all matching invocations will return the appropriate
     * default value according to the method return type:
     * <ul>
-    * <li>Most {@code java.lang} types (<code>String</code>, {@code Object}, etc.): returns {@code null}.</li>
-    * <li>{@code java.math} types (<code>BigDecimal</code>, etc.): returns {@code null}.</li>
-    * <li>Primitive/wrapper types: returns the standard default value (<code>false</code> for {@code boolean/Boolean},
-    * {@code 0} for {@code int/Integer}, and so on).
+    * <li>Most <tt>java.lang</tt> types (<tt>String</tt>, <tt>Object</tt>, etc.): returns <tt>null</tt>.</li>
+    * <li><tt>java.math</tt> types (<tt>BigDecimal</tt>, etc.): returns <tt>null</tt>.</li>
+    * <li>Primitive/wrapper types: returns the standard default value (<code>false</code> for <tt>boolean/Boolean</tt>,
+    * <tt>0</tt> for <tt>int/Integer</tt>, and so on).
     * </li>
-    * <li>{@code java.util.List}, {@code java.util.Collection}, or {@code java.lang.Iterable}: returns
+    * <li><tt>java.util.List</tt>, <tt>java.util.Collection</tt>, or <tt>java.lang.Iterable</tt>: returns
     * {@link Collections#EMPTY_LIST}.</li>
-    * <li>{@code java.util.Iterator} or {@code java.util.ListIterator}: returns an empty iterator.</li>
-    * <li>{@code java.util.Set}: returns {@link Collections#EMPTY_SET}.</li>
-    * <li>{@code java.util.SortedSet}: returns an unmodifiable empty sorted set.</li>
-    * <li>{@code java.util.Map}: returns {@link Collections#EMPTY_MAP}.</li>
-    * <li>{@code java.util.SortedMap}: returns an unmodifiable empty sorted map.</li>
-    * <li>{@code java.util.Optional}: returns {@link Optional#empty()}.</li>
+    * <li><tt>java.util.Iterator</tt> or <tt>java.util.ListIterator</tt>: returns an empty iterator.</li>
+    * <li><tt>java.util.Set</tt>: returns {@link Collections#EMPTY_SET}.</li>
+    * <li><tt>java.util.SortedSet</tt>: returns an unmodifiable empty sorted set.</li>
+    * <li><tt>java.util.Map</tt>: returns {@link Collections#EMPTY_MAP}.</li>
+    * <li><tt>java.util.SortedMap</tt>: returns an unmodifiable empty sorted map.</li>
+    * <li><tt>java.util.Optional</tt>: returns {@link Optional#empty()}.</li>
     * <li>Other reference types: returns a mocked instance through cascading.</li>
     * <li>Array types: returns an array with zero elements (empty) in each dimension.</li>
     * </ul>
@@ -99,8 +99,8 @@ public abstract class Expectations extends Invocations
     * <em>throwing</em> one), then the {@link #returns(Object, Object, Object...)} method should be used instead, as it
     * only applies to return values.
     * <p/>
-    * Assigning a value whose type differs from the method return type will cause an {@code IllegalArgumentException} to
-    * be thrown, unless it can be safely converted to the return type.
+    * Assigning a value whose type differs from the method return type will cause an <tt>IllegalArgumentException</tt>
+    * to be thrown, unless it can be safely converted to the return type.
     * One such conversion is from an array to a collection or iterator.
     * Another is from an array of at least two dimensions to a map, with the first dimension providing the keys and the
     * second the values.
@@ -113,7 +113,7 @@ public abstract class Expectations extends Invocations
     * <p/>
     * Results that depend on some programming logic can be provided through a {@linkplain Delegate} object assigned to
     * the field.
-    * This applies to {@code void} and non-<code>void</code> methods, as well as to constructors.
+    * This applies to <tt>void</tt> and non-<code>void</code> methods, as well as to constructors.
     * <p/>
     * Finally, when recording an expectation on a <em>constructor</em> of a mocked class, an arbitrary instance of said
     * class can be assigned to the field.
@@ -142,21 +142,21 @@ public abstract class Expectations extends Invocations
     * Same as {@link #Expectations()}, except that one or more classes will be partially mocked according to the
     * expectations recorded in the expectation block.
     * <p/>
-    * The classes to be partially mocked are those directly specified through their {@code Class} objects as well as
+    * The classes to be partially mocked are those directly specified through their <tt>Class</tt> objects as well as
     * those to which any given objects belong.
     * During replay, any invocations to one of these classes or objects will execute real production code, unless a
     * matching expectation was recorded.
-    * This mechanism, however, does not apply to {@code native} methods, which are not supported for partial mocking.
+    * This mechanism, however, does not apply to <tt>native</tt> methods, which are not supported for partial mocking.
     * <p/>
-    * For a given {@code Class} object, all constructors and methods can be mocked, from the specified class up to but
-    * not including {@code java.lang.Object}.
+    * For a given <tt>Class</tt> object, all constructors and methods can be mocked, from the specified class up to but
+    * not including <tt>java.lang.Object</tt>.
     * For a given <em>object</em>, only methods can be mocked, not constructors; also, during replay, invocations to
     * instance methods will only match expectations recorded on the given instance (or instances, if more than one was
     * given).
     *
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
-    * @throws IllegalArgumentException if given a {@code Class} object for an interface, an annotation, an array, a
+    * @throws IllegalArgumentException if given a <tt>Class</tt> object for an interface, an annotation, an array, a
     * primitive/wrapper type, a synthetic class, a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy
     * class}, or if given a value/instance of such a type
     * 
@@ -179,19 +179,19 @@ public abstract class Expectations extends Invocations
     * Certain data conversions will be applied, depending on the return type of the recorded method:
     * <ol>
     * <li>If the return type is iterable and can receive a {@link List} value, then the given sequence of values will be
-    * converted into an {@code ArrayList}; this list will then be returned by matching invocations at replay time.</li>
-    * <li>If the return type is {@code SortedSet} or a sub-type, then the given sequence of values will be converted
-    * into a {@code TreeSet}; otherwise, if it is {@code Set} or a sub-type, then a {@code LinkedHashSet} will be
+    * converted into an <tt>ArrayList</tt>; this list will then be returned by matching invocations at replay time.</li>
+    * <li>If the return type is <tt>SortedSet</tt> or a sub-type, then the given sequence of values will be converted
+    * into a <tt>TreeSet</tt>; otherwise, if it is <tt>Set</tt> or a sub-type, then a <tt>LinkedHashSet</tt> will be
     * created to hold the values; the set will then be returned by matching invocations at replay time.</li>
-    * <li>If the return type is {@code Iterator} or a sub-type, then the given sequence of values will be converted into
-    * a {@code List} and the iterator created from this list will be returned by matching invocations at replay
+    * <li>If the return type is <tt>Iterator</tt> or a sub-type, then the given sequence of values will be converted
+    * into a <tt>List</tt> and the iterator created from this list will be returned by matching invocations at replay
     * time.</li>
     * <li>If the return type is an array, then the given sequence of values will be converted to an array of the same
     * type, which will be returned by matching invocations at replay time.</li>
     * </ol>
     * The current expectation will have its upper invocation count automatically set to the total number of values
     * specified to be returned.
-    * This upper limit can be overridden through the {@code maxTimes} field, if necessary.
+    * This upper limit can be overridden through the <tt>maxTimes</tt> field, if necessary.
     *
     * @param firstValue the first value to be returned at replay time
     * @param secondValue the second value to be returned at replay time

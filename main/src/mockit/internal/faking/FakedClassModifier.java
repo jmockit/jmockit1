@@ -80,7 +80,7 @@ final class FakedClassModifier extends BaseClassModifier
     * @param signature not relevant
     * @param exceptions not relevant
     *
-    * @return {@code null} if the method was redefined, otherwise a {@code MethodWriter} that writes out the visited
+    * @return <tt>null</tt> if the method was redefined, otherwise a <tt>MethodWriter</tt> that writes out the visited
     * method code without changes
     */
    @Override

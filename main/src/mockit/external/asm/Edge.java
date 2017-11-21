@@ -49,9 +49,9 @@ final class Edge
    static final int EXCEPTION = 0x7FFFFFFF;
 
    /**
-    * Information about this control flow graph edge. If {@code ClassWriter#computeFrames} is not used this field is the
-    * (relative) stack size in the basic block from which this edge originates. This size is equal to the stack size at
-    * the "jump" instruction to which this edge corresponds, relatively to the stack size at the beginning of the
+    * Information about this control flow graph edge. If <tt>ClassWriter#computeFrames</tt> is not used this field is
+    * the (relative) stack size in the basic block from which this edge originates. This size is equal to the stack size
+    * at the "jump" instruction to which this edge corresponds, relatively to the stack size at the beginning of the
     * originating basic block. If {@link ClassWriter#computeFrames} is used, this field is the kind of this control flow
     * graph edge (i.e. NORMAL or EXCEPTION).
     */

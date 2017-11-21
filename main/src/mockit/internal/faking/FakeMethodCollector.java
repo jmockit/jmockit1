@@ -62,7 +62,7 @@ final class FakeMethodCollector extends ClassVisitor
    }
 
    /**
-    * Adds the method specified to the set of fake methods, as long as it's annotated with {@code @Mock}.
+    * Adds the method specified to the set of fake methods, as long as it's annotated with <tt>@Mock</tt>.
     *
     * @param methodSignature generic signature for a Java 5 generic method, ignored since redefinition only needs to
     *                        consider the "erased" signature

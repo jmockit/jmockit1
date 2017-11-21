@@ -37,9 +37,9 @@ public @interface Capturing
     * instances are regarded as equivalent to the original mocked instance created for the mock field/parameter.
     * <p/>
     * It is valid to declare two or more mock fields/parameters of the same mocked type with a positive number of
-    * {@code maxInstances} for each one of them, say {@code n1}, {@code n2}, etc.
-    * In this case, the first {@code n1} new instances will be associated with the first field/parameter, the following
-    * {@code n2} new instances to the second, and so on.
+    * <tt>maxInstances</tt> for each one of them, say <tt>n1</tt>, <tt>n2</tt>, etc.
+    * In this case, the first <tt>n1</tt> new instances will be associated with the first field/parameter, the following
+    * <tt>n2</tt> new instances to the second, and so on.
     */
    int maxInstances() default Integer.MAX_VALUE;
 }

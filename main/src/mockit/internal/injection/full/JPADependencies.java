@@ -16,8 +16,8 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
 /**
- * Detects and resolves dependencies belonging to the {@code javax.persistence} API, namely {@code EntityManagerFactory}
- * and {@code EntityManager}.
+ * Detects and resolves dependencies belonging to the <tt>javax.persistence</tt> API, namely
+ * <tt>EntityManagerFactory</tt> and <tt>EntityManager</tt>.
  */
 final class JPADependencies
 {

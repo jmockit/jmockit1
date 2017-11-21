@@ -26,11 +26,11 @@ import static mockit.internal.util.GeneratedClasses.*;
  * }
  * </pre>
  * One or more <em>fake methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
- * Each {@code @Mock} method should have a matching method or constructor in the faked class/interface.
+ * Each <tt>@Mock</tt> method should have a matching method or constructor in the faked class/interface.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding fake method.
  * <p/>
  * When the faked type is an interface, an implementation class is generated where all methods are empty, with non-void
- * methods returning a default value according to the return type: {@code 0} for {@code int}, {@code null} for a
+ * methods returning a default value according to the return type: <tt>0</tt> for <tt>int</tt>, <tt>null</tt> for a
  * reference type, and so on.
  * In this case, an instance of the generated implementation class should be obtained by calling
  * {@link #getMockInstance()}.

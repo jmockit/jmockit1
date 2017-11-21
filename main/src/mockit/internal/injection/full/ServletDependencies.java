@@ -16,8 +16,8 @@ import static java.util.Collections.enumeration;
 import mockit.internal.injection.*;
 
 /**
- * Detects and resolves dependencies belonging to the {@code javax.servlet} API, namely {@code ServletContext}
- * and {@code HttpSession}.
+ * Detects and resolves dependencies belonging to the <tt>javax.servlet</tt> API, namely <tt>ServletContext</tt>
+ * and <tt>HttpSession</tt>.
  */
 final class ServletDependencies
 {

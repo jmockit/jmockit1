@@ -10,9 +10,9 @@ import java.lang.annotation.*;
  * Indicates that the value of a mock field or mock parameter will be an isolated {@linkplain Mocked mocked} instance,
  * intended to be passed or <em>injected</em> into the code under test.
  * Such instances can be said to be proper <em>mock objects</em>, in contrast to the mocked instances of a regular
- * {@code @Mocked} type.
+ * <tt>@Mocked</tt> type.
  * <p/>
- * When the type of the injectable is {@code String}, a primitive wrapper, a {@linkplain Number number type}, or an
+ * When the type of the injectable is <tt>String</tt>, a primitive wrapper, a {@linkplain Number number type}, or an
  * enum, it is <em>not</em> mocked.
  * A non-empty {@link #value} must then be provided, except in the first case where the empty string is used by default.
  * <p/>
@@ -34,7 +34,7 @@ import java.lang.annotation.*;
 public @interface Injectable
 {
    /**
-    * Specifies a literal value when the type of the injectable mock field/parameter is {@code String}, a primitive or
+    * Specifies a literal value when the type of the injectable mock field/parameter is <tt>String</tt>, a primitive or
     * wrapper type, a number type, or an enum type.
     * For a primitive/wrapper/number type, the value provided must be convertible to it.
     * For an enum type, the given textual value must equal the name of one of the possible enum values.

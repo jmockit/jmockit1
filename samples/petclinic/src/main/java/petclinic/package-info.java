@@ -44,7 +44,7 @@
  * Either of the above is good, from the point of view of having cohesive packages.
  * The package structure used in Spring's PetClinic is not a good one, because it groups together classes that are
  * unrelated to each other, therefore violating the basic principle that packages should have high cohesion.
- * For example, take the {@code petclinic.web} package: it holds both {@code OwnerController} and {@code VetController},
- * which are completely unrelated and independent of each other.
+ * For example, take the <tt>petclinic.web</tt> package: it holds both <tt>OwnerController</tt> and
+ * <tt>VetController</tt>, which are completely unrelated and independent of each other.
  */
 package petclinic;

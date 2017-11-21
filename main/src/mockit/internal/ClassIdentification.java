@@ -7,7 +7,7 @@ package mockit.internal;
 import javax.annotation.*;
 
 /**
- * Identifies a class by its loader and name rather than by the {@code Class} object, which isn't available during
+ * Identifies a class by its loader and name rather than by the <tt>Class</tt> object, which isn't available during
  * initial class transformation.
  */
 public final class ClassIdentification

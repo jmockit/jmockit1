@@ -12,7 +12,7 @@ import mockit.internal.startup.*;
 /**
  * A test runner for <em>JUnit 4.5+</em>, with special modifications to integrate with JMockit.
  * Normally, use of this class is optional.
- * Instead, simply make sure that {@code jmockit-1-x.jar} precedes {@code junit-4-x.jar} in the runtime classpath.
+ * Instead, simply make sure that <tt>jmockit-1-x.jar</tt> precedes <tt>junit-4-x.jar</tt> in the runtime classpath.
  *
  * @see <a href="http://jmockit.org/tutorial/Introduction.html#runningTests" target="tutorial">Tutorial</a>
  */

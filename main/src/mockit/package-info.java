@@ -10,8 +10,8 @@
  * injection and/or recursive instantiation of dependencies.
  * It can inject mocked instances when used in combination with the {@linkplain mockit.Injectable @Injectable} mocking
  * annotation, and also inject <em>non-mocked</em> (real) instances when applied as
- * {@code @Tested(fullyInitialized = true)}.
- * Non-mocked instances are either automatically created or obtained from other {@code @Tested} fields.
+ * <tt>@Tested(fullyInitialized = true)</tt>.
+ * Non-mocked instances are either automatically created or obtained from other <tt>@Tested</tt> fields.
  * <p/>
  * The {@link mockit.Expectations} class provides an API for the <em>record-replay</em> model of recording expected
  * invocations which are later replayed and implicitly verified.
@@ -23,14 +23,14 @@
  * The {@link mockit.Invocation} class and the {@link mockit.Delegate} interface are also part of this API; they can be
  * used for recording expectations with custom results, and for the implementation of custom argument matchers.
  * <p/>
- * {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} is a generic base class (where {@code T} is the type to be
+ * {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} is a generic base class (where <tt>T</tt> is the type to be
  * faked) which allows the definition of fake implementations for external classes or interfaces.
- * Methods in a fake class that take the place of the "real" methods in class {@code T} are indicated with the
+ * Methods in a fake class that take the place of the "real" methods in class <tt>T</tt> are indicated with the
  * {@linkplain mockit.Mock @Mock} annotation.
  * Such methods can also (optionally) have an {@link mockit.Invocation} parameter.
  * <p/>
  * Finally, the {@link mockit.Deencapsulation} class provides a few Reflection-based utility methods, for the rare cases
- * where a {@code private} field needs to be accessed.
+ * where a <tt>private</tt> field needs to be accessed.
  * <p/>
  * For a description with examples of the <em>Mocking</em> API, see the
  * "<a href="http://jmockit.org/tutorial/Mocking.html" target="tutorial">Mocking</a>" chapter in the Tutorial.

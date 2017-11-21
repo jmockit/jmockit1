@@ -20,12 +20,12 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
  * <p/>
  * There are several possible initialization scenarios:
  * <ol>
- *    <li>Execution with {@code -javaagent:jmockit-1-x.jar} and without reloading in a custom class loader.</li>
- *    <li>Execution from system CL without {@code -javaagent} and without reloading in custom CL.</li>
- *    <li>Execution with {@code -javaagent} and with reloading in custom CL.</li>
- *    <li>Execution from system CL without {@code -javaagent} and with reloading in custom CL.</li>
- *    <li>Execution from custom CL without {@code -javaagent} and without reloading in another custom CL.</li>
- *    <li>Execution from custom CL without {@code -javaagent} and with reloading in another custom CL.</li>
+ *    <li>Execution with <tt>-javaagent:jmockit-1-x.jar</tt> and without reloading in a custom class loader.</li>
+ *    <li>Execution from system CL without <tt>-javaagent</tt> and without reloading in custom CL.</li>
+ *    <li>Execution with <tt>-javaagent</tt> and with reloading in custom CL.</li>
+ *    <li>Execution from system CL without <tt>-javaagent</tt> and with reloading in custom CL.</li>
+ *    <li>Execution from custom CL without <tt>-javaagent</tt> and without reloading in another custom CL.</li>
+ *    <li>Execution from custom CL without <tt>-javaagent</tt> and with reloading in another custom CL.</li>
  * </ol>
  *
  * @see #premain(String, Instrumentation)

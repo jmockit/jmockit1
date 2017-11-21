@@ -41,7 +41,7 @@ public class Invocation
    }
 
    /**
-    * Returns the instance on which the current invocation was made, or {@code null} for a {@code static} method
+    * Returns the instance on which the current invocation was made, or <tt>null</tt> for a <tt>static</tt> method
     * invocation.
     */
    public final <T> T getInvokedInstance()
@@ -51,7 +51,7 @@ public class Invocation
    }
 
    /**
-    * Returns the {@code Method} or {@code Constructor} object corresponding to the target method or constructor,
+    * Returns the <tt>Method</tt> or <tt>Constructor</tt> object corresponding to the target method or constructor,
     * respectively.
     */
    public final <M extends Member> M getInvokedMember()
@@ -100,7 +100,7 @@ public class Invocation
     *
     * @throws UnsupportedOperationException if attempting to proceed into a target method which does not belong to an
     * {@linkplain Injectable injectable mocked type} nor to a {@linkplain Expectations#Expectations(Object...) dynamic
-    * partially mocked type}, into a {@code native} method, or into an interface or abstract method
+    * partially mocked type}, into a <tt>native</tt> method, or into an interface or abstract method
     *
     * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
     */

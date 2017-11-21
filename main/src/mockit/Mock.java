@@ -15,16 +15,16 @@ import java.lang.annotation.*;
  * parameters in the real method.
  * The fake method must also have the same return type as the matching real method.
  * <p/>
- * Method modifiers (<code>public</code>, {@code final}, {@code static}, etc.) between fake and faked methods
+ * Method modifiers (<code>public</code>, <tt>final</tt>, <tt>static</tt>, etc.) between fake and faked methods
  * <em>don't</em> have to be the same.
- * It's perfectly fine to have a non-<code>static</code> fake method for a {@code static} faked method (or vice-versa),
+ * It's perfectly fine to have a non-<code>static</code> fake method for a <tt>static</tt> faked method (or vice-versa),
  * for example.
- * Checked exceptions in the {@code throws} clause (if any) can also differ between the two matching methods.
+ * Checked exceptions in the <tt>throws</tt> clause (if any) can also differ between the two matching methods.
  * <p/>
  * A fake <em>method</em> can also target a <em>constructor</em>, in which case the previous considerations still apply,
  * except for the name of the fake method which must be "<strong><code>$init</code></strong>".
  * <p/>
- * Another special fake method, "<strong><code>void $clinit()</code></strong>", will target the {@code static}
+ * Another special fake method, "<strong><code>void $clinit()</code></strong>", will target the <tt>static</tt>
  * initializers of the faked class, if present in the fake class.
  * <p/>
  * Yet another special fake method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will

@@ -21,7 +21,7 @@ public final class Deencapsulation
    private Deencapsulation() {}
 
    /**
-    * Gets the value of a non-accessible (eg {@code private}) field from a given object.
+    * Gets the value of a non-accessible (eg <tt>private</tt>) field from a given object.
     *
     * @param objectWithField the instance from which to get the field value
     * @param fieldName the name of the field to get
@@ -39,8 +39,9 @@ public final class Deencapsulation
    }
 
    /**
-    * Gets the value of a non-accessible (eg {@code private}) field from a given object, <em>assuming</em> there is only
-    * one field declared in the class of the given object whose type can receive values of the specified field type.
+    * Gets the value of a non-accessible (eg <tt>private</tt>) field from a given object, <em>assuming</em> there is
+    * only one field declared in the class of the given object whose type can receive values of the specified field
+    * type.
     *
     * @param objectWithField the instance from which to get the field value
     * @param fieldType the declared type of the field, or a sub-type of the declared field type
@@ -164,8 +165,8 @@ public final class Deencapsulation
 
    /**
     * Creates a new instance of a given class, without invoking any constructor.
-    * If the given class is {@code abstract} or an {@code interface}, then a concrete class is created, with empty
-    * implementations for the {@code abstract}/{@code interface} methods.
+    * If the given class is <tt>abstract</tt> or an <tt>interface</tt>, then a concrete class is created, with empty
+    * implementations for the <tt>abstract</tt>/<tt>interface</tt> methods.
     *
     * @param classToInstantiate the class to be instantiated
     * @param <T> type to which the returned instance should be assignable

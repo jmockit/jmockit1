@@ -22,7 +22,7 @@ import mockit.internal.state.*;
  * matching invocations are found, an assertion error is thrown.
  * <p/>
  * Expectations are verified simply by invoking the desired method or constructor on a mocked type/instance, during
- * the initialization of a {@code Verifications} object.
+ * the initialization of a <tt>Verifications</tt> object.
  * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
  * call it, a <em>verification block</em>:
  * <pre>
@@ -110,7 +110,7 @@ public abstract class Verifications extends Invocations
    }
 
    /**
-    * Captures new instances of type {@code T} that were created by the code under test.
+    * Captures new instances of type <tt>T</tt> that were created by the code under test.
     * Said instances are only those which were created through constructor invocations matching the constructor
     * verification that was passed as argument in a call to this method.
     * For example:
