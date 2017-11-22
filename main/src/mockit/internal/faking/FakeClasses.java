@@ -72,13 +72,7 @@ public final class FakeClasses
    {
       Class<?> fakeClass = newFake.getClass();
       MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
-
-      if (fakeInstance != null) {
-         fakeStates.copyFakeStates(fakeInstance, newFake);
-         return fakeInstance;
-      }
-
-      return null;
+      return fakeInstance;
    }
 
    private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)

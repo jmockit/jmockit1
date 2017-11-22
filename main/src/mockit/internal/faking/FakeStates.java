@@ -41,21 +41,6 @@ public final class FakeStates
       fakesToFakeStates.put(fake, fakeStates);
    }
 
-   public void copyFakeStates(@Nonnull Object previousFake, @Nonnull Object newFake)
-   {
-      List<FakeState> fakeStates = fakesToFakeStates.get(previousFake);
-
-      if (fakeStates != null) {
-         List<FakeState> copiedFakeStates = new ArrayList<FakeState>(fakeStates.size());
-
-         for (FakeState fakeState : fakeStates) {
-            copiedFakeStates.add(new FakeState(fakeState));
-         }
-
-         fakesToFakeStates.put(newFake, copiedFakeStates);
-      }
-   }
-
    public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreFakeClasses)
    {
       removeFakeStates(redefinedClass);

@@ -107,8 +107,10 @@ public abstract class MockUp<T>
       MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
 
       if (previousFake != null) {
-         targetType = previousFake.targetType;
-         fakedClass = previousFake.fakedClass;
+         targetType = null;
+         fakedClass = null;
+         //noinspection unchecked
+         fakeInstance = (T) previousFake.fakeInstance;
          return;
       }
 
@@ -211,7 +213,9 @@ public abstract class MockUp<T>
       MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
 
       if (previousFake != null) {
-         fakedClass = previousFake.fakedClass;
+         fakedClass = null;
+         //noinspection unchecked
+         fakeInstance = (T) previousFake.fakeInstance;
          return;
       }
 
