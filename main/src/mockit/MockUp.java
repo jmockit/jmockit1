@@ -78,7 +78,6 @@ import static mockit.internal.util.GeneratedClasses.*;
  * if the type argument itself is a parameterized type, then only its raw type is considered
  *
  * @see #MockUp()
- * @see #MockUp(Class)
  * @see #getMockInstance()
  * @see #onTearDown()
  * @see #targetType
@@ -99,8 +98,6 @@ public abstract class MockUp<T>
    /**
     * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class or interface specified
     * through the type parameter.
-    *
-    * @see #MockUp(Class)
     */
    protected MockUp()
    {
@@ -202,11 +199,14 @@ public abstract class MockUp<T>
    /**
     * Applies the {@linkplain Mock fake methods} defined in the fake class to the given class/interface.
     * <p/>
-    * In most cases, the constructor with no parameters can be used.
+    * In most cases, the {@linkplain #MockUp() constructor with no parameters} can be used.
     * This variation should be used only when the type to be faked is not accessible or known from the test code.
     *
-    * @see #MockUp()
+    * @deprecated If the type to be faked is unknown or inaccessible, but it has an accessible base type, then consider
+    * targeting that base type instead. Otherwise, either avoid faking the inaccessible type or fake some other type
+    * which uses the former.
     */
+   @Deprecated
    protected MockUp(@SuppressWarnings("NullableProblems") Class<?> targetClass)
    {
       targetType = targetClass;
