@@ -5,7 +5,6 @@
 package mockit.integration.junit5;
 
 import java.lang.reflect.*;
-import java.util.*;
 import javax.annotation.*;
 
 import org.junit.jupiter.api.*;
@@ -42,8 +41,8 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    private static boolean isRegularTestClass(@Nonnull ExtensionContext context)
    {
-      Optional<Class<?>> testClass = context.getTestClass();
-      return testClass.isPresent() && !testClass.get().isAnnotationPresent(Nested.class);
+      Class<?> testClass = context.getTestClass().orElse(null);
+      return testClass != null && !testClass.isAnnotationPresent(Nested.class);
    }
 
    @Override
@@ -66,19 +65,18 @@ final class JMockitExtension extends TestRunnerDecorator implements
    @Override
    public void beforeEach(@Nonnull ExtensionContext context)
    {
-      Optional<Object> testInstance = context.getTestInstance();
+      Object testInstance = context.getTestInstance().orElse(null);
 
-      if (!testInstance.isPresent()) {
+      if (testInstance == null) {
          return;
       }
 
-      @Nonnull Object instance = testInstance.get();
       TestRun.prepareForNextTest();
       TestRun.enterNoMockingZone();
 
       try {
          savePointForTest = new SavePoint();
-         createInstancesForTestedFields(instance, true);
+         createInstancesForTestedFields(testInstance, true);
       }
       finally {
          TestRun.exitNoMockingZone();
@@ -88,28 +86,26 @@ final class JMockitExtension extends TestRunnerDecorator implements
    @Override
    public void beforeTestExecution(@Nonnull ExtensionContext context)
    {
-      Optional<Method> testMethod = context.getTestMethod();
-      Optional<Object> testInstance = context.getTestInstance();
+      Method testMethod = context.getTestMethod().orElse(null);
+      Object testInstance = context.getTestInstance().orElse(null);
 
-      if (!testMethod.isPresent() || !testInstance.isPresent()) {
+      if (testMethod == null || testInstance == null) {
          return;
       }
 
-      @Nonnull Method method = testMethod.get();
-      @Nonnull Object actualTestInstance = testInstance.get();
       TestRun.enterNoMockingZone();
 
       try {
          savePointForTestMethod = new SavePoint();
-         createInstancesForTestedFieldsFromBaseClasses(actualTestInstance);
-         mockParameters = createInstancesForAnnotatedParameters(actualTestInstance, method, null);
-         createInstancesForTestedFields(actualTestInstance, false);
+         createInstancesForTestedFieldsFromBaseClasses(testInstance);
+         mockParameters = createInstancesForAnnotatedParameters(testInstance, testMethod, null);
+         createInstancesForTestedFields(testInstance, false);
       }
       finally {
          TestRun.exitNoMockingZone();
       }
 
-      TestRun.setRunningIndividualTest(actualTestInstance);
+      TestRun.setRunningIndividualTest(testInstance);
    }
 
    @Override
