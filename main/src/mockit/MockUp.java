@@ -78,6 +78,7 @@ import static mockit.internal.util.GeneratedClasses.*;
  * if the type argument itself is a parameterized type, then only its raw type is considered
  *
  * @see #MockUp()
+ * @see #MockUp(Class)
  * @see #getMockInstance()
  * @see #onTearDown()
  * @see #targetType
@@ -197,16 +198,14 @@ public abstract class MockUp<T>
    }
 
    /**
-    * Applies the {@linkplain Mock fake methods} defined in the fake class to the given class/interface.
+    * Applies the {@linkplain Mock fake methods} defined in the fake class to the given class.
     * <p/>
     * In most cases, the {@linkplain #MockUp() constructor with no parameters} can be used.
-    * This variation should be used only when the type to be faked is not accessible or known from the test code.
-    *
-    * @deprecated If the type to be faked is unknown or inaccessible, but it has an accessible base type, then consider
-    * targeting that base type instead. Otherwise, either avoid faking the inaccessible type or fake some other type
-    * which uses the former.
+    * This variation is useful when the type to be faked is not known at compile time. For example, it can be used with
+    * an {@linkplain Mock $advice} method and the <tt>fakes</tt> system property in order to have an aspect-like fake
+    * implementation applicable to any class; it can then be applied at the beginning of the test run with the desired
+    * target class being specified in the test run configuration.
     */
-   @Deprecated
    protected MockUp(@SuppressWarnings("NullableProblems") Class<?> targetClass)
    {
       targetType = targetClass;
@@ -241,8 +240,12 @@ public abstract class MockUp<T>
     * <p/>
     * In any case, for a given fake instance this method will always return the same fake instance.
     *
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#interfaces" target="tutorial">Tutorial</a>
+    * @deprecated If the faked type is an interface, create an empty implementation instead (or use an existing one)
+    * with the desired fake method implementations. If it's a class, then use
+    * {@link Deencapsulation#newUninitializedInstance(Class)} if such an instance is really necessary.
+    * Alternatively, the interface could be <tt>@Mocked</tt>.
     */
+   @Deprecated
    public final T getMockInstance()
    {
       if (fakeInstance == null && fakedClass != null) {
