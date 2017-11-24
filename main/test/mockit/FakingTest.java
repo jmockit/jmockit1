@@ -128,28 +128,6 @@ public final class FakingTest
    // Fakes for interfaces ////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void fakeAnInterface() throws Exception
-   {
-      ResultSet fake = new MockUp<ResultSet>() {
-         @Mock
-         boolean next() { return true; }
-      }.getMockInstance();
-
-      assertTrue(fake.next());
-   }
-
-   @Test
-   public void fakeAGivenInterface()
-   {
-      Runnable r = new MockUp<Runnable>(Runnable.class) {
-         @Mock
-         public void run() {}
-      }.getMockInstance();
-
-      r.run();
-   }
-
-   @Test
    public <M extends Runnable & ResultSet> void fakeTwoInterfacesAtOnce() throws Exception
    {
       M fake = new MockUp<M>() {
@@ -175,38 +153,6 @@ public final class FakingTest
          @Mock String getParameter(String s) { return s.toLowerCase(); }
          @Mock void run() {}
       };
-   }
-
-   public interface SomeInterface { int doSomething(); }
-
-   @Test
-   public void callEqualsMethodOnFakedInterface()
-   {
-      SomeInterface proxy1 = new MockUp<SomeInterface>(){}.getMockInstance();
-      SomeInterface proxy2 = new MockUp<SomeInterface>(){}.getMockInstance();
-
-      //noinspection SimplifiableJUnitAssertion,EqualsWithItself
-      assertTrue(proxy1.equals(proxy1));
-      assertFalse(proxy1.equals(proxy2));
-      assertFalse(proxy2.equals(proxy1));
-      //noinspection ObjectEqualsNull
-      assertFalse(proxy1.equals(null));
-   }
-
-   @Test
-   public void callHashCodeMethodOnFakedInterface()
-   {
-      SomeInterface proxy = new MockUp<SomeInterface>(){}.getMockInstance();
-
-      assertEquals(System.identityHashCode(proxy), proxy.hashCode());
-   }
-
-   @Test
-   public void callToStringMethodOnFakedInterface()
-   {
-      SomeInterface proxy = new MockUp<SomeInterface>(){}.getMockInstance();
-
-      assertEquals(proxy.getClass().getName() + '@' + Integer.toHexString(proxy.hashCode()), proxy.toString());
    }
 
    // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
@@ -284,46 +230,6 @@ public final class FakingTest
       a.showStatus("");
    }
 
-   interface B
-   {
-      int aMethod();
-      Integer anotherMethod();
-   }
-
-   @Test
-   public void fakeANonPublicInterface()
-   {
-      B b = new MockUp<B>() {
-         @Mock int aMethod() { return 1; }
-      }.getMockInstance();
-
-      assertEquals(1, b.aMethod());
-      assertEquals(0, b.anotherMethod().intValue());
-   }
-
-   public interface C
-   {
-      int method1();
-      int method2();
-   }
-
-   @Test
-   public void fakeSameInterfaceTwiceUsingSeparateFakes()
-   {
-      class Fake1 extends MockUp<C> { @Mock int method1() { return 1; } }
-      C c1 = new Fake1().getMockInstance();
-      assertEquals(1, c1.method1());
-      assertEquals(0, c1.method2());
-
-      C c2 = new MockUp<C>() { @Mock int method2() { return 2; } }.getMockInstance();
-      assertEquals(0, c2.method1()); // not faked because c2 belongs to a second implementation class for C
-      assertEquals(2, c2.method2());
-
-      // Instances c1 and c2 belong to different faked classes, so c1 is unaffected:
-      assertEquals(1, c1.method1());
-      assertEquals(0, c1.method2());
-   }
-
    @Test
    public void fakeConstructorOfInnerClass()
    {
@@ -344,7 +250,7 @@ public final class FakingTest
    }
 
    @Test
-   public void callFakMethodFromAWTEventDispatchingThread() throws Exception
+   public void callFakeMethodFromAWTEventDispatchingThread() throws Exception
    {
       new MockUp<Panel>() {
          @Mock int getComponentCount() { return 10; }
