@@ -5,10 +5,13 @@
 package mockit;
 
 import java.io.*;
+import java.util.*;
 import javax.annotation.*;
 import javax.ejb.*;
 import javax.inject.*;
 import javax.persistence.*;
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -88,43 +91,101 @@ public final class TestedClassWithFullStandardDITest
    static EntityManagerFactory defaultEMFactory;
    static EntityManager defaultEM;
 
-   @BeforeClass
+   @BeforeClass @SuppressWarnings("rawtypes")
    public static void setUpPersistence() throws Exception
    {
-      final MockUp<EntityManager> namedEMFake = new MockUp<EntityManager>() {};
-      final MockUp<EntityManager> defaultEMFake = new MockUp<EntityManager>() {};
-      final MockUp<EntityManagerFactory> namedEMFactoryFake = new MockUp<EntityManagerFactory>() {
-         @Mock
-         EntityManager createEntityManager()
-         {
-            assertNull("Named EM already created", namedEM);
-            namedEM = namedEMFake.getMockInstance();
-            return namedEM;
-         }
-      };
-      final MockUp<EntityManagerFactory> defaultEMFactoryFake = new MockUp<EntityManagerFactory>() {
-         @Mock
-         EntityManager createEntityManager()
-         {
-            assertNull("Default EM already created", defaultEM);
-            defaultEM = defaultEMFake.getMockInstance();
-            return defaultEM;
-         }
-      };
+      final class FakeEntityManager implements EntityManager {
+         @Override public void persist(Object entity) {}
+         @Override public <T> T merge(T entity) { return null; }
+         @Override public void remove(Object entity) {}
+         @Override public <T> T find(Class<T> entityClass, Object primaryKey) { return null; }
+         @Override public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties)
+            { return null; }
+         @Override public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) { return null; }
+         @Override public <T> T find(
+            Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties)
+            { return null; }
+         @Override public <T> T getReference(Class<T> entityClass, Object primaryKey) { return null; }
+         @Override public void flush() {}
+         @Override public void setFlushMode(FlushModeType flushMode) {}
+         @Override public FlushModeType getFlushMode() { return null; }
+         @Override public void lock(Object entity, LockModeType lockMode) {}
+         @Override public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties) {}
+         @Override public void refresh(Object entity) {}
+         @Override public void refresh(Object entity, Map<String, Object> properties) {}
+         @Override public void refresh(Object entity, LockModeType lockMode) {}
+         @Override public void refresh(Object entity, LockModeType lockMode, Map<String, Object> properties) {}
+         @Override public void clear() {}
+         @Override public void detach(Object entity) {}
+         @Override public boolean contains(Object entity) { return false; }
+         @Override public LockModeType getLockMode(Object entity) { return null; }
+         @Override public void setProperty(String propertyName, Object value) {}
+         @Override public Map<String, Object> getProperties() { return null; }
+         @Override public Query createQuery(String qlString) { return null; }
+         @Override public <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery) { return null; }
+         @Override public Query createQuery(CriteriaUpdate updateQuery) { return null; }
+         @Override public Query createQuery(CriteriaDelete deleteQuery) { return null; }
+         @Override public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) { return null; }
+         @Override public Query createNamedQuery(String name) { return null; }
+         @Override public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) { return null; }
+         @Override public Query createNativeQuery(String sqlString) { return null; }
+         @Override public Query createNativeQuery(String sqlString, Class resultClass) { return null; }
+         @Override public Query createNativeQuery(String sqlString, String resultSetMapping) { return null; }
+         @Override public StoredProcedureQuery createNamedStoredProcedureQuery(String name) { return null; }
+         @Override public StoredProcedureQuery createStoredProcedureQuery(String procedureName) { return null; }
+         @Override public StoredProcedureQuery createStoredProcedureQuery(
+            String procedureName, Class... resultClasses) { return null; }
+         @Override public StoredProcedureQuery createStoredProcedureQuery(
+            String procedureName, String... resultSetMappings) { return null; }
+         @Override public void joinTransaction() {}
+         @Override public boolean isJoinedToTransaction() { return false; }
+         @Override public <T> T unwrap(Class<T> cls) { return null; }
+         @Override public Object getDelegate() { return null; }
+         @Override public void close() {}
+         @Override public boolean isOpen() { return false; }
+         @Override public EntityTransaction getTransaction() { return null; }
+         @Override public EntityManagerFactory getEntityManagerFactory() { return null; }
+         @Override public CriteriaBuilder getCriteriaBuilder() { return null; }
+         @Override public Metamodel getMetamodel() { return null; }
+         @Override public <T> EntityGraph<T> createEntityGraph(Class<T> rootType) { return null; }
+         @Override public EntityGraph<?> createEntityGraph(String graphName) { return null; }
+         @Override public EntityGraph<?> getEntityGraph(String graphName) { return null; }
+         @Override public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) { return null; }
+      }
+      namedEM = new FakeEntityManager();
+      defaultEM = new FakeEntityManager();
+
+      final class FakeEntityManagerFactory implements EntityManagerFactory {
+         final EntityManager em;
+         FakeEntityManagerFactory(EntityManager em) { this.em = em; }
+         @Override public EntityManager createEntityManager() { return em; }
+         @Override public EntityManager createEntityManager(Map map) { return null; }
+         @Override public EntityManager createEntityManager(SynchronizationType synchronizationType) { return null; }
+         @Override public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map)
+            { return null; }
+         @Override public CriteriaBuilder getCriteriaBuilder() { return null; }
+         @Override public Metamodel getMetamodel() { return null; }
+         @Override public boolean isOpen() { return false; }
+         @Override public void close() {}
+         @Override public Map<String, Object> getProperties() { return null; }
+         @Override public Cache getCache() { return null; }
+         @Override public PersistenceUnitUtil getPersistenceUnitUtil() { return null; }
+         @Override public void addNamedQuery(String name, Query query) {}
+         @Override public <T> T unwrap(Class<T> cls) { return null; }
+         @Override public <T> void addNamedEntityGraph(String graphName, EntityGraph<T> entityGraph) {}
+      }
+      namedEMFactory = new FakeEntityManagerFactory(namedEM);
+      defaultEMFactory = new FakeEntityManagerFactory(defaultEM);
 
       new MockUp<Persistence>() {
          @Mock
          EntityManagerFactory createEntityManagerFactory(String persistenceUnitName)
          {
             if ("test".equals(persistenceUnitName)) {
-               // TODO: assertNull("Named EM factory already created", namedEMFactory);
-               namedEMFactory = namedEMFactoryFake.getMockInstance();
                return namedEMFactory;
             }
 
             if ("default".equals(persistenceUnitName)) {
-               assertNull("Default EM factory already created", defaultEMFactory);
-               defaultEMFactory = defaultEMFactoryFake.getMockInstance();
                return defaultEMFactory;
             }
 
