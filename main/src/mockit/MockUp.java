@@ -26,36 +26,11 @@ import static mockit.internal.util.GeneratedClasses.*;
  * }
  * </pre>
  * One or more <em>fake methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
- * Each <tt>@Mock</tt> method should have a matching method or constructor in the faked class/interface.
+ * Each <tt>@Mock</tt> method should have a matching method or constructor in the faked class.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding fake method.
  * <p/>
- * When the faked type is an interface, an implementation class is generated where all methods are empty, with non-void
- * methods returning a default value according to the return type: <tt>0</tt> for <tt>int</tt>, <tt>null</tt> for a
- * reference type, and so on.
- * In this case, an instance of the generated implementation class should be obtained by calling
- * {@link #getMockInstance()}.
- * <p/>
- * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, there are two
- * other possible outcomes:
- * <ol>
- * <li>If the type variable "<code>extends</code>" two or more interfaces, a fake proxy class that implements all
- * interfaces is created, with the proxy instance made available through a call to {@link #getMockInstance()}.
- * Example:
- * <pre>
- * &#64;Test
- * public &lt;<strong>M extends Runnable & ResultSet</strong>> void someTest() {
- *     M fakedInterfaceInstance = new MockUp&lt;<strong>M</strong>>() {
- *        &#64;Mock void run() { ...do something... }
- *        &#64;Mock boolean next() { return true; }
- *     }.getMockInstance();
- *
- *     fakedInterfaceInstance.run();
- *     assertTrue(fakedInterfaceInstance.next());
- * }
- * </pre>
- * </li>
- * <li>If the type variable extends a <em>single</em> type (either an interface or a non-<code>final</code> class), then
- * that type is taken as a <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
+ * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, then that type
+ * is taken as a <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
  * <pre>
  * &#64;Test
@@ -68,18 +43,13 @@ import static mockit.internal.util.GeneratedClasses.*;
  *     assertEquals(2, i);
  * }
  * </pre>
- * </li>
- * </ol>
  *
- * @param <T> specifies the type (class, interface, etc.) to be faked; multiple interfaces can be faked by defining a
- * <em>type variable</em> in the test class or test method, and using it as the type argument;
- * if a type variable is used and it extends a <em>single</em> type, then all implementation classes extending or
-*  implementing that base type are also faked;
- * if the type argument itself is a parameterized type, then only its raw type is considered
+ * @param <T> specifies the type to be faked; if a type variable is used, then all implementation classes extending or
+ *           implementing that base type are also faked; if the type argument itself is a parameterized type, then only
+ *           its raw type is considered
  *
  * @see #MockUp()
  * @see #MockUp(Class)
- * @see #getMockInstance()
  * @see #onTearDown()
  * @see #targetType
  * @see <a href="http://jmockit.org/tutorial/Faking.html#setUp" target="tutorial">Tutorial</a>
@@ -97,8 +67,8 @@ public abstract class MockUp<T>
    @Nullable private T fakeInstance;
 
    /**
-    * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class or interface specified
-    * through the type parameter.
+    * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class specified through the
+    * type parameter.
     */
    protected MockUp()
    {
