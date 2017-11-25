@@ -179,7 +179,11 @@ public final class FakeForGenericsTest
 
    // Fakes for generic interfaces ////////////////////////////////////////////////////////////////////////////////////
 
-   public interface GenericInterface<T> { void method(T t); }
+   public interface GenericInterface<T>
+   {
+      void method(T t);
+      String method(int[] ii, T l, String[][] ss, T[] ll);
+   }
 
    @Test
    public void fakeGenericInterfaceMethodWithFakeMethodHavingParameterOfTypeObject()
@@ -213,5 +217,20 @@ public final class FakeForGenericsTest
       }.getMockInstance();
 
       assertEquals(2, cmp.compareTo(123));
+   }
+
+   @Test
+   public void fakeMethodOfGenericInterfaceWithArrayAndGenericTypeArgument()
+   {
+      GenericInterface<Long> faked = new MockUp<GenericInterface<Long>>() {
+         @Mock
+         String method(int[] ii, Long l, String[][] ss, Long[] tt)
+         {
+            assertTrue(ii.length > 0 && l > 0);
+            return "faked";
+         }
+      }.getMockInstance();
+
+      assertEquals("faked", faked.method(new int[] {1}, 45L, null, null));
    }
 }

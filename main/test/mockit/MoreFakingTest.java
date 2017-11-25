@@ -6,10 +6,8 @@ package mockit;
 
 import java.io.*;
 import java.lang.reflect.*;
-import java.util.concurrent.*;
 import javax.accessibility.*;
 import javax.faces.application.*;
-import javax.security.auth.callback.*;
 
 import static mockit.internal.util.Utilities.*;
 
@@ -63,50 +61,6 @@ public final class MoreFakingTest
       new FakeCollaborator1();
 
       codeUnderTest.doSomething();
-   }
-
-   public interface GenericInterface<T>
-   {
-      void method(T t);
-      String method(int[] ii, T l, String[][] ss, T[] ll);
-   }
-   public interface NonGenericSubInterface extends GenericInterface<Long> {}
-
-   public static final class FakeForNonGenericSubInterface extends MockUp<NonGenericSubInterface>
-   {
-      @Mock
-      public void method(Long l) { assertTrue(l > 0); }
-
-      @Mock
-      public String method(int[] ii, Long l, String[][] ss, Long[] ll)
-      {
-         assertTrue(ii.length > 0 && l > 0);
-         return "faked";
-      }
-   }
-
-   @Test
-   public void fakeMethodOfSubInterfaceWithGenericTypeArgument()
-   {
-      NonGenericSubInterface faked = new FakeForNonGenericSubInterface().getMockInstance();
-
-      faked.method(123L);
-      assertEquals("faked", faked.method(new int[] {1}, 45L, null, null));
-   }
-
-   @Test
-   public void fakeMethodOfGenericInterfaceWithArrayAndGenericTypeArgument()
-   {
-      GenericInterface<Long> faked = new MockUp<GenericInterface<Long>>() {
-         @Mock
-         String method(int[] ii, Long l, String[][] ss, Long[] tt)
-         {
-            assertTrue(ii.length > 0 && l > 0);
-            return "faked";
-         }
-      }.getMockInstance();
-
-      assertEquals("faked", faked.method(new int[] {1}, 45L, null, null));
    }
 
    @Test
@@ -266,56 +220,6 @@ public final class MoreFakingTest
       assertNull(AccessibleState.ACTIVE);
    }
 
-   @Test
-   public void fakeJREInterface() throws Exception
-   {
-      CallbackHandler callbackHandler = new FakeCallbackHandler().getMockInstance();
-
-      callbackHandler.handle(new Callback[] {new NameCallback("Enter name:")});
-   }
-
-   public static class FakeCallbackHandler extends MockUp<CallbackHandler>
-   {
-      @Mock
-      public void handle(Callback[] callbacks)
-      {
-         assertEquals(1, callbacks.length);
-         assertTrue(callbacks[0] instanceof NameCallback);
-      }
-   }
-
-   @Test
-   public void fakeJREInterfaceWithFakeClass() throws Exception
-   {
-      CallbackHandler callbackHandler = new MockUp<CallbackHandler>() {
-         @Mock
-         void handle(Callback[] callbacks)
-         {
-            assertEquals(1, callbacks.length);
-            assertTrue(callbacks[0] instanceof NameCallback);
-         }
-      }.getMockInstance();
-
-      callbackHandler.handle(new Callback[] {new NameCallback("Enter name:")});
-   }
-
-   public interface AnInterface { int doSomething(); }
-
-   @Test
-   public void fakePublicInterfaceWithFakeHavingInvocationParameter()
-   {
-      AnInterface obj = new MockUp<AnInterface>() {
-         @Mock
-         int doSomething(Invocation inv)
-         {
-            assertNotNull(inv.getInvokedInstance());
-            return 122 + inv.getInvocationCount();
-         }
-      }.getMockInstance();
-
-      assertEquals(123, obj.doSomething());
-   }
-
    abstract static class AnAbstractClass { protected abstract int doSomething(); }
 
    @Test
@@ -335,53 +239,6 @@ public final class MoreFakingTest
       };
 
       assertEquals(123, obj.doSomething());
-   }
-
-   interface AnotherInterface { int doSomething(); }
-   AnotherInterface interfaceInstance;
-
-   @Test
-   public void attemptToProceedIntoInterfaceImplementation()
-   {
-      thrown.expect(UnsupportedOperationException.class);
-      thrown.expectMessage("abstract/interface method");
-
-      interfaceInstance = new MockUp<AnotherInterface>() {
-         @Mock
-         int doSomething(Invocation inv) { return inv.proceed(); }
-      }.getMockInstance();
-
-      interfaceInstance.doSomething();
-   }
-
-   @Test
-   public void fakeNonPublicInterfaceWithFakeHavingInvocationParameter()
-   {
-      interfaceInstance = new MockUp<AnotherInterface>() {
-         @Mock
-         int doSomething(Invocation inv)
-         {
-            AnotherInterface instanceThatWasInvoked = inv.getInvokedInstance();
-            assertSame(interfaceInstance, instanceThatWasInvoked);
-
-            int invocationCount = inv.getInvocationCount();
-            assertTrue(invocationCount > 0);
-
-            return invocationCount == 1 ? instanceThatWasInvoked.doSomething() : 123;
-         }
-      }.getMockInstance();
-
-      assertEquals(123, interfaceInstance.doSomething());
-   }
-
-   @Test
-   public void fakeGenericInterfaceWithFakeHavingInvocationParameter() throws Exception
-   {
-      Callable<String> faked = new MockUp<Callable<String>>() {
-         @Mock String call(Invocation inv) { return "faked"; }
-      }.getMockInstance();
-
-      assertEquals("faked", faked.call());
    }
 
    static class GenericClass<T> { protected T doSomething() { return null; } }
