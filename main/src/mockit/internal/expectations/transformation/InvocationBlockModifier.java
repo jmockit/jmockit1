@@ -29,6 +29,8 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
    @Nonnegative private int lastLoadedVarIndex;
 
+   private int lastLoadedArrayIndex;
+
    InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations)
    {
       super(mw);
@@ -142,7 +144,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       @Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf)
    {
       if (!"()V".equals(desc)) {
-         int argAndRetSize = Type.getArgumentsAndReturnSizes(desc);
+         int argAndRetSize = JavaType.getArgumentsAndReturnSizes(desc);
          int retSize = argAndRetSize & 0x03;
          int argSize = argAndRetSize >> 2;
 
@@ -255,7 +257,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    }
 
    @Override
-   public void visitLdcInsn(Object cst)
+   public void visitLdcInsn(@Nonnull Object cst)
    {
       stackSize++;
 
@@ -267,7 +269,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    }
 
    @Override
-   public void visitJumpInsn(@Nonnegative int opcode, Label label)
+   public void visitJumpInsn(@Nonnegative int opcode, @Nonnull Label label)
    {
       if (opcode != JSR) {
          stackSize += Frame.SIZE[opcode];
@@ -277,21 +279,21 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    }
 
    @Override
-   public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels)
+   public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels)
    {
       stackSize--;
       mw.visitTableSwitchInsn(min, max, dflt, labels);
    }
 
    @Override
-   public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels)
+   public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels)
    {
       stackSize--;
       mw.visitLookupSwitchInsn(dflt, keys, labels);
    }
 
    @Override
-   public void visitMultiANewArrayInsn(String desc, @Nonnegative int dims)
+   public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims)
    {
       stackSize += 1 - dims;
       mw.visitMultiANewArrayInsn(desc, dims);
@@ -305,6 +307,13 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       }
       else {
          stackSize += Frame.SIZE[opcode];
+
+         if (opcode >= ICONST_0 && opcode <= ICONST_5) {
+            lastLoadedArrayIndex = opcode - ICONST_0;
+         }
+         else if (opcode == AASTORE) {
+            // TODO: in progress for issue #292
+         }
       }
 
       mw.visitInsn(opcode);
