@@ -47,12 +47,12 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   @Nonnull private final ClassReader cr;
+   @Nonnull private final ClassVisitor cv;
    @Nullable private String[] exceptions;
 
-   MethodReader(@Nonnull ClassReader cr) {
+   MethodReader(@Nonnull ClassReader cr, @Nonnull ClassVisitor cv) {
       super(cr);
-      this.cr = cr;
+      this.cv = cv;
    }
 
    /**
@@ -139,9 +139,9 @@ final class MethodReader extends AnnotatedReader
       @Nonnull Context context, @Nonnegative int u0, @Nonnegative int u, int code, int exception,
       @Nullable String signature, @Nonnegative int anns, @Nonnegative int annDefault, @Nonnegative int paramAnns
    ) {
-      MethodVisitor mv = cr.cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
+      MethodVisitor mv = cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
 
-      if (mv == null || copyMethodBodyIfApplicable(mv, u, exception, signature, u0)) {
+      if (mv == null || mv instanceof MethodWriter && copyMethodBody((MethodWriter) mv, u, exception, signature, u0)) {
          return;
       }
 
@@ -156,49 +156,47 @@ final class MethodReader extends AnnotatedReader
    /**
     * If the returned MethodVisitor is in fact a MethodWriter, it means there is no method adapter between the reader
     * and the writer.
-    * If, in addition, the writer's constant pool was copied from this reader (mw.cw.cr == this), and the signature
-    * and exceptions of the method have not been changed, then it is possible to skip all visit events and just copy
-    * the original code of the method to the writer (the access, name and descriptor can have been changed, this is not
-    * important since they are not copied as is from the reader).
+    * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and
+    * the signature of the method has not been changed; then, we skip all visit events and just copy the original code
+    * of the method to the writer (the access, name and descriptor can have been changed, this is not important since
+    * they are not copied as is from the reader).
+    *
+    * @return <tt>true</tt> if the method body can be copied, or <tt>false</tt> if it can't because the method's
+    * <tt>throws</tt> clause was changed
     */
-   private boolean copyMethodBodyIfApplicable(
-      @Nonnull MethodVisitor mv, @Nonnegative int u, int exception, @Nullable String signature,
+   private boolean copyMethodBody(
+      @Nonnull MethodWriter mw, @Nonnegative int u, int exception, @Nullable String signature,
       @Nonnegative int firstAttribute
    ) {
-      if (mv instanceof MethodWriter) {
-         MethodWriter mw = (MethodWriter) mv;
+      boolean sameExceptions = false;
+      ThrowsClause throwsClause = mw.throwsClause;
+      int exceptionCount = throwsClause.getExceptionCount();
 
-         //noinspection StringEquality
-         if (mw.cw.cr == cr && signature == mw.signature) {
-            boolean sameExceptions = false;
-            ThrowsClause throwsClause = mw.throwsClause;
-            int exceptionCount = throwsClause.getExceptionCount();
+      if (exceptions == null) {
+         sameExceptions = exceptionCount == 0;
+      }
+      else if (exceptions.length == exceptionCount) {
+         sameExceptions = true;
 
-            if (exceptions == null) {
-               sameExceptions = exceptionCount == 0;
-            }
-            else if (exceptions.length == exceptionCount) {
-               sameExceptions = true;
+         for (int j = exceptionCount - 1; j >= 0; j--) {
+            exception -= 2;
+            int exceptionIndex = readUnsignedShort(exception);
 
-               for (int j = exceptionCount - 1; j >= 0; j--) {
-                  exception -= 2;
-                  int exceptionIndex = readUnsignedShort(exception);
-
-                  if (throwsClause.getExceptionIndex(j) != exceptionIndex) {
-                     sameExceptions = false;
-                     break;
-                  }
-               }
-            }
-
-            if (sameExceptions) {
-               // We do not copy directly the code into MethodWriter to save a byte array copy operation.
-               // The real copy will be done in ClassWriter.toByteArray().
-               mw.classReaderOffset = firstAttribute;
-               mw.classReaderLength = u - firstAttribute;
-               return true;
+            if (throwsClause.getExceptionIndex(j) != exceptionIndex) {
+               // TODO: verify why it gets here from SpringIntegrationTest, for method
+               // "AbstractAutowireCapableBeanFactory#createBean(Class) throws BeansException"
+               sameExceptions = false;
+               break;
             }
          }
+      }
+
+      if (sameExceptions) {
+         // We do not copy directly the code into MethodWriter to save a byte array copy operation.
+         // The real copy will be done in ClassWriter.toByteArray().
+         mw.classReaderOffset = firstAttribute;
+         mw.classReaderLength = u - firstAttribute;
+         return true;
       }
 
       return false;
@@ -387,6 +385,26 @@ final class MethodReader extends AnnotatedReader
       return u;
    }
 
+   /**
+    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
+    * already created.
+    *
+    * @param offset a bytecode offset in a method.
+    * @param labels the already created labels, indexed by their offset.
+    * @return a non null Label, which must be equal to labels[offset].
+    */
+   @Nonnull
+   private static Label readLabel(@Nonnegative int offset, @Nonnull Label[] labels) {
+      Label label = labels[offset];
+
+      if (label == null) {
+         label = new Label();
+         labels[offset] = label;
+      }
+
+      return label;
+   }
+
    // Reads the try catch entries to find the labels, and also visits them.
    @Nonnegative
    private int readTryCatchBlocks(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
@@ -430,6 +448,11 @@ final class MethodReader extends AnnotatedReader
       }
 
       return varTable;
+   }
+
+   private static void readDebugLabel(@Nonnegative int index, @Nonnull Label[] labels) {
+      Label label = readLabel(index, labels);
+      label.markAsDebug();
    }
 
    private void readLineNumberTable(@Nonnull Context context, @Nonnegative int u) {

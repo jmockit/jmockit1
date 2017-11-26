@@ -56,9 +56,6 @@ public final class ClassReader extends AnnotatedReader
 
    private static final String[] NO_INTERFACES = {};
 
-   @Nonnull private final FieldReader fieldReader;
-   @Nonnull private final MethodReader methodReader;
-
    // Helper fields.
    ClassVisitor cv;
    private Context context;
@@ -76,10 +73,56 @@ public final class ClassReader extends AnnotatedReader
     *
     * @param bytecode the bytecode of the class to be read.
     */
-   public ClassReader(@Nonnull byte[] bytecode) {
-      super(bytecode);
-      fieldReader = new FieldReader(this);
-      methodReader = new MethodReader(this);
+   public ClassReader(@Nonnull byte[] bytecode) { super(bytecode); }
+
+   /**
+    * Constructs a new {@link ClassReader} object.
+    *
+    * @param is an input stream from which to read the class.
+    * @throws IOException if a problem occurs during reading.
+    */
+   public ClassReader(@Nonnull InputStream is) throws IOException {
+      this(readClass(is));
+   }
+
+   @Nonnull
+   private static byte[] readClass(@Nonnull InputStream is) throws IOException {
+      try {
+         byte[] b = new byte[is.available()];
+         int len = 0;
+
+         while (true) {
+            int n = is.read(b, len, b.length - len);
+
+            if (n == -1) {
+               if (len < b.length) {
+                  byte[] c = new byte[len];
+                  System.arraycopy(b, 0, c, 0, len);
+                  b = c;
+               }
+
+               return b;
+            }
+
+            len += n;
+
+            if (len == b.length) {
+               int last = is.read();
+
+               if (last < 0) {
+                  return b;
+               }
+
+               byte[] c = new byte[b.length + 1000];
+               System.arraycopy(b, 0, c, 0, len);
+               c[len++] = (byte) last;
+               b = c;
+            }
+         }
+      }
+      finally {
+         is.close();
+      }
    }
 
    /**
@@ -245,26 +288,6 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Constructs a new {@link ClassReader} object.
-    *
-    * @param is an input stream from which to read the class.
-    * @throws IOException if a problem occurs during reading.
-    */
-   public ClassReader(@Nullable InputStream is) throws IOException {
-      this(readClass(is));
-   }
-
-   /**
-    * Constructs a new {@link ClassReader} object.
-    *
-    * @param name the binary qualified name of the class to be read.
-    * @throws IOException if an exception occurs during reading.
-    */
-   public ClassReader(@Nonnull String name) throws IOException {
-      this(readClass(ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class")));
-   }
-
-   /**
     * Makes the given visitor visit the Java class of this {@link ClassReader}, all attributes included.
     */
    public void accept(ClassVisitor cv) {
@@ -297,7 +320,7 @@ public final class ClassReader extends AnnotatedReader
 
       int u = getAttributesStartIndex();
 
-      for (int i = readUnsignedShort(u); i > 0; --i) {
+      for (int i = readUnsignedShort(u); i > 0; i--) {
          String attrName = readUTF8(u + 2, c);
 
          if ("SourceFile".equals(attrName)) {
@@ -416,15 +439,22 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void readFieldsAndMethods() {
-      int u = header + 10 + 2 * interfaces.length;
+      ClassVisitor cv = this.cv;
 
-      for (int i = readUnsignedShort(u - 2); i > 0; i--) {
+      FieldReader fieldReader = new FieldReader(this);
+      int u = header + 8 + 2 * interfaces.length;
+      int fieldCount = readUnsignedShort(u);
+      u += 2;
+
+      for (int i = fieldCount; i > 0; i--) {
          u = fieldReader.readField(cv, context, u);
       }
 
+      MethodReader methodReader = new MethodReader(this, cv);
+      int methodCount = readUnsignedShort(u);
       u += 2;
 
-      for (int i = readUnsignedShort(u - 2); i > 0; i--) {
+      for (int i = methodCount; i > 0; i--) {
          u = methodReader.readMethod(context, u);
       }
    }

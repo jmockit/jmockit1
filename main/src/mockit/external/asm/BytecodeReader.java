@@ -1,6 +1,5 @@
 package mockit.external.asm;
 
-import java.io.*;
 import javax.annotation.*;
 
 import static mockit.external.asm.ConstantPoolItemType.*;
@@ -332,81 +331,5 @@ class BytecodeReader
       int itemIndex = readUnsignedShort(index);
       String classDesc = readUTF8Item(itemIndex, 0, buf);
       return classDesc;
-   }
-
-   /**
-    * Reads the bytecode of a class.
-    *
-    * @param is an input stream from which to read the class.
-    * @return the bytecode read from the given input stream.
-    * @throws IOException if a problem occurs during reading.
-    */
-   @Nonnull
-   static byte[] readClass(@Nullable InputStream is) throws IOException {
-      if (is == null) {
-         throw new IOException("Class not found");
-      }
-
-      try {
-         byte[] b = new byte[is.available()];
-         int len = 0;
-
-         while (true) {
-            int n = is.read(b, len, b.length - len);
-
-            if (n == -1) {
-               if (len < b.length) {
-                  byte[] c = new byte[len];
-                  System.arraycopy(b, 0, c, 0, len);
-                  b = c;
-               }
-
-               return b;
-            }
-
-            len += n;
-
-            if (len == b.length) {
-               int last = is.read();
-
-               if (last < 0) {
-                  return b;
-               }
-
-               byte[] c = new byte[b.length + 1000];
-               System.arraycopy(b, 0, c, 0, len);
-               c[len++] = (byte) last;
-               b = c;
-            }
-         }
-      }
-      finally {
-         is.close();
-      }
-   }
-
-   /**
-    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
-    * already created.
-    *
-    * @param offset a bytecode offset in a method.
-    * @param labels the already created labels, indexed by their offset.
-    * @return a non null Label, which must be equal to labels[offset].
-    */
-   @Nonnull
-   static Label readLabel(@Nonnegative int offset, @Nonnull Label[] labels) {
-      Label label = labels[offset];
-
-      if (label == null) {
-         label = new Label();
-         labels[offset] = label;
-      }
-
-      return label;
-   }
-
-   static void readDebugLabel(@Nonnegative int index, @Nonnull Label[] labels) {
-      Label label = readLabel(index, labels);
-      label.markAsDebug();
    }
 }
