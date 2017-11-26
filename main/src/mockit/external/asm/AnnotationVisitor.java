@@ -34,9 +34,6 @@ import javax.annotation.*;
 /**
  * A visitor to visit a Java annotation. The methods of this class must be called in the following order:
  * ( <tt>visit</tt> | <tt>visitEnum</tt> | <tt>visitAnnotation</tt> | <tt>visitArray</tt> )* <tt>visitEnd</tt>.
- *
- * @author Eric Bruneton
- * @author Eugene Kuleshov
  */
 public abstract class AnnotationVisitor
 {
@@ -55,6 +52,7 @@ public abstract class AnnotationVisitor
     */
    protected AnnotationVisitor() {}
 
+   @Nonnegative
    protected abstract int getByteLength();
 
    /**
@@ -111,6 +109,7 @@ public abstract class AnnotationVisitor
    /**
     * Returns the size of this annotation list.
     */
+   @Nonnegative
    final int getSize() {
       int size = 0;
       AnnotationVisitor annotation = this;

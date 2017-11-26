@@ -34,21 +34,18 @@ import javax.annotation.*;
 
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
- *
- * @author Eric Bruneton
- * @author Eugene Kuleshov
  */
 final class AnnotationWriter extends AnnotationVisitor
 {
    /**
     * The constant pool to which this annotation must be added.
     */
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * The number of values in this annotation.
     */
-   private int size;
+   @Nonnegative private int size;
 
    /**
     * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
@@ -60,17 +57,17 @@ final class AnnotationWriter extends AnnotationVisitor
     * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of
     * values must be stored as an unsigned short just before these bytes.
     */
-   private final ByteVector bv;
+   @Nonnull private final ByteVector bv;
 
    /**
     * The byte vector to be used to store the number of values of this annotation. See {@link #bv}.
     */
-   private final ByteVector parent;
+   @Nullable private final ByteVector parent;
 
    /**
     * Where the number of values of this annotation must be stored in {@link #parent}.
     */
-   private final int offset;
+   @Nonnegative private final int offset;
 
    /**
     * Constructs a new {@link AnnotationWriter}.
@@ -81,7 +78,10 @@ final class AnnotationWriter extends AnnotationVisitor
     * @param parent where the number of annotation values must be stored.
     * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
     */
-   AnnotationWriter(ConstantPoolGeneration cp, boolean named, ByteVector bv, ByteVector parent, int offset) {
+   AnnotationWriter(
+      @Nonnull ConstantPoolGeneration cp, boolean named, @Nonnull ByteVector bv, @Nullable ByteVector parent,
+      @Nonnegative int offset
+   ) {
       this.cp = cp;
       this.named = named;
       this.bv = bv;
@@ -89,7 +89,7 @@ final class AnnotationWriter extends AnnotationVisitor
       this.offset = offset;
    }
 
-   @Override
+   @Nonnegative @Override
    protected int getByteLength() { return bv.length; }
 
    @Override
@@ -197,7 +197,7 @@ final class AnnotationWriter extends AnnotationVisitor
       bv.putShort(itemIndex);
    }
 
-   private void putArrayLength(int length) {
+   private void putArrayLength(@Nonnegative int length) {
       bv.put12('[', length);
    }
 
@@ -295,7 +295,7 @@ final class AnnotationWriter extends AnnotationVisitor
       putFromLastToFirst(out, last);
    }
 
-   private static void putFromLastToFirst(@Nonnull ByteVector out, AnnotationWriter aw) {
+   private static void putFromLastToFirst(@Nonnull ByteVector out, @Nullable AnnotationWriter aw) {
       while (aw != null) {
          out.putByteVector(aw.bv);
          aw = aw.prev;

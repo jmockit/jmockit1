@@ -35,8 +35,6 @@ import static mockit.external.asm.ClassReader.*;
 
 /**
  * Information about a class being parsed in a {@link ClassReader}.
- *
- * @author Eric Bruneton
  */
 final class Context
 {
@@ -48,7 +46,7 @@ final class Context
    /**
     * The buffer used to read strings.
     */
-   final char[] buffer;
+   @Nonnull final char[] buffer;
 
    /**
     * The start index of each bootstrap method.

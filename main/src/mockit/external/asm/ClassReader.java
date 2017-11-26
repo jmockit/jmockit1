@@ -391,7 +391,7 @@ public final class ClassReader extends AnnotatedReader
 
          for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
             String desc = readUTF8(v, c);
-            AnnotationVisitor av = cv.visitAnnotation(desc);
+            @SuppressWarnings("ConstantConditions") AnnotationVisitor av = cv.visitAnnotation(desc);
             v = annotationReader.readAnnotationValues(v + 2, c, true, av);
          }
       }
@@ -407,6 +407,8 @@ public final class ClassReader extends AnnotatedReader
             String outerName = readClass(v + 2, c);
             String innerName = readUTF8(v + 4, c);
             int access = readUnsignedShort(v + 6);
+
+            //noinspection ConstantConditions
             cv.visitInnerClass(name, outerName, innerName, access);
             v += 8;
          }

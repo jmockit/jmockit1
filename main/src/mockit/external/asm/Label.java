@@ -36,8 +36,6 @@ import javax.annotation.*;
  * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note however that there can
  * be other elements between a label and the instruction it designates (such as other labels, stack map frames, line
  * numbers, etc.).
- *
- * @author Eric Bruneton
  */
 public final class Label
 {
@@ -107,7 +105,7 @@ public final class Label
    /**
     * Field used to associate user information to a label.
     */
-   public Object info;
+   @Nullable public Object info;
 
    /**
     * Flags that indicate the {@link Status} of this label.
@@ -117,17 +115,17 @@ public final class Label
    /**
     * The line number corresponding to this label, if known.
     */
-   public int line;
+   @Nonnegative public int line;
 
    /**
     * The position of this label in the code, if known.
     */
-   public int position;
+   @Nonnegative public int position;
 
    /**
     * Number of forward references to this label, times two.
     */
-   private int referenceCount;
+   @Nonnegative private int referenceCount;
 
    /**
     * Information about forward references. Each forward reference is described by two consecutive integers in this
@@ -169,13 +167,13 @@ public final class Label
     * output stack must be appended to the input stack. A -n offset means that the first n output stack elements must
     * replace the top n input stack elements, and that the other elements must be appended to the input stack.
     */
-   int inputStackTop;
+   @Nonnegative int inputStackTop;
 
    /**
     * Maximum height reached by the output stack, relatively to the top of the input stack. This maximum is always
     * positive or null.
     */
-   int outputStackMax;
+   @Nonnegative int outputStackMax;
 
    /**
     * Information about the input and output stack map frames of this basic block.
@@ -188,7 +186,7 @@ public final class Label
     * debug info only. If {@link ClassWriter#computeFrames} option is used then, in addition, it does not contain
     * successive labels that denote the same bytecode position (in this case only the first label appears in this list).
     */
-   Label successor;
+   @Nullable Label successor;
 
    /**
     * The successors of this node in the control flow graph. These successors are stored in a linked list of
@@ -203,7 +201,7 @@ public final class Label
     *
     * @see MethodWriter#visitMaxStack
     */
-   Label next;
+   @Nullable Label next;
 
    public boolean isDebug() { return (status & Status.DEBUG) != 0; }
    boolean isResolved()     { return (status & Status.RESOLVED) != 0; }
@@ -224,7 +222,8 @@ public final class Label
    void markAsJSR()                { status |= Status.JSR; }
    void markAsEndingWithRET()      { status |= Status.RET; }
    void markAsVisitedSubroutine()  { status |= Status.VISITED; }
-   void markAsTarget(Label target) { status |= target.status & Status.TARGET; }
+
+   void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
 
    boolean markAsSubroutine() {
       if ((status & Status.SUBROUTINE) == 0) {
@@ -268,7 +267,7 @@ public final class Label
     *                   with 2 bytes.
     * @throws IllegalArgumentException if this label has not been created by the given code writer.
     */
-   void put(ByteVector out, int source, boolean wideOffset) {
+   void put(@Nonnull ByteVector out, @Nonnegative int source, boolean wideOffset) {
       if (!isResolved()) {
          if (wideOffset) {
             addReference(-1 - source, out.length);
@@ -298,7 +297,7 @@ public final class Label
     *                          offset of this forward reference.
     * @param referencePosition the position where the offset for this forward reference must be stored.
     */
-   private void addReference(int sourcePosition, int referencePosition) {
+   private void addReference(@Nonnegative int sourcePosition, @Nonnegative int referencePosition) {
       if (srcAndRefPositions == null) {
          srcAndRefPositions = new int[6];
       }
@@ -320,7 +319,7 @@ public final class Label
     *
     * @param methodBytecode bytecode of the method containing this label
     */
-   void resolve(ByteVector methodBytecode) {
+   void resolve(@Nonnull ByteVector methodBytecode) {
       markAsResolved();
 
       byte[] data = methodBytecode.data;
@@ -354,6 +353,7 @@ public final class Label
     *
     * @return the first label of the series to which this label belongs.
     */
+   @Nonnull
    Label getFirst() {
       return frame == null ? this : frame.owner;
    }
@@ -401,7 +401,7 @@ public final class Label
     * @param id            a subroutine id.
     * @param nbSubroutines the total number of subroutines in the method.
     */
-   private void addToSubroutine(long id, int nbSubroutines) {
+   private void addToSubroutine(long id, @Nonnegative int nbSubroutines) {
       if (!isVisited()) {
          markAsVisitedSubroutine();
          srcAndRefPositions = new int[nbSubroutines / 32 + 1];
@@ -420,7 +420,7 @@ public final class Label
     * @param id the id of this subroutine.
     * @param nbSubroutines the total number of subroutines in the method.
     */
-   void visitSubroutine(@Nullable Label JSR, long id, int nbSubroutines) {
+   void visitSubroutine(@Nullable Label JSR, long id, @Nonnegative int nbSubroutines) {
       // User managed stack of labels, to avoid using a recursive method (recursivity can lead to stack overflow with
       // very large methods).
       Label stack = this;

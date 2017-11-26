@@ -190,7 +190,7 @@ public final class ClassWriter extends ClassVisitor
       innerClasses.add(name, outerName, innerName, access);
    }
 
-   @Override @Nonnull
+   @Nonnull @Override
    public FieldVisitor visitField(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {

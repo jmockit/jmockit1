@@ -27,7 +27,7 @@ final class FieldReader extends AnnotatedReader
       int anns = 0;
       Object value = null;
 
-      for (int i = readUnsignedShort(u); i > 0; --i) {
+      for (int i = readUnsignedShort(u); i > 0; i--) {
          String attrName = readUTF8(u + 2, c);
 
          if ("ConstantValue".equals(attrName)) {
@@ -63,11 +63,11 @@ final class FieldReader extends AnnotatedReader
       return u;
    }
 
-   private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnull char[] c, int anns) {
+   private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnull char[] c, @Nonnegative int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; i--) {
             String desc = readUTF8(v, c);
-            AnnotationVisitor av = fv.visitAnnotation(desc);
+            @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
             v = annotationReader.readAnnotationValues(v + 2, c, true, av);
          }
       }

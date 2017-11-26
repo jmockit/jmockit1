@@ -4,11 +4,12 @@ import javax.annotation.*;
 
 final class EnclosingMethod
 {
-   final String owner;
-   final String name;
-   final String desc;
+   @Nonnull final String owner;
+   @Nullable final String name;
+   @Nullable final String desc;
 
    EnclosingMethod(@Nonnull BytecodeReader br, @Nonnull char[] c, @Nonnegative int u) {
+      //noinspection ConstantConditions
       owner = br.readClass(u + 8, c);
       int item = br.readUnsignedShort(u + 10);
 

@@ -33,9 +33,6 @@ import javax.annotation.*;
 
 /**
  * A reference to a field or a method.
- *
- * @author Remi Forax
- * @author Eric Bruneton
  */
 final class Handle
 {
@@ -58,7 +55,7 @@ final class Handle
    /**
     * The kind of field or method designated by this Handle. Should be one of the {@link Tag} constants.
     */
-   final int tag;
+   @Nonnegative final int tag;
 
    /**
     * The internal name of the class that owns the field or method designated by this handle.

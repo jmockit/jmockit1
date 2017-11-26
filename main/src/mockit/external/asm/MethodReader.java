@@ -50,7 +50,10 @@ final class MethodReader extends AnnotatedReader
    @Nonnull private final ClassReader cr;
    @Nullable private String[] exceptions;
 
-   MethodReader(@Nonnull ClassReader cr) { super(cr); this.cr = cr; }
+   MethodReader(@Nonnull ClassReader cr) {
+      super(cr);
+      this.cr = cr;
+   }
 
    /**
     * Reads a method and makes the given visitor visit it.
@@ -73,7 +76,7 @@ final class MethodReader extends AnnotatedReader
       int paramAnns = 0;
       char[] c = context.buffer;
 
-      for (int i = readUnsignedShort(u); i > 0; --i) {
+      for (int i = readUnsignedShort(u); i > 0; i--) {
          String attrName = readUTF8(u + 2, c);
 
          if ("Code".equals(attrName)) {

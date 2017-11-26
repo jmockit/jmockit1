@@ -35,8 +35,6 @@ import javax.annotation.*;
  * A visitor to visit a Java class. The methods of this class must be called in the following order:
  * <tt>visit</tt> [<tt>visitSource</tt>] [<tt>visitOuterClass</tt>] (<tt>visitAnnotation</tt>)*
  * (<tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt>)* <tt>visitEnd</tt>.
- *
- * @author Eric Bruneton
  */
 public class ClassVisitor extends BaseWriter
 {
@@ -82,7 +80,7 @@ public class ClassVisitor extends BaseWriter
     * @param desc  the descriptor of the method that contains the class, or <tt>null</tt> if the class is not enclosed
     *              in a method of its enclosing class.
     */
-   public void visitOuterClass(String owner, String name, String desc) {}
+   public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    /**
     * Visits an annotation of the class.
@@ -92,7 +90,7 @@ public class ClassVisitor extends BaseWriter
     * this annotation.
     */
    @Nullable
-   public AnnotationVisitor visitAnnotation(String desc) { return null; }
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
 
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
@@ -104,7 +102,8 @@ public class ClassVisitor extends BaseWriter
     *                  anonymous inner classes.
     * @param access    the access flags of the inner class as originally declared in the enclosing class.
     */
-   public void visitInnerClass(String name, String outerName, String innerName, int access) {}
+   public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access)
+   {}
 
    /**
     * Visits a field of the class.
