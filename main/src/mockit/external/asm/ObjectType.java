@@ -4,6 +4,17 @@ import javax.annotation.*;
 
 final class ObjectType extends ReferenceType
 {
+   @Nonnull
+   static ObjectType create(@Nonnull char[] buf, @Nonnegative int off) {
+      int len = 1;
+
+      while (buf[off + len] != ';') {
+         len++;
+      }
+
+      return new ObjectType(buf, off + 1, len - 1);
+   }
+
    /**
     * Constructs a reference type.
     *
@@ -11,7 +22,7 @@ final class ObjectType extends ReferenceType
     * @param off  the offset of this descriptor in the previous buffer.
     * @param len  the length of this descriptor.
     */
-   ObjectType(char[] buf, int off, int len) {
+   ObjectType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
       super(Sort.OBJECT, buf, off, len);
    }
 
@@ -22,7 +33,7 @@ final class ObjectType extends ReferenceType
       buf.append(';');
    }
 
-   @Override
+   @Nonnull @Override
    public String getClassName() {
       return new String(buf, off, len).replace('/', '.');
    }

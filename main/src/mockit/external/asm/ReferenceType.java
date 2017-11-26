@@ -2,19 +2,19 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-abstract class ReferenceType extends JavaType
+public abstract class ReferenceType extends JavaType
 {
    /**
     * A buffer containing the internal name of this Java type. This field is only used for reference types.
     */
-   final char[] buf;
+   @Nonnull final char[] buf;
 
    /**
     * The offset of the internal name of this Java type in {@link #buf}.
     */
-   final int off;
+   @Nonnegative final int off;
 
-   ReferenceType(int sort, char[] buf, int off, int len) {
+   ReferenceType(int sort, @Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
       super(sort, len);
       this.buf = buf;
       this.off = off;
@@ -45,6 +45,7 @@ abstract class ReferenceType extends JavaType
    }
 
    @Override public int getSize() { return 1; }
+
    @Override public int getOpcode(int opcode) { return opcode + 4; }
 
    @Override

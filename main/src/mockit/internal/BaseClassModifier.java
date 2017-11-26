@@ -192,12 +192,12 @@ public class BaseClassModifier extends WrappingClassVisitor
          case JavaType.Sort.LONG:   mw.visitInsn(LCONST_0); break;
          case JavaType.Sort.FLOAT:  mw.visitInsn(FCONST_0); break;
          case JavaType.Sort.DOUBLE: mw.visitInsn(DCONST_0); break;
-         case JavaType.Sort.ARRAY:  generateCreationOfEmptyArray(type); break;
+         case JavaType.Sort.ARRAY:  generateCreationOfEmptyArray((ArrayType) type); break;
          default: mw.visitInsn(ACONST_NULL);
       }
    }
 
-   private void generateCreationOfEmptyArray(@Nonnull JavaType arrayType)
+   private void generateCreationOfEmptyArray(@Nonnull ArrayType arrayType)
    {
       int dimensions = arrayType.getDimensions();
 

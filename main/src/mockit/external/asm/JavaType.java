@@ -34,9 +34,6 @@ import javax.annotation.*;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and method descriptors.
- *
- * @author Eric Bruneton
- * @author Chris Nokleberg
  */
 public abstract class JavaType
 {
@@ -114,7 +111,7 @@ public abstract class JavaType
    /**
     * The length of the internal name of this Java type.
     */
-   final int len;
+   @Nonnegative final int len;
 
    /**
     * Maps a {@link Sort} to the corresponding {@link ArrayElementType}.
@@ -142,7 +139,7 @@ public abstract class JavaType
     * @param sort the sort of the reference type to be constructed.
     * @param len  the length of this descriptor.
     */
-   JavaType(int sort, int len) {
+   JavaType(int sort, @Nonnegative int len) {
       this.sort = sort;
       this.len = len;
    }
@@ -168,23 +165,22 @@ public abstract class JavaType
 
    /**
     * Returns the Java type corresponding to the given method descriptor.
-    * Equivalent to <code>JavaType.getType(methodDescriptor)</code>.
     */
    @Nonnull
    public static JavaType getMethodType(@Nonnull String methodDescriptor) {
-      return getType(methodDescriptor.toCharArray(), 0);
+      return MethodType.create(methodDescriptor);
    }
 
    /**
     * Returns the Java type corresponding to the given class.
     */
    @Nonnull
-   public static JavaType getType(@Nonnull Class<?> c) {
-      if (c.isPrimitive()) {
-         return PrimitiveType.getPrimitiveType(c);
+   public static JavaType getType(@Nonnull Class<?> aClass) {
+      if (aClass.isPrimitive()) {
+         return PrimitiveType.getPrimitiveType(aClass);
       }
 
-      String typeDesc = getDescriptor(c);
+      String typeDesc = getDescriptor(aClass);
       return getType(typeDesc);
    }
 
@@ -192,8 +188,8 @@ public abstract class JavaType
     * Returns the Java method type corresponding to the given constructor.
     */
    @Nonnull
-   public static JavaType getType(@Nonnull Constructor<?> c) {
-      String constructorDesc = getConstructorDescriptor(c);
+   public static JavaType getType(@Nonnull Constructor<?> constructor) {
+      String constructorDesc = getConstructorDescriptor(constructor);
       return getType(constructorDesc);
    }
 
@@ -201,8 +197,8 @@ public abstract class JavaType
     * Returns the Java method type corresponding to the given method.
     */
    @Nonnull
-   public static JavaType getType(@Nonnull Method m) {
-      String methodDesc = getMethodDescriptor(m);
+   public static JavaType getType(@Nonnull Method method) {
+      String methodDesc = getMethodDescriptor(method);
       return getType(methodDesc);
    }
 
@@ -216,16 +212,16 @@ public abstract class JavaType
       int size = 0;
 
       while (true) {
-         char car = buf[off++];
+         char c = buf[off++];
 
-         if (car == ')') {
+         if (c == ')') {
             break;
          }
-         else if (car == 'L') {
+         else if (c == 'L') {
             while (buf[off++] != ';') {}
             size++;
          }
-         else if (car != '[') {
+         else if (c != '[') {
             size++;
          }
       }
@@ -257,46 +253,47 @@ public abstract class JavaType
     * Computes the size of the arguments and of the return value of a method.
     *
     * @param desc the descriptor of a method.
-    * @return the size of the arguments of the method (plus one for the implicit this argument), argSize, and the size
-    * of its return value, retSize, packed into a single int i = <tt>(argSize &lt;&lt; 2) | retSize</tt> (argSize is
-    * therefore equal to <tt>i &gt;&gt; 2</tt>, and retSize to <tt>i &amp; 0x03</tt>).
+    * @return the size of the arguments of the method (plus one for the implicit <tt>this</tt> argument),
+    * <tt>argSize</tt>, and the size of its return value, <tt>retSize</tt>, packed into a single
+    * <tt>int i = (argSize << 2) | retSize</tt> (<tt>argSize</tt> is therefore equal to <tt>i >> 2</tt>, and
+    * <tt>retSize</tt> to <tt>i & 0x03</tt>).
     */
    public static int getArgumentsAndReturnSizes(@Nonnull String desc) {
-      int n = 1;
-      int c = 1;
+      int argSize = 1;
+      int i = 1;
 
       while (true) {
-         char car = desc.charAt(c++);
+         char c = desc.charAt(i++);
 
-         if (car == ')') {
-            car = desc.charAt(c);
-            return n << 2 | (car == 'V' ? 0 : car == 'D' || car == 'J' ? 2 : 1);
+         if (c == ')') {
+            c = desc.charAt(i);
+            return argSize << 2 | (c == 'V' ? 0 : c == 'D' || c == 'J' ? 2 : 1);
          }
-         else if (car == 'L') {
-            while (desc.charAt(c++) != ';') {}
-            n++;
+         else if (c == 'L') {
+            while (desc.charAt(i++) != ';') {}
+            argSize++;
          }
-         else if (car == '[') {
-            while ((car = desc.charAt(c)) == '[') {
-               c++;
+         else if (c == '[') {
+            while ((c = desc.charAt(i)) == '[') {
+               i++;
             }
 
-            if (car == 'D' || car == 'J') {
-               n--;
+            if (c == 'D' || c == 'J') {
+               argSize--;
             }
          }
-         else if (car == 'D' || car == 'J') {
-            n += 2;
+         else if (c == 'D' || c == 'J') {
+            argSize += 2;
          }
          else {
-            n++;
+            argSize++;
          }
       }
    }
 
    /**
-    * Returns the Java type corresponding to the given type descriptor. For method descriptors, buf is supposed to
-    * contain nothing more than the descriptor itself.
+    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <tt>buf</tt> is supposed
+    * to contain nothing more than the descriptor itself.
     *
     * @param buf a buffer containing a type descriptor.
     * @param off the offset of this descriptor in the previous buffer.
@@ -311,42 +308,11 @@ public abstract class JavaType
       }
 
       switch (typeCode) {
-         case '[':
-            return createArrayType(buf, off);
-         case 'L':
-            return createObjectType(buf, off);
+         case '[': return ArrayType.create(buf, off);
+         case 'L': return ObjectType.create(buf, off);
          // case '(':
-         default:
-            return new MethodType(buf, off, buf.length - off);
+         default: return new MethodType(buf, off, buf.length - off);
       }
-   }
-
-   private static ArrayType createArrayType(@Nonnull char[] buf, @Nonnegative int off) {
-      int len = 1;
-
-      while (buf[off + len] == '[') {
-         len++;
-      }
-
-      if (buf[off + len] == 'L') {
-         len++;
-
-         while (buf[off + len] != ';') {
-            len++;
-         }
-      }
-
-      return new ArrayType(buf, off, len + 1);
-   }
-
-   private static ObjectType createObjectType(@Nonnull char[] buf, @Nonnegative int off) {
-      int len = 1;
-
-      while (buf[off + len] != ';') {
-         len++;
-      }
-
-      return new ObjectType(buf, off + 1, len - 1);
    }
 
    // ------------------------------------------------------------------------
@@ -359,19 +325,9 @@ public abstract class JavaType
    public int getSort() { return sort; }
 
    /**
-    * Returns the number of dimensions of this array type. This method should only be used for an array type.
-    */
-   public int getDimensions() { throw new UnsupportedOperationException("Not an ArrayType"); }
-
-   /**
-    * Returns the type of the elements of this array type. This method should only be used for an array type.
-    */
-   @Nonnull
-   public JavaType getElementType() { throw new UnsupportedOperationException("Not an ArrayType"); }
-
-   /**
     * Returns the binary name of the class corresponding to this type. This method must not be used on method types.
     */
+   @Nonnull
    public abstract String getClassName();
 
    /**

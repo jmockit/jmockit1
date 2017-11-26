@@ -11,7 +11,7 @@ import java.util.stream.*;
 import javax.annotation.*;
 import static java.util.Collections.*;
 
-import mockit.external.asm.JavaType;
+import mockit.external.asm.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
@@ -170,7 +170,7 @@ public final class DefaultValues
    @Nonnull
    private static Object newEmptyArray(@Nonnull String typeDesc)
    {
-      JavaType type = JavaType.getType(typeDesc);
+      ArrayType type = ArrayType.create(typeDesc);
       Class<?> elementType = TypeDescriptor.getClassForType(type.getElementType());
 
       return Array.newInstance(elementType, new int[type.getDimensions()]);

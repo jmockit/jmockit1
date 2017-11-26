@@ -37,16 +37,16 @@ final class PrimitiveType extends JavaType
    }
 
    @Nonnull
-   static JavaType getPrimitiveType(@Nonnull Class<?> c) {
-      if (c == Integer.TYPE)   return INT_TYPE;
-      if (c == Boolean.TYPE)   return BOOLEAN_TYPE;
-      if (c == Character.TYPE) return CHAR_TYPE;
-      if (c == Double.TYPE)    return DOUBLE_TYPE;
-      if (c == Float.TYPE)     return FLOAT_TYPE;
-      if (c == Long.TYPE)      return LONG_TYPE;
-      if (c == Byte.TYPE)      return BYTE_TYPE;
-      if (c == Short.TYPE)     return SHORT_TYPE;
-      return VOID_TYPE; // c == Void.TYPE
+   static JavaType getPrimitiveType(@Nonnull Class<?> aClass) {
+      if (aClass == Integer.TYPE)   return INT_TYPE;
+      if (aClass == Boolean.TYPE)   return BOOLEAN_TYPE;
+      if (aClass == Character.TYPE) return CHAR_TYPE;
+      if (aClass == Double.TYPE)    return DOUBLE_TYPE;
+      if (aClass == Float.TYPE)     return FLOAT_TYPE;
+      if (aClass == Long.TYPE)      return LONG_TYPE;
+      if (aClass == Byte.TYPE)      return BYTE_TYPE;
+      if (aClass == Short.TYPE)     return SHORT_TYPE;
+      return VOID_TYPE; // aClass == Void.TYPE
    }
 
    @Nullable
@@ -66,16 +66,16 @@ final class PrimitiveType extends JavaType
       return null;
    }
 
-   static char getTypeCode(@Nonnull Class<?> c) {
-      if (c == Integer.TYPE)   return 'I';
-      if (c == Boolean.TYPE)   return 'Z';
-      if (c == Byte.TYPE)      return 'B';
-      if (c == Character.TYPE) return 'C';
-      if (c == Short.TYPE)     return 'S';
-      if (c == Double.TYPE)    return 'D';
-      if (c == Float.TYPE)     return 'F';
-      if (c == Long.TYPE)      return 'J';
-      return 'V'; // c == Void.TYPE
+   static char getTypeCode(@Nonnull Class<?> aClass) {
+      if (aClass == Integer.TYPE)   return 'I';
+      if (aClass == Boolean.TYPE)   return 'Z';
+      if (aClass == Byte.TYPE)      return 'B';
+      if (aClass == Character.TYPE) return 'C';
+      if (aClass == Short.TYPE)     return 'S';
+      if (aClass == Double.TYPE)    return 'D';
+      if (aClass == Float.TYPE)     return 'F';
+      if (aClass == Long.TYPE)      return 'J';
+      return 'V'; // aClass == Void.TYPE
    }
 
    @Nonnull

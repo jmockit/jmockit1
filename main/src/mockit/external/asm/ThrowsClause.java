@@ -1,45 +1,50 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class ThrowsClause
 {
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * Number of exceptions that can be thrown by the method/constructor.
     */
-   private final int exceptionCount;
+   @Nonnegative private final int exceptionCount;
 
    /**
     * The exceptions that can be thrown by the method/constructor. More precisely, this array contains the indexes of
     * the constant pool items that contain the internal names of these exception classes.
     */
-   private final int[] exceptions;
+   @Nullable private final int[] exceptions;
 
-   ThrowsClause(ConstantPoolGeneration cp, String[] exceptions) {
+   ThrowsClause(@Nonnull ConstantPoolGeneration cp, @Nullable String[] exceptionTypeDescs) {
       this.cp = cp;
 
-      int n;
-
-      if (exceptions == null) {
-         n = 0;
+      if (exceptionTypeDescs == null) {
          exceptionCount = 0;
-         this.exceptions = null;
-      }
-      else {
-         n = exceptions.length;
-         exceptionCount = n;
-         this.exceptions = n == 0 ? null : new int[n];
+         exceptions = null;
+         return;
       }
 
-      for (int i = 0; i < n; ++i) {
-         this.exceptions[i] = cp.newClass(exceptions[i]);
+      int n = exceptionTypeDescs.length;
+      exceptionCount = n;
+      exceptions = n == 0 ? null : new int[n];
+
+      for (int i = 0; i < n; i++) {
+         exceptions[i] = cp.newClass(exceptionTypeDescs[i]);
       }
    }
 
-   int getExceptionCount() { return exceptionCount; }
-   boolean hasExceptions() { return exceptionCount > 0; }
-   int getExceptionIndex(int i) { return exceptions[i]; }
+   @Nonnegative int getExceptionCount() { return exceptionCount; }
 
+   boolean hasExceptions() { return exceptionCount > 0; }
+
+   int getExceptionIndex(int i) {
+      //noinspection ConstantConditions
+      return exceptions[i];
+   }
+
+   @Nonnegative
    int getSize() {
       if (exceptionCount > 0) {
          cp.newUTF8("Exceptions");
@@ -49,12 +54,16 @@ final class ThrowsClause
       return 0;
    }
 
-   void put(ByteVector out) {
-      if (exceptionCount > 0) {
-         out.putShort(cp.newUTF8("Exceptions")).putInt(2 * exceptionCount + 2);
-         out.putShort(exceptionCount);
+   void put(@Nonnull ByteVector out) {
+      int n = exceptionCount;
 
-         for (int i = 0; i < exceptionCount; ++i) {
+      if (n > 0) {
+         @SuppressWarnings("ConstantConditions") @Nonnull int[] exceptions = this.exceptions;
+
+         out.putShort(cp.newUTF8("Exceptions")).putInt(2 * n + 2);
+         out.putShort(n);
+
+         for (int i = 0; i < n; i++) {
             out.putShort(exceptions[i]);
          }
       }

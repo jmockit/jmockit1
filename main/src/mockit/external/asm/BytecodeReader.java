@@ -10,13 +10,13 @@ class BytecodeReader
    /**
     * The class to be parsed. <em>The content of this array must not be modified.</em>
     */
-   public final byte[] b;
+   @Nonnull public final byte[] b;
 
    /**
     * The start index of each constant pool item in {@link #b}, plus one.
     * The one byte offset skips the constant pool item tag that indicates its type.
     */
-   final int[] items;
+   @Nonnull final int[] items;
 
    /**
     * The String objects corresponding to the CONSTANT_Utf8 items. This cache avoids multiple parsing of a given
@@ -24,17 +24,17 @@ class BytecodeReader
     * strategy could be extended to all constant pool items, but its benefit would not be so great for these items
     * (because they are much less expensive to parse than CONSTANT_Utf8 items).
     */
-   final String[] strings;
+   @Nonnull final String[] strings;
 
    /**
     * Maximum length of the strings contained in the constant pool of the class.
     */
-   final int maxStringLength;
+   @Nonnegative final int maxStringLength;
 
    /**
     * Start index of the class header information (access, name...) in {@link #b}.
     */
-   final int header;
+   @Nonnegative final int header;
 
    BytecodeReader(@Nonnull byte[] bytecode) {
       b = bytecode;
@@ -46,7 +46,7 @@ class BytecodeReader
       int maxSize = 0;
       int index = 10;
 
-      for (int i = 1; i < n; ++i) {
+      for (int i = 1; i < n; i++) {
          items[i] = index + 1;
          int size;
 
@@ -330,7 +330,8 @@ class BytecodeReader
       // Computes the start index of the CONSTANT_Class item in b and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
       int itemIndex = readUnsignedShort(index);
-      return readUTF8Item(itemIndex, 0, buf);
+      String classDesc = readUTF8Item(itemIndex, 0, buf);
+      return classDesc;
    }
 
    /**

@@ -2,8 +2,32 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class ArrayType extends ReferenceType
+public final class ArrayType extends ReferenceType
 {
+   @Nonnull
+   public static ArrayType create(@Nonnull String typeDesc) {
+      return create(typeDesc.toCharArray(), 0);
+   }
+
+   @Nonnull
+   static ArrayType create(@Nonnull char[] buf, @Nonnegative int off) {
+      int len = 1;
+
+      while (buf[off + len] == '[') {
+         len++;
+      }
+
+      if (buf[off + len] == 'L') {
+         len++;
+
+         while (buf[off + len] != ';') {
+            len++;
+         }
+      }
+
+      return new ArrayType(buf, off, len + 1);
+   }
+
    /**
     * Constructs an array type.
     *
@@ -11,11 +35,14 @@ final class ArrayType extends ReferenceType
     * @param off  the offset of this descriptor in the previous buffer.
     * @param len  the length of this descriptor.
     */
-   ArrayType(char[] buf, int off, int len) {
+   ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
       super(Sort.ARRAY, buf, off, len);
    }
 
-   @Override
+   /**
+    * Returns the number of dimensions of this array type.
+    */
+   @Nonnegative
    public int getDimensions() {
       int i = 1;
 
@@ -26,13 +53,16 @@ final class ArrayType extends ReferenceType
       return i;
    }
 
-   @Nonnull @Override
+   /**
+    * Returns the type of the elements of this array type.
+    */
+   @Nonnull
    public JavaType getElementType() {
       int dimensions = getDimensions();
       return getType(buf, off + dimensions);
    }
 
-   @Override
+   @Nonnull @Override
    public String getClassName() {
       String className = getElementType().getClassName();
       StringBuilder sb = new StringBuilder(className);

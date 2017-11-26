@@ -1,7 +1,14 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 final class MethodType extends ReferenceType
 {
+   static MethodType create(@Nonnull String methodDescriptor) {
+      char[] buf = methodDescriptor.toCharArray();
+      return new MethodType(buf, 0, buf.length);
+   }
+
    /**
     * Constructs a method type.
     *
@@ -9,11 +16,11 @@ final class MethodType extends ReferenceType
     * @param off  the offset of this descriptor in the previous buffer.
     * @param len  the length of this descriptor.
     */
-   MethodType(char[] buf, int off, int len) {
+   MethodType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
       super(Sort.METHOD, buf, off, len);
    }
 
-   @Override public String getClassName() { return null; }
+   @Nonnull @Override public String getClassName() { throw new UnsupportedOperationException(); }
    @Override public int getSize() { throw new UnsupportedOperationException(); }
    @Override public int getOpcode(int opcode) { throw new UnsupportedOperationException(); }
 }
