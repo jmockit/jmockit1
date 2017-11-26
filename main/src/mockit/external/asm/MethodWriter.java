@@ -36,16 +36,13 @@ import static mockit.external.asm.Opcodes.*;
 /**
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
- *
- * @author Eric Bruneton
- * @author Eugene Kuleshov
  */
 public final class MethodWriter extends MethodVisitor
 {
    /**
     * The class writer to which this method must be added.
     */
-   final ClassWriter cw;
+   @Nonnull final ClassWriter cw;
 
    /**
     * Access flags of this method.
@@ -65,48 +62,49 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The descriptor of this method.
     */
-   final String descriptor;
+   @Nonnull final String descriptor;
 
    /**
     * The signature of this method.
     */
-   String signature;
+   @Nullable String signature;
 
    /**
     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
     * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
     * <code>cw.cr.b</code>.
     */
-   int classReaderOffset;
+   @Nonnegative int classReaderOffset;
 
    /**
     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
     * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.b</code>.
     */
-   int classReaderLength;
+   @Nonnegative int classReaderLength;
 
-   final ThrowsClause throwsClause;
+   @Nonnull final ThrowsClause throwsClause;
 
    /**
     * The annotation default attribute of this method. May be <tt>null</tt>.
     */
-   private ByteVector annotationDefault;
+   @Nullable private ByteVector annotationDefault;
 
    /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
     */
-   private AnnotationWriter[] parameterAnnotations;
+   @Nullable private AnnotationWriter[] parameterAnnotations;
 
    /**
     * The bytecode of this method.
     */
-   final ByteVector code;
+   @Nonnull final ByteVector code;
 
-   private final FrameAndStackComputation frameAndStack;
-   private final ExceptionHandling exceptionHandling;
-   private final LocalVariables localVariables;
-   private final LineNumbers lineNumbers;
-   private final CFGAnalysis cfgAnalysis;
+   @Nonnull private final FrameAndStackComputation frameAndStack;
+   @Nonnull private final ExceptionHandling exceptionHandling;
+   @Nonnull private final LocalVariables localVariables;
+   @Nonnull private final LineNumbers lineNumbers;
+   @Nonnull private final CFGAnalysis cfgAnalysis;
+
    private final boolean computeFrames;
 
    /**
@@ -151,12 +149,12 @@ public final class MethodWriter extends MethodVisitor
       return new AnnotationWriter(cp, false, annotationDefault, null, 0);
    }
 
-   @Override
+   @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
 
-   @Override
+   @Nonnull @Override
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
       ByteVector bv = new ByteVector();
 
@@ -275,7 +273,7 @@ public final class MethodWriter extends MethodVisitor
    public void visitInvokeDynamicInsn(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
-      Item invokeItem = cw.newInvokeDynamicItem(name, desc, bsm, bsmArgs);
+      Item invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -451,7 +449,8 @@ public final class MethodWriter extends MethodVisitor
    }
 
    // Visits all the frames that must be stored in the stack map.
-   private int visitAllFramesToBeStoredInStackMap(int max) {
+   @Nonnegative
+   private int visitAllFramesToBeStoredInStackMap(@Nonnegative int max) {
       Label label = cfgAnalysis.getLabelForFirstBasicBlock();
       Frame frame;
 
@@ -473,7 +472,7 @@ public final class MethodWriter extends MethodVisitor
                max = Math.max(max, 1);
 
                // Replaces instructions with NOP ... NOP ATHROW.
-               for (int i = start; i < end; ++i) {
+               for (int i = start; i < end; i++) {
                   code.data[i] = NOP;
                }
 
@@ -497,6 +496,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * Returns the size of the bytecode of this method.
     */
+   @Nonnegative
    int getSize() {
       if (classReaderOffset != 0) {
          return 6 + classReaderLength;
@@ -547,6 +547,7 @@ public final class MethodWriter extends MethodVisitor
       return size;
    }
 
+   @Nonnegative
    private int getSizeOfParameterAnnotations() {
       int size = 0;
 
@@ -556,7 +557,7 @@ public final class MethodWriter extends MethodVisitor
          int n = parameterAnnotations.length;
          size += 7 + 2 * n;
 
-         for (int i = n - 1; i >= 0; --i) {
+         for (int i = n - 1; i >= 0; i--) {
             AnnotationWriter parameterAnnotation = parameterAnnotations[i];
             size += parameterAnnotation == null ? 0 : parameterAnnotation.getSize();
          }
@@ -681,5 +682,6 @@ public final class MethodWriter extends MethodVisitor
       }
    }
 
+   @Nullable
    public Label getCurrentBlock() { return cfgAnalysis.getLabelForCurrentBasicBlock(); }
 }

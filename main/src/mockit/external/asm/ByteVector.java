@@ -34,20 +34,18 @@ import javax.annotation.*;
 /**
  * A dynamically extensible vector of bytes.
  * This class is roughly equivalent to a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
- *
- * @author Eric Bruneton
  */
 final class ByteVector
 {
    /**
     * The content of this vector.
     */
-   byte[] data;
+   @Nonnull byte[] data;
 
    /**
     * Actual number of bytes in this vector.
     */
-   int length;
+   @Nonnegative int length;
 
    /**
     * Constructs a new {@link ByteVector ByteVector} with a default initial size.
@@ -59,7 +57,7 @@ final class ByteVector
    /**
     * Constructs a new {@link ByteVector ByteVector} with the given initial size.
     */
-   ByteVector(int initialSize) {
+   ByteVector(@Nonnegative int initialSize) {
       data = new byte[initialSize];
    }
 
@@ -76,7 +74,8 @@ final class ByteVector
       return this;
    }
 
-   private int getLengthEnlargingIfNeeded(int bytesToAdd) {
+   @Nonnegative
+   private int getLengthEnlargingIfNeeded(@Nonnegative int bytesToAdd) {
       int length = this.length;
 
       if (length + bytesToAdd > data.length) {
@@ -91,7 +90,7 @@ final class ByteVector
     *
     * @param size number of additional bytes that this byte vector should be able to receive.
     */
-   private void enlarge(int size) {
+   private void enlarge(@Nonnegative int size) {
       int length1 = 2 * data.length;
       int length2 = length + size;
       byte[] newData = new byte[length1 > length2 ? length1 : length2];
@@ -216,7 +215,7 @@ final class ByteVector
     * @return this byte vector.
     */
    @Nonnull
-   ByteVector encodeUTF8(@Nonnull String s, int i, int maxByteLength) {
+   ByteVector encodeUTF8(@Nonnull String s, @Nonnegative int i, @Nonnegative int maxByteLength) {
       int charLength = s.length();
       int byteLength = i;
       char c;
@@ -280,7 +279,7 @@ final class ByteVector
     * @param off index of the fist byte of b that must be copied.
     * @param len number of bytes of b that must be copied.
     */
-   void putByteArray(@Nullable byte[] b, int off, int len) {
+   void putByteArray(@Nullable byte[] b, @Nonnegative int off, @Nonnegative int len) {
       int length = getLengthEnlargingIfNeeded(len);
 
       if (b != null) {
@@ -294,7 +293,7 @@ final class ByteVector
       putByteArray(another.data, 0, another.length);
    }
 
-   void increaseLengthBy(int len) {
+   void increaseLengthBy(@Nonnegative int len) {
       getLengthEnlargingIfNeeded(len);
       length += len;
    }

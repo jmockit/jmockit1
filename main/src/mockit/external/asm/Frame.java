@@ -36,8 +36,6 @@ import static mockit.external.asm.Opcodes.*;
 
 /**
  * Information about the input and output stack map frames of a basic block.
- *
- * @author Eric Bruneton
  */
 public final class Frame
 {
@@ -222,7 +220,7 @@ public final class Frame
          "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
       int[] b = SIZE;
 
-      for (int i = 0; i < b.length; ++i) {
+      for (int i = 0; i < b.length; i++) {
          b[i] = s.charAt(i) - 'E';
       }
    }
@@ -539,10 +537,10 @@ public final class Frame
     *
     * @param cp the constant pool to which this label belongs.
     * @param t  a type
-    * @return t or, if t is one of the types on which a constructor is invoked
-    * in the basic block, the type corresponding to this constructor.
+    * @return t or, if t is one of the types on which a constructor is invoked in the basic block, the type
+    * corresponding to this constructor.
     */
-   private int init(String classDesc, @Nonnull ConstantPoolGeneration cp, int t) {
+   private int init(@Nonnull ConstantPoolGeneration cp, String classDesc, int t) {
       int s;
 
       if (t == UNINITIALIZED_THIS) {
@@ -556,7 +554,7 @@ public final class Frame
          return t;
       }
 
-      for (int j = 0; j < initializationCount; ++j) {
+      for (int j = 0; j < initializationCount; j++) {
          int u = initializations[j];
          int dim = u & DIM;
          int kind = u & KIND;
@@ -578,14 +576,13 @@ public final class Frame
 
    /**
     * Initializes the input frame of the first basic block from the method descriptor.
-    *
-    * @param cp        the constant pool to which this label belongs.
+    *  @param cp        the constant pool to which this label belongs.
     * @param access    the access flags of the method to which this label belongs.
     * @param args      the formal parameter types of this method.
     * @param maxLocals the maximum number of local variables of this method.
     */
    void initInputFrame(
-      String classDesc, @Nonnull ConstantPoolGeneration cp, int access, @Nonnull JavaType[] args, int maxLocals
+      @Nonnull ConstantPoolGeneration cp, String classDesc, int access, @Nonnull JavaType[] args, int maxLocals
    ) {
       inputLocals = new int[maxLocals];
       inputStack = new int[0];
@@ -1218,7 +1215,7 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(classDesc, cp, t);
+            t = init(cp, classDesc, t);
          }
 
          changed |= merge(cp, t, frame.inputLocals, i);
@@ -1246,11 +1243,11 @@ public final class Frame
          changed = true;
       }
 
-      for (i = 0; i < nInputStack; ++i) {
+      for (i = 0; i < nInputStack; i++) {
          t = inputStack[i];
 
          if (initializations != null) {
-            t = init(classDesc, cp, t);
+            t = init(cp, classDesc, t);
          }
 
          changed |= merge(cp, t, frame.inputStack, i);
@@ -1278,7 +1275,7 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(classDesc, cp, t);
+            t = init(cp, classDesc, t);
          }
 
          changed |= merge(cp, t, frame.inputStack, nInputStack + i);

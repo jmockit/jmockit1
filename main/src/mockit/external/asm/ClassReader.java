@@ -38,9 +38,6 @@ import static mockit.external.asm.ConstantPoolItemType.*;
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
  * This class parses a byte array conforming to the Java class file format and calls the appropriate visit methods of a
  * given class visitor for each field, method and bytecode instruction encountered.
- *
- * @author Eric Bruneton
- * @author Eugene Kuleshov
  */
 public final class ClassReader extends AnnotatedReader
 {
@@ -59,8 +56,8 @@ public final class ClassReader extends AnnotatedReader
 
    private static final String[] NO_INTERFACES = {};
 
-   private final FieldReader fieldReader;
-   private final MethodReader methodReader;
+   @Nonnull private final FieldReader fieldReader;
+   @Nonnull private final MethodReader methodReader;
 
    // Helper fields.
    ClassVisitor cv;
@@ -120,6 +117,7 @@ public final class ClassReader extends AnnotatedReader
     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
+   @Nullable
    public String getSuperName() {
       return readClass(header + 4);
    }
@@ -180,36 +178,20 @@ public final class ClassReader extends AnnotatedReader
                break;
             case LONG:
                item.set(readLong(index));
-               ++i;
+               i++;
                break;
             case DOUBLE:
                item.set(Double.longBitsToDouble(readLong(index)));
-               ++i;
+               i++;
                break;
-            case UTF8: {
-               String s = strings[i];
-
-               if (s == null) {
-                  index = items[i];
-                  s = strings[i] = readUTF(index + 2, readUnsignedShort(index), buf);
-               }
-
-               item.set(tag, s, null, null);
+            case UTF8:
+               copyUTF8Item(buf, i, tag, item);
                break;
-            }
-            case HANDLE: {
-               int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
-               nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
-               item.set(
-                  HANDLE_BASE + readByte(index), readClass(fieldOrMethodRef, buf),
-                  readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
+            case HANDLE:
+               copyHandleItem(buf, index, item);
                break;
-            }
             case INDY:
-               cw.bootstrapMethods.copyBootstrapMethods(this, items2, buf);
-
-               nameType = items[readUnsignedShort(index + 2)];
-               item.set(readUTF8(nameType, buf), readUTF8(nameType + 2, buf), readUnsignedShort(index));
+               copyInvokeDynamicItem(cw, buf, items2, index, item);
                break;
             // case STR|CLASS|MTYPE:
             default:
@@ -224,6 +206,42 @@ public final class ClassReader extends AnnotatedReader
 
       int off = items[1] - 1;
       cw.cp.copy(b, off, header, items2);
+   }
+
+   private void copyUTF8Item(@Nonnull char[] buf, @Nonnegative int i, int tag, @Nonnull Item item) {
+      String s = strings[i];
+
+      if (s == null) {
+         int index = items[i];
+         s = strings[i] = readUTF(index + 2, readUnsignedShort(index), buf);
+      }
+
+      item.set(tag, s, null, null);
+   }
+
+   private void copyHandleItem(@Nonnull char[] buf, @Nonnegative int index, @Nonnull Item item) {
+      int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
+      int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
+
+      int type = HANDLE_BASE + readByte(index);
+      String classDesc = readClass(fieldOrMethodRef, buf);
+      String name = readUTF8(nameType, buf);
+      String desc = readUTF8(nameType + 2, buf);
+      item.set(type, classDesc, name, desc);
+   }
+
+   private void copyInvokeDynamicItem(
+      @Nonnull ClassWriter cw, @Nonnull char[] buf, @Nonnull Item[] items2, @Nonnegative int index, @Nonnull Item item
+   ) {
+      cw.bootstrapMethods.copyBootstrapMethods(this, items2, buf);
+
+      int nameType = items[readUnsignedShort(index + 2)];
+      String name = readUTF8(nameType, buf);
+      String desc = readUTF8(nameType + 2, buf);
+      int bsmIndex = readUnsignedShort(index);
+
+      //noinspection ConstantConditions
+      item.set(name, desc, bsmIndex);
    }
 
    /**

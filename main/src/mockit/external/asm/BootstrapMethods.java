@@ -7,21 +7,33 @@ import javax.annotation.*;
  */
 final class BootstrapMethods
 {
-   private final ConstantPoolGeneration constantPool;
+   @Nonnull private final ConstantPoolGeneration constantPool;
 
    /**
     * The number of entries in the BootstrapMethods attribute.
     */
-   private int bootstrapMethodsCount;
+   @Nonnegative private int bootstrapMethodsCount;
 
    /**
     * The BootstrapMethods attribute.
     */
    @Nullable private ByteVector bootstrapMethods;
 
-   BootstrapMethods(ConstantPoolGeneration constantPool) { this.constantPool = constantPool; }
+   BootstrapMethods(@Nonnull ConstantPoolGeneration constantPool) { this.constantPool = constantPool; }
 
-   Item addInvokeDynamicReference(String name, String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs) {
+   /**
+    * Adds an invokedynamic reference to the constant pool of the class being built.
+    * Does nothing if the constant pool already contains a similar item.
+    *
+    * @param name    name of the invoked method.
+    * @param desc    descriptor of the invoke method.
+    * @param bsm     the bootstrap method.
+    * @param bsmArgs the bootstrap method constant arguments.
+    * @return a new or an already existing invokedynamic type reference item.
+    */
+   Item addInvokeDynamicReference(
+      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
+   ) {
       ByteVector methods = bootstrapMethods;
 
       if (methods == null) {
@@ -77,7 +89,7 @@ final class BootstrapMethods
    }
 
    @Nullable
-   private Item getBSMItem(@Nonnegative int position, int hashCode, @Nonnull byte[] data, int length) {
+   private Item getBSMItem(@Nonnegative int position, int hashCode, @Nonnull byte[] data, @Nonnegative int length) {
       Item bsmItem = constantPool.getItem(hashCode);
 
    loop:
@@ -105,6 +117,7 @@ final class BootstrapMethods
 
    boolean hasMethods() { return bootstrapMethods != null; }
 
+   @Nonnegative
    int getSize() {
       constantPool.newUTF8("BootstrapMethods");
       //noinspection ConstantConditions

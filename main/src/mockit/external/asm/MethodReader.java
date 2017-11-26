@@ -47,10 +47,10 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private final ClassReader cr;
-   private String[] exceptions;
+   @Nonnull private final ClassReader cr;
+   @Nullable private String[] exceptions;
 
-   MethodReader(ClassReader cr) { super(cr); this.cr = cr; }
+   MethodReader(@Nonnull ClassReader cr) { super(cr); this.cr = cr; }
 
    /**
     * Reads a method and makes the given visitor visit it.
@@ -59,7 +59,8 @@ final class MethodReader extends AnnotatedReader
     * @param u       the start offset of the method in the class file.
     * @return the offset of the first byte following the method in the class.
     */
-   int readMethod(Context context, int u) {
+   @Nonnegative
+   int readMethod(@Nonnull Context context, @Nonnegative int u) {
       u = readMethodDeclaration(context, u);
 
       int u0 = u;
@@ -108,7 +109,8 @@ final class MethodReader extends AnnotatedReader
       return u;
    }
 
-   private int readMethodDeclaration(Context context, int u) {
+   @Nonnegative
+   private int readMethodDeclaration(@Nonnull Context context, @Nonnegative int u) {
       char[] c = context.buffer;
       context.access = readUnsignedShort(u);
       context.name = readUTF8(u + 2, c);
@@ -116,12 +118,13 @@ final class MethodReader extends AnnotatedReader
       return u + 6;
    }
 
-   private int readExceptionsInThrowsClause(int u, char[] c) {
+   @Nonnegative
+   private int readExceptionsInThrowsClause(@Nonnegative int u, @Nonnull char[] c) {
       int n = readUnsignedShort(u + 8);
       exceptions = new String[n];
       int exception = u + 10;
 
-      for (int j = 0; j < n; ++j) {
+      for (int j = 0; j < n; j++) {
          exceptions[j] = readClass(exception, c);
          exception += 2;
       }
@@ -130,7 +133,8 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readMethodBody(
-      Context context, int u0, int u, int code, int exception, String signature, int anns, int annDefault, int paramAnns
+      @Nonnull Context context, @Nonnegative int u0, @Nonnegative int u, int code, int exception,
+      @Nullable String signature, @Nonnegative int anns, @Nonnegative int annDefault, @Nonnegative int paramAnns
    ) {
       MethodVisitor mv = cr.cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
 
@@ -155,7 +159,8 @@ final class MethodReader extends AnnotatedReader
     * important since they are not copied as is from the reader).
     */
    private boolean copyMethodBodyIfApplicable(
-      MethodVisitor mv, int u, int exception, String signature, int firstAttribute
+      @Nonnull MethodVisitor mv, @Nonnegative int u, int exception, @Nullable String signature,
+      @Nonnegative int firstAttribute
    ) {
       if (mv instanceof MethodWriter) {
          MethodWriter mw = (MethodWriter) mv;
@@ -196,7 +201,9 @@ final class MethodReader extends AnnotatedReader
       return false;
    }
 
-   private void readAnnotationDefaultValue(MethodVisitor mv, char[] c, int annotationDefault) {
+   private void readAnnotationDefaultValue(
+      @Nonnull MethodVisitor mv, @Nonnull char[] c, @Nonnegative int annotationDefault
+   ) {
       if (annotationDefault != 0) {
          AnnotationVisitor dv = mv.visitAnnotationDefault();
          annotationReader.readAnnotationValue(annotationDefault, c, null, dv);
@@ -207,7 +214,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readAnnotationValues(MethodVisitor mv, char[] c, int anns) {
+   private void readAnnotationValues(@Nonnull MethodVisitor mv, @Nonnull char[] c, @Nonnegative int anns) {
       if (anns != 0) {
          for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; i--) {
             String desc = readUTF8(v, c);
@@ -224,7 +231,7 @@ final class MethodReader extends AnnotatedReader
     * @param context information about the class being parsed.
     * @param v       start offset in {@link #b} of the annotations to be read.
     */
-   private void readParameterAnnotations(MethodVisitor mv, Context context, int v) {
+   private void readParameterAnnotations(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int v) {
       if (v != 0) {
          char[] c = context.buffer;
          int parameters = b[v++] & 0xFF;
@@ -236,6 +243,7 @@ final class MethodReader extends AnnotatedReader
 
             for (; j > 0; j--) {
                String desc = readUTF8(v, c);
+               //noinspection ConstantConditions
                av = mv.visitParameterAnnotation(i, desc);
                v = annotationReader.readAnnotationValues(v + 2, c, true, av);
             }
@@ -243,7 +251,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readMethodCode(MethodVisitor mv, Context context, int code) {
+   private void readMethodCode(@Nonnull MethodVisitor mv, @Nonnull Context context, int code) {
       if (code != 0 && context.readCode()) {
          mv.visitCode();
          readCode(mv, context, code);
@@ -257,7 +265,7 @@ final class MethodReader extends AnnotatedReader
     * @param context information about the class being parsed.
     * @param u       the start offset of the code attribute in the class file.
     */
-   private void readCode(MethodVisitor mv, Context context, int u) {
+   private void readCode(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
       // Reads the header.
       char[] c = context.buffer;
       int maxStack = readUnsignedShort(u);
@@ -313,7 +321,11 @@ final class MethodReader extends AnnotatedReader
       mv.visitMaxStack(maxStack);
    }
 
-   private int readAllLabelsInCodeBlock(Context context, int u, int codeLength, int codeStart, int codeEnd) {
+   @Nonnegative
+   private int readAllLabelsInCodeBlock(
+      @Nonnull Context context, @Nonnegative int u, @Nonnegative int codeLength,
+      @Nonnegative int codeStart, @Nonnegative int codeEnd
+   ) {
       byte[] b = this.b;
       Label[] labels = context.labels;
 
@@ -373,7 +385,8 @@ final class MethodReader extends AnnotatedReader
    }
 
    // Reads the try catch entries to find the labels, and also visits them.
-   private int readTryCatchBlocks(MethodVisitor mv, Context context, int u) {
+   @Nonnegative
+   private int readTryCatchBlocks(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
       char[] c = context.buffer;
       Label[] labels = context.labels;
 
@@ -390,7 +403,8 @@ final class MethodReader extends AnnotatedReader
       return u;
    }
 
-   private int readLocalVariableTable(Context context, int u, int varTable) {
+   @Nonnegative
+   private int readLocalVariableTable(@Nonnull Context context, @Nonnegative int u, @Nonnegative int varTable) {
       if (context.readDebugInfo()) {
          Label[] labels = context.labels;
          varTable = u + 8;
@@ -415,7 +429,7 @@ final class MethodReader extends AnnotatedReader
       return varTable;
    }
 
-   private void readLineNumberTable(Context context, int u) {
+   private void readLineNumberTable(@Nonnull Context context, @Nonnegative int u) {
       if (context.readDebugInfo()) {
          Label[] labels = context.labels;
 
@@ -511,6 +525,7 @@ final class MethodReader extends AnnotatedReader
                break;
             case InstructionType.TYPE:
                String typeDesc = readClass(u + 1, c);
+               //noinspection ConstantConditions
                mv.visitTypeInsn(opcode, typeDesc);
                u += 3;
                break;
@@ -524,6 +539,7 @@ final class MethodReader extends AnnotatedReader
             default:
                String arrayTypeDesc = readClass(u + 1, c);
                int dims = b[u + 3] & 0xFF;
+               //noinspection ConstantConditions
                mv.visitMultiANewArrayInsn(arrayTypeDesc, dims);
                u += 4;
                break;

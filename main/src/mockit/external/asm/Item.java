@@ -35,8 +35,6 @@ import static mockit.external.asm.ConstantPoolItemType.*;
 
 /**
  * A constant pool item. Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
- *
- * @author Eric Bruneton
  */
 final class Item
 {
@@ -55,7 +53,7 @@ final class Item
    /**
     * Index of this item in the constant pool.
     */
-   final int index;
+   @Nonnegative final int index;
 
    /**
     * Type of this constant pool item. A single class is used to represent all constant pool item types, in order to
@@ -116,7 +114,7 @@ final class Item
     *
     * @param index index of the item to be constructed.
     */
-   Item(int index) {
+   Item(@Nonnegative int index) {
       this.index = index;
    }
 
@@ -126,7 +124,7 @@ final class Item
     * @param index index of the item to be constructed.
     * @param item  the item that must be copied into the item to be constructed.
     */
-   Item(int index, @Nonnull Item item) {
+   Item(@Nonnegative int index, @Nonnull Item item) {
       this.index = index;
       type = item.type;
       intVal = item.intVal;
@@ -222,12 +220,12 @@ final class Item
     * @param desc     invokedynamic's desc.
     * @param bsmIndex zero based index into the class attribute BootstrapMethods.
     */
-   void set(String name, String desc, int bsmIndex) {
+   void set(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
       type = INDY;
       longVal = bsmIndex;
       strVal1 = name;
       strVal2 = desc;
-      hashCode = 0x7FFFFFFF & (INDY + bsmIndex * strVal1.hashCode() * strVal2.hashCode());
+      hashCode = 0x7FFFFFFF & (INDY + bsmIndex * name.hashCode() * desc.hashCode());
    }
 
    /**
@@ -288,6 +286,7 @@ final class Item
     * store this variation, once it has been computed. More precisely this intVal field stores the sizes of the
     * arguments and of the return value corresponding to desc.
     */
+   @Nonnegative
    int getArgSizeComputingIfNeeded(@Nonnull String desc) {
       int argSize = intVal;
 

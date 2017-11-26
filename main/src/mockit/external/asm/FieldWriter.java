@@ -29,17 +29,17 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 /**
  * A {@link FieldVisitor} that generates Java fields in bytecode form.
- *
- * @author Eric Bruneton
  */
 final class FieldWriter extends FieldVisitor
 {
    /**
     * The class writer to which this field must be added.
     */
-   private final ClassWriter cw;
+   @Nonnull private final ClassWriter cw;
 
    /**
     * Access flags of this field.
@@ -49,22 +49,22 @@ final class FieldWriter extends FieldVisitor
    /**
     * The index of the constant pool item that contains the name of this field.
     */
-   private final int name;
+   @Nonnegative private final int name;
 
    /**
     * The index of the constant pool item that contains the descriptor of this field.
     */
-   private final int desc;
+   @Nonnegative private final int desc;
 
    /**
     * The index of the constant pool item that contains the signature of this field.
     */
-   private final int signature;
+   @Nonnegative private final int signature;
 
    /**
     * The index of the constant pool item that contains the constant value of this field.
     */
-   private final int value;
+   @Nonnegative private final int value;
 
    /**
     * Constructs a new {@link FieldWriter}.
@@ -73,10 +73,13 @@ final class FieldWriter extends FieldVisitor
     * @param access    the field's access flags (see {@link Opcodes}).
     * @param name      the field's name.
     * @param desc      the field's descriptor (see {@link JavaType}).
-    * @param signature the field's signature. May be <tt>null</tt>.
-    * @param value     the field's constant value. May be <tt>null</tt>.
+    * @param signature the field's signature.
+    * @param value     the field's constant value.
     */
-   FieldWriter(ClassWriter cw, int access, String name, String desc, String signature, Object value) {
+   FieldWriter(
+      @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+      @Nullable Object value
+   ) {
       this.cw = cw;
       cp = cw.cp;
       this.access = access;
@@ -90,8 +93,8 @@ final class FieldWriter extends FieldVisitor
    // Implementation of the FieldVisitor base class
    // ------------------------------------------------------------------------
 
-   @Override
-   public AnnotationVisitor visitAnnotation(String desc) {
+   @Nonnull @Override
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
 
@@ -102,6 +105,7 @@ final class FieldWriter extends FieldVisitor
    /**
     * Returns the size of this field.
     */
+   @Nonnegative
    int getSize() {
       int size = 8;
 
@@ -139,7 +143,7 @@ final class FieldWriter extends FieldVisitor
     *
     * @param out where the content of this field must be put.
     */
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       int accessFlag = Access.computeFlag(access, 0);
       out.putShort(accessFlag);
 

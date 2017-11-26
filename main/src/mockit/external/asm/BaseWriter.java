@@ -10,7 +10,7 @@ class BaseWriter
    @Nonnull ConstantPoolGeneration cp;
 
    /**
-    * The runtime visible annotations of this class/field/method. May be <tt>null</tt>.
+    * The runtime visible annotations of this class/field/method.
     */
    @Nullable AnnotationWriter annotations;
 

@@ -40,15 +40,13 @@ import mockit.internal.util.*;
  * conforming to the Java class file format. It can be used alone, to generate a Java class "from scratch", or with one
  * or more {@link ClassReader} and adapter class visitor to generate a modified class from one or more existing Java
  * classes.
- *
- * @author Eric Bruneton
  */
 public final class ClassWriter extends ClassVisitor
 {
    /**
     * The class reader from which this class writer was constructed.
     */
-   final ClassReader cr;
+   @Nonnull final ClassReader cr;
 
    /**
     * Minor and major version numbers of the class to be generated.
@@ -80,21 +78,21 @@ public final class ClassWriter extends ClassVisitor
     */
    private int superName;
 
-   private Interfaces interfaces;
-   private final SourceInfo sourceInfo;
-   private OuterClass outerClass;
+   @Nullable private Interfaces interfaces;
+   @Nonnull private final SourceInfo sourceInfo;
+   @Nullable private OuterClass outerClass;
    @Nullable private InnerClasses innerClasses;
-   final BootstrapMethods bootstrapMethods;
+   @Nonnull final BootstrapMethods bootstrapMethods;
 
    /**
     * The fields of this class.
     */
-   private final List<FieldWriter> fields;
+   @Nonnull private final List<FieldWriter> fields;
 
    /**
     * The methods of this class.
     */
-   private final List<MethodWriter> methods;
+   @Nonnull private final List<MethodWriter> methods;
 
    /**
     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
@@ -122,7 +120,7 @@ public final class ClassWriter extends ClassVisitor
     *                    constant pool from the original class and also to copy other fragments of original bytecode
     *                    where applicable.
     */
-   public ClassWriter(ClassReader classReader) {
+   public ClassWriter(@Nonnull ClassReader classReader) {
       cp = new ConstantPoolGeneration();
       sourceInfo = new SourceInfo(cp);
       bootstrapMethods = new BootstrapMethods(cp);
@@ -217,7 +215,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Returns the bytecode of the class that was build with this class writer.
     */
-   @Override
+   @Nonnull @Override
    public byte[] toByteArray() {
       cp.checkConstantPoolMaxSize();
 
@@ -324,6 +322,7 @@ public final class ClassWriter extends ClassVisitor
       return out.data;
    }
 
+   @Nonnegative
    private int getMethodsSize() {
       int size = 0;
 
@@ -334,6 +333,7 @@ public final class ClassWriter extends ClassVisitor
       return size;
    }
 
+   @Nonnegative
    private int getFieldsSize() {
       int size = 0;
 
@@ -344,7 +344,7 @@ public final class ClassWriter extends ClassVisitor
       return size;
    }
 
-   private void putFields(ByteVector out) {
+   private void putFields(@Nonnull ByteVector out) {
       out.putShort(fields.size());
 
       for (FieldWriter fb : fields) {
@@ -352,7 +352,7 @@ public final class ClassWriter extends ClassVisitor
       }
    }
 
-   private void putMethods(ByteVector out) {
+   private void putMethods(@Nonnull ByteVector out) {
       out.putShort(methods.size());
 
       for (MethodWriter mb : methods) {
@@ -360,14 +360,14 @@ public final class ClassWriter extends ClassVisitor
       }
    }
 
-   private void putSignature(ByteVector out) {
+   private void putSignature(@Nonnull ByteVector out) {
       if (signature != 0) {
          out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(signature);
       }
    }
 
    // ------------------------------------------------------------------------
-   // Utility methods: version, others
+   // Utility methods: version, synthetic
    // ------------------------------------------------------------------------
 
    int getClassVersion() { return version & 0xFFFF; }
@@ -378,19 +378,5 @@ public final class ClassWriter extends ClassVisitor
       return
          Access.isSynthetic(access) &&
          ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < ClassVersion.V1_5);
-   }
-
-   /**
-    * Adds an invokedynamic reference to the constant pool of the class being built.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param name    name of the invoked method.
-    * @param desc    descriptor of the invoke method.
-    * @param bsm     the bootstrap method.
-    * @param bsmArgs the bootstrap method constant arguments.
-    * @return a new or an already existing invokedynamic type reference item.
-    */
-   Item newInvokeDynamicItem(String name, String desc, Handle bsm, Object... bsmArgs) {
-      return bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
    }
 }

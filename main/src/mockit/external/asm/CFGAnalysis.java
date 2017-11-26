@@ -6,14 +6,14 @@ import static mockit.external.asm.Opcodes.*;
 
 final class CFGAnalysis
 {
-   private final ClassWriter cw;
-   private final ConstantPoolGeneration cp;
-   private final ByteVector code;
+   @Nonnull private final ClassWriter cw;
+   @Nonnull private final ConstantPoolGeneration cp;
+   @Nonnull private final ByteVector code;
 
    /**
     * The number of subroutines in this method.
     */
-   private int subroutines;
+   @Nonnegative private int subroutines;
 
    // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
    // graph contains one node per "basic block", and one edge per "jump" from one basic block to another. Each node
@@ -31,32 +31,31 @@ final class CFGAnalysis
     * other by their {@link Label#successor} field, in the order they are visited by {@link MethodVisitor#visitLabel},
     * and starting with the first basic block.
     */
-   private final Label labels;
+   @Nonnull private final Label labels;
 
    /**
     * The previous basic block.
     */
-   private Label previousBlock;
+   @Nullable private Label previousBlock;
 
    /**
     * The current basic block.
     */
-   @Nullable
-   private Label currentBlock;
+   @Nullable private Label currentBlock;
 
    /**
     * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the
     * current basic block, i.e., the true stack size after the last visited instruction is equal to the
     * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
     */
-   private int stackSize;
+   @Nonnegative private int stackSize;
 
    /**
     * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of
     * the current basic block, i.e., the true maximum stack size after the last visited instruction is equal to the
     * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
     */
-   private int maxStackSize;
+   @Nonnegative private int maxStackSize;
 
    CFGAnalysis(@Nonnull ClassWriter cw, @Nonnull ByteVector code, boolean computeFrames) {
       this.cw = cw;
@@ -110,6 +109,7 @@ final class CFGAnalysis
          Label l = new Label();
          l.frame = new Frame(l);
          l.resolve(code);
+         //noinspection ConstantConditions
          previousBlock.successor = l;
          previousBlock = l;
       }
@@ -232,6 +232,7 @@ final class CFGAnalysis
       }
    }
 
+   @Nullable
    Label updateCurrentBlockForJumpInstruction(int opcode, @Nonnull Label label) {
       Label nextInsn = null;
 

@@ -84,46 +84,46 @@ final class FrameAndStackComputation
       int FULL_FRAME = 255; // ff
    }
 
-   private final MethodWriter mw;
-   private final ClassWriter cw;
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final MethodWriter mw;
+   @Nonnull private final ClassWriter cw;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * Maximum stack size of this method.
     */
-   private int maxStack;
+   @Nonnegative private int maxStack;
 
    /**
     * Maximum number of local variables for this method.
     */
-   private int maxLocals;
+   @Nonnegative private int maxLocals;
 
    /**
     * Number of local variables in the current stack map frame.
     */
-   private int currentLocals;
+   @Nonnegative private int currentLocals;
 
    /**
     * Number of stack map frames in the StackMapTable attribute.
     */
-   private int frameCount;
+   @Nonnegative private int frameCount;
 
    /**
     * The StackMapTable attribute.
     */
-   private ByteVector stackMap;
+   @Nullable private ByteVector stackMap;
 
    /**
     * The offset of the last frame that was written in the StackMapTable attribute.
     */
-   private int previousFrameOffset;
+   @Nonnegative private int previousFrameOffset;
 
    /**
     * The last frame that was written in the StackMapTable attribute.
     *
     * @see #frameDefinition
     */
-   private int[] previousFrame;
+   @Nullable private int[] previousFrame;
 
    /**
     * The current stack map frame.
@@ -137,12 +137,12 @@ final class FrameAndStackComputation
     * All types are encoded as integers, with the same format as the one used in {@link Label}, but limited to BASE
     * types.
     */
-   private int[] frameDefinition;
+   @Nullable private int[] frameDefinition;
 
    /**
     * The current index in {@link #frameDefinition}, when writing new values into the array.
     */
-   private int frameIndex;
+   @Nonnegative private int frameIndex;
 
    FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
       this.mw = mw;
@@ -231,22 +231,25 @@ final class FrameAndStackComputation
       return delta;
    }
 
-   private void readFullCompressedFrame(int nLocal, Object[] local, int nStack, Object[] stack, int delta) {
+   private void readFullCompressedFrame(
+      @Nonnegative int nLocal, @Nonnull Object[] local, @Nonnegative int nStack, @Nonnull Object[] stack, int delta
+   ) {
       currentLocals = nLocal;
+      //noinspection ConstantConditions
       stackMap.putByte(LocalsAndStackItemsDiff.FULL_FRAME).putShort(delta).putShort(nLocal);
 
-      for (int i = 0; i < nLocal; ++i) {
+      for (int i = 0; i < nLocal; i++) {
          writeFrameType(local[i]);
       }
 
       stackMap.putShort(nStack);
 
-      for (int i = 0; i < nStack; ++i) {
+      for (int i = 0; i < nStack; i++) {
          writeFrameType(stack[i]);
       }
    }
 
-   private void readCompressedFrame(int nLocal, Object[] local, int delta) {
+   private void readCompressedFrame(@Nonnegative int nLocal, @Nonnull Object[] local, int delta) {
       currentLocals += nLocal;
       stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + nLocal).putShort(delta);
 
@@ -660,7 +663,7 @@ final class FrameAndStackComputation
    // Creates and visits the first (implicit) frame.
    void createAndVisitFirstFrame(@Nonnull Frame frame) {
       JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cw.thisName, cp, mw.access, args, maxLocals);
+      frame.initInputFrame(cp, cw.thisName, mw.access, args, maxLocals);
       visitFrame(frame);
    }
 
@@ -739,6 +742,7 @@ final class FrameAndStackComputation
       endFrame();
    }
 
+   @Nonnegative
    int getSize() {
       return stackMap == null ? 0 : 8 + stackMap.length;
    }

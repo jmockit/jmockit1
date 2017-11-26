@@ -17,42 +17,42 @@ final class ConstantPoolGeneration
    /**
     * The constant pool of the class file being generated/modified.
     */
-   private final ByteVector pool;
+   @Nonnull private final ByteVector pool;
 
    /**
     * The constant pool's hash table data.
     */
-   private Item[] items;
+   @Nonnull private Item[] items;
 
    /**
     * The threshold of the constant pool's hash table.
     */
-   private int threshold;
+   @Nonnegative private int threshold;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   private final Item key;
+   @Nonnull private final Item key;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   private final Item key2;
+   @Nonnull private final Item key2;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   private final Item key3;
+   @Nonnull private final Item key3;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   private final Item key4;
+   @Nonnull private final Item key4;
 
    /**
     * Index of the next item to be added in the constant pool.
     */
-   private int index;
+   @Nonnegative private int index;
 
    /**
     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
@@ -594,7 +594,7 @@ final class ConstantPoolGeneration
          int nl = ll * 2 + 1;
          Item[] newItems = new Item[nl];
 
-         for (int l = ll - 1; l >= 0; --l) {
+         for (int l = ll - 1; l >= 0; l--) {
             Item j = items[l];
 
             while (j != null) {
@@ -626,6 +626,7 @@ final class ConstantPoolGeneration
       pool.put12(b, s1).putShort(s2);
    }
 
+   @Nonnegative
    int getSize() { return pool.length; }
 
    void checkConstantPoolMaxSize() {
@@ -638,7 +639,7 @@ final class ConstantPoolGeneration
       out.putShort(index).putByteVector(pool);
    }
 
-   void copy(byte[] b, int off, int header, @Nonnull Item[] items) {
+   void copy(@Nullable byte[] b, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] items) {
       pool.putByteArray(b, off, header - off);
       this.items = items;
 
@@ -647,10 +648,10 @@ final class ConstantPoolGeneration
       index = ll;
    }
 
-   String getInternalName(int index) { return typeTable[index].strVal1; }
-   int getIntegerItemValue(int index) { return typeTable[index].intVal; }
+   String getInternalName(@Nonnegative int index) { return typeTable[index].strVal1; }
+   int getIntegerItemValue(@Nonnegative int index) { return typeTable[index].intVal; }
 
-   Item createInvokeDynamicConstant(String name, String desc, int bsmIndex) {
+   Item createInvokeDynamicConstant(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
       key3.set(name, desc, bsmIndex);
       Item result = get(key3);
 
