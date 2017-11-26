@@ -175,13 +175,6 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitFrame(int type, int nLocal, @Nonnull Object[] local, int nStack, @Nonnull Object[] stack) {
-      if (!computeFrames) {
-         frameAndStack.readFrame(type, nLocal, local, nStack, stack);
-      }
-   }
-
-   @Override
    public void visitInsn(int opcode) {
       // Adds the instruction to the bytecode of the method.
       code.putByte(opcode);
@@ -430,7 +423,9 @@ public final class MethodWriter extends MethodVisitor
 
       if (computeFrames) {
          exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames();
-         frameAndStack.createAndVisitFirstFrame(cfgAnalysis.getFirstFrame());
+
+         Frame firstFrame = cfgAnalysis.getFirstFrame();
+         frameAndStack.createAndVisitFirstFrame(firstFrame);
 
          computedMaxStack = cfgAnalysis.computeMaxStackSizeFromComputedFrames();
          computedMaxStack = visitAllFramesToBeStoredInStackMap(computedMaxStack);
@@ -438,6 +433,7 @@ public final class MethodWriter extends MethodVisitor
          exceptionHandling.countNumberOfHandlers();
       }
       else {
+         // TODO: figure out if/when the next two calls are needed, since no tests fail if commented out
          exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocks();
          cfgAnalysis.completeControlFlowGraphWithRETSuccessors();
 
@@ -448,7 +444,6 @@ public final class MethodWriter extends MethodVisitor
       frameAndStack.setMaxStack(computedMaxStack);
    }
 
-   // Visits all the frames that must be stored in the stack map.
    @Nonnegative
    private int visitAllFramesToBeStoredInStackMap(@Nonnegative int max) {
       Label label = cfgAnalysis.getLabelForFirstBasicBlock();

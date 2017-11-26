@@ -40,11 +40,6 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public final void visitFrame(int type, int nLocal, @Nonnull Object[] local, int nStack, @Nonnull Object[] stack) {
-      mw.visitFrame(type, nLocal, local, nStack, stack);
-   }
-
-   @Override
    public void visitInsn(int opcode) {
       mw.visitInsn(opcode);
    }

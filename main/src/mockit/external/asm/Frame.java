@@ -248,7 +248,7 @@ public final class Frame
    /**
     * The output stack map frame stack.
     */
-   @Nullable private int[] outputStack;
+   private int[] outputStack;
 
    /**
     * Relative size of the output stack. The exact semantics of this field depends on the algorithm that is used.
@@ -277,7 +277,7 @@ public final class Frame
     * algorithm, where the frames are fully computed. Note that this array can contain types that are relative to input
     * locals or to the input stack (see below for the description of the algorithm).
     */
-   @Nullable private int[] initializations;
+   private int[] initializations;
 
    Frame(@Nonnull Label owner) {
       this.owner = owner;

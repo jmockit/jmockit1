@@ -97,9 +97,9 @@ public final class ClassWriter extends ClassVisitor
    /**
     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
     * <p/>
-    * If this flag is set, then the calls to the {@link MethodVisitor#visitFrame} method are ignored, and the stack map
-    * frames are recomputed from the methods bytecode. The arguments of the {@link MethodVisitor#visitMaxStack} method
-    * are also ignored and recomputed from the bytecode. In other words, computeFrames implies computeMaxs.
+    * If this flag is set, then the stack map frames are recomputed from the methods bytecode. The arguments of the
+    * {@link MethodVisitor#visitMaxStack} method are also ignored and recomputed from the bytecode. In other words,
+    * computeFrames implies computeMaxs.
     */
    private final boolean computeFrames;
 

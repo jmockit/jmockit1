@@ -31,22 +31,17 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import mockit.external.asm.FrameAndStackComputation.*;
-
 /**
  * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:
  * <p/>
  * [<tt>visitAnnotationDefault</tt>] (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
- * [<tt>visitCode</tt> (<tt>visitFrame</tt> | <tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> |
- * <tt>visitTryCatchBlock</tt> | <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)*
- * <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
+ * [<tt>visitCode</tt> (<tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
+ * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
  * <p/>
  * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods are called in the sequential order of the
  * bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> is called <i>before</i> the labels passed as
  * arguments have been visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods are called
  * <i>after</i> the labels passed as arguments have been visited.
- *
- * @author Eric Bruneton
  */
 public class MethodVisitor extends BaseWriter
 {
@@ -95,56 +90,6 @@ public class MethodVisitor extends BaseWriter
     * Starts the visit of the method's code, if any (i.e. non abstract method).
     */
    public void visitCode() {}
-
-   /**
-    * Visits the current state of the local variables and operand stack elements. This method must(*) be called <em>just
-    * before</em> any instruction <b>i</b> that follows an unconditional branch instruction such as GOTO or THROW, that
-    * is the target of a jump instruction, or that starts an exception handler block. The visited types must describe
-    * the values of the local variables and of the operand stack elements <em>just before</em> <b>i</b> is executed.
-    * <p/>
-    * (*) this is mandatory only for classes whose version is greater than or equal to {@link ClassVersion#V1_6 V1_6}.
-    * <p/>
-    * The frames of a method must be given either in expanded form, or in compressed form (all frames must use the same
-    * format, i.e. you must not mix expanded and compressed frames within a single method):
-    * <ul>
-    * <li>In expanded form, all frames must have the {@link FrameType#NEW} type.</li>
-    * <li>In compressed form, frames are basically "deltas" from the state of the previous frame:
-    * <ul>
-    * <li>{@link FrameType#SAME} representing frame with exactly the same locals as the previous frame and with the
-    * empty stack.</li>
-    * <li>{@link FrameType#SAME1} representing frame with exactly the same locals as the previous frame and with single
-    * value on the stack (<code>nStack</code> is 1 and <code>stack[0]</code> contains value for the type of the stack
-    * item).</li>
-    * <li>{@link FrameType#APPEND} representing frame with current locals are the same as the locals in the previous
-    * frame, except that additional locals are defined (<code>nLocal</code> is 1, 2 or 3 and <code>local</code> elements
-    * contains values representing added types).</li>
-    * <li>{@link FrameType#CHOP} representing frame with current locals are the same as the locals in the previous
-    * frame, except that the last 1-3 locals are absent and with the empty stack (<code>nLocals</code> is 1, 2 or 3).
-    * </li>
-    * <li>{@link FrameType#FULL} representing complete frame data.</li>
-    * </ul>
-    * </li>
-    * </ul>
-    * In both cases the first frame, corresponding to the method's parameters and access flags, is implicit and must not
-    * be visited. Also, it is illegal to visit two or more frames for the same code location (i.e., at least one
-    * instruction must be visited between two calls to visitFrame).
-    *
-    * @param type   the type of this stack map frame. Must be {@link FrameType#NEW} for expanded frames, or one of the
-    *               other {@link FrameType frame types} for compressed frames.
-    * @param nLocal the number of local variables in the visited frame.
-    * @param local  the local variable types in this frame. This array must not be modified. Primitive types are
-    *               represented by <tt>0 = boolean/byte/char</tt>, <tt>1 = int</tt>, <tt>2 = float</tt>,
-    *               <tt>3 = double</tt>, <tt>4 = long</tt>, <tt>5 = null</tt> or <tt>6 = UNINITIALIZED_THIS</tt> (long
-    *               and double are represented by a single element). Reference types are represented by String objects
-    *               (representing internal names), and uninitialized types by {@link Label} objects (this label
-    *               designates the NEW instruction that created this uninitialized value).
-    * @param nStack the number of operand stack elements in the visited frame.
-    * @param stack  the operand stack types in this frame. This array must not be modified.
-    *               Its content has the same format as the "local" array.
-    * @throws IllegalStateException if a frame is visited just after another one, without any instruction between the
-    * two (unless this frame is a {@link FrameType#SAME} frame, in which case it is silently ignored).
-    */
-   public void visitFrame(int type, int nLocal, @Nonnull Object[] local, int nStack, @Nonnull Object[] stack) {}
 
    // -------------------------------------------------------------------------
    // Normal instructions

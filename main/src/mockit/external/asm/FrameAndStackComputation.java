@@ -6,41 +6,6 @@ import mockit.external.asm.Frame.*;
 
 final class FrameAndStackComputation
 {
-   interface FrameType
-   {
-      /**
-       * An expanded frame.
-       */
-      int NEW = -1;
-
-      /**
-       * A compressed frame with complete frame data.
-       */
-      int FULL = 0;
-
-      /**
-       * A compressed frame where locals are the same as the locals in the previous frame, except that additional 1-3
-       * locals are defined, and with an empty stack.
-       */
-      int APPEND = 1;
-
-      /**
-       * A compressed frame where locals are the same as the locals in the previous frame, except that the last 1-3
-       * locals are absent and with an empty stack.
-       */
-      int CHOP = 2;
-
-      /**
-       * A compressed frame with exactly the same locals as the previous frame and with an empty stack.
-       */
-      int SAME = 3;
-
-      /**
-       * A compressed frame with exactly the same locals as the previous frame and with a single value on the stack.
-       */
-      int SAME1 = 4;
-   }
-
    /**
     * Constants that identify how many locals and stack items a frame has, with respect to its previous frame.
     */
@@ -99,11 +64,6 @@ final class FrameAndStackComputation
    @Nonnegative private int maxLocals;
 
    /**
-    * Number of local variables in the current stack map frame.
-    */
-   @Nonnegative private int currentLocals;
-
-   /**
     * Number of stack map frames in the StackMapTable attribute.
     */
    @Nonnegative private int frameCount;
@@ -111,19 +71,14 @@ final class FrameAndStackComputation
    /**
     * The StackMapTable attribute.
     */
-   @Nullable private ByteVector stackMap;
-
-   /**
-    * The offset of the last frame that was written in the StackMapTable attribute.
-    */
-   @Nonnegative private int previousFrameOffset;
+   private ByteVector stackMap;
 
    /**
     * The last frame that was written in the StackMapTable attribute.
     *
     * @see #frameDefinition
     */
-   @Nullable private int[] previousFrame;
+   private int[] previousFrame;
 
    /**
     * The current stack map frame.
@@ -137,7 +92,7 @@ final class FrameAndStackComputation
     * All types are encoded as integers, with the same format as the one used in {@link Label}, but limited to BASE
     * types.
     */
-   @Nullable private int[] frameDefinition;
+   private int[] frameDefinition;
 
    /**
     * The current index in {@link #frameDefinition}, when writing new values into the array.
@@ -156,7 +111,6 @@ final class FrameAndStackComputation
       }
 
       maxLocals = size;
-      currentLocals = size;
    }
 
    void setMaxStack(int maxStack) {
@@ -173,214 +127,6 @@ final class FrameAndStackComputation
       out.putShort(maxStack).putShort(maxLocals);
    }
 
-   void readFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-      if (type == FrameType.NEW) {
-         readExpandedFrame(nLocal, local, nStack, stack);
-      }
-      else {
-         int delta = getDeltaForType(type);
-
-         if (delta < 0) {
-            return;
-         }
-
-         switch (type) {
-            case FrameType.FULL:
-               readFullCompressedFrame(nLocal, local, nStack, stack, delta);
-               break;
-            case FrameType.APPEND:
-               readCompressedFrame(nLocal, local, delta);
-               break;
-            case FrameType.CHOP:
-               readCompressedFrameWithChoppedLocals(nLocal, delta);
-               break;
-            case FrameType.SAME:
-               readCompressedFrameWithEmptyStack(delta);
-               break;
-            case FrameType.SAME1:
-               readCompressedWithSingleValueOnStack(stack[0], delta);
-               break;
-         }
-
-         previousFrameOffset = mw.code.length;
-         frameCount++;
-      }
-
-      maxStack = Math.max(maxStack, nStack);
-      maxLocals = Math.max(maxLocals, currentLocals);
-   }
-
-   private int getDeltaForType(int type) {
-      int codeLength = mw.code.length;
-
-      if (stackMap == null) {
-         stackMap = new ByteVector();
-         return codeLength;
-      }
-
-      int delta = codeLength - previousFrameOffset - 1;
-
-      if (delta < 0) {
-         if (type == FrameType.SAME) {
-            return delta;
-         }
-
-         throw new IllegalStateException("Unexpected frame type: " + type);
-      }
-
-      return delta;
-   }
-
-   private void readFullCompressedFrame(
-      @Nonnegative int nLocal, @Nonnull Object[] local, @Nonnegative int nStack, @Nonnull Object[] stack, int delta
-   ) {
-      currentLocals = nLocal;
-      //noinspection ConstantConditions
-      stackMap.putByte(LocalsAndStackItemsDiff.FULL_FRAME).putShort(delta).putShort(nLocal);
-
-      for (int i = 0; i < nLocal; i++) {
-         writeFrameType(local[i]);
-      }
-
-      stackMap.putShort(nStack);
-
-      for (int i = 0; i < nStack; i++) {
-         writeFrameType(stack[i]);
-      }
-   }
-
-   private void readCompressedFrame(@Nonnegative int nLocal, @Nonnull Object[] local, int delta) {
-      currentLocals += nLocal;
-      stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + nLocal).putShort(delta);
-
-      for (int i = 0; i < nLocal; i++) {
-         writeFrameType(local[i]);
-      }
-   }
-
-   private void readCompressedFrameWithChoppedLocals(int nLocal, int delta) {
-      currentLocals -= nLocal;
-      stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED - nLocal).putShort(delta);
-   }
-
-   private void readCompressedFrameWithEmptyStack(int delta) {
-      if (delta < 64) {
-         stackMap.putByte(delta);
-      }
-      else {
-         stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED).putShort(delta);
-      }
-   }
-
-   private void readCompressedWithSingleValueOnStack(Object type, int delta) {
-      if (delta < 64) {
-         stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-      }
-      else {
-         stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED).putShort(delta);
-      }
-
-      writeFrameType(type);
-   }
-
-   private void readExpandedFrame(int nLocal, Object[] local, int nStack, Object[] stack) {
-      if (previousFrame == null) {
-         visitImplicitFirstFrame();
-      }
-
-      currentLocals = nLocal;
-      startFrame(mw.code.length, nLocal, nStack);
-
-      for (int i = 0; i < nLocal; i++) {
-         Object localType = local[i];
-         int frame;
-
-         if (localType instanceof String) {
-            frame = TypeMask.OBJECT | cp.addType((String) localType);
-         }
-         else if (localType instanceof Integer) {
-            frame = (Integer) localType;
-         }
-         else {
-            frame = TypeMask.UNINITIALIZED | cp.addUninitializedType("", ((Label) localType).position);
-         }
-
-         writeFrameDefinition(frame);
-      }
-
-      for (int i = 0; i < nStack; i++) {
-         Object stackType = stack[i];
-         int frame;
-
-         if (stackType instanceof String) {
-            frame = TypeMask.OBJECT | cp.addType((String) stackType);
-         }
-         else if (stackType instanceof Integer) {
-            frame = (Integer) stackType;
-         }
-         else {
-            frame = TypeMask.UNINITIALIZED | cp.addUninitializedType("", ((Label) stackType).position);
-         }
-
-         writeFrameDefinition(frame);
-      }
-
-      endFrame();
-   }
-
-   private void visitImplicitFirstFrame() {
-      int access = mw.access;
-      String desc = mw.descriptor;
-
-      // There can be at most descriptor.length() + 1 locals.
-      startFrame(0, desc.length() + 1, 0);
-
-      if ((access & Access.STATIC) == 0) {
-         int frame = Access.isConstructor(access) ? 6 /* Frame.UNINITIALIZED_THIS */ :
-            TypeMask.OBJECT | cp.addType(cw.thisName);
-
-         writeFrameDefinition(frame);
-      }
-
-      int i = 1;
-
-   loop:
-      while (true) {
-         int j = i;
-         char typeCode = desc.charAt(i++);
-
-         switch (typeCode) {
-            case 'Z':
-            case 'C':
-            case 'B':
-            case 'S':
-            case 'I':
-               writeFrameDefinition(1); // INTEGER
-               break;
-            case 'F':
-               writeFrameDefinition(2); // FLOAT
-               break;
-            case 'J':
-               writeFrameDefinition(4); // LONG
-               break;
-            case 'D':
-               writeFrameDefinition(3); // DOUBLE
-               break;
-            case '[':
-               i = writeArrayType(desc, i, j);
-               break;
-            case 'L':
-               i = writeReferenceType(desc, i, j);
-               break;
-            default:
-               break loop;
-         }
-      }
-
-      setNumLocals(frameIndex - 3);
-      endFrame();
-   }
-
    private int getInstructionOffset() { return frameDefinition[0]; }
    private void setInstructionOffset(int offset) { frameDefinition[0] = offset; }
 
@@ -392,46 +138,6 @@ final class FrameAndStackComputation
 
    private void writeFrameDefinition(int value) { frameDefinition[frameIndex++] = value; }
 
-   private int writeArrayType(@Nonnull String desc, int i, int j) {
-      while (desc.charAt(i) == '[') {
-         i++;
-      }
-
-      if (desc.charAt(i) == 'L') {
-         i++;
-
-         while (desc.charAt(i) != ';') {
-            i++;
-         }
-      }
-
-      int frameValue = TypeMask.OBJECT | cp.addType(desc.substring(j, ++i));
-      writeFrameDefinition(frameValue);
-      return i;
-   }
-
-   private int writeReferenceType(String desc, int i, int j) {
-      while (desc.charAt(i) != ';') {
-         i++;
-      }
-
-      int frameValue = TypeMask.OBJECT | cp.addType(desc.substring(j + 1, i++));
-      writeFrameDefinition(frameValue);
-      return i;
-   }
-
-   private void writeFrameType(Object type) {
-      if (type instanceof String) {
-         stackMap.putByte(7).putShort(cp.newClass((String) type));
-      }
-      else if (type instanceof Integer) {
-         stackMap.putByte((Integer) type);
-      }
-      else {
-         stackMap.putByte(8).putShort(((Label) type).position);
-      }
-   }
-
    boolean hasStackMap() { return stackMap != null; }
 
    /**
@@ -442,7 +148,7 @@ final class FrameAndStackComputation
     * @param nLocals the number of local variables in the frame.
     * @param nStack the number of stack elements in the frame.
     */
-   private void startFrame(int offset, int nLocals, int nStack) {
+   private void startFrame(@Nonnegative int offset, @Nonnegative int nLocals, @Nonnegative int nStack) {
       int n = 3 + nLocals + nStack;
 
       if (frameDefinition == null || frameDefinition.length < n) {
@@ -560,7 +266,7 @@ final class FrameAndStackComputation
       return frameCount == 0 ? offset : offset - previousFrame[0] - 1;
    }
 
-   private int chooseTypeAsFullFrameIfApplicable(int localsSize, int type) {
+   private int chooseTypeAsFullFrameIfApplicable(@Nonnegative int localsSize, int type) {
       if (type != LocalsAndStackItemsDiff.FULL_FRAME) {
          // Verify if locals are the same.
          int l = 3;
@@ -660,7 +366,9 @@ final class FrameAndStackComputation
       stackMap.putByte(7).putShort(cp.newClass(arrayElementTypeDesc));
    }
 
-   // Creates and visits the first (implicit) frame.
+   /**
+    * Creates and visits the first (implicit) frame.
+    */
    void createAndVisitFirstFrame(@Nonnull Frame frame) {
       JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
       frame.initInputFrame(cp, cw.thisName, mw.access, args, maxLocals);
@@ -685,6 +393,7 @@ final class FrameAndStackComputation
 
    // Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP
    // types).
+   @Nonnegative
    private int computeNumberOfLocals(@Nonnull int[] locals) {
       int nLocal = 0;
       int nTop = 0;
@@ -724,7 +433,7 @@ final class FrameAndStackComputation
       return nStack;
    }
 
-   private void putLocalsOrStackElements(@Nonnull int[] itemIndices, int nItems) {
+   private void putLocalsOrStackElements(@Nonnull int[] itemIndices, @Nonnegative int nItems) {
       for (int i = 0; nItems > 0; i++, nItems--) {
          int itemType = itemIndices[i];
          writeFrameDefinition(itemType);
@@ -735,7 +444,7 @@ final class FrameAndStackComputation
       }
    }
 
-   void emitFrameForUnreachableBlock(int startOffset) {
+   void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
       startFrame(startOffset, 0, 1);
       int frameValue = TypeMask.OBJECT | cp.addType("java/lang/Throwable");
       writeFrameDefinition(frameValue);
@@ -747,6 +456,7 @@ final class FrameAndStackComputation
       return stackMap == null ? 0 : 8 + stackMap.length;
    }
 
+   @Nonnegative
    int getSizeWhileAddingConstantPoolItem() {
       int size = getSize();
 
