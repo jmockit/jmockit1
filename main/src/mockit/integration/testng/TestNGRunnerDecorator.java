@@ -71,6 +71,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          // It's a mock parameter in a test method, to be provided by JMockit.
          return Deencapsulation.newUninitializedInstance(c);
       }
+
+      @Mock
+      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context)
+      {
+         return TestNGRunnerDecorator.injectParameters(parameterValues, method);
+      }
    }
 
    private static boolean isMethodWithParametersProvidedByTestNG(@Nonnull Method method)
@@ -88,36 +94,37 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    {
       @Mock
       public static Object[] injectParameters(
-         @Nonnull Invocation invocation,
          Object[] parameterValues, Method method, ITestContext context, ITestResult testResult)
       {
-         if (method == null) {
-            // Test execution didn't reach a test method yet.
-            return parameterValues;
-         }
-
-         Class<?>[] parameterTypes = method.getParameterTypes();
-         int numParameters = parameterTypes.length;
-
-         if (numParameters == 0) {
-            // A test method was reached, but it has no parameters.
-            return parameterValues;
-         }
-
-         if (isMethodWithParametersProvidedByTestNG(method)) {
-            // The test method has parameters, but they are to be provided by TestNG, not JMockit.
-            return parameterValues;
-         }
-
-         Object[] mockValues = new Object[numParameters];
-
-         for (int i = 0; i < numParameters; i++) {
-            Class<?> parameterType = parameterTypes[i];
-            mockValues[i] = Deencapsulation.newUninitializedInstance(parameterType);
-         }
-
-         return mockValues;
+         return TestNGRunnerDecorator.injectParameters(parameterValues, method);
       }
+   }
+
+   static Object[] injectParameters(Object[] parameterValues, Method method)
+   {
+      if (method == null) {
+         return parameterValues;
+      }
+
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      int numParameters = parameterTypes.length;
+
+      if (numParameters == 0) {
+         return parameterValues;
+      }
+
+      if (isMethodWithParametersProvidedByTestNG(method)) {
+         return parameterValues;
+      }
+
+      Object[] mockValues = new Object[numParameters];
+
+      for (int i = 0; i < numParameters; i++) {
+         Class<?> parameterType = parameterTypes[i];
+         mockValues[i] = Deencapsulation.newUninitializedInstance(parameterType);
+      }
+
+      return mockValues;
    }
 
    @Nonnull private final ThreadLocal<SavePoint> savePoint;

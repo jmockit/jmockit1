@@ -33,4 +33,10 @@ public final class TestNGCascadingTest
 
       assertNull(value);
    }
+
+   @Test
+   public void mockParameter(@Injectable Runnable mock)
+   {
+      assertNotNull(mock);
+   }
 }
