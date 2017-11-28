@@ -29,6 +29,8 @@
  */
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.ClassReader.*;
 
 /**
@@ -44,28 +46,7 @@ final class Context
    /**
     * The start index of each bootstrap method.
     */
-   int[] bootstrapMethods;
-
-   /**
-    * The access flags of the method currently being parsed.
-    */
-   int access;
-
-   /**
-    * The name of the method currently being parsed.
-    */
-   String name;
-
-   /**
-    * The descriptor of the method currently being parsed.
-    */
-   String desc;
-
-   /**
-    * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
-    * which a label is needed have a non null associated Label object).
-    */
-   Label[] labels;
+   @Nullable int[] bootstrapMethods;
 
    Context(int flags) { this.flags = flags; }
 

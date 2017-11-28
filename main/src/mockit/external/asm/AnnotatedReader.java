@@ -26,8 +26,6 @@ class AnnotatedReader extends BytecodeReader
     */
    @Nonnegative final int header;
 
-   Context context;
-
    AnnotatedReader(@Nonnull byte[] code) {
       super(code);
 

@@ -50,6 +50,30 @@ final class MethodReader extends AnnotatedReader
    @Nonnull private final ClassVisitor cv;
    @Nullable private String[] exceptions;
 
+   /**
+    * The access flags of the method currently being parsed.
+    */
+   private int access;
+
+   /**
+    * The name of the method currently being parsed.
+    */
+   private String name;
+
+   /**
+    * The descriptor of the method currently being parsed.
+    */
+   private String desc;
+
+   /**
+    * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
+    * which a label is needed have a non null associated <tt>Label</tt> object).
+    */
+   @Nonnull private Label[] labels;
+
+   private boolean readCode;
+   private boolean readDebugInfo;
+
    MethodReader(@Nonnull ClassReader cr, @Nonnull ClassVisitor cv) {
       super(cr);
       this.cv = cv;
@@ -64,7 +88,10 @@ final class MethodReader extends AnnotatedReader
     */
    @Nonnegative
    int readMethod(@Nonnull Context context, @Nonnegative int u) {
-      u = readMethodDeclaration(context, u);
+      readCode = context.readCode();
+      readDebugInfo = context.readDebugInfo();
+
+      u = readMethodDeclaration(u);
 
       int u0 = u;
       int code = 0;
@@ -89,7 +116,7 @@ final class MethodReader extends AnnotatedReader
             signature = readUTF8(u + 8, c);
          }
          else if ("Deprecated".equals(attrName)) {
-            context.access = Access.asDeprecated(context.access);
+            access = Access.asDeprecated(access);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             anns = u + 8;
@@ -98,7 +125,7 @@ final class MethodReader extends AnnotatedReader
             annDefault = u + 8;
          }
          else if ("Synthetic".equals(attrName)) {
-            context.access = Access.asSynthetic(context.access);
+            access = Access.asSynthetic(access);
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             paramAnns = u + 8;
@@ -108,16 +135,16 @@ final class MethodReader extends AnnotatedReader
       }
 
       u += 2;
-      readMethodBody(context, u0, u, code, exception, signature, anns, annDefault, paramAnns);
+      readMethodBody(context.bootstrapMethods, u0, u, code, exception, signature, anns, annDefault, paramAnns);
       return u;
    }
 
    @Nonnegative
-   private int readMethodDeclaration(@Nonnull Context context, @Nonnegative int u) {
+   private int readMethodDeclaration(@Nonnegative int u) {
       char[] c = buf;
-      context.access = readUnsignedShort(u);
-      context.name = readUTF8(u + 2, c);
-      context.desc = readUTF8(u + 4, c);
+      access = readUnsignedShort(u);
+      name = readUTF8(u + 2, c);
+      desc = readUTF8(u + 4, c);
       return u + 6;
    }
 
@@ -136,10 +163,10 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readMethodBody(
-      @Nonnull Context context, @Nonnegative int u0, @Nonnegative int u, int code, int exception,
+      @Nullable int[] bootstrapMethods, @Nonnegative int u0, @Nonnegative int u, int code, int exception,
       @Nullable String signature, @Nonnegative int anns, @Nonnegative int annDefault, @Nonnegative int paramAnns
    ) {
-      MethodVisitor mv = cv.visitMethod(context.access, context.name, context.desc, signature, exceptions);
+      MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
 
       if (mv == null || mv instanceof MethodWriter && copyMethodBody((MethodWriter) mv, u, exception, signature, u0)) {
          return;
@@ -148,8 +175,8 @@ final class MethodReader extends AnnotatedReader
       char[] c = buf;
       readAnnotationDefaultValue(mv, c, annDefault);
       readAnnotationValues(mv, c, anns);
-      readParameterAnnotations(mv, context, paramAnns);
-      readMethodCode(mv, context, code);
+      readParameterAnnotations(mv, paramAnns);
+      readMethodCode(mv, bootstrapMethods, code);
       mv.visitEnd();
    }
 
@@ -228,11 +255,10 @@ final class MethodReader extends AnnotatedReader
    /**
     * Reads parameter annotations and makes the given visitor visit them.
     *
-    * @param mv      the visitor that must visit the annotations.
-    * @param context information about the class being parsed.
-    * @param v       start offset in {@link #code} of the annotations to be read.
+    * @param mv the visitor that must visit the annotations.
+    * @param v  start offset in {@link #code} of the annotations to be read.
     */
-   private void readParameterAnnotations(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int v) {
+   private void readParameterAnnotations(@Nonnull MethodVisitor mv, @Nonnegative int v) {
       if (v != 0) {
          char[] c = buf;
          int parameters = code[v++] & 0xFF;
@@ -252,10 +278,10 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readMethodCode(@Nonnull MethodVisitor mv, @Nonnull Context context, int code) {
-      if (code != 0 && context.readCode()) {
+   private void readMethodCode(@Nonnull MethodVisitor mv, @Nullable int[] bootstrapMethods, int code) {
+      if (code != 0 && readCode) {
          mv.visitCode();
-         readCode(mv, context, code);
+         readCode(mv, bootstrapMethods, code);
       }
    }
 
@@ -263,10 +289,9 @@ final class MethodReader extends AnnotatedReader
     * Reads the bytecode of a method and makes the given visitor visit it.
     *
     * @param mv      the visitor that must visit the method's code.
-    * @param context information about the class being parsed.
     * @param u       the start offset of the code attribute in the class file.
     */
-   private void readCode(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
+   private void readCode(@Nonnull MethodVisitor mv, @Nullable int[] bootstrapMethods, @Nonnegative int u) {
       // Reads the header.
       int maxStack = readUnsignedShort(u);
       int codeLength = readInt(u + 4);
@@ -276,13 +301,12 @@ final class MethodReader extends AnnotatedReader
       int codeStart = u;
       int codeEnd = u + codeLength;
 
-      Label[] labels = new Label[codeLength + 2];
-      context.labels = labels;
+      labels = new Label[codeLength + 2];
 
-      u = readAllLabelsInCodeBlock(context, u, codeLength, codeStart, codeEnd);
+      u = readAllLabelsInCodeBlock(u, codeLength, codeStart, codeEnd);
 
       // Reads the try catch entries to find the labels, and also visits them.
-      u = readTryCatchBlocks(mv, context, u);
+      u = readTryCatchBlocks(mv, u);
 
       u += 2;
 
@@ -294,19 +318,19 @@ final class MethodReader extends AnnotatedReader
          String attrName = readUTF8(u + 2, buf);
 
          if ("LocalVariableTable".equals(attrName)) {
-            varTable = readLocalVariableTable(context, u, varTable);
+            varTable = readLocalVariableTable(u, varTable);
          }
          else if ("LocalVariableTypeTable".equals(attrName)) {
             varTypeTable = u + 8;
          }
          else if ("LineNumberTable".equals(attrName)) {
-            readLineNumberTable(context, u);
+            readLineNumberTable(u);
          }
 
          u += 6 + readInt(u + 4);
       }
 
-      readBytecodeInstructionsInCodeBlock(mv, context, codeStart, codeEnd);
+      readBytecodeInstructionsInCodeBlock(mv, bootstrapMethods, codeStart, codeEnd);
 
       Label label = labels[codeLength];
 
@@ -314,8 +338,8 @@ final class MethodReader extends AnnotatedReader
          mv.visitLabel(label);
       }
 
-      if (varTable != 0 && context.readDebugInfo()) {
-         readLocalVariableTables(mv, context, varTable, varTypeTable);
+      if (varTable != 0 && readDebugInfo) {
+         readLocalVariableTables(mv, varTable, varTypeTable);
       }
 
       mv.visitMaxStack(maxStack);
@@ -323,13 +347,11 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readAllLabelsInCodeBlock(
-      @Nonnull Context context, @Nonnegative int u, @Nonnegative int codeLength,
-      @Nonnegative int codeStart, @Nonnegative int codeEnd
+      @Nonnegative int u, @Nonnegative int codeLength, @Nonnegative int codeStart, @Nonnegative int codeEnd
    ) {
-      byte[] b = this.code;
-      Label[] labels = context.labels;
+      byte[] b = code;
 
-      readLabel(codeLength + 1, labels);
+      readLabel(codeLength + 1);
 
       while (u < codeEnd) {
          int offset = u - codeStart;
@@ -341,11 +363,11 @@ final class MethodReader extends AnnotatedReader
                u++;
                break;
             case LABEL:
-               readLabel(offset + readShort(u + 1), labels);
+               readLabel(offset + readShort(u + 1));
                u += 3;
                break;
             case LABELW:
-               readLabel(offset + readInt(u + 1), labels);
+               readLabel(offset + readInt(u + 1));
                u += 5;
                break;
             case InstructionType.WIDE:
@@ -353,10 +375,10 @@ final class MethodReader extends AnnotatedReader
                u += opcode == IINC ? 6 : 4;
                break;
             case TABL:
-               u = readTableSwitchInstruction(labels, u, offset);
+               u = readTableSwitchInstruction(u, offset);
                break;
             case LOOK:
-               u = readLookupSwitchInstruction(labels, u, offset);
+               u = readLookupSwitchInstruction(u, offset);
                break;
             case VAR:
             case SBYTE:
@@ -389,11 +411,10 @@ final class MethodReader extends AnnotatedReader
     * already created.
     *
     * @param offset a bytecode offset in a method.
-    * @param labels the already created labels, indexed by their offset.
-    * @return a non null Label, which must be equal to labels[offset].
+    * @return a <tt>Label</tt>, which must be equal to <tt>labels[offset]</tt>.
     */
    @Nonnull
-   private static Label readLabel(@Nonnegative int offset, @Nonnull Label[] labels) {
+   private Label readLabel(@Nonnegative int offset) {
       Label label = labels[offset];
 
       if (label == null) {
@@ -406,13 +427,11 @@ final class MethodReader extends AnnotatedReader
 
    // Reads the try catch entries to find the labels, and also visits them.
    @Nonnegative
-   private int readTryCatchBlocks(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
-      Label[] labels = context.labels;
-
+   private int readTryCatchBlocks(@Nonnull MethodVisitor mv, @Nonnegative int u) {
       for (int blockCount = readUnsignedShort(u); blockCount > 0; blockCount--) {
-         Label start = readLabel(readUnsignedShort(u + 2), labels);
-         Label end = readLabel(readUnsignedShort(u + 4), labels);
-         Label handler = readLabel(readUnsignedShort(u + 6), labels);
+         Label start = readLabel(readUnsignedShort(u + 2));
+         Label end = readLabel(readUnsignedShort(u + 4));
+         Label handler = readLabel(readUnsignedShort(u + 6));
          String type = readUTF8(items[readUnsignedShort(u + 8)], buf);
 
          mv.visitTryCatchBlock(start, end, handler, type);
@@ -423,23 +442,16 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nonnegative
-   private int readLocalVariableTable(@Nonnull Context context, @Nonnegative int u, @Nonnegative int varTable) {
-      if (context.readDebugInfo()) {
-         Label[] labels = context.labels;
+   private int readLocalVariableTable(@Nonnegative int u, @Nonnegative int varTable) {
+      if (readDebugInfo) {
          varTable = u + 8;
 
          for (int j = readUnsignedShort(u + 8), v = u; j > 0; j--) {
-            int label = readUnsignedShort(v + 10);
+            int labelOffset = readUnsignedShort(v + 10);
+            readDebugLabel(labelOffset);
 
-            if (labels[label] == null) {
-               readDebugLabel(label, labels);
-            }
-
-            label += readUnsignedShort(v + 12);
-
-            if (labels[label] == null) {
-               readDebugLabel(label, labels);
-            }
+            labelOffset += readUnsignedShort(v + 12);
+            readDebugLabel(labelOffset);
 
             v += 10;
          }
@@ -448,40 +460,40 @@ final class MethodReader extends AnnotatedReader
       return varTable;
    }
 
-   private static void readDebugLabel(@Nonnegative int index, @Nonnull Label[] labels) {
-      Label label = readLabel(index, labels);
-      label.markAsDebug();
+   @Nonnull
+   private Label readDebugLabel(@Nonnegative int offset) {
+      Label label = labels[offset];
+
+      if (label == null) {
+         label = readLabel(offset);
+         label.markAsDebug();
+      }
+
+      return label;
    }
 
-   private void readLineNumberTable(@Nonnull Context context, @Nonnegative int u) {
-      if (context.readDebugInfo()) {
-         Label[] labels = context.labels;
-
+   private void readLineNumberTable(@Nonnegative int u) {
+      if (readDebugInfo) {
          for (int j = readUnsignedShort(u + 8), v = u; j > 0; j--) {
-            int label = readUnsignedShort(v + 10);
+            int labelOffset = readUnsignedShort(v + 10);
+            Label debugLabel = readDebugLabel(labelOffset);
 
-            if (labels[label] == null) {
-               readDebugLabel(label, labels);
-            }
-
-            labels[label].line = readUnsignedShort(v + 12);
+            debugLabel.line = readUnsignedShort(v + 12);
             v += 4;
          }
       }
    }
 
    private void readBytecodeInstructionsInCodeBlock(
-      @Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int codeStart, @Nonnegative int codeEnd
+      @Nonnull MethodVisitor mv, @Nullable int[] bootstrapMethods, @Nonnegative int codeStart, @Nonnegative int codeEnd
    ) {
-      Label[] labels = context.labels;
-      boolean readDebugInfo = context.readDebugInfo();
       char[] c = buf;
-      byte[] b = this.code;
+      byte[] b = code;
       int u = codeStart;
 
       while (u < codeEnd) {
          int offset = u - codeStart;
-         readLabelAndLineNumber(mv, labels[offset], readDebugInfo);
+         readLabelAndLineNumber(mv, offset, readDebugInfo);
 
          // Visits the instruction at this offset.
          int opcode = b[u] & 0xFF;
@@ -509,10 +521,10 @@ final class MethodReader extends AnnotatedReader
                u = readWideInstruction(mv, u);
                break;
             case TABL:
-               u = readTableSwitchInstruction(mv, labels, u, offset);
+               u = readTableSwitchInstruction(mv, u, offset);
                break;
             case LOOK:
-               u = readLookupSwitchInstruction(mv, labels, u, offset);
+               u = readLookupSwitchInstruction(mv, u, offset);
                break;
             case VAR:
                int var = b[u + 1] & 0xFF;
@@ -545,7 +557,8 @@ final class MethodReader extends AnnotatedReader
                u += opcode == INVOKEINTERFACE ? 5 : 3;
                break;
             case INDYMETH:
-               u = readInvokeDynamicInstruction(mv, context, u);
+               //noinspection ConstantConditions
+               u = readInvokeDynamicInstruction(mv, bootstrapMethods, u);
                break;
             case InstructionType.TYPE:
                String typeDesc = readClass(u + 1, c);
@@ -572,7 +585,9 @@ final class MethodReader extends AnnotatedReader
    }
 
    // Visits the label and line number for this offset, if any.
-   private void readLabelAndLineNumber(@Nonnull MethodVisitor mv, @Nullable Label label, boolean readDebugInfo) {
+   private void readLabelAndLineNumber(@Nonnull MethodVisitor mv, @Nonnegative int offset, boolean readDebugInfo) {
+      Label label = labels[offset];
+
       if (label != null) {
          mv.visitLabel(label);
 
@@ -616,39 +631,35 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nonnegative
-   private int readTableSwitchInstruction(
-      @Nonnull MethodVisitor mv, @Nonnull Label[] labels, @Nonnegative int u, @Nonnegative int offset
-   ) {
+   private int readTableSwitchInstruction(@Nonnull MethodVisitor mv, @Nonnegative int u, @Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       u = u + 4 - (offset & 3);
 
       // Reads instruction.
-      int dfltLabelIndex = offset + readInt(u);
+      int dfltLabelOffset = offset + readInt(u);
       int min = readInt(u + 4);
       int max = readInt(u + 8);
       Label[] table = new Label[max - min + 1];
       u += 12;
 
       for (int i = 0; i < table.length; i++) {
-         int handlerLabelIndex = offset + readInt(u);
-         table[i] = labels[handlerLabelIndex];
+         int handlerLabelOffset = offset + readInt(u);
+         table[i] = labels[handlerLabelOffset];
          u += 4;
       }
 
-      Label dfltLabel = labels[dfltLabelIndex];
+      Label dfltLabel = labels[dfltLabelOffset];
       mv.visitTableSwitchInsn(min, max, dfltLabel, table);
       return u;
    }
 
    @Nonnegative
-   private int readLookupSwitchInstruction(
-      @Nonnull MethodVisitor mv, @Nonnull Label[] labels, @Nonnegative int u, @Nonnegative int offset
-   ) {
+   private int readLookupSwitchInstruction(@Nonnull MethodVisitor mv, @Nonnegative int u, @Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       u = u + 4 - (offset & 3);
 
       // Reads the instruction.
-      int dfltLabelIndex = offset + readInt(u);
+      int dfltLabelOffset = offset + readInt(u);
       int len = readInt(u + 4);
       int[] keys = new int[len];
       Label[] values = new Label[len];
@@ -656,12 +667,12 @@ final class MethodReader extends AnnotatedReader
 
       for (int i = 0; i < len; i++) {
          keys[i] = readInt(u);
-         int handlerLabelIndex = offset + readInt(u + 4);
-         values[i] = labels[handlerLabelIndex];
+         int handlerLabelOffset = offset + readInt(u + 4);
+         values[i] = labels[handlerLabelOffset];
          u += 8;
       }
 
-      Label dfltLabel = labels[dfltLabelIndex];
+      Label dfltLabel = labels[dfltLabelOffset];
       mv.visitLookupSwitchInsn(dfltLabel, keys, values);
       return u;
    }
@@ -688,10 +699,9 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLocalVariableTables(
-      @Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int varTable, int varTypeTable
+      @Nonnull MethodVisitor mv, @Nonnegative int varTable, @Nonnegative int varTypeTable
    ) {
       char[] c = buf;
-      Label[] labels = context.labels;
       int[] typeTable = null;
       int u;
 
@@ -726,16 +736,21 @@ final class MethodReader extends AnnotatedReader
 
          String name = readUTF8(u + 4, c);
          String desc = readUTF8(u + 6, c);
-         //noinspection ConstantConditions
-         mv.visitLocalVariable(name, desc, signature, labels[start], labels[start + length], index);
+         Label startLabel = labels[start];
+         Label endLabel = labels[start + length];
          u += 10;
+
+         //noinspection ConstantConditions
+         mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
       }
    }
 
    @Nonnegative
-   private int readInvokeDynamicInstruction(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
+   private int readInvokeDynamicInstruction(
+      @Nonnull MethodVisitor mv, @Nonnull int[] bootstrapMethods, @Nonnegative int u
+   ) {
       int cpIndex = items[readUnsignedShort(u + 1)];
-      int bsmIndex = context.bootstrapMethods[readUnsignedShort(cpIndex)];
+      int bsmIndex = bootstrapMethods[readUnsignedShort(cpIndex)];
       char[] c = buf;
       Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex), c);
       int bsmArgCount = readUnsignedShort(bsmIndex + 2);
@@ -758,15 +773,15 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nonnegative
-   private int readTableSwitchInstruction(@Nonnull Label[] labels, @Nonnegative int u, @Nonnegative int offset) {
+   private int readTableSwitchInstruction(@Nonnegative int u, @Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       u = u + 4 - (offset & 3);
 
       // Reads instruction.
-      readLabel(offset + readInt(u), labels);
+      readLabel(offset + readInt(u));
 
       for (int i = readInt(u + 8) - readInt(u + 4) + 1; i > 0; i--) {
-         readLabel(offset + readInt(u + 12), labels);
+         readLabel(offset + readInt(u + 12));
          u += 4;
       }
 
@@ -774,15 +789,15 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nonnegative
-   private int readLookupSwitchInstruction(@Nonnull Label[] labels, @Nonnegative int u, @Nonnegative int offset) {
+   private int readLookupSwitchInstruction(@Nonnegative int u, @Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       u = u + 4 - (offset & 3);
 
       // Reads instruction.
-      readLabel(offset + readInt(u), labels);
+      readLabel(offset + readInt(u));
 
       for (int i = readInt(u + 4); i > 0; i--) {
-         readLabel(offset + readInt(u + 12), labels);
+         readLabel(offset + readInt(u + 12));
          u += 8;
       }
 

@@ -57,8 +57,9 @@ public final class ClassReader extends AnnotatedReader
    private static final String[] NO_INTERFACES = {};
 
    // Helper fields.
-   ClassVisitor cv;
-   int access;
+   private ClassVisitor cv;
+   private Context context;
+   private int access;
    private String name;
    @Nullable private String superClass;
    @Nonnull private String[] interfaces = NO_INTERFACES;
