@@ -115,7 +115,7 @@ public final class CapturingImplementationsTest
       @Override
       protected Class<? extends Service2> findClass(String name)
       {
-         byte[] bytecode = ClassFile.readFromFile(name.replace('.', '/')).b;
+         byte[] bytecode = ClassFile.readFromFile(name.replace('.', '/')).getBytecode();
          //noinspection unchecked
          return (Class<? extends Service2>) defineClass(name, bytecode, 0, bytecode.length);
       }

@@ -10,10 +10,9 @@ final class AnnotationReader extends BytecodeReader
    /**
     * Reads the values of an annotation and makes the given visitor visit them.
     *
-    * @param v     the start offset in {@link #b b} of the values to be read
+    * @param v     the start offset in {@link #code} of the values to be read
     *              (including the unsigned short that gives the number of values).
-    * @param buf   buffer to be used to call {@link #readUTF8 readUTF8},
-    *              {@link #readClass(int, char[]) readClass} or {@link #readConst readConst}.
+    * @param buf   buffer to be used to call {@link #readUTF8} or {@link #readConst}.
     * @param named if the annotation values are named or not.
     * @param av    the visitor that must visit the values.
     * @return the end offset of the annotation values.
@@ -45,10 +44,9 @@ final class AnnotationReader extends BytecodeReader
    /**
     * Reads a value of an annotation and makes the given visitor visit it.
     *
-    * @param v    the start offset in {@link #b} of the value to be read
+    * @param v    the start offset in {@link #code} of the value to be read
     *             (<i>not including the value name constant pool index</i>).
-    * @param buf  buffer to be used to call {@link #readUTF8 readUTF8},
-    *             {@link #readClass(int, char[]) readClass} or {@link #readConst readConst}.
+    * @param buf  buffer to be used to call {@link #readUTF8} or {@link #readConst}.
     * @param name the name of the value to be read.
     * @param av   the visitor that must visit the value.
     * @return the end offset of the annotation value.
@@ -61,7 +59,7 @@ final class AnnotationReader extends BytecodeReader
          return readAnnotationValue(v, buf);
       }
 
-      int typeCode = b[v++] & 0xFF;
+      int typeCode = code[v++] & 0xFF;
       Object value;
 
       switch (typeCode) {
@@ -117,7 +115,7 @@ final class AnnotationReader extends BytecodeReader
 
    @Nonnegative
    private int readAnnotationValue(@Nonnegative int v, @Nonnull char[] buf) {
-      int typeCode = b[v] & 0xFF;
+      int typeCode = code[v] & 0xFF;
 
       switch (typeCode) {
          case 'e': // enum_const_value
@@ -180,7 +178,7 @@ final class AnnotationReader extends BytecodeReader
       }
 
       v += 2;
-      int typeCode = b[v] & 0xFF;
+      int typeCode = code[v] & 0xFF;
 
       if ("BZSCIJFD".indexOf(typeCode) < 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);

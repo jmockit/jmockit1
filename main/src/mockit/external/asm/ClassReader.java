@@ -189,6 +189,12 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
+    * Returns the bytecode array of the Java classfile that was read.
+    */
+   @Nonnull
+   public byte[] getBytecode() { return code; }
+
+   /**
     * Copies the constant pool data into the given {@link ClassWriter}.
     */
    void copyPool(@Nonnull ClassWriter cw) {
@@ -198,7 +204,7 @@ public final class ClassReader extends AnnotatedReader
 
       for (int i = 1; i < ll; i++) {
          int index = items[i];
-         int tag = b[index - 1];
+         int tag = code[index - 1];
          Item item = new Item(i);
          int nameType;
 
@@ -247,7 +253,7 @@ public final class ClassReader extends AnnotatedReader
       }
 
       int off = items[1] - 1;
-      cw.cp.copy(b, off, header, items2);
+      cw.cp.copy(code, off, header, items2);
    }
 
    private void copyUTF8Item(@Nonnull char[] buf, @Nonnegative int i, int tag, @Nonnull Item item) {

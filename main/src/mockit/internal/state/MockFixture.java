@@ -338,7 +338,7 @@ public final class MockFixture
    private void restoreDefinition(@Nonnull Class<?> redefinedClass)
    {
       if (!isGeneratedImplementationClass(redefinedClass)) {
-         byte[] previousDefinition = ClassFile.createReaderOrGetFromCache(redefinedClass).b;
+         byte[] previousDefinition = ClassFile.createReaderOrGetFromCache(redefinedClass).getBytecode();
          Startup.redefineMethods(redefinedClass, previousDefinition);
       }
 

@@ -72,13 +72,13 @@ public final class MethodWriter extends MethodVisitor
    /**
     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
     * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
-    * <code>cw.cr.b</code>.
+    * <code>cw.cr.code</code>.
     */
    @Nonnegative int classReaderOffset;
 
    /**
     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
-    * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.b</code>.
+    * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.code</code>.
     */
    @Nonnegative int classReaderLength;
 
@@ -574,7 +574,7 @@ public final class MethodWriter extends MethodVisitor
       out.putShort(desc);
 
       if (classReaderOffset != 0) {
-         out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
+         out.putByteArray(cw.cr.code, classReaderOffset, classReaderLength);
          return;
       }
 

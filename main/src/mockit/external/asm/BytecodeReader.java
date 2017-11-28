@@ -9,10 +9,10 @@ class BytecodeReader
    /**
     * The class to be parsed. <em>The content of this array must not be modified.</em>
     */
-   @Nonnull public final byte[] b;
+   @Nonnull final byte[] code;
 
    /**
-    * The start index of each constant pool item in {@link #b}, plus one.
+    * The start index of each constant pool item in {@link #code}, plus one.
     * The one byte offset skips the constant pool item tag that indicates its type.
     */
    @Nonnull final int[] items;
@@ -25,115 +25,45 @@ class BytecodeReader
     */
    @Nonnull final String[] strings;
 
-   /**
-    * Maximum length of the strings contained in the constant pool of the class.
-    */
-   @Nonnegative final int maxStringLength;
-
-   /**
-    * The buffer used to read strings.
-    */
-   @Nonnull final char[] buf;
-
-   /**
-    * Start index of the class header information (access, name...) in {@link #b}.
-    */
-   @Nonnegative final int header;
-
-   Context context;
-
    BytecodeReader(@Nonnull byte[] code) {
-      b = code;
+      this.code = code;
 
       // Parses the constant pool.
       int n = readUnsignedShort(8);
       items = new int[n];
       strings = new String[n];
-      int maxSize = 0;
-      int index = 10;
-
-      for (int i = 1; i < n; i++) {
-         items[i] = index + 1;
-         int size;
-
-         switch (code[index]) {
-            case FIELD:
-            case METH:
-            case IMETH:
-            case INT:
-            case FLOAT:
-            case NAME_TYPE:
-            case INDY:
-               size = 5;
-               break;
-            case LONG:
-            case DOUBLE:
-               size = 9;
-               ++i;
-               break;
-            case UTF8:
-               size = 3 + readUnsignedShort(index + 1);
-
-               if (size > maxSize) {
-                  maxSize = size;
-               }
-
-               break;
-            case HANDLE:
-               size = 4;
-               break;
-            // case CLASS|STR|MTYPE
-            default:
-               size = 3;
-               break;
-         }
-
-         index += size;
-      }
-
-      maxStringLength = maxSize;
-      buf = new char[maxSize];
-      header = index; // the class header information starts just after the constant pool
    }
 
    BytecodeReader(@Nonnull BytecodeReader another) {
-      b = another.b;
+      code = another.code;
       items = another.items;
       strings = another.strings;
-      maxStringLength = another.maxStringLength;
-      buf = another.buf;
-      header = another.header;
    }
 
    /**
-    * Reads a byte value in {@link #b}.
+    * Reads a byte value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #b}.
+    * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final int readByte(@Nonnegative int index) { return b[index] & 0xFF; }
-
-   @Nonnegative
-   final int readUnsignedShortItem(@Nonnegative int index, @Nonnegative int offset) {
-      return readUnsignedShort(items[index] + offset);
-   }
+   final int readByte(@Nonnegative int index) { return code[index] & 0xFF; }
 
    /**
-    * Reads an unsigned short value in {@link #b}.
+    * Reads an unsigned short value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #b}.
+    * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
    @Nonnegative
    final int readUnsignedShort(@Nonnegative int index) {
-      byte[] b = this.b;
+      byte[] b = code;
       return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
    }
 
    /**
-    * Reads a signed short value in {@link #b}.
+    * Reads a signed short value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #b}.
+    * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
    final short readShort(@Nonnegative int index) {
@@ -141,22 +71,22 @@ class BytecodeReader
    }
 
    /**
-    * Reads a signed int value in {@link #b}.
+    * Reads a signed int value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #b}.
+    * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
    final int readInt(@Nonnegative int index) {
-      byte[] b = this.b;
+      byte[] b = code;
       return
          ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16) |
          ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
    }
 
    /**
-    * Reads a signed long value in {@link #b b}.
+    * Reads a signed long value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #b b}.
+    * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
    final long readLong(@Nonnegative int index) {
@@ -166,7 +96,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads UTF8 string in {@link #b}.
+    * Reads UTF8 string in {@link #code}.
     *
     * @param index  start offset of the UTF8 string to be read.
     * @param utfLen length of the UTF8 string to be read.
@@ -177,7 +107,8 @@ class BytecodeReader
    @Nonnull
    final String readUTF(@Nonnegative int index, @Nonnegative int utfLen, @Nonnull char[] buf) {
       int endIndex = index + utfLen;
-      byte[] b = this.b;
+      //noinspection UnnecessaryLocalVariable
+      byte[] b = code;
       int strLen = 0;
       int st = 0;
       char cc = 0;
@@ -217,15 +148,10 @@ class BytecodeReader
       return new String(buf, 0, strLen);
    }
 
-   @Nullable
-   final String readUTF8Item(@Nonnegative int itemIndex, @Nonnegative int offset, @Nonnull char[] buf) {
-      return readUTF8(items[itemIndex] + offset, buf);
-   }
-
    /**
-    * Reads an UTF8 string constant pool item in {@link #b}.
+    * Reads an UTF8 string constant pool item in {@link #code}.
     *
-    * @param index the start index of an unsigned short value in {@link #b}, whose value is the index of an UTF8
+    * @param index the start index of an unsigned short value in {@link #code}, whose value is the index of an UTF8
     *              constant pool item.
     * @param buf   buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
     *              resized.
@@ -258,7 +184,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads a numeric or string constant pool item in {@link #b}.
+    * Reads a numeric or string constant pool item in {@link #code}.
     *
     * @param itemIndex the index of a constant pool item.
     * @param buf buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
@@ -269,7 +195,7 @@ class BytecodeReader
    @Nonnull
    final Object readConst(@Nonnegative int itemIndex, @Nonnull char[] buf) {
       int startIndex = items[itemIndex];
-      byte itemType = b[startIndex - 1];
+      byte itemType = code[startIndex - 1];
 
       switch (itemType) {
          case INT:
@@ -295,39 +221,31 @@ class BytecodeReader
             //noinspection ConstantConditions
             return JavaType.getMethodType(methodDesc);
          default: // case HANDLE_BASE + [1..9]:
-            int tag = readByte(startIndex);
-            int i = readUnsignedShort(startIndex + 1);
-            String owner = readClassItem(i, buf);
-            i = readUnsignedShortItem(i, 2);
-            String name = readUTF8Item(i, 0, buf);
-            String desc = readUTF8Item(i, 2, buf);
-            //noinspection ConstantConditions
-            return new Handle(tag, owner, name, desc);
+            return readHandle(startIndex, buf);
       }
    }
 
-   /**
-    * Reads a class constant pool item in {@link #b}.
-    *
-    * @param index the start index of an unsigned short value in {@link #b}, whose value is the index of a class
-    *              constant pool item.
-    * @return the String corresponding to the specified class item.
-    */
-   @Nullable
-   final String readClass(@Nonnegative int index) {
-      char[] buf = new char[maxStringLength];
-      return readClass(index, buf);
+   @Nonnull
+   private Object readHandle(@Nonnegative int startIndex, @Nonnull char[] buf) {
+      int tag = readByte(startIndex);
+
+      int i = readUnsignedShort(startIndex + 1);
+      int classIndex = items[i];
+      String owner = readClass(classIndex, buf);
+
+      i = readUnsignedShort(classIndex + 2);
+      int nameIndex = items[i];
+      String name = readUTF8(nameIndex, buf);
+      String desc = readUTF8(nameIndex + 2, buf);
+
+      //noinspection ConstantConditions
+      return new Handle(tag, owner, name, desc);
    }
 
-   @Nullable
-   final String readClassItem(@Nonnegative int index, @Nonnull char[] buf) {
-      return readClass(items[index], buf);
-   }
-
    /**
-    * Reads a class constant pool item in {@link #b}.
+    * Reads a class constant pool item in {@link #code}.
     *
-    * @param index the start index of an unsigned short value in {@link #b}, whose value is the index of a class
+    * @param index the start index of an unsigned short value in {@link #code}, whose value is the index of a class
     *              constant pool item.
     * @param buf   buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
     *              resized.
@@ -335,10 +253,10 @@ class BytecodeReader
     */
    @Nullable
    final String readClass(@Nonnegative int index, @Nonnull char[] buf) {
-      // Computes the start index of the CONSTANT_Class item in b and reads the CONSTANT_Utf8 item designated by the
+      // Computes the start index of the CONSTANT_Class item in code and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
       int itemIndex = readUnsignedShort(index);
-      String classDesc = readUTF8Item(itemIndex, 0, buf);
+      String classDesc = readUTF8(items[itemIndex], buf);
       return classDesc;
    }
 }

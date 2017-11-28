@@ -230,12 +230,12 @@ final class MethodReader extends AnnotatedReader
     *
     * @param mv      the visitor that must visit the annotations.
     * @param context information about the class being parsed.
-    * @param v       start offset in {@link #b} of the annotations to be read.
+    * @param v       start offset in {@link #code} of the annotations to be read.
     */
    private void readParameterAnnotations(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int v) {
       if (v != 0) {
          char[] c = buf;
-         int parameters = b[v++] & 0xFF;
+         int parameters = code[v++] & 0xFF;
          AnnotationVisitor av;
 
          for (int i = 0; i < parameters; i++) {
@@ -326,7 +326,7 @@ final class MethodReader extends AnnotatedReader
       @Nonnull Context context, @Nonnegative int u, @Nonnegative int codeLength,
       @Nonnegative int codeStart, @Nonnegative int codeEnd
    ) {
-      byte[] b = this.b;
+      byte[] b = this.code;
       Label[] labels = context.labels;
 
       readLabel(codeLength + 1, labels);
@@ -476,7 +476,7 @@ final class MethodReader extends AnnotatedReader
       Label[] labels = context.labels;
       boolean readDebugInfo = context.readDebugInfo();
       char[] c = buf;
-      byte[] b = this.b;
+      byte[] b = this.code;
       int u = codeStart;
 
       while (u < codeEnd) {
@@ -599,7 +599,7 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readWideInstruction(@Nonnull MethodVisitor mv, @Nonnegative int u) {
-      int opcode = b[u + 1] & 0xFF;
+      int opcode = code[u + 1] & 0xFF;
       int var = readUnsignedShort(u + 2);
 
       if (opcode == IINC) {
@@ -681,7 +681,7 @@ final class MethodReader extends AnnotatedReader
          mv.visitFieldInsn(opcode, owner, name, desc);
       }
       else {
-         boolean itf = b[cpIndex1 - 1] == ConstantPoolItemType.IMETH;
+         boolean itf = code[cpIndex1 - 1] == ConstantPoolItemType.IMETH;
          //noinspection ConstantConditions
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
       }

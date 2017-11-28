@@ -79,7 +79,7 @@ final class PathToAgentJar
       attrs.putValue("Can-Redefine-Classes", "true");
       attrs.putValue("Can-Retransform-Classes", "true");
 
-      byte[] classFile = ClassFile.readFromFile(InstrumentationHolder.class).b;
+      byte[] classFile = ClassFile.readFromFile(InstrumentationHolder.class).getBytecode();
 
       try {
          JarOutputStream output = new JarOutputStream(new FileOutputStream(bootstrapJar), manifest);

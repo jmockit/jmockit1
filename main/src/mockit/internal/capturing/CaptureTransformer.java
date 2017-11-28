@@ -93,7 +93,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       cr.accept(modifier);
 
       ClassIdentification classId = new ClassIdentification(loader, className);
-      byte[] originalBytecode = cr.b;
+      byte[] originalBytecode = cr.getBytecode();
 
       if (transformedClasses == Collections.<ClassIdentification, byte[]>emptyMap()) {
          TestRun.mockFixture().addTransformedClass(classId, originalBytecode);

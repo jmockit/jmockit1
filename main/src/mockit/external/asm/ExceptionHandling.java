@@ -4,27 +4,27 @@ import javax.annotation.*;
 
 final class ExceptionHandling
 {
-   private final ConstantPoolGeneration cp;
+   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * Number of elements in the exception handler list.
     */
-   private int handlerCount;
+   @Nonnegative private int handlerCount;
 
    /**
     * The first element in the exception handler list.
     */
-   private ExceptionHandler firstExceptionHandler;
+   @Nullable private ExceptionHandler firstExceptionHandler;
 
    /**
     * The last element in the exception handler list.
     */
-   private ExceptionHandler lastExceptionHandler;
+   @Nullable private ExceptionHandler lastExceptionHandler;
 
-   ExceptionHandling(ConstantPoolGeneration cp) { this.cp = cp; }
+   ExceptionHandling(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
-   void addHandler(Label start, Label end, Label handler, @Nullable String type) {
-      ++handlerCount;
+   void addHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
+      handlerCount++;
 
       int handlerType = type != null ? cp.newClass(type) : 0;
       ExceptionHandler h = new ExceptionHandler(start, end, handler, type, handlerType);
@@ -53,28 +53,29 @@ final class ExceptionHandling
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
-         Label l = exceptionHandler.start.getFirst();
-         Label h = exceptionHandler.handler.getFirst();
-         Label e = exceptionHandler.end.getFirst();
+         Label currentLabel = exceptionHandler.start.getFirst();
+         Label handlerLabel = exceptionHandler.handler.getFirst();
+         Label endLabel = exceptionHandler.end.getFirst();
 
-         // Computes the kind of the edges to 'h'.
-         String t = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.TypeMask.OBJECT | cp.addType(t);
+         // Computes the kind of the edges to 'handlerLabel'.
+         String catchType = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
+         int kind = Frame.TypeMask.OBJECT | cp.addType(catchType);
 
-         // h is an exception handler.
-         h.markAsTarget();
+         // handlerLabel is an exception handler.
+         handlerLabel.markAsTarget();
 
-         // Adds 'h' as a successor of labels between 'start' and 'end'.
-         while (l != e) {
-            // Creates an edge to 'h'.
-            Edge b = new Edge(kind, h);
+         // Adds 'handlerLabel' as a successor of labels between 'start' and 'end'.
+         while (currentLabel != endLabel) {
+            // Creates an edge to 'handlerLabel'.
+            Edge successor = new Edge(kind, handlerLabel);
 
-            // Adds it to the successors of 'l'.
-            b.next = l.successors;
-            l.successors = b;
+            // Adds it to the successors of 'currentLabel'.
+            //noinspection ConstantConditions
+            successor.next = currentLabel.successors;
+            currentLabel.successors = successor;
 
             // Goes to the next label.
-            l = l.successor;
+            currentLabel = currentLabel.successor;
          }
 
          exceptionHandler = exceptionHandler.next;
@@ -82,7 +83,7 @@ final class ExceptionHandling
    }
 
    // Removes the start-end range from the exception handlers.
-   void removeStartEndRange(Label start, Label end) {
+   void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
       firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, start, end);
    }
 
@@ -90,29 +91,30 @@ final class ExceptionHandling
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
-         Label l = exceptionHandler.start;
-         Label h = exceptionHandler.handler;
-         Label e = exceptionHandler.end;
+         Label currentLabel = exceptionHandler.start;
+         Label handlerLabel = exceptionHandler.handler;
+         Label endLabel = exceptionHandler.end;
 
-         // Adds 'h' as a successor of labels between 'start' and 'end'.
-         while (l != e) {
-            // Creates an edge to 'h'.
-            Edge b = new Edge(Edge.EXCEPTION, h);
+         // Adds 'handlerLabel' as a successor of labels between 'start' and 'end'.
+         while (currentLabel != endLabel) {
+            // Creates an edge to 'handlerLabel'.
+            Edge edge = new Edge(Edge.EXCEPTION, handlerLabel);
 
-            // Adds it to the successors of 'l'.
-            if (!l.isJSR()) {
-               b.next = l.successors;
-               l.successors = b;
+            // Adds it to the successors of 'currentLabel'.
+            //noinspection ConstantConditions
+            if (!currentLabel.isJSR()) {
+               edge.next = currentLabel.successors;
+               currentLabel.successors = edge;
             }
             else {
-               // If l is a JSR block, adds b after the first two edges to preserve the hypothesis about JSR block
-               // successors order (see {@link #visitJumpInsn}).
-               b.next = l.successors.next.next;
-               l.successors.next.next = b;
+               // If currentLabel is a JSR block, adds edge after the first two edges to preserve the hypothesis about
+               // JSR block successors order (see {@link #visitJumpInsn}).
+               edge.next = currentLabel.successors.next.next;
+               currentLabel.successors.next.next = edge;
             }
 
             // Goes to the next label.
-            l = l.successor;
+            currentLabel = currentLabel.successor;
          }
 
          exceptionHandler = exceptionHandler.next;
@@ -121,9 +123,10 @@ final class ExceptionHandling
 
    boolean hasHandlers() { return handlerCount > 0; }
 
+   @Nonnegative
    int getSize() { return 8 * handlerCount; }
 
-   void put(ByteVector out) {
+   void put(@Nonnull ByteVector out) {
       out.putShort(handlerCount);
 
       if (handlerCount > 0) {

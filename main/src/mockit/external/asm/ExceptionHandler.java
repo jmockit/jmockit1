@@ -54,11 +54,11 @@ final class ExceptionHandler
    /**
     * Internal name of the type of exceptions handled by this handler, or <tt>null</tt> to catch any exceptions.
     */
-   final String desc;
+   @Nullable final String desc;
 
    /**
-    * Constant pool index of the internal name of the type of exceptions handled by this handler, or 0 to catch any
-    * exceptions.
+    * Constant pool index of the internal name of the type of exceptions handled by this handler, or <tt>0</tt> to catch
+    * any exceptions.
     */
    final int type;
 
@@ -67,7 +67,7 @@ final class ExceptionHandler
     */
    ExceptionHandler next;
 
-   ExceptionHandler(Label start, Label end, Label handler, String desc, int type) {
+   ExceptionHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String desc, int type) {
       this.start = start;
       this.end = end;
       this.handler = handler;
@@ -113,6 +113,7 @@ final class ExceptionHandler
          }
          else {
             // [hStart,hEnd[ minus [s,e[ = [hStart,s[ + [e,hEnd[
+            //noinspection ConstantConditions
             ExceptionHandler g = new ExceptionHandler(end, h.end, h.handler, h.desc, h.type);
             g.next = h.next;
             h.end = start;

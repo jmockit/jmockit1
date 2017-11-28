@@ -178,6 +178,6 @@ final class BootstrapMethods
 
       int attrSize = cr.readInt(u + 4);
       bootstrapMethods = new ByteVector(attrSize + 62);
-      bootstrapMethods.putByteArray(cr.b, u + 10, attrSize - 2);
+      bootstrapMethods.putByteArray(cr.code, u + 10, attrSize - 2);
    }
 }
