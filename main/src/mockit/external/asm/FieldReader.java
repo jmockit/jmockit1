@@ -4,7 +4,7 @@ import javax.annotation.*;
 
 final class FieldReader extends AnnotatedReader
 {
-   FieldReader(@Nonnull BytecodeReader br) { super(br); }
+   FieldReader(@Nonnull AnnotatedReader br) { super(br); }
 
    /**
     * Reads a field and makes the given visitor visit it.
@@ -16,7 +16,7 @@ final class FieldReader extends AnnotatedReader
    @Nonnegative
    int readField(@Nonnull ClassVisitor cv, @Nonnull Context context, @Nonnegative int u) {
       // Reads the field declaration.
-      char[] c = context.buffer;
+      char[] c = buf;
       int access = readUnsignedShort(u);
       String name = readUTF8(u + 2, c);
       String desc = readUTF8(u + 4, c);
@@ -27,7 +27,7 @@ final class FieldReader extends AnnotatedReader
       int anns = 0;
       Object value = null;
 
-      for (int i = readUnsignedShort(u); i > 0; i--) {
+      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
          String attrName = readUTF8(u + 2, c);
 
          if ("ConstantValue".equals(attrName)) {
@@ -65,9 +65,10 @@ final class FieldReader extends AnnotatedReader
 
    private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnull char[] c, @Nonnegative int anns) {
       if (anns != 0) {
-         for (int i = readUnsignedShort(anns), v = anns + 2; i > 0; i--) {
+         for (int annotationCount = readUnsignedShort(anns), v = anns + 2; annotationCount > 0; annotationCount--) {
             String desc = readUTF8(v, c);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
+
             v = annotationReader.readAnnotationValues(v + 2, c, true, av);
          }
       }

@@ -74,7 +74,7 @@ final class MethodReader extends AnnotatedReader
       int anns = 0;
       int annDefault = 0;
       int paramAnns = 0;
-      char[] c = context.buffer;
+      char[] c = buf;
 
       for (int i = readUnsignedShort(u); i > 0; i--) {
          String attrName = readUTF8(u + 2, c);
@@ -114,7 +114,7 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readMethodDeclaration(@Nonnull Context context, @Nonnegative int u) {
-      char[] c = context.buffer;
+      char[] c = buf;
       context.access = readUnsignedShort(u);
       context.name = readUTF8(u + 2, c);
       context.desc = readUTF8(u + 4, c);
@@ -145,7 +145,7 @@ final class MethodReader extends AnnotatedReader
          return;
       }
 
-      char[] c = context.buffer;
+      char[] c = buf;
       readAnnotationDefaultValue(mv, c, annDefault);
       readAnnotationValues(mv, c, anns);
       readParameterAnnotations(mv, context, paramAnns);
@@ -234,7 +234,7 @@ final class MethodReader extends AnnotatedReader
     */
    private void readParameterAnnotations(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int v) {
       if (v != 0) {
-         char[] c = context.buffer;
+         char[] c = buf;
          int parameters = b[v++] & 0xFF;
          AnnotationVisitor av;
 
@@ -268,7 +268,6 @@ final class MethodReader extends AnnotatedReader
     */
    private void readCode(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
       // Reads the header.
-      char[] c = context.buffer;
       int maxStack = readUnsignedShort(u);
       int codeLength = readInt(u + 4);
       u += 8;
@@ -291,8 +290,8 @@ final class MethodReader extends AnnotatedReader
       int varTable = 0;
       int varTypeTable = 0;
 
-      for (int i = readUnsignedShort(u); i > 0; i--) {
-         String attrName = readUTF8(u + 2, c);
+      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
+         String attrName = readUTF8(u + 2, buf);
 
          if ("LocalVariableTable".equals(attrName)) {
             varTable = readLocalVariableTable(context, u, varTable);
@@ -408,14 +407,13 @@ final class MethodReader extends AnnotatedReader
    // Reads the try catch entries to find the labels, and also visits them.
    @Nonnegative
    private int readTryCatchBlocks(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
-      char[] c = context.buffer;
       Label[] labels = context.labels;
 
-      for (int i = readUnsignedShort(u); i > 0; i--) {
+      for (int blockCount = readUnsignedShort(u); blockCount > 0; blockCount--) {
          Label start = readLabel(readUnsignedShort(u + 2), labels);
          Label end = readLabel(readUnsignedShort(u + 4), labels);
          Label handler = readLabel(readUnsignedShort(u + 6), labels);
-         String type = readUTF8(items[readUnsignedShort(u + 8)], c);
+         String type = readUTF8(items[readUnsignedShort(u + 8)], buf);
 
          mv.visitTryCatchBlock(start, end, handler, type);
          u += 8;
@@ -477,7 +475,7 @@ final class MethodReader extends AnnotatedReader
    ) {
       Label[] labels = context.labels;
       boolean readDebugInfo = context.readDebugInfo();
-      char[] c = context.buffer;
+      char[] c = buf;
       byte[] b = this.b;
       int u = codeStart;
 
@@ -692,7 +690,7 @@ final class MethodReader extends AnnotatedReader
    private void readLocalVariableTables(
       @Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int varTable, int varTypeTable
    ) {
-      char[] c = context.buffer;
+      char[] c = buf;
       Label[] labels = context.labels;
       int[] typeTable = null;
       int u;
@@ -738,7 +736,7 @@ final class MethodReader extends AnnotatedReader
    private int readInvokeDynamicInstruction(@Nonnull MethodVisitor mv, @Nonnull Context context, @Nonnegative int u) {
       int cpIndex = items[readUnsignedShort(u + 1)];
       int bsmIndex = context.bootstrapMethods[readUnsignedShort(cpIndex)];
-      char[] c = context.buffer;
+      char[] c = buf;
       Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex), c);
       int bsmArgCount = readUnsignedShort(bsmIndex + 2);
       Object[] bsmArgs = new Object[bsmArgCount];

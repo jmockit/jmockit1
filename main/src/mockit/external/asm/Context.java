@@ -29,8 +29,6 @@
  */
 package mockit.external.asm;
 
-import javax.annotation.*;
-
 import static mockit.external.asm.ClassReader.*;
 
 /**
@@ -42,11 +40,6 @@ final class Context
     * The {@link ClassReader} option flags for the parsing of this class.
     */
    private final int flags;
-
-   /**
-    * The buffer used to read strings.
-    */
-   @Nonnull final char[] buffer;
 
    /**
     * The start index of each bootstrap method.
@@ -74,10 +67,7 @@ final class Context
     */
    Label[] labels;
 
-   Context(int flags, @Nonnull char[] buffer) {
-      this.flags = flags;
-      this.buffer = buffer;
-   }
+   Context(int flags) { this.flags = flags; }
 
    boolean readCode() { return (flags & SKIP_CODE) == 0; }
    boolean readDebugInfo() { return (flags & SKIP_DEBUG) == 0; }

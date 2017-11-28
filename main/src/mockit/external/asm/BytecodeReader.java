@@ -31,12 +31,19 @@ class BytecodeReader
    @Nonnegative final int maxStringLength;
 
    /**
+    * The buffer used to read strings.
+    */
+   @Nonnull final char[] buf;
+
+   /**
     * Start index of the class header information (access, name...) in {@link #b}.
     */
    @Nonnegative final int header;
 
-   BytecodeReader(@Nonnull byte[] bytecode) {
-      b = bytecode;
+   Context context;
+
+   BytecodeReader(@Nonnull byte[] code) {
+      b = code;
 
       // Parses the constant pool.
       int n = readUnsignedShort(8);
@@ -49,7 +56,7 @@ class BytecodeReader
          items[i] = index + 1;
          int size;
 
-         switch (bytecode[index]) {
+         switch (code[index]) {
             case FIELD:
             case METH:
             case IMETH:
@@ -75,7 +82,7 @@ class BytecodeReader
             case HANDLE:
                size = 4;
                break;
-            // case ConstantPoolItemType.CLASS|STR|MTYPE
+            // case CLASS|STR|MTYPE
             default:
                size = 3;
                break;
@@ -85,6 +92,7 @@ class BytecodeReader
       }
 
       maxStringLength = maxSize;
+      buf = new char[maxSize];
       header = index; // the class header information starts just after the constant pool
    }
 
@@ -93,6 +101,7 @@ class BytecodeReader
       items = another.items;
       strings = another.strings;
       maxStringLength = another.maxStringLength;
+      buf = another.buf;
       header = another.header;
    }
 

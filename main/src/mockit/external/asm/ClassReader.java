@@ -58,7 +58,6 @@ public final class ClassReader extends AnnotatedReader
 
    // Helper fields.
    ClassVisitor cv;
-   private Context context;
    int access;
    private String name;
    @Nullable private String superClass;
@@ -71,9 +70,9 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Constructs a new {@link ClassReader} object.
     *
-    * @param bytecode the bytecode of the class to be read.
+    * @param code the code of the class to be read.
     */
-   public ClassReader(@Nonnull byte[] bytecode) { super(bytecode); }
+   public ClassReader(@Nonnull byte[] code) { super(code); }
 
    /**
     * Constructs a new {@link ClassReader} object.
@@ -174,13 +173,13 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull
    public String[] getInterfaces() {
       int index = header + 6;
-      int n = readUnsignedShort(index);
-      String[] interfaces = new String[n];
+      int interfaceCount = readUnsignedShort(index);
+      String[] interfaces = new String[interfaceCount];
 
-      if (n > 0) {
+      if (interfaceCount > 0) {
          char[] buf = new char[maxStringLength];
 
-         for (int i = 0; i < n; ++i) {
+         for (int i = 0; i < interfaceCount; i++) {
             index += 2;
             interfaces[i] = readClass(index, buf);
          }
@@ -304,8 +303,8 @@ public final class ClassReader extends AnnotatedReader
    public void accept(@Nonnull ClassVisitor cv, int flags) {
       this.cv = cv;
 
-      char[] c = new char[maxStringLength]; // buffer used to read strings
-      context = new Context(flags, c);
+      context = new Context(flags);
+      char[] c = buf;
 
       readClassDeclaration();
       readInterfaces();
@@ -366,7 +365,7 @@ public final class ClassReader extends AnnotatedReader
 
    private void readClassDeclaration() {
       int u = header;
-      char[] c = context.buffer;
+      char[] c = buf;
       access = readUnsignedShort(u);
       name = readClass(u + 2, c);
       superClass = readClass(u + 4, c);
@@ -383,10 +382,8 @@ public final class ClassReader extends AnnotatedReader
       interfaces = new String[interfaceCount];
       u += 8;
 
-      char[] c = context.buffer;
-
       for (int i = 0; i < interfaceCount; i++) {
-         interfaces[i] = readClass(u, c);
+         interfaces[i] = readClass(u, buf);
          u += 2;
       }
    }
@@ -410,7 +407,7 @@ public final class ClassReader extends AnnotatedReader
 
    private void readAnnotations(@Nonnegative int annotations) {
       if (annotations != 0) {
-         char[] c = context.buffer;
+         char[] c = buf;
 
          for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
             String desc = readUTF8(v, c);
@@ -423,7 +420,7 @@ public final class ClassReader extends AnnotatedReader
    private void readInnerClasses(@Nonnegative int innerClasses) {
       if (innerClasses != 0) {
          int v = innerClasses + 2;
-         char[] c = context.buffer;
+         char[] c = buf;
 
          for (int i = readUnsignedShort(innerClasses); i > 0; i--) {
             String name = readClass(v, c);

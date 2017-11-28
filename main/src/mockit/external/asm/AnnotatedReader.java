@@ -7,8 +7,8 @@ import javax.annotation.*;
  */
 class AnnotatedReader extends BytecodeReader
 {
-   final AnnotationReader annotationReader = new AnnotationReader(this);
+   @Nonnull final AnnotationReader annotationReader = new AnnotationReader(this);
 
-   AnnotatedReader(@Nonnull byte[] bytecode) { super(bytecode); }
-   AnnotatedReader(@Nonnull BytecodeReader another) { super(another); }
+   AnnotatedReader(@Nonnull byte[] code) { super(code); }
+   AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
 }

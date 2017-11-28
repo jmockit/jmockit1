@@ -20,17 +20,17 @@ final class AnnotationReader extends BytecodeReader
     */
    @Nonnegative
    int readAnnotationValues(@Nonnegative int v, @Nonnull char[] buf, boolean named, @Nullable AnnotationVisitor av) {
-      int i = readUnsignedShort(v);
+      int valueCount = readUnsignedShort(v);
       v += 2;
 
       if (named) {
-         for (; i > 0; i--) {
+         for (; valueCount > 0; valueCount--) {
             String name = readUTF8(v, buf);
             v = readAnnotationValue(v + 2, buf, name, av);
          }
       }
       else {
-         for (; i > 0; i--) {
+         for (; valueCount > 0; valueCount--) {
             v = readAnnotationValue(v, buf, null, av);
          }
       }
@@ -100,35 +100,16 @@ final class AnnotationReader extends BytecodeReader
             v += 2;
             break;
          case 'e': // enum_const_value
-            String enumDesc = readUTF8(v, buf);
-            String enumValue = readUTF8(v + 2, buf);
-            //noinspection ConstantConditions
-            av.visitEnum(name, enumDesc, enumValue);
-            v += 4;
+            v = readEnumConstValue(v, buf, name, av);
             break;
          case 'c': // class_info
-            String typeDesc = readUTF8(v, buf);
-            //noinspection ConstantConditions
-            value = JavaType.getType(typeDesc);
-            av.visit(name, value);
-            v += 2;
+            v = readClassInfo(v, buf, name, av);
             break;
          case '@': // annotation_value
-            String desc = readUTF8(v, buf);
-            //noinspection ConstantConditions
-            AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
-            v = readAnnotationValues(v + 2, buf, true, nestedVisitor);
+            v = readAnnotationValue2(v, buf, name, av);
             break;
          case '[': // array_value
-            int size = readUnsignedShort(v);
-            v += 2;
-
-            if (size == 0) {
-               AnnotationVisitor arrayVisitor = av.visitArray(name);
-               return readAnnotationValues(v - 2, buf, false, arrayVisitor);
-            }
-
-            v = readAnnotationArrayValue(v, buf, name, av, size);
+            v = readArrayValue(v, buf, name, av);
       }
 
       return v;
@@ -151,19 +132,64 @@ final class AnnotationReader extends BytecodeReader
    }
 
    @Nonnegative
-   private int readAnnotationArrayValue(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nonnull AnnotationVisitor av,
-      @Nonnegative int size
+   private int readEnumConstValue(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av)
+   {
+      String enumDesc = readUTF8(v, buf);
+      String enumValue = readUTF8(v + 2, buf);
+
+      //noinspection ConstantConditions
+      av.visitEnum(name, enumDesc, enumValue);
+
+      return v + 4;
+   }
+
+   @Nonnegative
+   private int readClassInfo(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av
    ) {
-      int typeCode = b[v++] & 0xFF;
+      String typeDesc = readUTF8(v, buf);
+      @SuppressWarnings("ConstantConditions") Object value = JavaType.getType(typeDesc);
+
+      //noinspection ConstantConditions
+      av.visit(name, value);
+
+      return v + 2;
+   }
+
+   @Nonnegative
+   private int readAnnotationValue2(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av)
+   {
+      String desc = readUTF8(v, buf);
+      //noinspection ConstantConditions
+      AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
+
+      return readAnnotationValues(v + 2, buf, true, nestedVisitor);
+   }
+
+   @Nonnegative
+   private int readArrayValue(
+      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nonnull AnnotationVisitor av
+   ) {
+      int size = readUnsignedShort(v);
+
+      if (size == 0) {
+         AnnotationVisitor arrayVisitor = av.visitArray(name);
+         return readAnnotationValues(v, buf, false, arrayVisitor);
+      }
+
+      v += 2;
+      int typeCode = b[v] & 0xFF;
 
       if ("BZSCIJFD".indexOf(typeCode) < 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-         return readAnnotationValues(v - 3, buf, false, arrayVisitor);
+         return readAnnotationValues(v - 2, buf, false, arrayVisitor);
       }
 
       Class<?> elementType = PrimitiveType.getType(typeCode);
       Object array = Array.newInstance(elementType, size);
+      v++;
 
       for (int i = 0; i < size; i++) {
          int index = items[readUnsignedShort(v)];
