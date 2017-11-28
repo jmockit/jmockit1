@@ -177,8 +177,6 @@ public final class ClassReader extends AnnotatedReader
       String[] interfaces = new String[interfaceCount];
 
       if (interfaceCount > 0) {
-         char[] buf = new char[maxStringLength];
-
          for (int i = 0; i < interfaceCount; i++) {
             index += 2;
             interfaces[i] = readClass(index, buf);
@@ -198,7 +196,6 @@ public final class ClassReader extends AnnotatedReader
     * Copies the constant pool data into the given {@link ClassWriter}.
     */
    void copyPool(@Nonnull ClassWriter cw) {
-      char[] buf = new char[maxStringLength];
       int ll = items.length;
       Item[] items2 = new Item[ll];
 
@@ -206,14 +203,17 @@ public final class ClassReader extends AnnotatedReader
          int index = items[i];
          int tag = code[index - 1];
          Item item = new Item(i);
-         int nameType;
 
          switch (tag) {
             case FIELD:
             case METH:
             case IMETH:
-               nameType = items[readUnsignedShort(index + 2)];
-               item.set(tag, readClass(index, buf), readUTF8(nameType, buf), readUTF8(nameType + 2, buf));
+               int nameType = items[readUnsignedShort(index + 2)];
+               String classDesc = readClass(index, buf);
+               String methodName = readUTF8(nameType, buf);
+               String methodDesc = readUTF8(nameType + 2, buf);
+               //noinspection ConstantConditions
+               item.set(tag, classDesc, methodName, methodDesc);
                break;
             case INT:
                item.set(readInt(index));
@@ -222,7 +222,10 @@ public final class ClassReader extends AnnotatedReader
                item.set(Float.intBitsToFloat(readInt(index)));
                break;
             case NAME_TYPE:
-               item.set(tag, readUTF8(index, buf), readUTF8(index + 2, buf), null);
+               String name = readUTF8(index, buf);
+               String type = readUTF8(index + 2, buf);
+               //noinspection ConstantConditions
+               item.set(tag, name, type, null);
                break;
             case LONG:
                item.set(readLong(index));
@@ -239,11 +242,13 @@ public final class ClassReader extends AnnotatedReader
                copyHandleItem(buf, index, item);
                break;
             case INDY:
-               copyInvokeDynamicItem(cw, buf, items2, index, item);
+               copyInvokeDynamicItem(cw.bootstrapMethods, buf, items2, index, item);
                break;
             // case STR|CLASS|MTYPE:
             default:
-               item.set(tag, readUTF8(index, buf), null, null);
+               String string = readUTF8(index, buf);
+               //noinspection ConstantConditions
+               item.set(tag, string, null, null);
                break;
          }
 
@@ -275,13 +280,16 @@ public final class ClassReader extends AnnotatedReader
       String classDesc = readClass(fieldOrMethodRef, buf);
       String name = readUTF8(nameType, buf);
       String desc = readUTF8(nameType + 2, buf);
+
+      //noinspection ConstantConditions
       item.set(type, classDesc, name, desc);
    }
 
    private void copyInvokeDynamicItem(
-      @Nonnull ClassWriter cw, @Nonnull char[] buf, @Nonnull Item[] items2, @Nonnegative int index, @Nonnull Item item
+      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull char[] buf, @Nonnull Item[] items2, @Nonnegative int index,
+      @Nonnull Item item
    ) {
-      cw.bootstrapMethods.copyBootstrapMethods(this, items2, buf);
+      bootstrapMethods.copyBootstrapMethods(this, items2, buf);
 
       int nameType = items[readUnsignedShort(index + 2)];
       String name = readUTF8(nameType, buf);

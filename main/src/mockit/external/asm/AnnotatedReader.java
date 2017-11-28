@@ -94,7 +94,6 @@ class AnnotatedReader extends BytecodeReader
     */
    @Nullable
    final String readClass(@Nonnegative int index) {
-      char[] buf = new char[maxStringLength];
       return readClass(index, buf);
    }
 }

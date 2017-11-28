@@ -87,12 +87,12 @@ final class Item
    /**
     * Second part of the value of this item, for items that do not hold a primitive value.
     */
-   String strVal2;
+   @Nullable String strVal2;
 
    /**
     * Third part of the value of this item, for items that do not hold a primitive value.
     */
-   String strVal3;
+   @Nullable String strVal3;
 
    /**
     * The hash code value of this constant pool item.
@@ -187,7 +187,7 @@ final class Item
     * @param strVal2 second part of the value of this item.
     * @param strVal3 third part of the value of this item.
     */
-   void set(int type, String strVal1, String strVal2, String strVal3) {
+   void set(int type, @Nonnull String strVal1, @Nullable String strVal2, @Nullable String strVal3) {
       this.type = type;
       this.strVal1 = strVal1;
       this.strVal2 = strVal2;
@@ -204,11 +204,13 @@ final class Item
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
             return;
          case NAME_TYPE: {
+            //noinspection ConstantConditions
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
             return;
          }
          // FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
+            //noinspection ConstantConditions
             hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
       }
    }
@@ -266,12 +268,14 @@ final class Item
          case SpecialType.UNINIT:
             return item.intVal == intVal && item.strVal1.equals(strVal1);
          case NAME_TYPE:
+            //noinspection ConstantConditions
             return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
-         case INDY: {
+         case INDY:
+            //noinspection ConstantConditions
             return item.longVal == longVal && item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
-         }
          // case FIELD|METH|IMETH|HANDLE_BASE + 1..9:
          default:
+            //noinspection ConstantConditions
             return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2) && item.strVal3.equals(strVal3);
       }
    }

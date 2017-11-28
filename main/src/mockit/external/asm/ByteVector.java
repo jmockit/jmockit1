@@ -188,7 +188,7 @@ final class ByteVector
       data[len++] = (byte) (charLength >>> 8);
       data[len++] = (byte) charLength;
 
-      for (int i = 0; i < charLength; ++i) {
+      for (int i = 0; i < charLength; i++) {
          char c = s.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
