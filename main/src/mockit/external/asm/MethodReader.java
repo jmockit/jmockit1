@@ -3,7 +3,6 @@ package mockit.external.asm;
 import javax.annotation.*;
 
 import static mockit.external.asm.MethodReader.InstructionType.*;
-import static mockit.external.asm.MethodReader.InstructionType.IINC;
 import static mockit.external.asm.Opcodes.*;
 
 final class MethodReader extends AnnotatedReader
@@ -15,19 +14,19 @@ final class MethodReader extends AnnotatedReader
       int SHORT       = 2; // instructions with a signed short argument
       int VAR         = 3; // instructions with a local variable index argument
       int IMPLVAR     = 4; // instructions with an implicit local variable index argument
-      int TYPE        = 5; // instructions with a type descriptor argument
+      int TYPE_INSN   = 5; // instructions with a type descriptor argument
       int FIELDORMETH = 6; // field and method invocations instructions
       int ITFMETH     = 7; // INVOKEINTERFACE/INVOKEDYNAMIC instruction
       int INDYMETH    = 8; // INVOKEDYNAMIC instruction
       int LABEL       = 9; // instructions with a 2 bytes bytecode offset label
       int LABELW     = 10; // instructions with a 4 bytes bytecode offset label
-      int LDC        = 11; // the LDC instruction
-      int LDCW       = 12; // the LDC_W and LDC2_W instructions
-      int IINC       = 13; // the IINC instruction
-      int TABL       = 14; // the TABLESWITCH instruction
-      int LOOK       = 15; // the LOOKUPSWITCH instruction
-      @SuppressWarnings("unused") int MANA_INSN  = 16; // the MULTIANEWARRAY instruction
-      int WIDE       = 17; // the WIDE instruction
+      int LDC_INSN   = 11; // the LDC instruction
+      int LDCW_INSN  = 12; // the LDC_W and LDC2_W instructions
+      int IINC_INSN  = 13; // the IINC instruction
+      int TABL_INSN  = 14; // the TABLESWITCH instruction
+      int LOOK_INSN  = 15; // the LOOKUPSWITCH instruction
+      int MANA_INSN  = 16; // the MULTIANEWARRAY instruction
+      int WIDE_INSN  = 17; // the WIDE instruction
    }
 
    /**
@@ -122,7 +121,7 @@ final class MethodReader extends AnnotatedReader
       int paramAnns = 0;
       char[] c = buf;
 
-      for (int i = readUnsignedShort(u); i > 0; i--) {
+      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
          String attrName = readUTF8(u + 2, c);
 
          if ("Code".equals(attrName)) {
@@ -383,33 +382,33 @@ final class MethodReader extends AnnotatedReader
                readLabel(offset + readInt(u + 1));
                u += 5;
                break;
-            case InstructionType.WIDE:
+            case WIDE_INSN:
                opcode = b[u + 1] & 0xFF;
                u += opcode == IINC ? 6 : 4;
                break;
-            case TABL:
+            case TABL_INSN:
                u = readSwitchInstruction(u, offset, true);
                break;
-            case LOOK:
+            case LOOK_INSN:
                u = readSwitchInstruction(u, offset, false);
                break;
             case VAR:
             case SBYTE:
-            case InstructionType.LDC:
+            case LDC_INSN:
                u += 2;
                break;
             case SHORT:
-            case LDCW:
+            case LDCW_INSN:
             case FIELDORMETH:
-            case InstructionType.TYPE:
-            case IINC:
+            case TYPE_INSN:
+            case IINC_INSN:
                u += 3;
                break;
             case ITFMETH:
             case INDYMETH:
                u += 5;
                break;
-            // case MANA_INSN:
+            case MANA_INSN:
             default:
                u += 4;
                break;
@@ -528,13 +527,13 @@ final class MethodReader extends AnnotatedReader
                mv.visitJumpInsn(opcode - 33, targetLabelW);
                u += 5;
                break;
-            case InstructionType.WIDE:
+            case WIDE_INSN:
                u = readWideInstruction(u);
                break;
-            case TABL:
+            case TABL_INSN:
                u = readTableSwitchInstruction(u, offset);
                break;
-            case LOOK:
+            case LOOK_INSN:
                u = readLookupSwitchInstruction(u, offset);
                break;
             case VAR:
@@ -552,12 +551,12 @@ final class MethodReader extends AnnotatedReader
                mv.visitIntInsn(opcode, shortOperand);
                u += 3;
                break;
-            case InstructionType.LDC:
+            case LDC_INSN:
                Object cst = readConst(b[u + 1] & 0xFF, c);
                mv.visitLdcInsn(cst);
                u += 2;
                break;
-            case LDCW:
+            case LDCW_INSN:
                Object cstWide = readConst(readUnsignedShort(u + 1), c);
                mv.visitLdcInsn(cstWide);
                u += 3;
@@ -571,19 +570,19 @@ final class MethodReader extends AnnotatedReader
                //noinspection ConstantConditions
                u = readInvokeDynamicInstruction(u);
                break;
-            case InstructionType.TYPE:
+            case TYPE_INSN:
                String typeDesc = readClass(u + 1);
                //noinspection ConstantConditions
                mv.visitTypeInsn(opcode, typeDesc);
                u += 3;
                break;
-            case IINC:
+            case IINC_INSN:
                int incCar = b[u + 1] & 0xFF;
                byte increment = b[u + 2];
                mv.visitIincInsn(incCar, increment);
                u += 3;
                break;
-            // case MANA_INSN:
+            case MANA_INSN:
             default:
                String arrayTypeDesc = readClass(u + 1);
                int dims = b[u + 3] & 0xFF;
