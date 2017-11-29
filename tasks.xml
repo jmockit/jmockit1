@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2006 Rogério Liesenfeld
-  ~ This file is subject to the terms of the MIT license (see LICENSE.txt).
-  -->
 <project name="jmockit" basedir=".">
    <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
 
@@ -13,7 +9,6 @@
    <target name="createJavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
       <delete dir="${api}" includes="**/*.html" excludes="overview.html" quiet="true"/>
-      <delete dir="${api}/resources" includes="*.gif" quiet="true"/>
       <delete file="${api}/stylesheet.css"/>
       <javadoc
          destdir="${api}" overview="${api}/overview.html"
