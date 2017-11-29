@@ -80,13 +80,10 @@ final class FieldReader extends AnnotatedReader
 
    private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnegative int anns) {
       if (anns != 0) {
-         @Nonnull char[] c = buf;
-
          for (int annotationCount = readUnsignedShort(anns), v = anns + 2; annotationCount > 0; annotationCount--) {
-            String desc = readUTF8(v, c);
+            String desc = readUTF8(v, buf);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
-
-            v = annotationReader.readAnnotationValues(v + 2, c, true, av);
+            v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
       }
    }

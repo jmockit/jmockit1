@@ -8,30 +8,45 @@ final class AnnotationReader extends BytecodeReader
    AnnotationReader(@Nonnull BytecodeReader br) { super(br); }
 
    /**
-    * Reads the values of an annotation and makes the given visitor visit them.
+    * Reads the values of a named annotation and makes the given visitor visit them.
     *
-    * @param v     the start offset in {@link #code} of the values to be read
-    *              (including the unsigned short that gives the number of values).
-    * @param buf   buffer to be used to call {@link #readUTF8} or {@link #readConst}.
-    * @param named if the annotation values are named or not.
-    * @param av    the visitor that must visit the values.
+    * @param v  the start offset in {@link #code} of the values to be read (including the unsigned short that gives the
+    *           number of values).
+    * @param av the visitor that must visit the values.
     * @return the end offset of the annotation values.
     */
    @Nonnegative
-   int readAnnotationValues(@Nonnegative int v, @Nonnull char[] buf, boolean named, @Nullable AnnotationVisitor av) {
+   int readNamedAnnotationValues(@Nonnegative int v, @Nullable AnnotationVisitor av) {
+      return readAnnotationValues(v, true, av);
+   }
+
+   /**
+    * Reads the values of an unnamed annotation and makes the given visitor visit them.
+    *
+    * @param v  the start offset in {@link #code} of the values to be read (including the unsigned short that gives the
+    *           number of values).
+    * @param av the visitor that must visit the values.
+    * @return the end offset of the annotation values.
+    */
+   @Nonnegative
+   private int readUnnamedAnnotationValues(@Nonnegative int v, @Nullable AnnotationVisitor av) {
+      return readAnnotationValues(v, false, av);
+   }
+
+   @Nonnegative
+   private int readAnnotationValues(@Nonnegative int v, boolean named, @Nullable AnnotationVisitor av) {
       int valueCount = readUnsignedShort(v);
       v += 2;
 
-      if (named) {
-         for (; valueCount > 0; valueCount--) {
-            String name = readUTF8(v, buf);
-            v = readAnnotationValue(v + 2, buf, name, av);
+      for (; valueCount > 0; valueCount--) {
+         String name = null;
+
+         if (named) {
+            name = readUTF8(v, buf);
+            v += 2;
          }
-      }
-      else {
-         for (; valueCount > 0; valueCount--) {
-            v = readAnnotationValue(v, buf, null, av);
-         }
+
+         v = readAnnotationValue(v, name, av);
       }
 
       if (av != null) {
@@ -42,21 +57,29 @@ final class AnnotationReader extends BytecodeReader
    }
 
    /**
+    * Reads the default value of an annotation and makes the given visitor visit it.
+    *
+    * @param v  the start offset in {@link #code} of the value to be read (<i>not including the value name constant pool
+    *           index</i>).
+    * @param av the visitor that must visit the value.
+    */
+   @Nonnegative
+   void readDefaultAnnotationValue(@Nonnegative int v, @Nullable AnnotationVisitor av) {
+      readAnnotationValue(v, null, av);
+   }
+
+   /**
     * Reads a value of an annotation and makes the given visitor visit it.
     *
-    * @param v    the start offset in {@link #code} of the value to be read
-    *             (<i>not including the value name constant pool index</i>).
-    * @param buf  buffer to be used to call {@link #readUTF8} or {@link #readConst}.
+    * @param v    the start offset in {@link #code} of the value to be read (<i>not including the value name constant
+    *             pool index</i>).
     * @param name the name of the value to be read.
-    * @param av   the visitor that must visit the value.
     * @return the end offset of the annotation value.
     */
    @Nonnegative
-   int readAnnotationValue(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av
-   ) {
+   private int readAnnotationValue(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
       if (av == null) {
-         return readAnnotationValue(v, buf);
+         return readAnnotationValue(v);
       }
 
       int typeCode = code[v++] & 0xFF;
@@ -98,41 +121,39 @@ final class AnnotationReader extends BytecodeReader
             v += 2;
             break;
          case 'e': // enum_const_value
-            v = readEnumConstValue(v, buf, name, av);
+            v = readEnumConstValue(v, name, av);
             break;
          case 'c': // class_info
-            v = readClassInfo(v, buf, name, av);
+            v = readClassInfo(v, name, av);
             break;
          case '@': // annotation_value
-            v = readAnnotationValue2(v, buf, name, av);
+            v = readAnnotationValue2(v, name, av);
             break;
          case '[': // array_value
-            v = readArrayValue(v, buf, name, av);
+            v = readArrayValue(v, name, av);
       }
 
       return v;
    }
 
    @Nonnegative
-   private int readAnnotationValue(@Nonnegative int v, @Nonnull char[] buf) {
+   private int readAnnotationValue(@Nonnegative int v) {
       int typeCode = code[v] & 0xFF;
 
       switch (typeCode) {
          case 'e': // enum_const_value
             return v + 5;
          case '@': // annotation_value
-            return readAnnotationValues(v + 3, buf, true, null);
+            return readNamedAnnotationValues(v + 3, null);
          case '[': // array_value
-            return readAnnotationValues(v + 1, buf, false, null);
+            return readUnnamedAnnotationValues(v + 1, null);
          default:
             return v + 3;
       }
    }
 
    @Nonnegative
-   private int readEnumConstValue(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av)
-   {
+   private int readEnumConstValue(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
       String enumDesc = readUTF8(v, buf);
       String enumValue = readUTF8(v + 2, buf);
 
@@ -143,9 +164,7 @@ final class AnnotationReader extends BytecodeReader
    }
 
    @Nonnegative
-   private int readClassInfo(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av
-   ) {
+   private int readClassInfo(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
       String typeDesc = readUTF8(v, buf);
       @SuppressWarnings("ConstantConditions") Object value = JavaType.getType(typeDesc);
 
@@ -156,25 +175,21 @@ final class AnnotationReader extends BytecodeReader
    }
 
    @Nonnegative
-   private int readAnnotationValue2(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nullable AnnotationVisitor av)
-   {
+   private int readAnnotationValue2(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
       String desc = readUTF8(v, buf);
       //noinspection ConstantConditions
       AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
 
-      return readAnnotationValues(v + 2, buf, true, nestedVisitor);
+      return readNamedAnnotationValues(v + 2, nestedVisitor);
    }
 
    @Nonnegative
-   private int readArrayValue(
-      @Nonnegative int v, @Nonnull char[] buf, @Nullable String name, @Nonnull AnnotationVisitor av
-   ) {
+   private int readArrayValue(@Nonnegative int v, @Nullable String name, @Nonnull AnnotationVisitor av) {
       int size = readUnsignedShort(v);
 
       if (size == 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-         return readAnnotationValues(v, buf, false, arrayVisitor);
+         return readUnnamedAnnotationValues(v, arrayVisitor);
       }
 
       v += 2;
@@ -182,7 +197,7 @@ final class AnnotationReader extends BytecodeReader
 
       if ("BZSCIJFD".indexOf(typeCode) < 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-         return readAnnotationValues(v - 2, buf, false, arrayVisitor);
+         return readUnnamedAnnotationValues(v - 2, arrayVisitor);
       }
 
       Class<?> elementType = PrimitiveType.getType(typeCode);

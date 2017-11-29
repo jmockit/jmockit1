@@ -25,6 +25,21 @@ class BytecodeReader
     */
    @Nonnull final String[] strings;
 
+   /**
+    * Maximum length of the strings contained in the constant pool of the class.
+    */
+   @Nonnegative final int maxStringLength;
+
+   /**
+    * The buffer used to read strings.
+    */
+   @Nonnull final char[] buf;
+
+   /**
+    * Start index of the class header information (access, name...) in {@link #code}.
+    */
+   @Nonnegative final int header;
+
    BytecodeReader(@Nonnull byte[] code) {
       this.code = code;
 
@@ -32,12 +47,61 @@ class BytecodeReader
       int n = readUnsignedShort(8);
       items = new int[n];
       strings = new String[n];
+
+      int maxSize = 0;
+      int index = 10;
+
+      for (int i = 1; i < n; i++) {
+         items[i] = index + 1;
+         int size;
+
+         switch (code[index]) {
+            case FIELD:
+            case METH:
+            case IMETH:
+            case INT:
+            case FLOAT:
+            case NAME_TYPE:
+            case INDY:
+               size = 5;
+               break;
+            case LONG:
+            case DOUBLE:
+               size = 9;
+               i++;
+               break;
+            case UTF8:
+               size = 3 + readUnsignedShort(index + 1);
+
+               if (size > maxSize) {
+                  maxSize = size;
+               }
+
+               break;
+            case HANDLE:
+               size = 4;
+               break;
+            // case CLASS|STR|MTYPE
+            default:
+               size = 3;
+               break;
+         }
+
+         index += size;
+      }
+
+      maxStringLength = maxSize;
+      buf = new char[maxSize];
+      header = index; // the class header information starts just after the constant pool
    }
 
    BytecodeReader(@Nonnull BytecodeReader another) {
       code = another.code;
       items = another.items;
       strings = another.strings;
+      maxStringLength = another.maxStringLength;
+      buf = another.buf;
+      header = another.header;
    }
 
    /**
@@ -231,7 +295,7 @@ class BytecodeReader
 
       int i = readUnsignedShort(startIndex + 1);
       int classIndex = items[i];
-      String owner = readClass(classIndex, buf);
+      String owner = readClass(classIndex);
 
       i = readUnsignedShort(classIndex + 2);
       int nameIndex = items[i];
@@ -247,12 +311,10 @@ class BytecodeReader
     *
     * @param index the start index of an unsigned short value in {@link #code}, whose value is the index of a class
     *              constant pool item.
-    * @param buf   buffer to be used to read the item. This buffer must be sufficiently large. It is not automatically
-    *              resized.
     * @return the String corresponding to the specified class item.
     */
    @Nullable
-   final String readClass(@Nonnegative int index, @Nonnull char[] buf) {
+   final String readClass(@Nonnegative int index) {
       // Computes the start index of the CONSTANT_Class item in code and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
       int itemIndex = readUnsignedShort(index);

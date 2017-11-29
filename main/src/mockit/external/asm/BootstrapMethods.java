@@ -31,6 +31,7 @@ final class BootstrapMethods
     * @param bsmArgs the bootstrap method constant arguments.
     * @return a new or an already existing invokedynamic type reference item.
     */
+   @Nonnull
    Item addInvokeDynamicReference(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
@@ -136,9 +137,10 @@ final class BootstrapMethods
    /**
     * Copies the bootstrap method data from the given {@link ClassReader}.
     */
-   void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items, @Nonnull char[] c) {
+   void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items) {
       // Finds the "BootstrapMethods" attribute.
       int u = cr.getAttributesStartIndex();
+      char[] c = cr.buf;
       boolean found = false;
 
       for (int i = cr.readUnsignedShort(u); i > 0; i--) {

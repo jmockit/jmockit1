@@ -187,7 +187,7 @@ public final class ClassReader extends AnnotatedReader
       if (interfaceCount > 0) {
          for (int i = 0; i < interfaceCount; i++) {
             index += 2;
-            interfaces[i] = readClass(index, buf);
+            interfaces[i] = readClass(index);
          }
       }
 
@@ -217,7 +217,7 @@ public final class ClassReader extends AnnotatedReader
             case METH:
             case IMETH:
                int nameType = items[readUnsignedShort(index + 2)];
-               String classDesc = readClass(index, buf);
+               String classDesc = readClass(index);
                String methodName = readUTF8(nameType, buf);
                String methodDesc = readUTF8(nameType + 2, buf);
                //noinspection ConstantConditions
@@ -244,13 +244,13 @@ public final class ClassReader extends AnnotatedReader
                i++;
                break;
             case UTF8:
-               copyUTF8Item(buf, i, tag, item);
+               copyUTF8Item(i, tag, item);
                break;
             case HANDLE:
-               copyHandleItem(buf, index, item);
+               copyHandleItem(index, item);
                break;
             case INDY:
-               copyInvokeDynamicItem(cw.bootstrapMethods, buf, items2, index, item);
+               copyInvokeDynamicItem(cw.bootstrapMethods, items2, index, item);
                break;
             // case STR|CLASS|MTYPE:
             default:
@@ -269,7 +269,7 @@ public final class ClassReader extends AnnotatedReader
       cw.cp.copy(code, off, header, items2);
    }
 
-   private void copyUTF8Item(@Nonnull char[] buf, @Nonnegative int i, int tag, @Nonnull Item item) {
+   private void copyUTF8Item(@Nonnegative int i, int tag, @Nonnull Item item) {
       String s = strings[i];
 
       if (s == null) {
@@ -280,12 +280,12 @@ public final class ClassReader extends AnnotatedReader
       item.set(tag, s, null, null);
    }
 
-   private void copyHandleItem(@Nonnull char[] buf, @Nonnegative int index, @Nonnull Item item) {
+   private void copyHandleItem(@Nonnegative int index, @Nonnull Item item) {
       int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
       int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
 
       int type = HANDLE_BASE + readByte(index);
-      String classDesc = readClass(fieldOrMethodRef, buf);
+      String classDesc = readClass(fieldOrMethodRef);
       String name = readUTF8(nameType, buf);
       String desc = readUTF8(nameType + 2, buf);
 
@@ -294,10 +294,9 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void copyInvokeDynamicItem(
-      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull char[] buf, @Nonnull Item[] items2, @Nonnegative int index,
-      @Nonnull Item item
+      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull Item[] items2, @Nonnegative int index, @Nonnull Item item
    ) {
-      bootstrapMethods.copyBootstrapMethods(this, items2, buf);
+      bootstrapMethods.copyBootstrapMethods(this, items2);
 
       int nameType = items[readUnsignedShort(index + 2)];
       String name = readUTF8(nameType, buf);
@@ -352,7 +351,7 @@ public final class ClassReader extends AnnotatedReader
             innerClasses = u + 8;
          }
          else if ("EnclosingMethod".equals(attrName)) {
-            enclosingMethod = new EnclosingMethod(this, c, u);
+            enclosingMethod = new EnclosingMethod(this, u);
          }
          else if ("Signature".equals(attrName)) {
             signature = readUTF8(u + 8, c);
@@ -388,10 +387,9 @@ public final class ClassReader extends AnnotatedReader
 
    private void readClassDeclaration() {
       int u = header;
-      char[] c = buf;
       access = readUnsignedShort(u);
-      name = readClass(u + 2, c);
-      superClass = readClass(u + 4, c);
+      name = readClass(u + 2);
+      superClass = readClass(u + 4);
    }
 
    private void readInterfaces() {
@@ -406,7 +404,7 @@ public final class ClassReader extends AnnotatedReader
       u += 8;
 
       for (int i = 0; i < interfaceCount; i++) {
-         interfaces[i] = readClass(u, buf);
+         interfaces[i] = readClass(u);
          u += 2;
       }
    }
@@ -440,12 +438,10 @@ public final class ClassReader extends AnnotatedReader
 
    private void readAnnotations(@Nonnegative int annotations) {
       if (annotations != 0) {
-         char[] c = buf;
-
          for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
-            String desc = readUTF8(v, c);
+            String desc = readUTF8(v, buf);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = cv.visitAnnotation(desc);
-            v = annotationReader.readAnnotationValues(v + 2, c, true, av);
+            v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
       }
    }
@@ -453,12 +449,11 @@ public final class ClassReader extends AnnotatedReader
    private void readInnerClasses(@Nonnegative int innerClasses) {
       if (innerClasses != 0) {
          int v = innerClasses + 2;
-         char[] c = buf;
 
          for (int i = readUnsignedShort(innerClasses); i > 0; i--) {
-            String name = readClass(v, c);
-            String outerName = readClass(v + 2, c);
-            String innerName = readUTF8(v + 4, c);
+            String name = readClass(v);
+            String outerName = readClass(v + 2);
+            String innerName = readUTF8(v + 4, buf);
             int access = readUnsignedShort(v + 6);
 
             //noinspection ConstantConditions

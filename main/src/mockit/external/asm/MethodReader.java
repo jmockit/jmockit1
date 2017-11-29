@@ -174,7 +174,7 @@ final class MethodReader extends AnnotatedReader
       int exception = u + 10;
 
       for (int i = 0; i < n; i++) {
-         exceptions[i] = readClass(exception, buf);
+         exceptions[i] = readClass(exception);
          exception += 2;
       }
 
@@ -250,7 +250,7 @@ final class MethodReader extends AnnotatedReader
    private void readAnnotationDefaultValue(@Nonnegative int annotationDefault) {
       if (annotationDefault != 0) {
          AnnotationVisitor dv = mv.visitAnnotationDefault();
-         annotationReader.readAnnotationValue(annotationDefault, buf, null, dv);
+         annotationReader.readDefaultAnnotationValue(annotationDefault, dv);
 
          if (dv != null) {
             dv.visitEnd();
@@ -263,7 +263,7 @@ final class MethodReader extends AnnotatedReader
          for (int valueCount = readUnsignedShort(anns), v = anns + 2; valueCount > 0; valueCount--) {
             String desc = readUTF8(v, buf);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = mv.visitAnnotation(desc);
-            v = annotationReader.readAnnotationValues(v + 2, buf, true, av);
+            v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
       }
    }
@@ -275,7 +275,6 @@ final class MethodReader extends AnnotatedReader
     */
    private void readParameterAnnotations(@Nonnegative int v) {
       if (v != 0) {
-         char[] c = buf;
          int parameters = code[v++] & 0xFF;
          AnnotationVisitor av;
 
@@ -284,10 +283,10 @@ final class MethodReader extends AnnotatedReader
             v += 2;
 
             for (; j > 0; j--) {
-               String desc = readUTF8(v, c);
+               String desc = readUTF8(v, buf);
                //noinspection ConstantConditions
                av = mv.visitParameterAnnotation(i, desc);
-               v = annotationReader.readAnnotationValues(v + 2, c, true, av);
+               v = annotationReader.readNamedAnnotationValues(v + 2, av);
             }
          }
       }
@@ -573,7 +572,7 @@ final class MethodReader extends AnnotatedReader
                u = readInvokeDynamicInstruction(u);
                break;
             case InstructionType.TYPE:
-               String typeDesc = readClass(u + 1, c);
+               String typeDesc = readClass(u + 1);
                //noinspection ConstantConditions
                mv.visitTypeInsn(opcode, typeDesc);
                u += 3;
@@ -586,7 +585,7 @@ final class MethodReader extends AnnotatedReader
                break;
             // case MANA_INSN:
             default:
-               String arrayTypeDesc = readClass(u + 1, c);
+               String arrayTypeDesc = readClass(u + 1);
                int dims = b[u + 3] & 0xFF;
                //noinspection ConstantConditions
                mv.visitMultiANewArrayInsn(arrayTypeDesc, dims);
@@ -695,7 +694,7 @@ final class MethodReader extends AnnotatedReader
    private void readFieldOrInvokeInstruction(@Nonnegative int u, int opcode) {
       int cpIndex1 = items[readUnsignedShort(u + 1)];
       @Nonnull char[] c = buf;
-      String owner = readClass(cpIndex1, c);
+      String owner = readClass(cpIndex1);
       int cpIndex2 = items[readUnsignedShort(cpIndex1 + 2)];
       String name = readUTF8(cpIndex2, c);
       String desc = readUTF8(cpIndex2 + 2, c);

@@ -462,7 +462,7 @@ final class ConstantPoolGeneration
     * @param offset the bytecode offset of the NEW instruction that created this UNINITIALIZED type value.
     * @return the index of this internal name in the type table.
     */
-   int addUninitializedType(@Nonnull String type, int offset) {
+   int addUninitializedType(@Nonnull String type, @Nonnegative int offset) {
       key.type = Item.SpecialType.UNINIT;
       key.intVal = offset;
       key.strVal1 = type;
@@ -537,6 +537,7 @@ final class ConstantPoolGeneration
     * @param type2 the internal name of another class.
     * @return the internal name of the common super class of the two given classes.
     */
+   @Nonnull
    private String getCommonSuperClass(String type1, String type2) {
       // Reimplemented to avoid "duplicate class definition" errors.
       String class1 = type1;
@@ -651,6 +652,7 @@ final class ConstantPoolGeneration
    String getInternalName(@Nonnegative int index) { return typeTable[index].strVal1; }
    int getIntegerItemValue(@Nonnegative int index) { return typeTable[index].intVal; }
 
+   @Nonnull
    Item createInvokeDynamicConstant(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
       key3.set(name, desc, bsmIndex);
       Item result = get(key3);
