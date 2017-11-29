@@ -57,8 +57,15 @@ public final class ClassReader extends AnnotatedReader
    private static final String[] NO_INTERFACES = {};
 
    // Helper fields.
-   private ClassVisitor cv;
-   private Context context;
+   ClassVisitor cv;
+   boolean readCode;
+   boolean readDebugInfo;
+
+   /**
+    * The start index of each bootstrap method.
+    */
+   @Nullable int[] bootstrapMethods;
+
    private int access;
    private String name;
    @Nullable private String superClass;
@@ -318,7 +325,8 @@ public final class ClassReader extends AnnotatedReader
    public void accept(@Nonnull ClassVisitor cv, int flags) {
       this.cv = cv;
 
-      context = new Context(flags);
+      readCode = (flags & SKIP_CODE) == 0;
+      readDebugInfo = (flags & SKIP_DEBUG) == 0;
       char[] c = buf;
 
       readClassDeclaration();
@@ -403,13 +411,23 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
+   private void readBootstrapMethods(@Nonnegative int u) {
+      int bsmCount = readUnsignedShort(u + 8);
+      bootstrapMethods = new int[bsmCount];
+
+      for (int i = 0, v = u + 10; i < bsmCount; i++) {
+         bootstrapMethods[i] = v;
+         v += 2 + readUnsignedShort(v + 2) << 1;
+      }
+   }
+
    private void readClass() {
       int version = readInt(items[1] - 7);
       cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
    private void readSourceAndDebugInfo() {
-      if (context.readDebugInfo() && (sourceFile != null || sourceDebug != null)) {
+      if (readDebugInfo && (sourceFile != null || sourceDebug != null)) {
          cv.visitSource(sourceFile, sourceDebug);
       }
    }
@@ -451,35 +469,13 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void readFieldsAndMethods() {
-      ClassVisitor cv = this.cv;
+      int codeIndex = header + 8 + 2 * interfaces.length;
 
       FieldReader fieldReader = new FieldReader(this);
-      int u = header + 8 + 2 * interfaces.length;
-      int fieldCount = readUnsignedShort(u);
-      u += 2;
+      codeIndex = fieldReader.readFields(codeIndex);
 
-      for (int i = fieldCount; i > 0; i--) {
-         u = fieldReader.readField(cv, context, u);
-      }
-
-      MethodReader methodReader = new MethodReader(this, cv);
-      int methodCount = readUnsignedShort(u);
-      u += 2;
-
-      for (int i = methodCount; i > 0; i--) {
-         u = methodReader.readMethod(context, u);
-      }
-   }
-
-   private void readBootstrapMethods(@Nonnegative int u) {
-      int[] bootstrapMethods = new int[readUnsignedShort(u + 8)];
-
-      for (int j = 0, v = u + 10; j < bootstrapMethods.length; j++) {
-         bootstrapMethods[j] = v;
-         v += 2 + readUnsignedShort(v + 2) << 1;
-      }
-
-      context.bootstrapMethods = bootstrapMethods;
+      MethodReader methodReader = new MethodReader(this);
+      methodReader.readMethods(codeIndex);
    }
 
    /**

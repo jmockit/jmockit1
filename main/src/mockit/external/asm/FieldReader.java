@@ -4,17 +4,33 @@ import javax.annotation.*;
 
 final class FieldReader extends AnnotatedReader
 {
-   FieldReader(@Nonnull AnnotatedReader br) { super(br); }
+   @Nonnull private final ClassVisitor cv;
+
+   FieldReader(@Nonnull ClassReader cr) {
+      super(cr);
+      cv = cr.cv;
+   }
+
+   @Nonnegative
+   int readFields(@Nonnegative int codeIndex) {
+      int fieldCount = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+      for (int i = fieldCount; i > 0; i--) {
+         codeIndex = readField(codeIndex);
+      }
+
+      return codeIndex;
+   }
 
    /**
     * Reads a field and makes the given visitor visit it.
     *
-    * @param context information about the class being parsed.
-    * @param u       the start offset of the field in the class file.
+    * @param u the start offset of the field in the class file.
     * @return the offset of the first byte following the field in the class.
     */
    @Nonnegative
-   int readField(@Nonnull ClassVisitor cv, @Nonnull Context context, @Nonnegative int u) {
+   private int readField(@Nonnegative int u) {
       // Reads the field declaration.
       char[] c = buf;
       int access = readUnsignedShort(u);
@@ -54,17 +70,18 @@ final class FieldReader extends AnnotatedReader
 
       @SuppressWarnings("ConstantConditions") FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
 
-      if (fv == null) {
-         return u;
+      if (fv != null) {
+         readAnnotations(fv, anns);
+         fv.visitEnd();
       }
 
-      readAnnotations(fv, c, anns);
-      fv.visitEnd();
       return u;
    }
 
-   private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnull char[] c, @Nonnegative int anns) {
+   private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnegative int anns) {
       if (anns != 0) {
+         @Nonnull char[] c = buf;
+
          for (int annotationCount = readUnsignedShort(anns), v = anns + 2; annotationCount > 0; annotationCount--) {
             String desc = readUTF8(v, c);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
