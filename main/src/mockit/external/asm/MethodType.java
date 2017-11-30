@@ -4,6 +4,9 @@ import javax.annotation.*;
 
 final class MethodType extends ReferenceType
 {
+   /**
+    * Returns the Java type corresponding to the given method descriptor.
+    */
    static MethodType create(@Nonnull String methodDescriptor) {
       char[] buf = methodDescriptor.toCharArray();
       return new MethodType(buf, 0, buf.length);

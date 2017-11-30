@@ -211,13 +211,12 @@ public class BaseClassModifier extends WrappingClassVisitor
       }
 
       JavaType elementType = arrayType.getElementType();
-      int elementSort = elementType.getSort();
 
-      if (elementSort == JavaType.Sort.OBJECT) {
-         mw.visitTypeInsn(ANEWARRAY, elementType.getInternalName());
+      if (elementType instanceof ReferenceType) {
+         mw.visitTypeInsn(ANEWARRAY, ((ReferenceType) elementType).getInternalName());
       }
       else {
-         int typeCode = JavaType.getArrayElementType(elementSort);
+         int typeCode = PrimitiveType.getArrayElementType((PrimitiveType) elementType);
          mw.visitIntInsn(NEWARRAY, typeCode);
       }
    }

@@ -150,7 +150,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the internal name of the class (see {@link JavaType#getInternalName()}).
+    * Returns the internal name of the class.
     *
     * @return the internal class name
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
@@ -160,7 +160,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the internal of name of the super class (see {@link JavaType#getInternalName()}).
+    * Returns the internal of name of the super class.
     * For interfaces, the super class is {@link Object}.
     *
     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
@@ -172,7 +172,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the internal names of the class's interfaces (see {@link JavaType#getInternalName()}).
+    * Returns the internal names of the class's interfaces.
     *
     * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
     * @see ClassVisitor#visit(int, int, String, String, String, String[])

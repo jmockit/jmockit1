@@ -65,7 +65,7 @@ public final class ArgumentCapturing
             typeDesc = typeDesc.substring(0, p) + ';';
          }
 
-         JavaType type = JavaType.getType(typeDesc);
+         ReferenceType type = (ReferenceType) JavaType.getType(typeDesc);
          varIndexToTypeDesc.put(varIndex, type.getInternalName());
       }
    }

@@ -413,20 +413,20 @@ final class ConstantPoolGeneration
          return newDouble((Double) cst);
       }
 
+      if (cst instanceof ObjectType) {
+         String classDesc = ((ReferenceType) cst).getInternalName();
+         return newClassItem(classDesc);
+      }
+
       if (cst instanceof JavaType) {
-         JavaType t = (JavaType) cst;
-         int s = t.getSort();
+         String typeDesc = ((JavaType) cst).getDescriptor();
 
-         if (s == JavaType.Sort.OBJECT) {
-            return newClassItem(t.getInternalName());
+         if (cst instanceof MethodType) {
+            return newMethodTypeItem(typeDesc);
          }
 
-         if (s == JavaType.Sort.METHOD) {
-            return newMethodTypeItem(t.getDescriptor());
-         }
-
-         // s == primitive type or array
-         return newClassItem(t.getDescriptor());
+         // Primitive or array type.
+         return newClassItem(typeDesc);
       }
 
       if (cst instanceof Handle) {

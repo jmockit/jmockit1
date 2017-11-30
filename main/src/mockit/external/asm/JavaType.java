@@ -113,22 +113,6 @@ public abstract class JavaType
     */
    @Nonnegative final int len;
 
-   /**
-    * Maps a {@link Sort} to the corresponding {@link ArrayElementType}.
-    */
-   public static int getArrayElementType(int elementSort) {
-      switch (elementSort) {
-         case Sort.BOOLEAN: return ArrayElementType.BOOLEAN;
-         case Sort.CHAR:    return ArrayElementType.CHAR;
-         case Sort.BYTE:    return ArrayElementType.BYTE;
-         case Sort.SHORT:   return ArrayElementType.SHORT;
-         case Sort.INT:     return ArrayElementType.INT;
-         case Sort.FLOAT:   return ArrayElementType.FLOAT;
-         case Sort.LONG:    return ArrayElementType.LONG;
-         default:           return ArrayElementType.DOUBLE;
-      }
-   }
-
    // ------------------------------------------------------------------------
    // Constructors and static factory methods
    // ------------------------------------------------------------------------
@@ -152,23 +136,6 @@ public abstract class JavaType
    @Nonnull
    public static JavaType getType(@Nonnull String typeDescriptor) {
       return getType(typeDescriptor.toCharArray(), 0);
-   }
-
-   /**
-    * Returns the Java type corresponding to the given internal name.
-    */
-   @Nonnull
-   public static JavaType getObjectType(@Nonnull String internalName) {
-      char[] buf = internalName.toCharArray();
-      return buf[0] == '[' ? new ArrayType(buf, 0, buf.length) : new ObjectType(buf, 0, buf.length);
-   }
-
-   /**
-    * Returns the Java type corresponding to the given method descriptor.
-    */
-   @Nonnull
-   public static JavaType getMethodType(@Nonnull String methodDescriptor) {
-      return MethodType.create(methodDescriptor);
    }
 
    /**
@@ -330,16 +297,6 @@ public abstract class JavaType
    @Nonnull
    public abstract String getClassName();
 
-   /**
-    * Returns the internal name of the class corresponding to this object or array type. The internal name of a class is
-    * its fully qualified name (as returned by Class.getName(), where '.' are replaced by '/'.
-    * This method should only be used for an object or array type.
-    *
-    * @return the internal name of the class corresponding to this object type.
-    */
-   @Nonnull
-   public String getInternalName() { throw new UnsupportedOperationException("Not a ReferenceType"); }
-
    // ------------------------------------------------------------------------
    // Conversion to type descriptors
    // ------------------------------------------------------------------------
@@ -349,7 +306,7 @@ public abstract class JavaType
     */
    @Nonnull
    public final String getDescriptor() {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       getDescriptor(buf);
       return buf.toString();
    }
@@ -357,9 +314,9 @@ public abstract class JavaType
    /**
     * Appends the descriptor corresponding to this Java type to the given string buffer.
     *
-    * @param buf the string buffer to which the descriptor must be appended.
+    * @param buf the string builder to which the descriptor must be appended.
     */
-   abstract void getDescriptor(@Nonnull StringBuffer buf);
+   abstract void getDescriptor(@Nonnull StringBuilder buf);
 
    // -------------------------------------------------------------------------------------------------------
    // Direct conversion from classes to type descriptors, and vice-versa, without intermediate JavaType objects
@@ -383,20 +340,18 @@ public abstract class JavaType
     */
    @Nonnull
    public static String getDescriptor(@Nonnull Class<?> aClass) {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       getDescriptor(buf, aClass);
       return buf.toString();
    }
 
    /**
     * Returns the descriptor corresponding to the given constructor.
-    *
-    * @param constructor a {@link Constructor} object.
     */
    @Nonnull
    public static String getConstructorDescriptor(@Nonnull Constructor<?> constructor) {
       Class<?>[] parameters = constructor.getParameterTypes();
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       buf.append('(');
 
       for (Class<?> parameter : parameters) {
@@ -412,7 +367,7 @@ public abstract class JavaType
    @Nonnull
    public static String getMethodDescriptor(@Nonnull Method method) {
       Class<?>[] parameters = method.getParameterTypes();
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       buf.append('(');
 
       for (Class<?> parameter : parameters) {
@@ -425,12 +380,9 @@ public abstract class JavaType
    }
 
    /**
-    * Appends the descriptor of the given class to the given string buffer.
-    *
-    * @param buf the string buffer to which the descriptor must be appended.
-    * @param aClass   the class whose descriptor must be computed.
+    * Appends the descriptor of the given class to the given string builder.
     */
-   private static void getDescriptor(@Nonnull StringBuffer buf, @Nonnull Class<?> aClass) {
+   private static void getDescriptor(@Nonnull StringBuilder buf, @Nonnull Class<?> aClass) {
       Class<?> d = aClass;
 
       while (true) {

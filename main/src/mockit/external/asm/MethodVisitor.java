@@ -138,7 +138,7 @@ public class MethodVisitor extends BaseWriter
     * @param opcode the opcode of the type instruction to be visited. This opcode
     *               is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
     * @param type   the operand of the instruction to be visited. This operand must be the internal name of an object or
-    *               array class (see {@link JavaType#getInternalName()}).
+    *               array class.
     */
    public void visitTypeInsn(int opcode, @Nonnull String type) {}
 
@@ -148,7 +148,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param opcode the opcode of the type instruction to be visited. This opcode
     *               is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-    * @param owner  the internal name of the field's owner class (see {@link JavaType#getInternalName()}).
+    * @param owner  the internal name of the field's owner class.
     * @param name   the field's name.
     * @param desc   the field's descriptor (see {@link JavaType}).
     */
@@ -159,7 +159,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param opcode the opcode of the type instruction to be visited. This opcode is either INVOKEVIRTUAL,
     *               INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-    * @param owner  the internal name of the method's owner class (see {@link JavaType#getInternalName()}).
+    * @param owner  the internal name of the method's owner class.
     * @param name   the method's name.
     * @param desc   the method's descriptor (see {@link JavaType}).
     * @param itf    if the method's owner class is an interface.

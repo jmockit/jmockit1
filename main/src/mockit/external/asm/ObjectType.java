@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class ObjectType extends ReferenceType
+public final class ObjectType extends ReferenceType
 {
    @Nonnull
    static ObjectType create(@Nonnull char[] buf, @Nonnegative int off) {
@@ -27,7 +27,7 @@ final class ObjectType extends ReferenceType
    }
 
    @Override
-   void getDescriptor(@Nonnull StringBuffer buf) {
+   void getDescriptor(@Nonnull StringBuilder buf) {
       buf.append('L');
       super.getDescriptor(buf);
       buf.append(';');

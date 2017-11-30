@@ -49,14 +49,13 @@ public class ClassVisitor extends BaseWriter
     * @param version    the class version.
     * @param access     the class's access flags (see {@link Opcodes}). This parameter also indicates if the class is
     *                   deprecated.
-    * @param name       the internal name of the class (see {@link JavaType#getInternalName()}).
+    * @param name       the internal name of the class.
     * @param signature  the signature of this class. May be <tt>null</tt> if the class is not a generic one, and does
     *                   not extend or implement generic classes or interfaces.
-    * @param superName  the internal of name of the super class (see {@link JavaType#getInternalName()}).
+    * @param superName  the internal of name of the super class.
     *                   For interfaces, the super class is {@link Object}. May be <tt>null</tt>, but only for the
     *                   {@link Object} class.
-    * @param interfaces the internal names of the class's interfaces (see
-    *                   {@link JavaType#getInternalName()}). May be <tt>null</tt>.
+    * @param interfaces the internal names of the class's interfaces.
     */
    public void visit(
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
@@ -93,9 +92,9 @@ public class ClassVisitor extends BaseWriter
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
     *
-    * @param name      the internal name of an inner class (see {@link JavaType#getInternalName()}).
-    * @param outerName the internal name of the class to which the inner class belongs (see
-    *                  {@link JavaType#getInternalName()}). May be <tt>null</tt> for not member classes.
+    * @param name      the internal name of an inner class.
+    * @param outerName the internal name of the class to which the inner class belongs. May be <tt>null</tt> for not
+    *                  member classes.
     * @param innerName the (simple) name of the inner class inside its enclosing class. May be <tt>null</tt> for
     *                  anonymous inner classes.
     * @param access    the access flags of the inner class as originally declared in the enclosing class.
@@ -137,8 +136,7 @@ public class ClassVisitor extends BaseWriter
     * @param desc       the method's descriptor (see {@link JavaType}).
     * @param signature  the method's signature. May be <tt>null</tt> if the method parameters, return type and
     *                   exceptions do not use generic types.
-    * @param exceptions the internal names of the method's exception classes (see
-    *                   {@link JavaType#getInternalName()}). May be <tt>null</tt>.
+    * @param exceptions the internal names of the method's exception classes.
     * @return an object to visit the byte code of the method, or <tt>null</tt> if this class visitor is not interested
     * in visiting the code of this method.
     */

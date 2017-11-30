@@ -20,7 +20,16 @@ public abstract class ReferenceType extends JavaType
       this.off = off;
    }
 
-   static void getDescriptor(@Nonnull StringBuffer buf, @Nonnull Class<?> aClass) {
+   /**
+    * Returns the object or array type corresponding to the given internal name.
+    */
+   @Nonnull
+   public static ReferenceType getObjectType(@Nonnull String internalName) {
+      char[] buf = internalName.toCharArray();
+      return buf[0] == '[' ? new ArrayType(buf, 0, buf.length) : new ObjectType(buf, 0, buf.length);
+   }
+
+   static void getDescriptor(@Nonnull StringBuilder buf, @Nonnull Class<?> aClass) {
       buf.append('L');
 
       String name = aClass.getName();
@@ -35,11 +44,17 @@ public abstract class ReferenceType extends JavaType
    }
 
    @Override
-   void getDescriptor(@Nonnull StringBuffer buf) {
+   void getDescriptor(@Nonnull StringBuilder buf) {
       buf.append(this.buf, off, len);
    }
 
-   @Nonnull @Override
+   /**
+    * Returns the internal name of the class corresponding to this object or array type. The internal name of a class is
+    * its fully qualified name (as returned by Class.getName(), where '.' are replaced by '/'.
+    *
+    * @return the internal name of the class corresponding to this object type.
+    */
+   @Nonnull
    public final String getInternalName() {
       return new String(buf, off, len);
    }

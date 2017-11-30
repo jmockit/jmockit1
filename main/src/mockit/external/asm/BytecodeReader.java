@@ -257,7 +257,7 @@ class BytecodeReader
          case CLASS:
             String typeDesc = readUTF8(startIndex);
             //noinspection ConstantConditions
-            return JavaType.getObjectType(typeDesc);
+            return ReferenceType.getObjectType(typeDesc);
          case STR:
             String string = readUTF8(startIndex);
             //noinspection ConstantConditions
@@ -265,7 +265,7 @@ class BytecodeReader
          case MTYPE:
             String methodDesc = readUTF8(startIndex);
             //noinspection ConstantConditions
-            return JavaType.getMethodType(methodDesc);
+            return MethodType.create(methodDesc);
          default: // case HANDLE_BASE + [1..9]:
             return readHandle(startIndex);
       }

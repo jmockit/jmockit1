@@ -114,10 +114,10 @@ final class Capture
    private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc)
    {
       JavaType parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
-      int sort = parameterType.getSort();
 
-      if (sort == JavaType.Sort.OBJECT || sort == JavaType.Sort.ARRAY) {
-         return typeDesc.equals(parameterType.getInternalName());
+      if (parameterType instanceof ObjectType || parameterType instanceof ArrayType) {
+         String parameterTypeDesc = ((ReferenceType) parameterType).getInternalName();
+         return typeDesc.equals(parameterTypeDesc);
       }
 
       return isPrimitiveWrapper(typeDesc);

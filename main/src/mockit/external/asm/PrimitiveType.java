@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class PrimitiveType extends JavaType
+public final class PrimitiveType extends JavaType
 {
    private static final PrimitiveType VOID_TYPE    = new PrimitiveType(Sort.VOID,    'V', 5, 0, 0);
    private static final PrimitiveType BOOLEAN_TYPE = new PrimitiveType(Sort.BOOLEAN, 'Z', 0, 5, 1);
@@ -37,7 +37,7 @@ final class PrimitiveType extends JavaType
    }
 
    @Nonnull
-   static JavaType getPrimitiveType(@Nonnull Class<?> aClass) {
+   static PrimitiveType getPrimitiveType(@Nonnull Class<?> aClass) {
       if (aClass == Integer.TYPE)   return INT_TYPE;
       if (aClass == Boolean.TYPE)   return BOOLEAN_TYPE;
       if (aClass == Character.TYPE) return CHAR_TYPE;
@@ -93,8 +93,24 @@ final class PrimitiveType extends JavaType
       }
    }
 
+   /**
+    * Maps a {@link Sort} to the corresponding {@link ArrayElementType}.
+    */
+   public static int getArrayElementType(@Nonnull PrimitiveType elementType) {
+      switch (elementType.sort) {
+         case Sort.BOOLEAN: return ArrayElementType.BOOLEAN;
+         case Sort.CHAR:    return ArrayElementType.CHAR;
+         case Sort.BYTE:    return ArrayElementType.BYTE;
+         case Sort.SHORT:   return ArrayElementType.SHORT;
+         case Sort.INT:     return ArrayElementType.INT;
+         case Sort.FLOAT:   return ArrayElementType.FLOAT;
+         case Sort.LONG:    return ArrayElementType.LONG;
+         default:           return ArrayElementType.DOUBLE;
+      }
+   }
+
    @Override
-   void getDescriptor(@Nonnull StringBuffer buf) {
+   void getDescriptor(@Nonnull StringBuilder buf) {
       buf.append(desc);
    }
 

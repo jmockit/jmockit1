@@ -55,13 +55,16 @@ public final class TypeConversion
 
    private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
-      int sort = toType.getSort();
       String typeDesc;
 
-      switch (sort) {
-         case JavaType.Sort.ARRAY: typeDesc = toType.getDescriptor(); break;
-         case JavaType.Sort.OBJECT: typeDesc = toType.getInternalName(); break;
-         default: typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
+      if (toType instanceof ArrayType) {
+         typeDesc = toType.getDescriptor();
+      }
+      else if (toType instanceof ObjectType) {
+         typeDesc = ((ObjectType) toType).getInternalName();
+      }
+      else {
+         typeDesc = PRIMITIVE_WRAPPER_TYPE[toType.getSort()];
       }
 
       mv.visitTypeInsn(CHECKCAST, typeDesc);
@@ -77,11 +80,11 @@ public final class TypeConversion
       int sort = parameterType.getSort();
       String typeDesc;
 
-      if (sort < JavaType.Sort.ARRAY) {
+      if (parameterType instanceof PrimitiveType) {
          typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
       }
       else {
-         typeDesc = parameterType.getInternalName();
+         typeDesc = ((ReferenceType) parameterType).getInternalName();
          int i = PRIMITIVE_WRAPPER_TYPES.indexOf(typeDesc);
 
          if (i >= 0) {
