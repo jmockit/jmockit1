@@ -5,6 +5,8 @@
 package mockit;
 
 import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Indicates a mock field or a mock parameter for which all classes extending/implementing the
@@ -23,9 +25,8 @@ import java.lang.annotation.*;
  *
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#capturing" target="tutorial">Tutorial</a>
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RUNTIME)
+@Target({FIELD, PARAMETER})
 public @interface Capturing
 {
    /**

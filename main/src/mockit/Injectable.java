@@ -5,6 +5,8 @@
 package mockit;
 
 import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Indicates that the value of a mock field or mock parameter will be an isolated {@linkplain Mocked mocked} instance,
@@ -29,8 +31,8 @@ import java.lang.annotation.*;
  * @see #value
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#injectable" target="tutorial">Tutorial</a>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RUNTIME)
+@Target({FIELD, PARAMETER})
 public @interface Injectable
 {
    /**

@@ -5,6 +5,8 @@
 package mockit;
 
 import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Indicates an instance field of a test class as being a <em>mock field</em>, or a parameter of a test method as a
@@ -54,8 +56,8 @@ import java.lang.annotation.*;
  * @see #stubOutClassInitialization
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#mocked" target="tutorial">Tutorial</a>
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RUNTIME)
+@Target({FIELD, PARAMETER})
 public @interface Mocked
 {
    /**
