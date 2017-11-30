@@ -62,6 +62,7 @@
 </head>]]></replacevalue>
       </replace>
       <replace file="${api}/stylesheet.css" token=".subNav {" value=".subNavList { display: none; } .subNav {"/>
+      <fixcrlf srcdir="${api}" includes="**/*.html" eol="lf" eof="remove" preservelastmodified="true"/>
    </target>
 
    <target name="createJar">
