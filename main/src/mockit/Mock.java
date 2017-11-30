@@ -5,6 +5,8 @@
 package mockit;
 
 import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * Used inside a {@linkplain MockUp fake} class to indicate a <em>fake method</em> whose implementation will temporarily
@@ -32,9 +34,8 @@ import java.lang.annotation.*;
  *
  * @see <a href="http://jmockit.org/tutorial/Faking.html#fakes" target="tutorial">Tutorial</a>
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Retention(RUNTIME)
+@Target(METHOD)
 public @interface Mock
 {
 }
