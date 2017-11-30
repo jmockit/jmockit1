@@ -61,6 +61,7 @@
          <replacevalue><![CDATA[<link rel="shortcut icon" type="image/x-icon" href="../../../resources/favicon.ico">
 </head>]]></replacevalue>
       </replace>
+      <replace file="${api}/stylesheet.css" token=".subNav {" value=".subNavList { display: none; } .subNav {"/>
    </target>
 
    <target name="createJar">
