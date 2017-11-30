@@ -127,14 +127,14 @@ public final class Startup
    @Nonnull
    public static Instrumentation instrumentation()
    {
-      verifyInitialization();
       return InstrumentationHolder.get();
    }
 
    public static void verifyInitialization()
    {
-      if (InstrumentationHolder.get() == null) {
-         new AgentLoader().loadAgent(null);
+      if (instrumentation() == null) {
+         throw new IllegalStateException(
+            "JMockit didn't get initialized; please check jmockit.jar precedes junit.jar in the classpath");
       }
    }
 
