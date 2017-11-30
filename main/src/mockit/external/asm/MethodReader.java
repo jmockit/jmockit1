@@ -119,10 +119,9 @@ final class MethodReader extends AnnotatedReader
       int anns = 0;
       int annDefault = 0;
       int paramAnns = 0;
-      char[] c = buf;
 
       for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(u + 2, c);
+         String attrName = readUTF8(u + 2);
 
          if ("Code".equals(attrName)) {
             code = u + 8;
@@ -131,7 +130,7 @@ final class MethodReader extends AnnotatedReader
             exception = readExceptionsInThrowsClause(u);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(u + 8, c);
+            signature = readUTF8(u + 8);
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -159,10 +158,9 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readMethodDeclaration(@Nonnegative int u) {
-      char[] c = buf;
       access = readUnsignedShort(u);
-      name = readUTF8(u + 2, c);
-      desc = readUTF8(u + 4, c);
+      name = readUTF8(u + 2);
+      desc = readUTF8(u + 4);
       return u + 6;
    }
 
@@ -260,7 +258,7 @@ final class MethodReader extends AnnotatedReader
    private void readAnnotationValues(@Nonnegative int anns) {
       if (anns != 0) {
          for (int valueCount = readUnsignedShort(anns), v = anns + 2; valueCount > 0; valueCount--) {
-            String desc = readUTF8(v, buf);
+            String desc = readUTF8(v);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = mv.visitAnnotation(desc);
             v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
@@ -282,7 +280,7 @@ final class MethodReader extends AnnotatedReader
             v += 2;
 
             for (; j > 0; j--) {
-               String desc = readUTF8(v, buf);
+               String desc = readUTF8(v);
                //noinspection ConstantConditions
                av = mv.visitParameterAnnotation(i, desc);
                v = annotationReader.readNamedAnnotationValues(v + 2, av);
@@ -327,7 +325,7 @@ final class MethodReader extends AnnotatedReader
       int varTypeTable = 0;
 
       for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(u + 2, buf);
+         String attrName = readUTF8(u + 2);
 
          if ("LocalVariableTable".equals(attrName)) {
             varTable = readLocalVariableTable(u, varTable);
@@ -444,7 +442,7 @@ final class MethodReader extends AnnotatedReader
          Label start = readLabel(readUnsignedShort(u + 2));
          Label end = readLabel(readUnsignedShort(u + 4));
          Label handler = readLabel(readUnsignedShort(u + 6));
-         String type = readUTF8(items[readUnsignedShort(u + 8)], buf);
+         String type = readUTF8(items[readUnsignedShort(u + 8)]);
 
          mv.visitTryCatchBlock(start, end, handler, type);
          u += 8;
@@ -552,12 +550,12 @@ final class MethodReader extends AnnotatedReader
                u += 3;
                break;
             case LDC_INSN:
-               Object cst = readConst(b[u + 1] & 0xFF, c);
+               Object cst = readConst(b[u + 1] & 0xFF);
                mv.visitLdcInsn(cst);
                u += 2;
                break;
             case LDCW_INSN:
-               Object cstWide = readConst(readUnsignedShort(u + 1), c);
+               Object cstWide = readConst(readUnsignedShort(u + 1));
                mv.visitLdcInsn(cstWide);
                u += 3;
                break;
@@ -695,8 +693,8 @@ final class MethodReader extends AnnotatedReader
       @Nonnull char[] c = buf;
       String owner = readClass(cpIndex1);
       int cpIndex2 = items[readUnsignedShort(cpIndex1 + 2)];
-      String name = readUTF8(cpIndex2, c);
-      String desc = readUTF8(cpIndex2 + 2, c);
+      String name = readUTF8(cpIndex2);
+      String desc = readUTF8(cpIndex2 + 2);
 
       if (opcode < INVOKEVIRTUAL) {
          //noinspection ConstantConditions
@@ -710,7 +708,6 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLocalVariableTables(@Nonnegative int varTable, @Nonnegative int varTypeTable) {
-      char[] c = buf;
       int[] typeTable = null;
       int u;
 
@@ -737,14 +734,14 @@ final class MethodReader extends AnnotatedReader
          if (typeTable != null) {
             for (int j = 0; j < typeTable.length; j += 3) {
                if (typeTable[j] == start && typeTable[j + 1] == index) {
-                  signature = readUTF8(typeTable[j + 2], c);
+                  signature = readUTF8(typeTable[j + 2]);
                   break;
                }
             }
          }
 
-         String name = readUTF8(u + 4, c);
-         String desc = readUTF8(u + 6, c);
+         String name = readUTF8(u + 4);
+         String desc = readUTF8(u + 6);
          Label startLabel = labels[start];
          Label endLabel = labels[start + length];
          u += 10;
@@ -760,19 +757,19 @@ final class MethodReader extends AnnotatedReader
       int bsmStartIndex = readUnsignedShort(cpIndex);
       @SuppressWarnings("ConstantConditions") int bsmIndex = bootstrapMethods[bsmStartIndex];
       char[] c = buf;
-      Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex), c);
+      Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex));
       int bsmArgCount = readUnsignedShort(bsmIndex + 2);
       Object[] bsmArgs = new Object[bsmArgCount];
       bsmIndex += 4;
 
       for (int i = 0; i < bsmArgCount; i++) {
-         bsmArgs[i] = readConst(readUnsignedShort(bsmIndex), c);
+         bsmArgs[i] = readConst(readUnsignedShort(bsmIndex));
          bsmIndex += 2;
       }
 
       cpIndex = items[readUnsignedShort(cpIndex + 2)];
-      String name = readUTF8(cpIndex, c);
-      String desc = readUTF8(cpIndex + 2, c);
+      String name = readUTF8(cpIndex);
+      String desc = readUTF8(cpIndex + 2);
 
       //noinspection ConstantConditions
       mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);

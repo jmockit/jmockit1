@@ -42,7 +42,7 @@ final class AnnotationReader extends BytecodeReader
          String name = null;
 
          if (named) {
-            name = readUTF8(v, buf);
+            name = readUTF8(v);
             v += 2;
          }
 
@@ -90,7 +90,7 @@ final class AnnotationReader extends BytecodeReader
          case 'J': // pointer to CONSTANT_Long
          case 'F': // pointer to CONSTANT_Float
          case 'D': // pointer to CONSTANT_Double
-            value = readConst(readUnsignedShort(v), buf);
+            value = readConst(readUnsignedShort(v));
             av.visit(name, value);
             v += 2;
             break;
@@ -115,7 +115,7 @@ final class AnnotationReader extends BytecodeReader
             v += 2;
             break;
          case 's': // pointer to CONSTANT_Utf8
-            value = readUTF8(v, buf);
+            value = readUTF8(v);
             //noinspection ConstantConditions
             av.visit(name, value);
             v += 2;
@@ -154,8 +154,8 @@ final class AnnotationReader extends BytecodeReader
 
    @Nonnegative
    private int readEnumConstValue(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String enumDesc = readUTF8(v, buf);
-      String enumValue = readUTF8(v + 2, buf);
+      String enumDesc = readUTF8(v);
+      String enumValue = readUTF8(v + 2);
 
       //noinspection ConstantConditions
       av.visitEnum(name, enumDesc, enumValue);
@@ -165,7 +165,7 @@ final class AnnotationReader extends BytecodeReader
 
    @Nonnegative
    private int readClassInfo(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String typeDesc = readUTF8(v, buf);
+      String typeDesc = readUTF8(v);
       @SuppressWarnings("ConstantConditions") Object value = JavaType.getType(typeDesc);
 
       //noinspection ConstantConditions
@@ -176,7 +176,7 @@ final class AnnotationReader extends BytecodeReader
 
    @Nonnegative
    private int readAnnotationValue2(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String desc = readUTF8(v, buf);
+      String desc = readUTF8(v);
       //noinspection ConstantConditions
       AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
 

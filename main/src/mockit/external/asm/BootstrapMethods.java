@@ -144,7 +144,7 @@ final class BootstrapMethods
       boolean found = false;
 
       for (int i = cr.readUnsignedShort(u); i > 0; i--) {
-         String attrName = cr.readUTF8(u + 2, c);
+         String attrName = cr.readUTF8(u + 2);
 
          if ("BootstrapMethods".equals(attrName)) {
             found = true;
@@ -163,10 +163,10 @@ final class BootstrapMethods
 
       for (int j = 0, v = u + 10; j < bootstrapMethodsCount; j++) {
          int position = v - u - 10;
-         int hashCode = cr.readConst(cr.readUnsignedShort(v), c).hashCode();
+         int hashCode = cr.readConst(cr.readUnsignedShort(v)).hashCode();
 
          for (int k = cr.readUnsignedShort(v + 2); k > 0; k--) {
-            hashCode ^= cr.readConst(cr.readUnsignedShort(v + 4), c).hashCode();
+            hashCode ^= cr.readConst(cr.readUnsignedShort(v + 4)).hashCode();
             v += 2;
          }
 

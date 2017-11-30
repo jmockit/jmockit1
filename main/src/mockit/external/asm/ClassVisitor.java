@@ -66,10 +66,8 @@ public class ClassVisitor extends BaseWriter
     * Visits the source of the class.
     *
     * @param source the name of the source file from which the class was compiled. May be <tt>null</tt>.
-    * @param debug  additional debug information to compute the correspondence between source and compiled elements of
-    *               the class. May be <tt>null</tt>.
     */
-   public void visitSource(@Nullable String source, @Nullable String debug) {}
+   public void visitSource(@Nullable String source) {}
 
    /**
     * Visits the enclosing class of the class. This method must be called only if the class has an enclosing class.

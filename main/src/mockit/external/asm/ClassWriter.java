@@ -165,8 +165,8 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visitSource(@Nullable String file, @Nullable String debug) {
-      sourceInfo.add(file, debug);
+   public void visitSource(@Nullable String file) {
+      sourceInfo.add(file);
    }
 
    @Override

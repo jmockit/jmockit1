@@ -28,8 +28,8 @@ public class WrappingClassVisitor extends ClassVisitor
    }
 
    @Override
-   public void visitSource(@Nullable String source, @Nullable String debug) {
-      cw.visitSource(source, debug);
+   public void visitSource(@Nullable String source) {
+      cw.visitSource(source);
    }
 
    @Override

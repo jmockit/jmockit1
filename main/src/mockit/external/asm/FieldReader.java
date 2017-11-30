@@ -32,10 +32,9 @@ final class FieldReader extends AnnotatedReader
    @Nonnegative
    private int readField(@Nonnegative int u) {
       // Reads the field declaration.
-      char[] c = buf;
       int access = readUnsignedShort(u);
-      String name = readUTF8(u + 2, c);
-      String desc = readUTF8(u + 4, c);
+      String name = readUTF8(u + 2);
+      String desc = readUTF8(u + 4);
       u += 6;
 
       // Reads the field attributes.
@@ -44,14 +43,14 @@ final class FieldReader extends AnnotatedReader
       Object value = null;
 
       for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(u + 2, c);
+         String attrName = readUTF8(u + 2);
 
          if ("ConstantValue".equals(attrName)) {
             int item = readUnsignedShort(u + 8);
-            value = item == 0 ? null : readConst(item, c);
+            value = item == 0 ? null : readConst(item);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(u + 8, c);
+            signature = readUTF8(u + 8);
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -81,7 +80,7 @@ final class FieldReader extends AnnotatedReader
    private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnegative int anns) {
       if (anns != 0) {
          for (int annotationCount = readUnsignedShort(anns), v = anns + 2; annotationCount > 0; annotationCount--) {
-            String desc = readUTF8(v, buf);
+            String desc = readUTF8(v);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
             v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }

@@ -72,7 +72,6 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String signature;
    @Nullable private String sourceFile;
-   @Nullable private String sourceDebug;
    @Nullable private EnclosingMethod enclosingMethod;
 
    /**
@@ -218,8 +217,8 @@ public final class ClassReader extends AnnotatedReader
             case IMETH:
                int nameType = items[readUnsignedShort(index + 2)];
                String classDesc = readClass(index);
-               String methodName = readUTF8(nameType, buf);
-               String methodDesc = readUTF8(nameType + 2, buf);
+               String methodName = readUTF8(nameType);
+               String methodDesc = readUTF8(nameType + 2);
                //noinspection ConstantConditions
                item.set(tag, classDesc, methodName, methodDesc);
                break;
@@ -230,8 +229,8 @@ public final class ClassReader extends AnnotatedReader
                item.set(Float.intBitsToFloat(readInt(index)));
                break;
             case NAME_TYPE:
-               String name = readUTF8(index, buf);
-               String type = readUTF8(index + 2, buf);
+               String name = readUTF8(index);
+               String type = readUTF8(index + 2);
                //noinspection ConstantConditions
                item.set(tag, name, type, null);
                break;
@@ -254,7 +253,7 @@ public final class ClassReader extends AnnotatedReader
                break;
             // case STR|CLASS|MTYPE:
             default:
-               String string = readUTF8(index, buf);
+               String string = readUTF8(index);
                //noinspection ConstantConditions
                item.set(tag, string, null, null);
                break;
@@ -274,7 +273,7 @@ public final class ClassReader extends AnnotatedReader
 
       if (s == null) {
          int index = items[i];
-         s = strings[i] = readUTF(index + 2, readUnsignedShort(index), buf);
+         s = strings[i] = readUTF(index + 2, readUnsignedShort(index));
       }
 
       item.set(tag, s, null, null);
@@ -286,8 +285,8 @@ public final class ClassReader extends AnnotatedReader
 
       int type = HANDLE_BASE + readByte(index);
       String classDesc = readClass(fieldOrMethodRef);
-      String name = readUTF8(nameType, buf);
-      String desc = readUTF8(nameType + 2, buf);
+      String name = readUTF8(nameType);
+      String desc = readUTF8(nameType + 2);
 
       //noinspection ConstantConditions
       item.set(type, classDesc, name, desc);
@@ -299,8 +298,8 @@ public final class ClassReader extends AnnotatedReader
       bootstrapMethods.copyBootstrapMethods(this, items2);
 
       int nameType = items[readUnsignedShort(index + 2)];
-      String name = readUTF8(nameType, buf);
-      String desc = readUTF8(nameType + 2, buf);
+      String name = readUTF8(nameType);
+      String desc = readUTF8(nameType + 2);
       int bsmIndex = readUnsignedShort(index);
 
       //noinspection ConstantConditions
@@ -326,7 +325,6 @@ public final class ClassReader extends AnnotatedReader
 
       readCode = (flags & SKIP_CODE) == 0;
       readDebugInfo = (flags & SKIP_DEBUG) == 0;
-      char[] c = buf;
 
       readClassDeclaration();
       readInterfaces();
@@ -334,18 +332,17 @@ public final class ClassReader extends AnnotatedReader
       // Reads the class attributes.
       signature = null;
       sourceFile = null;
-      sourceDebug = null;
       enclosingMethod = null;
       int annotations = 0;
       int innerClasses = 0;
 
       int u = getAttributesStartIndex();
 
-      for (int i = readUnsignedShort(u); i > 0; i--) {
-         String attrName = readUTF8(u + 2, c);
+      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
+         String attrName = readUTF8(u + 2);
 
          if ("SourceFile".equals(attrName)) {
-            sourceFile = readUTF8(u + 8, c);
+            sourceFile = readUTF8(u + 8);
          }
          else if ("InnerClasses".equals(attrName)) {
             innerClasses = u + 8;
@@ -354,7 +351,7 @@ public final class ClassReader extends AnnotatedReader
             enclosingMethod = new EnclosingMethod(this, u);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(u + 8, c);
+            signature = readUTF8(u + 8);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             annotations = u + 8;
@@ -365,10 +362,6 @@ public final class ClassReader extends AnnotatedReader
          else if ("Synthetic".equals(attrName)) {
             access = Access.asSynthetic(access);
          }
-         else if ("SourceDebugExtension".equals(attrName)) {
-            int len = readInt(u + 4);
-            sourceDebug = readUTF(u + 8, len, new char[len]);
-         }
          else if ("BootstrapMethods".equals(attrName)) {
             readBootstrapMethods(u);
          }
@@ -377,7 +370,7 @@ public final class ClassReader extends AnnotatedReader
       }
 
       readClass();
-      readSourceAndDebugInfo();
+      readSourceFileName();
       readOuterClass();
       readAnnotations(annotations);
       readInnerClasses(innerClasses);
@@ -424,9 +417,9 @@ public final class ClassReader extends AnnotatedReader
       cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
-   private void readSourceAndDebugInfo() {
-      if (readDebugInfo && (sourceFile != null || sourceDebug != null)) {
-         cv.visitSource(sourceFile, sourceDebug);
+   private void readSourceFileName() {
+      if (readDebugInfo && (sourceFile != null)) {
+         cv.visitSource(sourceFile);
       }
    }
 
@@ -439,7 +432,7 @@ public final class ClassReader extends AnnotatedReader
    private void readAnnotations(@Nonnegative int annotations) {
       if (annotations != 0) {
          for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
-            String desc = readUTF8(v, buf);
+            String desc = readUTF8(v);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = cv.visitAnnotation(desc);
             v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
@@ -453,7 +446,7 @@ public final class ClassReader extends AnnotatedReader
          for (int i = readUnsignedShort(innerClasses); i > 0; i--) {
             String name = readClass(v);
             String outerName = readClass(v + 2);
-            String innerName = readUTF8(v + 4, buf);
+            String innerName = readUTF8(v + 4);
             int access = readUnsignedShort(v + 6);
 
             //noinspection ConstantConditions

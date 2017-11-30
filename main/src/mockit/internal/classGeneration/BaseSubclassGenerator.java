@@ -70,7 +70,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
    public final void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    @Override
-   public final void visitSource(@Nullable String source, @Nullable String debug) {}
+   public final void visitSource(@Nullable String source) {}
 
    @Override @Nullable
    public final FieldVisitor visitField(

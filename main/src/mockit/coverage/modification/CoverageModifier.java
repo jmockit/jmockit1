@@ -135,7 +135,7 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    @Override
-   public void visitSource(@Nullable String file, @Nullable String debug)
+   public void visitSource(@Nullable String file)
    {
       if (file == null || !file.endsWith(".java")) {
          throw VisitInterruptedException.INSTANCE;
@@ -150,7 +150,7 @@ final class CoverageModifier extends WrappingClassVisitor
          fileData = CoverageData.instance().getOrAddFile(sourceFileName, kindOfTopLevelType);
       }
 
-      cw.visitSource(file, debug);
+      cw.visitSource(file);
    }
 
    @Override
