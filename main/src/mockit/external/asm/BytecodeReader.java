@@ -23,7 +23,7 @@ class BytecodeReader
     * strategy could be extended to all constant pool items, but its benefit would not be so great for these items
     * (because they are much less expensive to parse than CONSTANT_Utf8 items).
     */
-   @Nonnull final String[] strings;
+   @Nonnull private final String[] strings;
 
    /**
     * The buffer used to read strings.
@@ -67,11 +67,7 @@ class BytecodeReader
                break;
             case UTF8:
                size = 3 + readUnsignedShort(index + 1);
-
-               if (size > maxSize) {
-                  maxSize = size;
-               }
-
+               if (size > maxSize) maxSize = size;
                break;
             case HANDLE:
                size = 4;
@@ -79,7 +75,6 @@ class BytecodeReader
             // case CLASS|STR|MTYPE
             default:
                size = 3;
-               break;
          }
 
          index += size;
@@ -94,7 +89,7 @@ class BytecodeReader
       items = another.items;
       strings = another.strings;
       buf = another.buf;
-      header = another.header;
+      header = 0;
    }
 
    /**
@@ -307,5 +302,16 @@ class BytecodeReader
       int itemIndex = readUnsignedShort(index);
       String classDesc = readUTF8(items[itemIndex]);
       return classDesc;
+   }
+
+   final void copyUTF8Item(@Nonnegative int i, int tag, @Nonnull Item item) {
+      String s = strings[i];
+
+      if (s == null) {
+         int index = items[i];
+         s = strings[i] = readUTF(index + 2, readUnsignedShort(index));
+      }
+
+      item.set(tag, s, null, null);
    }
 }

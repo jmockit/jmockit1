@@ -268,17 +268,6 @@ public final class ClassReader extends AnnotatedReader
       cw.cp.copy(code, off, header, items2);
    }
 
-   private void copyUTF8Item(@Nonnegative int i, int tag, @Nonnull Item item) {
-      String s = strings[i];
-
-      if (s == null) {
-         int index = items[i];
-         s = strings[i] = readUTF(index + 2, readUnsignedShort(index));
-      }
-
-      item.set(tag, s, null, null);
-   }
-
    private void copyHandleItem(@Nonnegative int index, @Nonnull Item item) {
       int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
       int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
