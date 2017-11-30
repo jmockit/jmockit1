@@ -5,141 +5,41 @@
 package mockit.internal.startup;
 
 import java.lang.instrument.*;
-import java.lang.reflect.*;
 import java.util.*;
 import java.util.jar.*;
+import javax.annotation.*;
 
 public final class InstrumentationHolder implements Instrumentation
 {
    public static Instrumentation inst;
    private static InstrumentationHolder wrappedInst;
    public static String hostJREClassName;
+   @Nonnull private final List<ClassFileTransformer> transformers;
 
    @SuppressWarnings("unused")
-   public static void agentmain(String agentArgs, Instrumentation instrumentation)
+   public static void agentmain(String agentArgs, @Nonnull Instrumentation instrumentation)
    {
       set(instrumentation, null);
    }
 
-   static void setHostJREClassName(String className)
-   {
-      hostJREClassName = className;
+   static void setHostJREClassName(String className) { hostJREClassName = className; }
 
-      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
-
-      if (regularHolderClass != null) {
-         try {
-            Field field = getField(regularHolderClass, "hostJREClassName");
-            field.set(null, className);
-         }
-         catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      }
-   }
-
-   private static Field getField(Class<?> aClass, String fieldName)
-   {
-      try { return aClass.getDeclaredField(fieldName); }
-      catch (NoSuchFieldException e) { throw new RuntimeException(e); }
-   }
-
-   public static InstrumentationHolder get()
-   {
-      if (inst == null) {
-         recoverInstrumentationFromHolderClassInSystemClassLoaderIfAvailable();
-      }
-
-      return wrappedInst;
-   }
-
-   private static void recoverInstrumentationFromHolderClassInSystemClassLoaderIfAvailable()
-   {
-      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
-
-      if (regularHolderClass != null) {
-         inst = readStaticField(regularHolderClass, "inst");
-
-         if (inst != null) {
-            hostJREClassName = readStaticField(regularHolderClass, "hostJREClassName");
-            invokeClearTransformersFromSystemCL(regularHolderClass);
-            wrappedInst = new InstrumentationHolder();
-         }
-      }
-   }
-
-   private static Class<?> getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader()
-   {
-      ClassLoader systemCL = ClassLoader.getSystemClassLoader();
-
-      if (InstrumentationHolder.class.getClassLoader() == systemCL) {
-         return null;
-      }
-
-      throw new UnsupportedOperationException("Attempted to redefine class loaded from custom class loader");
-//      try { return Class.forName(InstrumentationHolder.class.getName(), true, systemCL); }
-//      catch (ClassNotFoundException e) { return null; }
-   }
-
-   private static <T> T readStaticField(Class<?> aClass, String fieldName)
-   {
-      Field field = getField(aClass, fieldName);
-
-      try {
-         @SuppressWarnings("unchecked") T value = (T) field.get(null);
-         return value;
-      }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-   }
-
-   private static void invokeClearTransformersFromSystemCL(Class<?> regularHolderClass)
-   {
-      try {
-         Method method = regularHolderClass.getDeclaredMethod("clearTransformers");
-         method.invoke(null);
-      }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
-   }
-
-   public static void clearTransformers()
-   {
-      for (ClassFileTransformer transformer : transformers) {
-         inst.removeTransformer(transformer);
-      }
-
-      transformers.clear();
-   }
+   static InstrumentationHolder get() { return wrappedInst; }
 
    boolean wasRecreated() { return transformers.isEmpty(); }
 
-   static Instrumentation set(Instrumentation instrumentation, String hostJREClassName)
+   static Instrumentation set(@Nonnull Instrumentation instrumentation, @Nullable String hostJREClassName)
    {
-      if (wrappedInst != null) {
-         clearTransformers();
-      }
-
       inst = instrumentation;
-      wrappedInst = instrumentation == null ? null : new InstrumentationHolder();
+      wrappedInst = new InstrumentationHolder();
       InstrumentationHolder.hostJREClassName = hostJREClassName;
       return wrappedInst;
    }
 
-   public static List<ClassFileTransformer> transformers;
-
-   private InstrumentationHolder()
-   {
-      Class<?> regularHolderClass = getHolderClassFromSystemClassLoaderIfThisIsCustomClassLoader();
-
-      if (regularHolderClass == null) {
-         transformers = new ArrayList<ClassFileTransformer>();
-      }
-      else {
-         transformers = readStaticField(regularHolderClass, "transformers");
-      }
-   }
+   private InstrumentationHolder() { transformers = new ArrayList<ClassFileTransformer>(); }
 
    @Override
-   public void addTransformer(ClassFileTransformer transformer, boolean canRetransform)
+   public void addTransformer(@Nonnull ClassFileTransformer transformer, boolean canRetransform)
    {
       removePreviouslyAddedTransformersOfSameType(transformer);
       inst.addTransformer(transformer, canRetransform);
@@ -147,14 +47,14 @@ public final class InstrumentationHolder implements Instrumentation
    }
 
    @Override
-   public void addTransformer(ClassFileTransformer transformer)
+   public void addTransformer(@Nonnull ClassFileTransformer transformer)
    {
       removePreviouslyAddedTransformersOfSameType(transformer);
       inst.addTransformer(transformer);
       transformers.add(transformer);
    }
 
-   private void removePreviouslyAddedTransformersOfSameType(ClassFileTransformer transformer)
+   private void removePreviouslyAddedTransformersOfSameType(@Nonnull ClassFileTransformer transformer)
    {
       Class<?> transformerClass = transformer.getClass();
       ClassLoader transformerCL = transformerClass.getClassLoader();
@@ -175,7 +75,7 @@ public final class InstrumentationHolder implements Instrumentation
    }
 
    @Override
-   public boolean removeTransformer(ClassFileTransformer transformer)
+   public boolean removeTransformer(@Nonnull ClassFileTransformer transformer)
    {
       transformers.remove(transformer);
       return inst.removeTransformer(transformer);
