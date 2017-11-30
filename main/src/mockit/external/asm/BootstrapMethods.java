@@ -140,7 +140,6 @@ final class BootstrapMethods
    void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items) {
       // Finds the "BootstrapMethods" attribute.
       int u = cr.getAttributesStartIndex();
-      char[] c = cr.buf;
       boolean found = false;
 
       for (int i = cr.readUnsignedShort(u); i > 0; i--) {

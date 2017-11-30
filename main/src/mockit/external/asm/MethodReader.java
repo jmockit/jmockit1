@@ -495,7 +495,6 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readBytecodeInstructionsInCodeBlock(@Nonnegative int codeStart, @Nonnegative int codeEnd) {
-      char[] c = buf;
       byte[] b = code;
       int u = codeStart;
 
@@ -690,7 +689,6 @@ final class MethodReader extends AnnotatedReader
 
    private void readFieldOrInvokeInstruction(@Nonnegative int u, int opcode) {
       int cpIndex1 = items[readUnsignedShort(u + 1)];
-      @Nonnull char[] c = buf;
       String owner = readClass(cpIndex1);
       int cpIndex2 = items[readUnsignedShort(cpIndex1 + 2)];
       String name = readUTF8(cpIndex2);
@@ -756,7 +754,6 @@ final class MethodReader extends AnnotatedReader
       int cpIndex = items[readUnsignedShort(u + 1)];
       int bsmStartIndex = readUnsignedShort(cpIndex);
       @SuppressWarnings("ConstantConditions") int bsmIndex = bootstrapMethods[bsmStartIndex];
-      char[] c = buf;
       Handle bsm = (Handle) readConst(readUnsignedShort(bsmIndex));
       int bsmArgCount = readUnsignedShort(bsmIndex + 2);
       Object[] bsmArgs = new Object[bsmArgCount];

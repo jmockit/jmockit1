@@ -26,14 +26,9 @@ class BytecodeReader
    @Nonnull final String[] strings;
 
    /**
-    * Maximum length of the strings contained in the constant pool of the class.
-    */
-   @Nonnegative final int maxStringLength;
-
-   /**
     * The buffer used to read strings.
     */
-   @Nonnull final char[] buf;
+   @Nonnull private final char[] buf;
 
    /**
     * Start index of the class header information (access, name...) in {@link #code}.
@@ -90,7 +85,6 @@ class BytecodeReader
          index += size;
       }
 
-      maxStringLength = maxSize;
       buf = new char[maxSize];
       header = index; // the class header information starts just after the constant pool
    }
@@ -99,7 +93,6 @@ class BytecodeReader
       code = another.code;
       items = another.items;
       strings = another.strings;
-      maxStringLength = another.maxStringLength;
       buf = another.buf;
       header = another.header;
    }
