@@ -14,7 +14,6 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.faking.*;
-import mockit.internal.startup.*;
 import mockit.internal.util.*;
 
 public abstract class ClassLoadingBridge implements InvocationHandler
@@ -22,6 +21,8 @@ public abstract class ClassLoadingBridge implements InvocationHandler
    private static final Object[] EMPTY_ARGS = {};
    private static final ReentrantLock LOCK = new ReentrantLock();
    private static boolean fieldsSet;
+   public static String hostJREClassName;
+
    public final String id;
 
    /**
@@ -97,12 +98,12 @@ public abstract class ClassLoadingBridge implements InvocationHandler
          fieldsSet = true;
       }
 
-      return InstrumentationHolder.hostJREClassName;
+      return hostJREClassName;
    }
 
    private static void setBridgeFields()
    {
-      Class<?> hostClass = ClassLoad.loadByInternalName(InstrumentationHolder.hostJREClassName);
+      Class<?> hostClass = ClassLoad.loadByInternalName(hostJREClassName);
       setBridgeField(hostClass, MockedBridge.MB);
       setBridgeField(hostClass, FakeBridge.MB);
       setBridgeField(hostClass, FakeMethodBridge.MB);

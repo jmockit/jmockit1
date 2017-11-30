@@ -13,26 +13,22 @@ public final class InstrumentationHolder implements Instrumentation
 {
    public static Instrumentation inst;
    private static InstrumentationHolder wrappedInst;
-   public static String hostJREClassName;
    @Nonnull private final List<ClassFileTransformer> transformers;
 
    @SuppressWarnings("unused")
    public static void agentmain(String agentArgs, @Nonnull Instrumentation instrumentation)
    {
-      set(instrumentation, null);
+      set(instrumentation);
    }
-
-   static void setHostJREClassName(String className) { hostJREClassName = className; }
 
    static InstrumentationHolder get() { return wrappedInst; }
 
    boolean wasRecreated() { return transformers.isEmpty(); }
 
-   static Instrumentation set(@Nonnull Instrumentation instrumentation, @Nullable String hostJREClassName)
+   static Instrumentation set(@Nonnull Instrumentation instrumentation)
    {
       inst = instrumentation;
       wrappedInst = new InstrumentationHolder();
-      InstrumentationHolder.hostJREClassName = hostJREClassName;
       return wrappedInst;
    }
 

@@ -18,14 +18,10 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
 /**
  * This is the "agent class" that initializes the JMockit "Java agent". It is not intended for use in client code.
  * <p/>
- * There are several possible initialization scenarios:
+ * There are two possible initialization scenarios:
  * <ol>
- *    <li>Execution with <tt>-javaagent:jmockit-1-x.jar</tt> and without reloading in a custom class loader.</li>
- *    <li>Execution from system CL without <tt>-javaagent</tt> and without reloading in custom CL.</li>
- *    <li>Execution with <tt>-javaagent</tt> and with reloading in custom CL.</li>
- *    <li>Execution from system CL without <tt>-javaagent</tt> and with reloading in custom CL.</li>
- *    <li>Execution from custom CL without <tt>-javaagent</tt> and without reloading in another custom CL.</li>
- *    <li>Execution from custom CL without <tt>-javaagent</tt> and with reloading in another custom CL.</li>
+ *    <li>Execution with <tt>-javaagent:jmockit-1-x.jar</tt>.</li>
+ *    <li>Execution without <tt>-javaagent</tt>, by self-attaching with the Attach API.</li>
  * </ol>
  *
  * @see #premain(String, Instrumentation)
@@ -50,8 +46,8 @@ public final class Startup
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         String hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-         Instrumentation wrappedInst = InstrumentationHolder.set(inst, hostJREClassName);
+         createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+         Instrumentation wrappedInst = InstrumentationHolder.set(inst);
          initialize(wrappedInst);
       }
    }
@@ -84,7 +80,6 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   @SuppressWarnings({"unused", "WeakerAccess"})
    public static void agentmain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
    {
       if (!inst.isRedefineClassesSupported()) {
@@ -92,13 +87,8 @@ public final class Startup
             "This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
-      String hostJREClassName = InstrumentationHolder.hostJREClassName;
-
-      if (hostJREClassName == null) {
-         hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-      }
-
-      InstrumentationHolder.set(inst, hostJREClassName);
+      createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+      InstrumentationHolder.set(inst);
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
@@ -146,12 +136,7 @@ public final class Startup
          try {
             new AgentLoader().loadAgent(null);
             Instrumentation inst = InstrumentationHolder.get();
-
-            if (InstrumentationHolder.hostJREClassName == null) {
-               String hostJREClassName = createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-               InstrumentationHolder.setHostJREClassName(hostJREClassName);
-            }
-
+            createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
             initialize(inst);
             return true;
          }

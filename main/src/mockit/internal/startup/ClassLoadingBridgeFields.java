@@ -18,20 +18,27 @@ final class ClassLoadingBridgeFields
 {
    private ClassLoadingBridgeFields() {}
 
-   @Nonnull
-   static String createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation)
+   static void createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation)
    {
+      String hostClassName = ClassLoadingBridge.hostJREClassName;
+
+      if (hostClassName != null) {
+         return;
+      }
+
       FieldAdditionTransformer fieldAdditionTransformer = new FieldAdditionTransformer(instrumentation);
       instrumentation.addTransformer(fieldAdditionTransformer);
 
       // Loads some JRE classes expected to not be loaded yet.
       NegativeArraySizeException.class.getName();
+      hostClassName = fieldAdditionTransformer.hostClassName;
 
-      if (fieldAdditionTransformer.hostClassName == null) {
+      if (hostClassName == null) {
          Provider.class.getName();
+         hostClassName = fieldAdditionTransformer.hostClassName;
       }
 
-      return fieldAdditionTransformer.hostClassName;
+      ClassLoadingBridge.hostJREClassName = hostClassName;
    }
 
    private static final class FieldAdditionTransformer implements ClassFileTransformer
