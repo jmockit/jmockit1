@@ -34,7 +34,15 @@ public final class AgentLoader
          throw new IllegalStateException("JMockit requires a Java 6+ VM");
       }
 
-      jarFilePath = PathToAgentJar.getPathToJarFile();
+      String currentPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+
+      if (!currentPath.endsWith(".jar")) {
+         int p = currentPath.lastIndexOf("/main/target/classes");
+         currentPath = currentPath.substring(0, p);
+         currentPath = new File(currentPath, "jmockit.jar").getPath();
+      }
+
+      jarFilePath = currentPath;
    }
 
    public AgentLoader(@Nonnull String pid)

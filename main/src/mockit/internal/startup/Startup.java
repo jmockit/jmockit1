@@ -30,6 +30,7 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
 public final class Startup
 {
    public static boolean initializing;
+   @Nullable private static Instrumentation inst;
 
    private Startup() {}
 
@@ -47,8 +48,8 @@ public final class Startup
    {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
          createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-         Instrumentation wrappedInst = InstrumentationHolder.set(inst);
-         initialize(wrappedInst);
+         Startup.inst = inst;
+         initialize(inst);
       }
    }
 
@@ -88,7 +89,7 @@ public final class Startup
       }
 
       createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-      InstrumentationHolder.set(inst);
+      Startup.inst = inst;
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
@@ -114,15 +115,12 @@ public final class Startup
       return false;
    }
 
-   @Nonnull
-   public static Instrumentation instrumentation()
-   {
-      return InstrumentationHolder.get();
-   }
+   @Nonnull @SuppressWarnings("ConstantConditions")
+   public static Instrumentation instrumentation() { return inst; }
 
    public static void verifyInitialization()
    {
-      if (instrumentation() == null) {
+      if (inst == null) {
          throw new IllegalStateException(
             "JMockit didn't get initialized; please check jmockit.jar precedes junit.jar in the classpath");
       }
@@ -130,12 +128,9 @@ public final class Startup
 
    public static boolean initializeIfPossible()
    {
-      InstrumentationHolder wrappedInst = InstrumentationHolder.get();
-
-      if (wrappedInst == null) {
+      if (inst == null) {
          try {
             new AgentLoader().loadAgent(null);
-            Instrumentation inst = InstrumentationHolder.get();
             createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
             initialize(inst);
             return true;
@@ -149,16 +144,13 @@ public final class Startup
          return false;
       }
 
-      if (wrappedInst.wasRecreated()) {
-         initialize(wrappedInst);
-      }
-
       return true;
    }
 
+   @SuppressWarnings("ConstantConditions")
    public static void retransformClass(@Nonnull Class<?> aClass)
    {
-      try { instrumentation().retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
+      try { inst.retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
    }
 
    public static void redefineMethods(@Nonnull ClassIdentification classToRedefine, @Nonnull byte[] modifiedClassfile)
@@ -175,7 +167,8 @@ public final class Startup
    public static void redefineMethods(@Nonnull ClassDefinition... classDefs)
    {
       try {
-         instrumentation().redefineClasses(classDefs);
+         //noinspection ConstantConditions
+         inst.redefineClasses(classDefs);
       }
       catch (ClassNotFoundException e) {
          // should never happen
@@ -212,15 +205,12 @@ public final class Startup
    @Nullable
    public static Class<?> getClassIfLoaded(@Nonnull String classDescOrName)
    {
-      Instrumentation instrumentation = InstrumentationHolder.get();
+      String className = classDescOrName.replace('/', '.');
+      @SuppressWarnings("ConstantConditions") Class<?>[] loadedClasses = inst.getAllLoadedClasses();
 
-      if (instrumentation != null) {
-         String className = classDescOrName.replace('/', '.');
-
-         for (Class<?> aClass : instrumentation.getAllLoadedClasses()) {
-            if (aClass.getName().equals(className)) {
-               return aClass;
-            }
+      for (Class<?> aClass : loadedClasses) {
+         if (aClass.getName().equals(className)) {
+            return aClass;
          }
       }
 
