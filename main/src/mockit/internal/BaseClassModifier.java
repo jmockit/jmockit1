@@ -182,18 +182,15 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    private void pushDefaultValueForType(@Nonnull JavaType type)
    {
-      switch (type.getSort()) {
-         case JavaType.Sort.VOID: break;
-         case JavaType.Sort.BOOLEAN:
-         case JavaType.Sort.CHAR:
-         case JavaType.Sort.BYTE:
-         case JavaType.Sort.SHORT:
-         case JavaType.Sort.INT:    mw.visitInsn(ICONST_0); break;
-         case JavaType.Sort.LONG:   mw.visitInsn(LCONST_0); break;
-         case JavaType.Sort.FLOAT:  mw.visitInsn(FCONST_0); break;
-         case JavaType.Sort.DOUBLE: mw.visitInsn(DCONST_0); break;
-         case JavaType.Sort.ARRAY:  generateCreationOfEmptyArray((ArrayType) type); break;
-         default: mw.visitInsn(ACONST_NULL);
+      if (type instanceof ArrayType) {
+         generateCreationOfEmptyArray((ArrayType) type);
+      }
+      else {
+         int constOpcode = type.getConstOpcode();
+
+         if (constOpcode > 0) {
+            mw.visitInsn(constOpcode);
+         }
       }
    }
 

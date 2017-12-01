@@ -2,6 +2,8 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
+import static mockit.external.asm.Opcodes.*;
+
 public abstract class ReferenceType extends JavaType
 {
    /**
@@ -14,8 +16,8 @@ public abstract class ReferenceType extends JavaType
     */
    @Nonnegative final int off;
 
-   ReferenceType(int sort, @Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
-      super(sort, len);
+   ReferenceType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
+      super(len);
       this.buf = buf;
       this.off = off;
    }
@@ -64,6 +66,12 @@ public abstract class ReferenceType extends JavaType
    @Override public int getOpcode(int opcode) { return opcode + 4; }
 
    @Override
+   public final int getLoadOpcode() { return ALOAD; }
+
+   @Override
+   public final int getConstOpcode() { return ACONST_NULL; }
+
+   @Override
    public final boolean equals(Object o) {
       if (this == o) {
          return true;
@@ -75,7 +83,7 @@ public abstract class ReferenceType extends JavaType
 
       ReferenceType t = (ReferenceType) o;
 
-      if (sort != t.sort || len != t.len) {
+      if (getClass() != t.getClass() || len != t.len) {
          return false;
       }
 
@@ -90,7 +98,7 @@ public abstract class ReferenceType extends JavaType
 
    @Override
    public final int hashCode() {
-      int hc = 13 * sort;
+      int hc = 13;
 
       for (int i = off, end = i + len; i < end; i++) {
          hc = 17 * (hc + buf[i]);

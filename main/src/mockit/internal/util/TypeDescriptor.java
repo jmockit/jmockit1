@@ -11,9 +11,6 @@ import mockit.external.asm.*;
 public final class TypeDescriptor
 {
    private static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
-   private static final Class<?>[] PRIMITIVE_TYPES = {
-      void.class, boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class
-   };
 
    private TypeDescriptor() {}
 
@@ -68,15 +65,13 @@ public final class TypeDescriptor
    @Nonnull
    public static Class<?> getClassForType(@Nonnull JavaType type)
    {
-      int sort = type.getSort();
-
-      if (sort < PRIMITIVE_TYPES.length) {
-         return PRIMITIVE_TYPES[sort];
+      if (type instanceof PrimitiveType) {
+         return ((PrimitiveType) type).getType();
       }
 
       String className;
 
-      if (sort == JavaType.Sort.ARRAY) {
+      if (type instanceof ArrayType) {
          className = type.getDescriptor().replace('/', '.');
       }
       else {

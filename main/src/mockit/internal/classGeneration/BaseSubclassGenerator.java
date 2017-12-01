@@ -10,7 +10,6 @@ import javax.annotation.*;
 import static java.util.Arrays.*;
 
 import mockit.external.asm.*;
-import mockit.external.asm.JavaType.Sort;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Opcodes.*;
@@ -102,27 +101,13 @@ public class BaseSubclassGenerator extends BaseClassModifier
       int varIndex = 1;
 
       for (JavaType paramType : JavaType.getArgumentTypes(desc)) {
-         int loadOpcode = getLoadOpcodeForParameterType(paramType.getSort());
+         int loadOpcode = paramType.getLoadOpcode();
          mw.visitVarInsn(loadOpcode, varIndex);
          varIndex++;
       }
 
       mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", desc, false);
       generateEmptyImplementation();
-   }
-
-   private static int getLoadOpcodeForParameterType(int paramType)
-   {
-      if (paramType <= Sort.INT) {
-         return ILOAD;
-      }
-
-      switch (paramType) {
-         case Sort.FLOAT:  return FLOAD;
-         case Sort.LONG:   return LLOAD;
-         case Sort.DOUBLE: return DLOAD;
-         default: return ALOAD;
-      }
    }
 
    private void generateImplementationIfAbstractMethod(

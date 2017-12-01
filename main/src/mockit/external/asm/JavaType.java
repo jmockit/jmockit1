@@ -38,93 +38,16 @@ import javax.annotation.*;
 public abstract class JavaType
 {
    /**
-    * See {@link #getSort()}.
-    */
-   public interface Sort
-   {
-      /**
-       * The sort of the <tt>void</tt> type.
-       */
-      int VOID = 0;
-
-      /**
-       * The sort of the <tt>boolean</tt> type.
-       */
-      int BOOLEAN = 1;
-
-      /**
-       * The sort of the <tt>char</tt> type.
-       */
-      int CHAR = 2;
-
-      /**
-       * The sort of the <tt>byte</tt> type.
-       */
-      int BYTE = 3;
-
-      /**
-       * The sort of the <tt>short</tt> type.
-       */
-      int SHORT = 4;
-
-      /**
-       * The sort of the <tt>int</tt> type.
-       */
-      int INT = 5;
-
-      /**
-       * The sort of the <tt>float</tt> type.
-       */
-      int FLOAT = 6;
-
-      /**
-       * The sort of the <tt>long</tt> type.
-       */
-      int LONG = 7;
-
-      /**
-       * The sort of the <tt>double</tt> type.
-       */
-      int DOUBLE = 8;
-
-      /**
-       * The sort of array reference types.
-       */
-      int ARRAY = 9;
-
-      /**
-       * The sort of object reference types.
-       */
-      int OBJECT = 10;
-
-      /**
-       * The sort of method types.
-       */
-      int METHOD = 11;
-   }
-
-   /**
-    * The sort of this Java type.
-    */
-   final int sort;
-
-   /**
     * The length of the internal name of this Java type.
     */
    @Nonnegative final int len;
 
-   // ------------------------------------------------------------------------
-   // Constructors and static factory methods
-   // ------------------------------------------------------------------------
-
    /**
     * Constructs a Java type.
     *
-    * @param sort the sort of the reference type to be constructed.
-    * @param len  the length of this descriptor.
+    * @param len the length of this descriptor.
     */
-   JavaType(int sort, @Nonnegative int len) {
-      this.sort = sort;
+   JavaType(@Nonnegative int len) {
       this.len = len;
    }
 
@@ -200,7 +123,7 @@ public abstract class JavaType
       while (buf[off] != ')') {
          JavaType argType = getType(buf, off);
          argTypes[size] = argType;
-         off += argType.len + (argType.sort == Sort.OBJECT ? 2 : 0);
+         off += argType.len + (argType instanceof ObjectType ? 2 : 0);
          size++;
       }
 
@@ -281,15 +204,6 @@ public abstract class JavaType
          default: return new MethodType(buf, off, buf.length - off);
       }
    }
-
-   // ------------------------------------------------------------------------
-   // Accessors
-   // ------------------------------------------------------------------------
-
-   /**
-    * Returns the {@link Sort} of this Java type.
-    */
-   public int getSort() { return sort; }
 
    /**
     * Returns the binary name of the class corresponding to this type. This method must not be used on method types.
@@ -387,7 +301,7 @@ public abstract class JavaType
 
       while (true) {
          if (d.isPrimitive()) {
-            char typeCode = PrimitiveType.getTypeCode(d);
+            char typeCode = PrimitiveType.getPrimitiveType(d).getTypeCode();
             buf.append(typeCode);
             return;
          }
@@ -412,6 +326,7 @@ public abstract class JavaType
     * @return the size of values of this type, i.e., 2 for <tt>long</tt> and <tt>double</tt>, 0 for <tt>void</tt> and 1
     * otherwise.
     */
+   @Nonnegative
    public abstract int getSize();
 
    /**
@@ -424,9 +339,8 @@ public abstract class JavaType
     */
    public abstract int getOpcode(int opcode);
 
-   // ------------------------------------------------------------------------
-   // Equals, hashCode and toString
-   // ------------------------------------------------------------------------
+   public abstract int getLoadOpcode();
+   public abstract int getConstOpcode();
 
    /**
     * Returns a string representation of this type.

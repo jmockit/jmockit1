@@ -23,7 +23,7 @@ public final class ObjectType extends ReferenceType
     * @param len  the length of this descriptor.
     */
    ObjectType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
-      super(Sort.OBJECT, buf, off, len);
+      super(buf, off, len);
    }
 
    @Override

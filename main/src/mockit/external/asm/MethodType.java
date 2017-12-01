@@ -20,7 +20,7 @@ final class MethodType extends ReferenceType
     * @param len  the length of this descriptor.
     */
    MethodType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
-      super(Sort.METHOD, buf, off, len);
+      super(buf, off, len);
    }
 
    @Nonnull @Override public String getClassName() { throw new UnsupportedOperationException(); }

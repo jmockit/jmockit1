@@ -36,7 +36,7 @@ public final class ArrayType extends ReferenceType
     * @param len  the length of this descriptor.
     */
    ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
-      super(Sort.ARRAY, buf, off, len);
+      super(buf, off, len);
    }
 
    /**

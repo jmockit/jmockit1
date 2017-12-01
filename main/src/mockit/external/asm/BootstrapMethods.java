@@ -165,7 +165,8 @@ final class BootstrapMethods
          int hashCode = cr.readConst(cr.readUnsignedShort(v)).hashCode();
 
          for (int k = cr.readUnsignedShort(v + 2); k > 0; k--) {
-            hashCode ^= cr.readConst(cr.readUnsignedShort(v + 4)).hashCode();
+            Object aConst = cr.readConst(cr.readUnsignedShort(v + 4));
+            hashCode ^= aConst.hashCode();
             v += 2;
          }
 

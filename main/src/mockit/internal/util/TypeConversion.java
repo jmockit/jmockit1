@@ -7,14 +7,11 @@ package mockit.internal.util;
 import javax.annotation.*;
 
 import mockit.external.asm.*;
+import mockit.external.asm.PrimitiveType.*;
 import static mockit.external.asm.Opcodes.*;
 
 public final class TypeConversion
 {
-   private static final String[] PRIMITIVE_WRAPPER_TYPE = {
-      null, "java/lang/Boolean", "java/lang/Character", "java/lang/Byte", "java/lang/Short", "java/lang/Integer",
-      "java/lang/Float", "java/lang/Long", "java/lang/Double"
-   };
    private static final String PRIMITIVE_WRAPPER_TYPES =
       "java/lang/Boolean   java/lang/Character java/lang/Byte      java/lang/Short     " +
       "java/lang/Integer   java/lang/Float     java/lang/Long      java/lang/Double";
@@ -27,28 +24,30 @@ public final class TypeConversion
 
    public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull JavaType type)
    {
-      int sort = type.getSort();
+      if (type instanceof PrimitiveType) {
+         String wrapperType = ((PrimitiveType) type).getWrapperTypeDesc();
 
-      if (sort < JavaType.Sort.ARRAY) {
-         String wrapperType = PRIMITIVE_WRAPPER_TYPE[sort];
-         String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
-         mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
+         if (wrapperType != null) {
+            String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
+            mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
+         }
       }
    }
 
    public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
-      int sort = toType.getSort();
+      PrimitiveType primitiveType = toType instanceof PrimitiveType ? (PrimitiveType) toType : null;
+      String owner = primitiveType == null ? null : primitiveType.getWrapperTypeDesc();
 
-      if (sort == JavaType.Sort.VOID) {
+      if (primitiveType != null && owner == null) {
          mv.visitInsn(POP);
       }
       else {
          generateTypeCheck(mv, toType);
 
-         if (sort < JavaType.Sort.ARRAY) {
-            mv.visitMethodInsn(
-               INVOKEVIRTUAL, PRIMITIVE_WRAPPER_TYPE[sort], UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
+         if (primitiveType != null) {
+            int sort = primitiveType.getSort();
+            mv.visitMethodInsn(INVOKEVIRTUAL, owner, UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
          }
       }
    }
@@ -64,12 +63,15 @@ public final class TypeConversion
          typeDesc = ((ObjectType) toType).getInternalName();
       }
       else {
-         typeDesc = PRIMITIVE_WRAPPER_TYPE[toType.getSort()];
+         typeDesc = ((PrimitiveType) toType).getWrapperTypeDesc();
       }
 
-      mv.visitTypeInsn(CHECKCAST, typeDesc);
+      if (typeDesc != null) {
+         mv.visitTypeInsn(CHECKCAST, typeDesc);
+      }
    }
 
+   @SuppressWarnings({"ConstantConditions", "OverlyLongMethod"})
    public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode)
    {
       if (opcode == ASTORE) {
@@ -77,11 +79,13 @@ public final class TypeConversion
          return;
       }
 
-      int sort = parameterType.getSort();
+      int sort;
       String typeDesc;
 
       if (parameterType instanceof PrimitiveType) {
-         typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
+         PrimitiveType primitiveType = (PrimitiveType) parameterType;
+         sort = primitiveType.getSort();
+         typeDesc = primitiveType.getWrapperTypeDesc();
       }
       else {
          typeDesc = ((ReferenceType) parameterType).getInternalName();
@@ -91,19 +95,15 @@ public final class TypeConversion
             sort = i / 20 + 1;
          }
          else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) {
-            sort = JavaType.Sort.INT;
+            sort = Sort.INT;
          }
          else {
-            sort = JavaType.Sort.INT;
-
-            //noinspection SwitchStatementWithoutDefaultBranch
             switch (opcode) {
-               case FSTORE: sort = JavaType.Sort.FLOAT; break;
-               case LSTORE: sort = JavaType.Sort.LONG; break;
-               case DSTORE: sort = JavaType.Sort.DOUBLE;
+               case FSTORE: sort = Sort.FLOAT;  typeDesc = "java/lang/Float";  break;
+               case LSTORE: sort = Sort.LONG;   typeDesc = "java/lang/Long";   break;
+               case DSTORE: sort = Sort.DOUBLE; typeDesc = "java/lang/Double"; break;
+               default:     sort = Sort.INT;    typeDesc = "java/lang/Integer";
             }
-
-            typeDesc = PRIMITIVE_WRAPPER_TYPE[sort];
          }
       }
 
