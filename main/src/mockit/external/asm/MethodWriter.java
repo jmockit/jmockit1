@@ -466,12 +466,7 @@ public final class MethodWriter extends MethodVisitor
             if (end >= start) {
                max = Math.max(max, 1);
 
-               // Replaces instructions with NOP ... NOP ATHROW.
-               for (int i = start; i < end; i++) {
-                  code.data[i] = NOP;
-               }
-
-               code.data[end] = (byte) ATHROW;
+               replaceInstructionsWithNOPAndATHROW(start, end);
 
                frameAndStack.emitFrameForUnreachableBlock(start);
                exceptionHandling.removeStartEndRange(label, k);
@@ -482,6 +477,17 @@ public final class MethodWriter extends MethodVisitor
       }
 
       return max;
+   }
+
+   // Replaces instructions with NOP ... NOP ATHROW.
+   private void replaceInstructionsWithNOPAndATHROW(int start, int end) {
+      byte[] data = code.data;
+
+      for (int i = start; i < end; i++) {
+         data[i] = NOP;
+      }
+
+      data[end] = (byte) ATHROW;
    }
 
    // ------------------------------------------------------------------------
@@ -578,88 +584,105 @@ public final class MethodWriter extends MethodVisitor
          return;
       }
 
-      int attributeCount = 0;
+      boolean synthetic = cw.isSynthetic(access);
+      boolean deprecated = Access.isDeprecated(access);
+
+      putMethodAttributeCount(out, synthetic, deprecated);
+      putMethodCode(out);
+      throwsClause.put(out);
+      putSyntheticAttribute(out, synthetic);
+      putDeprecatedAttribute(out, deprecated);
+      putSignatureAttribute(out);
+      putAnnotationAttributes(out);
+   }
+
+   private void putMethodAttributeCount(@Nonnull ByteVector out, boolean synthetic, boolean deprecated) {
+      int methodAttributeCount = 0;
 
       if (code.length > 0) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
       if (throwsClause.hasExceptions()) {
-         attributeCount++;
+         methodAttributeCount++;
       }
-
-      boolean synthetic = cw.isSynthetic(access);
 
       if (synthetic) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
-      boolean deprecated = Access.isDeprecated(access);
-
       if (deprecated) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
       if (signature != null) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
       if (annotationDefault != null) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
       if (annotations != null) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
       if (parameterAnnotations != null) {
-         attributeCount++;
+         methodAttributeCount++;
       }
 
-      out.putShort(attributeCount);
+      out.putShort(methodAttributeCount);
+   }
 
+   private void putMethodCode(@Nonnull ByteVector out) {
       if (code.length > 0) {
-         int size = 12 + code.length + exceptionHandling.getSize();
-         size += localVariables.getSize();
-         size += lineNumbers.getSize();
-         size += frameAndStack.getSize();
-
-         out.putShort(cp.newUTF8("Code")).putInt(size);
+         putCodeSize(out);
          frameAndStack.putMaxStackAndLocals(out);
          out.putInt(code.length).putByteVector(code);
          exceptionHandling.put(out);
 
-         attributeCount = localVariables.getAttributeCount();
+         int codeAttributeCount = localVariables.getAttributeCount();
 
          if (lineNumbers.hasLineNumbers()) {
-            attributeCount++;
+            codeAttributeCount++;
          }
 
          if (frameAndStack.hasStackMap()) {
-            attributeCount++;
+            codeAttributeCount++;
          }
 
-         out.putShort(attributeCount);
+         out.putShort(codeAttributeCount);
          localVariables.put(out);
          lineNumbers.put(out);
          frameAndStack.put(out);
       }
+   }
 
-      throwsClause.put(out);
+   private void putCodeSize(@Nonnull ByteVector out) {
+      int size = 12 + code.length + exceptionHandling.getSize();
+      size += localVariables.getSize();
+      size += lineNumbers.getSize();
+      size += frameAndStack.getSize();
 
+      out.putShort(cp.newUTF8("Code")).putInt(size);
+   }
+
+   private void putSyntheticAttribute(@Nonnull ByteVector out, boolean synthetic) {
       if (synthetic) {
          out.putShort(cp.newUTF8("Synthetic")).putInt(0);
       }
+   }
 
+   private void putDeprecatedAttribute(@Nonnull ByteVector out, boolean deprecated) {
       if (deprecated) {
          out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
+   }
 
+   private void putSignatureAttribute(@Nonnull ByteVector out) {
       if (signature != null) {
          out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(cp.newUTF8(signature));
       }
-
-      putAnnotationAttributes(out);
    }
 
    private void putAnnotationAttributes(@Nonnull ByteVector out) {

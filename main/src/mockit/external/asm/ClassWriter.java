@@ -355,8 +355,8 @@ public final class ClassWriter extends ClassVisitor
    private void putMethods(@Nonnull ByteVector out) {
       out.putShort(methods.size());
 
-      for (MethodWriter mb : methods) {
-         mb.put(out);
+      for (MethodWriter mw : methods) {
+         mw.put(out);
       }
    }
 
