@@ -48,14 +48,14 @@ final class ByteVector
    @Nonnegative int length;
 
    /**
-    * Constructs a new {@link ByteVector ByteVector} with a default initial size.
+    * Constructs a new ByteVector with a default initial size.
     */
    ByteVector() {
       data = new byte[64];
    }
 
    /**
-    * Constructs a new {@link ByteVector ByteVector} with the given initial size.
+    * Constructs a new ByteVector with the given initial size.
     */
    ByteVector(@Nonnegative int initialSize) {
       data = new byte[initialSize];
@@ -169,10 +169,10 @@ final class ByteVector
    /**
     * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @param s a String whose UTF8 encoded length must be less than 65536.
+    * @param string a String whose UTF8 encoded length must be less than 65536.
     */
-   void putUTF8(@Nonnull String s) {
-      int charLength = s.length();
+   void putUTF8(@Nonnull String string) {
+      int charLength = string.length();
 
       if (charLength > 65535) {
          throw new IllegalArgumentException("String too long: " + charLength);
@@ -189,14 +189,14 @@ final class ByteVector
       data[len++] = (byte) charLength;
 
       for (int i = 0; i < charLength; i++) {
-         char c = s.charAt(i);
+         char c = string.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
             data[len++] = (byte) c;
          }
          else {
             length = len;
-            encodeUTF8(s, i, 65535);
+            encodeUTF8(string, i);
          }
       }
 
@@ -208,20 +208,37 @@ final class ByteVector
     * The string length is encoded in two bytes before the encoded characters, if there is space for that (i.e. if
     * this.length - i - 2 >= 0).
     *
-    * @param s the String to encode.
-    * @param i the index of the first character to encode. The previous characters are supposed to have already been
-    *          encoded, using only one byte per character.
-    * @param maxByteLength the maximum byte length of the encoded string, including the already encoded characters.
-    * @return this byte vector.
+    * @param string the String to encode.
+    * @param startIndex the index of the first character to encode. The previous characters are supposed to have already
+    *                   been encoded, using only one byte per character.
     */
-   @Nonnull
-   ByteVector encodeUTF8(@Nonnull String s, @Nonnegative int i, @Nonnegative int maxByteLength) {
-      int charLength = s.length();
-      int byteLength = i;
-      char c;
+   private void encodeUTF8(@Nonnull String string, @Nonnegative int startIndex) {
+      int byteLength = computeByteLength(string, startIndex);
 
-      for (int j = i; j < charLength; j++) {
-         c = s.charAt(j);
+      if (byteLength > 65535) {
+         throw new IllegalArgumentException("String too long for UTF8 encoding: " + byteLength);
+      }
+
+      int start = length - startIndex - 2;
+
+      if (start >= 0) {
+         data[start] = (byte) (byteLength >>> 8);
+         data[start + 1] = (byte) byteLength;
+      }
+
+      if (length + byteLength - startIndex > data.length) {
+         enlarge(byteLength - startIndex);
+      }
+
+      putEncodedCharacters(string, startIndex);
+   }
+
+   @Nonnegative
+   private static int computeByteLength(@Nonnull String string, @Nonnegative int startIndex) {
+      int byteLength = startIndex;
+
+      for (int i = startIndex, n = string.length(); i < n; i++) {
+         char c = string.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
             byteLength++;
@@ -234,25 +251,15 @@ final class ByteVector
          }
       }
 
-      if (byteLength > maxByteLength) {
-         throw new IllegalArgumentException();
-      }
+      return byteLength;
+   }
 
-      int start = length - i - 2;
-
-      if (start >= 0) {
-         data[start] = (byte) (byteLength >>> 8);
-         data[start + 1] = (byte) byteLength;
-      }
-
-      if (length + byteLength - i > data.length) {
-         enlarge(byteLength - i);
-      }
-
+   private void putEncodedCharacters(@Nonnull String string, @Nonnegative int startIndex) {
+      byte[] data = this.data;
       int len = length;
 
-      for (int j = i; j < charLength; j++) {
-         c = s.charAt(j);
+      for (int i = startIndex, n = string.length(); i < n; i++) {
+         char c = string.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
             data[len++] = (byte) c;
@@ -269,7 +276,6 @@ final class ByteVector
       }
 
       length = len;
-      return this;
    }
 
    /**

@@ -194,13 +194,18 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newFieldItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
-      key3.set(FIELD, owner, name, desc);
+      return newItem(FIELD, owner, name, desc);
+   }
+
+   @Nonnull
+   private Item newItem(int type, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+      key3.set(type, owner, name, desc);
       Item result = get(key3);
 
       if (result == null) {
-         int classItemIndex = newClass(owner);
-         int nameTypeItemIndex = newNameType(name, desc);
-         put122(FIELD, classItemIndex, nameTypeItemIndex);
+         int ownerItemIndex = newClass(owner);
+         int nameAndTypeItemIndex = newNameType(name, desc);
+         put122(type, ownerItemIndex, nameAndTypeItemIndex);
          result = new Item(index++, key3);
          put(result);
       }
@@ -220,17 +225,7 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
-      int type = itf ? IMETH : METH;
-      key3.set(type, owner, name, desc);
-      Item result = get(key3);
-
-      if (result == null) {
-         put122(type, newClass(owner), newNameType(name, desc));
-         result = new Item(index++, key3);
-         put(result);
-      }
-
-      return result;
+      return newItem(itf ? IMETH : METH, owner, name, desc);
    }
 
    /**
