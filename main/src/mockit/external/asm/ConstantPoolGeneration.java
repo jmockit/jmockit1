@@ -10,7 +10,6 @@ import static mockit.internal.util.ClassLoad.OBJECT;
 /**
  * Allows the constant pool for a classfile to be created from scratch, when that classfile itself is being generated or
  * modified from an existing class file.
- * Used only by {@link ClassWriter}.
  */
 final class ConstantPoolGeneration
 {
@@ -110,11 +109,17 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newClassItem(@Nonnull String value) {
-      key2.set(CLASS, value, null, null);
+      return newItem(CLASS, value);
+   }
+
+   @Nonnull
+   private Item newItem(int type, @Nonnull String value) {
+      key2.set(type, value, null, null);
       Item result = get(key2);
 
       if (result == null) {
-         pool.put12(CLASS, newUTF8(value));
+         int itemIndex = newUTF8(value);
+         pool.put12(type, itemIndex);
          result = new Item(index++, key2);
          put(result);
       }
@@ -131,7 +136,7 @@ final class ConstantPoolGeneration
     */
    @Nonnegative
    int newClass(@Nonnull String value) {
-      return newClassItem(value).index;
+      return newItem(CLASS, value).index;
    }
 
    /**
@@ -143,17 +148,7 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newMethodTypeItem(@Nonnull String methodDesc) {
-      key2.set(MTYPE, methodDesc, null, null);
-      Item result = get(key2);
-
-      if (result == null) {
-         int itemIndex = newUTF8(methodDesc);
-         pool.put12(MTYPE, itemIndex);
-         result = new Item(index++, key2);
-         put(result);
-      }
-
-      return result;
+      return newItem(MTYPE, methodDesc);
    }
 
    /**
@@ -203,7 +198,9 @@ final class ConstantPoolGeneration
       Item result = get(key3);
 
       if (result == null) {
-         put122(FIELD, newClass(owner), newNameType(name, desc));
+         int classItemIndex = newClass(owner);
+         int nameTypeItemIndex = newNameType(name, desc);
+         put122(FIELD, classItemIndex, nameTypeItemIndex);
          result = new Item(index++, key3);
          put(result);
       }
@@ -331,16 +328,7 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newString(@Nonnull String value) {
-      key2.set(STR, value, null, null);
-      Item result = get(key2);
-
-      if (result == null) {
-         pool.put12(STR, newUTF8(value));
-         result = new Item(index++, key2);
-         put(result);
-      }
-
-      return result;
+      return newItem(STR, value);
    }
 
    /**
@@ -356,7 +344,9 @@ final class ConstantPoolGeneration
       Item result = get(key2);
 
       if (result == null) {
-         put122(NAME_TYPE, newUTF8(name), newUTF8(desc));
+         int nameItemIndex = newUTF8(name);
+         int descItemIndex = newUTF8(desc);
+         put122(NAME_TYPE, nameItemIndex, descItemIndex);
          result = new Item(index++, key2);
          put(result);
       }
@@ -378,22 +368,12 @@ final class ConstantPoolGeneration
          return newString((String) cst);
       }
 
-      if (cst instanceof Integer) {
-         return newInteger((Integer) cst);
-      }
-
-      if (cst instanceof Byte) {
-         int val = ((Byte) cst).intValue();
-         return newInteger(val);
+      if (cst instanceof Number) {
+         return newNumberItem((Number) cst);
       }
 
       if (cst instanceof Character) {
          return newInteger((int) (Character) cst);
-      }
-
-      if (cst instanceof Short) {
-         int val = ((Short) cst).intValue();
-         return newInteger(val);
       }
 
       if (cst instanceof Boolean) {
@@ -401,31 +381,13 @@ final class ConstantPoolGeneration
          return newInteger(val);
       }
 
-      if (cst instanceof Float) {
-         return newFloat((Float) cst);
+      if (cst instanceof ReferenceType) {
+         String typeDesc = ((ReferenceType) cst).getInternalName();
+         return cst instanceof MethodType ? newMethodTypeItem(typeDesc) : newClassItem(typeDesc);
       }
 
-      if (cst instanceof Long) {
-         return newLong((Long) cst);
-      }
-
-      if (cst instanceof Double) {
-         return newDouble((Double) cst);
-      }
-
-      if (cst instanceof ObjectType) {
-         String classDesc = ((ReferenceType) cst).getInternalName();
-         return newClassItem(classDesc);
-      }
-
-      if (cst instanceof JavaType) {
-         String typeDesc = ((JavaType) cst).getDescriptor();
-
-         if (cst instanceof MethodType) {
-            return newMethodTypeItem(typeDesc);
-         }
-
-         // Primitive or array type.
+      if (cst instanceof PrimitiveType) {
+         String typeDesc = ((PrimitiveType) cst).getDescriptor();
          return newClassItem(typeDesc);
       }
 
@@ -434,6 +396,23 @@ final class ConstantPoolGeneration
       }
 
       throw new IllegalArgumentException("value " + cst);
+   }
+
+   @Nonnull
+   private Item newNumberItem(Number cst) {
+      if (cst instanceof Float) {
+         return newFloat(cst.floatValue());
+      }
+
+      if (cst instanceof Long) {
+         return newLong(cst.longValue());
+      }
+
+      if (cst instanceof Double) {
+         return newDouble(cst.doubleValue());
+      }
+
+      return newInteger(cst.intValue());
    }
 
    /**
@@ -484,6 +463,7 @@ final class ConstantPoolGeneration
    @Nonnull
    private Item addType() {
       typeCount++;
+
       Item result = new Item(typeCount, key);
       put(result);
 
@@ -518,7 +498,8 @@ final class ConstantPoolGeneration
       if (result == null) {
          String t = getInternalName(type1);
          String u = getInternalName(type2);
-         key2.intVal = addType(getCommonSuperClass(t, u));
+         String commonSuperClass = getCommonSuperClass(t, u);
+         key2.intVal = addType(commonSuperClass);
          result = new Item((short) 0, key2);
          put(result);
       }
@@ -538,7 +519,7 @@ final class ConstantPoolGeneration
     * @return the internal name of the common super class of the two given classes.
     */
    @Nonnull
-   private String getCommonSuperClass(String type1, String type2) {
+   private static String getCommonSuperClass(String type1, String type2) {
       // Reimplemented to avoid "duplicate class definition" errors.
       String class1 = type1;
       String class2 = type2;
@@ -597,14 +578,7 @@ final class ConstantPoolGeneration
 
          for (int l = ll - 1; l >= 0; l--) {
             Item j = items[l];
-
-            while (j != null) {
-               int index = j.hashCode % newItems.length;
-               Item k = j.next;
-               j.next = newItems[index];
-               newItems[index] = j;
-               j = k;
-            }
+            put(newItems, j);
          }
 
          items = newItems;
@@ -614,6 +588,16 @@ final class ConstantPoolGeneration
       int index = item.hashCode % items.length;
       item.next = items[index];
       items[index] = item;
+   }
+
+   private static void put(@Nonnull Item[] newItems, @Nullable Item item) {
+      while (item != null) {
+         int index = item.hashCode % newItems.length;
+         Item k = item.next;
+         item.next = newItems[index];
+         newItems[index] = item;
+         item = k;
+      }
    }
 
    /**

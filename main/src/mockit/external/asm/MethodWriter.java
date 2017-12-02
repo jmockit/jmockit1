@@ -108,7 +108,7 @@ public final class MethodWriter extends MethodVisitor
    private final boolean computeFrames;
 
    /**
-    * Constructs a new {@link MethodWriter}.
+    * Constructs a new MethodWriter.
     *
     * @param cw            the class writer in which the method must be added.
     * @param access        the method's access flags (see {@link Opcodes}).
@@ -196,12 +196,10 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitVarInsn(int opcode, int var) {
+   public void visitVarInsn(int opcode, @Nonnegative int var) {
       cfgAnalysis.updateCurrentBlockForLocalVariableInstruction(opcode, var);
 
-      // Updates max locals.
-      int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? var + 2 : var + 1;
-      frameAndStack.updateMaxLocals(n);
+      updateMaxLocals(opcode, var);
 
       // Adds the instruction to the bytecode of the method.
       if (var < 4 && opcode != RET) {
@@ -226,6 +224,11 @@ public final class MethodWriter extends MethodVisitor
       if (opcode >= ISTORE && computeFrames && exceptionHandling.hasHandlers()) {
          visitLabel(new Label());
       }
+   }
+
+   private void updateMaxLocals(int opcode, @Nonnegative int var) {
+      int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? var + 2 : var + 1;
+      frameAndStack.updateMaxLocals(n);
    }
 
    @Override
@@ -363,8 +366,8 @@ public final class MethodWriter extends MethodVisitor
       dflt.put(code, source, true);
       code.putInt(min).putInt(max);
 
-      for (int i = 0; i < labels.length; ++i) {
-         labels[i].put(code, source, true);
+      for (Label label : labels) {
+         label.put(code, source, true);
       }
 
       cfgAnalysis.updateCurrentBlockForSwitchInstruction(dflt, labels);

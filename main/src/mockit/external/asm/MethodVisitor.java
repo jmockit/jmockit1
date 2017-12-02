@@ -46,7 +46,7 @@ import javax.annotation.*;
 public class MethodVisitor extends BaseWriter
 {
    /**
-    * Constructs a new {@link MethodVisitor}.
+    * Constructs a new MethodVisitor.
     */
    protected MethodVisitor() {}
 

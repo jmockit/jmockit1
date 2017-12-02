@@ -104,7 +104,7 @@ public final class ClassWriter extends ClassVisitor
    private final boolean computeFrames;
 
    /**
-    * Constructs a new {@link ClassWriter} object and enables optimizations for "mostly add" bytecode transformations.
+    * Constructs a new ClassWriter object and enables optimizations for "mostly add" bytecode transformations.
     * These optimizations are the following:
     * <ul>
     * <li>The constant pool from the original class is copied as is in the new class, which saves time.
@@ -113,7 +113,7 @@ public final class ClassWriter extends ClassVisitor
     * <li>Methods that are not transformed are copied as is in the new class, directly from the original class bytecode
     * (i.e. without emitting visit events for all the method instructions), which saves a <i>lot</i> of time.
     * Untransformed methods are detected by the fact that the {@link ClassReader} receives {@link MethodVisitor}
-    * objects that come from a {@link ClassWriter} (and not from any other {@link ClassVisitor} instance).</li>
+    * objects that come from a ClassWriter (and not from any other {@link ClassVisitor} instance).</li>
     * </ul>
     *
     * @param classReader the {@link ClassReader} used to read the original class. It will be used to copy the entire
@@ -219,9 +219,11 @@ public final class ClassWriter extends ClassVisitor
    public byte[] toByteArray() {
       cp.checkConstantPoolMaxSize();
 
-      // Computes the real size of the bytecode of this class.
-      int interfaceCount = interfaces == null ? 0 : interfaces.getCount();
-      int size = 24 + 2 * interfaceCount;
+      int size = 24; // the real size of the bytecode of this class
+
+      if (interfaces != null) {
+         size += 2 * interfaces.getCount();
+      }
 
       size += getFieldsSize();
       size += getMethodsSize();
@@ -248,9 +250,7 @@ public final class ClassWriter extends ClassVisitor
          size += outerClass.getSize();
       }
 
-      boolean deprecated = Access.isDeprecated(access);
-
-      if (deprecated) {
+      if (Access.isDeprecated(access)) {
          attributeCount++;
          size += 6;
          cp.newUTF8("Deprecated");
@@ -274,6 +274,14 @@ public final class ClassWriter extends ClassVisitor
 
       size += cp.getSize();
 
+      ByteVector out = putClassAttributes(size, attributeCount);
+
+      putAnnotations(out);
+      return out.data;
+   }
+
+   @Nonnull
+   private ByteVector putClassAttributes(@Nonnegative int size, @Nonnegative int attributeCount) {
       // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
       // ByteVector.enlarge() method.
       ByteVector out = new ByteVector(size);
@@ -286,6 +294,8 @@ public final class ClassWriter extends ClassVisitor
 
       out.putShort(name);
       out.putShort(superName);
+
+      int interfaceCount = interfaces == null ? 0 : interfaces.getCount();
       out.putShort(interfaceCount);
 
       if (interfaceCount > 0) {
@@ -306,7 +316,7 @@ public final class ClassWriter extends ClassVisitor
          outerClass.put(out);
       }
 
-      if (deprecated) {
+      if (Access.isDeprecated(access)) {
          out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
 
@@ -318,8 +328,7 @@ public final class ClassWriter extends ClassVisitor
          innerClasses.put(out);
       }
 
-      putAnnotations(out);
-      return out.data;
+      return out;
    }
 
    @Nonnegative
@@ -347,8 +356,8 @@ public final class ClassWriter extends ClassVisitor
    private void putFields(@Nonnull ByteVector out) {
       out.putShort(fields.size());
 
-      for (FieldWriter fb : fields) {
-         fb.put(out);
+      for (FieldWriter fw : fields) {
+         fw.put(out);
       }
    }
 
