@@ -7,29 +7,20 @@ package mockit.internal.util;
 import javax.annotation.*;
 
 import mockit.external.asm.*;
-import mockit.external.asm.PrimitiveType.*;
 import static mockit.external.asm.Opcodes.*;
 
 public final class TypeConversion
 {
-   private static final String PRIMITIVE_WRAPPER_TYPES =
-      "java/lang/Boolean   java/lang/Character java/lang/Byte      java/lang/Short     " +
-      "java/lang/Integer   java/lang/Float     java/lang/Long      java/lang/Double";
-   private static final String[] UNBOXING_NAME = {
-      null, "booleanValue", "charValue", "byteValue", "shortValue", "intValue", "floatValue", "longValue", "doubleValue"
-   };
-   private static final String[] UNBOXING_DESC = {null, "()Z", "()C", "()B", "()S", "()I", "()F", "()J", "()D"};
-
    private TypeConversion() {}
 
    public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull JavaType type)
    {
       if (type instanceof PrimitiveType) {
-         String wrapperType = ((PrimitiveType) type).getWrapperTypeDesc();
+         String wrapperTypeDesc = ((PrimitiveType) type).getWrapperTypeDesc();
 
-         if (wrapperType != null) {
-            String desc = '(' + type.getDescriptor() + ")L" + wrapperType + ';';
-            mv.visitMethodInsn(INVOKESTATIC, wrapperType, "valueOf", desc, false);
+         if (wrapperTypeDesc != null) {
+            String desc = '(' + type.getDescriptor() + ")L" + wrapperTypeDesc + ';';
+            mv.visitMethodInsn(INVOKESTATIC, wrapperTypeDesc, "valueOf", desc, false);
          }
       }
    }
@@ -46,8 +37,9 @@ public final class TypeConversion
          generateTypeCheck(mv, toType);
 
          if (primitiveType != null) {
-            int sort = primitiveType.getSort();
-            mv.visitMethodInsn(INVOKEVIRTUAL, owner, UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
+            String methodName = primitiveType.getClassName() + "Value";
+            String methodDesc = "()" + primitiveType.getTypeCode();
+            mv.visitMethodInsn(INVOKEVIRTUAL, owner, methodName, methodDesc, false);
          }
       }
    }
@@ -71,7 +63,7 @@ public final class TypeConversion
       }
    }
 
-   @SuppressWarnings({"ConstantConditions", "OverlyLongMethod"})
+   @SuppressWarnings("OverlyLongMethod")
    public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode)
    {
       if (opcode == ASTORE) {
@@ -79,41 +71,58 @@ public final class TypeConversion
          return;
       }
 
-      int sort;
       String typeDesc;
+      String methodName;
+      String methodDesc;
 
       if (parameterType instanceof PrimitiveType) {
          PrimitiveType primitiveType = (PrimitiveType) parameterType;
-         sort = primitiveType.getSort();
          typeDesc = primitiveType.getWrapperTypeDesc();
+         methodName = primitiveType.getClassName() + "Value";
+         methodDesc = "()" + primitiveType.getTypeCode();
       }
       else {
          typeDesc = ((ReferenceType) parameterType).getInternalName();
-         int i = PRIMITIVE_WRAPPER_TYPES.indexOf(typeDesc);
+         PrimitiveType primitiveType = PrimitiveType.getPrimitiveType(typeDesc);
 
-         if (i >= 0) {
-            sort = i / 20 + 1;
+         if (primitiveType.getType() != void.class) {
+            methodName = primitiveType.getClassName() + "Value";
+            methodDesc = "()" + primitiveType.getTypeCode();
          }
-         else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) {
-            sort = Sort.INT;
+         else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) { // TODO: no test getting here
+            methodName = "intValue";
+            methodDesc = "()I";
+         }
+         else if (opcode == FSTORE) {
+            typeDesc = "java/lang/Float";
+            methodName = "floatValue";
+            methodDesc = "()F";
+         }
+         else if (opcode == LSTORE) {
+            typeDesc = "java/lang/Long";
+            methodName = "longValue";
+            methodDesc = "()J";
+         }
+         else if (opcode == DSTORE) {
+            typeDesc = "java/lang/Double";
+            methodName = "doubleValue";
+            methodDesc = "()D";
          }
          else {
-            switch (opcode) {
-               case FSTORE: sort = Sort.FLOAT;  typeDesc = "java/lang/Float";  break;
-               case LSTORE: sort = Sort.LONG;   typeDesc = "java/lang/Long";   break;
-               case DSTORE: sort = Sort.DOUBLE; typeDesc = "java/lang/Double"; break;
-               default:     sort = Sort.INT;    typeDesc = "java/lang/Integer";
-            }
+            typeDesc = "java/lang/Integer";
+            methodName = "intValue";
+            methodDesc = "()I";
          }
       }
 
+      //noinspection ConstantConditions
       mv.visitTypeInsn(CHECKCAST, typeDesc);
-      mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, UNBOXING_NAME[sort], UNBOXING_DESC[sort], false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, methodName, methodDesc, false);
    }
 
    public static boolean isPrimitiveWrapper(@Nonnull String typeDesc)
    {
-      return PRIMITIVE_WRAPPER_TYPES.contains(typeDesc);
+      return PrimitiveType.getPrimitiveType(typeDesc).getType() != void.class;
    }
 
    public static boolean isBoxing(@Nonnull String owner, @Nonnull String name, @Nonnull String desc)

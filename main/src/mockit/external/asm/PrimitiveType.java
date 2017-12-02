@@ -6,147 +6,131 @@ import static mockit.external.asm.Opcodes.*;
 
 public final class PrimitiveType extends JavaType
 {
-   public interface Sort
-   {
-      int VOID = 0;
-      int BOOLEAN = 1;
-      int CHAR = 2;
-      int BYTE = 3;
-      int SHORT = 4;
-      int INT = 5;
-      int FLOAT = 6;
-      int LONG = 7;
-      int DOUBLE = 8;
-   }
+   private static final Class<?>[] TYPES = {
+      void.class, boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class
+   };
+   private static final String[] WRAPPER_TYPE_DESCS = {null,
+      "java/lang/Boolean", "java/lang/Character", "java/lang/Byte", "java/lang/Short",
+      "java/lang/Integer", "java/lang/Float",     "java/lang/Long", "java/lang/Double"
+   };
+   private static final char[] TYPE_CODES = {'V', 'Z', 'C', 'B', 'S', 'I', 'F', 'J', 'D'};
+   private static final String TYPE_CODES_STR = "VZCBSIFJD";
+   private static final int[] ARRAY_ELEMENT_TYPES = {0,
+      ArrayElementType.BOOLEAN, ArrayElementType.CHAR,  ArrayElementType.BYTE, ArrayElementType.SHORT,
+      ArrayElementType.INT,     ArrayElementType.FLOAT, ArrayElementType.LONG, ArrayElementType.DOUBLE
+   };
+   private static final PrimitiveType VOID    = new PrimitiveType(0, 0);
+   private static final PrimitiveType BOOLEAN = new PrimitiveType(1, 5);
+   private static final PrimitiveType CHAR    = new PrimitiveType(2, 6);
+   private static final PrimitiveType BYTE    = new PrimitiveType(3, 5);
+   private static final PrimitiveType SHORT   = new PrimitiveType(4, 7);
+   private static final PrimitiveType INT     = new PrimitiveType(5, 0);
+   private static final PrimitiveType FLOAT   = new PrimitiveType(6, 2);
+   private static final PrimitiveType LONG    = new PrimitiveType(7, 1);
+   private static final PrimitiveType DOUBLE  = new PrimitiveType(8, 3);
+   private static final PrimitiveType[] JAVA_TYPES = {VOID, BOOLEAN, CHAR, BYTE, SHORT, INT, FLOAT, LONG, DOUBLE};
 
-   private static final PrimitiveType VOID    = new PrimitiveType(void.class,    Sort.VOID,    'V', 5, 0, 0, ILOAD, 0);
-   private static final PrimitiveType BOOLEAN = new PrimitiveType(boolean.class, Sort.BOOLEAN, 'Z', 0, 5, 1, ILOAD, ICONST_0);
-   private static final PrimitiveType CHAR    = new PrimitiveType(char.class,    Sort.CHAR,    'C', 0, 6, 1, ILOAD, ICONST_0);
-   private static final PrimitiveType BYTE    = new PrimitiveType(byte.class,    Sort.BYTE,    'B', 0, 5, 1, ILOAD, ICONST_0);
-   private static final PrimitiveType SHORT   = new PrimitiveType(short.class,   Sort.SHORT,   'S', 0, 7, 1, ILOAD, ICONST_0);
-   private static final PrimitiveType INT     = new PrimitiveType(int.class,     Sort.INT,     'I', 0, 0, 1, ILOAD, ICONST_0);
-   private static final PrimitiveType FLOAT   = new PrimitiveType(float.class,   Sort.FLOAT,   'F', 2, 2, 1, FLOAD, FCONST_0);
-   private static final PrimitiveType LONG    = new PrimitiveType(long.class,    Sort.LONG,    'J', 1, 1, 2, LLOAD, LCONST_0);
-   private static final PrimitiveType DOUBLE  = new PrimitiveType(double.class,  Sort.DOUBLE,  'D', 3, 3, 2, DLOAD, DCONST_0);
-
-   @Nonnull private final Class<?> type;
-   private final int sort;
-   @Nullable private final String wrapperTypeDesc;
-   private final char desc;
+   @Nonnegative private final int index;             // index of the type for lookup in several data type arrays
    @Nonnegative private final int loadOrStoreOffset; // instruction offset for IALOAD or IASTORE
    @Nonnegative private final int otherOffset;       // offset for all other instructions
-   private final int size;
-   private final int loadOpcode;
-   private final int constOpcode;
+   @Nonnegative private final int size;              // the size in words of the primitive type
+   @Nonnegative private final int loadOpcode;        // the xLOAD instruction for this primitive type
+   @Nonnegative private final int constOpcode;       // the xCONST_0 value for this primitive type
+   @Nullable private final String wrapperTypeDesc;   // internal name of the corresponding "java.lang" wrapper class
 
-   /**
-    * Constructs a primitive type.
-    *
-    * @param sort the sort of the primitive type to be constructed.
-    * @param desc the primitive type descriptor
-    * @param loadOrStoreOffset opcode offset for a IALOAD or IASTORE instruction.
-    * @param otherOffset opcode offset for any other instruction.
-    * @param size the size in words of the primitive type
-    */
-   private PrimitiveType(
-      @Nonnull Class<?> type, int sort, char desc, @Nonnegative int loadOrStoreOffset, @Nonnegative int otherOffset,
-      @Nonnegative int size, int loadOpcode, int constOpcode
-   ) {
+   private PrimitiveType(@Nonnegative int index, @Nonnegative int otherOffset) {
       super(1);
-      this.type = type;
-      this.sort = sort;
+      this.index = index;
+      this.otherOffset = otherOffset;
+      wrapperTypeDesc = WRAPPER_TYPE_DESCS[index];
 
-      if (desc == 'V') {
-         wrapperTypeDesc = null;
+      Class<?> type = TYPES[index];
+
+      if (type == void.class) {
+         loadOrStoreOffset = 5;
+         size = 0;
+         loadOpcode = 0;
+         constOpcode = 0;
+      }
+      else if (type == float.class) {
+         loadOrStoreOffset = 2;
+         size = 1;
+         loadOpcode = FLOAD;
+         constOpcode = FCONST_0;
+      }
+      else if (type == long.class) {
+         loadOrStoreOffset = 1;
+         size = 2;
+         loadOpcode = LLOAD;
+         constOpcode = LCONST_0;
+      }
+      else if (type == double.class) {
+         loadOrStoreOffset = 3;
+         size = 2;
+         loadOpcode = DLOAD;
+         constOpcode = DCONST_0;
       }
       else {
-         String typeName = type.getName();
-         String simpleWrapperName;
-
-         if (desc == 'C') simpleWrapperName = "Character";
-         else if (desc == 'I') simpleWrapperName = "Integer";
-         else simpleWrapperName = Character.toUpperCase(typeName.charAt(0)) + typeName.substring(1);
-
-         wrapperTypeDesc = "java/lang/" + simpleWrapperName;
+         loadOrStoreOffset = 0;
+         size = 1;
+         loadOpcode = ILOAD;
+         constOpcode = ICONST_0;
       }
-
-      this.desc = desc;
-      this.loadOrStoreOffset = loadOrStoreOffset;
-      this.otherOffset = otherOffset;
-      this.size = size;
-      this.loadOpcode = loadOpcode;
-      this.constOpcode = constOpcode;
    }
 
    @Nonnull
    static PrimitiveType getPrimitiveType(@Nonnull Class<?> aClass) {
-      if (aClass == Integer.TYPE)   return INT;
-      if (aClass == Boolean.TYPE)   return BOOLEAN;
-      if (aClass == Character.TYPE) return CHAR;
-      if (aClass == Double.TYPE)    return DOUBLE;
-      if (aClass == Float.TYPE)     return FLOAT;
-      if (aClass == Long.TYPE)      return LONG;
-      if (aClass == Byte.TYPE)      return BYTE;
-      if (aClass == Short.TYPE)     return SHORT;
-      return VOID; // aClass == Void.TYPE
+      for (int i = 0; i < 9; i++) {
+         if (aClass == TYPES[i]) {
+            return JAVA_TYPES[i];
+         }
+      }
+
+      throw new IllegalArgumentException("Not a primitive type: " + aClass);
    }
 
-   @Nullable @SuppressWarnings("OverlyComplexMethod")
+   @Nullable
    static PrimitiveType getPrimitiveType(char typeCode) {
-      switch (typeCode) {
-         case 'I': return INT;
-         case 'Z': return BOOLEAN;
-         case 'C': return CHAR;
-         case 'D': return DOUBLE;
-         case 'F': return FLOAT;
-         case 'J': return LONG;
-         case 'B': return BYTE;
-         case 'S': return SHORT;
-         case 'V': return VOID;
-         default:  return null;
+      int i = TYPE_CODES_STR.indexOf(typeCode);
+      return i < 0 ? null : JAVA_TYPES[i];
+   }
+
+   @Nonnull
+   public static PrimitiveType getPrimitiveType(@Nonnull String wrapperTypeDesc) {
+      for (int sort = 0; sort < 9; sort++) {
+         if (wrapperTypeDesc.equals(WRAPPER_TYPE_DESCS[sort])) {
+            return JAVA_TYPES[sort];
+         }
       }
+
+      return VOID;
    }
 
    @Nonnull
    public static Class<?> getType(int typeCode) {
-      PrimitiveType primitiveType = getPrimitiveType((char) typeCode);
-      //noinspection ConstantConditions
-      return primitiveType.type;
+      int i = TYPE_CODES_STR.indexOf((char) typeCode);
+      return TYPES[i];
    }
 
    /**
-    * Maps a {@link Sort} to the corresponding {@link ArrayElementType}.
+    * Maps a <tt>PrimitiveType</tt> to the corresponding {@link ArrayElementType}.
     */
    public static int getArrayElementType(@Nonnull PrimitiveType elementType) {
-      switch (elementType.sort) {
-         case Sort.BOOLEAN: return ArrayElementType.BOOLEAN;
-         case Sort.CHAR:    return ArrayElementType.CHAR;
-         case Sort.BYTE:    return ArrayElementType.BYTE;
-         case Sort.SHORT:   return ArrayElementType.SHORT;
-         case Sort.INT:     return ArrayElementType.INT;
-         case Sort.FLOAT:   return ArrayElementType.FLOAT;
-         case Sort.LONG:    return ArrayElementType.LONG;
-         default:           return ArrayElementType.DOUBLE;
-      }
+      return ARRAY_ELEMENT_TYPES[elementType.index];
    }
 
-   /**
-    * Returns the {@link Sort} of this Java type.
-    */
-   public int getSort() { return sort; }
-
-   char getTypeCode() { return desc; }
-   @Nonnull public Class<?> getType() { return type; }
+   public char getTypeCode() { return TYPE_CODES[index]; }
+   @Nonnull public Class<?> getType() { return TYPES[index]; }
    @Nullable public String getWrapperTypeDesc() { return wrapperTypeDesc; }
 
    @Override
    void getDescriptor(@Nonnull StringBuilder buf) {
-      buf.append(desc);
+      buf.append(getTypeCode());
    }
 
    @Nonnull @Override
    public String getClassName() {
-      return type.getName();
+      return getType().getName();
    }
 
    @Nonnegative @Override
@@ -166,9 +150,9 @@ public final class PrimitiveType extends JavaType
 
    @Override
    public boolean equals(Object o) {
-      return this == o || o instanceof PrimitiveType && sort == ((PrimitiveType) o).sort;
+      return this == o || o instanceof PrimitiveType && index == ((PrimitiveType) o).index;
    }
 
    @Override
-   public int hashCode() { return 13 * sort; }
+   public int hashCode() { return 13 * index; }
 }
