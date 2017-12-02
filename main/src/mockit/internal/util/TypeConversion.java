@@ -17,31 +17,35 @@ public final class TypeConversion
    {
       if (type instanceof PrimitiveType) {
          String wrapperTypeDesc = ((PrimitiveType) type).getWrapperTypeDesc();
+         String desc = '(' + type.getDescriptor() + ")L" + wrapperTypeDesc + ';';
 
-         if (wrapperTypeDesc != null) {
-            String desc = '(' + type.getDescriptor() + ")L" + wrapperTypeDesc + ';';
-            mv.visitMethodInsn(INVOKESTATIC, wrapperTypeDesc, "valueOf", desc, false);
-         }
+         mv.visitMethodInsn(INVOKESTATIC, wrapperTypeDesc, "valueOf", desc, false);
       }
    }
 
    public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
       PrimitiveType primitiveType = toType instanceof PrimitiveType ? (PrimitiveType) toType : null;
-      String owner = primitiveType == null ? null : primitiveType.getWrapperTypeDesc();
 
-      if (primitiveType != null && owner == null) {
+      if (primitiveType != null && primitiveType.getType() == void.class) {
          mv.visitInsn(POP);
       }
       else {
          generateTypeCheck(mv, toType);
 
          if (primitiveType != null) {
-            String methodName = primitiveType.getClassName() + "Value";
-            String methodDesc = "()" + primitiveType.getTypeCode();
-            mv.visitMethodInsn(INVOKEVIRTUAL, owner, methodName, methodDesc, false);
+            generateUnboxing(mv, primitiveType);
          }
       }
+   }
+
+   private static void generateUnboxing(@Nonnull MethodVisitor mv, @Nonnull PrimitiveType primitiveType)
+   {
+      String owner = primitiveType.getWrapperTypeDesc();
+      String methodName = primitiveType.getClassName() + "Value";
+      String methodDesc = "()" + primitiveType.getTypeCode();
+
+      mv.visitMethodInsn(INVOKEVIRTUAL, owner, methodName, methodDesc, false);
    }
 
    private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
@@ -58,12 +62,9 @@ public final class TypeConversion
          typeDesc = ((PrimitiveType) toType).getWrapperTypeDesc();
       }
 
-      if (typeDesc != null) {
-         mv.visitTypeInsn(CHECKCAST, typeDesc);
-      }
+      mv.visitTypeInsn(CHECKCAST, typeDesc);
    }
 
-   @SuppressWarnings("OverlyLongMethod")
    public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode)
    {
       if (opcode == ASTORE) {
@@ -71,58 +72,18 @@ public final class TypeConversion
          return;
       }
 
-      String typeDesc;
-      String methodName;
-      String methodDesc;
-
-      if (parameterType instanceof PrimitiveType) {
-         PrimitiveType primitiveType = (PrimitiveType) parameterType;
-         typeDesc = primitiveType.getWrapperTypeDesc();
-         methodName = primitiveType.getClassName() + "Value";
-         methodDesc = "()" + primitiveType.getTypeCode();
-      }
-      else {
-         typeDesc = ((ReferenceType) parameterType).getInternalName();
-         PrimitiveType primitiveType = PrimitiveType.getPrimitiveType(typeDesc);
-
-         if (primitiveType.getType() != void.class) {
-            methodName = primitiveType.getClassName() + "Value";
-            methodDesc = "()" + primitiveType.getTypeCode();
-         }
-         else if (opcode == ISTORE && "java/lang/Number".equals(typeDesc)) { // TODO: no test getting here
-            methodName = "intValue";
-            methodDesc = "()I";
-         }
-         else if (opcode == FSTORE) {
-            typeDesc = "java/lang/Float";
-            methodName = "floatValue";
-            methodDesc = "()F";
-         }
-         else if (opcode == LSTORE) {
-            typeDesc = "java/lang/Long";
-            methodName = "longValue";
-            methodDesc = "()J";
-         }
-         else if (opcode == DSTORE) {
-            typeDesc = "java/lang/Double";
-            methodName = "doubleValue";
-            methodDesc = "()D";
-         }
-         else {
-            typeDesc = "java/lang/Integer";
-            methodName = "intValue";
-            methodDesc = "()I";
-         }
-      }
-
-      //noinspection ConstantConditions
+      String typeDesc = ((ReferenceType) parameterType).getInternalName();
       mv.visitTypeInsn(CHECKCAST, typeDesc);
-      mv.visitMethodInsn(INVOKEVIRTUAL, typeDesc, methodName, methodDesc, false);
+
+      PrimitiveType primitiveType = PrimitiveType.getCorrespondingPrimitiveTypeIfWrapperType(typeDesc);
+      assert primitiveType != null;
+
+      generateUnboxing(mv, primitiveType);
    }
 
    public static boolean isPrimitiveWrapper(@Nonnull String typeDesc)
    {
-      return PrimitiveType.getPrimitiveType(typeDesc).getType() != void.class;
+      return PrimitiveType.getCorrespondingPrimitiveTypeIfWrapperType(typeDesc) != null;
    }
 
    public static boolean isBoxing(@Nonnull String owner, @Nonnull String name, @Nonnull String desc)

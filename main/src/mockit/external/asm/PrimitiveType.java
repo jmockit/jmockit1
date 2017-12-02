@@ -9,7 +9,7 @@ public final class PrimitiveType extends JavaType
    private static final Class<?>[] TYPES = {
       void.class, boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class
    };
-   private static final String[] WRAPPER_TYPE_DESCS = {null,
+   private static final String[] WRAPPER_TYPE_DESCS = {"java/lang/Void",
       "java/lang/Boolean", "java/lang/Character", "java/lang/Byte", "java/lang/Short",
       "java/lang/Integer", "java/lang/Float",     "java/lang/Long", "java/lang/Double"
    };
@@ -36,7 +36,7 @@ public final class PrimitiveType extends JavaType
    @Nonnegative private final int size;              // the size in words of the primitive type
    @Nonnegative private final int loadOpcode;        // the xLOAD instruction for this primitive type
    @Nonnegative private final int constOpcode;       // the xCONST_0 value for this primitive type
-   @Nullable private final String wrapperTypeDesc;   // internal name of the corresponding "java.lang" wrapper class
+   @Nonnull private final String wrapperTypeDesc;    // internal name of the corresponding "java.lang" wrapper class
 
    private PrimitiveType(@Nonnegative int index, @Nonnegative int otherOffset) {
       super(1);
@@ -95,15 +95,15 @@ public final class PrimitiveType extends JavaType
       return i < 0 ? null : JAVA_TYPES[i];
    }
 
-   @Nonnull
-   public static PrimitiveType getPrimitiveType(@Nonnull String wrapperTypeDesc) {
-      for (int sort = 0; sort < 9; sort++) {
-         if (wrapperTypeDesc.equals(WRAPPER_TYPE_DESCS[sort])) {
-            return JAVA_TYPES[sort];
+   @Nullable
+   public static PrimitiveType getCorrespondingPrimitiveTypeIfWrapperType(@Nonnull String typeDesc) {
+      for (int i = 0; i < 9; i++) {
+         if (typeDesc.equals(WRAPPER_TYPE_DESCS[i])) {
+            return JAVA_TYPES[i];
          }
       }
 
-      return VOID;
+      return null;
    }
 
    @Nonnull
@@ -121,7 +121,7 @@ public final class PrimitiveType extends JavaType
 
    public char getTypeCode() { return TYPE_CODES[index]; }
    @Nonnull public Class<?> getType() { return TYPES[index]; }
-   @Nullable public String getWrapperTypeDesc() { return wrapperTypeDesc; }
+   @Nonnull public String getWrapperTypeDesc() { return wrapperTypeDesc; }
 
    @Override
    void getDescriptor(@Nonnull StringBuilder buf) {

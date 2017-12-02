@@ -115,7 +115,7 @@ final class Capture
    {
       JavaType parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
 
-      if (parameterType instanceof ObjectType || parameterType instanceof ArrayType) {
+      if (parameterType instanceof ReferenceType) {
          String parameterTypeDesc = ((ReferenceType) parameterType).getInternalName();
          return typeDesc.equals(parameterTypeDesc);
       }
