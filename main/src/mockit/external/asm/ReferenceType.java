@@ -95,9 +95,10 @@ public abstract class ReferenceType extends JavaType
 
    /**
     * Returns the internal name of the class corresponding to this object or array type. The internal name of a class is
-    * its fully qualified name (as returned by Class.getName(), where '.' are replaced by '/'.
+    * its fully qualified name (as returned by Class.getName(), where '.' are replaced by '/'. For an array type, it
+    * starts with "[" and ends with the type descriptor of the array element type.
     *
-    * @return the internal name of the class corresponding to this object type.
+    * @return the internal name of the class corresponding to this object or array type.
     */
    @Nonnull
    public final String getInternalName() {

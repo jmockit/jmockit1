@@ -25,18 +25,34 @@ public final class TypeConversion
 
    public static void generateCastFromObject(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
    {
-      PrimitiveType primitiveType = toType instanceof PrimitiveType ? (PrimitiveType) toType : null;
+      if (toType instanceof PrimitiveType) {
+         PrimitiveType primitiveType = (PrimitiveType) toType;
 
-      if (primitiveType != null && primitiveType.getType() == void.class) {
-         mv.visitInsn(POP);
-      }
-      else {
-         generateTypeCheck(mv, toType);
-
-         if (primitiveType != null) {
+         if (primitiveType.getType() == void.class) {
+            mv.visitInsn(POP);
+         }
+         else {
+            generateTypeCheck(mv, primitiveType);
             generateUnboxing(mv, primitiveType);
          }
       }
+      else {
+         generateTypeCheck(mv, toType);
+      }
+   }
+
+   private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
+   {
+      String typeDesc;
+
+      if (toType instanceof ReferenceType) {
+         typeDesc = ((ReferenceType) toType).getInternalName();
+      }
+      else {
+         typeDesc = ((PrimitiveType) toType).getWrapperTypeDesc();
+      }
+
+      mv.visitTypeInsn(CHECKCAST, typeDesc);
    }
 
    private static void generateUnboxing(@Nonnull MethodVisitor mv, @Nonnull PrimitiveType primitiveType)
@@ -46,23 +62,6 @@ public final class TypeConversion
       String methodDesc = "()" + primitiveType.getTypeCode();
 
       mv.visitMethodInsn(INVOKEVIRTUAL, owner, methodName, methodDesc, false);
-   }
-
-   private static void generateTypeCheck(@Nonnull MethodVisitor mv, @Nonnull JavaType toType)
-   {
-      String typeDesc;
-
-      if (toType instanceof ArrayType) {
-         typeDesc = toType.getDescriptor();
-      }
-      else if (toType instanceof ObjectType) {
-         typeDesc = ((ObjectType) toType).getInternalName();
-      }
-      else {
-         typeDesc = ((PrimitiveType) toType).getWrapperTypeDesc();
-      }
-
-      mv.visitTypeInsn(CHECKCAST, typeDesc);
    }
 
    public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode)
