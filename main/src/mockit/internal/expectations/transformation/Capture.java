@@ -79,10 +79,10 @@ final class Capture
       }
 
       if (typeToCapture.charAt(0) == '[') {
-         return JavaType.getType(typeToCapture);
+         return ArrayType.create(typeToCapture);
       }
 
-      return JavaType.getType('L' + typeToCapture + ';');
+      return ObjectType.create(typeToCapture);
    }
 
    boolean fixParameterIndex(@Nonnegative int originalIndex, @Nonnegative int newIndex)

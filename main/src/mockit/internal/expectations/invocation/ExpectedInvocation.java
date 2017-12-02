@@ -15,7 +15,6 @@ import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import mockit.internal.reflection.GenericTypeReflection.*;
-import static mockit.external.asm.JavaType.getType;
 import static mockit.internal.util.TypeDescriptor.getClassForType;
 
 public final class ExpectedInvocation
@@ -196,8 +195,8 @@ public final class ExpectedInvocation
       @Nonnull String invokedMethod, @Nonnegative int returnTypeStartPos)
    {
       String recordedMethod = getMethodNameAndDescription();
-      JavaType recordedRT = getType(recordedMethod.substring(returnTypeStartPos));
-      JavaType invokedRT  = getType(invokedMethod.substring(returnTypeStartPos));
+      JavaType recordedRT = JavaType.getType(recordedMethod.substring(returnTypeStartPos));
+      JavaType invokedRT  = JavaType.getType(invokedMethod.substring(returnTypeStartPos));
 
       return getClassForType(invokedRT).isAssignableFrom(getClassForType(recordedRT));
    }

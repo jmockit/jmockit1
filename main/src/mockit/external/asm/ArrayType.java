@@ -6,51 +6,48 @@ public final class ArrayType extends ReferenceType
 {
    @Nonnull
    public static ArrayType create(@Nonnull String typeDesc) {
-      return create(typeDesc.toCharArray(), 0);
+      return new ArrayType(typeDesc.toCharArray());
    }
 
    @Nonnull
    static ArrayType create(@Nonnull char[] buf, @Nonnegative int off) {
-      int len = 1;
-
-      while (buf[off + len] == '[') {
-         len++;
-      }
+      int len = findNumberOfDimensions(buf, off);
 
       if (buf[off + len] == 'L') {
-         len++;
-
-         while (buf[off + len] != ';') {
-            len++;
-         }
+         len = findTypeNameLength(buf, off, len);
       }
 
       return new ArrayType(buf, off, len + 1);
    }
 
+   @Nonnegative
+   private static int findNumberOfDimensions(@Nonnull char[] buf, @Nonnegative int off) {
+      int dimensions = 1;
+
+      while (buf[off + dimensions] == '[') {
+         dimensions++;
+      }
+
+      return dimensions;
+   }
+
+   ArrayType(@Nonnull char[] buf) { super(buf); }
+
    /**
     * Constructs an array type.
     *
-    * @param buf  a buffer containing the descriptor of the previous type.
-    * @param off  the offset of this descriptor in the previous buffer.
-    * @param len  the length of this descriptor.
+    * @param buf a buffer containing the descriptor of the array type.
+    * @param off the offset of the descriptor in the buffer.
+    * @param len the length of the descriptor.
     */
-   ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
-      super(buf, off, len);
-   }
+   ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
 
    /**
     * Returns the number of dimensions of this array type.
     */
    @Nonnegative
    public int getDimensions() {
-      int i = 1;
-
-      while (buf[off + i] == '[') {
-         i++;
-      }
-
-      return i;
+      return findNumberOfDimensions(buf, off);
    }
 
    /**

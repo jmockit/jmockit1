@@ -55,7 +55,7 @@ public final class ArgumentCapturing
       }
    }
 
-   void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
+   static void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
    {
       if (signature.startsWith("Ljava/util/List<")) {
          String typeDesc = signature.substring(16, signature.length() - 2);
@@ -65,7 +65,7 @@ public final class ArgumentCapturing
             typeDesc = typeDesc.substring(0, p) + ';';
          }
 
-         ReferenceType type = (ReferenceType) JavaType.getType(typeDesc);
+         ReferenceType type = ReferenceType.createFromTypeDescriptor(typeDesc);
          varIndexToTypeDesc.put(varIndex, type.getInternalName());
       }
    }

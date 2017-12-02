@@ -47,9 +47,7 @@ public abstract class JavaType
     *
     * @param len the length of this descriptor.
     */
-   JavaType(@Nonnegative int len) {
-      this.len = len;
-   }
+   JavaType(@Nonnegative int len) { this.len = len; }
 
    /**
     * Returns the Java type corresponding to the given type descriptor.
@@ -59,37 +57,6 @@ public abstract class JavaType
    @Nonnull
    public static JavaType getType(@Nonnull String typeDescriptor) {
       return getType(typeDescriptor.toCharArray(), 0);
-   }
-
-   /**
-    * Returns the Java type corresponding to the given class.
-    */
-   @Nonnull
-   public static JavaType getType(@Nonnull Class<?> aClass) {
-      if (aClass.isPrimitive()) {
-         return PrimitiveType.getPrimitiveType(aClass);
-      }
-
-      String typeDesc = getDescriptor(aClass);
-      return getType(typeDesc);
-   }
-
-   /**
-    * Returns the Java method type corresponding to the given constructor.
-    */
-   @Nonnull
-   public static JavaType getType(@Nonnull Constructor<?> constructor) {
-      String constructorDesc = getConstructorDescriptor(constructor);
-      return getType(constructorDesc);
-   }
-
-   /**
-    * Returns the Java method type corresponding to the given method.
-    */
-   @Nonnull
-   public static JavaType getType(@Nonnull Method method) {
-      String methodDesc = getMethodDescriptor(method);
-      return getType(methodDesc);
    }
 
    /**
@@ -108,7 +75,7 @@ public abstract class JavaType
             break;
          }
          else if (c == 'L') {
-            while (buf[off++] != ';') {}
+            off = findNextTypeTerminatorCharacter(buf, off);
             size++;
          }
          else if (c != '[') {
@@ -116,15 +83,24 @@ public abstract class JavaType
          }
       }
 
-      JavaType[] argTypes = new JavaType[size];
-      off = 1;
-      size = 0;
+      return getArgumentTypes(buf, size);
+   }
 
-      while (buf[off] != ')') {
+   @Nonnegative
+   private static int findNextTypeTerminatorCharacter(@Nonnull char[] desc, @Nonnegative int i) {
+      while (desc[i++] != ';') {}
+      return i;
+   }
+
+   @Nonnull
+   private static JavaType[] getArgumentTypes(@Nonnull char[] buf, @Nonnegative int argCount) {
+      JavaType[] argTypes = new JavaType[argCount];
+      int off = 1;
+
+      for (int i = 0; buf[off] != ')'; i++) {
          JavaType argType = getType(buf, off);
-         argTypes[size] = argType;
+         argTypes[i] = argType;
          off += argType.len + (argType instanceof ObjectType ? 2 : 0);
-         size++;
       }
 
       return argTypes;
@@ -157,28 +133,41 @@ public abstract class JavaType
 
          if (c == ')') {
             c = desc.charAt(i);
-            return argSize << 2 | (c == 'V' ? 0 : c == 'D' || c == 'J' ? 2 : 1);
+            return argSize << 2 | (c == 'V' ? 0 : isDoubleSizePrimitiveType(c) ? 2 : 1);
          }
          else if (c == 'L') {
-            while (desc.charAt(i++) != ';') {}
+            i = findNextTypeTerminatorCharacter(desc, i);
             argSize++;
          }
          else if (c == '[') {
-            while ((c = desc.charAt(i)) == '[') {
-               i++;
-            }
+            i = findStartOfArrayElementType(desc, i);
+            c = desc.charAt(i);
 
-            if (c == 'D' || c == 'J') {
+            if (isDoubleSizePrimitiveType(c)) {
                argSize--;
             }
          }
-         else if (c == 'D' || c == 'J') {
+         else if (isDoubleSizePrimitiveType(c)) {
             argSize += 2;
          }
          else {
             argSize++;
          }
       }
+   }
+
+   private static boolean isDoubleSizePrimitiveType(char typeCode) { return typeCode == 'D' || typeCode == 'J'; }
+
+   @Nonnegative
+   private static int findNextTypeTerminatorCharacter(@Nonnull String desc, @Nonnegative int i) {
+      while (desc.charAt(i++) != ';') {}
+      return i;
+   }
+
+   @Nonnegative
+   private static int findStartOfArrayElementType(@Nonnull String desc, @Nonnegative int i) {
+      while (desc.charAt(i) == '[') { i++; }
+      return i;
    }
 
    /**
@@ -190,19 +179,13 @@ public abstract class JavaType
     */
    @Nonnull
    static JavaType getType(@Nonnull char[] buf, @Nonnegative int off) {
-      char typeCode = buf[off];
-      JavaType type = PrimitiveType.getPrimitiveType(typeCode);
+      PrimitiveType primitiveType = PrimitiveType.getPrimitiveType(buf[off]);
 
-      if (type != null) {
-         return type;
+      if (primitiveType != null) {
+         return primitiveType;
       }
 
-      switch (typeCode) {
-         case '[': return ArrayType.create(buf, off);
-         case 'L': return ObjectType.create(buf, off);
-         // case '(':
-         default: return new MethodType(buf, off, buf.length - off);
-      }
+      return ReferenceType.getReferenceType(buf, off);
    }
 
    /**
@@ -264,15 +247,22 @@ public abstract class JavaType
     */
    @Nonnull
    public static String getConstructorDescriptor(@Nonnull Constructor<?> constructor) {
-      Class<?>[] parameters = constructor.getParameterTypes();
+      StringBuilder buf = getMemberDescriptor(constructor.getParameterTypes());
+      buf.append('V');
+      return buf.toString();
+   }
+
+   @Nonnull
+   private static StringBuilder getMemberDescriptor(@Nonnull Class<?>[] parameterTypes) {
       StringBuilder buf = new StringBuilder();
       buf.append('(');
 
-      for (Class<?> parameter : parameters) {
-         getDescriptor(buf, parameter);
+      for (Class<?> parameterType : parameterTypes) {
+         getDescriptor(buf, parameterType);
       }
 
-      return buf.append(")V").toString();
+      buf.append(')');
+      return buf;
    }
 
    /**
@@ -280,15 +270,7 @@ public abstract class JavaType
     */
    @Nonnull
    public static String getMethodDescriptor(@Nonnull Method method) {
-      Class<?>[] parameters = method.getParameterTypes();
-      StringBuilder buf = new StringBuilder();
-      buf.append('(');
-
-      for (Class<?> parameter : parameters) {
-         getDescriptor(buf, parameter);
-      }
-
-      buf.append(')');
+      StringBuilder buf = getMemberDescriptor(method.getParameterTypes());
       getDescriptor(buf, method.getReturnType());
       return buf.toString();
    }

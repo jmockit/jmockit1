@@ -7,7 +7,7 @@ import static mockit.external.asm.Opcodes.*;
 public abstract class ReferenceType extends JavaType
 {
    /**
-    * A buffer containing the internal name of this Java type. This field is only used for reference types.
+    * A buffer containing the internal name of this Java reference type.
     */
    @Nonnull final char[] buf;
 
@@ -16,6 +16,12 @@ public abstract class ReferenceType extends JavaType
     */
    @Nonnegative final int off;
 
+   ReferenceType(@Nonnull char[] buf) {
+      super(buf.length);
+      this.buf = buf;
+      off = 0;
+   }
+
    ReferenceType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
       super(len);
       this.buf = buf;
@@ -23,12 +29,49 @@ public abstract class ReferenceType extends JavaType
    }
 
    /**
+    * Returns the Java type corresponding to the given type descriptor.
+    *
+    * @param typeDesc a type descriptor.
+    */
+   @Nonnull
+   public static ReferenceType createFromTypeDescriptor(@Nonnull String typeDesc) {
+      return getReferenceType(typeDesc.toCharArray(), 0);
+   }
+
+   /**
+    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <tt>buf</tt> is supposed
+    * to contain nothing more than the descriptor itself.
+    *
+    * @param buf a buffer containing a type descriptor.
+    * @param off the offset of this descriptor in the previous buffer.
+    */
+   @Nonnull
+   static ReferenceType getReferenceType(@Nonnull char[] buf, @Nonnegative int off) {
+      switch (buf[off]) {
+         case '[': return ArrayType.create(buf, off);
+         case 'L': return ObjectType.create(buf, off);
+         case '(': return new MethodType(buf, off, buf.length - off);
+         default:  throw new IllegalArgumentException("Invalid type descriptor: " + new String(buf));
+      }
+   }
+
+   /**
     * Returns the object or array type corresponding to the given internal name.
     */
    @Nonnull
-   public static ReferenceType getObjectType(@Nonnull String internalName) {
+   public static ReferenceType createFromInternalName(@Nonnull String internalName) {
       char[] buf = internalName.toCharArray();
-      return buf[0] == '[' ? new ArrayType(buf, 0, buf.length) : new ObjectType(buf, 0, buf.length);
+      return buf[0] == '[' ? new ArrayType(buf) : new ObjectType(buf);
+   }
+
+   static int findTypeNameLength(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
+      len++;
+
+      while (buf[off + len] != ';') {
+         len++;
+      }
+
+      return len;
    }
 
    static void getDescriptor(@Nonnull StringBuilder buf, @Nonnull Class<?> aClass) {

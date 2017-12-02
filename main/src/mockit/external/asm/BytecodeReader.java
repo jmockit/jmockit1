@@ -257,7 +257,7 @@ class BytecodeReader
          case CLASS:
             String typeDesc = readUTF8(startIndex);
             //noinspection ConstantConditions
-            return ReferenceType.getObjectType(typeDesc);
+            return ReferenceType.createFromInternalName(typeDesc);
          case STR:
             String string = readUTF8(startIndex);
             //noinspection ConstantConditions

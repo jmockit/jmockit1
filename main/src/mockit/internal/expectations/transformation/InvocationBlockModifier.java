@@ -325,7 +325,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       @Nonnegative int index)
    {
       if (signature != null) {
-         argumentCapturing.registerTypeToCaptureIntoListIfApplicable(index, signature);
+         ArgumentCapturing.registerTypeToCaptureIntoListIfApplicable(index, signature);
       }
 
       // In classes instrumented with EMMA some local variable information can be lost, so we discard it entirely to
