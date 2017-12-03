@@ -13,7 +13,7 @@ public class WrappingClassVisitor extends ClassVisitor
    @Nonnull protected final ClassWriter cw;
 
    /**
-    * Constructs a new {@link WrappingClassVisitor}.
+    * Constructs a new WrappingClassVisitor.
     *
     * @param cw the class writer to which this visitor must delegate method calls.
     */

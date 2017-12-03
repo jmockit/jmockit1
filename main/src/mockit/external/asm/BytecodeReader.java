@@ -87,75 +87,75 @@ class BytecodeReader
    /**
     * Reads a byte value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #code}.
+    * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final int readByte(@Nonnegative int index) {
-      return code[index] & 0xFF;
+   final int readByte(@Nonnegative int codeIndex) {
+      return code[codeIndex] & 0xFF;
    }
 
-   final char readChar(@Nonnegative int index) {
-      return (char) readInt(index);
+   final char readChar(@Nonnegative int codeIndex) {
+      return (char) readInt(codeIndex);
    }
 
-   final boolean readBoolean(@Nonnegative int index) {
-      return readInt(index) != 0;
+   final boolean readBoolean(@Nonnegative int codeIndex) {
+      return readInt(codeIndex) != 0;
    }
 
    /**
     * Reads an unsigned short value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #code}.
+    * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
    @Nonnegative
-   final int readUnsignedShort(@Nonnegative int index) {
+   final int readUnsignedShort(@Nonnegative int codeIndex) {
       byte[] b = code;
-      return ((b[index] & 0xFF) << 8) | (b[index + 1] & 0xFF);
+      return ((b[codeIndex] & 0xFF) << 8) | (b[codeIndex + 1] & 0xFF);
    }
 
    /**
     * Reads a signed short value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #code}.
+    * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final short readShort(@Nonnegative int index) {
-      return (short) readUnsignedShort(index);
+   final short readShort(@Nonnegative int codeIndex) {
+      return (short) readUnsignedShort(codeIndex);
    }
 
    /**
     * Reads a signed int value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #code}.
+    * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final int readInt(@Nonnegative int index) {
+   final int readInt(@Nonnegative int codeIndex) {
       byte[] b = code;
       return
-         ((b[index] & 0xFF) << 24) | ((b[index + 1] & 0xFF) << 16) |
-         ((b[index + 2] & 0xFF) << 8) | (b[index + 3] & 0xFF);
+         ((b[codeIndex] & 0xFF) << 24) | ((b[codeIndex + 1] & 0xFF) << 16) |
+         ((b[codeIndex + 2] & 0xFF) << 8) | (b[codeIndex + 3] & 0xFF);
    }
 
    /**
     * Reads a signed long value in {@link #code}.
     *
-    * @param index the start index of the value to be read in {@link #code}.
+    * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final long readLong(@Nonnegative int index) {
-      long l1 = readInt(index);
-      long l0 = readInt(index + 4) & 0xFFFFFFFFL;
+   final long readLong(@Nonnegative int codeIndex) {
+      long l1 = readInt(codeIndex);
+      long l0 = readInt(codeIndex + 4) & 0xFFFFFFFFL;
       return (l1 << 32) | l0;
    }
 
-   final double readDouble(@Nonnegative int index) {
-      long bits = readLong(index);
+   final double readDouble(@Nonnegative int codeIndex) {
+      long bits = readLong(codeIndex);
       return Double.longBitsToDouble(bits);
    }
 
-   final float readFloat(@Nonnegative int index) {
-      int bits = readInt(index);
+   final float readFloat(@Nonnegative int codeIndex) {
+      int bits = readInt(codeIndex);
       return Float.intBitsToFloat(bits);
    }
 
@@ -209,18 +209,18 @@ class BytecodeReader
    /**
     * Reads an UTF8 string constant pool item in {@link #code}.
     *
-    * @param index the start index of an unsigned short value in {@link #code}, whose value is the index of an UTF8
-    *              constant pool item.
+    * @param codeIndex the start index of an unsigned short value in {@link #code}, whose value is the index of an UTF8
+    *                  constant pool item.
     * @return the String corresponding to the specified UTF8 item, or <tt>null</tt> if index is zero or points to an
     * item whose value is zero.
     */
    @Nullable
-   final String readUTF8(@Nonnegative int index) {
-      if (index == 0) {
+   final String readUTF8(@Nonnegative int codeIndex) {
+      if (codeIndex == 0) {
          return null;
       }
 
-      int itemIndex = readUnsignedShort(index);
+      int itemIndex = readUnsignedShort(codeIndex);
 
       if (itemIndex == 0) {
          return null;
@@ -242,6 +242,12 @@ class BytecodeReader
       return string;
    }
 
+   @Nonnull
+   final Object readConstItem(@Nonnegative int codeIndex) {
+      int itemIndex = readUnsignedShort(codeIndex);
+      return readConst(itemIndex);
+   }
+
    /**
     * Reads a numeric or string constant pool item in {@link #code}.
     *
@@ -251,41 +257,41 @@ class BytecodeReader
     */
    @Nonnull
    final Object readConst(@Nonnegative int itemIndex) {
-      int startIndex = items[itemIndex];
-      byte itemType = code[startIndex - 1];
+      int codeIndex = items[itemIndex];
+      byte itemType = code[codeIndex - 1];
 
       switch (itemType) {
-         case INT:    return readInt(startIndex);
-         case FLOAT:  return readFloat(startIndex);
-         case LONG:   return readLong(startIndex);
-         case DOUBLE: return readDouble(startIndex);
+         case INT:    return readInt(codeIndex);
+         case FLOAT:  return readFloat(codeIndex);
+         case LONG:   return readLong(codeIndex);
+         case DOUBLE: return readDouble(codeIndex);
          case CLASS:
-            String typeDesc = readUTF8(startIndex);
+            String typeDesc = readUTF8(codeIndex);
             //noinspection ConstantConditions
             return ReferenceType.createFromInternalName(typeDesc);
          case STR:
-            String string = readUTF8(startIndex);
+            String string = readUTF8(codeIndex);
             //noinspection ConstantConditions
             return string;
          case MTYPE:
-            String methodDesc = readUTF8(startIndex);
+            String methodDesc = readUTF8(codeIndex);
             //noinspection ConstantConditions
             return MethodType.create(methodDesc);
          default: // case HANDLE_BASE + [1..9]:
-            return readHandle(startIndex);
+            return readHandle(codeIndex);
       }
    }
 
    @Nonnull
-   private Object readHandle(@Nonnegative int startIndex) {
-      int tag = readByte(startIndex);
+   private Object readHandle(@Nonnegative int codeIndex) {
+      int tag = readByte(codeIndex);
 
-      int i = readUnsignedShort(startIndex + 1);
-      int classIndex = items[i];
+      int itemIndex = readUnsignedShort(codeIndex + 1);
+      int classIndex = items[itemIndex];
       String owner = readClass(classIndex);
 
-      i = readUnsignedShort(classIndex + 2);
-      int nameIndex = items[i];
+      itemIndex = readUnsignedShort(classIndex + 2);
+      int nameIndex = items[itemIndex];
       String name = readUTF8(nameIndex);
       String desc = readUTF8(nameIndex + 2);
 
@@ -296,15 +302,15 @@ class BytecodeReader
    /**
     * Reads a class constant pool item in {@link #code}.
     *
-    * @param index the start index of an unsigned short value in {@link #code}, whose value is the index of a class
-    *              constant pool item.
+    * @param codeIndex the start index of an unsigned short value in {@link #code}, whose value is the index of a class
+    *                  constant pool item.
     * @return the String corresponding to the specified class item.
     */
    @Nullable
-   final String readClass(@Nonnegative int index) {
+   final String readClass(@Nonnegative int codeIndex) {
       // Computes the start index of the CONSTANT_Class item in code and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
-      int itemIndex = readUnsignedShort(index);
+      int itemIndex = readUnsignedShort(codeIndex);
       String classDesc = readUTF8(items[itemIndex]);
       return classDesc;
    }

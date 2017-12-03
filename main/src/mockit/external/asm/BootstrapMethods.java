@@ -50,7 +50,7 @@ final class BootstrapMethods
       int argsLength = bsmArgs.length;
       methods.putShort(argsLength);
 
-      hashCode = putBSMArgs(hashCode, bsmArgs);
+      hashCode = putBSMArgs(methods, hashCode, bsmArgs);
 
       byte[] data = methods.data;
       int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
@@ -75,11 +75,8 @@ final class BootstrapMethods
       return result;
    }
 
-   private int putBSMArgs(int hashCode, @Nonnull Object[] bsmArgs) {
-      @SuppressWarnings("ConstantConditions") @Nonnull ByteVector methods = bootstrapMethods;
-
-      for (int i = 0; i < bsmArgs.length; i++) {
-         Object bsmArg = bsmArgs[i];
+   private int putBSMArgs(@Nonnull ByteVector methods, int hashCode, @Nonnull Object[] bsmArgs) {
+      for (Object bsmArg : bsmArgs) {
          hashCode ^= bsmArg.hashCode();
 
          Item constItem = constantPool.newConstItem(bsmArg);
@@ -89,7 +86,7 @@ final class BootstrapMethods
       return hashCode;
    }
 
-   @Nullable
+   @Nullable @SuppressWarnings("MethodWithMultipleLoops")
    private Item getBSMItem(@Nonnegative int position, int hashCode, @Nonnull byte[] data, @Nonnegative int length) {
       Item bsmItem = constantPool.getItem(hashCode);
 
@@ -138,48 +135,68 @@ final class BootstrapMethods
     * Copies the bootstrap method data from the given {@link ClassReader}.
     */
    void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items) {
-      // Finds the "BootstrapMethods" attribute.
-      int u = cr.getAttributesStartIndex();
-      boolean found = false;
+      int codeIndex = findBootstrapMethodsAttribute(cr);
 
-      for (int i = cr.readUnsignedShort(u); i > 0; i--) {
-         String attrName = cr.readUTF8(u + 2);
-
-         if ("BootstrapMethods".equals(attrName)) {
-            found = true;
-            break;
-         }
-
-         u += 6 + cr.readInt(u + 4);
-      }
-
-      if (!found) {
+      if (codeIndex == 0) {
          return;
       }
 
       // Copies the bootstrap methods in the class writer.
-      bootstrapMethodsCount = cr.readUnsignedShort(u + 8);
+      int bsmCount = cr.readUnsignedShort(codeIndex + 8);
+      int bsmCodeStartIndex = codeIndex + 10;
 
-      for (int j = 0, v = u + 10; j < bootstrapMethodsCount; j++) {
-         int position = v - u - 10;
-         int hashCode = cr.readConst(cr.readUnsignedShort(v)).hashCode();
-
-         for (int k = cr.readUnsignedShort(v + 2); k > 0; k--) {
-            Object aConst = cr.readConst(cr.readUnsignedShort(v + 4));
-            hashCode ^= aConst.hashCode();
-            v += 2;
-         }
-
-         v += 4;
-         Item item = new Item(j);
-         item.set(position, hashCode & 0x7FFFFFFF);
-         int index = item.hashCode % items.length;
-         item.next = items[index];
-         items[index] = item;
+      for (int bsmIndex = 0, bsmCodeIndex = bsmCodeStartIndex; bsmIndex < bsmCount; bsmIndex++) {
+         int position = bsmCodeIndex - bsmCodeStartIndex;
+         bsmCodeIndex = copyBootstrapMethod(cr, items, bsmIndex, bsmCodeIndex, position);
       }
 
-      int attrSize = cr.readInt(u + 4);
+      int attrSize = cr.readInt(codeIndex + 4);
       bootstrapMethods = new ByteVector(attrSize + 62);
-      bootstrapMethods.putByteArray(cr.code, u + 10, attrSize - 2);
+      bootstrapMethods.putByteArray(cr.code, bsmCodeStartIndex, attrSize - 2);
+      bootstrapMethodsCount = bsmCount;
+   }
+
+   private static int copyBootstrapMethod(
+      @Nonnull ClassReader cr, @Nonnull Item[] items, @Nonnegative int bsmIndex, @Nonnegative int bsmCodeIndex,
+      @Nonnegative int position
+   ) {
+      int hashCode = cr.readConstItem(bsmCodeIndex).hashCode();
+      bsmCodeIndex += 2;
+
+      int bsmConstCount = cr.readUnsignedShort(bsmCodeIndex);
+
+      for (int bsmConstIndex = bsmConstCount; bsmConstIndex > 0; bsmConstIndex--) {
+         Object aConst = cr.readConstItem(bsmCodeIndex + 2);
+         hashCode ^= aConst.hashCode();
+         bsmCodeIndex += 2;
+      }
+
+      bsmCodeIndex += 2;
+
+      Item item = new Item(bsmIndex);
+      item.set(position, hashCode & 0x7FFFFFFF);
+
+      int index = item.hashCode % items.length;
+      item.next = items[index];
+      items[index] = item;
+
+      return bsmCodeIndex;
+   }
+
+   @Nonnegative
+   private static int findBootstrapMethodsAttribute(@Nonnull ClassReader cr) {
+      int codeIndex = cr.getAttributesStartIndex();
+
+      for (int attributeCount = cr.readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
+         String attrName = cr.readUTF8(codeIndex + 2);
+
+         if ("BootstrapMethods".equals(attrName)) {
+            return codeIndex;
+         }
+
+         codeIndex += 6 + cr.readInt(codeIndex + 4);
+      }
+
+      return 0;
    }
 }
