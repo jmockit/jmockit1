@@ -12,7 +12,7 @@ import mockit.*;
 import mockit.integration.*;
 
 // These tests are expected to fail, so they are kept inactive.
-//@Ignore
+@Ignore
 public final class JUnit4ViolatedExpectationsTest
 {
    @Test // fails with a "missing invocation" error

@@ -12,7 +12,7 @@ import mockit.*;
 import mockit.integration.*;
 
 // These tests are expected to fail, so they are kept inactive.
-//@Test(enabled = false)
+@Test(enabled = false)
 public final class TestNGViolatedExpectationsTest
 {
    @Test // fails with a "missing invocation" error
