@@ -16,7 +16,6 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
 
    // Input data:
    @Nonnull private final String blockOwner;
-   private final boolean callEndInvocations;
 
    // Keeps track of the current stack size (after each bytecode instruction) within the invocation block:
    @Nonnegative private int stackSize;
@@ -31,11 +30,10 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
 
    private int lastLoadedArrayIndex;
 
-   InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner, boolean callEndInvocations)
+   InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner)
    {
       super(mw);
       this.blockOwner = blockOwner;
-      this.callEndInvocations = callEndInvocations;
       argumentMatching = new ArgumentMatching(this);
       argumentCapturing = new ArgumentCapturing(this);
    }
@@ -302,7 +300,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    @Override
    public void visitInsn(@Nonnegative int opcode)
    {
-      if (opcode == RETURN && callEndInvocations) {
+      if (opcode == RETURN) {
          generateCallToActiveInvocationsMethod("endInvocations");
       }
       else {

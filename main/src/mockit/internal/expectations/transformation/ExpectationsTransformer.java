@@ -6,112 +6,16 @@ package mockit.internal.expectations.transformation;
 
 import java.lang.instrument.*;
 import java.security.*;
-import java.util.*;
 import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
 
 import mockit.external.asm.*;
-import mockit.internal.*;
-import mockit.internal.startup.*;
 import mockit.internal.util.*;
 
 public final class ExpectationsTransformer implements ClassFileTransformer
 {
-   @Nonnull private final List<String> baseSubclasses;
-
-   public ExpectationsTransformer(@Nonnull Instrumentation instrumentation)
-   {
-      baseSubclasses = new ArrayList<String>();
-      baseSubclasses.add("mockit/Expectations");
-      baseSubclasses.add("mockit/Verifications");
-      baseSubclasses.add("mockit/FullVerifications");
-      baseSubclasses.add("mockit/VerificationsInOrder");
-      baseSubclasses.add("mockit/FullVerificationsInOrder");
-
-      Class<?>[] alreadyLoaded = instrumentation.getAllLoadedClasses();
-      findAndModifyOtherBaseSubclasses(alreadyLoaded);
-      modifyFinalSubclasses(alreadyLoaded);
-   }
-
-   private void findAndModifyOtherBaseSubclasses(@Nonnull Class<?>[] alreadyLoaded)
-   {
-      for (Class<?> aClass : alreadyLoaded) {
-         if (
-            aClass.getClassLoader() != null && !isFinalClass(aClass) &&
-            isExpectationsOrVerificationsSubclassFromUserCode(aClass)
-         ) {
-            modifyInvocationsSubclass(aClass, false);
-         }
-      }
-   }
-
-   private static boolean isFinalClass(@Nonnull Class<?> aClass)
-   {
-      return isFinal(aClass.getModifiers()) || ClassNaming.isAnonymousClass(aClass);
-   }
-
-   private static boolean isExpectationsOrVerificationsSubclassFromUserCode(@Nonnull Class<?> aClass)
-   {
-      if (isExpectationsOrVerificationsAPIClass(aClass)) {
-         return false;
-      }
-
-      Class<?> superclass = aClass.getSuperclass();
-
-      while (superclass != null && superclass != Object.class && superclass.getClassLoader() != null) {
-         if (isExpectationsOrVerificationsAPIClass(superclass)) {
-            return true;
-         }
-
-         superclass = superclass.getSuperclass();
-      }
-
-      return false;
-   }
-
-   private static boolean isExpectationsOrVerificationsAPIClass(@Nonnull Class<?> aClass)
-   {
-      return
-         ("mockit.Expectations mockit.Verifications mockit.FullVerifications mockit.VerificationsInOrder " +
-          "mockit.FullVerificationsInOrder").contains(aClass.getName());
-   }
-
-   private void modifyFinalSubclasses(@Nonnull Class<?>[] alreadyLoaded)
-   {
-      for (Class<?> aClass : alreadyLoaded) {
-         if (
-            aClass.getClassLoader() != null && isFinalClass(aClass) &&
-            isExpectationsOrVerificationsSubclassFromUserCode(aClass)
-         ) {
-            modifyInvocationsSubclass(aClass, true);
-         }
-      }
-   }
-
-   private void modifyInvocationsSubclass(@Nonnull Class<?> aClass, boolean isFinalClass)
-   {
-      ClassReader cr = ClassFile.createClassFileReader(aClass);
-      byte[] modifiedClassfile = modifyInvocationsSubclass(cr, aClass.getClassLoader(), isFinalClass);
-
-      if (modifiedClassfile != null) {
-         Startup.redefineMethods(aClass, modifiedClassfile);
-      }
-   }
-
-   @Nullable
-   private byte[] modifyInvocationsSubclass(@Nonnull ClassReader cr, ClassLoader loader, boolean finalClass)
-   {
-      ClassVisitor modifier = new EndOfBlockModifier(cr, loader, baseSubclasses, finalClass);
-
-      try {
-         cr.accept(modifier);
-         return modifier.toByteArray();
-      }
-      catch (VisitInterruptedException ignore) {}
-      catch (Throwable e) { e.printStackTrace(); }
-
-      return null;
-   }
+   private static final String BASE_CLASSES =
+      "mockit/Expectations mockit/Verifications " +
+      "mockit/VerificationsInOrder mockit/FullVerifications mockit/FullVerificationsInOrder";
 
    @Nullable @Override
    public byte[] transform(
@@ -119,19 +23,50 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
    {
       if (classBeingRedefined == null && protectionDomain != null) {
-         ClassReader cr = new ClassReader(classfileBuffer);
-         String superClassName = cr.getSuperName();
+         boolean anonymousClass = ClassNaming.isAnonymousClass(className);
 
-         if (
-            !baseSubclasses.contains(superClassName) &&
-            !superClassName.endsWith("Expectations") && !superClassName.endsWith("Verifications")
-         ) {
-            return null;
+         if (anonymousClass && !className.startsWith("mockit/internal/") && !className.startsWith("org/junit/")) {
+            ClassReader cr = new ClassReader(classfileBuffer);
+            String superClassName = cr.getSuperName();
+
+            if (superClassName == null || !BASE_CLASSES.contains(superClassName)) {
+               return null;
+            }
+
+            return modifyInvocationsSubclass(cr, className);
          }
-
-         boolean finalClass = ClassNaming.isAnonymousClass(className);
-         return modifyInvocationsSubclass(cr, loader, finalClass);
       }
+
+      return null;
+   }
+
+   @Nullable
+   private static byte[] modifyInvocationsSubclass(@Nonnull ClassReader cr, @Nonnull final String classDesc)
+   {
+      ClassWriter cw = new ClassWriter(cr);
+
+      ClassVisitor modifier = new WrappingClassVisitor(cw) {
+         @Override
+         public MethodVisitor visitMethod(
+            int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+            @Nullable String[] exceptions)
+         {
+            MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
+
+            if (!"<init>".equals(name)) {
+               return mw;
+            }
+
+            return new InvocationBlockModifier(mw, classDesc);
+         }
+      };
+
+      try {
+         cr.accept(modifier);
+         return modifier.toByteArray();
+      }
+      catch (VisitInterruptedException ignore) {}
+      catch (Throwable e) { e.printStackTrace(); }
 
       return null;
    }

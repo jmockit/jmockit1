@@ -57,7 +57,7 @@ public final class Startup
    {
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
       applyStartupFakes(inst);
-      inst.addTransformer(new ExpectationsTransformer(inst));
+      inst.addTransformer(new ExpectationsTransformer());
    }
 
    private static void applyStartupFakes(@Nonnull Instrumentation inst)
