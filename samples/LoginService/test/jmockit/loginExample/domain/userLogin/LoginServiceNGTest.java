@@ -79,15 +79,7 @@ public final class LoginServiceNGTest
       service.login("john", "password");
       service.login("roger", "password");
 
-      new AccountNotRevoked(secondAccount);
-   }
-
-   static final class AccountNotRevoked extends Verifications
-   {
-      AccountNotRevoked(UserAccount accountToVerify)
-      {
-         accountToVerify.setRevoked(true); times = 0;
-      }
+      new Verifications() {{ secondAccount.setRevoked(true); times = 0; }};
    }
 
    @Test(expectedExceptions = AccountLoginLimitReachedException.class)
@@ -128,6 +120,6 @@ public final class LoginServiceNGTest
       service.login("john", "password");
       service.login("john", "password");
 
-      new AccountNotRevoked(account);
+      new Verifications() {{ account.setRevoked(true); times = 0; }};
    }
 }
