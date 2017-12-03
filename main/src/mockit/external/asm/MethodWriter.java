@@ -382,7 +382,7 @@ public final class MethodWriter extends MethodVisitor
       dflt.put(code, source, true);
       code.putInt(labels.length);
 
-      for (int i = 0; i < labels.length; ++i) {
+      for (int i = 0; i < labels.length; i++) {
          code.putInt(keys[i]);
          labels[i].put(code, source, true);
       }

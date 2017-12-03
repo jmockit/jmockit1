@@ -48,7 +48,7 @@ public abstract class AnnotationVisitor
    @Nullable AnnotationWriter prev;
 
    /**
-    * Constructs a new {@link AnnotationVisitor}.
+    * Constructs a new AnnotationVisitor.
     */
    protected AnnotationVisitor() {}
 
@@ -56,14 +56,14 @@ public abstract class AnnotationVisitor
    protected abstract int getByteLength();
 
    /**
-    * Visits a primitive value of the annotation.
+    * Visits a primitive, String, Class, or array value of the annotation.
     *
     * @param name  the value name.
     * @param value the actual value, whose type must be {@link Byte}, {@link Boolean}, {@link Character},
     *              {@link Short}, {@link Integer}, {@link Long}, {@link Float}, {@link Double}, {@link String} or
-    *              {@link JavaType} or OBJECT or ARRAY sort. This value can also be an array of byte, boolean, short,
-    *              char, int, long, float or double values (this is equivalent to using {@link #visitArray visitArray}
-    *              and visiting each array element in turn, but is more convenient).
+    *              {@link JavaType} of OBJECT or ARRAY sort. This value can also be an array of byte, boolean, short,
+    *              char, int, long, float or double values (this is equivalent to using {@link #visitArray} and visiting
+    *              each array element in turn, but is more convenient).
     */
    public void visit(@Nullable String name, @Nonnull Object value) {}
 
@@ -89,9 +89,8 @@ public abstract class AnnotationVisitor
    public AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) { return null; }
 
    /**
-    * Visits an array value of the annotation. Note that arrays of primitive types (such as byte, boolean, short, char,
-    * int, long, float or double) can be passed as value to {@link #visit visit}.
-    * This is what {@link ClassReader} does.
+    * Visits an array value of the annotation. Note that arrays of primitive types can be passed as value to
+    * {@link #visit(String, Object)}. This is what {@link ClassReader} does.
     *
     * @param name the value name.
     * @return a visitor to visit the actual array value elements, or <tt>null</tt> if this visitor is not interested in

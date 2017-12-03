@@ -90,7 +90,7 @@ public final class PrimitiveType extends JavaType
    }
 
    @Nullable
-   static PrimitiveType getPrimitiveType(char typeCode) {
+   static PrimitiveType getPrimitiveType(int typeCode) {
       int i = TYPE_CODES_STR.indexOf(typeCode);
       return i < 0 ? null : JAVA_TYPES[i];
    }
