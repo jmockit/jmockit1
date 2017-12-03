@@ -38,7 +38,7 @@ final class AnnotationReader extends BytecodeReader
       int valueCount = readUnsignedShort(v);
       v += 2;
 
-      for (; valueCount > 0; valueCount--) {
+      while (valueCount > 0) {
          String name = null;
 
          if (named) {
@@ -47,6 +47,7 @@ final class AnnotationReader extends BytecodeReader
          }
 
          v = readAnnotationValue(v, name, av);
+         valueCount--;
       }
 
       if (av != null) {
@@ -78,78 +79,57 @@ final class AnnotationReader extends BytecodeReader
     */
    @Nonnegative
    private int readAnnotationValue(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
+      int typeCode = code[v++] & 0xFF;
+
       if (av == null) {
-         return readAnnotationValue(v);
+         return readAnnotationValue(v, typeCode);
       }
 
-      int typeCode = code[v++] & 0xFF;
-      Object value;
+      Object value = readAnnotationValueIfPrimitiveOrString(v, typeCode);
+
+      if (value != null) {
+         av.visit(name, value);
+         v += 2;
+         return v;
+      }
 
       switch (typeCode) {
-         case 'I': // pointer to CONSTANT_Integer
-         case 'J': // pointer to CONSTANT_Long
-         case 'F': // pointer to CONSTANT_Float
-         case 'D': // pointer to CONSTANT_Double
-            value = readConst(readUnsignedShort(v));
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 'B': // pointer to CONSTANT_Byte
-            value = (byte) readInt(items[readUnsignedShort(v)]);
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 'Z': // pointer to CONSTANT_Boolean
-            value = readInt(items[readUnsignedShort(v)]) == 0 ? Boolean.FALSE : Boolean.TRUE;
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 'S': // pointer to CONSTANT_Short
-            value = (short) readInt(items[readUnsignedShort(v)]);
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 'C': // pointer to CONSTANT_Char
-            value = (char) readInt(items[readUnsignedShort(v)]);
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 's': // pointer to CONSTANT_Utf8
-            value = readUTF8(v);
-            //noinspection ConstantConditions
-            av.visit(name, value);
-            v += 2;
-            break;
-         case 'e': // enum_const_value
-            v = readEnumConstValue(v, name, av);
-            break;
-         case 'c': // class_info
-            v = readClassInfo(v, name, av);
-            break;
-         case '@': // annotation_value
-            v = readAnnotationValue2(v, name, av);
-            break;
-         case '[': // array_value
-            v = readArrayValue(v, name, av);
+         case 'e': return readEnumConstValue(v, name, av);   // enum_const_value
+         case 'c': return readClassInfo(v, name, av);        // class_info
+         case '@': return readAnnotationValue2(v, name, av); // annotation_value
+         case '[': return readArrayValue(v, name, av);       // array_value
+         default: return v;
       }
-
-      return v;
    }
 
    @Nonnegative
-   private int readAnnotationValue(@Nonnegative int v) {
-      int typeCode = code[v] & 0xFF;
-
+   private int readAnnotationValue(@Nonnegative int v, int typeCode) {
       switch (typeCode) {
-         case 'e': // enum_const_value
-            return v + 5;
-         case '@': // annotation_value
-            return readNamedAnnotationValues(v + 3, null);
-         case '[': // array_value
-            return readUnnamedAnnotationValues(v + 1, null);
-         default:
-            return v + 3;
+         case 'e': return v + 4;                                  // enum_const_value
+         case '@': return readNamedAnnotationValues(v + 2, null); // annotation_value
+         case '[': return readUnnamedAnnotationValues(v, null);   // array_value
+         default:  return v + 2;
       }
+   }
+
+   @Nullable
+   private Object readAnnotationValueIfPrimitiveOrString(@Nonnegative int v, int typeCode) {
+      switch (typeCode) {
+         case 'I': case 'J': case 'F': case 'D':
+            return readConst(readUnsignedShort(v));            // CONSTANT_Integer/Long/Float/Double
+         case 'B': return (byte) readValueOfOneOrTwoBytes(v);  // CONSTANT_Byte
+         case 'Z': return readValueOfOneOrTwoBytes(v) != 0;    // CONSTANT_Boolean
+         case 'S': return (short) readValueOfOneOrTwoBytes(v); // CONSTANT_Short
+         case 'C': return (char)  readValueOfOneOrTwoBytes(v); // CONSTANT_Char
+         case 's': return readUTF8(v);                         // CONSTANT_Utf8
+         default:  return null;
+      }
+   }
+
+   private int readValueOfOneOrTwoBytes(@Nonnegative int v) {
+      int itemIndex = readUnsignedShort(v);
+      int item = items[itemIndex];
+      return readInt(item);
    }
 
    @Nonnegative
@@ -163,14 +143,11 @@ final class AnnotationReader extends BytecodeReader
       return v + 4;
    }
 
-   @Nonnegative
+   @Nonnegative @SuppressWarnings("ConstantConditions")
    private int readClassInfo(@Nonnegative int v, @Nullable String name, @Nullable AnnotationVisitor av) {
       String typeDesc = readUTF8(v);
-      @SuppressWarnings("ConstantConditions") Object value = JavaType.getType(typeDesc);
-
-      //noinspection ConstantConditions
+      ReferenceType value = ReferenceType.createFromTypeDescriptor(typeDesc);
       av.visit(name, value);
-
       return v + 2;
    }
 
@@ -194,54 +171,47 @@ final class AnnotationReader extends BytecodeReader
 
       v += 2;
       int typeCode = code[v] & 0xFF;
+      PrimitiveType primitiveElementType = PrimitiveType.getPrimitiveType(typeCode);
 
-      if ("BZSCIJFD".indexOf(typeCode) < 0) {
+      if (primitiveElementType == null) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
          return readUnnamedAnnotationValues(v - 2, arrayVisitor);
       }
 
-      Class<?> elementType = PrimitiveType.getType(typeCode);
+      Class<?> elementType = primitiveElementType.getType();
       Object array = Array.newInstance(elementType, size);
       v++;
 
-      for (int i = 0; i < size; i++) {
-         int index = items[readUnsignedShort(v)];
-         Object value;
-
-         switch (typeCode) {
-            case 'B':
-               value = (byte) readInt(index);
-               break;
-            case 'Z':
-               value = readInt(index) != 0;
-               break;
-            case 'S':
-               value = (short) readInt(index);
-               break;
-            case 'C':
-               value = (char) readInt(index);
-               break;
-            case 'I':
-               value = readInt(index);
-               break;
-            case 'J':
-               value = readLong(index);
-               break;
-            case 'F':
-               int floatBits = readInt(index);
-               value = Float.intBitsToFloat(floatBits);
-               break;
-            default: // 'D'
-               long doubleBits = readLong(index);
-               value = Double.longBitsToDouble(doubleBits);
-         }
-
-         Array.set(array, i, value);
-         v += 3;
-      }
+      v = fillArrayElements(v, size, typeCode, array);
 
       av.visit(name, array);
       v--;
       return v;
+   }
+
+   @Nonnegative
+   private int fillArrayElements(@Nonnegative int v, @Nonnegative int length, int typeCode, @Nonnull Object array) {
+      for (int i = 0; i < length; i++) {
+         int index = items[readUnsignedShort(v)];
+         Object value = getArrayElementValue(typeCode, index);
+         Array.set(array, i, value);
+         v += 3;
+      }
+
+      return v;
+   }
+
+   @Nonnull
+   private Object getArrayElementValue(int typeCode, @Nonnegative int index) {
+      switch (typeCode) {
+         case 'Z': return readBoolean(index);
+         case 'C': return readChar(index);
+         case 'B': return readByte(index);
+         case 'S': return readShort(index);
+         case 'F': return readFloat(index);
+         case 'D': return readDouble(index);
+         case 'J': return readLong(index);
+         default:  return readInt(index);
+      }
    }
 }

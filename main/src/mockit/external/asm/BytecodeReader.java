@@ -39,49 +39,41 @@ class BytecodeReader
       this.code = code;
 
       // Parses the constant pool.
-      int n = readUnsignedShort(8);
-      items = new int[n];
-      strings = new String[n];
+      int itemCount = readUnsignedShort(8);
+      items = new int[itemCount];
+      strings = new String[itemCount];
 
-      int maxSize = 0;
-      int index = 10;
+      int maxStringSize = 0;
+      int codeIndex = 10;
 
-      for (int i = 1; i < n; i++) {
-         items[i] = index + 1;
-         int size;
+      for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
+         items[itemIndex] = codeIndex + 1;
 
-         switch (code[index]) {
-            case FIELD:
-            case METH:
-            case IMETH:
-            case INT:
-            case FLOAT:
-            case NAME_TYPE:
-            case INDY:
-               size = 5;
-               break;
-            case LONG:
-            case DOUBLE:
-               size = 9;
-               i++;
-               break;
-            case UTF8:
-               size = 3 + readUnsignedShort(index + 1);
-               if (size > maxSize) maxSize = size;
-               break;
-            case HANDLE:
-               size = 4;
-               break;
-            // case CLASS|STR|MTYPE
-            default:
-               size = 3;
+         byte itemType = code[codeIndex];
+         int itemSize = computeItemSize(codeIndex, itemType);
+
+         if (itemType == LONG || itemType == DOUBLE) {
+            itemIndex++;
+         }
+         else if (itemType == UTF8 && itemSize > maxStringSize) {
+            maxStringSize = itemSize;
          }
 
-         index += size;
+         codeIndex += itemSize;
       }
 
-      buf = new char[maxSize];
-      header = index; // the class header information starts just after the constant pool
+      buf = new char[maxStringSize];
+      header = codeIndex; // the class header information starts just after the constant pool
+   }
+
+   private int computeItemSize(@Nonnegative int codeIndex, byte itemType) {
+      switch (itemType) {
+         case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case INDY: return 5;
+         case LONG: case DOUBLE: return 9;
+         case UTF8: return 3 + readUnsignedShort(codeIndex + 1);
+         case HANDLE: return 4;
+         default: return 3; // CLASS|STR|MTYPE
+      }
    }
 
    BytecodeReader(@Nonnull BytecodeReader another) {
@@ -98,7 +90,17 @@ class BytecodeReader
     * @param index the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final int readByte(@Nonnegative int index) { return code[index] & 0xFF; }
+   final int readByte(@Nonnegative int index) {
+      return code[index] & 0xFF;
+   }
+
+   final char readChar(@Nonnegative int index) {
+      return (char) readInt(index);
+   }
+
+   final boolean readBoolean(@Nonnegative int index) {
+      return readInt(index) != 0;
+   }
 
    /**
     * Reads an unsigned short value in {@link #code}.
@@ -147,51 +149,57 @@ class BytecodeReader
       return (l1 << 32) | l0;
    }
 
+   final double readDouble(@Nonnegative int index) {
+      long bits = readLong(index);
+      return Double.longBitsToDouble(bits);
+   }
+
+   final float readFloat(@Nonnegative int index) {
+      int bits = readInt(index);
+      return Float.intBitsToFloat(bits);
+   }
+
    /**
     * Reads UTF8 string in {@link #code}.
     *
-    * @param index  start offset of the UTF8 string to be read.
-    * @param utfLen length of the UTF8 string to be read.
+    * @param itemIndex index in {@link #items} for the UTF8 string to be read.
     * @return the String corresponding to the specified UTF8 string.
     */
    @Nonnull
-   final String readUTF(@Nonnegative int index, @Nonnegative int utfLen) {
-      int endIndex = index + utfLen;
-      //noinspection UnnecessaryLocalVariable
-      byte[] b = code;
+   private String readUTF(@Nonnegative int itemIndex) {
+      int startIndex = items[itemIndex];
+      int utfLen = readUnsignedShort(startIndex);
+      startIndex += 2;
+      int endIndex = startIndex + utfLen;
       int strLen = 0;
       int st = 0;
       char cc = 0;
-      int c;
 
-      while (index < endIndex) {
-         c = b[index++];
+      while (startIndex < endIndex) {
+         int c = code[startIndex++];
 
-         switch (st) {
-            case 0:
-               c = c & 0xFF;
+         if (st == 0) {
+            c = c & 0xFF;
 
-               if (c < 0x80) { // 0xxxxxxx
-                  buf[strLen++] = (char) c;
-               }
-               else if (c < 0xE0 && c > 0xBF) { // 110x xxxx 10xx xxxx
-                  cc = (char) (c & 0x1F);
-                  st = 1;
-               }
-               else { // 1110 xxxx 10xx xxxx 10xx xxxx
-                  cc = (char) (c & 0x0F);
-                  st = 2;
-               }
-
-               break;
-            case 1: // byte 2 of 2-byte char or byte 3 of 3-byte char
-               buf[strLen++] = (char) ((cc << 6) | (c & 0x3F));
-               st = 0;
-               break;
-            case 2: // byte 2 of 3-byte char
-               cc = (char) ((cc << 6) | (c & 0x3F));
+            if (c < 0x80) { // 0xxxxxxx
+               buf[strLen++] = (char) c;
+            }
+            else if (c < 0xE0 && c > 0xBF) { // 110x xxxx 10xx xxxx
+               cc = (char) (c & 0x1F);
                st = 1;
-               break;
+            }
+            else { // 1110 xxxx 10xx xxxx 10xx xxxx
+               cc = (char) (c & 0x0F);
+               st = 2;
+            }
+         }
+         else if (st == 1) { // byte 2 of 2-byte char or byte 3 of 3-byte char
+            buf[strLen++] = (char) ((cc << 6) | (c & 0x3F));
+            st = 0;
+         }
+         else { // byte 2 of 3-byte char
+            cc = (char) ((cc << 6) | (c & 0x3F));
+            st = 1;
          }
       }
 
@@ -212,23 +220,26 @@ class BytecodeReader
          return null;
       }
 
-      int item = readUnsignedShort(index);
+      int itemIndex = readUnsignedShort(index);
 
-      if (item == 0) {
+      if (itemIndex == 0) {
          return null;
       }
 
-      String s = strings[item];
+      return readString(itemIndex);
+   }
 
-      if (s != null) {
-         return s;
+   @Nonnull
+   private String readString(@Nonnegative int itemIndex) {
+      String string = strings[itemIndex];
+
+      if (string != null) {
+         return string;
       }
 
-      int startIndex = items[item];
-      int utfLen = readUnsignedShort(startIndex);
-      String utf = readUTF(startIndex + 2, utfLen);
-      strings[item] = utf;
-      return utf;
+      string = readUTF(itemIndex);
+      strings[itemIndex] = string;
+      return string;
    }
 
    /**
@@ -244,16 +255,10 @@ class BytecodeReader
       byte itemType = code[startIndex - 1];
 
       switch (itemType) {
-         case INT:
-            return readInt(startIndex);
-         case FLOAT:
-            int bits = readInt(startIndex);
-            return Float.intBitsToFloat(bits);
-         case LONG:
-            return readLong(startIndex);
-         case DOUBLE:
-            long longBits = readLong(startIndex);
-            return Double.longBitsToDouble(longBits);
+         case INT:    return readInt(startIndex);
+         case FLOAT:  return readFloat(startIndex);
+         case LONG:   return readLong(startIndex);
+         case DOUBLE: return readDouble(startIndex);
          case CLASS:
             String typeDesc = readUTF8(startIndex);
             //noinspection ConstantConditions
@@ -304,14 +309,8 @@ class BytecodeReader
       return classDesc;
    }
 
-   final void copyUTF8Item(@Nonnegative int i, int tag, @Nonnull Item item) {
-      String s = strings[i];
-
-      if (s == null) {
-         int index = items[i];
-         s = strings[i] = readUTF(index + 2, readUnsignedShort(index));
-      }
-
-      item.set(tag, s, null, null);
+   final void copyUTF8Item(@Nonnegative int itemIndex, int tag, @Nonnull Item item) {
+      String string = readString(itemIndex);
+      item.set(tag, string, null, null);
    }
 }
