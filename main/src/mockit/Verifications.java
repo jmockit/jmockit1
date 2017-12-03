@@ -23,8 +23,8 @@ import mockit.internal.state.*;
  * <p/>
  * Expectations are verified simply by invoking the desired method or constructor on a mocked type/instance, during
  * the initialization of a <tt>Verifications</tt> object.
- * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
- * call it, a <em>verification block</em>:
+ * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, a
+ * <em>verification block</em>:
  * <pre>
  * // Exercise tested code.
  * codeUnderTest.doSomething();

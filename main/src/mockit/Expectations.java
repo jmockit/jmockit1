@@ -20,8 +20,8 @@ import mockit.internal.expectations.*;
  * <p/>
  * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during
  * the initialization of an <tt>Expectations</tt> object.
- * Typically, this is done by instantiating an anonymous subclass containing an instance initialization body, or as we
- * call it, an <em>expectation block</em>:
+ * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an
+ * <em>expectation block</em>:
  * <pre>
  * // <em>Record</em> one or more expectations on available mocked types/instances.
  * new Expectations() {{
@@ -128,7 +128,7 @@ public abstract class Expectations extends Invocations
 
    /**
     * Registers one or more expectations recorded on available mocked types and/or mocked instances, as written inside
-    * the instance initialization body of an anonymous subclass or the called constructor of a named subclass.
+    * the instance initialization body of an anonymous subclass.
     *
     * @see #Expectations(Object...)
     * @see <a href="http://jmockit.org/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
