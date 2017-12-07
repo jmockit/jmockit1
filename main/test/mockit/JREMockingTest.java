@@ -284,16 +284,6 @@ public final class JREMockingTest
       new Verifications() {{ writer.append('x'); }};
    }
 
-   @Test @Ignore("Find a way to avoid NPE from superclass constructor")
-   public void mockConstructorsInFileWriterClass() throws Exception
-   {
-      new Expectations(FileWriter.class) {{
-         new FileWriter("no.file");
-      }};
-
-      new FileWriter("no.file"); // TODO: throws NPE
-   }
-
    // Mocking of java.lang.Object methods /////////////////////////////////////////////////////////////////////////////
 
    final Object lock = new Object();
