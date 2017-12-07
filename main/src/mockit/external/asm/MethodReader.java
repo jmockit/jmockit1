@@ -65,7 +65,10 @@ final class MethodReader extends AnnotatedReader
    private final boolean readCode;
    private final boolean readDebugInfo;
 
-   @Nullable private String[] exceptions;
+   @Nullable private String[] throwsClauseTypes;
+   @Nonnegative private int throwsClauseLastCodeIndex;
+
+   @Nullable private String signature;
 
    /**
     * The access flags of the method currently being parsed.
@@ -81,6 +84,9 @@ final class MethodReader extends AnnotatedReader
     * The descriptor of the method currently being parsed.
     */
    private String desc;
+
+   @Nonnegative private int methodStartCodeIndex;
+   @Nonnegative private int bodyStartCodeIndex;
 
    /**
     * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
@@ -119,24 +125,22 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative
    private int readMethod(@Nonnegative int codeIndex) {
       codeIndex = readMethodDeclaration(codeIndex);
-
-      int u0 = codeIndex;
-      int bodyStartingCodeIndex = 0;
-      int exception = 0;
-      exceptions = null;
-      String signature = null;
-      int anns = 0;
+      methodStartCodeIndex = codeIndex;
+      bodyStartCodeIndex = 0;
+      throwsClauseTypes = null;
+      signature = null;
       int annDefault = 0;
+      int anns = 0;
       int paramAnns = 0;
 
       for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
          String attrName = readUTF8(codeIndex + 2);
 
          if ("Code".equals(attrName)) {
-            bodyStartingCodeIndex = codeIndex + 8;
+            bodyStartCodeIndex = codeIndex + 8;
          }
          else if ("Exceptions".equals(attrName)) {
-            exception = readExceptionsInThrowsClause(codeIndex);
+            readExceptionsInThrowsClause(codeIndex);
          }
          else if ("Signature".equals(attrName)) {
             signature = readUTF8(codeIndex + 8);
@@ -144,14 +148,14 @@ final class MethodReader extends AnnotatedReader
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
          }
-         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            anns = codeIndex + 8;
+         else if ("Synthetic".equals(attrName)) {
+            access = Access.asSynthetic(access);
          }
          else if ("AnnotationDefault".equals(attrName)) {
             annDefault = codeIndex + 8;
          }
-         else if ("Synthetic".equals(attrName)) {
-            access = Access.asSynthetic(access);
+         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
+            anns = codeIndex + 8;
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             paramAnns = codeIndex + 8;
@@ -161,7 +165,7 @@ final class MethodReader extends AnnotatedReader
       }
 
       codeIndex += 2;
-      readMethodBody(u0, codeIndex, bodyStartingCodeIndex, exception, signature, anns, annDefault, paramAnns);
+      readMethodBody(codeIndex, annDefault, anns, paramAnns);
       return codeIndex;
    }
 
@@ -173,40 +177,39 @@ final class MethodReader extends AnnotatedReader
       return codeIndex + 6;
    }
 
-   @Nonnegative
-   private int readExceptionsInThrowsClause(@Nonnegative int codeIndex) {
+   private void readExceptionsInThrowsClause(@Nonnegative int codeIndex) {
       int n = readUnsignedShort(codeIndex + 8);
-      exceptions = new String[n];
-      int exception = codeIndex + 10;
+      throwsClauseTypes = new String[n];
+      int throwsTypeCodeIndex = codeIndex + 10;
 
       for (int i = 0; i < n; i++) {
-         exceptions[i] = readClass(exception);
-         exception += 2;
+         throwsClauseTypes[i] = readClass(throwsTypeCodeIndex);
+         throwsTypeCodeIndex += 2;
       }
 
-      return exception;
+      throwsClauseLastCodeIndex = throwsTypeCodeIndex;
    }
 
    private void readMethodBody(
-      @Nonnegative int u0, @Nonnegative int u, @Nonnegative int code, @Nonnegative int exception,
-      @Nullable String signature, @Nonnegative int anns, @Nonnegative int annDefault, @Nonnegative int paramAnns
+      @Nonnegative int methodEndCodeIndex,
+      @Nonnegative int annDefault, @Nonnegative int anns, @Nonnegative int paramAnns
    ) {
-      mv = cv.visitMethod(access, name, desc, signature, exceptions);
+      mv = cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
-      if (mv == null || mv instanceof MethodWriter && copyMethodBody(u, exception, signature, u0)) {
+      if (mv == null || mv instanceof MethodWriter && copyMethodBody(methodEndCodeIndex)) {
          return;
       }
 
       readAnnotationDefaultValue(annDefault);
       readAnnotationValues(anns);
       readParameterAnnotations(paramAnns);
-      readMethodCode(code);
+      readMethodCode();
       mv.visitEnd();
    }
 
    /**
-    * If the returned MethodVisitor is in fact a MethodWriter, it means there is no method adapter between the reader
-    * and the writer.
+    * If the returned MethodVisitor is in fact a <tt>MethodWriter</tt>, it means there is no method adapter between the
+    * reader and the writer.
     * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and
     * the signature of the method has not been changed; then, we skip all visit events and just copy the original code
     * of the method to the writer (the access, name and descriptor can have been changed, this is not important since
@@ -215,25 +218,24 @@ final class MethodReader extends AnnotatedReader
     * @return <tt>true</tt> if the method body can be copied, or <tt>false</tt> if it can't because the method's
     * <tt>throws</tt> clause was changed
     */
-   private boolean copyMethodBody(
-      @Nonnegative int u, @Nonnegative int exception, @Nullable String signature, @Nonnegative int firstAttribute
-   ) {
+   private boolean copyMethodBody(@Nonnegative int endCodeIndex) {
       MethodWriter mw = (MethodWriter) mv;
       ThrowsClause throwsClause = mw.throwsClause;
-      int exceptionCount = throwsClause.getExceptionCount();
+      int throwsClauseCount = throwsClause.getExceptionCount();
       boolean sameExceptions = false;
 
-      if (exceptions == null) {
-         sameExceptions = exceptionCount == 0;
+      if (throwsClauseTypes == null) {
+         sameExceptions = throwsClauseCount == 0;
       }
-      else if (exceptions.length == exceptionCount) {
+      else if (throwsClauseTypes.length == throwsClauseCount) {
          sameExceptions = true;
+         int exception = throwsClauseLastCodeIndex;
 
-         for (int j = exceptionCount - 1; j >= 0; j--) {
+         for (int throwsClauseIndex = throwsClauseCount - 1; throwsClauseIndex >= 0; throwsClauseIndex--) {
             exception -= 2;
             int exceptionIndex = readUnsignedShort(exception);
 
-            if (throwsClause.getExceptionIndex(j) != exceptionIndex) {
+            if (throwsClause.getExceptionIndex(throwsClauseIndex) != exceptionIndex) {
                // TODO: verify why it gets here from SpringIntegrationTest, for method
                // "AbstractAutowireCapableBeanFactory#createBean(Class) throws BeansException"
                sameExceptions = false;
@@ -245,8 +247,8 @@ final class MethodReader extends AnnotatedReader
       if (sameExceptions) {
          // We do not copy directly the code into MethodWriter to save a byte array copy operation.
          // The real copy will be done in ClassWriter.toByteArray().
-         mw.classReaderOffset = firstAttribute;
-         mw.classReaderLength = u - firstAttribute;
+         mw.classReaderOffset = methodStartCodeIndex;
+         mw.classReaderLength = endCodeIndex - methodStartCodeIndex;
          return true;
       }
 
@@ -289,6 +291,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
+   @Nonnegative
    private int readParameterAnnotations(@Nonnegative int codeIndex, @Nonnegative int parameterIndex) {
       int annotationCount = readUnsignedShort(codeIndex);
       codeIndex += 2;
@@ -306,20 +309,16 @@ final class MethodReader extends AnnotatedReader
       return codeIndex;
    }
 
-   private void readMethodCode(@Nonnegative int code) {
-      if (code != 0 && readCode) {
+   private void readMethodCode() {
+      if (bodyStartCodeIndex != 0 && readCode) {
          mv.visitCode();
-         readCode(code);
+         readCode();
       }
    }
 
-   /**
-    * Reads the bytecode of a method and makes the given visitor visit it.
-    *
-    * @param codeIndex the start offset of the code attribute in the class file.
-    */
-   private void readCode(@Nonnegative int codeIndex) {
+   private void readCode() {
       // Reads the header.
+      int codeIndex = bodyStartCodeIndex;
       int maxStack = readUnsignedShort(codeIndex);
       int codeLength = readInt(codeIndex + 4);
       codeIndex += 8;
@@ -358,17 +357,8 @@ final class MethodReader extends AnnotatedReader
       }
 
       readBytecodeInstructionsInCodeBlock(codeStart, codeEnd);
-
-      Label label = labels[codeLength];
-
-      if (label != null) {
-         mv.visitLabel(label);
-      }
-
-      if (varTable != 0 && readDebugInfo) {
-         readLocalVariableTables(varTable, varTypeTable);
-      }
-
+      readEndLabel(codeLength);
+      readLocalVariableTables(varTable, varTypeTable);
       mv.visitMaxStack(maxStack);
    }
 
@@ -386,6 +376,7 @@ final class MethodReader extends AnnotatedReader
       return codeIndex;
    }
 
+   @Nonnegative
    private int readLabelForInstructionIfAny(@Nonnegative int codeIndex, @Nonnegative int offset) {
       int opcode = readByte(codeIndex);
       byte instructionType = INSTRUCTION_TYPE[opcode];
@@ -446,8 +437,8 @@ final class MethodReader extends AnnotatedReader
    private int readNonSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset, byte instructionType) {
       switch (instructionType) {
          case NOARG: case IMPLVAR: return 1;
-         case LABEL: readLabel(offset + readShort(codeIndex + 1)); return 3;
-         case LABELW: readLabel(offset + readInt(codeIndex + 1)); return 5;
+         case LABEL:  readLabel(offset + readShort(codeIndex + 1)); return 3;
+         case LABELW: readLabel(offset + readInt(codeIndex + 1));   return 5;
          case WIDE_INSN: int opcode = readByte(codeIndex + 1); return opcode == IINC ? 6 : 4;
          case VAR: case SBYTE: case LDC_INSN: return 2;
          case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 3; case ITFMETH:
@@ -460,8 +451,8 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative
    private int readTryCatchBlocks(@Nonnegative int codeIndex) {
       for (int blockCount = readUnsignedShort(codeIndex); blockCount > 0; blockCount--) {
-         Label start = readLabel(readUnsignedShort(codeIndex + 2));
-         Label end = readLabel(readUnsignedShort(codeIndex + 4));
+         Label start   = readLabel(readUnsignedShort(codeIndex + 2));
+         Label end     = readLabel(readUnsignedShort(codeIndex + 4));
          Label handler = readLabel(readUnsignedShort(codeIndex + 6));
          String type = readUTF8(items[readUnsignedShort(codeIndex + 8)]);
 
@@ -496,8 +487,9 @@ final class MethodReader extends AnnotatedReader
       Label label = labels[offset];
 
       if (label == null) {
-         label = readLabel(offset);
+         label = new Label();
          label.markAsDebug();
+         labels[offset] = label;
       }
 
       return label;
@@ -596,6 +588,32 @@ final class MethodReader extends AnnotatedReader
       Object cstWide = readConstItem(codeIndex + 1);
       mv.visitLdcInsn(cstWide);
       return codeIndex + 3;
+   }
+
+   @Nonnegative
+   private int readInvokeDynamicInstruction(@Nonnegative int codeIndex) {
+      int cpIndex = items[readUnsignedShort(codeIndex + 1)];
+      int bsmStartIndex = readUnsignedShort(cpIndex);
+      @SuppressWarnings("ConstantConditions") int bsmIndex = bootstrapMethods[bsmStartIndex];
+      Handle bsm = (Handle) readConstItem(bsmIndex);
+      int bsmArgCount = readUnsignedShort(bsmIndex + 2);
+      Object[] bsmArgs = new Object[bsmArgCount];
+      bsmIndex += 4;
+
+      for (int i = 0; i < bsmArgCount; i++) {
+         bsmArgs[i] = readConstItem(bsmIndex);
+         bsmIndex += 2;
+      }
+
+      cpIndex = items[readUnsignedShort(cpIndex + 2)];
+      String name = readUTF8(cpIndex);
+      String desc = readUTF8(cpIndex + 2);
+
+      //noinspection ConstantConditions
+      mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+      codeIndex += 5;
+
+      return codeIndex;
    }
 
    @Nonnegative
@@ -744,7 +762,19 @@ final class MethodReader extends AnnotatedReader
       return codeIndex + offset;
    }
 
+   private void readEndLabel(@Nonnegative int codeLength) {
+      Label label = labels[codeLength];
+
+      if (label != null) {
+         mv.visitLabel(label);
+      }
+   }
+
    private void readLocalVariableTables(@Nonnegative int varTable, @Nonnegative int varTypeTable) {
+      if (varTable == 0 || !readDebugInfo) {
+         return;
+      }
+
       int[] typeTable = null;
 
       if (varTypeTable != 0) {
@@ -800,31 +830,5 @@ final class MethodReader extends AnnotatedReader
       }
 
       return typeTable;
-   }
-
-   @Nonnegative
-   private int readInvokeDynamicInstruction(@Nonnegative int codeIndex) {
-      int cpIndex = items[readUnsignedShort(codeIndex + 1)];
-      int bsmStartIndex = readUnsignedShort(cpIndex);
-      @SuppressWarnings("ConstantConditions") int bsmIndex = bootstrapMethods[bsmStartIndex];
-      Handle bsm = (Handle) readConstItem(bsmIndex);
-      int bsmArgCount = readUnsignedShort(bsmIndex + 2);
-      Object[] bsmArgs = new Object[bsmArgCount];
-      bsmIndex += 4;
-
-      for (int i = 0; i < bsmArgCount; i++) {
-         bsmArgs[i] = readConstItem(bsmIndex);
-         bsmIndex += 2;
-      }
-
-      cpIndex = items[readUnsignedShort(cpIndex + 2)];
-      String name = readUTF8(cpIndex);
-      String desc = readUTF8(cpIndex + 2);
-
-      //noinspection ConstantConditions
-      mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-      codeIndex += 5;
-
-      return codeIndex;
    }
 }
