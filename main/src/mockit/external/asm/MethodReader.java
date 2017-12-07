@@ -7,6 +7,12 @@ import static mockit.external.asm.Opcodes.*;
 
 final class MethodReader extends AnnotatedReader
 {
+   /**
+    * Constants that subdivide the 220 {@linkplain Opcodes instruction opcodes} in 18 types of instructions.
+    * Such types vary in the number and size of arguments the instruction takes (no argument, a signed byte, a signed
+    * short), on whether it takes a local variable index, a jump target label, etc. Some types contain a single
+    * instruction, such as LDC and IINC.
+    */
    interface InstructionType
    {
       int NOARG       = 0; // instructions without any argument
@@ -30,20 +36,23 @@ final class MethodReader extends AnnotatedReader
    }
 
    /**
-    * The instruction types of all JVM opcodes.
+    * The {@linkplain InstructionType instruction types} of all JVM opcodes, one value for each instruction opcode.
     */
-   private static final byte[] TYPE = new byte[220];
+   private static final byte[] INSTRUCTION_TYPE;
    static {
       String s =
          "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD" +
          "DDDEEEEEEEEEEEEEEEEEEEEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
          "AAAAAAAAAAAAAAAAANAAAAAAAAAAAAAAAAAAAAJJJJJJJJJJJJJJJJDOPAA" +
          "AAAAGGGGGGGHIFBFAAFFAARQJJKKJJJJJJJJJJJJJJJJJJ";
-      byte[] b = TYPE;
+      int n = s.length();
+      byte[] types = new byte[n];
 
-      for (int i = 0; i < b.length; i++) {
-         b[i] = (byte) (s.charAt(i) - 'A');
+      for (int i = 0; i < n; i++) {
+         types[i] = (byte) (s.charAt(i) - 'A');
       }
+
+      INSTRUCTION_TYPE = types;
    }
 
    @Nonnull private final ClassVisitor cv;
@@ -112,7 +121,7 @@ final class MethodReader extends AnnotatedReader
       codeIndex = readMethodDeclaration(codeIndex);
 
       int u0 = codeIndex;
-      int code = 0;
+      int bodyStartingCodeIndex = 0;
       int exception = 0;
       exceptions = null;
       String signature = null;
@@ -124,7 +133,7 @@ final class MethodReader extends AnnotatedReader
          String attrName = readUTF8(codeIndex + 2);
 
          if ("Code".equals(attrName)) {
-            code = codeIndex + 8;
+            bodyStartingCodeIndex = codeIndex + 8;
          }
          else if ("Exceptions".equals(attrName)) {
             exception = readExceptionsInThrowsClause(codeIndex);
@@ -152,7 +161,7 @@ final class MethodReader extends AnnotatedReader
       }
 
       codeIndex += 2;
-      readMethodBody(u0, codeIndex, code, exception, signature, anns, annDefault, paramAnns);
+      readMethodBody(u0, codeIndex, bodyStartingCodeIndex, exception, signature, anns, annDefault, paramAnns);
       return codeIndex;
    }
 
@@ -379,7 +388,7 @@ final class MethodReader extends AnnotatedReader
 
    private int readLabelForInstructionIfAny(@Nonnegative int codeIndex, @Nonnegative int offset) {
       int opcode = readByte(codeIndex);
-      byte instructionType = TYPE[opcode];
+      byte instructionType = INSTRUCTION_TYPE[opcode];
       boolean tablInsn = instructionType == TABL_INSN;
 
       if (tablInsn || instructionType == LOOK_INSN) {
@@ -496,109 +505,116 @@ final class MethodReader extends AnnotatedReader
 
    private void readLineNumberTable(@Nonnegative int codeIndex) {
       if (readDebugInfo) {
-         for (int lineCount = readUnsignedShort(codeIndex + 8), v = codeIndex; lineCount > 0; lineCount--) {
-            int labelOffset = readUnsignedShort(v + 10);
+         for (int lineCount = readUnsignedShort(codeIndex + 8); lineCount > 0; lineCount--) {
+            int labelOffset = readUnsignedShort(codeIndex + 10);
             Label debugLabel = readDebugLabel(labelOffset);
 
-            debugLabel.line = readUnsignedShort(v + 12);
-            v += 4;
+            debugLabel.line = readUnsignedShort(codeIndex + 12);
+            codeIndex += 4;
          }
       }
    }
 
    private void readBytecodeInstructionsInCodeBlock(@Nonnegative int codeStart, @Nonnegative int codeEnd) {
-      byte[] b = code;
-      int u = codeStart;
+      int codeIndex = codeStart;
 
-      while (u < codeEnd) {
-         int offset = u - codeStart;
+      while (codeIndex < codeEnd) {
+         int offset = codeIndex - codeStart;
          readLabelAndLineNumber(offset);
 
-         // Visits the instruction at this offset.
-         int opcode = b[u] & 0xFF;
+         int opcode = readByte(codeIndex);
 
-         switch (TYPE[opcode]) {
-            case NOARG:
-               mv.visitInsn(opcode);
-               u++;
-               break;
-            case IMPLVAR:
-               readImplicitVarInstruction(opcode);
-               u++;
-               break;
-            case LABEL:
-               Label targetLabel = labels[offset + readShort(u + 1)];
-               mv.visitJumpInsn(opcode, targetLabel);
-               u += 3;
-               break;
-            case LABELW:
-               Label targetLabelW = labels[offset + readInt(u + 1)];
-               mv.visitJumpInsn(opcode - 33, targetLabelW);
-               u += 5;
-               break;
-            case WIDE_INSN:
-               u = readWideInstruction(u);
-               break;
-            case TABL_INSN:
-               u = readTableSwitchInstruction(u, offset);
-               break;
-            case LOOK_INSN:
-               u = readLookupSwitchInstruction(u, offset);
-               break;
-            case VAR:
-               int var = b[u + 1] & 0xFF;
-               mv.visitVarInsn(opcode, var);
-               u += 2;
-               break;
-            case SBYTE:
-               byte byteOperand = b[u + 1];
-               mv.visitIntInsn(opcode, byteOperand);
-               u += 2;
-               break;
-            case SHORT:
-               int shortOperand = readShort(u + 1);
-               mv.visitIntInsn(opcode, shortOperand);
-               u += 3;
-               break;
-            case LDC_INSN:
-               int ldcIndex = readByte(u + 1);
-               Object cst = readConst(ldcIndex);
-               mv.visitLdcInsn(cst);
-               u += 2;
-               break;
-            case LDCW_INSN:
-               Object cstWide = readConstItem(u + 1);
-               mv.visitLdcInsn(cstWide);
-               u += 3;
-               break;
-            case FIELDORMETH:
-            case ITFMETH:
-               readFieldOrInvokeInstruction(u, opcode);
-               u += opcode == INVOKEINTERFACE ? 5 : 3;
-               break;
-            case INDYMETH:
-               //noinspection ConstantConditions
-               u = readInvokeDynamicInstruction(u);
-               break;
-            case TYPE_INSN:
-               String typeDesc = readClass(u + 1);
-               //noinspection ConstantConditions
-               mv.visitTypeInsn(opcode, typeDesc);
-               u += 3;
-               break;
-            case IINC_INSN:
-               int incCar = b[u + 1] & 0xFF;
-               byte increment = b[u + 2];
-               mv.visitIincInsn(incCar, increment);
-               u += 3;
-               break;
-            case MANA_INSN: default:
-               u = readMultiANewArray(u);
-               break;
+         switch (INSTRUCTION_TYPE[opcode]) {
+            case NOARG:     mv.visitInsn(opcode); codeIndex++; break;
+            case IMPLVAR:   readImplicitVarInstruction(opcode); codeIndex++; break;
+            case LABEL:     codeIndex = readJump(codeIndex, opcode, offset); break;
+            case LABELW:    codeIndex = readWideJump(codeIndex, opcode, offset); break;
+            case WIDE_INSN: codeIndex = readWideInstruction(codeIndex); break;
+            case TABL_INSN: codeIndex = readTableSwitchInstruction(codeIndex, offset); break;
+            case LOOK_INSN: codeIndex = readLookupSwitchInstruction(codeIndex, offset); break;
+            case VAR:       codeIndex = readVariableAccessInstruction(codeIndex, opcode); break;
+            case SBYTE:     codeIndex = readInstructionTakingASignedByte(codeIndex, opcode); break;
+            case SHORT:     codeIndex = readInstructionTakingASignedShort(codeIndex, opcode); break;
+            case LDC_INSN:  codeIndex = readLDC(codeIndex); break;
+            case LDCW_INSN: codeIndex = readLDCW(codeIndex); break;
+            case FIELDORMETH: case ITFMETH: codeIndex = readFieldOrInvokeInstruction(codeIndex, opcode); break;
+            case INDYMETH:  codeIndex = readInvokeDynamicInstruction(codeIndex); break;
+            case TYPE_INSN: codeIndex = readTypeInsn(codeIndex, opcode); break;
+            case IINC_INSN: codeIndex = readIInc(codeIndex); break;
+            case MANA_INSN: default: codeIndex = readMultiANewArray(codeIndex);
          }
       }
    }
 
+   @Nonnegative
+   private int readJump(@Nonnegative int codeIndex, int opcode, @Nonnegative int offset) {
+      short targetIndex = readShort(codeIndex + 1);
+      Label targetLabel = labels[offset + targetIndex];
+      mv.visitJumpInsn(opcode, targetLabel);
+      return codeIndex + 3;
+   }
+
+   @Nonnegative
+   private int readWideJump(@Nonnegative int codeIndex, int opcode, @Nonnegative int offset) {
+      int targetIndex = readInt(codeIndex + 1);
+      Label targetLabelW = labels[offset + targetIndex];
+      mv.visitJumpInsn(opcode - 33, targetLabelW);
+      return codeIndex + 5;
+   }
+
+   @Nonnegative
+   private int readVariableAccessInstruction(@Nonnegative int codeIndex, int opcode) {
+      int var = readByte(codeIndex + 1);
+      mv.visitVarInsn(opcode, var);
+      return codeIndex + 2;
+   }
+
+   @Nonnegative
+   private int readInstructionTakingASignedByte(@Nonnegative int codeIndex, int opcode) {
+      byte byteOperand = code[codeIndex + 1];
+      mv.visitIntInsn(opcode, byteOperand);
+      return codeIndex + 2;
+   }
+
+   @Nonnegative
+   private int readInstructionTakingASignedShort(@Nonnegative int codeIndex, int opcode) {
+      int shortOperand = readShort(codeIndex + 1);
+      mv.visitIntInsn(opcode, shortOperand);
+      return codeIndex + 3;
+   }
+
+   @Nonnegative
+   private int readLDC(@Nonnegative int codeIndex) {
+      int ldcIndex = readByte(codeIndex + 1);
+      Object cst = readConst(ldcIndex);
+      mv.visitLdcInsn(cst);
+      return codeIndex + 2;
+   }
+
+   @Nonnegative
+   private int readLDCW(@Nonnegative int codeIndex) {
+      Object cstWide = readConstItem(codeIndex + 1);
+      mv.visitLdcInsn(cstWide);
+      return codeIndex + 3;
+   }
+
+   @Nonnegative
+   private int readTypeInsn(@Nonnegative int codeIndex, int opcode) {
+      String typeDesc = readClass(codeIndex + 1);
+      //noinspection ConstantConditions
+      mv.visitTypeInsn(opcode, typeDesc);
+      return codeIndex + 3;
+   }
+
+   @Nonnegative
+   private int readIInc(@Nonnegative int codeIndex) {
+      int var = readByte(codeIndex + 1);
+      byte increment = code[codeIndex + 2];
+      mv.visitIincInsn(var, increment);
+      return codeIndex + 3;
+   }
+
+   @Nonnegative
    private int readMultiANewArray(@Nonnegative int codeIndex) {
       String arrayTypeDesc = readClass(codeIndex + 1);
       int dims = readByte(codeIndex + 3);
@@ -606,8 +622,7 @@ final class MethodReader extends AnnotatedReader
       //noinspection ConstantConditions
       mv.visitMultiANewArrayInsn(arrayTypeDesc, dims);
 
-      codeIndex += 4;
-      return codeIndex;
+      return codeIndex + 4;
    }
 
    // Visits the label and line number for this offset, if any.
@@ -642,44 +657,45 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nonnegative
-   private int readWideInstruction(@Nonnegative int u) {
-      int opcode = code[u + 1] & 0xFF;
-      int var = readUnsignedShort(u + 2);
+   private int readWideInstruction(@Nonnegative int codeIndex) {
+      int opcode = readByte(codeIndex + 1);
+      int var = readUnsignedShort(codeIndex + 2);
+      int offset;
 
       if (opcode == IINC) {
-         int increment = readShort(u + 4);
+         int increment = readShort(codeIndex + 4);
          mv.visitIincInsn(var, increment);
-         u += 6;
+         offset = 6;
       }
       else {
          mv.visitVarInsn(opcode, var);
-         u += 4;
+         offset = 4;
       }
 
-      return u;
+      return codeIndex + offset;
    }
 
    @Nonnegative
-   private int readTableSwitchInstruction(@Nonnegative int u, @Nonnegative int offset) {
+   private int readTableSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
-      u = u + 4 - (offset & 3);
+      codeIndex = codeIndex + 4 - (offset & 3);
 
       // Reads instruction.
-      int dfltLabelOffset = offset + readInt(u);
-      int min = readInt(u + 4);
-      int max = readInt(u + 8);
+      int dfltLabelOffset = offset + readInt(codeIndex);
+      int min = readInt(codeIndex + 4);
+      int max = readInt(codeIndex + 8);
       Label[] table = new Label[max - min + 1];
-      u += 12;
+      codeIndex += 12;
 
       for (int i = 0; i < table.length; i++) {
-         int handlerLabelOffset = offset + readInt(u);
+         int handlerLabelOffset = offset + readInt(codeIndex);
          table[i] = labels[handlerLabelOffset];
-         u += 4;
+         codeIndex += 4;
       }
 
       Label dfltLabel = labels[dfltLabelOffset];
       mv.visitTableSwitchInsn(min, max, dfltLabel, table);
-      return u;
+      return codeIndex;
    }
 
    @Nonnegative
@@ -706,7 +722,8 @@ final class MethodReader extends AnnotatedReader
       return codeIndex;
    }
 
-   private void readFieldOrInvokeInstruction(@Nonnegative int codeIndex, int opcode) {
+   @Nonnegative
+   private int readFieldOrInvokeInstruction(@Nonnegative int codeIndex, int opcode) {
       int cpIndex1 = items[readUnsignedShort(codeIndex + 1)];
       String owner = readClass(cpIndex1);
       int cpIndex2 = items[readUnsignedShort(cpIndex1 + 2)];
@@ -722,52 +739,67 @@ final class MethodReader extends AnnotatedReader
          //noinspection ConstantConditions
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
       }
+
+      int offset = opcode == INVOKEINTERFACE ? 5 : 3;
+      return codeIndex + offset;
    }
 
    private void readLocalVariableTables(@Nonnegative int varTable, @Nonnegative int varTypeTable) {
       int[] typeTable = null;
-      int u;
 
       if (varTypeTable != 0) {
-         u = varTypeTable + 2;
-         typeTable = new int[readUnsignedShort(varTypeTable) * 3];
-
-         int i = typeTable.length;
-
-         while (i > 0) {
-            typeTable[--i] = u + 6; // signature
-            typeTable[--i] = readUnsignedShort(u + 8); // index
-            typeTable[--i] = readUnsignedShort(u); // start
-            u += 10;
-         }
+         typeTable = readLocalVariableTypeTable(varTypeTable);
       }
 
-      u = varTable + 2;
+      int codeIndex = varTable + 2;
 
-      for (int i = readUnsignedShort(varTable); i > 0; i--) {
-         int start = readUnsignedShort(u);
-         int length = readUnsignedShort(u + 2);
-         int index = readUnsignedShort(u + 8);
-         String signature = null;
+      for (int localVarCount = readUnsignedShort(varTable); localVarCount > 0; localVarCount--) {
+         int start  = readUnsignedShort(codeIndex);
+         int length = readUnsignedShort(codeIndex + 2);
+         int index  = readUnsignedShort(codeIndex + 8);
+         String signature = getLocalVariableSignature(typeTable, start, index);
 
-         if (typeTable != null) {
-            for (int j = 0; j < typeTable.length; j += 3) {
-               if (typeTable[j] == start && typeTable[j + 1] == index) {
-                  signature = readUTF8(typeTable[j + 2]);
-                  break;
-               }
-            }
-         }
-
-         String name = readUTF8(u + 4);
-         String desc = readUTF8(u + 6);
+         String name = readUTF8(codeIndex + 4);
+         String desc = readUTF8(codeIndex + 6);
          Label startLabel = labels[start];
-         Label endLabel = labels[start + length];
-         u += 10;
+         Label endLabel   = labels[start + length];
 
          //noinspection ConstantConditions
          mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
+
+         codeIndex += 10;
       }
+   }
+
+   @Nullable
+   private String getLocalVariableSignature(@Nullable int[] typeTable, @Nonnegative int start, @Nonnegative int index) {
+      if (typeTable != null) {
+         for (int i = 0, n = typeTable.length; i < n; i += 3) {
+            if (typeTable[i] == start && typeTable[i + 1] == index) {
+               String signature = readUTF8(typeTable[i + 2]);
+               return signature;
+            }
+         }
+      }
+
+      return null;
+   }
+
+   @Nonnull
+   private int[] readLocalVariableTypeTable(@Nonnegative int varTypeTable) {
+      int codeIndex = varTypeTable + 2;
+      int typeTableSize = readUnsignedShort(varTypeTable) * 3;
+      int[] typeTable = new int[typeTableSize];
+      int typeTableIndex = typeTableSize;
+
+      while (typeTableIndex > 0) {
+         typeTable[--typeTableIndex] = codeIndex + 6;                    // signature
+         typeTable[--typeTableIndex] = readUnsignedShort(codeIndex + 8); // index
+         typeTable[--typeTableIndex] = readUnsignedShort(codeIndex);     // start
+         codeIndex += 10;
+      }
+
+      return typeTable;
    }
 
    @Nonnegative
