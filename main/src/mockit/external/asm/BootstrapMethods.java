@@ -119,8 +119,11 @@ final class BootstrapMethods
 
    @Nonnegative
    int getSize() {
+      if (bootstrapMethods == null) {
+         return 0;
+      }
+
       constantPool.newUTF8("BootstrapMethods");
-      //noinspection ConstantConditions
       return 8 + bootstrapMethods.length;
    }
 

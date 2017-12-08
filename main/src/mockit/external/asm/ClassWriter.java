@@ -219,65 +219,109 @@ public final class ClassWriter extends ClassVisitor
    public byte[] toByteArray() {
       cp.checkConstantPoolMaxSize();
 
-      int size = 24; // the real size of the bytecode of this class
+      int size = getBytecodeSize(); // the real size of the bytecode of this class
+      int attributeCount = getAttributeCount();
 
-      if (interfaces != null) {
-         size += 2 * interfaces.getCount();
-      }
+      ByteVector out = putClassAttributes(size, attributeCount);
+      putAnnotations(out);
+      return out.data;
+   }
 
-      size += getFieldsSize();
-      size += getMethodsSize();
-
-      int attributeCount = 0;
-
-      if (bootstrapMethods.hasMethods()) {
-         // We put it as first attribute in order to improve a bit the performance of copyBootstrapMethods.
-         attributeCount++;
-         size += bootstrapMethods.getSize();
-      }
+   @Nonnegative
+   private int getBytecodeSize() {
+      int size =
+         24 +
+         getInterfacesSize() + getFieldsSize() + getMethodsSize() +
+         bootstrapMethods.getSize() + sourceInfo.getSize();
 
       if (signature != 0) {
-         attributeCount++;
          size += 8;
          cp.newUTF8("Signature");
       }
 
-      attributeCount += sourceInfo.getAttributeCount();
-      size += sourceInfo.getSize();
-
       if (outerClass != null) {
-         attributeCount++;
          size += outerClass.getSize();
       }
 
       if (Access.isDeprecated(access)) {
-         attributeCount++;
          size += 6;
          cp.newUTF8("Deprecated");
       }
 
       if (isSynthetic()) {
-         attributeCount++;
          size += 6;
          cp.newUTF8("Synthetic");
       }
 
       if (innerClasses != null) {
-         attributeCount++;
          size += innerClasses.getSize();
+      }
+
+      return size + getAnnotationsSize() + cp.getSize();
+   }
+
+   @Nonnegative
+   private int getAttributeCount() {
+      int attributeCount = 0;
+
+      if (bootstrapMethods.hasMethods()) {
+         attributeCount++;
+      }
+
+      if (signature != 0) {
+         attributeCount++;
+      }
+
+      attributeCount += sourceInfo.getAttributeCount();
+
+      if (outerClass != null) {
+         attributeCount++;
+      }
+
+      if (Access.isDeprecated(access)) {
+         attributeCount++;
+      }
+
+      if (isSynthetic()) {
+         attributeCount++;
+      }
+
+      if (innerClasses != null) {
+         attributeCount++;
       }
 
       if (annotations != null) {
          attributeCount++;
-         size += getAnnotationsSize();
       }
 
-      size += cp.getSize();
+      return attributeCount;
+   }
 
-      ByteVector out = putClassAttributes(size, attributeCount);
+   @Nonnegative
+   private int getInterfacesSize() {
+      return interfaces == null ? 0 : 2 * interfaces.getCount();
+   }
 
-      putAnnotations(out);
-      return out.data;
+   @Nonnegative
+   private int getFieldsSize() {
+      int size = 0;
+
+      for (FieldWriter fb : fields) {
+         size += fb.getSize();
+      }
+
+      return size;
+   }
+
+   @Nonnegative
+   private int getMethodsSize() {
+      int size = 0;
+
+      for (MethodWriter mb : methods) {
+         size += mb.getSize();
+      }
+
+      return size;
    }
 
    @Nonnull
@@ -329,28 +373,6 @@ public final class ClassWriter extends ClassVisitor
       }
 
       return out;
-   }
-
-   @Nonnegative
-   private int getMethodsSize() {
-      int size = 0;
-
-      for (MethodWriter mb : methods) {
-         size += mb.getSize();
-      }
-
-      return size;
-   }
-
-   @Nonnegative
-   private int getFieldsSize() {
-      int size = 0;
-
-      for (FieldWriter fb : fields) {
-         size += fb.getSize();
-      }
-
-      return size;
    }
 
    private void putFields(@Nonnull ByteVector out) {

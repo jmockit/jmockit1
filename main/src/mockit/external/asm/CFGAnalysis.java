@@ -182,35 +182,27 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull Item fieldItem, @Nonnull String desc) {
+   void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull Item fieldItem, @Nonnull String fieldTypeDesc) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.execute(opcode, cp, fieldItem);
          }
          else {
-            char typeCode = desc.charAt(0);
-            boolean doubleSizeType = typeCode == 'D' || typeCode == 'J';
-            int sizeVariation;
-
-            // Computes the stack size variation.
-            switch (opcode) {
-               case GETSTATIC:
-                  sizeVariation = doubleSizeType ? 2 : 1;
-                  break;
-               case PUTSTATIC:
-                  sizeVariation = doubleSizeType ? -2 : -1;
-                  break;
-               case GETFIELD:
-                  sizeVariation = doubleSizeType ? 1 : 0;
-                  break;
-               // case PUTFIELD:
-               default:
-                  sizeVariation = doubleSizeType ? -3 : -2;
-                  break;
-            }
-
+            char typeCode = fieldTypeDesc.charAt(0);
+            int sizeVariation = computeSizeVariationForFieldAccess(opcode, typeCode);
             updateStackSize(sizeVariation);
          }
+      }
+   }
+
+   private static int computeSizeVariationForFieldAccess(int fieldAccessOpcode, char fieldTypeCode) {
+      boolean doubleSizeType = fieldTypeCode == 'D' || fieldTypeCode == 'J';
+
+      switch (fieldAccessOpcode) {
+         case GETSTATIC: return doubleSizeType ? 2 : 1;
+         case PUTSTATIC: return doubleSizeType ? -2 : -1;
+         case GETFIELD:  return doubleSizeType ? 1 : 0;
+         case PUTFIELD: default: return doubleSizeType ? -3 : -2;
       }
    }
 
@@ -385,9 +377,9 @@ final class CFGAnalysis
             addSuccessor(Edge.NORMAL, dflt);
             dflt.getFirst().markAsTarget();
 
-            for (int i = 0; i < labels.length; ++i) {
-               addSuccessor(Edge.NORMAL, labels[i]);
-               labels[i].getFirst().markAsTarget();
+            for (Label label : labels) {
+               addSuccessor(Edge.NORMAL, label);
+               label.getFirst().markAsTarget();
             }
          }
          else {
@@ -396,14 +388,17 @@ final class CFGAnalysis
 
             // Adds current block successors.
             addSuccessor(stackSize, dflt);
-
-            for (int i = 0; i < labels.length; ++i) {
-               addSuccessor(stackSize, labels[i]);
-            }
+            addSuccessorForEachCase(labels);
          }
 
          // Ends current block.
          noSuccessor();
+      }
+   }
+
+   private void addSuccessorForEachCase(@Nonnull Label[] labels) {
+      for (Label label : labels) {
+         addSuccessor(stackSize, label);
       }
    }
 
@@ -427,14 +422,14 @@ final class CFGAnalysis
    int computeMaxStackSizeFromComputedFrames() {
       int max = 0;
       Label changed = labels;
-      Frame f;
+      Frame frame;
 
       while (changed != null) {
          // Removes a basic block from the list of changed basic blocks.
          Label l = changed;
          changed = changed.next;
          l.next = null;
-         f = l.frame;
+         frame = l.frame;
 
          // A reachable jump target must be stored in the stack map.
          if (l.isTarget()) {
@@ -445,30 +440,38 @@ final class CFGAnalysis
          l.markAsReachable();
 
          // Updates the (absolute) maximum stack size.
-         int blockMax = f.inputStack.length + l.outputStackMax;
+         int blockMax = frame.inputStack.length + l.outputStackMax;
 
          if (blockMax > max) {
             max = blockMax;
          }
 
-         // Updates the successors of the current basic block.
-         Edge e = l.successors;
-
-         while (e != null) {
-            Label n = e.successor.getFirst();
-            boolean change = f.merge(cw.thisName, cp, n.frame, e.info);
-
-            if (change && n.next == null) {
-               // If n has changed and is not already in the 'changed' list, adds it to this list.
-               n.next = changed;
-               changed = n;
-            }
-
-            e = e.next;
-         }
+         changed = updateSuccessorsOfCurrentBasicBlock(changed, frame, l);
       }
 
       return max;
+   }
+
+   @Nullable
+   private Label updateSuccessorsOfCurrentBasicBlock(
+      @Nullable Label changed, @Nonnull Frame frame, @Nonnull Label label
+   ) {
+      Edge e = label.successors;
+
+      while (e != null) {
+         Label n = e.successor.getFirst();
+         boolean change = frame.merge(cw.thisName, cp, n.frame, e.info);
+
+         if (change && n.next == null) {
+            // If n has changed and is not already in the 'changed' list, adds it to this list.
+            n.next = changed;
+            changed = n;
+         }
+
+         e = e.next;
+      }
+
+      return changed;
    }
 
    /**
@@ -478,42 +481,50 @@ final class CFGAnalysis
    void completeControlFlowGraphWithRETSuccessors() {
       if (subroutines > 0) {
          // Finds the basic blocks that belong to the "main" subroutine.
-         int id = 0;
          labels.visitSubroutine(null, 1, subroutines);
 
          // Finds the basic blocks that belong to the real subroutines.
-         Label l = labels;
-
-         while (l != null) {
-            if (l.isJSR()) {
-               // The subroutine is defined by l's TARGET, not by l.
-               Label subroutine = l.successors.next.successor;
-
-               // If this subroutine has not been visited yet...
-               if (!subroutine.isVisited()) {
-                  // ...assigns it a new id and finds its basic blocks.
-                  id += 1;
-                  subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
-               }
-            }
-
-            l = l.successor;
-         }
+         findBasicBlocksThatBelongToRealSubRoutines();
 
          // Second step: finds the successors of RET blocks.
-         l = labels;
+         findSuccessorsOfRETBlocks();
+      }
+   }
 
-         while (l != null) {
-            if (l.isJSR()) {
-               labels.markThisAndSuccessorsAsNotVisitedBySubroutine();
+   private void findBasicBlocksThatBelongToRealSubRoutines() {
+      Label label = labels;
+      int id = 0;
 
-               // The subroutine is defined by l's TARGET, not by l.
-               Label subroutine = l.successors.next.successor;
-               subroutine.visitSubroutine(l, 0, subroutines);
+      while (label != null) {
+         if (label.isJSR()) {
+            // The subroutine is defined by label's TARGET, not by label.
+            Label subroutine = label.successors.next.successor;
+
+            // If this subroutine has not been visited yet...
+            if (!subroutine.isVisited()) {
+               // ...assigns it a new id and finds its basic blocks.
+               id++;
+               subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
             }
-
-            l = l.successor;
          }
+
+         label = label.successor;
+      }
+   }
+
+   private void findSuccessorsOfRETBlocks() {
+      Label label = labels;
+
+      while (label != null) {
+         if (label.isJSR()) {
+            labels.markThisAndSuccessorsAsNotVisitedBySubroutine();
+
+            // The subroutine is defined by label's TARGET, not by label.
+            Label subroutine = label.successors.next.successor;
+            subroutine.visitSubroutine(label, 0, subroutines);
+         }
+
+         label = label.successor;
       }
    }
 
@@ -530,44 +541,50 @@ final class CFGAnalysis
 
       while (stack != null) {
          // Pops a block from the stack.
-         Label l = stack;
+         Label label = stack;
          stack = stack.next;
 
          // Computes the true (non relative) max stack size of this block.
-         int start = l.inputStackTop;
-         int blockMax = start + l.outputStackMax;
+         int start = label.inputStackTop;
+         int blockMax = start + label.outputStackMax;
 
          // Updates the global max stack size.
          if (blockMax > max) {
             max = blockMax;
          }
 
-         // Analyzes the successors of the block.
-         Edge b = l.successors;
-
-         if (l.isJSR()) {
-            // Ignores the first edge of JSR blocks (virtual successor).
-            b = b.next;
-         }
-
-         while (b != null) {
-            l = b.successor;
-
-            // If this successor has not already been pushed...
-            if (!l.isPushed()) {
-               // computes its true beginning stack size...
-               l.inputStackTop = b.info == Edge.EXCEPTION ? 1 : start + b.info;
-
-               // ...and pushes it onto the stack.
-               l.markAsPushed();
-               l.next = stack;
-               stack = l;
-            }
-
-            b = b.next;
-         }
+         stack = analyzeBlockSuccessors(stack, label, start);
       }
 
       return max;
+   }
+
+   @Nullable
+   private static Label analyzeBlockSuccessors(@Nullable Label stack, @Nonnull Label label, @Nonnegative int start) {
+      Edge block = label.successors;
+
+      if (label.isJSR()) {
+         // Ignores the first edge of JSR blocks (virtual successor).
+         block = block.next;
+      }
+
+      while (block != null) {
+         label = block.successor;
+
+         // If this successor has not already been pushed...
+         if (!label.isPushed()) {
+            // computes its true beginning stack size...
+            label.inputStackTop = block.info == Edge.EXCEPTION ? 1 : start + block.info;
+
+            // ...and pushes it onto the stack.
+            label.markAsPushed();
+            label.next = stack;
+            stack = label;
+         }
+
+         block = block.next;
+      }
+
+      return stack;
    }
 }

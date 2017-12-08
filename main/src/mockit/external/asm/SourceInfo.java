@@ -20,20 +20,16 @@ final class SourceInfo
    }
 
    @Nonnegative
-   int getAttributeCount() {
-      return sourceFile == 0 ? 0 : 1;
-   }
+   int getAttributeCount() { return sourceFile == 0 ? 0 : 1; }
 
    @Nonnegative
    int getSize() {
-      int size = 0;
-
-      if (sourceFile != 0) {
-         size = 8;
-         cp.newUTF8("SourceFile");
+      if (sourceFile == 0) {
+         return 0;
       }
 
-      return size;
+      cp.newUTF8("SourceFile");
+      return 8;
    }
 
    void put(@Nonnull ByteVector out) {
