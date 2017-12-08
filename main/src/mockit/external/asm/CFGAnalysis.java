@@ -107,7 +107,7 @@ final class CFGAnalysis
    private void noSuccessor() {
       if (computeFrames) {
          Label l = new Label();
-         l.frame = new Frame(l);
+         l.frame = new Frame(cp, l);
          l.resolve(code);
          //noinspection ConstantConditions
          previousBlock.successor = l;
@@ -148,7 +148,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForLocalVariableInstruction(int opcode, int var) {
+   void updateCurrentBlockForLocalVariableInstruction(int opcode, @Nonnegative int var) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.executeVAR(opcode, var);
@@ -174,7 +174,7 @@ final class CFGAnalysis
    void updateCurrentBlockForTypeInstruction(int opcode, @Nonnull Item typeItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.executeTYPE(opcode, code.length, cp, typeItem);
+            currentBlock.frame.executeTYPE(opcode, code.length, typeItem);
          }
          else if (opcode == NEW) { // updates stack size for NEW only; no change for ANEWARRAY, CHECKCAST, INSTANCEOF
             updateStackSize(1);
@@ -185,7 +185,7 @@ final class CFGAnalysis
    void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull Item fieldItem, @Nonnull String fieldTypeDesc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, cp, fieldItem);
+            currentBlock.frame.execute(opcode, fieldItem);
          }
          else {
             char typeCode = fieldTypeDesc.charAt(0);
@@ -209,7 +209,7 @@ final class CFGAnalysis
    void updateCurrentBlockForInvokeInstruction(@Nonnull Item invokeItem, int opcode, @Nonnull String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.execute(opcode, cp, invokeItem);
+            currentBlock.frame.execute(opcode, invokeItem);
          }
          else {
             int argSize = invokeItem.getArgSizeComputingIfNeeded(desc);
@@ -311,7 +311,7 @@ final class CFGAnalysis
          currentBlock = label;
 
          if (label.frame == null) {
-            label.frame = new Frame(label);
+            label.frame = new Frame(cp, label);
          }
 
          // Updates the basic block list.
@@ -354,7 +354,7 @@ final class CFGAnalysis
    void updateCurrentBlockForLDCInstruction(@Nonnull Item constItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.executeLDC(cp, constItem);
+            currentBlock.frame.executeLDC(constItem);
          }
          else {
             updateStackSize(constItem.isDoubleSized() ? 2 : 1);
@@ -405,7 +405,7 @@ final class CFGAnalysis
    void updateCurrentBlockForMULTIANEWARRAYInstruction(@Nonnull Item arrayTypeItem, @Nonnegative int dims) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.executeMULTIANEWARRAY(dims, cp, arrayTypeItem);
+            currentBlock.frame.executeMULTIANEWARRAY(dims, arrayTypeItem);
          }
          else {
             // Updates current stack size (max stack size unchanged because stack size variation always negative or 0).
@@ -460,7 +460,7 @@ final class CFGAnalysis
 
       while (e != null) {
          Label n = e.successor.getFirst();
-         boolean change = frame.merge(cw.thisName, cp, n.frame, e.info);
+         boolean change = frame.merge(cw.thisName, n.frame, e.info);
 
          if (change && n.next == null) {
             // If n has changed and is not already in the 'changed' list, adds it to this list.

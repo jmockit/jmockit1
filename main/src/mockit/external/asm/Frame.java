@@ -225,6 +225,8 @@ public final class Frame
       }
    }
 
+   @Nonnull private final ConstantPoolGeneration cp;
+
    /**
     * The label (i.e. basic block) to which these input and output stack map frames correspond.
     */
@@ -279,7 +281,8 @@ public final class Frame
     */
    private int[] initializations;
 
-   Frame(@Nonnull Label owner) {
+   Frame(@Nonnull ConstantPoolGeneration cp, @Nonnull Label owner) {
+      this.cp = cp;
       this.owner = owner;
    }
 
@@ -288,7 +291,7 @@ public final class Frame
     *
     * @param local the index of the local that must be returned.
     */
-   private int get(int local) {
+   private int get(@Nonnegative int local) {
       if (outputLocals == null || local >= outputLocals.length) {
          // This local has never been assigned in this basic block, so it is still equal to its value in the input
          // frame.
@@ -312,7 +315,7 @@ public final class Frame
     * @param local the index of the local that must be set.
     * @param type  the value of the local that must be set.
     */
-   private void set(int local, int type) {
+   private void set(@Nonnegative int local, int type) {
       // Creates and/or resizes the output local variables array if necessary.
       if (outputLocals == null) {
          outputLocals = new int[10];
@@ -363,12 +366,11 @@ public final class Frame
    /**
     * Pushes a new type onto the output frame stack.
     *
-    * @param cp   the constant pool to which this type belongs.
     * @param desc the descriptor of the type to be pushed. Can also be a method
     *             descriptor (in this case this method pushes its return type onto the output frame stack).
     */
-   private void push(@Nonnull ConstantPoolGeneration cp, @Nonnull String desc) {
-      int type = type(cp, desc);
+   private void push(@Nonnull String desc) {
+      int type = getTypeEncoding(desc);
 
       if (type != 0) {
          push(type);
@@ -380,79 +382,61 @@ public final class Frame
    }
 
    /**
-    * Returns the int encoding of the given type.
+    * Returns the {@linkplain TypeMask int encoding} of the given type.
     *
-    * @param cp   the constant pool to which this type belongs.
-    * @param desc a type descriptor.
+    * @param typeDesc a type descriptor.
     * @return the int encoding of the given type.
     */
-   private static int type(@Nonnull ConstantPoolGeneration cp, @Nonnull String desc) {
-      int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
-      String t;
+   private int getTypeEncoding(@Nonnull String typeDesc) {
+      int index = typeDesc.charAt(0) == '(' ? typeDesc.indexOf(')') + 1 : 0;
 
-      switch (desc.charAt(index)) {
-         case 'V':
-            return 0;
-         case 'Z':
-         case 'C':
-         case 'B':
-         case 'S':
-         case 'I':
-            return INTEGER;
-         case 'F':
-            return FLOAT;
-         case 'J':
-            return LONG;
-         case 'D':
-            return DOUBLE;
-         case 'L':
-            // Stores the internal name, not the descriptor!
-            t = desc.substring(index + 1, desc.length() - 1);
-            return OBJECT | cp.addType(t);
-         // case '[':
-         default:
-            // Extracts the dimensions and the element type.
-            int data;
-            int dims = index + 1;
-
-            while (desc.charAt(dims) == '[') {
-               ++dims;
-            }
-
-            switch (desc.charAt(dims)) {
-               case 'Z':
-                  data = BOOLEAN;
-                  break;
-               case 'C':
-                  data = CHAR;
-                  break;
-               case 'B':
-                  data = BYTE;
-                  break;
-               case 'S':
-                  data = SHORT;
-                  break;
-               case 'I':
-                  data = INTEGER;
-                  break;
-               case 'F':
-                  data = FLOAT;
-                  break;
-               case 'J':
-                  data = LONG;
-                  break;
-               case 'D':
-                  data = DOUBLE;
-                  break;
-               // case 'L':
-               default:
-                  // Stores the internal name, not the descriptor.
-                  t = desc.substring(dims + 1, desc.length() - 1);
-                  data = OBJECT | cp.addType(t);
-            }
-
-            return (dims - index) << 28 | data;
+      switch (typeDesc.charAt(index)) {
+         case 'V': return 0;
+         case 'Z': case 'C': case 'B': case 'S': case 'I': return INTEGER;
+         case 'F': return FLOAT;
+         case 'J': return LONG;
+         case 'D': return DOUBLE;
+         case 'L': return getObjectTypeEncoding(typeDesc, index);
+      // case '[':
+         default: return getArrayTypeEncoding(typeDesc, index);
       }
+   }
+
+   private int getObjectTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      // Stores the internal name, not the descriptor!
+      String t = typeDesc.substring(index + 1, typeDesc.length() - 1);
+      return OBJECT | cp.addType(t);
+   }
+
+   private int getArrayTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      int dims = getNumberOfDimensions(typeDesc, index);
+      int data = getArrayElementTypeEncoding(typeDesc, index + dims);
+      return dims << 28 | data;
+   }
+
+   private int getArrayElementTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      switch (typeDesc.charAt(index)) {
+         case 'Z': return BOOLEAN;
+         case 'C': return CHAR;
+         case 'B': return BYTE;
+         case 'S': return SHORT;
+         case 'I': return INTEGER;
+         case 'F': return FLOAT;
+         case 'J': return LONG;
+         case 'D': return DOUBLE;
+         case 'L': default: return getObjectTypeEncoding(typeDesc, index);
+      }
+   }
+
+   @Nonnegative
+   private static int getNumberOfDimensions(@Nonnull String typeDesc, @Nonnegative int index) {
+      int dims = 1;
+
+      while (typeDesc.charAt(index + dims) == '[') {
+         dims++;
+      }
+
+      return dims;
    }
 
    /**
@@ -535,12 +519,11 @@ public final class Frame
     * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in
     * the basic block.
     *
-    * @param cp the constant pool to which this label belongs.
-    * @param t  a type
+    * @param t a type
     * @return t or, if t is one of the types on which a constructor is invoked in the basic block, the type
     * corresponding to this constructor.
     */
-   private int init(@Nonnull ConstantPoolGeneration cp, String classDesc, int t) {
+   private int init(@Nonnull String classDesc, int t) {
       int s;
 
       if (t == UNINITIALIZED_THIS) {
@@ -576,14 +559,12 @@ public final class Frame
 
    /**
     * Initializes the input frame of the first basic block from the method descriptor.
-    *  @param cp        the constant pool to which this label belongs.
+    *
     * @param access    the access flags of the method to which this label belongs.
     * @param args      the formal parameter types of this method.
     * @param maxLocals the maximum number of local variables of this method.
     */
-   void initInputFrame(
-      @Nonnull ConstantPoolGeneration cp, String classDesc, int access, @Nonnull JavaType[] args, int maxLocals
-   ) {
+   void initInputFrame(@Nonnull String classDesc, int access, @Nonnull JavaType[] args, @Nonnegative int maxLocals) {
       inputLocals = new int[maxLocals];
       inputStack = new int[0];
       int i = 0;
@@ -593,8 +574,8 @@ public final class Frame
          inputLocals[i++] = inputLocal;
       }
 
-      for (int j = 0; j < args.length; j++) {
-         int t = type(cp, args[j].getDescriptor());
+      for (JavaType arg : args) {
+         int t = getTypeEncoding(arg.getDescriptor());
          inputLocals[i++] = t;
 
          if (t == LONG || t == DOUBLE) {
@@ -628,13 +609,11 @@ public final class Frame
     * @param operand the operand of the instruction, if any.
     */
    void executeINT(int opcode, int operand) {
-      switch (opcode) {
-         case BIPUSH:
-         case SIPUSH:
-            push(INTEGER);
-            break;
-         case NEWARRAY:
-            executeNewArray(operand);
+      if (opcode == NEWARRAY) {
+         executeNewArray(operand);
+      }
+      else {
+         push(INTEGER);
       }
    }
 
@@ -644,6 +623,7 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     */
    void executeJUMP(int opcode) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case IFEQ:
          case IFNE:
@@ -676,8 +656,12 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     */
    void execute(int opcode) {
-      int t1, t2, t3, t4;
+      int t1;
+      int t2;
+      int t3;
+      int t4;
 
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NOP:
          case INEG:
@@ -919,7 +903,8 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     * @param var    the local variable index.
     */
-   void executeVAR(int opcode, int var) {
+   void executeVAR(int opcode, @Nonnegative int var) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case ILOAD:
             push(INTEGER);
@@ -955,10 +940,9 @@ public final class Frame
    /**
     * Simulates the action of an LCD instruction on the output stack frame.
     *
-    * @param cp   the constant pool to which this label belongs.
     * @param item the operand of the instructions.
     */
-   void executeLDC(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
+   void executeLDC(@Nonnull Item item) {
       switch (item.type) {
          case ConstantPoolItemType.INT:
             push(INTEGER);
@@ -994,19 +978,19 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     * @param codeLength the operand of the instruction, if any.
-    * @param cp     the constant pool to which this instruction belongs.
     * @param item   the operand of the instruction.
     */
-   void executeTYPE(int opcode, int codeLength, @Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
+   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull Item item) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NEW:
             push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, codeLength));
             break;
          case ANEWARRAY:
-            executeANewArray(cp, item);
+            executeANewArray(item);
             break;
          case CHECKCAST:
-            executeCheckCast(cp, item);
+            executeCheckCast(item);
             break;
          case INSTANCEOF:
             pop(1);
@@ -1018,34 +1002,37 @@ public final class Frame
     * Simulates the action of a MULTIANEWARRAY instruction on the output stack frame.
     *
     * @param dims the number of dimensions of the array.
-    * @param cp   the constant pool to which this instruction belongs.
     * @param arrayType the type of the array elements.
     */
-   void executeMULTIANEWARRAY(int dims, @Nonnull ConstantPoolGeneration cp, @Nonnull Item arrayType) {
+   void executeMULTIANEWARRAY(int dims, @Nonnull Item arrayType) {
       pop(dims);
-      push(cp, arrayType.strVal1);
+      push(arrayType.strVal1);
    }
 
    /**
     * Simulates the action of the given instruction on the output stack frame.
     *
     * @param opcode the opcode of the instruction.
-    * @param cp     the constant pool to which this instruction belongs.
     * @param item   the operand of the instruction.
     */
-   void execute(int opcode, @Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
+   void execute(int opcode, @Nonnull Item item) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case GETSTATIC:
-            push(cp, item.strVal3);
+            //noinspection ConstantConditions
+            push(item.strVal3);
             break;
          case PUTSTATIC:
+            //noinspection ConstantConditions
             pop(item.strVal3);
             break;
          case GETFIELD:
             pop(1);
-            push(cp, item.strVal3);
+            //noinspection ConstantConditions
+            push(item.strVal3);
             break;
          case PUTFIELD:
+            //noinspection ConstantConditions
             pop(item.strVal3);
             pop();
             break;
@@ -1053,21 +1040,22 @@ public final class Frame
          case INVOKESPECIAL:
          case INVOKESTATIC:
          case INVOKEINTERFACE:
-            executeInvoke(cp, opcode, item);
+            executeInvoke(opcode, item);
             break;
          case INVOKEDYNAMIC:
+            //noinspection ConstantConditions
             pop(item.strVal2);
-            push(cp, item.strVal2);
+            push(item.strVal2);
       }
    }
 
-   private void executeSingleWordStore(int arg) {
+   private void executeSingleWordStore(@Nonnegative int arg) {
       int type1 = pop();
       set(arg, type1);
       executeStore(arg);
    }
 
-   private void executeStore(int arg) {
+   private void executeStore(@Nonnegative int arg) {
       if (arg > 0) {
          int type2 = get(arg - 1);
 
@@ -1081,7 +1069,7 @@ public final class Frame
       }
    }
 
-   private void executeDoubleWordStore(int arg) {
+   private void executeDoubleWordStore(@Nonnegative int arg) {
       pop(1);
 
       int type1 = pop();
@@ -1091,18 +1079,20 @@ public final class Frame
       executeStore(arg);
    }
 
-   private void executeInvoke(@Nonnull ConstantPoolGeneration cp, int opcode, @Nonnull Item item) {
+   private void executeInvoke(int opcode, @Nonnull Item item) {
+      //noinspection ConstantConditions
       pop(item.strVal3);
 
       if (opcode != INVOKESTATIC) {
          int var = pop();
 
+         //noinspection ConstantConditions
          if (opcode == INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
             init(var);
          }
       }
 
-      push(cp, item.strVal3);
+      push(item.strVal3);
    }
 
    private void executeNewArray(int arg) {
@@ -1137,24 +1127,24 @@ public final class Frame
       }
    }
 
-   private void executeANewArray(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
+   private void executeANewArray(@Nonnull Item item) {
       String s = item.strVal1;
       pop();
 
       if (s.charAt(0) == '[') {
-         push(cp, '[' + s);
+         push('[' + s);
       }
       else {
          push(ARRAY_OF | OBJECT | cp.addType(s));
       }
    }
 
-   private void executeCheckCast(@Nonnull ConstantPoolGeneration cp, @Nonnull Item item) {
+   private void executeCheckCast(@Nonnull Item item) {
       String s = item.strVal1;
       pop();
 
       if (s.charAt(0) == '[') {
-         push(cp, s);
+         push(s);
       }
       else {
          push(OBJECT | cp.addType(s));
@@ -1165,14 +1155,17 @@ public final class Frame
     * Merges the input frame of the given basic block with the input and output frames of this basic block.
     * Returns <tt>true</tt> if the input frame of the given label has been changed by this operation.
     *
-    * @param cp    the constant pool to which this label belongs.
     * @param frame the basic block whose input frame must be updated.
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(String classDesc, @Nonnull ConstantPoolGeneration cp, @Nonnull Frame frame, int edge) {
+   boolean merge(String classDesc, @Nonnull Frame frame, int edge) {
       boolean changed = false;
-      int i, s, dim, kind, t;
+      int i;
+      int s;
+      int dim;
+      int kind;
+      int t;
 
       int nLocal = inputLocals.length;
       int nStack = inputStack.length;
@@ -1215,16 +1208,16 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(cp, classDesc, t);
+            t = init(classDesc, t);
          }
 
-         changed |= merge(cp, t, frame.inputLocals, i);
+         changed |= merge(t, frame.inputLocals, i);
       }
 
       if (edge > 0) {
          for (i = 0; i < nLocal; ++i) {
             t = inputLocals[i];
-            changed |= merge(cp, t, frame.inputLocals, i);
+            changed |= merge(t, frame.inputLocals, i);
          }
 
          if (frame.inputStack == null) {
@@ -1232,7 +1225,7 @@ public final class Frame
             changed = true;
          }
 
-         changed |= merge(cp, edge, frame.inputStack, 0);
+         changed |= merge(edge, frame.inputStack, 0);
          return changed;
       }
 
@@ -1247,10 +1240,10 @@ public final class Frame
          t = inputStack[i];
 
          if (initializations != null) {
-            t = init(cp, classDesc, t);
+            t = init(classDesc, t);
          }
 
-         changed |= merge(cp, t, frame.inputStack, i);
+         changed |= merge(t, frame.inputStack, i);
       }
 
       for (i = 0; i < outputStackTop; i++) {
@@ -1275,10 +1268,10 @@ public final class Frame
          }
 
          if (initializations != null) {
-            t = init(cp, classDesc, t);
+            t = init(classDesc, t);
          }
 
-         changed |= merge(cp, t, frame.inputStack, nInputStack + i);
+         changed |= merge(t, frame.inputStack, nInputStack + i);
       }
 
       return changed;
@@ -1288,15 +1281,12 @@ public final class Frame
     * Merges the type at the given index in the given type array with the given type.
     * Returns <tt>true</tt> if the type array has been modified by this operation.
     *
-    * @param cp    the constant pool to which this label belongs.
     * @param t     the type with which the type array element must be merged.
     * @param types an array of types.
     * @param index the index of the type that must be merged in 'types'.
     * @return <tt>true</tt> if the type array has been modified by this operation.
     */
-   private static boolean merge(
-      @Nonnull ConstantPoolGeneration cp, int t, @Nonnull int[] types, @Nonnegative int index
-   ) {
+   private boolean merge(int t, @Nonnull int[] types, @Nonnegative int index) {
       int u = types[index];
 
       if (u == t) {

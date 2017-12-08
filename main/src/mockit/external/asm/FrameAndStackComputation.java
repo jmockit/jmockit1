@@ -371,7 +371,7 @@ final class FrameAndStackComputation
     */
    void createAndVisitFirstFrame(@Nonnull Frame frame) {
       JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cp, cw.thisName, mw.access, args, maxLocals);
+      frame.initInputFrame(cw.thisName, mw.access, args, maxLocals);
       visitFrame(frame);
    }
 
@@ -394,7 +394,7 @@ final class FrameAndStackComputation
    // Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP
    // types).
    @Nonnegative
-   private int computeNumberOfLocals(@Nonnull int[] locals) {
+   private static int computeNumberOfLocals(@Nonnull int[] locals) {
       int nLocal = 0;
       int nTop = 0;
 
@@ -418,7 +418,7 @@ final class FrameAndStackComputation
    }
 
    // Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
-   private int computeStackSize(@Nonnull int[] stacks) {
+   private static int computeStackSize(@Nonnull int[] stacks) {
       int nStack = 0;
 
       for (int i = 0; i < stacks.length; i++) {
