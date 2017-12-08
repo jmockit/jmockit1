@@ -253,29 +253,33 @@ public final class ClassReader extends AnnotatedReader
 
    @Nonnull
    private Item copyIntItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      Item item = new Item(itemIndex);
-      item.set(readInt(codeIndex));
-      return item;
-   }
-
-   @Nonnull
-   private Item copyFloatItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      Item item = new Item(itemIndex);
-      item.set(Float.intBitsToFloat(readInt(codeIndex)));
+      int itemValue = readInt(codeIndex);
+      IntItem item = new IntItem(itemIndex);
+      item.set(itemValue);
       return item;
    }
 
    @Nonnull
    private Item copyLongItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      Item item = new Item(itemIndex);
-      item.set(readLong(codeIndex));
+      long itemValue = readLong(codeIndex);
+      LongItem item = new LongItem(itemIndex);
+      item.set(itemValue);
+      return item;
+   }
+
+   @Nonnull
+   private Item copyFloatItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      float itemValue = readFloat(codeIndex);
+      FloatItem item = new FloatItem(itemIndex);
+      item.set(itemValue);
       return item;
    }
 
    @Nonnull
    private Item copyDoubleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      Item item = new Item(itemIndex);
-      item.set(Double.longBitsToDouble(readLong(codeIndex)));
+      double itemValue = readDouble(codeIndex);
+      DoubleItem item = new DoubleItem(itemIndex);
+      item.set(itemValue);
       return item;
    }
 

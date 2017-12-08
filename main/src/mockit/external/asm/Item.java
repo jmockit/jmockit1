@@ -107,11 +107,9 @@ class Item
    /**
     * Initializes an Item for a constant pool element at the given position.
     *
-    * @param index index of the item to be constructed.
+    * @param index index of the item.
     */
-   Item(@Nonnegative int index) {
-      this.index = index;
-   }
+   Item(@Nonnegative int index) { this.index = index; }
 
    /**
     * Initializes a copy of the given item.
@@ -131,57 +129,13 @@ class Item
    }
 
    /**
-    * Sets this item to an integer item.
-    *
-    * @param intVal the value of this item.
-    */
-   void set(int intVal) {
-      type = INT;
-      this.intVal = intVal;
-      hashCode = 0x7FFFFFFF & (type + intVal);
-   }
-
-   /**
-    * Sets this item to a long item.
-    *
-    * @param longVal the value of this item.
-    */
-   void set(long longVal) {
-      type = LONG;
-      this.longVal = longVal;
-      hashCode = 0x7FFFFFFF & (type + (int) longVal);
-   }
-
-   /**
-    * Sets this item to a float item.
-    *
-    * @param floatVal the value of this item.
-    */
-   void set(float floatVal) {
-      type = FLOAT;
-      intVal = Float.floatToRawIntBits(floatVal);
-      hashCode = 0x7FFFFFFF & (type + (int) floatVal);
-   }
-
-   /**
-    * Sets this item to a double item.
-    *
-    * @param doubleVal the value of this item.
-    */
-   void set(double doubleVal) {
-      type = DOUBLE;
-      longVal = Double.doubleToRawLongBits(doubleVal);
-      hashCode = 0x7FFFFFFF & (type + (int) doubleVal);
-   }
-
-   /**
     * Indicates if the given item is equal to this one. <i>This method assumes that the two items have the same
     * {@link #type}</i>.
     *
     * @param item the item to be compared to this one. Both items must have the same {@link #type}.
     * @return <tt>true</tt> if the given item if equal to this one, <tt>false</tt> otherwise.
     */
-   boolean isEqualTo(@Nonnull Item item) {
+   final boolean isEqualTo(@Nonnull Item item) {
       switch (type) {
          case UTF8:
          case STR:

@@ -46,6 +46,26 @@ final class ConstantPoolGeneration
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
+   @Nonnull private final IntItem reusableIntItem;
+
+   /**
+    * A reusable key used to look for items in the {@link #items} hash table.
+    */
+   @Nonnull private final LongItem reusableLongItem;
+
+   /**
+    * A reusable key used to look for items in the {@link #items} hash table.
+    */
+   @Nonnull private final FloatItem reusableFloatItem;
+
+   /**
+    * A reusable key used to look for items in the {@link #items} hash table.
+    */
+   @Nonnull private final DoubleItem reusableDoubleItem;
+
+   /**
+    * A reusable key used to look for items in the {@link #items} hash table.
+    */
    @Nonnull private final InvokeDynamicItem reusableInvokeDynamicItem;
 
    /**
@@ -80,6 +100,10 @@ final class ConstantPoolGeneration
       key = new ReferenceItem(0);
       key2 = new ReferenceItem(0);
       key3 = new ReferenceItem(0);
+      reusableIntItem = new IntItem(0);
+      reusableLongItem = new LongItem(0);
+      reusableFloatItem = new FloatItem(0);
+      reusableDoubleItem = new DoubleItem(0);
       reusableInvokeDynamicItem = new InvokeDynamicItem(0);
       key4 = new ReferenceItem(0);
       index = 1;
@@ -243,12 +267,12 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newInteger(int value) {
-      key.set(value);
-      Item result = get(key);
+      reusableIntItem.set(value);
+      Item result = get(reusableIntItem);
 
       if (result == null) {
          pool.putByte(INT).putInt(value);
-         result = new Item(index++, key);
+         result = new Item(index++, reusableIntItem);
          put(result);
       }
 
@@ -264,12 +288,12 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newFloat(float value) {
-      key.set(value);
-      Item result = get(key);
+      reusableFloatItem.set(value);
+      Item result = get(reusableFloatItem);
 
       if (result == null) {
-         pool.putByte(FLOAT).putInt(key.intVal);
-         result = new Item(index++, key);
+         pool.putByte(FLOAT).putInt(reusableFloatItem.intVal);
+         result = new Item(index++, reusableFloatItem);
          put(result);
       }
 
@@ -285,12 +309,12 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newLong(long value) {
-      key.set(value);
-      Item result = get(key);
+      reusableLongItem.set(value);
+      Item result = get(reusableLongItem);
 
       if (result == null) {
          pool.putByte(LONG).putLong(value);
-         result = new Item(index, key);
+         result = new Item(index, reusableLongItem);
          index += 2;
          put(result);
       }
@@ -307,12 +331,12 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    Item newDouble(double value) {
-      key.set(value);
-      Item result = get(key);
+      reusableDoubleItem.set(value);
+      Item result = get(reusableDoubleItem);
 
       if (result == null) {
-         pool.putByte(DOUBLE).putLong(key.longVal);
-         result = new Item(index, key);
+         pool.putByte(DOUBLE).putLong(reusableDoubleItem.longVal);
+         result = new Item(index, reusableDoubleItem);
          index += 2;
          put(result);
       }
@@ -457,9 +481,9 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Adds the given Item to {@link #typeTable}.
+    * Creates and adds a new Item to {@link #typeTable}.
     *
-    * @return the added Item, which a new Item instance with the same value as the given Item.
+    * @return the added Item, which is a new Item instance with the same value as {@link #key}.
     */
    @Nonnull
    private Item addType() {
@@ -556,10 +580,11 @@ final class ConstantPoolGeneration
     * such item.
     */
    @Nullable
-   Item get(@Nonnull Item key) {
+   private Item get(@Nonnull Item key) {
       Item item = getItem(key.hashCode);
+      int keyType = key.type;
 
-      while (item != null && (item.type != key.type || !key.isEqualTo(item))) {
+      while (item != null && (item.type != keyType || !key.isEqualTo(item))) {
          item = item.next;
       }
 
