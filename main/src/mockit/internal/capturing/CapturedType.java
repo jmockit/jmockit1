@@ -4,6 +4,7 @@
  */
 package mockit.internal.capturing;
 
+import java.lang.reflect.*;
 import java.security.*;
 import javax.annotation.*;
 
@@ -24,25 +25,28 @@ final class CapturedType
       baseTypePDWithCodeSource = baseTypePD != null && baseTypePD.getCodeSource() != null;
    }
 
-   @SuppressWarnings("UnnecessaryFullyQualifiedName")
    boolean isToBeCaptured(@Nonnull Class<?> aClass)
    {
-      if (baseType == Object.class) {
-         if (
-            aClass.isArray() ||
-            mockit.MockUp.class.isAssignableFrom(aClass) || mockit.Delegate.class.isAssignableFrom(aClass) ||
-            mockit.Expectations.class.isAssignableFrom(aClass) || mockit.Verifications.class.isAssignableFrom(aClass)
-         ) {
-            return false;
-         }
-      }
-      else if (aClass == baseType || !baseType.isAssignableFrom(aClass)) {
+      //noinspection SimplifiableIfStatement
+      if (
+         aClass == baseType || aClass.isArray() || !baseType.isAssignableFrom(aClass) ||
+         Proxy.isProxyClass(aClass) || extendsJMockitBaseType(aClass)
+      ) {
          return false;
       }
 
       return
          !aClass.isInterface() &&
          !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
+   }
+
+   @SuppressWarnings("UnnecessaryFullyQualifiedName")
+   private static boolean extendsJMockitBaseType(@Nonnull Class<?> aClass)
+   {
+      return
+         mockit.MockUp.class.isAssignableFrom(aClass) ||
+         mockit.Expectations.class.isAssignableFrom(aClass) || mockit.Verifications.class.isAssignableFrom(aClass) ||
+         mockit.Delegate.class.isAssignableFrom(aClass);
    }
 
    @SuppressWarnings("OverlyComplexMethod")
