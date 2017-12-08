@@ -34,9 +34,9 @@ import javax.annotation.*;
 import static mockit.external.asm.ConstantPoolItemType.*;
 
 /**
- * A constant pool item. Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
+ * A constant pool item.
  */
-final class Item
+class Item
 {
    /**
     * Defines constants for {@link #NORMAL normal}, {@link #UNINIT uninitialized}, and {@link #MERGED merged} special
@@ -105,12 +105,7 @@ final class Item
    @Nullable Item next;
 
    /**
-    * Constructs an uninitialized {@link Item}.
-    */
-   Item() { index = 0; }
-
-   /**
-    * Constructs an uninitialized {@link Item} for constant pool element at given position.
+    * Initializes an Item for a constant pool element at the given position.
     *
     * @param index index of the item to be constructed.
     */
@@ -119,7 +114,7 @@ final class Item
    }
 
    /**
-    * Constructs a copy of the given item.
+    * Initializes a copy of the given item.
     *
     * @param index index of the item to be constructed.
     * @param item  the item that must be copied into the item to be constructed.
@@ -180,70 +175,6 @@ final class Item
    }
 
    /**
-    * Sets this item to an item that do not hold a primitive value.
-    *
-    * @param type    the type of this item.
-    * @param strVal1 first part of the value of this item.
-    * @param strVal2 second part of the value of this item.
-    * @param strVal3 third part of the value of this item.
-    */
-   void set(int type, @Nonnull String strVal1, @Nullable String strVal2, @Nullable String strVal3) {
-      this.type = type;
-      this.strVal1 = strVal1;
-      this.strVal2 = strVal2;
-      this.strVal3 = strVal3;
-
-      switch (type) {
-         case CLASS:
-            intVal = 0; // intVal of a class must be zero, see visitInnerClass
-            // fall through
-         case UTF8:
-         case STR:
-         case MTYPE:
-         case SpecialType.NORMAL:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-            return;
-         case NAME_TYPE: {
-            //noinspection ConstantConditions
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
-            return;
-         }
-         // FIELD|METH|IMETH|HANDLE_BASE + 1..9:
-         default:
-            //noinspection ConstantConditions
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
-      }
-   }
-
-   /**
-    * Sets the item to an InvokeDynamic item.
-    *
-    * @param name     invokedynamic's name.
-    * @param desc     invokedynamic's desc.
-    * @param bsmIndex zero based index into the class attribute BootstrapMethods.
-    */
-   void set(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
-      type = INDY;
-      longVal = bsmIndex;
-      strVal1 = name;
-      strVal2 = desc;
-      hashCode = 0x7FFFFFFF & (INDY + bsmIndex * name.hashCode() * desc.hashCode());
-   }
-
-   /**
-    * Sets the item to a BootstrapMethod item.
-    *
-    * @param position position in byte in the class attribute BootstrapMethods.
-    * @param hashCode hashcode of the item. This hashcode is processed from the
-    *                 hashcode of the bootstrap method and the hashcode of all bootstrap arguments.
-    */
-   void set(int position, int hashCode) {
-      type = BSM;
-      intVal = position;
-      this.hashCode = hashCode;
-   }
-
-   /**
     * Indicates if the given item is equal to this one. <i>This method assumes that the two items have the same
     * {@link #type}</i>.
     *
@@ -280,7 +211,7 @@ final class Item
       }
    }
 
-   boolean isDoubleSized() {
+   final boolean isDoubleSized() {
       return type == LONG || type == DOUBLE;
    }
 
@@ -291,7 +222,7 @@ final class Item
     * arguments and of the return value corresponding to desc.
     */
    @Nonnegative
-   int getArgSizeComputingIfNeeded(@Nonnull String desc) {
+   final int getArgSizeComputingIfNeeded(@Nonnull String desc) {
       int argSize = intVal;
 
       if (argSize == 0) {
@@ -300,5 +231,11 @@ final class Item
       }
 
       return argSize;
+   }
+
+   final void setNext(@Nonnull Item[] items2) {
+      int index2 = hashCode % items2.length;
+      next = items2[index2];
+      items2[index2] = this;
    }
 }

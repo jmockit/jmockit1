@@ -31,22 +31,27 @@ final class ConstantPoolGeneration
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   @Nonnull private final Item key;
+   @Nonnull private final ReferenceItem key;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   @Nonnull private final Item key2;
+   @Nonnull private final ReferenceItem key2;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   @Nonnull private final Item key3;
+   @Nonnull private final ReferenceItem key3;
 
    /**
     * A reusable key used to look for items in the {@link #items} hash table.
     */
-   @Nonnull private final Item key4;
+   @Nonnull private final InvokeDynamicItem reusableInvokeDynamicItem;
+
+   /**
+    * A reusable key used to look for items in the {@link #items} hash table.
+    */
+   @Nonnull private final ReferenceItem key4;
 
    /**
     * Index of the next item to be added in the constant pool.
@@ -72,10 +77,11 @@ final class ConstantPoolGeneration
       pool = new ByteVector();
       items = new Item[256];
       threshold = (int) (0.75d * items.length);
-      key = new Item();
-      key2 = new Item();
-      key3 = new Item();
-      key4 = new Item();
+      key = new ReferenceItem(0);
+      key2 = new ReferenceItem(0);
+      key3 = new ReferenceItem(0);
+      reusableInvokeDynamicItem = new InvokeDynamicItem(0);
+      key4 = new ReferenceItem(0);
       index = 1;
    }
 
@@ -633,12 +639,12 @@ final class ConstantPoolGeneration
 
    @Nonnull
    Item createInvokeDynamicConstant(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
-      key3.set(name, desc, bsmIndex);
-      Item result = get(key3);
+      reusableInvokeDynamicItem.set(name, desc, bsmIndex);
+      Item result = get(reusableInvokeDynamicItem);
 
       if (result == null) {
          put122(INDY, bsmIndex, newNameType(name, desc));
-         result = new Item(index++, key3);
+         result = new Item(index++, reusableInvokeDynamicItem);
          put(result);
       }
 

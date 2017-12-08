@@ -27,7 +27,7 @@ interface ConstantPoolItemType
    int HANDLE_BASE = 20;
 
    /**
-    * The type of BootstrapMethods items. These items are stored in a special class attribute named BootstrapMethods and
+    * The type of BootstrapMethod items. These items are stored in a special class attribute named BootstrapMethods and
     * not in the constant pool.
     */
    int BSM = 33;

@@ -35,6 +35,8 @@ class BytecodeReader
     */
    @Nonnegative final int header;
 
+   @Nonnegative int currentCodeIndex;
+
    BytecodeReader(@Nonnull byte[] code) {
       this.code = code;
 
@@ -230,7 +232,7 @@ class BytecodeReader
    }
 
    @Nonnull
-   private String readString(@Nonnegative int itemIndex) {
+   final String readString(@Nonnegative int itemIndex) {
       String string = strings[itemIndex];
 
       if (string != null) {
@@ -313,10 +315,5 @@ class BytecodeReader
       int itemIndex = readUnsignedShort(codeIndex);
       String classDesc = readUTF8(items[itemIndex]);
       return classDesc;
-   }
-
-   final void copyUTF8Item(@Nonnegative int itemIndex, int tag, @Nonnull Item item) {
-      String string = readString(itemIndex);
-      item.set(tag, string, null, null);
    }
 }

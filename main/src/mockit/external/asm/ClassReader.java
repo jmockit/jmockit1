@@ -73,19 +73,16 @@ public final class ClassReader extends AnnotatedReader
    @Nullable private String signature;
    @Nullable private String sourceFile;
    @Nullable private EnclosingMethod enclosingMethod;
+   @Nonnegative private int annotationsCodeIndex;
+   @Nonnegative private int innerClassesCodeIndex;
 
    /**
-    * Constructs a new {@link ClassReader} object.
-    *
-    * @param code the code of the class to be read.
+    * Initializes a new class reader with the given bytecode array for a classfile.
     */
    public ClassReader(@Nonnull byte[] code) { super(code); }
 
    /**
-    * Constructs a new {@link ClassReader} object.
-    *
-    * @param is an input stream from which to read the class.
-    * @throws IOException if a problem occurs during reading.
+    * Initializes a new class reader whose classfile bytecode array is read from the given input stream.
     */
    public ClassReader(@Nonnull InputStream is) throws IOException {
       this(readClass(is));
@@ -179,14 +176,14 @@ public final class ClassReader extends AnnotatedReader
     */
    @Nonnull
    public String[] getInterfaces() {
-      int index = header + 6;
-      int interfaceCount = readUnsignedShort(index);
+      int codeIndex = header + 6;
+      int interfaceCount = readUnsignedShort(codeIndex);
       String[] interfaces = new String[interfaceCount];
 
       if (interfaceCount > 0) {
          for (int i = 0; i < interfaceCount; i++) {
-            index += 2;
-            interfaces[i] = readClass(index);
+            codeIndex += 2;
+            interfaces[i] = readClass(codeIndex);
          }
       }
 
@@ -202,108 +199,172 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Copies the constant pool data into the given {@link ClassWriter}.
     */
+   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    void copyPool(@Nonnull ClassWriter cw) {
-      int ll = items.length;
-      Item[] items2 = new Item[ll];
+      int itemCount = items.length;
+      Item[] items2 = new Item[itemCount];
 
-      for (int i = 1; i < ll; i++) {
-         int index = items[i];
-         int tag = code[index - 1];
-         Item item = new Item(i);
+      for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
+         int itemCodeIndex = items[itemIndex];
+         int itemType = code[itemCodeIndex - 1];
+         Item item;
 
-         switch (tag) {
-            case FIELD:
-            case METH:
-            case IMETH:
-               int nameType = items[readUnsignedShort(index + 2)];
-               String classDesc = readClass(index);
-               String methodName = readUTF8(nameType);
-               String methodDesc = readUTF8(nameType + 2);
-               //noinspection ConstantConditions
-               item.set(tag, classDesc, methodName, methodDesc);
+         switch (itemType) {
+            case FIELD: case METH: case IMETH:
+               item = copyFieldOrMethodReferenceItem(itemType, itemCodeIndex, itemIndex);
                break;
             case INT:
-               item.set(readInt(index));
+               item = copyIntItem(itemCodeIndex, itemIndex);
                break;
             case FLOAT:
-               item.set(Float.intBitsToFloat(readInt(index)));
+               item = copyFloatItem(itemCodeIndex, itemIndex);
                break;
             case NAME_TYPE:
-               String name = readUTF8(index);
-               String type = readUTF8(index + 2);
-               //noinspection ConstantConditions
-               item.set(tag, name, type, null);
+               item = copyNameAndTypeItem(itemType, itemCodeIndex, itemIndex);
                break;
             case LONG:
-               item.set(readLong(index));
-               i++;
+               item = copyLongItem(itemCodeIndex, itemIndex);
+               itemIndex++;
                break;
             case DOUBLE:
-               item.set(Double.longBitsToDouble(readLong(index)));
-               i++;
+               item = copyDoubleItem(itemCodeIndex, itemIndex);
+               itemIndex++;
                break;
             case UTF8:
-               copyUTF8Item(i, tag, item);
+               item = copyUTF8Item(itemType, itemIndex);
                break;
             case HANDLE:
-               copyHandleItem(index, item);
+               item = copyHandleItem(itemCodeIndex, itemIndex);
                break;
             case INDY:
-               copyInvokeDynamicItem(cw.bootstrapMethods, items2, index, item);
+               item = copyInvokeDynamicItem(cw.bootstrapMethods, items2, itemCodeIndex, itemIndex);
                break;
             // case STR|CLASS|MTYPE:
             default:
-               String string = readUTF8(index);
-               //noinspection ConstantConditions
-               item.set(tag, string, null, null);
-               break;
+               item = copyNameReferenceItem(itemType, itemCodeIndex, itemIndex);
          }
 
-         int index2 = item.hashCode % items2.length;
-         item.next = items2[index2];
-         items2[index2] = item;
+         item.setNext(items2);
       }
 
       int off = items[1] - 1;
       cw.cp.copy(code, off, header, items2);
    }
 
-   private void copyHandleItem(@Nonnegative int index, @Nonnull Item item) {
-      int fieldOrMethodRef = items[readUnsignedShort(index + 1)];
+   @Nonnull
+   private Item copyIntItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      Item item = new Item(itemIndex);
+      item.set(readInt(codeIndex));
+      return item;
+   }
+
+   @Nonnull
+   private Item copyFloatItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      Item item = new Item(itemIndex);
+      item.set(Float.intBitsToFloat(readInt(codeIndex)));
+      return item;
+   }
+
+   @Nonnull
+   private Item copyLongItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      Item item = new Item(itemIndex);
+      item.set(readLong(codeIndex));
+      return item;
+   }
+
+   @Nonnull
+   private Item copyDoubleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      Item item = new Item(itemIndex);
+      item.set(Double.longBitsToDouble(readLong(codeIndex)));
+      return item;
+   }
+
+   @Nonnull
+   private Item copyNameAndTypeItem(int itemType, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      String name = readUTF8(codeIndex);
+      String type = readUTF8(codeIndex + 2);
+
+      ReferenceItem item = new ReferenceItem(itemIndex);
+      //noinspection ConstantConditions
+      item.set(itemType, name, type, null);
+      return item;
+   }
+
+   @Nonnull
+   private Item copyFieldOrMethodReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      int nameType = items[readUnsignedShort(codeIndex + 2)];
+      String classDesc = readClass(codeIndex);
+      String methodName = readUTF8(nameType);
+      String methodDesc = readUTF8(nameType + 2);
+
+      ReferenceItem item = new ReferenceItem(itemIndex);
+      //noinspection ConstantConditions
+      item.set(type, classDesc, methodName, methodDesc);
+      return item;
+   }
+
+   @Nonnull
+   private Item copyUTF8Item(int type, @Nonnegative int itemIndex) {
+      String string = readString(itemIndex);
+
+      ReferenceItem item = new ReferenceItem(itemIndex);
+      item.set(type, string, null, null);
+      return item;
+   }
+
+   @Nonnull
+   private Item copyHandleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      int fieldOrMethodRef = items[readUnsignedShort(codeIndex + 1)];
       int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
 
-      int type = HANDLE_BASE + readByte(index);
+      int type = HANDLE_BASE + readByte(codeIndex);
       String classDesc = readClass(fieldOrMethodRef);
       String name = readUTF8(nameType);
       String desc = readUTF8(nameType + 2);
 
+      ReferenceItem item = new ReferenceItem(itemIndex);
       //noinspection ConstantConditions
       item.set(type, classDesc, name, desc);
+      return item;
    }
 
-   private void copyInvokeDynamicItem(
-      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull Item[] items2, @Nonnegative int index, @Nonnull Item item
+   @Nonnull
+   private Item copyInvokeDynamicItem(
+      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull Item[] items2, @Nonnegative int codeIndex,
+      @Nonnegative int itemIndex
    ) {
       bootstrapMethods.copyBootstrapMethods(this, items2);
 
-      int nameType = items[readUnsignedShort(index + 2)];
+      int nameType = items[readUnsignedShort(codeIndex + 2)];
       String name = readUTF8(nameType);
       String desc = readUTF8(nameType + 2);
-      int bsmIndex = readUnsignedShort(index);
+      int bsmIndex = readUnsignedShort(codeIndex);
 
+      InvokeDynamicItem item = new InvokeDynamicItem(itemIndex);
       //noinspection ConstantConditions
       item.set(name, desc, bsmIndex);
+      return item;
+   }
+
+   @Nonnull
+   private Item copyNameReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+      String string = readUTF8(codeIndex);
+
+      ReferenceItem item = new ReferenceItem(itemIndex);
+      //noinspection ConstantConditions
+      item.set(type, string, null, null);
+      return item;
    }
 
    /**
-    * Makes the given visitor visit the Java class of this {@link ClassReader}, all attributes included.
+    * Makes the given visitor visit the Java class of this Class Reader, all attributes included.
     */
    public void accept(ClassVisitor cv) {
       accept(cv, 0);
    }
 
    /**
-    * Makes the given visitor visit the Java class of this {@link ClassReader}.
+    * Makes the given visitor visit the Java class of this Class Reader.
     *
     * @param cv    the visitor that must visit this class.
     * @param flags option flags that can be used to modify the default behavior of this class.
@@ -311,39 +372,45 @@ public final class ClassReader extends AnnotatedReader
     */
    public void accept(@Nonnull ClassVisitor cv, int flags) {
       this.cv = cv;
-
-      readCode = (flags & SKIP_CODE) == 0;
-      readDebugInfo = (flags & SKIP_DEBUG) == 0;
-
+      setFlags(flags);
       readClassDeclaration();
       readInterfaces();
+      readClassAttributes();
+      readClass();
+      readSourceFileName();
+      readOuterClass();
+      readAnnotations();
+      readInnerClasses();
+      readFieldsAndMethods();
+      cv.visitEnd();
+   }
 
-      // Reads the class attributes.
+   private void readClassAttributes() {
       signature = null;
       sourceFile = null;
       enclosingMethod = null;
-      int annotations = 0;
-      int innerClasses = 0;
+      annotationsCodeIndex = 0;
+      innerClassesCodeIndex = 0;
 
-      int u = getAttributesStartIndex();
+      int codeIndex = getAttributesStartIndex();
 
-      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(u + 2);
+      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
+         String attrName = readUTF8(codeIndex + 2);
 
          if ("SourceFile".equals(attrName)) {
-            sourceFile = readUTF8(u + 8);
+            sourceFile = readUTF8(codeIndex + 8);
          }
          else if ("InnerClasses".equals(attrName)) {
-            innerClasses = u + 8;
+            innerClassesCodeIndex = codeIndex + 8;
          }
          else if ("EnclosingMethod".equals(attrName)) {
-            enclosingMethod = new EnclosingMethod(this, u);
+            enclosingMethod = new EnclosingMethod(this, codeIndex);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(u + 8);
+            signature = readUTF8(codeIndex + 8);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotations = u + 8;
+            annotationsCodeIndex = codeIndex + 8;
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -352,19 +419,16 @@ public final class ClassReader extends AnnotatedReader
             access = Access.asSynthetic(access);
          }
          else if ("BootstrapMethods".equals(attrName)) {
-            readBootstrapMethods(u);
+            readBootstrapMethods(codeIndex);
          }
 
-         u += 6 + readInt(u + 4);
+         codeIndex += 6 + readInt(codeIndex + 4);
       }
+   }
 
-      readClass();
-      readSourceFileName();
-      readOuterClass();
-      readAnnotations(annotations);
-      readInnerClasses(innerClasses);
-      readFieldsAndMethods();
-      cv.visitEnd();
+   private void setFlags(int flags) {
+      readCode = (flags & SKIP_CODE) == 0;
+      readDebugInfo = (flags & SKIP_DEBUG) == 0;
    }
 
    private void readClassDeclaration() {
@@ -418,29 +482,35 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readAnnotations(@Nonnegative int annotations) {
-      if (annotations != 0) {
-         for (int i = readUnsignedShort(annotations), v = annotations + 2; i > 0; i--) {
-            String desc = readUTF8(v);
+   private void readAnnotations() {
+      int startIndex = annotationsCodeIndex;
+
+      if (startIndex != 0) {
+         int codeIndex = startIndex + 2;
+
+         for (int annotationCount = readUnsignedShort(startIndex); annotationCount > 0; annotationCount--) {
+            String desc = readUTF8(codeIndex);
             @SuppressWarnings("ConstantConditions") AnnotationVisitor av = cv.visitAnnotation(desc);
-            v = annotationReader.readNamedAnnotationValues(v + 2, av);
+            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex + 2, av);
          }
       }
    }
 
-   private void readInnerClasses(@Nonnegative int innerClasses) {
-      if (innerClasses != 0) {
-         int v = innerClasses + 2;
+   private void readInnerClasses() {
+      int startIndex = innerClassesCodeIndex;
 
-         for (int i = readUnsignedShort(innerClasses); i > 0; i--) {
-            String name = readClass(v);
-            String outerName = readClass(v + 2);
-            String innerName = readUTF8(v + 4);
-            int access = readUnsignedShort(v + 6);
+      if (startIndex != 0) {
+         int codeIndex = startIndex + 2;
+
+         for (int innerClassCount = readUnsignedShort(startIndex); innerClassCount > 0; innerClassCount--) {
+            String name = readClass(codeIndex);
+            String outerName = readClass(codeIndex + 2);
+            String innerName = readUTF8(codeIndex + 4);
+            int access = readUnsignedShort(codeIndex + 6);
 
             //noinspection ConstantConditions
             cv.visitInnerClass(name, outerName, innerName, access);
-            v += 8;
+            codeIndex += 8;
          }
       }
    }
@@ -461,28 +531,30 @@ public final class ClassReader extends AnnotatedReader
    @Nonnegative
    int getAttributesStartIndex() {
       // Skips the header.
-      int u = header + 8 + readUnsignedShort(header + 6) * 2;
+      int codeIndex = header + 8 + readUnsignedShort(header + 6) * 2;
 
-      // Skips fields and methods.
-      for (int i = readUnsignedShort(u); i > 0; i--) {
-         for (int j = readUnsignedShort(u + 8); j > 0; j--) {
-            u += 6 + readInt(u + 12);
-         }
-
-         u += 8;
-      }
-
-      u += 2;
-
-      for (int i = readUnsignedShort(u); i > 0; i--) {
-         for (int j = readUnsignedShort(u + 8); j > 0; j--) {
-            u += 6 + readInt(u + 12);
-         }
-
-         u += 8;
-      }
+      codeIndex = skipClassMembers(codeIndex); // fields
+      codeIndex = skipClassMembers(codeIndex); // methods
 
       // The attribute_info structure starts just after the methods.
-      return u + 2;
+      return codeIndex;
+   }
+
+   @Nonnegative
+   private int skipClassMembers(@Nonnegative int codeIndex) {
+      for (int memberCount = readUnsignedShort(codeIndex); memberCount > 0; memberCount--) {
+         codeIndex = skipMemberAttributes(codeIndex) + 8;
+      }
+
+      return codeIndex + 2;
+   }
+
+   @Nonnegative
+   private int skipMemberAttributes(@Nonnegative int codeIndex) {
+      for (int attributeCount = readUnsignedShort(codeIndex + 8); attributeCount > 0; attributeCount--) {
+         codeIndex += 6 + readInt(codeIndex + 12);
+      }
+
+      return codeIndex;
    }
 }
