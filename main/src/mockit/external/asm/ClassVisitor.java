@@ -39,7 +39,7 @@ import javax.annotation.*;
 public class ClassVisitor extends BaseWriter
 {
    /**
-    * Constructs a new {@link ClassVisitor}.
+    * Constructs a new Class Visitor.
     */
    protected ClassVisitor() {}
 

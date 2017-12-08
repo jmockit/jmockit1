@@ -38,7 +38,7 @@ import javax.annotation.*;
 public class FieldVisitor extends BaseWriter
 {
    /**
-    * Constructs a new {@link FieldVisitor}.
+    * Constructs a new Field Visitor.
     */
    protected FieldVisitor() {}
 
