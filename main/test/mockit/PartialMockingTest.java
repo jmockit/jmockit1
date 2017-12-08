@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 import mockit.internal.expectations.invocation.*;
 
 @SuppressWarnings("deprecation")
-public final class DynamicPartialMockingTest
+public final class PartialMockingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -652,5 +652,16 @@ public final class DynamicPartialMockingTest
       Object result = new Base().list();
 
       assertNull(result);
+   }
+
+   static class A { A() { fail("should not run"); } }
+   static class B extends A {}
+
+   @Test @Ignore("issue #492")
+   public void partiallyMockASubclassWhoseSuperClassConstructorThrowsIfExecuted()
+   {
+      new Expectations(B.class) {{ new B(); }};
+
+      new A();
    }
 }
