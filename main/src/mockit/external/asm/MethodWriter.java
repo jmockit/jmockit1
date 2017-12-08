@@ -699,7 +699,7 @@ public final class MethodWriter extends MethodVisitor
 
       if (parameterAnnotations != null) {
          out.putShort(cp.newUTF8("RuntimeVisibleParameterAnnotations"));
-         AnnotationWriter.put(parameterAnnotations, out);
+         AnnotationWriter.put(out, parameterAnnotations);
       }
    }
 

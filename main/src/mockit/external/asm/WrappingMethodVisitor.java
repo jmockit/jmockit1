@@ -13,7 +13,7 @@ public class WrappingMethodVisitor extends MethodVisitor
    @Nonnull protected final MethodWriter mw;
 
    /**
-    * Constructs a new {@link WrappingMethodVisitor}.
+    * Constructs a new wrapping Method Visitor.
     *
     * @param mw the method visitor to which this visitor must delegate method calls.
     */
@@ -32,11 +32,6 @@ public class WrappingMethodVisitor extends MethodVisitor
    @Override
    public final AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
       return mw.visitParameterAnnotation(parameter, desc);
-   }
-
-   @Override
-   public final void visitCode() {
-      mw.visitCode();
    }
 
    @Override
@@ -72,7 +67,7 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitInvokeDynamicInsn(
+   public final void visitInvokeDynamicInsn(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
       mw.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
@@ -136,10 +131,5 @@ public class WrappingMethodVisitor extends MethodVisitor
    @Override
    public final void visitMaxStack(@Nonnegative int maxStack) {
       mw.visitMaxStack(maxStack);
-   }
-
-   @Override
-   public void visitEnd() {
-      mw.visitEnd();
    }
 }

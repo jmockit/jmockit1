@@ -67,7 +67,7 @@ final class FieldWriter extends FieldVisitor
    @Nonnegative private final int value;
 
    /**
-    * Constructs a new {@link FieldWriter}.
+    * Constructs a new Field Writer.
     *
     * @param cw        the class writer to which this field must be added.
     * @param access    the field's access flags (see {@link Opcodes}).

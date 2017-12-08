@@ -86,11 +86,6 @@ public class MethodVisitor extends BaseWriter
    @Nullable
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) { return null; }
 
-   /**
-    * Starts the visit of the method's code, if any (i.e. non abstract method).
-    */
-   public void visitCode() {}
-
    // -------------------------------------------------------------------------
    // Normal instructions
    // -------------------------------------------------------------------------

@@ -311,7 +311,6 @@ final class MethodReader extends AnnotatedReader
 
    private void readMethodCode() {
       if (bodyStartCodeIndex != 0 && readCode) {
-         mv.visitCode();
          readCode();
       }
    }
@@ -507,6 +506,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
+   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    private void readBytecodeInstructionsInCodeBlock(@Nonnegative int codeStart, @Nonnegative int codeEnd) {
       int codeIndex = codeStart;
 

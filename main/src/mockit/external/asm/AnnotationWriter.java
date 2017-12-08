@@ -70,7 +70,7 @@ final class AnnotationWriter extends AnnotationVisitor
    @Nonnegative private final int offset;
 
    /**
-    * Constructs a new {@link AnnotationWriter}.
+    * Constructs a new Annotation Writer.
     *
     * @param cp     the constant pool to which this annotation must be added.
     * @param named  <tt>true<tt> if values are named, <tt>false</tt> otherwise.
@@ -99,9 +99,29 @@ final class AnnotationWriter extends AnnotationVisitor
       if (value instanceof String) {
          putString('s', (String) value);
       }
-      else if (value instanceof Boolean) {
-         int v = (Boolean) value ? 1 : 0;
-         putInteger('Z', v);
+      else if (putValueWhenPrimitive(value)) {
+         // OK
+      }
+      else if (value instanceof JavaType) {
+         putType((JavaType) value);
+      }
+      else {
+         putElementValuesWhenArray(value);
+      }
+   }
+
+   private void putName(@Nullable String name) {
+      size++;
+
+      if (named) {
+         //noinspection ConstantConditions
+         putString(name);
+      }
+   }
+
+   private boolean putValueWhenPrimitive(@Nonnull Object value) {
+      if (value instanceof Boolean) {
+         putBoolean((Boolean) value);
       }
       else if (value instanceof Integer) {
          putInteger('I', (Integer) value);
@@ -124,52 +144,24 @@ final class AnnotationWriter extends AnnotationVisitor
       else if (value instanceof Short) {
          putInteger('S', (Short) value);
       }
-      else if (value instanceof JavaType) {
-         String typeDescriptor = ((JavaType) value).getDescriptor();
-         putString('c', typeDescriptor);
+      else {
+         return false;
       }
-      else if (value instanceof byte[]) {
-         readAnnotationValues('B', value);
-      }
-      else if (value instanceof boolean[]) {
-         readAnnotationValues('Z', value);
-      }
-      else if (value instanceof short[]) {
-         readAnnotationValues('S', value);
-      }
-      else if (value instanceof char[]) {
-         readAnnotationValues('C', value);
-      }
-      else if (value instanceof int[]) {
-         readAnnotationValues('I', value);
-      }
-      else if (value instanceof long[]) {
-         readAnnotationValues('J', value);
-      }
-      else if (value instanceof float[]) {
-         readAnnotationValues('F', value);
-      }
-      else if (value instanceof double[]) {
-         readAnnotationValues('D', value);
-      }
+
+      return true;
    }
 
-   private void putName(@Nullable String name) {
-      size++;
-
-      if (named) {
-         //noinspection ConstantConditions
-         putString(name);
-      }
+   private void putItem(int typeCode, @Nonnull Item item) {
+      bv.put12(typeCode, item.index);
    }
 
-   private void putItem(int b, @Nonnull Item item) {
-      bv.put12(b, item.index);
+   private void putBoolean(boolean value) {
+      putInteger('Z', value ? 1 : 0);
    }
 
-   private void putInteger(int b, int value) {
+   private void putInteger(int typeCode, int value) {
       Item item = cp.newInteger(value);
-      putItem(b, item);
+      putItem(typeCode, item);
    }
 
    private void putDouble(double value) {
@@ -187,6 +179,11 @@ final class AnnotationWriter extends AnnotationVisitor
       putItem('J', item);
    }
 
+   private void putType(@Nonnull JavaType type) {
+      String typeDescriptor = type.getDescriptor();
+      putString('c', typeDescriptor);
+   }
+
    private void putString(int b, @Nonnull String value) {
       int itemIndex = cp.newUTF8(value);
       bv.put12(b, itemIndex);
@@ -201,31 +198,58 @@ final class AnnotationWriter extends AnnotationVisitor
       bv.put12('[', length);
    }
 
-   private void readAnnotationValues(char arrayType, @Nonnull Object arrayValue) {
-      int length = Array.getLength(arrayValue);
+   private void putElementValuesWhenArray(@Nonnull Object value) {
+      if (value instanceof byte[]) {
+         putArrayElementValues('B', value);
+      }
+      else if (value instanceof boolean[]) {
+         putArrayElementValues('Z', value);
+      }
+      else if (value instanceof short[]) {
+         putArrayElementValues('S', value);
+      }
+      else if (value instanceof char[]) {
+         putArrayElementValues('C', value);
+      }
+      else if (value instanceof int[]) {
+         putArrayElementValues('I', value);
+      }
+      else if (value instanceof long[]) {
+         putArrayElementValues('J', value);
+      }
+      else if (value instanceof float[]) {
+         putArrayElementValues('F', value);
+      }
+      else if (value instanceof double[]) {
+         putArrayElementValues('D', value);
+      }
+   }
+
+   private void putArrayElementValues(char elementType, @Nonnull Object array) {
+      int length = Array.getLength(array);
       putArrayLength(length);
 
       for (int i = 0; i < length; i++) {
-         Item item;
-
-         if (arrayType == 'J') {
-            long elementValue = Array.getLong(arrayValue, i);
-            item = cp.newLong(elementValue);
+         if (elementType == 'J') {
+            long value = Array.getLong(array, i);
+            putLong(value);
          }
-         else if (arrayType == 'F') {
-            float elementValue = Array.getFloat(arrayValue, i);
-            item = cp.newFloat(elementValue);
+         else if (elementType == 'F') {
+            float value = Array.getFloat(array, i);
+            putFloat(value);
          }
-         else if (arrayType == 'D') {
-            double elementValue = Array.getDouble(arrayValue, i);
-            item = cp.newDouble(elementValue);
+         else if (elementType == 'D') {
+            double value = Array.getDouble(array, i);
+            putDouble(value);
+         }
+         else if (elementType == 'Z') {
+            boolean value = Array.getBoolean(array, i);
+            putBoolean(value);
          }
          else {
-            int value = arrayType == 'Z' ? Array.getBoolean(arrayValue, i) ? 1 : 0 : Array.getInt(arrayValue, i);
-            item = cp.newInteger(value);
+            int value = Array.getInt(array, i);
+            putInteger(elementType, value);
          }
-
-         putItem(arrayType, item);
       }
    }
 
@@ -284,7 +308,6 @@ final class AnnotationWriter extends AnnotationVisitor
       while (aw != null) {
          n++;
          size += aw.getByteLength();
-         aw.visitEnd(); // in case user forgot to call visitEnd
          aw.prev = last;
          last = aw;
          aw = aw.next;
@@ -305,35 +328,44 @@ final class AnnotationWriter extends AnnotationVisitor
    /**
     * Puts the given annotation lists into the given byte vector.
     *
-    * @param anns an array of annotation writer lists.
     * @param out  where the annotations must be put.
+    * @param anns an array of annotation writer lists.
     */
-   static void put(@Nonnull AnnotationWriter[] anns, @Nonnull ByteVector out) {
+   static void put(@Nonnull ByteVector out, @Nonnull AnnotationWriter[] anns) {
+      putNumberAndSizeOfAnnotations(out, anns);
+
+      for (AnnotationWriter ann : anns) {
+         AnnotationWriter last = putNumberOfAnnotations(out, ann);
+         putFromLastToFirst(out, last);
+      }
+   }
+
+   private static void putNumberAndSizeOfAnnotations(@Nonnull ByteVector out, @Nonnull AnnotationWriter[] anns) {
       int numAnns = anns.length;
       int size = 1 + 2 * numAnns;
 
-      for (int i = 0; i < numAnns; ++i) {
-         AnnotationWriter aw = anns[i];
-         size += aw == null ? 0 : aw.getSize();
+      for (AnnotationWriter aw : anns) {
+         if (aw != null) {
+            size += aw.getSize();
+         }
       }
 
       out.putInt(size).putByte(numAnns);
+   }
 
-      for (int i = 0; i < numAnns; i++) {
-         AnnotationWriter aw = anns[i];
-         AnnotationWriter last = null;
-         int n = 0;
+   @Nullable
+   private static AnnotationWriter putNumberOfAnnotations(@Nonnull ByteVector out, @Nullable AnnotationWriter aw) {
+      AnnotationWriter last = null;
+      int n = 0;
 
-         while (aw != null) {
-            n++;
-            aw.visitEnd(); // in case user forgot to call visitEnd
-            aw.prev = last;
-            last = aw;
-            aw = aw.next;
-         }
-
-         out.putShort(n);
-         putFromLastToFirst(out, last);
+      while (aw != null) {
+         n++;
+         aw.prev = last;
+         last = aw;
+         aw = aw.next;
       }
+
+      out.putShort(n);
+      return last;
    }
 }
