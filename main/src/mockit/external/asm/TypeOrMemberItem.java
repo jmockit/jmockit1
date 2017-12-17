@@ -30,8 +30,11 @@ class TypeOrMemberItem extends Item
 
    @Override
    boolean isEqualTo(@Nonnull Item item) {
-      TypeOrMemberItem other = (TypeOrMemberItem) item;
-      return other.name.equals(name) && other.desc.equals(desc);
+      return isEqualTo((TypeOrMemberItem) item);
+   }
+
+   final boolean isEqualTo(@Nonnull TypeOrMemberItem item) {
+      return item.name.equals(name) && item.desc.equals(desc);
    }
 
    /**

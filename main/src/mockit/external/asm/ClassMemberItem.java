@@ -28,6 +28,6 @@ final class ClassMemberItem extends TypeOrMemberItem
    @Override
    boolean isEqualTo(@Nonnull Item item) {
       ClassMemberItem other = (ClassMemberItem) item;
-      return other.owner.equals(owner) && super.isEqualTo(other);
+      return other.owner.equals(owner) && isEqualTo(other);
    }
 }

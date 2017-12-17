@@ -329,7 +329,7 @@ public final class MethodWriter extends MethodVisitor
       // Adds the instruction to the bytecode of the method.
       int index = constItem.index;
 
-      if (constItem.isDoubleSized()) {
+      if (constItem instanceof LongValueItem) {
          code.put12(LDC2_W, index);
       }
       else if (index >= 256) {

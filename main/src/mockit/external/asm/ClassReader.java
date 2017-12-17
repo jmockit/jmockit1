@@ -32,7 +32,7 @@ package mockit.external.asm;
 import java.io.*;
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
+import static mockit.external.asm.Item.Type.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.

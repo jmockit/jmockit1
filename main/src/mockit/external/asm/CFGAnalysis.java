@@ -359,7 +359,7 @@ final class CFGAnalysis
             currentBlock.frame.executeLDC(constItem);
          }
          else {
-            updateStackSize(constItem.isDoubleSized() ? 2 : 1);
+            updateStackSize(constItem instanceof LongValueItem ? 2 : 1);
          }
       }
    }

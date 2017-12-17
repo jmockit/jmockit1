@@ -31,7 +31,6 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import mockit.external.asm.ConstantPoolGeneration.*;
 import static mockit.external.asm.Frame.TypeMask.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -906,30 +905,30 @@ public final class Frame
     */
    void executeLDC(@Nonnull Item item) {
       switch (item.type) {
-         case ItemType.INT:
+         case Item.Type.INT:
             push(INTEGER);
             break;
-         case ItemType.LONG:
+         case Item.Type.LONG:
             push(LONG);
             push(TOP);
             break;
-         case ItemType.FLOAT:
+         case Item.Type.FLOAT:
             push(FLOAT);
             break;
-         case ItemType.DOUBLE:
+         case Item.Type.DOUBLE:
             push(DOUBLE);
             push(TOP);
             break;
-         case ItemType.CLASS:
+         case Item.Type.CLASS:
             push(OBJECT | cp.addNormalType("java/lang/Class"));
             break;
-         case ItemType.STR:
+         case Item.Type.STR:
             push(OBJECT | cp.addNormalType("java/lang/String"));
             break;
-         case ItemType.MTYPE:
+         case Item.Type.MTYPE:
             push(OBJECT | cp.addNormalType("java/lang/invoke/MethodType"));
             break;
-      // case ItemType.HANDLE_BASE + [1..9]:
+      // case Item.Type.HANDLE_BASE + [1..9]:
          default:
             push(OBJECT | cp.addNormalType("java/lang/invoke/MethodHandle"));
       }

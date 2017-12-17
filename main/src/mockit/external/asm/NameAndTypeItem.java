@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
+import static mockit.external.asm.Item.Type.*;
 
 final class NameAndTypeItem extends TypeOrMemberItem
 {

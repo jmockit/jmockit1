@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import mockit.external.asm.ConstantPoolGeneration.*;
+import mockit.external.asm.Item.*;
 import static mockit.external.asm.MethodReader.InstructionType.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -767,7 +767,7 @@ final class MethodReader extends AnnotatedReader
          mv.visitFieldInsn(opcode, owner, name, desc);
       }
       else {
-         boolean itf = code[cpIndex1 - 1] == ItemType.IMETH;
+         boolean itf = code[cpIndex1 - 1] == Type.IMETH;
          //noinspection ConstantConditions
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
       }

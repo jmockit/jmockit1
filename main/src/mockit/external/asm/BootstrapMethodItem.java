@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
+import static mockit.external.asm.Item.Type.*;
 
 final class BootstrapMethodItem extends Item
 {
@@ -21,4 +21,7 @@ final class BootstrapMethodItem extends Item
       setHashCode(hashCode);
       type = BSM;
    }
+
+   @Override
+   boolean isEqualTo(@Nonnull Item item) { return ((BootstrapMethodItem) item).position == position; }
 }
