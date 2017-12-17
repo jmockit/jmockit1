@@ -5,6 +5,7 @@ import javax.annotation.*;
 final class StringItem extends Item
 {
    @Nonnull String strVal;
+   @Nonnegative int innerClassIndex;
 
    StringItem(@Nonnegative int index) {
       super(index);

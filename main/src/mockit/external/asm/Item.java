@@ -118,24 +118,6 @@ class Item
 
    final boolean isDoubleSized() { return type == LONG || type == DOUBLE; }
 
-   /**
-    * Recovers the stack size variation from this constant pool item, computing and storing it if needed.
-    * In order not to recompute several times this variation for the same Item, we use the intVal field of this item to
-    * store this variation, once it has been computed. More precisely this intVal field stores the sizes of the
-    * arguments and of the return value corresponding to desc.
-    */
-   @Nonnegative
-   final int getArgSizeComputingIfNeeded(@Nonnull String desc) {
-      int argSize = intVal;
-
-      if (argSize == 0) {
-         argSize = JavaType.getArgumentsAndReturnSizes(desc);
-         intVal = argSize;
-      }
-
-      return argSize;
-   }
-
    final void setHashCode(int valuesHashCode) {
       hashCode = 0x7FFFFFFF & (type + valuesHashCode);
    }

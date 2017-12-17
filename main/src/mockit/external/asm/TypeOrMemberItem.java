@@ -6,6 +6,7 @@ class TypeOrMemberItem extends Item
 {
    @Nonnull String name;
    @Nonnull String desc;
+   @Nonnegative private int argSize;
 
    TypeOrMemberItem(@Nonnegative int index) {
       super(index);
@@ -31,5 +32,21 @@ class TypeOrMemberItem extends Item
    boolean isEqualTo(@Nonnull Item item) {
       TypeOrMemberItem other = (TypeOrMemberItem) item;
       return other.name.equals(name) && other.desc.equals(desc);
+   }
+
+   /**
+    * Recovers the stack size variation from this constant pool item, computing and storing it if needed. The
+    * {@link #argSize} field stores the sizes of the arguments and of the return value corresponding to <tt>desc</tt>.
+    */
+   @Nonnegative
+   final int getArgSizeComputingIfNeeded(@Nonnull String desc) {
+      int argSize = this.argSize;
+
+      if (argSize == 0) {
+         argSize = JavaType.getArgumentsAndReturnSizes(desc);
+         this.argSize = argSize;
+      }
+
+      return argSize;
    }
 }

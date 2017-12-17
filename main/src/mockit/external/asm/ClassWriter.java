@@ -402,6 +402,7 @@ public final class ClassWriter extends ClassVisitor
    // ------------------------------------------------------------------------
 
    int getClassVersion() { return version & 0xFFFF; }
+   boolean isJava6OrNewer() { return getClassVersion() >= ClassVersion.V1_6; }
 
    private boolean isSynthetic() { return isSynthetic(access); }
 

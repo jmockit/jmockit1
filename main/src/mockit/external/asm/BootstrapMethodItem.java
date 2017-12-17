@@ -6,20 +6,19 @@ import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
 final class BootstrapMethodItem extends Item
 {
-   BootstrapMethodItem(@Nonnegative int index) {
-      super(index);
-      type = BSM;
-   }
+   @Nonnegative final int position;
 
    /**
-    * Sets the item's position and hash code.
+    * Initializes the new item with the given index, position and hash code.
     *
     * @param position position in byte in the class attribute BootstrapMethods.
     * @param hashCode hashcode of the item. This hashcode is processed from the hashcode of the bootstrap method and the
     *                 hashcode of all bootstrap arguments.
     */
-   void set(int position, int hashCode) {
-      intVal = position;
-      this.hashCode = hashCode;
+   BootstrapMethodItem(@Nonnegative int index, @Nonnegative int position, int hashCode) {
+      super(index);
+      this.position = position;
+      setHashCode(hashCode);
+      type = BSM;
    }
 }

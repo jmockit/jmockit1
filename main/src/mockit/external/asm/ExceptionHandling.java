@@ -59,7 +59,7 @@ final class ExceptionHandling
 
          // Computes the kind of the edges to 'handlerLabel'.
          String catchType = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.TypeMask.OBJECT | cp.addType(catchType);
+         int kind = Frame.TypeMask.OBJECT | cp.addNormalType(catchType);
 
          // handlerLabel is an exception handler.
          handlerLabel.markAsTarget();

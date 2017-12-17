@@ -512,13 +512,14 @@ final class ConstantPoolGeneration
     * @param type the internal name to be added to the type table.
     * @return the index of this internal name in the type table.
     */
-   int addType(@Nonnull String type) {
+   int addNormalType(@Nonnull String type) {
       reusableNormalItem.set(type);
 
       TypeTableItem result = get(reusableNormalItem);
 
       if (result == null) {
-         result = addItemToTypeTable(new NormalTypeTableItem(++typeCount, reusableNormalItem));
+         result = new NormalTypeTableItem(++typeCount, reusableNormalItem);
+         addToTypeTable(result);
       }
 
       return result.index;
@@ -538,19 +539,14 @@ final class ConstantPoolGeneration
       TypeTableItem result = get(reusableUninitializedItem);
 
       if (result == null) {
-         result = addItemToTypeTable(new UninitializedTypeTableItem(++typeCount, reusableUninitializedItem));
+         result = new UninitializedTypeTableItem(++typeCount, reusableUninitializedItem);
+         addToTypeTable(result);
       }
 
       return result.index;
    }
 
-   /**
-    * Creates and adds a new <tt>Item</tt> to {@link #typeTable}.
-    *
-    * @return the added <tt>Item</tt>, which is a new instance with the same value as <tt>reusableItem</tt>.
-    */
-   @Nonnull
-   private TypeTableItem addItemToTypeTable(@Nonnull TypeTableItem newItem) {
+   private void addToTypeTable(@Nonnull TypeTableItem newItem) {
       put(newItem);
 
       if (typeTable == null) {
@@ -558,6 +554,11 @@ final class ConstantPoolGeneration
       }
 
       int newItemIndex = typeCount;
+      enlargeTypeTableIfNeeded(newItemIndex);
+      typeTable[newItemIndex] = newItem;
+   }
+
+   private void enlargeTypeTableIfNeeded(@Nonnegative int newItemIndex) {
       int currentTypeCount = typeTable.length;
 
       if (newItemIndex == currentTypeCount) {
@@ -565,9 +566,6 @@ final class ConstantPoolGeneration
          System.arraycopy(typeTable, 0, newTable, 0, currentTypeCount);
          typeTable = newTable;
       }
-
-      typeTable[newItemIndex] = newItem;
-      return newItem;
    }
 
    /**
@@ -587,13 +585,13 @@ final class ConstantPoolGeneration
          String type1Desc = getInternalName(type1);
          String type2Desc = getInternalName(type2);
          String commonSuperClass = getCommonSuperClass(type1Desc, type2Desc);
-         reusableMergedItem.intVal = addType(commonSuperClass);
+         reusableMergedItem.commonSuperTypeIndex = addNormalType(commonSuperClass);
 
          result = new MergedTypeTableItem(reusableMergedItem);
          put(result);
       }
 
-      return result.intVal;
+      return result.commonSuperTypeIndex;
    }
 
    /**
@@ -634,9 +632,15 @@ final class ConstantPoolGeneration
    }
 
    @Nonnull
-   String getInternalName(@Nonnegative int typeTableIndex) { return typeTable[typeTableIndex].typeDesc; }
+   String getInternalName(@Nonnegative int typeTableIndex) {
+      TypeTableItem typeTableItem = typeTable[typeTableIndex]; // Normal or Uninitialized
+      return typeTableItem.typeDesc;
+   }
 
-   int getIntegerItemValue(@Nonnegative int typeTableIndex) { return typeTable[typeTableIndex].intVal; }
+   @Nonnull
+   UninitializedTypeTableItem getUninitializedItemValue(@Nonnegative int typeTableIndex) {
+      return (UninitializedTypeTableItem) typeTable[typeTableIndex];
+   }
 
    @Nullable
    Item getItem(int itemHashCode) { return items[itemHashCode % items.length]; }

@@ -113,11 +113,11 @@ final class FrameAndStackComputation
       maxLocals = size;
    }
 
-   void setMaxStack(int maxStack) {
+   void setMaxStack(@Nonnegative int maxStack) {
       this.maxStack = maxStack;
    }
 
-   void updateMaxLocals(int n) {
+   void updateMaxLocals(@Nonnegative int n) {
       if (n > maxLocals) {
          maxLocals = n;
       }
@@ -128,13 +128,13 @@ final class FrameAndStackComputation
    }
 
    private int getInstructionOffset() { return frameDefinition[0]; }
-   private void setInstructionOffset(int offset) { frameDefinition[0] = offset; }
+   private void setInstructionOffset(@Nonnegative int offset) { frameDefinition[0] = offset; }
 
    private int getNumLocals() { return frameDefinition[1]; }
-   private void setNumLocals(int numLocals) { frameDefinition[1] = numLocals; }
+   private void setNumLocals(@Nonnegative int numLocals) { frameDefinition[1] = numLocals; }
 
    private int getStackSize() { return frameDefinition[2]; }
-   private void setStackSize(int stackSize) { frameDefinition[2] = stackSize; }
+   private void setStackSize(@Nonnegative int stackSize) { frameDefinition[2] = stackSize; }
 
    private void writeFrameDefinition(int value) { frameDefinition[frameIndex++] = value; }
 
@@ -186,7 +186,7 @@ final class FrameAndStackComputation
       int currentFrameLocalsSize = getNumLocals();
       int currentFrameStackSize = getStackSize();
 
-      if (cw.getClassVersion() < ClassVersion.V1_6) {
+      if (!cw.isJava6OrNewer()) {
          writeFrameForOldVersionOfJava(currentFrameLocalsSize, currentFrameStackSize);
          return;
       }
@@ -244,7 +244,7 @@ final class FrameAndStackComputation
             stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + k).putShort(delta);
             writeFrameTypes(3 + localsSize, 3 + currentFrameLocalsSize);
             break;
-         // case FULL_FRAME:
+      // case FULL_FRAME:
          default:
             stackMap.putByte(LocalsAndStackItemsDiff.FULL_FRAME).putShort(delta).putShort(currentFrameLocalsSize);
             writeFrameTypes(3, 3 + currentFrameLocalsSize);
@@ -253,7 +253,9 @@ final class FrameAndStackComputation
       }
    }
 
-   private void writeFrameForOldVersionOfJava(int currentFrameLocalsSize, int currentFrameStackSize) {
+   private void writeFrameForOldVersionOfJava(
+      @Nonnegative int currentFrameLocalsSize, @Nonnegative int currentFrameStackSize
+   ) {
       stackMap.putShort(getInstructionOffset()).putShort(currentFrameLocalsSize);
       writeFrameTypes(3, 3 + currentFrameLocalsSize);
 
@@ -291,7 +293,7 @@ final class FrameAndStackComputation
     * @param start index of the first type in {@link #frameDefinition} to write.
     * @param end   index of last type in {@link #frameDefinition} to write (exclusive).
     */
-   private void writeFrameTypes(int start, int end) {
+   private void writeFrameTypes(@Nonnegative int start, @Nonnegative int end) {
       for (int i = start; i < end; i++) {
          int type = frameDefinition[i];
          int dimensions = type & TypeMask.DIM;
@@ -306,64 +308,61 @@ final class FrameAndStackComputation
    }
 
    private void writeFrameOfRegularType(int type) {
-      int v = type & TypeMask.BASE_VALUE;
+      int typeTableIndex = type & TypeMask.BASE_VALUE;
 
       switch (type & TypeMask.BASE_KIND) {
          case TypeMask.OBJECT:
-            String classDesc = cp.getInternalName(v);
-            stackMap.putByte(7).putShort(cp.newClass(classDesc));
+            String classDesc = cp.getInternalName(typeTableIndex);
+            int classDescIndex = cp.newClass(classDesc);
+            stackMap.putByte(7).putShort(classDescIndex);
             break;
          case TypeMask.UNINITIALIZED:
-            int typeDesc = cp.getIntegerItemValue(v);
+            UninitializedTypeTableItem uninitializedItemValue = cp.getUninitializedItemValue(typeTableIndex);
+            int typeDesc = uninitializedItemValue.offset;
             stackMap.putByte(8).putShort(typeDesc);
             break;
          default:
-            stackMap.putByte(v);
+            stackMap.putByte(typeTableIndex);
       }
    }
 
-   private void writeFrameOfArrayType(int arrayDimensions, int arrayElementType) {
+   private void writeFrameOfArrayType(@Nonnegative int arrayDimensions, int arrayElementType) {
       StringBuilder sb = new StringBuilder();
-      arrayDimensions >>= 28;
-
-      while (arrayDimensions-- > 0) {
-         sb.append('[');
-      }
+      writeDimensionsIntoArrayDescriptor(sb, arrayDimensions);
 
       if ((arrayElementType & TypeMask.BASE_KIND) == TypeMask.OBJECT) {
          String arrayElementTypeDesc = cp.getInternalName(arrayElementType & TypeMask.BASE_VALUE);
          sb.append('L').append(arrayElementTypeDesc).append(';');
       }
       else {
-         switch (arrayElementType & 0xF) {
-            case 1:
-               sb.append('I');
-               break;
-            case 2:
-               sb.append('F');
-               break;
-            case 3:
-               sb.append('D');
-               break;
-            case 9:
-               sb.append('Z');
-               break;
-            case 10:
-               sb.append('B');
-               break;
-            case 11:
-               sb.append('C');
-               break;
-            case 12:
-               sb.append('S');
-               break;
-            default:
-               sb.append('J');
-         }
+         char typeCode = getTypeCodeForArrayElements(arrayElementType);
+         sb.append(typeCode);
       }
 
       String arrayElementTypeDesc = sb.toString();
-      stackMap.putByte(7).putShort(cp.newClass(arrayElementTypeDesc));
+      int typeDescIndex = cp.newClass(arrayElementTypeDesc);
+      stackMap.putByte(7).putShort(typeDescIndex);
+   }
+
+   private static void writeDimensionsIntoArrayDescriptor(@Nonnull StringBuilder sb, @Nonnegative int arrayDimensions) {
+      arrayDimensions >>= 28;
+
+      while (arrayDimensions-- > 0) {
+         sb.append('[');
+      }
+   }
+
+   private static char getTypeCodeForArrayElements(int arrayElementType) {
+      switch (arrayElementType & 0xF) {
+         case  1: return 'I';
+         case  2: return 'F';
+         case  3: return 'D';
+         case  9: return 'Z';
+         case 10: return 'B';
+         case 11: return 'C';
+         case 12: return 'S';
+         default: return 'J';
+      }
    }
 
    /**
@@ -446,7 +445,7 @@ final class FrameAndStackComputation
 
    void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
       startFrame(startOffset, 0, 1);
-      int frameValue = TypeMask.OBJECT | cp.addType("java/lang/Throwable");
+      int frameValue = TypeMask.OBJECT | cp.addNormalType("java/lang/Throwable");
       writeFrameDefinition(frameValue);
       endFrame();
    }
@@ -461,7 +460,7 @@ final class FrameAndStackComputation
       int size = getSize();
 
       if (size > 0) {
-         boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
+         boolean zip = cw.isJava6OrNewer();
          cp.newUTF8(zip ? "StackMapTable" : "StackMap");
       }
 
@@ -470,7 +469,7 @@ final class FrameAndStackComputation
 
    void put(@Nonnull ByteVector out) {
       if (stackMap != null) {
-         boolean zip = cw.getClassVersion() >= ClassVersion.V1_6;
+         boolean zip = cw.isJava6OrNewer();
          out.putShort(cp.newUTF8(zip ? "StackMapTable" : "StackMap"));
          out.putInt(stackMap.length + 2).putShort(frameCount);
          out.putByteVector(stackMap);

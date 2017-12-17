@@ -662,10 +662,9 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void putCodeSize(@Nonnull ByteVector out) {
-      int size = 12 + code.length + exceptionHandling.getSize();
-      size += localVariables.getSize();
-      size += lineNumbers.getSize();
-      size += frameAndStack.getSize();
+      int size =
+         12 + code.length +
+         exceptionHandling.getSize() + localVariables.getSize() + lineNumbers.getSize() + frameAndStack.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);
    }

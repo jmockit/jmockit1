@@ -135,8 +135,8 @@ public final class Frame
       int OBJECT = BASE | 0x700000;
 
       /**
-       * Base kind of the uninitialized base types. The BASE_VALUE of such types in an index into the type table (the Item
-       * at that index contains both an instruction offset and an internal class name).
+       * Base kind of the uninitialized base types. The BASE_VALUE of such types is an index into the type table (the
+       * Item at that index contains both an instruction offset and an internal class name).
        */
       int UNINITIALIZED = BASE | 0x800000;
 
@@ -312,7 +312,7 @@ public final class Frame
    @Nonnegative
    private int initializeThisParameterIfApplicable(@Nonnull String classDesc, int access) {
       if ((access & Access.STATIC) == 0) {
-         inputLocals[0] = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cp.addType(classDesc);
+         inputLocals[0] = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cp.addNormalType(classDesc);
          return 1;
       }
 
@@ -357,7 +357,7 @@ public final class Frame
    private int getObjectTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
       // Stores the internal name, not the descriptor!
       String t = typeDesc.substring(index + 1, typeDesc.length() - 1);
-      return OBJECT | cp.addType(t);
+      return OBJECT | cp.addNormalType(t);
    }
 
    private int getArrayTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
@@ -579,11 +579,11 @@ public final class Frame
       int s;
 
       if (t == UNINITIALIZED_THIS) {
-         s = OBJECT | cp.addType(classDesc);
+         s = OBJECT | cp.addNormalType(classDesc);
       }
       else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
          String type = cp.getInternalName(t & BASE_VALUE);
-         s = OBJECT | cp.addType(type);
+         s = OBJECT | cp.addNormalType(type);
       }
       else {
          return t;
@@ -921,17 +921,17 @@ public final class Frame
             push(TOP);
             break;
          case ItemType.CLASS:
-            push(OBJECT | cp.addType("java/lang/Class"));
+            push(OBJECT | cp.addNormalType("java/lang/Class"));
             break;
          case ItemType.STR:
-            push(OBJECT | cp.addType("java/lang/String"));
+            push(OBJECT | cp.addNormalType("java/lang/String"));
             break;
          case ItemType.MTYPE:
-            push(OBJECT | cp.addType("java/lang/invoke/MethodType"));
+            push(OBJECT | cp.addNormalType("java/lang/invoke/MethodType"));
             break;
       // case ItemType.HANDLE_BASE + [1..9]:
          default:
-            push(OBJECT | cp.addType("java/lang/invoke/MethodHandle"));
+            push(OBJECT | cp.addNormalType("java/lang/invoke/MethodHandle"));
       }
    }
 
@@ -967,7 +967,7 @@ public final class Frame
          push('[' + s);
       }
       else {
-         push(ARRAY_OF | OBJECT | cp.addType(s));
+         push(ARRAY_OF | OBJECT | cp.addNormalType(s));
       }
    }
 
@@ -997,7 +997,7 @@ public final class Frame
          push(s);
       }
       else {
-         push(OBJECT | cp.addType(s));
+         push(OBJECT | cp.addNormalType(s));
       }
    }
 
@@ -1244,7 +1244,7 @@ public final class Frame
                // If type2 and type1 are array types, but not with the same element type,
                // merge(type2, type1) = dim(type2) - 1 | java/lang/Object.
                int dim = ELEMENT_OF + (type2 & DIM);
-               v = dim | OBJECT | cp.addType("java/lang/Object");
+               v = dim | OBJECT | cp.addNormalType("java/lang/Object");
             }
          }
          else if ((type1 & BASE_KIND) == OBJECT || (type1 & DIM) != 0) {
@@ -1253,7 +1253,7 @@ public final class Frame
             // type (and similarly for tDim).
             int tDim = (((type1 & DIM) == 0 || (type1 & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (type1 & DIM);
             int uDim = (((type2 & DIM) == 0 || (type2 & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (type2 & DIM);
-            v = Math.min(tDim, uDim) | OBJECT | cp.addType("java/lang/Object");
+            v = Math.min(tDim, uDim) | OBJECT | cp.addNormalType("java/lang/Object");
          }
          else {
             // If type1 is any other type, merge(type2, type1) = TOP.

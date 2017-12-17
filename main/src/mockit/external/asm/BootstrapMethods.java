@@ -65,8 +65,7 @@ final class BootstrapMethods
       }
       else {
          bsmIndex = bootstrapMethodsCount++;
-         bsmItem = new BootstrapMethodItem(bsmIndex);
-         bsmItem.set(position, hashCode);
+         bsmItem = new BootstrapMethodItem(bsmIndex, position, hashCode);
          constantPool.put(bsmItem);
       }
 
@@ -91,6 +90,7 @@ final class BootstrapMethods
       @Nonnegative int position, int hashCode, @Nonnull byte[] data, @Nonnegative int length
    ) {
       Item item = constantPool.getItem(hashCode);
+      BootstrapMethodItem bsmItem = null;
 
    loop:
       while (item != null) {
@@ -99,12 +99,15 @@ final class BootstrapMethods
             continue;
          }
 
-         // Because the data encode the size of the argument we don't need to test if these size are equals.
-         int resultPosition = item.intVal;
+         bsmItem = (BootstrapMethodItem) item;
+
+         // Because the data encode the size of the argument we don't need to test if these sizes are equal.
+         int resultPosition = bsmItem.position;
 
          for (int p = 0; p < length; p++) {
             if (data[position + p] != data[resultPosition + p]) {
                item = item.next;
+               bsmItem = null;
                continue loop;
             }
          }
@@ -112,7 +115,7 @@ final class BootstrapMethods
          break;
       }
 
-      return (BootstrapMethodItem) item;
+      return bsmItem;
    }
 
    boolean hasMethods() { return bootstrapMethods != null; }
@@ -178,8 +181,7 @@ final class BootstrapMethods
 
       bsmCodeIndex += 2;
 
-      BootstrapMethodItem item = new BootstrapMethodItem(bsmIndex);
-      item.set(position, hashCode & 0x7FFFFFFF);
+      BootstrapMethodItem item = new BootstrapMethodItem(bsmIndex, position, hashCode);
       item.setNext(items);
 
       return bsmCodeIndex;
