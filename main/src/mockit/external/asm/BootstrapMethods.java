@@ -180,10 +180,7 @@ final class BootstrapMethods
 
       BootstrapMethodItem item = new BootstrapMethodItem(bsmIndex);
       item.set(position, hashCode & 0x7FFFFFFF);
-
-      int index = item.hashCode % items.length;
-      item.next = items[index];
-      items[index] = item;
+      item.setNext(items);
 
       return bsmCodeIndex;
    }

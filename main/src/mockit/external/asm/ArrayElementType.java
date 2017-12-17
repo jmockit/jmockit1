@@ -3,7 +3,7 @@ package mockit.external.asm;
 /**
  * Types for the argument of a NEWARRAY instruction.
  */
-public interface ArrayElementType
+interface ArrayElementType
 {
    int BOOLEAN = 4;
    int CHAR    = 5;

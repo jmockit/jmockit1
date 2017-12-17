@@ -233,7 +233,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitTypeInsn(int opcode, @Nonnull String type) {
-      Item typeItem = cp.newClassItem(type);
+      StringItem typeItem = cp.newClassItem(type);
       cfgAnalysis.updateCurrentBlockForTypeInstruction(opcode, typeItem);
 
       // Adds the instruction to the bytecode of the method.
@@ -392,7 +392,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {
-      Item arrayTypeItem = cp.newClassItem(desc);
+      StringItem arrayTypeItem = cp.newClassItem(desc);
       cfgAnalysis.updateCurrentBlockForMULTIANEWARRAYInstruction(arrayTypeItem, dims);
 
       // Adds the instruction to the bytecode of the method.

@@ -32,7 +32,7 @@ package mockit.external.asm;
 import java.io.*;
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolItemType.*;
+import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
@@ -296,7 +296,7 @@ public final class ClassReader extends AnnotatedReader
 
    @Nonnull
    private Item copyFieldOrMethodReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int nameType = items[readUnsignedShort(codeIndex + 2)];
+      int nameType = readItem(codeIndex + 2);
       String classDesc = readClass(codeIndex);
       String methodName = readUTF8(nameType);
       String methodDesc = readUTF8(nameType + 2);
@@ -318,8 +318,8 @@ public final class ClassReader extends AnnotatedReader
 
    @Nonnull
    private Item copyHandleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int fieldOrMethodRef = items[readUnsignedShort(codeIndex + 1)];
-      int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
+      int fieldOrMethodRef = readItem(codeIndex + 1);
+      int nameType = readItem(fieldOrMethodRef + 2);
 
       int tag = readByte(codeIndex);
       String classDesc = readClass(fieldOrMethodRef);
@@ -340,7 +340,7 @@ public final class ClassReader extends AnnotatedReader
    ) {
       bootstrapMethods.copyBootstrapMethods(this, items2);
 
-      int nameType = items[readUnsignedShort(codeIndex + 2)];
+      int nameType = readItem(codeIndex + 2);
       String name = readUTF8(nameType);
       String desc = readUTF8(nameType + 2);
       int bsmIndex = readUnsignedShort(codeIndex);

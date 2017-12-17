@@ -31,6 +31,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
+import mockit.external.asm.ConstantPoolGeneration.*;
 import static mockit.external.asm.Frame.TypeMask.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -348,8 +349,8 @@ public final class Frame
          case 'J': return LONG;
          case 'D': return DOUBLE;
          case 'L': return getObjectTypeEncoding(typeDesc, index);
-         // case '[':
-         default: return getArrayTypeEncoding(typeDesc, index);
+         case '[': return getArrayTypeEncoding(typeDesc, index);
+         default: throw new IllegalArgumentException("Invalid type descriptor: " + typeDesc);
       }
    }
 
@@ -376,6 +377,7 @@ public final class Frame
       return dims;
    }
 
+   @SuppressWarnings("OverlyComplexMethod")
    private int getArrayElementTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
       switch (typeDesc.charAt(index)) {
          case 'Z': return BOOLEAN;
@@ -386,7 +388,8 @@ public final class Frame
          case 'F': return FLOAT;
          case 'J': return LONG;
          case 'D': return DOUBLE;
-         case 'L': default: return getObjectTypeEncoding(typeDesc, index);
+         case 'L': return getObjectTypeEncoding(typeDesc, index);
+         default: throw new IllegalArgumentException("Invalid type descriptor: " + typeDesc);
       }
    }
 
@@ -441,13 +444,13 @@ public final class Frame
 
       switch (arg) {
          case ArrayElementType.BOOLEAN: push(ARRAY_OF | BOOLEAN); break;
-         case ArrayElementType.CHAR:    push(ARRAY_OF | CHAR); break;
-         case ArrayElementType.BYTE:    push(ARRAY_OF | BYTE); break;
-         case ArrayElementType.SHORT:   push(ARRAY_OF | SHORT); break;
+         case ArrayElementType.CHAR:    push(ARRAY_OF | CHAR);    break;
+         case ArrayElementType.BYTE:    push(ARRAY_OF | BYTE);    break;
+         case ArrayElementType.SHORT:   push(ARRAY_OF | SHORT);   break;
          case ArrayElementType.INT:     push(ARRAY_OF | INTEGER); break;
-         case ArrayElementType.FLOAT:   push(ARRAY_OF | FLOAT); break;
-         case ArrayElementType.DOUBLE:  push(ARRAY_OF | DOUBLE); break;
-         case ArrayElementType.LONG: default: push(ARRAY_OF | LONG);
+         case ArrayElementType.FLOAT:   push(ARRAY_OF | FLOAT);   break;
+         case ArrayElementType.DOUBLE:  push(ARRAY_OF | DOUBLE);  break;
+         case ArrayElementType.LONG:    push(ARRAY_OF | LONG);
       }
    }
 
@@ -613,36 +616,15 @@ public final class Frame
     * @param var    the local variable index.
     */
    void executeVAR(int opcode, @Nonnegative int var) {
-      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
-         case ILOAD:
-            push(INTEGER);
-            break;
-         case LLOAD:
-            push(LONG);
-            push(TOP);
-            break;
-         case FLOAD:
-            push(FLOAT);
-            break;
-         case DLOAD:
-            push(DOUBLE);
-            push(TOP);
-            break;
-         case ALOAD:
-            push(get(var));
-            break;
-         case ISTORE:
-         case FSTORE:
-         case ASTORE:
-            executeSingleWordStore(var);
-            break;
-         case LSTORE:
-         case DSTORE:
-            executeDoubleWordStore(var);
-            break;
-         case RET:
-            throw new RuntimeException("RET is not supported with computeFrames option");
+         case ILOAD: push(INTEGER);           break;
+         case LLOAD: push(LONG); push(TOP);   break;
+         case FLOAD: push(FLOAT);             break;
+         case DLOAD: push(DOUBLE); push(TOP); break;
+         case ALOAD: push(get(var));          break;
+         case ISTORE: case FSTORE: case ASTORE: executeSingleWordStore(var); break;
+         case LSTORE: case DSTORE: executeDoubleWordStore(var);              break;
+         case RET: throw new RuntimeException("RET is not supported with computeFrames option");
       }
    }
 
@@ -704,26 +686,12 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     */
    void executeJUMP(int opcode) {
-      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
-         case IFEQ:
-         case IFNE:
-         case IFLT:
-         case IFGE:
-         case IFGT:
-         case IFLE:
-         case IFNULL:
-         case IFNONNULL:
+         case IFEQ: case IFNE: case IFLT: case IFGE: case IFGT: case IFLE: case IFNULL: case IFNONNULL:
             pop(1);
             break;
-         case IF_ICMPEQ:
-         case IF_ICMPNE:
-         case IF_ICMPLT:
-         case IF_ICMPGE:
-         case IF_ICMPGT:
-         case IF_ICMPLE:
-         case IF_ACMPEQ:
-         case IF_ACMPNE:
+         case IF_ICMPEQ: case IF_ICMPNE: case IF_ICMPLT: case IF_ICMPGE:
+         case IF_ICMPGT: case IF_ICMPLE: case IF_ACMPEQ: case IF_ACMPNE:
             pop(2);
             break;
          case JSR:
@@ -743,7 +711,6 @@ public final class Frame
       int t3;
       int t4;
 
-      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NOP:
          case INEG:
@@ -759,39 +726,25 @@ public final class Frame
          case ACONST_NULL:
             push(NULL);
             break;
-         case ICONST_M1:
-         case ICONST_0:
-         case ICONST_1:
-         case ICONST_2:
-         case ICONST_3:
-         case ICONST_4:
-         case ICONST_5:
+         case ICONST_M1: case ICONST_0: case ICONST_1: case ICONST_2: case ICONST_3: case ICONST_4: case ICONST_5:
             push(INTEGER);
             break;
-         case LCONST_0:
-         case LCONST_1:
+         case LCONST_0: case LCONST_1:
             push(LONG);
             push(TOP);
             break;
-         case FCONST_0:
-         case FCONST_1:
-         case FCONST_2:
+         case FCONST_0: case FCONST_1: case FCONST_2:
             push(FLOAT);
             break;
-         case DCONST_0:
-         case DCONST_1:
+         case DCONST_0: case DCONST_1:
             push(DOUBLE);
             push(TOP);
             break;
-         case IALOAD:
-         case BALOAD:
-         case CALOAD:
-         case SALOAD:
+         case IALOAD: case BALOAD: case CALOAD: case SALOAD:
             pop(2);
             push(INTEGER);
             break;
-         case LALOAD:
-         case D2L:
+         case LALOAD: case D2L:
             pop(2);
             push(LONG);
             push(TOP);
@@ -800,8 +753,7 @@ public final class Frame
             pop(2);
             push(FLOAT);
             break;
-         case DALOAD:
-         case L2D:
+         case DALOAD: case L2D:
             pop(2);
             push(DOUBLE);
             push(TOP);
@@ -811,30 +763,16 @@ public final class Frame
             t1 = pop();
             push(ELEMENT_OF + t1);
             break;
-         case IASTORE:
-         case BASTORE:
-         case CASTORE:
-         case SASTORE:
-         case FASTORE:
-         case AASTORE:
+         case IASTORE: case BASTORE: case CASTORE: case SASTORE: case FASTORE: case AASTORE:
             pop(3);
             break;
-         case LASTORE:
-         case DASTORE:
+         case LASTORE: case DASTORE:
             pop(4);
             break;
-         case POP:
-         case IRETURN:
-         case FRETURN:
-         case ARETURN:
-         case ATHROW:
-         case MONITORENTER:
-         case MONITOREXIT:
+         case POP: case IRETURN: case FRETURN: case ARETURN: case ATHROW: case MONITORENTER: case MONITOREXIT:
             pop(1);
             break;
-         case POP2:
-         case LRETURN:
-         case DRETURN:
+         case POP2: case LRETURN: case DRETURN:
             pop(2);
             break;
          case DUP:
@@ -986,30 +924,30 @@ public final class Frame
     */
    void executeLDC(@Nonnull Item item) {
       switch (item.type) {
-         case ConstantPoolItemType.INT:
+         case ItemType.INT:
             push(INTEGER);
             break;
-         case ConstantPoolItemType.LONG:
+         case ItemType.LONG:
             push(LONG);
             push(TOP);
             break;
-         case ConstantPoolItemType.FLOAT:
+         case ItemType.FLOAT:
             push(FLOAT);
             break;
-         case ConstantPoolItemType.DOUBLE:
+         case ItemType.DOUBLE:
             push(DOUBLE);
             push(TOP);
             break;
-         case ConstantPoolItemType.CLASS:
+         case ItemType.CLASS:
             push(OBJECT | cp.addType("java/lang/Class"));
             break;
-         case ConstantPoolItemType.STR:
+         case ItemType.STR:
             push(OBJECT | cp.addType("java/lang/String"));
             break;
-         case ConstantPoolItemType.MTYPE:
+         case ItemType.MTYPE:
             push(OBJECT | cp.addType("java/lang/invoke/MethodType"));
             break;
-         // case ConstantPoolItemType.HANDLE_BASE + [1..9]:
+      // case ItemType.HANDLE_BASE + [1..9]:
          default:
             push(OBJECT | cp.addType("java/lang/invoke/MethodHandle"));
       }
@@ -1022,11 +960,10 @@ public final class Frame
     * @param codeLength the operand of the instruction, if any.
     * @param item   the operand of the instruction.
     */
-   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull Item item) {
-      //noinspection SwitchStatementWithoutDefaultBranch
+   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
       switch (opcode) {
          case NEW:
-            push(UNINITIALIZED | cp.addUninitializedType(item.strVal1, codeLength));
+            push(UNINITIALIZED | cp.addUninitializedType(item.strVal, codeLength));
             break;
          case ANEWARRAY:
             executeANewArray(item);
@@ -1040,8 +977,8 @@ public final class Frame
       }
    }
 
-   private void executeANewArray(@Nonnull Item item) {
-      String s = item.strVal1;
+   private void executeANewArray(@Nonnull StringItem item) {
+      String s = item.strVal;
       pop();
 
       if (s.charAt(0) == '[') {
@@ -1070,8 +1007,8 @@ public final class Frame
       }
    }
 
-   private void executeCheckCast(@Nonnull Item item) {
-      String s = item.strVal1;
+   private void executeCheckCast(@Nonnull StringItem item) {
+      String s = item.strVal;
       pop();
 
       if (s.charAt(0) == '[') {
@@ -1088,9 +1025,9 @@ public final class Frame
     * @param dims the number of dimensions of the array.
     * @param arrayType the type of the array elements.
     */
-   void executeMULTIANEWARRAY(int dims, @Nonnull Item arrayType) {
+   void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
       pop(dims);
-      push(arrayType.strVal1);
+      push(arrayType.strVal);
    }
 
    /**
@@ -1100,53 +1037,55 @@ public final class Frame
     * @param item   the operand of the instruction.
     */
    void execute(int opcode, @Nonnull Item item) {
-      //noinspection SwitchStatementWithoutDefaultBranch
-      switch (opcode) {
-         case GETSTATIC:
-            //noinspection ConstantConditions
-            push(item.strVal3);
-            break;
-         case PUTSTATIC:
-            //noinspection ConstantConditions
-            pop(item.strVal3);
-            break;
-         case GETFIELD:
-            pop(1);
-            //noinspection ConstantConditions
-            push(item.strVal3);
-            break;
-         case PUTFIELD:
-            //noinspection ConstantConditions
-            pop(item.strVal3);
-            pop();
-            break;
-         case INVOKEVIRTUAL:
-         case INVOKESPECIAL:
-         case INVOKESTATIC:
-         case INVOKEINTERFACE:
-            executeInvoke(opcode, item);
-            break;
-         case INVOKEDYNAMIC:
-            //noinspection ConstantConditions
-            pop(item.strVal2);
-            push(item.strVal2);
+      if (opcode == INVOKEDYNAMIC) {
+         executeInvokeDynamic((InvokeDynamicItem) item);
+      }
+      else {
+         ClassMemberItem classMemberItem = (ClassMemberItem) item;
+
+         switch (opcode) {
+            case GETSTATIC:
+               push(classMemberItem.desc);
+               break;
+            case PUTSTATIC:
+               pop(classMemberItem.desc);
+               break;
+            case GETFIELD:
+               pop(1);
+               push(classMemberItem.desc);
+               break;
+            case PUTFIELD:
+               pop(classMemberItem.desc);
+               pop();
+               break;
+            case INVOKEVIRTUAL:
+            case INVOKESPECIAL:
+            case INVOKESTATIC:
+            case INVOKEINTERFACE:
+               executeInvoke(opcode, classMemberItem);
+         }
       }
    }
 
-   private void executeInvoke(int opcode, @Nonnull Item item) {
-      //noinspection ConstantConditions
-      pop(item.strVal3);
+   private void executeInvoke(int opcode, @Nonnull ClassMemberItem item) {
+      String methodDesc = item.desc;
+      pop(methodDesc);
 
       if (opcode != INVOKESTATIC) {
          int var = pop();
 
-         //noinspection ConstantConditions
-         if (opcode == INVOKESPECIAL && item.strVal2.charAt(0) == '<') {
+         if (opcode == INVOKESPECIAL && item.name.charAt(0) == '<') {
             init(var);
          }
       }
 
-      push(item.strVal3);
+      push(methodDesc);
+   }
+
+   private void executeInvokeDynamic(@Nonnull InvokeDynamicItem item) {
+      String desc = item.desc;
+      pop(desc);
+      push(desc);
    }
 
    /**
@@ -1157,7 +1096,7 @@ public final class Frame
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(String classDesc, @Nonnull Frame frame, int edge) {
+   boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
       boolean changed = false;
       int i;
       int s;

@@ -171,7 +171,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForTypeInstruction(int opcode, @Nonnull Item typeItem) {
+   void updateCurrentBlockForTypeInstruction(int opcode, @Nonnull StringItem typeItem) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.executeTYPE(opcode, code.length, typeItem);
@@ -402,7 +402,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForMULTIANEWARRAYInstruction(@Nonnull Item arrayTypeItem, @Nonnegative int dims) {
+   void updateCurrentBlockForMULTIANEWARRAYInstruction(@Nonnull StringItem arrayTypeItem, @Nonnegative int dims) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.executeMULTIANEWARRAY(dims, arrayTypeItem);

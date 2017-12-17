@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.Item.SpecialType.*;
+import static mockit.external.asm.TypeTableItem.SpecialType.MERGED;
 
 final class MergedTypeTableItem extends TypeTableItem
 {
@@ -24,5 +24,10 @@ final class MergedTypeTableItem extends TypeTableItem
    void set(@Nonnegative int type1, @Nonnegative int type2) {
       longVal = type1 | ((long) type2 << 32);
       hashCode = 0x7FFFFFFF & (MERGED + type1 + type2);
+   }
+
+   @Override
+   boolean isEqualTo(@Nonnull Item item) {
+      return item.longVal == longVal;
    }
 }

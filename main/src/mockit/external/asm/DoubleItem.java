@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolItemType.*;
+import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
 final class DoubleItem extends Item
 {

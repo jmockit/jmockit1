@@ -31,7 +31,8 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolItemType.*;
+import mockit.external.asm.ConstantPoolGeneration.*;
+import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
 /**
  * A constant pool item.
@@ -39,33 +40,20 @@ import static mockit.external.asm.ConstantPoolItemType.*;
 class Item
 {
    /**
-    * Defines constants for {@link #NORMAL normal}, {@link #UNINIT uninitialized}, and {@link #MERGED merged} special
-    * item types stored in the {@link ConstantPoolGeneration#typeTable}, instead of the constant pool, in order to avoid
-    * clashes with normal constant pool items in the <tt>ClassWriter</tt> constant pool's hash table.
-    */
-   interface SpecialType
-   {
-      int NORMAL = 30;
-      int UNINIT = 31;
-      int MERGED = 32;
-   }
-
-   /**
     * Index of this item in the constant pool.
     */
    @Nonnegative final int index;
 
    /**
     * Type of this constant pool item. A single class is used to represent all constant pool item types, in order to
-    * minimize the bytecode size of this package. The value of this field is one of the {@link ConstantPoolItemType}
-    * constants.
+    * minimize the bytecode size of this package. The value of this field is one of the {@link ItemType} constants.
     * <p/>
-    * MethodHandle constant 9 variations are stored using a range of 9 values from
-    * {@link ConstantPoolItemType#HANDLE_BASE} + 1 to {@link ConstantPoolItemType#HANDLE_BASE} + 9.
+    * MethodHandle constant 9 variations are stored using a range of 9 values from {@link ItemType#HANDLE_BASE} + 1 to
+    * {@link ItemType#HANDLE_BASE} + 9.
     * <p/>
     * Special Item types are used for Items that are stored in the ClassWriter {@link ConstantPoolGeneration#typeTable},
     * instead of the constant pool, in order to avoid clashes with normal constant pool items in the ClassWriter
-    * constant pool's hash table. These special item types are defined in {@link SpecialType}.
+    * constant pool's hash table. These special item types are defined in {@link TypeTableItem.SpecialType}.
     */
    int type;
 
@@ -78,21 +66,6 @@ class Item
     * Value of this item, for a long item.
     */
    long longVal;
-
-   /**
-    * First part of the value of this item, for items that do not hold a primitive value.
-    */
-   String strVal1;
-
-   /**
-    * Second part of the value of this item, for items that do not hold a primitive value.
-    */
-   @Nullable String strVal2;
-
-   /**
-    * Third part of the value of this item, for items that do not hold a primitive value.
-    */
-   @Nullable String strVal3;
 
    /**
     * The hash code value of this constant pool item.
@@ -122,9 +95,6 @@ class Item
       type = item.type;
       intVal = item.intVal;
       longVal = item.longVal;
-      strVal1 = item.strVal1;
-      strVal2 = item.strVal2;
-      strVal3 = item.strVal3;
       hashCode = item.hashCode;
    }
 
@@ -135,39 +105,18 @@ class Item
     * @param item the item to be compared to this one. Both items must have the same {@link #type}.
     * @return <tt>true</tt> if the given item if equal to this one, <tt>false</tt> otherwise.
     */
-   final boolean isEqualTo(@Nonnull Item item) {
+   boolean isEqualTo(@Nonnull Item item) {
       switch (type) {
-         case UTF8:
-         case STR:
-         case CLASS:
-         case MTYPE:
-         case SpecialType.NORMAL:
-            return item.strVal1.equals(strVal1);
-         case SpecialType.MERGED:
-         case LONG:
-         case DOUBLE:
+         case LONG: case DOUBLE:
             return item.longVal == longVal;
-         case INT:
-         case FLOAT:
+         case INT: case FLOAT:
             return item.intVal == intVal;
-         case SpecialType.UNINIT:
-            return item.intVal == intVal && item.strVal1.equals(strVal1);
-         case NAME_TYPE:
-            //noinspection ConstantConditions
-            return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
-         case INDY:
-            //noinspection ConstantConditions
-            return item.longVal == longVal && item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2);
-         // case FIELD|METH|IMETH|HANDLE_BASE + 1..9:
-         default:
-            //noinspection ConstantConditions
-            return item.strVal1.equals(strVal1) && item.strVal2.equals(strVal2) && item.strVal3.equals(strVal3);
       }
+
+      return false;
    }
 
-   final boolean isDoubleSized() {
-      return type == LONG || type == DOUBLE;
-   }
+   final boolean isDoubleSized() { return type == LONG || type == DOUBLE; }
 
    /**
     * Recovers the stack size variation from this constant pool item, computing and storing it if needed.
@@ -187,9 +136,9 @@ class Item
       return argSize;
    }
 
-   final void setNext(@Nonnull Item[] items2) {
-      int index2 = hashCode % items2.length;
-      next = items2[index2];
-      items2[index2] = this;
+   final void setNext(@Nonnull Item[] items) {
+      int index = hashCode % items.length;
+      next = items[index];
+      items[index] = this;
    }
 }

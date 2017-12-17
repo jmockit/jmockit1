@@ -2,13 +2,17 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.Item.SpecialType.*;
+import static mockit.external.asm.TypeTableItem.SpecialType.UNINIT;
 
 final class UninitializedTypeTableItem extends TypeTableItem
 {
    UninitializedTypeTableItem(@Nonnegative int index) {
       super(index);
       type = UNINIT;
+   }
+
+   UninitializedTypeTableItem(@Nonnegative int index, @Nonnull UninitializedTypeTableItem item) {
+      super(index, item);
    }
 
    /**
@@ -19,7 +23,13 @@ final class UninitializedTypeTableItem extends TypeTableItem
     */
    void set(@Nonnull String type, @Nonnegative int offset) {
       intVal = offset;
-      strVal1 = type;
+      typeDesc = type;
       hashCode = 0x7FFFFFFF & (UNINIT + type.hashCode() + offset);
+   }
+
+   @Override
+   boolean isEqualTo(@Nonnull Item item) {
+      TypeTableItem other = (TypeTableItem) item;
+      return item.intVal == intVal && other.typeDesc.equals(typeDesc);
    }
 }

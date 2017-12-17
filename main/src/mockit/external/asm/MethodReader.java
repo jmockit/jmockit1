@@ -2,6 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
+import mockit.external.asm.ConstantPoolGeneration.*;
 import static mockit.external.asm.MethodReader.InstructionType.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -466,7 +467,7 @@ final class MethodReader extends AnnotatedReader
          Label start   = readLabel(readUnsignedShort(codeIndex + 2));
          Label end     = readLabel(readUnsignedShort(codeIndex + 4));
          Label handler = readLabel(readUnsignedShort(codeIndex + 6));
-         String type = readUTF8(items[readUnsignedShort(codeIndex + 8)]);
+         String type = readUTF8(readItem(codeIndex + 8));
 
          mv.visitTryCatchBlock(start, end, handler, type);
          codeIndex += 8;
@@ -605,7 +606,7 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readInvokeDynamicInstruction(@Nonnegative int codeIndex) {
-      int cpIndex = items[readUnsignedShort(codeIndex + 1)];
+      int cpIndex = readItem(codeIndex + 1);
       int bsmStartIndex = readUnsignedShort(cpIndex);
       @SuppressWarnings("ConstantConditions") int bsmIndex = bootstrapMethods[bsmStartIndex];
       Handle bsm = (Handle) readConstItem(bsmIndex);
@@ -618,7 +619,7 @@ final class MethodReader extends AnnotatedReader
          bsmIndex += 2;
       }
 
-      cpIndex = items[readUnsignedShort(cpIndex + 2)];
+      cpIndex = readItem(cpIndex + 2);
       String name = readUTF8(cpIndex);
       String desc = readUTF8(cpIndex + 2);
 
@@ -755,9 +756,9 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readFieldOrInvokeInstruction(@Nonnegative int codeIndex, int opcode) {
-      int cpIndex1 = items[readUnsignedShort(codeIndex + 1)];
+      int cpIndex1 = readItem(codeIndex + 1);
       String owner = readClass(cpIndex1);
-      int cpIndex2 = items[readUnsignedShort(cpIndex1 + 2)];
+      int cpIndex2 = readItem(cpIndex1 + 2);
       String name = readUTF8(cpIndex2);
       String desc = readUTF8(cpIndex2 + 2);
 
@@ -766,7 +767,7 @@ final class MethodReader extends AnnotatedReader
          mv.visitFieldInsn(opcode, owner, name, desc);
       }
       else {
-         boolean itf = code[cpIndex1 - 1] == ConstantPoolItemType.IMETH;
+         boolean itf = code[cpIndex1 - 1] == ItemType.IMETH;
          //noinspection ConstantConditions
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
       }

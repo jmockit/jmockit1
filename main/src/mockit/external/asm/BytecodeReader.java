@@ -2,7 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import static mockit.external.asm.ConstantPoolItemType.*;
+import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
 class BytecodeReader
 {
@@ -288,12 +288,10 @@ class BytecodeReader
    private Object readHandle(@Nonnegative int codeIndex) {
       int tag = readByte(codeIndex);
 
-      int itemIndex = readUnsignedShort(codeIndex + 1);
-      int classIndex = items[itemIndex];
+      int classIndex = readItem(codeIndex + 1);
       String owner = readClass(classIndex);
 
-      itemIndex = readUnsignedShort(classIndex + 2);
-      int nameIndex = items[itemIndex];
+      int nameIndex = readItem(classIndex + 2);
       String name = readUTF8(nameIndex);
       String desc = readUTF8(nameIndex + 2);
 
@@ -312,8 +310,14 @@ class BytecodeReader
    final String readClass(@Nonnegative int codeIndex) {
       // Computes the start index of the CONSTANT_Class item in code and reads the CONSTANT_Utf8 item designated by the
       // first two bytes of this CONSTANT_Class item.
-      int itemIndex = readUnsignedShort(codeIndex);
-      String classDesc = readUTF8(items[itemIndex]);
+      int itemCodeIndex = readItem(codeIndex);
+      String classDesc = readUTF8(itemCodeIndex);
       return classDesc;
+   }
+
+   @Nonnegative
+   final int readItem(@Nonnegative int codeIndex) {
+      int itemIndex = readUnsignedShort(codeIndex);
+      return items[itemIndex];
    }
 }
