@@ -6,13 +6,10 @@ import static mockit.external.asm.TypeTableItem.SpecialType.MERGED;
 
 final class MergedTypeTableItem extends TypeTableItem
 {
-   MergedTypeTableItem(@Nonnegative int index) {
-      super(index);
-      type = MERGED;
-   }
+   MergedTypeTableItem() { type = MERGED; }
 
-   MergedTypeTableItem(@Nonnegative int index, @Nonnull MergedTypeTableItem item) {
-      super(index, item);
+   MergedTypeTableItem(@Nonnull MergedTypeTableItem item) {
+      super(0, item);
    }
 
    /**
@@ -23,7 +20,7 @@ final class MergedTypeTableItem extends TypeTableItem
     */
    void set(@Nonnegative int type1, @Nonnegative int type2) {
       longVal = type1 | ((long) type2 << 32);
-      hashCode = 0x7FFFFFFF & (MERGED + type1 + type2);
+      setHashCode(type1 + type2);
    }
 
    @Override

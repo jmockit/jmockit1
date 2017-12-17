@@ -23,8 +23,9 @@ final class HandleItem extends Item
     */
    void set(@Nonnull Handle handle) {
       this.handle = handle;
+      type = HANDLE_BASE;
+      setHashCode(handle.hashCode());
       type = HANDLE_BASE + handle.tag;
-      hashCode = 0x7FFFFFFF & (HANDLE_BASE + handle.hashCode());
    }
 
    @Override

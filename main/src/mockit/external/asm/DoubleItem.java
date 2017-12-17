@@ -20,6 +20,6 @@ final class DoubleItem extends Item
     */
    void set(double value) {
       longVal = Double.doubleToRawLongBits(value);
-      hashCode = 0x7FFFFFFF & (DOUBLE + (int) value);
+      setHashCode((int) value);
    }
 }

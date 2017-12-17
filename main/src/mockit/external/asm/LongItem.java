@@ -20,6 +20,6 @@ final class LongItem extends Item
     */
    void set(long value) {
       longVal = value;
-      hashCode = 0x7FFFFFFF & (LONG + (int) value);
+      setHashCode((int) value);
    }
 }

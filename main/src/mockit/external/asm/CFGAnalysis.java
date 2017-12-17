@@ -182,7 +182,9 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull Item fieldItem, @Nonnull String fieldTypeDesc) {
+   void updateCurrentBlockForFieldInstruction(
+      int opcode, @Nonnull TypeOrMemberItem fieldItem, @Nonnull String fieldTypeDesc
+   ) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.execute(opcode, fieldItem);
@@ -206,7 +208,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForInvokeInstruction(@Nonnull Item invokeItem, int opcode, @Nonnull String desc) {
+   void updateCurrentBlockForInvokeInstruction(@Nonnull TypeOrMemberItem invokeItem, int opcode, @Nonnull String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.execute(opcode, invokeItem);

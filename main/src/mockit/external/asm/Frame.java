@@ -511,7 +511,7 @@ public final class Frame
     *
     * @param elements the number of types that must be popped.
     */
-   private void pop(int elements) {
+   private void pop(@Nonnegative int elements) {
       if (outputStackTop >= elements) {
          outputStackTop -= elements;
       }
@@ -706,22 +706,8 @@ public final class Frame
     */
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    void execute(int opcode) {
-      int t1;
-      int t2;
-      int t3;
-      int t4;
-
       switch (opcode) {
-         case NOP:
-         case INEG:
-         case LNEG:
-         case FNEG:
-         case DNEG:
-         case I2B:
-         case I2C:
-         case I2S:
-         case GOTO:
-         case RETURN:
+         case NOP: case INEG: case LNEG: case FNEG: case DNEG: case I2B: case I2C: case I2S: case GOTO: case RETURN:
             break;
          case ACONST_NULL:
             push(NULL);
@@ -759,9 +745,7 @@ public final class Frame
             push(TOP);
             break;
          case AALOAD:
-            pop(1);
-            t1 = pop();
-            push(ELEMENT_OF + t1);
+            executeAALOAD();
             break;
          case IASTORE: case BASTORE: case CASTORE: case SASTORE: case FASTORE: case AASTORE:
             pop(3);
@@ -776,120 +760,52 @@ public final class Frame
             pop(2);
             break;
          case DUP:
-            t1 = pop();
-            push(t1);
-            push(t1);
+            executeDUP();
             break;
          case DUP_X1:
-            t1 = pop();
-            t2 = pop();
-            push(t1);
-            push(t2);
-            push(t1);
+            executeDUP_X1();
             break;
          case DUP_X2:
-            t1 = pop();
-            t2 = pop();
-            t3 = pop();
-            push(t1);
-            push(t3);
-            push(t2);
-            push(t1);
+            executeDUP_X2();
             break;
          case DUP2:
-            t1 = pop();
-            t2 = pop();
-            push(t2);
-            push(t1);
-            push(t2);
-            push(t1);
+            executeDUP2();
             break;
          case DUP2_X1:
-            t1 = pop();
-            t2 = pop();
-            t3 = pop();
-            push(t2);
-            push(t1);
-            push(t3);
-            push(t2);
-            push(t1);
+            executeDUP2_X1();
             break;
          case DUP2_X2:
-            t1 = pop();
-            t2 = pop();
-            t3 = pop();
-            t4 = pop();
-            push(t2);
-            push(t1);
-            push(t4);
-            push(t3);
-            push(t2);
-            push(t1);
+            executeDUP2_X2();
             break;
          case SWAP:
-            t1 = pop();
-            t2 = pop();
-            push(t1);
-            push(t2);
+            executeSWAP();
             break;
-         case IADD:
-         case ISUB:
-         case IMUL:
-         case IDIV:
-         case IREM:
-         case IAND:
-         case IOR:
-         case IXOR:
-         case ISHL:
-         case ISHR:
-         case IUSHR:
-         case L2I:
-         case D2I:
-         case FCMPL:
-         case FCMPG:
+         case IADD:  case ISUB: case IMUL: case IDIV:  case IREM:
+         case IAND:  case IOR:  case IXOR: case ISHL:  case ISHR:
+         case IUSHR: case L2I:  case D2I:  case FCMPL: case FCMPG:
             pop(2);
             push(INTEGER);
             break;
-         case LADD:
-         case LSUB:
-         case LMUL:
-         case LDIV:
-         case LREM:
-         case LAND:
-         case LOR:
-         case LXOR:
+         case LADD: case LSUB: case LMUL: case LDIV: case LREM: case LAND: case LOR: case LXOR:
             pop(4);
             push(LONG);
             push(TOP);
             break;
-         case FADD:
-         case FSUB:
-         case FMUL:
-         case FDIV:
-         case FREM:
-         case L2F:
-         case D2F:
+         case FADD: case FSUB: case FMUL: case FDIV: case FREM: case L2F: case D2F:
             pop(2);
             push(FLOAT);
             break;
-         case DADD:
-         case DSUB:
-         case DMUL:
-         case DDIV:
-         case DREM:
+         case DADD: case DSUB: case DMUL: case DDIV: case DREM:
             pop(4);
             push(DOUBLE);
             push(TOP);
             break;
-         case LSHL:
-         case LSHR:
-         case LUSHR:
+         case LSHL: case LSHR: case LUSHR:
             pop(3);
             push(LONG);
             push(TOP);
             break;
-         case I2L:
-         case F2L:
+         case I2L: case F2L:
             pop(1);
             push(LONG);
             push(TOP);
@@ -898,23 +814,89 @@ public final class Frame
             pop(1);
             push(FLOAT);
             break;
-         case I2D:
-         case F2D:
+         case I2D: case F2D:
             pop(1);
             push(DOUBLE);
             push(TOP);
             break;
-         case F2I:
-         case ARRAYLENGTH:
+         case F2I: case ARRAYLENGTH:
             pop(1);
             push(INTEGER);
             break;
-         case LCMP:
-         case DCMPL:
-         case DCMPG:
+         case LCMP: case DCMPL: case DCMPG:
             pop(4);
             push(INTEGER);
       }
+   }
+
+   private void executeAALOAD() {
+      pop(1);
+      int type = pop();
+      push(ELEMENT_OF + type);
+   }
+
+   private void executeDUP() {
+      int type = pop();
+      push(type);
+      push(type);
+   }
+
+   private void executeDUP_X1() {
+      int type1 = pop();
+      int type2 = pop();
+      push(type1);
+      push(type2);
+      push(type1);
+   }
+
+   private void executeDUP_X2() {
+      int t1 = pop();
+      int t2 = pop();
+      int t3 = pop();
+      push(t1);
+      push(t3);
+      push(t2);
+      push(t1);
+   }
+
+   private void executeDUP2() {
+      int t1 = pop();
+      int t2 = pop();
+      push(t2);
+      push(t1);
+      push(t2);
+      push(t1);
+   }
+
+   private void executeDUP2_X1() {
+      int t1 = pop();
+      int t2 = pop();
+      int t3 = pop();
+      push(t2);
+      push(t1);
+      push(t3);
+      push(t2);
+      push(t1);
+   }
+
+   private void executeDUP2_X2() {
+      int t1 = pop();
+      int t2 = pop();
+      int t3 = pop();
+      int t4 = pop();
+      push(t2);
+      push(t1);
+      push(t4);
+      push(t3);
+      push(t2);
+      push(t1);
+   }
+
+   private void executeSWAP() {
+      int t1 = pop();
+      int t2 = pop();
+      push(t1);
+      push(t2);
    }
 
    /**
@@ -1036,38 +1018,36 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     * @param item   the operand of the instruction.
     */
-   void execute(int opcode, @Nonnull Item item) {
+   void execute(int opcode, @Nonnull TypeOrMemberItem item) {
       if (opcode == INVOKEDYNAMIC) {
-         executeInvokeDynamic((InvokeDynamicItem) item);
+         executeInvokeDynamic(item);
       }
       else {
-         ClassMemberItem classMemberItem = (ClassMemberItem) item;
-
          switch (opcode) {
             case GETSTATIC:
-               push(classMemberItem.desc);
+               push(item.desc);
                break;
             case PUTSTATIC:
-               pop(classMemberItem.desc);
+               pop(item.desc);
                break;
             case GETFIELD:
                pop(1);
-               push(classMemberItem.desc);
+               push(item.desc);
                break;
             case PUTFIELD:
-               pop(classMemberItem.desc);
+               pop(item.desc);
                pop();
                break;
             case INVOKEVIRTUAL:
             case INVOKESPECIAL:
             case INVOKESTATIC:
             case INVOKEINTERFACE:
-               executeInvoke(opcode, classMemberItem);
+               executeInvoke(opcode, item);
          }
       }
    }
 
-   private void executeInvoke(int opcode, @Nonnull ClassMemberItem item) {
+   private void executeInvoke(int opcode, @Nonnull TypeOrMemberItem item) {
       String methodDesc = item.desc;
       pop(methodDesc);
 
@@ -1082,7 +1062,7 @@ public final class Frame
       push(methodDesc);
    }
 
-   private void executeInvokeDynamic(@Nonnull InvokeDynamicItem item) {
+   private void executeInvokeDynamic(@Nonnull TypeOrMemberItem item) {
       String desc = item.desc;
       pop(desc);
       push(desc);

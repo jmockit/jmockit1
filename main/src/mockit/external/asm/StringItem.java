@@ -22,7 +22,7 @@ final class StringItem extends Item
    void set(int type, @Nonnull String strVal) {
       this.type = type;
       this.strVal = strVal;
-      hashCode = 0x7FFFFFFF & (type + strVal.hashCode());
+      setHashCode(strVal.hashCode());
    }
 
    @Override

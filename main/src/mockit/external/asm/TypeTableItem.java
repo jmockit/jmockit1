@@ -19,8 +19,8 @@ class TypeTableItem extends Item
 
    @Nonnull String typeDesc;
 
-   TypeTableItem(@Nonnegative int index) {
-      super(index);
+   TypeTableItem() {
+      super(0);
       typeDesc = "";
    }
 

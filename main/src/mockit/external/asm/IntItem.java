@@ -20,6 +20,6 @@ final class IntItem extends Item
     */
    void set(int value) {
       intVal = value;
-      hashCode = 0x7FFFFFFF & (INT + value);
+      setHashCode(value);
    }
 }

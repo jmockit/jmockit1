@@ -136,6 +136,10 @@ class Item
       return argSize;
    }
 
+   final void setHashCode(int valuesHashCode) {
+      hashCode = 0x7FFFFFFF & (type + valuesHashCode);
+   }
+
    final void setNext(@Nonnull Item[] items) {
       int index = hashCode % items.length;
       next = items[index];

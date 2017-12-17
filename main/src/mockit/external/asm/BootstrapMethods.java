@@ -32,7 +32,7 @@ final class BootstrapMethods
     * @return a new or an already existing invokedynamic type reference item.
     */
    @Nonnull
-   Item addInvokeDynamicReference(
+   InvokeDynamicItem addInvokeDynamicReference(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
       ByteVector methods = bootstrapMethods;
@@ -44,7 +44,7 @@ final class BootstrapMethods
       int position = methods.length; // record current position
 
       int hashCode = bsm.hashCode();
-      Item handleItem = constantPool.newHandleItem(bsm);
+      HandleItem handleItem = constantPool.newHandleItem(bsm);
       methods.putShort(handleItem.index);
 
       int argsLength = bsmArgs.length;
@@ -71,7 +71,7 @@ final class BootstrapMethods
       }
 
       // Now, create the InvokeDynamic constant.
-      Item result = constantPool.createInvokeDynamicItem(name, desc, bsmIndex);
+      InvokeDynamicItem result = constantPool.createInvokeDynamicItem(name, desc, bsmIndex);
       return result;
    }
 

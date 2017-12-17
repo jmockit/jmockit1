@@ -150,9 +150,9 @@ final class ConstantPoolGeneration
       reusableDoubleItem = new DoubleItem(0);
       reusableHandleItem = new HandleItem(0);
       reusableInvokeDynamicItem = new InvokeDynamicItem(0);
-      reusableNormalItem = new NormalTypeTableItem(0);
-      reusableUninitializedItem = new UninitializedTypeTableItem(0);
-      reusableMergedItem = new MergedTypeTableItem(0);
+      reusableNormalItem = new NormalTypeTableItem();
+      reusableUninitializedItem = new UninitializedTypeTableItem();
+      reusableMergedItem = new MergedTypeTableItem();
    }
 
    /**
@@ -589,7 +589,7 @@ final class ConstantPoolGeneration
          String commonSuperClass = getCommonSuperClass(type1Desc, type2Desc);
          reusableMergedItem.intVal = addType(commonSuperClass);
 
-         result = new MergedTypeTableItem(0, reusableMergedItem);
+         result = new MergedTypeTableItem(reusableMergedItem);
          put(result);
       }
 
@@ -667,6 +667,11 @@ final class ConstantPoolGeneration
     * @param item the item to be added to the constant pool's hash table.
     */
    void put(@Nonnull Item item) {
+      resizeItemArrayIfNeeded();
+      item.setNext(items);
+   }
+
+   private void resizeItemArrayIfNeeded() {
       if (index + typeCount > threshold) {
          int ll = items.length;
          int nl = ll * 2 + 1;
@@ -680,8 +685,6 @@ final class ConstantPoolGeneration
          items = newItems;
          threshold = (int) (nl * 0.75);
       }
-
-      item.setNext(items);
    }
 
    private static void put(@Nonnull Item[] newItems, @Nullable Item item) {
@@ -732,7 +735,9 @@ final class ConstantPoolGeneration
       InvokeDynamicItem result = get(reusableInvokeDynamicItem);
 
       if (result == null) {
-         put122(INDY, bsmIndex, newNameType(name, desc));
+         int nameAndTypeItemIndex = newNameType(name, desc);
+         put122(INDY, bsmIndex, nameAndTypeItemIndex);
+
          result = new InvokeDynamicItem(index++, reusableInvokeDynamicItem);
          put(result);
       }

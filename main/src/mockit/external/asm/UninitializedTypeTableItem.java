@@ -6,10 +6,7 @@ import static mockit.external.asm.TypeTableItem.SpecialType.UNINIT;
 
 final class UninitializedTypeTableItem extends TypeTableItem
 {
-   UninitializedTypeTableItem(@Nonnegative int index) {
-      super(index);
-      type = UNINIT;
-   }
+   UninitializedTypeTableItem() { type = UNINIT; }
 
    UninitializedTypeTableItem(@Nonnegative int index, @Nonnull UninitializedTypeTableItem item) {
       super(index, item);
@@ -24,7 +21,7 @@ final class UninitializedTypeTableItem extends TypeTableItem
    void set(@Nonnull String type, @Nonnegative int offset) {
       intVal = offset;
       typeDesc = type;
-      hashCode = 0x7FFFFFFF & (UNINIT + type.hashCode() + offset);
+      setHashCode(type.hashCode() + offset);
    }
 
    @Override

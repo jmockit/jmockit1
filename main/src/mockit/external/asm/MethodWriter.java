@@ -242,7 +242,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
-      Item fieldItem = cp.newFieldItem(owner, name, desc);
+      ClassMemberItem fieldItem = cp.newFieldItem(owner, name, desc);
       cfgAnalysis.updateCurrentBlockForFieldInstruction(opcode, fieldItem, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -253,7 +253,7 @@ public final class MethodWriter extends MethodVisitor
    public void visitMethodInsn(
       int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf
    ) {
-      Item invokeItem = cp.newMethodItem(owner, name, desc, itf);
+      ClassMemberItem invokeItem = cp.newMethodItem(owner, name, desc, itf);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, opcode, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -269,7 +269,7 @@ public final class MethodWriter extends MethodVisitor
    public void visitInvokeDynamicInsn(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
-      Item invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
+      InvokeDynamicItem invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 
       // Adds the instruction to the bytecode of the method.

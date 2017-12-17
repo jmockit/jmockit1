@@ -28,7 +28,7 @@ final class InnerClasses
    }
 
    void add(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
-      Item nameItem = cp.newClassItem(name);
+      StringItem nameItem = cp.newClassItem(name);
 
       // Sec. 4.7.6 of the JVMS states "Every CONSTANT_Class_info entry in the constant_pool table which represents a
       // class or interface C that is not a package member must have exactly one corresponding entry in the classes

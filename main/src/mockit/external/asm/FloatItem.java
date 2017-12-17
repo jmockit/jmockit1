@@ -20,6 +20,6 @@ final class FloatItem extends Item
     */
    void set(float value) {
       intVal = Float.floatToRawIntBits(value);
-      hashCode = 0x7FFFFFFF & (FLOAT + (int) value);
+      setHashCode((int) value);
    }
 }

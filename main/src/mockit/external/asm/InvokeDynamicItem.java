@@ -4,22 +4,14 @@ import javax.annotation.*;
 
 import static mockit.external.asm.ConstantPoolGeneration.ItemType.*;
 
-final class InvokeDynamicItem extends Item
+final class InvokeDynamicItem extends TypeOrMemberItem
 {
-   @Nonnull String name;
-   @Nonnull String desc;
-
    InvokeDynamicItem(@Nonnegative int index) {
       super(index);
       type = INDY;
-      name = desc = "";
    }
 
-   InvokeDynamicItem(@Nonnegative int index, @Nonnull InvokeDynamicItem item) {
-      super(index, item);
-      name = item.name;
-      desc = item.desc;
-   }
+   InvokeDynamicItem(@Nonnegative int index, @Nonnull InvokeDynamicItem item) { super(index, item); }
 
    /**
     * Sets the name, desc, and index of the invoke dynamic item.
@@ -30,14 +22,12 @@ final class InvokeDynamicItem extends Item
     */
    void set(@Nonnull String name, @Nonnull String desc, @Nonnegative int index) {
       longVal = index;
-      this.name = name;
-      this.desc = desc;
-      hashCode = 0x7FFFFFFF & (INDY + index * name.hashCode() * desc.hashCode());
+      setValuesAndHashcode(name, desc, index);
    }
 
    @Override
    boolean isEqualTo(@Nonnull Item item) {
       InvokeDynamicItem other = (InvokeDynamicItem) item;
-      return other.longVal == longVal && other.name.equals(name) && other.desc.equals(desc);
+      return other.longVal == longVal && super.isEqualTo(other);
    }
 }

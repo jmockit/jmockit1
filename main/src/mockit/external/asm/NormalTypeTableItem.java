@@ -6,10 +6,7 @@ import static mockit.external.asm.TypeTableItem.SpecialType.NORMAL;
 
 final class NormalTypeTableItem extends TypeTableItem
 {
-   NormalTypeTableItem(@Nonnegative int index) {
-      super(index);
-      type = NORMAL;
-   }
+   NormalTypeTableItem() { type = NORMAL; }
 
    NormalTypeTableItem(@Nonnegative int index, @Nonnull NormalTypeTableItem item) {
       super(index, item);
@@ -22,7 +19,7 @@ final class NormalTypeTableItem extends TypeTableItem
     */
    void set(@Nonnull String type) {
       typeDesc = type;
-      hashCode = 0x7FFFFFFF & (NORMAL + type.hashCode());
+      setHashCode(type.hashCode());
    }
 
    @Override
