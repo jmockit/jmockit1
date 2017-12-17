@@ -1,12 +1,18 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.ConstantPoolItemType.*;
 
 final class LongItem extends Item
 {
-   LongItem(int index) {
+   LongItem(@Nonnegative int index) {
       super(index);
       type = LONG;
+   }
+
+   LongItem(@Nonnegative int index, @Nonnull LongItem item) {
+      super(index, item);
    }
 
    /**

@@ -211,18 +211,21 @@ public final class Frame
     * The stack size variation corresponding to each JVM instruction. This stack variation is equal to the size of the
     * values produced by an instruction, minus the size of the values consumed by this instruction.
     */
-   public static final int[] SIZE = new int[202];
+   public static final int[] SIZE;
    static {
       String s =
          "EFFFFFFFFGGFFFGGFFFEEFGFGFEEEEEEEEEEEEEEEEEEEEDEDEDDDDD" +
          "CDCDEEEEEEEEEEEEEEEEEEEEBABABBBBDCFFFGGGEDCDCDCDCDCDCDCDCD" +
          "CDCEEEEDDDDDDDCDCDCEFEFDDEEFFDEDEEEBDDBBDDDDDDCCCCCCCCEFED" +
          "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
-      int[] b = SIZE;
+      int n = s.length();
+      int[] b = new int[n];
 
-      for (int i = 0; i < b.length; i++) {
+      for (int i = 0; i < n; i++) {
          b[i] = s.charAt(i) - 'E';
       }
+
+      SIZE = b;
    }
 
    @Nonnull private final ConstantPoolGeneration cp;
@@ -287,26 +290,111 @@ public final class Frame
    }
 
    /**
-    * Returns the output frame local variable type at the given index.
+    * Initializes the input frame of the first basic block from the method descriptor.
     *
-    * @param local the index of the local that must be returned.
+    * @param access    the access flags of the method to which this label belongs.
+    * @param args      the formal parameter types of this method.
+    * @param maxLocals the maximum number of local variables of this method.
     */
-   private int get(@Nonnegative int local) {
-      if (outputLocals == null || local >= outputLocals.length) {
-         // This local has never been assigned in this basic block, so it is still equal to its value in the input
-         // frame.
-         return LOCAL | local;
+   void initInputFrame(@Nonnull String classDesc, int access, @Nonnull JavaType[] args, @Nonnegative int maxLocals) {
+      inputLocals = new int[maxLocals];
+      inputStack = new int[0];
+
+      int localIndex = initializeThisParameterIfApplicable(classDesc, access);
+      localIndex = initializeFormalParameterTypes(localIndex, args);
+
+      while (localIndex < maxLocals) {
+         inputLocals[localIndex++] = TOP;
+      }
+   }
+
+   @Nonnegative
+   private int initializeThisParameterIfApplicable(@Nonnull String classDesc, int access) {
+      if ((access & Access.STATIC) == 0) {
+         inputLocals[0] = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cp.addType(classDesc);
+         return 1;
       }
 
-      int type = outputLocals[local];
+      return 0;
+   }
 
-      if (type == 0) {
-         // This local has never been assigned in this basic block, so it is still equal to its value in the input
-         // frame.
-         type = outputLocals[local] = LOCAL | local;
+   @Nonnegative
+   private int initializeFormalParameterTypes(@Nonnegative int localIndex, @Nonnull JavaType[] args) {
+      for (JavaType arg : args) {
+         int typeEncoding = getTypeEncoding(arg.getDescriptor());
+         inputLocals[localIndex++] = typeEncoding;
+
+         if (typeEncoding == LONG || typeEncoding == DOUBLE) {
+            inputLocals[localIndex++] = TOP;
+         }
       }
 
-      return type;
+      return localIndex;
+   }
+
+   /**
+    * Returns the {@linkplain TypeMask int encoding} of the given type.
+    *
+    * @param typeDesc a type descriptor.
+    * @return the int encoding of the given type.
+    */
+   private int getTypeEncoding(@Nonnull String typeDesc) {
+      int index = typeDesc.charAt(0) == '(' ? typeDesc.indexOf(')') + 1 : 0;
+
+      switch (typeDesc.charAt(index)) {
+         case 'V': return 0;
+         case 'Z': case 'C': case 'B': case 'S': case 'I': return INTEGER;
+         case 'F': return FLOAT;
+         case 'J': return LONG;
+         case 'D': return DOUBLE;
+         case 'L': return getObjectTypeEncoding(typeDesc, index);
+         // case '[':
+         default: return getArrayTypeEncoding(typeDesc, index);
+      }
+   }
+
+   private int getObjectTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      // Stores the internal name, not the descriptor!
+      String t = typeDesc.substring(index + 1, typeDesc.length() - 1);
+      return OBJECT | cp.addType(t);
+   }
+
+   private int getArrayTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      int dims = getNumberOfDimensions(typeDesc, index);
+      int data = getArrayElementTypeEncoding(typeDesc, index + dims);
+      return dims << 28 | data;
+   }
+
+   @Nonnegative
+   private static int getNumberOfDimensions(@Nonnull String typeDesc, @Nonnegative int index) {
+      int dims = 1;
+
+      while (typeDesc.charAt(index + dims) == '[') {
+         dims++;
+      }
+
+      return dims;
+   }
+
+   private int getArrayElementTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
+      switch (typeDesc.charAt(index)) {
+         case 'Z': return BOOLEAN;
+         case 'C': return CHAR;
+         case 'B': return BYTE;
+         case 'S': return SHORT;
+         case 'I': return INTEGER;
+         case 'F': return FLOAT;
+         case 'J': return LONG;
+         case 'D': return DOUBLE;
+         case 'L': default: return getObjectTypeEncoding(typeDesc, index);
+      }
+   }
+
+   /**
+    * Simulates the action of a IINC instruction on the output stack frame.
+    */
+   void executeIINC(@Nonnegative int varIndex) {
+      set(varIndex, INTEGER);
    }
 
    /**
@@ -331,6 +419,36 @@ public final class Frame
 
       // Sets the local variable.
       outputLocals[local] = type;
+   }
+
+   /**
+    * Simulates the action of a BIPUSH, SIPUSH, or NEWARRAY instruction on the output stack frame.
+    *
+    * @param opcode  the opcode of the instruction.
+    * @param operand the operand of the instruction, if any.
+    */
+   void executeINT(int opcode, int operand) {
+      if (opcode == NEWARRAY) {
+         executeNewArray(operand);
+      }
+      else {
+         push(INTEGER);
+      }
+   }
+
+   private void executeNewArray(int arg) {
+      pop();
+
+      switch (arg) {
+         case ArrayElementType.BOOLEAN: push(ARRAY_OF | BOOLEAN); break;
+         case ArrayElementType.CHAR:    push(ARRAY_OF | CHAR); break;
+         case ArrayElementType.BYTE:    push(ARRAY_OF | BYTE); break;
+         case ArrayElementType.SHORT:   push(ARRAY_OF | SHORT); break;
+         case ArrayElementType.INT:     push(ARRAY_OF | INTEGER); break;
+         case ArrayElementType.FLOAT:   push(ARRAY_OF | FLOAT); break;
+         case ArrayElementType.DOUBLE:  push(ARRAY_OF | DOUBLE); break;
+         case ArrayElementType.LONG: default: push(ARRAY_OF | LONG);
+      }
    }
 
    /**
@@ -364,82 +482,6 @@ public final class Frame
    }
 
    /**
-    * Pushes a new type onto the output frame stack.
-    *
-    * @param desc the descriptor of the type to be pushed. Can also be a method
-    *             descriptor (in this case this method pushes its return type onto the output frame stack).
-    */
-   private void push(@Nonnull String desc) {
-      int type = getTypeEncoding(desc);
-
-      if (type != 0) {
-         push(type);
-
-         if (type == LONG || type == DOUBLE) {
-            push(TOP);
-         }
-      }
-   }
-
-   /**
-    * Returns the {@linkplain TypeMask int encoding} of the given type.
-    *
-    * @param typeDesc a type descriptor.
-    * @return the int encoding of the given type.
-    */
-   private int getTypeEncoding(@Nonnull String typeDesc) {
-      int index = typeDesc.charAt(0) == '(' ? typeDesc.indexOf(')') + 1 : 0;
-
-      switch (typeDesc.charAt(index)) {
-         case 'V': return 0;
-         case 'Z': case 'C': case 'B': case 'S': case 'I': return INTEGER;
-         case 'F': return FLOAT;
-         case 'J': return LONG;
-         case 'D': return DOUBLE;
-         case 'L': return getObjectTypeEncoding(typeDesc, index);
-      // case '[':
-         default: return getArrayTypeEncoding(typeDesc, index);
-      }
-   }
-
-   private int getObjectTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
-      // Stores the internal name, not the descriptor!
-      String t = typeDesc.substring(index + 1, typeDesc.length() - 1);
-      return OBJECT | cp.addType(t);
-   }
-
-   private int getArrayTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
-      int dims = getNumberOfDimensions(typeDesc, index);
-      int data = getArrayElementTypeEncoding(typeDesc, index + dims);
-      return dims << 28 | data;
-   }
-
-   private int getArrayElementTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
-      switch (typeDesc.charAt(index)) {
-         case 'Z': return BOOLEAN;
-         case 'C': return CHAR;
-         case 'B': return BYTE;
-         case 'S': return SHORT;
-         case 'I': return INTEGER;
-         case 'F': return FLOAT;
-         case 'J': return LONG;
-         case 'D': return DOUBLE;
-         case 'L': default: return getObjectTypeEncoding(typeDesc, index);
-      }
-   }
-
-   @Nonnegative
-   private static int getNumberOfDimensions(@Nonnull String typeDesc, @Nonnegative int index) {
-      int dims = 1;
-
-      while (typeDesc.charAt(index + dims) == '[') {
-         dims++;
-      }
-
-      return dims;
-   }
-
-   /**
     * Pops a type from the output frame stack and returns its value.
     *
     * @return the type that has been popped from the output frame stack.
@@ -452,6 +494,13 @@ public final class Frame
       // If the output frame stack is empty, pops from the input stack.
       //noinspection UnnecessaryParentheses
       return STACK | -(--owner.inputStackTop);
+   }
+
+   /**
+    * Simulates the action of a LOOKUPSWITCH or TABLESWITCH instruction on the output stack frame.
+    */
+   void executeSWITCH() {
+      pop(1);
    }
 
    /**
@@ -558,62 +607,94 @@ public final class Frame
    }
 
    /**
-    * Initializes the input frame of the first basic block from the method descriptor.
+    * Simulates the action of an xLOAD or xSTORE instruction on the output stack frame.
     *
-    * @param access    the access flags of the method to which this label belongs.
-    * @param args      the formal parameter types of this method.
-    * @param maxLocals the maximum number of local variables of this method.
+    * @param opcode the opcode of the instruction.
+    * @param var    the local variable index.
     */
-   void initInputFrame(@Nonnull String classDesc, int access, @Nonnull JavaType[] args, @Nonnegative int maxLocals) {
-      inputLocals = new int[maxLocals];
-      inputStack = new int[0];
-      int i = 0;
-
-      if ((access & Access.STATIC) == 0) {
-         int inputLocal = Access.isConstructor(access) ? UNINITIALIZED_THIS : OBJECT | cp.addType(classDesc);
-         inputLocals[i++] = inputLocal;
-      }
-
-      for (JavaType arg : args) {
-         int t = getTypeEncoding(arg.getDescriptor());
-         inputLocals[i++] = t;
-
-         if (t == LONG || t == DOUBLE) {
-            inputLocals[i++] = TOP;
-         }
-      }
-
-      while (i < maxLocals) {
-         inputLocals[i++] = TOP;
+   void executeVAR(int opcode, @Nonnegative int var) {
+      //noinspection SwitchStatementWithoutDefaultBranch
+      switch (opcode) {
+         case ILOAD:
+            push(INTEGER);
+            break;
+         case LLOAD:
+            push(LONG);
+            push(TOP);
+            break;
+         case FLOAD:
+            push(FLOAT);
+            break;
+         case DLOAD:
+            push(DOUBLE);
+            push(TOP);
+            break;
+         case ALOAD:
+            push(get(var));
+            break;
+         case ISTORE:
+         case FSTORE:
+         case ASTORE:
+            executeSingleWordStore(var);
+            break;
+         case LSTORE:
+         case DSTORE:
+            executeDoubleWordStore(var);
+            break;
+         case RET:
+            throw new RuntimeException("RET is not supported with computeFrames option");
       }
    }
 
    /**
-    * Simulates the action of a IINC instruction on the output stack frame.
+    * Returns the output frame local variable type at the given index.
+    *
+    * @param local the index of the local that must be returned.
     */
-   void executeIINC(int varIndex) {
-      set(varIndex, INTEGER);
+   @Nonnegative
+   private int get(@Nonnegative int local) {
+      if (outputLocals == null || local >= outputLocals.length) {
+         // This local has never been assigned in this basic block, so it's still equal to its value in the input frame.
+         return LOCAL | local;
+      }
+
+      int type = outputLocals[local];
+
+      if (type == 0) {
+         // This local has never been assigned in this basic block, so it's still equal to its value in the input frame.
+         type = outputLocals[local] = LOCAL | local;
+      }
+
+      return type;
    }
 
-   /**
-    * Simulates the action of a LOOKUPSWITCH or TABLESWITCH instruction on the output stack frame.
-    */
-   void executeSWITCH() {
+   private void executeSingleWordStore(@Nonnegative int arg) {
+      int type1 = pop();
+      set(arg, type1);
+      executeStore(arg);
+   }
+
+   private void executeDoubleWordStore(@Nonnegative int arg) {
       pop(1);
+
+      int type1 = pop();
+      set(arg, type1);
+      set(arg + 1, TOP);
+
+      executeStore(arg);
    }
 
-   /**
-    * Simulates the action of a BIPUSH, SIPUSH, or NEWARRAY instruction on the output stack frame.
-    *
-    * @param opcode  the opcode of the instruction.
-    * @param operand the operand of the instruction, if any.
-    */
-   void executeINT(int opcode, int operand) {
-      if (opcode == NEWARRAY) {
-         executeNewArray(operand);
-      }
-      else {
-         push(INTEGER);
+   private void executeStore(@Nonnegative int arg) {
+      if (arg > 0) {
+         int type2 = get(arg - 1);
+
+         // If type2 is of kind STACK or LOCAL we cannot know its size!
+         if (type2 == LONG || type2 == DOUBLE) {
+            set(arg - 1, TOP);
+         }
+         else if ((type2 & KIND) != BASE) {
+            set(arg - 1, type2 | TOP_IF_LONG_OR_DOUBLE);
+         }
       }
    }
 
@@ -655,6 +736,7 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     */
+   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    void execute(int opcode) {
       int t1;
       int t2;
@@ -898,46 +980,6 @@ public final class Frame
    }
 
    /**
-    * Simulates the action of an xLOAD or xSTORE instruction on the output stack frame.
-    *
-    * @param opcode the opcode of the instruction.
-    * @param var    the local variable index.
-    */
-   void executeVAR(int opcode, @Nonnegative int var) {
-      //noinspection SwitchStatementWithoutDefaultBranch
-      switch (opcode) {
-         case ILOAD:
-            push(INTEGER);
-            break;
-         case LLOAD:
-            push(LONG);
-            push(TOP);
-            break;
-         case FLOAD:
-            push(FLOAT);
-            break;
-         case DLOAD:
-            push(DOUBLE);
-            push(TOP);
-            break;
-         case ALOAD:
-            push(get(var));
-            break;
-         case ISTORE:
-         case FSTORE:
-         case ASTORE:
-            executeSingleWordStore(var);
-            break;
-         case LSTORE:
-         case DSTORE:
-            executeDoubleWordStore(var);
-            break;
-         case RET:
-            throw new RuntimeException("RET is not supported with computeFrames option");
-      }
-   }
-
-   /**
     * Simulates the action of an LCD instruction on the output stack frame.
     *
     * @param item the operand of the instructions.
@@ -998,6 +1040,48 @@ public final class Frame
       }
    }
 
+   private void executeANewArray(@Nonnull Item item) {
+      String s = item.strVal1;
+      pop();
+
+      if (s.charAt(0) == '[') {
+         push('[' + s);
+      }
+      else {
+         push(ARRAY_OF | OBJECT | cp.addType(s));
+      }
+   }
+
+   /**
+    * Pushes a new type onto the output frame stack.
+    *
+    * @param desc the descriptor of the type to be pushed. Can also be a method
+    *             descriptor (in this case this method pushes its return type onto the output frame stack).
+    */
+   private void push(@Nonnull String desc) {
+      int type = getTypeEncoding(desc);
+
+      if (type != 0) {
+         push(type);
+
+         if (type == LONG || type == DOUBLE) {
+            push(TOP);
+         }
+      }
+   }
+
+   private void executeCheckCast(@Nonnull Item item) {
+      String s = item.strVal1;
+      pop();
+
+      if (s.charAt(0) == '[') {
+         push(s);
+      }
+      else {
+         push(OBJECT | cp.addType(s));
+      }
+   }
+
    /**
     * Simulates the action of a MULTIANEWARRAY instruction on the output stack frame.
     *
@@ -1049,36 +1133,6 @@ public final class Frame
       }
    }
 
-   private void executeSingleWordStore(@Nonnegative int arg) {
-      int type1 = pop();
-      set(arg, type1);
-      executeStore(arg);
-   }
-
-   private void executeStore(@Nonnegative int arg) {
-      if (arg > 0) {
-         int type2 = get(arg - 1);
-
-         // If type2 is of kind STACK or LOCAL we cannot know its size!
-         if (type2 == LONG || type2 == DOUBLE) {
-            set(arg - 1, TOP);
-         }
-         else if ((type2 & KIND) != BASE) {
-            set(arg - 1, type2 | TOP_IF_LONG_OR_DOUBLE);
-         }
-      }
-   }
-
-   private void executeDoubleWordStore(@Nonnegative int arg) {
-      pop(1);
-
-      int type1 = pop();
-      set(arg, type1);
-      set(arg + 1, TOP);
-
-      executeStore(arg);
-   }
-
    private void executeInvoke(int opcode, @Nonnull Item item) {
       //noinspection ConstantConditions
       pop(item.strVal3);
@@ -1093,62 +1147,6 @@ public final class Frame
       }
 
       push(item.strVal3);
-   }
-
-   private void executeNewArray(int arg) {
-      pop();
-
-      switch (arg) {
-         case ArrayElementType.BOOLEAN:
-            push(ARRAY_OF | BOOLEAN);
-            break;
-         case ArrayElementType.CHAR:
-            push(ARRAY_OF | CHAR);
-            break;
-         case ArrayElementType.BYTE:
-            push(ARRAY_OF | BYTE);
-            break;
-         case ArrayElementType.SHORT:
-            push(ARRAY_OF | SHORT);
-            break;
-         case ArrayElementType.INT:
-            push(ARRAY_OF | INTEGER);
-            break;
-         case ArrayElementType.FLOAT:
-            push(ARRAY_OF | FLOAT);
-            break;
-         case ArrayElementType.DOUBLE:
-            push(ARRAY_OF | DOUBLE);
-            break;
-         // case ArrayElementType.LONG:
-         default:
-            push(ARRAY_OF | LONG);
-            break;
-      }
-   }
-
-   private void executeANewArray(@Nonnull Item item) {
-      String s = item.strVal1;
-      pop();
-
-      if (s.charAt(0) == '[') {
-         push('[' + s);
-      }
-      else {
-         push(ARRAY_OF | OBJECT | cp.addType(s));
-      }
-   }
-
-   private void executeCheckCast(@Nonnull Item item) {
-      String s = item.strVal1;
-      pop();
-
-      if (s.charAt(0) == '[') {
-         push(s);
-      }
-      else {
-         push(OBJECT | cp.addType(s));
-      }
    }
 
    /**
@@ -1281,78 +1279,78 @@ public final class Frame
     * Merges the type at the given index in the given type array with the given type.
     * Returns <tt>true</tt> if the type array has been modified by this operation.
     *
-    * @param t     the type with which the type array element must be merged.
+    * @param type1 the type with which the type array element must be merged.
     * @param types an array of types.
     * @param index the index of the type that must be merged in 'types'.
     * @return <tt>true</tt> if the type array has been modified by this operation.
     */
-   private boolean merge(int t, @Nonnull int[] types, @Nonnegative int index) {
-      int u = types[index];
+   private boolean merge(int type1, @Nonnull int[] types, @Nonnegative int index) {
+      int type2 = types[index];
 
-      if (u == t) {
-         // If the types are equal, merge(u,t)=u, so there is no change.
+      if (type2 == type1) {
+         // If the types are equal, there is no change.
          return false;
       }
 
-      if ((t & ~DIM) == NULL) {
-         if (u == NULL) {
+      if ((type1 & ~DIM) == NULL) {
+         if (type2 == NULL) {
             return false;
          }
 
-         t = NULL;
+         type1 = NULL;
       }
 
-      if (u == 0) {
-         // If types[index] has never been assigned, merge(u,t)=t.
-         types[index] = t;
+      if (type2 == 0) {
+         // If types[index] has never been assigned, merge(type2, type1) = type1.
+         types[index] = type1;
          return true;
       }
 
       int v;
 
-      if ((u & BASE_KIND) == OBJECT || (u & DIM) != 0) {
-         // If u is a reference type of any dimension.
-         if (t == NULL) {
-            // If t is the NULL type, merge(u,t)=u, so there is no change.
+      if ((type2 & BASE_KIND) == OBJECT || (type2 & DIM) != 0) {
+         // If type2 is a reference type of any dimension.
+         if (type1 == NULL) {
+            // If type1 is the NULL type, merge(type2, type1) = type2, so there is no change.
             return false;
          }
-         else if ((t & (DIM | BASE_KIND)) == (u & (DIM | BASE_KIND))) {
-            // If t and u have the same dimension and same base kind.
-            if ((u & BASE_KIND) == OBJECT) {
-               // If t is also a reference type, and if u and t have the same dimension
-               // merge(u,t) = dim(t) | common parent of the element types of u and t.
-               v = (t & DIM) | OBJECT | cp.getMergedType(t & BASE_VALUE, u & BASE_VALUE);
+         else if ((type1 & (DIM | BASE_KIND)) == (type2 & (DIM | BASE_KIND))) {
+            // If type1 and type2 have the same dimension and same base kind.
+            if ((type2 & BASE_KIND) == OBJECT) {
+               // If type1 is also a reference type, and if type2 and type1 have the same dimension
+               // merge(type2, type1) = dim(type1) | common parent of the element types of type2 and type1.
+               v = (type1 & DIM) | OBJECT | cp.getMergedType(type1 & BASE_VALUE, type2 & BASE_VALUE);
             }
             else {
-               // If u and t are array types, but not with the same element type,
-               // merge(u,t) = dim(u) - 1 | java/lang/Object.
-               int dim = ELEMENT_OF + (u & DIM);
+               // If type2 and type1 are array types, but not with the same element type,
+               // merge(type2, type1) = dim(type2) - 1 | java/lang/Object.
+               int dim = ELEMENT_OF + (type2 & DIM);
                v = dim | OBJECT | cp.addType("java/lang/Object");
             }
          }
-         else if ((t & BASE_KIND) == OBJECT || (t & DIM) != 0) {
-            // If t is any other reference or array type, the merged type is min(uDim, tDim) | java/lang/Object,
-            // where uDim is the array dimension of u, minus 1 if u is an array type with a primitive element type
-            // (and similarly for tDim).
-            int tDim = (((t & DIM) == 0 || (t & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (t & DIM);
-            int uDim = (((u & DIM) == 0 || (u & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (u & DIM);
+         else if ((type1 & BASE_KIND) == OBJECT || (type1 & DIM) != 0) {
+            // If type1 is any other reference or array type, the merged type is min(uDim, tDim) | java/lang/Object,
+            // where uDim is the array dimension of type2, minus 1 if type2 is an array type with a primitive element
+            // type (and similarly for tDim).
+            int tDim = (((type1 & DIM) == 0 || (type1 & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (type1 & DIM);
+            int uDim = (((type2 & DIM) == 0 || (type2 & BASE_KIND) == OBJECT) ? 0 : ELEMENT_OF) + (type2 & DIM);
             v = Math.min(tDim, uDim) | OBJECT | cp.addType("java/lang/Object");
          }
          else {
-            // If t is any other type, merge(u,t)=TOP.
+            // If type1 is any other type, merge(type2, type1) = TOP.
             v = TOP;
          }
       }
-      else if (u == NULL) {
-         // If u is the NULL type, merge(u,t)=t, or TOP if t is not a reference type.
-         v = (t & BASE_KIND) == OBJECT || (t & DIM) != 0 ? t : TOP;
+      else if (type2 == NULL) {
+         // If type2 is the NULL type, merge(type2, type1) = type1, or TOP if type1 is not a reference type.
+         v = (type1 & BASE_KIND) == OBJECT || (type1 & DIM) != 0 ? type1 : TOP;
       }
       else {
-         // If u is any other type, merge(u,t)=TOP whatever t.
+         // If type2 is any other type, merge(type2, type1) = TOP whatever type1.
          v = TOP;
       }
 
-      if (u != v) {
+      if (type2 != v) {
          types[index] = v;
          return true;
       }

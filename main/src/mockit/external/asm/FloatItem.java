@@ -1,12 +1,18 @@
 package mockit.external.asm;
 
+import javax.annotation.*;
+
 import static mockit.external.asm.ConstantPoolItemType.*;
 
 final class FloatItem extends Item
 {
-   FloatItem(int index) {
+   FloatItem(@Nonnegative int index) {
       super(index);
       type = FLOAT;
+   }
+
+   FloatItem(@Nonnegative int index, @Nonnull FloatItem item) {
+      super(index, item);
    }
 
    /**

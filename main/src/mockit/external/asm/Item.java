@@ -41,7 +41,7 @@ class Item
    /**
     * Defines constants for {@link #NORMAL normal}, {@link #UNINIT uninitialized}, and {@link #MERGED merged} special
     * item types stored in the {@link ConstantPoolGeneration#typeTable}, instead of the constant pool, in order to avoid
-    * clashes with normal constant pool items in the ClassWriter constant pool's hash table.
+    * clashes with normal constant pool items in the <tt>ClassWriter</tt> constant pool's hash table.
     */
    interface SpecialType
    {

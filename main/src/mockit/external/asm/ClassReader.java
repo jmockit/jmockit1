@@ -220,7 +220,7 @@ public final class ClassReader extends AnnotatedReader
                item = copyFloatItem(itemCodeIndex, itemIndex);
                break;
             case NAME_TYPE:
-               item = copyNameAndTypeItem(itemType, itemCodeIndex, itemIndex);
+               item = copyNameAndTypeItem(itemCodeIndex, itemIndex);
                break;
             case LONG:
                item = copyLongItem(itemCodeIndex, itemIndex);
@@ -231,7 +231,7 @@ public final class ClassReader extends AnnotatedReader
                itemIndex++;
                break;
             case UTF8:
-               item = copyUTF8Item(itemType, itemIndex);
+               item = copyUTF8Item(itemIndex);
                break;
             case HANDLE:
                item = copyHandleItem(itemCodeIndex, itemIndex);
@@ -284,13 +284,13 @@ public final class ClassReader extends AnnotatedReader
    }
 
    @Nonnull
-   private Item copyNameAndTypeItem(int itemType, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
+   private Item copyNameAndTypeItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
       String name = readUTF8(codeIndex);
       String type = readUTF8(codeIndex + 2);
 
-      ReferenceItem item = new ReferenceItem(itemIndex);
+      NameAndTypeItem item = new NameAndTypeItem(itemIndex);
       //noinspection ConstantConditions
-      item.set(itemType, name, type, null);
+      item.set(name, type);
       return item;
    }
 
@@ -301,18 +301,18 @@ public final class ClassReader extends AnnotatedReader
       String methodName = readUTF8(nameType);
       String methodDesc = readUTF8(nameType + 2);
 
-      ReferenceItem item = new ReferenceItem(itemIndex);
+      ClassMemberItem item = new ClassMemberItem(itemIndex);
       //noinspection ConstantConditions
       item.set(type, classDesc, methodName, methodDesc);
       return item;
    }
 
    @Nonnull
-   private Item copyUTF8Item(int type, @Nonnegative int itemIndex) {
+   private Item copyUTF8Item(@Nonnegative int itemIndex) {
       String string = readString(itemIndex);
 
-      ReferenceItem item = new ReferenceItem(itemIndex);
-      item.set(type, string, null, null);
+      StringItem item = new StringItem(itemIndex);
+      item.set(UTF8, string);
       return item;
    }
 
@@ -321,14 +321,15 @@ public final class ClassReader extends AnnotatedReader
       int fieldOrMethodRef = items[readUnsignedShort(codeIndex + 1)];
       int nameType = items[readUnsignedShort(fieldOrMethodRef + 2)];
 
-      int type = HANDLE_BASE + readByte(codeIndex);
+      int tag = readByte(codeIndex);
       String classDesc = readClass(fieldOrMethodRef);
       String name = readUTF8(nameType);
       String desc = readUTF8(nameType + 2);
 
-      ReferenceItem item = new ReferenceItem(itemIndex);
-      //noinspection ConstantConditions
-      item.set(type, classDesc, name, desc);
+      @SuppressWarnings("ConstantConditions") Handle handle = new Handle(tag, classDesc, name, desc);
+
+      HandleItem item = new HandleItem(itemIndex);
+      item.set(handle);
       return item;
    }
 
@@ -354,9 +355,9 @@ public final class ClassReader extends AnnotatedReader
    private Item copyNameReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
       String string = readUTF8(codeIndex);
 
-      ReferenceItem item = new ReferenceItem(itemIndex);
+      StringItem item = new StringItem(itemIndex);
       //noinspection ConstantConditions
-      item.set(type, string, null, null);
+      item.set(type, string);
       return item;
    }
 

@@ -71,7 +71,7 @@ final class BootstrapMethods
       }
 
       // Now, create the InvokeDynamic constant.
-      Item result = constantPool.createInvokeDynamicConstant(name, desc, bsmIndex);
+      Item result = constantPool.createInvokeDynamicItem(name, desc, bsmIndex);
       return result;
    }
 

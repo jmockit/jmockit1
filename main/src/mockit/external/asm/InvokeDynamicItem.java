@@ -11,6 +11,11 @@ final class InvokeDynamicItem extends Item
       type = INDY;
    }
 
+   InvokeDynamicItem(@Nonnegative int index, @Nonnull InvokeDynamicItem item) {
+      super(index, item);
+      type = INDY;
+   }
+
    /**
     * Sets the name, desc, and index of the invoke dynamic item.
     *
