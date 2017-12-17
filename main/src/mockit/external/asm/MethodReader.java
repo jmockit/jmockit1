@@ -125,8 +125,6 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative
    private int readMethod(@Nonnegative int codeIndex) {
       codeIndex = readMethodDeclaration(codeIndex);
-      methodStartCodeIndex = codeIndex;
-      bodyStartCodeIndex = 0;
       throwsClauseTypes = null;
       signature = null;
       int annDefault = 0;
@@ -174,7 +172,10 @@ final class MethodReader extends AnnotatedReader
       access = readUnsignedShort(codeIndex);
       name = readUTF8(codeIndex + 2);
       desc = readUTF8(codeIndex + 4);
-      return codeIndex + 6;
+      codeIndex += 6;
+      methodStartCodeIndex = codeIndex;
+      bodyStartCodeIndex = 0;
+      return codeIndex;
    }
 
    private void readExceptionsInThrowsClause(@Nonnegative int codeIndex) {
@@ -397,8 +398,20 @@ final class MethodReader extends AnnotatedReader
       // Reads instruction.
       readLabel(offset + readInt(codeIndex));
 
-      int caseCount = tableNotLookup ? readInt(codeIndex + 8) - readInt(codeIndex + 4) + 1 : readInt(codeIndex + 4);
-      int offsetStep = tableNotLookup ? 4 : 8;
+      int caseCount;
+      int offsetStep;
+      int finalOffsetStep;
+
+      if (tableNotLookup) {
+         caseCount = readInt(codeIndex + 8) - readInt(codeIndex + 4) + 1;
+         offsetStep = 4;
+         finalOffsetStep = 12;
+      }
+      else {
+         caseCount = readInt(codeIndex + 4);
+         offsetStep = 8;
+         finalOffsetStep = 8;
+      }
 
       while (caseCount > 0) {
          int caseOffset = readInt(codeIndex + 12);
@@ -407,7 +420,7 @@ final class MethodReader extends AnnotatedReader
          caseCount--;
       }
 
-      return codeIndex + 8;
+      return codeIndex + finalOffsetStep;
    }
 
    /**
@@ -440,8 +453,8 @@ final class MethodReader extends AnnotatedReader
          case LABELW: readLabel(offset + readInt(codeIndex + 1));   return 5;
          case WIDE_INSN: int opcode = readByte(codeIndex + 1); return opcode == IINC ? 6 : 4;
          case VAR: case SBYTE: case LDC_INSN: return 2;
-         case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 3; case ITFMETH:
-         case INDYMETH: return 5;
+         case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 3;
+         case ITFMETH: case INDYMETH: return 5;
          case MANA_INSN: default: return 4;
       }
    }
