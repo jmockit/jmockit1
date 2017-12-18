@@ -41,25 +41,31 @@ import static mockit.external.asm.Item.Type.*;
  */
 public final class ClassReader extends AnnotatedReader
 {
-   /**
-    * Flag to skip method code. If this class is set <code>CODE</code> attribute won't be visited.
-    * This can be used, for example, to retrieve annotations for methods and method parameters.
-    */
-   public static final int SKIP_CODE = 1;
+   public interface Flags
+   {
+      /**
+       * Flag to skip method code. If this class is set <code>CODE</code> attribute won't be visited.
+       * This can be used, for example, to retrieve annotations for methods and method parameters.
+       */
+      int SKIP_CODE = 1;
 
-   /**
-    * Flag to skip the debug information in the class. If this flag is set the debug information of the class is not
-    * visited, i.e. the {@link MethodVisitor#visitLocalVariable} and {@link MethodVisitor#visitLineNumber} methods will
-    * not be called.
-    */
-   public static final int SKIP_DEBUG = 2;
+      /**
+       * Flag to skip the debug information in the class. If this flag is set the debug information of the class is not
+       * visited, i.e. the {@link MethodVisitor#visitLocalVariable} and {@link MethodVisitor#visitLineNumber} methods
+       * will not be called.
+       */
+      int SKIP_DEBUG = 2;
+
+      int SKIP_CODE_DEBUG = SKIP_CODE + SKIP_DEBUG;
+
+      int SKIP_INNER_CLASSES = 4;
+   }
 
    private static final String[] NO_INTERFACES = {};
 
    // Helper fields.
    ClassVisitor cv;
-   boolean readCode;
-   boolean readDebugInfo;
+   @Nonnegative int flags;
 
    /**
     * The start index of each bootstrap method.
@@ -149,11 +155,11 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Returns the internal name of the class.
     *
-    * @return the internal class name
     * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
+   @Nonnull
    public String getClassName() {
-      return readClass(header + 2);
+      return readNonnullClass(header + 2);
    }
 
    /**
@@ -183,7 +189,7 @@ public final class ClassReader extends AnnotatedReader
       if (interfaceCount > 0) {
          for (int i = 0; i < interfaceCount; i++) {
             codeIndex += 2;
-            interfaces[i] = readClass(codeIndex);
+            interfaces[i] = readNonnullClass(codeIndex);
          }
       }
 
@@ -239,7 +245,7 @@ public final class ClassReader extends AnnotatedReader
             case INDY:
                item = copyInvokeDynamicItem(cw.bootstrapMethods, items2, itemCodeIndex, itemIndex);
                break;
-            // case STR|CLASS|MTYPE:
+         // case STR|CLASS|MTYPE:
             default:
                item = copyNameReferenceItem(itemType, itemCodeIndex, itemIndex);
          }
@@ -285,11 +291,10 @@ public final class ClassReader extends AnnotatedReader
 
    @Nonnull
    private Item copyNameAndTypeItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String name = readUTF8(codeIndex);
-      String type = readUTF8(codeIndex + 2);
+      String name = readNonnullUTF8(codeIndex);
+      String type = readNonnullUTF8(codeIndex + 2);
 
       NameAndTypeItem item = new NameAndTypeItem(itemIndex);
-      //noinspection ConstantConditions
       item.set(name, type);
       return item;
    }
@@ -297,12 +302,11 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull
    private Item copyFieldOrMethodReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
       int nameType = readItem(codeIndex + 2);
-      String classDesc = readClass(codeIndex);
-      String methodName = readUTF8(nameType);
-      String methodDesc = readUTF8(nameType + 2);
+      String classDesc = readNonnullClass(codeIndex);
+      String methodName = readNonnullUTF8(nameType);
+      String methodDesc = readNonnullUTF8(nameType + 2);
 
       ClassMemberItem item = new ClassMemberItem(itemIndex);
-      //noinspection ConstantConditions
       item.set(type, classDesc, methodName, methodDesc);
       return item;
    }
@@ -310,10 +314,7 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull
    private Item copyUTF8Item(@Nonnegative int itemIndex) {
       String string = readString(itemIndex);
-
-      StringItem item = new StringItem(itemIndex);
-      item.set(UTF8, string);
-      return item;
+      return new StringItem(itemIndex, UTF8, string);
    }
 
    @Nonnull
@@ -322,12 +323,11 @@ public final class ClassReader extends AnnotatedReader
       int nameType = readItem(fieldOrMethodRef + 2);
 
       int tag = readByte(codeIndex);
-      String classDesc = readClass(fieldOrMethodRef);
-      String name = readUTF8(nameType);
-      String desc = readUTF8(nameType + 2);
+      String classDesc = readNonnullClass(fieldOrMethodRef);
+      String name = readNonnullUTF8(nameType);
+      String desc = readNonnullUTF8(nameType + 2);
 
-      @SuppressWarnings("ConstantConditions") Handle handle = new Handle(tag, classDesc, name, desc);
-
+      Handle handle = new Handle(tag, classDesc, name, desc);
       HandleItem item = new HandleItem(itemIndex);
       item.set(handle);
       return item;
@@ -341,24 +341,19 @@ public final class ClassReader extends AnnotatedReader
       bootstrapMethods.copyBootstrapMethods(this, items2);
 
       int nameType = readItem(codeIndex + 2);
-      String name = readUTF8(nameType);
-      String desc = readUTF8(nameType + 2);
+      String name = readNonnullUTF8(nameType);
+      String desc = readNonnullUTF8(nameType + 2);
       int bsmIndex = readUnsignedShort(codeIndex);
 
       InvokeDynamicItem item = new InvokeDynamicItem(itemIndex);
-      //noinspection ConstantConditions
       item.set(name, desc, bsmIndex);
       return item;
    }
 
    @Nonnull
    private Item copyNameReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String string = readUTF8(codeIndex);
-
-      StringItem item = new StringItem(itemIndex);
-      //noinspection ConstantConditions
-      item.set(type, string);
-      return item;
+      String string = readNonnullUTF8(codeIndex);
+      return new StringItem(itemIndex, type, string);
    }
 
    /**
@@ -372,12 +367,11 @@ public final class ClassReader extends AnnotatedReader
     * Makes the given visitor visit the Java class of this Class Reader.
     *
     * @param cv    the visitor that must visit this class.
-    * @param flags option flags that can be used to modify the default behavior of this class.
-    *              See {@link #SKIP_CODE}, {@link #SKIP_DEBUG}.
+    * @param flags option flags that can be used to modify the default behavior of this class. See {@link Flags}.
     */
-   public void accept(@Nonnull ClassVisitor cv, int flags) {
+   public void accept(@Nonnull ClassVisitor cv, @Nonnegative int flags) {
       this.cv = cv;
-      setFlags(flags);
+      this.flags = flags;
       readClassDeclaration();
       readInterfaces();
       readClassAttributes();
@@ -400,73 +394,85 @@ public final class ClassReader extends AnnotatedReader
       int codeIndex = getAttributesStartIndex();
 
       for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(codeIndex + 2);
+         codeIndex += 2;
+
+         String attrName = readNonnullUTF8(codeIndex);
+         codeIndex += 2;
+
+         int offsetToNextAttribute = readInt(codeIndex) - 2;
+         codeIndex += 4;
 
          if ("SourceFile".equals(attrName)) {
-            sourceFile = readUTF8(codeIndex + 8);
+            sourceFile = readNonnullUTF8(codeIndex);
          }
          else if ("InnerClasses".equals(attrName)) {
-            innerClassesCodeIndex = codeIndex + 8;
+            if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
+               innerClassesCodeIndex = codeIndex;
+            }
          }
          else if ("EnclosingMethod".equals(attrName)) {
             enclosingMethod = new EnclosingMethod(this, codeIndex);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(codeIndex + 8);
+            signature = readNonnullUTF8(codeIndex);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationsCodeIndex = codeIndex + 8;
-         }
-         else if ("Deprecated".equals(attrName)) {
-            access = Access.asDeprecated(access);
-         }
-         else if ("Synthetic".equals(attrName)) {
-            access = Access.asSynthetic(access);
+            annotationsCodeIndex = codeIndex;
          }
          else if ("BootstrapMethods".equals(attrName)) {
             readBootstrapMethods(codeIndex);
          }
+         else {
+            readAccessAttribute(attrName);
+         }
 
-         codeIndex += 6 + readInt(codeIndex + 4);
+         codeIndex += offsetToNextAttribute;
       }
    }
 
-   private void setFlags(int flags) {
-      readCode = (flags & SKIP_CODE) == 0;
-      readDebugInfo = (flags & SKIP_DEBUG) == 0;
+   private void readAccessAttribute(@Nonnull String attrName) {
+      if ("Deprecated".equals(attrName)) {
+         access = Access.asDeprecated(access);
+      }
+      else if ("Synthetic".equals(attrName)) {
+         access = Access.asSynthetic(access);
+      }
    }
 
    private void readClassDeclaration() {
-      int u = header;
-      access = readUnsignedShort(u);
-      name = readClass(u + 2);
-      superClass = readClass(u + 4);
+      int codeIndex = header;
+      access = readUnsignedShort(codeIndex);
+      name = readNonnullClass(codeIndex + 2);
+      superClass = readClass(codeIndex + 4);
    }
 
    private void readInterfaces() {
-      int u = header;
-      int interfaceCount = readUnsignedShort(u + 6);
+      int codeIndex = header;
+      int interfaceCount = readUnsignedShort(codeIndex + 6);
 
       if (interfaceCount == 0) {
          return;
       }
 
       interfaces = new String[interfaceCount];
-      u += 8;
+      codeIndex += 8;
 
       for (int i = 0; i < interfaceCount; i++) {
-         interfaces[i] = readClass(u);
-         u += 2;
+         interfaces[i] = readNonnullClass(codeIndex);
+         codeIndex += 2;
       }
    }
 
-   private void readBootstrapMethods(@Nonnegative int u) {
-      int bsmCount = readUnsignedShort(u + 8);
+   private void readBootstrapMethods(@Nonnegative int codeIndex) {
+      int bsmCount = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
       bootstrapMethods = new int[bsmCount];
 
-      for (int i = 0, v = u + 10; i < bsmCount; i++) {
-         bootstrapMethods[i] = v;
-         v += 2 + readUnsignedShort(v + 2) << 1;
+      for (int i = 0; i < bsmCount; i++) {
+         bootstrapMethods[i] = codeIndex;
+         int codeOffset = 2 + readUnsignedShort(codeIndex + 2);
+         codeIndex += codeOffset << 1;
       }
    }
 
@@ -476,7 +482,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void readSourceFileName() {
-      if (readDebugInfo && (sourceFile != null)) {
+      if ((flags & Flags.SKIP_DEBUG) == 0 && sourceFile != null) {
          cv.visitSource(sourceFile);
       }
    }
@@ -494,8 +500,8 @@ public final class ClassReader extends AnnotatedReader
          int codeIndex = startIndex + 2;
 
          for (int annotationCount = readUnsignedShort(startIndex); annotationCount > 0; annotationCount--) {
-            String desc = readUTF8(codeIndex);
-            @SuppressWarnings("ConstantConditions") AnnotationVisitor av = cv.visitAnnotation(desc);
+            String desc = readNonnullUTF8(codeIndex);
+            AnnotationVisitor av = cv.visitAnnotation(desc);
             codeIndex = annotationReader.readNamedAnnotationValues(codeIndex + 2, av);
          }
       }
@@ -508,12 +514,11 @@ public final class ClassReader extends AnnotatedReader
          int codeIndex = startIndex + 2;
 
          for (int innerClassCount = readUnsignedShort(startIndex); innerClassCount > 0; innerClassCount--) {
-            String name = readClass(codeIndex);
+            String name = readNonnullClass(codeIndex);
             String outerName = readClass(codeIndex + 2);
             String innerName = readUTF8(codeIndex + 4);
             int access = readUnsignedShort(codeIndex + 6);
 
-            //noinspection ConstantConditions
             cv.visitInnerClass(name, outerName, innerName, access);
             codeIndex += 8;
          }

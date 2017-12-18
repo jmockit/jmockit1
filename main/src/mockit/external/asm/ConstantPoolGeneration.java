@@ -2,7 +2,6 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-import mockit.external.asm.Handle.*;
 import mockit.internal.util.*;
 import static mockit.external.asm.Item.Type.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
@@ -102,13 +101,14 @@ final class ConstantPoolGeneration
    @Nonnull private final UninitializedTypeTableItem reusableUninitializedItem;
    @Nonnull private final MergedTypeTableItem reusableMergedItem;
 
+   @SuppressWarnings("OverlyCoupledMethod")
    ConstantPoolGeneration() {
       pool = new ByteVector();
       items = new Item[256];
       threshold = (int) (0.75d * items.length);
       index = 1;
-      reusableUTF8Item = new StringItem(0);
-      reusableStringItem = new StringItem(0);
+      reusableUTF8Item = new StringItem();
+      reusableStringItem = new StringItem();
       reusableNameTypeItem = new NameAndTypeItem(0);
       reusableClassMemberItem = new ClassMemberItem(0);
       reusableIntItem = new IntItem(0);
@@ -166,35 +166,19 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    StringItem newClassItem(@Nonnull String internalName) {
-      return newItem(CLASS, internalName);
-   }
-
-   /**
-    * Adds a method type reference to the constant pool of the class being built.
-    * Does nothing if the constant pool already contains a similar item.
-    *
-    * @param methodDesc method descriptor of the method type.
-    * @return a new or already existing method type reference item.
-    */
-   @Nonnull
-   private StringItem newMethodTypeItem(@Nonnull String methodDesc) {
-      return newItem(MTYPE, methodDesc);
+      return newStringItem(CLASS, internalName);
    }
 
    /**
     * Adds a string to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
+    * @param type one of {@link Item.Type#STR}, {@link Item.Type#CLASS} or {@link Item.Type#MTYPE}
     * @param value the String value.
     * @return a new or already existing string item.
     */
    @Nonnull
-   private StringItem newString(@Nonnull String value) {
-      return newItem(STR, value);
-   }
-
-   @Nonnull
-   private StringItem newItem(int type, @Nonnull String value) {
+   private StringItem newStringItem(int type, @Nonnull String value) {
       reusableStringItem.set(type, value);
 
       StringItem result = get(reusableStringItem);
@@ -218,25 +202,37 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    HandleItem newHandleItem(@Nonnull Handle handle) {
-      int tag = handle.tag;
       reusableHandleItem.set(handle);
 
       HandleItem result = get(reusableHandleItem);
 
       if (result == null) {
-         ClassMemberItem item;
-
-         if (tag <= Tag.PUTSTATIC) {
-            item = newFieldItem(handle.owner, handle.name, handle.desc);
-         }
-         else {
-            boolean itf = tag == Tag.INVOKEINTERFACE;
-            item = newMethodItem(handle.owner, handle.name, handle.desc, itf);
-         }
-
-         pool.put11(HANDLE, tag).putShort(item.index);
+         int tag = handle.tag;
+         int memberType = tag <= Handle.Tag.PUTSTATIC ? FIELD : tag == Handle.Tag.INVOKEINTERFACE ? IMETH : METH;
+         ClassMemberItem memberItem = newClassMemberItem(memberType, handle.owner, handle.name, handle.desc);
+         pool.put11(HANDLE, tag).putShort(memberItem.index);
 
          result = new HandleItem(index++, reusableHandleItem);
+         put(result);
+      }
+
+      return result;
+   }
+
+   @Nonnull
+   private ClassMemberItem newClassMemberItem(
+      int type, @Nonnull String owner, @Nonnull String name, @Nonnull String desc
+   ) {
+      reusableClassMemberItem.set(type, owner, name, desc);
+
+      ClassMemberItem result = get(reusableClassMemberItem);
+
+      if (result == null) {
+         int ownerItemIndex = newClass(owner);
+         int nameAndTypeItemIndex = newNameType(name, desc);
+         put122(type, ownerItemIndex, nameAndTypeItemIndex);
+
+         result = new ClassMemberItem(index++, reusableClassMemberItem);
          put(result);
       }
 
@@ -270,26 +266,6 @@ final class ConstantPoolGeneration
    @Nonnull
    ClassMemberItem newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
       return newClassMemberItem(itf ? IMETH : METH, owner, name, desc);
-   }
-
-   @Nonnull
-   private ClassMemberItem newClassMemberItem(
-      int type, @Nonnull String owner, @Nonnull String name, @Nonnull String desc
-   ) {
-      reusableClassMemberItem.set(type, owner, name, desc);
-
-      ClassMemberItem result = get(reusableClassMemberItem);
-
-      if (result == null) {
-         int ownerItemIndex = newClass(owner);
-         int nameAndTypeItemIndex = newNameType(name, desc);
-         put122(type, ownerItemIndex, nameAndTypeItemIndex);
-
-         result = new ClassMemberItem(index++, reusableClassMemberItem);
-         put(result);
-      }
-
-      return result;
    }
 
    /**
@@ -422,7 +398,7 @@ final class ConstantPoolGeneration
    @Nonnull
    Item newConstItem(@Nonnull Object cst) {
       if (cst instanceof String) {
-         return newString((String) cst);
+         return newStringItem(STR, (String) cst);
       }
 
       if (cst instanceof Number) {
@@ -440,7 +416,7 @@ final class ConstantPoolGeneration
 
       if (cst instanceof ReferenceType) {
          String typeDesc = ((ReferenceType) cst).getInternalName();
-         return cst instanceof MethodType ? newMethodTypeItem(typeDesc) : newClassItem(typeDesc);
+         return cst instanceof MethodType ? newStringItem(MTYPE, typeDesc) : newClassItem(typeDesc);
       }
 
       if (cst instanceof PrimitiveType) {

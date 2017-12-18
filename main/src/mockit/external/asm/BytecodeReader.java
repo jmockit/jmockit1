@@ -35,7 +35,7 @@ class BytecodeReader
     */
    @Nonnegative final int header;
 
-   @Nonnegative int currentCodeIndex;
+//   @Nonnegative int currentCodeIndex;
 
    BytecodeReader(@Nonnull byte[] code) {
       this.code = code;
@@ -232,6 +232,12 @@ class BytecodeReader
    }
 
    @Nonnull
+   final String readNonnullUTF8(@Nonnegative int codeIndex) {
+      int itemIndex = readUnsignedShort(codeIndex);
+      return readString(itemIndex);
+   }
+
+   @Nonnull
    final String readString(@Nonnegative int itemIndex) {
       String string = strings[itemIndex];
 
@@ -268,18 +274,16 @@ class BytecodeReader
          case LONG:   return readLong(codeIndex);
          case DOUBLE: return readDouble(codeIndex);
          case CLASS:
-            String typeDesc = readUTF8(codeIndex);
-            //noinspection ConstantConditions
+            String typeDesc = readNonnullUTF8(codeIndex);
             return ReferenceType.createFromInternalName(typeDesc);
          case STR:
-            String string = readUTF8(codeIndex);
-            //noinspection ConstantConditions
+            String string = readNonnullUTF8(codeIndex);
             return string;
          case MTYPE:
-            String methodDesc = readUTF8(codeIndex);
-            //noinspection ConstantConditions
+            String methodDesc = readNonnullUTF8(codeIndex);
             return MethodType.create(methodDesc);
-         default: // case HANDLE_BASE + [1..9]:
+      // case HANDLE_BASE + [1..9]:
+         default:
             return readHandle(codeIndex);
       }
    }
@@ -289,13 +293,12 @@ class BytecodeReader
       int tag = readByte(codeIndex);
 
       int classIndex = readItem(codeIndex + 1);
-      String owner = readClass(classIndex);
+      String owner = readNonnullClass(classIndex);
 
       int nameIndex = readItem(classIndex + 2);
-      String name = readUTF8(nameIndex);
-      String desc = readUTF8(nameIndex + 2);
+      String name = readNonnullUTF8(nameIndex);
+      String desc = readNonnullUTF8(nameIndex + 2);
 
-      //noinspection ConstantConditions
       return new Handle(tag, owner, name, desc);
    }
 
@@ -312,6 +315,13 @@ class BytecodeReader
       // first two bytes of this CONSTANT_Class item.
       int itemCodeIndex = readItem(codeIndex);
       String classDesc = readUTF8(itemCodeIndex);
+      return classDesc;
+   }
+
+   @Nonnull
+   final String readNonnullClass(@Nonnegative int codeIndex) {
+      int itemCodeIndex = readItem(codeIndex);
+      String classDesc = readNonnullUTF8(itemCodeIndex);
       return classDesc;
    }
 

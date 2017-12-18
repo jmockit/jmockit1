@@ -192,13 +192,15 @@ final class BootstrapMethods
       int codeIndex = cr.getAttributesStartIndex();
 
       for (int attributeCount = cr.readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = cr.readUTF8(codeIndex + 2);
+         String attrName = cr.readNonnullUTF8(codeIndex + 2);
 
          if ("BootstrapMethods".equals(attrName)) {
             return codeIndex;
          }
 
-         codeIndex += 6 + cr.readInt(codeIndex + 4);
+         codeIndex += 4;
+         int codeOffset = cr.readInt(codeIndex);
+         codeIndex += 2 + codeOffset;
       }
 
       return 0;

@@ -8,15 +8,17 @@ final class EnclosingMethod
    @Nullable final String name;
    @Nullable final String desc;
 
-   EnclosingMethod(@Nonnull ClassReader cr, @Nonnegative int u) {
-      //noinspection ConstantConditions
-      owner = cr.readClass(u + 8);
-      int item = cr.readUnsignedShort(u + 10);
+   EnclosingMethod(@Nonnull ClassReader cr, @Nonnegative int codeIndex) {
+      owner = cr.readNonnullClass(codeIndex);
+      codeIndex += 2;
+
+      int item = cr.readUnsignedShort(codeIndex);
 
       if (item != 0) {
          int nameIndex = cr.items[item];
-         name = cr.readUTF8(nameIndex);
-         desc = cr.readUTF8(nameIndex + 2);
+         name = cr.readNonnullUTF8(nameIndex);
+         nameIndex += 2;
+         desc = cr.readNonnullUTF8(nameIndex);
       }
       else {
          name = null;

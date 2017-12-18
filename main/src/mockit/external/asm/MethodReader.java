@@ -2,6 +2,7 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
+import mockit.external.asm.ClassReader.*;
 import mockit.external.asm.Item.*;
 import static mockit.external.asm.MethodReader.InstructionType.*;
 import static mockit.external.asm.Opcodes.*;
@@ -63,8 +64,7 @@ final class MethodReader extends AnnotatedReader
     */
    @Nullable private final int[] bootstrapMethods;
 
-   private final boolean readCode;
-   private final boolean readDebugInfo;
+   private final int flags;
 
    @Nullable private String[] throwsClauseTypes;
    @Nonnegative private int throwsClauseLastCodeIndex;
@@ -104,8 +104,7 @@ final class MethodReader extends AnnotatedReader
       super(cr);
       cv = cr.cv;
       bootstrapMethods = cr.bootstrapMethods;
-      readCode = cr.readCode;
-      readDebugInfo = cr.readDebugInfo;
+      flags = cr.flags;
    }
 
    void readMethods(@Nonnegative int codeIndex) {
@@ -133,16 +132,16 @@ final class MethodReader extends AnnotatedReader
       int paramAnns = 0;
 
       for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(codeIndex + 2);
+         String attrName = readNonnullUTF8(codeIndex + 2);
 
          if ("Code".equals(attrName)) {
             bodyStartCodeIndex = codeIndex + 8;
          }
          else if ("Exceptions".equals(attrName)) {
-            readExceptionsInThrowsClause(codeIndex);
+            readExceptionsInThrowsClause(codeIndex + 8);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(codeIndex + 8);
+            signature = readNonnullUTF8(codeIndex + 8);
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -171,25 +170,28 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative
    private int readMethodDeclaration(@Nonnegative int codeIndex) {
       access = readUnsignedShort(codeIndex);
-      name = readUTF8(codeIndex + 2);
-      desc = readUTF8(codeIndex + 4);
-      codeIndex += 6;
+      codeIndex += 2;
+      name = readNonnullUTF8(codeIndex);
+      codeIndex += 2;
+      desc = readNonnullUTF8(codeIndex);
+      codeIndex += 2;
+
       methodStartCodeIndex = codeIndex;
       bodyStartCodeIndex = 0;
       return codeIndex;
    }
 
    private void readExceptionsInThrowsClause(@Nonnegative int codeIndex) {
-      int n = readUnsignedShort(codeIndex + 8);
+      int n = readUnsignedShort(codeIndex);
+      codeIndex += 2;
       throwsClauseTypes = new String[n];
-      int throwsTypeCodeIndex = codeIndex + 10;
 
       for (int i = 0; i < n; i++) {
-         throwsClauseTypes[i] = readClass(throwsTypeCodeIndex);
-         throwsTypeCodeIndex += 2;
+         throwsClauseTypes[i] = readNonnullClass(codeIndex);
+         codeIndex += 2;
       }
 
-      throwsClauseLastCodeIndex = throwsTypeCodeIndex;
+      throwsClauseLastCodeIndex = codeIndex;
    }
 
    private void readMethodBody(
@@ -271,8 +273,8 @@ final class MethodReader extends AnnotatedReader
    private void readAnnotationValues(@Nonnegative int anns) {
       if (anns != 0) {
          for (int valueCount = readUnsignedShort(anns), v = anns + 2; valueCount > 0; valueCount--) {
-            String desc = readUTF8(v);
-            @SuppressWarnings("ConstantConditions") AnnotationVisitor av = mv.visitAnnotation(desc);
+            String desc = readNonnullUTF8(v);
+            AnnotationVisitor av = mv.visitAnnotation(desc);
             v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
       }
@@ -299,12 +301,9 @@ final class MethodReader extends AnnotatedReader
       codeIndex += 2;
 
       while (annotationCount > 0) {
-         String desc = readUTF8(codeIndex);
-
-         //noinspection ConstantConditions
+         String desc = readNonnullUTF8(codeIndex);
          AnnotationVisitor av = mv.visitParameterAnnotation(parameterIndex, desc);
          codeIndex = annotationReader.readNamedAnnotationValues(codeIndex + 2, av);
-
          annotationCount--;
       }
 
@@ -312,7 +311,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readMethodCode() {
-      if (bodyStartCodeIndex != 0 && readCode) {
+      if (bodyStartCodeIndex != 0 && (flags & Flags.SKIP_CODE) == 0) {
          readCode();
       }
    }
@@ -342,7 +341,7 @@ final class MethodReader extends AnnotatedReader
       int varTypeTable = 0;
 
       for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(codeIndex + 2);
+         String attrName = readNonnullUTF8(codeIndex + 2);
 
          if ("LocalVariableTable".equals(attrName)) {
             varTable = readLocalVariableTable(codeIndex, varTable);
@@ -478,7 +477,7 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readLocalVariableTable(@Nonnegative int codeIndex, @Nonnegative int varTable) {
-      if (readDebugInfo) {
+      if ((flags & Flags.SKIP_DEBUG) == 0) {
          varTable = codeIndex + 8;
 
          for (int localVarCount = readUnsignedShort(codeIndex + 8), v = codeIndex; localVarCount > 0; localVarCount--) {
@@ -509,7 +508,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLineNumberTable(@Nonnegative int codeIndex) {
-      if (readDebugInfo) {
+      if ((flags & Flags.SKIP_DEBUG) == 0) {
          for (int lineCount = readUnsignedShort(codeIndex + 8); lineCount > 0; lineCount--) {
             int labelOffset = readUnsignedShort(codeIndex + 10);
             Label debugLabel = readDebugLabel(labelOffset);
@@ -620,10 +619,9 @@ final class MethodReader extends AnnotatedReader
       }
 
       cpIndex = readItem(cpIndex + 2);
-      String name = readUTF8(cpIndex);
-      String desc = readUTF8(cpIndex + 2);
+      String name = readNonnullUTF8(cpIndex);
+      String desc = readNonnullUTF8(cpIndex + 2);
 
-      //noinspection ConstantConditions
       mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
       codeIndex += 5;
 
@@ -632,8 +630,7 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readTypeInsn(@Nonnegative int codeIndex, int opcode) {
-      String typeDesc = readClass(codeIndex + 1);
-      //noinspection ConstantConditions
+      String typeDesc = readNonnullClass(codeIndex + 1);
       mv.visitTypeInsn(opcode, typeDesc);
       return codeIndex + 3;
    }
@@ -648,12 +645,9 @@ final class MethodReader extends AnnotatedReader
 
    @Nonnegative
    private int readMultiANewArray(@Nonnegative int codeIndex) {
-      String arrayTypeDesc = readClass(codeIndex + 1);
+      String arrayTypeDesc = readNonnullClass(codeIndex + 1);
       int dims = readByte(codeIndex + 3);
-
-      //noinspection ConstantConditions
       mv.visitMultiANewArrayInsn(arrayTypeDesc, dims);
-
       return codeIndex + 4;
    }
 
@@ -664,7 +658,7 @@ final class MethodReader extends AnnotatedReader
       if (label != null) {
          mv.visitLabel(label);
 
-         if (readDebugInfo && label.line > 0) {
+         if ((flags & Flags.SKIP_DEBUG) == 0 && label.line > 0) {
             mv.visitLineNumber(label.line, label);
          }
       }
@@ -757,18 +751,16 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative
    private int readFieldOrInvokeInstruction(@Nonnegative int codeIndex, int opcode) {
       int cpIndex1 = readItem(codeIndex + 1);
-      String owner = readClass(cpIndex1);
+      String owner = readNonnullClass(cpIndex1);
       int cpIndex2 = readItem(cpIndex1 + 2);
-      String name = readUTF8(cpIndex2);
-      String desc = readUTF8(cpIndex2 + 2);
+      String name = readNonnullUTF8(cpIndex2);
+      String desc = readNonnullUTF8(cpIndex2 + 2);
 
       if (opcode < INVOKEVIRTUAL) {
-         //noinspection ConstantConditions
          mv.visitFieldInsn(opcode, owner, name, desc);
       }
       else {
          boolean itf = code[cpIndex1 - 1] == Type.IMETH;
-         //noinspection ConstantConditions
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
       }
 
@@ -785,7 +777,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLocalVariableTables(@Nonnegative int varTable, @Nonnegative int varTypeTable) {
-      if (varTable == 0 || !readDebugInfo) {
+      if (varTable == 0 || (flags & Flags.SKIP_DEBUG) != 0) {
          return;
       }
 
@@ -803,12 +795,11 @@ final class MethodReader extends AnnotatedReader
          int index  = readUnsignedShort(codeIndex + 8);
          String signature = getLocalVariableSignature(typeTable, start, index);
 
-         String name = readUTF8(codeIndex + 4);
-         String desc = readUTF8(codeIndex + 6);
+         String name = readNonnullUTF8(codeIndex + 4);
+         String desc = readNonnullUTF8(codeIndex + 6);
          Label startLabel = labels[start];
          Label endLabel   = labels[start + length];
 
-         //noinspection ConstantConditions
          mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
 
          codeIndex += 10;
@@ -820,7 +811,7 @@ final class MethodReader extends AnnotatedReader
       if (typeTable != null) {
          for (int i = 0, n = typeTable.length; i < n; i += 3) {
             if (typeTable[i] == start && typeTable[i + 1] == index) {
-               String signature = readUTF8(typeTable[i + 2]);
+               String signature = readNonnullUTF8(typeTable[i + 2]);
                return signature;
             }
          }

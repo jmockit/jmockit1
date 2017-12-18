@@ -6,11 +6,11 @@ package mockit.internal.faking;
 
 import java.lang.instrument.*;
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import javax.annotation.*;
 
 import mockit.*;
 import mockit.external.asm.*;
+import mockit.external.asm.ClassReader.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -94,7 +94,7 @@ public final class FakeClassSetup
       }
 
       FakedClassModifier modifier = new FakedClassModifier(rcReader, classToModify, fake, fakeMethods);
-      rcReader.accept(modifier);
+      rcReader.accept(modifier, Flags.SKIP_INNER_CLASSES);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }

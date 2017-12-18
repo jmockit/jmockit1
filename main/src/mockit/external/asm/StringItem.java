@@ -7,9 +7,11 @@ final class StringItem extends Item
    @Nonnull String strVal;
    @Nonnegative int innerClassIndex;
 
-   StringItem(@Nonnegative int index) {
+   StringItem() { super(0); }
+
+   StringItem(@Nonnegative int index, int type, @Nonnull String strVal) {
       super(index);
-      strVal = "";
+      set(type, strVal);
    }
 
    StringItem(@Nonnegative int index, @Nonnull StringItem item) {

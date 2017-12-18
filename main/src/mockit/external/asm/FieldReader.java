@@ -26,31 +26,31 @@ final class FieldReader extends AnnotatedReader
    /**
     * Reads a field and makes the given visitor visit it.
     *
-    * @param u the start offset of the field in the class file.
+    * @param codeIndex the start offset of the field in the class file.
     * @return the offset of the first byte following the field in the class.
     */
    @Nonnegative
-   private int readField(@Nonnegative int u) {
+   private int readField(@Nonnegative int codeIndex) {
       // Reads the field declaration.
-      int access = readUnsignedShort(u);
-      String name = readUTF8(u + 2);
-      String desc = readUTF8(u + 4);
-      u += 6;
+      int access = readUnsignedShort(codeIndex);
+      String name = readNonnullUTF8(codeIndex + 2);
+      String desc = readNonnullUTF8(codeIndex + 4);
+      codeIndex += 6;
 
       // Reads the field attributes.
       String signature = null;
       int anns = 0;
       Object value = null;
 
-      for (int attributeCount = readUnsignedShort(u); attributeCount > 0; attributeCount--) {
-         String attrName = readUTF8(u + 2);
+      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
+         String attrName = readNonnullUTF8(codeIndex + 2);
 
          if ("ConstantValue".equals(attrName)) {
-            int item = readUnsignedShort(u + 8);
+            int item = readUnsignedShort(codeIndex + 8);
             value = item == 0 ? null : readConst(item);
          }
          else if ("Signature".equals(attrName)) {
-            signature = readUTF8(u + 8);
+            signature = readNonnullUTF8(codeIndex + 8);
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -59,29 +59,29 @@ final class FieldReader extends AnnotatedReader
             access = Access.asSynthetic(access);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            anns = u + 8;
+            anns = codeIndex + 8;
          }
 
-         u += 6 + readInt(u + 4);
+         codeIndex += 6 + readInt(codeIndex + 4);
       }
 
-      u += 2;
+      codeIndex += 2;
 
-      @SuppressWarnings("ConstantConditions") FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
+      FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
 
       if (fv != null) {
          readAnnotations(fv, anns);
          fv.visitEnd();
       }
 
-      return u;
+      return codeIndex;
    }
 
    private void readAnnotations(@Nonnull FieldVisitor fv, @Nonnegative int anns) {
       if (anns != 0) {
          for (int annotationCount = readUnsignedShort(anns), v = anns + 2; annotationCount > 0; annotationCount--) {
-            String desc = readUTF8(v);
-            @SuppressWarnings("ConstantConditions") AnnotationVisitor av = fv.visitAnnotation(desc);
+            String desc = readNonnullUTF8(v);
+            AnnotationVisitor av = fv.visitAnnotation(desc);
             v = annotationReader.readNamedAnnotationValues(v + 2, av);
          }
       }

@@ -42,7 +42,7 @@ final class AnnotationReader extends BytecodeReader
          String name = null;
 
          if (named) {
-            name = readUTF8(codeIndex);
+            name = readNonnullUTF8(codeIndex);
             codeIndex += 2;
          }
 
@@ -120,7 +120,7 @@ final class AnnotationReader extends BytecodeReader
          case 'Z': return readValueOfOneOrTwoBytes(codeIndex) != 0;               // CONSTANT_Boolean
          case 'S': return (short) readValueOfOneOrTwoBytes(codeIndex);            // CONSTANT_Short
          case 'C': return (char)  readValueOfOneOrTwoBytes(codeIndex);            // CONSTANT_Char
-         case 's': return readUTF8(codeIndex);                                    // CONSTANT_Utf8
+         case 's': return readNonnullUTF8(codeIndex);                             // CONSTANT_Utf8
          default:  return null;
       }
    }
@@ -132,30 +132,25 @@ final class AnnotationReader extends BytecodeReader
    }
 
    @Nonnegative
-   private int readEnumConstValue(@Nonnegative int codeIndex, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String enumDesc = readUTF8(codeIndex);
-      String enumValue = readUTF8(codeIndex + 2);
-
-      //noinspection ConstantConditions
+   private int readEnumConstValue(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
+      String enumDesc = readNonnullUTF8(codeIndex);
+      String enumValue = readNonnullUTF8(codeIndex + 2);
       av.visitEnum(name, enumDesc, enumValue);
-
       return codeIndex + 4;
    }
 
-   @Nonnegative @SuppressWarnings("ConstantConditions")
-   private int readClassInfo(@Nonnegative int codeIndex, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String typeDesc = readUTF8(codeIndex);
+   @Nonnegative
+   private int readClassInfo(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
+      String typeDesc = readNonnullUTF8(codeIndex);
       ReferenceType value = ReferenceType.createFromTypeDescriptor(typeDesc);
       av.visit(name, value);
       return codeIndex + 2;
    }
 
    @Nonnegative
-   private int readAnnotationValue2(@Nonnegative int codeIndex, @Nullable String name, @Nullable AnnotationVisitor av) {
-      String desc = readUTF8(codeIndex);
-      //noinspection ConstantConditions
+   private int readAnnotationValue2(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
+      String desc = readNonnullUTF8(codeIndex);
       AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
-
       return readNamedAnnotationValues(codeIndex + 2, nestedVisitor);
    }
 
