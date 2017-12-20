@@ -73,21 +73,6 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-enforcer-plugin</artifactId><version>1.4.1</version>
-            <executions>
-               <execution>
-                  <goals><goal>enforce</goal></goals>
-                  <configuration>
-                     <rules>
-                        <requireJavaVersion><version>1.8</version></requireJavaVersion>
-                        <requireMavenVersion><version>3.3.1</version></requireMavenVersion>
-                        <dependencyConvergence/>
-                     </rules>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
             <artifactId>maven-compiler-plugin</artifactId><version>3.6.2</version>
             <configuration>
                <encoding>UTF-8</encoding>
@@ -240,7 +225,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.11</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>6.10</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>com.google.inject</groupId><artifactId>guice</artifactId></exclusion>
