@@ -17,44 +17,26 @@ final class AnnotationReader extends BytecodeReader
     */
    @Nonnegative
    int readNamedAnnotationValues(@Nonnegative int codeIndex, @Nullable AnnotationVisitor av) {
-      return readAnnotationValues(codeIndex, true, av);
+      this.codeIndex = codeIndex;
+      readAnnotationValues(true, av);
+      return this.codeIndex;
    }
 
-   /**
-    * Reads the values of an unnamed annotation and makes the given visitor visit them.
-    *
-    * @param codeIndex the start offset in {@link #code} of the values to be read (including the unsigned short that
-    *                  gives the number of values).
-    * @param av the visitor that must visit the values.
-    * @return the end offset of the annotation values.
-    */
-   @Nonnegative
-   private int readUnnamedAnnotationValues(@Nonnegative int codeIndex, @Nullable AnnotationVisitor av) {
-      return readAnnotationValues(codeIndex, false, av);
+   private void readAnnotationValues(boolean named, @Nullable AnnotationVisitor av) {
+      int valueCount = readUnsignedShort();
+      readAnnotationValues(valueCount, named, av);
    }
 
-   @Nonnegative
-   private int readAnnotationValues(@Nonnegative int codeIndex, boolean named, @Nullable AnnotationVisitor av) {
-      int valueCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
-
+   private void readAnnotationValues(@Nonnegative int valueCount, boolean named, @Nullable AnnotationVisitor av) {
       while (valueCount > 0) {
-         String name = null;
-
-         if (named) {
-            name = readNonnullUTF8(codeIndex);
-            codeIndex += 2;
-         }
-
-         codeIndex = readAnnotationValue(codeIndex, name, av);
+         String name = named ? readNonnullUTF8() : null;
+         readAnnotationValue(name, av);
          valueCount--;
       }
 
       if (av != null) {
          av.visitEnd();
       }
-
-      return codeIndex;
    }
 
    /**
@@ -64,150 +46,132 @@ final class AnnotationReader extends BytecodeReader
     *                  constant pool index</i>).
     * @param av the visitor that must visit the value.
     */
-   @Nonnegative
    void readDefaultAnnotationValue(@Nonnegative int codeIndex, @Nullable AnnotationVisitor av) {
-      readAnnotationValue(codeIndex, null, av);
+      this.codeIndex = codeIndex;
+      readAnnotationValue(null, av);
    }
 
-   /**
-    * Reads a value of an annotation and makes the given visitor visit it.
-    *
-    * @param codeIndex the start offset in {@link #code} of the value to be read (<i>not including the value name
-    *                  constant pool index</i>).
-    * @param name the name of the value to be read.
-    * @return the end offset of the annotation value.
-    */
-   @Nonnegative
-   private int readAnnotationValue(@Nonnegative int codeIndex, @Nullable String name, @Nullable AnnotationVisitor av) {
-      int typeCode = code[codeIndex++] & 0xFF;
+   private void readAnnotationValue(@Nullable String name, @Nullable AnnotationVisitor av) {
+      int typeCode = readByte();
 
       if (av == null) {
-         return readAnnotationValue(codeIndex, typeCode);
+         readAnnotationValue(typeCode);
       }
+      else {
+         Object value = readAnnotationValueIfPrimitiveOrString(typeCode);
 
-      Object value = readAnnotationValueIfPrimitiveOrString(codeIndex, typeCode);
-
-      if (value != null) {
-         av.visit(name, value);
-         codeIndex += 2;
-         return codeIndex;
-      }
-
-      switch (typeCode) {
-         case 'e': return readEnumConstValue(codeIndex, name, av);   // enum_const_value
-         case 'c': return readClassInfo(codeIndex, name, av);        // class_info
-         case '@': return readAnnotationValue2(codeIndex, name, av); // annotation_value
-         case '[': return readArrayValue(codeIndex, name, av);       // array_value
-         default: return codeIndex;
+         if (value != null) {
+            av.visit(name, value);
+         }
+         else {
+            switch (typeCode) {
+               case 'e': readEnumConstValue(name, av);   break; // enum_const_value
+               case 'c': readClassInfo(name, av);        break; // class_info
+               case '@': readNestedAnnotation(name, av); break; // annotation_value
+               case '[': readArrayValue(name, av);              // array_value
+            }
+         }
       }
    }
 
-   @Nonnegative
-   private int readAnnotationValue(@Nonnegative int codeIndex, int typeCode) {
+   private void readAnnotationValue(int typeCode) {
       switch (typeCode) {
-         case 'e': return codeIndex + 4;                                  // enum_const_value
-         case '@': return readNamedAnnotationValues(codeIndex + 2, null); // annotation_value
-         case '[': return readUnnamedAnnotationValues(codeIndex, null);   // array_value
-         default:  return codeIndex + 2;
+         case 'e': codeIndex += 4; break; // enum_const_value
+         case '@': codeIndex += 2; readAnnotationValues(true, null); break; // annotation_value
+         case '[': readAnnotationValues(false, null); break;
+         default:  codeIndex += 2;
       }
    }
 
    @Nullable
-   private Object readAnnotationValueIfPrimitiveOrString(@Nonnegative int codeIndex, int typeCode) {
+   private Object readAnnotationValueIfPrimitiveOrString(int typeCode) {
       switch (typeCode) {
-         case 'I': case 'J': case 'F': case 'D': return readConstItem(codeIndex); // CONSTANT_Integer/Long/Float/Double
-         case 'B': return (byte) readValueOfOneOrTwoBytes(codeIndex);             // CONSTANT_Byte
-         case 'Z': return readValueOfOneOrTwoBytes(codeIndex) != 0;               // CONSTANT_Boolean
-         case 'S': return (short) readValueOfOneOrTwoBytes(codeIndex);            // CONSTANT_Short
-         case 'C': return (char)  readValueOfOneOrTwoBytes(codeIndex);            // CONSTANT_Char
-         case 's': return readNonnullUTF8(codeIndex);                             // CONSTANT_Utf8
-         default:  return null;
+         case 'I': case 'J': case 'F': case 'D': return readConstItem(); // CONSTANT_Integer/Long/Float/Double
+         case 'B': return (byte) readValueOfOneOrTwoBytes();             // CONSTANT_Byte
+         case 'Z': return readValueOfOneOrTwoBytes() != 0;               // CONSTANT_Boolean
+         case 'S': return (short) readValueOfOneOrTwoBytes();            // CONSTANT_Short
+         case 'C': return (char)  readValueOfOneOrTwoBytes();            // CONSTANT_Char
+         case 's': return readNonnullUTF8();                             // CONSTANT_Utf8
       }
+
+      return null;
    }
 
-   private int readValueOfOneOrTwoBytes(@Nonnegative int codeIndex) {
-      int itemIndex = readUnsignedShort(codeIndex);
-      int item = items[itemIndex];
-      return readInt(item);
+   private int readValueOfOneOrTwoBytes() {
+      int itemIndex = readUnsignedShort();
+      int valueCodeIndex = items[itemIndex];
+      return readInt(valueCodeIndex);
    }
 
-   @Nonnegative
-   private int readEnumConstValue(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
-      String enumDesc = readNonnullUTF8(codeIndex);
-      String enumValue = readNonnullUTF8(codeIndex + 2);
+   private void readEnumConstValue(@Nullable String name, @Nonnull AnnotationVisitor av) {
+      String enumDesc = readNonnullUTF8();
+      String enumValue = readNonnullUTF8();
       av.visitEnum(name, enumDesc, enumValue);
-      return codeIndex + 4;
    }
 
-   @Nonnegative
-   private int readClassInfo(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
-      String typeDesc = readNonnullUTF8(codeIndex);
+   private void readClassInfo(@Nullable String name, @Nonnull AnnotationVisitor av) {
+      String typeDesc = readNonnullUTF8();
       ReferenceType value = ReferenceType.createFromTypeDescriptor(typeDesc);
       av.visit(name, value);
-      return codeIndex + 2;
    }
 
-   @Nonnegative
-   private int readAnnotationValue2(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
-      String desc = readNonnullUTF8(codeIndex);
+   private void readNestedAnnotation(@Nullable String name, @Nonnull AnnotationVisitor av) {
+      String desc = readNonnullUTF8();
       AnnotationVisitor nestedVisitor = av.visitAnnotation(name, desc);
-      return readNamedAnnotationValues(codeIndex + 2, nestedVisitor);
+      readAnnotationValues(true, nestedVisitor);
    }
 
-   @Nonnegative
-   private int readArrayValue(@Nonnegative int codeIndex, @Nullable String name, @Nonnull AnnotationVisitor av) {
-      int size = readUnsignedShort(codeIndex);
+   private void readArrayValue(@Nullable String name, @Nonnull AnnotationVisitor av) {
+      int valueCount = readUnsignedShort();
 
-      if (size == 0) {
+      if (valueCount == 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-         return readUnnamedAnnotationValues(codeIndex, arrayVisitor);
+
+         if (arrayVisitor != null) {
+            arrayVisitor.visitEnd();
+         }
+
+         return;
       }
 
-      codeIndex += 2;
-      int typeCode = code[codeIndex] & 0xFF;
+      int typeCode = readByte();
       PrimitiveType primitiveElementType = PrimitiveType.getPrimitiveType(typeCode);
 
       if (primitiveElementType == null) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-         return readUnnamedAnnotationValues(codeIndex - 2, arrayVisitor);
+         codeIndex--;
+         readAnnotationValues(valueCount, false, arrayVisitor);
+         return;
       }
 
       Class<?> elementType = primitiveElementType.getType();
-      Object array = Array.newInstance(elementType, size);
-      codeIndex++;
-
-      codeIndex = fillArrayElements(codeIndex, size, typeCode, array);
-
+      Object array = Array.newInstance(elementType, valueCount);
+      fillArrayElements(valueCount, typeCode, array);
       av.visit(name, array);
       codeIndex--;
-      return codeIndex;
    }
 
-   @Nonnegative
-   private int fillArrayElements(
-      @Nonnegative int codeIndex, @Nonnegative int length, int typeCode, @Nonnull Object array
-   ) {
+   private void fillArrayElements(@Nonnegative int length, int typeCode, @Nonnull Object array) {
       for (int i = 0; i < length; i++) {
-         int index = items[readUnsignedShort(codeIndex)];
+         int itemIndex = readUnsignedShort();
+         int index = items[itemIndex];
          Object value = getArrayElementValue(typeCode, index);
          Array.set(array, i, value);
-         codeIndex += 3;
+         codeIndex++;
       }
-
-      return codeIndex;
    }
 
    @Nonnull
-   private Object getArrayElementValue(int typeCode, @Nonnegative int codeIndex) {
+   private Object getArrayElementValue(int typeCode, @Nonnegative int valueCodeIndex) {
       switch (typeCode) {
-         case 'Z': return readBoolean(codeIndex);
-         case 'C': return readChar(codeIndex);
-         case 'B': return readByte(codeIndex);
-         case 'S': return readShort(codeIndex);
-         case 'F': return readFloat(codeIndex);
-         case 'D': return readDouble(codeIndex);
-         case 'J': return readLong(codeIndex);
-         default:  return readInt(codeIndex);
+         case 'Z': return readBoolean(valueCodeIndex);
+         case 'C': return readChar(valueCodeIndex);
+         case 'B': return readByte(valueCodeIndex);
+         case 'S': return readShort(valueCodeIndex);
+         case 'F': return readFloat(valueCodeIndex);
+         case 'D': return readDouble(valueCodeIndex);
+         case 'J': return readLong(valueCodeIndex);
+         default:  return readInt(valueCodeIndex);
       }
    }
 }

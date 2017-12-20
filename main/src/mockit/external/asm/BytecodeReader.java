@@ -35,24 +35,26 @@ class BytecodeReader
     */
    @Nonnegative final int header;
 
-//   @Nonnegative int currentCodeIndex;
+   /**
+    * The next index at {@link #code} to be read.
+    */
+   @Nonnegative int codeIndex;
 
    BytecodeReader(@Nonnull byte[] code) {
       this.code = code;
+      codeIndex = 8;
 
       // Parses the constant pool.
-      int itemCount = readUnsignedShort(8);
+      int itemCount = readUnsignedShort();
       items = new int[itemCount];
       strings = new String[itemCount];
 
       int maxStringSize = 0;
-      int codeIndex = 10;
 
       for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
-         items[itemIndex] = codeIndex + 1;
-
-         byte itemType = code[codeIndex];
-         int itemSize = computeItemSize(codeIndex, itemType);
+         byte itemType = code[codeIndex++];
+         items[itemIndex] = codeIndex;
+         int itemSize = computeItemSize(itemType);
 
          if (itemType == LONG || itemType == DOUBLE) {
             itemIndex++;
@@ -61,18 +63,19 @@ class BytecodeReader
             maxStringSize = itemSize;
          }
 
-         codeIndex += itemSize;
+         codeIndex += itemSize - 1;
       }
 
       buf = new char[maxStringSize];
       header = codeIndex; // the class header information starts just after the constant pool
    }
 
-   private int computeItemSize(@Nonnegative int codeIndex, byte itemType) {
+   @Nonnegative
+   private int computeItemSize(byte itemType) {
       switch (itemType) {
          case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case INDY: return 5;
          case LONG: case DOUBLE: return 9;
-         case UTF8: return 3 + readUnsignedShort(codeIndex + 1);
+         case UTF8: return 3 + readUnsignedShort(codeIndex);
          case HANDLE: return 4;
          default: return 3; // CLASS|STR|MTYPE
       }
@@ -84,6 +87,13 @@ class BytecodeReader
       strings = another.strings;
       buf = another.buf;
       header = 0;
+   }
+
+   /**
+    * Reads a byte value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    */
+   final int readByte() {
+      return code[codeIndex++] & 0xFF;
    }
 
    /**
@@ -102,6 +112,17 @@ class BytecodeReader
 
    final boolean readBoolean(@Nonnegative int codeIndex) {
       return readInt(codeIndex) != 0;
+   }
+
+   /**
+    * Reads an unsigned short value in {@link #code}, incrementing {@link #codeIndex} by 2.
+    */
+   @Nonnegative
+   final int readUnsignedShort() {
+      byte[] b = code;
+      int byte1 = (b[codeIndex++] & 0xFF) << 8;
+      int byte2 = b[codeIndex++] & 0xFF;
+      return byte1 | byte2;
    }
 
    /**
@@ -232,6 +253,12 @@ class BytecodeReader
    }
 
    @Nonnull
+   final String readNonnullUTF8() {
+      int itemIndex = readUnsignedShort();
+      return readString(itemIndex);
+   }
+
+   @Nonnull
    final String readNonnullUTF8(@Nonnegative int codeIndex) {
       int itemIndex = readUnsignedShort(codeIndex);
       return readString(itemIndex);
@@ -248,6 +275,12 @@ class BytecodeReader
       string = readUTF(itemIndex);
       strings[itemIndex] = string;
       return string;
+   }
+
+   @Nonnull
+   final Object readConstItem() {
+      int itemIndex = readUnsignedShort();
+      return readConst(itemIndex);
    }
 
    @Nonnull

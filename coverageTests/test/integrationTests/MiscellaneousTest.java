@@ -1,7 +1,10 @@
 package integrationTests;
 
+import java.beans.*;
 import java.lang.annotation.*;
+import java.lang.reflect.*;
 
+import javax.annotation.*;
 import static java.lang.annotation.RetentionPolicy.*;
 
 import org.junit.*;
@@ -9,6 +12,7 @@ import static org.junit.Assert.*;
 
 import mockit.*;
 
+@Resources({@Resource(lookup = "Test", shareable = false), @Resource(type = int.class)})
 public final class MiscellaneousTest
 {
    @Test
@@ -26,5 +30,13 @@ public final class MiscellaneousTest
    public void havingAnnotationWithClassValue(@Injectable AnnotatedClass dummy)
    {
       assertNotNull(dummy);
+   }
+
+   @Test
+   public void verifyAnnotationsArePreserved() throws Exception
+   {
+      Constructor<ClassWithAnnotations> constructor = ClassWithAnnotations.class.getDeclaredConstructor();
+
+      assertTrue(constructor.isAnnotationPresent(ConstructorProperties.class));
    }
 }
