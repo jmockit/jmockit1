@@ -2,70 +2,41 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
+/**
+ * Stores the exceptions that can be thrown by a method/constructor. For each thrown exception, stores the index of the
+ * constant pool item containing the internal name of the thrown exception class. Provides the bytecode
+ * {@linkplain #getSize() size}  of the "Exceptions" attribute, and allows it to be
+ * {@linkplain #put(ByteVector) written out}.
+ */
 final class ThrowsClause
 {
-   @Nonnull private final ConstantPoolGeneration cp;
+   @Nonnull private final int[] exceptions;
+   @Nonnegative private final int attributeIndex;
 
-   /**
-    * Number of exceptions that can be thrown by the method/constructor.
-    */
-   @Nonnegative private final int exceptionCount;
-
-   /**
-    * The exceptions that can be thrown by the method/constructor. More precisely, this array contains the indexes of
-    * the constant pool items that contain the internal names of these exception classes.
-    */
-   @Nullable private final int[] exceptions;
-
-   ThrowsClause(@Nonnull ConstantPoolGeneration cp, @Nullable String[] exceptionTypeDescs) {
-      this.cp = cp;
-
-      if (exceptionTypeDescs == null) {
-         exceptionCount = 0;
-         exceptions = null;
-         return;
-      }
-
+   ThrowsClause(@Nonnull ConstantPoolGeneration cp, @Nonnull String[] exceptionTypeDescs) {
       int n = exceptionTypeDescs.length;
-      exceptionCount = n;
-      exceptions = n == 0 ? null : new int[n];
+      exceptions = new int[n];
 
       for (int i = 0; i < n; i++) {
-         exceptions[i] = cp.newClass(exceptionTypeDescs[i]);
-      }
-   }
-
-   @Nonnegative int getExceptionCount() { return exceptionCount; }
-
-   boolean hasExceptions() { return exceptionCount > 0; }
-
-   int getExceptionIndex(int i) {
-      //noinspection ConstantConditions
-      return exceptions[i];
-   }
-
-   @Nonnegative
-   int getSize() {
-      if (exceptionCount > 0) {
-         cp.newUTF8("Exceptions");
-         return 8 + 2 * exceptionCount;
+         String exceptionTypeDesc = exceptionTypeDescs[i];
+         exceptions[i] = cp.newClass(exceptionTypeDesc);
       }
 
-      return 0;
+      attributeIndex = cp.newUTF8("Exceptions");
    }
+
+   @Nonnegative int getCount() { return exceptions.length; }
+   @Nonnegative int getExceptionIndex(@Nonnegative int exceptionIndex) { return exceptions[exceptionIndex]; }
+   @Nonnegative int getSize() { return 8 + 2 * exceptions.length; }
 
    void put(@Nonnull ByteVector out) {
-      int n = exceptionCount;
+      int[] exceptions = this.exceptions;
+      int n = exceptions.length;
+      out.putShort(attributeIndex).putInt(2 * n + 2);
+      out.putShort(n);
 
-      if (n > 0) {
-         @SuppressWarnings("ConstantConditions") @Nonnull int[] exceptions = this.exceptions;
-
-         out.putShort(cp.newUTF8("Exceptions")).putInt(2 * n + 2);
-         out.putShort(n);
-
-         for (int i = 0; i < n; i++) {
-            out.putShort(exceptions[i]);
-         }
+      for (int exception : exceptions) {
+         out.putShort(exception);
       }
    }
 }

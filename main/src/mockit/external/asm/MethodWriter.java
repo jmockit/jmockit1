@@ -82,7 +82,7 @@ public final class MethodWriter extends MethodVisitor
     */
    @Nonnegative int classReaderLength;
 
-   @Nonnull final ThrowsClause throwsClause;
+   @Nullable final ThrowsClause throwsClause;
 
    /**
     * The annotation default attribute of this method. May be <tt>null</tt>.
@@ -108,7 +108,7 @@ public final class MethodWriter extends MethodVisitor
    private final boolean computeFrames;
 
    /**
-    * Constructs a new MethodWriter.
+    * Initializes the MethodWriter.
     *
     * @param cw            the class writer in which the method must be added.
     * @param access        the method's access flags (see {@link Opcodes}).
@@ -129,7 +129,7 @@ public final class MethodWriter extends MethodVisitor
       this.desc = cp.newUTF8(desc);
       descriptor = desc;
       this.signature = signature;
-      throwsClause = new ThrowsClause(cp, exceptions);
+      throwsClause = exceptions == null ? null : new ThrowsClause(cp, exceptions);
       code = new ByteVector();
       this.computeFrames = computeFrames;
       frameAndStack = new FrameAndStackComputation(this, access, desc);
@@ -522,7 +522,9 @@ public final class MethodWriter extends MethodVisitor
          size += frameAndStack.getSizeWhileAddingConstantPoolItem();
       }
 
-      size += throwsClause.getSize();
+      if (throwsClause != null) {
+         size += throwsClause.getSize();
+      }
 
       if (cw.isSynthetic(access)) {
          cp.newUTF8("Synthetic");
@@ -592,7 +594,11 @@ public final class MethodWriter extends MethodVisitor
 
       putMethodAttributeCount(out, synthetic, deprecated);
       putMethodCode(out);
-      throwsClause.put(out);
+
+      if (throwsClause != null) {
+         throwsClause.put(out);
+      }
+
       putSyntheticAttribute(out, synthetic);
       putDeprecatedAttribute(out, deprecated);
       putSignatureAttribute(out);
@@ -606,7 +612,7 @@ public final class MethodWriter extends MethodVisitor
          methodAttributeCount++;
       }
 
-      if (throwsClause.hasExceptions()) {
+      if (throwsClause != null) {
          methodAttributeCount++;
       }
 

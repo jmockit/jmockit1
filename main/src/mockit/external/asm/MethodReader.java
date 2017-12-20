@@ -67,8 +67,6 @@ final class MethodReader extends AnnotatedReader
    private final int flags;
 
    @Nullable private String[] throwsClauseTypes;
-   @Nonnegative private int throwsClauseLastCodeIndex;
-
    @Nullable private String signature;
 
    /**
@@ -190,8 +188,6 @@ final class MethodReader extends AnnotatedReader
          throwsClauseTypes[i] = readNonnullClass(codeIndex);
          codeIndex += 2;
       }
-
-      throwsClauseLastCodeIndex = codeIndex;
    }
 
    private void readMethodBody(
@@ -200,7 +196,12 @@ final class MethodReader extends AnnotatedReader
    ) {
       mv = cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
-      if (mv == null || mv instanceof MethodWriter && copyMethodBody(methodEndCodeIndex)) {
+      if (mv == null) {
+         return;
+      }
+
+      if (mv instanceof MethodWriter) {
+         copyMethodBody(methodEndCodeIndex);
          return;
       }
 
@@ -212,51 +213,18 @@ final class MethodReader extends AnnotatedReader
    }
 
    /**
-    * If the returned MethodVisitor is in fact a <tt>MethodWriter</tt>, it means there is no method adapter between the
-    * reader and the writer.
+    * If the returned <tt>MethodVisitor</tt> is in fact a <tt>MethodWriter</tt>, it means there is no method adapter
+    * between the reader and the writer.
     * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and
     * the signature of the method has not been changed; then, we skip all visit events and just copy the original code
-    * of the method to the writer (the access, name and descriptor can have been changed, this is not important since
-    * they are not copied as is from the reader).
-    *
-    * @return <tt>true</tt> if the method body can be copied, or <tt>false</tt> if it can't because the method's
-    * <tt>throws</tt> clause was changed
+    * of the method to the writer.
     */
-   private boolean copyMethodBody(@Nonnegative int endCodeIndex) {
+   private void copyMethodBody(@Nonnegative int endCodeIndex) {
+      // We do not copy directly the code into MethodWriter to save a byte array copy operation.
+      // The real copy will be done in ClassWriter.toByteArray().
       MethodWriter mw = (MethodWriter) mv;
-      ThrowsClause throwsClause = mw.throwsClause;
-      int throwsClauseCount = throwsClause.getExceptionCount();
-      boolean sameExceptions = false;
-
-      if (throwsClauseTypes == null) {
-         sameExceptions = throwsClauseCount == 0;
-      }
-      else if (throwsClauseTypes.length == throwsClauseCount) {
-         sameExceptions = true;
-         int exception = throwsClauseLastCodeIndex;
-
-         for (int throwsClauseIndex = throwsClauseCount - 1; throwsClauseIndex >= 0; throwsClauseIndex--) {
-            exception -= 2;
-            int exceptionIndex = readUnsignedShort(exception);
-
-            if (throwsClause.getExceptionIndex(throwsClauseIndex) != exceptionIndex) {
-               // TODO: verify why it gets here from SpringIntegrationTest, for method
-               // "AbstractAutowireCapableBeanFactory#createBean(Class) throws BeansException"
-               sameExceptions = false;
-               break;
-            }
-         }
-      }
-
-      if (sameExceptions) {
-         // We do not copy directly the code into MethodWriter to save a byte array copy operation.
-         // The real copy will be done in ClassWriter.toByteArray().
-         mw.classReaderOffset = methodStartCodeIndex;
-         mw.classReaderLength = endCodeIndex - methodStartCodeIndex;
-         return true;
-      }
-
-      return false;
+      mw.classReaderOffset = methodStartCodeIndex;
+      mw.classReaderLength = endCodeIndex - methodStartCodeIndex;
    }
 
    private void readAnnotationDefaultValue(@Nonnegative int annotationDefault) {
