@@ -120,9 +120,11 @@ class BytecodeReader
    @Nonnegative
    final int readUnsignedShort() {
       byte[] b = code;
-      int byte1 = (b[codeIndex++] & 0xFF) << 8;
-      int byte2 = b[codeIndex++] & 0xFF;
-      return byte1 | byte2;
+      int i = codeIndex;
+      int byte0 = (b[i++] & 0xFF) << 8;
+      int byte1 =  b[i++] & 0xFF;
+      codeIndex = i;
+      return byte0 | byte1;
    }
 
    /**
@@ -145,6 +147,20 @@ class BytecodeReader
     */
    final short readShort(@Nonnegative int codeIndex) {
       return (short) readUnsignedShort(codeIndex);
+   }
+
+   /**
+    * Reads a signed int value in {@link #code}, incrementing {@link #codeIndex} by 4.
+    */
+   final int readInt() {
+      byte[] b = code;
+      int i = codeIndex;
+      int byte0 = (b[i++] & 0xFF) << 24;
+      int byte1 = (b[i++] & 0xFF) << 16;
+      int byte2 = (b[i++] & 0xFF) << 8;
+      int byte3 =  b[i++] & 0xFF;
+      codeIndex = i;
+      return byte0 | byte1 | byte2 | byte3;
    }
 
    /**
