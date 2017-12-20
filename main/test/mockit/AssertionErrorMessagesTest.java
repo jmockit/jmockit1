@@ -6,7 +6,6 @@ package mockit;
 
 import org.junit.*;
 import org.junit.rules.*;
-import static org.junit.Assert.*;
 
 import mockit.internal.expectations.invocation.*;
 
@@ -91,80 +90,6 @@ public final class AssertionErrorMessagesTest
          mock.doSomethingElse(anyString);
          mock.doSomething(anyInt, anyString); times = 0;
       }};
-   }
-
-   @Test
-   public void unexpectedFirstInvocationForExpectationsPartiallyVerifiedInOrder()
-   {
-      mock.doSomething(-5, "abc");
-      mock.doSomethingElse("test");
-      mock.doSomething(123, "Test");
-
-      try {
-         new VerificationsInOrder() {{
-            mock.doSomethingElse(anyString);
-            unverifiedInvocations();
-            mock.doSomething(anyInt, anyString);
-         }};
-         fail();
-      }
-      catch (UnexpectedInvocation e) {
-         String msg = e.toString();
-         assertTrue(msg, msg.startsWith("Unexpected invocation before "));
-         assertTrue(msg, msg.contains("\"test\""));
-
-         msg = e.getCause().toString();
-         assertTrue(msg, msg.startsWith("Unexpected invocation "));
-         assertTrue(msg, msg.contains("-5, \"abc\""));
-      }
-   }
-
-   @Test
-   public void unexpectedLastInvocationForExpectationsPartiallyVerifiedInOrder()
-   {
-      mock.doSomethingElse("test");
-      mock.doSomething(123, "Test");
-      mock.doSomething(-5, "abc");
-
-      try {
-         new VerificationsInOrder() {{
-            mock.doSomethingElse(anyString);
-            unverifiedInvocations();
-            mock.doSomething(123, anyString);
-         }};
-         fail();
-      }
-      catch (UnexpectedInvocation e) {
-         assertTrue(e.toString().contains("123, \"Test\""));
-         assertTrue(e.getCause().toString().contains("-5, \"abc\""));
-      }
-   }
-
-   @Test
-   public void unexpectedInvocationAfterAllOthers()
-   {
-      mock.doSomethingElse("Not verified");
-      mock.doSomething(1, "anotherValue");
-      mock.doSomethingElse("test");
-
-      final Verifications v = new Verifications() {{ mock.doSomething(anyInt, anyString); }};
-
-      try {
-         new VerificationsInOrder() {{
-            unverifiedInvocations();
-            verifiedInvocations(v);
-         }};
-         fail();
-      }
-      catch (UnexpectedInvocation e) {
-         String msg = e.toString();
-         assertTrue(msg, msg.startsWith("Unexpected invocation after "));
-         assertTrue(msg, msg.contains("1, \"anotherValue\""));
-
-         msg = e.getCause().toString();
-         assertTrue(msg, msg.startsWith("Unexpected invocation "));
-         assertTrue(msg, msg.contains("\"test\""));
-      }
    }
 
    @Test

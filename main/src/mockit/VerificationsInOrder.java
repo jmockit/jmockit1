@@ -23,8 +23,6 @@ import mockit.internal.expectations.*;
  * </pre>
  *
  * @see #VerificationsInOrder()
- * @see #unverifiedInvocations()
- * @see #verifiedInvocations(Verifications)
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder" target="tutorial">Tutorial</a>
  */
 public abstract class VerificationsInOrder extends Verifications
@@ -65,9 +63,10 @@ public abstract class VerificationsInOrder extends Verifications
     * relative to others with a later unordered block which verifies some or all of those other invocations.
     * The unordered block should not come before, however, since it would "consume" the verified invocations.
     *
-    * @see #verifiedInvocations(Verifications)
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered" target="tutorial">Tutorial</a>
+    * @deprecated This method is rarely (if ever) used, and can make for very hard to understand tests; it will be
+    * removed in a future release, with no replacement.
     */
+   @Deprecated
    protected final void unverifiedInvocations()
    {
       ((OrderedVerificationPhase) verificationPhase).fixPositionOfUnverifiedExpectations();
@@ -81,9 +80,10 @@ public abstract class VerificationsInOrder extends Verifications
     *
     * @throws IllegalArgumentException if the given verifications are ordered
     *
-    * @see #unverifiedInvocations()
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#partiallyOrdered" target="tutorial">Tutorial</a>
+    * @deprecated This method is rarely (if ever) used, and can make for very hard to understand tests; it will be
+    * removed in a future release, with no replacement.
     */
+   @Deprecated
    protected final void verifiedInvocations(Verifications alreadyVerified)
    {
       ((OrderedVerificationPhase) verificationPhase).checkOrderOfVerifiedInvocations(
