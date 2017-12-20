@@ -16,6 +16,8 @@ import org.junit.rules.*;
 import org.junit.runners.*;
 import static org.junit.Assert.*;
 
+import static mockit.internal.util.Utilities.JAVA8;
+
 @SuppressWarnings({"WaitNotInLoop", "deprecation"})
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class JREMockingTest
@@ -390,8 +392,11 @@ public final class JREMockingTest
       attemptToMockUnmockableJREClass(Class.class);
       attemptToMockUnmockableJREClass(Math.class);
       attemptToMockUnmockableJREClass(StrictMath.class);
-      //noinspection Since15
-      attemptToMockUnmockableJREClass(Duration.class);
+
+      if (JAVA8) {
+         //noinspection Since15
+         attemptToMockUnmockableJREClass(Duration.class);
+      }
    }
 
    void attemptToMockUnmockableJREClass(Class<?> jreClass)
