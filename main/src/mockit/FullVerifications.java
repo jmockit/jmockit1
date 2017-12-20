@@ -25,7 +25,6 @@ package mockit;
  *
  * @see #FullVerifications()
  * @see #FullVerifications(Object...)
- * @see #unverifiedInvocations()
  * @see FullVerificationsInOrder
  * @see <a href="http://jmockit.org/tutorial/Mocking.html#fullVerification" target="tutorial">Tutorial</a>
  */
@@ -60,6 +59,10 @@ public abstract class FullVerifications extends Verifications
     * If one or more mocked types/instances were specified in the
     * {@linkplain #FullVerifications(Object...) constructor call} for this verification block, then only the associated
     * invocations (if any) are removed.
+    *
+    * @deprecated This method is rarely (if ever) used, and can make for very hard to understand tests; it will be
+    * removed in a future release, with no replacement.
     */
+   @Deprecated
    protected final void unverifiedInvocations() { verificationPhase.discardReplayedInvocations(); }
 }
