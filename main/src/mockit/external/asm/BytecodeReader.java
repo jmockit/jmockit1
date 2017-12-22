@@ -368,10 +368,23 @@ class BytecodeReader
    }
 
    @Nonnull
+   final String readNonnullClass() {
+      int itemCodeIndex = readItem();
+      String classDesc = readNonnullUTF8(itemCodeIndex);
+      return classDesc;
+   }
+
+   @Nonnull
    final String readNonnullClass(@Nonnegative int codeIndex) {
       int itemCodeIndex = readItem(codeIndex);
       String classDesc = readNonnullUTF8(itemCodeIndex);
       return classDesc;
+   }
+
+   @Nonnegative
+   final int readItem() {
+      int itemIndex = readUnsignedShort();
+      return items[itemIndex];
    }
 
    @Nonnegative

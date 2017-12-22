@@ -96,41 +96,39 @@ final class MethodReader extends AnnotatedReader
       this.cr = cr;
    }
 
+   /**
+    * Reads each method and constructor in the class, making the {@linkplain #cr class reader}'s
+    * {@linkplain ClassReader#cv visitor} visit it.
+    */
    void readMethods(@Nonnegative int codeIndex) {
-      int methodCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
+      this.codeIndex = codeIndex;
+      int methodCount = readUnsignedShort();
 
       for (int i = methodCount; i > 0; i--) {
-         codeIndex = readMethod(codeIndex);
+         readMethod();
       }
    }
 
-   /**
-    * Reads a method and makes the given visitor visit it.
-    *
-    * @param codeIndex the start offset of the method in the class file.
-    * @return the offset of the first byte following the method in the class.
-    */
-   @Nonnegative
-   private int readMethod(@Nonnegative int codeIndex) {
-      codeIndex = readMethodDeclaration(codeIndex);
-      throwsClauseTypes = null;
-      signature = null;
-      int annDefault = 0;
-      int anns = 0;
-      int paramAnns = 0;
+   private void readMethod() {
+      readMethodDeclaration();
+      int annotationDefaultCodeIndex = 0;
+      int annotationsCodeIndex = 0;
+      int parameterAnnotationsCodeIndex = 0;
 
-      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readNonnullUTF8(codeIndex + 2);
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         String attrName = readNonnullUTF8();
+         int codeOffset = readInt();
 
          if ("Code".equals(attrName)) {
-            bodyStartCodeIndex = codeIndex + 8;
+            bodyStartCodeIndex = codeIndex;
          }
          else if ("Exceptions".equals(attrName)) {
-            readExceptionsInThrowsClause(codeIndex + 8);
+            readExceptionsInThrowsClause();
+            continue;
          }
          else if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8(codeIndex + 8);
+            signature = readNonnullUTF8();
+            continue;
          }
          else if ("Deprecated".equals(attrName)) {
             access = Access.asDeprecated(access);
@@ -139,51 +137,44 @@ final class MethodReader extends AnnotatedReader
             access = Access.asSynthetic(access);
          }
          else if ("AnnotationDefault".equals(attrName)) {
-            annDefault = codeIndex + 8;
+            annotationDefaultCodeIndex = codeIndex;
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            anns = codeIndex + 8;
+            annotationsCodeIndex = codeIndex;
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
-            paramAnns = codeIndex + 8;
+            parameterAnnotationsCodeIndex = codeIndex;
          }
 
-         codeIndex += 6 + readInt(codeIndex + 4);
+         codeIndex += codeOffset;
       }
 
-      codeIndex += 2;
-      readMethodBody(codeIndex, annDefault, anns, paramAnns);
-      return codeIndex;
+      readMethodBody(annotationDefaultCodeIndex, annotationsCodeIndex, parameterAnnotationsCodeIndex);
    }
 
-   @Nonnegative
-   private int readMethodDeclaration(@Nonnegative int codeIndex) {
-      access = readUnsignedShort(codeIndex);
-      codeIndex += 2;
-      name = readNonnullUTF8(codeIndex);
-      codeIndex += 2;
-      desc = readNonnullUTF8(codeIndex);
-      codeIndex += 2;
+   private void readMethodDeclaration() {
+      access = readUnsignedShort();
+      name = readNonnullUTF8();
+      desc = readNonnullUTF8();
 
       methodStartCodeIndex = codeIndex;
       bodyStartCodeIndex = 0;
-      return codeIndex;
+      throwsClauseTypes = null;
+      signature = null;
    }
 
-   private void readExceptionsInThrowsClause(@Nonnegative int codeIndex) {
-      int n = readUnsignedShort(codeIndex);
-      codeIndex += 2;
+   private void readExceptionsInThrowsClause() {
+      int n = readUnsignedShort();
       throwsClauseTypes = new String[n];
 
       for (int i = 0; i < n; i++) {
-         throwsClauseTypes[i] = readNonnullClass(codeIndex);
-         codeIndex += 2;
+         throwsClauseTypes[i] = readNonnullClass();
       }
    }
 
    private void readMethodBody(
-      @Nonnegative int methodEndCodeIndex,
-      @Nonnegative int annDefault, @Nonnegative int anns, @Nonnegative int paramAnns
+      @Nonnegative int annotationDefaultCodeIndex, @Nonnegative int annotationsCodeIndex,
+      @Nonnegative int parameterAnnotationsCodeIndex
    ) {
       mv = cr.cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
@@ -192,14 +183,26 @@ final class MethodReader extends AnnotatedReader
       }
 
       if (mv instanceof MethodWriter) {
-         copyMethodBody(methodEndCodeIndex);
+         copyMethodBody();
          return;
       }
 
-      readAnnotationDefaultValue(annDefault);
-      readAnnotationValues(anns);
-      readParameterAnnotations(paramAnns);
-      readMethodCode();
+      if (annotationDefaultCodeIndex > 0) {
+         readAnnotationDefaultValue(annotationDefaultCodeIndex);
+      }
+
+      if (annotationsCodeIndex > 0) {
+         readAnnotationValues(annotationsCodeIndex);
+      }
+
+      if (parameterAnnotationsCodeIndex > 0) {
+         readParameterAnnotations(parameterAnnotationsCodeIndex);
+      }
+
+      if (bodyStartCodeIndex != 0 && (cr.flags & Flags.SKIP_CODE) == 0) {
+         readCode();
+      }
+
       mv.visitEnd();
    }
 
@@ -210,32 +213,33 @@ final class MethodReader extends AnnotatedReader
     * the signature of the method has not been changed; then, we skip all visit events and just copy the original code
     * of the method to the writer.
     */
-   private void copyMethodBody(@Nonnegative int endCodeIndex) {
+   private void copyMethodBody() {
       // We do not copy directly the code into MethodWriter to save a byte array copy operation.
       // The real copy will be done in ClassWriter.toByteArray().
       MethodWriter mw = (MethodWriter) mv;
       mw.classReaderOffset = methodStartCodeIndex;
-      mw.classReaderLength = endCodeIndex - methodStartCodeIndex;
+      mw.classReaderLength = codeIndex - methodStartCodeIndex;
    }
 
-   private void readAnnotationDefaultValue(@Nonnegative int annotationDefault) {
-      if (annotationDefault != 0) {
-         AnnotationVisitor dv = mv.visitAnnotationDefault();
-         annotationReader.readDefaultAnnotationValue(annotationDefault, dv);
+   private void readAnnotationDefaultValue(@Nonnegative int codeIndex) {
+      AnnotationVisitor dv = mv.visitAnnotationDefault();
+      annotationReader.readDefaultAnnotationValue(codeIndex, dv);
 
-         if (dv != null) {
-            dv.visitEnd();
-         }
+      if (dv != null) {
+         dv.visitEnd();
       }
    }
 
-   private void readAnnotationValues(@Nonnegative int anns) {
-      if (anns != 0) {
-         for (int valueCount = readUnsignedShort(anns), v = anns + 2; valueCount > 0; valueCount--) {
-            String desc = readNonnullUTF8(v);
-            AnnotationVisitor av = mv.visitAnnotation(desc);
-            v = annotationReader.readNamedAnnotationValues(v + 2, av);
-         }
+   private void readAnnotationValues(@Nonnegative int codeIndex) {
+      int valueCount = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+      while (valueCount > 0) {
+         String desc = readNonnullUTF8(codeIndex);
+         codeIndex += 2;
+         AnnotationVisitor av = mv.visitAnnotation(desc);
+         codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
+         valueCount--;
       }
    }
 
@@ -245,12 +249,10 @@ final class MethodReader extends AnnotatedReader
     * @param codeIndex start offset in {@link #code} of the annotations to be read.
     */
    private void readParameterAnnotations(@Nonnegative int codeIndex) {
-      if (codeIndex != 0) {
-         int parameters = readByte(codeIndex++);
+      int parameters = readByte(codeIndex++);
 
-         for (int i = 0; i < parameters; i++) {
-            codeIndex = readParameterAnnotations(codeIndex, i);
-         }
+      for (int i = 0; i < parameters; i++) {
+         codeIndex = readParameterAnnotations(codeIndex, i);
       }
    }
 
@@ -267,12 +269,6 @@ final class MethodReader extends AnnotatedReader
       }
 
       return codeIndex;
-   }
-
-   private void readMethodCode() {
-      if (bodyStartCodeIndex != 0 && (cr.flags & Flags.SKIP_CODE) == 0) {
-         readCode();
-      }
    }
 
    private void readCode() {
