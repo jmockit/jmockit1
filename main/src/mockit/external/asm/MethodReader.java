@@ -145,7 +145,9 @@ final class MethodReader extends AnnotatedReader
          codeIndex += codeOffset;
       }
 
+      int codeIndex = this.codeIndex;
       readMethodBody(annotationsCodeIndex, parameterAnnotationsCodeIndex);
+      this.codeIndex = codeIndex;
    }
 
    private void readMethodDeclaration() {
@@ -181,14 +183,17 @@ final class MethodReader extends AnnotatedReader
       }
 
       if (annotationsCodeIndex > 0) {
-         readAnnotationValues(annotationsCodeIndex);
+         codeIndex = annotationsCodeIndex;
+         readAnnotationValues();
       }
 
       if (parameterAnnotationsCodeIndex > 0) {
-         readParameterAnnotations(parameterAnnotationsCodeIndex);
+         codeIndex = parameterAnnotationsCodeIndex;
+         readParameterAnnotations();
       }
 
-      if (bodyStartCodeIndex != 0 && (cr.flags & Flags.SKIP_CODE) == 0) {
+      if (bodyStartCodeIndex > 0 && (cr.flags & Flags.SKIP_CODE) == 0) {
+         codeIndex = bodyStartCodeIndex;
          readCode();
       }
 
@@ -210,64 +215,50 @@ final class MethodReader extends AnnotatedReader
       mw.classReaderLength = codeIndex - methodStartCodeIndex;
    }
 
-   private void readAnnotationValues(@Nonnegative int codeIndex) {
-      int valueCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
+   private void readAnnotationValues() {
+      int valueCount = readUnsignedShort();
 
       while (valueCount > 0) {
-         String desc = readNonnullUTF8(codeIndex);
-         codeIndex += 2;
+         String desc = readNonnullUTF8();
          AnnotationVisitor av = mv.visitAnnotation(desc);
          codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
          valueCount--;
       }
    }
 
-   /**
-    * Reads parameter annotations and makes the given visitor visit them.
-    *
-    * @param codeIndex start offset in {@link #code} of the annotations to be read.
-    */
-   private void readParameterAnnotations(@Nonnegative int codeIndex) {
-      int parameters = readByte(codeIndex++);
+   private void readParameterAnnotations() {
+      int parameters = readByte();
 
       for (int i = 0; i < parameters; i++) {
-         codeIndex = readParameterAnnotations(codeIndex, i);
+         readParameterAnnotations(i);
       }
    }
 
-   @Nonnegative
-   private int readParameterAnnotations(@Nonnegative int codeIndex, @Nonnegative int parameterIndex) {
-      int annotationCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
+   private void readParameterAnnotations(@Nonnegative int parameterIndex) {
+      int annotationCount = readUnsignedShort();
 
       while (annotationCount > 0) {
-         String desc = readNonnullUTF8(codeIndex);
+         String desc = readNonnullUTF8();
          AnnotationVisitor av = mv.visitParameterAnnotation(parameterIndex, desc);
-         codeIndex = annotationReader.readNamedAnnotationValues(codeIndex + 2, av);
+         codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
          annotationCount--;
       }
-
-      return codeIndex;
    }
 
    private void readCode() {
       // Reads the header.
-      int codeIndex = bodyStartCodeIndex;
-      int maxStack = readUnsignedShort(codeIndex);
-      int codeLength = readInt(codeIndex + 4);
-      codeIndex += 8;
+      int maxStack = readUnsignedShort();
+      codeIndex += 2; // maxLocals
+      int codeLength = readInt();
 
       // Reads the bytecode to find the labels.
       int codeStart = codeIndex;
-      int codeEnd = codeIndex + codeLength;
+      int codeEnd = codeStart + codeLength;
 
       labels = new Label[codeLength + 2];
 
-      codeIndex = readAllLabelsInCodeBlock(codeIndex, codeLength, codeStart, codeEnd);
-
-      // Reads the try catch entries to find the labels, and also visits them.
-      codeIndex = readTryCatchBlocks(codeIndex);
+      readAllLabelsInCodeBlock(codeLength, codeStart, codeEnd);
+      readTryCatchBlocks();
 
       codeIndex += 2;
 
@@ -279,10 +270,12 @@ final class MethodReader extends AnnotatedReader
 
       for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
          String attrName = readNonnullUTF8(codeIndex + 2);
+         int codeOffset = readInt(codeIndex + 4);
 
          if (readDebugInfo) {
             if ("LocalVariableTable".equals(attrName)) {
-               varTable = readLocalVariableTable(codeIndex);
+               varTable = codeIndex + 8;
+               readLocalVariableTable(varTable);
             }
             else if ("LocalVariableTypeTable".equals(attrName)) {
                typeTable = readLocalVariableTypeTable(codeIndex + 8);
@@ -292,7 +285,8 @@ final class MethodReader extends AnnotatedReader
             }
          }
 
-         codeIndex += 6 + readInt(codeIndex + 4);
+         codeIndex += 6;
+         codeIndex += codeOffset;
       }
 
       readBytecodeInstructionsInCodeBlock(readDebugInfo, codeStart, codeEnd);
@@ -305,36 +299,51 @@ final class MethodReader extends AnnotatedReader
       mv.visitMaxStack(maxStack);
    }
 
-   @Nonnegative
-   private int readAllLabelsInCodeBlock(
-      @Nonnegative int codeIndex, @Nonnegative int codeLength, @Nonnegative int codeStart, @Nonnegative int codeEnd
+   private void readAllLabelsInCodeBlock(
+      @Nonnegative int codeLength, @Nonnegative int codeStart, @Nonnegative int codeEnd
    ) {
       readLabel(codeLength + 1);
 
       while (codeIndex < codeEnd) {
          int offset = codeIndex - codeStart;
-         codeIndex = readLabelForInstructionIfAny(codeIndex, offset);
+         readLabelForInstructionIfAny(offset);
       }
-
-      return codeIndex;
    }
 
-   @Nonnegative
-   private int readLabelForInstructionIfAny(@Nonnegative int codeIndex, @Nonnegative int offset) {
+   /**
+    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
+    * already created.
+    *
+    * @param offset a bytecode offset in a method.
+    * @return a <tt>Label</tt>, which must be equal to <tt>labels[offset]</tt>.
+    */
+   @Nonnull
+   private Label readLabel(@Nonnegative int offset) {
+      Label label = labels[offset];
+
+      if (label == null) {
+         label = new Label();
+         labels[offset] = label;
+      }
+
+      return label;
+   }
+
+   private void readLabelForInstructionIfAny(@Nonnegative int offset) {
       int opcode = readByte(codeIndex);
       byte instructionType = INSTRUCTION_TYPE[opcode];
       boolean tablInsn = instructionType == TABL_INSN;
 
       if (tablInsn || instructionType == LOOK_INSN) {
-         return readSwitchInstruction(codeIndex, offset, tablInsn);
+         readSwitchInstruction(offset, tablInsn);
+         return;
       }
 
       int codeOffset = readNonSwitchInstruction(codeIndex, offset, instructionType);
-      return codeIndex + codeOffset;
+      codeIndex += codeOffset;
    }
 
-   @Nonnegative
-   private int readSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset, boolean tableNotLookup) {
+   private void readSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
       // Skips 0 to 3 padding bytes.
       codeIndex = codeIndex + 4 - (offset & 3);
 
@@ -363,26 +372,7 @@ final class MethodReader extends AnnotatedReader
          caseCount--;
       }
 
-      return codeIndex + finalOffsetStep;
-   }
-
-   /**
-    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
-    * already created.
-    *
-    * @param offset a bytecode offset in a method.
-    * @return a <tt>Label</tt>, which must be equal to <tt>labels[offset]</tt>.
-    */
-   @Nonnull
-   private Label readLabel(@Nonnegative int offset) {
-      Label label = labels[offset];
-
-      if (label == null) {
-         label = new Label();
-         labels[offset] = label;
-      }
-
-      return label;
+      codeIndex += finalOffsetStep;
    }
 
    /**
@@ -402,38 +392,35 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   // Reads the try catch entries to find the labels, and also visits them.
-   @Nonnegative
-   private int readTryCatchBlocks(@Nonnegative int codeIndex) {
+   /**
+    * Reads the try catch entries to find the labels, and also visits them.
+    */
+   private void readTryCatchBlocks() {
       for (int blockCount = readUnsignedShort(codeIndex); blockCount > 0; blockCount--) {
          Label start   = readLabel(readUnsignedShort(codeIndex + 2));
          Label end     = readLabel(readUnsignedShort(codeIndex + 4));
          Label handler = readLabel(readUnsignedShort(codeIndex + 6));
-         String type = readUTF8(readItem(codeIndex + 8));
+
+         int typeCodeIndex = readItem(codeIndex + 8);
+         String type = readUTF8(typeCodeIndex);
 
          mv.visitTryCatchBlock(start, end, handler, type);
          codeIndex += 8;
       }
-
-      return codeIndex;
    }
 
-   @Nonnegative
-   private int readLocalVariableTable(@Nonnegative int codeIndex) {
-      int varTable = codeIndex + 8;
-      int localVarCount = readUnsignedShort(codeIndex + 8);
+   private void readLocalVariableTable(@Nonnegative int codeIndex) {
+      int localVarCount = readUnsignedShort(codeIndex);
 
       for (int v = codeIndex; localVarCount > 0; localVarCount--) {
-         int labelOffset = readUnsignedShort(v + 10);
+         int labelOffset = readUnsignedShort(v + 2);
          readDebugLabel(labelOffset);
 
-         labelOffset += readUnsignedShort(v + 12);
+         labelOffset += readUnsignedShort(v + 4);
          readDebugLabel(labelOffset);
 
          v += 10;
       }
-
-      return varTable;
    }
 
    @Nonnull
