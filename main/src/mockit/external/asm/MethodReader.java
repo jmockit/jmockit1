@@ -328,43 +328,46 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLabelForInstructionIfAny(@Nonnegative int offset) {
-      int opcode = readByte(codeIndex);
+      int opcode = readByte();
       byte instructionType = INSTRUCTION_TYPE[opcode];
       boolean tablInsn = instructionType == TABL_INSN;
 
       if (tablInsn || instructionType == LOOK_INSN) {
          readSwitchInstruction(offset, tablInsn);
-         return;
       }
-
-      int codeOffset = readNonSwitchInstruction(codeIndex, offset, instructionType);
-      codeIndex += codeOffset;
+      else {
+         int codeOffset = readNonSwitchInstruction(offset, instructionType);
+         codeIndex += codeOffset;
+      }
    }
 
    private void readSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
       // Skips 0 to 3 padding bytes.
-      codeIndex = codeIndex + 4 - (offset & 3);
+      codeIndex += 3 - (offset & 3);
 
       // Reads instruction.
-      readLabel(offset + readInt(codeIndex));
+      int labelOffset = readInt();
+      readLabel(offset + labelOffset);
 
       int caseCount;
       int offsetStep;
       int finalOffsetStep;
 
       if (tableNotLookup) {
-         caseCount = readInt(codeIndex + 8) - readInt(codeIndex + 4) + 1;
+         int firstCase = readInt(codeIndex);
+         int lastCase = readInt(codeIndex + 4);
+         caseCount = lastCase - firstCase + 1;
          offsetStep = 4;
-         finalOffsetStep = 12;
+         finalOffsetStep = 8;
       }
       else {
-         caseCount = readInt(codeIndex + 4);
+         caseCount = readInt(codeIndex);
          offsetStep = 8;
-         finalOffsetStep = 8;
+         finalOffsetStep = 4;
       }
 
       while (caseCount > 0) {
-         int caseOffset = readInt(codeIndex + 12);
+         int caseOffset = readInt(codeIndex + 8);
          readLabel(offset + caseOffset);
          codeIndex += offsetStep;
          caseCount--;
@@ -377,16 +380,16 @@ final class MethodReader extends AnnotatedReader
     * @return the offset for codeIndex
     */
    @Nonnegative
-   private int readNonSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset, byte instructionType) {
+   private int readNonSwitchInstruction(@Nonnegative int offset, byte instructionType) {
       switch (instructionType) {
-         case NOARG: case IMPLVAR: return 1;
-         case LABEL:  readLabel(offset + readShort(codeIndex + 1)); return 3;
-         case LABELW: readLabel(offset + readInt(codeIndex + 1));   return 5;
-         case WIDE_INSN: int opcode = readByte(codeIndex + 1); return opcode == IINC ? 6 : 4;
-         case VAR: case SBYTE: case LDC_INSN: return 2;
-         case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 3;
-         case ITFMETH: case INDYMETH: return 5;
-         case MANA_INSN: default: return 4;
+         case NOARG: case IMPLVAR: return 0;
+         case LABEL:  readLabel(offset + readShort()); return 0;
+         case LABELW: readLabel(offset + readInt());   return 0;
+         case WIDE_INSN: int opcode = readByte(); return opcode == IINC ? 4 : 2;
+         case VAR: case SBYTE: case LDC_INSN: return 1;
+         case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 2;
+         case ITFMETH: case INDYMETH: return 4;
+         case MANA_INSN: default: return 3;
       }
    }
 
@@ -715,24 +718,19 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readLocalVariableTables(@Nonnegative int varTable, @Nullable int[] typeTable) {
-      if (varTable > 0) {
-         int codeIndex = varTable + 2;
+   private void readLocalVariableTables(@Nonnegative int varTableCodeIndex, @Nullable int[] typeTable) {
+      if (varTableCodeIndex > 0) {
+         codeIndex = varTableCodeIndex;
 
-         for (int localVarCount = readUnsignedShort(varTable); localVarCount > 0; localVarCount--) {
-            int start  = readUnsignedShort(codeIndex);
-            int length = readUnsignedShort(codeIndex + 2);
-            int index  = readUnsignedShort(codeIndex + 8);
+         for (int localVarCount = readUnsignedShort(); localVarCount > 0; localVarCount--) {
+            int start  = readUnsignedShort();
+            int length = readUnsignedShort();
+            String name = readNonnullUTF8();
+            String desc = readNonnullUTF8();
+            int index  = readUnsignedShort();
             String signature = typeTable == null ? null : getLocalVariableSignature(typeTable, start, index);
 
-            String name = readNonnullUTF8(codeIndex + 4);
-            String desc = readNonnullUTF8(codeIndex + 6);
-            Label startLabel = labels[start];
-            Label endLabel   = labels[start + length];
-
-            mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
-
-            codeIndex += 10;
+            mv.visitLocalVariable(name, desc, signature, labels[start], labels[start + length], index);
          }
       }
    }

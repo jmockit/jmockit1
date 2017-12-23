@@ -140,6 +140,15 @@ class BytecodeReader
    }
 
    /**
+    * Reads a signed short value in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the read value.
+    */
+   final short readShort() {
+      return (short) readUnsignedShort();
+   }
+
+   /**
     * Reads a signed short value in {@link #code}.
     *
     * @param codeIndex the start index of the value to be read in {@link #code}.
