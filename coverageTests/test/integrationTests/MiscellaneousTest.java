@@ -39,4 +39,10 @@ public final class MiscellaneousTest
 
       assertTrue(constructor.isAnnotationPresent(ConstructorProperties.class));
    }
+
+   @Test
+   public void mockingAnAnnotation(@Tested @Mocked AnAnnotation mockedAnnotation)
+   {
+      assertNull(mockedAnnotation.value());
+   }
 }

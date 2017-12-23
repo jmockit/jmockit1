@@ -18,4 +18,7 @@ final class ClassWithAnnotations
 
    @ConstructorProperties({"Ab", "cde"})
    ClassWithAnnotations() {}
+
+   @AnAnnotation("some text")
+   void aMethod() {}
 }

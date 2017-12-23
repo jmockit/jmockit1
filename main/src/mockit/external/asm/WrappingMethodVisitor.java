@@ -19,11 +19,6 @@ public class WrappingMethodVisitor extends MethodVisitor
     */
    protected WrappingMethodVisitor(@Nonnull MethodWriter mw) { this.mw = mw; }
 
-   @Nonnull @Override
-   public final AnnotationVisitor visitAnnotationDefault() {
-      return mw.visitAnnotationDefault();
-   }
-
    @Nullable @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return mw.visitAnnotation(desc);

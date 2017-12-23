@@ -111,7 +111,6 @@ final class MethodReader extends AnnotatedReader
 
    private void readMethod() {
       readMethodDeclaration();
-      int annotationDefaultCodeIndex = 0;
       int annotationsCodeIndex = 0;
       int parameterAnnotationsCodeIndex = 0;
 
@@ -136,9 +135,6 @@ final class MethodReader extends AnnotatedReader
          else if ("Synthetic".equals(attrName)) {
             access = Access.asSynthetic(access);
          }
-         else if ("AnnotationDefault".equals(attrName)) {
-            annotationDefaultCodeIndex = codeIndex;
-         }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             annotationsCodeIndex = codeIndex;
          }
@@ -149,7 +145,7 @@ final class MethodReader extends AnnotatedReader
          codeIndex += codeOffset;
       }
 
-      readMethodBody(annotationDefaultCodeIndex, annotationsCodeIndex, parameterAnnotationsCodeIndex);
+      readMethodBody(annotationsCodeIndex, parameterAnnotationsCodeIndex);
    }
 
    private void readMethodDeclaration() {
@@ -172,10 +168,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readMethodBody(
-      @Nonnegative int annotationDefaultCodeIndex, @Nonnegative int annotationsCodeIndex,
-      @Nonnegative int parameterAnnotationsCodeIndex
-   ) {
+   private void readMethodBody(@Nonnegative int annotationsCodeIndex, @Nonnegative int parameterAnnotationsCodeIndex) {
       mv = cr.cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
       if (mv == null) {
@@ -185,10 +178,6 @@ final class MethodReader extends AnnotatedReader
       if (mv instanceof MethodWriter) {
          copyMethodBody();
          return;
-      }
-
-      if (annotationDefaultCodeIndex > 0) {
-         readAnnotationDefaultValue(annotationDefaultCodeIndex);
       }
 
       if (annotationsCodeIndex > 0) {
@@ -219,15 +208,6 @@ final class MethodReader extends AnnotatedReader
       MethodWriter mw = (MethodWriter) mv;
       mw.classReaderOffset = methodStartCodeIndex;
       mw.classReaderLength = codeIndex - methodStartCodeIndex;
-   }
-
-   private void readAnnotationDefaultValue(@Nonnegative int codeIndex) {
-      AnnotationVisitor dv = mv.visitAnnotationDefault();
-      annotationReader.readDefaultAnnotationValue(codeIndex, dv);
-
-      if (dv != null) {
-         dv.visitEnd();
-      }
    }
 
    private void readAnnotationValues(@Nonnegative int codeIndex) {

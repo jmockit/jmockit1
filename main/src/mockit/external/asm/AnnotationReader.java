@@ -39,18 +39,6 @@ final class AnnotationReader extends BytecodeReader
       }
    }
 
-   /**
-    * Reads the default value of an annotation and makes the given visitor visit it.
-    *
-    * @param codeIndex the start offset in {@link #code} of the value to be read (<i>not including the value name
-    *                  constant pool index</i>).
-    * @param av the visitor that must visit the value.
-    */
-   void readDefaultAnnotationValue(@Nonnegative int codeIndex, @Nullable AnnotationVisitor av) {
-      this.codeIndex = codeIndex;
-      readAnnotationValue(null, av);
-   }
-
    private void readAnnotationValue(@Nullable String name, @Nullable AnnotationVisitor av) {
       int typeCode = readByte();
 

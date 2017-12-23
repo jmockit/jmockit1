@@ -16,13 +16,7 @@ class BaseWriter
 
    @Nonnull
    final AnnotationVisitor addAnnotation(@Nonnull String desc) {
-      ByteVector bv = new ByteVector();
-
-      // Write type, and reserve space for values count.
-      int type = cp.newUTF8(desc);
-      bv.putShort(type).putShort(0);
-
-      AnnotationWriter aw = new AnnotationWriter(cp, true, bv, bv, 2);
+      AnnotationWriter aw = new AnnotationWriter(cp, desc);
       aw.next = annotations;
       annotations = aw;
       return aw;

@@ -34,7 +34,7 @@ import javax.annotation.*;
 /**
  * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:
  * <p/>
- * [<tt>visitAnnotationDefault</tt>] (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
+ * (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
  * [<tt>visitCode</tt> (<tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
  * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
  * <p/>
@@ -49,21 +49,6 @@ public class MethodVisitor extends BaseWriter
     * Constructs a new MethodVisitor.
     */
    protected MethodVisitor() {}
-
-   // -------------------------------------------------------------------------
-   // Annotations, code, and frames
-   // -------------------------------------------------------------------------
-
-   /**
-    * Visits the default value of this annotation interface method.
-    *
-    * @return a visitor to the visit the actual default value of this annotation interface method, or <tt>null</tt> if
-    * this visitor is not interested in visiting this default value. The 'name' parameters passed to the methods of this
-    * annotation visitor are ignored. Moreover, exactly one visit method must be called on this annotation visitor,
-    * followed by visitEnd.
-    */
-   @Nullable
-   public AnnotationVisitor visitAnnotationDefault() { return null; }
 
    /**
     * Visits an annotation of this method.
@@ -85,10 +70,6 @@ public class MethodVisitor extends BaseWriter
     */
    @Nullable
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) { return null; }
-
-   // -------------------------------------------------------------------------
-   // Normal instructions
-   // -------------------------------------------------------------------------
 
    /**
     * Visits a zero operand instruction.
@@ -192,10 +173,6 @@ public class MethodVisitor extends BaseWriter
     */
    public void visitLabel(@Nonnull Label label) {}
 
-   // -------------------------------------------------------------------------
-   // Special instructions
-   // -------------------------------------------------------------------------
-
    /**
     * Visits a LDC instruction. Note that new constant types may be added in future versions of the Java Virtual
     * Machine. To easily detect new constant types, implementations of this method should check for unexpected constant
@@ -273,10 +250,6 @@ public class MethodVisitor extends BaseWriter
     * @param dims number of dimensions of the array to allocate.
     */
    public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {}
-
-   // -------------------------------------------------------------------------
-   // Exceptions table entries, debug information, max stack
-   // -------------------------------------------------------------------------
 
    /**
     * Visits a try catch block.

@@ -60,33 +60,24 @@ final class AnnotationWriter extends AnnotationVisitor
    @Nonnull private final ByteVector bv;
 
    /**
-    * The byte vector to be used to store the number of values of this annotation. See {@link #bv}.
-    */
-   @Nullable private final ByteVector parent;
-
-   /**
-    * Where the number of values of this annotation must be stored in {@link #parent}.
+    * Where the number of values of this annotation must be stored in {@link #bv}.
     */
    @Nonnegative private final int offset;
 
-   /**
-    * Constructs a new Annotation Writer.
-    *
-    * @param cp     the constant pool to which this annotation must be added.
-    * @param named  <tt>true<tt> if values are named, <tt>false</tt> otherwise.
-    * @param bv     where the annotation values must be stored.
-    * @param parent where the number of annotation values must be stored.
-    * @param offset where in <tt>parent</tt> the number of annotation values must be stored.
-    */
-   AnnotationWriter(
-      @Nonnull ConstantPoolGeneration cp, boolean named, @Nonnull ByteVector bv, @Nullable ByteVector parent,
-      @Nonnegative int offset
-   ) {
+   AnnotationWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String typeDesc) {
       this.cp = cp;
+      named = true;
+      bv = new ByteVector();
+      bv.putShort(cp.newUTF8(typeDesc));
+      bv.putShort(0); // reserve space for value count
+      offset = 2;
+   }
+
+   private AnnotationWriter(@Nonnull AnnotationWriter parent, boolean named) {
+      cp = parent.cp;
       this.named = named;
-      this.bv = bv;
-      this.parent = parent;
-      this.offset = offset;
+      bv = parent.bv;
+      offset = bv.length - 2;
    }
 
    @Nonnegative @Override
@@ -264,11 +255,11 @@ final class AnnotationWriter extends AnnotationVisitor
    public AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) {
       putName(name);
 
-      // Write tag and type, and reserve space for values count.
+      // Write tag and type, and reserve space for value count.
       putString('@', desc);
       bv.putShort(0);
 
-      return new AnnotationWriter(cp, true, bv, bv, bv.length - 2);
+      return new AnnotationWriter(this, true);
    }
 
    @Nonnull @Override
@@ -278,16 +269,14 @@ final class AnnotationWriter extends AnnotationVisitor
       // Write tag, and reserve space for array size.
       putArrayLength(0);
 
-      return new AnnotationWriter(cp, false, bv, bv, bv.length - 2);
+      return new AnnotationWriter(this, false);
    }
 
    @Override
    public void visitEnd() {
-      if (parent != null) {
-         byte[] data = parent.data;
-         data[offset] = (byte) (size >>> 8);
-         data[offset + 1] = (byte) size;
-      }
+      byte[] data = bv.data;
+      data[offset] = (byte) (size >>> 8);
+      data[offset + 1] = (byte) size;
    }
 
    // ------------------------------------------------------------------------

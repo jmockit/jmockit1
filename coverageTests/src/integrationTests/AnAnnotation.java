@@ -6,4 +6,5 @@ import java.lang.annotation.*;
 public @interface AnAnnotation
 {
    int[] integers() default {};
+   String value() default "test";
 }

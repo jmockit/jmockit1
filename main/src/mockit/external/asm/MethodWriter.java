@@ -85,11 +85,6 @@ public final class MethodWriter extends MethodVisitor
    @Nullable final ThrowsClause throwsClause;
 
    /**
-    * The annotation default attribute of this method. May be <tt>null</tt>.
-    */
-   @Nullable private ByteVector annotationDefault;
-
-   /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
     */
    @Nullable private AnnotationWriter[] parameterAnnotations;
@@ -144,24 +139,13 @@ public final class MethodWriter extends MethodVisitor
    // ------------------------------------------------------------------------
 
    @Nonnull @Override
-   public AnnotationVisitor visitAnnotationDefault() {
-      annotationDefault = new ByteVector();
-      return new AnnotationWriter(cp, false, annotationDefault, null, 0);
-   }
-
-   @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
 
    @Nonnull @Override
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
-      ByteVector bv = new ByteVector();
-
-      // Write type, and reserve space for values count.
-      bv.putShort(cp.newUTF8(desc)).putShort(0);
-
-      AnnotationWriter aw = new AnnotationWriter(cp, true, bv, bv, 2);
+      AnnotationWriter aw = new AnnotationWriter(cp, desc);
 
       if (parameterAnnotations == null) {
          int numParameters = JavaType.getArgumentTypes(descriptor).length;
@@ -542,11 +526,6 @@ public final class MethodWriter extends MethodVisitor
          size += 8;
       }
 
-      if (annotationDefault != null) {
-         cp.newUTF8("AnnotationDefault");
-         size += 6 + annotationDefault.length;
-      }
-
       size += getAnnotationsSize();
       size += getSizeOfParameterAnnotations();
 
@@ -628,10 +607,6 @@ public final class MethodWriter extends MethodVisitor
          methodAttributeCount++;
       }
 
-      if (annotationDefault != null) {
-         methodAttributeCount++;
-      }
-
       if (annotations != null) {
          methodAttributeCount++;
       }
@@ -694,12 +669,6 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void putAnnotationAttributes(@Nonnull ByteVector out) {
-      if (annotationDefault != null) {
-         out.putShort(cp.newUTF8("AnnotationDefault"));
-         out.putInt(annotationDefault.length);
-         out.putByteVector(annotationDefault);
-      }
-
       putAnnotations(out);
 
       if (parameterAnnotations != null) {
