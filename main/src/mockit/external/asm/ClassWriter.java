@@ -401,14 +401,7 @@ public final class ClassWriter extends ClassVisitor
    // Utility methods: version, synthetic
    // ------------------------------------------------------------------------
 
-   int getClassVersion() { return version & 0xFFFF; }
-   boolean isJava6OrNewer() { return getClassVersion() >= ClassVersion.V1_6; }
-
+   boolean isJava6OrNewer() { return version >= ClassVersion.V1_6; }
    private boolean isSynthetic() { return isSynthetic(access); }
-
-   boolean isSynthetic(int access) {
-      return
-         Access.isSynthetic(access) &&
-         ((access & Access.SYNTHETIC_ATTRIBUTE) != 0 || getClassVersion() < ClassVersion.V1_5);
-   }
+   boolean isSynthetic(int access) { return Access.isSynthetic(access, version); }
 }
