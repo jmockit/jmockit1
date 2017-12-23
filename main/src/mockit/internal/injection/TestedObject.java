@@ -144,7 +144,7 @@ abstract class TestedObject
       FieldInjection fieldInjection = new FieldInjection(injectionState, fullInjection);
 
       if (targetFields == null) {
-         targetFields = fieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(targetClass, testedClass);
+         targetFields = FieldInjection.findAllTargetInstanceFieldsInTestedClassHierarchy(targetClass, testedClass);
       }
 
       fieldInjection.injectIntoEligibleFields(targetFields, testedObject, testedClass);

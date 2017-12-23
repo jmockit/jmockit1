@@ -29,7 +29,7 @@ public final class FieldInjection extends Injector
    }
 
    @Nonnull
-   public List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
+   public static List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
       @Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass)
    {
       List<Field> targetFields = new ArrayList<Field>();
@@ -44,7 +44,7 @@ public final class FieldInjection extends Injector
       return targetFields;
    }
 
-   private void addEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Class<?> classWithFields)
+   private static void addEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Class<?> classWithFields)
    {
       Field[] fields = classWithFields.getDeclaredFields();
 
@@ -55,7 +55,7 @@ public final class FieldInjection extends Injector
       }
    }
 
-   private boolean isEligibleForInjection(@Nonnull Field field)
+   private static boolean isEligibleForInjection(@Nonnull Field field)
    {
       int modifiers = field.getModifiers();
 
@@ -90,7 +90,8 @@ public final class FieldInjection extends Injector
       }
    }
 
-   private boolean targetFieldWasNotAssignedByConstructor(@Nonnull Object testedObject, @Nonnull Field targetField)
+   private static boolean targetFieldWasNotAssignedByConstructor(
+      @Nonnull Object testedObject, @Nonnull Field targetField)
    {
       if (kindOfInjectionPoint(targetField) != KindOfInjectionPoint.NotAnnotated) {
          return true;
