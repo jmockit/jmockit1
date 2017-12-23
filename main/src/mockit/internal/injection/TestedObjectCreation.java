@@ -5,7 +5,6 @@
 package mockit.internal.injection;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
@@ -34,7 +33,7 @@ public final class TestedObjectCreation
    }
 
    @Nonnull
-   private Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass)
+   private static Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass)
    {
       Class<?> generatedSubclass = new ImplementationClass<Object>(abstractClass) {
          @Nonnull @Override

@@ -6,7 +6,6 @@ package mockit.internal.expectations.mocking;
 
 import java.lang.instrument.*;
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;

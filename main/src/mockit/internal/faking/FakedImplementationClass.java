@@ -5,7 +5,6 @@
 package mockit.internal.faking;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Type;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
