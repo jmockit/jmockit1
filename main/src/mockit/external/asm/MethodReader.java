@@ -163,11 +163,13 @@ final class MethodReader extends AnnotatedReader
 
    private void readExceptionsInThrowsClause() {
       int n = readUnsignedShort();
-      throwsClauseTypes = new String[n];
+      String[] typeDescs = new String[n];
 
       for (int i = 0; i < n; i++) {
-         throwsClauseTypes[i] = readNonnullClass();
+         typeDescs[i] = readNonnullClass();
       }
+
+      throwsClauseTypes = typeDescs;
    }
 
    private void readMethodBody(@Nonnegative int annotationsCodeIndex, @Nonnegative int parameterAnnotationsCodeIndex) {
@@ -192,9 +194,14 @@ final class MethodReader extends AnnotatedReader
          readParameterAnnotations();
       }
 
-      if (bodyStartCodeIndex > 0 && (cr.flags & Flags.SKIP_CODE) == 0) {
-         codeIndex = bodyStartCodeIndex;
-         readCode();
+      if (bodyStartCodeIndex > 0) {
+         int flags = cr.flags;
+
+         if ((flags & Flags.SKIP_CODE) == 0) {
+            codeIndex = bodyStartCodeIndex;
+            boolean readDebugInfo = (flags & Flags.SKIP_DEBUG) == 0;
+            readCode(readDebugInfo);
+         }
       }
 
       mv.visitEnd();
@@ -245,57 +252,48 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readCode() {
-      // Reads the header.
+   private void readCode(boolean readDebugInfo) {
       int maxStack = readUnsignedShort();
       codeIndex += 2; // maxLocals
+
       int codeLength = readInt();
-
-      // Reads the bytecode to find the labels.
-      int codeStart = codeIndex;
-      int codeEnd = codeStart + codeLength;
-
       labels = new Label[codeLength + 2];
 
-      readAllLabelsInCodeBlock(codeLength, codeStart, codeEnd);
+      // Reads the bytecode to find the labels.
+      int codeStartIndex = codeIndex;
+      int codeEndIndex = codeStartIndex + codeLength;
+
+      readAllLabelsInCodeBlock(codeLength, codeStartIndex, codeEndIndex);
       readTryCatchBlocks();
 
-      codeIndex += 2;
-
-      boolean readDebugInfo = (cr.flags & Flags.SKIP_DEBUG) == 0;
-
       // Reads the code attributes.
-      int varTable = 0;
+      int varTableCodeIndex = 0;
       int[] typeTable = null;
 
-      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readNonnullUTF8(codeIndex + 2);
-         int codeOffset = readInt(codeIndex + 4);
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         String attrName = readNonnullUTF8();
+         int codeOffset = readInt();
 
          if (readDebugInfo) {
             if ("LocalVariableTable".equals(attrName)) {
-               varTable = codeIndex + 8;
-               readLocalVariableTable(varTable);
+               varTableCodeIndex = codeIndex;
+               readLocalVariableTable();
             }
             else if ("LocalVariableTypeTable".equals(attrName)) {
-               typeTable = readLocalVariableTypeTable(codeIndex + 8);
+               typeTable = readLocalVariableTypeTable();
             }
             else if ("LineNumberTable".equals(attrName)) {
-               readLineNumberTable(codeIndex);
+               readLineNumberTable();
+            }
+            else {
+               codeIndex += codeOffset;
             }
          }
-
-         codeIndex += 6;
-         codeIndex += codeOffset;
       }
 
-      readBytecodeInstructionsInCodeBlock(readDebugInfo, codeStart, codeEnd);
+      readBytecodeInstructionsInCodeBlock(readDebugInfo, codeStartIndex, codeEndIndex);
       readEndLabel(codeLength);
-
-      if (varTable > 0) {
-         readLocalVariableTables(varTable, typeTable);
-      }
-
+      readLocalVariableTables(varTableCodeIndex, typeTable);
       mv.visitMaxStack(maxStack);
    }
 
@@ -396,30 +394,25 @@ final class MethodReader extends AnnotatedReader
     * Reads the try catch entries to find the labels, and also visits them.
     */
    private void readTryCatchBlocks() {
-      for (int blockCount = readUnsignedShort(codeIndex); blockCount > 0; blockCount--) {
-         Label start   = readLabel(readUnsignedShort(codeIndex + 2));
-         Label end     = readLabel(readUnsignedShort(codeIndex + 4));
-         Label handler = readLabel(readUnsignedShort(codeIndex + 6));
-
-         int typeCodeIndex = readItem(codeIndex + 8);
-         String type = readUTF8(typeCodeIndex);
+      for (int blockCount = readUnsignedShort(); blockCount > 0; blockCount--) {
+         Label start   = readLabel(readUnsignedShort());
+         Label end     = readLabel(readUnsignedShort());
+         Label handler = readLabel(readUnsignedShort());
+         String type   = readUTF8(readItem());
 
          mv.visitTryCatchBlock(start, end, handler, type);
-         codeIndex += 8;
       }
    }
 
-   private void readLocalVariableTable(@Nonnegative int codeIndex) {
-      int localVarCount = readUnsignedShort(codeIndex);
-
-      for (int v = codeIndex; localVarCount > 0; localVarCount--) {
-         int labelOffset = readUnsignedShort(v + 2);
+   private void readLocalVariableTable() {
+      for (int localVarCount = readUnsignedShort(); localVarCount > 0; localVarCount--) {
+         int labelOffset = readUnsignedShort();
          readDebugLabel(labelOffset);
 
-         labelOffset += readUnsignedShort(v + 4);
+         labelOffset += readUnsignedShort();
          readDebugLabel(labelOffset);
 
-         v += 10;
+         codeIndex += 6;
       }
    }
 
@@ -436,13 +429,30 @@ final class MethodReader extends AnnotatedReader
       return label;
    }
 
-   private void readLineNumberTable(@Nonnegative int codeIndex) {
-      for (int lineCount = readUnsignedShort(codeIndex + 8); lineCount > 0; lineCount--) {
-         int labelOffset = readUnsignedShort(codeIndex + 10);
-         Label debugLabel = readDebugLabel(labelOffset);
+   @Nonnull
+   private int[] readLocalVariableTypeTable() {
+      int typeTableSize = 3 * readUnsignedShort();
+      int[] typeTable = new int[typeTableSize];
 
-         debugLabel.line = readUnsignedShort(codeIndex + 12);
-         codeIndex += 4;
+      while (typeTableSize > 0) {
+         int startIndex = readUnsignedShort();
+         int signatureCodeIndex = codeIndex + 4;
+         codeIndex += 6;
+         int varIndex = readUnsignedShort();
+
+         typeTable[--typeTableSize] = signatureCodeIndex;
+         typeTable[--typeTableSize] = varIndex;
+         typeTable[--typeTableSize] = startIndex;
+      }
+
+      return typeTable;
+   }
+
+   private void readLineNumberTable() {
+      for (int lineCount = readUnsignedShort(); lineCount > 0; lineCount--) {
+         int labelOffset = readUnsignedShort();
+         Label debugLabel = readDebugLabel(labelOffset);
+         debugLabel.line = readUnsignedShort();
       }
    }
 
@@ -706,22 +716,24 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLocalVariableTables(@Nonnegative int varTable, @Nullable int[] typeTable) {
-      int codeIndex = varTable + 2;
+      if (varTable > 0) {
+         int codeIndex = varTable + 2;
 
-      for (int localVarCount = readUnsignedShort(varTable); localVarCount > 0; localVarCount--) {
-         int start  = readUnsignedShort(codeIndex);
-         int length = readUnsignedShort(codeIndex + 2);
-         int index  = readUnsignedShort(codeIndex + 8);
-         String signature = typeTable == null ? null : getLocalVariableSignature(typeTable, start, index);
+         for (int localVarCount = readUnsignedShort(varTable); localVarCount > 0; localVarCount--) {
+            int start  = readUnsignedShort(codeIndex);
+            int length = readUnsignedShort(codeIndex + 2);
+            int index  = readUnsignedShort(codeIndex + 8);
+            String signature = typeTable == null ? null : getLocalVariableSignature(typeTable, start, index);
 
-         String name = readNonnullUTF8(codeIndex + 4);
-         String desc = readNonnullUTF8(codeIndex + 6);
-         Label startLabel = labels[start];
-         Label endLabel   = labels[start + length];
+            String name = readNonnullUTF8(codeIndex + 4);
+            String desc = readNonnullUTF8(codeIndex + 6);
+            Label startLabel = labels[start];
+            Label endLabel   = labels[start + length];
 
-         mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
+            mv.visitLocalVariable(name, desc, signature, startLabel, endLabel, index);
 
-         codeIndex += 10;
+            codeIndex += 10;
+         }
       }
    }
 
@@ -735,22 +747,5 @@ final class MethodReader extends AnnotatedReader
       }
 
       return null;
-   }
-
-   @Nonnull
-   private int[] readLocalVariableTypeTable(@Nonnegative int varTypeTable) {
-      int codeIndex = varTypeTable + 2;
-      int typeTableSize = readUnsignedShort(varTypeTable) * 3;
-      int[] typeTable = new int[typeTableSize];
-      int typeTableIndex = typeTableSize;
-
-      while (typeTableIndex > 0) {
-         typeTable[--typeTableIndex] = codeIndex + 6;                    // signature
-         typeTable[--typeTableIndex] = readUnsignedShort(codeIndex + 8); // index
-         typeTable[--typeTableIndex] = readUnsignedShort(codeIndex);     // start
-         codeIndex += 10;
-      }
-
-      return typeTable;
    }
 }
