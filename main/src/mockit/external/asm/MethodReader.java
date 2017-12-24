@@ -199,8 +199,7 @@ final class MethodReader extends AnnotatedReader
 
          if ((flags & Flags.SKIP_CODE) == 0) {
             codeIndex = bodyStartCodeIndex;
-            boolean readDebugInfo = (flags & Flags.SKIP_DEBUG) == 0;
-            readCode(readDebugInfo);
+            readCode((flags & Flags.SKIP_DEBUG) == 0);
          }
       }
 
@@ -263,7 +262,7 @@ final class MethodReader extends AnnotatedReader
       int codeStartIndex = codeIndex;
       int codeEndIndex = codeStartIndex + codeLength;
 
-      readAllLabelsInCodeBlock(codeLength, codeStartIndex, codeEndIndex);
+      readAllLabelsInCodeBlock(codeStartIndex, codeEndIndex);
       readTryCatchBlocks();
 
       // Reads the code attributes.
@@ -297,10 +296,8 @@ final class MethodReader extends AnnotatedReader
       mv.visitMaxStack(maxStack);
    }
 
-   private void readAllLabelsInCodeBlock(
-      @Nonnegative int codeLength, @Nonnegative int codeStart, @Nonnegative int codeEnd
-   ) {
-      readLabel(codeLength + 1);
+   private void readAllLabelsInCodeBlock(@Nonnegative int codeStart, @Nonnegative int codeEnd) {
+      getOrCreateLabel(codeEnd - codeStart + 1);
 
       while (codeIndex < codeEnd) {
          int offset = codeIndex - codeStart;
@@ -308,15 +305,8 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   /**
-    * Returns the label corresponding to the given offset. Creates a label for the given offset if it has not been
-    * already created.
-    *
-    * @param offset a bytecode offset in a method.
-    * @return a <tt>Label</tt>, which must be equal to <tt>labels[offset]</tt>.
-    */
    @Nonnull
-   private Label readLabel(@Nonnegative int offset) {
+   private Label getOrCreateLabel(@Nonnegative int offset) {
       Label label = labels[offset];
 
       if (label == null) {
@@ -347,7 +337,7 @@ final class MethodReader extends AnnotatedReader
 
       // Reads instruction.
       int labelOffset = readInt();
-      readLabel(offset + labelOffset);
+      getOrCreateLabel(offset + labelOffset);
 
       int caseCount;
       int offsetStep;
@@ -368,7 +358,7 @@ final class MethodReader extends AnnotatedReader
 
       while (caseCount > 0) {
          int caseOffset = readInt(codeIndex + 8);
-         readLabel(offset + caseOffset);
+         getOrCreateLabel(offset + caseOffset);
          codeIndex += offsetStep;
          caseCount--;
       }
@@ -383,8 +373,8 @@ final class MethodReader extends AnnotatedReader
    private int readNonSwitchInstruction(@Nonnegative int offset, byte instructionType) {
       switch (instructionType) {
          case NOARG: case IMPLVAR: return 0;
-         case LABEL:  readLabel(offset + readShort()); return 0;
-         case LABELW: readLabel(offset + readInt());   return 0;
+         case LABEL:  getOrCreateLabel(offset + readShort()); return 0;
+         case LABELW: getOrCreateLabel(offset + readInt());   return 0;
          case WIDE_INSN: int opcode = readByte(); return opcode == IINC ? 4 : 2;
          case VAR: case SBYTE: case LDC_INSN: return 1;
          case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 2;
@@ -398,9 +388,9 @@ final class MethodReader extends AnnotatedReader
     */
    private void readTryCatchBlocks() {
       for (int blockCount = readUnsignedShort(); blockCount > 0; blockCount--) {
-         Label start   = readLabel(readUnsignedShort());
-         Label end     = readLabel(readUnsignedShort());
-         Label handler = readLabel(readUnsignedShort());
+         Label start   = getOrCreateLabel(readUnsignedShort());
+         Label end     = getOrCreateLabel(readUnsignedShort());
+         Label handler = getOrCreateLabel(readUnsignedShort());
          String type   = readUTF8(readItem());
 
          mv.visitTryCatchBlock(start, end, handler, type);
@@ -410,17 +400,17 @@ final class MethodReader extends AnnotatedReader
    private void readLocalVariableTable() {
       for (int localVarCount = readUnsignedShort(); localVarCount > 0; localVarCount--) {
          int labelOffset = readUnsignedShort();
-         readDebugLabel(labelOffset);
+         getOrCreateDebugLabel(labelOffset);
 
          labelOffset += readUnsignedShort();
-         readDebugLabel(labelOffset);
+         getOrCreateDebugLabel(labelOffset);
 
          codeIndex += 6;
       }
    }
 
    @Nonnull
-   private Label readDebugLabel(@Nonnegative int offset) {
+   private Label getOrCreateDebugLabel(@Nonnegative int offset) {
       Label label = labels[offset];
 
       if (label == null) {
@@ -454,7 +444,7 @@ final class MethodReader extends AnnotatedReader
    private void readLineNumberTable() {
       for (int lineCount = readUnsignedShort(); lineCount > 0; lineCount--) {
          int labelOffset = readUnsignedShort();
-         Label debugLabel = readDebugLabel(labelOffset);
+         Label debugLabel = getOrCreateDebugLabel(labelOffset);
          debugLabel.line = readUnsignedShort();
       }
    }
@@ -467,7 +457,7 @@ final class MethodReader extends AnnotatedReader
 
       while (codeIndex < codeEnd) {
          int offset = codeIndex - codeStart;
-         readLabelAndLineNumber(readDebugInfo, offset);
+         visitLabelAndLineNumber(readDebugInfo, offset);
 
          int opcode = readByte(codeIndex);
 
@@ -593,15 +583,18 @@ final class MethodReader extends AnnotatedReader
       return codeIndex + 4;
    }
 
-   // Visits the label and line number for this offset, if any.
-   private void readLabelAndLineNumber(boolean readDebugInfo, @Nonnegative int offset) {
+   private void visitLabelAndLineNumber(boolean readDebugInfo, @Nonnegative int offset) {
       Label label = labels[offset];
 
       if (label != null) {
          mv.visitLabel(label);
 
-         if (readDebugInfo && label.line > 0) {
-            mv.visitLineNumber(label.line, label);
+         if (readDebugInfo) {
+            int lineNumber = label.line;
+
+            if (lineNumber > 0) {
+               mv.visitLineNumber(lineNumber, label);
+            }
          }
       }
    }
