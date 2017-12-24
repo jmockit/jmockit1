@@ -80,7 +80,9 @@ final class ExceptionHandling
    }
 
    // Adds 'handler' as a successor of labels between 'start' and 'end'.
-   private static void addHandlerLabelAsSuccessor(int kindOfEdge, @Nonnull Label handler, Label start, Label end) {
+   private static void addHandlerLabelAsSuccessor(
+      int kindOfEdge, @Nonnull Label handler, @Nonnull Label start, @Nonnull Label end
+   ) {
       while (start != end) {
          Edge edge = new Edge(kindOfEdge, handler);
          //noinspection ConstantConditions
@@ -107,8 +109,7 @@ final class ExceptionHandling
          ExceptionHandler h = firstExceptionHandler;
 
          while (h != null) {
-            out.putShort(h.start.position).putShort(h.end.position);
-            out.putShort(h.handler.position).putShort(h.type);
+            h.put(out);
             h = h.next;
          }
       }

@@ -39,12 +39,12 @@ final class ExceptionHandler
    /**
     * Beginning of the exception handler's scope (inclusive).
     */
-   Label start;
+   @Nonnull Label start;
 
    /**
     * End of the exception handler's scope (exclusive).
     */
-   Label end;
+   @Nonnull Label end;
 
    /**
     * Beginning of the exception handler's code.
@@ -54,18 +54,18 @@ final class ExceptionHandler
    /**
     * Internal name of the type of exceptions handled by this handler, or <tt>null</tt> to catch any exceptions.
     */
-   @Nullable final String desc;
+   @Nullable private final String desc;
 
    /**
     * Constant pool index of the internal name of the type of exceptions handled by this handler, or <tt>0</tt> to catch
     * any exceptions.
     */
-   @Nonnegative final int type;
+   @Nonnegative private final int type;
 
    /**
     * Next exception handler block info.
     */
-   ExceptionHandler next;
+   @Nullable ExceptionHandler next;
 
    ExceptionHandler(
       @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String desc, @Nonnegative int type
@@ -109,6 +109,7 @@ final class ExceptionHandler
             }
             else {
                // [hStart,hEnd[ minus [s,e[ = [e,hEnd[
+               //noinspection ConstantConditions
                h.start = end;
             }
          }
@@ -127,5 +128,10 @@ final class ExceptionHandler
       }
 
       return h;
+   }
+
+   void put(@Nonnull ByteVector out) {
+      out.putShort(start.position).putShort(end.position);
+      out.putShort(handler.position).putShort(type);
    }
 }
