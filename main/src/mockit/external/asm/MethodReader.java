@@ -291,7 +291,7 @@ final class MethodReader extends AnnotatedReader
       }
 
       readBytecodeInstructionsInCodeBlock(readDebugInfo, codeStartIndex, codeEndIndex);
-      readEndLabel(codeLength);
+      visitEndLabel(codeLength);
       readLocalVariableTables(varTableCodeIndex, typeTable);
       mv.visitMaxStack(maxStack);
    }
@@ -451,19 +451,19 @@ final class MethodReader extends AnnotatedReader
 
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    private void readBytecodeInstructionsInCodeBlock(
-      boolean readDebugInfo, @Nonnegative int codeStart, @Nonnegative int codeEnd
+      boolean readDebugInfo, @Nonnegative int codeStartIndex, @Nonnegative int codeEndIndex
    ) {
-      int codeIndex = codeStart;
+      codeIndex = codeStartIndex;
 
-      while (codeIndex < codeEnd) {
-         int offset = codeIndex - codeStart;
+      while (codeIndex < codeEndIndex) {
+         int offset = codeIndex - codeStartIndex;
          visitLabelAndLineNumber(readDebugInfo, offset);
 
          int opcode = readByte(codeIndex);
 
          switch (INSTRUCTION_TYPE[opcode]) {
             case NOARG:     mv.visitInsn(opcode); codeIndex++; break;
-            case IMPLVAR:   readImplicitVarInstruction(opcode); codeIndex++; break;
+            case IMPLVAR:   readInstructionWithImplicitVariable(opcode); codeIndex++; break;
             case LABEL:     codeIndex = readJump(codeIndex, opcode, offset); break;
             case LABELW:    codeIndex = readWideJump(codeIndex, opcode, offset); break;
             case WIDE_INSN: codeIndex = readWideInstruction(codeIndex); break;
@@ -599,7 +599,7 @@ final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readImplicitVarInstruction(int opcode) {
+   private void readInstructionWithImplicitVariable(int opcode) {
       int opcodeBase;
 
       if (opcode > ISTORE) {
@@ -703,7 +703,7 @@ final class MethodReader extends AnnotatedReader
       return codeIndex + offset;
    }
 
-   private void readEndLabel(@Nonnegative int codeLength) {
+   private void visitEndLabel(@Nonnegative int codeLength) {
       Label label = labels[codeLength];
 
       if (label != null) {

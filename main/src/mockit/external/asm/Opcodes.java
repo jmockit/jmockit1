@@ -147,7 +147,7 @@ public interface Opcodes
    int MONITOREXIT  = 195;
 
    // visitIntInsn
-// int BIPUSH = 16;
+   int BIPUSH = 16;
    int SIPUSH = 17;
    int NEWARRAY = 188;
 
@@ -207,7 +207,7 @@ public interface Opcodes
 // int ASTORE_1 = 76;
 // int ASTORE_2 = 77;
 // int ASTORE_3 = 78;
-// int RET  = 169;
+   int RET  = 169;
    int WIDE = 196; // NOT VISITED
 
    // visitIincInsn

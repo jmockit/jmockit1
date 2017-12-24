@@ -34,9 +34,9 @@ import javax.annotation.*;
 /**
  * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:
  * <p/>
- * (<tt>visitAnnotation</tt>)* (<tt>visitParameterAnnotation</tt>)*
- * [<tt>visitCode</tt> (<tt>visit<i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
- * <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxStack</tt>] <tt>visitEnd</tt>.
+ * ({@link #visitAnnotation})* ({@link #visitParameterAnnotation})*
+ * [(<tt>visit<i>X</i>Insn</tt> | {@link #visitLabel} | {@link #visitTryCatchBlock} | {@link #visitLocalVariable} |
+ * {@link #visitLineNumber})* {@link #visitMaxStack}] {@link #visitEnd}.
  * <p/>
  * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods are called in the sequential order of the
  * bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt> is called <i>before</i> the labels passed as
@@ -45,15 +45,12 @@ import javax.annotation.*;
  */
 public class MethodVisitor extends BaseWriter
 {
-   /**
-    * Constructs a new MethodVisitor.
-    */
    protected MethodVisitor() {}
 
    /**
-    * Visits an annotation of this method.
+    * Visits an annotation of the method being visited.
     *
-    * @param desc the class descriptor of the annotation class.
+    * @param desc the descriptor of the annotation type.
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
     * this annotation.
     */
@@ -61,10 +58,10 @@ public class MethodVisitor extends BaseWriter
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
 
    /**
-    * Visits an annotation of a parameter this method.
+    * Visits an annotation on a parameter of the method being visited.
     *
     * @param parameter the parameter index.
-    * @param desc      the class descriptor of the annotation class.
+    * @param desc      the descriptor of the annotation type.
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
     * this annotation.
     */
@@ -74,56 +71,68 @@ public class MethodVisitor extends BaseWriter
    /**
     * Visits a zero operand instruction.
     *
-    * @param opcode the opcode of the instruction to be visited. This opcode is either NOP, ACONST_NULL, ICONST_M1,
-    *               ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0, FCONST_1,
-    *               FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD,
-    *               IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2, DUP, DUP_X1,
-    *               DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP, IADD, LADD, FADD, DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL,
-    *               FMUL, DMUL, IDIV, LDIV, FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL, LSHL,
-    *               ISHR, LSHR, IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR, I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L,
-    *               F2D, D2I, D2L, D2F, I2B, I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN, FRETURN,
-    *               DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW, MONITORENTER, or MONITOREXIT.
+    * @param opcode the opcode of the instruction to be visited: {@link Opcodes#NOP NOP},
+    * {@link Opcodes#ACONST_NULL ACONST_NULL}, {@link Opcodes#ICONST_M1 ICONST_M1}, {@link Opcodes#ICONST_0 ICONST_0} to
+    * {@link Opcodes#ICONST_5 ICONST_5}, {@link Opcodes#LCONST_0 LCONST_0}, {@link Opcodes#LCONST_1},
+    * {@link Opcodes#FCONST_0 FCONST_0} to {@link Opcodes#FCONST_2 FCONST_2}, {@link Opcodes#DCONST_0 DCONST_0},
+    * {@link Opcodes#DCONST_1 DCONST_1}, {@link Opcodes#IALOAD IALOAD}, {@link Opcodes#LALOAD LALOAD},
+    * {@link Opcodes#FALOAD FALOAD}, {@link Opcodes#DALOAD DALOAD}, {@link Opcodes#AALOAD AALOAD},
+    * {@link Opcodes#BALOAD BALOAD}, {@link Opcodes#CALOAD CALOAD}, {@link Opcodes#SALOAD SALOAD},
+    * {@link Opcodes#IASTORE IASTORE}, LASTORE, FASTORE, DASTORE, {@link Opcodes#AASTORE AASTORE},
+    * {@link Opcodes#BASTORE BASTORE}, {@link Opcodes#CASTORE CASTORE}, {@link Opcodes#SASTORE SASTORE},
+    * {@link Opcodes#POP POP}, POP2, {@link Opcodes#DUP DUP}, {@link Opcodes#DUP_X1 DUP_X1},
+    * {@link Opcodes#DUP_X2 DUP_X2}, {@link Opcodes#DUP2 DUP2}, DUP2_X1, DUP2_X2, {@link Opcodes#SWAP SWAP},
+    * {@link Opcodes#IADD IADD}, LADD, FADD, DADD, {@link Opcodes#ISUB ISUB}, LSUB, FSUB, {@link Opcodes#DSUB DSUB},
+    * {@link Opcodes#IMUL IMUL}, LMUL, {@link Opcodes#FMUL FMUL}, DMUL, {@link Opcodes#IDIV IDIV}, LDIV, FDIV, DDIV,
+    * {@link Opcodes#IREM IREM}, LREM, FREM, DREM, {@link Opcodes#INEG INEG}, LNEG, FNEG, {@link Opcodes#DNEG DNEG},
+    * {@link Opcodes#ISHL ISHL}, LSHL, {@link Opcodes#ISHR ISHR}, LSHR, IUSHR, LUSHR, {@link Opcodes#IAND IAND}, LAND,
+    * {@link Opcodes#IOR IOR}, LOR, {@link Opcodes#IXOR IXOR}, LXOR, {@link Opcodes#I2L I2L}, I2F, I2D, L2I, L2F, L2D,
+    * {@link Opcodes#F2I F2I}, F2L, {@link Opcodes#F2D F2D}, {@link Opcodes#D2I D2I}, D2L, D2F, I2B, I2C, I2S,
+    * {@link Opcodes#LCMP LCMP}, FCMPL, FCMPG, DCMPL, DCMPG, {@link Opcodes#IRETURN IRETURN}, LRETURN, FRETURN,
+    * {@link Opcodes#DRETURN DRETURN}, {@link Opcodes#ARETURN ARETURN}, {@link Opcodes#RETURN RETURN},
+    * {@link Opcodes#ARRAYLENGTH ARRAYLENGTH}, {@link Opcodes#ATHROW ATHROW}, {@link Opcodes#MONITORENTER MONITORENTER},
+    * or {@link Opcodes#MONITOREXIT MONITOREXIT}.
     */
    public void visitInsn(int opcode) {}
 
    /**
-    * Visits an instruction with a single int operand.
+    * Visits an instruction with a single <tt>int</tt> operand.
     *
-    * @param opcode  the opcode of the instruction to be visited. This opcode is either BIPUSH, SIPUSH or NEWARRAY.
+    * @param opcode  the opcode of the instruction to be visited. This opcode is either {@link Opcodes#BIPUSH BIPUSH},
+    *                {@link Opcodes#SIPUSH SIPUSH} or {@link Opcodes#NEWARRAY NEWARRAY}.
     * @param operand the operand of the instruction to be visited.<br>
-    *                When opcode is BIPUSH, operand value should be between Byte.MIN_VALUE and Byte.MAX_VALUE.<br>
-    *                When opcode is SIPUSH, operand value should be between Short.MIN_VALUE and Short.MAX_VALUE.<br>
-    *                When opcode is NEWARRAY, operand value should be one of {@link ArrayElementType}.
+    *                When opcode is BIPUSH, it's between {@link Byte#MIN_VALUE} and {@link Byte#MAX_VALUE}.<br>
+    *                When opcode is SIPUSH, it's between {@link Short#MIN_VALUE} and {@link Short#MAX_VALUE}.<br>
+    *                When opcode is NEWARRAY, the operand value is one of the {@link ArrayElementType} values.
     */
    public void visitIntInsn(int opcode, int operand) {}
 
    /**
-    * Visits a local variable instruction. A local variable instruction is an instruction that loads or stores the value
-    * of a local variable.
+    * Visits a local variable instruction, which loads or stores the value of a local variable.
     *
-    * @param opcode the opcode of the local variable instruction to be visited. This opcode is either ILOAD, LLOAD,
-    *               FLOAD, DLOAD, ALOAD, ISTORE, LSTORE, FSTORE, DSTORE, ASTORE or RET.
-    * @param var    the operand of the instruction to be visited. This operand is the index of a local variable.
+    * @param opcode the opcode of the local variable instruction to be visited. This opcode is either
+    * {@link Opcodes#ILOAD ILOAD}, {@link Opcodes#LLOAD LLOAD}, {@link Opcodes#FLOAD FLOAD},
+    * {@link Opcodes#DLOAD DLOAD}, {@link Opcodes#ALOAD ALOAD}, {@link Opcodes#ISTORE ISTORE},
+    * {@link Opcodes#LSTORE LSTORE}, {@link Opcodes#FSTORE FSTORE}, {@link Opcodes#DSTORE DSTORE},
+    * {@link Opcodes#ASTORE ASTORE} or {@link Opcodes#RET RET}.
+    * @param var the operand of the instruction to be visited, which is the index of a local variable.
     */
-   public void visitVarInsn(int opcode, int var) {}
+   public void visitVarInsn(int opcode, @Nonnegative int var) {}
 
    /**
-    * Visits a type instruction. A type instruction is an instruction that takes the internal name of a class as
-    * parameter.
+    * Visits a type instruction, which takes the internal name of a class as parameter.
     *
-    * @param opcode the opcode of the type instruction to be visited. This opcode
-    *               is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.
-    * @param type   the operand of the instruction to be visited. This operand must be the internal name of an object or
-    *               array class.
+    * @param opcode the opcode of the instruction to be visited: {@link Opcodes#NEW NEW},
+    * {@link Opcodes#ANEWARRAY ANEWARRAY}, {@link Opcodes#CHECKCAST CHECKCAST}, or
+    * {@link Opcodes#INSTANCEOF INSTANCEOF}.
+    * @param type the operand of the instruction, which is the internal name of an object or array class.
     */
    public void visitTypeInsn(int opcode, @Nonnull String type) {}
 
    /**
-    * Visits a field instruction. A field instruction is an instruction that loads or stores the value of a field of an
-    * object or a class.
+    * Visits a field access instruction, which loads or stores the value of a field of an object or a class.
     *
-    * @param opcode the opcode of the type instruction to be visited. This opcode
-    *               is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
+    * @param opcode the opcode of the instruction to be visited: GETSTATIC, PUTSTATIC, GETFIELD, or PUTFIELD.
     * @param owner  the internal name of the field's owner class.
     * @param name   the field's name.
     * @param desc   the field's descriptor (see {@link JavaType}).
@@ -131,28 +140,25 @@ public class MethodVisitor extends BaseWriter
    public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {}
 
    /**
-    * Visits a method instruction. A method instruction is an instruction that invokes a method.
+    * Visits a method invocation instruction, which invokes a method or constructor.
     *
-    * @param opcode the opcode of the type instruction to be visited. This opcode is either INVOKEVIRTUAL,
-    *               INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+    * @param opcode the opcode of the instruction: INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC, or INVOKEINTERFACE.
     * @param owner  the internal name of the method's owner class.
     * @param name   the method's name.
     * @param desc   the method's descriptor (see {@link JavaType}).
-    * @param itf    if the method's owner class is an interface.
+    * @param itf    whether the method's owner class is an interface or not.
     */
    public void visitMethodInsn(
       int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {}
 
    /**
-    * Visits an invokedynamic instruction.
+    * Visits an {@link Opcodes#INVOKEDYNAMIC INVOKEDYNAMIC} instruction.
     *
     * @param name    the method's name.
     * @param desc    the method's descriptor (see {@link JavaType}).
     * @param bsm     the bootstrap method.
     * @param bsmArgs the bootstrap method constant arguments. Each argument must be an {@link Integer}, {@link Float},
-    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType} or {@link Handle} value.
-    *                This method is allowed to modify the content of the array so a caller should expect that this array
-    *                may change.
+    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType}, or {@link Handle} value.
     */
    public void visitInvokeDynamicInsn(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs) {}
@@ -174,48 +180,16 @@ public class MethodVisitor extends BaseWriter
    public void visitLabel(@Nonnull Label label) {}
 
    /**
-    * Visits a LDC instruction. Note that new constant types may be added in future versions of the Java Virtual
-    * Machine. To easily detect new constant types, implementations of this method should check for unexpected constant
-    * types, like this:
-    * <p>
-    * <pre>
-    * if (cst instanceof Integer) {
-    *     // ...
-    * } else if (cst instanceof Float) {
-    *     // ...
-    * } else if (cst instanceof Long) {
-    *     // ...
-    * } else if (cst instanceof Double) {
-    *     // ...
-    * } else if (cst instanceof String) {
-    *     // ...
-    * } else if (cst instanceof JavaType) {
-    *     int sort = ((JavaType) cst).getSort();
-    *     if (sort == Type.Sort.OBJECT) {
-    *         // ...
-    *     } else if (sort == Type.Sort.ARRAY) {
-    *         // ...
-    *     } else if (sort == Type.Sort.METHOD) {
-    *         // ...
-    *     } else {
-    *         // throw an exception
-    *     }
-    * } else if (cst instanceof Handle) {
-    *     // ...
-    * } else {
-    *     // throw an exception
-    * }
-    * </pre>
+    * Visits a {@link Opcodes#LDC LDC} instruction.
     *
-    * @param cst the constant to be loaded on the stack. This parameter must be a non null {@link Integer}, a
-    *            {@link Float}, a {@link Long}, a {@link Double}, a {@link String}, a {@link JavaType} of OBJECT or ARRAY
-    *            sort for <tt>.class</tt> constants, for classes whose version is 49.0, a {@link JavaType} of METHOD sort or
-    *            a {@link Handle} for MethodType and MethodHandle constants, for classes whose version is 51.0.
+    * @param cst the constant to be loaded on the stack, which must be a non null
+    * {@link Integer}/{@link Float}/{@link Long}/{@link Double}/{@link String}, an {@link ObjectType} or
+    * {@link ArrayType} for <tt>.class</tt> constants, a {@link MethodType}, or a {@link Handle}.
     */
    public void visitLdcInsn(@Nonnull Object cst) {}
 
    /**
-    * Visits an IINC instruction.
+    * Visits an {@link Opcodes#IINC IINC} instruction.
     *
     * @param var       index of the local variable to be incremented.
     * @param increment amount to increment the local variable by.
@@ -223,7 +197,7 @@ public class MethodVisitor extends BaseWriter
    public void visitIincInsn(@Nonnegative int var, @Nonnegative int increment) {}
 
    /**
-    * Visits a TABLESWITCH instruction.
+    * Visits a {@link Opcodes#TABLESWITCH TABLESWITCH} instruction.
     *
     * @param min    the minimum key value.
     * @param max    the maximum key value.
@@ -234,33 +208,31 @@ public class MethodVisitor extends BaseWriter
    public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {}
 
    /**
-    * Visits a LOOKUPSWITCH instruction.
+    * Visits a {@link Opcodes#LOOKUPSWITCH LOOKUPSWITCH} instruction.
     *
     * @param dflt   beginning of the default handler block.
     * @param keys   the values of the keys.
     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the beginning of the handler block for the
-    *               <tt>keys[i]</tt> key.
+    *               <tt>keys[i]</tt>.
     */
    public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {}
 
    /**
-    * Visits a MULTIANEWARRAY instruction.
+    * Visits a {@link Opcodes#MULTIANEWARRAY MULTIANEWARRAY} instruction.
     *
-    * @param desc an array type descriptor (see {@link JavaType}).
+    * @param desc an array type descriptor (see {@link ArrayType}).
     * @param dims number of dimensions of the array to allocate.
     */
    public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {}
 
    /**
-    * Visits a try catch block.
+    * Visits a <tt>try..catch</tt> block.
     *
     * @param start   beginning of the exception handler's scope (inclusive).
     * @param end     end of the exception handler's scope (exclusive).
     * @param handler beginning of the exception handler's code.
     * @param type    internal name of the type of exceptions handled by the handler, or <tt>null</tt> to catch any
     *                exceptions (for "finally" blocks).
-    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor (by the
-    *                                  {@link #visitLabel} method).
     */
    public void visitTryCatchBlock(
       @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {}
@@ -269,26 +241,22 @@ public class MethodVisitor extends BaseWriter
     * Visits a local variable declaration.
     *
     * @param name      the name of a local variable.
-    * @param desc      the type descriptor of this local variable.
-    * @param signature the type signature of this local variable.
+    * @param desc      the type descriptor of the local variable.
+    * @param signature the type signature of the local variable.
     *                  May be <tt>null</tt> if the local variable type does not use generic types.
     * @param start     the first instruction corresponding to the scope of this local variable (inclusive).
     * @param end       the last instruction corresponding to the scope of this local variable (exclusive).
     * @param index     the local variable's index.
-    * @throws IllegalArgumentException if one of the labels has not already been visited by this visitor (by the
-    *                                  {@link #visitLabel} method).
     */
    public void visitLocalVariable(
       @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
       @Nonnegative int index) {}
 
    /**
-    * Visits a line number declaration.
+    * Visits a line number within the body of the method.
     *
     * @param line  a line number. This number refers to the source file from which the class was compiled.
     * @param start the first instruction corresponding to this line number.
-    * @throws IllegalArgumentException if <tt>start</tt> has not already been visited by this visitor (by the
-    *                                  {@link #visitLabel} method).
     */
    public void visitLineNumber(@Nonnegative int line, @Nonnull Label start) {}
 
