@@ -11,7 +11,7 @@ public final class MockingFilters
 {
    private static final Map<String, String> FILTERS = new HashMap<String, String>();
    static {
-      FILTERS.put("java/lang/Object", "<init> clone getClass hashCode ");
+      FILTERS.put("java/lang/Object", "<init> clone getClass hashCode wait notify notifyAll ");
       FILTERS.put("java/lang/System", "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName ");
       FILTERS.put("java/lang/Thread", "currentThread getName getThreadGroup interrupted isInterrupted ");
       FILTERS.put("java/io/File", "<init> compareTo equals getName getPath hashCode toString ");

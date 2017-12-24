@@ -286,37 +286,6 @@ public final class JREMockingTest
       new Verifications() {{ writer.append('x'); }};
    }
 
-   // Mocking of java.lang.Object methods /////////////////////////////////////////////////////////////////////////////
-
-   final Object lock = new Object();
-
-   void awaitNotification() throws InterruptedException
-   {
-      synchronized (lock) {
-         lock.wait();
-      }
-   }
-
-   @Test
-   public void waitingWithDynamicPartialMocking() throws Exception
-   {
-      final Object mockedLock = new Object();
-
-      new Expectations(Object.class) {{ mockedLock.wait(); }};
-
-      awaitNotification();
-   }
-
-   @Test
-   public void waitingWithMockParameter(@Mocked final Object mockedLock) throws Exception
-   {
-      new Expectations() {{
-         mockedLock.wait();
-      }};
-
-      awaitNotification();
-   }
-
    // Mocking the Reflection API //////////////////////////////////////////////////////////////////////////////////////
 
    @Retention(RetentionPolicy.RUNTIME) @interface AnAnnotation { String value(); }
