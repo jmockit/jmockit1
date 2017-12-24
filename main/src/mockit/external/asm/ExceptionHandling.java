@@ -53,72 +53,46 @@ final class ExceptionHandling
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
-         Label currentLabel = exceptionHandler.start.getFirst();
-         Label handlerLabel = exceptionHandler.handler.getFirst();
-         Label endLabel = exceptionHandler.end.getFirst();
+         Label handler = exceptionHandler.handler.getFirst();
+         Label start = exceptionHandler.start.getFirst();
+         Label end = exceptionHandler.end.getFirst();
 
-         // Computes the kind of the edges to 'handlerLabel'.
-         String catchType = exceptionHandler.desc == null ? "java/lang/Throwable" : exceptionHandler.desc;
-         int kind = Frame.TypeMask.OBJECT | cp.addNormalType(catchType);
+         // Computes the kind of the edges to 'handler'.
+         String catchType = exceptionHandler.getCatchTypeDesc();
+         int kindOfEdge = Frame.TypeMask.OBJECT | cp.addNormalType(catchType);
 
-         // handlerLabel is an exception handler.
-         handlerLabel.markAsTarget();
+         // 'handler' is an exception handler.
+         handler.markAsTarget();
 
-         // Adds 'handlerLabel' as a successor of labels between 'start' and 'end'.
-         while (currentLabel != endLabel) {
-            // Creates an edge to 'handlerLabel'.
-            Edge successor = new Edge(kind, handlerLabel);
-
-            // Adds it to the successors of 'currentLabel'.
-            //noinspection ConstantConditions
-            successor.next = currentLabel.successors;
-            currentLabel.successors = successor;
-
-            // Goes to the next label.
-            currentLabel = currentLabel.successor;
-         }
-
+         addHandlerLabelAsSuccessor(kindOfEdge, handler, start, end);
          exceptionHandler = exceptionHandler.next;
       }
-   }
-
-   // Removes the start-end range from the exception handlers.
-   void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
-      firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, start, end);
    }
 
    void completeControlFlowGraphWithExceptionHandlerBlocks() {
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
-         Label currentLabel = exceptionHandler.start;
-         Label handlerLabel = exceptionHandler.handler;
-         Label endLabel = exceptionHandler.end;
-
-         // Adds 'handlerLabel' as a successor of labels between 'start' and 'end'.
-         while (currentLabel != endLabel) {
-            // Creates an edge to 'handlerLabel'.
-            Edge edge = new Edge(Edge.EXCEPTION, handlerLabel);
-
-            // Adds it to the successors of 'currentLabel'.
-            //noinspection ConstantConditions
-            if (!currentLabel.isJSR()) {
-               edge.next = currentLabel.successors;
-               currentLabel.successors = edge;
-            }
-            else {
-               // If currentLabel is a JSR block, adds edge after the first two edges to preserve the hypothesis about
-               // JSR block successors order (see {@link #visitJumpInsn}).
-               edge.next = currentLabel.successors.next.next;
-               currentLabel.successors.next.next = edge;
-            }
-
-            // Goes to the next label.
-            currentLabel = currentLabel.successor;
-         }
-
+         addHandlerLabelAsSuccessor(
+            Edge.EXCEPTION, exceptionHandler.handler, exceptionHandler.start, exceptionHandler.end);
          exceptionHandler = exceptionHandler.next;
       }
+   }
+
+   // Adds 'handler' as a successor of labels between 'start' and 'end'.
+   private static void addHandlerLabelAsSuccessor(int kindOfEdge, @Nonnull Label handler, Label start, Label end) {
+      while (start != end) {
+         Edge edge = new Edge(kindOfEdge, handler);
+         //noinspection ConstantConditions
+         edge.next = start.successors;
+         start.successors = edge;
+         start = start.successor;
+      }
+   }
+
+   // Removes the start-end range from the exception handlers.
+   void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
+      firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, start, end);
    }
 
    boolean hasHandlers() { return handlerCount > 0; }

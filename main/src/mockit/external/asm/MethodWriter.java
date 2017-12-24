@@ -186,7 +186,7 @@ public final class MethodWriter extends MethodVisitor
       updateMaxLocals(opcode, var);
 
       // Adds the instruction to the bytecode of the method.
-      if (var < 4 && opcode != RET) {
+      if (var < 4) {
          int opt;
 
          if (opcode < ISTORE) { // ILOAD_0
@@ -267,14 +267,11 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if (label.isResolved() && label.position - code.length < Short.MIN_VALUE) {
-         // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W,
-         // JSR with JSR_W and IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
+         // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W and
+         // IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
          // (i.e., IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
          if (opcode == GOTO) {
             code.putByte(GOTO_W);
-         }
-         else if (opcode == JSR) {
-            code.putByte(JSR_W);
          }
          else {
             // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
@@ -420,9 +417,8 @@ public final class MethodWriter extends MethodVisitor
          exceptionHandling.countNumberOfHandlers();
       }
       else {
-         // TODO: figure out if/when the next two calls are needed, since no tests fail if commented out
+         // TODO: figure out if/when the next call is needed, since no tests fail if commented out
          exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocks();
-         cfgAnalysis.completeControlFlowGraphWithRETSuccessors();
 
          computedMaxStack = cfgAnalysis.computeMaxStackSize();
          computedMaxStack = Math.max(maxStack, computedMaxStack);
@@ -467,7 +463,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    // Replaces instructions with NOP ... NOP ATHROW.
-   private void replaceInstructionsWithNOPAndATHROW(int start, int end) {
+   private void replaceInstructionsWithNOPAndATHROW(@Nonnegative int start, @Nonnegative int end) {
       byte[] data = code.data;
 
       for (int i = start; i < end; i++) {

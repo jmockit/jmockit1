@@ -622,8 +622,7 @@ public final class Frame
          case DLOAD: push(DOUBLE); push(TOP); break;
          case ALOAD: push(get(var));          break;
          case ISTORE: case FSTORE: case ASTORE: executeSingleWordStore(var); break;
-         case LSTORE: case DSTORE: executeDoubleWordStore(var);              break;
-         case RET: throw new RuntimeException("RET is not supported with computeFrames option");
+         case LSTORE: case DSTORE:              executeDoubleWordStore(var);
       }
    }
 
@@ -692,9 +691,6 @@ public final class Frame
          case IF_ICMPEQ: case IF_ICMPNE: case IF_ICMPLT: case IF_ICMPGE:
          case IF_ICMPGT: case IF_ICMPLE: case IF_ACMPEQ: case IF_ACMPNE:
             pop(2);
-            break;
-         case JSR:
-            throw new RuntimeException("JSR is not supported with computeFrames option");
       }
    }
 

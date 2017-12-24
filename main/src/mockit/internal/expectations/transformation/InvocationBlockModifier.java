@@ -246,11 +246,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       }
 
       argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(opcode, varIndex);
-
-      if (opcode != RET) {
-         stackSize += Frame.SIZE[opcode];
-      }
-
+      stackSize += Frame.SIZE[opcode];
       mw.visitVarInsn(opcode, varIndex);
    }
 
@@ -269,10 +265,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    @Override
    public void visitJumpInsn(@Nonnegative int opcode, @Nonnull Label label)
    {
-      if (opcode != JSR) {
-         stackSize += Frame.SIZE[opcode];
-      }
-
+      stackSize += Frame.SIZE[opcode];
       mw.visitJumpInsn(opcode, label);
    }
 

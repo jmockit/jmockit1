@@ -49,7 +49,7 @@ final class ExceptionHandler
    /**
     * Beginning of the exception handler's code.
     */
-   final Label handler;
+   @Nonnull final Label handler;
 
    /**
     * Internal name of the type of exceptions handled by this handler, or <tt>null</tt> to catch any exceptions.
@@ -60,20 +60,25 @@ final class ExceptionHandler
     * Constant pool index of the internal name of the type of exceptions handled by this handler, or <tt>0</tt> to catch
     * any exceptions.
     */
-   final int type;
+   @Nonnegative final int type;
 
    /**
     * Next exception handler block info.
     */
    ExceptionHandler next;
 
-   ExceptionHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String desc, int type) {
+   ExceptionHandler(
+      @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String desc, @Nonnegative int type
+   ) {
       this.start = start;
       this.end = end;
       this.handler = handler;
       this.desc = desc;
       this.type = type;
    }
+
+   @Nonnull
+   String getCatchTypeDesc() { return desc == null ? "java/lang/Throwable" : desc; }
 
    /**
     * Removes the range between start and end from the given exception handlers.

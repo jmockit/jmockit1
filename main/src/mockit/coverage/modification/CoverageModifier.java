@@ -341,7 +341,7 @@ final class CoverageModifier extends WrappingClassVisitor
          lineExpectingInstructionAfterJump = currentLine;
       }
 
-      protected final boolean isConditionalJump(int opcode) { return opcode != GOTO && opcode != JSR; }
+      protected final boolean isConditionalJump(int opcode) { return opcode != GOTO; }
 
       private void generateCallToRegisterBranchTargetExecutionIfPending()
       {

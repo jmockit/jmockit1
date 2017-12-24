@@ -10,11 +10,6 @@ final class CFGAnalysis
    @Nonnull private final ConstantPoolGeneration cp;
    @Nonnull private final ByteVector code;
 
-   /**
-    * The number of subroutines in this method.
-    */
-   @Nonnegative private int subroutines;
-
    // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
    // graph contains one node per "basic block", and one edge per "jump" from one basic block to another. Each node
    // (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this
@@ -153,20 +148,9 @@ final class CFGAnalysis
          if (computeFrames) {
             currentBlock.frame.executeVAR(opcode, var);
          }
-         else {
-            // Updates current and max stack sizes.
-            if (opcode == RET) {
-               // No stack change, but end of current block (no successor).
-               currentBlock.markAsEndingWithRET();
-
-               // Save 'stackSize' here for future use.
-               currentBlock.inputStackTop = stackSize;
-               noSuccessor();
-            }
-            else { // xLOAD or xSTORE
-               int sizeVariation = Frame.SIZE[opcode];
-               updateStackSize(sizeVariation);
-            }
+         else { // xLOAD or xSTORE
+            int sizeVariation = Frame.SIZE[opcode];
+            updateStackSize(sizeVariation);
          }
       }
    }
@@ -246,27 +230,9 @@ final class CFGAnalysis
             }
          }
          else {
-            if (opcode == JSR) {
-               if (label.markAsSubroutine()) {
-                  subroutines++;
-               }
-
-               currentBlock.markAsJSR();
-               addSuccessor(stackSize + 1, label);
-
-               // Creates a Label for the next basic block.
-               nextInsn = new Label();
-
-               // Note that, by construction in this method, a JSR block has at least two successors in the control flow
-               // graph: the first one leads the next instruction after the JSR, while the second one leads to the JSR
-               // target.
-            }
-            else {
-               // Updates current stack size (max stack size unchanged because stack size variation always negative in
-               // this case).
-               stackSize += Frame.SIZE[opcode];
-               addSuccessor(stackSize, label);
-            }
+            // Updates current stack size (max size unchanged because size variation always negative in this case).
+            stackSize += Frame.SIZE[opcode];
+            addSuccessor(stackSize, label);
          }
       }
 
@@ -359,7 +325,8 @@ final class CFGAnalysis
             currentBlock.frame.executeLDC(constItem);
          }
          else {
-            updateStackSize(constItem instanceof LongValueItem ? 2 : 1);
+            int sizeVariation = constItem instanceof LongValueItem ? 2 : 1;
+            updateStackSize(sizeVariation);
          }
       }
    }
@@ -477,60 +444,6 @@ final class CFGAnalysis
    }
 
    /**
-    * First step: finds the subroutines. This step determines, for each basic block, to which subroutine(s) it
-    * belongs. Second step: finds the successors of RET blocks.
-    */
-   void completeControlFlowGraphWithRETSuccessors() {
-      if (subroutines > 0) {
-         // Finds the basic blocks that belong to the "main" subroutine.
-         labels.visitSubroutine(null, 1, subroutines);
-
-         // Finds the basic blocks that belong to the real subroutines.
-         findBasicBlocksThatBelongToRealSubRoutines();
-
-         // Second step: finds the successors of RET blocks.
-         findSuccessorsOfRETBlocks();
-      }
-   }
-
-   private void findBasicBlocksThatBelongToRealSubRoutines() {
-      Label label = labels;
-      int id = 0;
-
-      while (label != null) {
-         if (label.isJSR()) {
-            // The subroutine is defined by label's TARGET, not by label.
-            Label subroutine = label.successors.next.successor;
-
-            // If this subroutine has not been visited yet...
-            if (!subroutine.isVisited()) {
-               // ...assigns it a new id and finds its basic blocks.
-               id++;
-               subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)), subroutines);
-            }
-         }
-
-         label = label.successor;
-      }
-   }
-
-   private void findSuccessorsOfRETBlocks() {
-      Label label = labels;
-
-      while (label != null) {
-         if (label.isJSR()) {
-            labels.markThisAndSuccessorsAsNotVisitedBySubroutine();
-
-            // The subroutine is defined by label's TARGET, not by label.
-            Label subroutine = label.successors.next.successor;
-            subroutine.visitSubroutine(label, 0, subroutines);
-         }
-
-         label = label.successor;
-      }
-   }
-
-   /**
     * Control flow analysis algorithm: while the block stack is not empty, pop a block from this stack, update the max
     * stack size, compute the true (non relative) begin stack size of the successors of this block, and push these
     * successors onto the stack (unless they have already been pushed onto the stack).
@@ -564,11 +477,6 @@ final class CFGAnalysis
    @Nullable
    private static Label analyzeBlockSuccessors(@Nullable Label stack, @Nonnull Label label, @Nonnegative int start) {
       Edge block = label.successors;
-
-      if (label.isJSR()) {
-         // Ignores the first edge of JSR blocks (virtual successor).
-         block = block.next;
-      }
 
       while (block != null) {
          label = block.successor;

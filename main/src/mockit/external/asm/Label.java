@@ -75,31 +75,6 @@ public final class Label
        * Indicates if this label corresponds to a reachable basic block.
        */
       int REACHABLE = 64;
-
-      /**
-       * Indicates if this basic block ends with a JSR instruction.
-       */
-      int JSR = 128;
-
-      /**
-       * Indicates if this basic block ends with a RET instruction.
-       */
-      int RET = 256;
-
-      /**
-       * Indicates if this basic block is the start of a subroutine.
-       */
-      int SUBROUTINE = 512;
-
-      /**
-       * Indicates if this subroutine basic block has been visited by a visitSubroutine(null, ...) call.
-       */
-      int VISITED = 1024;
-
-      /**
-       * Indicates if this subroutine basic block has been visited by a visitSubroutine(!null, ...) call.
-       */
-      int VISITED2 = 2048;
    }
 
    /**
@@ -196,8 +171,7 @@ public final class Label
 
    /**
     * The next basic block in the basic block stack. This stack is used in the main loop of the fix point algorithm used
-    * in the second step of the control flow analysis algorithms. It is also used in {@link #visitSubroutine} to avoid
-    * using a recursive method.
+    * in the second step of the control flow analysis algorithms.
     *
     * @see MethodWriter#visitMaxStack
     */
@@ -209,48 +183,15 @@ public final class Label
    boolean isTarget()       { return (status & Status.TARGET) != 0; }
    boolean isStoringFrame() { return (status & Status.STORE) != 0; }
    boolean isReachable()    { return (status & Status.REACHABLE) != 0; }
-   boolean isJSR()          { return (status & Status.JSR) != 0; }
-   boolean isRET()          { return (status & Status.RET) != 0; }
-   boolean isVisited()      { return (status & Status.VISITED) != 0; }
 
-   void markAsDebug()              { status |= Status.DEBUG; }
-   void markAsResolved()           { status |= Status.RESOLVED; }
-   void markAsPushed()             { status |= Status.PUSHED; }
-   void markAsTarget()             { status |= Status.TARGET; }
-   void markAsStoringFrame()       { status |= Status.STORE; }
-   void markAsReachable()          { status |= Status.REACHABLE; }
-   void markAsJSR()                { status |= Status.JSR; }
-   void markAsEndingWithRET()      { status |= Status.RET; }
-   void markAsVisitedSubroutine()  { status |= Status.VISITED; }
+   void markAsDebug()            { status |= Status.DEBUG; }
+   private void markAsResolved() { status |= Status.RESOLVED; }
+   void markAsPushed()           { status |= Status.PUSHED; }
+   void markAsTarget()           { status |= Status.TARGET; }
+   void markAsStoringFrame()     { status |= Status.STORE; }
+   void markAsReachable()        { status |= Status.REACHABLE; }
 
    void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
-
-   boolean markAsSubroutine() {
-      if ((status & Status.SUBROUTINE) == 0) {
-         status |= Status.SUBROUTINE;
-         return true;
-      }
-
-      return false;
-   }
-
-   boolean markAsVisitedSubroutine2() {
-      if ((status & Status.VISITED2) != 0) {
-         return true;
-      }
-
-      status |= Status.VISITED2;
-      return false;
-   }
-
-   void markThisAndSuccessorsAsNotVisitedBySubroutine() {
-      Label label = this;
-
-      while (label != null) {
-         label.status &= ~Status.VISITED2;
-         label = label.successor;
-      }
-   }
 
    // ------------------------------------------------------------------------
    // Methods to compute offsets and to manage forward references
@@ -279,11 +220,13 @@ public final class Label
          }
       }
       else {
+         int reference = position - source;
+
          if (wideOffset) {
-            out.putInt(position - source);
+            out.putInt(reference);
          }
          else {
-            out.putShort(position - source);
+            out.putShort(reference);
          }
       }
    }
@@ -359,128 +302,9 @@ public final class Label
    }
 
    // ------------------------------------------------------------------------
-   // Methods related to subroutines
-   // ------------------------------------------------------------------------
-
-   /**
-    * Returns true is this basic block belongs to the given subroutine.
-    *
-    * @param id a subroutine id.
-    */
-   private boolean inSubroutine(long id) {
-      //noinspection SimplifiableIfStatement
-      if (isVisited()) {
-         return (srcAndRefPositions[(int) (id >>> 32)] & (int) id) != 0;
-      }
-
-      return false;
-   }
-
-   /**
-    * Returns true if this basic block and the given one belong to a common subroutine.
-    *
-    * @param block another basic block.
-    */
-   private boolean inSameSubroutine(@Nonnull Label block) {
-      if (!isVisited() || !block.isVisited()) {
-         return false;
-      }
-
-      for (int i = 0; i < srcAndRefPositions.length; ++i) {
-         if ((srcAndRefPositions[i] & block.srcAndRefPositions[i]) != 0) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   /**
-    * Marks this basic block as belonging to the given subroutine.
-    *
-    * @param id            a subroutine id.
-    * @param nbSubroutines the total number of subroutines in the method.
-    */
-   private void addToSubroutine(long id, @Nonnegative int nbSubroutines) {
-      if (!isVisited()) {
-         markAsVisitedSubroutine();
-         srcAndRefPositions = new int[nbSubroutines / 32 + 1];
-      }
-
-      srcAndRefPositions[(int) (id >>> 32)] |= (int) id;
-   }
-
-   /**
-    * Finds the basic blocks that belong to a given subroutine, and marks these blocks as belonging to this subroutine.
-    * This method follows the control flow graph to find all the blocks that are reachable from the current block
-    * WITHOUT following any JSR target.
-    *
-    * @param JSR a JSR block that jumps to this subroutine. If this JSR is not null it is added to the successor of the
-    *            RET blocks found in the subroutine.
-    * @param id the id of this subroutine.
-    * @param nbSubroutines the total number of subroutines in the method.
-    */
-   void visitSubroutine(@Nullable Label JSR, long id, @Nonnegative int nbSubroutines) {
-      // User managed stack of labels, to avoid using a recursive method (recursivity can lead to stack overflow with
-      // very large methods).
-      Label stack = this;
-
-      while (stack != null) {
-         // Removes a label l from the stack.
-         Label l = stack;
-         stack = l.next;
-         l.next = null;
-
-         if (JSR != null) {
-            if (l.markAsVisitedSubroutine2()) {
-               continue;
-            }
-
-            // Adds JSR to the successors of l, if it is a RET block.
-            if (l.isRET()) {
-               if (!l.inSameSubroutine(JSR)) {
-                  Edge e = new Edge(l.inputStackTop, JSR.successors.successor);
-                  e.next = l.successors;
-                  l.successors = e;
-               }
-            }
-         }
-         else {
-            // If the l block already belongs to subroutine 'id', continue.
-            if (l.inSubroutine(id)) {
-               continue;
-            }
-
-            // Marks the l block as belonging to subroutine 'id'.
-            l.addToSubroutine(id, nbSubroutines);
-         }
-
-         // Pushes each successor of l on the stack, except JSR targets.
-         Edge e = l.successors;
-
-         while (e != null) {
-            // If the l block is a JSR block, then 'l.successors.next' leads to the JSR target
-            // (see {@link #visitJumpInsn}) and must therefore not be followed.
-            if (!l.isJSR() || e != l.successors.next) {
-               // Pushes e.successor on the stack if it not already added.
-               if (e.successor.next == null) {
-                  e.successor.next = stack;
-                  stack = e.successor;
-               }
-            }
-
-            e = e.next;
-         }
-      }
-   }
-
-   // ------------------------------------------------------------------------
    // Overridden Object methods
    // ------------------------------------------------------------------------
 
-   /**
-    * Returns a string representation of this label.
-    */
    @Override
    public String toString() {
       return "L" + System.identityHashCode(this);
