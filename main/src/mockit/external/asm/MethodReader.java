@@ -323,64 +323,74 @@ final class MethodReader extends AnnotatedReader
       boolean tablInsn = instructionType == TABL_INSN;
 
       if (tablInsn || instructionType == LOOK_INSN) {
-         readSwitchInstruction(offset, tablInsn);
+         readLabelsForSwitchInstruction(offset, tablInsn);
       }
       else {
-         int codeOffset = readNonSwitchInstruction(offset, instructionType);
-         codeIndex += codeOffset;
+         readLabelsForNonSwitchInstruction(offset, instructionType);
       }
    }
 
-   private void readSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
-      // Skips 0 to 3 padding bytes.
-      codeIndex += 3 - (offset & 3);
+   private void readLabelsForSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
+      codeIndex += 3 - (offset & 3); // skips 0 to 3 padding bytes
 
-      // Reads instruction.
-      int labelOffset = readInt();
-      getOrCreateLabel(offset + labelOffset);
+      int defaultLabelOffset = readInt();
+      getOrCreateLabel(offset + defaultLabelOffset);
 
       int caseCount;
-      int offsetStep;
-      int finalOffsetStep;
 
       if (tableNotLookup) {
-         int firstCase = readInt(codeIndex);
-         int lastCase = readInt(codeIndex + 4);
-         caseCount = lastCase - firstCase + 1;
-         offsetStep = 4;
-         finalOffsetStep = 8;
+         int min = readInt();
+         int max = readInt();
+         caseCount = max - min + 1;
       }
       else {
-         caseCount = readInt(codeIndex);
-         offsetStep = 8;
-         finalOffsetStep = 4;
+         caseCount = readInt();
       }
 
       while (caseCount > 0) {
-         int caseOffset = readInt(codeIndex + 8);
-         getOrCreateLabel(offset + caseOffset);
-         codeIndex += offsetStep;
+         if (!tableNotLookup) {
+            codeIndex += 4;
+         }
+
+         int caseOffset = offset + readInt();
+         getOrCreateLabel(caseOffset);
          caseCount--;
       }
-
-      codeIndex += finalOffsetStep;
    }
 
-   /**
-    * @return the offset for codeIndex
-    */
-   @Nonnegative
-   private int readNonSwitchInstruction(@Nonnegative int offset, byte instructionType) {
+   @SuppressWarnings("OverlyLongMethod")
+   private void readLabelsForNonSwitchInstruction(@Nonnegative int offset, byte instructionType) {
+      int codeIndexSize = 0;
+
       switch (instructionType) {
-         case NOARG: case IMPLVAR: return 0;
-         case LABEL:  getOrCreateLabel(offset + readShort()); return 0;
-         case LABELW: getOrCreateLabel(offset + readInt());   return 0;
-         case WIDE_INSN: int opcode = readUnsignedByte(); return opcode == IINC ? 4 : 2;
-         case VAR: case SBYTE: case LDC_INSN: return 1;
-         case SHORT: case LDCW_INSN: case FIELDORMETH: case TYPE_INSN: case IINC_INSN: return 2;
-         case ITFMETH: case INDYMETH: return 4;
-         case MANA_INSN: default: return 3;
+         case NOARG: case IMPLVAR:
+            return;
+         case LABEL:
+            int labelOffset = offset + readShort();
+            getOrCreateLabel(labelOffset);
+            return;
+         case LABELW:
+            int labelOffsetW = offset + readInt();
+            getOrCreateLabel(labelOffsetW);
+            return;
+         case WIDE_INSN:
+            int opcode = readUnsignedByte();
+            codeIndexSize = opcode == IINC ? 4 : 2;
+            break;
+         case VAR: case SBYTE: case LDC_INSN:
+            codeIndexSize = 1;
+            break;
+         case SHORT: case LDCW_INSN: case TYPE_INSN: case FIELDORMETH: case IINC_INSN:
+            codeIndexSize = 2;
+            break;
+         case ITFMETH: case INDYMETH:
+            codeIndexSize = 4;
+            break;
+         case MANA_INSN:
+            codeIndexSize = 3;
       }
+
+      codeIndex += codeIndexSize;
    }
 
    /**
@@ -459,10 +469,10 @@ final class MethodReader extends AnnotatedReader
          int offset = codeIndex - codeStartIndex;
          visitLabelAndLineNumber(readDebugInfo, offset);
 
-         int opcode = readUnsignedByte(codeIndex);
+         int opcode = readUnsignedByte();
 
          switch (INSTRUCTION_TYPE[opcode]) {
-            case NOARG:       mv.visitInsn(opcode); codeIndex++; break;
+            case NOARG:       mv.visitInsn(opcode); break;
             case VAR:         readVariableAccessInstruction(opcode); break;
             case IMPLVAR:     readInstructionWithImplicitVariable(opcode); break;
             case TYPE_INSN:   readTypeInsn(opcode); break;
@@ -473,8 +483,8 @@ final class MethodReader extends AnnotatedReader
             case IINC_INSN:   readIInc(); break;
             case SBYTE:       readInstructionTakingASignedByte(opcode); break;
             case SHORT:       readInstructionTakingASignedShort(opcode); break;
-            case TABL_INSN:   readTableSwitchInstruction(offset); break;
-            case LOOK_INSN:   readLookupSwitchInstruction(offset); break;
+            case TABL_INSN:   readSwitchInstruction(offset, true); break;
+            case LOOK_INSN:   readSwitchInstruction(offset, false); break;
             case MANA_INSN:   readMultiANewArray(); break;
             case WIDE_INSN:   readWideInstruction(); break;
             case FIELDORMETH:
@@ -501,9 +511,8 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readVariableAccessInstruction(int opcode) {
-      int var = readUnsignedByte(codeIndex + 1);
+      int var = readUnsignedByte();
       mv.visitVarInsn(opcode, var);
-      codeIndex += 2;
    }
 
    private void readInstructionWithImplicitVariable(int opcode) {
@@ -522,168 +531,162 @@ final class MethodReader extends AnnotatedReader
       int varIndex = opcode & 3;
 
       mv.visitVarInsn(localVarOpcode, varIndex);
-      codeIndex++;
    }
 
    private void readTypeInsn(int opcode) {
-      String typeDesc = readNonnullClass(codeIndex + 1);
+      String typeDesc = readNonnullClass();
       mv.visitTypeInsn(opcode, typeDesc);
-      codeIndex += 3;
    }
 
    private void readJump(int opcode, @Nonnegative int offset) {
-      short targetIndex = readShort(codeIndex + 1);
+      short targetIndex = readShort();
       Label targetLabel = labels[offset + targetIndex];
       mv.visitJumpInsn(opcode, targetLabel);
-      codeIndex += 3;
    }
 
    private void readWideJump(int opcode, @Nonnegative int offset) {
-      int targetIndex = readInt(codeIndex + 1);
-      Label targetLabelW = labels[offset + targetIndex];
-      mv.visitJumpInsn(opcode - 33, targetLabelW);
-      codeIndex += 5;
+      int targetIndex = readInt();
+      Label targetLabel = labels[offset + targetIndex];
+      mv.visitJumpInsn(opcode - 33, targetLabel);
    }
 
    private void readLDC() {
-      int ldcIndex = readUnsignedByte(codeIndex + 1);
-      Object cst = readConst(ldcIndex);
+      int constIndex = readUnsignedByte();
+      Object cst = readConst(constIndex);
       mv.visitLdcInsn(cst);
-      codeIndex += 2;
    }
 
    private void readLDCW() {
-      Object cstWide = readConstItem(codeIndex + 1);
-      mv.visitLdcInsn(cstWide);
-      codeIndex += 3;
+      Object cst = readConstItem();
+      mv.visitLdcInsn(cst);
    }
 
    private void readIInc() {
-      int var = readUnsignedByte(codeIndex + 1);
-      int increment = readSignedByte(codeIndex + 2);
+      int var = readUnsignedByte();
+      int increment = readSignedByte();
       mv.visitIincInsn(var, increment);
-      codeIndex += 3;
    }
 
    private void readInstructionTakingASignedByte(int opcode) {
-      int operand = readSignedByte(codeIndex + 1);
+      int operand = readSignedByte();
       mv.visitIntInsn(opcode, operand);
-      codeIndex += 2;
    }
 
    private void readInstructionTakingASignedShort(int opcode) {
-      int operand = readShort(codeIndex + 1);
+      int operand = readShort();
       mv.visitIntInsn(opcode, operand);
-      codeIndex += 3;
    }
 
-   private void readTableSwitchInstruction(@Nonnegative int offset) {
-      // Skips 0 to 3 padding bytes.
-      codeIndex = codeIndex + 4 - (offset & 3);
+   private void readSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
+      codeIndex += 3 - (offset & 3); // skips 0 to 3 padding bytes
 
-      // Reads instruction.
-      int dfltLabelOffset = offset + readInt(codeIndex);
-      int min = readInt(codeIndex + 4);
-      int max = readInt(codeIndex + 8);
-      Label[] table = new Label[max - min + 1];
-      codeIndex += 12;
+      int defaultLabelOffset = offset + readInt();
+      Label dfltLabel = labels[defaultLabelOffset];
 
-      for (int i = 0; i < table.length; i++) {
-         int handlerLabelOffset = offset + readInt(codeIndex);
-         table[i] = labels[handlerLabelOffset];
-         codeIndex += 4;
+      int min;
+      int max;
+      int caseCount;
+      int[] keys;
+
+      if (tableNotLookup) {
+         min = readInt();
+         max = readInt();
+         caseCount = max - min + 1;
+         keys = null;
+      }
+      else {
+         min = max = 0;
+         caseCount = readInt();
+         keys = new int[caseCount];
       }
 
-      Label dfltLabel = labels[dfltLabelOffset];
-      mv.visitTableSwitchInsn(min, max, dfltLabel, table);
+      Label[] handlerLabels = readSwitchCaseLabels(offset, caseCount, keys);
+
+      if (tableNotLookup) {
+         mv.visitTableSwitchInsn(min, max, dfltLabel, handlerLabels);
+      }
+      else {
+         mv.visitLookupSwitchInsn(dfltLabel, keys, handlerLabels);
+      }
    }
 
-   private void readLookupSwitchInstruction(@Nonnegative int offset) {
-      // Skips 0 to 3 padding bytes.
-      codeIndex = codeIndex + 4 - (offset & 3);
+   @Nonnull
+   private Label[] readSwitchCaseLabels(@Nonnegative int offset, @Nonnegative int caseCount, @Nullable int[] keys) {
+      Label[] caseLabels = new Label[caseCount];
 
-      // Reads the instruction.
-      int dfltLabelOffset = offset + readInt(codeIndex);
-      int len = readInt(codeIndex + 4);
-      int[] keys = new int[len];
-      Label[] values = new Label[len];
-      codeIndex += 8;
+      for (int i = 0; i < caseCount; i++) {
+         if (keys != null) {
+            keys[i] = readInt();
+         }
 
-      for (int i = 0; i < len; i++) {
-         keys[i] = readInt(codeIndex);
-         int handlerLabelOffset = offset + readInt(codeIndex + 4);
-         values[i] = labels[handlerLabelOffset];
-         codeIndex += 8;
+         int labelOffset = offset + readInt();
+         caseLabels[i] = labels[labelOffset];
       }
 
-      Label dfltLabel = labels[dfltLabelOffset];
-      mv.visitLookupSwitchInsn(dfltLabel, keys, values);
+      return caseLabels;
    }
 
    private void readMultiANewArray() {
-      String arrayTypeDesc = readNonnullClass(codeIndex + 1);
-      int dims = readUnsignedByte(codeIndex + 3);
+      String arrayTypeDesc = readNonnullClass();
+      int dims = readUnsignedByte();
       mv.visitMultiANewArrayInsn(arrayTypeDesc, dims);
-      codeIndex += 4;
    }
 
    private void readWideInstruction() {
-      int opcode = readUnsignedByte(codeIndex + 1);
-      int var = readUnsignedShort(codeIndex + 2);
-      int offset;
+      int opcode = readUnsignedByte();
+      int var = readUnsignedShort();
 
       if (opcode == IINC) {
-         int increment = readShort(codeIndex + 4);
+         int increment = readShort();
          mv.visitIincInsn(var, increment);
-         offset = 6;
       }
       else {
          mv.visitVarInsn(opcode, var);
-         offset = 4;
+         codeIndex += 2;
       }
-
-      codeIndex += offset;
    }
 
    private void readFieldOrInvokeInstruction(int opcode) {
-      int cpIndex1 = readItem(codeIndex + 1);
-      String owner = readNonnullClass(cpIndex1);
-      int cpIndex2 = readItem(cpIndex1 + 2);
-      String name = readNonnullUTF8(cpIndex2);
-      String desc = readNonnullUTF8(cpIndex2 + 2);
+      int ownerCodeIndex = readItem();
+      String owner = readNonnullClass(ownerCodeIndex);
+      int nameCodeIndex = readItem(ownerCodeIndex + 2);
+      String name = readNonnullUTF8(nameCodeIndex);
+      String desc = readNonnullUTF8(nameCodeIndex + 2);
 
       if (opcode < INVOKEVIRTUAL) {
          mv.visitFieldInsn(opcode, owner, name, desc);
       }
       else {
-         boolean itf = code[cpIndex1 - 1] == Type.IMETH;
+         boolean itf = code[ownerCodeIndex - 1] == Type.IMETH;
          mv.visitMethodInsn(opcode, owner, name, desc, itf);
-      }
 
-      int offset = opcode == INVOKEINTERFACE ? 5 : 3;
-      codeIndex += offset;
+         if (opcode == INVOKEINTERFACE) {
+            codeIndex += 2;
+         }
+      }
    }
 
    private void readInvokeDynamicInstruction() {
-      int cpIndex = readItem(codeIndex + 1);
+      int cpIndex = readItem();
       int bsmStartIndex = readUnsignedShort(cpIndex);
+      int nameCodeIndex = readItem(cpIndex + 2);
+
+      String bsmName = readNonnullUTF8(nameCodeIndex);
+      String bsmDesc = readNonnullUTF8(nameCodeIndex + 2);
+
       @SuppressWarnings("ConstantConditions") int bsmIndex = cr.bootstrapMethods[bsmStartIndex];
       Handle bsm = (Handle) readConstItem(bsmIndex);
       int bsmArgCount = readUnsignedShort(bsmIndex + 2);
-      Object[] bsmArgs = new Object[bsmArgCount];
       bsmIndex += 4;
+      Object[] bsmArgs = new Object[bsmArgCount];
 
       for (int i = 0; i < bsmArgCount; i++) {
          bsmArgs[i] = readConstItem(bsmIndex);
          bsmIndex += 2;
       }
 
-      cpIndex = readItem(cpIndex + 2);
-      String name = readNonnullUTF8(cpIndex);
-      String desc = readNonnullUTF8(cpIndex + 2);
-
-      mv.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-      codeIndex += 5;
+      mv.visitInvokeDynamicInsn(bsmName, bsmDesc, bsm, bsmArgs);
+      codeIndex += 2;
    }
 
    private void visitEndLabel(@Nonnegative int codeLength) {

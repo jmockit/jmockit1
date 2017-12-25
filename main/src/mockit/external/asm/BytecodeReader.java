@@ -90,7 +90,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads an unsigned byte value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    * Reads an unsigned <tt>byte</tt> value in {@link #code}, incrementing {@link #codeIndex} by 1.
     */
    final int readUnsignedByte() {
       return code[codeIndex++] & 0xFF;
@@ -106,8 +106,11 @@ class BytecodeReader
       return code[codeIndex] & 0xFF;
    }
 
-   final int readSignedByte(@Nonnegative int codeIndex) {
-      return code[codeIndex];
+   /**
+    * Reads a signed <tt>byte</tt> value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    */
+   final int readSignedByte() {
+      return code[codeIndex++];
    }
 
    final char readChar(@Nonnegative int codeIndex) {
@@ -144,9 +147,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads a signed short value in {@link #code}, incrementing {@link #codeIndex} by 2.
-    *
-    * @return the read value.
+    * Reads a signed <tt>short</tt> value in {@link #code}, incrementing {@link #codeIndex} by 2.
     */
    final short readShort() {
       return (short) readUnsignedShort();
@@ -163,7 +164,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads a signed int value in {@link #code}, incrementing {@link #codeIndex} by 4.
+    * Reads a signed <tt>int</tt> value in {@link #code}, incrementing {@link #codeIndex} by 4.
     */
    final int readInt() {
       byte[] b = code;
@@ -212,7 +213,7 @@ class BytecodeReader
    }
 
    /**
-    * Reads UTF8 string in {@link #code}.
+    * Reads an UTF8 string in {@link #code}.
     *
     * @param itemIndex index in {@link #items} for the UTF8 string to be read.
     * @return the String corresponding to the specified UTF8 string.
@@ -281,18 +282,31 @@ class BytecodeReader
       return readString(itemIndex);
    }
 
+   /**
+    * Reads the index of an UTF8 item in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the UTF8 string found in {@link #strings} at that index
+    */
    @Nonnull
    final String readNonnullUTF8() {
       int itemIndex = readUnsignedShort();
       return readString(itemIndex);
    }
 
+   /**
+    * Reads the index of an UTF8 item in {@link #code}.
+    *
+    * @return the UTF8 string found in {@link #strings} at that index
+    */
    @Nonnull
    final String readNonnullUTF8(@Nonnegative int codeIndex) {
       int itemIndex = readUnsignedShort(codeIndex);
       return readString(itemIndex);
    }
 
+   /**
+    * Reads a string in {@link #strings} at the given index.
+    */
    @Nonnull
    final String readString(@Nonnegative int itemIndex) {
       String string = strings[itemIndex];
@@ -306,10 +320,16 @@ class BytecodeReader
       return string;
    }
 
+   /**
+    * Reads the index of a constant item in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the UTF8 string found in {@link #strings} at that index
+    */
    @Nonnull
    final Object readConstItem() {
-      int itemIndex = readUnsignedShort();
-      return readConst(itemIndex);
+      int constIndex = readUnsignedShort();
+      Object cst = readConst(constIndex);
+      return cst;
    }
 
    @Nonnull
@@ -380,6 +400,9 @@ class BytecodeReader
       return classDesc;
    }
 
+   /**
+    * Reads a class descriptor in {@link #code}, incrementing {@link #codeIndex} by 2.
+    */
    @Nonnull
    final String readNonnullClass() {
       int itemCodeIndex = readItem();
@@ -394,6 +417,11 @@ class BytecodeReader
       return classDesc;
    }
 
+   /**
+    * Reads an item index in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the item at that index in {@link #items}
+    */
    @Nonnegative
    final int readItem() {
       int itemIndex = readUnsignedShort();
