@@ -20,7 +20,6 @@ public final class MultiThreadedExpectationsTest
    {
       int doSomething() { return -1; }
       void doSomethingElse() {}
-      static Dependency createDependency() { return new Dependency(); }
    }
 
    @Mocked Collaborator mock;
@@ -113,36 +112,6 @@ public final class MultiThreadedExpectationsTest
    {
       Thread.sleep(10);
       new FullVerifications() {};
-   }
-
-   static final class ClassWithFinalizeMethod
-   {
-      static boolean finalized;
-      static Dependency dependencyCreated;
-      static int valueReturnedFromRealImplementation;
-
-      @Override @SuppressWarnings({"FinalizeDeclaration", "FinalizeDoesntCallSuperFinalize"})
-      protected void finalize()
-      {
-         // Calls to mocked methods from a "Finalizer" thread should be ignored, executing the original implementation:
-         dependencyCreated = Collaborator.createDependency();
-         valueReturnedFromRealImplementation = new Collaborator().doSomething();
-         finalized = true;
-      }
-   }
-
-   @Test
-   public void callMockedMethodFromFinalizeMethodExecutedInFinalizerThread()
-   {
-      // Forces the finalize() method to eventually be called:
-      while (!ClassWithFinalizeMethod.finalized) {
-         new ClassWithFinalizeMethod();
-         System.gc();
-         System.runFinalization();
-      }
-
-      assertNotNull(ClassWithFinalizeMethod.dependencyCreated);
-      assertEquals(-1, ClassWithFinalizeMethod.valueReturnedFromRealImplementation);
    }
 
    public interface APublicInterface { boolean doSomething(); }

@@ -90,20 +90,24 @@ class BytecodeReader
    }
 
    /**
-    * Reads a byte value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    * Reads an unsigned byte value in {@link #code}, incrementing {@link #codeIndex} by 1.
     */
-   final int readByte() {
+   final int readUnsignedByte() {
       return code[codeIndex++] & 0xFF;
    }
 
    /**
-    * Reads a byte value in {@link #code}.
+    * Reads an unsigned byte value in {@link #code}.
     *
     * @param codeIndex the start index of the value to be read in {@link #code}.
     * @return the read value.
     */
-   final int readByte(@Nonnegative int codeIndex) {
+   final int readUnsignedByte(@Nonnegative int codeIndex) {
       return code[codeIndex] & 0xFF;
+   }
+
+   final int readSignedByte(@Nonnegative int codeIndex) {
+      return code[codeIndex];
    }
 
    final char readChar(@Nonnegative int codeIndex) {
@@ -348,7 +352,7 @@ class BytecodeReader
 
    @Nonnull
    private Object readHandle(@Nonnegative int codeIndex) {
-      int tag = readByte(codeIndex);
+      int tag = readUnsignedByte(codeIndex);
 
       int classIndex = readItem(codeIndex + 1);
       String owner = readNonnullClass(classIndex);

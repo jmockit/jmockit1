@@ -322,7 +322,7 @@ public final class ClassReader extends AnnotatedReader
       int fieldOrMethodRef = readItem(codeIndex + 1);
       int nameType = readItem(fieldOrMethodRef + 2);
 
-      int tag = readByte(codeIndex);
+      int tag = readUnsignedByte(codeIndex);
       String classDesc = readNonnullClass(fieldOrMethodRef);
       String name = readNonnullUTF8(nameType);
       String desc = readNonnullUTF8(nameType + 2);

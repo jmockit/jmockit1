@@ -40,7 +40,7 @@ final class AnnotationReader extends BytecodeReader
    }
 
    private void readAnnotationValue(@Nullable String name, @Nullable AnnotationVisitor av) {
-      int typeCode = readByte();
+      int typeCode = readUnsignedByte();
 
       if (av == null) {
          readAnnotationValue(typeCode);
@@ -122,7 +122,7 @@ final class AnnotationReader extends BytecodeReader
          return;
       }
 
-      int typeCode = readByte();
+      int typeCode = readUnsignedByte();
       PrimitiveType primitiveElementType = PrimitiveType.getPrimitiveType(typeCode);
 
       if (primitiveElementType == null) {
@@ -154,7 +154,7 @@ final class AnnotationReader extends BytecodeReader
       switch (typeCode) {
          case 'Z': return readBoolean(valueCodeIndex);
          case 'C': return readChar(valueCodeIndex);
-         case 'B': return readByte(valueCodeIndex);
+         case 'B': return readUnsignedByte(valueCodeIndex);
          case 'S': return readShort(valueCodeIndex);
          case 'F': return readFloat(valueCodeIndex);
          case 'D': return readDouble(valueCodeIndex);
