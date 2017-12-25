@@ -462,23 +462,24 @@ final class MethodReader extends AnnotatedReader
          int opcode = readUnsignedByte(codeIndex);
 
          switch (INSTRUCTION_TYPE[opcode]) {
-            case NOARG:     mv.visitInsn(opcode); codeIndex++; break;
-            case VAR:       readVariableAccessInstruction(opcode); break;
-            case IMPLVAR:   readInstructionWithImplicitVariable(opcode); break;
-            case TYPE_INSN: readTypeInsn(opcode); break;
-            case LABEL:     readJump(opcode, offset); break;
-            case LABELW:    readWideJump(opcode, offset); break;
-            case LDC_INSN:  readLDC(); break;
-            case LDCW_INSN: readLDCW(); break;
-            case IINC_INSN: readIInc(); break;
-            case SBYTE:     readInstructionTakingASignedByte(opcode); break;
-            case SHORT:     readInstructionTakingASignedShort(opcode); break;
-            case TABL_INSN: codeIndex = readTableSwitchInstruction(codeIndex, offset); break;
-            case LOOK_INSN: codeIndex = readLookupSwitchInstruction(codeIndex, offset); break;
-            case MANA_INSN: readMultiANewArray(); break;
-            case WIDE_INSN: readWideInstruction(); break;
-            case FIELDORMETH: case ITFMETH: codeIndex = readFieldOrInvokeInstruction(codeIndex, opcode); break;
-            case INDYMETH:  readInvokeDynamicInstruction();
+            case NOARG:       mv.visitInsn(opcode); codeIndex++; break;
+            case VAR:         readVariableAccessInstruction(opcode); break;
+            case IMPLVAR:     readInstructionWithImplicitVariable(opcode); break;
+            case TYPE_INSN:   readTypeInsn(opcode); break;
+            case LABEL:       readJump(opcode, offset); break;
+            case LABELW:      readWideJump(opcode, offset); break;
+            case LDC_INSN:    readLDC(); break;
+            case LDCW_INSN:   readLDCW(); break;
+            case IINC_INSN:   readIInc(); break;
+            case SBYTE:       readInstructionTakingASignedByte(opcode); break;
+            case SHORT:       readInstructionTakingASignedShort(opcode); break;
+            case TABL_INSN:   readTableSwitchInstruction(offset); break;
+            case LOOK_INSN:   readLookupSwitchInstruction(offset); break;
+            case MANA_INSN:   readMultiANewArray(); break;
+            case WIDE_INSN:   readWideInstruction(); break;
+            case FIELDORMETH:
+            case ITFMETH:     readFieldOrInvokeInstruction(opcode); break;
+            case INDYMETH:    readInvokeDynamicInstruction(); break;
          }
       }
    }
@@ -576,8 +577,7 @@ final class MethodReader extends AnnotatedReader
       codeIndex += 3;
    }
 
-   @Nonnegative
-   private int readTableSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset) {
+   private void readTableSwitchInstruction(@Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       codeIndex = codeIndex + 4 - (offset & 3);
 
@@ -596,11 +596,9 @@ final class MethodReader extends AnnotatedReader
 
       Label dfltLabel = labels[dfltLabelOffset];
       mv.visitTableSwitchInsn(min, max, dfltLabel, table);
-      return codeIndex;
    }
 
-   @Nonnegative
-   private int readLookupSwitchInstruction(@Nonnegative int codeIndex, @Nonnegative int offset) {
+   private void readLookupSwitchInstruction(@Nonnegative int offset) {
       // Skips 0 to 3 padding bytes.
       codeIndex = codeIndex + 4 - (offset & 3);
 
@@ -620,7 +618,6 @@ final class MethodReader extends AnnotatedReader
 
       Label dfltLabel = labels[dfltLabelOffset];
       mv.visitLookupSwitchInsn(dfltLabel, keys, values);
-      return codeIndex;
    }
 
    private void readMultiANewArray() {
@@ -648,8 +645,7 @@ final class MethodReader extends AnnotatedReader
       codeIndex += offset;
    }
 
-   @Nonnegative
-   private int readFieldOrInvokeInstruction(@Nonnegative int codeIndex, int opcode) {
+   private void readFieldOrInvokeInstruction(int opcode) {
       int cpIndex1 = readItem(codeIndex + 1);
       String owner = readNonnullClass(cpIndex1);
       int cpIndex2 = readItem(cpIndex1 + 2);
@@ -665,7 +661,7 @@ final class MethodReader extends AnnotatedReader
       }
 
       int offset = opcode == INVOKEINTERFACE ? 5 : 3;
-      return codeIndex + offset;
+      codeIndex += offset;
    }
 
    private void readInvokeDynamicInstruction() {
