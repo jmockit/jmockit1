@@ -25,7 +25,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       if (classBeingRedefined == null && protectionDomain != null) {
          boolean anonymousClass = ClassNaming.isAnonymousClass(className);
 
-         if (anonymousClass && !className.startsWith("mockit/internal/") && !className.startsWith("org/junit/")) {
+         if (anonymousClass && !isJMockitClass(className) && !className.startsWith("org/junit/")) {
             ClassReader cr = new ClassReader(classfileBuffer);
             String superClassName = cr.getSuperName();
 
@@ -38,6 +38,14 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       }
 
       return null;
+   }
+
+   private static boolean isJMockitClass(@Nonnull String classDesc)
+   {
+      return
+         classDesc.startsWith("mockit/") &&
+         (classDesc.startsWith("mockit/internal/") || classDesc.startsWith("mockit/coverage/") ||
+          classDesc.startsWith("mockit/integration/"));
    }
 
    @Nullable

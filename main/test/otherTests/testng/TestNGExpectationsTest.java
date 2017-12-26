@@ -2,13 +2,15 @@
  * Copyright (c) 2006 Rogério Liesenfeld
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.testng;
+package otherTests.testng;
 
 import static org.testng.Assert.*;
 import org.testng.annotations.*;
 
 import mockit.*;
 import mockit.integration.*;
+
+import otherTests.*;
 
 public final class TestNGExpectationsTest
 {
