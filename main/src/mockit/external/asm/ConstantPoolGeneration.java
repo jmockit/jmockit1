@@ -277,7 +277,7 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    IntItem newInteger(int value) {
-      reusableIntItem.set(value);
+      reusableIntItem.setValue(value);
 
       IntItem result = get(reusableIntItem);
 
@@ -323,7 +323,7 @@ final class ConstantPoolGeneration
     */
    @Nonnull
    LongItem newLong(long value) {
-      reusableLongItem.set(value);
+      reusableLongItem.setValue(value);
 
       LongItem result = get(reusableLongItem);
 
@@ -666,8 +666,8 @@ final class ConstantPoolGeneration
       out.putShort(index).putByteVector(pool);
    }
 
-   void copy(@Nullable byte[] b, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] items) {
-      pool.putByteArray(b, off, header - off);
+   void copy(@Nonnull byte[] code, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] items) {
+      pool.putByteArray(code, off, header - off);
       this.items = items;
 
       int ll = items.length;

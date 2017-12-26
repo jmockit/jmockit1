@@ -281,17 +281,13 @@ final class ByteVector
    /**
     * Puts an array of bytes into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @param b   an array of bytes. May be <tt>null</tt> to put <tt>len</tt> null bytes into this byte vector.
+    * @param bytes an array of bytes.
     * @param off index of the first byte of code that must be copied.
     * @param len number of bytes of code that must be copied.
     */
-   void putByteArray(@Nullable byte[] b, @Nonnegative int off, @Nonnegative int len) {
+   void putByteArray(@Nonnull byte[] bytes, @Nonnegative int off, @Nonnegative int len) {
       int length = getLengthEnlargingIfNeeded(len);
-
-      if (b != null) {
-         System.arraycopy(b, off, data, length, len);
-      }
-
+      System.arraycopy(bytes, off, data, length, len);
       this.length += len;
    }
 

@@ -12,11 +12,4 @@ final class IntItem extends IntValueItem
    }
 
    IntItem(@Nonnegative int index, @Nonnull IntItem item) { super(index, item); }
-
-   /**
-    * Sets the value of this item.
-    */
-   void set(int value) {
-      setValue(value);
-   }
 }

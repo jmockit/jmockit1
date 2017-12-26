@@ -12,11 +12,4 @@ final class LongItem extends LongValueItem
    }
 
    LongItem(@Nonnegative int index, @Nonnull LongItem item) { super(index, item); }
-
-   /**
-    * Sets the value of this item.
-    */
-   void set(long value) {
-      setValue(value);
-   }
 }

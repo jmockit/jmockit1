@@ -10,111 +10,98 @@ import static mockit.external.asm.Item.Type.*;
 final class ConstantPoolCopying
 {
    @Nonnull private final ClassReader source;
+   @Nonnull private final ClassWriter destination;
+   @Nonnegative private int itemIndex;
 
-   ConstantPoolCopying(@Nonnull ClassReader source) { this.source = source; }
+   ConstantPoolCopying(@Nonnull ClassReader source, @Nonnull ClassWriter destination) {
+      this.source = source;
+      this.destination = destination;
+   }
 
-   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   void copyPool(@Nonnull ClassWriter destination) {
-      byte[] code = source.code;
+   void copyPool() {
       int[] items = source.items;
       int itemCount = items.length;
-      Item[] items2 = new Item[itemCount];
+      Item[] newItems = new Item[itemCount];
 
-      for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
-         int itemCodeIndex = items[itemIndex];
-         int itemType = code[itemCodeIndex - 1];
-         Item item;
+      for (itemIndex = 1; itemIndex < itemCount; itemIndex++) {
+         source.codeIndex = items[itemIndex] - 1;
+         int itemType = source.readSignedByte();
 
-         switch (itemType) {
-            case FIELD: case METH: case IMETH:
-               item = copyFieldOrMethodReferenceItem(itemType, itemCodeIndex, itemIndex);
-               break;
-            case INT:
-               item = copyIntItem(itemCodeIndex, itemIndex);
-               break;
-            case FLOAT:
-               item = copyFloatItem(itemCodeIndex, itemIndex);
-               break;
-            case NAME_TYPE:
-               item = copyNameAndTypeItem(itemCodeIndex, itemIndex);
-               break;
-            case LONG:
-               item = copyLongItem(itemCodeIndex, itemIndex);
-               itemIndex++;
-               break;
-            case DOUBLE:
-               item = copyDoubleItem(itemCodeIndex, itemIndex);
-               itemIndex++;
-               break;
-            case UTF8:
-               item = copyUTF8Item(itemIndex);
-               break;
-            case HANDLE:
-               item = copyHandleItem(itemCodeIndex, itemIndex);
-               break;
-            case INDY:
-               item = copyInvokeDynamicItem(destination.bootstrapMethods, items2, itemCodeIndex, itemIndex);
-               break;
-            // case STR|CLASS|MTYPE:
-            default:
-               item = copyNameReferenceItem(itemType, itemCodeIndex, itemIndex);
-         }
-
-         item.setNext(items2);
+         Item newItem = copyItem(itemType, newItems);
+         newItem.setNext(newItems);
       }
 
       int off = items[1] - 1;
-      destination.cp.copy(code, off, source.header, items2);
+      destination.cp.copy(source.code, off, source.header, newItems);
+   }
+
+   @Nonnull @SuppressWarnings("OverlyComplexMethod")
+   private Item copyItem(int itemType, @Nonnull Item[] newItems) {
+      switch (itemType) {
+         case FIELD: case METH: case IMETH: return copyFieldOrMethodReferenceItem(itemType);
+         case INT:       return copyIntItem();
+         case FLOAT:     return copyFloatItem();
+         case NAME_TYPE: return copyNameAndTypeItem();
+         case LONG:      return copyLongItem();
+         case DOUBLE:    return copyDoubleItem();
+         case UTF8:      return copyUTF8Item();
+         case HANDLE:    return copyHandleItem();
+         case INDY:      return copyInvokeDynamicItem(newItems);
+      // case STR|CLASS|MTYPE:
+         default: return copyNameReferenceItem(itemType);
+      }
    }
 
    @Nonnull
-   private Item copyIntItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int itemValue = source.readInt(codeIndex);
+   private Item copyIntItem() {
+      int itemValue = source.readInt();
       IntItem item = new IntItem(itemIndex);
-      item.set(itemValue);
+      item.setValue(itemValue);
       return item;
    }
 
    @Nonnull
-   private Item copyLongItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      long itemValue = source.readLong(codeIndex);
+   private Item copyLongItem() {
+      long itemValue = source.readLong();
       LongItem item = new LongItem(itemIndex);
-      item.set(itemValue);
+      item.setValue(itemValue);
+      itemIndex++;
       return item;
    }
 
    @Nonnull
-   private Item copyFloatItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      float itemValue = source.readFloat(codeIndex);
+   private Item copyFloatItem() {
+      float itemValue = source.readFloat();
       FloatItem item = new FloatItem(itemIndex);
       item.set(itemValue);
       return item;
    }
 
    @Nonnull
-   private Item copyDoubleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      double itemValue = source.readDouble(codeIndex);
+   private Item copyDoubleItem() {
+      double itemValue = source.readDouble();
       DoubleItem item = new DoubleItem(itemIndex);
       item.set(itemValue);
+      itemIndex++;
       return item;
    }
 
    @Nonnull
-   private Item copyUTF8Item(@Nonnegative int itemIndex) {
+   private Item copyUTF8Item() {
       String string = source.readString(itemIndex);
       return new StringItem(itemIndex, UTF8, string);
    }
 
    @Nonnull
-   private Item copyNameReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String string = source.readNonnullUTF8(codeIndex);
+   private Item copyNameReferenceItem(int type) {
+      String string = source.readNonnullUTF8();
       return new StringItem(itemIndex, type, string);
    }
 
    @Nonnull
-   private Item copyNameAndTypeItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String name = source.readNonnullUTF8(codeIndex);
-      String type = source.readNonnullUTF8(codeIndex + 2);
+   private Item copyNameAndTypeItem() {
+      String name = source.readNonnullUTF8();
+      String type = source.readNonnullUTF8();
 
       NameAndTypeItem item = new NameAndTypeItem(itemIndex);
       item.set(name, type);
@@ -122,11 +109,11 @@ final class ConstantPoolCopying
    }
 
    @Nonnull
-   private Item copyFieldOrMethodReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int nameType = source.readItem(codeIndex + 2);
-      String classDesc = source.readNonnullClass(codeIndex);
-      String methodName = source.readNonnullUTF8(nameType);
-      String methodDesc = source.readNonnullUTF8(nameType + 2);
+   private Item copyFieldOrMethodReferenceItem(int type) {
+      String classDesc = source.readNonnullClass();
+      int nameCodeIndex = source.readItem();
+      String methodName = source.readNonnullUTF8(nameCodeIndex);
+      String methodDesc = source.readNonnullUTF8(nameCodeIndex + 2);
 
       ClassMemberItem item = new ClassMemberItem(itemIndex);
       item.set(type, classDesc, methodName, methodDesc);
@@ -134,14 +121,15 @@ final class ConstantPoolCopying
    }
 
    @Nonnull
-   private Item copyHandleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int fieldOrMethodRef = source.readItem(codeIndex + 1);
-      int nameType = source.readItem(fieldOrMethodRef + 2);
+   private Item copyHandleItem() {
+      int tag = source.readUnsignedByte();
 
-      int tag = source.readUnsignedByte(codeIndex);
+      int fieldOrMethodRef = source.readItem();
+      int nameCodeIndex = source.readItem(fieldOrMethodRef + 2);
+
       String classDesc = source.readNonnullClass(fieldOrMethodRef);
-      String name = source.readNonnullUTF8(nameType);
-      String desc = source.readNonnullUTF8(nameType + 2);
+      String name = source.readNonnullUTF8(nameCodeIndex);
+      String desc = source.readNonnullUTF8(nameCodeIndex + 2);
 
       Handle handle = new Handle(tag, classDesc, name, desc);
       HandleItem item = new HandleItem(itemIndex);
@@ -150,16 +138,13 @@ final class ConstantPoolCopying
    }
 
    @Nonnull
-   private Item copyInvokeDynamicItem(
-      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull Item[] items2, @Nonnegative int codeIndex,
-      @Nonnegative int itemIndex
-   ) {
-      bootstrapMethods.copyBootstrapMethods(source, items2);
+   private Item copyInvokeDynamicItem(@Nonnull Item[] newItems) {
+      destination.bootstrapMethods.copyBootstrapMethods(source, newItems);
 
-      int nameType = source.readItem(codeIndex + 2);
-      String name = source.readNonnullUTF8(nameType);
-      String desc = source.readNonnullUTF8(nameType + 2);
-      int bsmIndex = source.readUnsignedShort(codeIndex);
+      int bsmIndex = source.readUnsignedShort();
+      int nameCodeIndex = source.readItem();
+      String name = source.readNonnullUTF8(nameCodeIndex);
+      String desc = source.readNonnullUTF8(nameCodeIndex + 2);
 
       InvokeDynamicItem item = new InvokeDynamicItem(itemIndex);
       item.set(name, desc, bsmIndex);

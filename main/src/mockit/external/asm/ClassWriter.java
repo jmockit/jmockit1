@@ -129,7 +129,7 @@ public final class ClassWriter extends ClassVisitor
       computeFrames = version >= ClassVersion.V1_7;
 
       cr = classReader;
-      new ConstantPoolCopying(classReader).copyPool(this);
+      new ConstantPoolCopying(classReader, this).copyPool();
 
       fields = new ArrayList<FieldWriter>();
       methods = new ArrayList<MethodWriter>();

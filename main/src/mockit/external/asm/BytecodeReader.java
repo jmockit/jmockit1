@@ -191,6 +191,15 @@ class BytecodeReader
    }
 
    /**
+    * Reads a signed long value in {@link #code}, incrementing {@link #codeIndex} by 8.
+    */
+   final long readLong() {
+      long l1 = readInt();
+      long l0 = readInt() & 0xFFFFFFFFL;
+      return (l1 << 32) | l0;
+   }
+
+   /**
     * Reads a signed long value in {@link #code}.
     *
     * @param codeIndex the start index of the value to be read in {@link #code}.
@@ -202,9 +211,19 @@ class BytecodeReader
       return (l1 << 32) | l0;
    }
 
+   final double readDouble() {
+      long bits = readLong();
+      return Double.longBitsToDouble(bits);
+   }
+
    final double readDouble(@Nonnegative int codeIndex) {
       long bits = readLong(codeIndex);
       return Double.longBitsToDouble(bits);
+   }
+
+   final float readFloat() {
+      int bits = readInt();
+      return Float.intBitsToFloat(bits);
    }
 
    final float readFloat(@Nonnegative int codeIndex) {
