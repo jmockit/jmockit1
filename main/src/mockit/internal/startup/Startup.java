@@ -65,7 +65,7 @@ public final class Startup
       initializing = true;
 
       try {
-         new JMockitInitialization().initialize(inst);
+         JMockitInitialization.initialize(inst);
       }
       finally {
          initializing = false;

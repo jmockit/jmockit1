@@ -8,6 +8,8 @@ import java.lang.instrument.*;
 import java.util.*;
 import javax.annotation.*;
 
+import static java.util.Arrays.asList;
+
 import mockit.*;
 import mockit.coverage.*;
 import mockit.integration.junit4.internal.*;
@@ -16,11 +18,7 @@ import mockit.internal.util.*;
 
 final class JMockitInitialization
 {
-   @Nonnull private final StartupConfiguration config;
-
-   JMockitInitialization() { config = new StartupConfiguration(); }
-
-   void initialize(@Nonnull Instrumentation inst)
+   static void initialize(@Nonnull Instrumentation inst)
    {
       preventEventualClassLoadingConflicts();
       applyInternalStartupFakesAsNeeded();
@@ -45,7 +43,7 @@ final class JMockitInitialization
       Utilities.calledFromSpecialThread();
    }
 
-   private void applyInternalStartupFakesAsNeeded()
+   private static void applyInternalStartupFakesAsNeeded()
    {
       if (FakeFrameworkMethod.hasDependenciesInClasspath()) {
          new RunNotifierDecorator();
@@ -53,11 +51,28 @@ final class JMockitInitialization
       }
    }
 
-   private void applyUserSpecifiedStartupFakesIfAny()
+   private static void applyUserSpecifiedStartupFakesIfAny()
    {
-      for (String fakeClassName : config.fakeClasses) {
+      Collection<String> fakeClasses = getFakeClasses();
+
+      for (String fakeClassName : fakeClasses) {
          applyStartupFake(fakeClassName);
       }
+   }
+
+   @Nonnull
+   private static Collection<String> getFakeClasses()
+   {
+      String commaOrSpaceSeparatedValues = System.getProperty("fakes");
+
+      if (commaOrSpaceSeparatedValues == null) {
+         return Collections.emptyList();
+      }
+
+      String[] fakeClassNames = commaOrSpaceSeparatedValues.split("\\s*,\\s*|\\s+");
+      Set<String> uniqueClassNames = new HashSet<String>(asList(fakeClassNames));
+      uniqueClassNames.remove("");
+      return uniqueClassNames;
    }
 
    private static void applyStartupFake(@Nonnull String fakeClassName)

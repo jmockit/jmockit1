@@ -39,9 +39,7 @@ public final class ClassIdentification
       if (o == null || getClass() != o.getClass()) return false;
 
       ClassIdentification other = (ClassIdentification) o;
-
-      if (loader != other.loader) return false;
-      return name.equals(other.name);
+      return loader == other.loader && name.equals(other.name);
    }
 
    @Override
