@@ -32,8 +32,6 @@ package mockit.external.asm;
 import java.io.*;
 import javax.annotation.*;
 
-import static mockit.external.asm.Item.Type.*;
-
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
  * This class parses a byte array conforming to the Java class file format and calls the appropriate visit methods of a
@@ -135,18 +133,14 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the classfile version of the class being read.
+    * Returns the classfile version of the class being read (see {@link ClassVersion}).
     */
    public int getVersion() {
       return readShort(6);
    }
 
    /**
-    * Returns the class's access flags (see {@link Opcodes}). This value may not reflect Deprecated and Synthetic flags
-    * when bytecode is before 1.5 and those flags are represented by attributes.
-    *
-    * @return the class access flags
-    * @see ClassVisitor#visit(int, int, String, String, String, String[])
+    * Returns the class's access flags (see {@link Access}).
     */
    public int getAccess() {
       return readUnsignedShort(header);
@@ -154,8 +148,6 @@ public final class ClassReader extends AnnotatedReader
 
    /**
     * Returns the internal name of the class.
-    *
-    * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
    @Nonnull
    public String getClassName() {
@@ -163,11 +155,9 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the internal of name of the super class.
-    * For interfaces, the super class is {@link Object}.
+    * Returns the internal of name of the super class. For interfaces, the super class is {@link Object}.
     *
     * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
-    * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
    @Nullable
    public String getSuperName() {
@@ -176,21 +166,15 @@ public final class ClassReader extends AnnotatedReader
 
    /**
     * Returns the internal names of the class's interfaces.
-    *
-    * @return the array of internal names for all implemented interfaces or <tt>null</tt>.
-    * @see ClassVisitor#visit(int, int, String, String, String, String[])
     */
    @Nonnull
    public String[] getInterfaces() {
-      int codeIndex = header + 6;
-      int interfaceCount = readUnsignedShort(codeIndex);
+      codeIndex = header + 6;
+      int interfaceCount = readUnsignedShort();
       String[] interfaces = new String[interfaceCount];
 
-      if (interfaceCount > 0) {
-         for (int i = 0; i < interfaceCount; i++) {
-            codeIndex += 2;
-            interfaces[i] = readNonnullClass(codeIndex);
-         }
+      for (int i = 0; i < interfaceCount; i++) {
+         interfaces[i] = readNonnullClass();
       }
 
       return interfaces;
@@ -201,160 +185,6 @@ public final class ClassReader extends AnnotatedReader
     */
    @Nonnull
    public byte[] getBytecode() { return code; }
-
-   /**
-    * Copies the constant pool data into the given {@link ClassWriter}.
-    */
-   @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   void copyPool(@Nonnull ClassWriter cw) {
-      int itemCount = items.length;
-      Item[] items2 = new Item[itemCount];
-
-      for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
-         int itemCodeIndex = items[itemIndex];
-         int itemType = code[itemCodeIndex - 1];
-         Item item;
-
-         switch (itemType) {
-            case FIELD: case METH: case IMETH:
-               item = copyFieldOrMethodReferenceItem(itemType, itemCodeIndex, itemIndex);
-               break;
-            case INT:
-               item = copyIntItem(itemCodeIndex, itemIndex);
-               break;
-            case FLOAT:
-               item = copyFloatItem(itemCodeIndex, itemIndex);
-               break;
-            case NAME_TYPE:
-               item = copyNameAndTypeItem(itemCodeIndex, itemIndex);
-               break;
-            case LONG:
-               item = copyLongItem(itemCodeIndex, itemIndex);
-               itemIndex++;
-               break;
-            case DOUBLE:
-               item = copyDoubleItem(itemCodeIndex, itemIndex);
-               itemIndex++;
-               break;
-            case UTF8:
-               item = copyUTF8Item(itemIndex);
-               break;
-            case HANDLE:
-               item = copyHandleItem(itemCodeIndex, itemIndex);
-               break;
-            case INDY:
-               item = copyInvokeDynamicItem(cw.bootstrapMethods, items2, itemCodeIndex, itemIndex);
-               break;
-         // case STR|CLASS|MTYPE:
-            default:
-               item = copyNameReferenceItem(itemType, itemCodeIndex, itemIndex);
-         }
-
-         item.setNext(items2);
-      }
-
-      int off = items[1] - 1;
-      cw.cp.copy(code, off, header, items2);
-   }
-
-   @Nonnull
-   private Item copyIntItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int itemValue = readInt(codeIndex);
-      IntItem item = new IntItem(itemIndex);
-      item.set(itemValue);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyLongItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      long itemValue = readLong(codeIndex);
-      LongItem item = new LongItem(itemIndex);
-      item.set(itemValue);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyFloatItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      float itemValue = readFloat(codeIndex);
-      FloatItem item = new FloatItem(itemIndex);
-      item.set(itemValue);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyDoubleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      double itemValue = readDouble(codeIndex);
-      DoubleItem item = new DoubleItem(itemIndex);
-      item.set(itemValue);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyNameAndTypeItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String name = readNonnullUTF8(codeIndex);
-      String type = readNonnullUTF8(codeIndex + 2);
-
-      NameAndTypeItem item = new NameAndTypeItem(itemIndex);
-      item.set(name, type);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyFieldOrMethodReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int nameType = readItem(codeIndex + 2);
-      String classDesc = readNonnullClass(codeIndex);
-      String methodName = readNonnullUTF8(nameType);
-      String methodDesc = readNonnullUTF8(nameType + 2);
-
-      ClassMemberItem item = new ClassMemberItem(itemIndex);
-      item.set(type, classDesc, methodName, methodDesc);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyUTF8Item(@Nonnegative int itemIndex) {
-      String string = readString(itemIndex);
-      return new StringItem(itemIndex, UTF8, string);
-   }
-
-   @Nonnull
-   private Item copyHandleItem(@Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      int fieldOrMethodRef = readItem(codeIndex + 1);
-      int nameType = readItem(fieldOrMethodRef + 2);
-
-      int tag = readUnsignedByte(codeIndex);
-      String classDesc = readNonnullClass(fieldOrMethodRef);
-      String name = readNonnullUTF8(nameType);
-      String desc = readNonnullUTF8(nameType + 2);
-
-      Handle handle = new Handle(tag, classDesc, name, desc);
-      HandleItem item = new HandleItem(itemIndex);
-      item.set(handle);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyInvokeDynamicItem(
-      @Nonnull BootstrapMethods bootstrapMethods, @Nonnull Item[] items2, @Nonnegative int codeIndex,
-      @Nonnegative int itemIndex
-   ) {
-      bootstrapMethods.copyBootstrapMethods(this, items2);
-
-      int nameType = readItem(codeIndex + 2);
-      String name = readNonnullUTF8(nameType);
-      String desc = readNonnullUTF8(nameType + 2);
-      int bsmIndex = readUnsignedShort(codeIndex);
-
-      InvokeDynamicItem item = new InvokeDynamicItem(itemIndex);
-      item.set(name, desc, bsmIndex);
-      return item;
-   }
-
-   @Nonnull
-   private Item copyNameReferenceItem(int type, @Nonnegative int codeIndex, @Nonnegative int itemIndex) {
-      String string = readNonnullUTF8(codeIndex);
-      return new StringItem(itemIndex, type, string);
-   }
 
    /**
     * Makes the given visitor visit the Java class of this Class Reader, all attributes included.
