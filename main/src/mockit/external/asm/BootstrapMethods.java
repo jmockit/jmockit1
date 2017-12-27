@@ -149,7 +149,6 @@ final class BootstrapMethods
          return;
       }
 
-      // Copies the bootstrap methods in the class writer.
       int bsmCount = cr.readUnsignedShort(codeIndex + 8);
       int bsmCodeStartIndex = codeIndex + 10;
 
@@ -164,6 +163,7 @@ final class BootstrapMethods
       bootstrapMethodsCount = bsmCount;
    }
 
+   @Nonnegative
    private static int copyBootstrapMethod(
       @Nonnull ClassReader cr, @Nonnull Item[] items, @Nonnegative int bsmIndex, @Nonnegative int bsmCodeIndex,
       @Nonnegative int position

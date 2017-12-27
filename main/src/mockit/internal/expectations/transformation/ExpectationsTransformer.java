@@ -29,7 +29,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
             ClassReader cr = new ClassReader(classfileBuffer);
             String superClassName = cr.getSuperName();
 
-            if (superClassName == null || !BASE_CLASSES.contains(superClassName)) {
+            if (!BASE_CLASSES.contains(superClassName)) {
                return null;
             }
 

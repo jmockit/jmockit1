@@ -61,14 +61,13 @@ public final class ClassReader extends AnnotatedReader
 
    private static final String[] NO_INTERFACES = {};
 
-   // Helper fields.
+   /**
+    * Start index of the class header information (access, name...) in {@link #code}.
+    */
+   @Nonnegative final int header;
+
    ClassVisitor cv;
    @Nonnegative int flags;
-
-   /**
-    * The start index of each bootstrap method.
-    */
-   @Nullable int[] bootstrapMethods;
 
    private int access;
    private String name;
@@ -79,11 +78,20 @@ public final class ClassReader extends AnnotatedReader
    @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int annotationsCodeIndex;
    @Nonnegative private int innerClassesCodeIndex;
+   @Nonnegative private int attributesCodeIndex;
+
+   /**
+    * The start index of each bootstrap method.
+    */
+   @Nullable int[] bootstrapMethods;
 
    /**
     * Initializes a new class reader with the given bytecode array for a classfile.
     */
-   public ClassReader(@Nonnull byte[] code) { super(code); }
+   public ClassReader(@Nonnull byte[] code) {
+      super(code);
+      header = codeIndex; // the class header information starts just after the constant pool
+   }
 
    /**
     * Initializes a new class reader whose classfile bytecode array is read from the given input stream.
@@ -136,48 +144,25 @@ public final class ClassReader extends AnnotatedReader
     * Returns the classfile version of the class being read (see {@link ClassVersion}).
     */
    public int getVersion() {
-      return readShort(6);
+      codeIndex = 6;
+      return readShort();
    }
 
    /**
     * Returns the class's access flags (see {@link Access}).
     */
    public int getAccess() {
-      return readUnsignedShort(header);
-   }
-
-   /**
-    * Returns the internal name of the class.
-    */
-   @Nonnull
-   public String getClassName() {
-      return readNonnullClass(header + 2);
+      codeIndex = header;
+      return readUnsignedShort();
    }
 
    /**
     * Returns the internal of name of the super class. For interfaces, the super class is {@link Object}.
-    *
-    * @return the internal name of super class, or <tt>null</tt> for {@link Object} class.
-    */
-   @Nullable
-   public String getSuperName() {
-      return readClass(header + 4);
-   }
-
-   /**
-    * Returns the internal names of the class's interfaces.
     */
    @Nonnull
-   public String[] getInterfaces() {
-      codeIndex = header + 6;
-      int interfaceCount = readUnsignedShort();
-      String[] interfaces = new String[interfaceCount];
-
-      for (int i = 0; i < interfaceCount; i++) {
-         interfaces[i] = readNonnullClass();
-      }
-
-      return interfaces;
+   public String getSuperName() {
+      codeIndex = header + 4;
+      return readNonnullClass();
    }
 
    /**
@@ -202,16 +187,35 @@ public final class ClassReader extends AnnotatedReader
    public void accept(@Nonnull ClassVisitor cv, @Nonnegative int flags) {
       this.cv = cv;
       this.flags = flags;
+      codeIndex = header;
       readClassDeclaration();
       readInterfaces();
       readClassAttributes();
-      readClass();
-      readSourceFileName();
-      readOuterClass();
+      visitClassDeclaration();
+      visitSourceFileName();
+      visitOuterClass();
       readAnnotations();
       readInnerClasses();
       readFieldsAndMethods();
       cv.visitEnd();
+   }
+
+   private void readClassDeclaration() {
+      access = readUnsignedShort();
+      name = readNonnullClass();
+      superClass = readClass();
+   }
+
+   private void readInterfaces() {
+      int interfaceCount = readUnsignedShort();
+
+      if (interfaceCount > 0) {
+         interfaces = new String[interfaceCount];
+
+         for (int i = 0; i < interfaceCount; i++) {
+            interfaces[i] = readNonnullClass();
+         }
+      }
    }
 
    private void readClassAttributes() {
@@ -269,30 +273,6 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readClassDeclaration() {
-      int codeIndex = header;
-      access = readUnsignedShort(codeIndex);
-      name = readNonnullClass(codeIndex + 2);
-      superClass = readClass(codeIndex + 4);
-   }
-
-   private void readInterfaces() {
-      int codeIndex = header;
-      int interfaceCount = readUnsignedShort(codeIndex + 6);
-
-      if (interfaceCount == 0) {
-         return;
-      }
-
-      interfaces = new String[interfaceCount];
-      codeIndex += 8;
-
-      for (int i = 0; i < interfaceCount; i++) {
-         interfaces[i] = readNonnullClass(codeIndex);
-         codeIndex += 2;
-      }
-   }
-
    private void readBootstrapMethods(@Nonnegative int codeIndex) {
       int bsmCount = readUnsignedShort(codeIndex);
       codeIndex += 2;
@@ -306,18 +286,18 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readClass() {
+   private void visitClassDeclaration() {
       int version = readInt(items[1] - 7);
       cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
-   private void readSourceFileName() {
+   private void visitSourceFileName() {
       if ((flags & Flags.SKIP_DEBUG) == 0 && sourceFile != null) {
          cv.visitSource(sourceFile);
       }
    }
 
-   private void readOuterClass() {
+   private void visitOuterClass() {
       if (enclosingMethod != null) {
          cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
       }
@@ -370,13 +350,19 @@ public final class ClassReader extends AnnotatedReader
     */
    @Nonnegative
    int getAttributesStartIndex() {
+      if (attributesCodeIndex > 0) {
+         return attributesCodeIndex;
+      }
+
       // Skips the header.
-      int codeIndex = header + 8 + readUnsignedShort(header + 6) * 2;
+      int interfaceCount = readUnsignedShort(header + 6);
+      int codeIndex = header + 8 + 2 * interfaceCount;
 
       codeIndex = skipClassMembers(codeIndex); // fields
       codeIndex = skipClassMembers(codeIndex); // methods
 
       // The attribute_info structure starts just after the methods.
+      attributesCodeIndex = codeIndex;
       return codeIndex;
    }
 

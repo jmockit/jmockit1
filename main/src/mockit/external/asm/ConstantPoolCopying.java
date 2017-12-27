@@ -12,6 +12,7 @@ final class ConstantPoolCopying
    @Nonnull private final ClassReader source;
    @Nonnull private final ClassWriter destination;
    @Nonnegative private int itemIndex;
+   private boolean bootstrapMethodsCopied;
 
    ConstantPoolCopying(@Nonnull ClassReader source, @Nonnull ClassWriter destination) {
       this.source = source;
@@ -139,7 +140,10 @@ final class ConstantPoolCopying
 
    @Nonnull
    private Item copyInvokeDynamicItem(@Nonnull Item[] newItems) {
-      destination.bootstrapMethods.copyBootstrapMethods(source, newItems);
+      if (!bootstrapMethodsCopied) {
+         destination.bootstrapMethods.copyBootstrapMethods(source, newItems);
+         bootstrapMethodsCopied = true;
+      }
 
       int bsmIndex = source.readUnsignedShort();
       int nameCodeIndex = source.readItem();

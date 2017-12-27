@@ -31,11 +31,6 @@ class BytecodeReader
    @Nonnull private final char[] buf;
 
    /**
-    * Start index of the class header information (access, name...) in {@link #code}.
-    */
-   @Nonnegative final int header;
-
-   /**
     * The next index at {@link #code} to be read.
     */
    @Nonnegative int codeIndex;
@@ -67,7 +62,6 @@ class BytecodeReader
       }
 
       buf = new char[maxStringSize];
-      header = codeIndex; // the class header information starts just after the constant pool
    }
 
    @Nonnegative
@@ -86,7 +80,6 @@ class BytecodeReader
       items = another.items;
       strings = another.strings;
       buf = another.buf;
-      header = 0;
    }
 
    /**
@@ -404,7 +397,17 @@ class BytecodeReader
    }
 
    /**
-    * Reads a class constant pool item in {@link #code}.
+    * Reads the class name from the constant pool, incrementing {@link #codeIndex} by 2.
+    */
+   @Nullable
+   final String readClass() {
+      int itemCodeIndex = readItem();
+      String classDesc = readUTF8(itemCodeIndex);
+      return classDesc;
+   }
+
+   /**
+    * Reads a class name constant pool item in {@link #code}.
     *
     * @param codeIndex the start index of an unsigned short value in {@link #code}, whose value is the index of a class
     *                  constant pool item.
