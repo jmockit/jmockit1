@@ -74,7 +74,7 @@ public final class ClassReader extends AnnotatedReader
    @Nullable private String superClass;
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String signature;
-   @Nullable private String sourceFile;
+   @Nullable private String sourceFileName;
    @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int annotationsCodeIndex;
    @Nonnegative private int innerClassesCodeIndex;
@@ -220,38 +220,37 @@ public final class ClassReader extends AnnotatedReader
 
    private void readClassAttributes() {
       signature = null;
-      sourceFile = null;
+      sourceFileName = null;
       enclosingMethod = null;
       annotationsCodeIndex = 0;
       innerClassesCodeIndex = 0;
 
-      int codeIndex = getAttributesStartIndex();
+      codeIndex = getAttributesStartIndex();
 
-      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         codeIndex += 2;
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         String attrName = readNonnullUTF8();
+         int offsetToNextAttribute = readInt();
 
-         String attrName = readNonnullUTF8(codeIndex);
-         codeIndex += 2;
-
-         int offsetToNextAttribute = readInt(codeIndex) - 2;
-         codeIndex += 4;
+         if ("Signature".equals(attrName)) {
+            signature = readNonnullUTF8();
+            continue;
+         }
 
          if ("SourceFile".equals(attrName)) {
-            sourceFile = readNonnullUTF8(codeIndex);
+            sourceFileName = readNonnullUTF8();
+            continue;
+         }
+
+         if ("EnclosingMethod".equals(attrName)) {
+            enclosingMethod = new EnclosingMethod(this, codeIndex);
+         }
+         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
+            annotationsCodeIndex = codeIndex;
          }
          else if ("InnerClasses".equals(attrName)) {
             if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
                innerClassesCodeIndex = codeIndex;
             }
-         }
-         else if ("EnclosingMethod".equals(attrName)) {
-            enclosingMethod = new EnclosingMethod(this, codeIndex);
-         }
-         else if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8(codeIndex);
-         }
-         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationsCodeIndex = codeIndex;
          }
          else if ("BootstrapMethods".equals(attrName)) {
             readBootstrapMethods(codeIndex);
@@ -261,15 +260,6 @@ public final class ClassReader extends AnnotatedReader
          }
 
          codeIndex += offsetToNextAttribute;
-      }
-   }
-
-   private void readAccessAttribute(@Nonnull String attrName) {
-      if ("Deprecated".equals(attrName)) {
-         access = Access.asDeprecated(access);
-      }
-      else if ("Synthetic".equals(attrName)) {
-         access = Access.asSynthetic(access);
       }
    }
 
@@ -286,14 +276,23 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
+   private void readAccessAttribute(@Nonnull String attrName) {
+      if ("Deprecated".equals(attrName)) {
+         access = Access.asDeprecated(access);
+      }
+      else if ("Synthetic".equals(attrName)) {
+         access = Access.asSynthetic(access);
+      }
+   }
+
    private void visitClassDeclaration() {
       int version = readInt(items[1] - 7);
       cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
    private void visitSourceFileName() {
-      if ((flags & Flags.SKIP_DEBUG) == 0 && sourceFile != null) {
-         cv.visitSource(sourceFile);
+      if ((flags & Flags.SKIP_DEBUG) == 0 && sourceFileName != null) {
+         cv.visitSource(sourceFileName);
       }
    }
 

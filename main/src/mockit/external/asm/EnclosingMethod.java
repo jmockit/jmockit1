@@ -12,13 +12,12 @@ final class EnclosingMethod
       owner = cr.readNonnullClass(codeIndex);
       codeIndex += 2;
 
-      int item = cr.readUnsignedShort(codeIndex);
+      int itemIndex = cr.readUnsignedShort(codeIndex);
 
-      if (item != 0) {
-         int nameIndex = cr.items[item];
-         name = cr.readNonnullUTF8(nameIndex);
-         nameIndex += 2;
-         desc = cr.readNonnullUTF8(nameIndex);
+      if (itemIndex > 0) {
+         int nameCodeIndex = cr.items[itemIndex];
+         name = cr.readNonnullUTF8(nameCodeIndex);
+         desc = cr.readNonnullUTF8(nameCodeIndex + 2);
       }
       else {
          name = null;
