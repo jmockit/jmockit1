@@ -6,7 +6,6 @@ final class FieldReader extends AnnotatedReader
 {
    @Nonnull private final ClassVisitor cv;
    @Nullable private String signature;
-   @Nonnegative private int annotationCodeIndex;
 
    FieldReader(@Nonnull ClassReader cr) {
       super(cr);
@@ -44,7 +43,7 @@ final class FieldReader extends AnnotatedReader
    @Nullable
    private Object readFieldAttributes() {
       signature = null;
-      annotationCodeIndex = 0;
+      annotationsCodeIndex = 0;
       Object constantValue = null;
 
       for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
@@ -63,7 +62,7 @@ final class FieldReader extends AnnotatedReader
          }
 
          if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationCodeIndex = codeIndex;
+            annotationsCodeIndex = codeIndex;
          }
          else {
             readAccessAttribute(attrName);
@@ -73,22 +72,5 @@ final class FieldReader extends AnnotatedReader
       }
 
       return constantValue;
-   }
-
-   private void readAnnotations(@Nonnull FieldVisitor fv) {
-      if (annotationCodeIndex > 0) {
-         int annotationCount = readUnsignedShort(annotationCodeIndex);
-         annotationCodeIndex += 2;
-
-         while (annotationCount > 0) {
-            String desc = readNonnullUTF8(annotationCodeIndex);
-            annotationCodeIndex += 2;
-
-            AnnotationVisitor av = fv.visitAnnotation(desc);
-            annotationCodeIndex = annotationReader.readNamedAnnotationValues(annotationCodeIndex, av);
-
-            annotationCount--;
-         }
-      }
    }
 }

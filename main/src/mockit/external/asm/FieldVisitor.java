@@ -29,33 +29,11 @@
  */
 package mockit.external.asm;
 
-import javax.annotation.*;
-
 /**
  * A visitor to visit a Java field.
  * The methods of this class must be called in the following order: (<tt>visitAnnotation</tt>)* <tt>visitEnd</tt>.
  */
 public class FieldVisitor extends BaseWriter
 {
-   /**
-    * Constructs a new Field Visitor.
-    */
    protected FieldVisitor() {}
-
-   /**
-    * Visits an annotation of the field.
-    *
-    * @param desc    the class descriptor of the annotation class.
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
-    * this annotation.
-    */
-   @Nullable
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
-
-   /**
-    * Visits the end of the field.
-    * This method, which is the last one to be called, is used to inform the visitor that all the annotations and
-    * attributes of the field have been visited.
-    */
-   public void visitEnd() {}
 }

@@ -80,16 +80,6 @@ public class ClassVisitor extends BaseWriter
    public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    /**
-    * Visits an annotation of the class.
-    *
-    * @param desc    the class descriptor of the annotation class.
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
-    * this annotation.
-    */
-   @Nullable
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
-
-   /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
     *
     * @param name      the internal name of an inner class.
@@ -146,12 +136,6 @@ public class ClassVisitor extends BaseWriter
    ) {
       return null;
    }
-
-   /**
-    * Visits the end of the class. This method, which is the last one to be called, is used to inform the visitor that
-    * all the fields and methods of the class have been visited.
-    */
-   public void visitEnd() {}
 
    /**
     * Returns the bytecode of the class that was built with this class visitor.

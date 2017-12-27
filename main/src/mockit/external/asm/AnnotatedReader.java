@@ -8,6 +8,7 @@ import javax.annotation.*;
 class AnnotatedReader extends BytecodeReader
 {
    @Nonnull final AnnotationReader annotationReader = new AnnotationReader(this);
+   @Nonnegative int annotationsCodeIndex;
 
    /**
     * The access flags of the class, field, or method currently being parsed.
@@ -23,6 +24,19 @@ class AnnotatedReader extends BytecodeReader
       }
       else if ("Synthetic".equals(attrName)) {
          access = Access.asSynthetic(access);
+      }
+   }
+
+   final void readAnnotations(@Nonnull BaseWriter visitor) {
+      if (annotationsCodeIndex > 0) {
+         codeIndex = annotationsCodeIndex;
+
+         for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
+            String annotationTypeDesc = readNonnullUTF8();
+            AnnotationVisitor av = visitor.visitAnnotation(annotationTypeDesc);
+
+            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
+         }
       }
    }
 }

@@ -75,7 +75,6 @@ public final class ClassReader extends AnnotatedReader
    @Nullable private String signature;
    @Nullable private String sourceFileName;
    @Nullable private EnclosingMethod enclosingMethod;
-   @Nonnegative private int annotationsCodeIndex;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -193,7 +192,7 @@ public final class ClassReader extends AnnotatedReader
       visitClassDeclaration();
       visitSourceFileName();
       visitOuterClass();
-      readAnnotations();
+      readAnnotations(cv);
       readInnerClasses();
       readFieldsAndMethods();
       cv.visitEnd();
@@ -288,21 +287,6 @@ public final class ClassReader extends AnnotatedReader
    private void visitOuterClass() {
       if (enclosingMethod != null) {
          cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
-      }
-   }
-
-   private void readAnnotations() {
-      int startIndex = annotationsCodeIndex;
-
-      if (startIndex != 0) {
-         codeIndex = startIndex;
-
-         for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
-            String annotationTypeDesc = readNonnullUTF8();
-            AnnotationVisitor av = cv.visitAnnotation(annotationTypeDesc);
-
-            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
-         }
       }
    }
 

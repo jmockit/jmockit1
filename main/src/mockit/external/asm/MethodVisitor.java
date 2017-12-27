@@ -48,16 +48,6 @@ public class MethodVisitor extends BaseWriter
    protected MethodVisitor() {}
 
    /**
-    * Visits an annotation of the method being visited.
-    *
-    * @param desc the descriptor of the annotation type.
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
-    * this annotation.
-    */
-   @Nullable
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
-
-   /**
     * Visits an annotation on a parameter of the method being visited.
     *
     * @param parameter the parameter index.
@@ -264,10 +254,4 @@ public class MethodVisitor extends BaseWriter
     * Visits the maximum stack size of the method.
     */
    public void visitMaxStack(@Nonnegative int maxStack) {}
-
-   /**
-    * Visits the end of the method. This method, which is the last one to be called, is used to inform the visitor that
-    * all the annotations and attributes of the method have been visited.
-    */
-   public void visitEnd() {}
 }

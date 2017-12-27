@@ -107,7 +107,7 @@ final class MethodReader extends AnnotatedReader
 
    private void readMethod() {
       readMethodDeclaration();
-      int annotationsCodeIndex = 0;
+      annotationsCodeIndex = 0;
       int parameterAnnotationsCodeIndex = 0;
 
       for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
@@ -139,7 +139,7 @@ final class MethodReader extends AnnotatedReader
       }
 
       int codeIndex = this.codeIndex;
-      readMethodBody(annotationsCodeIndex, parameterAnnotationsCodeIndex);
+      readMethodBody(parameterAnnotationsCodeIndex);
       this.codeIndex = codeIndex;
    }
 
@@ -165,7 +165,7 @@ final class MethodReader extends AnnotatedReader
       throwsClauseTypes = typeDescs;
    }
 
-   private void readMethodBody(@Nonnegative int annotationsCodeIndex, @Nonnegative int parameterAnnotationsCodeIndex) {
+   private void readMethodBody(@Nonnegative int parameterAnnotationsCodeIndex) {
       mv = cr.cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
       if (mv == null) {
@@ -177,15 +177,8 @@ final class MethodReader extends AnnotatedReader
          return;
       }
 
-      if (annotationsCodeIndex > 0) {
-         codeIndex = annotationsCodeIndex;
-         readAnnotationValues();
-      }
-
-      if (parameterAnnotationsCodeIndex > 0) {
-         codeIndex = parameterAnnotationsCodeIndex;
-         readParameterAnnotations();
-      }
+      readAnnotations(mv);
+      readAnnotationsOnAllParameters(parameterAnnotationsCodeIndex);
 
       if (bodyStartCodeIndex > 0) {
          int flags = cr.flags;
@@ -214,33 +207,23 @@ final class MethodReader extends AnnotatedReader
       mw.classReaderLength = codeIndex - methodStartCodeIndex;
    }
 
-   private void readAnnotationValues() {
-      int valueCount = readUnsignedShort();
+   private void readAnnotationsOnAllParameters(@Nonnegative int annotationsCodeIndex) {
+      if (annotationsCodeIndex > 0) {
+         codeIndex = annotationsCodeIndex;
+         int parameters = readUnsignedByte();
 
-      while (valueCount > 0) {
-         String desc = readNonnullUTF8();
-         AnnotationVisitor av = mv.visitAnnotation(desc);
-         codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
-         valueCount--;
-      }
-   }
-
-   private void readParameterAnnotations() {
-      int parameters = readUnsignedByte();
-
-      for (int i = 0; i < parameters; i++) {
-         readParameterAnnotations(i);
+         for (int i = 0; i < parameters; i++) {
+            readParameterAnnotations(i);
+         }
       }
    }
 
    private void readParameterAnnotations(@Nonnegative int parameterIndex) {
-      int annotationCount = readUnsignedShort();
+      for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
+         String annotationTypeDesc = readNonnullUTF8();
+         AnnotationVisitor av = mv.visitParameterAnnotation(parameterIndex, annotationTypeDesc);
 
-      while (annotationCount > 0) {
-         String desc = readNonnullUTF8();
-         AnnotationVisitor av = mv.visitParameterAnnotation(parameterIndex, desc);
          codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
-         annotationCount--;
       }
    }
 
