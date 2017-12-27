@@ -23,11 +23,6 @@ public final class LineCoverageData extends LineSegmentData
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
-   void clearBranches()
-   {
-      branches = Collections.emptyList();
-   }
-
    public int addBranchingPoint(@Nonnull Label jumpSource, @Nonnull Label jumpTarget)
    {
       int initialIndex = branches.size();

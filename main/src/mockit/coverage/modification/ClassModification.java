@@ -16,14 +16,13 @@ public final class ClassModification
 {
    private static final Class<?>[] NO_CLASSES = {};
 
-   @Nonnull private final Map<String, ProtectionDomain> protectionDomainPerModifiedClass;
+   @Nonnull private final Set<String> modifiedClasses;
    @Nonnull final List<ProtectionDomain> protectionDomainsWithUniqueLocations;
    @Nonnull private final ClassSelection classSelection;
-   private boolean reprocessing;
 
    public ClassModification()
    {
-      protectionDomainPerModifiedClass = new HashMap<String, ProtectionDomain>();
+      modifiedClasses = new HashSet<String>();
       protectionDomainsWithUniqueLocations = new ArrayList<ProtectionDomain>();
       classSelection = new ClassSelection();
       redefineClassesAlreadyLoadedForCoverage();
@@ -71,9 +70,7 @@ public final class ClassModification
 
    private void registerModifiedClass(@Nonnull String className, @Nonnull ProtectionDomain pd)
    {
-      if (!protectionDomainPerModifiedClass.containsKey(className)) {
-         protectionDomainPerModifiedClass.put(className, pd);
-      }
+      modifiedClasses.add(className);
 
       if (pd.getClassLoader() != null && pd.getCodeSource() != null && pd.getCodeSource().getLocation() != null) {
          addProtectionDomainIfHasUniqueNewPath(pd);
@@ -101,7 +98,7 @@ public final class ClassModification
    }
 
    @Nullable
-   private byte[] readAndModifyClassForCoverage(@Nonnull Class<?> aClass)
+   private static byte[] readAndModifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       try {
          return modifyClassForCoverage(aClass);
@@ -120,7 +117,7 @@ public final class ClassModification
    }
 
    @Nullable
-   private byte[] modifyClassForCoverage(@Nonnull Class<?> aClass)
+   private static byte[] modifyClassForCoverage(@Nonnull Class<?> aClass)
    {
       String className = aClass.getName();
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
@@ -135,9 +132,9 @@ public final class ClassModification
    }
 
    @Nonnull
-   private byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
+   private static byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
    {
-      CoverageModifier modifier = new CoverageModifier(cr, reprocessing);
+      CoverageModifier modifier = new CoverageModifier(cr);
       cr.accept(modifier);
       return modifier.toByteArray();
    }
@@ -161,23 +158,7 @@ public final class ClassModification
 
    boolean isToBeConsideredForCoverage(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
    {
-      ProtectionDomain originalDomain = protectionDomainPerModifiedClass.get(className);
-
-      if (originalDomain == null) {
-         reprocessing = false;
-         return classSelection.isSelected(className, protectionDomain);
-      }
-
-      boolean reloaded = protectionDomain != originalDomain;
-      reprocessing = reloaded;
-      return reloaded;
-   }
-
-   boolean isToBeConsideredForCoverageAsNotLoaded(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
-   {
-      return
-         !protectionDomainPerModifiedClass.containsKey(className) &&
-         classSelection.isSelected(className, protectionDomain);
+      return !modifiedClasses.contains(className) && classSelection.isSelected(className, protectionDomain);
    }
 
    @Nullable
@@ -204,7 +185,7 @@ public final class ClassModification
    }
 
    @Nonnull
-   private byte[] modifyClassForCoverage(@Nonnull String className, @Nonnull byte[] classBytecode)
+   private static byte[] modifyClassForCoverage(@Nonnull String className, @Nonnull byte[] classBytecode)
    {
       byte[] modifiedBytecode = CoverageModifier.recoverModifiedByteCodeIfAvailable(className);
 

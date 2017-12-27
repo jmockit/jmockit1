@@ -47,18 +47,9 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public void addLine(int line, boolean reprocessing)
+   public void addLine(int line)
    {
-      if (lineToLineData.containsKey(line)) {
-         if (reprocessing) {
-            LineCoverageData lineData = lineToLineData.get(line);
-
-            if (lineData != null) {
-               lineData.clearBranches();
-            }
-         }
-      }
-      else {
+      if (!lineToLineData.containsKey(line)) {
          lineToLineData.put(line, null);
       }
 

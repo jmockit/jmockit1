@@ -58,7 +58,7 @@ public final class ClassesNotLoaded
          String relativePath = filePath.substring(firstPosAfterParentDir, p);
          String className = relativePath.replace(File.separatorChar, '.');
 
-         if (classModification.isToBeConsideredForCoverageAsNotLoaded(className, protectionDomain)) {
+         if (classModification.isToBeConsideredForCoverage(className, protectionDomain)) {
             loadClass(className, protectionDomain);
          }
       }

@@ -54,29 +54,24 @@ final class CoverageModifier extends WrappingClassVisitor
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
    @Nullable private FileCoverageData fileData;
-   @Nullable private final BitSet linesReprocessed;
    private boolean cannotModify;
    private final boolean forInnerClass;
    private boolean forEnumClass;
    @Nullable private String kindOfTopLevelType;
    private int currentLine;
 
-   CoverageModifier(@Nonnull ClassReader cr, boolean forReloadedClass)
-   {
-      this(cr, false, forReloadedClass ? new BitSet(65536) : null);
-   }
+   CoverageModifier(@Nonnull ClassReader cr) { this(cr, false); }
 
-   private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass, @Nullable BitSet linesReprocessed)
+   private CoverageModifier(@Nonnull ClassReader cr, boolean forInnerClass)
    {
       super(new ClassWriter(cr));
       sourceFileName = "";
-      this.linesReprocessed = linesReprocessed;
       this.forInnerClass = forInnerClass;
    }
 
    private CoverageModifier(@Nonnull ClassReader cr, @Nonnull CoverageModifier other, @Nullable String simpleClassName)
    {
-      this(cr, true, other.linesReprocessed);
+      this(cr, true);
       sourceFileName = other.sourceFileName;
       fileData = other.fileData;
       internalClassName = other.internalClassName;
@@ -266,14 +261,7 @@ final class CoverageModifier extends WrappingClassVisitor
             pendingBranches.clear();
          }
 
-         boolean reprocessing = false;
-
-         if (linesReprocessed != null && !linesReprocessed.get(line)) {
-            linesReprocessed.set(line);
-            reprocessing = true;
-         }
-
-         lineCoverageInfo.addLine(line, reprocessing);
+         lineCoverageInfo.addLine(line);
          currentLine = line;
 
          jumpTargetsForCurrentLine.clear();
