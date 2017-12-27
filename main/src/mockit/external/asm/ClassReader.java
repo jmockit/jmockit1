@@ -242,7 +242,7 @@ public final class ClassReader extends AnnotatedReader
          }
 
          if ("EnclosingMethod".equals(attrName)) {
-            enclosingMethod = new EnclosingMethod(this, codeIndex);
+            enclosingMethod = new EnclosingMethod(this);
          }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             annotationsCodeIndex = codeIndex;

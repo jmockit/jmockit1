@@ -8,7 +8,8 @@ final class EnclosingMethod
    @Nullable final String name;
    @Nullable final String desc;
 
-   EnclosingMethod(@Nonnull ClassReader cr, @Nonnegative int codeIndex) {
+   EnclosingMethod(@Nonnull ClassReader cr) {
+      int codeIndex = cr.codeIndex;
       owner = cr.readNonnullClass(codeIndex);
       codeIndex += 2;
 
