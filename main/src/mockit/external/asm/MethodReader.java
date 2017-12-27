@@ -63,11 +63,6 @@ final class MethodReader extends AnnotatedReader
    @Nullable private String signature;
 
    /**
-    * The access flags of the method currently being parsed.
-    */
-   private int access;
-
-   /**
     * The name of the method currently being parsed.
     */
    private String name;
@@ -117,7 +112,7 @@ final class MethodReader extends AnnotatedReader
 
       for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
          String attrName = readNonnullUTF8();
-         int codeOffset = readInt();
+         int codeOffsetToNextAttribute = readInt();
 
          if ("Code".equals(attrName)) {
             bodyStartCodeIndex = codeIndex;
@@ -130,20 +125,17 @@ final class MethodReader extends AnnotatedReader
             signature = readNonnullUTF8();
             continue;
          }
-         else if ("Deprecated".equals(attrName)) {
-            access = Access.asDeprecated(access);
-         }
-         else if ("Synthetic".equals(attrName)) {
-            access = Access.asSynthetic(access);
-         }
          else if ("RuntimeVisibleAnnotations".equals(attrName)) {
             annotationsCodeIndex = codeIndex;
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             parameterAnnotationsCodeIndex = codeIndex;
          }
+         else {
+            readAccessAttribute(attrName);
+         }
 
-         codeIndex += codeOffset;
+         codeIndex += codeOffsetToNextAttribute;
       }
 
       int codeIndex = this.codeIndex;

@@ -7,7 +7,6 @@ final class FieldReader extends AnnotatedReader
    @Nonnull private final ClassVisitor cv;
    @Nullable private String signature;
    @Nonnegative private int annotationCodeIndex;
-   private int access;
 
    FieldReader(@Nonnull ClassReader cr) {
       super(cr);
@@ -46,41 +45,34 @@ final class FieldReader extends AnnotatedReader
    private Object readFieldAttributes() {
       signature = null;
       annotationCodeIndex = 0;
-      int attributeCount = readUnsignedShort();
       Object constantValue = null;
 
-      while (attributeCount > 0) {
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
          String attrName = readNonnullUTF8();
-         int codeOffset = readInt();
+         int codeOffsetToNextAttribute = readInt();
 
          if ("ConstantValue".equals(attrName)) {
-            int item = readUnsignedShort(codeIndex);
-            constantValue = item == 0 ? null : readConst(item);
+            int constItemIndex = readUnsignedShort();
+            constantValue = constItemIndex == 0 ? null : readConst(constItemIndex);
+            continue;
          }
-         else if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8(codeIndex);
+
+         if ("Signature".equals(attrName)) {
+            signature = readNonnullUTF8();
+            continue;
          }
-         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
+
+         if ("RuntimeVisibleAnnotations".equals(attrName)) {
             annotationCodeIndex = codeIndex;
          }
          else {
             readAccessAttribute(attrName);
          }
 
-         codeIndex += codeOffset;
-         attributeCount--;
+         codeIndex += codeOffsetToNextAttribute;
       }
 
       return constantValue;
-   }
-
-   private void readAccessAttribute(@Nonnull String attrName) {
-      if ("Deprecated".equals(attrName)) {
-         access = Access.asDeprecated(access);
-      }
-      else if ("Synthetic".equals(attrName)) {
-         access = Access.asSynthetic(access);
-      }
    }
 
    private void readAnnotations(@Nonnull FieldVisitor fv) {

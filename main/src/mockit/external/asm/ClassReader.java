@@ -69,7 +69,6 @@ public final class ClassReader extends AnnotatedReader
    ClassVisitor cv;
    @Nonnegative int flags;
 
-   private int access;
    private String name;
    @Nullable private String superClass;
    @Nonnull private String[] interfaces = NO_INTERFACES;
@@ -224,12 +223,11 @@ public final class ClassReader extends AnnotatedReader
       enclosingMethod = null;
       annotationsCodeIndex = 0;
       innerClassesCodeIndex = 0;
-
       codeIndex = getAttributesStartIndex();
 
       for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
          String attrName = readNonnullUTF8();
-         int offsetToNextAttribute = readInt();
+         int codeOffsetToNextAttribute = readInt();
 
          if ("Signature".equals(attrName)) {
             signature = readNonnullUTF8();
@@ -258,10 +256,9 @@ public final class ClassReader extends AnnotatedReader
          }
          else {
             readAccessAttribute(attrName);
-            continue;
          }
 
-         codeIndex += offsetToNextAttribute;
+         codeIndex += codeOffsetToNextAttribute;
       }
    }
 
@@ -274,15 +271,6 @@ public final class ClassReader extends AnnotatedReader
          codeIndex += 2;
          int codeOffset = readUnsignedShort();
          codeIndex += codeOffset << 1;
-      }
-   }
-
-   private void readAccessAttribute(@Nonnull String attrName) {
-      if ("Deprecated".equals(attrName)) {
-         access = Access.asDeprecated(access);
-      }
-      else if ("Synthetic".equals(attrName)) {
-         access = Access.asSynthetic(access);
       }
    }
 
