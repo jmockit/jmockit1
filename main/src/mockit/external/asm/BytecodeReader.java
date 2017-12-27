@@ -80,6 +80,7 @@ class BytecodeReader
       items = another.items;
       strings = another.strings;
       buf = another.buf;
+      codeIndex = another.codeIndex;
    }
 
    /**
@@ -269,6 +270,23 @@ class BytecodeReader
       }
 
       return new String(buf, 0, strLen);
+   }
+
+   /**
+    * Reads an UTF8 string constant pool item in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the String corresponding to the specified UTF8 item, or <tt>null</tt> if {@link #codeIndex} points to an
+    * item whose value is zero.
+    */
+   @Nullable
+   final String readUTF8() {
+      int itemIndex = readUnsignedShort();
+
+      if (itemIndex == 0) {
+         return null;
+      }
+
+      return readString(itemIndex);
    }
 
    /**

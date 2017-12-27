@@ -253,25 +253,26 @@ public final class ClassReader extends AnnotatedReader
             }
          }
          else if ("BootstrapMethods".equals(attrName)) {
-            readBootstrapMethods(codeIndex);
+            readBootstrapMethods();
+            continue;
          }
          else {
             readAccessAttribute(attrName);
+            continue;
          }
 
          codeIndex += offsetToNextAttribute;
       }
    }
 
-   private void readBootstrapMethods(@Nonnegative int codeIndex) {
-      int bsmCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
-
+   private void readBootstrapMethods() {
+      int bsmCount = readUnsignedShort();
       bootstrapMethods = new int[bsmCount];
 
       for (int i = 0; i < bsmCount; i++) {
          bootstrapMethods[i] = codeIndex;
-         int codeOffset = 2 + readUnsignedShort(codeIndex + 2);
+         codeIndex += 2;
+         int codeOffset = readUnsignedShort();
          codeIndex += codeOffset << 1;
       }
    }
@@ -306,12 +307,13 @@ public final class ClassReader extends AnnotatedReader
       int startIndex = annotationsCodeIndex;
 
       if (startIndex != 0) {
-         int codeIndex = startIndex + 2;
+         codeIndex = startIndex;
 
-         for (int annotationCount = readUnsignedShort(startIndex); annotationCount > 0; annotationCount--) {
-            String desc = readNonnullUTF8(codeIndex);
-            AnnotationVisitor av = cv.visitAnnotation(desc);
-            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex + 2, av);
+         for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
+            String annotationTypeDesc = readNonnullUTF8();
+            AnnotationVisitor av = cv.visitAnnotation(annotationTypeDesc);
+
+            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
          }
       }
    }
@@ -320,29 +322,31 @@ public final class ClassReader extends AnnotatedReader
       int startIndex = innerClassesCodeIndex;
 
       if (startIndex != 0) {
-         int codeIndex = startIndex + 2;
+         codeIndex = startIndex;
 
-         for (int innerClassCount = readUnsignedShort(startIndex); innerClassCount > 0; innerClassCount--) {
-            String name = readNonnullClass(codeIndex);
-            String outerName = readClass(codeIndex + 2);
-            String innerName = readUTF8(codeIndex + 4);
-            int access = readUnsignedShort(codeIndex + 6);
+         for (int innerClassCount = readUnsignedShort(); innerClassCount > 0; innerClassCount--) {
+            String name = readNonnullClass();
+            String outerName = readClass();
+            String innerName = readUTF8();
+            int access = readUnsignedShort();
 
             cv.visitInnerClass(name, outerName, innerName, access);
-            codeIndex += 8;
          }
       }
    }
 
    private void readFieldsAndMethods() {
-      int codeIndex = header + 8 + 2 * interfaces.length;
+      codeIndex = getCodeIndexAfterInterfaces(interfaces.length);
 
       FieldReader fieldReader = new FieldReader(this);
-      codeIndex = fieldReader.readFields(codeIndex);
+      codeIndex = fieldReader.readFields();
 
       MethodReader methodReader = new MethodReader(this);
-      methodReader.readMethods(codeIndex);
+      codeIndex = methodReader.readMethods();
    }
+
+   @Nonnegative
+   private int getCodeIndexAfterInterfaces(@Nonnegative int interfaceCount) { return header + 8 + 2 * interfaceCount; }
 
    /**
     * Returns the start index of the attribute_info structure of this class.
@@ -355,7 +359,7 @@ public final class ClassReader extends AnnotatedReader
 
       // Skips the header.
       int interfaceCount = readUnsignedShort(header + 6);
-      int codeIndex = header + 8 + 2 * interfaceCount;
+      int codeIndex = getCodeIndexAfterInterfaces(interfaceCount);
 
       codeIndex = skipClassMembers(codeIndex); // fields
       codeIndex = skipClassMembers(codeIndex); // methods

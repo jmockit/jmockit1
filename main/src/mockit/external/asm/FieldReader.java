@@ -17,20 +17,15 @@ final class FieldReader extends AnnotatedReader
    /**
     * Reads each field and makes the given visitor visit it.
     *
-    * @param codeIndex the start offset of the first field in the class file.
     * @return the offset of the first byte following the last field in the class.
     */
    @Nonnegative
-   int readFields(@Nonnegative int codeIndex) {
-      this.codeIndex = codeIndex;
-      int fieldCount = readUnsignedShort();
-
-      while (fieldCount > 0) {
+   int readFields() {
+      for (int fieldCount = readUnsignedShort(); fieldCount > 0; fieldCount--) {
          readField();
-         fieldCount--;
       }
 
-      return this.codeIndex;
+      return codeIndex;
    }
 
    private void readField() {

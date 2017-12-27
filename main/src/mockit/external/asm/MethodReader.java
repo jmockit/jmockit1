@@ -99,14 +99,15 @@ final class MethodReader extends AnnotatedReader
    /**
     * Reads each method and constructor in the class, making the {@linkplain #cr class reader}'s
     * {@linkplain ClassReader#cv visitor} visit it.
+    *
+    * @return the offset of the first byte following the last method in the class.
     */
-   void readMethods(@Nonnegative int codeIndex) {
-      this.codeIndex = codeIndex;
-      int methodCount = readUnsignedShort();
-
-      for (int i = methodCount; i > 0; i--) {
+   int readMethods() {
+      for (int methodCount = readUnsignedShort(); methodCount > 0; methodCount--) {
          readMethod();
       }
+
+      return codeIndex;
    }
 
    private void readMethod() {
@@ -331,10 +332,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readLabelsForSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
-      codeIndex += 3 - (offset & 3); // skips 0 to 3 padding bytes
-
-      int defaultLabelOffset = readInt();
-      getOrCreateLabel(offset + defaultLabelOffset);
+      readSwitchDefaultLabel(offset);
 
       int caseCount;
 
@@ -356,6 +354,14 @@ final class MethodReader extends AnnotatedReader
          getOrCreateLabel(caseOffset);
          caseCount--;
       }
+   }
+
+   @Nonnull
+   private Label readSwitchDefaultLabel(@Nonnegative int offset) {
+      codeIndex += 3 - (offset & 3); // skips 0 to 3 padding bytes
+
+      int defaultLabelOffset = readInt();
+      return getOrCreateLabel(offset + defaultLabelOffset);
    }
 
    @SuppressWarnings("OverlyLongMethod")
@@ -578,11 +584,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readSwitchInstruction(@Nonnegative int offset, boolean tableNotLookup) {
-      codeIndex += 3 - (offset & 3); // skips 0 to 3 padding bytes
-
-      int defaultLabelOffset = offset + readInt();
-      Label dfltLabel = labels[defaultLabelOffset];
-
+      Label dfltLabel = readSwitchDefaultLabel(offset);
       int min;
       int max;
       int caseCount;
