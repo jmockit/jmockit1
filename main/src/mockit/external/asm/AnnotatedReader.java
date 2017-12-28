@@ -29,6 +29,7 @@ class AnnotatedReader extends BytecodeReader
 
    final void readAnnotations(@Nonnull BaseWriter visitor) {
       if (annotationsCodeIndex > 0) {
+         int previousCodeIndex = codeIndex;
          codeIndex = annotationsCodeIndex;
 
          for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
@@ -37,6 +38,8 @@ class AnnotatedReader extends BytecodeReader
 
             codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
          }
+
+         codeIndex = previousCodeIndex;
       }
    }
 }
