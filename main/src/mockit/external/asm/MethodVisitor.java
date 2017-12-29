@@ -148,10 +148,10 @@ public class MethodVisitor extends BaseWriter
     * @param desc    the method's descriptor (see {@link JavaType}).
     * @param bsm     the bootstrap method.
     * @param bsmArgs the bootstrap method constant arguments. Each argument must be an {@link Integer}, {@link Float},
-    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType}, or {@link Handle} value.
+    *                {@link Long}, {@link Double}, {@link String}, {@link JavaType}, or {@link MethodHandle} value.
     */
    public void visitInvokeDynamicInsn(
-      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs) {}
+      @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs) {}
 
    /**
     * Visits a jump instruction. A jump instruction is an instruction that may jump to another instruction.
@@ -174,7 +174,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param cst the constant to be loaded on the stack, which must be a non null
     * {@link Integer}/{@link Float}/{@link Long}/{@link Double}/{@link String}, an {@link ObjectType} or
-    * {@link ArrayType} for <tt>.class</tt> constants, a {@link MethodType}, or a {@link Handle}.
+    * {@link ArrayType} for <tt>.class</tt> constants, a {@link MethodType}, or a {@link MethodHandle}.
     */
    public void visitLdcInsn(@Nonnull Object cst) {}
 

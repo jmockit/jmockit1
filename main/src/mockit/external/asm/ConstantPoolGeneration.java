@@ -32,54 +32,15 @@ final class ConstantPoolGeneration
     */
    @Nonnegative private int index;
 
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final StringItem reusableUTF8Item;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final StringItem reusableStringItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final NameAndTypeItem reusableNameTypeItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final ClassMemberItem reusableClassMemberItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final IntItem reusableIntItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final LongItem reusableLongItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final FloatItem reusableFloatItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
    @Nonnull private final DoubleItem reusableDoubleItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
-   @Nonnull private final HandleItem reusableHandleItem;
-
-   /**
-    * A reusable key used to look for items in the {@link #items} hash table.
-    */
+   @Nonnull private final MethodHandleItem reusableMethodHandleItem;
    @Nonnull private final InvokeDynamicItem reusableInvokeDynamicItem;
 
    /**
@@ -115,7 +76,7 @@ final class ConstantPoolGeneration
       reusableLongItem = new LongItem(0);
       reusableFloatItem = new FloatItem(0);
       reusableDoubleItem = new DoubleItem(0);
-      reusableHandleItem = new HandleItem(0);
+      reusableMethodHandleItem = new MethodHandleItem(0);
       reusableInvokeDynamicItem = new InvokeDynamicItem(0);
       reusableNormalItem = new NormalTypeTableItem();
       reusableUninitializedItem = new UninitializedTypeTableItem();
@@ -195,24 +156,25 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Adds a handle to the constant pool of the class being built.
+    * Adds a method handle to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
     * @return a new or an already existing method type reference item.
     */
    @Nonnull
-   HandleItem newHandleItem(@Nonnull Handle handle) {
-      reusableHandleItem.set(handle);
+   MethodHandleItem newMethodHandleItem(@Nonnull MethodHandle methodHandle) {
+      reusableMethodHandleItem.set(methodHandle);
 
-      HandleItem result = get(reusableHandleItem);
+      MethodHandleItem result = get(reusableMethodHandleItem);
 
       if (result == null) {
-         int tag = handle.tag;
-         int memberType = tag <= Handle.Tag.PUTSTATIC ? FIELD : tag == Handle.Tag.INVOKEINTERFACE ? IMETH : METH;
-         ClassMemberItem memberItem = newClassMemberItem(memberType, handle.owner, handle.name, handle.desc);
+         int tag = methodHandle.tag;
+         int memberType = tag == MethodHandle.Tag.INVOKEINTERFACE ? IMETH : METH;
+         ClassMemberItem memberItem =
+            newClassMemberItem(memberType, methodHandle.owner, methodHandle.name, methodHandle.desc);
          pool.put11(HANDLE, tag).putShort(memberItem.index);
 
-         result = new HandleItem(index++, reusableHandleItem);
+         result = new MethodHandleItem(index++, reusableMethodHandleItem);
          put(result);
       }
 
@@ -424,8 +386,8 @@ final class ConstantPoolGeneration
          return newClassItem(typeDesc);
       }
 
-      if (cst instanceof Handle) {
-         return newHandleItem((Handle) cst);
+      if (cst instanceof MethodHandle) {
+         return newMethodHandleItem((MethodHandle) cst);
       }
 
       throw new IllegalArgumentException("value " + cst);

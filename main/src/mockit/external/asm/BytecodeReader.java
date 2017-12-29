@@ -373,7 +373,7 @@ class BytecodeReader
     *
     * @param itemIndex the index of a constant pool item.
     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link JavaType} or
-    * {@link Handle} corresponding to the given constant pool item.
+    * {@link MethodHandle} corresponding to the given constant pool item.
     */
    @Nonnull
    final Object readConst(@Nonnegative int itemIndex) {
@@ -385,31 +385,35 @@ class BytecodeReader
          case FLOAT:  return readFloat(codeIndex);
          case LONG:   return readLong(codeIndex);
          case DOUBLE: return readDouble(codeIndex);
+         case STR:    return readNonnullUTF8(codeIndex);
          case CLASS:
             String typeDesc = readNonnullUTF8(codeIndex);
             return ReferenceType.createFromInternalName(typeDesc);
-         case STR:
-            String string = readNonnullUTF8(codeIndex);
-            return string;
          case MTYPE:
             String methodDesc = readNonnullUTF8(codeIndex);
             return MethodType.create(methodDesc);
       // case HANDLE_BASE + [1..9]:
          default:
-            return readHandle(codeIndex);
+            return readMethodHandle(codeIndex);
       }
    }
 
    @Nonnull
-   final Handle readHandle() {
-      int handleItemIndex = readUnsignedShort();
-      int codeIndex = items[handleItemIndex];
-      Handle handle = readHandle(codeIndex);
-      return handle;
+   final MethodHandle readMethodHandle() {
+      int itemIndex = readUnsignedShort();
+      int codeIndex = items[itemIndex];
+      return readMethodHandle(codeIndex);
    }
 
    @Nonnull
-   private Handle readHandle(@Nonnegative int codeIndex) {
+   final MethodHandle readMethodHandleItem(@Nonnegative int codeIndex) {
+      int itemIndex = readUnsignedShort(codeIndex);
+      codeIndex = items[itemIndex];
+      return readMethodHandle(codeIndex);
+   }
+
+   @Nonnull
+   private MethodHandle readMethodHandle(@Nonnegative int codeIndex) {
       int tag = readUnsignedByte(codeIndex);
 
       int classIndex = readItem(codeIndex + 1);
@@ -419,7 +423,7 @@ class BytecodeReader
       String name = readNonnullUTF8(nameIndex);
       String desc = readNonnullUTF8(nameIndex + 2);
 
-      return new Handle(tag, owner, name, desc);
+      return new MethodHandle(tag, owner, name, desc);
    }
 
    /**

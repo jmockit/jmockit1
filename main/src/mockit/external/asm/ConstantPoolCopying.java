@@ -136,8 +136,8 @@ final class ConstantPoolCopying
       String name = source.readNonnullUTF8(nameCodeIndex);
       String desc = source.readNonnullUTF8(nameCodeIndex + 2);
 
-      Handle handle = new Handle(tag, classDesc, name, desc);
-      HandleItem item = new HandleItem(itemIndex);
+      MethodHandle handle = new MethodHandle(tag, classDesc, name, desc);
+      MethodHandleItem item = new MethodHandleItem(itemIndex);
       item.set(handle);
       return item;
    }

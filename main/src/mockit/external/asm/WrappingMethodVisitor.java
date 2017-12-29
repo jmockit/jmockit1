@@ -63,7 +63,7 @@ public class WrappingMethodVisitor extends MethodVisitor
 
    @Override
    public final void visitInvokeDynamicInsn(
-      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
+      @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
    ) {
       mw.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
    }

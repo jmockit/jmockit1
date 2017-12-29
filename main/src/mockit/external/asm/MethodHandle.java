@@ -32,55 +32,48 @@ package mockit.external.asm;
 import javax.annotation.*;
 
 /**
- * A reference to a field or a method.
+ * A reference to a method.
  */
-final class Handle
+final class MethodHandle
 {
    interface Tag
    {
-      // Field access.
-//    int GETFIELD  = 1;
-//    int GETSTATIC = 2;
-//    int PUTFIELD  = 3;
-      int PUTSTATIC = 4;
-
-      // Method invocation.
 //    int INVOKEVIRTUAL    = 5;
-      int INVOKESTATIC     = 6;
+//    int INVOKESTATIC     = 6;
 //    int INVOKESPECIAL    = 7;
 //    int NEWINVOKESPECIAL = 8;
       int INVOKEINTERFACE  = 9;
    }
 
    /**
-    * The kind of field or method designated by this Handle. Should be one of the {@link Tag} constants.
+    * The kind of method designated by this handle. Should be one of the {@link Tag} constants.
     */
    @Nonnegative final int tag;
 
    /**
-    * The internal name of the class that owns the field or method designated by this handle.
+    * The internal name of the class that owns the method designated by this handle.
     */
    @Nonnull final String owner;
 
    /**
-    * The name of the field or method designated by this handle.
+    * The name of the method designated by this handle.
     */
    @Nonnull final String name;
 
    /**
-    * The descriptor of the field or method designated by this handle.
+    * The descriptor of the method designated by this handle.
     */
    @Nonnull final String desc;
 
    /**
-    * Constructs a new field or method handle.
+    * Initializes a new method handle.
     *
-    * @param tag   the kind of field or method designated by this Handle. Must be one of the {@link Tag} constants.
-    * @param owner the internal name of the class that owns the field or method designated by this handle.
-    * @param name  the name of the field or method designated by this handle.
-    * @param desc  the descriptor of the field or method designated by this handle.
+    * @param tag   the kind of method designated by this handle. Must be one of the {@link Tag} constants.
+    * @param owner the internal name of the class that owns the method designated by this handle.
+    * @param name  the name of the method designated by this handle.
+    * @param desc  the descriptor of the method designated by this handle.
     */
-   Handle(@Nonnegative int tag, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+   MethodHandle(@Nonnegative int tag, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       this.tag = tag;
       this.owner = owner;
       this.name = name;
@@ -93,26 +86,16 @@ final class Handle
          return true;
       }
 
-      if (!(obj instanceof Handle)) {
+      if (!(obj instanceof MethodHandle)) {
          return false;
       }
 
-      Handle h = (Handle) obj;
+      MethodHandle h = (MethodHandle) obj;
       return tag == h.tag && owner.equals(h.owner) && name.equals(h.name) && desc.equals(h.desc);
    }
 
    @Override
    public int hashCode() {
       return tag + owner.hashCode() * name.hashCode() * desc.hashCode();
-   }
-
-   /**
-    * Returns the textual representation of this handle. The textual representation is:
-    * <pre>owner '.' name desc ' ' '(' tag ')'</pre>
-    * As this format is unambiguous, it can be parsed if necessary.
-    */
-   @Override
-   public String toString() {
-      return owner + '.' + name + desc + " (" + tag + ')';
    }
 }

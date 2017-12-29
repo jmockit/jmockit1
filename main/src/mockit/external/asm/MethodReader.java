@@ -651,18 +651,18 @@ final class MethodReader extends AnnotatedReader
       String bsmName = readNonnullUTF8(nameCodeIndex);
       String bsmDesc = readNonnullUTF8(nameCodeIndex + 2);
 
-      @SuppressWarnings("ConstantConditions") int bsmIndex = cr.bootstrapMethods[bsmStartIndex];
-      Handle bsm = (Handle) readConstItem(bsmIndex);
-      int bsmArgCount = readUnsignedShort(bsmIndex + 2);
-      bsmIndex += 4;
+      @SuppressWarnings("ConstantConditions") int bsmCodeIndex = cr.bootstrapMethods[bsmStartIndex];
+      MethodHandle bsmHandle = readMethodHandleItem(bsmCodeIndex);
+      int bsmArgCount = readUnsignedShort(bsmCodeIndex + 2);
+      bsmCodeIndex += 4;
       Object[] bsmArgs = new Object[bsmArgCount];
 
       for (int i = 0; i < bsmArgCount; i++) {
-         bsmArgs[i] = readConstItem(bsmIndex);
-         bsmIndex += 2;
+         bsmArgs[i] = readConstItem(bsmCodeIndex);
+         bsmCodeIndex += 2;
       }
 
-      mv.visitInvokeDynamicInsn(bsmName, bsmDesc, bsm, bsmArgs);
+      mv.visitInvokeDynamicInsn(bsmName, bsmDesc, bsmHandle, bsmArgs);
       codeIndex += 2;
    }
 

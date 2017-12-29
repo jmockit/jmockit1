@@ -48,7 +48,7 @@ final class BootstrapMethods
 
    private void copyBootstrapMethod(@Nonnull ClassReader cr, @Nonnull Item[] items, @Nonnegative int bsmIndex) {
       int position = cr.codeIndex - bsmStartCodeIndex;
-      Handle bsm = cr.readHandle();
+      MethodHandle bsm = cr.readMethodHandle();
       int hashCode = bsm.hashCode();
 
       for (int bsmArgCount = cr.readUnsignedShort(); bsmArgCount > 0; bsmArgCount--) {
@@ -72,13 +72,13 @@ final class BootstrapMethods
     */
    @Nonnull
    InvokeDynamicItem addInvokeDynamicReference(
-      @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
+      @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
    ) {
       ByteVector methods = bootstrapMethods;
       int position = methods.length; // record current position
 
-      HandleItem handleItem = cp.newHandleItem(bsm);
-      methods.putShort(handleItem.index);
+      MethodHandleItem methodHandleItem = cp.newMethodHandleItem(bsm);
+      methods.putShort(methodHandleItem.index);
 
       int argsLength = bsmArgs.length;
       methods.putShort(argsLength);
