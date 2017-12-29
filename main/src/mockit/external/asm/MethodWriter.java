@@ -253,6 +253,7 @@ public final class MethodWriter extends MethodVisitor
    public void visitInvokeDynamicInsn(
       @Nonnull String name, @Nonnull String desc, @Nonnull Handle bsm, @Nonnull Object... bsmArgs
    ) {
+      //noinspection ConstantConditions
       InvokeDynamicItem invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 

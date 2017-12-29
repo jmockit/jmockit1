@@ -11,24 +11,28 @@ final class ConstantPoolCopying
 {
    @Nonnull private final ClassReader source;
    @Nonnull private final ClassWriter destination;
+   @Nonnull private final Item[] newItems;
    @Nonnegative private int itemIndex;
-   private boolean bootstrapMethodsCopied;
 
    ConstantPoolCopying(@Nonnull ClassReader source, @Nonnull ClassWriter destination) {
       this.source = source;
       this.destination = destination;
+      newItems = new Item[source.items.length];
    }
 
-   void copyPool() {
+   void copyPool(@Nullable BootstrapMethods bootstrapMethods) {
+      if (bootstrapMethods != null) {
+         bootstrapMethods.copyBootstrapMethods(source, newItems);
+      }
+
       int[] items = source.items;
       int itemCount = items.length;
-      Item[] newItems = new Item[itemCount];
 
       for (itemIndex = 1; itemIndex < itemCount; itemIndex++) {
          source.codeIndex = items[itemIndex] - 1;
          int itemType = source.readSignedByte();
 
-         Item newItem = copyItem(itemType, newItems);
+         Item newItem = copyItem(itemType);
          newItem.setNext(newItems);
       }
 
@@ -37,7 +41,7 @@ final class ConstantPoolCopying
    }
 
    @Nonnull @SuppressWarnings("OverlyComplexMethod")
-   private Item copyItem(int itemType, @Nonnull Item[] newItems) {
+   private Item copyItem(int itemType) {
       switch (itemType) {
          case FIELD: case METH: case IMETH: return copyFieldOrMethodReferenceItem(itemType);
          case INT:       return copyIntItem();
@@ -47,7 +51,7 @@ final class ConstantPoolCopying
          case DOUBLE:    return copyDoubleItem();
          case UTF8:      return copyUTF8Item();
          case HANDLE:    return copyHandleItem();
-         case INDY:      return copyInvokeDynamicItem(newItems);
+         case INDY:      return copyInvokeDynamicItem();
       // case STR|CLASS|MTYPE:
          default: return copyNameReferenceItem(itemType);
       }
@@ -139,12 +143,7 @@ final class ConstantPoolCopying
    }
 
    @Nonnull
-   private Item copyInvokeDynamicItem(@Nonnull Item[] newItems) {
-      if (!bootstrapMethodsCopied) {
-         destination.bootstrapMethods.copyBootstrapMethods(source, newItems);
-         bootstrapMethodsCopied = true;
-      }
-
+   private Item copyInvokeDynamicItem() {
       int bsmIndex = source.readUnsignedShort();
       int nameCodeIndex = source.readItem();
       String name = source.readNonnullUTF8(nameCodeIndex);

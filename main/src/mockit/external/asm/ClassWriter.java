@@ -49,6 +49,15 @@ public final class ClassWriter extends ClassVisitor
    @Nonnull final ClassReader cr;
 
    /**
+    * <tt>true</tt> if the stack map frames must be recomputed from scratch.
+    * <p/>
+    * If this flag is set, then the stack map frames are recomputed from the methods bytecode. The arguments of the
+    * {@link MethodVisitor#visitMaxStack} method are also ignored and recomputed from the bytecode. In other words,
+    * computeFrames implies computeMaxs.
+    */
+   private final boolean computeFrames;
+
+   /**
     * Minor and major version numbers of the class to be generated.
     */
    private int version;
@@ -82,7 +91,7 @@ public final class ClassWriter extends ClassVisitor
    @Nonnull private final SourceInfo sourceInfo;
    @Nullable private OuterClass outerClass;
    @Nullable private InnerClasses innerClasses;
-   @Nonnull final BootstrapMethods bootstrapMethods;
+   @Nullable final BootstrapMethods bootstrapMethods;
 
    /**
     * The fields of this class.
@@ -93,15 +102,6 @@ public final class ClassWriter extends ClassVisitor
     * The methods of this class.
     */
    @Nonnull private final List<MethodWriter> methods;
-
-   /**
-    * <tt>true</tt> if the stack map frames must be recomputed from scratch.
-    * <p/>
-    * If this flag is set, then the stack map frames are recomputed from the methods bytecode. The arguments of the
-    * {@link MethodVisitor#visitMaxStack} method are also ignored and recomputed from the bytecode. In other words,
-    * computeFrames implies computeMaxs.
-    */
-   private final boolean computeFrames;
 
    /**
     * Constructs a new ClassWriter object and enables optimizations for "mostly add" bytecode transformations.
@@ -121,15 +121,16 @@ public final class ClassWriter extends ClassVisitor
     *                    where applicable.
     */
    public ClassWriter(@Nonnull ClassReader classReader) {
-      cp = new ConstantPoolGeneration();
-      sourceInfo = new SourceInfo(cp);
-      bootstrapMethods = new BootstrapMethods(cp);
-
+      cr = classReader;
       version = classReader.getVersion();
       computeFrames = version >= ClassVersion.V1_7;
 
-      cr = classReader;
-      new ConstantPoolCopying(classReader, this).copyPool();
+      cp = new ConstantPoolGeneration();
+      sourceInfo = new SourceInfo(cp);
+
+      bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, cr) : null;
+
+      new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
 
       fields = new ArrayList<FieldWriter>();
       methods = new ArrayList<MethodWriter>();
@@ -229,10 +230,11 @@ public final class ClassWriter extends ClassVisitor
 
    @Nonnegative
    private int getBytecodeSize() {
-      int size =
-         24 +
-         getInterfacesSize() + getFieldsSize() + getMethodsSize() +
-         bootstrapMethods.getSize() + sourceInfo.getSize();
+      int size = 24 + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
+
+      if (bootstrapMethods != null) {
+         size += bootstrapMethods.getSize();
+      }
 
       if (signature != 0) {
          size += 8;
@@ -264,7 +266,7 @@ public final class ClassWriter extends ClassVisitor
    private int getAttributeCount() {
       int attributeCount = 0;
 
-      if (bootstrapMethods.hasMethods()) {
+      if (bootstrapMethods != null) {
          attributeCount++;
       }
 
@@ -350,7 +352,10 @@ public final class ClassWriter extends ClassVisitor
       putMethods(out);
 
       out.putShort(attributeCount);
-      bootstrapMethods.put(out);
+
+      if (bootstrapMethods != null) {
+         bootstrapMethods.put(out);
+      }
 
       putSignature(out);
 

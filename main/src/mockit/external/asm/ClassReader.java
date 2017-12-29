@@ -359,22 +359,20 @@ public final class ClassReader extends AnnotatedReader
       return codeIndex;
    }
 
-   @Nonnegative
-   int findBootstrapMethodsAttribute() {
-      int codeIndex = getAttributesStartIndex();//9878
+   boolean positionAtBootstrapMethodsAttribute() {
+      codeIndex = getAttributesStartIndex();
 
-      for (int attributeCount = readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = readNonnullUTF8(codeIndex + 2);
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         String attrName = readNonnullUTF8();
 
          if ("BootstrapMethods".equals(attrName)) {
-            return codeIndex;//9934
+            return true;
          }
 
-         codeIndex += 4;
-         int codeOffset = readInt(codeIndex);
-         codeIndex += 2 + codeOffset;
+         int codeOffsetToNextAttribute = readInt();
+         codeIndex += codeOffsetToNextAttribute;
       }
 
-      return 0; // never reached in practice
+      return false;
    }
 }

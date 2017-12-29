@@ -401,7 +401,15 @@ class BytecodeReader
    }
 
    @Nonnull
-   private Object readHandle(@Nonnegative int codeIndex) {
+   final Handle readHandle() {
+      int handleItemIndex = readUnsignedShort();
+      int codeIndex = items[handleItemIndex];
+      Handle handle = readHandle(codeIndex);
+      return handle;
+   }
+
+   @Nonnull
+   private Handle readHandle(@Nonnegative int codeIndex) {
       int tag = readUnsignedByte(codeIndex);
 
       int classIndex = readItem(codeIndex + 1);
