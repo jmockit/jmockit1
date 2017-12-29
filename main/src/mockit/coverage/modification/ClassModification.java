@@ -135,7 +135,7 @@ public final class ClassModification
    private static byte[] modifyClassForCoverage(@Nonnull ClassReader cr)
    {
       CoverageModifier modifier = new CoverageModifier(cr);
-      cr.accept(modifier);
+      cr.accept(modifier, 0);
       return modifier.toByteArray();
    }
 

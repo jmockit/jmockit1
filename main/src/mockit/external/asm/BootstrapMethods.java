@@ -143,24 +143,22 @@ final class BootstrapMethods
     * Copies the bootstrap method data from the given {@link ClassReader}.
     */
    void copyBootstrapMethods(@Nonnull ClassReader cr, @Nonnull Item[] items) {
-      int codeIndex = findBootstrapMethodsAttribute(cr);
+      int codeIndex = cr.findBootstrapMethodsAttribute();
 
-      if (codeIndex == 0) {
-         return;
+      if (codeIndex > 0) {
+         int attrSize = cr.readInt(codeIndex + 4);
+         int bsmCount = cr.readUnsignedShort(codeIndex + 8);
+         int bsmCodeStartIndex = codeIndex + 10;
+
+         for (int bsmIndex = 0, bsmCodeIndex = bsmCodeStartIndex; bsmIndex < bsmCount; bsmIndex++) {
+            int position = bsmCodeIndex - bsmCodeStartIndex;
+            bsmCodeIndex = copyBootstrapMethod(cr, items, bsmIndex, bsmCodeIndex, position);
+         }
+
+         bootstrapMethods = new ByteVector(attrSize + 62);
+         bootstrapMethods.putByteArray(cr.code, bsmCodeStartIndex, attrSize - 2);
+         bootstrapMethodsCount = bsmCount;
       }
-
-      int bsmCount = cr.readUnsignedShort(codeIndex + 8);
-      int bsmCodeStartIndex = codeIndex + 10;
-
-      for (int bsmIndex = 0, bsmCodeIndex = bsmCodeStartIndex; bsmIndex < bsmCount; bsmIndex++) {
-         int position = bsmCodeIndex - bsmCodeStartIndex;
-         bsmCodeIndex = copyBootstrapMethod(cr, items, bsmIndex, bsmCodeIndex, position);
-      }
-
-      int attrSize = cr.readInt(codeIndex + 4);
-      bootstrapMethods = new ByteVector(attrSize + 62);
-      bootstrapMethods.putByteArray(cr.code, bsmCodeStartIndex, attrSize - 2);
-      bootstrapMethodsCount = bsmCount;
    }
 
    @Nonnegative
@@ -185,24 +183,5 @@ final class BootstrapMethods
       item.setNext(items);
 
       return bsmCodeIndex;
-   }
-
-   @Nonnegative
-   private static int findBootstrapMethodsAttribute(@Nonnull ClassReader cr) {
-      int codeIndex = cr.getAttributesStartIndex();
-
-      for (int attributeCount = cr.readUnsignedShort(codeIndex); attributeCount > 0; attributeCount--) {
-         String attrName = cr.readNonnullUTF8(codeIndex + 2);
-
-         if ("BootstrapMethods".equals(attrName)) {
-            return codeIndex;
-         }
-
-         codeIndex += 4;
-         int codeOffset = cr.readInt(codeIndex);
-         codeIndex += 2 + codeOffset;
-      }
-
-      return 0;
    }
 }
