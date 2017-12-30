@@ -524,9 +524,7 @@ public final class MethodWriter extends MethodVisitor
     */
    @Override
    void put(@Nonnull ByteVector out) {
-      int accessFlag = Access.computeFlag(access, Access.CONSTRUCTOR);
-      out.putShort(accessFlag);
-
+      putAccess(out, Access.CONSTRUCTOR);
       out.putShort(name);
       out.putShort(desc);
 

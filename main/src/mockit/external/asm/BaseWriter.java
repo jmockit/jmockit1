@@ -83,6 +83,11 @@ class BaseWriter
       return 6 * attributeCount;
    }
 
+   final void putAccess(@Nonnull ByteVector out, int baseMask) {
+      int accessFlag = Access.computeFlag(access, baseMask);
+      out.putShort(accessFlag);
+   }
+
    final void putMarkerAttributes(@Nonnull ByteVector out) {
       if (deprecatedAttributeIndex > 0) {
          out.putShort(deprecatedAttributeIndex).putInt(0);

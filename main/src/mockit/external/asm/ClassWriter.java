@@ -80,8 +80,8 @@ public final class ClassWriter extends ClassVisitor
    @Nullable private Interfaces interfaces;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
-   @Nullable private OuterClass outerClass;
-   @Nullable private InnerClasses innerClasses;
+   @Nullable private OuterClassWriter outerClassWriter;
+   @Nullable private InnerClassesWriter innerClassesWriter;
    @Nullable final BootstrapMethods bootstrapMethods;
 
    /**
@@ -161,7 +161,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {
-      outerClass = new OuterClass(cp, owner, name, desc);
+      outerClassWriter = new OuterClassWriter(cp, owner, name, desc);
    }
 
    @Nonnull @Override
@@ -173,11 +173,11 @@ public final class ClassWriter extends ClassVisitor
    public void visitInnerClass(
       @Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access
    ) {
-      if (innerClasses == null) {
-         innerClasses = new InnerClasses(cp);
+      if (innerClassesWriter == null) {
+         innerClassesWriter = new InnerClassesWriter(cp);
       }
 
-      innerClasses.add(name, outerName, innerName, access);
+      innerClassesWriter.add(name, outerName, innerName, access);
    }
 
    @Nonnull @Override
@@ -230,12 +230,12 @@ public final class ClassWriter extends ClassVisitor
          size += signatureWriter.getSize();
       }
 
-      if (outerClass != null) {
-         size += outerClass.getSize();
+      if (outerClassWriter != null) {
+         size += outerClassWriter.getSize();
       }
 
-      if (innerClasses != null) {
-         size += innerClasses.getSize();
+      if (innerClassesWriter != null) {
+         size += innerClassesWriter.getSize();
       }
 
       return size + getAnnotationsSize() + cp.getSize();
@@ -272,9 +272,7 @@ public final class ClassWriter extends ClassVisitor
       out.putInt(0xCAFEBABE).putInt(version);
       cp.put(out);
 
-      int accessFlag = Access.computeFlag(access, 0);
-      out.putShort(accessFlag);
-
+      putAccess(out, 0);
       out.putShort(name);
       out.putShort(superName);
 
@@ -301,14 +299,14 @@ public final class ClassWriter extends ClassVisitor
 
       sourceInfo.put(out);
 
-      if (outerClass != null) {
-         outerClass.put(out);
+      if (outerClassWriter != null) {
+         outerClassWriter.put(out);
       }
 
       putMarkerAttributes(out);
 
-      if (innerClasses != null) {
-         innerClasses.put(out);
+      if (innerClassesWriter != null) {
+         innerClassesWriter.put(out);
       }
    }
 
@@ -324,11 +322,11 @@ public final class ClassWriter extends ClassVisitor
          attributeCount++;
       }
 
-      if (outerClass != null) {
+      if (outerClassWriter != null) {
          attributeCount++;
       }
 
-      if (innerClasses != null) {
+      if (innerClassesWriter != null) {
          attributeCount++;
       }
 
@@ -340,5 +338,4 @@ public final class ClassWriter extends ClassVisitor
    }
 
    boolean isJava6OrNewer() { return version >= ClassVersion.V1_6; }
-   boolean isSynthetic(int access) { return Access.isSynthetic(access, version); }
 }

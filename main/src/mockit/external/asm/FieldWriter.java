@@ -106,9 +106,7 @@ final class FieldWriter extends FieldVisitor
     */
    @Override
    void put(@Nonnull ByteVector out) {
-      int accessFlag = Access.computeFlag(access, 0);
-      out.putShort(accessFlag);
-
+      putAccess(out, 0);
       out.putShort(name);
       out.putShort(desc);
 

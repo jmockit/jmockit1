@@ -2,28 +2,20 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class InnerClasses
+final class InnerClassesWriter extends AttributeWriter
 {
-   @Nonnull private final ConstantPoolGeneration cp;
-
    /**
-    * The constant pool item that contains the name of the attribute to be produced.
-    */
-   @Nonnegative private final int attributeName;
-
-   /**
-    * The InnerClasses attribute.
+    * The <tt>InnerClasses</tt> attribute.
     */
    @Nonnull private final ByteVector innerClasses;
 
    /**
-    * The number of entries in the InnerClasses attribute.
+    * The number of entries in the <tt>InnerClasses</tt> attribute.
     */
    @Nonnegative private int innerClassesCount;
 
-   InnerClasses(@Nonnull ConstantPoolGeneration cp) {
-      this.cp = cp;
-      attributeName = cp.newUTF8("InnerClasses");
+   InnerClassesWriter(@Nonnull ConstantPoolGeneration cp) {
+      super(cp, "InnerClasses");
       innerClasses = new ByteVector();
    }
 
@@ -47,12 +39,13 @@ final class InnerClasses
       innerClasses.putShort(access);
    }
 
-   @Nonnegative
+   @Nonnegative @Override
    int getSize() { return 8 + innerClasses.length; }
 
+   @Override
    void put(@Nonnull ByteVector out) {
-      out.putShort(attributeName);
-      out.putInt(innerClasses.length + 2).putShort(innerClassesCount);
+      put(out, innerClasses.length + 2);
+      out.putShort(innerClassesCount);
       out.putByteVector(innerClasses);
    }
 }

@@ -2,13 +2,8 @@ package mockit.external.asm;
 
 import javax.annotation.*;
 
-final class OuterClass
+final class OuterClassWriter extends AttributeWriter
 {
-   /**
-    * The constant pool item that contains the name of the attribute to be produced.
-    */
-   @Nonnegative private final int attributeName;
-
    /**
     * The constant pool item that contains the name of the enclosing class of this class.
     */
@@ -19,17 +14,20 @@ final class OuterClass
     */
    @Nonnegative private final int enclosingMethod;
 
-   OuterClass(@Nonnull ConstantPoolGeneration cp, @Nonnull String owner, @Nullable String name, @Nullable String desc) {
-      attributeName = cp.newUTF8("EnclosingMethod");
+   OuterClassWriter(
+      @Nonnull ConstantPoolGeneration cp, @Nonnull String owner, @Nullable String name, @Nullable String desc
+   ) {
+      super(cp, "EnclosingMethod");
       enclosingMethodOwner = cp.newClass(owner);
       enclosingMethod = name != null && desc != null ? cp.newNameType(name, desc) : 0;
    }
 
-   @Nonnegative
+   @Nonnegative @Override
    int getSize() { return 10; }
 
+   @Override
    void put(@Nonnull ByteVector out) {
-      out.putShort(attributeName).putInt(4);
+      put(out, 4);
       out.putShort(enclosingMethodOwner).putShort(enclosingMethod);
    }
 }

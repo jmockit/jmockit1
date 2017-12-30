@@ -29,8 +29,10 @@ abstract class AttributeWriter
    abstract int getSize();
 
    void put(@Nonnull ByteVector out) {
-      if (attributeIndex > 0) {
-         out.putShort(attributeIndex).putInt(2);
-      }
+      put(out, 2);
+   }
+
+   final void put(@Nonnull ByteVector out, @Nonnegative int size) {
+      out.putShort(attributeIndex).putInt(size);
    }
 }
