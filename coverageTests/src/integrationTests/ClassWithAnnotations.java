@@ -5,7 +5,7 @@ import javax.annotation.*;
 import javax.annotation.Resource.*;
 import javax.sql.*;
 
-@Resources(@Resource(name = "test"))
+@Deprecated @Resources(@Resource(name = "test"))
 final class ClassWithAnnotations
 {
    @SuppressWarnings("DefaultAnnotationParam")
@@ -13,12 +13,13 @@ final class ClassWithAnnotations
    @Resource(authenticationType = AuthenticationType.APPLICATION)
    DataSource dataSource;
 
+   @Deprecated
    @AnAnnotation(integers = {1, 2, 3})
    int[] values;
 
    @ConstructorProperties({"Ab", "cde"})
    ClassWithAnnotations() {}
 
-   @AnAnnotation("some text")
+   @AnAnnotation("some text") @Deprecated
    void aMethod() {}
 }
