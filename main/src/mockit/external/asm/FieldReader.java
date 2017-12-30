@@ -5,7 +5,6 @@ import javax.annotation.*;
 final class FieldReader extends AnnotatedReader
 {
    @Nonnull private final ClassVisitor cv;
-   @Nullable private String signature;
 
    FieldReader(@Nonnull ClassReader cr) {
       super(cr);
@@ -56,15 +55,11 @@ final class FieldReader extends AnnotatedReader
             continue;
          }
 
-         if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8();
+         if (readSignature(attrName)) {
             continue;
          }
 
-         if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationsCodeIndex = codeIndex;
-         }
-         else {
+         if (!readRuntimeVisibleAnnotations(attrName)) {
             readAccessAttribute(attrName);
          }
 

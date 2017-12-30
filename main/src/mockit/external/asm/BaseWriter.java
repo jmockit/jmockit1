@@ -1,5 +1,6 @@
 package mockit.external.asm;
 
+import java.util.*;
 import javax.annotation.*;
 
 class BaseWriter
@@ -58,6 +59,16 @@ class BaseWriter
          int item = getConstantPoolItemForRuntimeVisibleAnnotationsAttribute();
          out.putShort(item);
          annotations.put(out);
+      }
+   }
+
+   void put(@Nonnull ByteVector out) {}
+
+   static void put(@Nonnull ByteVector out, @Nonnull List<? extends BaseWriter> writers) {
+      out.putShort(writers.size());
+
+      for (BaseWriter writer : writers) {
+         writer.put(out);
       }
    }
 }

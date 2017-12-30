@@ -72,7 +72,6 @@ public final class ClassReader extends AnnotatedReader
    private String name;
    @Nullable private String superClass;
    @Nonnull private String[] interfaces = NO_INTERFACES;
-   @Nullable private String signature;
    @Nullable private String sourceFileName;
    @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int innerClassesCodeIndex;
@@ -225,36 +224,35 @@ public final class ClassReader extends AnnotatedReader
       codeIndex = getAttributesStartIndex();
 
       for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
-         String attrName = readNonnullUTF8();
+         String attributeName = readNonnullUTF8();
          int codeOffsetToNextAttribute = readInt();
 
-         if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8();
+         if (readSignature(attributeName)) {
             continue;
          }
 
-         if ("SourceFile".equals(attrName)) {
+         if ("SourceFile".equals(attributeName)) {
             sourceFileName = readNonnullUTF8();
             continue;
          }
 
-         if ("EnclosingMethod".equals(attrName)) {
+         if ("EnclosingMethod".equals(attributeName)) {
             enclosingMethod = new EnclosingMethod(this);
          }
-         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationsCodeIndex = codeIndex;
+         else if (readRuntimeVisibleAnnotations(attributeName)) {
+            // ok
          }
-         else if ("InnerClasses".equals(attrName)) {
+         else if ("InnerClasses".equals(attributeName)) {
             if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
                innerClassesCodeIndex = codeIndex;
             }
          }
-         else if ("BootstrapMethods".equals(attrName)) {
+         else if ("BootstrapMethods".equals(attributeName)) {
             readBootstrapMethods();
             continue;
          }
          else {
-            readAccessAttribute(attrName);
+            readAccessAttribute(attributeName);
          }
 
          codeIndex += codeOffsetToNextAttribute;
@@ -279,7 +277,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void visitSourceFileName() {
-      if ((flags & Flags.SKIP_DEBUG) == 0 && sourceFileName != null) {
+      if ((flags & Flags.SKIP_DEBUG) == 0) {
          cv.visitSource(sourceFileName);
       }
    }

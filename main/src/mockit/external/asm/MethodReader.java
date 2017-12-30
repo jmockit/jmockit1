@@ -60,7 +60,6 @@ final class MethodReader extends AnnotatedReader
    @Nonnull private final ClassReader cr;
 
    @Nullable private String[] throwsClauseTypes;
-   @Nullable private String signature;
 
    /**
     * The name of the method currently being parsed.
@@ -121,12 +120,11 @@ final class MethodReader extends AnnotatedReader
             readExceptionsInThrowsClause();
             continue;
          }
-         else if ("Signature".equals(attrName)) {
-            signature = readNonnullUTF8();
+         else if (readSignature(attrName)) {
             continue;
          }
-         else if ("RuntimeVisibleAnnotations".equals(attrName)) {
-            annotationsCodeIndex = codeIndex;
+         else if (readRuntimeVisibleAnnotations(attrName)) {
+            // ok
          }
          else if ("RuntimeVisibleParameterAnnotations".equals(attrName)) {
             parameterAnnotationsCodeIndex = codeIndex;
@@ -222,8 +220,7 @@ final class MethodReader extends AnnotatedReader
       for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
          String annotationTypeDesc = readNonnullUTF8();
          AnnotationVisitor av = mv.visitParameterAnnotation(parameterIndex, annotationTypeDesc);
-
-         codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
+         readAnnotationValues(av);
       }
    }
 

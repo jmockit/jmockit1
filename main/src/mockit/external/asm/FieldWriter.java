@@ -56,10 +56,7 @@ final class FieldWriter extends FieldVisitor
     */
    @Nonnegative private final int desc;
 
-   /**
-    * The index of the constant pool item that contains the signature of this field.
-    */
-   @Nonnegative private final int signature;
+   @Nullable private final SignatureWriter signatureWriter;
 
    /**
     * The index of the constant pool item that contains the constant value of this field.
@@ -85,22 +82,14 @@ final class FieldWriter extends FieldVisitor
       this.access = access;
       this.name = cp.newUTF8(name);
       this.desc = cp.newUTF8(desc);
-      this.signature = signature == null ? 0 : cp.newUTF8(signature);
+      signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
       this.value = value == null ? 0 : cp.newConstItem(value).index;
    }
-
-   // ------------------------------------------------------------------------
-   // Implementation of the FieldVisitor base class
-   // ------------------------------------------------------------------------
 
    @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
    }
-
-   // ------------------------------------------------------------------------
-   // Utility methods
-   // ------------------------------------------------------------------------
 
    /**
     * Returns the size of this field.
@@ -124,13 +113,11 @@ final class FieldWriter extends FieldVisitor
          size += 6;
       }
 
-      if (signature != 0) {
-         cp.newUTF8("Signature");
-         size += 8;
+      if (signatureWriter != null) {
+         size += signatureWriter.getSize();
       }
 
       size += getAnnotationsSize();
-
       return size;
    }
 
@@ -140,9 +127,8 @@ final class FieldWriter extends FieldVisitor
 
    /**
     * Puts the content of this field into the given byte vector.
-    *
-    * @param out where the content of this field must be put.
     */
+   @Override
    void put(@Nonnull ByteVector out) {
       int accessFlag = Access.computeFlag(access, 0);
       out.putShort(accessFlag);
@@ -153,27 +139,27 @@ final class FieldWriter extends FieldVisitor
       int attributeCount = 0;
 
       if (value != 0) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       boolean synthetic = isSynthetic();
 
       if (synthetic) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       boolean deprecated = Access.isDeprecated(access);
 
       if (deprecated) {
-         ++attributeCount;
+         attributeCount++;
       }
 
-      if (signature != 0) {
-         ++attributeCount;
+      if (signatureWriter != null) {
+         attributeCount++;
       }
 
       if (annotations != null) {
-         ++attributeCount;
+         attributeCount++;
       }
 
       out.putShort(attributeCount);
@@ -191,9 +177,8 @@ final class FieldWriter extends FieldVisitor
          out.putShort(cp.newUTF8("Deprecated")).putInt(0);
       }
 
-      if (signature != 0) {
-         out.putShort(cp.newUTF8("Signature"));
-         out.putInt(2).putShort(signature);
+      if (signatureWriter != null) {
+         signatureWriter.put(out);
       }
 
       putAnnotations(out);

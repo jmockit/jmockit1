@@ -3,11 +3,11 @@ package mockit.external.asm;
 import javax.annotation.*;
 
 /**
- * A bytecode reader having an {@link AnnotationReader} for reading the annotations of a class, field, or method.
+ * A bytecode reader for reading common elements (signature, annotations) of a class, field, or method.
  */
 class AnnotatedReader extends BytecodeReader
 {
-   @Nonnull final AnnotationReader annotationReader = new AnnotationReader(this);
+   @Nonnull private final AnnotationReader annotationReader = new AnnotationReader(this);
    @Nonnegative int annotationsCodeIndex;
 
    /**
@@ -15,8 +15,22 @@ class AnnotatedReader extends BytecodeReader
     */
    int access;
 
+   /**
+    * The generic type signature of the class/field/method, if it has one.
+    */
+   @Nullable String signature;
+
    AnnotatedReader(@Nonnull byte[] code) { super(code); }
    AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
+
+   final boolean readSignature(@Nonnull String attrName) {
+      if ("Signature".equals(attrName)) {
+         signature = readNonnullUTF8();
+         return true;
+      }
+
+      return false;
+   }
 
    final void readAccessAttribute(@Nonnull String attrName) {
       if ("Deprecated".equals(attrName)) {
@@ -27,6 +41,15 @@ class AnnotatedReader extends BytecodeReader
       }
    }
 
+   final boolean readRuntimeVisibleAnnotations(@Nonnull String attrName) {
+      if ("RuntimeVisibleAnnotations".equals(attrName)) {
+         annotationsCodeIndex = codeIndex;
+         return true;
+      }
+
+      return false;
+   }
+
    final void readAnnotations(@Nonnull BaseWriter visitor) {
       if (annotationsCodeIndex > 0) {
          int previousCodeIndex = codeIndex;
@@ -35,11 +58,14 @@ class AnnotatedReader extends BytecodeReader
          for (int annotationCount = readUnsignedShort(); annotationCount > 0; annotationCount--) {
             String annotationTypeDesc = readNonnullUTF8();
             AnnotationVisitor av = visitor.visitAnnotation(annotationTypeDesc);
-
-            codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
+            readAnnotationValues(av);
          }
 
          codeIndex = previousCodeIndex;
       }
+   }
+
+   final void readAnnotationValues(@Nullable AnnotationVisitor av) {
+      codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
    }
 }

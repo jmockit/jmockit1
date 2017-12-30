@@ -78,17 +78,13 @@ public final class ClassWriter extends ClassVisitor
    String thisName;
 
    /**
-    * The constant pool item that contains the signature of this class.
-    */
-   private int signature;
-
-   /**
     * The constant pool item that contains the internal name of the super class of this class.
     */
    private int superName;
 
    @Nullable private Interfaces interfaces;
-   @Nonnull private final SourceInfo sourceInfo;
+   @Nullable private SignatureWriter signatureWriter;
+   @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private OuterClass outerClass;
    @Nullable private InnerClasses innerClasses;
    @Nullable final BootstrapMethods bootstrapMethods;
@@ -126,7 +122,7 @@ public final class ClassWriter extends ClassVisitor
       computeFrames = version >= ClassVersion.V1_7;
 
       cp = new ConstantPoolGeneration();
-      sourceInfo = new SourceInfo(cp);
+      sourceInfo = new SourceInfoWriter(cp);
 
       bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, cr) : null;
 
@@ -151,7 +147,7 @@ public final class ClassWriter extends ClassVisitor
       thisName = name;
 
       if (signature != null) {
-         this.signature = cp.newUTF8(signature);
+         signatureWriter = new SignatureWriter(cp, signature);
       }
 
       this.superName = superName == null ? 0 : cp.newClass(superName);
@@ -167,7 +163,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visitSource(@Nullable String file) {
-      sourceInfo.add(file);
+      sourceInfo.setSourceFileName(file);
    }
 
    @Override
@@ -221,9 +217,12 @@ public final class ClassWriter extends ClassVisitor
       cp.checkConstantPoolMaxSize();
 
       int size = getBytecodeSize(); // the real size of the bytecode of this class
-      int attributeCount = getAttributeCount();
 
-      ByteVector out = putClassAttributes(size, attributeCount);
+      // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
+      // ByteVector.enlarge() method.
+      ByteVector out = new ByteVector(size);
+
+      putClassAttributes(out);
       putAnnotations(out);
       return out.data;
    }
@@ -236,9 +235,8 @@ public final class ClassWriter extends ClassVisitor
          size += bootstrapMethods.getSize();
       }
 
-      if (signature != 0) {
-         size += 8;
-         cp.newUTF8("Signature");
+      if (signatureWriter != null) {
+         size += signatureWriter.getSize();
       }
 
       if (outerClass != null) {
@@ -260,43 +258,6 @@ public final class ClassWriter extends ClassVisitor
       }
 
       return size + getAnnotationsSize() + cp.getSize();
-   }
-
-   @Nonnegative
-   private int getAttributeCount() {
-      int attributeCount = 0;
-
-      if (bootstrapMethods != null) {
-         attributeCount++;
-      }
-
-      if (signature != 0) {
-         attributeCount++;
-      }
-
-      attributeCount += sourceInfo.getAttributeCount();
-
-      if (outerClass != null) {
-         attributeCount++;
-      }
-
-      if (Access.isDeprecated(access)) {
-         attributeCount++;
-      }
-
-      if (isSynthetic()) {
-         attributeCount++;
-      }
-
-      if (innerClasses != null) {
-         attributeCount++;
-      }
-
-      if (annotations != null) {
-         attributeCount++;
-      }
-
-      return attributeCount;
    }
 
    @Nonnegative
@@ -326,12 +287,44 @@ public final class ClassWriter extends ClassVisitor
       return size;
    }
 
-   @Nonnull
-   private ByteVector putClassAttributes(@Nonnegative int size, @Nonnegative int attributeCount) {
-      // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
-      // ByteVector.enlarge() method.
-      ByteVector out = new ByteVector(size);
+   @Nonnegative
+   private int getAttributeCount() {
+      int attributeCount = 0;
 
+      if (bootstrapMethods != null) {
+         attributeCount++;
+      }
+
+      if (signatureWriter != null) {
+         attributeCount++;
+      }
+
+      attributeCount += sourceInfo.getAttributeCount();
+
+      if (outerClass != null) {
+         attributeCount++;
+      }
+
+      if (Access.isDeprecated(access)) {
+         attributeCount++;
+      }
+
+      if (isSynthetic()) {
+         attributeCount++;
+      }
+
+      if (innerClasses != null) {
+         attributeCount++;
+      }
+
+      if (annotations != null) {
+         attributeCount++;
+      }
+
+      return attributeCount;
+   }
+
+   private void putClassAttributes(@Nonnull ByteVector out) {
       out.putInt(0xCAFEBABE).putInt(version);
       cp.put(out);
 
@@ -348,16 +341,19 @@ public final class ClassWriter extends ClassVisitor
          interfaces.put(out);
       }
 
-      putFields(out);
-      putMethods(out);
+      BaseWriter.put(out, fields);
+      BaseWriter.put(out, methods);
 
+      int attributeCount = getAttributeCount();
       out.putShort(attributeCount);
 
       if (bootstrapMethods != null) {
          bootstrapMethods.put(out);
       }
 
-      putSignature(out);
+      if (signatureWriter != null) {
+         signatureWriter.put(out);
+      }
 
       sourceInfo.put(out);
 
@@ -375,30 +371,6 @@ public final class ClassWriter extends ClassVisitor
 
       if (innerClasses != null) {
          innerClasses.put(out);
-      }
-
-      return out;
-   }
-
-   private void putFields(@Nonnull ByteVector out) {
-      out.putShort(fields.size());
-
-      for (FieldWriter fw : fields) {
-         fw.put(out);
-      }
-   }
-
-   private void putMethods(@Nonnull ByteVector out) {
-      out.putShort(methods.size());
-
-      for (MethodWriter mw : methods) {
-         mw.put(out);
-      }
-   }
-
-   private void putSignature(@Nonnull ByteVector out) {
-      if (signature != 0) {
-         out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(signature);
       }
    }
 

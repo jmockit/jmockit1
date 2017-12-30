@@ -64,10 +64,7 @@ public final class MethodWriter extends MethodVisitor
     */
    @Nonnull final String descriptor;
 
-   /**
-    * The signature of this method.
-    */
-   @Nullable String signature;
+   @Nullable private final SignatureWriter signatureWriter;
 
    /**
     * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
@@ -82,7 +79,7 @@ public final class MethodWriter extends MethodVisitor
     */
    @Nonnegative int classReaderLength;
 
-   @Nullable final ThrowsClause throwsClause;
+   @Nullable private final ThrowsClause throwsClause;
 
    /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
@@ -92,7 +89,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The bytecode of this method.
     */
-   @Nonnull final ByteVector code;
+   @Nonnull private final ByteVector code;
 
    @Nonnull private final FrameAndStackComputation frameAndStack;
    @Nonnull private final ExceptionHandling exceptionHandling;
@@ -123,7 +120,7 @@ public final class MethodWriter extends MethodVisitor
       this.name = cp.newUTF8(name);
       this.desc = cp.newUTF8(desc);
       descriptor = desc;
-      this.signature = signature;
+      signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
       throwsClause = exceptions == null ? null : new ThrowsClause(cp, exceptions);
       code = new ByteVector();
       this.computeFrames = computeFrames;
@@ -517,15 +514,12 @@ public final class MethodWriter extends MethodVisitor
          size += 6;
       }
 
-      if (signature != null) {
-         cp.newUTF8("Signature");
-         cp.newUTF8(signature);
-         size += 8;
+      if (signatureWriter != null) {
+         size += signatureWriter.getSize();
       }
 
       size += getAnnotationsSize();
       size += getSizeOfParameterAnnotations();
-
       return size;
    }
 
@@ -553,6 +547,7 @@ public final class MethodWriter extends MethodVisitor
     *
     * @param out the byte vector into which the bytecode of this method must be copied.
     */
+   @Override
    void put(@Nonnull ByteVector out) {
       int accessFlag = Access.computeFlag(access, Access.CONSTRUCTOR);
       out.putShort(accessFlag);
@@ -577,7 +572,11 @@ public final class MethodWriter extends MethodVisitor
 
       putSyntheticAttribute(out, synthetic);
       putDeprecatedAttribute(out, deprecated);
-      putSignatureAttribute(out);
+
+      if (signatureWriter != null) {
+         signatureWriter.put(out);
+      }
+
       putAnnotationAttributes(out);
    }
 
@@ -600,7 +599,7 @@ public final class MethodWriter extends MethodVisitor
          methodAttributeCount++;
       }
 
-      if (signature != null) {
+      if (signatureWriter != null) {
          methodAttributeCount++;
       }
 
@@ -656,12 +655,6 @@ public final class MethodWriter extends MethodVisitor
    private void putDeprecatedAttribute(@Nonnull ByteVector out, boolean deprecated) {
       if (deprecated) {
          out.putShort(cp.newUTF8("Deprecated")).putInt(0);
-      }
-   }
-
-   private void putSignatureAttribute(@Nonnull ByteVector out) {
-      if (signature != null) {
-         out.putShort(cp.newUTF8("Signature")).putInt(2).putShort(cp.newUTF8(signature));
       }
    }
 
