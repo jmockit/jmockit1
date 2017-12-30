@@ -130,7 +130,7 @@ final class MethodReader extends AnnotatedReader
             parameterAnnotationsCodeIndex = codeIndex;
          }
          else {
-            readAccessAttribute(attrName);
+            readMarkerAttributes(attrName);
          }
 
          codeIndex += codeOffsetToNextAttribute;

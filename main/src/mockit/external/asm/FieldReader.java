@@ -60,7 +60,7 @@ final class FieldReader extends AnnotatedReader
          }
 
          if (!readRuntimeVisibleAnnotations(attrName)) {
-            readAccessAttribute(attrName);
+            readMarkerAttributes(attrName);
          }
 
          codeIndex += codeOffsetToNextAttribute;

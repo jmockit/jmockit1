@@ -252,7 +252,7 @@ public final class ClassReader extends AnnotatedReader
             continue;
          }
          else {
-            readAccessAttribute(attributeName);
+            readMarkerAttributes(attributeName);
          }
 
          codeIndex += codeOffsetToNextAttribute;

@@ -11,6 +11,14 @@ class BaseWriter
    @Nonnull ConstantPoolGeneration cp;
 
    /**
+    * The access flags of this class, field, or method.
+    */
+   int access;
+
+   @Nonnegative private int deprecatedAttributeIndex;
+   @Nonnegative private int syntheticAttributeIndex;
+
+   /**
     * The runtime visible annotations of this class/field/method.
     */
    @Nullable AnnotationWriter annotations;
@@ -30,6 +38,16 @@ class BaseWriter
     * to inform the visitor that all the annotations and attributes of the class/field/method have been visited.
     */
    public void visitEnd() {}
+
+   final void createMarkerAttributes(int classVersion) {
+      if (Access.isDeprecated(access)) {
+         deprecatedAttributeIndex = cp.newUTF8("Deprecated");
+      }
+
+      if (Access.isSynthetic(access, classVersion)) {
+         syntheticAttributeIndex = cp.newUTF8("Synthetic");
+      }
+   }
 
    @Nonnull
    final AnnotationVisitor addAnnotation(@Nonnull String desc) {
@@ -52,6 +70,27 @@ class BaseWriter
    @Nonnegative
    private int getConstantPoolItemForRuntimeVisibleAnnotationsAttribute() {
       return cp.newUTF8("RuntimeVisibleAnnotations");
+   }
+
+   @Nonnegative
+   final int getMarkerAttributeCount() {
+      return (deprecatedAttributeIndex == 0 ? 0 : 1) + (syntheticAttributeIndex == 0 ? 0 : 1);
+   }
+
+   @Nonnegative
+   final int getMarkerAttributesSize() {
+      int attributeCount = getMarkerAttributeCount();
+      return 6 * attributeCount;
+   }
+
+   final void putMarkerAttributes(@Nonnull ByteVector out) {
+      if (deprecatedAttributeIndex > 0) {
+         out.putShort(deprecatedAttributeIndex).putInt(0);
+      }
+
+      if (syntheticAttributeIndex > 0) {
+         out.putShort(syntheticAttributeIndex).putInt(0);
+      }
    }
 
    final void putAnnotations(@Nonnull ByteVector out) {

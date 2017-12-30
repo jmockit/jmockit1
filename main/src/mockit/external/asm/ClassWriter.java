@@ -60,12 +60,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Minor and major version numbers of the class to be generated.
     */
-   private int version;
-
-   /**
-    * The access flags of this class.
-    */
-   private int access;
+   int version;
 
    /**
     * The constant pool item that contains the internal name of this class.
@@ -132,10 +127,6 @@ public final class ClassWriter extends ClassVisitor
       methods = new ArrayList<MethodWriter>();
    }
 
-   // ------------------------------------------------------------------------
-   // Implementation of the ClassVisitor base class
-   // ------------------------------------------------------------------------
-
    @Override
    public void visit(
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
@@ -145,6 +136,8 @@ public final class ClassWriter extends ClassVisitor
       this.access = access;
       this.name = cp.newClass(name);
       thisName = name;
+
+      createMarkerAttributes(version);
 
       if (signature != null) {
          signatureWriter = new SignatureWriter(cp, signature);
@@ -205,10 +198,6 @@ public final class ClassWriter extends ClassVisitor
       return method;
    }
 
-   // ------------------------------------------------------------------------
-   // Other public methods
-   // ------------------------------------------------------------------------
-
    /**
     * Returns the bytecode of the class that was build with this class writer.
     */
@@ -229,7 +218,9 @@ public final class ClassWriter extends ClassVisitor
 
    @Nonnegative
    private int getBytecodeSize() {
-      int size = 24 + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
+      int size =
+         24 +
+         getMarkerAttributesSize() + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
 
       if (bootstrapMethods != null) {
          size += bootstrapMethods.getSize();
@@ -241,16 +232,6 @@ public final class ClassWriter extends ClassVisitor
 
       if (outerClass != null) {
          size += outerClass.getSize();
-      }
-
-      if (Access.isDeprecated(access)) {
-         size += 6;
-         cp.newUTF8("Deprecated");
-      }
-
-      if (isSynthetic()) {
-         size += 6;
-         cp.newUTF8("Synthetic");
       }
 
       if (innerClasses != null) {
@@ -285,43 +266,6 @@ public final class ClassWriter extends ClassVisitor
       }
 
       return size;
-   }
-
-   @Nonnegative
-   private int getAttributeCount() {
-      int attributeCount = 0;
-
-      if (bootstrapMethods != null) {
-         attributeCount++;
-      }
-
-      if (signatureWriter != null) {
-         attributeCount++;
-      }
-
-      attributeCount += sourceInfo.getAttributeCount();
-
-      if (outerClass != null) {
-         attributeCount++;
-      }
-
-      if (Access.isDeprecated(access)) {
-         attributeCount++;
-      }
-
-      if (isSynthetic()) {
-         attributeCount++;
-      }
-
-      if (innerClasses != null) {
-         attributeCount++;
-      }
-
-      if (annotations != null) {
-         attributeCount++;
-      }
-
-      return attributeCount;
    }
 
    private void putClassAttributes(@Nonnull ByteVector out) {
@@ -361,24 +305,40 @@ public final class ClassWriter extends ClassVisitor
          outerClass.put(out);
       }
 
-      if (Access.isDeprecated(access)) {
-         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
-      }
-
-      if (isSynthetic()) {
-         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
-      }
+      putMarkerAttributes(out);
 
       if (innerClasses != null) {
          innerClasses.put(out);
       }
    }
 
-   // ------------------------------------------------------------------------
-   // Utility methods: version, synthetic
-   // ------------------------------------------------------------------------
+   @Nonnegative
+   private int getAttributeCount() {
+      int attributeCount = getMarkerAttributeCount() + sourceInfo.getAttributeCount();
+
+      if (bootstrapMethods != null) {
+         attributeCount++;
+      }
+
+      if (signatureWriter != null) {
+         attributeCount++;
+      }
+
+      if (outerClass != null) {
+         attributeCount++;
+      }
+
+      if (innerClasses != null) {
+         attributeCount++;
+      }
+
+      if (annotations != null) {
+         attributeCount++;
+      }
+
+      return attributeCount;
+   }
 
    boolean isJava6OrNewer() { return version >= ClassVersion.V1_6; }
-   private boolean isSynthetic() { return isSynthetic(access); }
    boolean isSynthetic(int access) { return Access.isSynthetic(access, version); }
 }

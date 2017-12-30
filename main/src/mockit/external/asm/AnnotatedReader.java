@@ -32,7 +32,7 @@ class AnnotatedReader extends BytecodeReader
       return false;
    }
 
-   final void readAccessAttribute(@Nonnull String attrName) {
+   final void readMarkerAttributes(@Nonnull String attrName) {
       if ("Deprecated".equals(attrName)) {
          access = Access.asDeprecated(access);
       }

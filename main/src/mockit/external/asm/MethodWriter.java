@@ -45,11 +45,6 @@ public final class MethodWriter extends MethodVisitor
    @Nonnull final ClassWriter cw;
 
    /**
-    * Access flags of this method.
-    */
-   final int access;
-
-   /**
     * The index of the constant pool item that contains the name of this method.
     */
    private final int name;
@@ -129,11 +124,9 @@ public final class MethodWriter extends MethodVisitor
       localVariables = new LocalVariables(cp);
       lineNumbers = new LineNumbers(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
-   }
 
-   // ------------------------------------------------------------------------
-   // Implementation of the MethodVisitor base class
-   // ------------------------------------------------------------------------
+      createMarkerAttributes(cw.version);
+   }
 
    @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
@@ -471,20 +464,16 @@ public final class MethodWriter extends MethodVisitor
       data[end] = (byte) ATHROW;
    }
 
-   // ------------------------------------------------------------------------
-   // Utility methods: dump bytecode array
-   // ------------------------------------------------------------------------
-
    /**
     * Returns the size of the bytecode of this method.
     */
    @Nonnegative
    int getSize() {
-      if (classReaderOffset != 0) {
+      if (classReaderOffset > 0) {
          return 6 + classReaderLength;
       }
 
-      int size = 8;
+      int size = 8 + getMarkerAttributesSize() + getAnnotationsSize() + getParameterAnnotationsSize();
       int codeLength = code.length;
 
       if (codeLength > 0) {
@@ -504,27 +493,15 @@ public final class MethodWriter extends MethodVisitor
          size += throwsClause.getSize();
       }
 
-      if (cw.isSynthetic(access)) {
-         cp.newUTF8("Synthetic");
-         size += 6;
-      }
-
-      if (Access.isDeprecated(access)) {
-         cp.newUTF8("Deprecated");
-         size += 6;
-      }
-
       if (signatureWriter != null) {
          size += signatureWriter.getSize();
       }
 
-      size += getAnnotationsSize();
-      size += getSizeOfParameterAnnotations();
       return size;
    }
 
    @Nonnegative
-   private int getSizeOfParameterAnnotations() {
+   private int getParameterAnnotationsSize() {
       int size = 0;
 
       if (parameterAnnotations != null) {
@@ -544,8 +521,6 @@ public final class MethodWriter extends MethodVisitor
 
    /**
     * Puts the bytecode of this method in the given byte vector.
-    *
-    * @param out the byte vector into which the bytecode of this method must be copied.
     */
    @Override
    void put(@Nonnull ByteVector out) {
@@ -555,23 +530,19 @@ public final class MethodWriter extends MethodVisitor
       out.putShort(name);
       out.putShort(desc);
 
-      if (classReaderOffset != 0) {
+      if (classReaderOffset > 0) {
          out.putByteArray(cw.cr.code, classReaderOffset, classReaderLength);
          return;
       }
 
-      boolean synthetic = cw.isSynthetic(access);
-      boolean deprecated = Access.isDeprecated(access);
-
-      putMethodAttributeCount(out, synthetic, deprecated);
+      putMethodAttributeCount(out);
       putMethodCode(out);
 
       if (throwsClause != null) {
          throwsClause.put(out);
       }
 
-      putSyntheticAttribute(out, synthetic);
-      putDeprecatedAttribute(out, deprecated);
+      putMarkerAttributes(out);
 
       if (signatureWriter != null) {
          signatureWriter.put(out);
@@ -580,38 +551,30 @@ public final class MethodWriter extends MethodVisitor
       putAnnotationAttributes(out);
    }
 
-   private void putMethodAttributeCount(@Nonnull ByteVector out, boolean synthetic, boolean deprecated) {
-      int methodAttributeCount = 0;
+   private void putMethodAttributeCount(@Nonnull ByteVector out) {
+      int attributeCount = getMarkerAttributeCount();
 
       if (code.length > 0) {
-         methodAttributeCount++;
+         attributeCount++;
       }
 
       if (throwsClause != null) {
-         methodAttributeCount++;
-      }
-
-      if (synthetic) {
-         methodAttributeCount++;
-      }
-
-      if (deprecated) {
-         methodAttributeCount++;
+         attributeCount++;
       }
 
       if (signatureWriter != null) {
-         methodAttributeCount++;
+         attributeCount++;
       }
 
       if (annotations != null) {
-         methodAttributeCount++;
+         attributeCount++;
       }
 
       if (parameterAnnotations != null) {
-         methodAttributeCount++;
+         attributeCount++;
       }
 
-      out.putShort(methodAttributeCount);
+      out.putShort(attributeCount);
    }
 
    private void putMethodCode(@Nonnull ByteVector out) {
@@ -644,18 +607,6 @@ public final class MethodWriter extends MethodVisitor
          exceptionHandling.getSize() + localVariables.getSize() + lineNumbers.getSize() + frameAndStack.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);
-   }
-
-   private void putSyntheticAttribute(@Nonnull ByteVector out, boolean synthetic) {
-      if (synthetic) {
-         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
-      }
-   }
-
-   private void putDeprecatedAttribute(@Nonnull ByteVector out, boolean deprecated) {
-      if (deprecated) {
-         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
-      }
    }
 
    private void putAnnotationAttributes(@Nonnull ByteVector out) {

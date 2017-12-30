@@ -37,16 +37,6 @@ import javax.annotation.*;
 final class FieldWriter extends FieldVisitor
 {
    /**
-    * The class writer to which this field must be added.
-    */
-   @Nonnull private final ClassWriter cw;
-
-   /**
-    * Access flags of this field.
-    */
-   private final int access;
-
-   /**
     * The index of the constant pool item that contains the name of this field.
     */
    @Nonnegative private final int name;
@@ -64,7 +54,7 @@ final class FieldWriter extends FieldVisitor
    @Nonnegative private final int value;
 
    /**
-    * Constructs a new Field Writer.
+    * Initializes a new Field Writer.
     *
     * @param cw        the class writer to which this field must be added.
     * @param access    the field's access flags (see {@link Opcodes}).
@@ -77,13 +67,14 @@ final class FieldWriter extends FieldVisitor
       @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
       @Nullable Object value
    ) {
-      this.cw = cw;
       cp = cw.cp;
       this.access = access;
       this.name = cp.newUTF8(name);
       this.desc = cp.newUTF8(desc);
       signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
       this.value = value == null ? 0 : cp.newConstItem(value).index;
+
+      createMarkerAttributes(cw.version);
    }
 
    @Nonnull @Override
@@ -96,33 +87,18 @@ final class FieldWriter extends FieldVisitor
     */
    @Nonnegative
    int getSize() {
-      int size = 8;
+      int size = 8 + getMarkerAttributesSize() + getAnnotationsSize();
 
       if (value != 0) {
          cp.newUTF8("ConstantValue");
          size += 8;
       }
 
-      if (isSynthetic()) {
-         cp.newUTF8("Synthetic");
-         size += 6;
-      }
-
-      if (Access.isDeprecated(access)) {
-         cp.newUTF8("Deprecated");
-         size += 6;
-      }
-
       if (signatureWriter != null) {
          size += signatureWriter.getSize();
       }
 
-      size += getAnnotationsSize();
       return size;
-   }
-
-   private boolean isSynthetic() {
-      return cw.isSynthetic(access);
    }
 
    /**
@@ -136,21 +112,28 @@ final class FieldWriter extends FieldVisitor
       out.putShort(name);
       out.putShort(desc);
 
-      int attributeCount = 0;
+      int attributeCount = getAttributeCount();
+      out.putShort(attributeCount);
 
       if (value != 0) {
-         attributeCount++;
+         out.putShort(cp.newUTF8("ConstantValue"));
+         out.putInt(2).putShort(value);
       }
 
-      boolean synthetic = isSynthetic();
+      putMarkerAttributes(out);
 
-      if (synthetic) {
-         attributeCount++;
+      if (signatureWriter != null) {
+         signatureWriter.put(out);
       }
 
-      boolean deprecated = Access.isDeprecated(access);
+      putAnnotations(out);
+   }
 
-      if (deprecated) {
+   @Nonnegative
+   private int getAttributeCount() {
+      int attributeCount = getMarkerAttributeCount();
+
+      if (value != 0) {
          attributeCount++;
       }
 
@@ -162,25 +145,6 @@ final class FieldWriter extends FieldVisitor
          attributeCount++;
       }
 
-      out.putShort(attributeCount);
-
-      if (value != 0) {
-         out.putShort(cp.newUTF8("ConstantValue"));
-         out.putInt(2).putShort(value);
-      }
-
-      if (synthetic) {
-         out.putShort(cp.newUTF8("Synthetic")).putInt(0);
-      }
-
-      if (deprecated) {
-         out.putShort(cp.newUTF8("Deprecated")).putInt(0);
-      }
-
-      if (signatureWriter != null) {
-         signatureWriter.put(out);
-      }
-
-      putAnnotations(out);
+      return attributeCount;
    }
 }
