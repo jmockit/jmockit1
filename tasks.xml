@@ -62,7 +62,12 @@
 </head>]]></replacevalue>
       </replace>
       <replace file="${api}/stylesheet.css" token=".subNav {" value=".subNavList { display: none; } .subNav {"/>
-      <fixcrlf srcdir="${api}" includes="**/*.html" eol="lf" eof="remove" preservelastmodified="true"/>
+      <fixcrlf srcdir="${api}" eol="lf" eof="remove" preservelastmodified="true">
+         <include name="**/*.html"/>
+         <include name="**/*.js"/>
+         <include name="**/*.css"/>
+         <include name="**/package-list"/>
+      </fixcrlf>
    </target>
 
    <target name="createJar">
