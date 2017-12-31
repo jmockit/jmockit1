@@ -36,7 +36,10 @@ public final class AgentLoader
 
       String currentPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 
-      if (!currentPath.endsWith(".jar")) {
+      if (currentPath.endsWith(".jar")) {
+         currentPath = new File(currentPath).getAbsolutePath();
+      }
+      else {
          int p = currentPath.lastIndexOf("/main/target/classes");
          currentPath = currentPath.substring(0, p);
          currentPath = new File(currentPath, "jmockit.jar").getPath();
