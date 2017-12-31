@@ -70,7 +70,6 @@ public final class ClassReader extends AnnotatedReader
    @Nonnegative int flags;
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String sourceFileName;
-   @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -190,10 +189,10 @@ public final class ClassReader extends AnnotatedReader
       String superClassDesc = readClass();
 
       readInterfaces();
-      readClassAttributes();
+      EnclosingMethod enclosingMethod = readClassAttributes();
       cv.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
-      visitOuterClass();
+      visitOuterClass(enclosingMethod);
       readAnnotations(cv);
       readInnerClasses();
       readFieldsAndMethods();
@@ -213,10 +212,11 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void readClassAttributes() {
+   @Nullable
+   private EnclosingMethod readClassAttributes() {
       signature = null;
       sourceFileName = null;
-      enclosingMethod = null;
+      EnclosingMethod enclosingMethod = null;
       annotationsCodeIndex = 0;
       innerClassesCodeIndex = 0;
       codeIndex = getAttributesStartIndex();
@@ -255,6 +255,8 @@ public final class ClassReader extends AnnotatedReader
 
          codeIndex += codeOffsetToNextAttribute;
       }
+
+      return enclosingMethod;
    }
 
    private void readBootstrapMethods() {
@@ -275,7 +277,7 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void visitOuterClass() {
+   private void visitOuterClass(@Nullable EnclosingMethod enclosingMethod) {
       if (enclosingMethod != null) {
          cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
       }
