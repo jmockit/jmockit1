@@ -5,10 +5,10 @@ import javax.annotation.*;
 /**
  * A bytecode reader for reading common elements (signature, annotations) of a class, field, or method.
  */
-class AnnotatedReader extends BytecodeReader
+abstract class AnnotatedReader extends BytecodeReader
 {
    @Nonnull private final AnnotationReader annotationReader = new AnnotationReader(this);
-   @Nonnegative int annotationsCodeIndex;
+   @Nonnegative private int annotationsCodeIndex;
 
    /**
     * The access flags of the class, field, or method currently being parsed.
@@ -23,32 +23,43 @@ class AnnotatedReader extends BytecodeReader
    AnnotatedReader(@Nonnull byte[] code) { super(code); }
    AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
 
-   final boolean readSignature(@Nonnull String attrName) {
-      if ("Signature".equals(attrName)) {
-         signature = readNonnullUTF8();
-         return true;
-      }
+   final void readAttributes() {
+      signature = null;
+      annotationsCodeIndex = 0;
 
-      return false;
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         String attributeName = readNonnullUTF8();
+         int codeOffsetToNextAttribute = readInt();
+
+         if ("Signature".equals(attributeName)) {
+            signature = readNonnullUTF8();
+            continue;
+         }
+
+         Boolean outcome = readAttribute(attributeName);
+
+         if (outcome == Boolean.TRUE) {
+            continue;
+         }
+
+         if (outcome == null) {
+            if ("RuntimeVisibleAnnotations".equals(attributeName)) {
+               annotationsCodeIndex = codeIndex;
+            }
+            else if ("Deprecated".equals(attributeName)) {
+               access = Access.asDeprecated(access);
+            }
+            else if ("Synthetic".equals(attributeName)) {
+               access = Access.asSynthetic(access);
+            }
+         }
+
+         codeIndex += codeOffsetToNextAttribute;
+      }
    }
 
-   final void readMarkerAttributes(@Nonnull String attrName) {
-      if ("Deprecated".equals(attrName)) {
-         access = Access.asDeprecated(access);
-      }
-      else if ("Synthetic".equals(attrName)) {
-         access = Access.asSynthetic(access);
-      }
-   }
-
-   final boolean readRuntimeVisibleAnnotations(@Nonnull String attrName) {
-      if ("RuntimeVisibleAnnotations".equals(attrName)) {
-         annotationsCodeIndex = codeIndex;
-         return true;
-      }
-
-      return false;
-   }
+   @Nullable
+   abstract Boolean readAttribute(@Nonnull String attributeName);
 
    final void readAnnotations(@Nonnull BaseWriter visitor) {
       if (annotationsCodeIndex > 0) {

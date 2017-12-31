@@ -70,6 +70,7 @@ public final class ClassReader extends AnnotatedReader
    @Nonnegative int flags;
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String sourceFileName;
+   @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -189,10 +190,10 @@ public final class ClassReader extends AnnotatedReader
       String superClassDesc = readClass();
 
       readInterfaces();
-      EnclosingMethod enclosingMethod = readClassAttributes();
+      readClassAttributes();
       cv.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
-      visitOuterClass(enclosingMethod);
+      visitOuterClass();
       readAnnotations(cv);
       readInnerClasses();
       readFieldsAndMethods();
@@ -212,54 +213,41 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   @Nullable
-   private EnclosingMethod readClassAttributes() {
-      signature = null;
+   private void readClassAttributes() {
       sourceFileName = null;
-      EnclosingMethod enclosingMethod = null;
-      annotationsCodeIndex = 0;
+      enclosingMethod = null;
       innerClassesCodeIndex = 0;
       codeIndex = getAttributesStartIndex();
 
-      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
-         String attributeName = readNonnullUTF8();
-         int codeOffsetToNextAttribute = readInt();
+      readAttributes();
+   }
 
-         if (readSignature(attributeName)) {
-            continue;
-         }
-
-         if ("SourceFile".equals(attributeName)) {
-            sourceFileName = readNonnullUTF8();
-            continue;
-         }
-
-         if ("EnclosingMethod".equals(attributeName)) {
-            enclosingMethod = new EnclosingMethod(this);
-            continue;
-         }
-
-         if ("BootstrapMethods".equals(attributeName)) {
-            readBootstrapMethods();
-            continue;
-         }
-
-         if (readRuntimeVisibleAnnotations(attributeName)) {
-            // ok
-         }
-         else if ("InnerClasses".equals(attributeName)) {
-            if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
-               innerClassesCodeIndex = codeIndex;
-            }
-         }
-         else {
-            readMarkerAttributes(attributeName);
-         }
-
-         codeIndex += codeOffsetToNextAttribute;
+   @Nullable @Override
+   Boolean readAttribute(@Nonnull String attributeName) {
+      if ("SourceFile".equals(attributeName)) {
+         sourceFileName = readNonnullUTF8();
+         return true;
       }
 
-      return enclosingMethod;
+      if ("EnclosingMethod".equals(attributeName)) {
+         enclosingMethod = new EnclosingMethod(this);
+         return true;
+      }
+
+      if ("BootstrapMethods".equals(attributeName)) {
+         readBootstrapMethods();
+         return true;
+      }
+
+      if ("InnerClasses".equals(attributeName)) {
+         if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
+            innerClassesCodeIndex = codeIndex;
+         }
+
+         return false;
+      }
+
+      return null;
    }
 
    private void readBootstrapMethods() {
@@ -280,7 +268,7 @@ public final class ClassReader extends AnnotatedReader
       }
    }
 
-   private void visitOuterClass(@Nullable EnclosingMethod enclosingMethod) {
+   private void visitOuterClass() {
       if (enclosingMethod != null) {
          cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
       }

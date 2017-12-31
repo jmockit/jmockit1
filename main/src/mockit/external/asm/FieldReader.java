@@ -5,6 +5,7 @@ import javax.annotation.*;
 final class FieldReader extends AnnotatedReader
 {
    @Nonnull private final ClassVisitor cv;
+   @Nullable private Object constantValue;
 
    FieldReader(@Nonnull ClassReader cr) {
       super(cr);
@@ -29,7 +30,9 @@ final class FieldReader extends AnnotatedReader
       access = readUnsignedShort();
       String name = readNonnullUTF8();
       String desc = readNonnullUTF8();
-      Object constantValue = readFieldAttributes();
+      constantValue = null;
+
+      readAttributes();
 
       FieldVisitor fv = cv.visitField(access, name, desc, signature, constantValue);
 
@@ -39,33 +42,18 @@ final class FieldReader extends AnnotatedReader
       }
    }
 
-   @Nullable
-   private Object readFieldAttributes() {
-      signature = null;
-      annotationsCodeIndex = 0;
-      Object constantValue = null;
+   @Nullable @Override
+   Boolean readAttribute(@Nonnull String attributeName) {
+      if ("ConstantValue".equals(attributeName)) {
+         int constItemIndex = readUnsignedShort();
 
-      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
-         String attrName = readNonnullUTF8();
-         int codeOffsetToNextAttribute = readInt();
-
-         if ("ConstantValue".equals(attrName)) {
-            int constItemIndex = readUnsignedShort();
-            constantValue = constItemIndex == 0 ? null : readConst(constItemIndex);
-            continue;
+         if (constItemIndex > 0) {
+            constantValue = readConst(constItemIndex);
          }
 
-         if (readSignature(attrName)) {
-            continue;
-         }
-
-         if (!readRuntimeVisibleAnnotations(attrName)) {
-            readMarkerAttributes(attrName);
-         }
-
-         codeIndex += codeOffsetToNextAttribute;
+         return true;
       }
 
-      return constantValue;
+      return null;
    }
 }
