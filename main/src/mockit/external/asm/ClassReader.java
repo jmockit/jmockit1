@@ -322,39 +322,35 @@ public final class ClassReader extends AnnotatedReader
     * Returns the start index of the attribute_info structure of this class.
     */
    @Nonnegative
-   int getAttributesStartIndex() {
-      if (attributesCodeIndex > 0) {
-         return attributesCodeIndex;
+   private int getAttributesStartIndex() {
+      if (attributesCodeIndex == 0) {
+         skipHeader();
+         skipClassMembers(); // fields
+         skipClassMembers(); // methods
+         attributesCodeIndex = codeIndex;
       }
 
-      // Skips the header.
+      return attributesCodeIndex;
+   }
+
+   private void skipHeader() {
       int interfaceCount = readUnsignedShort(header + 6);
-      int codeIndex = getCodeIndexAfterInterfaces(interfaceCount);
-
-      codeIndex = skipClassMembers(codeIndex); // fields
-      codeIndex = skipClassMembers(codeIndex); // methods
-
-      // The attribute_info structure starts just after the methods.
-      attributesCodeIndex = codeIndex;
-      return codeIndex;
+      codeIndex = getCodeIndexAfterInterfaces(interfaceCount);
    }
 
-   @Nonnegative
-   private int skipClassMembers(@Nonnegative int codeIndex) {
-      for (int memberCount = readUnsignedShort(codeIndex); memberCount > 0; memberCount--) {
-         codeIndex = skipMemberAttributes(codeIndex) + 8;
+   private void skipClassMembers() {
+      for (int memberCount = readUnsignedShort(); memberCount > 0; memberCount--) {
+         codeIndex += 6; // skips access, name and desc
+         skipMemberAttributes();
       }
-
-      return codeIndex + 2;
    }
 
-   @Nonnegative
-   private int skipMemberAttributes(@Nonnegative int codeIndex) {
-      for (int attributeCount = readUnsignedShort(codeIndex + 8); attributeCount > 0; attributeCount--) {
-         codeIndex += 6 + readInt(codeIndex + 12);
+   private void skipMemberAttributes() {
+      for (int attributeCount = readUnsignedShort(); attributeCount > 0; attributeCount--) {
+         codeIndex += 2; // skips attribute name
+         int codeOffsetToNextAttribute = readInt();
+         codeIndex += codeOffsetToNextAttribute;
       }
-
-      return codeIndex;
    }
 
    boolean positionAtBootstrapMethodsAttribute() {
