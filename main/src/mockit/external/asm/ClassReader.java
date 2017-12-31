@@ -68,9 +68,6 @@ public final class ClassReader extends AnnotatedReader
 
    ClassVisitor cv;
    @Nonnegative int flags;
-
-   private String name;
-   @Nullable private String superClass;
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String sourceFileName;
    @Nullable private EnclosingMethod enclosingMethod;
@@ -184,23 +181,24 @@ public final class ClassReader extends AnnotatedReader
    public void accept(@Nonnull ClassVisitor cv, @Nonnegative int flags) {
       this.cv = cv;
       this.flags = flags;
+
+      int version = getVersion();
+
       codeIndex = header;
-      readClassDeclaration();
+      access = readUnsignedShort();
+      String classDesc = readNonnullClass();
+      String superClassDesc = readClass();
+
       readInterfaces();
       readClassAttributes();
-      visitClassDeclaration();
+      cv.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
       visitOuterClass();
       readAnnotations(cv);
       readInnerClasses();
       readFieldsAndMethods();
-      cv.visitEnd();
-   }
 
-   private void readClassDeclaration() {
-      access = readUnsignedShort();
-      name = readNonnullClass();
-      superClass = readClass();
+      cv.visitEnd();
    }
 
    private void readInterfaces() {
@@ -269,11 +267,6 @@ public final class ClassReader extends AnnotatedReader
          int codeOffset = readUnsignedShort();
          codeIndex += codeOffset << 1;
       }
-   }
-
-   private void visitClassDeclaration() {
-      int version = readInt(items[1] - 7);
-      cv.visit(version, access, name, signature, superClass, interfaces);
    }
 
    private void visitSourceFileName() {

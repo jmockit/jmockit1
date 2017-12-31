@@ -39,17 +39,22 @@ class BytecodeReader
       this.code = code;
       codeIndex = 8;
 
-      // Parses the constant pool.
       int itemCount = readUnsignedShort();
       items = new int[itemCount];
       strings = new String[itemCount];
 
+      int maxStringSize = readConstantPoolItems();
+      buf = new char[maxStringSize];
+   }
+
+   @Nonnegative
+   private int readConstantPoolItems() {
       int maxStringSize = 0;
 
-      for (int itemIndex = 1; itemIndex < itemCount; itemIndex++) {
-         byte itemType = code[codeIndex++];
+      for (int itemIndex = 1; itemIndex < items.length; itemIndex++) {
+         int itemType = readSignedByte();
          items[itemIndex] = codeIndex;
-         int itemSize = computeItemSize(itemType);
+         int itemSize = getItemSize(itemType);
 
          if (itemType == LONG || itemType == DOUBLE) {
             itemIndex++;
@@ -61,11 +66,11 @@ class BytecodeReader
          codeIndex += itemSize - 1;
       }
 
-      buf = new char[maxStringSize];
+      return maxStringSize;
    }
 
    @Nonnegative
-   private int computeItemSize(byte itemType) {
+   private int getItemSize(int itemType) {
       switch (itemType) {
          case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case INDY: return 5;
          case LONG: case DOUBLE: return 9;
