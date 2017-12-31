@@ -98,7 +98,6 @@
    </macrodef>
 
    <target name="tests">
-<!--
       <junit fork="yes" forkmode="once" dir="main" showoutput="true" printsummary="true">
          <assertions><enable/></assertions>
          <jvmarg value="-javaagent:../jmockit.jar"/>
@@ -117,7 +116,6 @@
          <formatter type="xml"/>
       </junit>
       <testReport name="main/JMockitTests"/>
--->
 
       <testng workingdir="main">
          <classpath path="jmockit.jar"/>
