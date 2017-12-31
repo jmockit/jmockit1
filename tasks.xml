@@ -98,6 +98,7 @@
    </macrodef>
 
    <target name="tests">
+<!--
       <junit fork="yes" forkmode="once" dir="main" showoutput="true" printsummary="true">
          <assertions><enable/></assertions>
          <jvmarg value="-javaagent:../jmockit.jar"/>
@@ -109,25 +110,26 @@
                <include name="**/*Test.class"/>
                <exclude name="**/*CodeUnderTest.class"/>
                <exclude name="**/Base*Test.class"/>
-               <exclude name="mockit/integration/testng/*Test.class"/>
+               <exclude name="otherTests/testng/*Test.class"/>
                <exclude name="**/ExecutingTest.class"/>
             </fileset>
          </batchtest>
          <formatter type="xml"/>
       </junit>
       <testReport name="main/JMockitTests"/>
+-->
 
       <testng workingdir="main">
-         <classpath refid="common.classpath"/>
          <classpath path="jmockit.jar"/>
+         <classpath refid="common.classpath"/>
          <classpath>
             <pathelement location="main/target/test-classes"/>
          </classpath>
          <classfileset
             dir="main/target/test-classes"
-            includes="mockit/integration/testng/*Test.class"
-            excludes="mockit/integration/testng/BaseTestNGDecoratorTest.class
-                      mockit/integration/testng/TestNGViolatedExpectationsTest.class"/>
+            includes="otherTests/testng/*Test.class"
+            excludes="otherTests/testng/BaseTestNGDecoratorTest.class
+                      otherTests/testng/TestNGViolatedExpectationsTest.class"/>
       </testng>
    </target>
 
