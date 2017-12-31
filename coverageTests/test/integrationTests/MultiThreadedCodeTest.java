@@ -13,19 +13,19 @@ public final class MultiThreadedCodeTest extends CoverageTest
    @Test
    public void nonBlockingOperation() throws Exception
    {
-      Thread worker = tested.nonBlockingOperation();
+      Thread worker = MultiThreadedCode.nonBlockingOperation();
       worker.join();
 
-      assertLines(7, 17, 7);
+      assertLines(7, 18, 7);
       assertLine(7, 1, 1, 1);
-      assertLine(11, 1, 1, 1);
-      assertLine(13, 1, 1, 1);
-      assertLine(16, 1, 1, 1);
+      assertLine(12, 1, 1, 1);
+      assertLine(14, 1, 1, 1);
       assertLine(17, 1, 1, 1);
+      assertLine(18, 1, 1, 1);
 
       findMethodData(7);
       assertPaths(1, 1, 1);
-      assertMethodLines(7, 17);
+      assertMethodLines(7, 18);
       assertPath(2, 1);
    }
 }
