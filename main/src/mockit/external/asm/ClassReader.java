@@ -236,18 +236,21 @@ public final class ClassReader extends AnnotatedReader
 
          if ("EnclosingMethod".equals(attributeName)) {
             enclosingMethod = new EnclosingMethod(this);
+            continue;
          }
-         else if (readRuntimeVisibleAnnotations(attributeName)) {
+
+         if ("BootstrapMethods".equals(attributeName)) {
+            readBootstrapMethods();
+            continue;
+         }
+
+         if (readRuntimeVisibleAnnotations(attributeName)) {
             // ok
          }
          else if ("InnerClasses".equals(attributeName)) {
             if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
                innerClassesCodeIndex = codeIndex;
             }
-         }
-         else if ("BootstrapMethods".equals(attributeName)) {
-            readBootstrapMethods();
-            continue;
          }
          else {
             readMarkerAttributes(attributeName);

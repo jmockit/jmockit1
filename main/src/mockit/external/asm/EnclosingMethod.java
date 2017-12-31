@@ -9,14 +9,11 @@ final class EnclosingMethod
    @Nullable final String desc;
 
    EnclosingMethod(@Nonnull ClassReader cr) {
-      int codeIndex = cr.codeIndex;
-      owner = cr.readNonnullClass(codeIndex);
-      codeIndex += 2;
+      owner = cr.readNonnullClass();
 
-      int itemIndex = cr.readUnsignedShort(codeIndex);
+      int nameCodeIndex = cr.readItem();
 
-      if (itemIndex > 0) {
-         int nameCodeIndex = cr.items[itemIndex];
+      if (nameCodeIndex > 0) {
          name = cr.readNonnullUTF8(nameCodeIndex);
          desc = cr.readNonnullUTF8(nameCodeIndex + 2);
       }
