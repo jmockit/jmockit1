@@ -20,30 +20,16 @@ public final class FakeClassSetup
    @Nonnull final Class<?> realClass;
    @Nullable private ClassReader rcReader;
    @Nonnull private final FakeMethods fakeMethods;
-   @Nonnull final MockUp<?> fake;
+   @Nonnull private final MockUp<?> fake;
    private final boolean forStartupFake;
 
    public FakeClassSetup(
       @Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nullable Type fakedType, @Nonnull MockUp<?> fake)
    {
-      this(realClass, classToFake, fakedType, fake, null);
-   }
-
-   FakeClassSetup(
-      @Nonnull Class<?> realClass, @Nullable Type fakedType, @Nonnull MockUp<?> fake, @Nullable byte[] realClassCode)
-   {
-      this(realClass, realClass, fakedType, fake, realClassCode);
-   }
-
-   private FakeClassSetup(
-      @Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nullable Type fakedType, @Nonnull MockUp<?> fake,
-      @Nullable byte[] realClassCode)
-   {
       this.realClass = classToFake;
       fakeMethods = new FakeMethods(realClass, fakedType);
       this.fake = fake;
       forStartupFake = Startup.initializing;
-      rcReader = realClassCode == null ? null : new ClassReader(realClassCode);
 
       Class<?> fakeClass = fake.getClass();
       new FakeMethodCollector(fakeMethods).collectFakeMethods(fakeClass);
@@ -57,15 +43,6 @@ public final class FakeClassSetup
       }
       else {
          fakeClasses.addFake(fake);
-      }
-   }
-
-   void redefineMethodsInGeneratedClass()
-   {
-      byte[] modifiedClassFile = modifyRealClass(realClass);
-
-      if (modifiedClassFile != null) {
-         applyClassModifications(realClass, modifiedClassFile);
       }
    }
 

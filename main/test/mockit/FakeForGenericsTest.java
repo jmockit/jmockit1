@@ -11,8 +11,6 @@ import static org.junit.Assert.*;
 
 public final class FakeForGenericsTest
 {
-   // Fakes for generic classes/methods ///////////////////////////////////////////////////////////////////////////////
-
    public static final class Collaborator
    {
       public <N extends Number> N genericMethod(@SuppressWarnings("UnusedParameters") N n) { return null; }
@@ -175,62 +173,5 @@ public final class FakeForGenericsTest
       new NonGenericClassWithGenericMethods().instanceMethod(Integer.class);
       NonGenericClassWithGenericMethods.staticMethod(Collaborator.class, "test1");
       new NonGenericClassWithGenericMethods().instanceMethod(Byte.class, "test2");
-   }
-
-   // Fakes for generic interfaces ////////////////////////////////////////////////////////////////////////////////////
-
-   public interface GenericInterface<T>
-   {
-      void method(T t);
-      String method(int[] ii, T l, String[][] ss, T[] ll);
-   }
-
-   @Test
-   public void fakeGenericInterfaceMethodWithFakeMethodHavingParameterOfTypeObject()
-   {
-      GenericInterface<Boolean> fakedInstance = new MockUp<GenericInterface<Boolean>>() {
-         @Mock
-         void method(Object b) { assertTrue((Boolean) b); }
-      }.getMockInstance();
-
-      fakedInstance.method(true);
-   }
-
-   public interface NonGenericSubInterface extends GenericInterface<Long> {}
-
-   @Test
-   public void fakeMethodOfSubInterfaceWithGenericTypeArgument()
-   {
-      NonGenericSubInterface fakedInstance = new MockUp<NonGenericSubInterface>() {
-         @Mock void method(Long l) { assertTrue(l > 0); }
-      }.getMockInstance();
-
-      fakedInstance.method(123L);
-   }
-
-   @Test
-   public void fakeGenericInterfaceMethod()
-   {
-      Comparable<Integer> cmp = new MockUp<Comparable<Integer>>() {
-         @Mock
-         int compareTo(Integer i) { assertEquals(123, i.intValue()); return 2; }
-      }.getMockInstance();
-
-      assertEquals(2, cmp.compareTo(123));
-   }
-
-   @Test
-   public void fakeMethodOfGenericInterfaceWithArrayAndGenericTypeArgument()
-   {
-      GenericInterface<Long> faked = new MockUp<GenericInterface<Long>>() {
-         @Mock
-         String method(int[] ii, Long l, String[][] ss, Long[] tt)
-         {
-            assertTrue(ii.length > 0 && l > 0);
-            return "faked";
-         }
-      }.getMockInstance();
-
-      assertEquals("faked", faked.method(new int[] {1}, 45L, null, null));
    }
 }

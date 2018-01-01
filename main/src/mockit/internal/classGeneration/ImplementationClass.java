@@ -18,7 +18,6 @@ public abstract class ImplementationClass<T>
 {
    @Nonnull protected final Class<?> sourceClass;
    @Nonnull protected String generatedClassName;
-   @Nullable private byte[] generatedBytecode;
 
    protected ImplementationClass(@Nonnull Type mockedType) { this(Utilities.getClassType(mockedType)); }
 
@@ -67,14 +66,10 @@ public abstract class ImplementationClass<T>
             }
          }.findClass(generatedClassName);
 
-         generatedBytecode = modifiedClassfile;
          return generatedClass;
       }
       catch (ClassNotFoundException e) {
          throw new RuntimeException("Unable to define class: " + generatedClassName, e);
       }
    }
-
-   @Nullable
-   public final byte[] getGeneratedBytecode() { return generatedBytecode; }
 }

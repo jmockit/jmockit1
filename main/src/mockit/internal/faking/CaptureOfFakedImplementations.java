@@ -20,7 +20,7 @@ public final class CaptureOfFakedImplementations extends CaptureOfImplementation
    public CaptureOfFakedImplementations(@Nonnull MockUp<?> fake, @Nonnull Type baseType)
    {
       Class<?> baseClassType = getClassType(baseType);
-      fakeClassSetup = new FakeClassSetup(baseClassType, baseType, fake, null);
+      fakeClassSetup = new FakeClassSetup(baseClassType, baseClassType, baseType, fake);
    }
 
    @Nonnull @Override
@@ -36,23 +36,14 @@ public final class CaptureOfFakedImplementations extends CaptureOfImplementation
       fakeClassSetup.applyClassModifications(realClass, modifiedClass);
    }
 
-   @Nullable
-   public <T> Class<T> apply()
+   public void apply()
    {
-      @SuppressWarnings("unchecked") Class<T> baseType = (Class<T>) fakeClassSetup.realClass;
-      Class<T> baseClassType = baseType;
-      Class<T> fakedClass = null;
+      Class<?> baseType = fakeClassSetup.realClass;
 
-      if (baseType.isInterface()) {
-         fakedClass = new FakedImplementationClass<T>(fakeClassSetup.fake).createImplementation(baseType);
-         baseClassType = fakedClass;
-      }
-
-      if (baseClassType != Object.class) {
-         redefineClass(baseClassType, baseType, null);
+      if (baseType != Object.class) {
+         redefineClass(baseType, baseType, null);
       }
 
       makeSureAllSubtypesAreModified(baseType, false, null);
-      return fakedClass;
    }
 }

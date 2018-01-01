@@ -9,7 +9,6 @@ import java.awt.*;
 import java.lang.reflect.*;
 import java.net.*;
 import java.rmi.*;
-import java.sql.*;
 import java.util.concurrent.atomic.*;
 
 import javax.sound.midi.*;
@@ -125,37 +124,20 @@ public final class FakingTest
       assertEquals("mock", s);
    }
 
-   // Fakes for interfaces ////////////////////////////////////////////////////////////////////////////////////////////
-
-   @Test
-   public <M extends Runnable & ResultSet> void fakeTwoInterfacesAtOnce() throws Exception
-   {
-      M fake = new MockUp<M>() {
-         @Mock
-         void run() {}
-
-         @Mock
-         boolean next() { return true; }
-      }.getMockInstance();
-
-      fake.run();
-      assertTrue(fake.next());
-   }
+   // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
 
    @SuppressWarnings("TypeParameterExtendsFinalClass")
    @Test
-   public <M extends Applet & Runnable> void attemptToFAkeClassAndInterfaceAtOnce() throws Exception
+   public <M extends Applet & Runnable> void attemptToFakeClassAndInterfaceAtOnce() throws Exception
    {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("java.applet.Applet is not an interface");
+      thrown.expect(UnsupportedOperationException.class);
+      thrown.expectMessage("Unable to capture");
 
       new MockUp<M>() {
          @Mock String getParameter(String s) { return s.toLowerCase(); }
          @Mock void run() {}
       };
    }
-
-   // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void fakeUsingInvocationParameters()

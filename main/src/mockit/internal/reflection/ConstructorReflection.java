@@ -150,16 +150,6 @@ public final class ConstructorReflection
       catch (IllegalAccessException ignore) { return null; }
    }
 
-   @Nonnull
-   public static <T> T newInstanceUsingPublicDefaultConstructor(@Nonnull Class<T> aClass)
-   {
-      Constructor<T> publicConstructor;
-      try { publicConstructor = aClass.getConstructor(); }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-
-      return invoke(publicConstructor);
-   }
-
    @Nullable
    public static <T> T newInstanceUsingPublicConstructorIfAvailable(
       @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nonnull Object... initArgs)
