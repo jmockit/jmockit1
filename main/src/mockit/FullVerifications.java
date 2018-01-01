@@ -51,18 +51,4 @@ public abstract class FullVerifications extends Verifications
       this();
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }
-
-   /**
-    * Accounts for all invocations not yet verified, removing them from any further consideration.
-    * Invocations that occur after this, however, can still be verified later in another verification block.
-    * <p/>
-    * If one or more mocked types/instances were specified in the
-    * {@linkplain #FullVerifications(Object...) constructor call} for this verification block, then only the associated
-    * invocations (if any) are removed.
-    *
-    * @deprecated This method is rarely (if ever) used, and can make for very hard to understand tests; it will be
-    * removed in a future release, with no replacement.
-    */
-   @Deprecated
-   protected final void unverifiedInvocations() { verificationPhase.discardReplayedInvocations(); }
 }

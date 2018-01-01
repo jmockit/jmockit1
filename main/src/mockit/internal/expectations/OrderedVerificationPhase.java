@@ -14,9 +14,6 @@ import mockit.internal.expectations.invocation.*;
 public final class OrderedVerificationPhase extends BaseVerificationPhase
 {
    private final int expectationCount;
-   private ExpectedInvocation unverifiedInvocationLeftBehind;
-   private ExpectedInvocation unverifiedInvocationPrecedingVerifiedOnesLeftBehind;
-   private boolean unverifiedExpectationsFixed;
    private int indexIncrement;
 
    OrderedVerificationPhase(
@@ -79,47 +76,9 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
             mapNewInstanceToReplacementIfApplicable(mock);
             break;
          }
-
-         if (!unverifiedExpectationsFixed) {
-            unverifiedInvocationLeftBehind = replayExpectation.invocation;
-         }
-         else if (indexIncrement > 0) {
-            recordAndReplay.setErrorThrown(replayExpectation.invocation.errorForUnexpectedInvocation());
-            replayIndex = i;
-            break;
-         }
       }
 
       return emptyList();
-   }
-
-   public void fixPositionOfUnverifiedExpectations()
-   {
-      if (unverifiedInvocationLeftBehind != null) {
-         throw
-            currentExpectation == null ?
-               unverifiedInvocationLeftBehind.errorForUnexpectedInvocation() :
-               unverifiedInvocationLeftBehind.errorForUnexpectedInvocationBeforeAnother(currentExpectation.invocation);
-      }
-
-      int indexOfLastUnverified = indexOfLastUnverifiedExpectation();
-
-      if (indexOfLastUnverified >= 0) {
-         replayIndex = indexOfLastUnverified;
-         indexIncrement = -1;
-         unverifiedExpectationsFixed = true;
-      }
-   }
-
-   private int indexOfLastUnverifiedExpectation()
-   {
-      for (int i = expectationCount - 1; i >= 0; i--) {
-         if (expectationsInReplayOrder.get(i) != null) {
-            return i;
-         }
-      }
-
-      return -1;
    }
 
    @SuppressWarnings("OverlyComplexMethod")
@@ -214,94 +173,9 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
          return pendingError;
       }
 
-      if (
-         unverifiedExpectationsFixed && indexIncrement > 0 && currentExpectation != null &&
-         replayIndex <= indexOfLastUnverifiedExpectation()
-      ) {
-         ExpectedInvocation unexpectedInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
-         return unexpectedInvocation.errorForUnexpectedInvocationAfterAnother(currentExpectation.invocation);
-      }
-
-      if (unverifiedInvocationPrecedingVerifiedOnesLeftBehind != null) {
-         return unverifiedInvocationPrecedingVerifiedOnesLeftBehind.errorForUnexpectedInvocation();
-      }
-
       return super.endVerification();
    }
 
    @Override
    boolean shouldDiscardInformationAboutVerifiedInvocationOnceUsed() { return true; }
-
-   public void checkOrderOfVerifiedInvocations(@Nonnull BaseVerificationPhase verificationPhase)
-   {
-      if (verificationPhase instanceof OrderedVerificationPhase) {
-         throw new IllegalArgumentException("Invalid use of ordered verification block");
-      }
-
-      UnorderedVerificationPhase previousVerification = (UnorderedVerificationPhase) verificationPhase;
-
-      if (previousVerification.verifiedExpectations.isEmpty()) {
-         return;
-      }
-
-      if (indexIncrement > 0) {
-         checkForwardOrderOfVerifiedInvocations(previousVerification);
-      }
-      else {
-         checkBackwardOrderOfVerifiedInvocations(previousVerification);
-      }
-   }
-
-   private void checkForwardOrderOfVerifiedInvocations(@Nonnull UnorderedVerificationPhase previousVerification)
-   {
-      int maxReplayIndex = findUnexpectedInvocationAmongVerifiedOnes(previousVerification);
-
-      for (int i = replayIndex; i < maxReplayIndex; i++) {
-         Expectation expectation = expectationsInReplayOrder.get(i);
-
-         if (expectation != null) {
-            unverifiedInvocationPrecedingVerifiedOnesLeftBehind = expectation.invocation;
-            break;
-         }
-      }
-
-      replayIndex = maxReplayIndex + 1;
-      currentExpectation = replayIndex < expectationCount ? expectationsInReplayOrder.get(replayIndex) : null;
-   }
-
-   private int findUnexpectedInvocationAmongVerifiedOnes(@Nonnull UnorderedVerificationPhase previousVerification)
-   {
-      int maxReplayIndex = replayIndex - 1;
-
-      for (VerifiedExpectation verified : previousVerification.verifiedExpectations) {
-         if (verified.replayIndex < replayIndex) {
-            ExpectedInvocation unexpectedInvocation = verified.expectation.invocation;
-            throw currentExpectation == null ?
-               unexpectedInvocation.errorForUnexpectedInvocationFoundBeforeAnother() :
-               unexpectedInvocation.errorForUnexpectedInvocationFoundBeforeAnother(currentExpectation.invocation);
-         }
-
-         if (verified.replayIndex > maxReplayIndex) {
-            maxReplayIndex = verified.replayIndex;
-         }
-      }
-
-      return maxReplayIndex;
-   }
-
-   private void checkBackwardOrderOfVerifiedInvocations(@Nonnull UnorderedVerificationPhase previousVerification)
-   {
-      int indexOfLastUnverified = indexOfLastUnverifiedExpectation();
-
-      if (indexOfLastUnverified >= 0) {
-         VerifiedExpectation firstVerified = previousVerification.firstExpectationVerified();
-         assert firstVerified != null;
-
-         if (firstVerified.replayIndex != indexOfLastUnverified + 1) {
-            Expectation lastUnverified = expectationsInReplayOrder.get(indexOfLastUnverified);
-            Expectation after = firstVerified.expectation;
-            throw lastUnverified.invocation.errorForUnexpectedInvocationAfterAnother(after.invocation);
-         }
-      }
-   }
 }

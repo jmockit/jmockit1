@@ -105,18 +105,4 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
          throw errorThrown;
       }
    }
-
-   @Nullable
-   VerifiedExpectation firstExpectationVerified()
-   {
-      VerifiedExpectation first = null;
-
-      for (VerifiedExpectation expectation : verifiedExpectations) {
-         if (first == null || expectation.replayIndex < first.replayIndex) {
-            first = expectation;
-         }
-      }
-
-      return first;
-   }
 }

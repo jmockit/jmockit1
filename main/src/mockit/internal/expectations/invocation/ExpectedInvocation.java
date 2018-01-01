@@ -261,15 +261,6 @@ public final class ExpectedInvocation
    }
 
    @Nonnull
-   private MissingInvocation newMissingInvocationWithCause(
-      @Nonnull String titleForCause, @Nonnull String initialMessage)
-   {
-      MissingInvocation error = new MissingInvocation(initialMessage);
-      setErrorAsInvocationCause(titleForCause, error);
-      return error;
-   }
-
-   @Nonnull
    public MissingInvocation errorForMissingInvocation(@Nonnull List<ExpectedInvocation> nonMatchingInvocations)
    {
       StringBuilder errorMessage = new StringBuilder(200);
@@ -290,12 +281,6 @@ public final class ExpectedInvocation
       return newMissingInvocationWithCause("Missing invocations", errorMessage.toString());
    }
 
-   @Nonnull
-   private static String invocationsTo(@Nonnegative int invocations)
-   {
-      return invocations == 1 ? " invocation to:\n" : " invocations to:\n";
-   }
-
    private void appendNonMatchingInvocations(
       @Nonnull StringBuilder errorMessage, @Nonnull List<ExpectedInvocation> nonMatchingInvocations)
    {
@@ -313,27 +298,18 @@ public final class ExpectedInvocation
    }
 
    @Nonnull
-   public UnexpectedInvocation errorForUnexpectedInvocation(
-      @Nullable Object mock, @Nonnull String invokedClassDesc, @Nonnull String invokedMethod,
-      @Nonnull Object[] replayArgs)
+   private MissingInvocation newMissingInvocationWithCause(
+      @Nonnull String titleForCause, @Nonnull String initialMessage)
    {
-      StringBuilder message = new StringBuilder(200);
-      message.append("Unexpected invocation of:\n");
-      message.append(new MethodFormatter(invokedClassDesc, invokedMethod));
+      MissingInvocation error = new MissingInvocation(initialMessage);
+      setErrorAsInvocationCause(titleForCause, error);
+      return error;
+   }
 
-      if (replayArgs.length > 0) {
-         ArgumentMismatch argumentMismatch = new ArgumentMismatch();
-         argumentMismatch.appendFormatted(replayArgs);
-         message.append("\n   with arguments: ").append(argumentMismatch);
-      }
-
-      if (mock != null) {
-         message.append("\n   on instance: ").append(ObjectMethods.objectIdentity(mock));
-      }
-
-      message.append("\nwhen was expecting an invocation of:\n").append(this);
-
-      return newUnexpectedInvocationWithCause("Unexpected invocation", message.toString());
+   @Nonnull
+   private static String invocationsTo(@Nonnegative int invocations)
+   {
+      return invocations == 1 ? " invocation to:\n" : " invocations to:\n";
    }
 
    @Nonnull
@@ -349,37 +325,6 @@ public final class ExpectedInvocation
       String message = numUnexpected + " unexpected" + invocationsTo(numUnexpected) + toString(replayArgs);
       String titleForCause = numUnexpected == 1 ? "Unexpected invocation" : "Unexpected invocations";
       return newUnexpectedInvocationWithCause(titleForCause, message);
-   }
-
-   @Nonnull
-   public UnexpectedInvocation errorForUnexpectedInvocationBeforeAnother(@Nonnull ExpectedInvocation another)
-   {
-      String titleForCause = "Unexpected invocation " + this;
-      String initialMessage = "Unexpected invocation before " + another;
-      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
-   }
-
-   @Nonnull
-   public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother()
-   {
-      String initialMessage = "Invocation occurred unexpectedly before another " + this;
-      return newUnexpectedInvocationWithCause("Unexpected invocation", initialMessage);
-   }
-
-   @Nonnull
-   public UnexpectedInvocation errorForUnexpectedInvocationFoundBeforeAnother(@Nonnull ExpectedInvocation another)
-   {
-      String titleForCause = "Unexpected invocation " + this;
-      String initialMessage = "Another invocation unexpectedly occurred before" + another;
-      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
-   }
-
-   @Nonnull
-   public UnexpectedInvocation errorForUnexpectedInvocationAfterAnother(@Nonnull ExpectedInvocation another)
-   {
-      String titleForCause = "Unexpected invocation " + this;
-      String initialMessage = "Unexpected invocation after " + another;
-      return newUnexpectedInvocationWithCause(titleForCause, initialMessage);
    }
 
    @Nonnull @Override
