@@ -28,6 +28,7 @@ final class LocalVariables
 
    LocalVariables(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
+   @Nonnegative
    int addLocalVariable(
       @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
       @Nonnegative int index
@@ -45,6 +46,7 @@ final class LocalVariables
       return n;
    }
 
+   @Nonnull
    private ByteVector addAttribute(
       @Nullable ByteVector attribute, @Nonnull String name, @Nonnull String desc,
       @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
@@ -69,7 +71,7 @@ final class LocalVariables
       return getSize();
    }
 
-   private void addItemToConstantPool(String attributeName, ByteVector attribute) {
+   private void addItemToConstantPool(@Nonnull String attributeName, @Nullable ByteVector attribute) {
       if (attribute != null) {
          cp.newUTF8(attributeName);
       }
@@ -80,6 +82,7 @@ final class LocalVariables
       return getSize(localVarTable) + getSize(localVarTypeTable);
    }
 
+   @Nonnegative
    private static int getSize(@Nullable ByteVector attribute) { return attribute == null ? 0 : 8 + attribute.length; }
 
    @Nonnegative

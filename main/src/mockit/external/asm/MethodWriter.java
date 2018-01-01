@@ -89,7 +89,7 @@ public final class MethodWriter extends MethodVisitor
    @Nonnull private final FrameAndStackComputation frameAndStack;
    @Nonnull private final ExceptionHandling exceptionHandling;
    @Nonnull private final LocalVariables localVariables;
-   @Nonnull private final LineNumbers lineNumbers;
+   @Nonnull private final LineNumberWriter lineNumbers;
    @Nonnull private final CFGAnalysis cfgAnalysis;
 
    private final boolean computeFrames;
@@ -122,7 +122,7 @@ public final class MethodWriter extends MethodVisitor
       frameAndStack = new FrameAndStackComputation(this, access, desc);
       exceptionHandling = new ExceptionHandling(cp);
       localVariables = new LocalVariables(cp);
-      lineNumbers = new LineNumbers(cp);
+      lineNumbers = new LineNumberWriter(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
 
       createMarkerAttributes(cw.version);
@@ -485,7 +485,7 @@ public final class MethodWriter extends MethodVisitor
 
          size += 18 + codeLength + exceptionHandling.getSize();
          size += localVariables.getSizeWhileAddingConstantPoolItems();
-         size += lineNumbers.getSizeWhileAddingConstantPoolItem();
+         size += lineNumbers.getSize();
          size += frameAndStack.getSizeWhileAddingConstantPoolItem();
       }
 
