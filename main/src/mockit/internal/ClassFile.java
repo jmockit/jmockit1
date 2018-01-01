@@ -34,24 +34,64 @@ public final class ClassFile
       }
    }
 
-   @Nonnull
-   public static ClassReader createClassFileReader(@Nonnull Class<?> aClass)
+   public static long t;
+
+   @Nullable
+   public static ClassReader createClassReader(@Nonnull ClassLoader cl, @Nonnull String internalClassName)
    {
-      byte[] cachedClassfile = CachedClassfiles.getClassfile(aClass);
+      String classFileName = internalClassName + ".class";
+      long t0 = System.nanoTime();
+      InputStream classFile = cl.getResourceAsStream(classFileName);
 
-      if (cachedClassfile != null) {
-         return new ClassReader(cachedClassfile);
+      if (classFile != null) { // ignore the class if the ".class" file wasn't located
+         try {
+            byte[] bytecode = readClass(classFile);
+            t += System.nanoTime() - t0;
+            return new ClassReader(bytecode);
+         }
+         catch (IOException ignore) {}
       }
 
-      String className = aClass.getName();
-      InputStream classFile = aClass.getResourceAsStream('/' + className.replace('.', '/') + ".class");
-      verifyClassFileFound(classFile, className);
+      return null;
+   }
 
+   @Nonnull
+   private static byte[] readClass(@Nonnull InputStream is) throws IOException {
       try {
-         return new ClassReader(classFile);
+         byte[] bytecode = new byte[is.available()];
+         int len = 0;
+
+         while (true) {
+            int n = is.read(bytecode, len, bytecode.length - len);
+
+            if (n == -1) {
+               if (len < bytecode.length) {
+                  byte[] truncatedCopy = new byte[len];
+                  System.arraycopy(bytecode, 0, truncatedCopy, 0, len);
+                  bytecode = truncatedCopy;
+               }
+
+               return bytecode;
+            }
+
+            len += n;
+
+            if (len == bytecode.length) {
+               int last = is.read();
+
+               if (last < 0) {
+                  return bytecode;
+               }
+
+               byte[] lengthenedCopy = new byte[bytecode.length + 1000];
+               System.arraycopy(bytecode, 0, lengthenedCopy, 0, len);
+               lengthenedCopy[len++] = (byte) last;
+               bytecode = lengthenedCopy;
+            }
+         }
       }
-      catch (IOException e) {
-         throw new RuntimeException("Failed to read class file for " + className, e);
+      finally {
+         is.close();
       }
    }
 
@@ -73,38 +113,6 @@ public final class ClassFile
       }
 
       return reader;
-   }
-
-   @Nonnull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
-   private static InputStream readClassFromClasspath(@Nonnull String classDesc)
-   {
-      String classFileName = classDesc + ".class";
-      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-      InputStream inputStream = null;
-
-      if (contextClassLoader != null) {
-         inputStream = contextClassLoader.getResourceAsStream(classFileName);
-      }
-
-      if (inputStream == null) {
-         ClassLoader thisClassLoader = ClassFile.class.getClassLoader();
-
-         if (thisClassLoader != contextClassLoader) {
-            inputStream = thisClassLoader.getResourceAsStream(classFileName);
-
-            if (inputStream == null) {
-               Class<?> testClass = TestRun.getCurrentTestClass();
-
-               if (testClass != null) {
-                  inputStream = testClass.getClassLoader().getResourceAsStream(classFileName);
-               }
-            }
-         }
-      }
-
-      verifyClassFileFound(inputStream, classDesc);
-      //noinspection ConstantConditions
-      return inputStream;
    }
 
    @Nonnull
@@ -160,11 +168,44 @@ public final class ClassFile
       InputStream classFile = readClassFromClasspath(classDesc);
 
       try {
-         return new ClassReader(classFile);
+         byte[] bytecode = readClass(classFile);
+         return new ClassReader(bytecode);
       }
       catch (IOException e) {
          throw new RuntimeException("Failed to read class file for " + classDesc.replace('/', '.'), e);
       }
+   }
+
+   @Nonnull
+   private static InputStream readClassFromClasspath(@Nonnull String classDesc)
+   {
+      String classFileName = classDesc + ".class";
+      ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+      InputStream inputStream = null;
+
+      if (contextClassLoader != null) {
+         inputStream = contextClassLoader.getResourceAsStream(classFileName);
+      }
+
+      if (inputStream == null) {
+         ClassLoader thisClassLoader = ClassFile.class.getClassLoader();
+
+         if (thisClassLoader != contextClassLoader) {
+            inputStream = thisClassLoader.getResourceAsStream(classFileName);
+
+            if (inputStream == null) {
+               Class<?> testClass = TestRun.getCurrentTestClass();
+
+               if (testClass != null) {
+                  inputStream = testClass.getClassLoader().getResourceAsStream(classFileName);
+               }
+            }
+         }
+      }
+
+      verifyClassFileFound(inputStream, classDesc);
+      //noinspection ConstantConditions
+      return inputStream;
    }
 
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor)

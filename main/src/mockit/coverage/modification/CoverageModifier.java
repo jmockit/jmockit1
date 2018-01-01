@@ -4,7 +4,6 @@
  */
 package mockit.coverage.modification;
 
-import java.io.*;
 import java.util.*;
 import javax.annotation.*;
 
@@ -12,6 +11,7 @@ import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.external.asm.*;
+import mockit.internal.*;
 import static mockit.coverage.Metrics.*;
 import static mockit.external.asm.Opcodes.*;
 
@@ -32,22 +32,7 @@ final class CoverageModifier extends WrappingClassVisitor
    @Nullable
    static ClassReader createClassReader(@Nonnull Class<?> aClass)
    {
-      return createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
-   }
-
-   @Nullable
-   private static ClassReader createClassReader(@Nonnull ClassLoader cl, @Nonnull String internalClassName)
-   {
-      String classFileName = internalClassName + ".class";
-      //noinspection IOResourceOpenedButNotSafelyClosed
-      InputStream classFile = cl.getResourceAsStream(classFileName);
-
-      if (classFile == null) {
-         // Ignore the class if the ".class" file wasn't located.
-         return null;
-      }
-
-      try { return new ClassReader(classFile); } catch (IOException ignore) { return null; }
+      return ClassFile.createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
    }
 
    @Nullable private String internalClassName;
@@ -168,7 +153,7 @@ final class CoverageModifier extends WrappingClassVisitor
          return;
       }
 
-      ClassReader innerCR = createClassReader(CoverageModifier.class.getClassLoader(), internalName);
+      ClassReader innerCR = ClassFile.createClassReader(CoverageModifier.class.getClassLoader(), internalName);
 
       if (innerCR != null) {
          CoverageModifier innerClassModifier = new CoverageModifier(innerCR, this, innerName);

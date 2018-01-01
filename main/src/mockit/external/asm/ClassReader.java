@@ -29,7 +29,6 @@
  */
 package mockit.external.asm;
 
-import java.io.*;
 import javax.annotation.*;
 
 /**
@@ -85,53 +84,6 @@ public final class ClassReader extends AnnotatedReader
    public ClassReader(@Nonnull byte[] code) {
       super(code);
       header = codeIndex; // the class header information starts just after the constant pool
-   }
-
-   /**
-    * Initializes a new class reader whose classfile bytecode array is read from the given input stream.
-    */
-   public ClassReader(@Nonnull InputStream is) throws IOException {
-      this(readClass(is));
-   }
-
-   @Nonnull
-   private static byte[] readClass(@Nonnull InputStream is) throws IOException {
-      try {
-         byte[] b = new byte[is.available()];
-         int len = 0;
-
-         while (true) {
-            int n = is.read(b, len, b.length - len);
-
-            if (n == -1) {
-               if (len < b.length) {
-                  byte[] c = new byte[len];
-                  System.arraycopy(b, 0, c, 0, len);
-                  b = c;
-               }
-
-               return b;
-            }
-
-            len += n;
-
-            if (len == b.length) {
-               int last = is.read();
-
-               if (last < 0) {
-                  return b;
-               }
-
-               byte[] c = new byte[b.length + 1000];
-               System.arraycopy(b, 0, c, 0, len);
-               c[len++] = (byte) last;
-               b = c;
-            }
-         }
-      }
-      finally {
-         is.close();
-      }
    }
 
    /**
