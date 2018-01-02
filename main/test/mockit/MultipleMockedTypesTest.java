@@ -154,7 +154,7 @@ public final class MultipleMockedTypesTest
 
    @Test
    public void invocationsOnCapturedImplementationsOfInterfaces(
-      @Capturing final Callable<String> callable, @Capturing(maxInstances = 1) final Observer observer) throws Exception
+      @Capturing final Callable<String> callable, @Capturing final Observer observer) throws Exception
    {
       new Expectations() {{
          observer.update(null, any); times = 1;
