@@ -24,7 +24,7 @@
  * used for recording expectations with custom results, and for the implementation of custom argument matchers.
  * <p/>
  * {@linkplain mockit.MockUp <code>MockUp&lt;T></code>} is a generic base class (where <tt>T</tt> is the type to be
- * faked) which allows the definition of fake implementations for external classes or interfaces.
+ * faked) which allows the definition of fake implementations for external classes.
  * Methods in a fake class that take the place of the "real" methods in class <tt>T</tt> are indicated with the
  * {@linkplain mockit.Mock @Mock} annotation.
  * Such methods can also (optionally) have an {@link mockit.Invocation} parameter.
