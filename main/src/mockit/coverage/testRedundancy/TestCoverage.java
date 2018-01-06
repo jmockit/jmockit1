@@ -9,9 +9,16 @@ import java.util.*;
 import java.util.Map.*;
 import javax.annotation.*;
 
+import mockit.coverage.*;
+
 public final class TestCoverage
 {
-   @Nonnull public static final TestCoverage INSTANCE = new TestCoverage();
+   @Nullable public static final TestCoverage INSTANCE;
+
+   static
+   {
+      INSTANCE = "true".equals(Configuration.getProperty("redundancy", "true")) ? new TestCoverage() : null;
+   }
 
    @Nonnull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<Method, Integer>();
    @Nullable private Method currentTestMethod;
@@ -27,7 +34,7 @@ public final class TestCoverage
       currentTestMethod = testMethod;
    }
 
-   public void recordNewItemCoveredByTestIfApplicable(int previousExecutionCount)
+   public void recordNewItemCoveredByTestIfApplicable(@Nonnegative int previousExecutionCount)
    {
       if (previousExecutionCount == 0 && currentTestMethod != null) {
          Integer itemsCoveredByTest = testsToItemsCovered.get(currentTestMethod);

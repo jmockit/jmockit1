@@ -14,13 +14,11 @@ import org.testng.internal.Invoker;
 import org.testng.internal.Parameters;
 
 import mockit.*;
-import mockit.coverage.*;
 import mockit.coverage.testRedundancy.*;
 import mockit.integration.internal.*;
 import mockit.internal.faking.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import mockit.internal.state.TestRun;
 import static mockit.internal.util.StackTrace.*;
 import static mockit.internal.util.Utilities.*;
 
@@ -148,10 +146,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
 
       Method method = testNGMethod.getConstructorOrMethod().getMethod();
-
-      if (Metrics.DataCoverage.active) {
-         TestCoverage.INSTANCE.setCurrentTestMethod(method);
-      }
+      exportCurrentTestMethodIfApplicable(method);
 
       Object testInstance = testResult.getInstance();
 
@@ -191,6 +186,15 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
       finally {
          TestRun.exitNoMockingZone();
+      }
+   }
+
+   private static void exportCurrentTestMethodIfApplicable(@Nullable Method testMethod)
+   {
+      TestCoverage testCoverage = TestCoverage.INSTANCE;
+
+      if (testCoverage != null) {
+         testCoverage.setCurrentTestMethod(testMethod);
       }
    }
 
@@ -243,9 +247,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
          return;
       }
 
-      if (Metrics.DataCoverage.active) {
-         TestCoverage.INSTANCE.setCurrentTestMethod(null);
-      }
+      exportCurrentTestMethodIfApplicable(null);
 
       SavePoint testMethodSavePoint = savePoint.get();
 

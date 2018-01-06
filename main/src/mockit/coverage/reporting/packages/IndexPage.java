@@ -287,7 +287,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeListOfRedundantTestsIfAny()
    {
-      List<Method> redundantTests = TestCoverage.INSTANCE.getRedundantTests();
+      TestCoverage testCoverage = TestCoverage.INSTANCE;
+
+      if (testCoverage == null) {
+         return;
+      }
+
+      List<Method> redundantTests = testCoverage.getRedundantTests();
 
       if (!redundantTests.isEmpty()) {
          output.println("  <br/>Redundant tests:");

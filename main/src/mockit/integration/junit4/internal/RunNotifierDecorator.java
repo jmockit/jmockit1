@@ -11,7 +11,7 @@ import org.junit.runner.notification.*;
 
 import mockit.*;
 import mockit.coverage.*;
-import mockit.coverage.testRedundancy.JUnitListener;
+import mockit.coverage.testRedundancy.*;
 import mockit.integration.internal.*;
 import mockit.internal.faking.*;
 import mockit.internal.state.TestRun;
@@ -28,7 +28,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
    {
       RunNotifier it = invocation.getInvokedInstance();
 
-      if (CodeCoverage.active()) {
+      if (CodeCoverage.active() && TestCoverage.INSTANCE != null) {
          it.addListener(new JUnitListener());
       }
 

@@ -31,7 +31,16 @@ public final class TestRun
          }
 
          int previousExecutionCount = fileData.registerExecution(line, callPoint);
-         TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
+         recordNewLineOrSegmentAsCoveredIfApplicable(previousExecutionCount);
+      }
+   }
+
+   private static void recordNewLineOrSegmentAsCoveredIfApplicable(@Nonnegative int previousExecutionCount)
+   {
+      TestCoverage testCoverage = TestCoverage.INSTANCE;
+
+      if (testCoverage != null) {
+         testCoverage.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
       }
    }
 
@@ -51,7 +60,7 @@ public final class TestRun
             }
 
             int previousExecutionCount = fileData.registerExecution(line, branchIndex, callPoint);
-            TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
+            recordNewLineOrSegmentAsCoveredIfApplicable(previousExecutionCount);
          }
       }
    }
@@ -65,7 +74,7 @@ public final class TestRun
          FileCoverageData fileData = coverageData.getFileData(file);
 
          int previousExecutionCount = fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
-         TestCoverage.INSTANCE.recordNewItemCoveredByTestIfApplicable(previousExecutionCount);
+         recordNewLineOrSegmentAsCoveredIfApplicable(previousExecutionCount);
       }
    }
 
