@@ -46,7 +46,7 @@ import mockit.internal.state.*;
  * @see #Verifications()
  * @see #withCapture()
  * @see Expectations
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#verification" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#verification" target="tutorial">Tutorial</a>
  */
 public abstract class Verifications extends Invocations
 {
@@ -100,7 +100,7 @@ public abstract class Verifications extends Invocations
     *
     * @see #withCapture(List)
     * @see #withCapture(Object)
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
    protected final <T> T withCapture()
    {
@@ -136,7 +136,7 @@ public abstract class Verifications extends Invocations
     *
     * @see #withCapture()
     * @see #withCapture(List)
-    * @see <a href="http://jmockit.org/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
    protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification)
    {

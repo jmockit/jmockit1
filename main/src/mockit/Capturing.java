@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * When recording or verifying expectations on the mock field/parameter, these associated instances are regarded as
  * equivalent to the original mocked instance created for the mock field/parameter.
  *
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#capturing" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#capturing" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})

@@ -21,7 +21,7 @@ package mockit;
  * </pre>
  *
  * @see #VerificationsInOrder()
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#verificationInOrder" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#verificationInOrder" target="tutorial">Tutorial</a>
  */
 public abstract class VerificationsInOrder extends Verifications
 {

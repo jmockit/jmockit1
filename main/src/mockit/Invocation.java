@@ -21,8 +21,8 @@ import mockit.internal.*;
  * @see #getInvocationCount()
  * @see #getInvocationIndex()
  * @see #proceed(Object...)
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#delegates" target="tutorial">Tutorial (mocking)</a>
- * @see <a href="http://jmockit.org/tutorial/Faking.html#invocation" target="tutorial">Tutorial (faking)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#delegates" target="tutorial">Tutorial (mocking)</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Faking.html#invocation" target="tutorial">Tutorial (faking)</a>
  */
 public class Invocation
 {
@@ -102,7 +102,7 @@ public class Invocation
     * {@linkplain Injectable injectable mocked type} nor to a {@linkplain Expectations#Expectations(Object...) dynamic
     * partially mocked type}, into a <tt>native</tt> method, or into an interface or abstract method
     *
-    * @see <a href="http://jmockit.org/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
+    * @see <a href="http://jmockit.github.io/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
     */
    public final <T> T proceed(Object... replacementArguments)
    {

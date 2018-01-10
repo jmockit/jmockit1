@@ -320,7 +320,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
    private void writeFooter()
    {
       output.println("  <p>");
-      output.println("    <a href='http://jmockit.org'><img src='logo.png'></a>");
+      output.println("    <a href='http://jmockit.github.io'><img src='logo.png'></a>");
       output.write("    Generated on ");
       output.println(new Date());
       output.println("  </p>");

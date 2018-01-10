@@ -54,7 +54,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * affected, unless {@linkplain #stubOutClassInitialization specified otherwise}.
  *
  * @see #stubOutClassInitialization
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#mocked" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#mocked" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})

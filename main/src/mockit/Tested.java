@@ -69,7 +69,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * When the {@link #fullyInitialized} attribute is <tt>true</tt>, all eligible fields in the tested object will get
  * initialized with a suitable instance, which itself is recursively initialized in the same way.
  *
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#tested" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#tested" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER, ANNOTATION_TYPE, METHOD})

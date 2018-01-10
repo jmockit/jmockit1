@@ -25,16 +25,15 @@
          <link href="http://docs.oracle.com/javase/8/docs/api/" offline="true" packagelistloc="${api}/javase"/>
          <link href="http://docs.oracle.com/javaee/7/api/"      offline="true" packagelistloc="${api}/javaee"/>
          <doctitle><![CDATA[
-            <a href="http://jmockit.org" target="_top"><img src="resources/logo.png" style="vertical-align:middle">
-               JMockit</a>
-            - API Documentation
+            <a href="http://jmockit.github.io" target="_top">
+               <img src="resources/logo.png" style="vertical-align:middle">JMockit</a> - API Documentation
          ]]></doctitle>
          <header><![CDATA[
-            <a href="http://jmockit.org" target="_top">
+            <a href="http://jmockit.github.io" target="_top">
                <img src="resources/logo.png" style="padding:4px;vertical-align:middle">JMockit Home</a>
          ]]></header>
          <footer><![CDATA[
-            <a href="http://jmockit.org" target="_top">
+            <a href="http://jmockit.github.io" target="_top">
                <img src="resources/logo.png" style="padding:4px;vertical-align:middle">JMockit Home</a>
          ]]></footer>
       </javadoc>

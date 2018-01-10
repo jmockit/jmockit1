@@ -29,7 +29,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * used for injection.
  *
  * @see #value
- * @see <a href="http://jmockit.org/tutorial/Mocking.html#injectable" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#injectable" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})

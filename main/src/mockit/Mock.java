@@ -32,7 +32,7 @@ import static java.lang.annotation.RetentionPolicy.*;
  * Yet another special fake method is "<strong><code>Object $advice(Invocation)</code></strong>", which if defined will
  * match <em>every</em> method in the target class hierarchy.
  *
- * @see <a href="http://jmockit.org/tutorial/Faking.html#fakes" target="tutorial">Tutorial</a>
+ * @see <a href="http://jmockit.github.io/tutorial/Faking.html#fakes" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
 @Target(METHOD)
