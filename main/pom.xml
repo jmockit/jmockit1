@@ -4,26 +4,23 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.38</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.39</version>
    <packaging>jar</packaging>
 
-   <name>Main</name>
+   <name>JMockit</name>
    <description>
       JMockit is a Java toolkit for automated developer testing.
       It contains APIs for the creation of the objects to be tested, for mocking dependencies, and for faking external
       APIs; JUnit (4 &amp; 5) and TestNG test runners are supported.
       It also contains an advanced code coverage tool.
    </description>
-   <url>http://www.jmockit.org</url>
+   <url>http://jmockit.github.io</url>
    <licenses>
       <license>
          <name>The MIT License</name>
          <url>http://www.opensource.org/licenses/mit-license.php</url>
       </license>
    </licenses>
-   <developers>
-      <developer><name>Rogério Liesenfeld</name></developer>
-   </developers>
    <inceptionYear>2006</inceptionYear>
    <scm>
       <url>https://github.com/jmockit/jmockit1</url>
@@ -129,8 +126,12 @@
                <doctitle>JMockit Toolkit API Documentation</doctitle>
                <stylesheetfile>${project.basedir}/../../jmockit.github.io/api1x/stylesheet.css</stylesheetfile>
                <overview>${project.basedir}/../../jmockit.github.io/api1x/overview.html</overview>
-               <header><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></header>
-               <footer><![CDATA[<a href="http://jmockit.org" target="_top"><img src="resources/logo.png">JMockit Home</a>]]></footer>
+               <header>
+                  <![CDATA[<a href="http://jmockit.github.io" target="_top"><img src="resources/logo.png">JMockit Home</a>]]>
+               </header>
+               <footer>
+                  <![CDATA[<a href="http://jmockit.github.io" target="_top"><img src="resources/logo.png">JMockit Home</a>]]>
+               </footer>
                <notimestamp>true</notimestamp>
                <quiet>true</quiet>
                <sourcepath>${basedir}/src</sourcepath>
