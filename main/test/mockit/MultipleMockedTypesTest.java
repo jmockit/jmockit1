@@ -146,7 +146,7 @@ public final class MultipleMockedTypesTest
 
       assertTrue(new TestedUnit().validate(mock1, new SubDependencyThatOverrides()));
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock1.getValue();
          mock2.getValue();
       }};

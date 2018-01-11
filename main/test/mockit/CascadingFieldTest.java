@@ -249,7 +249,7 @@ public final class CascadingFieldTest
       assertNotNull(b);
       assertNotNull(b.getC());
 
-      new FullVerificationsInOrder() {{ mock.getValue().getB().getC(); }};
+      new FullVerifications() {{ mock.getValue().getB().getC(); }};
    }
 
    interface Ab extends A {}

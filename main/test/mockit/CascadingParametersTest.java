@@ -365,7 +365,7 @@ public final class CascadingParametersTest
       assertSame(out1, sf1.createSocket().getOutputStream());
       assertSame(out2, sf2.createSocket().getOutputStream());
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          sf1.createSocket().getOutputStream();
          sf2.createSocket().getOutputStream();
       }};
@@ -476,7 +476,7 @@ public final class CascadingParametersTest
       bar2.doSomething();
       bar1.doSomething();
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mockBar1.doSomething();
          mockBar2.doSomething();
       }};

@@ -207,7 +207,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomethingElse();
       codeUnderTest.doSomething();
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock.simpleOperation(1, "b", null);
          mock.provideSomeService(); times = 2;
       }};
@@ -246,7 +246,7 @@ public final class InvocationBlocksWithTimesFieldsTest
       codeUnderTest.doSomething();
       codeUnderTest.doSomethingElse();
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock.provideSomeService(); maxTimes = 2;
          mock.simpleOperation(1, "b", null);
       }};
@@ -294,7 +294,7 @@ public final class InvocationBlocksWithTimesFieldsTest
 
       codeUnderTest.doSomething();
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock.provideSomeService(); minTimes = 2; maxTimes = 3;
       }};
    }
@@ -346,7 +346,7 @@ public final class InvocationBlocksWithTimesFieldsTest
    {
       codeUnderTest.doSomethingElse();
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock.provideSomeService(); minTimes = 0; maxTimes = -1;
          mock.simpleOperation(1, "b", null);
       }};

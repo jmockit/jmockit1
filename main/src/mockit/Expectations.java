@@ -56,8 +56,8 @@ import mockit.internal.expectations.*;
  * <p/>
  * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified
  * <em>after</em> exercising the code under test.
- * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder},
- * {@link FullVerifications}, and {@link FullVerificationsInOrder}.
+ * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder}, and
+ * {@link FullVerifications}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
  *
  * @see #Expectations()

@@ -30,7 +30,7 @@ public final class WithCaptureTest
       public int getAge() { return age; }
    }
 
-   public interface DAO<T> { void create(T t); }
+   public interface DAO<T> { @SuppressWarnings("unused") void create(T t); }
 
    @SuppressWarnings("UnusedParameters")
    public static final class PersonDAO implements DAO<Person>
@@ -133,7 +133,7 @@ public final class WithCaptureTest
       final BigInteger[] bigInts = {new BigInteger("12"), new BigInteger("45")};
       dao.doSomething(bigInts);
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          Integer[] capturedInts;
          dao.doSomething(capturedInts = withCapture());
          assertSame(ints, capturedInts);
@@ -482,6 +482,7 @@ public final class WithCaptureTest
          List<Person> personsCreated = new ArrayList<Person>();
          dao.create(withCapture(personsCreated));
 
+         //noinspection MisorderedAssertEqualsArguments
          assertEquals(personsInstantiated, personsCreated);
       }};
    }
@@ -572,8 +573,9 @@ public final class WithCaptureTest
    public void captureVarargsValuesFromAllInvocations(@Mocked final ClassWithVarargsMethod mock)
    {
       final String[] expectedValues1 = {"a", "b"};
-      final String[] expectedValues2 = {"1", "2"};
       mock.varargsMethod("First", expectedValues1);
+
+      final String[] expectedValues2 = {"1", "2"};
       mock.varargsMethod("Second", expectedValues2);
 
       new Verifications() {{
@@ -589,16 +591,18 @@ public final class WithCaptureTest
    }
 
    @Test
-   public void captureArgumentsIntoAListOfASubtypeOfTheCapturedParameterType() {
-      final List<Integer> expectedValues = asList(1, 3);
-
+   public void captureArgumentsIntoAListOfASubtypeOfTheCapturedParameterType()
+   {
       dao.doSomethingElse(1);
       dao.doSomethingElse(2.0);
       dao.doSomethingElse(3);
 
+      final List<Integer> expectedValues = asList(1, 3);
+
       new Verifications() {{
          List<Integer> onlyIntegers = new ArrayList<Integer>();
          dao.doSomethingElse(withCapture(onlyIntegers));
+         //noinspection MisorderedAssertEqualsArguments
          assertEquals(expectedValues, onlyIntegers);
       }};
    }
@@ -607,9 +611,9 @@ public final class WithCaptureTest
    public void captureListArgumentsFromMultipleInvocations()
    {
       final List<Integer> integers1 = asList(1, 2, 3);
-      final List<Integer> integers2 = asList(4, 5);
-
       dao.doSomething(integers1);
+
+      final List<Integer> integers2 = asList(4, 5);
       dao.doSomething(integers2);
 
       new Verifications() {{

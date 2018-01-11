@@ -141,7 +141,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
       Collaborator.staticLongValues(23L, (byte) 1, 1.34, 'S');
       Collaborator.staticVoidMethod(45L, 'S', 56.4F);
 
-      new FullVerificationsInOrder() {{
+      new FullVerifications() {{
          mock.simpleOperation(anyInt, null, null);
          mock.simpleOperation(anyInt, "test", null);
          mock.simpleOperation(3, "test2", null);

@@ -149,7 +149,7 @@ public final class PartialMockingTest
       Collaborator f3 = new Collaborator(1);
       assertEquals(15, f3.getValue());
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          Collaborator anyInstanceWithValue1 = new Collaborator(1);
          anyInstanceWithValue1.getValue();
 
@@ -198,11 +198,12 @@ public final class PartialMockingTest
       collaborator.setValue(3);
 
       // Verifies all the *mocked* (recorded) invocations, ignoring those not mocked:
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          // No need to verify "setValue(1)" since it was not recorded.
          collaborator.setValue(2);
          collaborator.setValue(3);
       }};
+      new FullVerifications() {};
    }
 
    @Test
@@ -298,7 +299,7 @@ public final class PartialMockingTest
 
    static final class SubCollaborator extends Collaborator
    {
-      SubCollaborator() { this(1); }
+      @SuppressWarnings("unused") SubCollaborator() { this(1); }
       SubCollaborator(int value) { super(value); }
 
       @Override
@@ -489,7 +490,7 @@ public final class PartialMockingTest
       assertEquals(3, collaborator1.getValue());
       assertEquals(4, collaborator2.getValue());
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          collaborator1.getValue(); times = 1;
          collaborator2.getValue(); times = 1;
       }};

@@ -75,7 +75,7 @@ public final class TestedAbstractClassTest
 
       assertFalse(tested.doSomeOperation());
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          tested.run();
          tested.doSomething();
       }};

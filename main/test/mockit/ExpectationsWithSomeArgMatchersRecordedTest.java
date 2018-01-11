@@ -31,7 +31,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       public int hashCode() { return value; }
    }
 
-   @SuppressWarnings("UnusedParameters")
+   @SuppressWarnings({"UnusedParameters", "SameParameterValue"})
    static class Collaborator
    {
       void setValue(int value) {}
@@ -221,7 +221,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       mock.simpleOperation(-1, "Xyz", new Date());
       mock.simpleOperation(1, "", new Date());
 
-      new FullVerificationsInOrder() {{
+      new FullVerifications() {{
          mock.simpleOperation(anyInt, null, (Date) any);
          mock.simpleOperation(anyInt, withEqual("test"), null);
          mock.simpleOperation(3, withPrefix("test"), (Date) any);
@@ -419,7 +419,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       mock.simpleOperation(123, null, now);
       mock.simpleOperation(123, "", null);
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          // Expectations with one matcher:
          mock.simpleOperation(
             anyInt,

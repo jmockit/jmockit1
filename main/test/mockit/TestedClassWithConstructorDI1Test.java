@@ -108,7 +108,7 @@ public final class TestedClassWithConstructorDI1Test
 
       assertTrue(tested.doSomeOperation());
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock2.run();
          mock3.notifyObservers();
       }};

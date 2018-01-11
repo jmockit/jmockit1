@@ -196,7 +196,7 @@ public final class MockInstanceMatchingTest
       es2.execute(null);
       es1.submit((Runnable) null);
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          es1.execute((Runnable) any);
          es2.submit((Runnable) any);
       }};

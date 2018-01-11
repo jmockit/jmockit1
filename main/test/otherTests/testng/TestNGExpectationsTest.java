@@ -64,7 +64,7 @@ public final class TestNGExpectationsTest
       assertFalse(tested.doSomething(41));
       assertTrue(mock2.doSomethingElse(6));
 
-      new FullVerificationsInOrder(dependency) {{
+      new VerificationsInOrder() {{
          dependency.getValue();
          dependency.doSomething(anyInt);
       }};

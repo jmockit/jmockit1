@@ -164,7 +164,7 @@ public final class AssertionErrorMessagesTest
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("any int, any String");
 
-      new FullVerificationsInOrder() {{
+      new VerificationsInOrder() {{
          mock.doSomething(anyInt, anyString);
          minTimes = 3;
       }};

@@ -19,17 +19,15 @@ package mockit;
  * }};
  * </pre>
  *
- * @see #FullVerificationsInOrder()
- * @see #FullVerificationsInOrder(Object...)
- * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#fullVerificationInOrder" target="tutorial">Tutorial</a>
+ * @deprecated This is a rarely (if ever) used class which will be removed in a future version; existing tests can
+ * instead use the other verification classes.
  */
+@Deprecated
 public abstract class FullVerificationsInOrder extends Verifications
 {
    /**
     * Begins <em>in-order</em> verification for <em>all</em> invocations on the mocked types/instances that can
     * potentially be invoked from code under test.
-    *
-    * @see #FullVerificationsInOrder(Object...)
     */
    protected FullVerificationsInOrder()
    {
@@ -44,8 +42,6 @@ public abstract class FullVerificationsInOrder extends Verifications
     * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, <tt>Class</tt> objects) and/or mocked
     * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
     * including) <tt>java.lang.Object</tt> are considered
-    *
-    * @see #FullVerificationsInOrder()
     */
    protected FullVerificationsInOrder(Object... mockedTypesAndInstancesToVerify)
    {
