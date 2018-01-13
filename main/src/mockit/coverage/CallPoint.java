@@ -125,31 +125,23 @@ public final class CallPoint implements Serializable
 
       boolean isTestMethod = false;
 
-      if (
-         ste.getFileName() != null && ste.getLineNumber() >= 0 &&
-         !className.startsWith("java.") && !className.startsWith("javax.") && !className.startsWith("sun.") &&
-         !className.startsWith("org.junit.") && !className.startsWith("org.testng.") && !className.startsWith("mockit.")
-      ) {
+      if (ste.getFileName() != null && ste.getLineNumber() >= 0 && !isClassInExcludedPackage(className)) {
          Class<?> aClass = loadClass(className);
 
          if (aClass != null) {
-            if (checkTestAnnotationOnClass && aClass.isAnnotationPresent(testAnnotation)) {
-               isTestMethod = true;
-            }
-            else {
-               Method method = findMethod(aClass, methodName);
-
-               if (method != null) {
-                  isTestMethod =
-                     containsATestFrameworkAnnotation(method.getDeclaredAnnotations()) ||
-                     checkIfTestCaseSubclass && isJUnit3xTestMethod(aClass, method);
-               }
-            }
+            isTestMethod = isTestMethod(aClass, methodName);
          }
       }
 
       steCache.put(ste, isTestMethod);
       return isTestMethod;
+   }
+
+   private static boolean isClassInExcludedPackage(@Nonnull String className)
+   {
+      return
+         className.startsWith("java.")      || className.startsWith("javax.")      || className.startsWith("sun.") ||
+         className.startsWith("org.junit.") || className.startsWith("org.testng.") || className.startsWith("mockit.");
    }
 
    @Nullable
@@ -160,6 +152,20 @@ public final class CallPoint implements Serializable
       }
       catch (ClassNotFoundException ignore) { return null; }
       catch (LinkageError ignore) { return null; }
+   }
+
+   private static boolean isTestMethod(@Nonnull Class<?> testClass, @Nonnull String methodName)
+   {
+      if (checkTestAnnotationOnClass && testClass.isAnnotationPresent(testAnnotation)) {
+         return true;
+      }
+
+      Method method = findMethod(testClass, methodName);
+
+      return method != null && (
+         containsATestFrameworkAnnotation(method.getDeclaredAnnotations()) ||
+         checkIfTestCaseSubclass && isJUnit3xTestMethod(testClass, method)
+      );
    }
 
    @Nullable
