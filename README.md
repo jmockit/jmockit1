@@ -1,4 +1,4 @@
-Codebase for JMockit 1.x releases - [Documentation](http://jmockit.org) - [Release notes](http://jmockit.org/changes.html)
+Codebase for JMockit 1.x releases - [Documentation](http://jmockit.github.io) - [Release notes](http://jmockit.github.io/changes.html)
 
 How to build the project:
 * use JDK 1.8
