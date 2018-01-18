@@ -30,7 +30,7 @@ final class ClassSelection
 
    ClassSelection()
    {
-      testCode = TEST_CLASS_NAME.matcher("");
+      testCode = Configuration.getProperty("includeTests") != null ? null : TEST_CLASS_NAME.matcher("");
    }
 
    @Nullable
