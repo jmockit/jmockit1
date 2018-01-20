@@ -25,13 +25,10 @@ final class ClassSelection
    boolean loadedOnly;
    @Nullable private Matcher classesToInclude;
    @Nullable private Matcher classesToExclude;
-   @Nullable private final Matcher testCode;
+   @Nonnull private final Matcher testCode;
    private boolean configurationRead;
 
-   ClassSelection()
-   {
-      testCode = TEST_CLASS_NAME.matcher("");
-   }
+   ClassSelection() { testCode = TEST_CLASS_NAME.matcher(""); }
 
    @Nullable
    private static Matcher newMatcherForClassSelection(@Nonnull String specification)
@@ -147,17 +144,17 @@ final class ClassSelection
    {
       return
          classesToExclude != null && classesToExclude.reset(className).matches() ||
-         testCode != null && testCode.reset(className).matches();
+         testCode.reset(className).matches();
    }
 
-   private boolean isClassFromExternalLibrary(@Nonnull URL location)
+   private static boolean isClassFromExternalLibrary(@Nonnull URL location)
    {
       if ("jar".equals(location.getProtocol())) {
          return true;
       }
 
       String path = location.getPath();
-      return path.endsWith(".jar") || path.endsWith("/.cp/") || testCode != null && path.endsWith("/test-classes/");
+      return path.endsWith(".jar") || path.endsWith("/.cp/") || path.endsWith("/test-classes/");
    }
 
    private void readConfiguration()
