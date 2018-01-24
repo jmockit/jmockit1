@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import javax.inject.*;
@@ -99,11 +95,11 @@ public final class TestedParametersTest
    static class AnotherDependency {}
    static class TestedClassWithDIAnnotatedField { @Inject AnotherDependency dep; }
 
-   @Injectable AnotherDependency dep;
+   @Injectable AnotherDependency anotherDep;
 
    @Test
    public void injectInjectableFieldIntoTestedParameter(@Tested TestedClassWithDIAnnotatedField tested)
    {
-      assertSame(dep, tested.dep);
+      assertSame(anotherDep, tested.dep);
    }
 }
