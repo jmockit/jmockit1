@@ -20,11 +20,15 @@ import static java.lang.annotation.RetentionPolicy.*;
  * By default, automatic instantiation occurs just before a test method is executed.
  * This default can be changed by specifying the {@link #availableDuringSetup} optional attribute as <tt>true</tt> in a
  * tested field declaration (it is ignored if applied to a tested parameter).
+ * <p/>
  * Whenever automatic creation occurs, a suitable instance of the tested class is created, initialized, and assigned to
- * the tested field or passed as argument to the tested parameter when the test method gets executed.
+ * the tested field or passed as argument to the tested parameter.
  * Available {@linkplain Injectable injectables} and other <tt>@Tested</tt> values are used, either as argument values
  * for the chosen constructor of the tested class, or as values to set into injected fields of the newly-created tested
  * object.
+ * For a given tested object, only <em>preceding</em> tested objects (if any) are regarded as available for injection;
+ * other such objects declared after the one being created are disregarded.
+ * <tt>@Tested</tt> parameters precede any <tt>@Tested</tt> fields.
  * <p/>
  * For <em>constructor injection</em>, all constructor parameters (if any) must be satisfied with available
  * tested/injectable values.
