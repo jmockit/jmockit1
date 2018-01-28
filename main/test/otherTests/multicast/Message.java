@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.multicast;
 
 import java.io.*;
@@ -15,8 +11,7 @@ public final class Message
    private final String contents;
    private final StatusListener listener;
 
-   public Message(Client[] to, String contents, StatusListener listener)
-   {
+   public Message(Client[] to, String contents, StatusListener listener) {
       this.to = to;
       this.contents = contents;
       this.listener = listener;
@@ -30,23 +25,20 @@ public final class Message
     * Status notifications are executed on the Swing EDT (Event Dispatching Thread), so that the
     * UI can be safely updated.
     */
-   public void dispatch()
-   {
+   public void dispatch() {
       for (Client client : to) {
          MessageDispatcher dispatcher = new MessageDispatcher(client);
          new Thread(dispatcher).start();
       }
    }
 
-   private final class MessageDispatcher implements Runnable
-   {
+   private final class MessageDispatcher implements Runnable {
       private final Client client;
 
       MessageDispatcher(Client client) { this.client = client; }
 
       @Override
-      public void run()
-      {
+      public void run() {
          try {
             communicateWithClient();
          }
@@ -55,8 +47,7 @@ public final class Message
          }
       }
 
-      private void communicateWithClient() throws IOException
-      {
+      private void communicateWithClient() throws IOException {
          Socket connection = new Socket(client.getAddress(), CLIENT_PORT);
 
          try {
@@ -68,14 +59,12 @@ public final class Message
          }
       }
 
-      private void sendMessage(OutputStream output)
-      {
+      private void sendMessage(OutputStream output) {
          new PrintWriter(output, true).println(contents);
          listener.messageSent(client);
       }
 
-      private void readRequiredReceipts(InputStream input) throws IOException
-      {
+      private void readRequiredReceipts(InputStream input) throws IOException {
          BufferedReader in = new BufferedReader(new InputStreamReader(input));
 
          // Wait for display receipt:

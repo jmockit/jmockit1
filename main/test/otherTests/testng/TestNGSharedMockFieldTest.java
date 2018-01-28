@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.testng;
 
 import java.io.*;
@@ -13,8 +9,7 @@ import mockit.*;
 
 public final class TestNGSharedMockFieldTest
 {
-   public interface Dependency
-   {
+   public interface Dependency {
       boolean doSomething();
       void doSomethingElse();
    }
@@ -24,8 +19,7 @@ public final class TestNGSharedMockFieldTest
    @Injectable BufferedWriter writer;
 
    @Test
-   public void recordAndReplayExpectationsOnSharedMocks()
-   {
+   public void recordAndReplayExpectationsOnSharedMocks() {
       new Expectations() {{
          mock1.doSomething(); result = true;
          mock2.run();
@@ -36,25 +30,20 @@ public final class TestNGSharedMockFieldTest
    }
 
    @Test
-   public void recordAndReplayExpectationsOnSharedMocksAgain()
-   {
-      new Expectations() {{
-         mock1.doSomething(); result = true;
-      }};
+   public void recordAndReplayExpectationsOnSharedMocksAgain() {
+      new Expectations() {{ mock1.doSomething(); result = true; }};
 
       assertTrue(mock1.doSomething());
       mock2.run();
    }
 
    @BeforeMethod
-   public void preventAllWritesToMockedBufferedWritersFromSUT() throws Exception
-   {
+   public void preventAllWritesToMockedBufferedWritersFromSUT() throws Exception {
       new Expectations() {{ writer.write(anyString, anyInt, anyInt); result = new IOException(); minTimes = 0; }};
    }
 
    @Test
-   public void useMockedBufferedWriter() throws Exception
-   {
+   public void useMockedBufferedWriter() throws Exception {
       writer.newLine();
 
       try {
@@ -71,15 +60,13 @@ public final class TestNGSharedMockFieldTest
    @Mocked SubType mock;
 
    @Test
-   public void cascadeFistTime()
-   {
+   public void cascadeFistTime() {
       Collaborator cascaded = mock.doSomething();
       assertNotNull(cascaded);
    }
 
    @Test
-   public void cascadeSecondTime()
-   {
+   public void cascadeSecondTime() {
       Collaborator cascaded = mock.doSomething();
       assertNotNull(cascaded);
    }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.testng;
 
 import java.util.concurrent.*;
@@ -52,28 +48,24 @@ public final class TestedAndInjectablesTest
    Collaborator secondMockedObject;
 
    @BeforeMethod
-   public void setUp()
-   {
+   public void setUp() {
       assertUtilObjectIsAvailable();
       tested2 = new SUT(new Collaborator());
    }
 
-   void assertUtilObjectIsAvailable()
-   {
+   void assertUtilObjectIsAvailable() {
       assertNotNull(util);
       assertEquals(util.name, "util");
       assertSame(collaborator1, util.collaborator1);
    }
 
    @AfterMethod
-   public void tearDown()
-   {
+   public void tearDown() {
       assertUtilObjectIsAvailable();
    }
 
    @Test
-   public void firstTest(@Injectable final Collaborator collaborator2)
-   {
+   public void firstTest(@Injectable final Collaborator collaborator2) {
       assertSame(collaborator1, util.collaborator1);
       assertNull(util.collaborator2);
 
@@ -98,8 +90,7 @@ public final class TestedAndInjectablesTest
       previousUtilityClassInstance = util;
    }
 
-   void assertStatesOfTestedObjects(Collaborator collaborator2)
-   {
+   void assertStatesOfTestedObjects(Collaborator collaborator2) {
       assertSame(tested1.collaborator1, collaborator1);
       assertSame(tested1.collaborator2, collaborator2);
 
@@ -113,8 +104,7 @@ public final class TestedAndInjectablesTest
    }
 
    @Test(dependsOnMethods = "firstTest")
-   public void secondTest(@Injectable Collaborator collaborator2)
-   {
+   public void secondTest(@Injectable Collaborator collaborator2) {
       assertSame(collaborator1, util.collaborator1);
       assertNull(util.collaborator2);
 
@@ -128,13 +118,12 @@ public final class TestedAndInjectablesTest
    }
 
    @Test
-   public void recordAndVerifyExpectationsOnMockedInterface(@Injectable final Callable<String> mock) throws Exception
-   {
+   public void recordAndVerifyExpectationsOnMockedInterface(@Injectable final Callable<String> mock) throws Exception {
       new Expectations() {{ mock.call(); result = "test"; minTimes = 0; }};
 
       String value = mock.call();
 
-      assertEquals("test", value);
+      assertEquals(value, "test");
       new Verifications() {{ mock.call(); times = 1; }};
    }
 }

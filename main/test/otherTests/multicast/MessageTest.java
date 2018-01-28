@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.multicast;
 
 import java.io.*;
@@ -16,13 +12,12 @@ import mockit.*;
 public final class MessageTest
 {
    // A general-purpose utility class that waits for background task completion.
-   abstract static class TaskExecution implements Runnable
-   {
+   abstract static class TaskExecution implements Runnable {
       {
          List<Thread> tasksBefore = getActiveTasks();
 
          try {
-            //noinspection OverriddenMethodCallDuringObjectConstruction
+            //noinspection OverriddenMethodCallDuringObjectConstruction,OverridableMethodCallDuringObjectConstruction
             run();
          }
          finally {
@@ -30,15 +25,13 @@ public final class MessageTest
          }
       }
 
-      private List<Thread> getActiveTasks()
-      {
+      private List<Thread> getActiveTasks() {
          Thread[] tasks = new Thread[2 * Thread.activeCount()];
          Thread.enumerate(tasks);
          return new ArrayList<Thread>(asList(tasks));
       }
 
-      private void waitForCompletionOfNewTasks(List<Thread> tasksBefore)
-      {
+      private void waitForCompletionOfNewTasks(List<Thread> tasksBefore) {
          List<Thread> tasksAfter = getActiveTasks();
          tasksAfter.removeAll(tasksBefore);
 
@@ -54,8 +47,7 @@ public final class MessageTest
    @Tested Message message;// = new Message(testClients, testContents, listener);
 
    @Test
-   public void sendMessageToMultipleClients(@Mocked final Socket con) throws Exception
-   {
+   public void sendMessageToMultipleClients(@Mocked final Socket con) throws Exception {
       new Expectations() {{
          con.getOutputStream(); result = new ByteArrayOutputStream();
          con.getInputStream(); result = "reply1\n reply2\n";

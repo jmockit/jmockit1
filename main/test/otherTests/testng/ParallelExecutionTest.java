@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.testng;
 
 import java.util.concurrent.atomic.*;
@@ -15,14 +11,12 @@ public final class ParallelExecutionTest
    final AtomicInteger counter = new AtomicInteger();
 
    @Test(threadPoolSize = 4, invocationCount = 10)
-   public void parallelExecution()
-   {
+   public void parallelExecution() {
       counter.incrementAndGet();
    }
 
    @AfterClass
-   public void checkCounter()
-   {
+   public void checkCounter() {
       assertEquals(counter.get(), 10);
    }
 }

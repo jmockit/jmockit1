@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.testng;
 
 import java.applet.*;
@@ -14,28 +10,24 @@ import mockit.*;
 public final class TestNGFakingTest
 {
    @BeforeSuite
-   void setUpTestSuite()
-   {
+   void setUpTestSuite() {
       assertNull(System.getenv("BeforeSuite"));
    }
 
    @BeforeTest
-   void setUpTest()
-   {
+   void setUpTest() {
       assertNull(System.getenv("BeforeTest"));
    }
 
    @BeforeClass
-   void setUpTestClass()
-   {
+   void setUpTestClass() {
       new MockUp<System>() {
          @Mock String getenv(String name) { return name; }
       };
    }
 
    @BeforeMethod
-   void setUpTestMethod()
-   {
+   void setUpTestMethod() {
       assertEquals(System.getenv("BeforeMethod"), "BeforeMethod");
 
       new MockUp<Applet>() {
@@ -44,36 +36,31 @@ public final class TestNGFakingTest
    }
 
    @Test
-   public void testSomething()
-   {
+   public void testSomething() {
       assertEquals(System.getenv("testMethod"), "testMethod");
       assertEquals(new Applet().getAppletInfo(), "MOCK");
    }
 
    @AfterMethod
-   void tearDownTestMethod()
-   {
+   void tearDownTestMethod() {
       assertEquals(System.getenv("AfterMethod"), "AfterMethod");
       assertEquals(new Applet().getAppletInfo(), "MOCK");
    }
 
    @AfterClass
-   void tearDownClass()
-   {
+   void tearDownClass() {
       assertEquals(System.getenv("AfterClass"), "AfterClass");
       assertNull(new Applet().getAppletInfo());
    }
 
    @AfterTest
-   void tearDownTest()
-   {
+   void tearDownTest() {
       assertNull(System.getenv("AfterTest"), "Fake still in effect");
       assertNull(new Applet().getAppletInfo());
    }
 
    @AfterSuite
-   void tearDownSuite()
-   {
+   void tearDownSuite() {
       assertNull(System.getenv("AfterSuite"));
       assertNull(new Applet().getAppletInfo());
    }

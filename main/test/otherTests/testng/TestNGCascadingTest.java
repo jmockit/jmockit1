@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package otherTests.testng;
 
 import org.testng.annotations.*;
@@ -17,8 +13,7 @@ public final class TestNGCascadingTest
    @Mocked Foo foo;
 
    @Test
-   public void useExpectationResultRecordedOnCascadedInstance()
-   {
+   public void useExpectationResultRecordedOnCascadedInstance() {
       new Expectations() {{ foo.getBar().getValue(); result = "test"; }};
 
       String value = foo.getBar().getValue();
@@ -27,16 +22,14 @@ public final class TestNGCascadingTest
    }
 
    @Test
-   public void getUnrecordedResultFromCascadedInstance()
-   {
+   public void getUnrecordedResultFromCascadedInstance() {
       String value = foo.getBar().getValue();
 
       assertNull(value);
    }
 
    @Test
-   public void mockParameter(@Injectable Runnable mock)
-   {
+   public void mockParameter(@Injectable Runnable mock) {
       assertNotNull(mock);
    }
 }
