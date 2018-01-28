@@ -7,8 +7,7 @@ import static org.junit.Assert.*;
 
 public final class TestedParametersTest
 {
-   static class TestedClass
-   {
+   static class TestedClass {
       final int i;
       final Collaborator collaborator;
       Dependency dependency;
@@ -21,8 +20,7 @@ public final class TestedParametersTest
    static final class Collaborator {}
 
    @Test
-   public void createTestedObjectForTestMethodParameter(@Tested Dependency dep)
-   {
+   public void createTestedObjectForTestMethodParameter(@Tested Dependency dep) {
       assertNotNull(dep);
    }
 
@@ -30,8 +28,7 @@ public final class TestedParametersTest
    @Tested(fullyInitialized = true) TestedClass tested2;
 
    @Test
-   public void injectTestedObjectFromTestMethodParameterIntoFullyInitializedTestedObject(@Tested Dependency dep)
-   {
+   public void injectTestedObjectFromTestMethodParameterIntoFullyInitializedTestedObject(@Tested Dependency dep) {
       assertEquals(-1, tested2.i);
       assertNull(tested2.collaborator);
       assertSame(dep, tested2.dependency);
@@ -39,8 +36,8 @@ public final class TestedParametersTest
 
    @Test
    public void injectTestedParametersIntoTestedFieldsUsingConstructor(
-      @Tested("123") int i, @Tested Collaborator collaborator)
-   {
+      @Tested("123") int i, @Tested Collaborator collaborator
+   ) {
       assertEquals(123, i);
       assertNotNull(collaborator);
 
@@ -58,8 +55,8 @@ public final class TestedParametersTest
    @Test
    public void injectTestedParametersIntoTestedFieldsOfSupertypes(
       @Tested("test") String s, @Tested("123") Integer n, @Tested("5.2") Float cmp,
-      @Tested(fullyInitialized = true) TestedClass2 tested)
-   {
+      @Tested(fullyInitialized = true) TestedClass2 tested
+   ) {
       assertEquals("test", tested.text);
       assertEquals(123, tested.n.intValue());
       assertEquals(5.2F, tested.cmp);
@@ -69,14 +66,13 @@ public final class TestedParametersTest
 
    @Test
    public void injectTestedParametersWithValuesIntoFieldsOfRegularTestedObject(
-      @Tested("test") String s, @Tested("123") Integer n, @Tested TestedClass3 tested)
-   {
+      @Tested("test") String s, @Tested("123") Integer n, @Tested TestedClass3 tested
+   ) {
       assertEquals("test", tested.text);
       assertEquals(123, tested.number);
    }
 
-   static class TestedClass4
-   {
+   static class TestedClass4 {
       final String text;
       final Number number;
       TestedClass4(String text, Number number) { this.text = text; this.number = number; }
@@ -84,8 +80,8 @@ public final class TestedParametersTest
 
    @Test
    public void injectTestedParameterWithValueIntoRegularTestedObjectThroughConstructorParameter(
-      @Tested("test") String text, @Tested("1.23") Double number, @Tested TestedClass4 tested)
-   {
+      @Tested("test") String text, @Tested("1.23") Double number, @Tested TestedClass4 tested
+   ) {
       assertEquals("test", tested.text);
       assertEquals(1.23, tested.number);
    }
@@ -98,8 +94,7 @@ public final class TestedParametersTest
    @Injectable AnotherDependency anotherDep;
 
    @Test
-   public void injectInjectableFieldIntoTestedParameter(@Tested TestedClassWithDIAnnotatedField tested)
-   {
+   public void injectInjectableFieldIntoTestedParameter(@Tested TestedClassWithDIAnnotatedField tested) {
       assertSame(anotherDep, tested.dep);
    }
 }

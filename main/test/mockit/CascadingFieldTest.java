@@ -1,21 +1,16 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.Serializable;
 import java.util.*;
 
 import org.junit.*;
-import org.junit.runners.*;
 import static org.junit.Assert.*;
+import static org.junit.runners.MethodSorters.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(NAME_ASCENDING)
 public final class CascadingFieldTest
 {
-   static class Foo
-   {
+   static class Foo {
       Bar getBar() { return null; }
 
       static Bar globalBar() { return null; }
@@ -28,8 +23,7 @@ public final class CascadingFieldTest
       final List<Integer> getList() { return null; }
    }
 
-   static class Bar
-   {
+   static class Bar {
       Bar() { throw new RuntimeException(); }
       int doSomething() { return 1; }
       boolean isDone() { return false; }
@@ -39,8 +33,7 @@ public final class CascadingFieldTest
       Runnable getTask() { return null; }
    }
 
-   static final class Baz
-   {
+   static final class Baz {
       final E e;
       Baz(E e) { this.e = e; }
       E getE() { return e; }
@@ -56,8 +49,7 @@ public final class CascadingFieldTest
    @Mocked A a;
 
    @Before
-   public void recordCommonExpectations()
-   {
+   public void recordCommonExpectations() {
       new Expectations() {{
          Bar bar = foo.getBar(); minTimes = 0;
          bar.isDone(); result = true; minTimes = 0;
@@ -65,8 +57,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void obtainCascadedInstancesAtAllLevels()
-   {
+   public void obtainCascadedInstancesAtAllLevels() {
       assertNotNull(foo.getBar());
       assertNotNull(foo.getBar().getList());
       assertNotNull(foo.getBar().getBaz());
@@ -78,8 +69,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void obtainCascadedInstancesAtAllLevelsAgain()
-   {
+   public void obtainCascadedInstancesAtAllLevelsAgain() {
       Bar bar = foo.getBar();
       assertNotNull(bar);
       assertNotNull(bar.getList());
@@ -91,8 +81,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void cascadeOneLevel()
-   {
+   public void cascadeOneLevel() {
       assertTrue(foo.getBar().isDone());
       assertEquals(0, foo.getBar().doSomething());
       assertEquals(0, Foo.globalBar().doSomething());
@@ -110,15 +99,14 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void exerciseCascadingMockAgain()
-   {
+   public void exerciseCascadingMockAgain() {
       assertTrue(foo.getBar().isDone());
    }
 
    @Test
    public void recordUnambiguousExpectationsProducingDifferentCascadedInstances(
-      @Mocked final Foo foo1, @Mocked final Foo foo2)
-   {
+      @Mocked final Foo foo1, @Mocked final Foo foo2
+   ) {
       new Expectations() {{
          Date c1 = foo1.getDate();
          Date c2 = foo2.getDate();
@@ -131,8 +119,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void recordAmbiguousExpectationsOnInstanceMethodProducingTheSameCascadedInstance()
-   {
+   public void recordAmbiguousExpectationsOnInstanceMethodProducingTheSameCascadedInstance() {
       new Expectations() {{
          Bar c1 = foo.getBar();
          Bar c2 = foo.getBar();
@@ -145,8 +132,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void recordAmbiguousExpectationsOnStaticMethodProducingTheSameCascadedInstance()
-   {
+   public void recordAmbiguousExpectationsOnStaticMethodProducingTheSameCascadedInstance() {
       new Expectations() {{
          Bar c1 = Foo.globalBar();
          Bar c2 = Foo.globalBar();
@@ -160,8 +146,8 @@ public final class CascadingFieldTest
 
    @Test
    public void recordAmbiguousExpectationWithMultipleCascadingCandidatesFollowedByExpectationRecordedOnFirstCandidate(
-      @Injectable final Bar bar1, @Injectable Bar bar2)
-   {
+      @Injectable final Bar bar1, @Injectable Bar bar2
+   ) {
       new Expectations() {{
          foo.getBar();
          bar1.doSomething();
@@ -175,8 +161,7 @@ public final class CascadingFieldTest
    @Mocked AnotherFoo anotherFoo;
 
    @Test
-   public void cascadingMockField()
-   {
+   public void cascadingMockField() {
       new Expectations() {{
          anotherFoo.getBar().doSomething(); result = 123;
       }};
@@ -185,8 +170,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void cascadingInstanceAccessedFromDelegateMethod()
-   {
+   public void cascadingInstanceAccessedFromDelegateMethod() {
       new Expectations() {{
          foo.getIntValue();
          result = new Delegate() {
@@ -206,8 +190,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void callMethodOnNonCascadedInstanceFromCustomArgumentMatcherWithCascadedInstanceAlsoCreated()
-   {
+   public void callMethodOnNonCascadedInstanceFromCustomArgumentMatcherWithCascadedInstanceAlsoCreated() {
       Baz nonCascadedInstance = new Baz(E.A);
       Baz cascadedInstance = bazCreatorAndConsumer.create();
       assertNotSame(nonCascadedInstance, cascadedInstance);
@@ -227,8 +210,7 @@ public final class CascadingFieldTest
    static class GenericBaseClass1<T> { T getValue() { return null; } }
 
    @Test
-   public void cascadeGenericMethodFromSpecializedGenericClass(@Mocked GenericBaseClass1<C> mock)
-   {
+   public void cascadeGenericMethodFromSpecializedGenericClass(@Mocked GenericBaseClass1<C> mock) {
       C value = mock.getValue();
       assertNotNull(value);
    }
@@ -236,8 +218,7 @@ public final class CascadingFieldTest
    static class ConcreteSubclass1 extends GenericBaseClass1<A> {}
 
    @Test
-   public void cascadeGenericMethodOfConcreteSubclassWhichExtendsGenericClass(@Mocked final ConcreteSubclass1 mock)
-   {
+   public void cascadeGenericMethodOfConcreteSubclassWhichExtendsGenericClass(@Mocked final ConcreteSubclass1 mock) {
       new Expectations() {{
          mock.getValue().getB().getC();
          result = new C() {};
@@ -258,8 +239,8 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingInterface(
-      @Mocked final ConcreteSubclass2 mock)
-   {
+      @Mocked final ConcreteSubclass2 mock
+   ) {
       Ab value = mock.getValue();
       assertNotNull(value);
       value.getB().getC();
@@ -269,8 +250,8 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundOnlyInVerificationBlock(
-      @Mocked final ConcreteSubclass2 mock)
-   {
+      @Mocked final ConcreteSubclass2 mock
+   ) {
       new FullVerifications() {{
          Ab value = mock.getValue(); times = 0;
          B b = value.getB(); times = 0;
@@ -283,8 +264,8 @@ public final class CascadingFieldTest
 
    @Test
    public void cascadeGenericMethodOfSubclassWhichExtendsGenericClassWithUpperBoundUsingClass(
-      @Mocked final ActionHolder mock)
-   {
+      @Mocked final ActionHolder mock
+   ) {
       new Expectations() {{ mock.getValue().getB().getC(); }};
 
       mock.getValue().getB().getC();
@@ -300,8 +281,7 @@ public final class CascadingFieldTest
    @Mocked Factory2 factory2;
 
    @Test
-   public void useSubclassMockedThroughCascading()
-   {
+   public void useSubclassMockedThroughCascading() {
       Derived1 d1 = factory1.get1(); // cascade-mocks Derived1 (per-instance)
       Long v1 = d1.value();
       assertEquals(0, v1.longValue());
@@ -311,8 +291,7 @@ public final class CascadingFieldTest
    }
 
    @Test
-   public void useSubclassPreviouslyMockedThroughCascadingWhileMockingSiblingSubclass(@Injectable Derived2 d2)
-   {
+   public void useSubclassPreviouslyMockedThroughCascadingWhileMockingSiblingSubclass(@Injectable Derived2 d2) {
       Long v1 = new Derived1().value();
       assertEquals(123, v1.longValue());
 

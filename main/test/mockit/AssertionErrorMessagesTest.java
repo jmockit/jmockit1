@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -13,8 +9,7 @@ public final class AssertionErrorMessagesTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   static class Collaborator
-   {
+   static class Collaborator {
       void doSomething() {}
       void doSomething(@SuppressWarnings("unused") int i, @SuppressWarnings("unused") String s) {}
       void doSomethingElse(@SuppressWarnings("unused") String s) {}
@@ -23,8 +18,7 @@ public final class AssertionErrorMessagesTest
    @Mocked Collaborator mock;
 
    @Test
-   public void unexpectedInvocationForRecordedExpectation()
-   {
+   public void unexpectedInvocationForRecordedExpectation() {
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 1; }};
 
       thrown.expect(UnexpectedInvocation.class);
@@ -36,8 +30,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationWhereExpectingAnotherForRecordedExpectations()
-   {
+   public void unexpectedInvocationWhereExpectingAnotherForRecordedExpectations() {
       mock.doSomething(1, "Abc");
       mock.doSomething(2, "xyz");
       mock.doSomethingElse("test");
@@ -52,8 +45,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationForRecordedExpectationWithMaximumInvocationCountOfZero()
-   {
+   public void unexpectedInvocationForRecordedExpectationWithMaximumInvocationCountOfZero() {
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 0; }};
 
       thrown.expect(UnexpectedInvocation.class);
@@ -63,8 +55,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationForVerifiedExpectation()
-   {
+   public void unexpectedInvocationForVerifiedExpectation() {
       mock.doSomething(123, "Test");
       mock.doSomethingElse("abc");
 
@@ -78,8 +69,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationForExpectationsVerifiedInOrder()
-   {
+   public void unexpectedInvocationForExpectationsVerifiedInOrder() {
       mock.doSomethingElse("test");
       mock.doSomething(123, "Test");
 
@@ -93,8 +83,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void unexpectedInvocationOnMethodWithNoParameters()
-   {
+   public void unexpectedInvocationOnMethodWithNoParameters() {
       new Expectations() {{ mock.doSomethingElse(anyString); }};
 
       mock.doSomething();
@@ -105,8 +94,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForRecordedExpectation()
-   {
+   public void missingInvocationForRecordedExpectation() {
       new Expectations() {{ mock.doSomething(anyInt, anyString); times = 2; }};
 
       thrown.expect(MissingInvocation.class);
@@ -116,8 +104,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForRecordedExpectationWhichGetsNonMatchingInvocationsAtReplayTime()
-   {
+   public void missingInvocationForRecordedExpectationWhichGetsNonMatchingInvocationsAtReplayTime() {
       new Expectations() {{ mock.doSomethingElse("test"); }};
 
       thrown.expect(MissingInvocation.class);
@@ -132,8 +119,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForVerifiedExpectation()
-   {
+   public void missingInvocationForVerifiedExpectation() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("123, any String");
 
@@ -141,8 +127,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForVerifiedExpectationWhichGetsNonMatchingInvocationsAtReplayTime()
-   {
+   public void missingInvocationForVerifiedExpectationWhichGetsNonMatchingInvocationsAtReplayTime() {
       mock.doSomethingElse("Abc");
       mock.doSomething(1, "xy");
       mock.doSomethingElse("");
@@ -157,8 +142,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForExpectationVerifiedInOrder()
-   {
+   public void missingInvocationForExpectationVerifiedInOrder() {
       mock.doSomething(123, "Test");
 
       thrown.expect(MissingInvocation.class);
@@ -171,8 +155,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForFullyVerifiedExpectations()
-   {
+   public void missingInvocationForFullyVerifiedExpectations() {
       mock.doSomething(123, "Abc");
 
       thrown.expect(MissingInvocation.class);
@@ -185,8 +168,7 @@ public final class AssertionErrorMessagesTest
    }
 
    @Test
-   public void missingInvocationForExpectationUsingMatcherForDifferentParameterType()
-   {
+   public void missingInvocationForExpectationUsingMatcherForDifferentParameterType() {
       mock.doSomething(5, "");
 
       thrown.expect(MissingInvocation.class);

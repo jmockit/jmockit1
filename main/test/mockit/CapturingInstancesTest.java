@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -16,14 +12,12 @@ public final class CapturingInstancesTest
    public interface Service1 { int doSomething(); }
    static final class Service1Impl implements Service1 { @Override public int doSomething() { return 1; } }
 
-   public static final class TestedUnit
-   {
+   public static final class TestedUnit {
       private final Service1 service1 = new Service1Impl();
       private final Service1 service2 = new Service1() { @Override public int doSomething() { return 2; } };
       Observable observable;
 
-      public int businessOperation(final boolean b)
-      {
+      public int businessOperation(final boolean b) {
          new Callable() {
             @Override public Object call() { throw new IllegalStateException(); }
          }.call();
@@ -41,8 +35,7 @@ public final class CapturingInstancesTest
    @Capturing Service1 service;
 
    @Test
-   public void captureServiceInstancesCreatedByTestedConstructor()
-   {
+   public void captureServiceInstancesCreatedByTestedConstructor() {
       TestedUnit unit = new TestedUnit();
 
       assertEquals(0, unit.service1.doSomething());
@@ -51,8 +44,8 @@ public final class CapturingInstancesTest
 
    @Test
    public void captureAllInternallyCreatedInstances(
-      @Capturing Observable observable, @Capturing final Callable<?> callable) throws Exception
-   {
+      @Capturing Observable observable, @Capturing final Callable<?> callable
+   ) throws Exception {
       new Expectations() {{
          service.doSomething(); returns(3, 4);
       }};
@@ -73,8 +66,7 @@ public final class CapturingInstancesTest
    static final class Derived extends Base { Service2 doSomethingElse() { return null; } }
 
    @Test
-   public void captureSubclassAndCascadeFromMethodExclusiveToSubclass(@Capturing Base capturingMock)
-   {
+   public void captureSubclassAndCascadeFromMethodExclusiveToSubclass(@Capturing Base capturingMock) {
       Derived d = new Derived();
       Service2 service2 = d.doSomethingElse();
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -21,8 +17,7 @@ import org.springframework.beans.factory.annotation.*;
 
 public final class TestedClassWithFullAnnotatedDITest
 {
-   public static class DummyDataSource implements DataSource
-   {
+   public static class DummyDataSource implements DataSource {
       private String url;
       private String user;
       String password;
@@ -49,8 +44,7 @@ public final class TestedClassWithFullAnnotatedDITest
    @DataSourceDefinition(
       name = "java:global/jdbc/testDS", className = "mockit.TestedClassWithFullAnnotatedDITest$DummyDataSource",
       url = "jdbc:testDb:test", user = "tests", password = "test123")
-   static final class TestedClass
-   {
+   static final class TestedClass {
       @Inject Runnable action;
       @Autowired ItfWithSingleImpl dependency1;
       @Resource ItfWithSingleImpl dependency2;
@@ -83,8 +77,7 @@ public final class TestedClassWithFullAnnotatedDITest
          name = "distributedDS", className = "mockit.TestedClassWithFullAnnotatedDITest$DistributedDataSource",
          url = "jdbc:postgresql:database", user = "xa", password = "test123")
    })
-   static class AnotherTestedClass
-   {
+   static class AnotherTestedClass {
       @Resource(lookup = "regularDS") DataSource ds1;
       @Resource(lookup = "pooledDS") ConnectionPoolDataSource ds2;
       @Resource(lookup = "distributedDS") XADataSource ds3;
@@ -111,8 +104,7 @@ public final class TestedClassWithFullAnnotatedDITest
    @Injectable ItfToBeMocked ejb;
 
    @Test
-   public void injectInitializedDependenciesForInterfacesHavingTestedObjectsOfImplementationClassTypes()
-   {
+   public void injectInitializedDependenciesForInterfacesHavingTestedObjectsOfImplementationClassTypes() {
       assertSame(action, tested.action);
       assertNotNull(tested.dependency1);
       assertSame(tested.dependency1, tested.dependency2);
@@ -121,23 +113,20 @@ public final class TestedClassWithFullAnnotatedDITest
    }
 
    @Test
-   public void injectLoggerFieldsWithLoggerCreatedWithTestedClassName()
-   {
+   public void injectLoggerFieldsWithLoggerCreatedWithTestedClassName() {
       assertEquals(TestedClass.class.getName(), tested.log1.getName());
       assertSame(tested.log2, tested.log1);
    }
 
    @Test
-   public void injectNonAnnotatedFieldFromMatchingTestedField()
-   {
+   public void injectNonAnnotatedFieldFromMatchingTestedField() {
       assertSame(collaborator, tested.collaborator);
    }
 
    @Tested Conversation conversation;
 
    @Test
-   public void manageConversationContext()
-   {
+   public void manageConversationContext() {
       assertNotNull(conversation);
       assertSame(tested.conversation, conversation);
       assertTrue(conversation.isTransient());
@@ -162,8 +151,7 @@ public final class TestedClassWithFullAnnotatedDITest
    }
 
    @Test
-   public void injectDataSourceConfiguredFromSingleDataSourceDefinition()
-   {
+   public void injectDataSourceConfiguredFromSingleDataSourceDefinition() {
       assertTrue(tested.ds instanceof DummyDataSource);
 
       DummyDataSource ds = (DummyDataSource) tested.ds;
@@ -175,8 +163,7 @@ public final class TestedClassWithFullAnnotatedDITest
    @Tested(fullyInitialized = true) AnotherTestedClass tested2;
 
    @Test
-   public void injectMultipleDataSourcesConfiguredFromDifferentDataSourceDefinitions()
-   {
+   public void injectMultipleDataSourcesConfiguredFromDifferentDataSourceDefinitions() {
       assertTrue(tested2.ds1 instanceof DummyDataSource);
       assertTrue(tested2.ds2 instanceof PooledDataSource);
       assertTrue(tested2.ds3 instanceof DistributedDataSource);

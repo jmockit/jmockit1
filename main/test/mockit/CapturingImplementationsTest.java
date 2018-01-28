@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.management.*;
@@ -22,11 +18,9 @@ public final class CapturingImplementationsTest
    // Just to cause any implementing classes to be stubbed out.
    @Capturing ServiceToBeStubbedOut unused;
 
-   static final class ServiceLocator
-   {
+   static final class ServiceLocator {
       @SuppressWarnings("unused")
-      static <S> S getInstance(Class<S> serviceInterface)
-      {
+      static <S> S getInstance(Class<S> serviceInterface) {
          ServiceToBeStubbedOut service = new ServiceToBeStubbedOut() {
             @Override public int doSomething() { return 10; }
          };
@@ -36,8 +30,7 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureImplementationLoadedByServiceLocator()
-   {
+   public void captureImplementationLoadedByServiceLocator() {
       ServiceToBeStubbedOut service = ServiceLocator.getInstance(ServiceToBeStubbedOut.class);
       assertEquals(0, service.doSomething());
    }
@@ -48,8 +41,7 @@ public final class CapturingImplementationsTest
    @Capturing Service1 mockService1;
 
    @Test
-   public void captureImplementationUsingMockField()
-   {
+   public void captureImplementationUsingMockField() {
       Service1 service = new Service1Impl();
 
       new Expectations() {{
@@ -65,8 +57,7 @@ public final class CapturingImplementationsTest
    static final class Service2Impl implements Service2 { @Override public int doSomething() { return 1; } }
 
    @Test
-   public void captureImplementationUsingMockParameter(@Capturing final Service2 mock)
-   {
+   public void captureImplementationUsingMockParameter(@Capturing final Service2 mock) {
       Service2Impl service = new Service2Impl();
 
       new Expectations() {{
@@ -80,15 +71,13 @@ public final class CapturingImplementationsTest
 
    public abstract static class AbstractService { protected abstract boolean doSomething(); }
 
-   static final class DefaultServiceImpl extends AbstractService
-   {
+   static final class DefaultServiceImpl extends AbstractService {
       @Override
       protected boolean doSomething() { return true; }
    }
 
    @Test
-   public void captureImplementationOfAbstractClass(@Capturing AbstractService mock)
-   {
+   public void captureImplementationOfAbstractClass(@Capturing AbstractService mock) {
       assertFalse(new DefaultServiceImpl().doSomething());
 
       assertFalse(new AbstractService() {
@@ -98,8 +87,9 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureGeneratedMockSubclass(@Capturing final AbstractService mock1, @Mocked final AbstractService mock2)
-   {
+   public void captureGeneratedMockSubclass(
+      @Capturing final AbstractService mock1, @Mocked final AbstractService mock2
+   ) {
       new Expectations() {{
          mock1.doSomething(); result = true;
          mock2.doSomething(); result = false;
@@ -112,8 +102,7 @@ public final class CapturingImplementationsTest
 
    static final Class<? extends Service2> customLoadedClass = new ClassLoader() {
       @Override
-      protected Class<? extends Service2> findClass(String name)
-      {
+      protected Class<? extends Service2> findClass(String name) {
          byte[] bytecode = ClassFile.readFromFile(name.replace('.', '/')).getBytecode();
          //noinspection unchecked
          return (Class<? extends Service2>) defineClass(name, bytecode, 0, bytecode.length);
@@ -123,8 +112,7 @@ public final class CapturingImplementationsTest
    Service2 service2;
 
    @Before
-   public void instantiateCustomLoadedClass() throws Exception
-   {
+   public void instantiateCustomLoadedClass() throws Exception {
       Constructor<?> defaultConstructor = customLoadedClass.getDeclaredConstructors()[0];
       defaultConstructor.setAccessible(true);
       service2 = (Service2) defaultConstructor.newInstance();
@@ -133,9 +121,7 @@ public final class CapturingImplementationsTest
    @Test
    public void captureClassPreviouslyLoadedByClassLoaderOtherThanContext(@Capturing final Service2 mock)
    {
-      new Expectations() {{
-         mock.doSomething(); result = 15;
-      }};
+      new Expectations() {{ mock.doSomething(); result = 15; }};
 
       assertEquals(15, service2.doSomething());
    }
@@ -145,15 +131,13 @@ public final class CapturingImplementationsTest
    static class Implementation implements SubInterface { @Override public void op() { throw new RuntimeException(); } }
 
    @Test
-   public void captureClassImplementingSubInterfaceOfCapturedInterface(@Capturing Interface base)
-   {
+   public void captureClassImplementingSubInterfaceOfCapturedInterface(@Capturing Interface base) {
       Interface impl = new Implementation();
       impl.op();
    }
 
    @Test
-   public void captureClassesFromTheJavaManagementAPI(@Capturing ThreadMXBean anyThreadMXBean)
-   {
+   public void captureClassesFromTheJavaManagementAPI(@Capturing ThreadMXBean anyThreadMXBean) {
       ThreadMXBean threadingBean = ManagementFactory.getThreadMXBean();
       int threadCount = threadingBean.getThreadCount();
 
@@ -161,8 +145,7 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureClassesFromTheSAXParserAPI(@Capturing final SAXParser anyParser) throws Exception
-   {
+   public void captureClassesFromTheSAXParserAPI(@Capturing final SAXParser anyParser) throws Exception {
       new Expectations() {{ anyParser.isNamespaceAware(); result = true; }};
 
       SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -178,28 +161,24 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureClassWhichImplementsCapturedBaseInterfaceAndExtendsUnrelatedBase(@Capturing Interface2 captured)
-   {
+   public void captureClassWhichImplementsCapturedBaseInterfaceAndExtendsUnrelatedBase(@Capturing Interface2 captured) {
       int i = new ClassImplementingSubInterfaceAndExtendingUnrelatedBase().doSomething();
 
       assertEquals(0, i);
    }
 
-   static class Base<T>
-   {
+   static class Base<T> {
       T doSomething() { return null; }
       void doSomething(T t) { System.out.println("test");}
    }
 
-   static final class Impl extends Base<Integer>
-   {
+   static final class Impl extends Base<Integer> {
       @Override Integer doSomething() { return 1; }
       @Override void doSomething(Integer i) {}
    }
 
    @Test
-   public void captureImplementationsOfGenericType(@Capturing final Base<Integer> anyInstance)
-   {
+   public void captureImplementationsOfGenericType(@Capturing final Base<Integer> anyInstance) {
       new Expectations() {{
          anyInstance.doSomething(); result = 2;
          anyInstance.doSomething(0);
@@ -217,8 +196,7 @@ public final class CapturingImplementationsTest
    static class Sub2 extends Sub { @Override void base() { throw new RuntimeException(); } }
 
    @Test
-   public void verifyInvocationToMethodFromBaseClassOnCapturedSubclassOfIntermediateSubclass(@Capturing final Sub sub)
-   {
+   public void verifyInvocationToMethodFromBaseClassOnCapturedSubclassOfIntermediateSubclass(@Capturing final Sub sub) {
       Sub impl = new Sub2();
       impl.base();
 
@@ -231,8 +209,9 @@ public final class CapturingImplementationsTest
    public interface SubItf extends BaseItf {}
 
    @Test
-   public void verifyInvocationToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(@Capturing final SubItf sub)
-   {
+   public void verifyInvocationToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(
+      @Capturing final SubItf sub
+   ) {
       SubItf impl = new SubItf() { @Override public void base() {} };
       impl.base();
 
@@ -241,15 +220,13 @@ public final class CapturingImplementationsTest
       }};
    }
 
-   static final class MyActionListener implements ActionListener
-   {
+   static final class MyActionListener implements ActionListener {
       @Override public void processAction(ActionEvent event) {}
       boolean doSomething() { return true; }
    }
 
    @Test
-   public void captureUserDefinedClassImplementingExternalAPI(@Capturing ActionListener actionListener)
-   {
+   public void captureUserDefinedClassImplementingExternalAPI(@Capturing ActionListener actionListener) {
       boolean notCaptured = new MyActionListener().doSomething();
       assertFalse(notCaptured);
 
