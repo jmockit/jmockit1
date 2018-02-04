@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -23,16 +19,14 @@ public final class MoreFakingTest
    final CodeUnderTest codeUnderTest = new CodeUnderTest();
    boolean fakeExecuted;
 
-   static class CodeUnderTest
-   {
+   static class CodeUnderTest {
       private final Collaborator dependency = new Collaborator();
 
       void doSomething() { dependency.provideSomeService(); }
       long doSomethingElse(int i) { return dependency.getThreadSpecificValue(i); }
    }
 
-   public static class Collaborator
-   {
+   public static class Collaborator {
       static Object xyz;
       protected int value;
 
@@ -50,22 +44,19 @@ public final class MoreFakingTest
       protected long getThreadSpecificValue(int i) { return Thread.currentThread().getId() + i; }
    }
 
-   static class FakeCollaborator1 extends MockUp<Collaborator>
-   {
+   static class FakeCollaborator1 extends MockUp<Collaborator> {
       @Mock void provideSomeService() {}
    }
 
    @Test
-   public void fakeDoingNothing()
-   {
+   public void fakeDoingNothing() {
       new FakeCollaborator1();
 
       codeUnderTest.doSomething();
    }
 
    @Test
-   public void applyFakesFromInnerFakeClassWithFakeConstructor()
-   {
+   public void applyFakesFromInnerFakeClassWithFakeConstructor() {
       new FakeCollaborator4();
       assertFalse(fakeExecuted);
 
@@ -74,15 +65,13 @@ public final class MoreFakingTest
       assertTrue(fakeExecuted);
    }
 
-   class FakeCollaborator4 extends MockUp<Collaborator>
-   {
+   class FakeCollaborator4 extends MockUp<Collaborator> {
       @Mock void $init() { fakeExecuted = true; }
       @Mock void provideSomeService() {}
    }
 
    @Test
-   public void applyReentrantFake()
-   {
+   public void applyReentrantFake() {
       thrown.expect(RuntimeException.class);
 
       new FakeCollaboratorWithReentrantFakeMethod();
@@ -90,31 +79,26 @@ public final class MoreFakingTest
       codeUnderTest.doSomething();
    }
 
-   static class FakeCollaboratorWithReentrantFakeMethod extends MockUp<Collaborator>
-   {
+   static class FakeCollaboratorWithReentrantFakeMethod extends MockUp<Collaborator> {
       @Mock int getValue() { return 123; }
       @Mock void provideSomeService(Invocation inv) { inv.proceed(); }
    }
 
    @Test
-   public void applyFakeForConstructor()
-   {
+   public void applyFakeForConstructor() {
       new FakeCollaboratorWithConstructorFake();
 
       new FacesMessage("test");
    }
 
-   static class FakeCollaboratorWithConstructorFake extends MockUp<FacesMessage>
-   {
+   static class FakeCollaboratorWithConstructorFake extends MockUp<FacesMessage> {
       @Mock
-      void $init(String value)
-      {
+      void $init(String value) {
          assertEquals("test", value);
       }
    }
 
-   public static class SubCollaborator extends Collaborator
-   {
+   public static class SubCollaborator extends Collaborator {
       public SubCollaborator(int i) { throw new RuntimeException(String.valueOf(i)); }
 
       @Override
@@ -122,8 +106,7 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void applyFakeForClassHierarchy()
-   {
+   public void applyFakeForClassHierarchy() {
       new MockUp<SubCollaborator>() {
          @Mock
          void $init(Invocation inv, int i)
@@ -157,8 +140,7 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void fakeNativeMethodInClassWithRegisterNatives()
-   {
+   public void fakeNativeMethodInClassWithRegisterNatives() {
       new FakeSystem();
 
       assertEquals(0, System.nanoTime());
@@ -169,8 +151,7 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void fakeNativeMethodInClassWithoutRegisterNatives() throws Exception
-   {
+   public void fakeNativeMethodInClassWithoutRegisterNatives() {
       // For some reason, the native method doesn't get mocked when running on Java 9.
       if (!JAVA9) {
          new FakeFloat();
@@ -179,22 +160,19 @@ public final class MoreFakingTest
       }
    }
 
-   static class FakeFloat extends MockUp<Float>
-   {
+   static class FakeFloat extends MockUp<Float> {
       @Mock
       public static float intBitsToFloat(int bits) { return 0; }
    }
 
    @After
-   public void checkThatLocalFakesHaveBeenTornDown()
-   {
+   public void checkThatLocalFakesHaveBeenTornDown() {
       assertTrue(System.nanoTime() > 0);
       assertTrue(Float.intBitsToFloat(2243019) > 0);
    }
 
    @Test
-   public void applyFakeForJREClass()
-   {
+   public void applyFakeForJREClass() {
       FakeThread fakeThread = new FakeThread();
 
       Thread.currentThread().interrupt();
@@ -202,8 +180,7 @@ public final class MoreFakingTest
       assertTrue(fakeThread.interrupted);
    }
 
-   public static class FakeThread extends MockUp<Thread>
-   {
+   public static class FakeThread extends MockUp<Thread> {
       boolean interrupted;
 
       @Mock
@@ -211,8 +188,7 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void fakeStaticInitializer()
-   {
+   public void fakeStaticInitializer() {
       new MockUp<AccessibleState>() {
          @Mock void $clinit() {}
       };
@@ -223,14 +199,12 @@ public final class MoreFakingTest
    abstract static class AnAbstractClass { protected abstract int doSomething(); }
 
    @Test
-   public <A extends AnAbstractClass> void fakeAbstractClassWithFakeForAbstractMethodHavingInvocationParameter()
-   {
+   public <A extends AnAbstractClass> void fakeAbstractClassWithFakeForAbstractMethodHavingInvocationParameter() {
       final AnAbstractClass obj = new AnAbstractClass() { @Override protected int doSomething() { return 0; } };
 
       new MockUp<A>() {
          @Mock
-         int doSomething(Invocation inv)
-         {
+         int doSomething(Invocation inv) {
             assertSame(obj, inv.getInvokedInstance());
             Method invokedMethod = inv.getInvokedMember();
             assertTrue(AnAbstractClass.class.isAssignableFrom(invokedMethod.getDeclaringClass()));
@@ -244,8 +218,7 @@ public final class MoreFakingTest
    static class GenericClass<T> { protected T doSomething() { return null; } }
 
    @Test
-   public void fakeGenericClassWithFakeHavingInvocationParameter()
-   {
+   public void fakeGenericClassWithFakeHavingInvocationParameter() {
       new MockUp<GenericClass<String>>() {
          @Mock String doSomething(Invocation inv) { return "faked"; }
       };
@@ -255,12 +228,10 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void fakeFileConstructor()
-   {
+   public void fakeFileConstructor() {
       new MockUp<File>() {
          @Mock
-         void $init(Invocation inv, String pathName)
-         {
+         void $init(Invocation inv, String pathName) {
             File it = inv.getInvokedInstance();
             assertNotNull(it);
          }
@@ -271,8 +242,7 @@ public final class MoreFakingTest
    }
 
    @Test @SuppressWarnings("MethodWithMultipleLoops")
-   public void concurrentFake() throws Exception
-   {
+   public void concurrentFake() throws Exception {
       new MockUp<Collaborator>() {
          @Mock long getThreadSpecificValue(int i) { return Thread.currentThread().getId() + 123; }
       };
@@ -282,8 +252,7 @@ public final class MoreFakingTest
       for (int i = 0; i < threads.length; i++) {
          threads[i] = new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                long threadSpecificValue = Thread.currentThread().getId() + 123;
                long actualValue = new CodeUnderTest().doSomethingElse(0);
                assertEquals(threadSpecificValue, actualValue);
@@ -296,8 +265,7 @@ public final class MoreFakingTest
    }
 
    @Test
-   public void fakeAffectsInstancesOfSpecifiedSubclassAndNotOfBaseClass()
-   {
+   public void fakeAffectsInstancesOfSpecifiedSubclassAndNotOfBaseClass() {
       new FakeForSubclass();
 
       // Faking applies to instance methods executed on instances of the subclass:
@@ -311,8 +279,7 @@ public final class MoreFakingTest
       assertEquals(62, new Collaborator(62).getValue());
    }
 
-   static class FakeForSubclass extends MockUp<SubCollaborator>
-   {
+   static class FakeForSubclass extends MockUp<SubCollaborator> {
       @Mock void $init(int i) {}
       @Mock String doInternal() { return "mocked"; }
       @Mock int getValue() { return 123; }

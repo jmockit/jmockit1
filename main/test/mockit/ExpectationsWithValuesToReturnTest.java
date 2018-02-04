@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -13,8 +9,7 @@ import static org.junit.Assert.*;
 
 public final class ExpectationsWithValuesToReturnTest
 {
-   static class Collaborator
-   {
+   static class Collaborator {
       static String doInternal() { return "123"; }
 
       int getValue() { return -1; }
@@ -65,8 +60,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsDefaultValuesForPrimitiveAndWrapperReturnTypes(@Mocked final Collaborator mock)
-   {
+   public void returnsDefaultValuesForPrimitiveAndWrapperReturnTypes(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getValue();
          mock.getInteger();
@@ -107,8 +101,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsDefaultValuesForCollectionValuedReturnTypes(@Mocked final Collaborator mock)
-   {
+   public void returnsDefaultValuesForCollectionValuedReturnTypes(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getItems();
          mock.getListItems();
@@ -127,8 +120,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsDefaultValuesForArrayValuedReturnTypes(@Mocked final Collaborator mock)
-   {
+   public void returnsDefaultValuesForArrayValuedReturnTypes(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getIntArray();
          mock.getInt2Array();
@@ -161,8 +153,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsMultipleValuesInSequenceUsingVarargs()
-   {
+   public void returnsMultipleValuesInSequenceUsingVarargs() {
       final Collaborator collaborator = new Collaborator();
 
       new Expectations(collaborator) {{
@@ -189,8 +180,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsNonNullValueFollowedByNullUsingVarargs(@Mocked final Collaborator collaborator)
-   {
+   public void returnsNonNullValueFollowedByNullUsingVarargs(@Mocked final Collaborator collaborator) {
       new Expectations() {{
          collaborator.getString();
          //noinspection NullArgumentToVariableArgMethod
@@ -203,8 +193,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsMultipleValuesFromMethodWithReturnTypeOfObject(@Mocked final Collaborator collaborator)
-   {
+   public void returnsMultipleValuesFromMethodWithReturnTypeOfObject(@Mocked final Collaborator collaborator) {
       new Expectations() {{
          collaborator.getObject();
          returns(1, 2);
@@ -218,8 +207,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void returnsMultipleValuesFromGenericMethod(@Mocked final Callable<Integer> callable) throws Exception
-   {
+   public void returnsMultipleValuesFromGenericMethod(@Mocked final Callable<Integer> callable) throws Exception {
       new Expectations() {{
          callable.call();
          returns(3, 2, 1);
@@ -231,8 +219,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForCollectionAndListReturningMethodsUsingVarargs(@Mocked final Collaborator mock)
-   {
+   public void recordResultsForCollectionAndListReturningMethodsUsingVarargs(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getItems(); returns(1, "2", 3.0);
          mock.getListItems(); returns("a", true);
@@ -244,8 +231,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForIterableReturningMethodUsingVarargs(@Mocked final Collaborator mock)
-   {
+   public void recordResultsForIterableReturningMethodUsingVarargs(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getIterable(); returns(true, "Xyz", 3.6);
       }};
@@ -259,8 +245,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForIteratorReturningMethodUsingVarargs(@Mocked final Collaborator mock)
-   {
+   public void recordResultsForIteratorReturningMethodUsingVarargs(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getIterator();
          returns("ab", "cde", 1, 3);
@@ -274,8 +259,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForSetReturningMethodUsingVarargs(@Mocked final Collaborator mock)
-   {
+   public void recordResultsForSetReturningMethodUsingVarargs(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getSetItems(); returns(4.0, "aB", 2);
          mock.getSortedSetItems(); returns(1, 5, 123);
@@ -286,8 +270,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordResultsForArrayReturningMethodsUsingVarargs()
-   {
+   public void recordResultsForArrayReturningMethodsUsingVarargs() {
       final Collaborator collaborator = new Collaborator();
 
       new Expectations(collaborator) {{
@@ -316,8 +299,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordMultipleIteratorsToBeReturnedFromMethodThatReturnsIterator(@Mocked final Collaborator mock)
-   {
+   public void recordMultipleIteratorsToBeReturnedFromMethodThatReturnsIterator(@Mocked final Collaborator mock) {
       final Iterator<?> firstResult = new ArrayList<Object>().listIterator();
       final ListIterator<?> secondResult = new LinkedList<Object>().listIterator();
       final Iterator<?> thirdResult = new ArrayList<Object>().iterator();
@@ -339,8 +321,7 @@ public final class ExpectationsWithValuesToReturnTest
    }
 
    @Test
-   public void recordMultipleListsToBeReturnedFromMethodThatReturnsList(@Mocked final Collaborator mock)
-   {
+   public void recordMultipleListsToBeReturnedFromMethodThatReturnsList(@Mocked final Collaborator mock) {
       final List<?> firstResult = new ArrayList<Object>();
       final List<?> secondResult = new ArrayList<Object>();
       final List<?> thirdResult = new LinkedList<Object>();

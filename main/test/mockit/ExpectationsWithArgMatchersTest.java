@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.security.cert.*;
@@ -24,8 +20,7 @@ public final class ExpectationsWithArgMatchersTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @SuppressWarnings("UnusedParameters")
-   static class Collaborator
-   {
+   static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}
       void setValue(float value) {}
@@ -46,21 +41,18 @@ public final class ExpectationsWithArgMatchersTest
 
    @Mocked Collaborator mock;
 
-   static final class CollectionElementDelegate<T> implements Delegate<Collection<T>>
-   {
+   static final class CollectionElementDelegate<T> implements Delegate<Collection<T>> {
       private final T item;
       CollectionElementDelegate(T item) { this.item = item; }
       @SuppressWarnings("unused") boolean hasItem(Collection<T> items) { return items.contains(item); }
    }
 
-   static final class Delegates
-   {
+   static final class Delegates {
       static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<T>(item); }
    }
 
    @Test
-   public void expectInvocationsWithNamedDelegateMatcher()
-   {
+   public void expectInvocationsWithNamedDelegateMatcher() {
       new Expectations() {{
          mock.setTextualValues(with(collectionElement("B")));
       }};
@@ -70,8 +62,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void expectInvocationsWithHamcrestMatcher()
-   {
+   public void expectInvocationsWithHamcrestMatcher() {
       new Expectations() {{
          mock.setTextualValues(this.<Collection<String>>withArgThat(hasItem("B")));
       }};
@@ -81,16 +72,14 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void expectInvocationWithMatcherContainingAnotherMatcher()
-   {
+   public void expectInvocationWithMatcherContainingAnotherMatcher() {
       new Expectations() {{ mock.setValue(withArgThat(equalTo(3))); }};
 
       mock.setValue(3);
    }
 
    @Test
-   public void useMockedMethodBeforeRecordingExpectationWithArgumentMatcher()
-   {
+   public void useMockedMethodBeforeRecordingExpectationWithArgumentMatcher() {
       assertFalse(mock.doSomething("abc"));
 
       new Expectations() {{
@@ -103,8 +92,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void recordExpectationsUsingTheAnyFieldsForParameterOfTypeObject()
-   {
+   public void recordExpectationsUsingTheAnyFieldsForParameterOfTypeObject() {
       new Expectations() {{
          mock.useObject(anyString); result = "String";
          mock.useObject(anyInt); result = "int";
@@ -121,8 +109,7 @@ public final class ExpectationsWithArgMatchersTest
       assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject();
    }
 
-   void assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject()
-   {
+   void assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject() {
       assertEquals("String", mock.useObject("test"));
       assertEquals("String", mock.useObject(null)); // uses the first recorded expectation, since they all match null
       assertEquals("int", mock.useObject(2));
@@ -138,8 +125,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void recordExpectationsUsingTheWithAnyMethodForParameterOfTypeObject()
-   {
+   public void recordExpectationsUsingTheWithAnyMethodForParameterOfTypeObject() {
       new Expectations() {{
          mock.useObject(withAny("a")); result = "String";
          mock.useObject(withAny(2)); result = "int";
@@ -157,8 +143,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void declareFieldInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingField()
-   {
+   public void declareFieldInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingField() {
       new Expectations() {
          final Integer anyValue = 1;
 
@@ -171,8 +156,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void declareMethodInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingMethod()
-   {
+   public void declareMethodInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingMethod() {
       final List<Integer> values = new ArrayList<Integer>();
 
       new Expectations() {
@@ -206,8 +190,8 @@ public final class ExpectationsWithArgMatchersTest
    public void expectInvocationWithSameMockInstanceButReplayWithNull(
       // This class defines an abstract "toString" override, which initially was erroneously
       // mocked, causing a new expectation to be created during replay:
-      @Mocked final Certificate cert)
-   {
+      @Mocked final Certificate cert
+   ) {
       new Expectations() {{
          mock.setValue(withSameInstance(cert)); times = 1;
       }};
@@ -218,8 +202,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void expectInvocationWithMatcherWhichInvokesMockedMethod()
-   {
+   public void expectInvocationWithMatcherWhichInvokesMockedMethod() {
       new Expectations() {{
          mock.setValue(with(new Delegate<Integer>() {
             @Mock boolean validateAsPositive(int value)
@@ -243,8 +226,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Test
-   public void extendingAReusableArgumentMatcher()
-   {
+   public void extendingAReusableArgumentMatcher() {
       mock.setValue(5);
       mock.setValue(123);
 

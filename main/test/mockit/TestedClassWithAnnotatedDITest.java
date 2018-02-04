@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import javax.annotation.*;
@@ -16,8 +12,7 @@ import org.springframework.beans.factory.annotation.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithAnnotatedDITest
 {
-   static class TestedClass1
-   {
+   static class TestedClass1 {
       @Resource(name = "secondAction") Runnable action2;
       @Autowired int someValue;
       @Resource(name = "firstAction") Runnable action1;
@@ -27,8 +22,7 @@ public final class TestedClassWithAnnotatedDITest
       @Value("#{systemProperties.someProperty}") String systemProperty;
    }
 
-   static class TestedClass2
-   {
+   static class TestedClass2 {
       final int someValue;
       final Runnable action;
       @Resource Runnable anotherAction;
@@ -37,8 +31,7 @@ public final class TestedClassWithAnnotatedDITest
       @Autowired(required = false) Runnable optionalAction;
 
       @Autowired
-      TestedClass2(int someValue, Runnable action, String textValue)
-      {
+      TestedClass2(int someValue, Runnable action, String textValue) {
          this.someValue = someValue;
          this.action = action;
          text = textValue;
@@ -56,8 +49,8 @@ public final class TestedClassWithAnnotatedDITest
    @Test
    public void injectAllAnnotatedInjectionPoints(
       @Injectable("2") int anotherValue, @Injectable Runnable secondAction, @Injectable Runnable anotherAction,
-      @Injectable("true") boolean unused, @Injectable("propertyValue") String systemProperty)
-   {
+      @Injectable("true") boolean unused, @Injectable("propertyValue") String systemProperty
+   ) {
       assertSame(firstAction, tested1.action1);
       assertSame(secondAction, tested1.action2);
       assertEquals(1, tested1.someValue);
@@ -75,15 +68,14 @@ public final class TestedClassWithAnnotatedDITest
    }
 
    @Test(expected = IllegalStateException.class)
-   public void failForAnnotatedFieldWhichLacksAnInjectable()
-   {
+   public void failForAnnotatedFieldWhichLacksAnInjectable() {
       fail("Must fail before starting");
    }
 
    @Test(expected = IllegalStateException.class)
    public void failForAnnotatedFieldHavingAnInjectableOfTheSameTypeWhichWasAlreadyConsumed(
-      @Injectable Runnable secondAction)
-   {
+      @Injectable Runnable secondAction
+   ) {
       fail("Must fail before starting");
    }
 }

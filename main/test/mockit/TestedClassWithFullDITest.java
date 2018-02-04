@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.annotation.*;
@@ -15,8 +11,7 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithFullDITest
 {
-   public static class TestedClass
-   {
+   public static class TestedClass {
       Runnable dependencyToBeMocked;
       FirstLevelDependency dependency2;
       FirstLevelDependency dependency3;
@@ -31,8 +26,7 @@ public final class TestedClassWithFullDITest
       volatile CommonDependency notToBeInjected;
    }
 
-   public static class FirstLevelDependency
-   {
+   public static class FirstLevelDependency {
       String firstLevelId;
       SecondLevelDependency dependency;
       CommonDependency commonDependency;
@@ -54,16 +48,14 @@ public final class TestedClassWithFullDITest
    @Injectable Runnable mockedDependency;
 
    @Test
-   public void useFullyInitializedTestedObjectWithNoInjectableForFirstLevelDependency()
-   {
+   public void useFullyInitializedTestedObjectWithNoInjectableForFirstLevelDependency() {
       assertNull(tested.name);
       assertSame(tested.commonDependency, tested.dependency2.dependency.commonDependency);
       assertNull(tested.notToBeInjected);
    }
 
    @Test
-   public void useFullyInitializedTestedObjectWithValueForFirstLevelDependency(@Injectable("test") String id)
-   {
+   public void useFullyInitializedTestedObjectWithValueForFirstLevelDependency(@Injectable("test") String id) {
       assertEquals("test", tested.name);
       assertNull(tested.description);
       assertNull(tested.number);
@@ -87,8 +79,7 @@ public final class TestedClassWithFullDITest
    @IntegrationTested AnotherTestedClass tested2;
 
    @Test
-   public void verifyOtherTestedObjectsGetInjectedIntoFirstOne()
-   {
+   public void verifyOtherTestedObjectsGetInjectedIntoFirstOne() {
       assertSame(tested2, tested.subObj);
       assertSame(tested3, tested.subObj2);
       assertSame(tested3, tested.subObj.subObj);
@@ -102,8 +93,7 @@ public final class TestedClassWithFullDITest
    static class ClassWithDependencyOfAbstractType { Dependency dependency; }
 
    @Test
-   public void useTestedObjectOfSubtypeForAbstractDependencyTypeInAnotherTestedObject()
-   {
+   public void useTestedObjectOfSubtypeForAbstractDependencyTypeInAnotherTestedObject() {
       assertSame(concreteDependency, tested4.dependency);
    }
 
@@ -112,8 +102,7 @@ public final class TestedClassWithFullDITest
    @Tested(fullyInitialized = true) A a;
 
    @Test
-   public void instantiateClassDependentOnAnotherHavingFieldOfItsOwnType()
-   {
+   public void instantiateClassDependentOnAnotherHavingFieldOfItsOwnType() {
       B b1 = a.b1;
       assertNotNull(b1);
 
@@ -126,8 +115,7 @@ public final class TestedClassWithFullDITest
    static class ClassWithJPAEntityField { Person person; }
 
    @Test
-   public void instantiateClassWithJPAEntityField(@Tested(fullyInitialized = true) ClassWithJPAEntityField tested)
-   {
+   public void instantiateClassWithJPAEntityField(@Tested(fullyInitialized = true) ClassWithJPAEntityField tested) {
       assertNull(tested.person);
    }
 }

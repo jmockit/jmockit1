@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -11,8 +7,7 @@ import org.junit.*;
 public final class ExpectationsWithDuplicateRecordingsTest
 {
    @SuppressWarnings({"unused", "NumericCastThatLosesPrecision"})
-   static class Blah
-   {
+   static class Blah {
       void setValue(int value) {}
       String doSomething(boolean b) { return ""; }
       String doSomething(String s) { return ""; }
@@ -27,8 +22,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    @Mocked Blah mock;
 
    @Test
-   public void recordSameMethodWithDisjunctiveArgumentMatchers()
-   {
+   public void recordSameMethodWithDisjunctiveArgumentMatchers() {
       new Expectations() {{
          mock.doSomething(withEqual(1)); result = false;
          mock.doSomething(withNotEqual(1)); result = true;
@@ -41,8 +35,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordAmbiguousExpectationsUsingArgumentMatchers()
-   {
+   public void recordAmbiguousExpectationsUsingArgumentMatchers() {
       new Expectations() {{
          mock.doSomething(withNotEqual('x')); result = 1;
          mock.doSomething(anyChar); result = 2;
@@ -53,8 +46,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordSameMethodWithIdenticalArgumentMatchers()
-   {
+   public void recordSameMethodWithIdenticalArgumentMatchers() {
       new Expectations() {{
          mock.doSomething(anyInt); result = false;
          mock.doSomething(anyInt); result = true; // overrides the previous expectation
@@ -71,8 +63,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordSameMethodWithOverlappingArgumentMatchers()
-   {
+   public void recordSameMethodWithOverlappingArgumentMatchers() {
       new Expectations() {{
          mock.doSomething(withEqual(0)); result = false;
          mock.doSomething(anyInt); result = true;
@@ -89,8 +80,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordSameMethodWithExactArgumentAndArgMatcherButInWrongOrderOfSpecificity()
-   {
+   public void recordSameMethodWithExactArgumentAndArgMatcherButInWrongOrderOfSpecificity() {
       new Expectations() {{
          mock.doSomething(anyInt); result = false;
          mock.doSomething(1); result = true; // overrides the previous one (most specific should come first)
@@ -101,8 +91,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordSameMethodWithArgumentsOrMatchersOfVaryingSpecificity()
-   {
+   public void recordSameMethodWithArgumentsOrMatchersOfVaryingSpecificity() {
       new Expectations() {{
          mock.doSomething(true); result = null;
          mock.doSomething(anyBoolean); result = "a";
@@ -134,8 +123,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordSameMethodWithOpposingMatchers()
-   {
+   public void recordSameMethodWithOpposingMatchers() {
       new Expectations() {{
          mock.doSomething(this.<String>withNull()); result = "null";
          mock.doSomething(this.<String>withNotNull()); result = "non-null";
@@ -146,8 +134,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordAmbiguousExpectationsUsingTheSameMatcherButWithDifferentArguments()
-   {
+   public void recordAmbiguousExpectationsUsingTheSameMatcherButWithDifferentArguments() {
       new Expectations() {{
          mock.doSomething(withNotEqual('A')); result = 1;
          mock.doSomething(withNotEqual('B')); result = 2; // overrides the previous expectation
@@ -166,8 +153,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test @SuppressWarnings("unused")
-   public void recordUnambiguousExpectationsUsingTheSameMatcherButWithDifferentArguments()
-   {
+   public void recordUnambiguousExpectationsUsingTheSameMatcherButWithDifferentArguments() {
       new Expectations() {{
          mock.doSomething(withEqual("abc")); result = "first";
          mock.doSomething(withEqual("XYZ")); result = "second";
@@ -252,8 +238,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordUnambiguousExpectationsWithSameMatcherForOneParameterAndDifferentArgumentsForAnother()
-   {
+   public void recordUnambiguousExpectationsWithSameMatcherForOneParameterAndDifferentArgumentsForAnother() {
       Blah b = new Blah();
 
       new Expectations() {{
@@ -270,8 +255,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordOverlappingExpectationsWithSameMatcherForOneParameterAndDifferentArgumentsForAnother()
-   {
+   public void recordOverlappingExpectationsWithSameMatcherForOneParameterAndDifferentArgumentsForAnother() {
       Blah b = new Blah();
 
       new Expectations() {{
@@ -288,8 +272,7 @@ public final class ExpectationsWithDuplicateRecordingsTest
    }
 
    @Test
-   public void recordMultipleNonStrictExpectationsWithSameDelegate()
-   {
+   public void recordMultipleNonStrictExpectationsWithSameDelegate() {
       final Delegate<String> delegate = new Delegate<String>() {
          @SuppressWarnings("unused")
          boolean matches(String arg) { return !arg.isEmpty(); }

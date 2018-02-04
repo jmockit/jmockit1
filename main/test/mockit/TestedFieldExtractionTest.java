@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -14,8 +10,7 @@ public final class TestedFieldExtractionTest
 {
    static class Dependency {}
 
-   static class TestedClassWithMultipleFieldsOfSameType
-   {
+   static class TestedClassWithMultipleFieldsOfSameType {
       Dependency dep1;
       Dependency dep2;
    }
@@ -24,16 +19,14 @@ public final class TestedFieldExtractionTest
    @Tested Dependency dep;
 
    @Test
-   public void extractMultipleFieldsOfSameTypeIntoSingleTestedField()
-   {
+   public void extractMultipleFieldsOfSameTypeIntoSingleTestedField() {
       assertNotNull(tested1.dep1);
       assertNotNull(tested1.dep2);
       assertSame(tested1.dep1, tested1.dep2); // unqualified fields of same type get the same created instance
       assertSame(tested1.dep1, dep);
    }
 
-   static class TestedClassWithNamedFields
-   {
+   static class TestedClassWithNamedFields {
       @Inject @Named("first") Dependency dep1;
       @Inject @Named("second") Dependency dep2;
    }
@@ -43,8 +36,7 @@ public final class TestedFieldExtractionTest
    @Tested Dependency second;
 
    @Test
-   public void extractMultipleQualifiedFieldsOfSameTypeIntoSeparateTestedFields()
-   {
+   public void extractMultipleQualifiedFieldsOfSameTypeIntoSeparateTestedFields() {
       assertNotNull(tested2.dep1);
       assertNotNull(tested2.dep2);
       assertNotSame(tested2.dep1, tested2.dep2);
@@ -52,8 +44,7 @@ public final class TestedFieldExtractionTest
       assertSame(tested2.dep2, second);
    }
 
-   static class TestedClassWithInitializedFieldsOfVariousTypes
-   {
+   static class TestedClassWithInitializedFieldsOfVariousTypes {
       final String name = "test";
       int number = 123;
       @Inject @Named("test") final List<String> names = new ArrayList<String>();
@@ -67,8 +58,7 @@ public final class TestedFieldExtractionTest
    @Tested int number;
 
    @Test
-   public void extractFieldsInitializedByConstructorOfTestedClass()
-   {
+   public void extractFieldsInitializedByConstructorOfTestedClass() {
       assertEquals(tested3.name, name);
       assertEquals(tested3.number, number);
       assertSame(tested3.names, test);

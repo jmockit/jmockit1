@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.beans.*;
@@ -22,8 +18,8 @@ public final class ExpectationsUsingMockedTest
 
    @Test
    public void multipleMockParametersOfSameMockedType(
-      @Mocked final Dependency dependency1, @Mocked final Dependency dependency2)
-   {
+      @Mocked final Dependency dependency1, @Mocked final Dependency dependency2
+   ) {
       new Expectations() {{
          dependency1.doSomething(true); result = "1";
          dependency2.doSomething(false); result = "2";
@@ -36,8 +32,7 @@ public final class ExpectationsUsingMockedTest
    }
 
    @Test
-   public void mockFieldForAbstractClass()
-   {
+   public void mockFieldForAbstractClass() {
       new Expectations() {{
          base.add(1); result = true;
       }};
@@ -47,56 +42,50 @@ public final class ExpectationsUsingMockedTest
       assertFalse(base.add(2));
    }
 
-   static class ClassWithStaticInitializer
-   {
+   static class ClassWithStaticInitializer {
       static boolean initialized = true;
       static int initialized() { return initialized ? 1 : -1; }
    }
 
    @Test
    public void stubOutStaticInitializersWhenSpecified(
-      @Mocked(stubOutClassInitialization = true) ClassWithStaticInitializer unused)
-   {
+      @Mocked(stubOutClassInitialization = true) ClassWithStaticInitializer unused
+   ) {
       assertEquals(0, ClassWithStaticInitializer.initialized());
       assertFalse(ClassWithStaticInitializer.initialized);
    }
 
-   static class ClassWithStaticInitializer2
-   {
+   static class ClassWithStaticInitializer2 {
       static boolean initialized = true;
       static int initialized() { return initialized ? 1 : -1; }
    }
 
    @Test
-   public void doNotStubOutStaticInitializersByDefault(@Mocked ClassWithStaticInitializer2 unused)
-   {
+   public void doNotStubOutStaticInitializersByDefault(@Mocked ClassWithStaticInitializer2 unused) {
       assertEquals(0, ClassWithStaticInitializer2.initialized());
       assertTrue(ClassWithStaticInitializer2.initialized);
    }
 
-   static class AnotherClassWithStaticInitializer
-   {
+   static class AnotherClassWithStaticInitializer {
       static boolean initialized = true;
       static int initialized() { return initialized ? 1 : -1; }
    }
 
    @Test
-   public void mockEverythingWithoutStubbingStaticInitializers(@Mocked AnotherClassWithStaticInitializer unused)
-   {
+   public void mockEverythingWithoutStubbingStaticInitializers(@Mocked AnotherClassWithStaticInitializer unused) {
       assertEquals(0, AnotherClassWithStaticInitializer.initialized());
       assertTrue(AnotherClassWithStaticInitializer.initialized);
    }
 
-   static class AnotherClassWithStaticInitializer2
-   {
+   static class AnotherClassWithStaticInitializer2 {
       static boolean initialized = true;
       static int initialized() { return initialized ? 1 : -1; }
    }
 
    @Test @SuppressWarnings("DefaultAnnotationParam")
    public void avoidStubbingStaticInitializersThroughSpecificAnnotationAttribute(
-      @Mocked(stubOutClassInitialization = false) AnotherClassWithStaticInitializer2 unused)
-   {
+      @Mocked(stubOutClassInitialization = false) AnotherClassWithStaticInitializer2 unused
+   ) {
       assertEquals(0, AnotherClassWithStaticInitializer2.initialized());
       assertTrue(AnotherClassWithStaticInitializer2.initialized);
    }
@@ -104,8 +93,7 @@ public final class ExpectationsUsingMockedTest
    class InnerClass { int getValue() { return -1; } }
 
    @Test
-   public void mockInnerClass(@Mocked final InnerClass innerMock)
-   {
+   public void mockInnerClass(@Mocked final InnerClass innerMock) {
       assertEquals(0, innerMock.getValue());
 
       new Expectations() {{
@@ -118,8 +106,7 @@ public final class ExpectationsUsingMockedTest
    static final class SubClass extends AbstractBase { @Override protected boolean add(Integer i) { return false; } }
 
    @Test
-   public void recordMethodFromAbstractBaseClassAndReplayOnSubclass()
-   {
+   public void recordMethodFromAbstractBaseClassAndReplayOnSubclass() {
       new Expectations() {{ base.doSomething(); result = 1; }};
 
       int i = new SubClass().doSomething();
@@ -130,8 +117,7 @@ public final class ExpectationsUsingMockedTest
    public interface BusinessInterface {}
 
    @Test
-   public void getBeanInfoFromMockedInterface(@Mocked BusinessInterface mock) throws Exception
-   {
+   public void getBeanInfoFromMockedInterface(@Mocked BusinessInterface mock) throws Exception {
       Class<? extends BusinessInterface> mockClass = mock.getClass();
 
       BeanInfo info = Introspector.getBeanInfo(mockClass);
@@ -144,8 +130,8 @@ public final class ExpectationsUsingMockedTest
 
    @Test
    public void recordExpectationOnBaseMethodHavingASyntheticBridgeMethodInSubclass(
-      @Mocked final GenericSubclass<?> mock)
-   {
+      @Mocked final GenericSubclass<?> mock
+   ) {
       new Expectations() {{
          mock.base();
          result = null;

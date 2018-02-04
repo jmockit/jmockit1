@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -17,8 +13,7 @@ public final class FakedClassWithSuperClassTest
    }
 
    @Test
-   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked()
-   {
+   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked() {
       BaseClass d = new Subclass();
       assertEquals(123, d.doSomething());
 
@@ -32,8 +27,7 @@ public final class FakedClassWithSuperClassTest
    }
 
    @Test
-   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked_usingFakeMethodBridge()
-   {
+   public void fakeOnlyInstancesOfTheClassSpecifiedToBeFaked_usingFakeMethodBridge() {
       BaseClass d = new Subclass();
       assertEquals(123, d.doSomething());
 

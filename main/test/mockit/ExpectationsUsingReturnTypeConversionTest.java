@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -15,8 +11,7 @@ import static org.junit.Assert.*;
 
 public final class ExpectationsUsingReturnTypeConversionTest
 {
-   static class Collaborator
-   {
+   static class Collaborator {
       int getInt() { return -1; }
       Integer getInteger() { return -1; }
       short getShort() { return -1; }
@@ -51,8 +46,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    @Mocked Collaborator mock;
 
    @Test
-   public void attemptToReturnValueNotCompatibleWithPrimitiveReturnType()
-   {
+   public void attemptToReturnValueNotCompatibleWithPrimitiveReturnType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("String");
       thrown.expectMessage("int");
@@ -61,8 +55,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void attemptToReturnValueNotCompatibleWithPrimitiveWrapperReturnType()
-   {
+   public void attemptToReturnValueNotCompatibleWithPrimitiveWrapperReturnType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Boolean");
       thrown.expectMessage("Float");
@@ -71,8 +64,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void attemptToReturnValueNotCompatibleWithBooleanReturnType()
-   {
+   public void attemptToReturnValueNotCompatibleWithBooleanReturnType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Integer");
       thrown.expectMessage("boolean");
@@ -81,8 +73,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void attemptToReturnValueNotCompatibleWithBooleanWrapperReturnType()
-   {
+   public void attemptToReturnValueNotCompatibleWithBooleanWrapperReturnType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Character");
       thrown.expectMessage("Boolean");
@@ -91,8 +82,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void attemptToReturnValueOfReferenceTypeNotAssignableToReturnType()
-   {
+   public void attemptToReturnValueOfReferenceTypeNotAssignableToReturnType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Collaborator");
       thrown.expectMessage("InputStream");
@@ -101,8 +91,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void convertNumberValueToWiderNumericalReturnType()
-   {
+   public void convertNumberValueToWiderNumericalReturnType() {
       new Expectations() {{
          mock.getShort(); result = (byte) 51;
          mock.getShortWrapper(); result = 'z';
@@ -136,8 +125,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueFitsTheReturnType()
-   {
+   public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueFitsTheReturnType() {
       new Expectations() {{
          mock.getByte(); result = 23; result = 'C';
          mock.getByteWrapper(); result = (short) 127;
@@ -166,8 +154,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
 
    @SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
    @Test
-   public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueDoesNotFitTheReturnType()
-   {
+   public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueDoesNotFitTheReturnType() {
       new Expectations() {{
          mock.getByte(); result = 230;
          mock.getByteWrapper(); result = 'ç';
@@ -194,8 +181,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void convertRecordedTextualResultForMethodsWithEligibleReturnTypes() throws Exception
-   {
+   public void convertRecordedTextualResultForMethodsWithEligibleReturnTypes() throws Exception {
       assertNull(mock.getStringBuilder());
 
       final String text = "Some textual value";
@@ -228,8 +214,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @Test
-   public void convertTextualAndNumericalResultsToNumberSubtypes()
-   {
+   public void convertTextualAndNumericalResultsToNumberSubtypes() {
       assertNull(mock.getBigDecimal());
       assertNull(mock.getBigInteger());
       assertNull(mock.getAtomicInteger());

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -11,14 +7,12 @@ import static org.junit.Assert.*;
 
 public final class FakeForGenericsTest
 {
-   public static final class Collaborator
-   {
+   public static final class Collaborator {
       public <N extends Number> N genericMethod(@SuppressWarnings("UnusedParameters") N n) { return null; }
    }
 
    @Test
-   public void fakeGenericMethod()
-   {
+   public void fakeGenericMethod() {
       new MockUp<Collaborator>() {
          @Mock <T extends Number> T genericMethod(T t) { return t; }
 
@@ -40,16 +34,14 @@ public final class FakeForGenericsTest
    }
 
    @SuppressWarnings("UnusedParameters")
-   public static final class GenericClass<T1, T2>
-   {
+   public static final class GenericClass<T1, T2> {
       public void aMethod(T1 t) { throw new RuntimeException("t=" + t); }
       public int anotherMethod(T1 t, int i, T2 p) { return 2 * i; }
       public int anotherMethod(Integer t, int i, String p) { return -2 * i; }
    }
 
    @Test
-   public void fakeGenericClassWithUnspecifiedTypeArguments()
-   {
+   public void fakeGenericClassWithUnspecifiedTypeArguments() {
       new MockUp<GenericClass<?, ?>>() {
          @Mock
          void aMethod(Object o)
@@ -83,8 +75,7 @@ public final class FakeForGenericsTest
    }
 
    @Test
-   public void fakeBothGenericAndNonGenericMethodsInGenericClass()
-   {
+   public void fakeBothGenericAndNonGenericMethodsInGenericClass() {
       new MockUp<GenericClass<String, Boolean>>() {
          @Mock int anotherMethod(Integer t, int i, String p) { return 2; }
          @Mock int anotherMethod(String t, int i, Boolean p) { return 1; }
@@ -98,8 +89,7 @@ public final class FakeForGenericsTest
    static class GenericBaseClass<T, U> { public U find(@SuppressWarnings("UnusedParameters") T id) { return null; } }
 
    @Test
-   public void fakeGenericMethodWithFakeMethodHavingParameterTypesMatchingTypeArguments()
-   {
+   public void fakeGenericMethodWithFakeMethodHavingParameterTypesMatchingTypeArguments() {
       new MockUp<GenericBaseClass<String, Integer>>() {
          @Mock
          Integer find(String id) { return id.hashCode(); }
@@ -110,8 +100,7 @@ public final class FakeForGenericsTest
    }
 
    @Test
-   public void cannotCallGenericMethodWhenSomeFakeMethodExpectsDifferentTypes()
-   {
+   public void cannotCallGenericMethodWhenSomeFakeMethodExpectsDifferentTypes() {
       new MockUp<GenericBaseClass<String, Integer>>() { @Mock Integer find(String id) { return 1; } };
 
       try {
@@ -127,8 +116,7 @@ public final class FakeForGenericsTest
    final class NonGenericSubclass extends NonGenericSuperclass {}
 
    @Test
-   public void fakeGenericMethodFromInstantiationOfNonGenericSubclass()
-   {
+   public void fakeGenericMethodFromInstantiationOfNonGenericSubclass() {
       new MockUp<NonGenericSubclass>() {
          @Mock
          String find(Integer id) { return "faked" + id; }
@@ -142,8 +130,7 @@ public final class FakeForGenericsTest
    final class AnotherNonGenericSubclass extends GenericSuperclass<Integer> {}
 
    @Test
-   public void fakeGenericMethodFromInstantiationOfNonGenericSubclassWhichExtendsAGenericIntermediateSuperclass()
-   {
+   public void fakeGenericMethodFromInstantiationOfNonGenericSubclassWhichExtendsAGenericIntermediateSuperclass() {
       new MockUp<AnotherNonGenericSubclass>() {
          @Mock
          String find(Integer id) { return "faked" + id; }
@@ -154,16 +141,14 @@ public final class FakeForGenericsTest
    }
 
    @SuppressWarnings("UnusedParameters")
-   public static class NonGenericClassWithGenericMethods
-   {
+   public static class NonGenericClassWithGenericMethods {
       public static <T> T staticMethod(Class<T> cls, String s) { throw new RuntimeException(); }
       public <C> void instanceMethod(Class<C> cls, String s) { throw new RuntimeException(); }
       public final <N extends Number> void instanceMethod(Class<N> cls) { throw new RuntimeException(); }
    }
 
    @Test
-   public void fakeGenericMethodsOfNonGenericClass()
-   {
+   public void fakeGenericMethodsOfNonGenericClass() {
       new MockUp<NonGenericClassWithGenericMethods>() {
          @Mock <T> T staticMethod(Class<T> cls, String s) { return null; }
          @Mock <C> void instanceMethod(Class<C> cls, String s) {}
