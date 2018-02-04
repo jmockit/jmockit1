@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 public final class ClassWithObjectOverrides implements Cloneable
@@ -11,8 +7,7 @@ public final class ClassWithObjectOverrides implements Cloneable
    public ClassWithObjectOverrides(String text) { this.text = new StringBuilder(text); }
 
    @Override
-   public boolean equals(Object o)
-   {
+   public boolean equals(Object o) {
       return o instanceof ClassWithObjectOverrides && text.equals(((ClassWithObjectOverrides) o).text);
    }
 
@@ -24,15 +19,13 @@ public final class ClassWithObjectOverrides implements Cloneable
 
    @SuppressWarnings("FinalizeDeclaration")
    @Override
-   protected void finalize() throws Throwable
-   {
+   protected void finalize() throws Throwable {
       super.finalize();
       text.setLength(0);
    }
 
    @Override
-   public ClassWithObjectOverrides clone()
-   {
+   public ClassWithObjectOverrides clone() {
       ClassWithObjectOverrides theClone = null;
       try { theClone = (ClassWithObjectOverrides) super.clone(); } catch (CloneNotSupportedException ignore) {}
       return theClone;

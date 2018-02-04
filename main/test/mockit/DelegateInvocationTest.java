@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.concurrent.*;
@@ -11,8 +7,7 @@ import static org.junit.Assert.*;
 
 public final class DelegateInvocationTest
 {
-   static class Collaborator
-   {
+   static class Collaborator {
       Collaborator() {}
       Collaborator(@SuppressWarnings("unused") int i) {}
 
@@ -44,21 +39,18 @@ public final class DelegateInvocationTest
       assertTrue(Collaborator.staticMethod());
    }
 
-   static class ConstructorDelegate implements Delegate<Void>
-   {
+   static class ConstructorDelegate implements Delegate<Void> {
       int capturedArgument;
 
       @Mock
-      void init(Invocation context, int i)
-      {
+      void init(Invocation context, int i) {
          assertNotNull(context.getInvokedInstance());
          capturedArgument = i + context.getInvocationCount();
       }
    }
 
    @Test
-   public void delegateForConstructorWithContext(@Mocked Collaborator mock)
-   {
+   public void delegateForConstructorWithContext(@Mocked Collaborator mock) {
       final ConstructorDelegate delegate = new ConstructorDelegate();
 
       new Expectations() {{
@@ -71,8 +63,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateReceivingNullArguments(@Mocked final Collaborator mock)
-   {
+   public void delegateReceivingNullArguments(@Mocked final Collaborator mock) {
       new Expectations() {
       {
          mock.doSomething(true, null, null);
@@ -100,8 +91,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateWithAnotherMethodOnTheDelegateClass(@Mocked final Collaborator mock)
-   {
+   public void delegateWithAnotherMethodOnTheDelegateClass(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getValue();
          result = new Delegate() {
@@ -124,8 +114,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateClassWithMultipleMethodsAndInexactButValidMatch(@Mocked Collaborator mock)
-   {
+   public void delegateClassWithMultipleMethodsAndInexactButValidMatch(@Mocked Collaborator mock) {
       new Expectations() {{
          Collaborator.staticMethod(1);
          result = new Delegate() {
@@ -147,8 +136,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateMethodWithNoParametersForExpectationWithParameters(@Mocked final Collaborator mock)
-   {
+   public void delegateMethodWithNoParametersForExpectationWithParameters(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.publicMethod(true);
          result = new Delegate() {
@@ -161,8 +149,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateWithDifferentMethodName(@Mocked final Collaborator mock)
-   {
+   public void delegateWithDifferentMethodName(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.publicMethod(anyBoolean);
          result = new Delegate() {
@@ -181,8 +168,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void consecutiveDelegatesForTheSameExpectation(@Mocked final Collaborator mock)
-   {
+   public void consecutiveDelegatesForTheSameExpectation(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getValue();
          returns(
@@ -224,8 +210,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void delegateMethodWithInvocationForInterface(@Mocked final Callable<String> mock) throws Exception
-   {
+   public void delegateMethodWithInvocationForInterface(@Mocked final Callable<String> mock) throws Exception {
       new Expectations() {{
          mock.call();
          result = new Delegate() {
@@ -239,8 +224,7 @@ public final class DelegateInvocationTest
    }
 
    @Test
-   public void useOfContextParametersForJREMethods() throws Exception
-   {
+   public void useOfContextParametersForJREMethods() throws Exception {
       final Runtime rt = Runtime.getRuntime();
 
       new Expectations(Runtime.class) {{

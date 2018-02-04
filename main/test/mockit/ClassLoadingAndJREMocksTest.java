@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -20,8 +16,7 @@ public final class ClassLoadingAndJREMocksTest
    static class Foo {}
 
    @Test
-   public void fakeFile()
-   {
+   public void fakeFile() {
       new MockUp<File>() {
          @Mock void $init(String name) {} // not necessary, except to verify non-occurrence of NPE
          @Mock boolean exists() { return true; }
@@ -32,8 +27,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void fakeFileSafelyUsingReentrantFakeMethod()
-   {
+   public void fakeFileSafelyUsingReentrantFakeMethod() {
       new MockUp<File>() {
          @Mock
          boolean exists(Invocation inv)
@@ -46,8 +40,7 @@ public final class ClassLoadingAndJREMocksTest
       checkForTheExistenceOfSeveralFiles();
    }
 
-   void checkForTheExistenceOfSeveralFiles()
-   {
+   void checkForTheExistenceOfSeveralFiles() {
       assertFalse(new File("someOtherFile").exists());
       assertTrue(new File("testFile").exists());
       assertFalse(new File("yet/another/file").exists());
@@ -55,8 +48,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void fakeFileSafelyUsingProceed()
-   {
+   public void fakeFileSafelyUsingProceed() {
       new MockUp<File>() {
          @Mock
          boolean exists(Invocation inv)
@@ -70,8 +62,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileSafelyUsingDynamicPartialMocking()
-   {
+   public void mockFileSafelyUsingDynamicPartialMocking() {
       final File aFile = new File("");
 
       new Expectations(File.class) {{
@@ -89,8 +80,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileOutputStreamInstantiation() throws Exception
-   {
+   public void mockFileOutputStreamInstantiation() throws Exception {
       final String fileName = "test.txt";
 
       new Expectations(FileOutputStream.class) {{
@@ -108,31 +98,29 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void attemptToMockNonMockableJREClass(@Mocked Integer mock)
-   {
+   public void attemptToMockNonMockableJREClass(@Mocked Integer mock) {
       assertNull(mock);
    }
 
    @Test
-   public void mockURLAndURLConnection(@Mocked URL mockUrl, @Mocked URLConnection mockConnection) throws Exception
-   {
+   public void mockURLAndURLConnection(@Mocked URL mockUrl, @Mocked URLConnection mockConnection) throws Exception {
       URLConnection conn = mockUrl.openConnection();
 
       assertSame(mockConnection, conn);
    }
 
    @Test
-   public void mockURLAndHttpURLConnection(@Mocked URL mockUrl, @Mocked HttpURLConnection mockConnection)
-      throws Exception
-   {
+   public void mockURLAndHttpURLConnection(
+      @Mocked URL mockUrl, @Mocked HttpURLConnection mockConnection
+   ) throws Exception {
       HttpURLConnection conn = (HttpURLConnection) mockUrl.openConnection();
       assertSame(mockConnection, conn);
    }
 
    @Test
-   public void mockURLAndHttpURLConnectionWithDynamicMock(@Mocked final HttpURLConnection mockHttpConnection)
-      throws Exception
-   {
+   public void mockURLAndHttpURLConnectionWithDynamicMock(
+      @Mocked final HttpURLConnection mockHttpConnection
+   ) throws Exception {
       final URL url = new URL("http://nowhere");
 
       new Expectations(url) {{
@@ -154,9 +142,9 @@ public final class ClassLoadingAndJREMocksTest
       }};
    }
 
-   String readResourceContents(String hostName, int port, String resourceId, int connectionTimeoutMillis)
-      throws IOException
-   {
+   String readResourceContents(
+      String hostName, int port, String resourceId, int connectionTimeoutMillis
+   ) throws IOException {
       URL url = new URL("http", hostName, port, resourceId);
       URLConnection connection = url.openConnection();
 
@@ -169,9 +157,8 @@ public final class ClassLoadingAndJREMocksTest
 
    @Test
    public void cascadingMockedURLWithInjectableCascadedURLConnection(
-      @Mocked URL anyUrl, @Injectable final URLConnection cascadedUrlConnection)
-      throws Exception
-   {
+      @Mocked URL anyUrl, @Injectable final URLConnection cascadedUrlConnection
+   ) throws Exception {
       final String testContents = "testing";
       new Expectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
 
@@ -181,8 +168,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileInputStream() throws Exception
-   {
+   public void mockFileInputStream() throws Exception {
       new Expectations(FileInputStream.class) {{ new FileInputStream("").close(); result = new IOException(); }};
 
       try {
@@ -195,8 +181,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockNonExistentZipFileSoItAppearsToExistWithTheContentsOfAnExistingFile() throws Exception
-   {
+   public void mockNonExistentZipFileSoItAppearsToExistWithTheContentsOfAnExistingFile() throws Exception {
       String existentZipFileName = getClass().getResource("test.zip").getPath();
       final ZipFile testZip = new ZipFile(existentZipFileName);
 
@@ -215,8 +200,7 @@ public final class ClassLoadingAndJREMocksTest
       assertEquals("test", readFromZipFile(existentZipFileName));
    }
 
-   private String readFromZipFile(String fileName) throws IOException
-   {
+   private String readFromZipFile(String fileName) throws IOException {
       ZipFile zf = new ZipFile(fileName);
       ZipEntry firstEntry = zf.entries().nextElement();
       InputStream content = zf.getInputStream(firstEntry);
@@ -224,17 +208,13 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockJarEntry(@Mocked final JarEntry mockEntry)
-   {
-      new Expectations() {{
-         mockEntry.getName(); result = "Test";
-      }};
+   public void mockJarEntry(@Mocked final JarEntry mockEntry) {
+      new Expectations() {{ mockEntry.getName(); result = "Test"; }};
 
       assertEquals("Test", mockEntry.getName());
    }
 
-   String readMainClassAndFileNamesFromJar(File file, List<String> containedFileNames) throws IOException
-   {
+   String readMainClassAndFileNamesFromJar(File file, List<String> containedFileNames) throws IOException {
       JarFile jarFile = new JarFile(file);
 
       Manifest manifest = jarFile.getManifest();
@@ -254,8 +234,8 @@ public final class ClassLoadingAndJREMocksTest
    @Test
    public void mockJavaUtilJarClasses(
       @Mocked final JarFile mockFile, @Mocked final Manifest mockManifest, @Mocked final Attributes mockAttributes,
-      @Mocked final Enumeration<JarEntry> mockEntries, @Mocked final JarEntry mockEntry) throws Exception
-   {
+      @Mocked final Enumeration<JarEntry> mockEntries, @Mocked final JarEntry mockEntry
+   ) throws Exception {
       File testFile = new File("test.jar");
       final String mainClassName = "test.Main";
 
@@ -278,7 +258,5 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREClassThatIsNeverMockable(@Mocked Class<?> mockClass)
-   {
-   }
+   public void attemptToMockJREClassThatIsNeverMockable(@Mocked Class<?> mockClass) {}
 }

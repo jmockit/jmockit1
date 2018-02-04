@@ -14,14 +14,12 @@ public final class CovariantReturnTypesTest
 {
    public static class SuperClass { public JTextField getTextField() { return null; } }
 
-   public static final class SubClass extends SuperClass
-   {
+   public static final class SubClass extends SuperClass {
       @Override public JPasswordField getTextField() { return null; }
    }
 
    @Test
-   public void methodInClassHierarchyUsingRecordedExpectation(@Mocked final SubClass mock)
-   {
+   public void methodInClassHierarchyUsingRecordedExpectation(@Mocked final SubClass mock) {
       final JPasswordField passwordField = new JPasswordField();
 
       new Expectations() {{
@@ -34,20 +32,17 @@ public final class CovariantReturnTypesTest
       assertSame(passwordField, ((SuperClass) subClassInstance).getTextField());
    }
 
-   public abstract static class AbstractBaseClass
-   {
+   public abstract static class AbstractBaseClass {
       protected AbstractBaseClass() {}
       public abstract JTextField getTextField();
    }
 
-   public static class ConcreteClass extends AbstractBaseClass
-   {
+   public static class ConcreteClass extends AbstractBaseClass {
       @Override public JFormattedTextField getTextField() { return null; }
    }
 
    @Test
-   public void concreteMethodImplementationUsingRecordedExpectation(@Mocked final ConcreteClass mock)
-   {
+   public void concreteMethodImplementationUsingRecordedExpectation(@Mocked final ConcreteClass mock) {
       final JTextField formattedField1 = new JFormattedTextField();
       final JTextField formattedField2 = new JFormattedTextField();
 
@@ -60,8 +55,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void abstractMethodImplementationUsingRecordedExpectation(@Capturing final AbstractBaseClass mock)
-   {
+   public void abstractMethodImplementationUsingRecordedExpectation(@Capturing final AbstractBaseClass mock) {
       final JTextField regularField = new JTextField();
       final JTextField formattedField = new JFormattedTextField();
 
@@ -81,8 +75,9 @@ public final class CovariantReturnTypesTest
    public interface SubInterface extends SuperInterface { @Override String getValue(); }
 
    @Test
-   public void methodInSuperInterfaceWithVaryingReturnValuesUsingRecordedExpectation(@Mocked final SuperInterface mock)
-   {
+   public void methodInSuperInterfaceWithVaryingReturnValuesUsingRecordedExpectation(
+      @Mocked final SuperInterface mock
+   ) {
       final Object value = new Object();
       final String specificValue = "test";
 
@@ -95,8 +90,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSubInterfaceUsingRecordedExpectations(@Mocked final SubInterface mock)
-   {
+   public void methodInSubInterfaceUsingRecordedExpectations(@Mocked final SubInterface mock) {
       @SuppressWarnings("UnnecessaryLocalVariable") final SuperInterface base = mock;
       final Object value = new Object();
       final String specificValue1 = "test1";
@@ -116,8 +110,8 @@ public final class CovariantReturnTypesTest
 
    @Test
    public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingRecordedExpectation(
-      @Mocked final SubInterface mock)
-   {
+      @Mocked final SubInterface mock
+   ) {
       final String specificValue = "test";
 
       new Expectations() {{ mock.getValue(); result = specificValue; }};

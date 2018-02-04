@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.reflect.*;
@@ -13,14 +9,13 @@ import static org.junit.Assert.*;
 
 import mockit.internal.expectations.invocation.*;
 
-@SuppressWarnings({"unused", "deprecation"})
+@SuppressWarnings({"unused", "deprecation", "ParameterHidesMemberVariable"})
 public final class ExpectationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Deprecated
-   public static class Dependency
-   {
+   public static class Dependency {
       @Deprecated int value;
 
       @Deprecated public Dependency() { value = -1; }
@@ -39,8 +34,7 @@ public final class ExpectationsTest
 
    @Mocked Dependency mock;
 
-   void exerciseCodeUnderTest()
-   {
+   void exerciseCodeUnderTest() {
       mock.prepare();
       mock.setSomething(123);
       mock.setSomethingElse("anotherValue");
@@ -51,8 +45,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordSimpleInvocations()
-   {
+   public void recordSimpleInvocations() {
       new Expectations() {{
          mock.prepare();
          mock.editABunchMoreStuff();
@@ -63,8 +56,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordInvocationThatWillNotOccur()
-   {
+   public void recordInvocationThatWillNotOccur() {
       new Expectations() {{
          mock.editABunchMoreStuff(); result = 123; times = 0;
       }};
@@ -74,8 +66,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void expectationsRecordedOnSameMethodWithSameMatchersButDifferentArguments()
-   {
+   public void expectationsRecordedOnSameMethodWithSameMatchersButDifferentArguments() {
       new Expectations() {{
          mock.doSomething(1, anyBoolean); result = 1;
          mock.doSomething(2, anyBoolean); result = 2;
@@ -87,8 +78,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void expectationsRecordedOnSameMethodWithMatcherInOneAndFixedArgumentInAnother()
-   {
+   public void expectationsRecordedOnSameMethodWithMatcherInOneAndFixedArgumentInAnother() {
       new Expectations() {{
          mock.doSomething(1, anyBoolean); result = 1;
          mock.doSomething(anyInt, anyBoolean); result = 2;
@@ -101,16 +91,14 @@ public final class ExpectationsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordInvocationWithExactExpectedNumberOfInvocationsButFailToSatisfy()
-   {
+   public void recordInvocationWithExactExpectedNumberOfInvocationsButFailToSatisfy() {
       new Expectations() {{
          mock.editABunchMoreStuff(); times = 1;
       }};
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordInvocationWithMinimumExpectedNumberOfInvocationsButFailToSatisfy()
-   {
+   public void recordInvocationWithMinimumExpectedNumberOfInvocationsButFailToSatisfy() {
       new Expectations() {{
          mock.editABunchMoreStuff(); minTimes = 2;
       }};
@@ -119,8 +107,7 @@ public final class ExpectationsTest
    }
 
    @Test(expected = UnexpectedInvocation.class)
-   public void recordInvocationWithMaximumExpectedNumberOfInvocationsButFailToSatisfy()
-   {
+   public void recordInvocationWithMaximumExpectedNumberOfInvocationsButFailToSatisfy() {
       new Expectations() {{
          mock.editABunchMoreStuff(); maxTimes = 1;
       }};
@@ -130,8 +117,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordInvocationsWithExpectedInvocationCounts()
-   {
+   public void recordInvocationsWithExpectedInvocationCounts() {
       new Expectations() {{
          mock.setSomethingElse(anyString); minTimes = 1;
          mock.save(); times = 2;
@@ -144,8 +130,7 @@ public final class ExpectationsTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordInvocationsWithMinInvocationCountLargerThanWillOccur()
-   {
+   public void recordInvocationsWithMinInvocationCountLargerThanWillOccur() {
       new Expectations() {{
          mock.save(); minTimes = 2;
       }};
@@ -154,8 +139,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordWithArgumentMatcherAndIndividualInvocationCounts()
-   {
+   public void recordWithArgumentMatcherAndIndividualInvocationCounts() {
       new Expectations() {{
          mock.prepare(); maxTimes = 1;
          mock.setSomething(anyInt); minTimes = 2;
@@ -167,8 +151,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordWithMaxInvocationCountFollowedByReturnValue()
-   {
+   public void recordWithMaxInvocationCountFollowedByReturnValue() {
       new Expectations() {{
          Dependency.staticMethod(any, null);
          maxTimes = 1;
@@ -179,8 +162,7 @@ public final class ExpectationsTest
    }
 
    @Test(expected = UnexpectedInvocation.class)
-   public void recordWithMaxInvocationCountFollowedByReturnValueButReplayOneTimeBeyondMax()
-   {
+   public void recordWithMaxInvocationCountFollowedByReturnValueButReplayOneTimeBeyondMax() {
       new Expectations() {{
          Dependency.staticMethod(any, null);
          maxTimes = 1;
@@ -192,8 +174,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordWithReturnValueFollowedByExpectedInvocationCount()
-   {
+   public void recordWithReturnValueFollowedByExpectedInvocationCount() {
       new Expectations() {{
          Dependency.staticMethod(any, null);
          result = 1;
@@ -204,8 +185,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void recordWithMinInvocationCountFollowedByReturnValueUsingDelegate()
-   {
+   public void recordWithMinInvocationCountFollowedByReturnValueUsingDelegate() {
       new Expectations() {{
          Dependency.staticMethod(any, null);
          minTimes = 1;
@@ -218,8 +198,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void mockedClassWithAnnotatedElements() throws Exception
-   {
+   public void mockedClassWithAnnotatedElements() throws Exception {
       Class<?> mockedClass = mock.getClass();
       assertTrue(mockedClass.isAnnotationPresent(Deprecated.class));
       assertTrue(mockedClass.getDeclaredField("value").isAnnotationPresent(Deprecated.class));
@@ -232,8 +211,7 @@ public final class ExpectationsTest
       assertTrue(mockedMethod.getParameterAnnotations()[0][0] instanceof Deprecated);
    }
 
-   static class Collaborator
-   {
+   static class Collaborator {
       private int value;
 
       int getValue() { return value; }
@@ -245,8 +223,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void expectOnlyOneInvocationButExerciseOthersDuringReplay(@Mocked final Collaborator mock)
-   {
+   public void expectOnlyOneInvocationButExerciseOthersDuringReplay(@Mocked final Collaborator mock) {
       thrown.expect(UnexpectedInvocation.class);
       new Expectations() {{ mock.provideSomeService(); }};
 
@@ -257,8 +234,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void expectNothingOnMockedTypeButExerciseItDuringReplay(@Mocked final Collaborator mock)
-   {
+   public void expectNothingOnMockedTypeButExerciseItDuringReplay(@Mocked final Collaborator mock) {
       thrown.expect(UnexpectedInvocation.class);
       new Expectations() {{ mock.setValue(anyInt); times = 0; }};
 
@@ -268,8 +244,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void replayWithUnexpectedStaticMethodInvocation(@Mocked final Collaborator mock)
-   {
+   public void replayWithUnexpectedStaticMethodInvocation(@Mocked final Collaborator mock) {
       thrown.expect(UnexpectedInvocation.class);
       new Expectations() {{ mock.getValue(); }};
 
@@ -279,8 +254,7 @@ public final class ExpectationsTest
    }
 
    @Test
-   public void failureFromUnexpectedInvocationInAnotherThread(@Mocked final Collaborator mock) throws Exception
-   {
+   public void failureFromUnexpectedInvocationInAnotherThread(@Mocked final Collaborator mock) throws Exception {
       Thread t = new Thread() {
          @Override
          public void run() { mock.provideSomeService(); }
@@ -298,8 +272,8 @@ public final class ExpectationsTest
 
    @Test
    public void recordingExpectationOnMethodWithOneArgumentButReplayingWithAnotherShouldProduceUsefulErrorMessage(
-      @Mocked final Collaborator mock) throws Exception
-   {
+      @Mocked final Collaborator mock
+   ) {
       final String expected = "expected";
       new Expectations() {{ mock.doSomething(expected); }};
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ import mockit.internal.expectations.invocation.*;
 
 public final class DynamicOnInstanceMockingTest
 {
-   static class Collaborator
-   {
+   static class Collaborator {
       protected int value;
 
       Collaborator() { value = -1; }
@@ -23,8 +18,7 @@ public final class DynamicOnInstanceMockingTest
       void setValue(int value) { this.value = value; }
    }
 
-   static class AnotherDependency
-   {
+   static class AnotherDependency {
       private String name;
 
       public String getName() { return name; }
@@ -32,8 +26,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingOneInstanceAndMatchingInvocationsOnlyOnThatInstance()
-   {
+   public void mockingOneInstanceAndMatchingInvocationsOnlyOnThatInstance() {
       Collaborator collaborator1 = new Collaborator();
       Collaborator collaborator2 = new Collaborator();
       final Collaborator collaborator3 = new Collaborator();
@@ -49,8 +42,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingTwoInstancesAndMatchingInvocationsOnEachOne()
-   {
+   public void mockingTwoInstancesAndMatchingInvocationsOnEachOne() {
       final Collaborator collaborator1 = new Collaborator();
       Collaborator collaborator2 = new Collaborator();
 
@@ -65,8 +57,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingAClassAndMatchingInvocationsOnAnyInstance()
-   {
+   public void mockingAClassAndMatchingInvocationsOnAnyInstance() {
       final Collaborator collaborator = new Collaborator();
 
       new Expectations(Collaborator.class) {{
@@ -79,8 +70,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingOneInstanceButRecordingOnAnother()
-   {
+   public void mockingOneInstanceButRecordingOnAnother() {
       Collaborator collaborator1 = new Collaborator();
       final Collaborator collaborator2 = new Collaborator();
       Collaborator collaborator3 = new Collaborator();
@@ -99,8 +89,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingOneInstanceAndOneClass()
-   {
+   public void mockingOneInstanceAndOneClass() {
       Collaborator collaborator1 = new Collaborator();
       final Collaborator collaborator2 = new Collaborator();
       Collaborator collaborator3 = new Collaborator();
@@ -126,8 +115,7 @@ public final class DynamicOnInstanceMockingTest
       assertEquals("name1", dep2.getName());
    }
 
-   public static class Foo
-   {
+   public static class Foo {
       Foo buildValue(@SuppressWarnings("unused") String s) { return this; }
       boolean doIt() { return false; }
       boolean doItAgain() { return false; }
@@ -137,8 +125,7 @@ public final class DynamicOnInstanceMockingTest
    public static class SubFoo extends Foo {}
 
    @Test
-   public void recordDuplicateInvocationOnTwoDynamicMocksOfDifferentTypesButSharedBaseClass()
-   {
+   public void recordDuplicateInvocationOnTwoDynamicMocksOfDifferentTypesButSharedBaseClass() {
       final Foo f1 = new Foo();
       final SubFoo f2 = new SubFoo();
 
@@ -154,8 +141,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void passBothClassLiteralAndInstanceInExpectationsConstructor()
-   {
+   public void passBothClassLiteralAndInstanceInExpectationsConstructor() {
       final Foo foo1 = new Foo();
       Foo foo2 = new Foo();
 
@@ -175,8 +161,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void verifyMethodInvocationCountOnMockedAndNonMockedInstances()
-   {
+   public void verifyMethodInvocationCountOnMockedAndNonMockedInstances() {
       final Foo foo1 = new Foo();
       final Foo foo2 = new Foo();
 
@@ -201,8 +186,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void createCascadedMockFromPartiallyMockedInstance()
-   {
+   public void createCascadedMockFromPartiallyMockedInstance() {
       final Foo foo = new Foo();
 
       new Expectations(foo) {{
@@ -213,8 +197,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void useAvailableMockedInstanceAsCascadeFromPartiallyMockedInstance(@Mocked AnotherDependency bar)
-   {
+   public void useAvailableMockedInstanceAsCascadeFromPartiallyMockedInstance(@Mocked AnotherDependency bar) {
       final Foo foo = new Foo();
 
       new Expectations(foo) {{
@@ -229,8 +212,7 @@ public final class DynamicOnInstanceMockingTest
    static final class Bar extends AnotherDependency {}
 
    @Test
-   public void useAvailableMockedSubclassInstanceAsCascadeFromPartiallyMockedInstance(@Mocked Bar bar)
-   {
+   public void useAvailableMockedSubclassInstanceAsCascadeFromPartiallyMockedInstance(@Mocked Bar bar) {
       final Foo foo = new Foo();
 
       new Expectations(foo) {{
@@ -243,8 +225,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void useItselfAsCascadeFromPartiallyMockedInstance()
-   {
+   public void useItselfAsCascadeFromPartiallyMockedInstance() {
       final Foo foo = new Foo();
 
       new Expectations(foo) {{
@@ -257,8 +238,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void verifySingleInvocationToMockedInstanceWithAdditionalInvocationToSameMethodOnAnotherInstance()
-   {
+   public void verifySingleInvocationToMockedInstanceWithAdditionalInvocationToSameMethodOnAnotherInstance() {
       final Collaborator mocked = new Collaborator();
 
       new Expectations(mocked) {};
@@ -274,8 +254,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test(expected = MissingInvocation.class)
-   public void verifyOrderedInvocationsToDynamicallyMockedInstanceWithAnotherInstanceInvolvedButMissingAnInvocation()
-   {
+   public void verifyOrderedInvocationsToDynamicallyMockedInstanceWithAnotherInstanceInvolvedButMissingAnInvocation() {
       final Collaborator mock = new Collaborator();
 
       new Expectations(mock) {};
@@ -290,8 +269,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void verifyOrderedInvocationsToDynamicallyMockedInstanceWithAnotherInstanceInvolved()
-   {
+   public void verifyOrderedInvocationsToDynamicallyMockedInstanceWithAnotherInstanceInvolved() {
       final Collaborator mock = new Collaborator();
 
       new Expectations(mock) {{ mock.setValue(anyInt); }};
@@ -310,8 +288,8 @@ public final class DynamicOnInstanceMockingTest
 
    @Test(expected = MissingInvocation.class)
    public void partiallyMockClassWithInjectableMockWhileHavingTwoMockParametersOfAnotherType(
-      @Injectable final Noop mock, @Mocked Baz a, @Mocked Baz b)
-   {
+      @Injectable final Noop mock, @Mocked Baz a, @Mocked Baz b
+   ) {
       Noop foo = new Noop();
       new Expectations(Noop.class) {{ mock.noop(); }};
 

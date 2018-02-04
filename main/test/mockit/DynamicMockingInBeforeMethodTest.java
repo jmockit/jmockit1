@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -14,8 +10,7 @@ public final class DynamicMockingInBeforeMethodTest
    final MockedClass anInstance = new MockedClass();
 
    @Before
-   public void recordExpectationsOnDynamicallyMockedClass()
-   {
+   public void recordExpectationsOnDynamicallyMockedClass() {
       assertTrue(anInstance.doSomething(56));
 
       new Expectations(anInstance) {{
@@ -26,22 +21,19 @@ public final class DynamicMockingInBeforeMethodTest
    }
 
    @After
-   public void verifyThatDynamicallyMockedClassIsStillMocked()
-   {
+   public void verifyThatDynamicallyMockedClassIsStillMocked() {
       new FullVerifications() {{
          anInstance.doSomething(anyInt); times = 2;
       }};
    }
 
    @Test
-   public void testSomething()
-   {
+   public void testSomething() {
       assertTrue(anInstance.doSomething(56));
    }
 
    @Test
-   public void testSomethingElse()
-   {
+   public void testSomethingElse() {
       assertTrue(anInstance.doSomething(-129));
    }
 }

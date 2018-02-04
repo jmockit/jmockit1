@@ -14,14 +14,12 @@ public final class ObjectOverridesAndInjectableMocksTest
    @Injectable ClassWithObjectOverrides b;
 
    @Test
-   public void verifyStandardBehaviorOfOverriddenEqualsMethodsInMockedClass()
-   {
+   public void verifyStandardBehaviorOfOverriddenEqualsMethodsInMockedClass() {
       assertDefaultEqualsBehavior(a, b);
       assertDefaultEqualsBehavior(b, a);
    }
 
-   void assertDefaultEqualsBehavior(Object obj1, Object obj2)
-   {
+   void assertDefaultEqualsBehavior(Object obj1, Object obj2) {
       assertFalse(obj1.equals(null));
       assertFalse(obj1.equals("test"));
       assertTrue(obj1.equals(obj1));
@@ -29,8 +27,7 @@ public final class ObjectOverridesAndInjectableMocksTest
    }
 
    @Test
-   public void allowAnyInvocationsOnOverriddenObjectMethodsForStrictMocks()
-   {
+   public void allowAnyInvocationsOnOverriddenObjectMethodsForStrictMocks() {
       new Expectations() {{ a.getIntValue(); result = 58; }};
 
       assertFalse(a.equals(b));
@@ -40,8 +37,7 @@ public final class ObjectOverridesAndInjectableMocksTest
       assertFalse(a.equals(b));
    }
 
-   static class BaseClass
-   {
+   static class BaseClass {
       final int value;
       BaseClass(int value) { this.value = value; }
       @Override public boolean equals(Object obj) { return value == ((BaseClass) obj).value; }
@@ -50,8 +46,7 @@ public final class ObjectOverridesAndInjectableMocksTest
    static class Subclass2 extends BaseClass { Subclass2() { super(2); } }
 
    @Test
-   public void executeEqualsOverrideOnInstancesOfDifferentSubclassThanTheOneMocked(@Injectable Subclass1 mocked)
-   {
+   public void executeEqualsOverrideOnInstancesOfDifferentSubclassThanTheOneMocked(@Injectable Subclass1 mocked) {
       Object s1 = new Subclass2();
       Object s2 = new Subclass2();
 

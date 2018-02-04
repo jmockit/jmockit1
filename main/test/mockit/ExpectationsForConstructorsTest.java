@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ import mockit.internal.expectations.invocation.*;
 
 public final class ExpectationsForConstructorsTest
 {
-   public static class BaseCollaborator
-   {
+   public static class BaseCollaborator {
       protected int value;
 
       protected BaseCollaborator() { value = -1; }
@@ -22,15 +17,13 @@ public final class ExpectationsForConstructorsTest
       protected boolean add(Integer i) { return i != null; }
    }
 
-   static class Collaborator extends BaseCollaborator
-   {
+   static class Collaborator extends BaseCollaborator {
       Collaborator() {}
       Collaborator(int value) { super(value); }
    }
 
    @SuppressWarnings("UnusedDeclaration")
-   public abstract static class AbstractCollaborator extends BaseCollaborator
-   {
+   public abstract static class AbstractCollaborator extends BaseCollaborator {
       protected AbstractCollaborator(int value) { super(value); }
       protected AbstractCollaborator(boolean b, int value) { super(value); }
 
@@ -38,8 +31,7 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void mockAllConstructors(@Mocked Collaborator unused)
-   {
+   public void mockAllConstructors(@Mocked Collaborator unused) {
       new Expectations() {{
          new Collaborator();
          new Collaborator(123);
@@ -50,8 +42,7 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void mockOnlyOneConstructor()
-   {
+   public void mockOnlyOneConstructor() {
       new Expectations(Collaborator.class) {{
          new Collaborator(123);
       }};
@@ -61,16 +52,14 @@ public final class ExpectationsForConstructorsTest
    }
 
    @Test
-   public void partiallyMockAbstractClass(@Mocked final AbstractCollaborator mock)
-   {
+   public void partiallyMockAbstractClass(@Mocked final AbstractCollaborator mock) {
       new Expectations() {{ mock.doSomething(); }};
 
       mock.doSomething();
    }
 
    @Test
-   public void partiallyMockSubclass()
-   {
+   public void partiallyMockSubclass() {
       final Collaborator mock = new Collaborator();
 
       new Expectations(BaseCollaborator.class) {{
@@ -81,24 +70,21 @@ public final class ExpectationsForConstructorsTest
       assertFalse(new Collaborator().add(5));
    }
 
-   static class A
-   {
+   static class A {
       @SuppressWarnings("UnusedDeclaration") private A() {}
       A(String s) { assertNotNull("A(String) executed with null", s); }
    }
    static class B extends A { B(String s) { super(s); } }
 
    @Test
-   public void mockClassHierarchyWhereFirstConstructorInBaseClassIsPrivate(@Mocked B mock)
-   {
+   public void mockClassHierarchyWhereFirstConstructorInBaseClassIsPrivate(@Mocked B mock) {
       new B("Test1");
    }
 
    static class D { D(@SuppressWarnings("unused") String s) {} }
 
    @Test
-   public void mockClassHierarchyWhereFirstConstructorInBaseClassOnAnotherPackageIsPackagePrivate(@Mocked D mock)
-   {
+   public void mockClassHierarchyWhereFirstConstructorInBaseClassOnAnotherPackageIsPackagePrivate(@Mocked D mock) {
       assertNotNull(mock);
       new D("Test1");
    }
@@ -107,40 +93,35 @@ public final class ExpectationsForConstructorsTest
    static class Derived extends Base {}
 
    @Test
-   public void recordAndReplayBaseConstructorInvocation(@Mocked Base mocked)
-   {
+   public void recordAndReplayBaseConstructorInvocation(@Mocked Base mocked) {
       new Expectations() {{ new Base(); }};
 
       new Base();
    }
 
    @Test(expected = MissingInvocation.class)
-   public void recordExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked)
-   {
+   public void recordExpectationOnBaseConstructorAndReplayWithCallToSuper(@Mocked Base mocked) {
       new Expectations() {{ new Base(); times = 1; }};
 
       new Derived();
    }
 
    @Test(expected = MissingInvocation.class)
-   public void verifyExpectationOnBaseConstructorReplayedWithCallToSuper(@Mocked Base mocked)
-   {
+   public void verifyExpectationOnBaseConstructorReplayedWithCallToSuper(@Mocked Base mocked) {
       new Derived();
 
       new Verifications() {{ new Base(); }};
    }
 
    @SuppressWarnings("unused")
-   static class Collaborator2
-   {
+   static class Collaborator2 {
       Collaborator2(long l) {}
       Collaborator2(Collaborator2 c) {}
       Collaborator2() { this(new Collaborator2(123L)); }
    }
 
    @Test
-   public void mockConstructorWhichCallsTwoOthersOfTheSameClass(@Mocked Collaborator2 mock)
-   {
+   public void mockConstructorWhichCallsTwoOthersOfTheSameClass(@Mocked Collaborator2 mock) {
       new Collaborator2();
    }
 }
