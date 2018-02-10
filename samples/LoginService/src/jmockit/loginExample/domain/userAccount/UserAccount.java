@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package jmockit.loginExample.domain.userAccount;
 
 import javax.annotation.*;
@@ -13,8 +9,7 @@ public final class UserAccount
    private boolean loggedIn;
    private boolean revoked;
 
-   public UserAccount(String id, String password)
-   {
+   public UserAccount(String id, String password) {
       this.id = id;
       this.password = password;
    }
@@ -29,13 +24,11 @@ public final class UserAccount
    public boolean isRevoked() { return revoked; }
    public void setRevoked(boolean value) { revoked = value; }
 
-   public boolean passwordMatches(String candidatePassword)
-   {
+   public boolean passwordMatches(String candidatePassword) {
       return password.equals(candidatePassword);
    }
 
-   public static UserAccount find(@Nonnull String accountId)
-   {
+   public static UserAccount find(@Nonnull String accountId) {
       throw new UnsupportedOperationException("Not implemented");
    }
 }

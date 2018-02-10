@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package jmockit.loginExample.domain.userLogin;
 
 import org.testng.annotations.*;
@@ -25,8 +21,7 @@ public final class LoginServiceNGTest
     * if said verification is added there, however, then this test could be removed without weakening the test suite.
     */
    @Test
-   public void setAccountToLoggedInWhenPasswordMatches() throws Exception
-   {
+   public void setAccountToLoggedInWhenPasswordMatches() throws Exception {
       willMatchPassword(true);
 
       service.login("john", "password");
@@ -34,14 +29,12 @@ public final class LoginServiceNGTest
       new Verifications() {{ account.setLoggedIn(true); }};
    }
 
-   void willMatchPassword(boolean... matches)
-   {
+   void willMatchPassword(boolean... matches) {
       new Expectations() {{ account.passwordMatches(anyString); result = matches; }};
    }
 
    @Test
-   public void setAccountToRevokedAfterThreeFailedLoginAttempts() throws Exception
-   {
+   public void setAccountToRevokedAfterThreeFailedLoginAttempts() throws Exception {
       willMatchPassword(false);
 
       for (int i = 0; i < 3; i++) {
@@ -57,8 +50,7 @@ public final class LoginServiceNGTest
     * never called; if said verification is added there, however, this test could safely be removed.
     */
    @Test
-   public void notSetAccountLoggedInIfPasswordDoesNotMatch() throws Exception
-   {
+   public void notSetAccountLoggedInIfPasswordDoesNotMatch() throws Exception {
       willMatchPassword(false);
 
       service.login("john", "password");
@@ -67,9 +59,7 @@ public final class LoginServiceNGTest
    }
 
    @Test
-   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked UserAccount secondAccount)
-      throws Exception
-   {
+   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked UserAccount secondAccount) throws Exception {
       new Expectations() {{
          UserAccount.find("roger"); result = secondAccount;
          secondAccount.passwordMatches(anyString); result = false;
@@ -83,8 +73,7 @@ public final class LoginServiceNGTest
    }
 
    @Test(expectedExceptions = AccountLoginLimitReachedException.class)
-   public void disallowConcurrentLogins() throws Exception
-   {
+   public void disallowConcurrentLogins() throws Exception {
       willMatchPassword(true);
 
       new Expectations() {{ account.isLoggedIn(); result = true; }};
@@ -93,16 +82,14 @@ public final class LoginServiceNGTest
    }
 
    @Test(expectedExceptions = UserAccountNotFoundException.class)
-   public void throwExceptionIfAccountNotFound() throws Exception
-   {
+   public void throwExceptionIfAccountNotFound() throws Exception {
       new Expectations() {{ UserAccount.find("roger"); result = null; }};
 
       service.login("roger", "password");
    }
 
    @Test(expectedExceptions = UserAccountRevokedException.class)
-   public void disallowLoggingIntoRevokedAccount() throws Exception
-   {
+   public void disallowLoggingIntoRevokedAccount() throws Exception {
       willMatchPassword(true);
 
       new Expectations() {{ account.isRevoked(); result = true; }};
@@ -111,8 +98,7 @@ public final class LoginServiceNGTest
    }
 
    @Test
-   public void resetBackToInitialStateAfterSuccessfulLogin() throws Exception
-   {
+   public void resetBackToInitialStateAfterSuccessfulLogin() throws Exception {
       willMatchPassword(false, false, true, false);
 
       service.login("john", "password");

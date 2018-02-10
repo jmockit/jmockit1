@@ -1,10 +1,5 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package java8testing;
 
-import java.io.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -16,21 +11,18 @@ import mockit.*;
 final class InterfacesWithMethodBodiesTest
 {
    @FunctionalInterface
-   public interface InterfaceWithDefaultMethods
-   {
+   public interface InterfaceWithDefaultMethods {
       int regularMethod();
       default int defaultMethod() { return -1; }
    }
 
-   public static final class ClassWhichOverridesDefaultMethodFromInterface implements InterfaceWithDefaultMethods
-   {
+   public static final class ClassWhichOverridesDefaultMethodFromInterface implements InterfaceWithDefaultMethods {
       @Override public int regularMethod() { return 4; }
       @Override public int defaultMethod() { return 5; }
    }
 
    @Test
-   void mockInterfaceWithDefaultMethods(@Mocked InterfaceWithDefaultMethods mock)
-   {
+   void mockInterfaceWithDefaultMethods(@Mocked InterfaceWithDefaultMethods mock) {
       new Expectations() {{
          mock.defaultMethod(); result = 2;
          mock.regularMethod(); result = 1;
@@ -41,8 +33,7 @@ final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   void mockClassWithOverriddenDefaultMethod(@Mocked ClassWhichOverridesDefaultMethodFromInterface mock)
-   {
+   void mockClassWithOverriddenDefaultMethod(@Mocked ClassWhichOverridesDefaultMethodFromInterface mock) {
       new Expectations() {{
          mock.defaultMethod(); result = 2;
          mock.regularMethod(); result = 1;
@@ -52,37 +43,29 @@ final class InterfacesWithMethodBodiesTest
       assertEquals(2, mock.defaultMethod());
    }
 
-   public static class ClassWhichInheritsDefaultMethodFromInterface implements InterfaceWithDefaultMethods
-   {
+   public static class ClassWhichInheritsDefaultMethodFromInterface implements InterfaceWithDefaultMethods {
       @Override public int regularMethod() { return 3; }
    }
 
    @Test
-   void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock)
-   {
-      new Expectations() {{
-         mock.defaultMethod();
-         result = 123;
-      }};
+   void mockClassWithInheritedDefaultMethod(@Mocked ClassWhichInheritsDefaultMethodFromInterface mock) {
+      new Expectations() {{ mock.defaultMethod(); result = 123; }};
 
       assertEquals(123, mock.defaultMethod());
    }
 
-   public interface SubInterfaceWithDefaultMethods extends InterfaceWithDefaultMethods
-   {
+   public interface SubInterfaceWithDefaultMethods extends InterfaceWithDefaultMethods {
       default String anotherDefaultMethod(int i) { return String.valueOf(i); }
       @SuppressWarnings("unused") void anotherRegularMethod(boolean b, String... names);
    }
 
-   static final class ClassInheritingFromInterfaceHierarchy implements SubInterfaceWithDefaultMethods
-   {
+   static final class ClassInheritingFromInterfaceHierarchy implements SubInterfaceWithDefaultMethods {
       @Override public int regularMethod() { return 4; }
       @Override public void anotherRegularMethod(boolean b, String... names) {}
    }
 
    @Test
-   void mockClassInheritingFromInterfaceHierarchy(@Injectable ClassInheritingFromInterfaceHierarchy mock)
-   {
+   void mockClassInheritingFromInterfaceHierarchy(@Injectable ClassInheritingFromInterfaceHierarchy mock) {
       new Expectations() {{
          mock.defaultMethod(); result = 123;
          mock.regularMethod(); result = 22;
@@ -94,22 +77,18 @@ final class InterfacesWithMethodBodiesTest
       assertEquals("one", mock.anotherDefaultMethod(1));
    }
 
-   public interface AnotherInterfaceWithDefaultMethods
-   {
+   public interface AnotherInterfaceWithDefaultMethods {
       default int defaultMethod1() { return 1; }
-      default int defaultMethod2() throws IOException { return 2; }
+      default int defaultMethod2() { return 2; }
    }
 
-   static final class ClassInheritingMultipleDefaultMethods
-      implements SubInterfaceWithDefaultMethods, AnotherInterfaceWithDefaultMethods
-   {
+   static final class ClassInheritingMultipleDefaultMethods implements SubInterfaceWithDefaultMethods, AnotherInterfaceWithDefaultMethods {
       @Override public int regularMethod() { return 5; }
       @Override public void anotherRegularMethod(boolean b, String... names) {}
    }
 
    @Test
-   void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() throws Exception
-   {
+   void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() {
       ClassInheritingMultipleDefaultMethods obj = new ClassInheritingMultipleDefaultMethods();
 
       new Expectations(ClassInheritingMultipleDefaultMethods.class) {{
@@ -125,23 +104,19 @@ final class InterfacesWithMethodBodiesTest
       assertEquals("one", obj.anotherDefaultMethod(1));
       obj.anotherRegularMethod(true);
 
-      new Verifications() {{
-         obj.anotherRegularMethod(anyBoolean, (String[]) any);
-      }};
+      new Verifications() {{ obj.anotherRegularMethod(anyBoolean, (String[]) any); }};
    }
 
    public interface InterfaceWithStaticMethod { static InterfaceWithStaticMethod newInstance() { return null; } }
 
    @Test
-   void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock)
-   {
+   void mockStaticMethodInInterface(@Mocked InterfaceWithStaticMethod mock) {
       InterfaceWithStaticMethod actual = InterfaceWithStaticMethod.newInstance();
       assertSame(mock, actual);
    }
 
    @Test
-   void mockFunctionalInterfaceFromJRE(@Mocked Consumer<String> mockConsumer)
-   {
+   void mockFunctionalInterfaceFromJRE(@Mocked Consumer<String> mockConsumer) {
       StringBuilder concatenated = new StringBuilder();
 
       new Expectations() {{
@@ -157,23 +132,19 @@ final class InterfacesWithMethodBodiesTest
       assertEquals("mocking a lambda ", concatenated.toString());
    }
 
-   interface NonPublicBase
-   {
+   interface NonPublicBase {
       default int baseDefault() { return -1; }
       default String getDefault() { return "default"; }
       static void doStatic() { throw new RuntimeException("1"); }
    }
 
-   interface NonPublicDerived extends NonPublicBase
-   {
+   interface NonPublicDerived extends NonPublicBase {
       @Override default String getDefault() { return "default derived"; }
       static void doAnotherStatic() { throw new RuntimeException("2"); }
    }
 
    @Test
-   void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(
-      @Mocked NonPublicBase base, @Mocked NonPublicDerived derived)
-   {
+   void mockNonPublicInterfaceHierarchyWithDefaultAndStaticMethods(@Mocked NonPublicBase base, @Mocked NonPublicDerived derived) {
       new Expectations() {{
          base.baseDefault(); result = 1;
          derived.baseDefault(); result = 2;

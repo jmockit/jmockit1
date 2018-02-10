@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package jmockit.loginExample.domain.userLogin;
 
 import org.testng.annotations.*;
@@ -23,8 +19,7 @@ public final class LoginServiceIntegrationTest
    UserAccount account;
 
    @BeforeMethod
-   public void setUpOneAccountToBeFound()
-   {
+   public void setUpOneAccountToBeFound() {
       userId = "john";
       userPassword = "password";
       account = new UserAccount(userId, userPassword);
@@ -33,8 +28,7 @@ public final class LoginServiceIntegrationTest
    }
 
    @Test
-   public void setAccountToLoggedInWhenPasswordMatches() throws Exception
-   {
+   public void setAccountToLoggedInWhenPasswordMatches() throws Exception {
       // Failed login attempts are inconsequential, provided they don't exceed the maximum number of attempts.
       service.login(userId, "wrong password");
       service.login(userId, "wrong password");
@@ -46,8 +40,7 @@ public final class LoginServiceIntegrationTest
    }
 
    @Test
-   public void setAccountToRevokedAfterThreeFailedLoginAttempts() throws Exception
-   {
+   public void setAccountToRevokedAfterThreeFailedLoginAttempts() throws Exception {
       service.login(userId, "wrong password");
       service.login(userId, "wrong password");
       service.login(userId, "wrong password");
@@ -57,8 +50,7 @@ public final class LoginServiceIntegrationTest
    }
 
    @Test
-   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount() throws Exception
-   {
+   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount() throws Exception {
       UserAccount secondAccount = new UserAccount("roger", "password");
       new Expectations() {{ UserAccount.find("roger"); result = secondAccount; }};
 
@@ -70,24 +62,21 @@ public final class LoginServiceIntegrationTest
    }
 
    @Test(expectedExceptions = AccountLoginLimitReachedException.class)
-   public void disallowConcurrentLogins() throws Exception
-   {
+   public void disallowConcurrentLogins() throws Exception {
       account.setLoggedIn(true);
 
       service.login(userId, userPassword);
    }
 
    @Test(expectedExceptions = UserAccountNotFoundException.class)
-   public void throwExceptionIfAccountNotFound() throws Exception
-   {
+   public void throwExceptionIfAccountNotFound() throws Exception {
       new Expectations() {{ UserAccount.find("roger"); result = null; }};
 
       service.login("roger", "password");
    }
 
    @Test(expectedExceptions = UserAccountRevokedException.class)
-   public void disallowLoggingIntoRevokedAccount() throws Exception
-   {
+   public void disallowLoggingIntoRevokedAccount() throws Exception {
       account.setRevoked(true);
 
       service.login(userId, userPassword);

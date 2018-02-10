@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package java8testing;
 
 import org.junit.jupiter.api.*;
@@ -16,30 +12,26 @@ final class JUnit5Test
    @Injectable Collaborator collaborator;
 
    @BeforeEach
-   void checkMockAndTestedFields()
-   {
+   void checkMockAndTestedFields() {
       assertNotNull(utils);
       assertNotNull(collaborator);
       assertNull(cut);
    }
 
    @AfterEach
-   void checkMockAndTestedFieldsAgain()
-   {
+   void checkMockAndTestedFieldsAgain() {
       assertNotNull(utils);
       assertNotNull(collaborator);
       assertNull(cut);
    }
 
    @Test
-   void withParameterProvidedByJUnit(TestInfo testInfo)
-   {
+   void withParameterProvidedByJUnit(TestInfo testInfo) {
       assertNotNull(testInfo);
    }
 
    @Test
-   void withMockParameters(@Mocked Runnable mock, @Injectable("test") String text)
-   {
+   void withMockParameters(@Mocked Runnable mock, @Injectable("test") String text) {
       assertNotNull(mock);
       assertEquals("test", text);
       assertNotNull(collaborator);
@@ -47,26 +39,22 @@ final class JUnit5Test
    }
 
    @Nested
-   final class InnerTest
-   {
+   final class InnerTest {
       @BeforeEach
-      void setUp()
-      {
+      void setUp() {
          assertNotNull(utils);
          assertNotNull(collaborator);
          assertNull(cut);
       }
 
       @Test
-      void innerTest()
-      {
+      void innerTest() {
          assertNotNull(collaborator);
          assertSame(collaborator, cut.getCollaborator());
       }
 
       @Test
-      void innerTestWithMockParameter(@Injectable("123") int number)
-      {
+      void innerTestWithMockParameter(@Injectable("123") int number) {
          assertEquals(123, number);
       }
    }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package jmockit.loginExample.domain.userLogin;
 
 import javax.annotation.*;
@@ -16,9 +12,9 @@ public final class LoginService
    @Nullable private String previousAccountId;
    @Nullable private UserAccount account;
 
-   public void login(@Nonnull String accountId, @Nonnull String password)
-      throws UserAccountNotFoundException, UserAccountRevokedException, AccountLoginLimitReachedException
-   {
+   public void login(
+      @Nonnull String accountId, @Nonnull String password
+   ) throws UserAccountNotFoundException, UserAccountRevokedException, AccountLoginLimitReachedException {
       account = UserAccount.find(accountId);
 
       if (account == null) {
@@ -33,8 +29,7 @@ public final class LoginService
       }
    }
 
-   private void registerNewLogin() throws AccountLoginLimitReachedException, UserAccountRevokedException
-   {
+   private void registerNewLogin() throws AccountLoginLimitReachedException, UserAccountRevokedException {
       //noinspection ConstantConditions
       if (account.isLoggedIn()) {
          throw new AccountLoginLimitReachedException();
@@ -48,8 +43,7 @@ public final class LoginService
       loginAttemptsRemaining = MAX_LOGIN_ATTEMPTS;
    }
 
-   private void handleFailedLoginAttempt(@Nonnull String accountId)
-   {
+   private void handleFailedLoginAttempt(@Nonnull String accountId) {
       if (previousAccountId == null) {
          loginAttemptsRemaining--;
          previousAccountId = accountId;

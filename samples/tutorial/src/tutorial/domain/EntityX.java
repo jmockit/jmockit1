@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package tutorial.domain;
 
 import java.math.*;
@@ -19,8 +15,7 @@ public class EntityX
 
    public EntityX() {}
 
-   public EntityX(int type, String code, String customerEmail)
-   {
+   public EntityX(int type, String code, String customerEmail) {
       this.customerEmail = customerEmail;
       someProperty = "abc";
    }

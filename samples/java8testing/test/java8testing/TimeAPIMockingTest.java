@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package java8testing;
 
 import java.time.*;
@@ -14,8 +10,7 @@ import mockit.*;
 final class TimeAPIMockingTest
 {
    @Test
-   void mockClock()
-   {
+   void mockClock() {
       // Create a test clock with a fixed instant.
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T10:15:30");
       ZoneId zoneId = ZoneId.systemDefault();
@@ -29,8 +24,7 @@ final class TimeAPIMockingTest
    }
 
    @Test
-   void mockLocalDateTime()
-   {
+   void mockLocalDateTime() {
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T09:35:12");
 
       new Expectations(LocalDateTime.class) {{ LocalDateTime.now(); result = testDateTime; }};
@@ -41,8 +35,7 @@ final class TimeAPIMockingTest
    }
 
    @Test
-   void mockInstant()
-   {
+   void mockInstant() {
       Instant testInstant = Instant.parse("2014-05-10T09:35:12Z");
 
       new Expectations(Instant.class) {{ Instant.now(); result = testInstant; }};

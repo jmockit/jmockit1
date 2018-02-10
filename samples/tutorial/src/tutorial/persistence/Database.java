@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package tutorial.persistence;
 
 import java.sql.*;
@@ -37,8 +33,7 @@ public final class Database
    private static final ThreadLocal<EntityManager> workUnit = new ThreadLocal<>();
    private static final EntityManagerFactory entityManagerFactory;
 
-   static
-   {
+   static {
       EntityManagerFactory factory = null;
 
       try {
@@ -53,14 +48,12 @@ public final class Database
 
    private Database() {}
 
-   public static <E> E find(Class<E> entityClass, Object entityId)
-   {
+   public static <E> E find(Class<E> entityClass, Object entityId) {
       E entity = workUnit().find(entityClass, entityId);
       return entity;
    }
 
-   public static <E> List<E> find(String ql, Object... args)
-   {
+   public static <E> List<E> find(String ql, Object... args) {
       Query query = workUnit().createQuery(ql);
       int position = 1;
 
@@ -80,18 +73,15 @@ public final class Database
       }
    }
 
-   public static void persist(Object data)
-   {
+   public static void persist(Object data) {
       workUnit().persist(data);
    }
 
-   public static void remove(Object persistentEntity)
-   {
+   public static void remove(Object persistentEntity) {
       workUnit().remove(persistentEntity);
    }
 
-   private static EntityManager workUnit()
-   {
+   private static EntityManager workUnit() {
       EntityManager wu = workUnit.get();
 
       if (wu == null) {

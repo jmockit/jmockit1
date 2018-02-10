@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package java8testing;
 
 import java.util.*;
@@ -17,8 +13,8 @@ public final class Java8EmptyReturnsTest
    @Test
    public void mockMethodsReturningJava8ObjectsWhichCanBeEmpty(
       @Injectable Stream<?> stream, @Injectable Stream<Integer> streamOfIntegers,
-      @Injectable Stream<Long> streamOfLongs, @Injectable Stream<Double> streamOfDoubles)
-   {
+      @Injectable Stream<Long> streamOfLongs, @Injectable Stream<Double> streamOfDoubles
+   ) {
       Optional<?> any = stream.findAny();
       assertSame(Optional.empty(), any);
 
@@ -43,8 +39,8 @@ public final class Java8EmptyReturnsTest
 
    @Test
    public void mockMethodsReturningJava8PrimitiveSpecializationsWhichCanBeEmpty(
-      @Injectable IntStream intStream, @Injectable LongStream longStream, @Injectable DoubleStream doubleStream)
-   {
+      @Injectable IntStream intStream, @Injectable LongStream longStream, @Injectable DoubleStream doubleStream
+   ) {
       assertSame(OptionalInt.empty(), intStream.max());
       assertSame(OptionalLong.empty(), longStream.min());
       assertSame(OptionalDouble.empty(), doubleStream.findFirst());

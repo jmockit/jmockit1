@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package tutorial.domain;
 
 import java.math.*;
@@ -53,8 +49,7 @@ public final class MyBusinessService
 
    // This method can easily be made transactional, so that any exception thrown during its execution causes a rollback
    // somewhere up in the call stack (assuming a transaction gets started in the first place).
-   public void doBusinessOperationXyz() throws EmailException
-   {
+   public void doBusinessOperationXyz() throws EmailException {
       // Locate existing persistent entities of the same entity type (note that the query string is a DSL for querying
       // persistent domain entities, written in terms of the domain, not in terms of relational tables and columns):
       List<EntityX> items = find("select item from EntityX item where item.someProperty=?1", data.getSomeProperty());
@@ -69,8 +64,7 @@ public final class MyBusinessService
       sendNotificationEmail(items);
    }
 
-   private void sendNotificationEmail(List<EntityX> items) throws EmailException
-   {
+   private void sendNotificationEmail(List<EntityX> items) throws EmailException {
       Email email = new SimpleEmail();
       email.setSubject("Notification about processing of ...");
       email.addTo(data.getCustomerEmail());
@@ -84,8 +78,7 @@ public final class MyBusinessService
       email.send();
    }
 
-   private static String buildNotificationMessage(List<EntityX> items)
-   {
+   private static String buildNotificationMessage(List<EntityX> items) {
       StringBuilder message = new StringBuilder();
 
       for (EntityX item : items) {

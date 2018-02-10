@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package tutorial.domain;
 
 import org.junit.*;
@@ -22,8 +18,7 @@ public final class MyBusinessServiceTest
    @Mocked SimpleEmail anyEmail;
 
    @Test
-   public void doBusinessOperationXyz() throws Exception
-   {
+   public void doBusinessOperationXyz() throws Exception {
       EntityX existingItem = new EntityX(1, "AX5", "abc@xpta.net");
       persist(existingItem);
 
@@ -34,8 +29,7 @@ public final class MyBusinessServiceTest
    }
 
    @Test
-   public void doBusinessOperationXyzWithInvalidEmailAddress() throws Exception
-   {
+   public void doBusinessOperationXyzWithInvalidEmailAddress() throws Exception {
       String email = "invalid address";
       data.setCustomerEmail(email);
       new Expectations() {{ anyEmail.addTo(email); result = new EmailException(); }};
