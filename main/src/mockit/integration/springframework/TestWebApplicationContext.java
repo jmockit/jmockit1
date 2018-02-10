@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.springframework;
@@ -19,16 +19,14 @@ import org.springframework.web.context.support.*;
 public final class TestWebApplicationContext extends StaticWebApplicationContext
 {
    @Override @Nonnull
-   public Object getBean(@Nonnull String name)
-   {
+   public Object getBean(@Nonnull String name) {
       BeanExporter beanExporter = getBeanExporter();
       Object bean = BeanLookup.getBean(beanExporter, name);
       return bean;
    }
 
    @Nonnull
-   private static BeanExporter getBeanExporter()
-   {
+   private static BeanExporter getBeanExporter() {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
@@ -39,16 +37,14 @@ public final class TestWebApplicationContext extends StaticWebApplicationContext
    }
 
    @Override @Nonnull
-   public <T> T getBean(@Nonnull String name, @Nullable Class<T> requiredType)
-   {
+   public <T> T getBean(@Nonnull String name, @Nullable Class<T> requiredType) {
       BeanExporter beanExporter = getBeanExporter();
       T bean = BeanLookup.getBean(beanExporter, name, requiredType);
       return bean;
    }
 
    @Override @Nonnull
-   public <T> T getBean(@Nonnull Class<T> requiredType)
-   {
+   public <T> T getBean(@Nonnull Class<T> requiredType) {
       BeanExporter beanExporter = getBeanExporter();
       T bean = BeanLookup.getBean(beanExporter, requiredType);
       return bean;

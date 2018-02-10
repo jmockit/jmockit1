@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.springframework;
@@ -26,8 +26,7 @@ import org.springframework.beans.factory.support.*;
 public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
 {
    @Mock
-   public Object getBean(@Nonnull Invocation invocation, @Nonnull String name)
-   {
+   public Object getBean(@Nonnull Invocation invocation, @Nonnull String name) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
@@ -40,8 +39,7 @@ public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
    }
 
    @Mock
-   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull String name, @Nullable Class<T> requiredType)
-   {
+   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull String name, @Nullable Class<T> requiredType) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
@@ -54,8 +52,7 @@ public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
    }
 
    @Mock
-   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull Class<T> requiredType)
-   {
+   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull Class<T> requiredType) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {

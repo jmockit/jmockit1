@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit4.internal;
@@ -23,22 +23,19 @@ import mockit.internal.util.*;
  */
 public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
 {
-   public static boolean hasDependenciesInClasspath()
-   {
+   public static boolean hasDependenciesInClasspath() {
       return ClassLoad.searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null;
    }
 
    @Nonnull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();
 
    @Nullable @Mock
-   public Object invokeExplosively(@Nonnull Invocation invocation, Object target, Object... params) throws Throwable
-   {
+   public Object invokeExplosively(@Nonnull Invocation invocation, Object target, Object... params) throws Throwable {
       return decorator.invokeExplosively((FakeInvocation) invocation, target, params);
    }
 
    @Mock
-   public static void validatePublicVoidNoArg(@Nonnull Invocation invocation, boolean isStatic, List<Throwable> errors)
-   {
+   public static void validatePublicVoidNoArg(@Nonnull Invocation invocation, boolean isStatic, List<Throwable> errors) {
       FrameworkMethod it = invocation.getInvokedInstance();
       int previousErrorCount = errors.size();
 
@@ -58,8 +55,7 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
       }
    }
 
-   private static boolean eachParameterContainsAKnownAnnotation(@Nonnull Annotation[][] parametersAndTheirAnnotations)
-   {
+   private static boolean eachParameterContainsAKnownAnnotation(@Nonnull Annotation[][] parametersAndTheirAnnotations) {
       if (parametersAndTheirAnnotations.length == 0) {
          return false;
       }
@@ -73,8 +69,7 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
       return true;
    }
 
-   private static boolean containsAKnownAnnotation(@Nonnull Annotation[] parameterAnnotations)
-   {
+   private static boolean containsAKnownAnnotation(@Nonnull Annotation[] parameterAnnotations) {
       if (parameterAnnotations.length == 0) {
          return false;
       }

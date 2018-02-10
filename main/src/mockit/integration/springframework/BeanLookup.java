@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.springframework;
@@ -13,8 +13,7 @@ import org.springframework.beans.factory.*;
 final class BeanLookup
 {
    @Nonnull
-   static Object getBean(@Nonnull BeanExporter beanExporter, @Nonnull String name)
-   {
+   static Object getBean(@Nonnull BeanExporter beanExporter, @Nonnull String name) {
       Object bean = beanExporter.getBean(name);
 
       if (bean == null) {
@@ -25,8 +24,7 @@ final class BeanLookup
    }
 
    @Nonnull @SuppressWarnings("unchecked")
-   static <T> T getBean(@Nonnull BeanExporter beanExporter, @Nonnull String name, @Nullable Class<T> requiredType)
-   {
+   static <T> T getBean(@Nonnull BeanExporter beanExporter, @Nonnull String name, @Nullable Class<T> requiredType) {
       if (requiredType == null) {
          return (T) getBean(beanExporter, name);
       }
@@ -52,8 +50,7 @@ final class BeanLookup
    }
 
    @Nonnull
-   static <T> T getBean(@Nonnull BeanExporter beanExporter, @Nonnull Class<T> requiredType)
-   {
+   static <T> T getBean(@Nonnull BeanExporter beanExporter, @Nonnull Class<T> requiredType) {
       T bean = beanExporter.getBean(requiredType);
 
       if (bean == null) {

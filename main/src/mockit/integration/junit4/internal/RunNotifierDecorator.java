@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit4.internal;
@@ -24,8 +24,7 @@ import mockit.internal.state.TestRun;
 public final class RunNotifierDecorator extends MockUp<RunNotifier>
 {
    @Mock
-   public static void fireTestRunStarted(Invocation invocation, Description description)
-   {
+   public static void fireTestRunStarted(Invocation invocation, Description description) {
       RunNotifier it = invocation.getInvokedInstance();
 
       if (CodeCoverage.active() && TestCoverage.INSTANCE != null) {
@@ -36,14 +35,12 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       it.fireTestRunStarted(description);
    }
 
-   private static void prepareToProceed(@Nonnull Invocation invocation)
-   {
+   private static void prepareToProceed(@Nonnull Invocation invocation) {
       ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
    }
 
    @Mock
-   public static void fireTestStarted(Invocation invocation, Description description)
-   {
+   public static void fireTestStarted(Invocation invocation, Description description) {
       Class<?> currentTestClass = TestRun.getCurrentTestClass();
 
       if (currentTestClass != null) {
@@ -61,8 +58,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
    }
 
    @Mock
-   public static void fireTestRunFinished(Invocation invocation, Result result)
-   {
+   public static void fireTestRunFinished(Invocation invocation, Result result) {
       TestRun.enterNoMockingZone();
 
       try {

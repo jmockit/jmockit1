@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.junit5;
@@ -16,8 +16,7 @@ public final class JMockitTestEngine implements TestEngine
 {
    private static TestDescriptor descriptor;
 
-   public JMockitTestEngine()
-   {
+   public JMockitTestEngine() {
       if (descriptor != null) {
          return; // already created in same test run
       }
@@ -27,8 +26,7 @@ public final class JMockitTestEngine implements TestEngine
       if (Startup.initializeIfPossible()) {
          new MockUp<ExtensionRegistry>() {
             @Mock
-            ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams)
-            {
+            ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams) {
                ExtensionRegistry registry = inv.proceed();
 
                Extension extension = new JMockitExtension();
@@ -47,8 +45,7 @@ public final class JMockitTestEngine implements TestEngine
    public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) { return descriptor; }
 
    @Override
-   public void execute(ExecutionRequest executionRequest)
-   {
+   public void execute(ExecutionRequest executionRequest) {
       EngineExecutionListener executionListener = executionRequest.getEngineExecutionListener();
       executionListener.executionStarted(descriptor);
       executionListener.executionFinished(descriptor, TestExecutionResult.successful());

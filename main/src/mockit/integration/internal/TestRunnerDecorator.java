@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.internal;
@@ -31,8 +31,7 @@ public class TestRunnerDecorator
 
    protected TestRunnerDecorator() { shouldPrepareForNextTest = true; }
 
-   protected final void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass)
-   {
+   protected final void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass) {
       testClass = getActualTestClass(testClass);
 
       try {
@@ -61,13 +60,11 @@ public class TestRunnerDecorator
    }
 
    @Nonnull
-   private static Class<?> getActualTestClass(@Nonnull Class<?> testClass)
-   {
+   private static Class<?> getActualTestClass(@Nonnull Class<?> testClass) {
       return testClass.isSynthetic() ? testClass.getSuperclass() : testClass;
    }
 
-   private static void handleSwitchToNewTestClassIfApplicable(@Nonnull Class<?> testClass)
-   {
+   private static void handleSwitchToNewTestClassIfApplicable(@Nonnull Class<?> testClass) {
       Class<?> currentTestClass = TestRun.getCurrentTestClass();
 
       if (testClass != currentTestClass) {
@@ -86,14 +83,12 @@ public class TestRunnerDecorator
    public static void cleanUpMocksFromPreviousTestClass() { cleanUpMocks(true); }
    protected static void cleanUpMocksFromPreviousTest() { cleanUpMocks(false); }
 
-   public static void cleanUpAllMocks()
-   {
+   public static void cleanUpAllMocks() {
       cleanUpMocks(true);
       TestRun.getFakeClasses().discardStartupFakes();
    }
 
-   private static void cleanUpMocks(boolean forTestClassAsWell)
-   {
+   private static void cleanUpMocks(boolean forTestClassAsWell) {
       discardTestLevelMockedTypes();
 
       if (forTestClassAsWell) {
@@ -103,8 +98,7 @@ public class TestRunnerDecorator
       clearFieldTypeRedefinitions();
    }
 
-   private static void rollbackForTestClass()
-   {
+   private static void rollbackForTestClass() {
       SavePoint savePoint = savePointForTestClass;
 
       if (savePoint != null) {
@@ -113,8 +107,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void clearFieldTypeRedefinitions()
-   {
+   protected static void clearFieldTypeRedefinitions() {
       TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions != null) {
@@ -123,8 +116,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void prepareForNextTest()
-   {
+   protected static void prepareForNextTest() {
       if (savePointForTest == null) {
          savePointForTest = new SavePoint();
       }
@@ -132,8 +124,7 @@ public class TestRunnerDecorator
       TestRun.prepareForNextTest();
    }
 
-   protected static void discardTestLevelMockedTypes()
-   {
+   protected static void discardTestLevelMockedTypes() {
       SavePoint savePoint = savePointForTest;
 
       if (savePoint != null) {
@@ -142,8 +133,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected final void handleMockFieldsForWholeTestClass(@Nonnull Object target)
-   {
+   protected final void handleMockFieldsForWholeTestClass(@Nonnull Object target) {
       Class<?> testClass = getActualTestClass(target.getClass());
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
@@ -168,8 +158,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance)
-   {
+   protected static void createInstancesForTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
@@ -184,8 +173,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup)
-   {
+   protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
@@ -202,8 +190,8 @@ public class TestRunnerDecorator
 
    @Nullable
    protected static Object[] createInstancesForAnnotatedParameters(
-      @Nonnull Object testClassInstance, @Nonnull Method testMethod, @Nullable Object[] parameterValues)
-   {
+      @Nonnull Object testClassInstance, @Nonnull Method testMethod, @Nullable Object[] parameterValues
+   ) {
       int numParameters = testMethod.getParameterTypes().length;
 
       if (numParameters == 0) {
@@ -233,9 +221,8 @@ public class TestRunnerDecorator
    }
 
    protected static void concludeTestMethodExecution(
-      @Nonnull SavePoint savePoint, @Nullable Throwable thrownByTest, boolean thrownAsExpected)
-      throws Throwable
-   {
+      @Nonnull SavePoint savePoint, @Nullable Throwable thrownByTest, boolean thrownAsExpected
+   ) throws Throwable {
       TestRun.enterNoMockingZone();
 
       Error expectationsFailure = RecordAndReplayExecution.endCurrentReplayIfAny();
@@ -265,8 +252,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void clearTestedObjectsIfAny()
-   {
+   protected static void clearTestedObjectsIfAny() {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
@@ -274,8 +260,7 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void clearTestedObjectsCreatedDuringSetup()
-   {
+   protected static void clearTestedObjectsCreatedDuringSetup() {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
@@ -283,8 +268,7 @@ public class TestRunnerDecorator
       }
    }
 
-   private static boolean isUnexpectedOrMissingInvocation(@Nonnull Throwable error)
-   {
+   private static boolean isUnexpectedOrMissingInvocation(@Nonnull Throwable error) {
       Class<?> errorType = error.getClass();
       return errorType == UnexpectedInvocation.class || errorType == MissingInvocation.class;
    }

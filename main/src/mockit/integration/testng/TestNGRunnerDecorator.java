@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.integration.testng;
@@ -28,21 +28,17 @@ import static mockit.internal.util.Utilities.*;
  * <p/>
  * This class is not supposed to be accessed from user code; it will be automatically loaded at startup.
  */
-public final class TestNGRunnerDecorator extends TestRunnerDecorator
-   implements IInvokedMethodListener, IExecutionListener
+public final class TestNGRunnerDecorator extends TestRunnerDecorator implements IInvokedMethodListener, IExecutionListener
 {
-   public static final class FakeParameters extends MockUp<Parameters>
-   {
+   public static final class FakeParameters extends MockUp<Parameters> {
       @Mock
       public static void checkParameterTypes(
          String methodName, Class<?>[] parameterTypes, String methodAnnotation, String[] parameterNames) {}
 
-      @Mock
-      @Nullable
+      @Mock @Nullable
       public static Object getInjectedParameter(
-         @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method,
-         ITestContext context, ITestResult testResult)
-      {
+         @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method, ITestContext context, ITestResult testResult
+      ) {
          ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
          //noinspection deprecation
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
@@ -71,14 +67,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
 
       @Mock
-      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context)
-      {
+      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context) {
          return TestNGRunnerDecorator.injectParameters(parameterValues, method);
       }
    }
 
-   private static boolean isMethodWithParametersProvidedByTestNG(@Nonnull Method method)
-   {
+   private static boolean isMethodWithParametersProvidedByTestNG(@Nonnull Method method) {
       if (method.isAnnotationPresent(org.testng.annotations.Parameters.class)) {
          return true;
       }
@@ -88,18 +82,14 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       return testMetadata != null && !testMetadata.dataProvider().isEmpty();
    }
 
-   public static final class FakeInvoker extends MockUp<Invoker>
-   {
+   public static final class FakeInvoker extends MockUp<Invoker> {
       @Mock
-      public static Object[] injectParameters(
-         Object[] parameterValues, Method method, ITestContext context, ITestResult testResult)
-      {
+      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context, ITestResult testResult) {
          return TestNGRunnerDecorator.injectParameters(parameterValues, method);
       }
    }
 
-   static Object[] injectParameters(Object[] parameterValues, Method method)
-   {
+   static Object[] injectParameters(Object[] parameterValues, Method method) {
       if (method == null) {
          return parameterValues;
       }
@@ -127,14 +117,12 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
 
    @Nonnull private final ThreadLocal<SavePoint> savePoint;
 
-   public TestNGRunnerDecorator()
-   {
+   public TestNGRunnerDecorator() {
       savePoint = new ThreadLocal<SavePoint>();
    }
 
    @Override
-   public void beforeInvocation(@Nonnull IInvokedMethod invokedMethod, @Nonnull ITestResult testResult)
-   {
+   public void beforeInvocation(@Nonnull IInvokedMethod invokedMethod, @Nonnull ITestResult testResult) {
       ITestNGMethod testNGMethod = testResult.getMethod();
       Class<?> testClass = testResult.getTestClass().getRealClass();
 
@@ -189,8 +177,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void exportCurrentTestMethodIfApplicable(@Nullable Method testMethod)
-   {
+   private static void exportCurrentTestMethodIfApplicable(@Nullable Method testMethod) {
       TestCoverage testCoverage = TestCoverage.INSTANCE;
 
       if (testCoverage != null) {
@@ -198,8 +185,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private void beforeConfigurationMethod(@Nonnull ITestNGMethod method, @Nonnull Class<?> testClass)
-   {
+   private void beforeConfigurationMethod(@Nonnull ITestNGMethod method, @Nonnull Class<?> testClass) {
       TestRun.enterNoMockingZone();
 
       try {
@@ -240,8 +226,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    @Override
-   public void afterInvocation(@Nonnull IInvokedMethod invokedMethod, @Nonnull ITestResult testResult)
-   {
+   public void afterInvocation(@Nonnull IInvokedMethod invokedMethod, @Nonnull ITestResult testResult) {
       if (!invokedMethod.isTestMethod()) {
          afterConfigurationMethod(testResult);
          return;
@@ -281,8 +266,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void afterConfigurationMethod(@Nonnull ITestResult testResult)
-   {
+   private static void afterConfigurationMethod(@Nonnull ITestResult testResult) {
       TestRun.enterNoMockingZone();
 
       try {
@@ -301,9 +285,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void concludeTestExecutionWithNothingThrown(
-      @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult)
-   {
+   private static void concludeTestExecutionWithNothingThrown(@Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult) {
       clearTestMethodArguments(testResult);
 
       try {
@@ -316,8 +298,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       }
    }
 
-   private static void clearTestMethodArguments(@Nonnull ITestResult testResult)
-   {
+   private static void clearTestMethodArguments(@Nonnull ITestResult testResult) {
       Method method = testResult.getMethod().getConstructorOrMethod().getMethod();
 
       if (!isMethodWithParametersProvidedByTestNG(method)) {
@@ -326,8 +307,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void concludeTestExecutionWithExpectedExceptionNotThrown(
-      @Nonnull IInvokedMethod invokedMethod, @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult)
-   {
+      @Nonnull IInvokedMethod invokedMethod, @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult
+   ) {
       clearTestMethodArguments(testResult);
 
       try {
@@ -347,8 +328,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void concludeTestExecutionWithExpectedExceptionThrown(
-      @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest)
-   {
+      @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest
+   ) {
       clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
@@ -365,8 +346,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    private static void concludeTestExecutionWithUnexpectedExceptionThrown(
-      @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest)
-   {
+      @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest
+   ) {
       clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
@@ -376,8 +357,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
       catch (Throwable ignored) {}
    }
 
-   private static boolean isExpectedException(@Nonnull IInvokedMethod invokedMethod, @Nonnull Throwable thrownByTest)
-   {
+   private static boolean isExpectedException(@Nonnull IInvokedMethod invokedMethod, @Nonnull Throwable thrownByTest) {
       Method testMethod = invokedMethod.getTestMethod().getConstructorOrMethod().getMethod();
       Class<?>[] expectedExceptions = testMethod.getAnnotation(Test.class).expectedExceptions();
       Class<? extends Throwable> thrownExceptionType = thrownByTest.getClass();
@@ -392,8 +372,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    @Override
-   public void onExecutionStart()
-   {
+   public void onExecutionStart() {
       if (Startup.initializeIfPossible()) {
          new FakeParameters();
          new FakeInvoker();
@@ -401,8 +380,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator
    }
 
    @Override
-   public void onExecutionFinish()
-   {
+   public void onExecutionFinish() {
       TestRun.enterNoMockingZone();
 
       try {
