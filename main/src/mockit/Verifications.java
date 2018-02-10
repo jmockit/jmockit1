@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -58,8 +58,7 @@ public abstract class Verifications extends Invocations
     */
    protected Verifications() { this(false); }
 
-   Verifications(boolean inOrder)
-   {
+   Verifications(boolean inOrder) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForVerifications();
       verificationPhase = instance.startVerifications(inOrder);
    }
@@ -102,8 +101,7 @@ public abstract class Verifications extends Invocations
     * @see #withCapture(Object)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withCapture()
-   {
+   protected final <T> T withCapture() {
       verificationPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
       //noinspection ConstantConditions
       return null;
@@ -138,8 +136,7 @@ public abstract class Verifications extends Invocations
     * @see #withCapture(List)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
-   protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification)
-   {
+   protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification) {
       return verificationPhase.getNewInstancesMatchingVerifiedConstructorInvocation();
    }
 }

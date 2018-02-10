@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -33,8 +33,7 @@ public class Invocation
    /**
     * For internal use only.
     */
-   protected Invocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, int invocationCount)
-   {
+   protected Invocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, int invocationCount) {
       this.invokedInstance = invokedInstance;
       this.invokedArguments = invokedArguments;
       this.invocationCount = invocationCount;
@@ -44,8 +43,7 @@ public class Invocation
     * Returns the instance on which the current invocation was made, or <tt>null</tt> for a <tt>static</tt> method
     * invocation.
     */
-   public final <T> T getInvokedInstance()
-   {
+   public final <T> T getInvokedInstance() {
       //noinspection unchecked,ConstantConditions
       return (T) invokedInstance;
    }
@@ -54,8 +52,7 @@ public class Invocation
     * Returns the <tt>Method</tt> or <tt>Constructor</tt> object corresponding to the target method or constructor,
     * respectively.
     */
-   public final <M extends Member> M getInvokedMember()
-   {
+   public final <M extends Member> M getInvokedMember() {
       //noinspection unchecked,ClassReferencesSubclass
       return (M) ((BaseInvocation) this).getRealMember();
    }
@@ -104,8 +101,7 @@ public class Invocation
     *
     * @see <a href="http://jmockit.github.io/tutorial/Faking.html#proceed" target="tutorial">Tutorial</a>
     */
-   public final <T> T proceed(Object... replacementArguments)
-   {
+   public final <T> T proceed(Object... replacementArguments) {
       //noinspection ClassReferencesSubclass
       return ((BaseInvocation) this).doProceed(replacementArguments);
    }

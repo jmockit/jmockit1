@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -29,8 +29,7 @@ public abstract class FullVerificationsInOrder extends Verifications
     * Begins <em>in-order</em> verification for <em>all</em> invocations on the mocked types/instances that can
     * potentially be invoked from code under test.
     */
-   protected FullVerificationsInOrder()
-   {
+   protected FullVerificationsInOrder() {
       super(true);
       verificationPhase.setAllInvocationsMustBeVerified();
    }
@@ -43,8 +42,7 @@ public abstract class FullVerificationsInOrder extends Verifications
     * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
     * including) <tt>java.lang.Object</tt> are considered
     */
-   protected FullVerificationsInOrder(Object... mockedTypesAndInstancesToVerify)
-   {
+   protected FullVerificationsInOrder(Object... mockedTypesAndInstancesToVerify) {
       this();
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }

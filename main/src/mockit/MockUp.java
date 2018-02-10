@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -65,8 +65,7 @@ public abstract class MockUp<T>
     * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class specified through the
     * type parameter.
     */
-   protected MockUp()
-   {
+   protected MockUp() {
       MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
 
       if (previousFake != null) {
@@ -103,16 +102,14 @@ public abstract class MockUp<T>
    }
 
    @Nullable
-   private MockUp<?> findPreviouslyFakedClassIfFakeAlreadyApplied()
-   {
+   private MockUp<?> findPreviouslyFakedClassIfFakeAlreadyApplied() {
       FakeClasses fakeClasses = TestRun.getFakeClasses();
       MockUp<?> previousFake = fakeClasses.findPreviouslyAppliedFake(this);
       return previousFake;
    }
 
    @Nonnull
-   private Type getTypeToFake()
-   {
+   private Type getTypeToFake() {
       Class<?> currentClass = getClass();
 
       do {
@@ -131,8 +128,7 @@ public abstract class MockUp<T>
       while (true);
    }
 
-   private void redefineClass(@Nonnull Class<T> classToFake)
-   {
+   private void redefineClass(@Nonnull Class<T> classToFake) {
       if (!classToFake.isInterface()) {
          Class<T> realClass = classToFake;
 
@@ -144,9 +140,7 @@ public abstract class MockUp<T>
       }
    }
 
-   private void redefineMethods(
-      @Nonnull Class<T> realClass, @Nonnull Class<T> classToFake, @Nullable Type genericFakedType)
-   {
+   private void redefineMethods(@Nonnull Class<T> realClass, @Nonnull Class<T> classToFake, @Nullable Type genericFakedType) {
       FakeClassSetup fakeSetup = new FakeClassSetup(realClass, classToFake, genericFakedType, this);
       fakeSetup.redefineMethods();
    }
@@ -160,8 +154,7 @@ public abstract class MockUp<T>
     * implementation applicable to any class; it can then be applied at the beginning of the test run with the desired
     * target class being specified in the test run configuration.
     */
-   protected MockUp(@SuppressWarnings("NullableProblems") Class<?> targetClass)
-   {
+   protected MockUp(@SuppressWarnings("NullableProblems") Class<?> targetClass) {
       targetType = targetClass;
       MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
 

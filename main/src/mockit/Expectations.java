@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -133,8 +133,7 @@ public abstract class Expectations extends Invocations
     * @see #Expectations(Object...)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
     */
-   protected Expectations()
-   {
+   protected Expectations() {
       execution = new RecordAndReplayExecution(this, (Object[]) null);
    }
 
@@ -162,8 +161,7 @@ public abstract class Expectations extends Invocations
     * 
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
-   protected Expectations(Object... classesOrObjectsToBePartiallyMocked)
-   {
+   protected Expectations(Object... classesOrObjectsToBePartiallyMocked) {
       execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
    }
 
@@ -199,8 +197,7 @@ public abstract class Expectations extends Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
-   protected final void returns(Object firstValue, Object secondValue, Object... remainingValues)
-   {
+   protected final void returns(Object firstValue, Object secondValue, Object... remainingValues) {
       RecordPhase currentPhase = getCurrentPhase();
 
       if (currentPhase != null) {

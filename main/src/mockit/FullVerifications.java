@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -45,8 +45,7 @@ public abstract class FullVerifications extends Verifications
     * instances that are in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not
     * including) <tt>java.lang.Object</tt> are considered
     */
-   protected FullVerifications(Object... mockedTypesAndInstancesToVerify)
-   {
+   protected FullVerifications(Object... mockedTypesAndInstancesToVerify) {
       this();
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }

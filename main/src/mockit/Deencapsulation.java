@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -33,8 +33,7 @@ public final class Deencapsulation
     * @see #getField(Class, String)
     * @see #setField(Object, String, Object)
     */
-   public static <T> T getField(Object objectWithField, String fieldName)
-   {
+   public static <T> T getField(Object objectWithField, String fieldName) {
       return FieldReflection.getField(objectWithField.getClass(), fieldName, objectWithField);
    }
 
@@ -52,8 +51,7 @@ public final class Deencapsulation
     * @see #getField(Class, String)
     * @see #setField(Object, Object)
     */
-   public static <T> T getField(Object objectWithField, Class<T> fieldType)
-   {
+   public static <T> T getField(Object objectWithField, Class<T> fieldType) {
       return FieldReflection.getField(objectWithField.getClass(), fieldType, objectWithField);
    }
 
@@ -70,8 +68,7 @@ public final class Deencapsulation
     * @see #getField(Object, String)
     * @see #setField(Class, String, Object)
     */
-   public static <T> T getField(Class<?> classWithStaticField, String fieldName)
-   {
+   public static <T> T getField(Class<?> classWithStaticField, String fieldName) {
       return FieldReflection.getField(classWithStaticField, fieldName, null);
    }
 
@@ -89,8 +86,7 @@ public final class Deencapsulation
     * @see #getField(Object, Class)
     * @see #setField(Class, Object)
     */
-   public static <T> T getField(Class<?> classWithStaticField, Class<T> fieldType)
-   {
+   public static <T> T getField(Class<?> classWithStaticField, Class<T> fieldType) {
       return FieldReflection.getField(classWithStaticField, fieldType, null);
    }
 
@@ -107,8 +103,7 @@ public final class Deencapsulation
     * @see #setField(Object, Object)
     * @see #getField(Object, String)
     */
-   public static void setField(Object objectWithField, String fieldName, Object fieldValue)
-   {
+   public static void setField(Object objectWithField, String fieldName, Object fieldValue) {
       FieldReflection.setField(objectWithField.getClass(), objectWithField, fieldName, fieldValue);
    }
 
@@ -122,8 +117,7 @@ public final class Deencapsulation
     * @see #setField(Class, String, Object)
     * @see #getField(Object, String)
     */
-   public static void setField(Object objectWithField, Object fieldValue)
-   {
+   public static void setField(Object objectWithField, Object fieldValue) {
       FieldReflection.setField(objectWithField.getClass(), objectWithField, null, fieldValue);
    }
 
@@ -140,8 +134,7 @@ public final class Deencapsulation
     * @see #setField(Object, String, Object)
     * @see #getField(Class, String)
     */
-   public static void setField(Class<?> classWithStaticField, String fieldName, Object fieldValue)
-   {
+   public static void setField(Class<?> classWithStaticField, String fieldName, Object fieldValue) {
       FieldReflection.setField(classWithStaticField, null, fieldName, fieldValue);
    }
 
@@ -158,8 +151,7 @@ public final class Deencapsulation
     * @see #setField(Object, Object)
     * @see #getField(Class, Class)
     */
-   public static void setField(Class<?> classWithStaticField, Object fieldValue)
-   {
+   public static void setField(Class<?> classWithStaticField, Object fieldValue) {
       FieldReflection.setField(classWithStaticField, null, null, fieldValue);
    }
 
@@ -173,8 +165,7 @@ public final class Deencapsulation
     *
     * @return a newly created instance of the specified class, with any instance fields left uninitialized
     */
-   public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate)
-   {
+   public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate) {
       if (classToInstantiate.isInterface()) {
          T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
          return instance;

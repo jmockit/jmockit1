@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit;
@@ -382,8 +382,7 @@ abstract class Invocations
     *
     * @see #with(Delegate)
     */
-   protected final <T> T withArgThat(Matcher<? super T> argumentMatcher)
-   {
+   protected final <T> T withArgThat(Matcher<? super T> argumentMatcher) {
       HamcrestAdapter matcher = new HamcrestAdapter(argumentMatcher);
       addMatcher(matcher);
 
@@ -422,8 +421,7 @@ abstract class Invocations
     * @see #withArgThat(org.hamcrest.Matcher)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T with(Delegate<? super T> objectWithDelegateMethod)
-   {
+   protected final <T> T with(Delegate<? super T> objectWithDelegateMethod) {
       Class<?> delegateClass = objectWithDelegateMethod.getClass();
       Type[] genericInterfaces = delegateClass.getGenericInterfaces();
 
@@ -444,8 +442,7 @@ abstract class Invocations
       return DefaultValues.computeForWrapperType(parameterType);
    }
 
-   private void addMatcher(@Nonnull ArgumentMatcher<?> matcher)
-   {
+   private void addMatcher(@Nonnull ArgumentMatcher<?> matcher) {
       TestOnlyPhase currentPhase = getCurrentPhase();
 
       if (currentPhase != null) {
@@ -476,8 +473,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withAny(T arg)
-   {
+   protected final <T> T withAny(T arg) {
       ArgumentMatcher<?> matcher;
       if (arg instanceof String) matcher = AlwaysTrueMatcher.ANY_STRING;
       else if (arg instanceof Integer) matcher = AlwaysTrueMatcher.ANY_INT;
@@ -519,8 +515,7 @@ abstract class Invocations
     * @see Verifications#withCapture(Object)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withCapture(List<T> valueHolderForMultipleInvocations)
-   {
+   protected final <T> T withCapture(List<T> valueHolderForMultipleInvocations) {
       addMatcher(new CaptureMatcher<T>(valueHolderForMultipleInvocations));
       return null;
    }
@@ -552,8 +547,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withEqual(T arg)
-   {
+   protected final <T> T withEqual(T arg) {
       TestOnlyPhase currentPhase = getCurrentPhase();
 
       if (currentPhase != null) {
@@ -584,8 +578,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final double withEqual(double value, double delta)
-   {
+   protected final double withEqual(double value, double delta) {
       addMatcher(new NumericEqualityMatcher(value, delta));
       return value;
    }
@@ -610,8 +603,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final float withEqual(float value, double delta)
-   {
+   protected final float withEqual(float value, double delta) {
       addMatcher(new NumericEqualityMatcher(value, delta));
       return value;
    }
@@ -638,8 +630,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withInstanceLike(T object)
-   {
+   protected final <T> T withInstanceLike(T object) {
       addMatcher(ClassMatcher.create(object.getClass()));
       return object;
    }
@@ -663,8 +654,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withInstanceOf(Class<T> argClass)
-   {
+   protected final <T> T withInstanceOf(Class<T> argClass) {
       addMatcher(ClassMatcher.create(argClass));
       return null;
    }
@@ -688,8 +678,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withNotEqual(T arg)
-   {
+   protected final <T> T withNotEqual(T arg) {
       addMatcher(new InequalityMatcher(arg));
       return arg;
    }
@@ -710,8 +699,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withNull()
-   {
+   protected final <T> T withNull() {
       addMatcher(NullityMatcher.INSTANCE);
       return null;
    }
@@ -733,8 +721,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withNotNull()
-   {
+   protected final <T> T withNotNull() {
       addMatcher(NonNullityMatcher.INSTANCE);
       return null;
    }
@@ -758,8 +745,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T> T withSameInstance(T object)
-   {
+   protected final <T> T withSameInstance(T object) {
       addMatcher(new SamenessMatcher(object));
       return object;
    }
@@ -785,8 +771,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T extends CharSequence> T withSubstring(T text)
-   {
+   protected final <T extends CharSequence> T withSubstring(T text) {
       addMatcher(new StringContainmentMatcher(text));
       return text;
    }
@@ -810,8 +795,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T extends CharSequence> T withPrefix(T text)
-   {
+   protected final <T extends CharSequence> T withPrefix(T text) {
       addMatcher(new StringPrefixMatcher(text));
       return text;
    }
@@ -835,8 +819,7 @@ abstract class Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T extends CharSequence> T withSuffix(T text)
-   {
+   protected final <T extends CharSequence> T withSuffix(T text) {
       addMatcher(new StringSuffixMatcher(text));
       return text;
    }
@@ -864,8 +847,7 @@ abstract class Invocations
     * @see Pattern#compile(String, int)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
-   protected final <T extends CharSequence> T withMatch(T regex)
-   {
+   protected final <T extends CharSequence> T withMatch(T regex) {
       addMatcher(new PatternMatcher(regex.toString()));
       return regex;
    }
