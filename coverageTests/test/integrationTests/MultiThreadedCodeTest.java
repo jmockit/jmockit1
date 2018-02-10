@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -11,8 +7,7 @@ public final class MultiThreadedCodeTest extends CoverageTest
    MultiThreadedCode tested;
 
    @Test
-   public void nonBlockingOperation() throws Exception
-   {
+   public void nonBlockingOperation() throws Exception {
       Thread worker = MultiThreadedCode.nonBlockingOperation();
       worker.join();
 

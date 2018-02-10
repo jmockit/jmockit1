@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -13,14 +9,12 @@ public final class UnreachableStatementsTest extends CoverageTest
    UnreachableStatements tested;
 
    @Test
-   public void staticClassInitializerShouldHaveNoBranches()
-   {
+   public void staticClassInitializerShouldHaveNoBranches() {
       assertLine(3, 1, 1, 5); // one execution for each test (the constructor), plus one for the static initializer
    }
 
    @Test
-   public void nonBranchingMethodWithUnreachableLines()
-   {
+   public void nonBranchingMethodWithUnreachableLines() {
       try { tested.nonBranchingMethodWithUnreachableLines(); } catch (AssertionError ignore) {}
 
       assertLines(7, 10, 2);
@@ -37,8 +31,7 @@ public final class UnreachableStatementsTest extends CoverageTest
    }
 
    @Test
-   public void branchingMethodWithUnreachableLines_avoidAssertion()
-   {
+   public void branchingMethodWithUnreachableLines_avoidAssertion() {
       tested.branchingMethodWithUnreachableLines(0);
 
       assertLines(14, 20, 3);
@@ -53,8 +46,7 @@ public final class UnreachableStatementsTest extends CoverageTest
    }
 
    @Test
-   public void branchingMethodWithUnreachableLines_hitAndFailAssertion()
-   {
+   public void branchingMethodWithUnreachableLines_hitAndFailAssertion() {
       try { tested.branchingMethodWithUnreachableLines(1); } catch (AssertionError ignore) {}
 
       // Accounts for executions from previous test.

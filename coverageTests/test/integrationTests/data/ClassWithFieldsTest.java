@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.data;
 
 import org.junit.*;
@@ -13,8 +9,7 @@ public final class ClassWithFieldsTest extends CoverageTest
    ClassWithFields tested;
 
    @Test
-   public void setGetStatic1()
-   {
+   public void setGetStatic1() {
       ClassWithFields.setStatic1(1);
       ClassWithFields.setStatic1(2);
       assert ClassWithFields.getStatic1() == 2;
@@ -23,16 +18,14 @@ public final class ClassWithFieldsTest extends CoverageTest
    }
 
    @Test
-   public void setStatic2()
-   {
+   public void setStatic2() {
       ClassWithFields.setStatic2("test");
 
       assertStaticFieldUncovered("static2");
    }
 
    @Test
-   public void setGetSetStatic3()
-   {
+   public void setGetSetStatic3() {
       ClassWithFields.setStatic3(1);
       assert ClassWithFields.getStatic3() == 1;
       ClassWithFields.setStatic3(2);
@@ -41,8 +34,7 @@ public final class ClassWithFieldsTest extends CoverageTest
    }
 
    @Test
-   public void setGetInstance1()
-   {
+   public void setGetInstance1() {
       tested.setInstance1(true);
       assert tested.isInstance1();
 
@@ -50,16 +42,14 @@ public final class ClassWithFieldsTest extends CoverageTest
    }
 
    @Test
-   public void setInstance2()
-   {
+   public void setInstance2() {
       tested.setInstance2(false);
 
       assertInstanceFieldUncovered("instance2", tested);
    }
 
    @Test
-   public void setGetSetInstance3()
-   {
+   public void setGetSetInstance3() {
       tested.setInstance3(2.5);
       assert tested.getInstance3() >= 2.5;
       tested.setInstance3(-0.9);
@@ -68,8 +58,7 @@ public final class ClassWithFieldsTest extends CoverageTest
    }
 
    @AfterClass
-   public static void verifyDataCoverage()
-   {
+   public static void verifyDataCoverage() {
       verifyDataCoverage(6, 2, 33);
    }
 }

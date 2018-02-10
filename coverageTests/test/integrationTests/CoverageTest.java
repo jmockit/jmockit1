@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import java.lang.reflect.*;
@@ -26,8 +22,7 @@ public class CoverageTest
    private int currentPathIndex = -1;
 
    @Before
-   public final void findCoverageData() throws Exception
-   {
+   public final void findCoverageData() throws Exception {
       Field testedField = getClass().getDeclaredField("tested");
       Class<?> testedClass = testedField.getType();
 
@@ -37,8 +32,7 @@ public class CoverageTest
       }
    }
 
-   private void findFileDate(@Nonnull Class<?> testedClass)
-   {
+   private void findFileDate(@Nonnull Class<?> testedClass) {
       testedClassSimpleName = testedClass.getSimpleName();
 
       String classFilePath = testedClass.getName().replace('.', '/') + ".java";
@@ -48,8 +42,7 @@ public class CoverageTest
       assertNotNull("FileCoverageData not found for " + classFilePath, fileData);
    }
 
-   private void setTestedFieldToNewInstanceIfApplicable(@Nonnull Field testedField) throws Exception
-   {
+   private void setTestedFieldToNewInstanceIfApplicable(@Nonnull Field testedField) throws Exception {
       Class<?> testedClass = testedField.getType();
 
       if (!testedClass.isEnum() && !isAbstract(testedClass.getModifiers()) && !isFinal(testedField.getModifiers())) {
@@ -65,8 +58,7 @@ public class CoverageTest
    }
 
    @Nonnull
-   private FileCoverageData fileData()
-   {
+   private FileCoverageData fileData() {
       if (fileData == null) {
          Object testedInstance;
 
@@ -83,8 +75,7 @@ public class CoverageTest
       return fileData;
    }
 
-   protected final void assertLines(int startingLine, int endingLine, int expectedLinesExecuted)
-   {
+   protected final void assertLines(int startingLine, int endingLine, int expectedLinesExecuted) {
       PerFileLineCoverage lineCoverageInfo = fileData().lineCoverageInfo;
       int lineCount = lineCoverageInfo.getLineCount();
       assertTrue("Starting line not found", lineCount >= startingLine);
@@ -101,9 +92,7 @@ public class CoverageTest
       assertEquals("Unexpected number of lines executed:", expectedLinesExecuted, linesExecuted);
    }
 
-   protected final void assertLine(
-      int line, int expectedSegments, int expectedCoveredSegments, int... expectedExecutionCounts)
-   {
+   protected final void assertLine(int line, int expectedSegments, int expectedCoveredSegments, int... expectedExecutionCounts) {
       PerFileLineCoverage info = fileData().lineCoverageInfo;
       LineCoverageData lineData = info.getLineData(line);
 
@@ -133,9 +122,7 @@ public class CoverageTest
       }
    }
 
-   protected final void assertBranchingPoints(
-      int line, int expectedSourcesAndTargets, int expectedCoveredSourcesAndTargets)
-   {
+   protected final void assertBranchingPoints(int line, int expectedSourcesAndTargets, int expectedCoveredSourcesAndTargets) {
       PerFileLineCoverage lineCoverageInfo = fileData().lineCoverageInfo;
       LineCoverageData lineData = lineCoverageInfo.getLineData(line);
 
@@ -146,28 +133,24 @@ public class CoverageTest
 //      assertEquals("Covered sources and targets:", expectedCoveredSourcesAndTargets, coveredSourcesAndTargets);
    }
 
-   protected final void findMethodData(int firstLineOfMethodBody)
-   {
+   protected final void findMethodData(int firstLineOfMethodBody) {
       methodData = fileData().pathCoverageInfo.firstLineToMethodData.get(firstLineOfMethodBody);
       assertNotNull("Method not found with first line " + firstLineOfMethodBody, methodData);
    }
 
-   protected final void assertPaths(int expectedPaths, int expectedCoveredPaths, int expectedExecutionCount)
-   {
+   protected final void assertPaths(int expectedPaths, int expectedCoveredPaths, int expectedExecutionCount) {
       assertEquals("Number of paths:", expectedPaths, methodData.getTotalPaths());
       assertEquals("Number of covered paths:", expectedCoveredPaths, methodData.getCoveredPaths());
       assertEquals("Execution count for all paths:", expectedExecutionCount, methodData.getExecutionCount());
    }
 
-   protected final void assertMethodLines(int startingLine, int endingLine)
-   {
+   protected final void assertMethodLines(int startingLine, int endingLine) {
       assertEquals(startingLine, methodData.getFirstLineInBody());
       assertEquals(endingLine, methodData.getLastLineInBody());
    }
 
    @Nonnull
-   protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount)
-   {
+   protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount) {
       int i = currentPathIndex + 1;
       currentPathIndex = -1;
 
@@ -179,21 +162,18 @@ public class CoverageTest
       return path;
    }
 
-   protected final void assertRegularPath(int expectedNodeCount, int expectedExecutionCount)
-   {
+   protected final void assertRegularPath(int expectedNodeCount, int expectedExecutionCount) {
       Path path = assertPath(expectedNodeCount, expectedExecutionCount);
       assertFalse("Path is shadowed", path.isShadowed());
    }
 
-   protected final void assertShadowedPath(int expectedNodeCount, int expectedExecutionCount)
-   {
+   protected final void assertShadowedPath(int expectedNodeCount, int expectedExecutionCount) {
       Path path = assertPath(expectedNodeCount, expectedExecutionCount);
       assertTrue("Path is not shadowed", path.isShadowed());
    }
 
    @After
-   public final void verifyThatAllPathsWereAccountedFor()
-   {
+   public final void verifyThatAllPathsWereAccountedFor() {
       int nextPathIndex = currentPathIndex + 1;
 
       if (methodData != null && nextPathIndex > 0) {
@@ -201,59 +181,46 @@ public class CoverageTest
       }
    }
 
-   protected final void assertFieldIgnored(@Nonnull String fieldName)
-   {
+   protected final void assertFieldIgnored(@Nonnull String fieldName) {
       String fieldId = testedClassSimpleName + '.' + fieldName;
       PerFileDataCoverage info = fileData().dataCoverageInfo;
-      assertFalse(
-         "Field " + fieldName + " should not have static coverage data",
-         info.staticFieldsData.containsKey(fieldId));
-      assertFalse(
-         "Field " + fieldName + " should not have instance coverage data",
-         info.instanceFieldsData.containsKey(fieldId));
+      assertFalse("Field " + fieldName + " should not have static coverage data", info.staticFieldsData.containsKey(fieldId));
+      assertFalse("Field " + fieldName + " should not have instance coverage data", info.instanceFieldsData.containsKey(fieldId));
    }
 
-   protected static void assertStaticFieldCovered(@Nonnull String fieldName)
-   {
+   protected static void assertStaticFieldCovered(@Nonnull String fieldName) {
       assertTrue("Static field " + fieldName + " should be covered", isStaticFieldCovered(fieldName));
    }
 
-   private static boolean isStaticFieldCovered(@Nonnull String fieldName)
-   {
+   private static boolean isStaticFieldCovered(@Nonnull String fieldName) {
       String classAndFieldNames = testedClassSimpleName + '.' + fieldName;
       StaticFieldData staticFieldData = fileData.dataCoverageInfo.staticFieldsData.get(classAndFieldNames);
 
       return staticFieldData.isCovered();
    }
 
-   protected static void assertStaticFieldUncovered(@Nonnull String fieldName)
-   {
+   protected static void assertStaticFieldUncovered(@Nonnull String fieldName) {
       assertFalse("Static field " + fieldName + " should not be covered", isStaticFieldCovered(fieldName));
    }
 
-   protected static void assertInstanceFieldCovered(@Nonnull String fieldName)
-   {
+   protected static void assertInstanceFieldCovered(@Nonnull String fieldName) {
       assertTrue("Instance field " + fieldName + " should be covered", isInstanceFieldCovered(fieldName));
    }
 
-   private static boolean isInstanceFieldCovered(@Nonnull String fieldName)
-   {
+   private static boolean isInstanceFieldCovered(@Nonnull String fieldName) {
       return getInstanceFieldData(fieldName).isCovered();
    }
 
-   private static InstanceFieldData getInstanceFieldData(@Nonnull String fieldName)
-   {
+   private static InstanceFieldData getInstanceFieldData(@Nonnull String fieldName) {
       String classAndFieldNames = testedClassSimpleName + '.' + fieldName;
       return fileData.dataCoverageInfo.instanceFieldsData.get(classAndFieldNames);
    }
 
-   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName)
-   {
+   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName) {
       assertFalse("Instance field " + fieldName + " should not be covered", isInstanceFieldCovered(fieldName));
    }
 
-   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName, @Nonnull Object... uncoveredInstances)
-   {
+   protected static void assertInstanceFieldUncovered(@Nonnull String fieldName, @Nonnull Object... uncoveredInstances) {
       String msg = "Instance field " + fieldName + " should not be covered";
       InstanceFieldData fieldData = getInstanceFieldData(fieldName);
       List<Integer> ownerInstances = fieldData.getOwnerInstancesWithUnreadAssignments();
@@ -266,8 +233,7 @@ public class CoverageTest
       }
    }
 
-   protected static void verifyDataCoverage(int expectedItems, int expectedCoveredItems, int expectedCoverage)
-   {
+   protected static void verifyDataCoverage(int expectedItems, int expectedCoveredItems, int expectedCoverage) {
       PerFileDataCoverage info = fileData.dataCoverageInfo;
       assertEquals("Total data items:", expectedItems, info.getTotalItems());
       assertEquals("Covered data items:", expectedCoveredItems, info.getCoveredItems());

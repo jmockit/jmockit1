@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.otherControlStructures;
 
 import org.junit.*;
@@ -13,8 +9,7 @@ public final class SwitchStatementsTest extends CoverageTest
    final SwitchStatements tested = new SwitchStatements();
 
    @Test
-   public void switchStatementWithSparseCasesAndDefault()
-   {
+   public void switchStatementWithSparseCasesAndDefault() {
       tested.switchStatementWithSparseCasesAndDefault('A');
       tested.switchStatementWithSparseCasesAndDefault('\0');
 
@@ -36,8 +31,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithSparseCasesAndDefaultOnDefaultCase()
-   {
+   public void switchStatementWithSparseCasesAndDefaultOnDefaultCase() {
       tested.anotherSwitchStatementWithSparseCasesAndDefault('x');
 
       findMethodData(26);
@@ -45,8 +39,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithCompactCasesAndDefault()
-   {
+   public void switchStatementWithCompactCasesAndDefault() {
       tested.switchStatementWithCompactCasesAndDefault(2);
       tested.switchStatementWithCompactCasesAndDefault(4);
 
@@ -59,8 +52,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithCompactCasesAndDefaultOnDefaultCase()
-   {
+   public void switchStatementWithCompactCasesAndDefaultOnDefaultCase() {
       tested.anotherSwitchStatementWithCompactCasesAndDefault(1);
       tested.anotherSwitchStatementWithCompactCasesAndDefault(5);
 
@@ -75,8 +67,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithSparseCasesAndNoDefault()
-   {
+   public void switchStatementWithSparseCasesAndNoDefault() {
       tested.switchStatementWithSparseCasesAndNoDefault('f');
       tested.switchStatementWithSparseCasesAndNoDefault('b');
 
@@ -96,8 +87,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithCompactCasesAndNoDefault()
-   {
+   public void switchStatementWithCompactCasesAndNoDefault() {
       tested.switchStatementWithCompactCasesAndNoDefault(0);
       tested.switchStatementWithCompactCasesAndNoDefault(4);
       tested.switchStatementWithCompactCasesAndNoDefault(5);
@@ -119,8 +109,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchStatementWithExitInAllCases()
-   {
+   public void switchStatementWithExitInAllCases() {
       tested.switchStatementWithExitInAllCases(1);
       tested.switchStatementWithExitInAllCases(2);
 
@@ -138,8 +127,7 @@ public final class SwitchStatementsTest extends CoverageTest
    }
 
    @Test
-   public void switchOnString()
-   {
+   public void switchOnString() {
       tested.switchOnString("A", true);
       tested.switchOnString("M", false);
 

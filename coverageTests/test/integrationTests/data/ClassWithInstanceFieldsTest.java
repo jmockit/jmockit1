@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.data;
 
 import org.junit.*;
@@ -13,16 +9,14 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    ClassWithInstanceFields tested;
 
    @Test
-   public void finalField()
-   {
+   public void finalField() {
       assert tested.getFinalField() == 123;
 
       assertFieldIgnored("finalField");
    }
 
    @Test
-   public void coveredBooleanFieldOnMultipleInstances()
-   {
+   public void coveredBooleanFieldOnMultipleInstances() {
       tested.setBooleanField(true);
       assert tested.isBooleanField();
 
@@ -34,8 +28,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void uncoveredByteFieldOnMultipleInstances()
-   {
+   public void uncoveredByteFieldOnMultipleInstances() {
       assert tested.getByteField() == 0;
       tested.setByteField((byte) 1);
       assert tested.getByteField() == 1;
@@ -50,8 +43,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void coveredCharField()
-   {
+   public void coveredCharField() {
       tested.setCharField('c');
       assert tested.getCharField() == 'c';
       assert tested.getCharField() != 'd';
@@ -60,8 +52,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void uncoveredShortFieldOnMultipleInstances()
-   {
+   public void uncoveredShortFieldOnMultipleInstances() {
       tested.setShortField((short) 1);
 
       ClassWithInstanceFields tested2 = new ClassWithInstanceFields();
@@ -71,8 +62,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void coveredIntFieldOnMultipleInstances()
-   {
+   public void coveredIntFieldOnMultipleInstances() {
       ClassWithInstanceFields tested2 = new ClassWithInstanceFields();
 
       tested.setIntField(1);
@@ -85,8 +75,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void coveredLongFieldOnMultipleInstances()
-   {
+   public void coveredLongFieldOnMultipleInstances() {
       tested.setLongField(1);
       assert tested.getLongField() == 1;
 
@@ -98,8 +87,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void uncoveredFloatFieldOnMultipleInstances()
-   {
+   public void uncoveredFloatFieldOnMultipleInstances() {
       tested.setFloatField(1);
 
       ClassWithInstanceFields tested2 = new ClassWithInstanceFields();
@@ -110,8 +98,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void coveredDoubleFieldOnMultipleInstances()
-   {
+   public void coveredDoubleFieldOnMultipleInstances() {
       tested.setDoubleField(1);
       assert tested.getDoubleField() >= 1;
 
@@ -123,8 +110,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @Test
-   public void coveredArrayFieldOnMultipleInstances()
-   {
+   public void coveredArrayFieldOnMultipleInstances() {
       tested.setArrayField(null);
       assert tested.getArrayField() == null;
 
@@ -136,8 +122,7 @@ public final class ClassWithInstanceFieldsTest extends CoverageTest
    }
 
    @AfterClass
-   public static void verifyDataCoverage()
-   {
+   public static void verifyDataCoverage() {
       verifyDataCoverage(9, 6, 67);
    }
 }

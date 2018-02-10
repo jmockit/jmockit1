@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class IfElseStatementsTest extends CoverageTest
    IfElseStatements tested;
 
    @Test
-   public void simpleIf()
-   {
+   public void simpleIf() {
       tested.simpleIf(true);
       tested.simpleIf(false);
 
@@ -33,8 +28,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifAndElse()
-   {
+   public void ifAndElse() {
       tested.ifAndElse(true);
       tested.ifAndElse(false);
 
@@ -46,8 +40,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void singleLineIf()
-   {
+   public void singleLineIf() {
       tested.singleLineIf(true);
       tested.singleLineIf(false);
 
@@ -59,8 +52,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void singleLineIfAndElse()
-   {
+   public void singleLineIfAndElse() {
       tested.singleLineIfAndElse(true);
       tested.singleLineIfAndElse(false);
 
@@ -76,8 +68,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void singleLineIfAndElseWhereOnlyTheElseIsExecuted()
-   {
+   public void singleLineIfAndElseWhereOnlyTheElseIsExecuted() {
       tested.anotherSingleLineIfAndElse(false);
 
       assertLines(148, 148, 1);
@@ -85,8 +76,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void singleLineIfAndElseWhereElseIsExecutedMoreTimes()
-   {
+   public void singleLineIfAndElseWhereElseIsExecutedMoreTimes() {
       tested.yetAnotherSingleLineIfAndElse(false);
       tested.yetAnotherSingleLineIfAndElse(true);
       tested.yetAnotherSingleLineIfAndElse(false);
@@ -96,8 +86,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifWithBooleanAndOperator()
-   {
+   public void ifWithBooleanAndOperator() {
       tested.ifWithBooleanAndOperator(true, false);
       tested.ifWithBooleanAndOperator(false, true);
 
@@ -108,8 +97,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test @Ignore
-   public void anotherIfWithBooleanAndOperator()
-   {
+   public void anotherIfWithBooleanAndOperator() {
       tested.anotherIfWithBooleanAndOperator(true, true);
       tested.anotherIfWithBooleanAndOperator(true, false);
 
@@ -120,8 +108,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifWithBooleanOrOperator()
-   {
+   public void ifWithBooleanOrOperator() {
       tested.ifWithBooleanOrOperator(false, false);
       tested.ifWithBooleanOrOperator(true, true);
 
@@ -132,8 +119,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void methodWithFourDifferentPathsAndSimpleLines_exerciseTwoOppositePaths()
-   {
+   public void methodWithFourDifferentPathsAndSimpleLines_exerciseTwoOppositePaths() {
       tested.methodWithFourDifferentPathsAndSimpleLines(true, 0);
       tested.methodWithFourDifferentPathsAndSimpleLines(false, 1);
 
@@ -147,8 +133,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void methodWithFourDifferentPathsAndSegmentedLines_exerciseTwoOppositePaths()
-   {
+   public void methodWithFourDifferentPathsAndSegmentedLines_exerciseTwoOppositePaths() {
       tested.methodWithFourDifferentPathsAndSegmentedLines(false, -1);
       tested.methodWithFourDifferentPathsAndSegmentedLines(true, 1);
 
@@ -162,8 +147,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifElseWithComplexBooleanCondition()
-   {
+   public void ifElseWithComplexBooleanCondition() {
       tested.ifElseWithComplexBooleanCondition(true, false);
 
       findMethodData(58);
@@ -175,8 +159,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void returnInput()
-   {
+   public void returnInput() {
       assertEquals(2, tested.returnInput(1, true, false, false));
       assertEquals(2, tested.returnInput(2, false, false, false));
       assertEquals(2, tested.returnInput(3, false, true, false));
@@ -200,8 +183,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void nestedIf()
-   {
+   public void nestedIf() {
       assertEquals(1, tested.nestedIf(false, false));
       assertEquals(2, tested.nestedIf(true, true));
 
@@ -213,8 +195,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifElseWithNestedIf()
-   {
+   public void ifElseWithNestedIf() {
       assertEquals(1, tested.ifElseWithNestedIf(true, false));
       assertEquals(2, tested.ifElseWithNestedIf(true, true));
       assertEquals(3, tested.ifElseWithNestedIf(false, false));
@@ -227,8 +208,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void nestedIfElse()
-   {
+   public void nestedIfElse() {
       assertEquals(1, tested.nestedIfElse(false, false));
       assertEquals(2, tested.nestedIfElse(true, true));
       assertEquals(3, tested.nestedIfElse(true, false));
@@ -243,8 +223,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void infeasiblePaths()
-   {
+   public void infeasiblePaths() {
       tested.infeasiblePaths(true);
       tested.infeasiblePaths(false);
 
@@ -257,8 +236,7 @@ public final class IfElseStatementsTest extends CoverageTest
    }
 
    @Test
-   public void ifSpanningMultipleLines()
-   {
+   public void ifSpanningMultipleLines() {
       tested.ifSpanningMultipleLines(true, 0);
       tested.ifSpanningMultipleLines(false, -1);
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class AbstractClassTest extends CoverageTest
    AbstractClassWithNoExecutableLines tested;
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       tested = new AbstractClassWithNoExecutableLines() {
          @Override void doSomething(String s, boolean b) {}
          @Override int returnValue() { return 0; }
@@ -21,8 +16,7 @@ public final class AbstractClassTest extends CoverageTest
    }
 
    @Test
-   public void useAbstractClass()
-   {
+   public void useAbstractClass() {
       tested.doSomething("test", true);
       tested.returnValue();
 

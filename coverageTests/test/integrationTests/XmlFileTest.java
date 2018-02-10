@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import java.io.*;
@@ -21,8 +17,7 @@ public final class XmlFileTest
    XMLStreamReader xmlReader;
 
    @Test
-   public void generateXmlFileWithCoverageData() throws Exception
-   {
+   public void generateXmlFileWithCoverageData() throws Exception {
       assumeTrue("xml".equals(System.getProperty("coverage-output")));
       assumeTrue("loaded".equals(System.getProperty("coverage-classes")));
       assumeTrue("src".equals(System.getProperty("coverage-srcDirs")));
@@ -67,14 +62,12 @@ public final class XmlFileTest
    }
 
    // <lineToCover lineNumber="n" covered="true|false"/>
-   void assertLineToCover(int lineNumber, boolean covered) throws Exception
-   {
+   void assertLineToCover(int lineNumber, boolean covered) throws Exception {
       assertLineToCover(lineNumber, covered, 0, 0);
    }
 
    // <lineToCover lineNumber="n" covered="true|false" branchesToCover="n" coveredBranches="n"/>
-   void assertLineToCover(int lineNumber, boolean covered, int branches, int coveredBranches) throws Exception
-   {
+   void assertLineToCover(int lineNumber, boolean covered, int branches, int coveredBranches) throws Exception {
       assertEquals(START_ELEMENT, xmlReader.nextTag());
       assertEquals("lineToCover", xmlReader.getLocalName());
       assertEquals(branches == 0 ? 2 : 4, xmlReader.getAttributeCount());

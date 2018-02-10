@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.loops;
 
 import java.util.*;
@@ -17,8 +13,7 @@ public final class ForStatementsTest extends CoverageTest
    ForStatements tested;
 
    @Test
-   public void forInSeparateLines()
-   {
+   public void forInSeparateLines() {
       tested.forInSeparateLines();
       tested.forInSeparateLines();
 
@@ -35,8 +30,7 @@ public final class ForStatementsTest extends CoverageTest
    }
 
    @Test
-   public void forInSingleLine()
-   {
+   public void forInSingleLine() {
       tested.forInSingleLine(1);
       tested.forInSingleLine(2);
 
@@ -52,8 +46,7 @@ public final class ForStatementsTest extends CoverageTest
    }
 
    @Test
-   public void forEachArrayElement()
-   {
+   public void forEachArrayElement() {
       int sum = tested.forEachArrayElement(1, 2, 3);
       assertEquals(6, sum);
 
@@ -65,8 +58,7 @@ public final class ForStatementsTest extends CoverageTest
    }
 
    @Test
-   public void forEachCollectionElement()
-   {
+   public void forEachCollectionElement() {
       String result = tested.forEachCollectionElement(asList("a", "b", "c"));
       assertEquals("abc", result);
 
@@ -79,8 +71,7 @@ public final class ForStatementsTest extends CoverageTest
    }
 
    @Test
-   public void forUsingIterator()
-   {
+   public void forUsingIterator() {
       List<? extends Number> numbers = new ArrayList<Number>(asList(1, 0L, 2.0));
       tested.forUsingIterator(numbers);
 
@@ -94,8 +85,7 @@ public final class ForStatementsTest extends CoverageTest
    }
 
    @Test @Ignore("for issue #254")
-   public void forWithNestedIfWhichReturns()
-   {
+   public void forWithNestedIfWhichReturns() {
       tested.forWithNestedIfWhichReturns(2, 1, 2, 3);
    }
 }

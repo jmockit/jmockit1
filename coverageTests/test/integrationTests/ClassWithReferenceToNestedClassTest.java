@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class ClassWithReferenceToNestedClassTest extends CoverageTest
    final ClassWithReferenceToNestedClass tested = null;
 
    @Test
-   public void exerciseOnePathOfTwo()
-   {
+   public void exerciseOnePathOfTwo() {
       ClassWithReferenceToNestedClass.doSomething();
 
       assertEquals(2, fileData.lineCoverageInfo.getExecutableLineCount());

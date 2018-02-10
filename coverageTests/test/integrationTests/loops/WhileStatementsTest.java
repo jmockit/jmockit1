@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.loops;
 
 import org.junit.*;
@@ -13,8 +9,7 @@ public final class WhileStatementsTest extends CoverageTest
    WhileStatements tested;
 
    @Test
-   public void whileBlockInSeparateLines()
-   {
+   public void whileBlockInSeparateLines() {
       tested.whileBlockInSeparateLines();
 
       assertLines(7, 12, 4);
@@ -31,8 +26,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileBlockInSingleLine()
-   {
+   public void whileBlockInSingleLine() {
       tested.whileBlockInSingleLine(0);
       tested.whileBlockInSingleLine(1);
       tested.whileBlockInSingleLine(2);
@@ -49,8 +43,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileWithIfElse()
-   {
+   public void whileWithIfElse() {
       tested.whileWithIfElse(0);
       tested.whileWithIfElse(1);
       tested.whileWithIfElse(2);
@@ -59,8 +52,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileWithContinue()
-   {
+   public void whileWithContinue() {
       tested.whileWithContinue(0);
       tested.whileWithContinue(1);
       tested.whileWithContinue(2);
@@ -79,8 +71,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileWithBreak()
-   {
+   public void whileWithBreak() {
       tested.whileWithBreak(0);
       tested.whileWithBreak(1);
       tested.whileWithBreak(2);
@@ -101,8 +92,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void nestedWhile()
-   {
+   public void nestedWhile() {
       tested.nestedWhile(0, 2);
       tested.nestedWhile(1, 1);
 
@@ -122,8 +112,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void doWhileInSeparateLines()
-   {
+   public void doWhileInSeparateLines() {
       tested.doWhileInSeparateLines();
 
       assertLines(58, 63, 4);
@@ -139,8 +128,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void bothKindsOfWhileCombined()
-   {
+   public void bothKindsOfWhileCombined() {
       tested.bothKindsOfWhileCombined(0, 0);
       tested.bothKindsOfWhileCombined(0, 2);
       tested.bothKindsOfWhileCombined(1, 1);
@@ -159,8 +147,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileTrueEndingWithAnIf()
-   {
+   public void whileTrueEndingWithAnIf() {
       tested.whileTrueEndingWithAnIf(0);
 
       findMethodData(84);
@@ -169,8 +156,7 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test
-   public void whileTrueStartingWithAnIf()
-   {
+   public void whileTrueStartingWithAnIf() {
       tested.whileTrueStartingWithAnIf(0);
 
       findMethodData(94);
@@ -180,14 +166,12 @@ public final class WhileStatementsTest extends CoverageTest
    }
 
    @Test(expected = IllegalStateException.class)
-   public void whileTrueWithoutExitCondition()
-   {
+   public void whileTrueWithoutExitCondition() {
       tested.whileTrueWithoutExitCondition();
    }
 
    @Test(expected = IllegalStateException.class)
-   public void whileTrueContainingTryFinally()
-   {
+   public void whileTrueContainingTryFinally() {
       tested.whileTrueContainingTryFinally();
    }
 }

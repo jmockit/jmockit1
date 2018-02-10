@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class AnInterfaceTest extends CoverageTest
    AnInterface tested;
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       tested = new AnInterface() {
          @Override public void doSomething(String s, boolean b) {}
          @Override public int returnValue() { return 0; }
@@ -21,8 +16,7 @@ public final class AnInterfaceTest extends CoverageTest
    }
 
    @Test
-   public void useAnInterface()
-   {
+   public void useAnInterface() {
       tested.doSomething("test", true);
 
       assertEquals(0, fileData.lineCoverageInfo.getExecutableLineCount());

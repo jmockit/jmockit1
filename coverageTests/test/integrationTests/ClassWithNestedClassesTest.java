@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class ClassWithNestedClassesTest extends CoverageTest
    final ClassWithNestedClasses tested = null;
 
    @Test
-   public void exerciseNestedClasses()
-   {
+   public void exerciseNestedClasses() {
       ClassWithNestedClasses.doSomething();
       ClassWithNestedClasses.methodContainingAnonymousClass(1);
 

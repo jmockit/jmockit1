@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package integrationTests.otherControlStructures;
 
 import org.junit.*;
@@ -13,14 +9,12 @@ public final class TryCatchFinallyStatementsTest extends CoverageTest
    TryCatchFinallyStatements tested;
 
    @Test
-   public void tryCatch()
-   {
+   public void tryCatch() {
       tested.tryCatch();
    }
 
    @Test
-   public void tryCatchWhichThrowsAndCatchesException()
-   {
+   public void tryCatchWhichThrowsAndCatchesException() {
       tested.tryCatchWhichThrowsAndCatchesException();
    }
 }
