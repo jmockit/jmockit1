@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.applet.*;
@@ -24,8 +20,7 @@ public final class FakingTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void attemptToApplyFakeWithoutTheTargetType()
-   {
+   public void attemptToApplyFakeWithoutTheTargetType() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No target type");
 
@@ -35,8 +30,7 @@ public final class FakingTest
    // Fakes for classes ///////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void fakeAClass()
-   {
+   public void fakeAClass() {
       new MockUp<Applet>() {
          @Mock
          int getComponentCount() { return 123; }
@@ -45,16 +39,13 @@ public final class FakingTest
       assertEquals(123, new Applet().getComponentCount());
    }
 
-   static final class Main
-   {
-      static final AtomicIntegerFieldUpdater<Main> atomicCount =
-         AtomicIntegerFieldUpdater.newUpdater(Main.class, "count");
+   static final class Main {
+      static final AtomicIntegerFieldUpdater<Main> atomicCount = AtomicIntegerFieldUpdater.newUpdater(Main.class, "count");
 
       volatile int count;
       int max = 2;
 
-      boolean increment()
-      {
+      boolean increment() {
          while (true) {
             int currentCount = count;
 
@@ -70,16 +61,14 @@ public final class FakingTest
    }
 
    @Test
-   public void fakeAGivenClass()
-   {
+   public void fakeAGivenClass() {
       final Main main = new Main();
 
       new MockUp<AtomicIntegerFieldUpdater<?>>(Main.atomicCount.getClass()) {
          boolean second;
 
          @Mock
-         public boolean compareAndSet(Object obj, int expect, int update)
-         {
+         public boolean compareAndSet(Object obj, int expect, int update) {
             assertSame(main, obj);
             assertEquals(0, expect);
             assertEquals(1, update);
@@ -97,16 +86,14 @@ public final class FakingTest
    }
 
    @Test
-   public void attemptToFakeGivenClassButPassNull()
-   {
+   public void attemptToFakeGivenClassButPassNull() {
       thrown.expect(NullPointerException.class);
 
       new MockUp<Applet>(null) {};
    }
 
    @SuppressWarnings("rawtypes")
-   static class FakeForGivenClass extends MockUp
-   {
+   static class FakeForGivenClass extends MockUp {
       @SuppressWarnings("unchecked")
       FakeForGivenClass() { super(Applet.class); }
 
@@ -115,8 +102,7 @@ public final class FakingTest
    }
 
    @Test
-   public void fakeGivenClassUsingNamedFake()
-   {
+   public void fakeGivenClassUsingNamedFake() {
       new FakeForGivenClass();
 
       String s = new Applet().getParameter("test");
@@ -126,10 +112,8 @@ public final class FakingTest
 
    // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
 
-   @SuppressWarnings("TypeParameterExtendsFinalClass")
-   @Test
-   public <M extends Applet & Runnable> void attemptToFakeClassAndInterfaceAtOnce() throws Exception
-   {
+   @Test @SuppressWarnings("TypeParameterExtendsFinalClass")
+   public <M extends Applet & Runnable> void attemptToFakeClassAndInterfaceAtOnce() {
       thrown.expect(UnsupportedOperationException.class);
       thrown.expectMessage("Unable to capture");
 
@@ -140,19 +124,16 @@ public final class FakingTest
    }
 
    @Test
-   public void fakeUsingInvocationParameters()
-   {
+   public void fakeUsingInvocationParameters() {
       new MockUp<Applet>() {
          @Mock
-         void $init(Invocation inv)
-         {
+         void $init(Invocation inv) {
             Applet it = inv.getInvokedInstance();
             assertNotNull(it);
          }
 
          @Mock
-         int getBaseline(Invocation inv, int w, int h)
-         {
+         int getBaseline(Invocation inv, int w, int h) {
             return inv.proceed();
          }
       };
@@ -162,16 +143,14 @@ public final class FakingTest
       assertEquals(-1, i);
    }
 
-   public static class PublicNamedFakeWithNoInvocationParameters extends MockUp<Applet>
-   {
+   public static class PublicNamedFakeWithNoInvocationParameters extends MockUp<Applet> {
       boolean executed;
       @Mock public void $init() { executed = true; }
       @Mock public String getParameter(String s) { return "45"; }
    }
 
    @Test
-   public void publicNamedFakeWithNoInvocationParameter()
-   {
+   public void publicNamedFakeWithNoInvocationParameter() {
       PublicNamedFakeWithNoInvocationParameters fake = new PublicNamedFakeWithNoInvocationParameters();
 
       Applet applet = new Applet();
@@ -181,10 +160,8 @@ public final class FakingTest
       assertEquals("45", parameter);
    }
 
-   @SuppressWarnings("deprecation")
-   @Test
-   public void fakingOfAnnotatedClass() throws Exception
-   {
+   @Test @SuppressWarnings("deprecation")
+   public void fakingOfAnnotatedClass() throws Exception {
       new MockUp<RMISecurityException>() {
          @Mock void $init(String s) { assertNotNull(s); }
       };
@@ -199,8 +176,7 @@ public final class FakingTest
    }
 
    @Test
-   public void fakeSameClassTwiceUsingSeparateFakes()
-   {
+   public void fakeSameClassTwiceUsingSeparateFakes() {
       Applet a = new Applet();
 
       class Fake1 extends MockUp<Applet> { @Mock void play(URL url) {} }
@@ -213,15 +189,13 @@ public final class FakingTest
    }
 
    @Test
-   public void fakeConstructorOfInnerClass()
-   {
+   public void fakeConstructorOfInnerClass() {
       final BasicColorChooserUI outer = new BasicColorChooserUI();
       final boolean[] constructed = {false};
 
       new MockUp<BasicColorChooserUI.PropertyHandler>() {
          @Mock
-         void $init(BasicColorChooserUI o)
-         {
+         void $init(BasicColorChooserUI o) {
             assertSame(outer, o);
             constructed[0] = true;
          }
@@ -232,16 +206,14 @@ public final class FakingTest
    }
 
    @Test
-   public void callFakeMethodFromAWTEventDispatchingThread() throws Exception
-   {
+   public void callFakeMethodFromAWTEventDispatchingThread() throws Exception {
       new MockUp<Panel>() {
          @Mock int getComponentCount() { return 10; }
       };
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
             int i = new Panel().getComponentCount();
             assertEquals(10, i);
          }
@@ -251,8 +223,7 @@ public final class FakingTest
    static final class JRESubclass extends Patch { JRESubclass(int i, int j) { super(i, j); } }
 
    @Test
-   public void anonymousFakeForJRESubclassHavingFakeMethodForJREMethod()
-   {
+   public void anonymousFakeForJRESubclassHavingFakeMethodForJREMethod() {
       new MockUp<JRESubclass>() { @Mock int getBank() { return 123; } };
 
       Patch t = new JRESubclass(1, 2);
@@ -263,23 +234,20 @@ public final class FakingTest
 
    static Boolean fakeTornDown;
 
-   static final class FakeWithActionOnTearDown extends MockUp<Applet>
-   {
+   static final class FakeWithActionOnTearDown extends MockUp<Applet> {
       @Override
       protected void onTearDown() { fakeTornDown = true; }
    }
 
    @Test
-   public void performActionOnFakeTearDown()
-   {
+   public void performActionOnFakeTearDown() {
       fakeTornDown = false;
       new FakeWithActionOnTearDown();
       assertFalse(fakeTornDown);
    }
 
    @AfterClass
-   public static void verifyFakeAppliedInTestWasTornDown()
-   {
+   public static void verifyFakeAppliedInTestWasTornDown() {
       assertTrue(fakeTornDown == null || fakeTornDown);
    }
 }

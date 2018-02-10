@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -12,8 +8,7 @@ import org.junit.*;
 
 public final class TestedClassWithConstructorAndFieldDI2Test
 {
-   public static final class TestedClass
-   {
+   public static final class TestedClass {
       private final int i;
       private final String name;
       private final Runnable action1;
@@ -24,8 +19,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       String text3;
       List<String> names;
 
-      public TestedClass(int i, String name, Runnable action1)
-      {
+      public TestedClass(int i, String name, Runnable action1) {
          this.i = i;
          this.name = name;
          this.action1 = action1;
@@ -46,15 +40,13 @@ public final class TestedClassWithConstructorAndFieldDI2Test
    @Injectable final List<String> names = asList("Abc", "xyz");
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       Runnable action1 = new Runnable() { @Override public void run() {} };
       tested2 = new TestedClass(45, "another", action1);
    }
 
    @Test
-   public void verifyTestedObjectsInjectedFromFieldsInTheTestClass()
-   {
+   public void verifyTestedObjectsInjectedFromFieldsInTheTestClass() {
       assertFieldsSetByTheConstructor();
       assertFieldsSetThroughFieldInjectionFromInjectableFields();
 
@@ -63,8 +55,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertNull(tested2.text2);
    }
 
-   void assertFieldsSetByTheConstructor()
-   {
+   void assertFieldsSetByTheConstructor() {
       assertEquals(123, tested1.i);
       assertEquals("test", tested1.name);
       assertNull(tested1.action1);
@@ -75,8 +66,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertNotSame(action, tested2.action1);
    }
 
-   void assertFieldsSetThroughFieldInjectionFromInjectableFields()
-   {
+   void assertFieldsSetThroughFieldInjectionFromInjectableFields() {
       assertSame(action, tested1.action2);
       assertEquals(-67, tested1.i2);
       assertEquals("text", tested1.text);
@@ -90,8 +80,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
    }
 
    @Test
-   public void verifyTestedObjectsInjectedFromInjectableFieldsAndParameters(@Injectable("Test") String text2)
-   {
+   public void verifyTestedObjectsInjectedFromInjectableFieldsAndParameters(@Injectable("Test") String text2) {
       assertFieldsSetByTheConstructor();
 
       // Fields set from injectable parameters:
@@ -105,8 +94,8 @@ public final class TestedClassWithConstructorAndFieldDI2Test
 
    @Test
    public void verifyTestedObjectsInjectedFromParametersByName(
-      @Injectable("two") String text2, @Injectable("three") String text3, @Injectable("true") boolean flag)
-   {
+      @Injectable("two") String text2, @Injectable("three") String text3, @Injectable("true") boolean flag
+   ) {
       assertFieldsSetByTheConstructor();
 
       // Fields set from injectable parameters:
@@ -117,8 +106,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
       assertTrue(tested3.flag);
    }
 
-   static class ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar
-   {
+   static class ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar {
       @SuppressWarnings("unused")
       ClassWithConstructorHavingReferenceTypeParameterAndDoubleSizedLocalVar(String s) { long var = 1; }
    }

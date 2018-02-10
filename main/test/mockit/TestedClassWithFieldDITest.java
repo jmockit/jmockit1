@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -9,16 +5,14 @@ import static org.junit.Assert.*;
 
 public final class TestedClassWithFieldDITest
 {
-   static final class UtilityClass
-   {
+   static final class UtilityClass {
       String name;
       int id;
       Runnable action;
       Collaborator collaborator;
    }
 
-   public static class TestedClass
-   {
+   public static class TestedClass {
       static Runnable globalAction;
 
       protected final int i;
@@ -41,13 +35,11 @@ public final class TestedClassWithFieldDITest
    @Injectable Dependency dependency;
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       assertUtilObjectsAreAvailable();
    }
 
-   void assertUtilObjectsAreAvailable()
-   {
+   void assertUtilObjectsAreAvailable() {
       assertNotNull(util);
       assertEquals("util", util.name);
       assertNull(util.collaborator);
@@ -58,35 +50,29 @@ public final class TestedClassWithFieldDITest
    }
 
    @After
-   public void tearDown()
-   {
+   public void tearDown() {
       assertUtilObjectsAreAvailable();
    }
 
    @Test
-   public void exerciseTestedObjectWithFieldInjectedByType()
-   {
+   public void exerciseTestedObjectWithFieldInjectedByType() {
       assertEquals(-1, tested.i);
       assertSame(dependency, tested.dependency);
 
-      new Expectations() {{
-         dependency.doSomething(); result = 23; times = 1;
-      }};
+      new Expectations() {{ dependency.doSomething(); result = 23; times = 1; }};
 
       assertTrue(tested.doSomeOperation());
    }
 
    @Test
-   public void exerciseTestedObjectCreatedThroughConstructorAndFieldInjection(@Injectable("123") int value)
-   {
+   public void exerciseTestedObjectCreatedThroughConstructorAndFieldInjection(@Injectable("123") int value) {
       assertEquals(0, util.id);
       assertEquals(123, tested.i);
       assertSame(dependency, tested.dependency);
    }
 
    @Test
-   public void ignoreStaticFieldsWhenDoingFieldInjection(@Injectable Runnable action)
-   {
+   public void ignoreStaticFieldsWhenDoingFieldInjection(@Injectable Runnable action) {
       assertNull(util.action);
       assertNull(TestedClass.globalAction);
    }
@@ -95,8 +81,7 @@ public final class TestedClassWithFieldDITest
    @Tested UtilityClass tested2;
 
    @Test
-   public void createTestedObjectInjectingItWithValueProvidedInPreviousTestedField()
-   {
+   public void createTestedObjectInjectingItWithValueProvidedInPreviousTestedField() {
       assertEquals(123, tested2.id);
    }
 }

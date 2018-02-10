@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class TestedFieldWithFailedFullDITest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Before
-   public void configureExpectedException()
-   {
+   public void configureExpectedException() {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Missing @Tested or @Injectable");
       thrown.expectMessage("parameter \"value\"");
@@ -26,8 +21,7 @@ public final class TestedFieldWithFailedFullDITest
 
    static class ClassWithFieldOfClassHavingParameterizedConstructor { ClassWithParameterizedConstructor dependency; }
 
-   static class ClassWithParameterizedConstructor
-   {
+   static class ClassWithParameterizedConstructor {
       ClassWithParameterizedConstructor(@SuppressWarnings("unused") int value) {}
    }
 

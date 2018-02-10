@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -16,14 +12,12 @@ public final class InstanceDITest
 {
    static class Collaborator {}
 
-   static final class TestedClassWithInstanceInjectionPoints
-   {
+   static final class TestedClassWithInstanceInjectionPoints {
       final Set<String> names;
       @Inject Instance<Collaborator> collaborators;
 
       @Inject
-      TestedClassWithInstanceInjectionPoints(Instance<String> names)
-      {
+      TestedClassWithInstanceInjectionPoints(Instance<String> names) {
          this.names = new HashSet<String>();
 
          for (String name : names) {
@@ -38,8 +32,7 @@ public final class InstanceDITest
    @Injectable final List<String> names = asList("Abc", "Test", "123");
 
    @Test
-   public void allowMultipleInjectablesOfSameTypeToBeObtainedFromInstanceInjectionPoint()
-   {
+   public void allowMultipleInjectablesOfSameTypeToBeObtainedFromInstanceInjectionPoint() {
       assertEquals(new HashSet<String>(asList("Abc", "Test", "123")), tested.names);
 
       Instance<Collaborator> collaborators = tested.collaborators;
@@ -50,8 +43,7 @@ public final class InstanceDITest
       assertEquals(asList(col1, col2), collaboratorInstances);
    }
 
-   static <T> List<T> toList(Iterable<T> instances)
-   {
+   static <T> List<T> toList(Iterable<T> instances) {
       List<T> list = new ArrayList<T>();
 
       for (T instance : instances) {

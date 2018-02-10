@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import javax.inject.*;
@@ -18,20 +14,17 @@ public final class TestedClassWithFullConstructorDITest
    public static class Collaborator {}
 
    @SuppressWarnings("unused")
-   public static final class TestedClassWithSinglePublicConstructor
-   {
+   public static final class TestedClassWithSinglePublicConstructor {
       final Dependency dependency;
       final Collaborator collaborator1;
       Collaborator collaborator2;
 
-      public TestedClassWithSinglePublicConstructor(Dependency dependency, Collaborator collaborator)
-      {
+      public TestedClassWithSinglePublicConstructor(Dependency dependency, Collaborator collaborator) {
          this.dependency = dependency;
          collaborator1 = collaborator;
       }
 
-      TestedClassWithSinglePublicConstructor()
-      {
+      TestedClassWithSinglePublicConstructor() {
          dependency = null;
          collaborator1 = null;
       }
@@ -41,15 +34,13 @@ public final class TestedClassWithFullConstructorDITest
    @Tested(fullyInitialized = true) TestedClassWithSinglePublicConstructor tested1;
 
    @Test
-   public void verifyInstantiationOfTestedObjectsThroughPublicConstructor()
-   {
+   public void verifyInstantiationOfTestedObjectsThroughPublicConstructor() {
       assertTrue(tested1.dependency instanceof DependencyImpl);
       assertNotNull(tested1.collaborator1);
       assertSame(tested1.collaborator1, tested1.collaborator2);
    }
 
-   public static final class TestedClassWithAnnotatedConstructor
-   {
+   public static final class TestedClassWithAnnotatedConstructor {
       int i;
       String s;
       Dependency dependency;
@@ -60,8 +51,7 @@ public final class TestedClassWithFullConstructorDITest
       public TestedClassWithAnnotatedConstructor() {}
 
       @Inject
-      TestedClassWithAnnotatedConstructor(int i, String s, Dependency dependency, Collaborator collaborator)
-      {
+      TestedClassWithAnnotatedConstructor(int i, String s, Dependency dependency, Collaborator collaborator) {
          this.i = i;
          this.s = s;
          this.dependency = dependency;
@@ -74,8 +64,7 @@ public final class TestedClassWithFullConstructorDITest
    @Injectable final String text = "text";
 
    @Test
-   public void verifyInstantiationOfTestedObjectThroughAnnotatedConstructor()
-   {
+   public void verifyInstantiationOfTestedObjectThroughAnnotatedConstructor() {
       assertNotNull(tested2);
       assertEquals(123, tested2.i);
       assertEquals("text", tested2.s);
@@ -84,13 +73,11 @@ public final class TestedClassWithFullConstructorDITest
       assertSame(tested2.collaborator1, tested2.collaborator2);
    }
 
-   static class TestedClassWithQualifiedConstructorParameters
-   {
+   static class TestedClassWithQualifiedConstructorParameters {
       final Collaborator col1;
       final Collaborator col2;
 
-      TestedClassWithQualifiedConstructorParameters(@Named("one") Collaborator p1, @Qualifier("two") Collaborator p2)
-      {
+      TestedClassWithQualifiedConstructorParameters(@Named("one") Collaborator p1, @Qualifier("two") Collaborator p2) {
          col1 = p1;
          col2 = p2;
       }
@@ -99,24 +86,20 @@ public final class TestedClassWithFullConstructorDITest
    @Tested(fullyInitialized = true) TestedClassWithQualifiedConstructorParameters tested3;
 
    @Test
-   public void verifyInstantiationOfTestedClassWithQualifiedConstructorParameters()
-   {
+   public void verifyInstantiationOfTestedClassWithQualifiedConstructorParameters() {
       assertNotNull(tested3.col1);
       assertNotSame(tested3.col1, tested3.col2);
    }
 
-   static class TestedClassWithDependencyHavingConstructorParameter
-   {
+   static class TestedClassWithDependencyHavingConstructorParameter {
       final DependencyWithConstructorParameter dependency;
 
-      TestedClassWithDependencyHavingConstructorParameter(DependencyWithConstructorParameter dependency)
-      {
+      TestedClassWithDependencyHavingConstructorParameter(DependencyWithConstructorParameter dependency) {
          this.dependency = dependency;
       }
    }
 
-   static class DependencyWithConstructorParameter
-   {
+   static class DependencyWithConstructorParameter {
       final String par;
       DependencyWithConstructorParameter(String par1) { par = par1; }
    }
@@ -124,8 +107,7 @@ public final class TestedClassWithFullConstructorDITest
    @Tested(fullyInitialized = true) TestedClassWithDependencyHavingConstructorParameter tested4;
 
    @Test
-   public void verifyRecursiveInstantiationOfDependencyWithConstructorParameter()
-   {
+   public void verifyRecursiveInstantiationOfDependencyWithConstructorParameter() {
       assertEquals("text", tested4.dependency.par);
    }
 }

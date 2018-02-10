@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -16,8 +12,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @SuppressWarnings("UnusedParameters")
-   static class Collaborator
-   {
+   static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}
       void setValue(float value) {}
@@ -25,10 +20,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
       void setValues(long value1, Byte value2, double value3, Short value4) {}
       boolean booleanValues(long value1, byte value2, double value3, short value4) { return true; }
       static void staticSetValues(long value1, byte value2, double value3, short value4) {}
-      static long staticLongValues(long value1, byte value2, double value3, char value4)
-      {
-         return -2;
-      }
+      static long staticLongValues(long value1, byte value2, double value3, char value4) { return -2; }
 
       final void simpleOperation(int a, String b, Date c) {}
       long anotherOperation(byte b, long l) { return -1; }
@@ -40,8 +32,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    @Mocked Collaborator mock;
 
    @Test
-   public void useMatcherOnlyForOneArgument()
-   {
+   public void useMatcherOnlyForOneArgument() {
       mock.simpleOperation(1, "", null);
       mock.simpleOperation(2, "str", null);
       mock.simpleOperation(1, "", null);
@@ -68,8 +59,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useMatcherOnlyForFirstArgumentWithUnexpectedReplayValue()
-   {
+   public void useMatcherOnlyForFirstArgumentWithUnexpectedReplayValue() {
       thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(2, "", null);
@@ -80,8 +70,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useMatcherOnlyForSecondArgumentWithUnexpectedReplayValue()
-   {
+   public void useMatcherOnlyForSecondArgumentWithUnexpectedReplayValue() {
       thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(1, "Xyz", null);
@@ -92,8 +81,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useMatcherOnlyForLastArgumentWithUnexpectedReplayValue()
-   {
+   public void useMatcherOnlyForLastArgumentWithUnexpectedReplayValue() {
       thrown.expect(MissingInvocation.class);
 
       mock.simpleOperation(12, "arg", null);
@@ -104,8 +92,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useMatchersForParametersOfAllSizes()
-   {
+   public void useMatchersForParametersOfAllSizes() {
       mock.setValues(123L, (byte) 5, 6.4, (short) 41);
       mock.booleanValues(12L, (byte) 4, 6.1, (short) 14);
       Collaborator.staticSetValues(2L, (byte) 4, 6.1, (short) 3);
@@ -120,16 +107,14 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useAnyIntField()
-   {
+   public void useAnyIntField() {
       mock.setValue(1);
 
       new FullVerifications() {{ mock.setValue(anyInt); }};
    }
 
    @Test
-   public void useSeveralAnyFields()
-   {
+   public void useSeveralAnyFields() {
       final Date now = new Date();
       mock.simpleOperation(2, "abc", now);
       mock.simpleOperation(5, "test", null);
@@ -155,8 +140,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
    }
 
    @Test
-   public void useWithMethodsMixedWithAnyFields()
-   {
+   public void useWithMethodsMixedWithAnyFields() {
       Date now = new Date();
       mock.simpleOperation(2, "abc", now);
       mock.simpleOperation(5, "test", null);
@@ -173,14 +157,10 @@ public final class VerificationsWithSomeArgumentMatchersTest
       }};
    }
 
-   public interface Scheduler
-   {
-      List<String> getAlerts(Object o, int i, boolean b);
-   }
+   public interface Scheduler { List<String> getAlerts(Object o, int i, boolean b); }
 
    @Test
-   public void useMatchersInInvocationsToInterfaceMethods(@Mocked final Scheduler scheduler)
-   {
+   public void useMatchersInInvocationsToInterfaceMethods(@Mocked final Scheduler scheduler) {
       scheduler.getAlerts("123", 1, true);
       scheduler.getAlerts(null, 1, false);
 

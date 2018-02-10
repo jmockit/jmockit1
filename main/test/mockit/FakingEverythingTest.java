@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.reflect.*;
@@ -21,8 +17,7 @@ public final class FakingEverythingTest
    void traceEntry(Invocation inv) { traces.add("Entered " + getDescription(inv)); }
    void traceExit(Invocation inv) { traces.add("Exited " + getDescription(inv)); }
 
-   String getDescription(Invocation inv)
-   {
+   String getDescription(Invocation inv) {
       Member member = inv.getInvokedMember();
       String args = Arrays.toString(inv.getInvokedArguments());
       Object instance = inv.getInvokedInstance();
@@ -30,12 +25,10 @@ public final class FakingEverythingTest
    }
 
    @Test
-   public void fakeEveryMethodInSingleClass()
-   {
+   public void fakeEveryMethodInSingleClass() {
       new MockUp<TargetClass>() {
          @Mock
-         Object $advice(Invocation inv)
-         {
+         Object $advice(Invocation inv) {
             traceEntry(inv);
 
             try {
@@ -47,8 +40,7 @@ public final class FakingEverythingTest
          }
 
          @Mock
-         void validateSomething(Invocation inv)
-         {
+         void validateSomething(Invocation inv) {
             Method m = inv.getInvokedMember();
             assertEquals("validateSomething", m.getName());
          }
@@ -81,12 +73,10 @@ public final class FakingEverythingTest
    }
 
    @Test
-   public void fakeEveryMethodInSingleClassWithAdviceOnly()
-   {
+   public void fakeEveryMethodInSingleClassWithAdviceOnly() {
       new MockUp<TargetClass>() {
          @Mock
-         Object $advice(Invocation inv)
-         {
+         Object $advice(Invocation inv) {
             Integer i = inv.proceed();
             return i + 2;
          }
@@ -96,12 +86,10 @@ public final class FakingEverythingTest
    }
 
    @Test
-   public <B extends TargetClass> void fakeEveryMethodInClassHierarchy()
-   {
+   public <B extends TargetClass> void fakeEveryMethodInClassHierarchy() {
       new MockUp<B>() {
          @Mock
-         Object $advice(Invocation inv)
-         {
+         Object $advice(Invocation inv) {
             traceEntry(inv);
 
             try {
@@ -149,13 +137,11 @@ public final class FakingEverythingTest
       assertEquals(expectedTraces, traces);
    }
 
-   static final class XMLSourceTimingAspect<S extends Source> extends MockUp<S>
-   {
+   static final class XMLSourceTimingAspect<S extends Source> extends MockUp<S> {
       final Map<String, List<Long>> executionTimesMillis = new HashMap<String, List<Long>>();
 
       @Mock
-      Object $advice(Invocation invocation)
-      {
+      Object $advice(Invocation invocation) {
          long startTimeMillis = System.nanoTime() / 1000000;
 
          try {
@@ -169,8 +155,7 @@ public final class FakingEverythingTest
          }
       }
 
-      private void addMethodExecutionTime(Method invokedMethod, long executionTimeMillis)
-      {
+      private void addMethodExecutionTime(Method invokedMethod, long executionTimeMillis) {
          String methodId = invokedMethod.getName();
          List<Long> methodTimesMillis = executionTimesMillis.get(methodId);
 
@@ -182,8 +167,7 @@ public final class FakingEverythingTest
          methodTimesMillis.add(executionTimeMillis);
       }
 
-      void assertTimes(String methodId, int... expectedTimesMillisForConsecutiveExecutions)
-      {
+      void assertTimes(String methodId, int... expectedTimesMillisForConsecutiveExecutions) {
          List<Long> actualExecutionTimesMillis = executionTimesMillis.get(methodId);
          assertEquals(expectedTimesMillisForConsecutiveExecutions.length, actualExecutionTimesMillis.size());
 
@@ -195,30 +179,25 @@ public final class FakingEverythingTest
       }
    }
 
-   static void takeSomeTime(int millis)
-   {
+   static void takeSomeTime(int millis) {
       try { Thread.sleep(millis); } catch (InterruptedException ignore) {}
    }
 
-   static class TestSource implements Source
-   {
+   static class TestSource implements Source {
       @Override
-      public void setSystemId(String systemId)
-      {
+      public void setSystemId(String systemId) {
          takeSomeTime(30);
       }
 
       @Override
-      public String getSystemId()
-      {
+      public String getSystemId() {
          takeSomeTime(20);
          return null;
       }
    }
 
    @Test
-   public void fakeEveryMethodInAllClassesImplementingAnInterface() throws Exception
-   {
+   public void fakeEveryMethodInAllClassesImplementingAnInterface() {
       XMLSourceTimingAspect<?> timingAspect = new XMLSourceTimingAspect<Source>();
 
       Source src1 = new TestSource();
@@ -238,11 +217,9 @@ public final class FakingEverythingTest
       timingAspect.assertTimes("setSystemId", 30, 30);
    }
 
-   public static final class PublicFake extends MockUp<TargetClass>
-   {
+   public static final class PublicFake extends MockUp<TargetClass> {
       @Mock
-      public static Object $advice(Invocation inv)
-      {
+      public static Object $advice(Invocation inv) {
          Object[] args = inv.getInvokedArguments();
 
          if (args.length > 0) {
@@ -255,8 +232,7 @@ public final class FakingEverythingTest
    }
 
    @Test
-   public void publicAdviceMethodInPublicFakeClass()
-   {
+   public void publicAdviceMethodInPublicFakeClass() {
       new PublicFake();
 
       new TargetClass().validateSomething();
@@ -266,8 +242,7 @@ public final class FakingEverythingTest
    }
 }
 
-class TargetClass
-{
+class TargetClass {
    final int value;
 
    TargetClass() { value = 0; }
@@ -282,15 +257,13 @@ class TargetClass
    public String toString() { return getClass().getSimpleName() + value; }
 }
 
-final class TargetSubclass extends TargetClass
-{
+final class TargetSubclass extends TargetClass {
    TargetSubclass(int value) { super(value); }
 
    String additionalMethod(int i) { return String.valueOf(i); }
 
    @Override
-   protected void performAction(Runnable action)
-   {
+   protected void performAction(Runnable action) {
       additionalMethod(45);
       super.performAction(action);
    }

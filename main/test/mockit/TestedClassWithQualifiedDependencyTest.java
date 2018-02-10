@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -17,8 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 public final class TestedClassWithQualifiedDependencyTest
 {
-   public static class TestedClass
-   {
+   public static class TestedClass {
       @Inject private Dependency1 dep1;
       @Autowired private Dependency2 dep2;
       @Resource(name = "main-db") private DataSource ds;
@@ -27,14 +22,12 @@ public final class TestedClassWithQualifiedDependencyTest
       @Qualifier("a.BC-12b") private Long numericValue2;
    }
 
-   public static class Dependency1
-   {
+   public static class Dependency1 {
       @Inject @Named("action1") private Runnable action;
       @Autowired @Qualifier("foo") private Serializable qualifiedDep;
    }
 
-   public static class Dependency2
-   {
+   public static class Dependency2 {
       @Qualifier("action2") private Runnable action;
       @Named("bar") private Serializable qualifiedDep;
    }
@@ -42,8 +35,7 @@ public final class TestedClassWithQualifiedDependencyTest
    @Tested Serializable foo;
 
    @Before
-   public void createQualifiedDependency()
-   {
+   public void createQualifiedDependency() {
       foo = "foo";
    }
 
@@ -54,8 +46,7 @@ public final class TestedClassWithQualifiedDependencyTest
    @Injectable Runnable action1;
 
    @Test
-   public void useTestedObjectWithDifferentDependenciesEachHavingAQualifiedSubDependency(@Injectable Runnable action2)
-   {
+   public void useTestedObjectWithDifferentDependenciesEachHavingAQualifiedSubDependency(@Injectable Runnable action2) {
       assertSame(action2, dependency2.action);
       assertSame(dependency2, tested.dep2);
       assertSame(action1, tested.dep1.action);
@@ -71,16 +62,14 @@ public final class TestedClassWithQualifiedDependencyTest
    static class ClassWithQualifiedDependencyOfAbstractType { @Named("dep1") Dependency dependency; }
 
    @Test
-   public void useTestedObjectOfSubtypeForQualifiedAbstractDependencyTypeInAnotherTestedObject()
-   {
+   public void useTestedObjectOfSubtypeForQualifiedAbstractDependencyTypeInAnotherTestedObject() {
       assertSame(dep1, tested2.dependency);
    }
 
    @Injectable DataSource mainDb;
 
    @Test
-   public void verifyDependenciesHavingCompositeNames(@Injectable("text value") String someTextualValue)
-   {
+   public void verifyDependenciesHavingCompositeNames(@Injectable("text value") String someTextualValue) {
       assertSame(mainDb, tested.ds);
       assertEquals(someTextualValue, tested.text);
       assertEquals(aBC12, tested.numericValue);

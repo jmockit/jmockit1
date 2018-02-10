@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -15,8 +11,7 @@ import static org.junit.Assert.*;
 
 public final class StandardDITest
 {
-   public static class TestedClass
-   {
+   public static class TestedClass {
       @Inject static Runnable globalAction;
 
       private final Collaborator collaborator;
@@ -44,8 +39,7 @@ public final class StandardDITest
    @Injectable final int anotherValue = 45;
    @Injectable Callable<String> callable;
 
-   static final class TestedClassWithNoAnnotatedConstructor
-   {
+   static final class TestedClassWithNoAnnotatedConstructor {
       @Inject int value;
       @Inject String aText;
       String anotherText;
@@ -54,8 +48,7 @@ public final class StandardDITest
    @Tested TestedClassWithNoAnnotatedConstructor tested2;
    @Injectable final String aText = "Abc";
 
-   public static class TestedClassWithInjectOnConstructorOnly
-   {
+   public static class TestedClassWithInjectOnConstructorOnly {
       String name;
       @Inject public TestedClassWithInjectOnConstructorOnly() {}
    }
@@ -63,8 +56,7 @@ public final class StandardDITest
    @Tested TestedClassWithInjectOnConstructorOnly tested3;
 
    @Test
-   public void invokeInjectAnnotatedConstructorOnly()
-   {
+   public void invokeInjectAnnotatedConstructorOnly() {
       assertSame(collaborator, tested1.collaborator);
       assertSame(collaborator1, tested1.collaborator1);
       assertNull(tested1.collaborator2);
@@ -76,8 +68,8 @@ public final class StandardDITest
 
    @Test
    public void assignInjectAnnotatedFieldsAndAlsoNonAnnotatedOnes(
-      @Injectable Collaborator collaborator2, @Injectable("67") int notToBeUsed)
-   {
+      @Injectable Collaborator collaborator2, @Injectable("67") int notToBeUsed
+   ) {
       assertSame(collaborator, tested1.collaborator);
       assertSame(collaborator1, tested1.collaborator1);
       assertSame(collaborator2, tested1.collaborator2);
@@ -88,37 +80,32 @@ public final class StandardDITest
    }
 
    @Test
-   public void assignAnnotatedFieldEvenIfTestedClassHasNoAnnotatedConstructor(@Injectable("123") int value)
-   {
+   public void assignAnnotatedFieldEvenIfTestedClassHasNoAnnotatedConstructor(@Injectable("123") int value) {
       assertEquals(123, tested2.value);
    }
 
    @Injectable Runnable action;
 
    @Test
-   public void assignAnnotatedStaticFieldDuringFieldInjection()
-   {
+   public void assignAnnotatedStaticFieldDuringFieldInjection() {
       assertSame(action, TestedClass.globalAction);
    }
 
    @Test
-   public void considerAnnotatedAndNonAnnotatedFieldsForInjection(@Injectable("XY") String text2)
-   {
+   public void considerAnnotatedAndNonAnnotatedFieldsForInjection(@Injectable("XY") String text2) {
       assertEquals(aText, tested2.aText);
       assertNull(tested2.anotherText);
       assertEquals(aText, tested3.name);
    }
 
-   static final class TestedClassWithProviders
-   {
+   static final class TestedClassWithProviders {
       final int port;
       final Collaborator collaborator;
       @Inject Provider<String> user;
       @Inject Provider<String> password;
 
       @Inject
-      TestedClassWithProviders(Provider<Integer> port, Collaborator collaborator)
-      {
+      TestedClassWithProviders(Provider<Integer> port, Collaborator collaborator) {
          this.port = port.get();
          this.collaborator = collaborator;
       }
@@ -130,24 +117,21 @@ public final class StandardDITest
    @Injectable String password = "123";
 
    @Test
-   public void supportProviderFieldsAndParameters()
-   {
+   public void supportProviderFieldsAndParameters() {
       assertEquals(portNumber.intValue(), tested4.port);
       assertSame(collaborator, tested4.collaborator);
       assertEquals(user, tested4.user.get());
       assertEquals(password, tested4.password.get());
    }
 
-   static final class TestedClassWithVarargsParameterForProviders
-   {
+   static final class TestedClassWithVarargsParameterForProviders {
       final Collaborator collaborator1;
       final Collaborator collaborator2;
       final List<Collaborator> optionalCollaborators = new ArrayList<Collaborator>();
       @Inject Provider<String> nameProvider;
 
       @Inject
-      TestedClassWithVarargsParameterForProviders(Provider<Collaborator>... collaborators)
-      {
+      TestedClassWithVarargsParameterForProviders(Provider<Collaborator>... collaborators) {
          int n = collaborators.length;
          assertTrue(n > 1);
 
@@ -169,8 +153,7 @@ public final class StandardDITest
    @Injectable Collaborator col3;
 
    @Before
-   public void configureProviderUsedByConstructorOfTestedClass()
-   {
+   public void configureProviderUsedByConstructorOfTestedClass() {
       new Expectations() {{
          Collaborator[] collaborators = {col3, null};
          collaboratorProvider.get(); result = collaborators;
@@ -178,8 +161,7 @@ public final class StandardDITest
    }
 
    @Test
-   public void supportVarargsParameterWithProviders(@Injectable final Provider<String> nameProvider)
-   {
+   public void supportVarargsParameterWithProviders(@Injectable final Provider<String> nameProvider) {
       final String[] names = {"John", "Mary"};
       new Expectations() {{ nameProvider.get(); result = names; }};
 
@@ -193,8 +175,7 @@ public final class StandardDITest
    }
 
    @Test
-   public void fieldsNotAnnotatedWithKnownDIAnnotationsShouldStillBeInjected()
-   {
+   public void fieldsNotAnnotatedWithKnownDIAnnotationsShouldStillBeInjected() {
       assertEquals("Abc", tested1.nonAnnotatedField);
       assertSame(callable, tested1.nonAnnotatedGenericField);
    }

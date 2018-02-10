@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -15,8 +11,7 @@ public final class VerificationsTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @SuppressWarnings("UnusedParameters")
-   public static class Dependency
-   {
+   public static class Dependency {
       public void setSomething(int value) {}
       public void setSomethingElse(String value) {}
       public void editABunchMoreStuff() {}
@@ -27,8 +22,7 @@ public final class VerificationsTest
 
    @Mocked Dependency mock;
 
-   void exerciseCodeUnderTest()
-   {
+   void exerciseCodeUnderTest() {
       mock.prepare();
       mock.setSomething(123);
       mock.setSomethingElse("anotherValue");
@@ -39,8 +33,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifySimpleInvocations()
-   {
+   public void verifySimpleInvocations() {
       exerciseCodeUnderTest();
 
       new Verifications() {{
@@ -51,8 +44,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyUnrecordedInvocationThatNeverHappens()
-   {
+   public void verifyUnrecordedInvocationThatNeverHappens() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("45");
 
@@ -63,8 +55,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyRecordedInvocationThatNeverHappens()
-   {
+   public void verifyRecordedInvocationThatNeverHappens() {
       thrown.expect(MissingInvocation.class);
 
       new Expectations() {{ mock.editABunchMoreStuff(); }};
@@ -76,8 +67,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationThatIsAllowedToHappenOnceOrMoreAndHappensOnce()
-   {
+   public void verifyInvocationThatIsAllowedToHappenOnceOrMoreAndHappensOnce() {
       mock.prepare();
       mock.setSomething(123);
       mock.save();
@@ -89,8 +79,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyUnrecordedInvocationThatShouldHappenButDoesNot()
-   {
+   public void verifyUnrecordedInvocationThatShouldHappenButDoesNot() {
       thrown.expect(MissingInvocation.class);
 
       mock.setSomething(1);
@@ -99,8 +88,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationsWithInvocationCount()
-   {
+   public void verifyInvocationsWithInvocationCount() {
       mock.setSomething(3);
       mock.save();
       mock.setSomethingElse("test");
@@ -112,8 +100,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationsWithInvocationCountLargerThanOccurred()
-   {
+   public void verifyInvocationsWithInvocationCountLargerThanOccurred() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 2 invocations");
       thrown.expectMessage("any int");
@@ -129,8 +116,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationsWithInvocationCountSmallerThanOccurred()
-   {
+   public void verifyInvocationsWithInvocationCountSmallerThanOccurred() {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("1 unexpected invocation");
       thrown.expectMessage("5");
@@ -147,8 +133,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationThatShouldNotOccurButDid()
-   {
+   public void verifyInvocationThatShouldNotOccurButDid() {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("2 unexpected invocations");
       thrown.expectMessage("123");
@@ -163,16 +148,14 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyWithArgumentMatcher()
-   {
+   public void verifyWithArgumentMatcher() {
       exerciseCodeUnderTest();
 
       new Verifications() {{ mock.setSomething(anyInt); }};
    }
 
    @Test
-   public void verifyWithArgumentMatcherAndIndividualInvocationCounts()
-   {
+   public void verifyWithArgumentMatcherAndIndividualInvocationCounts() {
       exerciseCodeUnderTest();
 
       new Verifications() {{
@@ -184,8 +167,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyWithCustomArgumentMatcherWithoutArgumentValue()
-   {
+   public void verifyWithCustomArgumentMatcherWithoutArgumentValue() {
       mock.setSomethingElse("not empty");
 
       new Verifications() {{
@@ -196,8 +178,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyThroughCapturedArguments()
-   {
+   public void verifyThroughCapturedArguments() {
       thrown.expect(AssertionError.class);
       thrown.expectMessage("not empty");
 
@@ -212,8 +193,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyWithCustomArgumentMatcher()
-   {
+   public void verifyWithCustomArgumentMatcher() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("isEmpty(\"test\")");
 
@@ -227,8 +207,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verifyInvocationThatMatchesExpectationRecordedWithAnyMatcherButWithArgumentValueWhichDidNotOccur()
-   {
+   public void verifyInvocationThatMatchesExpectationRecordedWithAnyMatcherButWithArgumentValueWhichDidNotOccur() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("45");
 
@@ -240,9 +219,7 @@ public final class VerificationsTest
    }
 
    @Test
-   public void verityTwoInvocationsToMethodMatchedOnSpecificInstanceWithNoArgumentMatchers(
-      @Injectable final Dependency dep)
-   {
+   public void verityTwoInvocationsToMethodMatchedOnSpecificInstanceWithNoArgumentMatchers(@Injectable final Dependency dep) {
       dep.editABunchMoreStuff();
       dep.editABunchMoreStuff();
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -13,15 +9,13 @@ public final class TestedFieldWithFailedConstructorDITest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Before
-   public void configureExpectedException()
-   {
+   public void configureExpectedException() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("No injectable value available for parameter \"value\" in constructor ");
       thrown.expectMessage("ClassWithOneParameter(Integer value)");
    }
 
-   static class ClassWithOneParameter
-   {
+   static class ClassWithOneParameter {
       Integer value;
       ClassWithOneParameter(Integer value) { this.value = value; }
    }
@@ -30,8 +24,7 @@ public final class TestedFieldWithFailedConstructorDITest
    @Injectable Integer foo;
 
    @Test
-   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithoutAValue(@Injectable String s)
-   {
+   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithoutAValue(@Injectable String s) {
       assertEquals("", s);
    }
 }

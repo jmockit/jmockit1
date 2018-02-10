@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -14,8 +10,7 @@ public final class VerificationsInOrderTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @SuppressWarnings("UnusedDeclaration")
-   public static class Dependency
-   {
+   public static class Dependency {
       public void setSomething(int value) {}
       public void setSomethingElse(String value) {}
       public void editABunchMoreStuff() {}
@@ -25,8 +20,7 @@ public final class VerificationsInOrderTest
       void doSomething(ClassWithHashCode h) {}
    }
 
-   static final class ClassWithHashCode
-   {
+   static final class ClassWithHashCode {
       @Override
       public boolean equals(Object obj) { return obj instanceof ClassWithHashCode && this == obj; }
 
@@ -36,8 +30,7 @@ public final class VerificationsInOrderTest
 
    @Mocked Dependency mock;
 
-   void exerciseCodeUnderTest()
-   {
+   void exerciseCodeUnderTest() {
       mock.prepare();
       mock.setSomething(123);
       mock.setSomethingElse("anotherValue");
@@ -48,8 +41,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifySimpleInvocations()
-   {
+   public void verifySimpleInvocations() {
       exerciseCodeUnderTest();
 
       new VerificationsInOrder() {{
@@ -60,8 +52,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyUnrecordedInvocationThatShouldHappenButDoesNot()
-   {
+   public void verifyUnrecordedInvocationThatShouldHappenButDoesNot() {
       thrown.expect(MissingInvocation.class);
 
       mock.setSomething(1);
@@ -70,8 +61,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyUnrecordedInvocationThatShouldHappenExactlyOnceButDoesNot()
-   {
+   public void verifyUnrecordedInvocationThatShouldHappenExactlyOnceButDoesNot() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("2");
 
@@ -81,8 +71,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyRecordedInvocationThatShouldHappenButDoesNot()
-   {
+   public void verifyRecordedInvocationThatShouldHappenButDoesNot() {
       thrown.expect(MissingInvocation.class);
 
       new Expectations() {{
@@ -99,8 +88,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyAllInvocationsWithSomeOfThemRecorded()
-   {
+   public void verifyAllInvocationsWithSomeOfThemRecorded() {
       new Expectations() {{
          mock.prepare();
          mock.editABunchMoreStuff();
@@ -119,8 +107,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyInvocationsWithExactInvocationCountsHavingRecordedMatchingExpectationWithArgumentMatcher()
-   {
+   public void verifyInvocationsWithExactInvocationCountsHavingRecordedMatchingExpectationWithArgumentMatcher() {
       new Expectations() {{ mock.setSomething(anyInt); }};
 
       mock.setSomething(1);
@@ -133,8 +120,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyInvocationThatIsAllowedToHappenAnyNumberOfTimesAndHappensOnce()
-   {
+   public void verifyInvocationThatIsAllowedToHappenAnyNumberOfTimesAndHappensOnce() {
       mock.prepare();
       mock.setSomething(123);
       mock.save();
@@ -147,8 +133,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifySimpleInvocationsWhenOutOfOrder()
-   {
+   public void verifySimpleInvocationsWhenOutOfOrder() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("123");
 
@@ -162,8 +147,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyRepeatingInvocation()
-   {
+   public void verifyRepeatingInvocation() {
       mock.setSomething(123);
       mock.setSomething(123);
 
@@ -171,8 +155,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyRepeatingInvocationThatOccursOneTimeMoreThanExpected()
-   {
+   public void verifyRepeatingInvocationThatOccursOneTimeMoreThanExpected() {
       thrown.expect(UnexpectedInvocation.class);
 
       mock.setSomething(123);
@@ -182,8 +165,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyRepeatingInvocationUsingMatcher()
-   {
+   public void verifyRepeatingInvocationUsingMatcher() {
       mock.setSomething(123);
       mock.setSomething(45);
 
@@ -191,8 +173,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyInvocationNotExpectedToOccurButWhichDoes()
-   {
+   public void verifyInvocationNotExpectedToOccurButWhichDoes() {
       thrown.expect(UnexpectedInvocation.class);
       thrown.expectMessage("123");
 
@@ -206,8 +187,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyWithArgumentMatcher()
-   {
+   public void verifyWithArgumentMatcher() {
       exerciseCodeUnderTest();
 
       new VerificationsInOrder() {{
@@ -217,8 +197,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyWithIndividualInvocationCountsForNonConsecutiveInvocations()
-   {
+   public void verifyWithIndividualInvocationCountsForNonConsecutiveInvocations() {
       exerciseCodeUnderTest();
 
       new VerificationsInOrder() {{
@@ -228,9 +207,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyUsingInvocationCountConstraintAndArgumentMatcherOnObjectWithMockedHashCode(
-      @Mocked ClassWithHashCode wh)
-   {
+   public void verifyUsingInvocationCountConstraintAndArgumentMatcherOnObjectWithMockedHashCode(@Mocked ClassWithHashCode wh) {
       mock.doSomething(null);
       mock.doSomething(wh);
 
@@ -241,8 +218,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyWithArgumentMatchersWhenOutOfOrder()
-   {
+   public void verifyWithArgumentMatchersWhenOutOfOrder() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("any String");
 
@@ -258,8 +234,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyWithArgumentMatcherAndIndividualInvocationCountWhenOutOfOrder()
-   {
+   public void verifyWithArgumentMatcherAndIndividualInvocationCountWhenOutOfOrder() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("Missing 1 invocation");
       thrown.expectMessage("any int");
@@ -275,8 +250,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyTwoIndependentSequencesOfInvocationsWhichOccurSeparately()
-   {
+   public void verifyTwoIndependentSequencesOfInvocationsWhichOccurSeparately() {
       // First sequence:
       mock.setSomething(1);
       mock.setSomething(2);
@@ -299,8 +273,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyTwoIndependentSequencesOfInvocationsWhichAreMixedTogether()
-   {
+   public void verifyTwoIndependentSequencesOfInvocationsWhichAreMixedTogether() {
       mock.setSomething(1);  // first sequence
       mock.setSomething(10); // second sequence
       mock.setSomething(2);  // first sequence
@@ -320,8 +293,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifySecondSequenceOfInvocationsWithTimesConstraintAfterVerifyingLastInvocationOfFirstSequence()
-   {
+   public void verifySecondSequenceOfInvocationsWithTimesConstraintAfterVerifyingLastInvocationOfFirstSequence() {
       mock.setSomething(1); // first sequence
       mock.setSomething(3); // second sequence
       mock.setSomething(4); // second sequence
@@ -339,8 +311,7 @@ public final class VerificationsInOrderTest
    }
 
    @Test
-   public void verifyMethodInvokedOnOneOfTwoNewInstancesOfSameTypeWhenInvokedOnWrongInstance()
-   {
+   public void verifyMethodInvokedOnOneOfTwoNewInstancesOfSameTypeWhenInvokedOnWrongInstance() {
       thrown.expect(MissingInvocation.class);
       thrown.expectMessage("save()");
 

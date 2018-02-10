@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -9,15 +5,13 @@ import static org.junit.Assert.*;
 
 public final class TestedAbstractClassTest
 {
-   public abstract static class AbstractClass implements Runnable
-   {
+   public abstract static class AbstractClass implements Runnable {
       private final int value;
       protected String name;
 
       protected AbstractClass(int value) { this.value = value; }
 
-      public final boolean doSomeOperation()
-      {
+      public final boolean doSomeOperation() {
          run();
          return doSomething() > 0;
       }
@@ -34,8 +28,7 @@ public final class TestedAbstractClassTest
    @Injectable("123") int value;
 
    @Test
-   public void exerciseTestedObject(@Injectable("Test") String name)
-   {
+   public void exerciseTestedObject(@Injectable("Test") String name) {
       assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
       assertEquals("Test", tested.name);
@@ -50,8 +43,7 @@ public final class TestedAbstractClassTest
    }
 
    @Test
-   public void exerciseDynamicallyMockedTestedObject()
-   {
+   public void exerciseDynamicallyMockedTestedObject() {
       assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
 
@@ -67,8 +59,7 @@ public final class TestedAbstractClassTest
    }
 
    @Test
-   public void exerciseTestedObjectAgain(@Injectable("Another test") String text)
-   {
+   public void exerciseTestedObjectAgain(@Injectable("Another test") String text) {
       assertThatGeneratedSubclassIsAlwaysTheSame();
       assertEquals(123, tested.getValue());
       assertEquals("Another test", tested.name);
@@ -83,8 +74,7 @@ public final class TestedAbstractClassTest
 
    Class<?> generatedSubclass;
 
-   void assertThatGeneratedSubclassIsAlwaysTheSame()
-   {
+   void assertThatGeneratedSubclassIsAlwaysTheSame() {
       Class<?> testedClass = tested.getClass();
 
       if (generatedSubclass == null) {

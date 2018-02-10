@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -12,8 +8,7 @@ public final class FakeInvocationTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   public static class Collaborator
-   {
+   public static class Collaborator {
       int value;
       
       Collaborator() {}
@@ -25,11 +20,9 @@ public final class FakeInvocationTest
       public static boolean staticMethod() { return true; }
    }
 
-   static final class FakeMethods extends MockUp<Collaborator>
-   {
+   static final class FakeMethods extends MockUp<Collaborator> {
       @Mock
-      static boolean staticMethod(Invocation context)
-      {
+      static boolean staticMethod(Invocation context) {
          assertNotNull(context);
          assertNull(context.getInvokedInstance());
          assertEquals(1, context.getInvocationCount());
@@ -37,8 +30,7 @@ public final class FakeInvocationTest
       }
 
       @Mock
-      int getValue(Invocation context)
-      {
+      int getValue(Invocation context) {
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
          assertEquals(0, context.getInvocationIndex());
          return 123;
@@ -46,20 +38,17 @@ public final class FakeInvocationTest
    }
 
    @Test
-   public void fakeMethodsForMethodsWithoutParameters()
-   {
+   public void fakeMethodsForMethodsWithoutParameters() {
       new FakeMethods();
       assertFalse(Collaborator.staticMethod());
       assertEquals(123, new Collaborator().getValue());
    }
 
    @Test
-   public void instanceFakeMethodForStaticMethod()
-   {
+   public void instanceFakeMethodForStaticMethod() {
       new MockUp<Collaborator>() {
          @Mock
-         boolean staticMethod(Invocation context)
-         {
+         boolean staticMethod(Invocation context) {
             assertNull(context.getInvokedInstance());
             assertEquals(context.getInvocationCount() - 1, context.getInvocationIndex());
             return context.getInvocationCount() <= 0;
@@ -71,22 +60,19 @@ public final class FakeInvocationTest
    }
 
    @Test
-   public void fakeMethodsWithInvocationParameter()
-   {
+   public void fakeMethodsWithInvocationParameter() {
       new MockUp<Collaborator>() {
          Collaborator instantiated;
 
          @Mock
-         void $init(Invocation inv, int i)
-         {
+         void $init(Invocation inv, int i) {
             assertNotNull(inv.getInvokedInstance());
             assertTrue(i > 0);
             instantiated = inv.getInvokedInstance();
          }
 
          @Mock
-         String doSomething(Invocation inv, boolean b, int[] array, String s)
-         {
+         String doSomething(Invocation inv, boolean b, int[] array, String s) {
             assertNotNull(inv);
             assertSame(instantiated, inv.getInvokedInstance());
             assertEquals(1, inv.getInvocationCount());
@@ -101,14 +87,12 @@ public final class FakeInvocationTest
       assertEquals("mock", s);
    }
 
-   static class FakeMethodsWithParameters extends MockUp<Collaborator>
-   {
+   static class FakeMethodsWithParameters extends MockUp<Collaborator> {
       int capturedArgument;
       Collaborator fakedInstance;
 
       @Mock
-      void $init(Invocation context, int i)
-      {
+      void $init(Invocation context, int i) {
          capturedArgument = i + context.getInvocationCount();
          assertNull(fakedInstance);
          assertTrue(context.getInvokedInstance() instanceof Collaborator);
@@ -116,8 +100,7 @@ public final class FakeInvocationTest
       }
 
       @Mock
-      void setValue(Invocation context, int i)
-      {
+      void setValue(Invocation context, int i) {
          assertEquals(i, context.getInvocationIndex());
          assertSame(fakedInstance, context.getInvokedInstance());
          assertEquals(1, context.getInvokedArguments().length);
@@ -125,8 +108,7 @@ public final class FakeInvocationTest
    }
 
    @Test
-   public void fakeMethodsWithParameters()
-   {
+   public void fakeMethodsWithParameters() {
       FakeMethodsWithParameters mock = new FakeMethodsWithParameters();
 
       Collaborator col = new Collaborator(4);
@@ -138,20 +120,17 @@ public final class FakeInvocationTest
    }
 
    @Test
-   public void useOfContextParametersForJREMethods() throws Exception
-   {
+   public void useOfContextParametersForJREMethods() throws Exception {
       new MockUp<Runtime>() {
          @Mock
-         void runFinalizersOnExit(Invocation inv, boolean b)
-         {
+         void runFinalizersOnExit(Invocation inv, boolean b) {
             assertNull(inv.getInvokedInstance());
             assertEquals(1, inv.getInvocationCount());
             assertTrue(b);
          }
 
          @Mock
-         Process exec(Invocation inv, String command, String[] envp)
-         {
+         Process exec(Invocation inv, String command, String[] envp) {
             assertSame(Runtime.getRuntime(), inv.getInvokedInstance());
             assertEquals(0, inv.getInvocationIndex());
             assertNotNull(command);

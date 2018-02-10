@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -10,51 +6,40 @@ import org.junit.*;
 @SuppressWarnings({"UnusedDeclaration", "UnusedParameters", "ClassWithTooManyFields"})
 public final class TestedClassWithConstructorDI0Test
 {
-   public static final class TestedClassWithConstructorHavingPrimitiveParameter
-   {
+   public static final class TestedClassWithConstructorHavingPrimitiveParameter {
       public TestedClassWithConstructorHavingPrimitiveParameter(int i) { assertEquals(123, i); }
    }
 
-   public static final class TestedClassWithConstructorHavingStringParameter
-   {
+   public static final class TestedClassWithConstructorHavingStringParameter {
       public TestedClassWithConstructorHavingStringParameter(String s) {}
    }
 
-   public static final class TestedClassWithConstructorHavingArrayParameter
-   {
-      public TestedClassWithConstructorHavingArrayParameter(String[] arr)
-      {
+   public static final class TestedClassWithConstructorHavingArrayParameter {
+      public TestedClassWithConstructorHavingArrayParameter(String[] arr) {
          assertArrayEquals(new String[] {"abc", "Xyz"}, arr);
       }
    }
 
-   public static final class TestedClassWithConstructorHavingLongParameters
-   {
-      public TestedClassWithConstructorHavingLongParameters(long l1, long l2)
-      {
+   public static final class TestedClassWithConstructorHavingLongParameters {
+      public TestedClassWithConstructorHavingLongParameters(long l1, long l2) {
          assertEquals(1, l1);
          assertEquals(2, l2);
       }
 
-      TestedClassWithConstructorHavingLongParameters(int i, long l1, long l2)
-      {
+      TestedClassWithConstructorHavingLongParameters(int i, long l1, long l2) {
          throw new RuntimeException("Must not occur");
       }
    }
 
-   public static final class TestedClassWithConstructorHavingDoubleParameters
-   {
-      TestedClassWithConstructorHavingDoubleParameters(double d1, double d2)
-      {
+   public static final class TestedClassWithConstructorHavingDoubleParameters {
+      TestedClassWithConstructorHavingDoubleParameters(double d1, double d2) {
          assertEquals(1.0, d1, 0);
          assertEquals(2.0, d2, 0);
       }
    }
 
-   public static final class TestedClassWithConstructorHavingVarargsParameter
-   {
-      public TestedClassWithConstructorHavingVarargsParameter(byte b, char c, String s, byte b2, boolean... flags)
-      {
+   public static final class TestedClassWithConstructorHavingVarargsParameter {
+      public TestedClassWithConstructorHavingVarargsParameter(byte b, char c, String s, byte b2, boolean... flags) {
          assertEquals(56, b);
          assertEquals(57, b2);
          assertEquals('X', c);
@@ -66,10 +51,8 @@ public final class TestedClassWithConstructorDI0Test
       }
    }
 
-   public static final class TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters
-   {
-      public TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters(long l1, char c, String s)
-      {
+   public static final class TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters {
+      public TestedClassWithConstructorHavingDoubleSizeParameterFollowedByRegularParameters(long l1, char c, String s) {
          assertEquals(1, l1);
          assertEquals('X', c);
          assertEquals("test", s);
@@ -102,8 +85,7 @@ public final class TestedClassWithConstructorDI0Test
    @Injectable boolean thirdFlag = true;
 
    @Test
-   public void verifyInstantiationOfTestedObjectsThroughConstructorsWithNonMockedParameters()
-   {
+   public void verifyInstantiationOfTestedObjectsThroughConstructorsWithNonMockedParameters() {
       assertNotNull(tested0);
       assertNotNull(tested1);
       assertNotNull(tested2);

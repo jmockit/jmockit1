@@ -86,9 +86,7 @@ public final class TestedClassWithConstructorDI2Test
    }
 
    @Test
-   public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughConstructor(
-      @Injectable Dependency dependency3
-   ) {
+   public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughConstructor(@Injectable Dependency dependency3) {
       assertTestedObjectWasInitialized();
       assertSame(dependency3, tested.dependency3);
 
@@ -101,9 +99,7 @@ public final class TestedClassWithConstructorDI2Test
    }
 
    @Test
-   public void exerciseTestedObjectWithExtraInjectableParameter(
-      @Injectable Dependency dependency3, @Injectable Dependency mock4
-   ) {
+   public void exerciseTestedObjectWithExtraInjectableParameter(@Injectable Dependency dependency3, @Injectable Dependency mock4) {
       assertTestedObjectWasInitialized();
       assertSame(dependency1, tested.dependency1);
       assertSame(dependency2, tested.dependency2);

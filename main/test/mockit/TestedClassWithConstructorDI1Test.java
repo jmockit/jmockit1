@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.util.*;
@@ -13,15 +9,13 @@ import org.junit.*;
 
 public final class TestedClassWithConstructorDI1Test
 {
-   public static class BaseTestedClass
-   {
+   public static class BaseTestedClass {
       static int baseCounter;
       @PostConstruct void initializeBase() { baseCounter++; }
       @PreDestroy void destroyBase() { baseCounter++; }
    }
 
-   public static final class TestedClass extends BaseTestedClass
-   {
+   public static final class TestedClass extends BaseTestedClass {
       static int counter;
       private final Dependency dependency;
       private final Runnable runnable;
@@ -30,15 +24,13 @@ public final class TestedClassWithConstructorDI1Test
       public TestedClass(Dependency dependency) { this(dependency, null, null); }
       public TestedClass(Dependency dependency, Runnable runnable) { this(dependency, runnable, null); }
       public TestedClass(Dependency dependency, Observable observable) { this(dependency, null, observable); }
-      public TestedClass(Dependency dependency, Runnable runnable, Observable observable)
-      {
+      public TestedClass(Dependency dependency, Runnable runnable, Observable observable) {
          this.dependency = dependency;
          this.runnable = runnable;
          this.observable = observable;
       }
 
-      public boolean doSomeOperation()
-      {
+      public boolean doSomeOperation() {
          if (runnable != null) {
             runnable.run();
          }
@@ -56,17 +48,13 @@ public final class TestedClassWithConstructorDI1Test
       @PreDestroy void destroy() { counter++; }
    }
 
-   static class Dependency
-   {
-      int doSomething() { return -1; }
-   }
+   static class Dependency { int doSomething() { return -1; } }
 
    @Tested TestedClass tested;
    @Injectable Dependency mock;
 
    @Test
-   public void exerciseTestedObjectWithSingleDependencyInjectedThroughConstructor()
-   {
+   public void exerciseTestedObjectWithSingleDependencyInjectedThroughConstructor() {
       assertTestedObjectWasInitialized();
 
       new Expectations() {{ mock.doSomething(); result = 23; }};
@@ -75,8 +63,7 @@ public final class TestedClassWithConstructorDI1Test
    }
 
    @Test
-   public void exerciseTestedObjectWithTwoDependenciesInjectedThroughConstructor(@Injectable final Runnable mock2)
-   {
+   public void exerciseTestedObjectWithTwoDependenciesInjectedThroughConstructor(@Injectable final Runnable mock2) {
       assertTestedObjectWasInitialized();
 
       new Expectations() {{ mock.doSomething(); result = 23; }};
@@ -87,8 +74,7 @@ public final class TestedClassWithConstructorDI1Test
    }
 
    @Test
-   public void exerciseTestedObjectWithTwoOtherDependenciesInjectedThroughConstructor(@Injectable final Observable obs)
-   {
+   public void exerciseTestedObjectWithTwoOtherDependenciesInjectedThroughConstructor(@Injectable final Observable obs) {
       assertTestedObjectWasInitialized();
 
       new Expectations() {{ mock.doSomething(); result = 123; }};
@@ -100,8 +86,8 @@ public final class TestedClassWithConstructorDI1Test
 
    @Test
    public void exerciseTestedObjectWithAllDependenciesInjectedThroughConstructor(
-      @Injectable final Runnable mock2, @Injectable final Observable mock3)
-   {
+      @Injectable final Runnable mock2, @Injectable final Observable mock3
+   ) {
       assertTestedObjectWasInitialized();
 
       new Expectations() {{ mock.doSomething(); result = 123; }};
@@ -115,21 +101,18 @@ public final class TestedClassWithConstructorDI1Test
    }
 
    @Before
-   public void resetCounter()
-   {
+   public void resetCounter() {
       BaseTestedClass.baseCounter = 0;
       TestedClass.counter = 0;
    }
 
-   void assertTestedObjectWasInitialized()
-   {
+   void assertTestedObjectWasInitialized() {
       assertEquals(1, BaseTestedClass.baseCounter);
       assertEquals(1, TestedClass.counter);
    }
 
    @After
-   public void verifyTestedObjectAfterEveryTest()
-   {
+   public void verifyTestedObjectAfterEveryTest() {
       assertEquals(2, BaseTestedClass.baseCounter);
       assertEquals(2, TestedClass.counter);
    }

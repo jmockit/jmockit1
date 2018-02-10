@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -20,16 +16,14 @@ public final class FakingBaseTypesTest
    static class BeforeClassAction extends BeforeClassBaseAction { @Override protected int perform() { return 12; } }
 
    @BeforeClass
-   public static <T extends BeforeClassBaseAction> void applyFakeForAllTests()
-   {
+   public static <T extends BeforeClassBaseAction> void applyFakeForAllTests() {
       new MockUp<T>() {
          @Mock int perform() { return 34; }
       };
    }
 
    @AfterClass
-   public static void verifyFakeForAllTestsIsInEffect()
-   {
+   public static void verifyFakeForAllTestsIsInEffect() {
       int i1 = new BeforeClassAction().perform();
       int i2 = new BeforeClassBaseAction().perform();
 
@@ -41,34 +35,29 @@ public final class FakingBaseTypesTest
    static class BeforeAction implements IBeforeAction { @Override public int perform() { return 123; } }
 
    @Before
-   public <T extends IBeforeAction> void applyFakeForEachTest()
-   {
+   public <T extends IBeforeAction> void applyFakeForEachTest() {
       new MockUp<T>() {
          @Mock int perform() { return 56; }
       };
    }
 
    @After
-   public void verifyFakeForEachTestIsInEffect()
-   {
+   public void verifyFakeForEachTestIsInEffect() {
       int i = new BeforeAction().perform();
       assertEquals(56, i);
    }
 
-   public interface IAction
-   {
+   public interface IAction {
       int perform(int i);
       boolean notToBeFaked();
    }
 
-   public static class ActionImpl1 implements IAction
-   {
+   public static class ActionImpl1 implements IAction {
       @Override public int perform(int i) { return i - 1; }
       @Override public boolean notToBeFaked() { return true; }
    }
 
-   static final class ActionImpl2 implements IAction
-   {
+   static final class ActionImpl2 implements IAction {
       @Override public int perform(int i) { return i - 2; }
       @Override public boolean notToBeFaked() { return true; }
    }
@@ -76,8 +65,7 @@ public final class FakingBaseTypesTest
    IAction actionI;
 
    @Test
-   public <T extends IAction> void test3_fakeInterfaceImplementationClassesUsingAnonymousFake()
-   {
+   public <T extends IAction> void test3_fakeInterfaceImplementationClassesUsingAnonymousFake() {
       actionI = new ActionImpl1();
 
       new MockUp<T>() {
@@ -95,15 +83,13 @@ public final class FakingBaseTypesTest
 
    public interface TestInterface { String getData(); }
 
-   public static final class FakeTestInterface<T extends TestInterface> extends MockUp<T>
-   {
+   public static final class FakeTestInterface<T extends TestInterface> extends MockUp<T> {
       @Mock
       public String getData(Invocation inv) { return "faked" + inv.proceed(); }
    }
 
    @Test
-   public void fakeAllClassesImplementingAnInterfaceUsingNamedFakeWithInvocationParameter()
-   {
+   public void fakeAllClassesImplementingAnInterfaceUsingNamedFakeWithInvocationParameter() {
       TestInterface impl1 = new TestInterface() { @Override public String getData() { return "1"; } };
       TestInterface impl2 = new TestInterface() { @Override public String getData() { return "2"; } };
       new FakeTestInterface();
@@ -115,27 +101,23 @@ public final class FakingBaseTypesTest
       assertEquals("faked2", faked2);
    }
 
-   public abstract static class BaseAction
-   {
+   public abstract static class BaseAction {
       protected abstract int perform(int i);
       public int toBeFakedAsWell() { return -1; }
       int notToBeFaked() { return 1; }
    }
 
-   static final class ConcreteAction1 extends BaseAction
-   {
+   static final class ConcreteAction1 extends BaseAction {
       @Override public int perform(int i) { return i - 1; }
    }
 
-   static class ConcreteAction2 extends BaseAction
-   {
+   static class ConcreteAction2 extends BaseAction {
       @Override protected int perform(int i) { return i - 2; }
       @Override public int toBeFakedAsWell() { return super.toBeFakedAsWell() - 1; }
       @Override int notToBeFaked() { return super.notToBeFaked() + 1; }
    }
 
-   static class ConcreteAction3 extends ConcreteAction2
-   {
+   static class ConcreteAction3 extends ConcreteAction2 {
       @Override public int perform(int i) { return i - 3; }
       @Override public int toBeFakedAsWell() { return -3; }
       @Override final int notToBeFaked() { return 3; }
@@ -144,8 +126,7 @@ public final class FakingBaseTypesTest
    BaseAction actionB;
 
    @Test
-   public <T extends BaseAction> void test4_fakeConcreteSubclassesUsingAnonymousFake()
-   {
+   public <T extends BaseAction> void test4_fakeConcreteSubclassesUsingAnonymousFake() {
       actionB = new ConcreteAction1();
 
       new MockUp<T>() {
@@ -169,8 +150,7 @@ public final class FakingBaseTypesTest
    }
 
    @After
-   public void checkImplementationClassesAreNoLongerFaked()
-   {
+   public void checkImplementationClassesAreNoLongerFaked() {
       if (actionI != null) {
          assertEquals(-1, actionI.perform(0));
       }
@@ -185,15 +165,13 @@ public final class FakingBaseTypesTest
       assertEquals(-3, new ConcreteAction3().perform(0));
    }
 
-   static final class FakeInterface<T extends IAction> extends MockUp<T>
-   {
+   static final class FakeInterface<T extends IAction> extends MockUp<T> {
       @Mock
       int perform(int i) { return i + 2; }
    }
 
    @Test
-   public void test5_fakeInterfaceImplementationClassesUsingNamedFake()
-   {
+   public void test5_fakeInterfaceImplementationClassesUsingNamedFake() {
       new FakeInterface();
 
       actionI = new ActionImpl1();
@@ -201,15 +179,13 @@ public final class FakingBaseTypesTest
       assertEquals(4, new ActionImpl2().perform(2));
    }
 
-   static final class FakeBaseClass<T extends BaseAction> extends MockUp<T>
-   {
+   static final class FakeBaseClass<T extends BaseAction> extends MockUp<T> {
       @Mock
       int perform(int i) { return i + 3; }
    }
 
    @Test
-   public void test6_fakeConcreteSubclassesUsingNamedFake()
-   {
+   public void test6_fakeConcreteSubclassesUsingNamedFake() {
       new FakeBaseClass();
 
       actionB = new ConcreteAction1();
@@ -221,8 +197,7 @@ public final class FakingBaseTypesTest
    interface GenericIAction<N extends Number> { N perform(N n); }
 
    @Test
-   public <M extends GenericIAction<Number>> void test7_fakeImplementationsOfGenericInterface()
-   {
+   public <M extends GenericIAction<Number>> void test7_fakeImplementationsOfGenericInterface() {
       GenericIAction<Number> actionNumber = new GenericIAction<Number>() {
          @Override public Number perform(Number n) { return n.intValue() + 1; }
       };
@@ -250,8 +225,7 @@ public final class FakingBaseTypesTest
    }
 
    @Test
-   public <R extends Readable> void test8_excludeJREClassesFromFakingForSafety() throws Exception
-   {
+   public <R extends Readable> void test8_excludeJREClassesFromFakingForSafety() throws Exception {
       new MockUp<R>() {
          @Mock
          int read(CharBuffer cb) { return 123; }

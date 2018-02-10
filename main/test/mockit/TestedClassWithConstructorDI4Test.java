@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -20,8 +16,7 @@ public final class TestedClassWithConstructorDI4Test
    static class GenericClass<T> { T doSomething() { return null; } }
 
    @SuppressWarnings("FieldMayBeFinal")
-   public static final class TestedClass
-   {
+   public static final class TestedClass {
       final GenericClass<String> go;
       final List<Integer> values;
       final Callable<Number> action1;
@@ -29,8 +24,7 @@ public final class TestedClassWithConstructorDI4Test
       private Callable<Number> action3;
       private DataSource database;
 
-      public TestedClass(GenericClass<String> go, List<Integer> values, Callable<Number>... actions)
-      {
+      public TestedClass(GenericClass<String> go, List<Integer> values, Callable<Number>... actions) {
          this.go = go;
          this.values = values;
          action1 = actions[0];
@@ -55,15 +49,13 @@ public final class TestedClassWithConstructorDI4Test
    @Mocked DataSource testDB;
 
    @Before
-   public void recordCommonExpectations() throws Exception
-   {
+   public void recordCommonExpectations() throws Exception {
       new Expectations() {{ mockGO.doSomething(); result = "test"; minTimes = 0; }};
       new Expectations() {{ jndiContext.lookup("testDB"); result = testDB; }};
    }
 
    @Test
-   public void exerciseTestedObjectWithValuesInjectedFromMockFields()
-   {
+   public void exerciseTestedObjectWithValuesInjectedFromMockFields() {
       assertNotNull(tested.go);
       assertEquals(asList(1, 2, 3), tested.values);
       assertSame(action1, tested.action1);
@@ -73,8 +65,8 @@ public final class TestedClassWithConstructorDI4Test
 
    @Test
    public void exerciseTestedObjectWithValuesInjectedFromMockParameters(
-      @Injectable Callable<Number> action2, @Injectable Callable<Number> action3)
-   {
+      @Injectable Callable<Number> action2, @Injectable Callable<Number> action3
+   ) {
       assertNotNull(tested.go);
       assertEquals(asList(1, 2, 3), tested.values);
       assertSame(action1, tested.action1);
@@ -85,20 +77,17 @@ public final class TestedClassWithConstructorDI4Test
    }
 
    @Test
-   public void useMockedJREClassesDuringTestedObjectCreation(@Mocked File fileMock)
-   {
+   public void useMockedJREClassesDuringTestedObjectCreation(@Mocked File fileMock) {
       assertNotNull(tested.database);
       mockGO.doSomething();
    }
 
-   static class TestedClass3
-   {
+   static class TestedClass3 {
       final String text;
       final Runnable dependency;
       @Inject GenericClass<Integer> otherDep;
 
-      TestedClass3(String text, Runnable dependency)
-      {
+      TestedClass3(String text, Runnable dependency) {
          this.text = text;
          this.dependency = dependency;
       }
@@ -110,8 +99,7 @@ public final class TestedClassWithConstructorDI4Test
    @Injectable final GenericClass<Integer> otherDep = null;
 
    @Test
-   public void injectNullsThroughConstructorParametersAndIntoRequiredField()
-   {
+   public void injectNullsThroughConstructorParametersAndIntoRequiredField() {
       assertNull(tested7.text);
       assertNull(tested7.dependency);
       assertNull(tested7.otherDep);

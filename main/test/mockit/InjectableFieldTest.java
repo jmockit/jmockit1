@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.net.*;
@@ -12,13 +8,9 @@ import org.junit.*;
 
 public final class InjectableFieldTest
 {
-   static class Base
-   {
-      protected int getValue() { return 1; }
-   }
+   static class Base { protected int getValue() { return 1; } }
 
-   static class Foo extends Base
-   {
+   static class Foo extends Base {
       void doSomething(String s) { throw new RuntimeException(s); }
       int getAnotherValue() { return 2; }
       Boolean getBooleanValue() { return true; }
@@ -29,8 +21,7 @@ public final class InjectableFieldTest
    @Injectable Foo foo;
 
    @Before
-   public void recordCommonExpectations()
-   {
+   public void recordCommonExpectations() {
       new Expectations() {{
          foo.getValue(); result = 12;
          foo.getAnotherValue(); result = 123;
@@ -43,8 +34,7 @@ public final class InjectableFieldTest
    }
 
    @Test
-   public void cascadeOneLevel()
-   {
+   public void cascadeOneLevel() {
       try {
          new Foo().doSomething("");
          fail();
@@ -61,8 +51,7 @@ public final class InjectableFieldTest
    }
 
    @Test
-   public void overrideExpectationRecordedInBeforeMethod()
-   {
+   public void overrideExpectationRecordedInBeforeMethod() {
       new Expectations() {{ foo.getAnotherValue(); result = 45; }};
 
       assertEquals(45, foo.getAnotherValue());
@@ -70,13 +59,10 @@ public final class InjectableFieldTest
    }
 
    @Test
-   public void partiallyMockClassWithoutAffectingInjectableInstances()
-   {
+   public void partiallyMockClassWithoutAffectingInjectableInstances() {
       assertEquals("", Foo.doSomethingElse());
 
-      new Expectations(Foo.class) {{
-         Foo.doSomethingElse(); result = "test";
-      }};
+      new Expectations(Foo.class) {{ Foo.doSomethingElse(); result = "test"; }};
 
       assertEquals("test", Foo.doSomethingElse());
       assertEquals(12, foo.getValue());
@@ -84,8 +70,7 @@ public final class InjectableFieldTest
    }
 
    @Test
-   public void partiallyMockInstanceWithoutAffectingInjectableInstances()
-   {
+   public void partiallyMockInstanceWithoutAffectingInjectableInstances() {
       final Foo localFoo = new Foo();
 
       new Expectations(localFoo) {{
@@ -102,9 +87,8 @@ public final class InjectableFieldTest
 
    @Test
    public void partiallyMockJREClassWhileHavingInjectableInstancesOfSameClassAsWell(
-      @Injectable final InetAddress localHost, @Injectable final InetAddress remoteHost)
-      throws Exception
-   {
+      @Injectable final InetAddress localHost, @Injectable final InetAddress remoteHost
+   ) throws Exception {
       new Expectations(InetAddress.class) {{
          InetAddress.getLocalHost(); result = localHost;
          InetAddress.getByName(anyString); result = remoteHost;
@@ -112,15 +96,15 @@ public final class InjectableFieldTest
          localHost.getCanonicalHostName(); result = "localhost";
       }};
 
+      //noinspection MisorderedAssertEqualsArguments
       assertSame(localHost, InetAddress.getLocalHost());
+      //noinspection MisorderedAssertEqualsArguments
       assertSame(remoteHost, InetAddress.getByName("remote"));
       assertEquals("localhost", localHost.getCanonicalHostName());
       assertNull(remoteHost.getCanonicalHostName());
       foo.doSomething(null);
 
-      new Verifications() {{
-         remoteHost.getCanonicalHostName();
-      }};
+      new Verifications() {{ remoteHost.getCanonicalHostName(); }};
    }
 
    @Injectable int primitiveInt = 123;
@@ -128,8 +112,7 @@ public final class InjectableFieldTest
    @Injectable String string = "Abc";
 
    @Test
-   public void useNonMockableInjectablesWithValuesProvidedThroughFieldAssignment()
-   {
+   public void useNonMockableInjectablesWithValuesProvidedThroughFieldAssignment() {
       assertEquals(123, primitiveInt);
       assertEquals(45, wrapperInt.intValue());
       assertEquals("Abc", string);
@@ -141,8 +124,7 @@ public final class InjectableFieldTest
    @Injectable String emptyString = "";
 
    @Test
-   public void useNullAndEmptyInjectablesOfNonMockableTypes()
-   {
+   public void useNullAndEmptyInjectablesOfNonMockableTypes() {
       assertEquals(0, defaultInt);
       assertNull(nullInteger);
       assertNull(nullString);
