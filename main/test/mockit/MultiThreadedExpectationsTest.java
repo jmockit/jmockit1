@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.awt.*;
@@ -16,16 +12,14 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class MultiThreadedExpectationsTest
 {
-   static class Collaborator
-   {
+   static class Collaborator {
       int doSomething() { return -1; }
       void doSomethingElse() {}
    }
 
    @Mocked Collaborator mock;
 
-   void useMockedCollaboratorFromWorkerThread()
-   {
+   void useMockedCollaboratorFromWorkerThread() {
       Thread worker = new Thread() {
          @Override public void run() { mock.doSomethingElse(); }
       };
@@ -34,8 +28,7 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void useMockedObjectFromWorkerThreadWhileVerifyingExpectation()
-   {
+   public void useMockedObjectFromWorkerThreadWhileVerifyingExpectation() {
       mock.doSomething();
       mock.doSomething();
 
@@ -47,8 +40,7 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void useMockedObjectFromWorkerThreadWhileRecordingAndVerifyingExpectation()
-   {
+   public void useMockedObjectFromWorkerThreadWhileRecordingAndVerifyingExpectation() {
       new Expectations() {{
          mock.doSomething();
          useMockedCollaboratorFromWorkerThread();
@@ -66,17 +58,14 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void executeInvalidExpectationBlockThenReplayRecordedExpectationFromAnotherThread() throws Exception
-   {
+   public void executeInvalidExpectationBlockThenReplayRecordedExpectationFromAnotherThread() throws Exception {
       try {
          new Expectations(Runnable.class) {};
          fail();
       }
       catch (IllegalArgumentException ignore) {}
 
-      new Expectations() {{
-         mock.doSomething();
-      }};
+      new Expectations() {{ mock.doSomething(); }};
 
       Thread task = new Thread() {
          @Override public void run() { mock.doSomething(); }
@@ -85,20 +74,18 @@ public final class MultiThreadedExpectationsTest
       task.join();
    }
 
-   static class Dependency
-   {
+   static class Dependency {
       void doSomething() {}
       static void doSomethingElse() {}
    }
 
    @Test
    public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part1(
-      @Mocked final Dependency dep, @Mocked final Graphics2D g2D, @Mocked final Runnable runnable)
-   {
+      @Mocked final Dependency dep, @Mocked final Graphics2D g2D, @Mocked final Runnable runnable
+   ) {
       new Thread() {
          @Override
-         public void run()
-         {
+         public void run() {
             dep.doSomething();
             g2D.dispose();
             runnable.run();
@@ -108,8 +95,7 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part2() throws Exception
-   {
+   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part2() throws Exception {
       Thread.sleep(10);
       new FullVerifications() {};
    }
@@ -117,42 +103,42 @@ public final class MultiThreadedExpectationsTest
    public interface APublicInterface { boolean doSomething(); }
 
    @Test
-   public void invokeMethodOnMockedPublicInterfaceFromEDT(@Mocked final APublicInterface mock) throws Exception {
-      new Expectations() {{ mock.doSomething(); result = true; }};
+   public void invokeMethodOnMockedPublicInterfaceFromEDT(@Mocked final APublicInterface mock2) throws Exception {
+      new Expectations() {{ mock2.doSomething(); result = true; }};
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
-         public void run() { assertFalse(mock.doSomething()); }
+         public void run() { assertFalse(mock2.doSomething()); }
       });
 
-      assertTrue(mock.doSomething());
+      assertTrue(mock2.doSomething());
    }
 
    public abstract static class AnAbstractClass { public abstract boolean doSomething(); }
 
    @Test
-   public void invokeMethodOnMockedAbstractClassFromEDT(@Mocked final AnAbstractClass mock) throws Exception {
-      new Expectations() {{ mock.doSomething(); result = true; }};
+   public void invokeMethodOnMockedAbstractClassFromEDT(@Mocked final AnAbstractClass mock2) throws Exception {
+      new Expectations() {{ mock2.doSomething(); result = true; }};
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
-         public void run() { assertFalse(mock.doSomething()); }
+         public void run() { assertFalse(mock2.doSomething()); }
       });
 
-      assertTrue(mock.doSomething());
+      assertTrue(mock2.doSomething());
    }
 
    @Test
-   public void invokeMethodOnMockedGenericInterfaceFromEDT(@Mocked final Callable<Boolean> mock) throws Exception {
-      new Expectations() {{ mock.call(); result = true; }};
+   public void invokeMethodOnMockedGenericInterfaceFromEDT(@Mocked final Callable<Boolean> mock2) throws Exception {
+      new Expectations() {{ mock2.call(); result = true; }};
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
          public void run() {
-            try { assertFalse(mock.call()); } catch (Exception e) { throw new RuntimeException(e); }
+            try { assertFalse(mock2.call()); } catch (Exception e) { throw new RuntimeException(e); }
          }
       });
 
-      assertTrue(mock.call());
+      assertTrue(mock2.call());
    }
 }

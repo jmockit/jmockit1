@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -9,18 +5,15 @@ import org.junit.*;
 
 public final class TestedClassWithConstructorDI3Test
 {
-   public static final class TestedClass
-   {
+   public static final class TestedClass {
       private final Dependency[] dependencies;
 
-      public TestedClass(Runnable r, Dependency... dependencies)
-      {
+      public TestedClass(Runnable r, Dependency... dependencies) {
          this.dependencies = dependencies;
          r.run();
       }
 
-      public int doSomeOperation()
-      {
+      public int doSomeOperation() {
          int sum = 0;
 
          for (Dependency dependency : dependencies) {
@@ -31,8 +24,7 @@ public final class TestedClassWithConstructorDI3Test
       }
    }
 
-   static class Dependency
-   {
+   static class Dependency {
       int doSomething() { return -1; }
    }
 
@@ -43,8 +35,7 @@ public final class TestedClassWithConstructorDI3Test
    @Injectable Dependency mock2;
 
    @Test
-   public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughVarargsConstructorParameter()
-   {
+   public void exerciseTestedObjectWithDependenciesOfSameTypeInjectedThroughVarargsConstructorParameter() {
       assertNotNull(support);
 
       new Expectations() {{
@@ -56,9 +47,7 @@ public final class TestedClassWithConstructorDI3Test
    }
 
    @Test
-   public void exerciseTestedObjectWithDependenciesProvidedByMockFieldsAndMockParameter(
-      @Injectable final Dependency mock3)
-   {
+   public void exerciseTestedObjectWithDependenciesProvidedByMockFieldsAndMockParameter(@Injectable final Dependency mock3) {
       assertNotNull(support);
 
       new Expectations() {{
@@ -70,8 +59,7 @@ public final class TestedClassWithConstructorDI3Test
       assertEquals(10, tested.doSomeOperation());
    }
 
-   static class ClassWithStringParameter
-   {
+   static class ClassWithStringParameter {
       final String name;
       ClassWithStringParameter(String name) { this.name = name; }
    }
@@ -80,8 +68,7 @@ public final class TestedClassWithConstructorDI3Test
    @Injectable String name;
 
    @Test
-   public void initializeTestedObjectWithEmptyStringParameter()
-   {
+   public void initializeTestedObjectWithEmptyStringParameter() {
       assertEquals("", tested2.name);
    }
 }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.nio.*;
@@ -11,14 +7,12 @@ import static org.junit.Assert.*;
 
 public final class MockedParametersWithCapturingTest
 {
-   public interface Service
-   {
+   public interface Service {
       int doSomething();
       void doSomethingElse(int i);
    }
 
-   static final class ServiceImpl implements Service
-   {
+   static final class ServiceImpl implements Service {
       final String str;
 
       ServiceImpl(String str) { this.str = str; }
@@ -30,8 +24,7 @@ public final class MockedParametersWithCapturingTest
       static boolean staticMethod() { return true; }
    }
 
-   public static final class TestedUnit
-   {
+   public static final class TestedUnit {
       final Service service1 = new ServiceImpl("test");
 
       final Service service2 = new Service() {
@@ -39,15 +32,13 @@ public final class MockedParametersWithCapturingTest
          @Override public void doSomethingElse(int i) {}
       };
 
-      public int businessOperation()
-      {
+      public int businessOperation() {
          return service1.doSomething() + service2.doSomething();
       }
    }
 
    @Test
-   public void captureInstancesUpToAMaximumQuantity(@Capturing(maxInstances = 2) Service service)
-   {
+   public void captureInstancesUpToAMaximumQuantity(@Capturing(maxInstances = 2) Service service) {
       assertEquals(0, service.doSomething());
 
       TestedUnit unit = new TestedUnit();
@@ -60,8 +51,7 @@ public final class MockedParametersWithCapturingTest
       assertNull(service1.str);
    }
 
-   static class BaseClass
-   {
+   static class BaseClass {
       final String str;
       BaseClass() { str = ""; }
       BaseClass(String str) { this.str = str; }
@@ -69,30 +59,25 @@ public final class MockedParametersWithCapturingTest
       void doSomething() { throw new IllegalStateException("Invalid state"); }
    }
 
-   static class DerivedClass extends BaseClass
-   {
+   static class DerivedClass extends BaseClass {
       DerivedClass() {}
       DerivedClass(String str) { super(str); }
       @Override String getStr() { return super.getStr().toUpperCase(); }
    }
 
    @SuppressWarnings("UnusedDeclaration")
-   Object[] valueForSuper(String s)
-   {
+   Object[] valueForSuper(String s) {
       return new Object[] {"mock"};
    }
 
    @Test
-   public void captureDerivedClass(@Capturing BaseClass service)
-   {
+   public void captureDerivedClass(@Capturing BaseClass service) {
       assertNull(new DerivedClass("test").str);
       assertNull(new DerivedClass() {}.str);
    }
 
    @Test
-   public void captureImplementationsOfDifferentInterfaces(@Capturing Runnable mock1, @Capturing Readable mock2)
-      throws Exception
-   {
+   public void captureImplementationsOfDifferentInterfaces(@Capturing Runnable mock1, @Capturing Readable mock2) throws Exception {
       Runnable runnable = new Runnable() {
          @Override
          public void run() { throw new RuntimeException("run"); }
@@ -107,11 +92,8 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void captureAndPartiallyMockImplementationsOfAnInterface(@Capturing final Service service)
-   {
-      new Expectations(Service.class) {{
-         service.doSomethingElse(1);
-      }};
+   public void captureAndPartiallyMockImplementationsOfAnInterface(@Capturing final Service service) {
+      new Expectations(Service.class) {{ service.doSomethingElse(1); }};
 
       Service impl1 = new ServiceImpl("test1");
       assertEquals(1, impl1.doSomething());
@@ -132,11 +114,8 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void captureAndPartiallyMockSubclassesOfABaseClass(@Capturing final BaseClass base)
-   {
-      new Expectations(BaseClass.class) {{
-         base.doSomething();
-      }};
+   public void captureAndPartiallyMockSubclassesOfABaseClass(@Capturing final BaseClass base) {
+      new Expectations(BaseClass.class) {{ base.doSomething(); }};
 
       BaseClass impl1 = new DerivedClass("test1");
       assertEquals("TEST1", impl1.getStr());
@@ -161,8 +140,7 @@ public final class MockedParametersWithCapturingTest
    public interface ISub extends IBase {}
 
    @Test
-   public void recordCallToBaseInterfaceMethodOnCaptureSubInterfaceImplementation(@Capturing final ISub mock)
-   {
+   public void recordCallToBaseInterfaceMethodOnCaptureSubInterfaceImplementation(@Capturing final ISub mock) {
       new Expectations() {{ mock.doSomething(); result = 123; }};
 
       ISub impl = new ISub() { @Override public int doSomething() { return -1; } };

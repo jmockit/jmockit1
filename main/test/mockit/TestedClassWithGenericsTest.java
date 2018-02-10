@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -16,8 +12,7 @@ public final class TestedClassWithGenericsTest
    public interface Collaborator<T> { T getValue(); }
 
    @SuppressWarnings("unused")
-   static class SUTWithUnboundedTypeParameter<T>
-   {
+   static class SUTWithUnboundedTypeParameter<T> {
       T value;
       final Collaborator<T> collaborator;
       final Iterable<Collaborator<T>> collaborators;
@@ -27,15 +22,13 @@ public final class TestedClassWithGenericsTest
 
       SUTWithUnboundedTypeParameter(Collaborator<T> c) { collaborator = c; collaborators = null; }
 
-      SUTWithUnboundedTypeParameter(Iterable<Collaborator<T>> collaborators, Callable<String> action)
-      {
+      SUTWithUnboundedTypeParameter(Iterable<Collaborator<T>> collaborators, Callable<String> action) {
          collaborator = null;
          this.collaborators = collaborators;
          action2 = action;
       }
 
-      <V extends CharSequence & Serializable> SUTWithUnboundedTypeParameter(Map<T, V> values, Callable<?> action)
-      {
+      <V extends CharSequence & Serializable> SUTWithUnboundedTypeParameter(Map<T, V> values, Callable<?> action) {
          collaborator = null;
          collaborators = null;
          this.values = values;
@@ -48,8 +41,7 @@ public final class TestedClassWithGenericsTest
    @Injectable Collaborator<Integer> mockCollaborator;
 
    @Test
-   public void useSUTCreatedWithConstructorOfSingleGenericParameterAndWithGenericFieldInjectedFromConcreteInjectables()
-   {
+   public void useSUTCreatedWithConstructorOfSingleGenericParameterAndWithGenericFieldInjectedFromConcreteInjectables() {
       assertSame(mockCollaborator, tested1.collaborator);
       assertNull(tested1.collaborators);
       assertSame(numberToInject, tested1.value);
@@ -60,8 +52,8 @@ public final class TestedClassWithGenericsTest
 
    @Test
    public void useSUTInstantiatedWithConstructorHavingMultipleGenericParameters(
-      @Injectable Callable<String> mockAction1, @Injectable Callable<Integer> action1)
-   {
+      @Injectable Callable<String> mockAction1, @Injectable Callable<Integer> action1
+   ) {
       assertNull(tested1.collaborator);
       assertSame(mockCollaborator, tested1.collaborators.iterator().next());
       assertSame(mockAction1, tested1.action2);
@@ -72,8 +64,8 @@ public final class TestedClassWithGenericsTest
 
    @Test
    public void useSUTInstantiatedWithGenericConstructorParametersInjectedFromConcreteInjectables(
-      @Injectable Iterable<Collaborator<Integer>> mockCollaborators, @Injectable Callable<String> mockAction)
-   {
+      @Injectable Iterable<Collaborator<Integer>> mockCollaborators, @Injectable Callable<String> mockAction
+   ) {
       assertNull(tested1.collaborator);
       assertSame(mockCollaborators, tested1.collaborators);
       assertNull(tested1.action1);
@@ -83,9 +75,7 @@ public final class TestedClassWithGenericsTest
    }
 
    @Test
-   public void useSUTInstantiatedWithGenericConstructor(
-      @Injectable Callable<?> mockAction, @Injectable Map<Integer, String> mockValues)
-   {
+   public void useSUTInstantiatedWithGenericConstructor(@Injectable Callable<?> mockAction, @Injectable Map<Integer, String> mockValues) {
       assertNull(tested1.collaborator);
       assertNull(tested1.collaborators);
       assertSame(mockValues, tested1.values);
@@ -95,8 +85,7 @@ public final class TestedClassWithGenericsTest
    }
 
    static class GenericClass<T> { T value; }
-   static class SUTWithBoundedTypeParameter<N extends Number, C extends CharSequence>
-   {
+   static class SUTWithBoundedTypeParameter<N extends Number, C extends CharSequence> {
       C textValue;
       N numberValue;
       GenericClass<N> collaborator;
@@ -135,9 +124,7 @@ public final class TestedClassWithGenericsTest
    }
 
    @Test
-   public void useSUTDeclaredWithTypeBoundHavingNonMatchingInjectableWithWildcard(
-      @Injectable Callable<? extends Number> action)
-   {
+   public void useSUTDeclaredWithTypeBoundHavingNonMatchingInjectableWithWildcard(@Injectable Callable<? extends Number> action) {
       assertNull(tested2.action);
       assertNull(tested3.action);
       assertNull(tested4.action);
@@ -152,8 +139,7 @@ public final class TestedClassWithGenericsTest
    @Tested Concrete sut;
 
    @Test
-   public void useSUTClassExtendingGenericBaseClassWhichExtendsAnotherGenericBaseClassContainingAGenericDependency()
-   {
+   public void useSUTClassExtendingGenericBaseClassWhichExtendsAnotherGenericBaseClassContainingAGenericDependency() {
       assertSame(dep, sut.dep);
    }
 
@@ -162,8 +148,7 @@ public final class TestedClassWithGenericsTest
    @Tested(fullyInitialized = true) Concrete2 sut2;
 
    @Test
-   public void useFullyInitializedSUTClassExtendingGenericBaseClass()
-   {
+   public void useFullyInitializedSUTClassExtendingGenericBaseClass() {
       AnotherDep anotherDep = sut2.dep;
       assertNotNull(anotherDep);
    }
@@ -172,14 +157,12 @@ public final class TestedClassWithGenericsTest
    @Tested(fullyInitialized = true) Concrete3 sut3;
 
    @Test
-   public void useFullyInitializedSUTClassExtendingGenericClassWhichExtendsAnotherGenericClass()
-   {
+   public void useFullyInitializedSUTClassExtendingGenericClassWhichExtendsAnotherGenericClass() {
       AnotherDep anotherDep = sut3.dep;
       assertNotNull(anotherDep);
    }
 
-   static class TestedClassWithConstructorParameterOfGenericType
-   {
+   static class TestedClassWithConstructorParameterOfGenericType {
       private final Class<?> aClass;
       TestedClassWithConstructorParameterOfGenericType(Class<?> aClass) { this.aClass = aClass; }
    }
@@ -188,8 +171,7 @@ public final class TestedClassWithGenericsTest
    @Tested(fullyInitialized = true) TestedClassWithConstructorParameterOfGenericType tested6;
 
    @Test
-   public void verifyInstantiationOfClassWithConstructorParameterOfGenericType()
-   {
+   public void verifyInstantiationOfClassWithConstructorParameterOfGenericType() {
       assertSame(aClass, tested6.aClass);
    }
 
@@ -199,8 +181,7 @@ public final class TestedClassWithGenericsTest
    @Tested(fullyInitialized = true) GenericClassWithDependencyUsingTypeParameter<String> tested7;
 
    @Test
-   public void verifyInstantiationOfGenericClassWithDependencyUsingTypeParameter()
-   {
+   public void verifyInstantiationOfGenericClassWithDependencyUsingTypeParameter() {
       assertSame(dependency, tested7.dependency);
    }
 
@@ -212,17 +193,16 @@ public final class TestedClassWithGenericsTest
    @Tested(fullyInitialized = true) Derived2 tested;
 
    @Test
-   public void useTestedObjectOfImplementationTypeForTypeVariableInGenericBaseClass()
-   {
+   public void useTestedObjectOfImplementationTypeForTypeVariableInGenericBaseClass() {
       assertSame(impl, tested.dep);
    }
 
-   static class ClassWithFieldOfGenericTypeContainingGenericArray { int n; List<Comparable<?>[]> list; }
+   static class ClassWithFieldOfGenericTypeContainingGenericArray { @SuppressWarnings("unused") int n; List<Comparable<?>[]> list; }
 
    @Test
    public void instantiateObjectContainingGenericTypeFieldWithGenericArrayElement(
-      @Tested ClassWithFieldOfGenericTypeContainingGenericArray t)
-   {
+      @Tested ClassWithFieldOfGenericTypeContainingGenericArray t
+   ) {
       assertNotNull(t);
    }
 }

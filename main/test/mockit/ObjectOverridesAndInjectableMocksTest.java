@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -22,6 +18,7 @@ public final class ObjectOverridesAndInjectableMocksTest
    void assertDefaultEqualsBehavior(Object obj1, Object obj2) {
       assertFalse(obj1.equals(null));
       assertFalse(obj1.equals("test"));
+      //noinspection EqualsWithItself
       assertTrue(obj1.equals(obj1));
       assertFalse(obj1.equals(obj2));
    }
@@ -31,6 +28,7 @@ public final class ObjectOverridesAndInjectableMocksTest
       new Expectations() {{ a.getIntValue(); result = 58; }};
 
       assertFalse(a.equals(b));
+      //noinspection EqualsWithItself
       assertTrue(a.equals(a));
       assertEquals(58, a.getIntValue());
       assertFalse(b.equals(a));

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.annotation.*;
@@ -12,8 +8,7 @@ import static org.junit.Assert.*;
 
 public final class MockedEnumsTest
 {
-   enum MyEnum
-   {
+   enum MyEnum {
       First(true, 10, "First"),
       Second(false, 6, "Second");
 
@@ -21,8 +16,7 @@ public final class MockedEnumsTest
       private final int num;
       private final String desc;
 
-      MyEnum(boolean flag, int num, String desc)
-      {
+      MyEnum(boolean flag, int num, String desc) {
          this.flag = flag;
          this.num = num;
          this.desc = desc;
@@ -33,14 +27,12 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void oneEnumBeingMockedMustNotAffectOtherEnums(@Mocked MyEnum e)
-   {
+   public void oneEnumBeingMockedMustNotAffectOtherEnums(@Mocked MyEnum e) {
       assertNotNull(RetentionPolicy.valueOf("RUNTIME"));
    }
 
    @Test
-   public void mockEnumValues(@Mocked final MyEnum mock)
-   {
+   public void mockEnumValues(@Mocked final MyEnum mock) {
       new Expectations() {{
          MyEnum.values(); result = new MyEnum[] {mock};
          mock.getValue(anyDouble); result = 50.0;
@@ -54,8 +46,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockInstanceMethodOnAnyEnumElement(@Mocked final MyEnum anyEnum)
-   {
+   public void mockInstanceMethodOnAnyEnumElement(@Mocked final MyEnum anyEnum) {
       final double f = 2.5;
 
       new Expectations() {{
@@ -67,8 +58,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void verifyInstanceMethodInvocationOnAnyEnumElement(@Mocked MyEnum anyEnum)
-   {
+   public void verifyInstanceMethodInvocationOnAnyEnumElement(@Mocked MyEnum anyEnum) {
       assertNull(MyEnum.First.getDescription());
       assertNull(MyEnum.Second.getDescription());
       assertNull(anyEnum.getDescription());
@@ -79,8 +69,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockSpecificEnumElementsByUsingTwoMockInstances(@Mocked MyEnum mock1, @Mocked MyEnum mock2)
-   {
+   public void mockSpecificEnumElementsByUsingTwoMockInstances(@Mocked MyEnum mock1, @Mocked MyEnum mock2) {
       new Expectations() {{
          MyEnum.First.getValue(anyDouble); result = 12.3;
          MyEnum.Second.getValue(anyDouble); result = -5.01;
@@ -91,8 +80,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockSpecificEnumElementsEvenWhenUsingASingleMockInstance(@Mocked MyEnum unused)
-   {
+   public void mockSpecificEnumElementsEvenWhenUsingASingleMockInstance(@Mocked MyEnum unused) {
       new Expectations() {{
          MyEnum.First.getValue(anyDouble); result = 12.3;
          MyEnum.Second.getValue(anyDouble); result = -5.01;
@@ -108,8 +96,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockNonAbstractMethodsInEnumWithAbstractMethod(@Mocked final TimeUnit tm) throws Exception
-   {
+   public void mockNonAbstractMethodsInEnumWithAbstractMethod(@Mocked final TimeUnit tm) throws Exception {
       new Expectations() {{
          tm.convert(anyLong, TimeUnit.SECONDS); result = 1L;
          tm.sleep(anyLong);
@@ -119,15 +106,12 @@ public final class MockedEnumsTest
       tm.sleep(10000);
    }
 
-   public enum EnumWithValueSpecificMethods
-   {
-      One
-      {
+   public enum EnumWithValueSpecificMethods {
+      One {
          @Override public int getValue() { return 1; }
          @Override public String getDescription() { return "one"; }
       },
-      Two
-      {
+      Two {
          @Override public int getValue() { return 2; }
          @Override public String getDescription() { return "two"; }
       };
@@ -137,8 +121,7 @@ public final class MockedEnumsTest
    }
 
    @Test
-   public void mockEnumWithValueSpecificMethods(@Mocked EnumWithValueSpecificMethods mockedEnum)
-   {
+   public void mockEnumWithValueSpecificMethods(@Mocked EnumWithValueSpecificMethods mockedEnum) {
       new Expectations() {{
          EnumWithValueSpecificMethods.One.getValue(); result = 123;
          EnumWithValueSpecificMethods.Two.getValue(); result = -45;
@@ -157,13 +140,10 @@ public final class MockedEnumsTest
    interface InterfaceWhichReturnsAnEnum { Foo getFoo(); }
 
    @Test
-   public void cascadedEnum(@Mocked final InterfaceWhichReturnsAnEnum mock)
-   {
+   public void cascadedEnum(@Mocked final InterfaceWhichReturnsAnEnum mock) {
       final Foo foo = Foo.FOO;
 
-      new Expectations() {{
-         mock.getFoo(); result = foo;
-      }};
+      new Expectations() {{ mock.getFoo(); result = foo; }};
 
       Foo cascadedFoo = mock.getFoo();
       assertSame(foo, cascadedFoo);

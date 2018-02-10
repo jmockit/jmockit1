@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import org.junit.*;
@@ -12,8 +8,7 @@ public final class MockFieldCapturingMaxInstancesTest
    static DerivedClass preexistingInstance;
 
    @BeforeClass
-   public static void createAndUseInstancesBeforeCapturingIsInEffect()
-   {
+   public static void createAndUseInstancesBeforeCapturingIsInEffect() {
       assertEquals(1, new ServiceImpl().doSomething());
 
       preexistingInstance = new DerivedClass();
@@ -27,8 +22,7 @@ public final class MockFieldCapturingMaxInstancesTest
    @Capturing Service mock1;
 
    @Test
-   public void mockFieldWithUnlimitedCapturing()
-   {
+   public void mockFieldWithUnlimitedCapturing() {
       assertEquals(0, new ServiceImpl().doSomething());
 
       new Expectations() {{ mock1.doSomething(); returns(1, 2, 3); }};
@@ -43,16 +37,14 @@ public final class MockFieldCapturingMaxInstancesTest
       assertEquals(3, service3.doSomething());
    }
 
-   static class BaseClass
-   {
+   static class BaseClass {
       final String str;
       BaseClass() { str = ""; }
       BaseClass(String str) { this.str = str; }
       final String getStr() { return str; }
    }
 
-   static class DerivedClass extends BaseClass
-   {
+   static class DerivedClass extends BaseClass {
       DerivedClass() {}
       DerivedClass(String str) { super(str); }
    }
@@ -60,8 +52,7 @@ public final class MockFieldCapturingMaxInstancesTest
    @Capturing(maxInstances = 1) BaseClass mock2;
 
    @Test
-   public void mockFieldWithCapturingLimitedToOneInstance()
-   {
+   public void mockFieldWithCapturingLimitedToOneInstance() {
       new Expectations() {{ mock2.getStr(); result = "mocked"; }};
 
       assertNull(preexistingInstance.getStr());
@@ -82,8 +73,7 @@ public final class MockFieldCapturingMaxInstancesTest
    @Capturing(maxInstances = 1) BaseClass mock3;
 
    @Test
-   public void secondMockFieldWithCapturingLimitedToOneInstance()
-   {
+   public void secondMockFieldWithCapturingLimitedToOneInstance() {
       new Expectations() {{
          mock2.getStr(); result = "mocked1"; times = 1;
          mock3.getStr(); result = "mocked2"; times = 1;

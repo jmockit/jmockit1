@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -22,8 +18,7 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class TestedClassWithFullStandardDITest
 {
-   public static class TestedClass
-   {
+   public static class TestedClass {
       @Inject private Runnable dependencyToBeMocked;
       @Inject private FirstLevelDependency dependency2;
       @Resource private FirstLevelDependency dependency3;
@@ -33,29 +28,25 @@ public final class TestedClassWithFullStandardDITest
       static boolean destroyed;
 
       @PostConstruct
-      void initialize()
-      {
+      void initialize() {
          assertNotNull(dependency3);
          initialized = true;
       }
 
       @PreDestroy
-      void destroy()
-      {
+      void destroy() {
          assertTrue("TestedClass not initialized", initialized);
          destroyed = true;
       }
    }
 
-   static final class AnotherTestedClass
-   {
+   static final class AnotherTestedClass {
       @PersistenceContext EntityManager em;
       @Inject HttpSession session;
       @Inject ServletContext applicationContext;
    }
 
-   public static class FirstLevelDependency
-   {
+   public static class FirstLevelDependency {
       @EJB private SecondLevelDependency dependency;
       @Inject private static SecondLevelDependency staticDependency;
       @Inject private CommonDependency commonDependency;
@@ -63,8 +54,7 @@ public final class TestedClassWithFullStandardDITest
       @PersistenceContext private EntityManager em;
    }
 
-   public static class SecondLevelDependency
-   {
+   public static class SecondLevelDependency {
       @Inject CommonDependency commonDependency;
       @PersistenceContext private EntityManager em;
       @Inject ServletContext servletContext;
@@ -76,8 +66,7 @@ public final class TestedClassWithFullStandardDITest
       @PreDestroy void terminate() { terminated = true; }
    }
 
-   public static class CommonDependency
-   {
+   public static class CommonDependency {
       @PersistenceUnit(unitName = "test") private EntityManagerFactory emFactory;
       @PersistenceContext(unitName = "test") private EntityManager em;
    }
@@ -99,12 +88,11 @@ public final class TestedClassWithFullStandardDITest
          @Override public <T> T merge(T entity) { return null; }
          @Override public void remove(Object entity) {}
          @Override public <T> T find(Class<T> entityClass, Object primaryKey) { return null; }
-         @Override public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties)
-            { return null; }
+         @Override public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) { return null; }
          @Override public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) { return null; }
-         @Override public <T> T find(
-            Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties)
-            { return null; }
+         @Override public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+            return null;
+         }
          @Override public <T> T getReference(Class<T> entityClass, Object primaryKey) { return null; }
          @Override public void flush() {}
          @Override public void setFlushMode(FlushModeType flushMode) {}
@@ -133,10 +121,10 @@ public final class TestedClassWithFullStandardDITest
          @Override public Query createNativeQuery(String sqlString, String resultSetMapping) { return null; }
          @Override public StoredProcedureQuery createNamedStoredProcedureQuery(String name) { return null; }
          @Override public StoredProcedureQuery createStoredProcedureQuery(String procedureName) { return null; }
-         @Override public StoredProcedureQuery createStoredProcedureQuery(
-            String procedureName, Class... resultClasses) { return null; }
-         @Override public StoredProcedureQuery createStoredProcedureQuery(
-            String procedureName, String... resultSetMappings) { return null; }
+         @Override public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) { return null; }
+         @Override public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
+            return null;
+         }
          @Override public void joinTransaction() {}
          @Override public boolean isJoinedToTransaction() { return false; }
          @Override public <T> T unwrap(Class<T> cls) { return null; }
@@ -161,8 +149,7 @@ public final class TestedClassWithFullStandardDITest
          @Override public EntityManager createEntityManager() { return em; }
          @Override public EntityManager createEntityManager(Map map) { return null; }
          @Override public EntityManager createEntityManager(SynchronizationType synchronizationType) { return null; }
-         @Override public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map)
-            { return null; }
+         @Override public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map) { return null; }
          @Override public CriteriaBuilder getCriteriaBuilder() { return null; }
          @Override public Metamodel getMetamodel() { return null; }
          @Override public boolean isOpen() { return false; }
@@ -179,8 +166,7 @@ public final class TestedClassWithFullStandardDITest
 
       new MockUp<Persistence>() {
          @Mock
-         EntityManagerFactory createEntityManagerFactory(String persistenceUnitName)
-         {
+         EntityManagerFactory createEntityManagerFactory(String persistenceUnitName) {
             if ("test".equals(persistenceUnitName)) {
                return namedEMFactory;
             }
@@ -197,8 +183,7 @@ public final class TestedClassWithFullStandardDITest
       createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit();
    }
 
-   static void createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit() throws IOException
-   {
+   static void createTemporaryPersistenceXmlFileWithDefaultPersistenceUnit() throws IOException {
       String rootOfClasspath = TestedClass.class.getProtectionDomain().getCodeSource().getLocation().getFile();
       File tempFolder = new File(rootOfClasspath + "META-INF");
       if (tempFolder.mkdir()) tempFolder.deleteOnExit();
@@ -212,8 +197,7 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @Test
-   public void useFullyInitializedTestedObject()
-   {
+   public void useFullyInitializedTestedObject() {
       // First level dependencies:
       assertSame(mockedDependency, tested.dependencyToBeMocked);
       assertNotNull(tested.dependency2);
@@ -246,14 +230,12 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @Test
-   public void useFullyInitializedTestedObjectAgain()
-   {
+   public void useFullyInitializedTestedObjectAgain() {
       assertNull(tested.text);
    }
 
    @Test
-   public void verifyEmulatedHttpSession()
-   {
+   public void verifyEmulatedHttpSession() {
       HttpSession session = tested2.session;
       assertFalse(session.isNew());
       assertFalse(session.getId().isEmpty());
@@ -288,8 +270,7 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @Test
-   public void verifyEmulatedServletContext()
-   {
+   public void verifyEmulatedServletContext() {
       ServletContext ctx = tested2.applicationContext;
 
       assertFalse(ctx.getAttributeNames().hasMoreElements());
@@ -309,8 +290,7 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @After
-   public void verifyThatTestedFieldsWereClearedAndPreDestroyMethodsWereExecuted()
-   {
+   public void verifyThatTestedFieldsWereClearedAndPreDestroyMethodsWereExecuted() {
       assertNull(tested);
       assertNull(tested2);
       assertTrue(TestedClass.destroyed);
@@ -318,8 +298,7 @@ public final class TestedClassWithFullStandardDITest
    }
 
    @After
-   public void clearEntityManagers()
-   {
+   public void clearEntityManagers() {
       namedEM = null;
       defaultEM = null;
    }

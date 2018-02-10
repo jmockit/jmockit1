@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import static org.junit.Assert.*;
@@ -9,8 +5,7 @@ import org.junit.*;
 
 public final class TestedClassWithNoDITest
 {
-   public static final class TestedClass
-   {
+   public static final class TestedClass {
       private final Dependency dependency = new Dependency();
 
       public boolean doSomeOperation() { return dependency.doSomething() > 0; }
@@ -27,8 +22,7 @@ public final class TestedClassWithNoDITest
    TestedClass tested;
 
    @Before
-   public void setUp()
-   {
+   public void setUp() {
       assertNotNull(mock);
       assertNull(tested);
       tested = new TestedClass();
@@ -41,8 +35,7 @@ public final class TestedClassWithNoDITest
    }
 
    @Test
-   public void verifyTestedFields()
-   {
+   public void verifyTestedFields() {
       assertNull(tested5);
       assertNotNull(tested4);
       assertNotNull(tested3);
@@ -52,16 +45,14 @@ public final class TestedClassWithNoDITest
    }
 
    @Test
-   public void exerciseAutomaticallyInstantiatedTestedObject()
-   {
+   public void exerciseAutomaticallyInstantiatedTestedObject() {
       new Expectations() {{ mock.doSomething(); result = 1; }};
 
       assertTrue(tested1.doSomeOperation());
    }
 
    @Test
-   public void exerciseManuallyInstantiatedTestedObject()
-   {
+   public void exerciseManuallyInstantiatedTestedObject() {
       new Expectations() {{ mock.doSomething(); result = 1; }};
 
       assertTrue(tested2.doSomeOperation());
@@ -70,16 +61,14 @@ public final class TestedClassWithNoDITest
    }
 
    @Test
-   public void exerciseAnotherManuallyInstantiatedTestedObject()
-   {
+   public void exerciseAnotherManuallyInstantiatedTestedObject() {
       assertFalse(tested3.doSomeOperation());
 
       new Verifications() {{ mock.doSomething(); times = 1; }};
    }
 }
 
-class NonPublicTestedClass
-{
+class NonPublicTestedClass {
    @SuppressWarnings("RedundantNoArgConstructor")
    NonPublicTestedClass() {}
 }

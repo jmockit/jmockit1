@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -14,16 +10,12 @@ import mockit.MockingMultipleInterfacesTest.Dependency;
 
 public final class MockingMultipleInterfacesTest<MultiMock extends Dependency & Runnable>
 {
-   interface Dependency
-   {
-      String doSomething(boolean b);
-   }
+   interface Dependency { String doSomething(boolean b); }
 
    @Mocked MultiMock multiMock;
 
    @Test
-   public void mockFieldWithTwoInterfaces()
-   {
+   public void mockFieldWithTwoInterfaces() {
       new Expectations() {{ multiMock.doSomething(false); result = "test"; }};
 
       multiMock.run();
@@ -33,8 +25,7 @@ public final class MockingMultipleInterfacesTest<MultiMock extends Dependency & 
    }
 
    @Test
-   public <M extends Dependency & Serializable> void mockParameterWithTwoInterfaces(@Mocked final M mock)
-   {
+   public <M extends Dependency & Serializable> void mockParameterWithTwoInterfaces(@Mocked final M mock) {
       new Expectations() {{ mock.doSomething(true); result = "test"; }};
 
       assertEquals("test", mock.doSomething(true));
@@ -45,8 +36,7 @@ public final class MockingMultipleInterfacesTest<MultiMock extends Dependency & 
    public abstract static class ToBeMocked extends Derived {}
 
    @Test
-   public void mockAbstractMethodInheritedFromInterfaceImplementedBySuperClass(@Mocked final ToBeMocked mock)
-   {
+   public void mockAbstractMethodInheritedFromInterfaceImplementedBySuperClass(@Mocked final ToBeMocked mock) {
       mock.doSomething();
 
       new Verifications() {{ mock.doSomething(); times = 1; }};
