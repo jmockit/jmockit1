@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.testRedundancy;
@@ -15,8 +15,7 @@ public final class TestCoverage
 {
    @Nullable public static final TestCoverage INSTANCE;
 
-   static
-   {
+   static {
       INSTANCE = "true".equals(Configuration.getProperty("redundancy", "true")) ? new TestCoverage() : null;
    }
 
@@ -25,8 +24,7 @@ public final class TestCoverage
 
    private TestCoverage() {}
 
-   public void setCurrentTestMethod(@Nullable Method testMethod)
-   {
+   public void setCurrentTestMethod(@Nullable Method testMethod) {
       if (testMethod != null) {
          testsToItemsCovered.put(testMethod, 0);
       }
@@ -34,8 +32,7 @@ public final class TestCoverage
       currentTestMethod = testMethod;
    }
 
-   public void recordNewItemCoveredByTestIfApplicable(@Nonnegative int previousExecutionCount)
-   {
+   public void recordNewItemCoveredByTestIfApplicable(@Nonnegative int previousExecutionCount) {
       if (previousExecutionCount == 0 && currentTestMethod != null) {
          Integer itemsCoveredByTest = testsToItemsCovered.get(currentTestMethod);
          testsToItemsCovered.put(currentTestMethod, itemsCoveredByTest == null ? 1 : itemsCoveredByTest + 1);
@@ -43,8 +40,7 @@ public final class TestCoverage
    }
 
    @Nonnull
-   public List<Method> getRedundantTests()
-   {
+   public List<Method> getRedundantTests() {
       List<Method> redundantTests = new ArrayList<Method>();
 
       for (Entry<Method, Integer> testAndItemsCovered : testsToItemsCovered.entrySet()) {

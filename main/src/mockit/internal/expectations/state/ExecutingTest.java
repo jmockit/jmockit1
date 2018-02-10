@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.state;
@@ -29,11 +29,8 @@ public final class ExecutingTest
    @Nonnull private final Map<Object, Object> originalToCapturedInstance;
    @Nonnull private final CascadingTypes cascadingTypes;
 
-   public ExecutingTest()
-   {
-      shouldIgnoreMockingCallbacks = new ThreadLocal<Boolean>() {
-         @Override protected Boolean initialValue() { return false; }
-      };
+   public ExecutingTest() {
+      shouldIgnoreMockingCallbacks = new ThreadLocal<Boolean>() { @Override protected Boolean initialValue() { return false; } };
       proceedingInvocation = new ThreadLocal<BaseInvocation>();
       regularMocks = new ArrayList<Object>();
       injectableMocks = new ArrayList<Object>();
@@ -42,8 +39,7 @@ public final class ExecutingTest
    }
 
    @Nonnull
-   public RecordAndReplayExecution getOrCreateRecordAndReplay()
-   {
+   public RecordAndReplayExecution getOrCreateRecordAndReplay() {
       if (currentRecordAndReplay == null) {
          setRecordAndReplay(new RecordAndReplayExecution());
       }
@@ -52,15 +48,13 @@ public final class ExecutingTest
    }
 
    @Nullable
-   public RecordAndReplayExecution getPreviousRecordAndReplay()
-   {
+   public RecordAndReplayExecution getPreviousRecordAndReplay() {
       RecordAndReplayExecution previous = currentRecordAndReplay;
       currentRecordAndReplay = null;
       return previous;
    }
 
-   public void setRecordAndReplay(@Nullable RecordAndReplayExecution newRecordAndReplay)
-   {
+   public void setRecordAndReplay(@Nullable RecordAndReplayExecution newRecordAndReplay) {
       recordAndReplayForLastTestMethod = null;
       currentRecordAndReplay = newRecordAndReplay;
    }
@@ -69,15 +63,13 @@ public final class ExecutingTest
 
    public boolean isShouldIgnoreMockingCallbacks() { return shouldIgnoreMockingCallbacks.get(); }
 
-   public boolean setShouldIgnoreMockingCallbacks(boolean flag)
-   {
+   public boolean setShouldIgnoreMockingCallbacks(boolean flag) {
       boolean previousFlag = shouldIgnoreMockingCallbacks.get();
       shouldIgnoreMockingCallbacks.set(flag);
       return previousFlag;
    }
 
-   public boolean isProceedingIntoRealImplementation()
-   {
+   public boolean isProceedingIntoRealImplementation() {
       boolean result = proceeding;
       proceeding = false;
       return result;
@@ -85,8 +77,7 @@ public final class ExecutingTest
 
    public void markAsProceedingIntoRealImplementation() { proceeding = true; }
 
-   public void markAsProceedingIntoRealImplementation(@Nonnull BaseInvocation invocation)
-   {
+   public void markAsProceedingIntoRealImplementation(@Nonnull BaseInvocation invocation) {
       BaseInvocation previousInvocation = proceedingInvocation.get();
 
       if (previousInvocation != null) {
@@ -97,8 +88,7 @@ public final class ExecutingTest
       proceeding = true;
    }
 
-   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc)
-   {
+   public boolean shouldProceedIntoRealImplementation(@Nullable Object mock, @Nonnull String classDesc) {
       BaseInvocation pendingInvocation = proceedingInvocation.get();
 
       //noinspection SimplifiableIfStatement
@@ -109,16 +99,14 @@ public final class ExecutingTest
       return isProceedingIntoRealImplementation();
    }
 
-   public void clearProceedingState()
-   {
+   public void clearProceedingState() {
       BaseInvocation pendingInvocation = proceedingInvocation.get();
       BaseInvocation previousInvocation = pendingInvocation.getPrevious();
       proceedingInvocation.set(previousInvocation);
    }
 
    @Nonnull
-   public RecordAndReplayExecution getRecordAndReplayForVerifications()
-   {
+   public RecordAndReplayExecution getRecordAndReplayForVerifications() {
       if (currentRecordAndReplay == null) {
          if (recordAndReplayForLastTestMethod != null) {
             currentRecordAndReplay = recordAndReplayForLastTestMethod;
@@ -138,20 +126,17 @@ public final class ExecutingTest
 
    @Nullable public ParameterTypeRedefinitions getParameterRedefinitions() { return parameterTypeRedefinitions; }
 
-   public void setParameterRedefinitions(@Nonnull ParameterTypeRedefinitions redefinitions)
-   {
+   public void setParameterRedefinitions(@Nonnull ParameterTypeRedefinitions redefinitions) {
       parameterTypeRedefinitions = redefinitions;
    }
 
-   public void clearInjectableAndNonStrictMocks()
-   {
+   public void clearInjectableAndNonStrictMocks() {
       regularMocks.clear();
       injectableMocks.clear();
       originalToCapturedInstance.clear();
    }
 
-   void addInjectableMock(@Nonnull Object mock)
-   {
+   void addInjectableMock(@Nonnull Object mock) {
       if (!isInjectableMock(mock)) {
          injectableMocks.add(mock);
       }
@@ -159,40 +144,33 @@ public final class ExecutingTest
 
    public boolean isInjectableMock(@Nonnull Object instance) { return containsReference(injectableMocks, instance); }
 
-   public boolean isMockedInstance(@Nonnull Object instance)
-   {
+   public boolean isMockedInstance(@Nonnull Object instance) {
       return containsReference(regularMocks, instance) || isInjectableMock(instance);
    }
 
-   public void addCapturedInstanceForInjectableMock(@Nullable Object originalInstance, @Nonnull Object capturedInstance)
-   {
+   public void addCapturedInstanceForInjectableMock(@Nullable Object originalInstance, @Nonnull Object capturedInstance) {
       injectableMocks.add(capturedInstance);
       addCapturedInstance(originalInstance, capturedInstance);
    }
 
-   public void addCapturedInstance(@Nullable Object originalInstance, @Nonnull Object capturedInstance)
-   {
+   public void addCapturedInstance(@Nullable Object originalInstance, @Nonnull Object capturedInstance) {
       originalToCapturedInstance.put(capturedInstance, originalInstance);
    }
 
-   public boolean isInvokedInstanceEquivalentToCapturedInstance(
-      @Nonnull Object invokedInstance, @Nonnull Object capturedInstance)
-   {
+   public boolean isInvokedInstanceEquivalentToCapturedInstance(@Nonnull Object invokedInstance, @Nonnull Object capturedInstance) {
       return
          invokedInstance == originalToCapturedInstance.get(capturedInstance) ||
          capturedInstance == originalToCapturedInstance.get(invokedInstance);
    }
 
-   public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc)
-   {
+   public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc) {
       return
          mock != null && nameAndDesc.charAt(0) != '<' &&
          ("equals(Ljava/lang/Object;)Z hashCode()I toString()Ljava/lang/String;".contains(nameAndDesc) ||
           mock instanceof Comparable<?> && nameAndDesc.startsWith("compareTo(L") && nameAndDesc.endsWith(";)I"));
    }
 
-   public void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock)
-   {
+   public void registerMock(@Nonnull MockedType mockedType, @Nonnull Object mock) {
       if (mockedType.injectable) {
          addInjectableMock(mock);
       }
@@ -206,8 +184,7 @@ public final class ExecutingTest
 
    @Nonnull public CascadingTypes getCascadingTypes() { return cascadingTypes; }
 
-   public void finishExecution()
-   {
+   public void finishExecution() {
       recordAndReplayForLastTestMethod = currentRecordAndReplay;
       currentRecordAndReplay = null;
 

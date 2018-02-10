@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
@@ -9,8 +9,7 @@ import javax.annotation.*;
 
 public final class FileParser
 {
-   private static final class PendingClass
-   {
+   private static final class PendingClass {
       @Nonnull final String className;
       int braceBalance;
       PendingClass(@Nonnull String className) { this.className = className; }
@@ -23,8 +22,7 @@ public final class FileParser
    private boolean openingBraceForClassFound;
    private int currentBraceBalance;
 
-   public boolean parseCurrentLine(@Nonnull String line)
-   {
+   public boolean parseCurrentLine(@Nonnull String line) {
       if (!lineParser.parse(line)) {
          return false;
       }
@@ -44,8 +42,7 @@ public final class FileParser
       return true;
    }
 
-   @Nullable private LineElement findClassNameInNewClassDeclaration()
-   {
+   @Nullable private LineElement findClassNameInNewClassDeclaration() {
       LineElement previous = null;
 
       for (LineElement element : lineParser.getInitialElement()) {
@@ -59,8 +56,7 @@ public final class FileParser
       return null;
    }
 
-   private void registerStartOfClassDeclaration(@Nonnull LineElement elementWithClassName)
-   {
+   private void registerStartOfClassDeclaration(@Nonnull LineElement elementWithClassName) {
       String className = elementWithClassName.getText();
 
       if (currentClass != null) {
@@ -72,8 +68,7 @@ public final class FileParser
       currentBraceBalance = 0;
    }
 
-   private void detectPotentialEndOfClassDeclaration(@Nonnull LineElement firstElement)
-   {
+   private void detectPotentialEndOfClassDeclaration(@Nonnull LineElement firstElement) {
       // TODO: how to deal with classes defined entirely in one line?
       currentBraceBalance += firstElement.getBraceBalanceUntilEndOfLine();
 
@@ -85,8 +80,7 @@ public final class FileParser
       }
    }
 
-   private void restorePreviousPendingClassIfAny()
-   {
+   private void restorePreviousPendingClassIfAny() {
       currentClasses.remove(currentClass);
 
       if (currentClasses.isEmpty()) {
@@ -98,8 +92,8 @@ public final class FileParser
       }
    }
 
-   @Nullable public String getCurrentlyPendingClass()
-   {
+   @Nullable
+   public String getCurrentlyPendingClass() {
       return currentClass == null ? null : currentClass.className;
    }
 }

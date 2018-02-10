@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
@@ -32,10 +32,8 @@ public final class FileCoverageReport
    @Nullable private final DataCoverageOutput dataCoverage;
 
    public FileCoverageReport(
-      @Nonnull String outputDir, @Nonnull InputFile inputFile, @Nonnull FileCoverageData fileData,
-      boolean withCallPoints)
-      throws IOException
-   {
+      @Nonnull String outputDir, @Nonnull InputFile inputFile, @Nonnull FileCoverageData fileData, boolean withCallPoints
+   ) throws IOException {
       this.inputFile = inputFile;
       output = new OutputFile(outputDir, inputFile.filePath);
       fileParser = new FileParser();
@@ -46,8 +44,7 @@ public final class FileCoverageReport
    }
 
    @Nullable
-   private PathCoverageOutput createPathCoverageOutput(@Nonnull FileCoverageData fileData)
-   {
+   private PathCoverageOutput createPathCoverageOutput(@Nonnull FileCoverageData fileData) {
       if (Metrics.PathCoverage.active) {
          Collection<MethodCoverageData> methods = fileData.getMethods();
          return methods.isEmpty() ? null : new PathCoverageOutput(output, methods);
@@ -57,8 +54,7 @@ public final class FileCoverageReport
    }
 
    @Nullable
-   private static DataCoverageOutput createDataCoverageOutput(@Nonnull FileCoverageData fileData)
-   {
+   private static DataCoverageOutput createDataCoverageOutput(@Nonnull FileCoverageData fileData) {
       if (Metrics.DataCoverage.active) {
          PerFileDataCoverage dataCoverageInfo = fileData.dataCoverageInfo;
          return dataCoverageInfo.hasFields() ? new DataCoverageOutput(dataCoverageInfo) : null;
@@ -67,8 +63,7 @@ public final class FileCoverageReport
       return null;
    }
 
-   public void generate() throws IOException
-   {
+   public void generate() throws IOException {
       try {
          writeHeader();
          writeFormattedSourceLines();
@@ -80,15 +75,13 @@ public final class FileCoverageReport
       }
    }
 
-   private void writeHeader()
-   {
+   private void writeHeader() {
       output.writeCommonHeader(inputFile.getSourceFileName());
       output.println("  <table cellpadding='0' cellspacing='1'>");
       output.println("    <caption>" + inputFile.getSourceFilePath() + "</caption>");
    }
 
-   private void writeFormattedSourceLines() throws IOException
-   {
+   private void writeFormattedSourceLines() throws IOException {
       LineParser lineParser = fileParser.lineParser;
       String line;
 
@@ -117,16 +110,14 @@ public final class FileCoverageReport
       }
    }
 
-   private void writeOpeningOfNewLine(int lineNumber)
-   {
+   private void writeOpeningOfNewLine(int lineNumber) {
       output.println("    <tr>");
       output.write("      <td class='line'>");
       output.print(lineNumber);
       output.write("</td>");
    }
 
-   private void writeLineWithoutCoverageInfo(@Nonnull LineElement initialElement)
-   {
+   private void writeLineWithoutCoverageInfo(@Nonnull LineElement initialElement) {
       output.println("<td>&nbsp;</td>");
       output.write("      <td><pre class='");
       output.write(initialElement.isComment() ? "comment'>" : "prettyprint'>");
@@ -134,8 +125,7 @@ public final class FileCoverageReport
       output.println("</pre></td>");
    }
 
-   private void writeFooter()
-   {
+   private void writeFooter() {
       output.println("  </table>");
       output.writeCommonFooter();
    }

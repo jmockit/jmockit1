@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.dataCoverage;
@@ -18,15 +18,13 @@ public final class DataCoverageOutput
    @Nullable private String className;
    @Nullable private String fieldName;
 
-   public DataCoverageOutput(@Nonnull PerFileDataCoverage coverageInfo)
-   {
+   public DataCoverageOutput(@Nonnull PerFileDataCoverage coverageInfo) {
       openingTag = new StringBuilder(50);
       this.coverageInfo = coverageInfo;
       moveToNextField();
    }
 
-   private void moveToNextField()
-   {
+   private void moveToNextField() {
       if (nextField >= coverageInfo.allFields.size()) {
          classAndFieldNames = null;
          className = null;
@@ -42,8 +40,7 @@ public final class DataCoverageOutput
       fieldName = classAndFieldNames.substring(p + 1);
    }
 
-   public void writeCoverageInfoIfLineStartsANewFieldDeclaration(@Nonnull FileParser fileParser)
-   {
+   public void writeCoverageInfoIfLineStartsANewFieldDeclaration(@Nonnull FileParser fileParser) {
       if (classAndFieldNames != null) {
          assert className != null;
 
@@ -62,8 +59,7 @@ public final class DataCoverageOutput
       }
    }
 
-   private void buildOpeningTagForFieldWrapper()
-   {
+   private void buildOpeningTagForFieldWrapper() {
       openingTag.setLength(0);
       openingTag.append("<span class='");
 
@@ -84,8 +80,7 @@ public final class DataCoverageOutput
       openingTag.append("'>");
    }
 
-   private void appendAccessCounts(@Nonnull FieldData fieldData)
-   {
+   private void appendAccessCounts(@Nonnull FieldData fieldData) {
       openingTag.append("Reads: ").append(fieldData.getReadCount());
       openingTag.append(" Writes: ").append(fieldData.getWriteCount());
    }

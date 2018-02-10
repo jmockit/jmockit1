@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
@@ -17,14 +17,12 @@ abstract class ListWithFilesAndPercentages
    @Nonnull final int[] totalItems = new int[Metrics.values().length];
    @Nonnull final int[] coveredItems = new int[Metrics.values().length];
 
-   protected ListWithFilesAndPercentages(@Nonnull PrintWriter output, @Nonnull String baseIndent)
-   {
+   ListWithFilesAndPercentages(@Nonnull PrintWriter output, @Nonnull String baseIndent) {
       this.output = output;
       this.baseIndent = baseIndent;
    }
 
-   final void writeMetricsForEachFile(@Nullable String packageName, @Nonnull List<String> fileNames)
-   {
+   final void writeMetricsForEachFile(@Nullable String packageName, @Nonnull List<String> fileNames) {
       if (fileNames.isEmpty()) {
          return;
       }
@@ -38,14 +36,12 @@ abstract class ListWithFilesAndPercentages
       }
    }
 
-   protected final void writeRowStart()
-   {
+   final void writeRowStart() {
       printIndent();
       output.println("<tr>");
    }
 
-   protected final void writeRowClose()
-   {
+   final void writeRowClose() {
       printIndent();
       output.println("</tr>");
    }
@@ -54,8 +50,7 @@ abstract class ListWithFilesAndPercentages
 
    protected abstract void writeMetricsForFile(@Nullable String packageName, @Nonnull String fileName);
 
-   final void printCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage)
-   {
+   final void printCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage) {
       printIndent();
       output.write("  <td ");
 
@@ -69,8 +64,7 @@ abstract class ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeRowCellWithCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage)
-   {
+   private void writeRowCellWithCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage) {
       writeClassAttributeForCoveragePercentageCell();
       output.write("style='background-color:#");
       output.write(CoveragePercentage.percentageColor(covered, total));
@@ -87,8 +81,7 @@ abstract class ListWithFilesAndPercentages
 
    protected abstract void writeClassAttributeForCoveragePercentageCell();
 
-   private void writePercentageValue(int covered, int total, int percentage)
-   {
+   private void writePercentageValue(int covered, int total, int percentage) {
       if (percentage < 100) {
          output.print(percentage);
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.pathCoverage;
@@ -17,14 +17,12 @@ final class PathCoverageFormatter
    private char pathId1;
    private char pathId2;
 
-   PathCoverageFormatter(@Nonnull PrintWriter output)
-   {
+   PathCoverageFormatter(@Nonnull PrintWriter output) {
       this.output = output;
       lineSegmentIds = new StringBuilder(100);
    }
 
-   void writeInformationForEachPath(@Nonnull List<Path> paths)
-   {
+   void writeInformationForEachPath(@Nonnull List<Path> paths) {
       pathId1 = 'A';
       pathId2 = '\0';
 
@@ -48,8 +46,7 @@ final class PathCoverageFormatter
       }
    }
 
-   private void writeCoverageInfoForIndividualPath(@Nonnull Path path)
-   {
+   private void writeCoverageInfoForIndividualPath(@Nonnull Path path) {
       int executionCount = path.getExecutionCount();
       String lineSegmentIdsForPath = getIdsForLineSegmentsBelongingToThePath(path);
 
@@ -65,8 +62,7 @@ final class PathCoverageFormatter
    }
 
    @Nonnull
-   private String getIdsForLineSegmentsBelongingToThePath(@Nonnull Path path)
-   {
+   private String getIdsForLineSegmentsBelongingToThePath(@Nonnull Path path) {
       lineSegmentIds.setLength(0);
 
       int previousLine = 0;
@@ -90,8 +86,7 @@ final class PathCoverageFormatter
       return lineSegmentIds.toString();
    }
 
-   private void appendSegmentId(int line, int segment)
-   {
+   private void appendSegmentId(int line, int segment) {
       if (lineSegmentIds.length() > 0) {
          lineSegmentIds.append(' ');
       }
@@ -99,8 +94,7 @@ final class PathCoverageFormatter
       lineSegmentIds.append('l').append(line).append('s').append(segment);
    }
 
-   private void writePathId()
-   {
+   private void writePathId() {
       output.write(pathId1);
 
       if (pathId2 != '\0') {

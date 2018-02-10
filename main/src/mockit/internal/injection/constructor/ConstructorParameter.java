@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.constructor;
@@ -17,9 +17,7 @@ final class ConstructorParameter extends InjectionProvider
    @Nonnull private final Annotation[] annotations;
    @Nullable private final Object value;
 
-   ConstructorParameter(
-      @Nonnull Type declaredType, @Nonnull Annotation[] annotations, @Nonnull String name, @Nullable Object value)
-   {
+   ConstructorParameter(@Nonnull Type declaredType, @Nonnull Annotation[] annotations, @Nonnull String name, @Nullable Object value) {
       super(declaredType, name);
       classOfDeclaredType = getClassType(declaredType);
       this.annotations = annotations;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
@@ -34,8 +34,7 @@ public final class LineParser
 
    public boolean isInComments() { return inComments; }
 
-   public boolean isBlankLine()
-   {
+   public boolean isBlankLine() {
       int n = line.length();
 
       for (int i = 0; i < n; i++) {
@@ -51,8 +50,7 @@ public final class LineParser
 
    @Nonnull public LineElement getInitialElement() { assert initialElement != null; return initialElement; }
 
-   boolean parse(@Nonnull String lineToParse)
-   {
+   boolean parse(@Nonnull String lineToParse) {
       lineNum++;
       initialElement = null;
       currentElement = null;
@@ -82,8 +80,7 @@ public final class LineParser
       return !inComments && !isBlankLine();
    }
 
-   private void parseSeparatorsAndCode()
-   {
+   private void parseSeparatorsAndCode() {
       boolean separator = isSeparator();
 
       if (separator && !inCodeElement) {
@@ -104,20 +101,17 @@ public final class LineParser
       }
    }
 
-   private boolean isSeparator()
-   {
+   private boolean isSeparator() {
       return Character.isWhitespace(currChar) || SEPARATORS.indexOf(currChar) >= 0;
    }
 
-   private void startNewElementIfNotYetStarted()
-   {
+   private void startNewElementIfNotYetStarted() {
       if (startPos < 0) {
          startPos = pos;
       }
    }
 
-   private boolean parseComment()
-   {
+   private boolean parseComment() {
       if (inComments && parseUntilEndOfLineOrEndOfComment()) {
          return true;
       }
@@ -152,8 +146,7 @@ public final class LineParser
       return false;
    }
 
-   private void endCodeElementIfPending()
-   {
+   private void endCodeElementIfPending() {
       if (inCodeElement) {
          addElement();
          startPos = pos;
@@ -161,8 +154,7 @@ public final class LineParser
       }
    }
 
-   private boolean parseUntilEndOfLineOrEndOfComment()
-   {
+   private boolean parseUntilEndOfLineOrEndOfComment() {
       while (pos < lineLength) {
          currChar = line.codePointAt(pos);
 
@@ -186,20 +178,17 @@ public final class LineParser
       }
    }
 
-   private void addFinalElement()
-   {
+   private void addFinalElement() {
       String text = line.substring(startPos);
       addElement(text);
    }
 
-   private void addElement()
-   {
+   private void addElement() {
       String text = pos > 0 ? line.substring(startPos, pos) : line.substring(startPos);
       addElement(text);
    }
 
-   private void addElement(@Nonnull String text)
-   {
+   private void addElement(@Nonnull String text) {
       ElementType type;
 
       if (inComments) {

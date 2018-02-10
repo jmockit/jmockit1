@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.data;
@@ -40,8 +40,7 @@ public final class FileCoverageData implements Serializable
 
    private final boolean loadedAfterTestCompletion;
 
-   public FileCoverageData(int index, @Nullable String kindOfTopLevelType)
-   {
+   FileCoverageData(int index, @Nullable String kindOfTopLevelType) {
       this.index = index;
       this.kindOfTopLevelType = kindOfTopLevelType;
       lineCoverageInfo = LineCoverage.active ? new PerFileLineCoverage() : NO_LINE_INFO;
@@ -58,15 +57,12 @@ public final class FileCoverageData implements Serializable
    public void addMethod(@Nonnull MethodCoverageData methodData) { pathCoverageInfo.addMethod(methodData); }
 
    @Nonnull
-   public Collection<MethodCoverageData> getMethods()
-   {
-      List<MethodCoverageData> methods =
-         new ArrayList<MethodCoverageData>(pathCoverageInfo.firstLineToMethodData.values());
+   public Collection<MethodCoverageData> getMethods() {
+      List<MethodCoverageData> methods = new ArrayList<MethodCoverageData>(pathCoverageInfo.firstLineToMethodData.values());
 
       Collections.sort(methods, new Comparator<MethodCoverageData>() {
          @Override
-         public int compare(MethodCoverageData m1, MethodCoverageData m2)
-         {
+         public int compare(MethodCoverageData m1, MethodCoverageData m2) {
             int l1 = m1.getFirstLineInBody();
             int l2 = m2.getFirstLineInBody();
 
@@ -82,8 +78,7 @@ public final class FileCoverageData implements Serializable
    }
 
    @Nonnull
-   public PerFileCoverage getPerFileCoverage(@Nonnull Metrics metric)
-   {
+   public PerFileCoverage getPerFileCoverage(@Nonnull Metrics metric) {
       switch (metric) {
          case LineCoverage: return lineCoverageInfo;
          case PathCoverage: return pathCoverageInfo;
@@ -91,8 +86,7 @@ public final class FileCoverageData implements Serializable
       }
    }
 
-   public int getTotalItemsForAllMetrics()
-   {
+   public int getTotalItemsForAllMetrics() {
       int totalItems = 0;
 
       if (lineCoverageInfo != NO_LINE_INFO) {
@@ -110,8 +104,7 @@ public final class FileCoverageData implements Serializable
       return totalItems;
    }
 
-   void mergeWithDataFromPreviousTestRun(@Nonnull FileCoverageData previousInfo)
-   {
+   void mergeWithDataFromPreviousTestRun(@Nonnull FileCoverageData previousInfo) {
       if (lineCoverageInfo == NO_LINE_INFO) {
          lineCoverageInfo = previousInfo.lineCoverageInfo;
       }

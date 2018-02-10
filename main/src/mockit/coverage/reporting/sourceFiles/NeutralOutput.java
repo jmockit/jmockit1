@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.sourceFiles;
@@ -19,8 +19,7 @@ final class NeutralOutput
 
    NeutralOutput(@Nonnull PrintWriter output) { this.output = output; }
 
-   boolean writeLineWithoutCoverageInfo(@Nonnull LineParser lineParser)
-   {
+   boolean writeLineWithoutCoverageInfo(@Nonnull LineParser lineParser) {
       if (previousLineInComments || !previousLineInImports) {
          if (writeLineInComments(lineParser) || writeLineInImports(lineParser)) {
             return true;
@@ -39,8 +38,7 @@ final class NeutralOutput
       return false;
    }
 
-   private boolean writeLineInComments(@Nonnull LineParser lineParser)
-   {
+   private boolean writeLineInComments(@Nonnull LineParser lineParser) {
       LineElement initialElement = lineParser.getInitialElement();
 
       if (
@@ -71,23 +69,20 @@ final class NeutralOutput
       return false;
    }
 
-   private void writeOpeningForCollapsibleBlockOfLines()
-   {
+   private void writeOpeningForCollapsibleBlockOfLines() {
       writeBlankLineIfPending();
       output.println("    <tr>");
       output.println("      <td class='line'></td><td>&nbsp;</td>");
    }
 
-   private void writeBlankLineIfPending()
-   {
+   private void writeBlankLineIfPending() {
       if (blankLinesPending) {
          output.println("    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>");
          blankLinesPending = false;
       }
    }
 
-   private void extractLineIndentation(@Nonnull String lineText)
-   {
+   private void extractLineIndentation(@Nonnull String lineText) {
       int indentationSize = 0;
 
       for (int i = 0; i < lineText.length(); i++, indentationSize++) {
@@ -97,8 +92,7 @@ final class NeutralOutput
       lineIndentation = lineText.substring(0, indentationSize);
    }
 
-   private boolean writeLineInImports(@Nonnull LineParser lineParser)
-   {
+   private boolean writeLineInImports(@Nonnull LineParser lineParser) {
       LineElement initialElement = lineParser.getInitialElement();
       boolean isImport = initialElement.isKeyword("import");
 

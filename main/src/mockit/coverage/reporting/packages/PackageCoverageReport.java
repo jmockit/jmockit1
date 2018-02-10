@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
@@ -19,16 +19,15 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
    PackageCoverageReport(
       @Nonnull PrintWriter output, @Nullable Collection<String> sourceFilesNotFound,
-      @Nonnull Map<String, FileCoverageData> filesToFileData, @Nonnull Collection<List<String>> allSourceFileNames)
-   {
+      @Nonnull Map<String, FileCoverageData> filesToFileData, @Nonnull Collection<List<String>> allSourceFileNames
+   ) {
       super(output, "          ");
       this.sourceFilesNotFound = sourceFilesNotFound;
       this.filesToFileData = filesToFileData;
       fileNameWithSpaces = new char[maximumSourceFileNameLength(allSourceFileNames)];
    }
 
-   private static int maximumSourceFileNameLength(@Nonnull Collection<List<String>> allSourceFileNames)
-   {
+   private static int maximumSourceFileNameLength(@Nonnull Collection<List<String>> allSourceFileNames) {
       int maxLength = 0;
 
       for (List<String> files : allSourceFileNames) {
@@ -45,8 +44,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
    }
 
    @Override
-   protected void writeMetricsForFile(@Nullable String packageName, @Nonnull String fileName)
-   {
+   protected void writeMetricsForFile(@Nullable String packageName, @Nonnull String fileName) {
       String filePath = packageName == null || packageName.isEmpty() ? fileName : packageName + '/' + fileName;
       final FileCoverageData fileData = filesToFileData.get(filePath);
 
@@ -61,8 +59,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
       Metrics.performAction(new Metrics.Action() {
          @Override
-         public void perform(@Nonnull Metrics metric)
-         {
+         public void perform(@Nonnull Metrics metric) {
             writeCodeCoverageMetricForFile(metric, fileData.getPerFileCoverage(metric));
          }
       });
@@ -70,8 +67,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
       writeRowClose();
    }
 
-   private int buildFileNameWithTrailingSpaces(@Nonnull String fileName)
-   {
+   private int buildFileNameWithTrailingSpaces(@Nonnull String fileName) {
       int n = fileName.length();
 
       fileName.getChars(0, n, fileNameWithSpaces, 0);
@@ -80,8 +76,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
       return n;
    }
 
-   private void writeTableCellWithFileName(@Nonnull String filePath, int fileNameLen)
-   {
+   private void writeTableCellWithFileName(@Nonnull String filePath, int fileNameLen) {
       if (sourceFilesNotFound == null || sourceFilesNotFound.contains(filePath)) {
          output.write(fileNameWithSpaces);
       }
@@ -98,8 +93,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeCodeCoverageMetricForFile(@Nonnull Metrics metric, @Nonnull PerFileCoverage coverageInfo)
-   {
+   private void writeCodeCoverageMetricForFile(@Nonnull Metrics metric, @Nonnull PerFileCoverage coverageInfo) {
       int percentage = coverageInfo.getCoveragePercentage();
       int covered = coverageInfo.getCoveredItems();
       int total = coverageInfo.getTotalItems();

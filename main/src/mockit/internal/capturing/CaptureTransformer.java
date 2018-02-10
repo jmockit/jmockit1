@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.capturing;
@@ -30,8 +30,8 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
    CaptureTransformer(
       @Nonnull CapturedType capturedType, @Nonnull CaptureOfImplementations<M> captureOfImplementations,
-      boolean registerTransformedClasses, @Nullable M typeMetadata)
-   {
+      boolean registerTransformedClasses, @Nullable M typeMetadata
+   ) {
       this.capturedType = capturedType;
       capturedTypeDesc = JavaType.getInternalName(capturedType.baseType);
       this.captureOfImplementations = captureOfImplementations;
@@ -41,8 +41,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       this.typeMetadata = typeMetadata;
    }
 
-   public void deactivate()
-   {
+   public void deactivate() {
       inactive = true;
 
       if (!transformedClasses.isEmpty()) {
@@ -60,8 +59,8 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, @Nonnull String classDesc, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
-   {
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
+   ) {
       if (
          classBeingRedefined != null || inactive ||
          capturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
@@ -86,9 +85,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    }
 
    @Nonnull
-   private byte[] modifyAndRegisterClass(
-      @Nullable ClassLoader loader, @Nonnull String className, @Nonnull ClassReader cr)
-   {
+   private byte[] modifyAndRegisterClass(@Nullable ClassLoader loader, @Nonnull String className, @Nonnull ClassReader cr) {
       ClassVisitor modifier = captureOfImplementations.createModifier(loader, cr, capturedType.baseType, typeMetadata);
       cr.accept(modifier);
 
@@ -106,8 +103,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       return modifier.toByteArray();
    }
 
-   private final class SuperTypeCollector extends ClassVisitor
-   {
+   private final class SuperTypeCollector extends ClassVisitor {
       @Nullable private final ClassLoader loader;
       boolean classExtendsCapturedType;
 
@@ -116,8 +112,8 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Override
       public void visit(
          int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces)
-      {
+         @Nullable String[] interfaces
+      ) {
          classExtendsCapturedType = false;
 
          if (capturedTypeDesc.equals(superName)) {
@@ -136,8 +132,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          throw VisitInterruptedException.INSTANCE;
       }
 
-      private void interruptVisitIfClassImplementsAnInterface(@Nonnull String[] interfaces)
-      {
+      private void interruptVisitIfClassImplementsAnInterface(@Nonnull String[] interfaces) {
          for (String implementedInterface : interfaces) {
             if (capturedTypeDesc.equals(implementedInterface)) {
                classExtendsCapturedType = true;
@@ -146,8 +141,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          }
       }
 
-      private void searchSuperTypes(@Nonnull String superName, @Nullable String[] interfaces)
-      {
+      private void searchSuperTypes(@Nonnull String superName, @Nullable String[] interfaces) {
          if (!"java/lang/Object".equals(superName) && !superName.startsWith("mockit/")) {
             searchSuperType(superName);
          }
@@ -161,8 +155,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          }
       }
 
-      private void searchSuperType(@Nonnull String superName)
-      {
+      private void searchSuperType(@Nonnull String superName) {
          Boolean extendsCapturedType = superTypesSearched.get(superName);
 
          if (extendsCapturedType == FALSE) {
@@ -190,8 +183,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    }
 
    @Nullable
-   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> aType)
-   {
+   public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> aType) {
       if (capturedType.baseType.isAssignableFrom(aType) && typeMetadata != null) {
          //noinspection unchecked
          return (C) captureOfImplementations;
@@ -200,8 +192,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       return null;
    }
 
-   public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2)
-   {
+   public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2) {
       Class<?> baseType = capturedType.baseType;
       return baseType.isAssignableFrom(mockedClass1) && baseType.isAssignableFrom(mockedClass2);
    }

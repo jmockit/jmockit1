@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.capturing;
@@ -18,15 +18,13 @@ final class CapturedType
    @Nullable private final ProtectionDomain baseTypePD;
    private final boolean baseTypePDWithCodeSource;
 
-   CapturedType(@Nonnull Class<?> baseType)
-   {
+   CapturedType(@Nonnull Class<?> baseType) {
       this.baseType = baseType;
       baseTypePD = baseType.getProtectionDomain();
       baseTypePDWithCodeSource = baseTypePD != null && baseTypePD.getCodeSource() != null;
    }
 
-   boolean isToBeCaptured(@Nonnull Class<?> aClass)
-   {
+   boolean isToBeCaptured(@Nonnull Class<?> aClass) {
       //noinspection SimplifiableIfStatement
       if (
          aClass == baseType || aClass.isArray() || !baseType.isAssignableFrom(aClass) ||
@@ -41,8 +39,7 @@ final class CapturedType
    }
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
-   private static boolean extendsJMockitBaseType(@Nonnull Class<?> aClass)
-   {
+   private static boolean extendsJMockitBaseType(@Nonnull Class<?> aClass) {
       return
          mockit.MockUp.class.isAssignableFrom(aClass) ||
          mockit.Expectations.class.isAssignableFrom(aClass) || mockit.Verifications.class.isAssignableFrom(aClass) ||
@@ -50,9 +47,7 @@ final class CapturedType
    }
 
    @SuppressWarnings("OverlyComplexMethod")
-   boolean isNotToBeCaptured(
-      @Nullable ClassLoader loader, @Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc)
-   {
+   boolean isNotToBeCaptured(@Nullable ClassLoader loader, @Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc) {
       //noinspection SimplifiableIfStatement
       if (
          loader == null && (classNameOrDesc.startsWith("java") || classNameOrDesc.startsWith("jdk/")) ||
@@ -75,8 +70,7 @@ final class CapturedType
          isExternallyGeneratedSubclass(classNameOrDesc);
    }
 
-   private static boolean hasSubPackage(@Nonnull String nameOrDesc, int offset, @Nonnull String subPackages)
-   {
+   private static boolean hasSubPackage(@Nonnull String nameOrDesc, int offset, @Nonnull String subPackages) {
       int subPackageStart = 0;
       int subPackageEnd;
 

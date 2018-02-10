@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.parsing;
@@ -17,16 +17,14 @@ public final class LineElement implements Iterable<LineElement>
 
    enum ElementType { CODE, COMMENT, SEPARATOR }
 
-   enum ConditionalStatement
-   {
+   enum ConditionalStatement {
       IF("if"), FOR("for"), WHILE("while");
 
       @Nonnull private final String keyword;
       ConditionalStatement(@Nonnull String keyword) { this.keyword = keyword; }
 
       @Nullable
-      static ConditionalStatement find(@Nonnull String keyword)
-      {
+      static ConditionalStatement find(@Nonnull String keyword) {
          for (ConditionalStatement statement : values()) {
             if (statement.keyword.equals(keyword)) {
                return statement;
@@ -46,8 +44,7 @@ public final class LineElement implements Iterable<LineElement>
    @Nullable private ConditionalStatement conditionalStatement;
    private int parenthesesBalance;
 
-   LineElement(@Nonnull ElementType type, @Nonnull String text)
-   {
+   LineElement(@Nonnull ElementType type, @Nonnull String text) {
       this.type = type;
       this.text = OPEN_TAG.matcher(text).replaceAll("&lt;");
    }
@@ -55,13 +52,11 @@ public final class LineElement implements Iterable<LineElement>
    public boolean isCode() { return type == ElementType.CODE; }
    public boolean isComment() { return type == ElementType.COMMENT; }
 
-   public boolean isKeyword(@Nonnull String keyword)
-   {
+   public boolean isKeyword(@Nonnull String keyword) {
       return isCode() && text.equals(keyword);
    }
 
-   public boolean isDotSeparator()
-   {
+   public boolean isDotSeparator() {
       return type == ElementType.SEPARATOR && text.charAt(0) == '.';
    }
 
@@ -71,8 +66,7 @@ public final class LineElement implements Iterable<LineElement>
    void setNext(@Nullable LineElement next) { this.next = next; }
 
    @Nullable
-   public LineElement getNextCodeElement()
-   {
+   public LineElement getNextCodeElement() {
       if (next != null) {
          for (LineElement element : next) {
             if (element.isCode()) {
@@ -84,15 +78,13 @@ public final class LineElement implements Iterable<LineElement>
       return null;
    }
 
-   public void wrapText(@Nonnull String desiredOpeningTag, @Nonnull String desiredClosingTag)
-   {
+   public void wrapText(@Nonnull String desiredOpeningTag, @Nonnull String desiredClosingTag) {
       openingTag = desiredOpeningTag;
       closingTag = desiredClosingTag;
    }
 
    @Nullable
-   public LineElement appendUntilNextCodeElement(@Nonnull StringBuilder line)
-   {
+   public LineElement appendUntilNextCodeElement(@Nonnull StringBuilder line) {
       LineElement element = this;
 
       while (!element.isCode()) {
@@ -109,14 +101,12 @@ public final class LineElement implements Iterable<LineElement>
       return element;
    }
 
-   private void copyConditionalTrackingState(@Nonnull LineElement destination)
-   {
+   private void copyConditionalTrackingState(@Nonnull LineElement destination) {
       destination.conditionalStatement = conditionalStatement;
       destination.parenthesesBalance = parenthesesBalance;
    }
 
-   private void appendText(@Nonnull StringBuilder line)
-   {
+   private void appendText(@Nonnull StringBuilder line) {
       if (openingTag == null) {
          line.append(text);
       }
@@ -126,8 +116,7 @@ public final class LineElement implements Iterable<LineElement>
    }
 
    @Nullable
-   public LineElement findNextBranchingPoint()
-   {
+   public LineElement findNextBranchingPoint() {
       if (conditionalStatement == null) {
          conditionalStatement = ConditionalStatement.find(text);
       }
@@ -159,8 +148,7 @@ public final class LineElement implements Iterable<LineElement>
       return next.findNextBranchingPoint();
    }
 
-   public boolean isBranchingElement()
-   {
+   public boolean isBranchingElement() {
       if (conditionalStatement == ConditionalStatement.FOR) {
          int p = text.indexOf(':');
          if (p < 0) p = text.indexOf(';');
@@ -170,8 +158,7 @@ public final class LineElement implements Iterable<LineElement>
       return CONDITIONAL_OPERATORS.contains(text);
    }
 
-   private int getParenthesisBalance()
-   {
+   private int getParenthesisBalance() {
       int balance = 0;
       int p = text.indexOf('(');
 
@@ -191,8 +178,7 @@ public final class LineElement implements Iterable<LineElement>
    }
 
    @Nullable
-   public LineElement findWord(@Nonnull String word)
-   {
+   public LineElement findWord(@Nonnull String word) {
       for (LineElement element : this) {
          if (element.isCode() && word.equals(element.text)) {
             return element;
@@ -202,8 +188,7 @@ public final class LineElement implements Iterable<LineElement>
       return null;
    }
 
-   public int getBraceBalanceUntilEndOfLine()
-   {
+   public int getBraceBalanceUntilEndOfLine() {
       int balance = 0;
 
       for (LineElement element : this) {
@@ -213,8 +198,7 @@ public final class LineElement implements Iterable<LineElement>
       return balance;
    }
 
-   private int getBraceBalance()
-   {
+   private int getBraceBalance() {
       if (isCode() && text.length() == 1) {
          char c = text.charAt(0);
 
@@ -229,8 +213,7 @@ public final class LineElement implements Iterable<LineElement>
       return 0;
    }
 
-   public void appendAllBefore(@Nonnull StringBuilder line, @Nullable LineElement elementToStopBefore)
-   {
+   public void appendAllBefore(@Nonnull StringBuilder line, @Nullable LineElement elementToStopBefore) {
       LineElement elementToPrint = this;
 
       do {
@@ -241,16 +224,14 @@ public final class LineElement implements Iterable<LineElement>
    }
 
    @Nonnull @Override
-   public Iterator<LineElement> iterator()
-   {
+   public Iterator<LineElement> iterator() {
       return new Iterator<LineElement>() {
          @Nullable private LineElement current = LineElement.this;
 
          @Override public boolean hasNext() { return current != null; }
 
          @Nonnull @Override
-         public LineElement next()
-         {
+         public LineElement next() {
             if (current == null) {
                throw LAST_ELEMENT_REACHED;
             }
@@ -266,8 +247,7 @@ public final class LineElement implements Iterable<LineElement>
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuilder line = new StringBuilder(200);
 
       for (LineElement element : this) {

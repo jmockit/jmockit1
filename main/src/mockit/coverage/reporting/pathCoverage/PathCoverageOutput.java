@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.pathCoverage;
@@ -20,29 +20,25 @@ public final class PathCoverageOutput
    // Helper fields:
    @Nullable private MethodCoverageData currentMethod;
 
-   public PathCoverageOutput(@Nonnull PrintWriter output, @Nonnull Collection<MethodCoverageData> methods)
-   {
+   public PathCoverageOutput(@Nonnull PrintWriter output, @Nonnull Collection<MethodCoverageData> methods) {
       this.output = output;
       pathFormatter = new PathCoverageFormatter(output);
       nextMethod = methods.iterator();
       moveToNextMethod();
    }
 
-   private void moveToNextMethod()
-   {
+   private void moveToNextMethod() {
       currentMethod = nextMethod.hasNext() ? nextMethod.next() : null;
    }
 
-   public void writePathCoverageInfoIfLineStartsANewMethodOrConstructor(int lineNumber)
-   {
+   public void writePathCoverageInfoIfLineStartsANewMethodOrConstructor(int lineNumber) {
       if (currentMethod != null && lineNumber == currentMethod.getFirstLineInBody()) {
          writePathCoverageInformationForMethod(currentMethod);
          moveToNextMethod();
       }
    }
 
-   private void writePathCoverageInformationForMethod(@Nonnull MethodCoverageData methodData)
-   {
+   private void writePathCoverageInformationForMethod(@Nonnull MethodCoverageData methodData) {
       List<Path> paths = methodData.getPaths();
 
       if (paths.size() > 1) {
@@ -52,8 +48,7 @@ public final class PathCoverageOutput
       }
    }
 
-   private void writeHeaderForAllPaths(@Nonnull MethodCoverageData methodData)
-   {
+   private void writeHeaderForAllPaths(@Nonnull MethodCoverageData methodData) {
       int coveredPaths = methodData.getCoveredPaths();
       int totalPaths = methodData.getTotalPaths();
 
@@ -71,8 +66,7 @@ public final class PathCoverageOutput
       output.println("</span>");
    }
 
-   private void writeFooterForAllPaths()
-   {
+   private void writeFooterForAllPaths() {
       output.println("      </td>");
       output.println("    </tr>");
    }

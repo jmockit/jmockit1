@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.packages;
@@ -24,9 +24,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    public IndexPage(
       @Nonnull File outputFile, @Nullable List<File> sourceDirs, @Nullable Collection<String> sourceFilesNotFound,
-      @Nonnull Map<String, List<String>> packageToFiles, @Nonnull Map<String, FileCoverageData> fileToFileData)
-      throws IOException
-   {
+      @Nonnull Map<String, List<String>> packageToFiles, @Nonnull Map<String, FileCoverageData> fileToFileData
+   ) throws IOException {
       super(new OutputFile(outputFile), "    ");
       this.sourceDirs = sourceDirs;
       this.packageToFiles = packageToFiles;
@@ -35,13 +34,11 @@ public final class IndexPage extends ListWithFilesAndPercentages
       totalFileCount = totalNumberOfSourceFilesWithCoverageData(fileToFileData.values());
    }
 
-   private static int totalNumberOfSourceFilesWithCoverageData(@Nonnull Collection<FileCoverageData> fileData)
-   {
+   private static int totalNumberOfSourceFilesWithCoverageData(@Nonnull Collection<FileCoverageData> fileData) {
       return fileData.size() - Collections.frequency(fileData, null);
    }
 
-   public void generate()
-   {
+   public void generate() {
       try {
          writeHeader();
 
@@ -58,8 +55,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   private void writeHeader()
-   {
+   private void writeHeader() {
       ((OutputFile) output).writeCommonHeader("Code Coverage Report");
 
       output.println("  <table id='packages'>");
@@ -68,8 +64,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       writeTableFirstRowWithColumnTitles();
    }
 
-   private void writeTableCaption()
-   {
+   private void writeTableCaption() {
       if (sourceDirs == null) {
          output.println("    <caption>All Packages and Files</caption>");
       }
@@ -81,8 +76,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    @Nonnull
-   private String getCommaSeparatedListOfSourceDirs()
-   {
+   private String getCommaSeparatedListOfSourceDirs() {
       List<File> dirs = sourceDirs;
       assert dirs != null;
       removeRedundantSourceDirectories(dirs);
@@ -93,15 +87,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
       return commaSepDirs.substring(1, commaSepDirs.length() - 1);
    }
 
-   private static void removeRedundantSourceDirectories(@Nonnull List<File> dirs)
-   {
+   private static void removeRedundantSourceDirectories(@Nonnull List<File> dirs) {
       for (int i = 0; i < dirs.size(); i++) {
          i = removeRedundantSourceDirectory(dirs, i);
       }
    }
 
-   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int i)
-   {
+   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int i) {
       String dir1 = dirs.get(i).getPath();
       int j = i + 1;
 
@@ -124,16 +116,14 @@ public final class IndexPage extends ListWithFilesAndPercentages
       return i;
    }
 
-   private void writeTableFirstRowWithColumnTitles()
-   {
+   private void writeTableFirstRowWithColumnTitles() {
       output.println("    <tr>");
       output.write("      <th style='cursor: col-resize' onclick='showHideAllFiles()'>Packages: ");
       output.print(packageToFiles.keySet().size());
       output.println("</th>");
       output.write(
          "      <th onclick='location.reload()' style='cursor: n-resize' title='" +
-         "Click on the title for each metric to sort by size (total number of line segments, paths, or fields)." +
-         "'>Files: ");
+         "Click on the title for each metric to sort by size (total number of line segments, paths, or fields).'>Files: ");
       output.print(totalFileCount);
       output.println("</th>");
 
@@ -141,14 +131,12 @@ public final class IndexPage extends ListWithFilesAndPercentages
          int tableColumn = 1;
 
          @Override
-         public void perform(@Nonnull Metrics metric)
-         {
+         public void perform(@Nonnull Metrics metric) {
             writeHeaderCellWithMetricNameAndDescription(metric);
             tableColumn++;
          }
 
-         private void writeHeaderCellWithMetricNameAndDescription(@Nonnull Metrics metric)
-         {
+         private void writeHeaderCellWithMetricNameAndDescription(@Nonnull Metrics metric) {
             output.write("      <th onclick='sortTables(");
             output.print(tableColumn);
             output.write(")' style='cursor: n-resize' title='");
@@ -162,8 +150,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("    </tr>");
    }
 
-   private void writeLineWithCoverageTotals()
-   {
+   private void writeLineWithCoverageTotals() {
       output.println("    <tr class='total'>");
       output.println("      <td>Total</td><td>&nbsp;</td>");
 
@@ -175,8 +162,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("    </tr>");
    }
 
-   private void writeLineWithCoverageTotals(@Nonnull Metrics metric)
-   {
+   private void writeLineWithCoverageTotals(@Nonnull Metrics metric) {
       int covered = coveredItems[metric.ordinal()];
       int total = totalItems[metric.ordinal()];
       int percentage = CoveragePercentage.calculate(covered, total);
@@ -185,8 +171,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
-   protected void writeMetricsForFile(String unused, @Nonnull final String packageName)
-   {
+   protected void writeMetricsForFile(String unused, @Nonnull final String packageName) {
       writeRowStart();
       writeTableCellWithPackageName(packageName);
       writeInternalTableForSourceFiles(packageName);
@@ -199,8 +184,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       writeRowClose();
    }
 
-   private void writeTableCellWithPackageName(@Nonnull String packageName)
-   {
+   private void writeTableCellWithPackageName(@Nonnull String packageName) {
       printIndent();
       output.write("  <td class='package");
 
@@ -215,8 +199,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeInternalTableForSourceFiles(@Nonnull final String packageName)
-   {
+   private void writeInternalTableForSourceFiles(@Nonnull final String packageName) {
       printIndent();
       output.println("  <td>");
 
@@ -239,8 +222,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("  </td>");
    }
 
-   private void recordCoverageInformationForPackage(@Nonnull String packageName, @Nonnull Metrics metric)
-   {
+   private void recordCoverageInformationForPackage(@Nonnull String packageName, @Nonnull Metrics metric) {
       int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
       int totalInPackage = packageReport.totalItems[metric.ordinal()];
       int packagePercentage = CoveragePercentage.calculate(coveredInPackage, totalInPackage);
@@ -251,8 +233,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       coveredItems[metric.ordinal()] += coveredInPackage;
    }
 
-   private void setPackageCoveragePercentage(@Nonnull String packageName, @Nonnull Metrics metric, int percentage)
-   {
+   private void setPackageCoveragePercentage(@Nonnull String packageName, @Nonnull Metrics metric, int percentage) {
       int[] percentages = packageToPackagePercentages.get(packageName);
 
       if (percentages == null) {
@@ -263,15 +244,13 @@ public final class IndexPage extends ListWithFilesAndPercentages
       percentages[metric.ordinal()] = percentage;
    }
 
-   private void writeInitiallyHiddenSourceFileCount(int fileCount)
-   {
+   private void writeInitiallyHiddenSourceFileCount(int fileCount) {
       output.write("    <span>(");
       output.print(fileCount);
       output.println(" source files)</span>");
    }
 
-   private void writeCoveragePercentageForPackage(@Nonnull String packageName, @Nonnull Metrics metric)
-   {
+   private void writeCoveragePercentageForPackage(@Nonnull String packageName, @Nonnull Metrics metric) {
       int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
       int totalInPackage = packageReport.totalItems[metric.ordinal()];
       int filePercentage = packageToPackagePercentages.get(packageName)[metric.ordinal()];
@@ -280,13 +259,11 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    @Override
-   protected void writeClassAttributeForCoveragePercentageCell()
-   {
+   protected void writeClassAttributeForCoveragePercentageCell() {
       output.write("class='pt' ");
    }
 
-   private void writeListOfRedundantTestsIfAny()
-   {
+   private void writeListOfRedundantTestsIfAny() {
       TestCoverage testCoverage = TestCoverage.INSTANCE;
 
       if (testCoverage == null) {
@@ -317,8 +294,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   private void writeFooter()
-   {
+   private void writeFooter() {
       output.println("  <p>");
       output.println("    <a href='http://jmockit.github.io'><img src='logo.png'></a>");
       output.write("    Generated on ");

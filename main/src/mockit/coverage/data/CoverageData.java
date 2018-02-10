@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.data;
@@ -38,8 +38,7 @@ public final class CoverageData implements Serializable
     * file during a test run.
     */
    @Nonnull
-   public Map<String, FileCoverageData> getFileToFileDataMap()
-   {
+   public Map<String, FileCoverageData> getFileToFileDataMap() {
       Map<String, FileCoverageData> copy = new LinkedHashMap<String, FileCoverageData>(fileToFileData);
 
       for (Iterator<Entry<String, FileCoverageData>> itr = copy.entrySet().iterator(); itr.hasNext(); ) {
@@ -55,8 +54,7 @@ public final class CoverageData implements Serializable
    }
 
    @Nonnull
-   public FileCoverageData getOrAddFile(@Nonnull String file, @Nullable String kindOfTopLevelType)
-   {
+   public FileCoverageData getOrAddFile(@Nonnull String file, @Nullable String kindOfTopLevelType) {
       FileCoverageData fileData = fileToFileData.get(file);
 
       // For a class with nested/inner classes, a previous class in the same source file may already have been added.
@@ -88,8 +86,7 @@ public final class CoverageData implements Serializable
     * @return the computed percentage from <tt>0</tt> to <tt>100</tt> (inclusive), or <tt>-1</tt> if no
     * meaningful value could be computed for the metric
     */
-   public int getPercentage(@Nonnull Metrics metric, @Nullable String fileNamePrefix)
-   {
+   public int getPercentage(@Nonnull Metrics metric, @Nullable String fileNamePrefix) {
       int coveredItems = 0;
       int totalItems = 0;
 
@@ -113,8 +110,7 @@ public final class CoverageData implements Serializable
     * @return the percentage value for the file found, or <tt>Integer.MAX_VALUE</tt> if no file is found with a
     * meaningful coverage percentage
     */
-   public int getSmallestPerFilePercentage(@Nonnull Metrics metric)
-   {
+   public int getSmallestPerFilePercentage(@Nonnull Metrics metric) {
       int minPercentage = Integer.MAX_VALUE;
 
       for (FileCoverageData fileData : fileToFileData.values()) {
@@ -131,8 +127,7 @@ public final class CoverageData implements Serializable
       return minPercentage;
    }
 
-   public void fillLastModifiedTimesForAllClassFiles()
-   {
+   public void fillLastModifiedTimesForAllClassFiles() {
       for (Iterator<Entry<String, FileCoverageData>> itr = fileToFileData.entrySet().iterator(); itr.hasNext(); ) {
          Entry<String, FileCoverageData> fileAndFileData = itr.next();
          long lastModified = getLastModifiedTimeForClassFile(fileAndFileData.getKey());
@@ -147,8 +142,7 @@ public final class CoverageData implements Serializable
       }
    }
 
-   private long getLastModifiedTimeForClassFile(@Nonnull String sourceFilePath)
-   {
+   private long getLastModifiedTimeForClassFile(@Nonnull String sourceFilePath) {
       String sourceFilePathNoExt = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
       String className = sourceFilePathNoExt.replace('/', '.');
 
@@ -171,9 +165,8 @@ public final class CoverageData implements Serializable
    }
 
    private static long getLastModifiedTimeFromJarEntry(
-      @Nonnull String sourceFilePathNoExt, @Nonnull String locationPath)
-      throws IOException
-   {
+      @Nonnull String sourceFilePathNoExt, @Nonnull String locationPath
+   ) throws IOException {
       JarFile jarFile = new JarFile(locationPath);
 
       try {
@@ -186,8 +179,7 @@ public final class CoverageData implements Serializable
    }
 
    @Nullable
-   private Class<?> findCoveredClass(@Nonnull String className)
-   {
+   private Class<?> findCoveredClass(@Nonnull String className) {
       ClassLoader currentCL = getClass().getClassLoader();
       Class<?> coveredClass = loadClass(className, currentCL);
 
@@ -211,8 +203,7 @@ public final class CoverageData implements Serializable
    }
 
    @Nullable
-   private static Class<?> loadClass(@Nonnull String className, @Nullable ClassLoader loader)
-   {
+   private static Class<?> loadClass(@Nonnull String className, @Nullable ClassLoader loader) {
       try {
          return Class.forName(className, false, loader);
       }
@@ -229,8 +220,7 @@ public final class CoverageData implements Serializable
     * @return a new object containing all coverage data resulting from a previous test run
     */
    @Nonnull
-   public static CoverageData readDataFromFile(@Nonnull File dataFile) throws IOException
-   {
+   public static CoverageData readDataFromFile(@Nonnull File dataFile) throws IOException {
       ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(dataFile)));
 
       try {
@@ -245,8 +235,7 @@ public final class CoverageData implements Serializable
       }
    }
 
-   public void writeDataToFile(@Nonnull File dataFile) throws IOException
-   {
+   public void writeDataToFile(@Nonnull File dataFile) throws IOException {
       ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
 
       try {
@@ -257,8 +246,7 @@ public final class CoverageData implements Serializable
       }
    }
 
-   public void merge(@Nonnull CoverageData previousData)
-   {
+   public void merge(@Nonnull CoverageData previousData) {
       withCallPoints |= previousData.withCallPoints;
 
       for (Entry<String, FileCoverageData> previousFileAndFileData : previousData.fileToFileData.entrySet()) {

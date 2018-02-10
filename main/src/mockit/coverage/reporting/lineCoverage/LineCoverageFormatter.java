@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting.lineCoverage;
@@ -18,15 +18,13 @@ final class LineCoverageFormatter
    @Nonnull private final LineSegmentsFormatter segmentsFormatter;
    @Nullable private final ListOfCallPoints listOfCallPoints;
 
-   LineCoverageFormatter(boolean withCallPoints)
-   {
+   LineCoverageFormatter(boolean withCallPoints) {
       formattedLine = new StringBuilder(200);
       segmentsFormatter = new LineSegmentsFormatter(withCallPoints, formattedLine);
       listOfCallPoints = withCallPoints ? new ListOfCallPoints() : null;
    }
 
-   String format(@Nonnull LineParser lineParser, @Nonnull PerFileLineCoverage lineCoverageData)
-   {
+   String format(@Nonnull LineParser lineParser, @Nonnull PerFileLineCoverage lineCoverageData) {
       formattedLine.setLength(0);
       formattedLine.append("<pre class='prettyprint");
 
@@ -43,14 +41,12 @@ final class LineCoverageFormatter
       return formattedLine.toString();
    }
 
-   private void formatLineWithMultipleSegments(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData)
-   {
+   private void formatLineWithMultipleSegments(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData) {
       formattedLine.append(" jmp'>");
       segmentsFormatter.formatSegments(lineParser, lineData);
    }
 
-   private void formatLineWithSingleSegment(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData)
-   {
+   private void formatLineWithSingleSegment(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData) {
       formattedLine.append(lineData.isCovered() ? " covered" : " uncovered");
 
       List<CallPoint> callPoints = lineData.getCallPoints();

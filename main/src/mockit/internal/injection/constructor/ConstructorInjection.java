@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.constructor;
@@ -24,16 +24,14 @@ public final class ConstructorInjection extends Injector
    @Nonnull private final Constructor<?> constructor;
 
    public ConstructorInjection(
-      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
-      @Nonnull Constructor<?> constructor)
-   {
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Constructor<?> constructor
+   ) {
       super(injectionState, fullInjection);
       this.constructor = constructor;
    }
 
    @Nonnull
-   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass)
-   {
+   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass) {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
       List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.saveConsumedInjectionProviders();
@@ -74,8 +72,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter)
-   {
+   private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter) {
       Object value = constructorParameter.getValue(null);
 
       if (value != null) {
@@ -104,8 +101,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nullable
-   private Object getArgumentValueToInject(@Nonnull InjectionProvider injectable, int parameterIndex)
-   {
+   private Object getArgumentValueToInject(@Nonnull InjectionProvider injectable, int parameterIndex) {
       Object argument = injectionState.getValueToInject(injectable);
 
       if (argument == null) {
@@ -127,14 +123,12 @@ public final class ConstructorInjection extends Injector
    private String getClassDesc() { return JavaType.getInternalName(constructor.getDeclaringClass()); }
 
    @Nonnull
-   private String getConstructorDesc()
-   {
+   private String getConstructorDesc() {
       return "<init>" + JavaType.getConstructorDescriptor(constructor);
    }
 
    @Nonnull
-   private Object obtainInjectedVarargsArray(@Nonnull Type parameterType, @Nonnull TestedClass testedClass)
-   {
+   private Object obtainInjectedVarargsArray(@Nonnull Type parameterType, @Nonnull TestedClass testedClass) {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
@@ -155,8 +149,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private static Object newArrayFromList(@Nonnull Type elementType, @Nonnull List<Object> values)
-   {
+   private static Object newArrayFromList(@Nonnull Type elementType, @Nonnull List<Object> values) {
       Class<?> componentType = getClassType(elementType);
       int elementCount = values.size();
       Object array = Array.newInstance(componentType, elementCount);
@@ -169,8 +162,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private String missingValueDescription(@Nonnull String name)
-   {
+   private String missingValueDescription(@Nonnull String name) {
       String classDesc = getClassDesc();
       String constructorDesc = getConstructorDesc();
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
@@ -181,8 +173,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nonnull
-   private Object invokeConstructor(@Nonnull Object[] arguments)
-   {
+   private Object invokeConstructor(@Nonnull Object[] arguments) {
       TestRun.exitNoMockingZone();
 
       try {

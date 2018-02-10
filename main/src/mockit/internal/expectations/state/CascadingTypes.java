@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.state;
@@ -18,16 +18,14 @@ public final class CascadingTypes
 
    CascadingTypes() { mockedTypesToCascades = new ConcurrentHashMap<Type, MockedTypeCascade>(4); }
 
-   public void add(boolean fromMockField, @Nonnull Type mockedType)
-   {
+   public void add(boolean fromMockField, @Nonnull Type mockedType) {
       Class<?> mockedClass = getClassType(mockedType);
       String mockedTypeDesc = JavaType.getInternalName(mockedClass);
       add(mockedTypeDesc, fromMockField, mockedType);
    }
 
    @Nonnull
-   MockedTypeCascade add(@Nonnull String mockedTypeDesc, boolean fromMockField, @Nonnull Type mockedType)
-   {
+   MockedTypeCascade add(@Nonnull String mockedTypeDesc, boolean fromMockField, @Nonnull Type mockedType) {
       MockedTypeCascade cascade = mockedTypesToCascades.get(mockedType);
 
       if (cascade == null) {
@@ -42,8 +40,7 @@ public final class CascadingTypes
    MockedTypeCascade getCascade(@Nonnull Type mockedType) { return mockedTypesToCascades.get(mockedType); }
 
    @Nullable
-   MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc, @Nullable Object mockInstance)
-   {
+   MockedTypeCascade getCascade(@Nonnull String mockedTypeDesc, @Nullable Object mockInstance) {
       if (mockedTypesToCascades.isEmpty()) {
          return null;
       }
@@ -66,8 +63,7 @@ public final class CascadingTypes
    }
 
    @Nullable
-   private MockedTypeCascade findCascadeForInstance(@Nonnull Object mockInstance)
-   {
+   private MockedTypeCascade findCascadeForInstance(@Nonnull Object mockInstance) {
       for (MockedTypeCascade cascade : mockedTypesToCascades.values()) {
          if (cascade.hasInstance(mockInstance)) {
             return cascade;
@@ -77,8 +73,7 @@ public final class CascadingTypes
       return null;
    }
 
-   void clearNonSharedCascadingTypes()
-   {
+   void clearNonSharedCascadingTypes() {
       if (!mockedTypesToCascades.isEmpty()) {
          Iterator<MockedTypeCascade> itr = mockedTypesToCascades.values().iterator();
 
@@ -97,8 +92,7 @@ public final class CascadingTypes
 
    public void clear() { mockedTypesToCascades.clear(); }
 
-   void addInstance(@Nonnull Type mockedType, @Nonnull Object cascadingInstance)
-   {
+   void addInstance(@Nonnull Type mockedType, @Nonnull Object cascadingInstance) {
       MockedTypeCascade cascade = mockedTypesToCascades.get(mockedType);
 
       if (cascade != null) {

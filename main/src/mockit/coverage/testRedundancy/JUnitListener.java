@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.testRedundancy;
@@ -13,8 +13,7 @@ import org.junit.runner.notification.*;
 public final class JUnitListener extends RunListener
 {
    @Override
-   public void testStarted(Description description)
-   {
+   public void testStarted(Description description) {
       if (description.isTest()) {
          Class<?> testClass = description.getTestClass();
          String testMethodName = description.getMethodName();
@@ -29,8 +28,7 @@ public final class JUnitListener extends RunListener
    }
 
    @Override
-   public void testFinished(Description description)
-   {
+   public void testFinished(Description description) {
       if (description.isTest()) {
          TestCoverage.INSTANCE.setCurrentTestMethod(null);
       }
