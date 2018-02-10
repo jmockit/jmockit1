@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.applet.*;
@@ -15,12 +11,10 @@ public final class MisusedFakingAPITest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void fakeSameMethodTwiceWithReentrantFakesFromTwoDifferentFakeClasses()
-   {
+   public void fakeSameMethodTwiceWithReentrantFakesFromTwoDifferentFakeClasses() {
       new MockUp<Applet>() {
          @Mock
-         int getComponentCount(Invocation inv)
-         {
+         int getComponentCount(Invocation inv) {
             int i = inv.proceed();
             return i + 1;
          }
@@ -31,8 +25,7 @@ public final class MisusedFakingAPITest
 
       new MockUp<Applet>() {
          @Mock
-         int getComponentCount(Invocation inv)
-         {
+         int getComponentCount(Invocation inv) {
             int j = inv.proceed();
             return j + 2;
          }
@@ -50,8 +43,7 @@ public final class MisusedFakingAPITest
    }
 
    @Test
-   public void applyTheSameFakeForAClassTwice()
-   {
+   public void applyTheSameFakeForAClassTwice() {
       new AppletFake(1);
       new AppletFake(2); // second application has no effect
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -25,8 +21,7 @@ public final class JREMockingTest
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    @Test
-   public void mockingOfFile(@Mocked final File file)
-   {
+   public void mockingOfFile(@Mocked final File file) {
       new Expectations() {{
          file.exists(); result = true;
       }};
@@ -36,8 +31,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void mockingOfCalendar()
-   {
+   public void mockingOfCalendar() {
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
       new Expectations(Calendar.class) {{ Calendar.getInstance(tzCST); result = calCST; }};
@@ -52,14 +46,12 @@ public final class JREMockingTest
    }
 
    @Test
-   public void regularMockingOfAnnotatedJREMethod(@Mocked Date d) throws Exception
-   {
+   public void regularMockingOfAnnotatedJREMethod(@Mocked Date d) throws Exception {
       assertTrue(d.getClass().getDeclaredMethod("parse", String.class).isAnnotationPresent(Deprecated.class));
    }
 
    @Test
-   public void dynamicMockingOfAnnotatedJREMethod() throws Exception
-   {
+   public void dynamicMockingOfAnnotatedJREMethod() throws Exception {
       final Date d = new Date();
 
       new Expectations(d) {{
@@ -71,8 +63,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void fullMockingOfSystem(@Mocked System mockSystem)
-   {
+   public void fullMockingOfSystem(@Mocked System mockSystem) {
       new Expectations() {{
          System.currentTimeMillis();
          result = 123L;
@@ -82,8 +73,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void partialMockingOfSystem() throws Exception
-   {
+   public void partialMockingOfSystem() throws Exception {
       long t0 = System.currentTimeMillis();
 
       new MockUp<System>() {
@@ -105,15 +95,13 @@ public final class JREMockingTest
 
    // First mocking: puts mocked class in cache, knowing it has native methods to re-register.
    @Test
-   public void firstMockingOfNativeMethods(@Mocked Thread unused) throws Exception
-   {
+   public void firstMockingOfNativeMethods(@Mocked Thread unused) throws Exception {
       Thread.sleep(5000);
    }
 
    // Second mocking: retrieves from cache, no longer knowing it has native methods to re-register.
    @Test
-   public void secondMockingOfNativeMethods(@Mocked final Thread mock)
-   {
+   public void secondMockingOfNativeMethods(@Mocked final Thread mock) {
       new Expectations() {{
          mock.isAlive(); result = true;
       }};
@@ -122,17 +110,14 @@ public final class JREMockingTest
    }
 
    @Test
-   public void unmockedNativeMethods() throws Exception
-   {
+   public void unmockedNativeMethods() throws Exception {
       Thread.sleep(10);
       assertTrue(System.currentTimeMillis() > 0);
    }
 
    // See http://www.javaspecialists.eu/archive/Issue056.html
-   public static class InterruptibleThread extends Thread
-   {
-      protected final boolean wasInterruptRequested()
-      {
+   public static class InterruptibleThread extends Thread {
+      protected final boolean wasInterruptRequested() {
          try {
             Thread.sleep(10);
             return false;
@@ -145,8 +130,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void interruptibleThreadShouldResetItsInterruptStatusWhenInterrupted(@Mocked Thread unused) throws Exception
-   {
+   public void interruptibleThreadShouldResetItsInterruptStatusWhenInterrupted(@Mocked Thread unused) throws Exception {
       final InterruptibleThread t = new InterruptibleThread();
 
       new Expectations() {{
@@ -157,13 +141,11 @@ public final class JREMockingTest
       assertTrue(t.wasInterruptRequested());
    }
 
-   static class ExampleInterruptibleThread extends InterruptibleThread
-   {
+   static class ExampleInterruptibleThread extends InterruptibleThread {
       boolean terminatedCleanly;
 
       @Override @SuppressWarnings("MethodWithMultipleLoops")
-      public void run()
-      {
+      public void run() {
          while (true) {
             for (int i = 0; i < 10; i++) {
                if (wasInterruptRequested()) break;
@@ -177,8 +159,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void interruptionOfThreadRunningNestedLoops() throws Exception
-   {
+   public void interruptionOfThreadRunningNestedLoops() throws Exception {
       ExampleInterruptibleThread t = new ExampleInterruptibleThread();
       t.start();
       Thread.sleep(30);
@@ -188,8 +169,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void fullMockingOfThread(@Mocked Thread t)
-   {
+   public void fullMockingOfThread(@Mocked Thread t) {
       new Expectations() {{
          Thread.activeCount();
          result = 123;
@@ -203,8 +183,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void dynamicMockingOfThread()
-   {
+   public void dynamicMockingOfThread() {
       final Thread d = new Thread((Runnable) null);
 
       new Expectations(d) {};
@@ -219,8 +198,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void threadMockUp()
-   {
+   public void threadMockUp() {
       new MockUp<Thread>() {
          @Mock
          String getName() { return "test"; }
@@ -233,8 +211,7 @@ public final class JREMockingTest
    }
 
    @Test
-   public void mockingOfAnnotatedNativeMethod(@Mocked Thread mock) throws Exception
-   {
+   public void mockingOfAnnotatedNativeMethod(@Mocked Thread mock) throws Exception {
       Method countStackFrames = Thread.class.getDeclaredMethod("countStackFrames");
       assertTrue(countStackFrames.isAnnotationPresent(Deprecated.class));
    }
@@ -242,8 +219,7 @@ public final class JREMockingTest
    static final class SomeTask extends Thread { boolean doSomething() { return false; } }
 
    @Test
-   public void recordDelegatedResultForMethodInMockedThreadSubclass(@Mocked final SomeTask task)
-   {
+   public void recordDelegatedResultForMethodInMockedThreadSubclass(@Mocked final SomeTask task) {
       new Expectations() {{
          task.doSomething();
          result = new Delegate() {
@@ -273,8 +249,7 @@ public final class JREMockingTest
    @Mocked InputStreamReader isr;
 
    @Test
-   public void dynamicMockingOfFileOutputStreamThroughMockField() throws Exception
-   {
+   public void dynamicMockingOfFileOutputStreamThroughMockField() throws Exception {
       new Expectations() {{
          //noinspection ConstantConditions
          stream.write((byte[]) any);
@@ -293,8 +268,7 @@ public final class JREMockingTest
    enum AnEnum { @AnAnnotation("one") First, @AnAnnotation("two") Second, @AnotherAnnotation Third }
 
    @Test
-   public void mockingOfGetAnnotation() throws Exception
-   {
+   public void mockingOfGetAnnotation() throws Exception {
       //noinspection ClassExtendsConcreteCollection
       new MockUp<Field>() {
          final Map<Object, Annotation> annotationsApplied = new HashMap<Object, Annotation>() {{
@@ -302,8 +276,7 @@ public final class JREMockingTest
             put(AnEnum.Second, anAnnotation("2"));
          }};
 
-         AnAnnotation anAnnotation(final String value)
-         {
+         AnAnnotation anAnnotation(final String value) {
             return new AnAnnotation() {
                @Override public Class<? extends Annotation> annotationType() { return AnAnnotation.class; }
                @Override public String value() { return value; }
@@ -311,8 +284,7 @@ public final class JREMockingTest
          }
 
          @Mock
-         <T extends Annotation> T getAnnotation(Invocation inv, Class<T> annotation) throws IllegalAccessException
-         {
+         <T extends Annotation> T getAnnotation(Invocation inv, Class<T> annotation) throws IllegalAccessException {
             Field it = inv.getInvokedInstance();
             Object fieldValue = it.get(null);
             Annotation value = annotationsApplied.get(fieldValue);
@@ -342,8 +314,7 @@ public final class JREMockingTest
    // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void attemptToMockJREClassThatIsNeverMockable()
-   {
+   public void attemptToMockJREClassThatIsNeverMockable() {
       attemptToMockUnmockableJREClass(String.class);
       attemptToMockUnmockableJREClass(StringBuffer.class);
       attemptToMockUnmockableJREClass(StringBuilder.class);
@@ -368,8 +339,7 @@ public final class JREMockingTest
       }
    }
 
-   void attemptToMockUnmockableJREClass(Class<?> jreClass)
-   {
+   void attemptToMockUnmockableJREClass(Class<?> jreClass) {
       try {
          new Expectations(jreClass) {};
          fail("Allowed mocking of " + jreClass);
@@ -385,8 +355,7 @@ public final class JREMockingTest
    public interface DurationProvider { @SuppressWarnings("Since15") Duration getDuration(); }
 
    @Test
-   public void mockMethodWhichReturnsADuration(@Mocked DurationProvider mock)
-   {
+   public void mockMethodWhichReturnsADuration(@Mocked DurationProvider mock) {
       Object d = mock.getDuration();
 
       assertNull(d);
@@ -395,16 +364,14 @@ public final class JREMockingTest
    // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public void mockLogManager(@Mocked LogManager mock)
-   {
+   public void mockLogManager(@Mocked LogManager mock) {
       LogManager logManager = LogManager.getLogManager();
       //noinspection MisorderedAssertEqualsArguments
       assertSame(mock, logManager);
    }
 
    @Test
-   public void mockLogger(@Mocked Logger mock)
-   {
+   public void mockLogger(@Mocked Logger mock) {
       assertNotNull(LogManager.getLogManager());
       //noinspection MisorderedAssertEqualsArguments
       assertSame(mock, Logger.getLogger("test"));

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import javax.swing.*;
@@ -75,9 +71,7 @@ public final class CovariantReturnTypesTest
    public interface SubInterface extends SuperInterface { @Override String getValue(); }
 
    @Test
-   public void methodInSuperInterfaceWithVaryingReturnValuesUsingRecordedExpectation(
-      @Mocked final SuperInterface mock
-   ) {
+   public void methodInSuperInterfaceWithVaryingReturnValuesUsingRecordedExpectation(@Mocked final SuperInterface mock) {
       final Object value = new Object();
       final String specificValue = "test";
 
@@ -109,9 +103,7 @@ public final class CovariantReturnTypesTest
    }
 
    @Test
-   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingRecordedExpectation(
-      @Mocked final SubInterface mock
-   ) {
+   public void methodInSubInterfaceReplayedThroughSuperInterfaceUsingRecordedExpectation(@Mocked final SubInterface mock) {
       final String specificValue = "test";
 
       new Expectations() {{ mock.getValue(); result = specificValue; }};

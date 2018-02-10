@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit.integration.springframework;
 
 import org.junit.*;
@@ -17,15 +13,13 @@ import org.springframework.beans.factory.support.*;
 public final class SpringIntegrationTest
 {
    @BeforeClass
-   public static void applySpringIntegration()
-   {
+   public static void applySpringIntegration() {
       new FakeBeanFactory();
    }
 
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   public static class ExampleSUT
-   {
+   public static class ExampleSUT {
       @Autowired Collaborator collaborator;
       @Autowired Dependency dependency;
    }
@@ -41,70 +35,61 @@ public final class SpringIntegrationTest
    @Injectable Runnable action;
 
    @Tested
-   Class<?> resolveAnotherDependency(Class<? extends AnotherDependency> anInterface)
-   {
+   Class<?> resolveAnotherDependency(Class<? extends AnotherDependency> anInterface) {
       assertSame(AnotherDependency.class, anInterface);
       return AnotherDependencyImpl.class;
    }
 
    @Test
-   public void lookupTestedObjectsAndInjectedDependenciesThroughTheBeanFactory()
-   {
+   public void lookupTestedObjectsAndInjectedDependenciesThroughTheBeanFactory() {
       BeanFactory beanFactory = new DefaultListableBeanFactory();
       assertTestedObjectsAndDependencies(beanFactory);
    }
 
    @Test
-   public void lookupTestedObjectsAndInjectedDependenciesThroughTheWebApplicationContext()
-   {
+   public void lookupTestedObjectsAndInjectedDependenciesThroughTheWebApplicationContext() {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertTestedObjectsAndDependencies(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameWithUnknownNameUsingBeanFactory()
-   {
+   public void lookUpBeanByNameWithUnknownNameUsingBeanFactory() {
       BeanFactory beanFactory = new DefaultListableBeanFactory();
       assertNoSuchBeanDefinitionForUnknownBeanName(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameWithUnknownNameUsingWebApplicationContext()
-   {
+   public void lookUpBeanByNameWithUnknownNameUsingWebApplicationContext() {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertNoSuchBeanDefinitionForUnknownBeanName(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingBeanFactory()
-   {
+   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingBeanFactory() {
       BeanFactory beanFactory = new DefaultListableBeanFactory();
       assertNoSuchBeanDefinitionForUnknownBeanNameAndType(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingWebApplicationContext()
-   {
+   public void lookUpBeanByNameAndTypeWithUnknownNameAndTypeUsingWebApplicationContext() {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertNoSuchBeanDefinitionForUnknownBeanNameAndType(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithWrongTypeUsingBeanFactory()
-   {
+   public void lookUpBeanByNameAndTypeWithWrongTypeUsingBeanFactory() {
       BeanFactory beanFactory = new DefaultListableBeanFactory();
       assertBeanNotOfRequiredTypeForWrongBeanType(beanFactory);
    }
 
    @Test
-   public void lookUpBeanByNameAndTypeWithWrongTypeUsingWebApplicationContext()
-   {
+   public void lookUpBeanByNameAndTypeWithWrongTypeUsingWebApplicationContext() {
       BeanFactory beanFactory = new TestWebApplicationContext();
       assertBeanNotOfRequiredTypeForWrongBeanType(beanFactory);
    }
 
-   void assertTestedObjectsAndDependencies(BeanFactory beanFactory)
-   {
+   @SuppressWarnings("ReuseOfLocalVariable")
+   void assertTestedObjectsAndDependencies(BeanFactory beanFactory) {
       assertSame(dependency, exampleSUT.dependency);
 
       // Look-up beans by name only.
@@ -145,23 +130,20 @@ public final class SpringIntegrationTest
       assertSame(dependency, ((AnotherDependencyImpl) anotherDependencyBean).subDep);
    }
 
-   void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory)
-   {
+   void assertNoSuchBeanDefinitionForUnknownBeanName(BeanFactory beanFactory) {
       thrown.expect(NoSuchBeanDefinitionException.class);
       thrown.expectMessage("undefined");
       beanFactory.getBean("undefined");
    }
 
-   void assertNoSuchBeanDefinitionForUnknownBeanNameAndType(BeanFactory beanFactory)
-   {
+   void assertNoSuchBeanDefinitionForUnknownBeanNameAndType(BeanFactory beanFactory) {
       thrown.expect(NoSuchBeanDefinitionException.class);
       thrown.expectMessage("undefined");
       thrown.expectMessage("Process");
       beanFactory.getBean("undefined", Process.class);
    }
 
-   void assertBeanNotOfRequiredTypeForWrongBeanType(BeanFactory beanFactory)
-   {
+   void assertBeanNotOfRequiredTypeForWrongBeanType(BeanFactory beanFactory) {
       thrown.expect(BeanNotOfRequiredTypeException.class);
       thrown.expectMessage("Collaborator");
       beanFactory.getBean("dependency", Collaborator.class);

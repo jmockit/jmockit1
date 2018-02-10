@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.text.*;
@@ -18,8 +14,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    static final String TIME_FORMAT = "HH";
    static final String FORMATTED_TIME = "13";
 
-   void exerciseAndVerifyTestedCode()
-   {
+   void exerciseAndVerifyTestedCode() {
       Date now = new Date();
 
       String hour = new SimpleDateFormat(TIME_FORMAT).format(now);
@@ -35,12 +30,10 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    DateFormat hourFormat;
 
    @Test
-   public void usingFakesWithInvocationParameter()
-   {
+   public void usingFakesWithInvocationParameter() {
       new MockUp<SimpleDateFormat>() {
          @Mock
-         void $init(Invocation inv, String pattern)
-         {
+         void $init(Invocation inv, String pattern) {
             DateFormat dt = inv.getInvokedInstance();
             if (DATE_FORMAT.equals(pattern)) dateFormat = dt;
             else if (TIME_FORMAT.equals(pattern)) hourFormat = dt;
@@ -49,8 +42,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
 
       new MockUp<DateFormat>() {
          @Mock
-         String format(Invocation inv, Date d)
-         {
+         String format(Invocation inv, Date d) {
             assertNotNull(d);
             DateFormat dt = inv.getInvokedInstance();
             if (dt == dateFormat) return FORMATTED_DATE;
@@ -65,15 +57,14 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    /// Tests using the Mocking API ////////////////////////////////////////////////////////////////////////////////////
 
    @Test // not too complex, but inelegant
-   public void usingPartialMockingAndDelegate()
-   {
+   public void usingPartialMockingAndDelegate() {
       final SimpleDateFormat sdf = new SimpleDateFormat();
 
       new Expectations(SimpleDateFormat.class) {{
          sdf.format((Date) any);
          result = new Delegate() {
-            @Mock String format(Invocation inv)
-            {
+            @Mock
+            String format(Invocation inv) {
                String pattern = inv.<SimpleDateFormat>getInvokedInstance().toPattern();
                if (DATE_FORMAT.equals(pattern)) return FORMATTED_DATE;
                else if (TIME_FORMAT.equals(pattern)) return FORMATTED_TIME;
@@ -86,8 +77,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test // nice
-   public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt)
-   {
+   public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt) {
       new Expectations() {{
          new SimpleDateFormat(DATE_FORMAT); result = dateFmt;
          dateFmt.format((Date) any); result = FORMATTED_DATE;
@@ -100,8 +90,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test // nicer
-   public void usingInstantiationRecording(@Mocked SimpleDateFormat anyDateFormat)
-   {
+   public void usingInstantiationRecording(@Mocked SimpleDateFormat anyDateFormat) {
       new Expectations() {{
          SimpleDateFormat dateFmt = new SimpleDateFormat(DATE_FORMAT);
          dateFmt.format((Date) any); result = FORMATTED_DATE;
@@ -113,8 +102,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       exerciseAndVerifyTestedCode();
    }
 
-   static class Collaborator
-   {
+   static class Collaborator {
       final int value;
       Collaborator() { value = -1; }
       Collaborator(int value) { this.value = value; }
@@ -127,8 +115,8 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
 
    @Test
    public void matchMethodCallsOnInstancesCreatedWithConstructorMatchingRecordedOne(
-      @Mocked final Collaborator mock, @Mocked final Collaborator mock5, @Mocked final Collaborator mock6)
-   {
+      @Mocked final Collaborator mock, @Mocked final Collaborator mock5, @Mocked final Collaborator mock6
+   ) {
       new Expectations() {{
          new Collaborator(5); result = mock5;
          mock5.getValue(); result = 123; times = 2;
@@ -161,8 +149,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test
-   public void mockInstancesMatchingRecordedConstructorInvocationsToHaveSameBehaviorAsOtherUnmockedInstances()
-   {
+   public void mockInstancesMatchingRecordedConstructorInvocationsToHaveSameBehaviorAsOtherUnmockedInstances() {
       final Collaborator col1 = new Collaborator(1);
       final Collaborator col2 = new Collaborator(-2);
 
@@ -210,8 +197,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
    }
 
    @Test
-   public void recordDifferentResultsForInstancesCreatedWithDifferentConstructors(@Mocked final Collaborator anyCol)
-   {
+   public void recordDifferentResultsForInstancesCreatedWithDifferentConstructors(@Mocked final Collaborator anyCol) {
       new Expectations() {{
          anyCol.getValue(); result = 1;
 

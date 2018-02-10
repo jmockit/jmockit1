@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.io.*;
@@ -12,15 +8,13 @@ import static org.junit.Assert.*;
 
 public final class MockedClassWithSuperClassTest
 {
-   static class SubclassOfJREClass extends Writer
-   {
+   static class SubclassOfJREClass extends Writer {
       @Override public void write(@Nonnull char[] cbuf, int off, int len) {}
       @Override public void flush() {}
       @Override public void close() { throw new UnsupportedOperationException(); }
    }
 
-   static class BaseClass
-   {
+   static class BaseClass {
       protected int doSomething() { return 123; }
       static int staticMethod() { return -1; }
    }
@@ -28,8 +22,7 @@ public final class MockedClassWithSuperClassTest
    public static class Subclass extends BaseClass { BaseClass getInstance() { return this; } }
 
    @Test
-   public void mockedClassExtendingJREClass(@Mocked SubclassOfJREClass mock) throws Exception
-   {
+   public void mockedClassExtendingJREClass(@Mocked SubclassOfJREClass mock) throws Exception {
       // Mocked:
       assertSame(mock, mock.append("a"));
       assertSame(mock, mock.append('a'));
@@ -48,8 +41,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void mockedClassExtendingNonJREClass(@Mocked final Subclass mock)
-   {
+   public void mockedClassExtendingNonJREClass(@Mocked final Subclass mock) {
       new Expectations() {{ mock.doSomething(); result = 45; times = 3; }};
 
       // Mocked:
@@ -67,8 +59,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Mocked Subclass mock)
-   {
+   public void cascadingSubclassWithMethodReturningCascadedBaseClassInstance(@Mocked Subclass mock) {
       // The subclass is already mocked at this point, when the cascaded instance gets created.
       BaseClass cascaded = mock.getInstance();
 
@@ -77,8 +68,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void recordExpectationOnStaticMethodFromBaseClass(@Mocked Subclass unused)
-   {
+   public void recordExpectationOnStaticMethodFromBaseClass(@Mocked Subclass unused) {
       new Expectations() {{
          BaseClass.staticMethod();
          result = 123;
@@ -88,10 +78,8 @@ public final class MockedClassWithSuperClassTest
    }
 
    static class BaseClassWithConstructor { BaseClassWithConstructor(@SuppressWarnings("unused") boolean b) {} }
-   static class DerivedClass extends BaseClassWithConstructor
-   {
-      protected DerivedClass()
-      {
+   static class DerivedClass extends BaseClassWithConstructor {
+      protected DerivedClass() {
          // TRYCATCHBLOCK instruction appears before call to super, which caused a VerifyError.
          super(true);
          try { doSomething(); } catch (RuntimeException ignore) {}
@@ -101,16 +89,14 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void mockSubclassWithConstructorContainingTryCatch(@Mocked DerivedClass mock)
-   {
+   public void mockSubclassWithConstructorContainingTryCatch(@Mocked DerivedClass mock) {
       new DerivedClass();
    }
 
    static class Subclass2 extends BaseClass {}
 
    @Test
-   public void recordSameMethodOnDifferentMockedSubclasses(@Mocked final Subclass mock1, @Mocked final Subclass2 mock2)
-   {
+   public void recordSameMethodOnDifferentMockedSubclasses(@Mocked final Subclass mock1, @Mocked final Subclass2 mock2) {
       new Expectations() {{
          mock1.doSomething(); result = 1;
          mock2.doSomething(); result = 2;
@@ -121,8 +107,7 @@ public final class MockedClassWithSuperClassTest
    }
 
    @Test
-   public void recordMethodOnMockedBaseClassButReplayOnSubclassInstance(@Mocked final BaseClass baseMock)
-   {
+   public void recordMethodOnMockedBaseClassButReplayOnSubclassInstance(@Mocked final BaseClass baseMock) {
       new Expectations() {{ baseMock.doSomething(); result = 45; }};
 
       Subclass derived = new Subclass();

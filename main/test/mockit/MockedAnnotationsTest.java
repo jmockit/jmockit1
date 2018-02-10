@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 package mockit;
 
 import java.lang.annotation.*;
@@ -14,16 +10,14 @@ import static org.junit.Assert.*;
 
 public final class MockedAnnotationsTest
 {
-   public @interface MyAnnotation
-   {
+   public @interface MyAnnotation {
       String value();
       boolean flag() default true;
       String[] values() default {};
    }
 
    @Test
-   public void specifyValuesForAnnotationAttributes(@Mocked final MyAnnotation a)
-   {
+   public void specifyValuesForAnnotationAttributes(@Mocked final MyAnnotation a) {
       assertSame(MyAnnotation.class, a.annotationType());
 
       new Expectations() {{
@@ -38,8 +32,7 @@ public final class MockedAnnotationsTest
    }
 
    @Test
-   public void verifyUsesOfAnnotationAttributes(@Mocked final MyAnnotation a)
-   {
+   public void verifyUsesOfAnnotationAttributes(@Mocked final MyAnnotation a) {
       new Expectations() {{
          a.value(); result = "test"; times = 2;
          a.values(); returns("abc", "dEf");
@@ -63,21 +56,18 @@ public final class MockedAnnotationsTest
    public interface AnInterface {}
 
    @Test
-   public void mockingAnAnnotatedPublicInterface(@Mocked AnInterface mock)
-   {
+   public void mockingAnAnnotatedPublicInterface(@Mocked AnInterface mock) {
       Annotation[] mockClassAnnotations = mock.getClass().getAnnotations();
 
       assertEquals(0, mockClassAnnotations.length);
    }
 
-   static class ClassWithNullabilityAnnotations
-   {
+   static class ClassWithNullabilityAnnotations {
       @Nonnull String doSomething(@Nonnegative int i, @Nonnull Object obj) { return ""; }
    }
 
    @Test
-   public void mockClassWithNullabilityAnnotations(@Injectable final ClassWithNullabilityAnnotations mock)
-   {
+   public void mockClassWithNullabilityAnnotations(@Injectable final ClassWithNullabilityAnnotations mock) {
       new Expectations() {{ mock.doSomething(anyInt, any); result = "test"; }};
 
       assertEquals("test", mock.doSomething(123, "test"));
