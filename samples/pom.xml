@@ -18,7 +18,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.38</jmockit.version>
+      <jmockit.version>1.39</jmockit.version>
    </properties>
 
    <build>
