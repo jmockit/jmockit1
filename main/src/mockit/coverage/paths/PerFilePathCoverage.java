@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -25,20 +25,17 @@ public final class PerFilePathCoverage implements PerFileCoverage
    public PerFilePathCoverage() { initializeCache(); }
    private void initializeCache() { totalPaths = coveredPaths = -1; }
 
-   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException
-   {
+   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException {
       initializeCache();
       in.defaultReadObject();
    }
 
-   public void addMethod(@Nonnull MethodCoverageData methodData)
-   {
+   public void addMethod(@Nonnull MethodCoverageData methodData) {
       int firstLineInBody = methodData.getFirstLineInBody();
       firstLineToMethodData.put(firstLineInBody, methodData);
    }
 
-   public int registerExecution(int firstLineInMethodBody, int node)
-   {
+   public int registerExecution(int firstLineInMethodBody, int node) {
       MethodCoverageData methodData = firstLineToMethodData.get(firstLineInMethodBody);
 
       if (methodData != null) {
@@ -49,28 +46,24 @@ public final class PerFilePathCoverage implements PerFileCoverage
    }
 
    @Override
-   public int getTotalItems()
-   {
+   public int getTotalItems() {
       computeValuesIfNeeded();
       return totalPaths;
    }
 
    @Override
-   public int getCoveredItems()
-   {
+   public int getCoveredItems() {
       computeValuesIfNeeded();
       return coveredPaths;
    }
 
    @Override
-   public int getCoveragePercentage()
-   {
+   public int getCoveragePercentage() {
       computeValuesIfNeeded();
       return CoveragePercentage.calculate(coveredPaths, totalPaths);
    }
 
-   private void computeValuesIfNeeded()
-   {
+   private void computeValuesIfNeeded() {
       if (totalPaths >= 0) return;
 
       totalPaths = coveredPaths = 0;
@@ -81,15 +74,13 @@ public final class PerFilePathCoverage implements PerFileCoverage
       }
    }
 
-   public void mergeInformation(@Nonnull PerFilePathCoverage previousCoverage)
-   {
+   public void mergeInformation(@Nonnull PerFilePathCoverage previousCoverage) {
       Map<Integer, MethodCoverageData> previousInfo = previousCoverage.firstLineToMethodData;
       addExecutionCountsFromPreviousTestRun(previousInfo);
       addPathInfoFromPreviousTestRunForMethodsNotExecutedInCurrentTestRun(previousInfo);
    }
 
-   private void addExecutionCountsFromPreviousTestRun(@Nonnull Map<Integer, MethodCoverageData> previousInfo)
-   {
+   private void addExecutionCountsFromPreviousTestRun(@Nonnull Map<Integer, MethodCoverageData> previousInfo) {
       for (Map.Entry<Integer, MethodCoverageData> firstLineAndInfo : firstLineToMethodData.entrySet()) {
          Integer firstLine = firstLineAndInfo.getKey();
          MethodCoverageData previousPathInfo = previousInfo.get(firstLine);
@@ -102,8 +93,8 @@ public final class PerFilePathCoverage implements PerFileCoverage
    }
 
    private void addPathInfoFromPreviousTestRunForMethodsNotExecutedInCurrentTestRun(
-      @Nonnull Map<Integer, MethodCoverageData> previousInfo)
-   {
+      @Nonnull Map<Integer, MethodCoverageData> previousInfo
+   ) {
       for (Map.Entry<Integer, MethodCoverageData> firstLineAndInfo : previousInfo.entrySet()) {
          Integer firstLine = firstLineAndInfo.getKey();
 

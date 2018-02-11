@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -24,10 +24,10 @@ class CoverageReport
    private final boolean withCallPoints;
    @Nullable private final Collection<String> sourceFilesNotFound;
 
-   protected CoverageReport(
-      @Nonnull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs,
-      @Nonnull CoverageData coverageData, boolean withCallPoints)
-   {
+   CoverageReport(
+      @Nonnull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs, @Nonnull CoverageData coverageData,
+      boolean withCallPoints
+   ) {
       this.outputDir = Configuration.getOrChooseOutputDirectory(outputDir, "coverage-report");
       this.outputDirCreated = outputDirCreated;
       sourceDirs = srcDirs == null ? null : new SourceFiles().buildListOfSourceDirectories(srcDirs);
@@ -37,8 +37,7 @@ class CoverageReport
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
    }
 
-   public final void generate() throws IOException
-   {
+   public final void generate() throws IOException {
       createReportOutputDirIfNotExists();
 
       File outputFile = createOutputFileForIndexPage();
@@ -61,8 +60,7 @@ class CoverageReport
       System.out.println("JMockit: Coverage report written to " + outputFile.getParentFile().getCanonicalPath());
    }
 
-   private void createReportOutputDirIfNotExists()
-   {
+   private void createReportOutputDirIfNotExists() {
       if (!outputDirCreated) {
          File outDir = new File(outputDir);
          outputDirCreated = outDir.mkdirs();
@@ -70,8 +68,7 @@ class CoverageReport
    }
 
    @Nullable
-   private File createOutputFileForIndexPage() throws IOException
-   {
+   private File createOutputFileForIndexPage() throws IOException {
       File outputFile = new File(outputDir, "index.html");
 
       if (outputFile.exists() && !outputFile.canWrite()) {
@@ -82,8 +79,7 @@ class CoverageReport
       return outputFile;
    }
 
-   private void generateFileCoverageReportsWhileBuildingPackageLists() throws IOException
-   {
+   private void generateFileCoverageReportsWhileBuildingPackageLists() throws IOException {
       Set<Entry<String, FileCoverageData>> files = fileToFileData.entrySet();
 
       for (Entry<String, FileCoverageData> fileAndFileData : files) {
@@ -91,9 +87,7 @@ class CoverageReport
       }
    }
 
-   private void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData)
-      throws IOException
-   {
+   private void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData) throws IOException {
       if (sourceDirs == null) {
          addFileToPackageFileList(sourceFile);
       }
@@ -115,8 +109,7 @@ class CoverageReport
       }
    }
 
-   private void addFileToPackageFileList(@Nonnull String file)
-   {
+   private void addFileToPackageFileList(@Nonnull String file) {
       int p = file.lastIndexOf('/');
       String filePackage = p < 0 ? "" : file.substring(0, p);
       List<String> filesInPackage = packageToFiles.get(filePackage);
@@ -129,8 +122,7 @@ class CoverageReport
       filesInPackage.add(file.substring(p + 1));
    }
 
-   private void deleteOutdatedHTMLFileIfExists(@Nonnull String filePath)
-   {
+   private void deleteOutdatedHTMLFileIfExists(@Nonnull String filePath) {
       if (!outputDirCreated) {
          File outputFile = OutputFile.getOutputFile(outputDir, filePath);
          //noinspection ResultOfMethodCallIgnored

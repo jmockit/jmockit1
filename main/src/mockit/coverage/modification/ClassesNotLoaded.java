@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -19,10 +19,8 @@ public final class ClassesNotLoaded
 
    public ClassesNotLoaded(@Nonnull ClassModification classModification) { this.classModification = classModification; }
 
-   public void gatherCoverageData()
-   {
-      Set<ProtectionDomain> protectionDomainsSoFar =
-         new HashSet<ProtectionDomain>(classModification.protectionDomainsWithUniqueLocations);
+   public void gatherCoverageData() {
+      Set<ProtectionDomain> protectionDomainsSoFar = new HashSet<ProtectionDomain>(classModification.protectionDomainsWithUniqueLocations);
 
       for (ProtectionDomain pd : protectionDomainsSoFar) {
          File classPathEntry = new File(pd.getCodeSource().getLocation().getPath());
@@ -34,8 +32,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private void loadAdditionalClasses(@Nonnull File classPathEntry, @Nonnull ProtectionDomain protectionDomain)
-   {
+   private void loadAdditionalClasses(@Nonnull File classPathEntry, @Nonnull ProtectionDomain protectionDomain) {
       File[] filesInDir = classPathEntry.listFiles();
 
       if (filesInDir != null) {
@@ -50,8 +47,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private void loadAdditionalClass(@Nonnull String filePath, @Nonnull ProtectionDomain protectionDomain)
-   {
+   private void loadAdditionalClass(@Nonnull String filePath, @Nonnull ProtectionDomain protectionDomain) {
       int p = filePath.lastIndexOf(".class");
 
       if (p > 0) {
@@ -64,8 +60,7 @@ public final class ClassesNotLoaded
       }
    }
 
-   private static void loadClass(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
-   {
+   private static void loadClass(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain) {
       try {
          Class.forName(className, false, protectionDomain.getClassLoader());
       }

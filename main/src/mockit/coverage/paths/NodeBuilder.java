@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -20,20 +20,17 @@ public final class NodeBuilder
    @Nullable private BasicBlock currentBasicBlock;
    @Nullable private Join currentJoin;
    @Nonnull private final Map<Label, List<Fork>> jumpTargetToForks = new LinkedHashMap<Label, List<Fork>>();
-   @Nonnull private final Map<Label, List<GotoSuccessor>> gotoTargetToSuccessors =
-      new LinkedHashMap<Label, List<GotoSuccessor>>();
+   @Nonnull private final Map<Label, List<GotoSuccessor>> gotoTargetToSuccessors = new LinkedHashMap<Label, List<GotoSuccessor>>();
 
    private int potentiallyTrivialJump;
 
-   public void handleEntry(int line)
-   {
+   public void handleEntry(@Nonnegative int line) {
       firstLine = line;
       entryNode = new Entry(line);
       addNewNode(entryNode);
    }
 
-   private int addNewNode(@Nonnull Node newNode)
-   {
+   private int addNewNode(@Nonnull Node newNode) {
       int newNodeIndex = nodes.size();
 
       if (newNodeIndex == 0 && !(newNode instanceof Entry)) {
@@ -55,8 +52,7 @@ public final class NodeBuilder
 
    public boolean hasNodes() { return !nodes.isEmpty(); }
 
-   public int handleRegularInstruction(int line, int opcode)
-   {
+   public int handleRegularInstruction(@Nonnegative int line, int opcode) {
       if (currentSimpleFork == null && currentJoin == null) {
          potentiallyTrivialJump = 0;
          return -1;
@@ -70,8 +66,7 @@ public final class NodeBuilder
       return addNewNode(newNode);
    }
 
-   public int handleJump(@Nonnull Label targetBlock, int line, boolean conditional)
-   {
+   public int handleJump(@Nonnull Label targetBlock, @Nonnegative int line, boolean conditional) {
       if (conditional) {
          SimpleFork newFork = new SimpleFork(line);
          connectNodes(targetBlock, newFork);
@@ -91,8 +86,7 @@ public final class NodeBuilder
       }
    }
 
-   public int handleJumpTarget(@Nonnull Label basicBlock, int line)
-   {
+   public int handleJumpTarget(@Nonnull Label basicBlock, @Nonnegative int line) {
       // Ignore for visitLabel calls preceding visitLineNumber:
       if (isNewLineTarget(basicBlock)) {
          return -1;
@@ -104,13 +98,11 @@ public final class NodeBuilder
       return addNewNode(newNode);
    }
 
-   private boolean isNewLineTarget(@Nonnull Label basicBlock)
-   {
+   private boolean isNewLineTarget(@Nonnull Label basicBlock) {
       return !jumpTargetToForks.containsKey(basicBlock) && !gotoTargetToSuccessors.containsKey(basicBlock);
    }
 
-   private void connectNodes(@Nonnull BasicBlock newBasicBlock, int opcode)
-   {
+   private void connectNodes(@Nonnull BasicBlock newBasicBlock, int opcode) {
       if (currentSimpleFork != null) {
          currentSimpleFork.nextConsecutiveNode = newBasicBlock;
          currentSimpleFork = null;
@@ -137,8 +129,7 @@ public final class NodeBuilder
       currentBasicBlock = newBasicBlock;
    }
 
-   private void connectNodes(@Nonnull Label targetBlock, @Nonnull Fork newFork)
-   {
+   private void connectNodes(@Nonnull Label targetBlock, @Nonnull Fork newFork) {
       assert entryNode != null;
 
       if (entryNode.nextNode == null) {
@@ -149,8 +140,7 @@ public final class NodeBuilder
       connectNodes(newFork);
    }
 
-   private void setUpMappingFromConditionalTargetToFork(@Nonnull Label targetBlock, @Nonnull Fork newFork)
-   {
+   private void setUpMappingFromConditionalTargetToFork(@Nonnull Label targetBlock, @Nonnull Fork newFork) {
       List<Fork> forksWithSameTarget = jumpTargetToForks.get(targetBlock);
 
       if (forksWithSameTarget == null) {
@@ -161,8 +151,7 @@ public final class NodeBuilder
       forksWithSameTarget.add(newFork);
    }
 
-   private void setUpMappingFromGotoTargetToCurrentGotoSuccessor(@Nonnull Label targetBlock, @Nullable Goto gotoNode)
-   {
+   private void setUpMappingFromGotoTargetToCurrentGotoSuccessor(@Nonnull Label targetBlock, @Nullable Goto gotoNode) {
       List<GotoSuccessor> successors = gotoTargetToSuccessors.get(targetBlock);
 
       if (successors == null) {
@@ -189,24 +178,21 @@ public final class NodeBuilder
       }
    }
 
-   private void connectNodes(@Nonnull Label basicBlock, @Nonnull Join newJoin)
-   {
+   private void connectNodes(@Nonnull Label basicBlock, @Nonnull Join newJoin) {
       connectNodes(newJoin);
       connectSourceForksToTargetedJoin(basicBlock, newJoin);
       connectGotoSuccessorsToNewJoin(basicBlock, newJoin);
       currentJoin = newJoin;
    }
 
-   public int handleExit(int exitLine)
-   {
+   public int handleExit(@Nonnegative int exitLine) {
       Exit newNode = new Exit(exitLine);
       connectNodes(newNode);
 
       return addNewNode(newNode);
    }
 
-   private void connectNodes(@Nonnull ConditionalSuccessor newNode)
-   {
+   private void connectNodes(@Nonnull ConditionalSuccessor newNode) {
       if (currentSimpleFork != null) {
          currentSimpleFork.nextConsecutiveNode = newNode;
          currentSimpleFork = null;
@@ -226,8 +212,7 @@ public final class NodeBuilder
       }
    }
 
-   private void connectSourceForksToTargetedJoin(@Nonnull Label targetBlock, @Nonnull Join newJoin)
-   {
+   private void connectSourceForksToTargetedJoin(@Nonnull Label targetBlock, @Nonnull Join newJoin) {
       List<Fork> forks = jumpTargetToForks.get(targetBlock);
 
       if (forks != null) {
@@ -239,8 +224,7 @@ public final class NodeBuilder
       }
    }
 
-   private void connectGotoSuccessorsToNewJoin(@Nonnull Label targetBlock, @Nonnull Join newJoin)
-   {
+   private void connectGotoSuccessorsToNewJoin(@Nonnull Label targetBlock, @Nonnull Join newJoin) {
       List<GotoSuccessor> successors = gotoTargetToSuccessors.get(targetBlock);
 
       if (successors != null) {
@@ -252,8 +236,7 @@ public final class NodeBuilder
       }
    }
 
-   public int handleForwardJumpsToNewTargets(@Nonnull Label defaultBlock, @Nonnull Label[] caseBlocks, int line)
-   {
+   public int handleForwardJumpsToNewTargets(@Nonnull Label defaultBlock, @Nonnull Label[] caseBlocks, @Nonnegative int line) {
       Fork newJoin = new MultiFork(line);
 
       for (Label targetBlock : caseBlocks) {

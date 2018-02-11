@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -15,23 +15,20 @@ public final class OutputFile extends PrintWriter
    @Nonnull private final String relPathToOutDir;
    private final boolean withPrettyPrint;
 
-   public OutputFile(@Nonnull File file) throws IOException
-   {
+   public OutputFile(@Nonnull File file) throws IOException {
       super(file, "UTF-8");
       relPathToOutDir = "";
       withPrettyPrint = false;
    }
 
-   public OutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath) throws IOException
-   {
+   public OutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath) throws IOException {
       super(getOutputFileCreatingDirIfNeeded(outputDir, sourceFilePath));
       relPathToOutDir = getRelativeSubPathToOutputDir(sourceFilePath);
       withPrettyPrint = true;
    }
 
    @Nonnull
-   private static File getOutputFileCreatingDirIfNeeded(@Nonnull String outputDir, @Nonnull String sourceFilePath)
-   {
+   private static File getOutputFileCreatingDirIfNeeded(@Nonnull String outputDir, @Nonnull String sourceFilePath) {
       File outputFile = getOutputFile(outputDir, sourceFilePath);
       File parentDir = outputFile.getParentFile();
 
@@ -44,8 +41,7 @@ public final class OutputFile extends PrintWriter
    }
 
    @Nonnull
-   static File getOutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath)
-   {
+   static File getOutputFile(@Nonnull String outputDir, @Nonnull String sourceFilePath) {
       int p = sourceFilePath.lastIndexOf('.');
       String outputFileName = sourceFilePath.substring(0, p) + ".html";
       File outputFile = new File(outputDir, outputFileName);
@@ -53,8 +49,7 @@ public final class OutputFile extends PrintWriter
    }
 
    @Nonnull
-   private static String getRelativeSubPathToOutputDir(@Nonnull String filePath)
-   {
+   private static String getRelativeSubPathToOutputDir(@Nonnull String filePath) {
       StringBuilder cssRelPath = new StringBuilder();
       int n = PATH_SEPARATOR.split(filePath).length;
 
@@ -65,8 +60,7 @@ public final class OutputFile extends PrintWriter
       return cssRelPath.toString();
    }
 
-   public void writeCommonHeader(@Nonnull String pageTitle)
-   {
+   public void writeCommonHeader(@Nonnull String pageTitle) {
       println("<!DOCTYPE html>");
       println("<html>");
       println("<head>");
@@ -84,8 +78,7 @@ public final class OutputFile extends PrintWriter
       println(withPrettyPrint ? "<body onload='prettyPrint()'>" : "<body>");
    }
 
-   public void writeCommonFooter()
-   {
+   public void writeCommonFooter() {
       println("</body>");
       println("</html>");
    }

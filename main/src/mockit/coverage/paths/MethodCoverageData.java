@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -15,8 +15,8 @@ public final class MethodCoverageData implements Serializable
    private static final long serialVersionUID = -5073393714435522417L;
 
    @Nonnull private List<Node> nodes;
-   private int firstLine;
-   private int lastLine;
+   @Nonnegative private int firstLine;
+   @Nonnegative private int lastLine;
 
    // Helper fields used during node building and path execution:
    @Nonnull private final transient ThreadLocal<List<Node>> nodesReached;
@@ -25,8 +25,7 @@ public final class MethodCoverageData implements Serializable
    @Nonnull public List<Path> paths;
    @Nonnull private List<Path> nonShadowedPaths;
 
-   public MethodCoverageData()
-   {
+   public MethodCoverageData() {
       nodes = Collections.emptyList();
       paths = Collections.emptyList();
       nonShadowedPaths = Collections.emptyList();
@@ -35,8 +34,7 @@ public final class MethodCoverageData implements Serializable
       clearNodes();
    }
 
-   public void buildPaths(int lastExecutableLine, @Nonnull NodeBuilder nodeBuilder)
-   {
+   public void buildPaths(@Nonnegative int lastExecutableLine, @Nonnull NodeBuilder nodeBuilder) {
       firstLine = nodeBuilder.firstLine;
       lastLine = lastExecutableLine;
 
@@ -45,8 +43,7 @@ public final class MethodCoverageData implements Serializable
       buildListOfNonShadowedPaths();
    }
 
-   private void buildListOfNonShadowedPaths()
-   {
+   private void buildListOfNonShadowedPaths() {
       nonShadowedPaths = new ArrayList<Path>(paths.size());
 
       for (Path path : paths) {
@@ -56,11 +53,10 @@ public final class MethodCoverageData implements Serializable
       }
    }
 
-   public int getFirstLineInBody() { return firstLine; }
-   public int getLastLineInBody() { return lastLine; }
+   @Nonnegative public int getFirstLineInBody() { return firstLine; }
+   @Nonnegative public int getLastLineInBody() { return lastLine; }
 
-   public int markNodeAsReached(int nodeIndex)
-   {
+   public int markNodeAsReached(@Nonnegative int nodeIndex) {
       if (nodeIndex == 0) {
          clearNodes();
       }
@@ -91,8 +87,7 @@ public final class MethodCoverageData implements Serializable
       return -1;
    }
 
-   private void clearNodes()
-   {
+   private void clearNodes() {
       for (Node node : nodes) {
          node.setReached(null);
       }
@@ -103,8 +98,8 @@ public final class MethodCoverageData implements Serializable
 
    @Nonnull public List<Path> getPaths() { return nonShadowedPaths; }
 
-   public int getExecutionCount()
-   {
+   @Nonnegative
+   public int getExecutionCount() {
       int totalCount = 0;
 
       for (Path path : nonShadowedPaths) {
@@ -114,10 +109,11 @@ public final class MethodCoverageData implements Serializable
       return totalCount;
    }
 
+   @Nonnegative
    public int getTotalPaths() { return nonShadowedPaths.size(); }
 
-   public int getCoveredPaths()
-   {
+   @Nonnegative
+   public int getCoveredPaths() {
       int coveredCount = 0;
 
       for (Path path : nonShadowedPaths) {
@@ -129,8 +125,7 @@ public final class MethodCoverageData implements Serializable
       return coveredCount;
    }
 
-   public void addCountsFromPreviousTestRun(MethodCoverageData previousData)
-   {
+   public void addCountsFromPreviousTestRun(@Nonnull MethodCoverageData previousData) {
       for (int i = 0; i < paths.size(); i++) {
          Path path = paths.get(i);
          Path previousPath = previousData.paths.get(i);

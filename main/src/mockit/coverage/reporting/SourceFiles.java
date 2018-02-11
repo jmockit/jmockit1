@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -13,8 +13,7 @@ final class SourceFiles
    @Nonnull private final List<File> srcDirs = new ArrayList<File>();
 
    @Nonnull
-   List<File> buildListOfSourceDirectories(@Nonnull String[] sourceDirs)
-   {
+   List<File> buildListOfSourceDirectories(@Nonnull String[] sourceDirs) {
       if (sourceDirs.length > 0) {
          buildListWithSpecifiedDirectories(sourceDirs);
       }
@@ -25,8 +24,7 @@ final class SourceFiles
       return srcDirs;
    }
 
-   private void buildListWithSpecifiedDirectories(@Nonnull String[] dirs)
-   {
+   private void buildListWithSpecifiedDirectories(@Nonnull String[] dirs) {
       for (String dir : dirs) {
          File srcDir = new File(dir);
 
@@ -40,14 +38,12 @@ final class SourceFiles
       }
    }
 
-   private void buildListWithAllSrcSubDirectories()
-   {
+   private void buildListWithAllSrcSubDirectories() {
       String curDirName = new File(System.getProperty("user.dir")).getName();
       addSrcSubDirs(new File("../" + curDirName));
    }
 
-   private void addSrcSubDirs(@Nonnull File dir)
-   {
+   private void addSrcSubDirs(@Nonnull File dir) {
       File[] files = dir.listFiles();
       if (files == null) return;
 
@@ -67,8 +63,7 @@ final class SourceFiles
 
    private static final String IGNORED_DIRS = "bin build classes generated-sources out test tst web ";
 
-   private static boolean isDirectoryToIgnore(@Nonnull String subDirName)
-   {
+   private static boolean isDirectoryToIgnore(@Nonnull String subDirName) {
       int p = IGNORED_DIRS.indexOf(subDirName);
       return p >= 0 && IGNORED_DIRS.charAt(p + subDirName.length()) == ' ';
    }

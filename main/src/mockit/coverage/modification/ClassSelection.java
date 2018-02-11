@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.modification;
@@ -31,8 +31,7 @@ final class ClassSelection
    ClassSelection() { testCode = TEST_CLASS_NAME.matcher(""); }
 
    @Nullable
-   private static Matcher newMatcherForClassSelection(@Nonnull String specification)
-   {
+   private static Matcher newMatcherForClassSelection(@Nonnull String specification) {
       if (specification.isEmpty()) {
          return null;
       }
@@ -63,8 +62,7 @@ final class ClassSelection
       return finalRegex.isEmpty() ? null : compile(finalRegex).matcher("");
    }
 
-   boolean isSelected(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
-   {
+   boolean isSelected(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain) {
       CodeSource codeSource = protectionDomain.getCodeSource();
 
       if (
@@ -95,8 +93,7 @@ final class ClassSelection
       return !isClassFromExternalLibrary(location);
    }
 
-   private static boolean isIneligibleForSelection(@Nonnull String className)
-   {
+   private static boolean isIneligibleForSelection(@Nonnull String className) {
       return
          className.charAt(0) == '[' ||
          className.startsWith("mockit.") || className.contains(".attach.") ||
@@ -107,8 +104,7 @@ final class ClassSelection
          isExternallyGeneratedSubclass(className);
    }
 
-   private static boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain)
-   {
+   private static boolean canAccessJMockitFromClassToBeMeasured(@Nonnull ProtectionDomain protectionDomain) {
       ClassLoader loaderOfClassToBeMeasured = protectionDomain.getClassLoader();
 
       if (loaderOfClassToBeMeasured != null) {
@@ -123,8 +119,7 @@ final class ClassSelection
    }
 
    @Nullable
-   private static URL findLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain)
-   {
+   private static URL findLocationInCodeSource(@Nonnull String className, @Nonnull ProtectionDomain protectionDomain) {
       URL location = protectionDomain.getCodeSource().getLocation();
 
       if (location == null) {
@@ -140,15 +135,13 @@ final class ClassSelection
       return location;
    }
 
-   private boolean isClassExcludedFromCoverage(@Nonnull String className)
-   {
+   private boolean isClassExcludedFromCoverage(@Nonnull String className) {
       return
          classesToExclude != null && classesToExclude.reset(className).matches() ||
          testCode.reset(className).matches();
    }
 
-   private static boolean isClassFromExternalLibrary(@Nonnull URL location)
-   {
+   private static boolean isClassFromExternalLibrary(@Nonnull URL location) {
       if ("jar".equals(location.getProtocol())) {
          return true;
       }
@@ -157,8 +150,7 @@ final class ClassSelection
       return path.endsWith(".jar") || path.endsWith("/.cp/") || path.endsWith("/test-classes/");
    }
 
-   private void readConfiguration()
-   {
+   private void readConfiguration() {
       String classes = Configuration.getProperty("classes", "");
       loadedOnly = "loaded".equals(classes);
       classesToInclude = loadedOnly ? null : newMatcherForClassSelection(classes);

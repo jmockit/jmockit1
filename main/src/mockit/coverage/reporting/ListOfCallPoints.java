@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -19,8 +19,7 @@ public final class ListOfCallPoints
 
    public ListOfCallPoints() { content = new StringBuilder(100); }
 
-   public void insertListOfCallPoints(@Nullable List<CallPoint> callPoints)
-   {
+   public void insertListOfCallPoints(@Nullable List<CallPoint> callPoints) {
       if (content.length() == 0) {
          content.append(EOL).append("      ");
       }
@@ -57,16 +56,14 @@ public final class ListOfCallPoints
       content.append("</li>").append(EOL).append("        </ol>").append(EOL).append("      ");
    }
 
-   private void appendTestMethod(@Nonnull StackTraceElement current)
-   {
+   private void appendTestMethod(@Nonnull StackTraceElement current) {
       content.append("          <li>");
       content.append(current.getClassName()).append('#');
       content.append(LESS_THAN_CHAR.matcher(current.getMethodName()).replaceFirst("&lt;")).append(": ");
       content.append(current.getLineNumber());
    }
 
-   private void appendRepetitionCountIfNeeded(@Nonnull CallPoint callPoint)
-   {
+   private void appendRepetitionCountIfNeeded(@Nonnull CallPoint callPoint) {
       int repetitionCount = callPoint.getRepetitionCount();
 
       if (repetitionCount > 0) {
@@ -75,8 +72,7 @@ public final class ListOfCallPoints
    }
 
    @Nonnull
-   public String getContents()
-   {
+   public String getContents() {
       String result = content.toString();
       content.setLength(0);
       return result;

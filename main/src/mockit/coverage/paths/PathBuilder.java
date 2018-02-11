@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -14,8 +14,7 @@ final class PathBuilder
    private PathBuilder() {}
 
    @Nonnull
-   static List<Path> buildPaths(@Nonnull List<Node> nodes)
-   {
+   static List<Path> buildPaths(@Nonnull List<Node> nodes) {
       if (nodes.size() == 1) {
          return Collections.emptyList();
       }
@@ -35,8 +34,7 @@ final class PathBuilder
    }
 
    @Nonnull
-   private static List<Path> getAllPathsFromExitNodes(@Nonnull List<Node> nodes)
-   {
+   private static List<Path> getAllPathsFromExitNodes(@Nonnull List<Node> nodes) {
       List<Path> paths = new ArrayList<Path>();
 
       for (Node node : nodes) {

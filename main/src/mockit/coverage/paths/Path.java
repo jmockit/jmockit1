@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -18,14 +18,12 @@ public final class Path implements Serializable
    private final boolean shadowed;
    @Nullable private Path shadowPath;
 
-   Path(@Nonnull Node.Entry entryNode)
-   {
+   Path(@Nonnull Node.Entry entryNode) {
       shadowed = false;
       addNode(entryNode);
    }
 
-   Path(@Nonnull Path sharedSubPath, boolean shadowed)
-   {
+   Path(@Nonnull Path sharedSubPath, boolean shadowed) {
       this.shadowed = shadowed;
       sharedSubPath.shadowPath = shadowed ? this : null;
       nodes.addAll(sharedSubPath.nodes);
@@ -33,8 +31,7 @@ public final class Path implements Serializable
 
    void addNode(@Nonnull Node node) { nodes.add(node); }
 
-   int countExecutionIfAllNodesWereReached(@Nonnull List<Node> nodesReached)
-   {
+   int countExecutionIfAllNodesWereReached(@Nonnull List<Node> nodesReached) {
       boolean allNodesReached = nodes.equals(nodesReached);
 
       if (allNodesReached) {
@@ -47,8 +44,8 @@ public final class Path implements Serializable
    public boolean isShadowed() { return shadowed; }
    @Nonnull public List<Node> getNodes() { return nodes; }
 
-   public int getExecutionCount()
-   {
+   @Nonnegative
+   public int getExecutionCount() {
       int count = executionCount.get();
 
       if (shadowPath != null) {
@@ -58,8 +55,7 @@ public final class Path implements Serializable
       return count;
    }
 
-   void addCountFromPreviousTestRun(@Nonnull Path previousPath)
-   {
+   void addCountFromPreviousTestRun(@Nonnull Path previousPath) {
       int currentExecutionCount = executionCount.get();
       int previousExecutionCount = previousPath.executionCount.get();
       executionCount.set(currentExecutionCount + previousExecutionCount);

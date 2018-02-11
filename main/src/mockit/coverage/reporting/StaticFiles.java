@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.reporting;
@@ -17,8 +17,7 @@ final class StaticFiles
 
    StaticFiles(@Nonnull String outputDir) { this.outputDir = outputDir; }
 
-   void copyToOutputDir(boolean forSourceFilePages) throws IOException
-   {
+   void copyToOutputDir(boolean forSourceFilePages) throws IOException {
       copyFile("coverage.css");
       copyFile("coverage.js");
       copyFile("logo.png");
@@ -35,8 +34,7 @@ final class StaticFiles
       }
    }
 
-   private void copyFile(@Nonnull String fileName) throws IOException
-   {
+   private void copyFile(@Nonnull String fileName) throws IOException {
       File outputFile = new File(outputDir, fileName);
 
       if (outputFile.exists() && outputFile.lastModified() > getLastModifiedTimeOfCoverageJar()) {
@@ -64,8 +62,7 @@ final class StaticFiles
       }
    }
 
-   private long getLastModifiedTimeOfCoverageJar()
-   {
+   private long getLastModifiedTimeOfCoverageJar() {
       if (lastModifiedTimeOfCoverageJar == 0) {
          CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
 

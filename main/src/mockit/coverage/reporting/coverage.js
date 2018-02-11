@@ -1,12 +1,7 @@
-/*
- * Copyright (c) 2006 Rogério Liesenfeld
- * This file is subject to the terms of the MIT license (see LICENSE.txt).
- */
 var cellShown;
 var lineSegmentIdsShown;
 
-function hidePath(cell)
-{
+function hidePath(cell) {
    if (lineSegmentIdsShown) {
       setOutlines('none');
       cellShown.style.outlineWidth = 'thin';
@@ -20,16 +15,14 @@ function hidePath(cell)
    return false;
 }
 
-function setOutlines(outlineStyle)
-{
+function setOutlines(outlineStyle) {
    for (var i = 0; i < lineSegmentIdsShown.length; i++) {
       var item = document.getElementById(lineSegmentIdsShown[i]);
       if (item) item.style.outline = outlineStyle;
    }
 }
 
-function showPath(cell, lineSegmentIdsStr)
-{
+function showPath(cell, lineSegmentIdsStr) {
    if (hidePath(cell)) return;
 
    lineSegmentIdsShown = lineSegmentIdsStr.split(' ');
@@ -38,8 +31,7 @@ function showPath(cell, lineSegmentIdsStr)
    cellShown = cell;
 }
 
-function showHide(callPoints, listIndex)
-{
+function showHide(callPoints, listIndex) {
    var tableCell = callPoints.parentNode;
 
    if (listIndex >= 0) {
@@ -55,8 +47,7 @@ function showHide(callPoints, listIndex)
 }
 
 var allFilesShown = true;
-function showHideAllFiles()
-{
+function showHideAllFiles() {
    allFilesShown = !allFilesShown;
    var newDisplay = allFilesShown ? 'block' : 'none';
    var rows = document.getElementById('packages').rows;
@@ -67,8 +58,7 @@ function showHideAllFiles()
    }
 }
 
-function showHideFiles(files)
-{
+function showHideFiles(files) {
    var filesCell = files.parentNode.cells[1];
    var filesTable = filesCell.getElementsByTagName('table')[0];
    var fileCount = filesCell.getElementsByTagName('span')[0];
@@ -84,8 +74,7 @@ function showHideFiles(files)
    }
 }
 
-function showHideLines(cell)
-{
+function showHideLines(cell) {
    var content = cell.children;
    var expanded = content[0].style;
    var collapsed = content[1].style;
@@ -95,8 +84,7 @@ function showHideLines(cell)
 }
 
 var metricCol;
-function rowOrder(r1, r2)
-{
+function rowOrder(r1, r2) {
    var c1 = r1.cells[metricCol];
    var c2 = r2.cells[metricCol];
 
@@ -116,8 +104,7 @@ function rowOrder(r1, r2)
    return t1 ? 1 : -1;
 }
 
-function sortRows(tbl, metric)
-{
+function sortRows(tbl, metric) {
    var startRow = 0;
    var endRow = tbl.rows.length;
 
@@ -147,8 +134,7 @@ function sortRows(tbl, metric)
    }
 }
 
-function sortTables(metric)
-{
+function sortTables(metric) {
    var tables = document.getElementsByTagName("table");
 
    for (var i = 0; i < tables.length; i++) {
