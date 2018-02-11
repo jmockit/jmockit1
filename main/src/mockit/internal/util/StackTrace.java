@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -15,8 +15,7 @@ public final class StackTrace
    @Nonnull private final Throwable throwable;
    @Nonnull private StackTraceElement[] elements;
 
-   public StackTrace(@Nonnull Throwable throwable)
-   {
+   public StackTrace(@Nonnull Throwable throwable) {
       this.throwable = throwable;
       elements = throwable.getStackTrace();
    }
@@ -26,13 +25,11 @@ public final class StackTrace
    @Nonnull
    public StackTraceElement getElement(int index) { return elements[index]; }
 
-   public static void filterStackTrace(@Nonnull Throwable t)
-   {
+   public static void filterStackTrace(@Nonnull Throwable t) {
       new StackTrace(t).filter();
    }
 
-   public void filter()
-   {
+   public void filter() {
       StackTraceElement[] filteredST = new StackTraceElement[elements.length];
       int i = 0;
 
@@ -59,8 +56,7 @@ public final class StackTrace
       }
    }
 
-   private static boolean isJDKOr3rdPartyLibraryInternalMethod(@Nonnull StackTraceElement ste)
-   {
+   private static boolean isJDKOr3rdPartyLibraryInternalMethod(@Nonnull StackTraceElement ste) {
       String className = ste.getClassName();
 
       return
@@ -73,13 +69,11 @@ public final class StackTrace
          className.contains(".jdt.");
    }
 
-   private static boolean isTestFrameworkMethod(@Nonnull String where)
-   {
+   private static boolean isTestFrameworkMethod(@Nonnull String where) {
       return where.startsWith("org.junit.") || where.startsWith("org.testng.");
    }
 
-   private static boolean isJMockitMethod(@Nonnull String where)
-   {
+   private static boolean isJMockitMethod(@Nonnull String where) {
       if (!where.startsWith("mockit.")) {
          return false;
       }
@@ -101,8 +95,7 @@ public final class StackTrace
       return q < where.length() && where.charAt(q) != '$';
    }
 
-   public void print(@Nonnull Appendable output)
-   {
+   public void print(@Nonnull Appendable output) {
       String previousFileName = null;
       int previousLineNumber = 0;
       String sep = "";

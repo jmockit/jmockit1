@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -20,8 +20,7 @@ public final class CaptureMatcher<T> implements ArgumentMatcher<CaptureMatcher<T
    public boolean same(@Nonnull CaptureMatcher<T> other) { return false; }
 
    @Override
-   public boolean matches(@Nullable Object argValue)
-   {
+   public boolean matches(@Nullable Object argValue) {
       if (expectedType == null || expectedType.isInstance(argValue)) {
          //noinspection unchecked
          valueHolder.add((T) argValue);

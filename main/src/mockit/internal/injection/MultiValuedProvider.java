@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -14,23 +14,20 @@ final class MultiValuedProvider extends InjectionProvider
 {
    @Nonnull private final List<InjectionProvider> individualProviders;
 
-   MultiValuedProvider(@Nonnull Type elementType)
-   {
+   MultiValuedProvider(@Nonnull Type elementType) {
       super(elementType, "");
       individualProviders = new ArrayList<InjectionProvider>();
    }
 
-   void addInjectable(@Nonnull InjectionProvider provider)
-   {
+   void addInjectable(@Nonnull InjectionProvider provider) {
       individualProviders.add(provider);
    }
 
    @Nonnull @Override
    public Class<?> getClassOfDeclaredType() { return getClassType(declaredType); }
 
-   @Nullable @Override
-   public Object getValue(@Nullable Object owner)
-   {
+   @Nonnull @Override
+   public Object getValue(@Nullable Object owner) {
       List<Object> values = new ArrayList<Object>(individualProviders.size());
 
       for (InjectionProvider provider : individualProviders) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -19,14 +19,12 @@ public final class InvocationResults
    private InvocationResult lastResult;
    private int resultCount;
 
-   public InvocationResults(@Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints)
-   {
+   public InvocationResults(@Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints) {
       this.invocation = invocation;
       this.constraints = constraints;
    }
 
-   public void addReturnValue(@Nullable Object value)
-   {
+   public void addReturnValue(@Nullable Object value) {
       if (value instanceof Delegate) {
          addDelegatedResult((Delegate<?>) value);
       }
@@ -35,29 +33,25 @@ public final class InvocationResults
       }
    }
 
-   public void addDelegatedResult(@Nonnull Delegate<?> delegate)
-   {
+   public void addDelegatedResult(@Nonnull Delegate<?> delegate) {
       InvocationResult result = new DelegatedResult(invocation, delegate);
       addResult(result);
    }
 
-   private void addNewReturnValueResult(@Nullable Object value)
-   {
+   private void addNewReturnValueResult(@Nullable Object value) {
       InvocationResult result = new ReturnValueResult(value);
       addResult(result);
    }
 
    public void addReturnValueResult(@Nullable Object value) { addNewReturnValueResult(value); }
 
-   public void addReturnValues(@Nonnull Object... values)
-   {
+   public void addReturnValues(@Nonnull Object... values) {
       for (Object value : values) {
          addReturnValue(value);
       }
    }
 
-   public void addResults(@Nonnull Object array)
-   {
+   public void addResults(@Nonnull Object array) {
       int n = Array.getLength(array);
 
       for (int i = 0; i < n; i++) {
@@ -66,8 +60,7 @@ public final class InvocationResults
       }
    }
 
-   private void addConsecutiveResult(@Nullable Object result)
-   {
+   private void addConsecutiveResult(@Nullable Object result) {
       if (result instanceof Throwable) {
          addThrowable((Throwable) result);
       }
@@ -76,24 +69,20 @@ public final class InvocationResults
       }
    }
 
-   public void addResults(@Nonnull Iterable<?> values)
-   {
+   public void addResults(@Nonnull Iterable<?> values) {
       for (Object value : values) {
          addConsecutiveResult(value);
       }
    }
 
-   public void addDeferredResults(@Nonnull Iterator<?> values)
-   {
+   public void addDeferredResults(@Nonnull Iterator<?> values) {
       InvocationResult result = new DeferredResults(values);
       addResult(result);
       constraints.setUnlimitedMaxInvocations();
    }
 
    @Nullable
-   public Object executeRealImplementation(@Nonnull Object instanceToInvoke, @Nonnull Object[] invocationArgs)
-      throws Throwable
-   {
+   public Object executeRealImplementation(@Nonnull Object instanceToInvoke, @Nonnull Object[] invocationArgs) throws Throwable {
       if (currentResult == null) {
          currentResult = new RealImplementationResult(invocation, instanceToInvoke);
       }
@@ -103,8 +92,7 @@ public final class InvocationResults
 
    public void addThrowable(@Nonnull Throwable t) { addResult(new ThrowableResult(t)); }
 
-   private void addResult(@Nonnull InvocationResult result)
-   {
+   private void addResult(@Nonnull InvocationResult result) {
       resultCount++;
       constraints.adjustMaxInvocations(resultCount);
 
@@ -119,8 +107,7 @@ public final class InvocationResults
    }
 
    @Nullable
-   public Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
-   {
+   public Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable {
       InvocationResult resultToBeProduced = currentResult;
 
       if (resultToBeProduced == null) {

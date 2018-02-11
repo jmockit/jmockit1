@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -18,23 +18,20 @@ final class Expectation
    @Nullable private InvocationResults results;
    boolean executedRealImplementation;
 
-   Expectation(@Nonnull ExpectedInvocation invocation)
-   {
+   Expectation(@Nonnull ExpectedInvocation invocation) {
       recordPhase = null;
       this.invocation = invocation;
       constraints = new InvocationConstraints(true);
    }
 
-   Expectation(@Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean nonStrict)
-   {
+   Expectation(@Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean nonStrict) {
       this.recordPhase = recordPhase;
       this.invocation = invocation;
       constraints = new InvocationConstraints(nonStrict);
    }
 
    @Nonnull
-   InvocationResults getResults()
-   {
+   InvocationResults getResults() {
       if (results == null) {
          results = new InvocationResults(invocation, constraints);
       }
@@ -43,8 +40,7 @@ final class Expectation
    }
 
    @Nullable
-   Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable
-   {
+   Object produceResult(@Nullable Object invokedObject, @Nonnull Object[] invocationArgs) throws Throwable {
       if (results == null) {
          return invocation.getDefaultValueForReturnType();
       }
@@ -53,14 +49,12 @@ final class Expectation
    }
 
    @Nonnull
-   Class<?> getReturnType()
-   {
+   Class<?> getReturnType() {
       String resolvedReturnType = invocation.getSignatureWithResolvedReturnType();
       return TypeDescriptor.getReturnType(resolvedReturnType);
    }
 
-   void addSequenceOfReturnValues(@Nonnull Object[] values)
-   {
+   void addSequenceOfReturnValues(@Nonnull Object[] values) {
       int n = values.length - 1;
       Object firstValue = values[0];
       Object[] remainingValues = new Object[n];
@@ -75,8 +69,7 @@ final class Expectation
    }
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
-   void addResult(@Nullable Object value)
-   {
+   void addResult(@Nullable Object value) {
       if (value == null) {
          getResults().addReturnValueResult(null);
       }
@@ -106,16 +99,14 @@ final class Expectation
       }
    }
 
-   private boolean isReplacementInstance(@Nonnull Object value)
-   {
+   private boolean isReplacementInstance(@Nonnull Object value) {
       return invocation.isConstructor() && value.getClass().isInstance(invocation.instance);
    }
 
    @Nullable
    Error verifyConstraints(
-      @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs,
-      int minInvocations, int maxInvocations)
-   {
+      @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs, int minInvocations, int maxInvocations
+   ) {
       Error error = verifyConstraints(minInvocations);
 
       if (error != null) {
@@ -129,8 +120,7 @@ final class Expectation
    Error verifyConstraints(int minInvocations) { return constraints.verifyLowerLimit(invocation, minInvocations); }
 
    @Nullable
-   Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable
-   {
+   Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable {
       return getResults().executeRealImplementation(replacementInstance, args);
    }
 }

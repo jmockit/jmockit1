@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -16,16 +16,14 @@ public final class BeanExporter
    BeanExporter(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
-   public Object getBean(@Nonnull String name)
-   {
+   public Object getBean(@Nonnull String name) {
       InjectionPoint injectionPoint = new InjectionPoint(Object.class, name, true);
       Object bean = injectionState.getInstantiatedDependency(null, injectionPoint);
       return bean;
    }
 
    @Nullable
-   public <T> T getBean(@Nonnull Class<T> beanType)
-   {
+   public <T> T getBean(@Nonnull Class<T> beanType) {
       TestedClass testedClass = new TestedClass(beanType, beanType);
       String beanName = getBeanNameFromType(beanType);
       FullInjection injection = new FullInjection(injectionState, beanType, beanName);
@@ -37,8 +35,7 @@ public final class BeanExporter
    }
 
    @Nonnull
-   private static String getBeanNameFromType(@Nonnull Class<?> beanType)
-   {
+   private static String getBeanNameFromType(@Nonnull Class<?> beanType) {
       String name = beanType.getSimpleName();
       return Character.toLowerCase(name.charAt(0)) + name.substring(1);
    }

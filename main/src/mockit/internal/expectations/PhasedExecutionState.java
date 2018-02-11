@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -23,21 +23,18 @@ final class PhasedExecutionState
    @Nullable private List<?> dynamicMockInstancesToMatch;
    @Nullable private List<Class<?>> mockedTypesToMatchOnInstances;
 
-   PhasedExecutionState()
-   {
+   PhasedExecutionState() {
       expectations = new ArrayList<Expectation>();
       verifiedExpectations = new ArrayList<VerifiedExpectation>();
       instanceMap = new IdentityHashMap<Object, Object>();
       replacementMap = new IdentityHashMap<Object, Object>();
    }
 
-   void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch)
-   {
+   void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch) {
       this.dynamicMockInstancesToMatch = dynamicMockInstancesToMatch;
    }
 
-   void discoverMockedTypesToMatchOnInstances(@Nonnull List<Class<?>> targetClasses)
-   {
+   void discoverMockedTypesToMatchOnInstances(@Nonnull List<Class<?>> targetClasses) {
       int numClasses = targetClasses.size();
 
       if (numClasses > 1) {
@@ -51,8 +48,7 @@ final class PhasedExecutionState
       }
    }
 
-   private void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType)
-   {
+   private void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType) {
       if (mockedTypesToMatchOnInstances == null) {
          mockedTypesToMatchOnInstances = new LinkedList<Class<?>>();
       }
@@ -62,16 +58,14 @@ final class PhasedExecutionState
       }
    }
 
-   void addExpectation(@Nonnull Expectation expectation)
-   {
+   void addExpectation(@Nonnull Expectation expectation) {
       ExpectedInvocation invocation = expectation.invocation;
       forceMatchingOnMockInstanceIfRequired(invocation);
       removeMatchingExpectationsCreatedBefore(invocation);
       expectations.add(expectation);
    }
 
-   private void forceMatchingOnMockInstanceIfRequired(@Nonnull ExpectedInvocation invocation)
-   {
+   private void forceMatchingOnMockInstanceIfRequired(@Nonnull ExpectedInvocation invocation) {
       if (
          !invocation.matchInstance &&
          isToBeMatchedOnInstance(invocation.instance, invocation.getMethodNameAndDescription())
@@ -80,8 +74,7 @@ final class PhasedExecutionState
       }
    }
 
-   boolean isToBeMatchedOnInstance(@Nullable Object mock, @Nonnull String mockNameAndDesc)
-   {
+   boolean isToBeMatchedOnInstance(@Nullable Object mock, @Nonnull String mockNameAndDesc) {
       if (mock == null || mockNameAndDesc.charAt(0) == '<') {
          return false;
       }
@@ -101,8 +94,7 @@ final class PhasedExecutionState
       return TestRun.getExecutingTest().isInjectableMock(mock);
    }
 
-   private void removeMatchingExpectationsCreatedBefore(@Nonnull ExpectedInvocation invocation)
-   {
+   private void removeMatchingExpectationsCreatedBefore(@Nonnull ExpectedInvocation invocation) {
       Expectation previousExpectation = findPreviousExpectation(invocation);
 
       if (previousExpectation != null) {
@@ -112,8 +104,7 @@ final class PhasedExecutionState
    }
 
    @Nullable
-   private Expectation findPreviousExpectation(@Nonnull ExpectedInvocation newInvocation)
-   {
+   private Expectation findPreviousExpectation(@Nonnull ExpectedInvocation newInvocation) {
       int n = expectations.size();
 
       if (n == 0) {
@@ -141,9 +132,9 @@ final class PhasedExecutionState
    }
 
    private boolean isMatchingInvocation(
-      @Nullable Object mock, @Nullable Boolean matchInstance, @Nonnull String mockClassDesc,
-      @Nonnull String mockNameAndDesc, boolean constructorInvocation, @Nonnull Expectation expectation)
-   {
+      @Nullable Object mock, @Nullable Boolean matchInstance, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
+      boolean constructorInvocation, @Nonnull Expectation expectation
+   ) {
       ExpectedInvocation invocation = expectation.invocation;
 
       return
@@ -152,8 +143,7 @@ final class PhasedExecutionState
          (constructorInvocation || mock == null || isMatchingInstance(mock, matchInstance, expectation));
    }
 
-   private boolean isSameMockedClass(@Nullable Object mock1, @Nullable Object mock2)
-   {
+   private static boolean isSameMockedClass(@Nullable Object mock1, @Nullable Object mock2) {
       if (mock1 == mock2) {
          return true;
       }
@@ -171,9 +161,7 @@ final class PhasedExecutionState
       return false;
    }
 
-   private boolean isWithMatchingArguments(
-      @Nonnull ExpectedInvocation newInvocation, @Nonnull ExpectedInvocation previousInvocation)
-   {
+   private boolean isWithMatchingArguments(@Nonnull ExpectedInvocation newInvocation, @Nonnull ExpectedInvocation previousInvocation) {
       InvocationArguments newArguments = newInvocation.arguments;
       InvocationArguments previousArguments = previousInvocation.arguments;
 
@@ -186,8 +174,8 @@ final class PhasedExecutionState
 
    @Nullable
    Expectation findExpectation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
-   {
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
+   ) {
       boolean isConstructor = mockNameAndDesc.charAt(0) == '<';
       Expectation replayExpectationFound = null;
 
@@ -219,8 +207,7 @@ final class PhasedExecutionState
       return replayExpectationFound;
    }
 
-   private void registerReplacementInstanceIfApplicable(@Nullable Object mock, @Nonnull ExpectedInvocation invocation)
-   {
+   private void registerReplacementInstanceIfApplicable(@Nullable Object mock, @Nonnull ExpectedInvocation invocation) {
       Object replacementInstance = invocation.replacementInstance;
 
       if (replacementInstance != null && replacementInstance != invocation.instance) {
@@ -228,9 +215,7 @@ final class PhasedExecutionState
       }
    }
 
-   private boolean isMatchingInstance(
-      @Nonnull Object invokedInstance, @Nullable Boolean matchInstance, @Nonnull Expectation expectation)
-   {
+   private boolean isMatchingInstance(@Nonnull Object invokedInstance, @Nullable Boolean matchInstance, @Nonnull Expectation expectation) {
       ExpectedInvocation invocation = expectation.invocation;
       Object invocationInstance = invocation.instance;
       assert invocationInstance != null;
@@ -253,8 +238,7 @@ final class PhasedExecutionState
          !replacementMap.containsValue(invocationInstance);
    }
 
-   boolean isEquivalentInstance(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance)
-   {
+   boolean isEquivalentInstance(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance) {
       return
          invocationInstance == invokedInstance ||
          invocationInstance == replacementMap.get(invokedInstance) ||
@@ -263,8 +247,7 @@ final class PhasedExecutionState
          TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(invocationInstance, invokedInstance);
    }
 
-   private boolean isDynamicMockInstanceOrClass(@Nonnull Object invokedInstance, @Nonnull Object invocationInstance)
-   {
+   private boolean isDynamicMockInstanceOrClass(@Nonnull Object invokedInstance, @Nonnull Object invocationInstance) {
       if (dynamicMockInstancesToMatch != null) {
          if (containsReference(dynamicMockInstancesToMatch, invokedInstance)) {
             return true;
@@ -282,22 +265,19 @@ final class PhasedExecutionState
       return false;
    }
 
-   private boolean areNonEquivalentInstances(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance)
-   {
+   private boolean areNonEquivalentInstances(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance) {
       boolean recordedInstanceMatchingAnyInstance = !isMatchingInstance(invocationInstance);
       boolean invokedInstanceMatchingSpecificInstance = isMatchingInstance(invokedInstance);
       return recordedInstanceMatchingAnyInstance && invokedInstanceMatchingSpecificInstance;
    }
 
-   private boolean isMatchingInstance(@Nonnull Object instance)
-   {
+   private boolean isMatchingInstance(@Nonnull Object instance) {
       return
          instanceMap.containsKey(instance)    || instanceMap.containsValue(instance) ||
          replacementMap.containsKey(instance) || replacementMap.containsValue(instance);
    }
 
-   boolean areInDifferentEquivalenceSets(@Nonnull Object mock1, @Nonnull Object mock2)
-   {
+   boolean areInDifferentEquivalenceSets(@Nonnull Object mock1, @Nonnull Object mock2) {
       if (mock1 == mock2 || instanceMap.isEmpty()) {
          return false;
       }
@@ -317,8 +297,7 @@ final class PhasedExecutionState
       return instanceMapHasMocksInSeparateEntries(mock1, mock2);
    }
 
-   private boolean instanceMapHasMocksInSeparateEntries(@Nonnull Object mock1, @Nonnull Object mock2)
-   {
+   private boolean instanceMapHasMocksInSeparateEntries(@Nonnull Object mock1, @Nonnull Object mock2) {
       boolean found1 = false;
       boolean found2 = false;
 
@@ -339,19 +318,16 @@ final class PhasedExecutionState
       return false;
    }
 
-   private static boolean isInMapEntry(@Nonnull Entry<Object, Object> mapEntry, @Nonnull Object mock)
-   {
+   private static boolean isInMapEntry(@Nonnull Entry<Object, Object> mapEntry, @Nonnull Object mock) {
       return mapEntry.getKey() == mock || mapEntry.getValue() == mock;
    }
 
    @Nullable
-   Object getReplacementInstanceForMethodInvocation(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc)
-   {
+   Object getReplacementInstanceForMethodInvocation(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc) {
       return methodNameAndDesc.charAt(0) == '<' ? null : replacementMap.get(invokedInstance);
    }
 
-   boolean isReplacementInstance(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc)
-   {
+   boolean isReplacementInstance(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc) {
       return
          methodNameAndDesc.charAt(0) != '<' && (
             replacementMap.containsKey(invokedInstance) ||

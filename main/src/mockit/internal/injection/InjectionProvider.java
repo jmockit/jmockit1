@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -20,8 +20,7 @@ public abstract class InjectionProvider
    @Nonnull protected final String name;
    @Nullable public InjectionProvider parent;
 
-   protected InjectionProvider(@Nonnull Type declaredType, @Nonnull String name)
-   {
+   protected InjectionProvider(@Nonnull Type declaredType, @Nonnull String name) {
       this.declaredType = declaredType;
       this.name = name;
    }
@@ -33,8 +32,7 @@ public abstract class InjectionProvider
    @Nullable public Object getValue(@Nullable Object owner) { return null; }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       Class<?> type = getClassOfDeclaredType();
       return '"' + type.getSimpleName() + ' ' + name + '"';
    }

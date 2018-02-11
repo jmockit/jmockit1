@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -13,8 +13,7 @@ public class Injector
    @Nonnull protected final InjectionState injectionState;
    @Nullable protected final FullInjection fullInjection;
 
-   protected Injector(@Nonnull InjectionState state, @Nullable FullInjection fullInjection)
-   {
+   protected Injector(@Nonnull InjectionState state, @Nullable FullInjection fullInjection) {
       injectionState = state;
       this.fullInjection = fullInjection;
    }

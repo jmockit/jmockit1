@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -17,8 +17,7 @@ final class TestedField extends TestedObject
 {
    @Nonnull private final Field testedField;
 
-   TestedField(@Nonnull InjectionState injectionState, @Nonnull Field field, @Nonnull Tested metadata)
-   {
+   TestedField(@Nonnull InjectionState injectionState, @Nonnull Field field, @Nonnull Tested metadata) {
       super(injectionState, metadata, field.getName(), field.getGenericType(), field.getType());
       testedField = field;
    }
@@ -26,14 +25,12 @@ final class TestedField extends TestedObject
    boolean isFromBaseClass(@Nonnull Class<?> testClass) { return testedField.getDeclaringClass() != testClass; }
 
    @Override
-   boolean alreadyInstantiated(@Nonnull Object testClassInstance)
-   {
+   boolean alreadyInstantiated(@Nonnull Object testClassInstance) {
       return isAvailableDuringSetup() && getFieldValue(testedField, testClassInstance) != null;
    }
 
    @Nullable @Override
-   Object getExistingTestedInstanceIfApplicable(@Nonnull Object testClassInstance)
-   {
+   Object getExistingTestedInstanceIfApplicable(@Nonnull Object testClassInstance) {
       Object testedObject = null;
 
       if (!createAutomatically) {
@@ -55,8 +52,7 @@ final class TestedField extends TestedObject
    }
 
    @Override
-   void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance)
-   {
+   void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance) {
       setFieldValue(testedField, testClassInstance, testedInstance);
    }
 }

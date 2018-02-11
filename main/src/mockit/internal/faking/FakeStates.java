@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -25,24 +25,20 @@ public final class FakeStates
    @Nonnull private final Map<Object, List<FakeState>> fakesToFakeStates;
    @Nonnull private final Map<Object, List<FakeState>> startupFakesToFakeStates;
 
-   public FakeStates()
-   {
+   FakeStates() {
       startupFakesToFakeStates = new IdentityHashMap<Object, List<FakeState>>(2);
       fakesToFakeStates = new IdentityHashMap<Object, List<FakeState>>(8);
    }
 
-   void addStartupFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<FakeState> fakeStates)
-   {
+   void addStartupFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<FakeState> fakeStates) {
       startupFakesToFakeStates.put(fake, fakeStates);
    }
 
-   void addFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<FakeState> fakeStates)
-   {
+   void addFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<FakeState> fakeStates) {
       fakesToFakeStates.put(fake, fakeStates);
    }
 
-   public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreFakeClasses)
-   {
+   public void removeClassState(@Nonnull Class<?> redefinedClass, @Nullable String internalNameForOneOrMoreFakeClasses) {
       removeFakeStates(redefinedClass);
 
       if (internalNameForOneOrMoreFakeClasses != null) {
@@ -59,8 +55,7 @@ public final class FakeStates
       }
    }
 
-   private void removeFakeStates(@Nonnull Class<?> redefinedClass)
-   {
+   private void removeFakeStates(@Nonnull Class<?> redefinedClass) {
       Iterator<List<FakeState>> itr = fakesToFakeStates.values().iterator();
 
       while (itr.hasNext()) {
@@ -74,8 +69,7 @@ public final class FakeStates
       }
    }
 
-   private void removeFakeStates(@Nonnull String fakeClassInternalName)
-   {
+   private void removeFakeStates(@Nonnull String fakeClassInternalName) {
       Class<?> fakeClass = ClassLoad.loadClass(fakeClassInternalName.replace('/', '.'));
       Iterator<Entry<Object, List<FakeState>>> itr = fakesToFakeStates.entrySet().iterator();
 
@@ -89,15 +83,13 @@ public final class FakeStates
       }
    }
 
-   public boolean updateFakeState(@Nonnull Object fake, int fakeStateIndex)
-   {
+   public boolean updateFakeState(@Nonnull Object fake, @Nonnegative int fakeStateIndex) {
       FakeState fakeState = getFakeState(fake, fakeStateIndex);
       return fakeState.update();
    }
 
    @Nonnull
-   FakeState getFakeState(@Nonnull Object fake, int fakeStateIndex)
-   {
+   FakeState getFakeState(@Nonnull Object fake, @Nonnegative int fakeStateIndex) {
       List<FakeState> fakeStates = startupFakesToFakeStates.get(fake);
 
       if (fakeStates == null) {

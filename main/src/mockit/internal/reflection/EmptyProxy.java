@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.reflection;
@@ -19,13 +19,11 @@ import javax.annotation.*;
  */
 public interface EmptyProxy
 {
-   final class Impl
-   {
+   final class Impl {
       private Impl() {}
 
       @Nonnull
-      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Type... interfacesToBeProxied)
-      {
+      public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Type... interfacesToBeProxied) {
          List<Class<?>> interfaces = new ArrayList<Class<?>>();
 
          for (Type type : interfacesToBeProxied) {
@@ -47,8 +45,7 @@ public interface EmptyProxy
          return (E) Proxy.newProxyInstance(loader, interfacesArray, MockInvocationHandler.INSTANCE);
       }
 
-      private static void addInterface(@Nonnull List<Class<?>> interfaces, @Nonnull Type type)
-      {
+      private static void addInterface(@Nonnull List<Class<?>> interfaces, @Nonnull Type type) {
          if (type instanceof Class<?>) {
             interfaces.add((Class<?>) type);
          }
@@ -62,8 +59,7 @@ public interface EmptyProxy
          }
       }
 
-      private static void addBoundInterfaces(@Nonnull List<Class<?>> interfaces, @Nonnull Type[] bounds)
-      {
+      private static void addBoundInterfaces(@Nonnull List<Class<?>> interfaces, @Nonnull Type[] bounds) {
          for (Type bound : bounds) {
             addInterface(interfaces, bound);
          }

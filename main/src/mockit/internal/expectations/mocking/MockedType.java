@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -22,13 +22,12 @@ public final class MockedType extends InjectionProvider
    @Mocked private static final Object DUMMY = null;
    private static final int DUMMY_HASHCODE;
 
-   static
-   {
+   static {
       int h = 0;
 
       try {
-         Field dummy = MockedType.class.getDeclaredField("DUMMY");
-         Mocked mocked = dummy.getAnnotation(Mocked.class);
+         Field dummyField = MockedType.class.getDeclaredField("DUMMY");
+         Mocked mocked = dummyField.getAnnotation(Mocked.class);
          h = mocked.hashCode();
       }
       catch (NoSuchFieldException ignore) {}
@@ -45,8 +44,7 @@ public final class MockedType extends InjectionProvider
    public final boolean injectable;
    @Nullable Object providedValue;
 
-   public MockedType(@Nonnull Field field)
-   {
+   public MockedType(@Nonnull Field field) {
       super(field.getGenericType(), field.getName());
       this.field = field;
       fieldFromTestClass = true;
@@ -61,8 +59,7 @@ public final class MockedType extends InjectionProvider
    }
 
    @Nullable
-   private Object getProvidedInjectableValue(@Nullable Injectable annotation)
-   {
+   private Object getProvidedInjectableValue(@Nullable Injectable annotation) {
       if (annotation != null) {
          String value = annotation.value();
 
@@ -81,8 +78,7 @@ public final class MockedType extends InjectionProvider
       return null;
    }
 
-   private void registerCascadingAsNeeded()
-   {
+   private void registerCascadingAsNeeded() {
       if (isMockableType()) {
          Type mockedType = declaredType;
 
@@ -95,10 +91,9 @@ public final class MockedType extends InjectionProvider
    }
 
    MockedType(
-      @Nonnull TestMethod testMethod, @Nonnegative int paramIndex,
-      @Nonnull Type parameterType, @Nonnull Annotation[] annotationsOnParameter,
-      @Nullable Class<?> parameterImplementationClass)
-   {
+      @Nonnull TestMethod testMethod, @Nonnegative int paramIndex, @Nonnull Type parameterType,
+      @Nonnull Annotation[] annotationsOnParameter, @Nullable Class<?> parameterImplementationClass
+   ) {
       super(parameterType, ParameterNames.getName(testMethod, paramIndex));
       field = null;
       fieldFromTestClass = false;
@@ -122,9 +117,7 @@ public final class MockedType extends InjectionProvider
    }
 
    @Nullable
-   private static <A extends Annotation> A getAnnotation(
-      @Nonnull Annotation[] annotations, @Nonnull Class<A> annotation)
-   {
+   private static <A extends Annotation> A getAnnotation(@Nonnull Annotation[] annotations, @Nonnull Class<A> annotation) {
       for (Annotation paramAnnotation : annotations) {
          if (paramAnnotation.annotationType() == annotation) {
             //noinspection unchecked
@@ -135,8 +128,7 @@ public final class MockedType extends InjectionProvider
       return null;
    }
 
-   MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType)
-   {
+   MockedType(@Nonnull String cascadingMethodName, @Nonnull Type cascadedType) {
       super(cascadedType, cascadingMethodName);
       field = null;
       fieldFromTestClass = false;
@@ -154,8 +146,7 @@ public final class MockedType extends InjectionProvider
     * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
     */
    @Nonnull
-   public Class<?> getClassType()
-   {
+   public Class<?> getClassType() {
       if (parameterImplementationClass != null) {
          return parameterImplementationClass;
       }
@@ -176,8 +167,7 @@ public final class MockedType extends InjectionProvider
       return TypeVariable.class;
    }
 
-   boolean isMockableType()
-   {
+   boolean isMockableType() {
       if (mocked == null && !injectable && capturing == null) {
          return false;
       }
@@ -203,16 +193,12 @@ public final class MockedType extends InjectionProvider
       return true;
    }
 
-   private static boolean isUnmockableJREType(@Nonnull Class<?> type)
-   {
+   private static boolean isUnmockableJREType(@Nonnull Class<?> type) {
       return type.isPrimitive() || type.isArray() || type == Integer.class;
    }
 
-   private static boolean isJREValueType(@Nonnull Class<?> type)
-   {
-      return
-         type == String.class || type == Boolean.class || type == Character.class ||
-         Number.class.isAssignableFrom(type);
+   private static boolean isJREValueType(@Nonnull Class<?> type) {
+      return type == String.class || type == Boolean.class || type == Character.class || Number.class.isAssignableFrom(type);
    }
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
@@ -222,8 +208,7 @@ public final class MockedType extends InjectionProvider
    int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
 
    @Nullable @Override
-   public Object getValue(@Nullable Object owner)
-   {
+   public Object getValue(@Nullable Object owner) {
       if (field == null) {
          return providedValue;
       }
@@ -266,8 +251,7 @@ public final class MockedType extends InjectionProvider
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       int result = declaredType.hashCode();
 
       if (isFinal(accessModifiers)) {

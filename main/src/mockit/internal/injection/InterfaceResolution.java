@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -16,12 +16,10 @@ final class InterfaceResolution
 {
    @Nonnull private final NavigableMap<ParameterizedType, Method> interfaceResolutionMethods;
 
-   InterfaceResolution()
-   {
+   InterfaceResolution() {
       interfaceResolutionMethods = new TreeMap<ParameterizedType, Method>(new Comparator<ParameterizedType>() {
          @Override
-         public int compare(ParameterizedType t1, ParameterizedType t2)
-         {
+         public int compare(ParameterizedType t1, ParameterizedType t2) {
             if (t1 == t2) {
                return 0;
             }
@@ -46,8 +44,7 @@ final class InterfaceResolution
       });
    }
 
-   private static int compareTypesFromResolutionMethods(@Nonnull WildcardType type1, @Nonnull WildcardType type2)
-   {
+   private static int compareTypesFromResolutionMethods(@Nonnull WildcardType type1, @Nonnull WildcardType type2) {
       Type upperBound1 = type1.getUpperBounds()[0];
       Class<?> classOfUpperBound1 = getClassType(upperBound1);
 
@@ -67,14 +64,12 @@ final class InterfaceResolution
 
    boolean canResolveInterfaces() { return !interfaceResolutionMethods.isEmpty(); }
 
-   void addInterfaceResolutionMethod(@Nonnull ParameterizedType interfaceType, @Nonnull Method resolutionMethod)
-   {
+   void addInterfaceResolutionMethod(@Nonnull ParameterizedType interfaceType, @Nonnull Method resolutionMethod) {
       interfaceResolutionMethods.put(interfaceType, resolutionMethod);
    }
 
    @Nullable
-   Class<?> resolveInterface(@Nonnull Class<?> anInterface, @Nonnull Object testClassInstance)
-   {
+   Class<?> resolveInterface(@Nonnull Class<?> anInterface, @Nonnull Object testClassInstance) {
       if (interfaceResolutionMethods.isEmpty()) {
          return null;
       }
@@ -99,8 +94,7 @@ final class InterfaceResolution
       return null;
    }
 
-   private static boolean satisfiesUpperBounds(@Nonnull Class<?> interfaceType, @Nonnull WildcardType targetType)
-   {
+   private static boolean satisfiesUpperBounds(@Nonnull Class<?> interfaceType, @Nonnull WildcardType targetType) {
       for (Type upperBound : targetType.getUpperBounds()) {
          Class<?> classOfUpperBound = getClassType(upperBound);
 

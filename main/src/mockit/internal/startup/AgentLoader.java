@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -28,8 +28,7 @@ public final class AgentLoader
    @Nonnull private final String jarFilePath;
    @Nullable private String pidForTargetVM;
 
-   AgentLoader()
-   {
+   AgentLoader() {
       if (JAVA_VERSION < 1.6F) {
          throw new IllegalStateException("JMockit requires a Java 6+ VM");
       }
@@ -48,14 +47,12 @@ public final class AgentLoader
       jarFilePath = currentPath;
    }
 
-   public AgentLoader(@Nonnull String pid)
-   {
+   public AgentLoader(@Nonnull String pid) {
       this();
       pidForTargetVM = pid;
    }
 
-   public void loadAgent(@Nullable String options)
-   {
+   public void loadAgent(@Nullable String options) {
       VirtualMachine vm;
 
       if (AttachProvider.providers().isEmpty()) {
@@ -75,8 +72,7 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes()
-   {
+   private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes() {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
       Class<?>[] parameterTypes = {AttachProvider.class, String.class};
       String pid = getProcessIdForTargetVM();
@@ -100,8 +96,7 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private static Class<? extends VirtualMachine> findVirtualMachineClassAccordingToOS()
-   {
+   private static Class<? extends VirtualMachine> findVirtualMachineClassAccordingToOS() {
       if (File.separatorChar == '\\') {
          return WindowsVirtualMachine.class;
       }
@@ -128,8 +123,7 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private String getProcessIdForTargetVM()
-   {
+   private String getProcessIdForTargetVM() {
       if (pidForTargetVM != null) {
          return pidForTargetVM;
       }
@@ -140,8 +134,7 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private String getHelpMessageForNonHotSpotVM()
-   {
+   private String getHelpMessageForNonHotSpotVM() {
       String vmName = System.getProperty("java.vm.name");
       String helpMessage = "To run on " + vmName;
 
@@ -153,8 +146,7 @@ public final class AgentLoader
    }
 
    @Nonnull
-   private VirtualMachine attachToRunningVM()
-   {
+   private VirtualMachine attachToRunningVM() {
       String pid = getProcessIdForTargetVM();
 
       try {
@@ -163,6 +155,7 @@ public final class AgentLoader
       catch (AttachNotSupportedException e) { throw new RuntimeException(e); }
       catch (IOException e) {
          if (e.getMessage().contains("current VM")) {
+            //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
             throw new IllegalStateException(
                "Running on JDK 9 requires -javaagent:<proper path>/jmockit-1.n.jar or -Djdk.attach.allowAttachSelf");
          }
@@ -171,8 +164,7 @@ public final class AgentLoader
       }
    }
 
-   private void loadAgentAndDetachFromRunningVM(@Nonnull VirtualMachine vm, @Nullable String options)
-   {
+   private void loadAgentAndDetachFromRunningVM(@Nonnull VirtualMachine vm, @Nullable String options) {
       try {
          vm.loadAgent(jarFilePath, options);
          vm.detach();

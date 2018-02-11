@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -18,26 +18,22 @@ import static mockit.internal.reflection.FieldReflection.*;
 
 public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 {
-   static final class Capture
-   {
+   static final class Capture {
       @Nonnull final MockedType typeMetadata;
       @Nullable private Object originalMockInstance;
       @Nonnull private final List<Object> instancesCaptured;
 
-      private Capture(@Nonnull MockedType typeMetadata, @Nullable Object originalMockInstance)
-      {
+      private Capture(@Nonnull MockedType typeMetadata, @Nullable Object originalMockInstance) {
          this.typeMetadata = typeMetadata;
          this.originalMockInstance = originalMockInstance;
          instancesCaptured = new ArrayList<Object>(4);
       }
 
-      private boolean isInstanceAlreadyCaptured(@Nonnull Object mock)
-      {
+      private boolean isInstanceAlreadyCaptured(@Nonnull Object mock) {
          return Utilities.containsReference(instancesCaptured, mock);
       }
 
-      private boolean captureInstance(@Nullable Object fieldOwner, @Nonnull Object instance)
-      {
+      private boolean captureInstance(@Nullable Object fieldOwner, @Nonnull Object instance) {
          if (instancesCaptured.size() < typeMetadata.getMaxInstancesToCapture()) {
             if (fieldOwner != null && typeMetadata.field != null && originalMockInstance == null) {
                originalMockInstance = getFieldValue(typeMetadata.field, fieldOwner);
@@ -50,8 +46,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
          return false;
       }
 
-      void reset()
-      {
+      void reset() {
          originalMockInstance = null;
          instancesCaptured.clear();
       }
@@ -60,8 +55,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    @Nonnull private final Map<Class<?>, List<Capture>> baseTypeToCaptures;
    @Nonnull private final List<Class<?>> partiallyMockedBaseTypes;
 
-   CaptureOfNewInstances()
-   {
+   CaptureOfNewInstances() {
       baseTypeToCaptures = new HashMap<Class<?>, List<Capture>>();
       partiallyMockedBaseTypes = new ArrayList<Class<?>>();
    }
@@ -69,8 +63,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    @Nonnull
    protected final Collection<List<Capture>> getCapturesForAllBaseTypes() { return baseTypeToCaptures.values(); }
 
-   void useDynamicMocking(@Nonnull Class<?> baseType)
-   {
+   void useDynamicMocking(@Nonnull Class<?> baseType) {
       partiallyMockedBaseTypes.add(baseType);
 
       List<Class<?>> mockedClasses = TestRun.mockFixture().getMockedClasses();
@@ -84,8 +77,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       }
    }
 
-   private static void redefineClassForDynamicPartialMocking(@Nonnull Class<?> baseType, @Nonnull Class<?> mockedClass)
-   {
+   private static void redefineClassForDynamicPartialMocking(@Nonnull Class<?> baseType, @Nonnull Class<?> mockedClass) {
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
 
       MockedClassModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
@@ -98,8 +90,8 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 
    @Nonnull
    private static MockedClassModifier newModifier(
-      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata)
-   {
+      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata
+   ) {
       MockedClassModifier modifier = new MockedClassModifier(cl, cr, typeMetadata);
       String baseTypeDesc = JavaType.getInternalName(baseType);
       modifier.setClassNameForCapturedInstanceMethods(baseTypeDesc);
@@ -108,8 +100,8 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 
    @Nonnull @Override
    protected final BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata)
-   {
+      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata
+   ) {
       MockedClassModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
 
       if (partiallyMockedBaseTypes.contains(baseType)) {
@@ -120,8 +112,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @Override
-   protected final void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClassfile)
-   {
+   protected final void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClassfile) {
       ClassDefinition newClassDefinition = new ClassDefinition(realClass, modifiedClassfile);
       Startup.redefineMethods(newClassDefinition);
 
@@ -130,8 +121,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       mockFixture.registerMockedClass(realClass);
    }
 
-   final void registerCaptureOfNewInstances(@Nonnull MockedType typeMetadata, @Nullable Object mockInstance)
-   {
+   final void registerCaptureOfNewInstances(@Nonnull MockedType typeMetadata, @Nullable Object mockInstance) {
       Class<?> baseType = typeMetadata.getClassType();
 
       if (!typeMetadata.isFinalFieldOrParameter()) {
@@ -148,14 +138,12 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       captures.add(new Capture(typeMetadata, mockInstance));
    }
 
-   final void makeSureAllSubtypesAreModified(@Nonnull MockedType typeMetadata)
-   {
+   final void makeSureAllSubtypesAreModified(@Nonnull MockedType typeMetadata) {
       Class<?> baseType = typeMetadata.getClassType();
       makeSureAllSubtypesAreModified(baseType, typeMetadata.fieldFromTestClass, typeMetadata);
    }
 
-   public final boolean captureNewInstance(@Nullable Object fieldOwner, @Nonnull Object mock)
-   {
+   public final boolean captureNewInstance(@Nullable Object fieldOwner, @Nonnull Object mock) {
       Class<?> mockedClass = mock.getClass();
       List<Capture> captures = baseTypeToCaptures.get(mockedClass);
       boolean constructorModifiedForCaptureOnly = captures == null;
@@ -184,8 +172,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @Nullable
-   private List<Capture> findCaptures(@Nonnull Class<?> mockedClass)
-   {
+   private List<Capture> findCaptures(@Nonnull Class<?> mockedClass) {
       Class<?>[] interfaces = mockedClass.getInterfaces();
 
       for (Class<?> anInterface : interfaces) {
@@ -208,9 +195,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
    }
 
    @Nullable
-   private static Capture findCapture(
-      @Nullable Object fieldOwner, @Nonnull Object mock, @Nonnull List<Capture> captures)
-   {
+   private static Capture findCapture(@Nullable Object fieldOwner, @Nonnull Object mock, @Nonnull List<Capture> captures) {
       for (Capture capture : captures) {
          if (capture.isInstanceAlreadyCaptured(mock)) {
             break;
@@ -223,8 +208,7 @@ public class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
       return null;
    }
 
-   public final void cleanUp()
-   {
+   public final void cleanUp() {
       baseTypeToCaptures.clear();
       partiallyMockedBaseTypes.clear();
    }

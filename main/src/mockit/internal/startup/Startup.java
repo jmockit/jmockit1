@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -30,7 +30,7 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
 public final class Startup
 {
    public static boolean initializing;
-   @Nullable private static Instrumentation inst;
+   @Nullable private static Instrumentation instrumentation;
 
    private Startup() {}
 
@@ -44,28 +44,25 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
-   {
+   public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
       if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
          createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-         Startup.inst = inst;
+         instrumentation = inst;
          initialize(inst);
       }
    }
 
-   private static void initialize(@Nonnull Instrumentation inst)
-   {
+   private static void initialize(@Nonnull Instrumentation inst) {
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
       applyStartupFakes(inst);
       inst.addTransformer(new ExpectationsTransformer());
    }
 
-   private static void applyStartupFakes(@Nonnull Instrumentation inst)
-   {
+   private static void applyStartupFakes(@Nonnull Instrumentation instr) {
       initializing = true;
 
       try {
-         JMockitInitialization.initialize(inst);
+         JMockitInitialization.initialize(instr);
       }
       finally {
          initializing = false;
@@ -81,20 +78,17 @@ public final class Startup
     * @param agentArgs not used
     * @param inst      the instrumentation service provided by the JVM
     */
-   public static void agentmain(@Nullable String agentArgs, @Nonnull Instrumentation inst)
-   {
+   public static void agentmain(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
       if (!inst.isRedefineClassesSupported()) {
-         throw new UnsupportedOperationException(
-            "This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
+         throw new UnsupportedOperationException("This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
       createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-      Startup.inst = inst;
+      instrumentation = inst;
       activateCodeCoverageIfRequested(agentArgs, inst);
    }
 
-   private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst)
-   {
+   private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
       if ("coverage".equals(agentArgs)) {
          try {
             CodeCoverage coverage = CodeCoverage.create(true);
@@ -116,23 +110,21 @@ public final class Startup
    }
 
    @Nonnull @SuppressWarnings("ConstantConditions")
-   public static Instrumentation instrumentation() { return inst; }
+   public static Instrumentation instrumentation() { return instrumentation; }
 
-   public static void verifyInitialization()
-   {
-      if (inst == null) {
+   public static void verifyInitialization() {
+      if (instrumentation == null) {
          throw new IllegalStateException(
             "JMockit didn't get initialized; please check jmockit.jar precedes junit.jar in the classpath");
       }
    }
 
-   public static boolean initializeIfPossible()
-   {
-      if (inst == null) {
+   public static boolean initializeIfPossible() {
+      if (instrumentation == null) {
          try {
             new AgentLoader().loadAgent(null);
-            createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-            initialize(inst);
+            createSyntheticFieldsInJREClassToHoldClassLoadingBridges(instrumentation);
+            initialize(instrumentation);
             return true;
          }
          catch (IllegalStateException e) {
@@ -148,27 +140,23 @@ public final class Startup
    }
 
    @SuppressWarnings("ConstantConditions")
-   public static void retransformClass(@Nonnull Class<?> aClass)
-   {
-      try { inst.retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
+   public static void retransformClass(@Nonnull Class<?> aClass) {
+      try { instrumentation.retransformClasses(aClass); } catch (UnmodifiableClassException ignore) {}
    }
 
-   public static void redefineMethods(@Nonnull ClassIdentification classToRedefine, @Nonnull byte[] modifiedClassfile)
-   {
+   public static void redefineMethods(@Nonnull ClassIdentification classToRedefine, @Nonnull byte[] modifiedClassfile) {
       Class<?> loadedClass = classToRedefine.getLoadedClass();
       redefineMethods(loadedClass, modifiedClassfile);
    }
 
-   public static void redefineMethods(@Nonnull Class<?> classToRedefine, @Nonnull byte[] modifiedClassfile)
-   {
+   public static void redefineMethods(@Nonnull Class<?> classToRedefine, @Nonnull byte[] modifiedClassfile) {
       redefineMethods(new ClassDefinition(classToRedefine, modifiedClassfile));
    }
 
-   public static void redefineMethods(@Nonnull ClassDefinition... classDefs)
-   {
+   public static void redefineMethods(@Nonnull ClassDefinition... classDefs) {
       try {
          //noinspection ConstantConditions
-         inst.redefineClasses(classDefs);
+         instrumentation.redefineClasses(classDefs);
       }
       catch (ClassNotFoundException e) {
          // should never happen
@@ -189,8 +177,7 @@ public final class Startup
       }
    }
 
-   private static void detectMissingDependenciesIfAny(@Nonnull Class<?> mockedClass)
-   {
+   private static void detectMissingDependenciesIfAny(@Nonnull Class<?> mockedClass) {
       try {
          Class.forName(mockedClass.getName(), false, mockedClass.getClassLoader());
       }
@@ -203,10 +190,9 @@ public final class Startup
    }
 
    @Nullable
-   public static Class<?> getClassIfLoaded(@Nonnull String classDescOrName)
-   {
+   public static Class<?> getClassIfLoaded(@Nonnull String classDescOrName) {
       String className = classDescOrName.replace('/', '.');
-      @SuppressWarnings("ConstantConditions") Class<?>[] loadedClasses = inst.getAllLoadedClasses();
+      @SuppressWarnings("ConstantConditions") Class<?>[] loadedClasses = instrumentation.getAllLoadedClasses();
 
       for (Class<?> aClass : loadedClasses) {
          if (aClass.getName().equals(className)) {

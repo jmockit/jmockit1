@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -34,20 +34,17 @@ public final class AutoBoxing
 
    private AutoBoxing() {}
 
-   public static boolean isWrapperOfPrimitiveType(@Nonnull Class<?> type)
-   {
+   public static boolean isWrapperOfPrimitiveType(@Nonnull Class<?> type) {
       return WRAPPER_TO_PRIMITIVE.containsKey(type);
    }
 
    @Nullable
-   public static Class<?> getPrimitiveType(@Nonnull Class<?> wrapperType)
-   {
+   public static Class<?> getPrimitiveType(@Nonnull Class<?> wrapperType) {
       return WRAPPER_TO_PRIMITIVE.get(wrapperType);
    }
 
    @Nullable
-   public static Class<?> getWrapperType(@Nonnull Class<?> primitiveType)
-   {
+   public static Class<?> getWrapperType(@Nonnull Class<?> primitiveType) {
       return PRIMITIVE_TO_WRAPPER.get(primitiveType);
    }
 }

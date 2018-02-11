@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -24,9 +24,8 @@ public final class InvocationArguments
    @Nullable private Member realMethodOrConstructor;
 
    InvocationArguments(
-      int access, @Nonnull String classDesc, @Nonnull String methodNameAndDesc, @Nullable String genericSignature,
-      @Nonnull Object[] args)
-   {
+      int access, @Nonnull String classDesc, @Nonnull String methodNameAndDesc, @Nullable String genericSignature, @Nonnull Object[] args
+   ) {
       this.classDesc = classDesc;
       this.methodNameAndDesc = methodNameAndDesc;
       this.genericSignature = genericSignature;
@@ -43,13 +42,11 @@ public final class InvocationArguments
    @Nonnull public Object[] getValues() { return valuesAndMatchers.values; }
    void setValues(@Nonnull Object[] values) { valuesAndMatchers.values = values; }
 
-   public void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify)
-   {
+   public void setValuesWithNoMatchers(@Nonnull Object[] argsToVerify) {
       valuesAndMatchers.setValuesWithNoMatchers(argsToVerify);
    }
 
-   public void setValuesAndMatchers(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers)
-   {
+   public void setValuesAndMatchers(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers) {
       valuesAndMatchers.setValuesAndMatchers(argsToVerify, matchers);
    }
 
@@ -57,13 +54,11 @@ public final class InvocationArguments
    public void setMatchers(@Nullable List<ArgumentMatcher<?>> matchers) { valuesAndMatchers.matchers = matchers; }
 
    @Nonnull
-   public Object[] prepareForVerification(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers)
-   {
+   public Object[] prepareForVerification(@Nonnull Object[] argsToVerify, @Nullable List<ArgumentMatcher<?>> matchers) {
       return valuesAndMatchers.prepareForVerification(argsToVerify, matchers);
    }
 
-   public boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   public boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       TestRun.enterNoMockingZone();
       ExecutingTest executingTest = TestRun.getExecutingTest();
       boolean previousFlag = executingTest.setShouldIgnoreMockingCallbacks(true);
@@ -78,14 +73,12 @@ public final class InvocationArguments
    }
 
    @Nullable
-   public Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   public Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       return valuesAndMatchers.assertMatch(replayArgs, instanceMap);
    }
 
    @Nonnull
-   Error argumentMismatchMessage(int paramIndex, @Nullable Object expected, @Nullable Object actual)
-   {
+   Error argumentMismatchMessage(int paramIndex, @Nullable Object expected, @Nullable Object actual) {
       ArgumentMismatch message = new ArgumentMismatch();
       message.append("Parameter ");
 
@@ -112,9 +105,7 @@ public final class InvocationArguments
       return new UnexpectedInvocation(message.toString());
    }
 
-   private static void appendWarningMessageAboutLackOfEqualsMethod(
-      @Nonnull ArgumentMismatch message, @Nonnull Object value)
-   {
+   private static void appendWarningMessageAboutLackOfEqualsMethod(@Nonnull ArgumentMismatch message, @Nonnull Object value) {
       Class<?> argClass = value.getClass();
 
       if (
@@ -134,8 +125,7 @@ public final class InvocationArguments
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       MethodFormatter methodFormatter = new MethodFormatter(classDesc, methodNameAndDesc, false);
       List<String> parameterTypes = methodFormatter.getParameterTypes();
       String arguments = valuesAndMatchers.toString(parameterTypes);
@@ -143,14 +133,12 @@ public final class InvocationArguments
       return methodFormatter.toString();
    }
 
-   public boolean hasEquivalentMatchers(@Nonnull InvocationArguments other)
-   {
+   public boolean hasEquivalentMatchers(@Nonnull InvocationArguments other) {
       return valuesAndMatchers.hasEquivalentMatchers(other.valuesAndMatchers);
    }
 
    @Nonnull
-   Member getRealMethodOrConstructor()
-   {
+   Member getRealMethodOrConstructor() {
       if (realMethodOrConstructor == null) {
          try { realMethodOrConstructor = new RealMethodOrConstructor(getClassName(), methodNameAndDesc).getMember(); }
          catch (NoSuchMethodException e) { throw new RuntimeException(e); }

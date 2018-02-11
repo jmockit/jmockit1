@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -18,8 +18,9 @@ import mockit.internal.util.*;
 
 final class JMockitInitialization
 {
-   static void initialize(@Nonnull Instrumentation inst)
-   {
+   private JMockitInitialization() {}
+
+   static void initialize(@Nonnull Instrumentation inst) {
       preventEventualClassLoadingConflicts();
       applyInternalStartupFakesAsNeeded();
 
@@ -31,8 +32,7 @@ final class JMockitInitialization
    }
 
    @SuppressWarnings("ResultOfMethodCallIgnored")
-   private static void preventEventualClassLoadingConflicts()
-   {
+   private static void preventEventualClassLoadingConflicts() {
       // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class,
       // which may get @Mocked.
       TimeZone.getDefault();
@@ -43,16 +43,14 @@ final class JMockitInitialization
       Utilities.calledFromSpecialThread();
    }
 
-   private static void applyInternalStartupFakesAsNeeded()
-   {
+   private static void applyInternalStartupFakesAsNeeded() {
       if (FakeFrameworkMethod.hasDependenciesInClasspath()) {
          new RunNotifierDecorator();
          new FakeFrameworkMethod();
       }
    }
 
-   private static void applyUserSpecifiedStartupFakesIfAny()
-   {
+   private static void applyUserSpecifiedStartupFakesIfAny() {
       Collection<String> fakeClasses = getFakeClasses();
 
       for (String fakeClassName : fakeClasses) {
@@ -61,8 +59,7 @@ final class JMockitInitialization
    }
 
    @Nonnull
-   private static Collection<String> getFakeClasses()
-   {
+   private static Collection<String> getFakeClasses() {
       String commaOrSpaceSeparatedValues = System.getProperty("fakes");
 
       if (commaOrSpaceSeparatedValues == null) {
@@ -75,8 +72,7 @@ final class JMockitInitialization
       return uniqueClassNames;
    }
 
-   private static void applyStartupFake(@Nonnull String fakeClassName)
-   {
+   private static void applyStartupFake(@Nonnull String fakeClassName) {
       String argument = null;
       int p = fakeClassName.indexOf('=');
 

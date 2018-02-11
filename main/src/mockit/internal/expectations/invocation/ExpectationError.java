@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -15,14 +15,12 @@ final class ExpectationError extends AssertionError
    @Override
    @Nonnull public String toString() { return message; }
 
-   void prepareForDisplay(@Nonnull String title)
-   {
+   void prepareForDisplay(@Nonnull String title) {
       message = title;
       StackTrace.filterStackTrace(this);
    }
 
-   void defineCause(@Nonnull String title, @Nonnull Throwable error)
-   {
+   void defineCause(@Nonnull String title, @Nonnull Throwable error) {
       prepareForDisplay(title);
       error.initCause(this);
    }

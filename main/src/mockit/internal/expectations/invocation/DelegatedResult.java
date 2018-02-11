@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -11,16 +11,15 @@ import mockit.internal.reflection.*;
 
 final class DelegatedResult extends DynamicInvocationResult
 {
-   DelegatedResult(@Nonnull ExpectedInvocation invocation, @Nonnull Delegate<?> delegate)
-   {
+   DelegatedResult(@Nonnull ExpectedInvocation invocation, @Nonnull Delegate<?> delegate) {
       super(invocation, delegate, MethodReflection.findNonPrivateHandlerMethod(delegate));
    }
 
    @Nullable @Override
    Object produceResult(
-      @Nullable Object invokedObject, @Nonnull ExpectedInvocation invocation,
-      @Nonnull InvocationConstraints constraints, @Nonnull Object[] args)
-   {
+      @Nullable Object invokedObject, @Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints,
+      @Nonnull Object[] args
+   ) {
       return invokeMethodOnTargetObject(invokedObject, invocation, constraints, args);
    }
 }

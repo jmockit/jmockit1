@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -20,13 +20,11 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
    public boolean matches(@Nullable Object argValue) { return areEqual(argValue, object); }
 
    @Override
-   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
-   {
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch) {
       argumentMismatch.appendFormatted(object);
    }
 
-   public static boolean areEqual(@Nullable Object o1, @Nullable Object o2)
-   {
+   public static boolean areEqual(@Nullable Object o1, @Nullable Object o2) {
       if (o1 == null) {
          return o2 == null;
       }
@@ -34,8 +32,7 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
       return o2 != null && (o1 == o2 || areEqualWhenNonNull(o1, o2));
    }
 
-   public static boolean areEqualWhenNonNull(@Nonnull Object o1, @Nonnull Object o2)
-   {
+   public static boolean areEqualWhenNonNull(@Nonnull Object o1, @Nonnull Object o2) {
       if (isArray(o1)) {
          return isArray(o2) && areArraysEqual(o1, o2);
       }
@@ -45,8 +42,7 @@ public class EqualityMatcher implements ArgumentMatcher<EqualityMatcher>
 
    private static boolean isArray(@Nonnull Object o) { return o.getClass().isArray(); }
 
-   private static boolean areArraysEqual(@Nonnull Object array1, @Nonnull Object array2)
-   {
+   private static boolean areArraysEqual(@Nonnull Object array1, @Nonnull Object array2) {
       int length1 = Array.getLength(array1);
 
       if (length1 != Array.getLength(array2)) {

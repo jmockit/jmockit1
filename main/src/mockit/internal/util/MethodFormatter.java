@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -22,13 +22,11 @@ public final class MethodFormatter
    private char typeCode;
    private int arrayDimensions;
 
-   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc)
-   {
+   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc) {
       this(classDesc, methodNameAndDesc, true);
    }
 
-   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc, boolean withParametersAppended)
-   {
+   public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc, boolean withParametersAppended) {
       out = new StringBuilder();
       parameterTypes = new ArrayList<String>(5);
       this.classDesc = classDesc;
@@ -42,8 +40,7 @@ public final class MethodFormatter
 
    @Nonnull public List<String> getParameterTypes() { return parameterTypes; }
 
-   private void appendFriendlyMethodSignature(boolean withParametersAppended)
-   {
+   private void appendFriendlyMethodSignature(boolean withParametersAppended) {
       String className = classDesc.replace('/', '.');
       out.append(className).append('#');
 
@@ -73,8 +70,7 @@ public final class MethodFormatter
    }
 
    @Nonnull
-   private static String getConstructorName(@Nonnull String className)
-   {
+   private static String getConstructorName(@Nonnull String className) {
       int p = className.lastIndexOf('.');
       String constructorName = p < 0 ? className : className.substring(p + 1);
 
@@ -88,8 +84,7 @@ public final class MethodFormatter
       return constructorName;
    }
 
-   private void appendParameterTypesAndNames(@Nonnull String typeDescs)
-   {
+   private void appendParameterTypesAndNames(@Nonnull String typeDescs) {
       String sep = "";
 
       for (String typeDesc : typeDescs.split(";")) {
@@ -108,19 +103,16 @@ public final class MethodFormatter
    }
 
    @Nonnull
-   private static String friendlyReferenceType(@Nonnull String typeDesc)
-   {
+   private static String friendlyReferenceType(@Nonnull String typeDesc) {
       return typeDesc.substring(1).replace("java/lang/", "").replace('/', '.');
    }
 
-   private void appendParameterType(@Nonnull String friendlyTypeDesc)
-   {
+   private void appendParameterType(@Nonnull String friendlyTypeDesc) {
       out.append(friendlyTypeDesc);
       parameterTypes.add(friendlyTypeDesc);
    }
 
-   private void appendParameterName()
-   {
+   private void appendParameterName() {
       String name = ParameterNames.getName(classDesc, methodDesc, parameterIndex);
 
       if (name != null) {
@@ -130,8 +122,7 @@ public final class MethodFormatter
       parameterIndex++;
    }
 
-   private void appendPrimitiveParameterTypesAndNames(@Nonnull String typeDesc)
-   {
+   private void appendPrimitiveParameterTypesAndNames(@Nonnull String typeDesc) {
       String sep = "";
 
       for (typeDescPos = 0; typeDescPos < typeDesc.length(); typeDescPos++) {
@@ -148,8 +139,7 @@ public final class MethodFormatter
       }
    }
 
-   private void addParameterTypes(@Nonnull String typeDescs)
-   {
+   private void addParameterTypes(@Nonnull String typeDescs) {
       for (String typeDesc : typeDescs.split(";")) {
          if (typeDesc.charAt(0) == 'L') {
             parameterTypes.add(friendlyReferenceType(typeDesc));
@@ -160,8 +150,7 @@ public final class MethodFormatter
       }
    }
 
-   private void addPrimitiveParameterTypes(@Nonnull String typeDesc)
-   {
+   private void addPrimitiveParameterTypes(@Nonnull String typeDesc) {
       for (typeDescPos = 0; typeDescPos < typeDesc.length(); typeDescPos++) {
          typeCode = typeDesc.charAt(typeDescPos);
          advancePastArrayDimensionsIfAny(typeDesc);
@@ -172,8 +161,7 @@ public final class MethodFormatter
    }
 
    @Nonnull @SuppressWarnings("OverlyComplexMethod")
-   private String getTypeNameForTypeDesc(@Nonnull String typeDesc)
-   {
+   private String getTypeNameForTypeDesc(@Nonnull String typeDesc) {
       String paramType;
 
       switch (typeCode) {
@@ -198,8 +186,7 @@ public final class MethodFormatter
       return paramType;
    }
 
-   private void advancePastArrayDimensionsIfAny(@Nonnull String param)
-   {
+   private void advancePastArrayDimensionsIfAny(@Nonnull String param) {
       arrayDimensions = 0;
 
       while (typeCode == '[') {
@@ -210,8 +197,7 @@ public final class MethodFormatter
    }
 
    @Nonnull
-   private String getArrayBrackets()
-   {
+   private String getArrayBrackets() {
       @SuppressWarnings("NonConstantStringShouldBeStringBuffer")
       String result = "";
 

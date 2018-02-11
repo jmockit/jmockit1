@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -11,15 +11,12 @@ public final class ObjectMethods
    private ObjectMethods() {}
 
    @Nonnull
-   public static String objectIdentity(@Nonnull Object obj)
-   {
+   public static String objectIdentity(@Nonnull Object obj) {
       return obj.getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(obj));
    }
 
    @Nullable
-   public static Object evaluateOverride(
-      @Nonnull Object obj, @Nonnull String methodNameAndDesc, @Nonnull Object[] args)
-   {
+   public static Object evaluateOverride(@Nonnull Object obj, @Nonnull String methodNameAndDesc, @Nonnull Object[] args) {
       if ("equals(Ljava/lang/Object;)Z".equals(methodNameAndDesc)) {
          return obj == args[0];
       }
@@ -45,8 +42,7 @@ public final class ObjectMethods
       return null;
    }
 
-   public static boolean isMethodFromObject(@Nonnull String name, @Nonnull String desc)
-   {
+   public static boolean isMethodFromObject(@Nonnull String name, @Nonnull String desc) {
       return
          "equals".equals(name)   && "(Ljava/lang/Object;)Z".equals(desc) ||
          "hashCode".equals(name) && "()I".equals(desc) ||

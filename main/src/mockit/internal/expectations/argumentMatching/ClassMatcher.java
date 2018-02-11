@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -33,8 +33,7 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
    }
 
    @Nonnull
-   public static ClassMatcher create(@Nonnull Class<?> expectedClass)
-   {
+   public static ClassMatcher create(@Nonnull Class<?> expectedClass) {
       ClassMatcher matcher = PRIMITIVE_MATCHERS.get(expectedClass);
 
       if (matcher == null) {
@@ -47,14 +46,12 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
    @Nonnull private final String nameOfExpectedClass;
    @Nonnull private final Class<?> matchableClass;
 
-   private ClassMatcher(@Nonnull Class<?> expectedClass)
-   {
+   private ClassMatcher(@Nonnull Class<?> expectedClass) {
       nameOfExpectedClass = expectedClass.getName();
       matchableClass = expectedClass;
    }
 
-   private ClassMatcher(@Nonnull Class<?> primitiveClass, @Nonnull Class<?> primitiveWrapperClass)
-   {
+   private ClassMatcher(@Nonnull Class<?> primitiveClass, @Nonnull Class<?> primitiveWrapperClass) {
       nameOfExpectedClass = primitiveClass.getName();
       matchableClass = primitiveWrapperClass;
    }
@@ -66,8 +63,7 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
    public boolean matches(@Nullable Object argValue) { return matchableClass.isInstance(argValue); }
 
    @Override
-   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
-   {
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch) {
       argumentMismatch.append("an instance of ").append(nameOfExpectedClass);
    }
 }

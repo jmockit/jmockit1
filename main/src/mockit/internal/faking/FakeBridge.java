@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -17,8 +17,7 @@ public final class FakeBridge extends ClassLoadingBridge
    private FakeBridge() { super("$FB"); }
 
    @Nonnull @Override
-   public Object invoke(@Nullable Object faked, Method method, @Nonnull Object[] args) throws Throwable
-   {
+   public Object invoke(@Nullable Object faked, Method method, @Nonnull Object[] args) {
       if (TestRun.isInsideNoMockingZone()) {
          return false;
       }

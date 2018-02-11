@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.startup;
@@ -18,8 +18,7 @@ final class ClassLoadingBridgeFields
 {
    private ClassLoadingBridgeFields() {}
 
-   static void createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation)
-   {
+   static void createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation) {
       String hostClassName = ClassLoadingBridge.hostJREClassName;
 
       if (hostClassName != null) {
@@ -41,8 +40,7 @@ final class ClassLoadingBridgeFields
       ClassLoadingBridge.hostJREClassName = hostClassName;
    }
 
-   private static final class FieldAdditionTransformer implements ClassFileTransformer
-   {
+   private static final class FieldAdditionTransformer implements ClassFileTransformer {
       private static final int FIELD_ACCESS = Access.PUBLIC + Access.STATIC + Access.SYNTHETIC;
       @Nonnull private final Instrumentation instrumentation;
       String hostClassName;
@@ -52,8 +50,8 @@ final class ClassLoadingBridgeFields
       @Nullable @Override
       public byte[] transform(
          @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
-         @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
-      {
+         @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
+      ) {
          if (loader == null && hostClassName == null) { // adds the fields to the first public JRE class to be loaded
             ClassReader cr = new ClassReader(classfileBuffer);
 
@@ -68,21 +66,18 @@ final class ClassLoadingBridgeFields
       }
 
       @Nonnull
-      private static byte[] getModifiedJREClassWithAddedFields(@Nonnull ClassReader classReader)
-      {
+      private static byte[] getModifiedJREClassWithAddedFields(@Nonnull ClassReader classReader) {
          ClassWriter cw = new ClassWriter(classReader);
 
          ClassVisitor cv = new WrappingClassVisitor(cw) {
             @Override
-            public void visitEnd()
-            {
+            public void visitEnd() {
                addField(MockedBridge.MB);
                addField(FakeBridge.MB);
                addField(FakeMethodBridge.MB);
             }
 
-            private void addField(@Nonnull ClassLoadingBridge mb)
-            {
+            private void addField(@Nonnull ClassLoadingBridge mb) {
                cw.visitField(FIELD_ACCESS, mb.id, "Ljava/lang/reflect/InvocationHandler;", null, null);
             }
          };

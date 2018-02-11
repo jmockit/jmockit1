@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -18,14 +18,12 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    @Nonnull private final Map<Class<?>, byte[]> modifiedClassfiles;
    private boolean methodsOnly;
 
-   public DynamicPartialMocking()
-   {
+   public DynamicPartialMocking() {
       targetInstances = new ArrayList<Object>(2);
       modifiedClassfiles = new HashMap<Class<?>, byte[]>();
    }
 
-   public void redefineTypes(@Nonnull Object[] classesOrInstancesToBePartiallyMocked)
-   {
+   public void redefineTypes(@Nonnull Object[] classesOrInstancesToBePartiallyMocked) {
       for (Object classOrInstance : classesOrInstancesToBePartiallyMocked) {
          redefineClassHierarchy(classOrInstance);
       }
@@ -36,8 +34,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       }
    }
 
-   private void redefineClassHierarchy(@Nonnull Object classOrInstance)
-   {
+   private void redefineClassHierarchy(@Nonnull Object classOrInstance) {
       Object mockInstance;
 
       if (classOrInstance instanceof Class) {
@@ -65,24 +62,21 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
       TestRun.getExecutingTest().getCascadingTypes().add(false, targetClass);
    }
 
-   private void applyPartialMockingToGivenClass()
-   {
+   private void applyPartialMockingToGivenClass() {
       validateTargetClassType();
       TestRun.ensureThatClassIsInitialized(targetClass);
       methodsOnly = false;
       redefineMethodsAndConstructorsInTargetType();
    }
 
-   private void applyPartialMockingToGivenInstance(@Nonnull Object instance)
-   {
+   private void applyPartialMockingToGivenInstance(@Nonnull Object instance) {
       validateTargetClassType();
       methodsOnly = true;
       redefineMethodsAndConstructorsInTargetType();
       targetInstances.add(instance);
    }
 
-   private void validateTargetClassType()
-   {
+   private void validateTargetClassType() {
       if (
          targetClass.isInterface() || targetClass.isAnnotation() ||
          targetClass.isArray() || targetClass.isPrimitive() || targetClass.isSynthetic() ||
@@ -98,8 +92,7 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    void configureClassModifier(@Nonnull MockedClassModifier modifier) { modifier.useDynamicMocking(methodsOnly); }
 
    @Override
-   void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
-   {
+   void applyClassRedefinition(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass) {
       modifiedClassfiles.put(realClass, modifiedClass);
    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -11,21 +11,18 @@ public final class InvocationConstraints
 {
    public int minInvocations;
    private int maxInvocations;
-   public int invocationCount;
+   @Nonnegative public int invocationCount;
 
-   public InvocationConstraints(boolean nonStrictInvocation)
-   {
+   public InvocationConstraints(boolean nonStrictInvocation) {
       setLimits(nonStrictInvocation ? 0 : 1, -1);
    }
 
-   public void setLimits(int minInvocations, int maxInvocations)
-   {
+   public void setLimits(int minInvocations, int maxInvocations) {
       this.minInvocations = minInvocations;
       this.maxInvocations = maxInvocations;
    }
 
-   void adjustMaxInvocations(int expectedInvocationCount)
-   {
+   void adjustMaxInvocations(@Nonnegative int expectedInvocationCount) {
       if (maxInvocations > 0 && maxInvocations < expectedInvocationCount) {
          maxInvocations = expectedInvocationCount;
       }
@@ -37,14 +34,12 @@ public final class InvocationConstraints
 
    public boolean isInvocationCountLessThanMinimumExpected() { return invocationCount < minInvocations; }
 
-   public boolean isInvocationCountMoreThanMaximumExpected()
-   {
+   public boolean isInvocationCountMoreThanMaximumExpected() {
       return maxInvocations >= 0 && invocationCount > maxInvocations;
    }
 
    @Nullable
-   public Error verifyLowerLimit(@Nonnull ExpectedInvocation invocation, int lowerLimit)
-   {
+   public Error verifyLowerLimit(@Nonnull ExpectedInvocation invocation, int lowerLimit) {
       if (invocationCount < lowerLimit) {
          int missingInvocations = lowerLimit - invocationCount;
          return invocation.errorForMissingInvocations(missingInvocations, Collections.<ExpectedInvocation>emptyList());
@@ -54,8 +49,7 @@ public final class InvocationConstraints
    }
 
    @Nullable
-   public Error verifyUpperLimit(@Nonnull ExpectedInvocation invocation, @Nonnull Object[] replayArgs, int upperLimit)
-   {
+   public Error verifyUpperLimit(@Nonnull ExpectedInvocation invocation, @Nonnull Object[] replayArgs, int upperLimit) {
       if (upperLimit >= 0) {
          int unexpectedInvocations = invocationCount - upperLimit;
 
@@ -70,8 +64,8 @@ public final class InvocationConstraints
 
    @Nonnull
    public Error errorForMissingExpectations(
-      @Nonnull ExpectedInvocation invocation, @Nonnull List<ExpectedInvocation> nonMatchingInvocations)
-   {
+      @Nonnull ExpectedInvocation invocation, @Nonnull List<ExpectedInvocation> nonMatchingInvocations
+   ) {
       return invocation.errorForMissingInvocations(minInvocations - invocationCount, nonMatchingInvocations);
    }
 }

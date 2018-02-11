@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -24,19 +24,16 @@ public abstract class InstanceFactory
    @Nullable public final Object getLastInstance() { return lastInstance; }
    public abstract void clearLastInstance();
 
-   static final class InterfaceInstanceFactory extends InstanceFactory
-   {
+   static final class InterfaceInstanceFactory extends InstanceFactory {
       @Nullable private Object emptyProxy;
 
-      InterfaceInstanceFactory(@Nonnull Object emptyProxy)
-      {
+      InterfaceInstanceFactory(@Nonnull Object emptyProxy) {
          super(emptyProxy.getClass());
          this.emptyProxy = emptyProxy;
       }
 
       @Nonnull @Override
-      public Object create()
-      {
+      public Object create() {
          if (emptyProxy == null) {
             emptyProxy = ConstructorReflection.newUninitializedInstance(concreteClass);
          }
@@ -46,20 +43,17 @@ public abstract class InstanceFactory
       }
 
       @Override
-      public void clearLastInstance()
-      {
+      public void clearLastInstance() {
          emptyProxy = null;
          lastInstance = null;
       }
    }
 
-   static final class ClassInstanceFactory extends InstanceFactory
-   {
+   static final class ClassInstanceFactory extends InstanceFactory {
       ClassInstanceFactory(@Nonnull Class<?> concreteClass) { super(concreteClass); }
 
       @Override @Nonnull
-      public Object create()
-      {
+      public Object create() {
          lastInstance = ConstructorReflection.newUninitializedInstance(concreteClass);
          return lastInstance;
       }

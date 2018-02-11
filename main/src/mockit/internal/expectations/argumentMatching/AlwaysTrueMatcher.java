@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -22,27 +22,21 @@ public final class AlwaysTrueMatcher implements ArgumentMatcher<AlwaysTrueMatche
    @Nonnull private final Class<?> expectedType;
    @Nullable private final String typeName;
 
-   private AlwaysTrueMatcher(@Nonnull Class<?> expectedType, @Nullable String typeName)
-   {
+   private AlwaysTrueMatcher(@Nonnull Class<?> expectedType, @Nullable String typeName) {
       this.expectedType = expectedType;
       this.typeName = typeName;
    }
 
    @Override
-   public boolean same(@Nonnull AlwaysTrueMatcher other)
-   {
-      return expectedType == other.expectedType;
-   }
+   public boolean same(@Nonnull AlwaysTrueMatcher other) { return expectedType == other.expectedType; }
 
    @Override
-   public boolean matches(@Nullable Object argValue)
-   {
+   public boolean matches(@Nullable Object argValue) {
       return argValue == null || expectedType.isInstance(argValue);
    }
 
    @Override
-   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
-   {
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch) {
       String parameterTypeName = typeName != null ? typeName : argumentMismatch.getParameterType();
       argumentMismatch.append("any ").append(parameterTypeName);
    }
