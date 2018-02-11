@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -11,29 +11,24 @@ import mockit.internal.state.*;
 
 public enum ExecutionMode
 {
-   Regular
-   {
+   Regular {
       @Override
       boolean isNativeMethodToBeIgnored(int access) { return false; }
 
       @Override
-      boolean isToExecuteRealImplementation(@Nullable Object instance)
-      {
+      boolean isToExecuteRealImplementation(@Nullable Object instance) {
          return instance != null && !TestRun.mockFixture().isInstanceOfMockedClass(instance);
       }
    },
 
-   Partial
-   {
+   Partial {
       @Override
-      boolean isToExecuteRealImplementation(@Nullable Object instance)
-      {
+      boolean isToExecuteRealImplementation(@Nullable Object instance) {
          return instance != null && !TestRun.mockFixture().isInstanceOfMockedClass(instance);
       }
 
       @Override
-      boolean isWithRealImplementation(@Nullable Object instance)
-      {
+      boolean isWithRealImplementation(@Nullable Object instance) {
          return instance == null || !TestRun.getExecutingTest().isInjectableMock(instance);
       }
 
@@ -41,26 +36,22 @@ public enum ExecutionMode
       boolean isToExecuteRealObjectOverride(@Nonnull Object instance) { return true; }
    },
 
-   PerInstance
-   {
+   PerInstance {
       @Override
       boolean isStaticMethodToBeIgnored(int access) { return isStatic(access); }
 
       @Override
-      boolean isToExecuteRealImplementation(@Nullable Object instance)
-      {
+      boolean isToExecuteRealImplementation(@Nullable Object instance) {
          return instance == null || !TestRun.getExecutingTest().isMockedInstance(instance);
       }
 
       @Override
-      boolean isToExecuteRealObjectOverride(@Nonnull Object instance)
-      {
+      boolean isToExecuteRealObjectOverride(@Nonnull Object instance) {
          return !TestRun.getExecutingTest().isMockedInstance(instance);
       }
    };
 
-   public final boolean isMethodToBeIgnored(int access)
-   {
+   public final boolean isMethodToBeIgnored(int access) {
       return isStaticMethodToBeIgnored(access) || isNativeMethodToBeIgnored(access);
    }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -23,25 +23,20 @@ final class FailureState
     */
    @Nullable private Error errorThrown;
 
-   FailureState()
-   {
-      testThread = Thread.currentThread();
-   }
+   FailureState() { testThread = Thread.currentThread(); }
 
    @Nullable Error getErrorThrownInAnotherThreadIfAny() { return errorThrownInAnotherThread; }
    @Nullable Error getErrorThrown() { return errorThrown; }
    void setErrorThrown(@Nullable Error error) { errorThrown = error; }
    void clearErrorThrown() { errorThrown = null; }
 
-   void reportErrorThrownIfAny()
-   {
+   void reportErrorThrownIfAny() {
       if (errorThrown != null) {
          if (testThread == Thread.currentThread()) {
             throw errorThrown;
          }
-         else {
-            errorThrownInAnotherThread = errorThrown;
-         }
+
+         errorThrownInAnotherThread = errorThrown;
       }
    }
 }

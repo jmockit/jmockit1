@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -20,14 +20,12 @@ public abstract class BaseInvocation extends Invocation
    @Nullable protected Member realMember;
    @Nullable protected BaseInvocation previousInvocation;
 
-   protected BaseInvocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, int invocationCount)
-   {
+   protected BaseInvocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnegative int invocationCount) {
       super(invokedInstance, invokedArguments, invocationCount);
    }
 
    @Nonnull
-   public final Member getRealMember()
-   {
+   public final Member getRealMember() {
       if (realMember == null) {
          realMember = findRealMember();
       }
@@ -38,8 +36,7 @@ public abstract class BaseInvocation extends Invocation
    @Nonnull protected abstract Member findRealMember();
 
    @Nullable
-   public final <T> T doProceed(@Nullable Object[] replacementArguments)
-   {
+   public final <T> T doProceed(@Nullable Object[] replacementArguments) {
       Member memberToInvoke = getRealMember();
 
       if (memberToInvoke instanceof Constructor) {
@@ -66,8 +63,7 @@ public abstract class BaseInvocation extends Invocation
    }
 
    @Nonnull
-   private static Object[] createArgumentsArrayWithVarargs(int numInvokedArgs, @Nonnull Object[] replacementArguments)
-   {
+   private static Object[] createArgumentsArrayWithVarargs(@Nonnegative int numInvokedArgs, @Nonnull Object[] replacementArguments) {
       int m = numInvokedArgs - 1;
       Object[] actualArgs = new Object[numInvokedArgs];
       System.arraycopy(replacementArguments, 0, actualArgs, 0, m);
@@ -85,8 +81,7 @@ public abstract class BaseInvocation extends Invocation
    @Nullable public final BaseInvocation getPrevious() { return previousInvocation; }
    public final void setPrevious(@Nonnull BaseInvocation previous) { previousInvocation = previous; }
 
-   public final boolean isMethodInSuperclass(@Nullable Object mock, @Nonnull String classDesc)
-   {
+   public final boolean isMethodInSuperclass(@Nullable Object mock, @Nonnull String classDesc) {
       if (mock != null && mock == getInvokedInstance() && getInvokedMember() instanceof Method) {
          Method methodToInvoke = getInvokedMember();
          String invokedClassDesc = methodToInvoke.getDeclaringClass().getName().replace('.', '/');

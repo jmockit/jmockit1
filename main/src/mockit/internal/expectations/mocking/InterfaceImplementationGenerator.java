@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -17,17 +17,16 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
    private String interfaceName;
 
    InterfaceImplementationGenerator(
-      @Nonnull ClassReader classReader, @Nonnull Type mockedType, @Nonnull String implementationClassName)
-   {
+      @Nonnull ClassReader classReader, @Nonnull Type mockedType, @Nonnull String implementationClassName
+   ) {
       super(classReader, implementationClassName);
       mockedTypeInfo = new MockedTypeInfo(mockedType);
    }
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces)
-   {
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
+   ) {
       interfaceName = name;
       String classSignature = signature == null ? null : signature + mockedTypeInfo.implementationSignature;
       super.visit(version, access, name, classSignature, superName, interfaces);
@@ -35,8 +34,8 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
 
    @Override
    protected void generateMethodBody(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       mw = cw.visitMethod(Access.PUBLIC, name, desc, signature, exceptions);
 
       String className = null;
@@ -46,7 +45,9 @@ final class InterfaceImplementationGenerator extends BaseImplementationGenerator
 
          if (subInterfaceOverride != null) {
             className = interfaceName;
+            //noinspection AssignmentToMethodParameter
             desc = subInterfaceOverride.substring(name.length());
+            //noinspection AssignmentToMethodParameter
             signature = null;
          }
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -22,6 +22,6 @@ abstract class Phase
    @Nullable
    abstract Object handleInvocation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
-      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
-      throws Throwable;
+      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
+   ) throws Throwable;
 }
