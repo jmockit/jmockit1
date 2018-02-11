@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.paths;
@@ -19,8 +19,7 @@ public class Node implements Serializable
 
    private Node(int line) { this.line = line; }
 
-   void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode)
-   {
+   void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode) {
       int currentSegment = precedingNode.segment;
       segment = precedingNode instanceof Fork ? currentSegment + 1 : currentSegment;
    }
@@ -33,41 +32,30 @@ public class Node implements Serializable
    @Override
    public final String toString() { return getClass().getSimpleName() + ':' + line + '-' + segment; }
 
-   static final class Entry extends Node
-   {
+   static final class Entry extends Node {
       private static final long serialVersionUID = -3065417917872259568L;
       @Nullable Fork nextNode;
 
       Entry(int entryLine) { super(entryLine); }
    }
 
-   interface ConditionalSuccessor extends Serializable
-   {
-      void addToPath(@Nonnull Path path);
-   }
+   interface ConditionalSuccessor extends Serializable { void addToPath(@Nonnull Path path); }
+   interface GotoSuccessor extends Serializable { void setNextNodeAfterGoto(@Nonnull Join newJoin); }
 
-   interface GotoSuccessor extends Serializable
-   {
-      void setNextNodeAfterGoto(@Nonnull Join newJoin);
-   }
-
-   static final class Exit extends Node implements ConditionalSuccessor
-   {
+   static final class Exit extends Node implements ConditionalSuccessor {
       private static final long serialVersionUID = -4801498566218642509L;
       @Nonnull final List<Path> paths = new ArrayList<Path>(4);
 
       Exit(int exitLine) { super(exitLine); }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
          paths.add(path);
       }
    }
 
-   static final class BasicBlock extends Node implements ConditionalSuccessor, GotoSuccessor
-   {
+   static final class BasicBlock extends Node implements ConditionalSuccessor, GotoSuccessor {
       private static final long serialVersionUID = 2637678937923952603L;
       @Nullable ConditionalSuccessor nextConsecutiveNode;
       @Nullable private Join nextNodeAfterGoto;
@@ -78,8 +66,7 @@ public class Node implements Serializable
       public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
 
          if (nextNodeAfterGoto != null) {
@@ -92,23 +79,20 @@ public class Node implements Serializable
       }
    }
 
-   public abstract static class Fork extends Node implements ConditionalSuccessor
-   {
+   abstract static class Fork extends Node implements ConditionalSuccessor {
       private static final long serialVersionUID = -4995089238476806249L;
 
       Fork(int line) { super(line); }
 
       abstract void addNextNode(@Nonnull Join nextNode);
 
-      static void createAlternatePath(@Nonnull Path parentPath, @Nonnull Join targetJoin)
-      {
+      static void createAlternatePath(@Nonnull Path parentPath, @Nonnull Join targetJoin) {
          Path alternatePath = new Path(parentPath, targetJoin.fromTrivialFork);
          targetJoin.addToPath(alternatePath);
       }
    }
 
-   static final class SimpleFork extends Fork
-   {
+   static final class SimpleFork extends Fork {
       private static final long serialVersionUID = -521666665272332763L;
       @Nullable ConditionalSuccessor nextConsecutiveNode;
       @Nullable private Join nextNodeAfterJump;
@@ -119,8 +103,7 @@ public class Node implements Serializable
       void addNextNode(@Nonnull Join nextNode) { nextNodeAfterJump = nextNode; }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
 
          if (nextNodeAfterJump != null) {
@@ -133,8 +116,7 @@ public class Node implements Serializable
       }
    }
 
-   static final class MultiFork extends Fork
-   {
+   static final class MultiFork extends Fork {
       private static final long serialVersionUID = 1220318686622690670L;
       @Nonnull private final List<Join> caseNodes = new ArrayList<Join>();
 
@@ -144,8 +126,7 @@ public class Node implements Serializable
       void addNextNode(@Nonnull Join nextNode) { caseNodes.add(nextNode); }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
 
          for (Join caseJoin : caseNodes) {
@@ -154,8 +135,7 @@ public class Node implements Serializable
       }
    }
 
-   static final class Join extends Node implements ConditionalSuccessor, GotoSuccessor
-   {
+   static final class Join extends Node implements ConditionalSuccessor, GotoSuccessor {
       private static final long serialVersionUID = -1983522899831071765L;
       @Nullable ConditionalSuccessor nextNode;
       transient boolean fromTrivialFork;
@@ -166,8 +146,7 @@ public class Node implements Serializable
       public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNode = newJoin; }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
 
          // TODO: can be null when there is a try..finally block; see WhileStatements#whileTrueContainingTryFinally
@@ -177,14 +156,12 @@ public class Node implements Serializable
       }
 
       @Override
-      void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode)
-      {
+      void setSegmentAccordingToPrecedingNode(@Nonnull Node precedingNode) {
          segment = precedingNode.segment + 1;
       }
    }
 
-   static final class Goto extends Node implements ConditionalSuccessor, GotoSuccessor
-   {
+   static final class Goto extends Node implements ConditionalSuccessor, GotoSuccessor {
       private static final long serialVersionUID = -4715451134432419220L;
       private Join nextNodeAfterGoto;
 
@@ -194,8 +171,7 @@ public class Node implements Serializable
       public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
       @Override
-      public void addToPath(@Nonnull Path path)
-      {
+      public void addToPath(@Nonnull Path path) {
          path.addNode(this);
          nextNodeAfterGoto.addToPath(path);
       }

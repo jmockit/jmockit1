@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
@@ -15,8 +15,7 @@ public abstract class FieldData implements Serializable
    int writeCount;
    @Nullable Boolean covered;
 
-   private void writeObject(@Nonnull ObjectOutputStream out) throws IOException
-   {
+   private void writeObject(@Nonnull ObjectOutputStream out) throws IOException {
       isCovered();
       out.defaultWriteObject();
    }
@@ -24,8 +23,7 @@ public abstract class FieldData implements Serializable
    public final int getReadCount() { return readCount; }
    public final int getWriteCount() { return writeCount; }
 
-   public final boolean isCovered()
-   {
+   public final boolean isCovered() {
       if (covered == null) {
          covered = false;
          markAsCoveredIfNoUnreadValuesAreLeft();
@@ -36,8 +34,7 @@ public abstract class FieldData implements Serializable
 
    abstract void markAsCoveredIfNoUnreadValuesAreLeft();
 
-   final void addCountsFromPreviousTestRun(@Nonnull FieldData previousInfo)
-   {
+   final void addCountsFromPreviousTestRun(@Nonnull FieldData previousInfo) {
       readCount += previousInfo.readCount;
       writeCount += previousInfo.writeCount;
       covered = isCovered() || previousInfo.isCovered();

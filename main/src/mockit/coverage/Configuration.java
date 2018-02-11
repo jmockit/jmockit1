@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -14,13 +14,11 @@ public final class Configuration
    private Configuration() {}
 
    @Nullable
-   public static String getProperty(@Nonnull String nameSuffix)
-   {
+   public static String getProperty(@Nonnull String nameSuffix) {
       return getProperty(nameSuffix, null);
    }
 
-   public static String getProperty(@Nonnull String nameSuffix, @Nullable String defaultValue)
-   {
+   public static String getProperty(@Nonnull String nameSuffix, @Nullable String defaultValue) {
       String property = System.getProperty(COVERAGE_PREFIX1 + nameSuffix);
 
       if (property != null) {
@@ -31,8 +29,7 @@ public final class Configuration
    }
 
    @Nullable
-   public static String getOrChooseOutputDirectory(@Nonnull String outputDir)
-   {
+   public static String getOrChooseOutputDirectory(@Nonnull String outputDir) {
       if (!outputDir.isEmpty()) {
          return outputDir;
       }
@@ -42,8 +39,7 @@ public final class Configuration
    }
 
    @Nonnull
-   public static String getOrChooseOutputDirectory(@Nonnull String outputDir, @Nonnull String defaultDir)
-   {
+   public static String getOrChooseOutputDirectory(@Nonnull String outputDir, @Nonnull String defaultDir) {
       if (!outputDir.isEmpty()) {
          return outputDir;
       }

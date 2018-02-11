@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -13,15 +13,15 @@ import mockit.coverage.testRedundancy.*;
 @SuppressWarnings("unused")
 public final class TestRun
 {
+   private static final Object LOCK = new Object();
    private static boolean terminated;
 
    private TestRun() {}
 
-   public static void lineExecuted(int fileIndex, int line)
-   {
+   public static void lineExecuted(int fileIndex, int line) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
          CallPoint callPoint = null;
@@ -35,8 +35,7 @@ public final class TestRun
       }
    }
 
-   private static void recordNewLineOrSegmentAsCoveredIfApplicable(@Nonnegative int previousExecutionCount)
-   {
+   private static void recordNewLineOrSegmentAsCoveredIfApplicable(@Nonnegative int previousExecutionCount) {
       TestCoverage testCoverage = TestCoverage.INSTANCE;
 
       if (testCoverage != null) {
@@ -44,11 +43,10 @@ public final class TestRun
       }
    }
 
-   public static void branchExecuted(int fileIndex, int line, int branchIndex)
-   {
+   public static void branchExecuted(int fileIndex, int line, int branchIndex) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          PerFileLineCoverage fileData = coverageData.getFileData(fileIndex).lineCoverageInfo;
 
@@ -65,11 +63,10 @@ public final class TestRun
       }
    }
 
-   public static void nodeReached(@Nonnull String file, int firstLineInMethodBody, int node)
-   {
+   public static void nodeReached(@Nonnull String file, int firstLineInMethodBody, int node) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
 
@@ -78,44 +75,40 @@ public final class TestRun
       }
    }
 
-   public static void fieldAssigned(@Nonnull String file, @Nonnull String classAndFieldNames)
-   {
+   public static void fieldAssigned(@Nonnull String file, @Nonnull String classAndFieldNames) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
          fileData.dataCoverageInfo.registerAssignmentToStaticField(classAndFieldNames);
       }
    }
 
-   public static void fieldRead(@Nonnull String file, @Nonnull String classAndFieldNames)
-   {
+   public static void fieldRead(@Nonnull String file, @Nonnull String classAndFieldNames) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
          fileData.dataCoverageInfo.registerReadOfStaticField(classAndFieldNames);
       }
    }
 
-   public static void fieldAssigned(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames)
-   {
+   public static void fieldAssigned(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
          fileData.dataCoverageInfo.registerAssignmentToInstanceField(instance, classAndFieldNames);
       }
    }
 
-   public static void fieldRead(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames)
-   {
+   public static void fieldRead(@Nonnull Object instance, @Nonnull String file, @Nonnull String classAndFieldNames) {
       if (terminated) return;
 
-      synchronized (TestRun.class) {
+      synchronized (LOCK) {
          CoverageData coverageData = CoverageData.instance();
          FileCoverageData fileData = coverageData.getFileData(file);
          fileData.dataCoverageInfo.registerReadOfInstanceField(instance, classAndFieldNames);

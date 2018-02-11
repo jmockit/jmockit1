@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -21,8 +21,7 @@ public final class CodeCoverage implements ClassFileTransformer
    private boolean outputPendingForShutdown;
    private boolean inactive;
 
-   public static void main(@Nonnull String[] args)
-   {
+   public static void main(@Nonnull String[] args) {
       if (args.length == 1) {
          String pid = args[0];
 
@@ -40,15 +39,13 @@ public final class CodeCoverage implements ClassFileTransformer
    }
 
    @Nonnull
-   private static OutputFileGenerator createOutputFileGenerator(@Nullable ClassModification classModification)
-   {
+   private static OutputFileGenerator createOutputFileGenerator(@Nullable ClassModification classModification) {
       OutputFileGenerator generator = new OutputFileGenerator(classModification);
       CoverageData.instance().setWithCallPoints(generator.isWithCallPoints());
       return generator;
    }
 
-   public CodeCoverage()
-   {
+   public CodeCoverage() {
       classModification = new ClassModification();
       outputGenerator = createOutputFileGenerator(classModification);
       outputPendingForShutdown = true;
@@ -56,8 +53,7 @@ public final class CodeCoverage implements ClassFileTransformer
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
          @Override
-         public void run()
-         {
+         public void run() {
             TestRun.terminate();
 
             if (outputPendingForShutdown) {
@@ -73,8 +69,7 @@ public final class CodeCoverage implements ClassFileTransformer
       });
    }
 
-   public static boolean active()
-   {
+   public static boolean active() {
       String coverageOutput  = Configuration.getProperty("output");
       String coverageClasses = Configuration.getProperty("classes");
       String coverageMetrics = Configuration.getProperty("metrics");
@@ -85,15 +80,13 @@ public final class CodeCoverage implements ClassFileTransformer
    }
 
    @Nonnull
-   public static CodeCoverage create(boolean generateOutputOnShutdown)
-   {
+   public static CodeCoverage create(boolean generateOutputOnShutdown) {
       instance = new CodeCoverage();
       instance.outputPendingForShutdown = generateOutputOnShutdown;
       return instance;
    }
 
-   public static void generateOutput()
-   {
+   public static void generateOutput() {
       instance.outputGenerator.generate(null);
       instance.outputPendingForShutdown = false;
    }
@@ -101,8 +94,8 @@ public final class CodeCoverage implements ClassFileTransformer
    @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, @Nonnull String internalClassName, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] originalClassfile)
-   {
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] originalClassfile
+   ) {
       if (loader == null || classBeingRedefined != null || protectionDomain == null || inactive) {
          return null;
       }

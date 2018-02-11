@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -14,8 +14,7 @@ final class DataFileMerging
 {
    @Nonnull private final List<File> inputFiles;
 
-   DataFileMerging(@Nonnull String[] inputPaths)
-   {
+   DataFileMerging(@Nonnull String[] inputPaths) {
       inputFiles = new ArrayList<File>(inputPaths.length);
 
       for (String path : inputPaths) {
@@ -23,8 +22,7 @@ final class DataFileMerging
       }
    }
 
-   private void addInputFileToList(@Nonnull String path)
-   {
+   private void addInputFileToList(@Nonnull String path) {
       if (!path.isEmpty()) {
          File inputFile = new File(path);
 
@@ -36,8 +34,8 @@ final class DataFileMerging
       }
    }
 
-   @Nonnull CoverageData merge() throws IOException
-   {
+   @Nonnull
+   CoverageData merge() throws IOException {
       CoverageData mergedData = null;
 
       for (File inputFile : inputFiles) {

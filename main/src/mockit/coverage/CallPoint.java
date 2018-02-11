@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -21,8 +21,7 @@ public final class CallPoint implements Serializable
    private static final boolean checkTestAnnotationOnClass;
    private static final boolean checkIfTestCaseSubclass;
 
-   static
-   {
+   static {
       boolean checkOnClassAlso = true;
       Class<?> annotation;
 
@@ -41,31 +40,22 @@ public final class CallPoint implements Serializable
    }
 
    @Nullable
-   private static Class<?> getTestNGAnnotationIfAvailable()
-   {
+   private static Class<?> getTestNGAnnotationIfAvailable() {
       try {
          return Class.forName("org.testng.annotations.Test");
       }
       catch (ClassNotFoundException ignore) {
          // For older versions of TestNG:
-         try {
-            return Class.forName("org.testng.Test");
-         }
-         catch (ClassNotFoundException ignored) {
-            return null;
-         }
+         try { return Class.forName("org.testng.Test"); } catch (ClassNotFoundException ignored) { return null; }
       }
    }
 
-   private static boolean checkForJUnit3Availability()
-   {
+   private static boolean checkForJUnit3Availability() {
       try {
          Class.forName("junit.framework.TestCase");
          return true;
       }
-      catch (ClassNotFoundException ignore) {
-         return false;
-      }
+      catch (ClassNotFoundException ignore) { return false; }
    }
 
    @Nonnull private final StackTraceElement ste;
@@ -78,8 +68,7 @@ public final class CallPoint implements Serializable
 
    public void incrementRepetitionCount() { repetitionCount++; }
 
-   public boolean isSameTestMethod(@Nonnull CallPoint other)
-   {
+   public boolean isSameTestMethod(@Nonnull CallPoint other) {
       StackTraceElement thisSTE = ste;
       StackTraceElement otherSTE = other.ste;
       return
@@ -88,14 +77,12 @@ public final class CallPoint implements Serializable
          thisSTE.getMethodName().equals(otherSTE.getMethodName());
    }
 
-   public boolean isSameLineInTestCode(@Nonnull CallPoint other)
-   {
+   public boolean isSameLineInTestCode(@Nonnull CallPoint other) {
       return isSameTestMethod(other) && ste.getLineNumber() == other.ste.getLineNumber();
    }
 
    @Nullable
-   static CallPoint create(@Nonnull Throwable newThrowable)
-   {
+   static CallPoint create(@Nonnull Throwable newThrowable) {
       StackTrace st = new StackTrace(newThrowable);
       int n = st.getDepth();
 
@@ -110,8 +97,7 @@ public final class CallPoint implements Serializable
       return null;
    }
 
-   private static boolean isTestMethod(@Nonnull StackTraceElement ste)
-   {
+   private static boolean isTestMethod(@Nonnull StackTraceElement ste) {
       String className = ste.getClassName();
       String methodName = ste.getMethodName();
 
@@ -137,16 +123,14 @@ public final class CallPoint implements Serializable
       return isTestMethod;
    }
 
-   private static boolean isClassInExcludedPackage(@Nonnull String className)
-   {
+   private static boolean isClassInExcludedPackage(@Nonnull String className) {
       return
          className.startsWith("java.")      || className.startsWith("javax.")      || className.startsWith("sun.") ||
          className.startsWith("org.junit.") || className.startsWith("org.testng.") || className.startsWith("mockit.");
    }
 
    @Nullable
-   private static Class<?> loadClass(@Nonnull String className)
-   {
+   private static Class<?> loadClass(@Nonnull String className) {
       try {
          return Class.forName(className);
       }
@@ -154,8 +138,7 @@ public final class CallPoint implements Serializable
       catch (LinkageError ignore) { return null; }
    }
 
-   private static boolean isTestMethod(@Nonnull Class<?> testClass, @Nonnull String methodName)
-   {
+   private static boolean isTestMethod(@Nonnull Class<?> testClass, @Nonnull String methodName) {
       if (checkTestAnnotationOnClass && testClass.isAnnotationPresent(testAnnotation)) {
          return true;
       }
@@ -169,8 +152,7 @@ public final class CallPoint implements Serializable
    }
 
    @Nullable
-   private static Method findMethod(@Nonnull Class<?> aClass, @Nonnull String name)
-   {
+   private static Method findMethod(@Nonnull Class<?> aClass, @Nonnull String name) {
       try {
          for (Method method : aClass.getDeclaredMethods()) {
             if (method.getReturnType() == void.class && name.equals(method.getName())) {
@@ -183,8 +165,7 @@ public final class CallPoint implements Serializable
       return null;
    }
 
-   private static boolean containsATestFrameworkAnnotation(@Nonnull Annotation[] methodAnnotations)
-   {
+   private static boolean containsATestFrameworkAnnotation(@Nonnull Annotation[] methodAnnotations) {
       for (Annotation annotation : methodAnnotations) {
          String annotationName = annotation.annotationType().getName();
 
@@ -196,8 +177,7 @@ public final class CallPoint implements Serializable
       return false;
    }
 
-   private static boolean isJUnit3xTestMethod(@Nonnull Class<?> aClass, @Nonnull Method method)
-   {
+   private static boolean isJUnit3xTestMethod(@Nonnull Class<?> aClass, @Nonnull Method method) {
       if (!isPublic(method.getModifiers()) || !method.getName().startsWith("test")) {
          return false;
       }

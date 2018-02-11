@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
@@ -16,8 +16,7 @@ public final class InstanceFieldData extends FieldData
    @Nonnull
    private final transient Map<Integer, List<Integer>> testIdsToAssignments = new HashMap<Integer, List<Integer>>();
 
-   void registerAssignment(@Nonnull Object instance)
-   {
+   void registerAssignment(@Nonnull Object instance) {
       List<Integer> dataForRunningTest = getDataForRunningTest();
       Integer instanceId = System.identityHashCode(instance);
 
@@ -28,8 +27,7 @@ public final class InstanceFieldData extends FieldData
       writeCount++;
    }
 
-   void registerRead(@Nonnull Object instance)
-   {
+   void registerRead(@Nonnull Object instance) {
       List<Integer> dataForRunningTest = getDataForRunningTest();
       Integer instanceId = System.identityHashCode(instance);
 
@@ -38,8 +36,7 @@ public final class InstanceFieldData extends FieldData
    }
 
    @Nonnull
-   private List<Integer> getDataForRunningTest()
-   {
+   private List<Integer> getDataForRunningTest() {
       int testId = TestRun.getTestId();
       List<Integer> fieldData = testIdsToAssignments.get(testId);
 
@@ -52,8 +49,7 @@ public final class InstanceFieldData extends FieldData
    }
 
    @Override
-   void markAsCoveredIfNoUnreadValuesAreLeft()
-   {
+   void markAsCoveredIfNoUnreadValuesAreLeft() {
       for (List<Integer> unreadInstances : testIdsToAssignments.values()) {
          if (unreadInstances.isEmpty()) {
             covered = true;
@@ -63,8 +59,7 @@ public final class InstanceFieldData extends FieldData
    }
 
    @Nonnull
-   public List<Integer> getOwnerInstancesWithUnreadAssignments()
-   {
+   public List<Integer> getOwnerInstancesWithUnreadAssignments() {
       if (isCovered()) {
          return Collections.emptyList();
       }

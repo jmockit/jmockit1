@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -23,8 +23,7 @@ public final class LineCoverageData extends LineSegmentData
 
    LineCoverageData() { branches = Collections.emptyList(); }
 
-   public int addBranchingPoint(@Nonnull Label jumpSource, @Nonnull Label jumpTarget)
-   {
+   public int addBranchingPoint(@Nonnull Label jumpSource, @Nonnull Label jumpTarget) {
       int initialIndex = branches.size();
 
       if (initialIndex == 0) {
@@ -36,24 +35,21 @@ public final class LineCoverageData extends LineSegmentData
       return initialIndex;
    }
 
-   void markLastSegmentAsEmpty()
-   {
+   void markLastSegmentAsEmpty() {
       BranchCoverageData lastBranch = branches.get(branches.size() - 1);
       lastBranch.markAsEmpty();
    }
 
-   public boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
+   private boolean noBranchesYet() { return branches == Collections.<BranchCoverageData>emptyList(); }
 
    @Nonnull public BranchCoverageData getBranchData(int index) { return branches.get(index); }
 
-   boolean acceptsAdditionalCallPoints(int branchIndex)
-   {
+   boolean acceptsAdditionalCallPoints(int branchIndex) {
       BranchCoverageData data = branches.get(branchIndex);
       return data.acceptsAdditionalCallPoints();
    }
 
-   int registerExecution(int branchIndex, @Nullable CallPoint callPoint)
-   {
+   int registerExecution(int branchIndex, @Nullable CallPoint callPoint) {
       BranchCoverageData data = branches.get(branchIndex);
       return data.registerExecution(callPoint);
    }
@@ -64,8 +60,7 @@ public final class LineCoverageData extends LineSegmentData
 
    public boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
 
-   public int getNumberOfSegments()
-   {
+   public int getNumberOfSegments() {
       int previouslyCounted = segments;
 
       if (previouslyCounted > 0) {
@@ -102,8 +97,7 @@ public final class LineCoverageData extends LineSegmentData
       return count;
    }
 
-   public int getNumberOfCoveredSegments()
-   {
+   public int getNumberOfCoveredSegments() {
       int segmentsCovered = executionCount > 0 ? 1 : 0;
       int n = branches.size();
 
@@ -131,8 +125,7 @@ public final class LineCoverageData extends LineSegmentData
       return segmentsCovered;
    }
 
-   public int getNumberOfBranchingSourcesAndTargets()
-   {
+   public int getNumberOfBranchingSourcesAndTargets() {
       int n = branches.size();
 
       if (n == 0) {
@@ -154,8 +147,7 @@ public final class LineCoverageData extends LineSegmentData
       return count;
    }
 
-   public int getNumberOfCoveredBranchingSourcesAndTargets()
-   {
+   public int getNumberOfCoveredBranchingSourcesAndTargets() {
       int n = branches.size();
 
       if (n == 0) {
@@ -184,8 +176,7 @@ public final class LineCoverageData extends LineSegmentData
       return sourcesAndTargetsCovered;
    }
 
-   void addCountsFromPreviousTestRun(@Nonnull LineCoverageData previousData)
-   {
+   void addCountsFromPreviousTestRun(@Nonnull LineCoverageData previousData) {
       addExecutionCountAndCallPointsFromPreviousTestRun(previousData);
 
       if (containsBranches()) {

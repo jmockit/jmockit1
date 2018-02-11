@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -13,16 +13,14 @@ import mockit.coverage.data.*;
 
 final class CoverageCheck
 {
-   private static final class Threshold
-   {
+   private static final class Threshold {
       private static final Pattern PARAMETER_SEPARATORS = Pattern.compile(":|=");
 
       @Nullable private final String sourceFilePrefix;
       @Nonnull private final String scopeDescription;
       @Nonnull private final int[] minPercentages;
 
-      Threshold(@Nonnull String configurationParameter)
-      {
+      Threshold(@Nonnull String configurationParameter) {
          String[] sourceFilePrefixAndMinPercentages = PARAMETER_SEPARATORS.split(configurationParameter);
          String csvPercentages;
 
@@ -52,8 +50,7 @@ final class CoverageCheck
 
       private static boolean isPerFile(@Nullable String scope) { return "perFile".equalsIgnoreCase(scope); }
 
-      private void parseMinimumPercentages(@Nonnull String csvPercentages)
-      {
+      private void parseMinimumPercentages(@Nonnull String csvPercentages) {
          String[] textualPercentages = csvPercentages.split(",");
          int n = Math.min(textualPercentages.length, minPercentages.length);
 
@@ -63,8 +60,7 @@ final class CoverageCheck
          }
       }
 
-      boolean verifyMinimum(@Nonnull Metrics metric)
-      {
+      boolean verifyMinimum(@Nonnull Metrics metric) {
          CoverageData coverageData = CoverageData.instance();
          int percentage;
 
@@ -78,14 +74,12 @@ final class CoverageCheck
          return percentage < 0 || verifyMinimum(metric, percentage);
       }
 
-      private boolean verifyMinimum(@Nonnull Metrics metric, int percentage)
-      {
+      private boolean verifyMinimum(@Nonnull Metrics metric, int percentage) {
          int minPercentage = minPercentages[metric.ordinal()];
 
          if (percentage < minPercentage) {
             System.out.println(
-               "JMockit: " + metric + " coverage too low" + scopeDescription + ": " +
-               percentage + "% < " + minPercentage + '%');
+               "JMockit: " + metric + " coverage too low" + scopeDescription + ": " + percentage + "% < " + minPercentage + '%');
             return false;
          }
 
@@ -96,8 +90,7 @@ final class CoverageCheck
    @Nullable private final List<Threshold> thresholds;
    private boolean allThresholdsSatisfied;
 
-   CoverageCheck()
-   {
+   CoverageCheck() {
       String configuration = Configuration.getProperty("check", "");
 
       if (configuration.isEmpty()) {
@@ -114,16 +107,14 @@ final class CoverageCheck
       }
    }
 
-   void verifyThresholds()
-   {
+   void verifyThresholds() {
       if (thresholds == null) return;
       allThresholdsSatisfied = true;
 
       for (final Threshold threshold : thresholds) {
          Metrics.performAction(new Metrics.Action() {
             @Override
-            public void perform(@Nonnull Metrics metric)
-            {
+            public void perform(@Nonnull Metrics metric) {
                allThresholdsSatisfied &= threshold.verifyMinimum(metric);
             }
          });
@@ -137,8 +128,7 @@ final class CoverageCheck
    }
 
    @SuppressWarnings("ResultOfMethodCallIgnored")
-   private void createOrDeleteIndicatorFile()
-   {
+   private void createOrDeleteIndicatorFile() {
       String parentDir = Configuration.getOrChooseOutputDirectory("");
       File indicatorFile = new File(parentDir, "coverage.check.failed");
 

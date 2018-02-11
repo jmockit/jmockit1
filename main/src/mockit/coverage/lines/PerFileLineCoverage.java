@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -24,20 +24,18 @@ public final class PerFileLineCoverage implements PerFileCoverage
    @Nonnull private transient LineCoverageData sharedLineData;
 
    // Computed on demand:
-   private int lastLine;
+   @Nonnegative private int lastLine;
    private transient int totalSegments;
    private transient int coveredSegments;
 
-   public PerFileLineCoverage()
-   {
+   public PerFileLineCoverage() {
       sharedLineData = new LineCoverageData();
       initializeCache();
    }
 
    private void initializeCache() { totalSegments = coveredSegments = -1; }
 
-   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException
-   {
+   private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException {
       sharedLineData = new LineCoverageData();
       initializeCache();
       in.defaultReadObject();
@@ -47,8 +45,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public void addLine(int line)
-   {
+   public void addLine(@Nonnegative int line) {
       if (!lineToLineData.containsKey(line)) {
          lineToLineData.put(line, null);
       }
@@ -69,8 +66,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
    }
 
    @Nonnull
-   public LineCoverageData getOrCreateLineData(int line)
-   {
+   public LineCoverageData getOrCreateLineData(@Nonnegative int line) {
       LineCoverageData lineData = lineToLineData.get(line);
 
       if (lineData == null) {
@@ -82,26 +78,23 @@ public final class PerFileLineCoverage implements PerFileCoverage
    }
 
    @Nonnull
-   public BranchCoverageData getBranchData(int line, int index)
-   {
+   public BranchCoverageData getBranchData(@Nonnegative int line, @Nonnegative int index) {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.getBranchData(index);
    }
 
-   public void markLastLineSegmentAsEmpty(int line)
-   {
+   public void markLastLineSegmentAsEmpty(@Nonnegative int line) {
       LineCoverageData lineData = lineToLineData.get(line);
       lineData.markLastSegmentAsEmpty();
    }
 
-   public boolean acceptsAdditionalCallPoints(int line)
-   {
+   public boolean acceptsAdditionalCallPoints(@Nonnegative int line) {
       LineCoverageData lineData = getOrCreateLineData(line);
       return lineData.acceptsAdditionalCallPoints();
    }
 
-   public int registerExecution(int line, @Nullable CallPoint callPoint)
-   {
+   @Nonnegative
+   public int registerExecution(@Nonnegative int line, @Nullable CallPoint callPoint) {
       if (executionCounts == NO_EXECUTIONS_YET) {
          executionCounts = new int[lastLine + 1];
       }
@@ -116,35 +109,30 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return previousExecutionCount;
    }
 
-   public boolean hasValidBranch(int line, int branchIndex)
-   {
+   public boolean hasValidBranch(@Nonnegative int line, @Nonnegative int branchIndex) {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.isValidBranch(branchIndex);
    }
 
-   public boolean acceptsAdditionalCallPoints(int line, int branchIndex)
-   {
+   public boolean acceptsAdditionalCallPoints(@Nonnegative int line, @Nonnegative int branchIndex) {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
-   public int registerExecution(int line, int branchIndex, @Nullable CallPoint callPoint)
-   {
+   public int registerExecution(@Nonnegative int line, @Nonnegative int branchIndex, @Nullable CallPoint callPoint) {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.registerExecution(branchIndex, callPoint);
    }
 
-   public int getLineCount() { return lastLine; }
-   public int getExecutableLineCount() { return lineToLineData.size(); }
+   @Nonnegative public int getLineCount() { return lastLine; }
+   @Nonnegative public int getExecutableLineCount() { return lineToLineData.size(); }
 
-   public boolean hasLineData(int line)
-   {
+   public boolean hasLineData(@Nonnegative int line) {
       return executionCounts != NO_EXECUTIONS_YET && lineToLineData.containsKey(line);
    }
 
    @Nonnull
-   public LineCoverageData getLineData(int line)
-   {
+   public LineCoverageData getLineData(@Nonnegative int line) {
       LineCoverageData data = lineToLineData.get(line);
 
       if (data == null) {
@@ -155,34 +143,29 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return data;
    }
 
-   public int getExecutionCount(int line)
-   {
+   public int getExecutionCount(@Nonnegative int line) {
       return line < executionCounts.length ? executionCounts[line] : -1;
    }
 
-   @Override
-   public int getTotalItems()
-   {
+   @Override @Nonnegative
+   public int getTotalItems() {
       computeValuesIfNeeded();
       return totalSegments;
    }
 
-   @Override
-   public int getCoveredItems()
-   {
+   @Override @Nonnegative
+   public int getCoveredItems() {
       computeValuesIfNeeded();
       return coveredSegments;
    }
 
-   @Override
-   public int getCoveragePercentage()
-   {
+   @Override @Nonnegative
+   public int getCoveragePercentage() {
       computeValuesIfNeeded();
       return CoveragePercentage.calculate(coveredSegments, totalSegments);
    }
 
-   private void computeValuesIfNeeded()
-   {
+   private void computeValuesIfNeeded() {
       if (totalSegments >= 0) return;
 
       totalSegments = coveredSegments = 0;
@@ -208,8 +191,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   public int getNumberOfSegments(int line)
-   {
+   @Nonnegative
+   public int getNumberOfSegments(@Nonnegative int line) {
       if (!lineToLineData.containsKey(line)) {
          return 0;
       }
@@ -218,8 +201,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData == null ? 1 : lineData.getNumberOfSegments();
    }
 
-   public int getNumberOfBranchingSourcesAndTargets(int line)
-   {
+   @Nonnegative
+   public int getNumberOfBranchingSourcesAndTargets(@Nonnegative int line) {
       LineCoverageData lineData = lineToLineData.get(line);
 
       if (lineData == null) {
@@ -229,8 +212,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.getNumberOfBranchingSourcesAndTargets();
    }
 
-   public void mergeInformation(@Nonnull PerFileLineCoverage previousCoverage)
-   {
+   public void mergeInformation(@Nonnull PerFileLineCoverage previousCoverage) {
       Map<Integer, LineCoverageData> previousInfo = previousCoverage.lineToLineData;
       boolean previousRunHadLinesExecuted = previousCoverage.executionCounts.length > 0;
 
@@ -270,8 +252,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       }
    }
 
-   private void createExecutionCountsArrayIfNeeded(@Nonnull PerFileLineCoverage previousCoverage)
-   {
+   private void createExecutionCountsArrayIfNeeded(@Nonnull PerFileLineCoverage previousCoverage) {
       if (executionCounts == NO_EXECUTIONS_YET) {
          executionCounts = new int[previousCoverage.executionCounts.length];
       }

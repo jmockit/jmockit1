@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -10,8 +10,7 @@ public final class CoveragePercentage
 {
    private CoveragePercentage() {}
 
-   public static int calculate(int coveredCount, int totalCount)
-   {
+   public static int calculate(int coveredCount, int totalCount) {
       if (totalCount <= 0) {
          return -1;
       }
@@ -21,8 +20,7 @@ public final class CoveragePercentage
    }
 
    @Nonnull
-   public static String percentageColor(int coveredCount, int totalCount)
-   {
+   public static String percentageColor(int coveredCount, int totalCount) {
       if (coveredCount == 0) {
          return "ff0000";
       }
@@ -43,8 +41,7 @@ public final class CoveragePercentage
       return color.toString();
    }
 
-   private static void appendColorInHexadecimal(@Nonnull StringBuilder colorInHexa, int rgb)
-   {
+   private static void appendColorInHexadecimal(@Nonnull StringBuilder colorInHexa, int rgb) {
       String hex = Integer.toHexString(rgb);
 
       if (hex.length() == 1) {

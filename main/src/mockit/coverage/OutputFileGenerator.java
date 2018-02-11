@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -21,8 +21,7 @@ final class OutputFileGenerator
    @Nonnull private final String outputDir;
    @Nullable private final String[] sourceDirs;
 
-   OutputFileGenerator(@Nullable ClassModification classModification)
-   {
+   OutputFileGenerator(@Nullable ClassModification classModification) {
       this.classModification = classModification;
       outputFormats = getOutputFormat();
       outputDir = Configuration.getProperty("outputDir", "");
@@ -41,29 +40,24 @@ final class OutputFileGenerator
    }
 
    @Nonnull
-   private static String[] getOutputFormat()
-   {
+   private static String[] getOutputFormat() {
       String format = Configuration.getProperty("output", "");
       return format.isEmpty() ? new String[] {"html-nocp"} : format.trim().split("\\s*,\\s*|\\s+");
    }
 
-   boolean isOutputToBeGenerated()
-   {
+   boolean isOutputToBeGenerated() {
       return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp") || hasOutputFormat("xml");
    }
 
-   private boolean isOutputWithCallPointsToBeGenerated()
-   {
+   private boolean isOutputWithCallPointsToBeGenerated() {
       return hasOutputFormat("html") || hasOutputFormat("serial") || hasOutputFormat("serial-append");
    }
 
-   boolean isWithCallPoints()
-   {
+   boolean isWithCallPoints() {
       return isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
    }
 
-   private boolean hasOutputFormat(@Nonnull String format)
-   {
+   private boolean hasOutputFormat(@Nonnull String format) {
       for (String outputFormat : outputFormats) {
          if (format.equals(outputFormat)) {
             return true;
@@ -73,8 +67,7 @@ final class OutputFileGenerator
       return false;
    }
 
-   void generate(@Nullable CodeCoverage codeCoverage)
-   {
+   void generate(@Nullable CodeCoverage codeCoverage) {
       if (classModification != null && classModification.shouldConsiderClassesNotLoaded()) {
          new ClassesNotLoaded(classModification).gatherCoverageData();
       }
@@ -115,8 +108,7 @@ final class OutputFileGenerator
       }
    }
 
-   void generateAggregateReportFromInputFiles(@Nonnull String[] inputPaths)
-   {
+   void generateAggregateReportFromInputFiles(@Nonnull String[] inputPaths) {
       boolean outputDirCreated = createOutputDirIfSpecifiedButNotExists();
 
       try {
@@ -128,8 +120,7 @@ final class OutputFileGenerator
       }
    }
 
-   private boolean createOutputDirIfSpecifiedButNotExists()
-   {
+   private boolean createOutputDirIfSpecifiedButNotExists() {
       if (outputDir.isEmpty()) {
          return false;
       }
@@ -139,8 +130,7 @@ final class OutputFileGenerator
       return dirCreated;
    }
 
-   private void generateAccretionDataFileIfRequested(@Nonnull CoverageData newData) throws IOException
-   {
+   private void generateAccretionDataFileIfRequested(@Nonnull CoverageData newData) throws IOException {
       if (hasOutputFormat("serial")) {
          new AccretionFile(outputDir, newData).generate();
       }
@@ -151,16 +141,13 @@ final class OutputFileGenerator
       }
    }
 
-   private void generateXmlDataFileIfRequested(@Nonnull CoverageData newData) throws IOException
-   {
+   private void generateXmlDataFileIfRequested(@Nonnull CoverageData newData) throws IOException {
       if (hasOutputFormat("xml")) {
          new XmlFile(outputDir, newData).generate();
       }
    }
 
-   private void generateHTMLReportIfRequested(@Nonnull CoverageData coverageData, boolean outputDirCreated)
-      throws IOException
-   {
+   private void generateHTMLReportIfRequested(@Nonnull CoverageData coverageData, boolean outputDirCreated) throws IOException {
       if (hasOutputFormat("html-nocp")) {
          new BasicCoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData).generate();
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage;
@@ -31,8 +31,7 @@ final class XmlFile
    @Nonnull private final CoverageData coverageData;
    @Nonnull private Writer output;
 
-   XmlFile(@Nonnull String outputDir, @Nonnull CoverageData coverageData)
-   {
+   XmlFile(@Nonnull String outputDir, @Nonnull CoverageData coverageData) {
       String firstSrcDir = Configuration.getProperty("srcDirs", "").split("\\s*,\\s*")[0];
       srcDir = firstSrcDir.isEmpty() ? "" : firstSrcDir + '/';
 
@@ -41,8 +40,7 @@ final class XmlFile
       this.coverageData = coverageData;
    }
 
-   void generate() throws IOException
-   {
+   void generate() throws IOException {
       output = new FileWriter(outputFile);
 
       try {
@@ -68,16 +66,14 @@ final class XmlFile
       System.out.println("JMockit: Coverage data written to " + outputFile.getCanonicalPath());
    }
 
-   private void writeOpeningXmlElementForSourceFile(@Nonnull String sourceFileName) throws IOException
-   {
+   private void writeOpeningXmlElementForSourceFile(@Nonnull String sourceFileName) throws IOException {
       output.write("\t<file path=\"");
       output.write(srcDir);
       output.write(sourceFileName);
       output.write("\">\n");
    }
 
-   private void writeXmlElementsForExecutableLines(@Nonnull PerFileLineCoverage lineInfo) throws IOException
-   {
+   private void writeXmlElementsForExecutableLines(@Nonnull PerFileLineCoverage lineInfo) throws IOException {
       int lineCount = lineInfo.getLineCount();
 
       for (int lineNum = 1; lineNum <= lineCount; lineNum++) {

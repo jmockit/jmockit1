@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.lines;
@@ -20,7 +20,7 @@ public class LineSegmentData implements Serializable
    private boolean empty;
 
    // Runtime data:
-   int executionCount;
+   @Nonnegative int executionCount;
    @Nullable private List<CallPoint> callPoints;
 
    public final void markAsUnreachable() { unreachable = true; }
@@ -28,13 +28,12 @@ public class LineSegmentData implements Serializable
    public final boolean isEmpty() { return empty; }
    final void markAsEmpty() { empty = true; }
 
-   final boolean acceptsAdditionalCallPoints()
-   {
+   final boolean acceptsAdditionalCallPoints() {
       return callPoints == null || callPoints.size() < MAX_CALL_POINTS;
    }
 
-   final int registerExecution(@Nullable CallPoint callPoint)
-   {
+   @Nonnegative
+   final int registerExecution(@Nullable CallPoint callPoint) {
       int previousExecutionCount = executionCount++;
 
       if (callPoint != null) {
@@ -44,8 +43,7 @@ public class LineSegmentData implements Serializable
       return previousExecutionCount;
    }
 
-   private void addCallPoint(@Nonnull CallPoint callPoint)
-   {
+   private void addCallPoint(@Nonnull CallPoint callPoint) {
       if (callPoints == null) {
          callPoints = new ArrayList<CallPoint>(MAX_CALL_POINTS);
       }
@@ -65,13 +63,12 @@ public class LineSegmentData implements Serializable
    public final boolean containsCallPoints() { return callPoints != null; }
    @Nullable public final List<CallPoint> getCallPoints() { return callPoints; }
 
-   public final int getExecutionCount() { return executionCount; }
-   final void setExecutionCount(int executionCount) { this.executionCount = executionCount; }
+   @Nonnegative public final int getExecutionCount() { return executionCount; }
+   final void setExecutionCount(@Nonnegative int executionCount) { this.executionCount = executionCount; }
 
    public final boolean isCovered() { return unreachable || !empty && executionCount > 0; }
 
-   final void addExecutionCountAndCallPointsFromPreviousTestRun(@Nonnull LineSegmentData previousData)
-   {
+   final void addExecutionCountAndCallPointsFromPreviousTestRun(@Nonnull LineSegmentData previousData) {
       executionCount += previousData.executionCount;
 
       if (previousData.callPoints != null) {

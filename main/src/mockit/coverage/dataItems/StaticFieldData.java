@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.coverage.dataItems;
@@ -15,23 +15,20 @@ public final class StaticFieldData extends FieldData
 
    @Nonnull private final transient Map<Integer, Boolean> testIdsToAssignments = new HashMap<Integer, Boolean>();
 
-   void registerAssignment()
-   {
+   void registerAssignment() {
       int testId = TestRun.getTestId();
       testIdsToAssignments.put(testId, Boolean.TRUE);
       writeCount++;
    }
 
-   void registerRead()
-   {
+   void registerRead() {
       int testId = TestRun.getTestId();
       testIdsToAssignments.put(testId, null);
       readCount++;
    }
 
    @Override
-   void markAsCoveredIfNoUnreadValuesAreLeft()
-   {
+   void markAsCoveredIfNoUnreadValuesAreLeft() {
       for (Boolean withUnreadValue : testIdsToAssignments.values()) {
          if (withUnreadValue == null) {
             covered = true;
