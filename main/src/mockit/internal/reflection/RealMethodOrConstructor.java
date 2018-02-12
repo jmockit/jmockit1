@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.reflection;
@@ -13,63 +13,44 @@ public final class RealMethodOrConstructor
 {
    @Nonnull public final Member member;
 
-   public RealMethodOrConstructor(@Nonnull String classDesc, @Nonnull String methodName, @Nonnull String methodDesc)
-      throws NoSuchMethodException
-   {
-      ClassLoader cl = getClass().getClassLoader();
-      Class<?> realClass = ClassLoad.loadFromLoader(cl, classDesc.replace('/', '.'));
-
-      if (methodName.charAt(0) == '<') {
-         member = findConstructor(realClass, methodDesc);
-      }
-      else {
-         member = findMethod(realClass, methodName, methodDesc);
-      }
+   public RealMethodOrConstructor(@Nonnull String className, @Nonnull String memberNameAndDesc) throws NoSuchMethodException {
+      this(ClassLoad.loadFromLoader(RealMethodOrConstructor.class.getClassLoader(), className), memberNameAndDesc);
    }
 
-   public RealMethodOrConstructor(@Nonnull String className, @Nonnull String methodNameAndDesc)
-      throws NoSuchMethodException
-   {
-      this(ClassLoad.loadFromLoader(RealMethodOrConstructor.class.getClassLoader(), className), methodNameAndDesc);
-   }
+   public RealMethodOrConstructor(@Nonnull Class<?> realClass, @Nonnull String memberNameAndDesc) throws NoSuchMethodException {
+      int p = memberNameAndDesc.indexOf('(');
+      String memberDesc = memberNameAndDesc.substring(p);
 
-   public RealMethodOrConstructor(@Nonnull Class<?> realClass, @Nonnull String methodNameAndDesc)
-      throws NoSuchMethodException
-   {
-      int p = methodNameAndDesc.indexOf('(');
-      String memberDesc = methodNameAndDesc.substring(p);
-
-      if (methodNameAndDesc.charAt(0) == '<') {
+      if (memberNameAndDesc.charAt(0) == '<') {
          member = findConstructor(realClass, memberDesc);
       }
       else {
-         String methodName = methodNameAndDesc.substring(0, p);
+         String methodName = memberNameAndDesc.substring(0, p);
          member = findMethod(realClass, methodName, memberDesc);
       }
    }
 
-   public RealMethodOrConstructor(@Nonnull Class<?> realClass, @Nonnull String methodName, @Nonnull String memberDesc)
-      throws NoSuchMethodException
-   {
-      if (methodName.charAt(0) == '<') {
+   public RealMethodOrConstructor(
+      @Nonnull Class<?> realClass, @Nonnull String memberName, @Nonnull String memberDesc
+   ) throws NoSuchMethodException {
+      if (memberName.charAt(0) == '<') {
          member = findConstructor(realClass, memberDesc);
       }
       else {
-         member = findMethod(realClass, methodName, memberDesc);
+         member = findMethod(realClass, memberName, memberDesc);
       }
    }
 
    @Nonnull
-   private static Constructor<?> findConstructor(@Nonnull Class<?> realClass, @Nonnull String methodDesc)
-   {
-      Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
+   private static Constructor<?> findConstructor(@Nonnull Class<?> realClass, @Nonnull String constructorDesc) {
+      Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(constructorDesc);
       return ConstructorReflection.findSpecifiedConstructor(realClass, parameterTypes);
    }
 
    @Nonnull
-   private static Method findMethod(@Nonnull Class<?> realClass, @Nonnull String methodName, @Nonnull String methodDesc)
-      throws NoSuchMethodException
-   {
+   private static Method findMethod(
+      @Nonnull Class<?> realClass, @Nonnull String methodName, @Nonnull String methodDesc
+   ) throws NoSuchMethodException {
       Class<?>[] parameterTypes = TypeDescriptor.getParameterTypes(methodDesc);
       Class<?> ownerClass = realClass;
 
@@ -101,9 +82,7 @@ public final class RealMethodOrConstructor
    }
 
    @Nullable
-   private static Method findInterfaceMethod(
-      @Nonnull Class<?> aType, @Nonnull String methodName, @Nonnull Class<?>[] parameterTypes)
-   {
+   private static Method findInterfaceMethod(@Nonnull Class<?> aType, @Nonnull String methodName, @Nonnull Class<?>[] parameterTypes) {
       for (Class<?> anInterface : aType.getInterfaces()) {
          try { return anInterface.getMethod(methodName, parameterTypes); } catch (NoSuchMethodException ignore) {}
       }
@@ -112,8 +91,7 @@ public final class RealMethodOrConstructor
    }
 
    @Nonnull
-   public <M extends Member> M getMember()
-   {
+   public <M extends Member> M getMember() {
       //noinspection unchecked
       return (M) member;
    }

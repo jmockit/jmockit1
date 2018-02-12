@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -20,8 +20,8 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    @Nullable @Override
    public byte[] transform(
       @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
-      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer)
-   {
+      @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
+   ) {
       if (classBeingRedefined == null && protectionDomain != null) {
          boolean anonymousClass = ClassNaming.isAnonymousClass(className);
 
@@ -40,8 +40,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       return null;
    }
 
-   private static boolean isJMockitClass(@Nonnull String classDesc)
-   {
+   private static boolean isJMockitClass(@Nonnull String classDesc) {
       return
          classDesc.startsWith("mockit/") &&
          (classDesc.startsWith("mockit/internal/") || classDesc.startsWith("mockit/coverage/") ||
@@ -49,8 +48,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
    }
 
    @Nullable
-   private static byte[] modifyInvocationsSubclass(@Nonnull ClassReader cr, @Nonnull final String classDesc)
-   {
+   private static byte[] modifyInvocationsSubclass(@Nonnull ClassReader cr, @Nonnull final String classDesc) {
       ClassWriter cw = new ClassWriter(cr);
 
       ClassVisitor modifier = new WrappingClassVisitor(cw) {

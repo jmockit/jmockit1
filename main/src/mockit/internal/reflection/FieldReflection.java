@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.reflection;
@@ -16,15 +16,13 @@ public final class FieldReflection
    private FieldReflection() {}
 
    @Nullable
-   public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull String fieldName, @Nullable Object targetObject)
-   {
+   public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull String fieldName, @Nullable Object targetObject) {
       Field field = getDeclaredField(theClass, fieldName, targetObject != null);
       return getFieldValue(field, targetObject);
    }
 
    @Nonnull
-   private static Field getDeclaredField(@Nonnull Class<?> theClass, @Nonnull String fieldName, boolean instanceField)
-   {
+   private static Field getDeclaredField(@Nonnull Class<?> theClass, @Nonnull String fieldName, boolean instanceField) {
       try {
          return theClass.getDeclaredField(fieldName);
       }
@@ -32,6 +30,7 @@ public final class FieldReflection
          Class<?> superClass = theClass.getSuperclass();
 
          if (superClass != null && superClass != Object.class) {
+            //noinspection TailRecursion
             return getDeclaredField(superClass, fieldName, instanceField);
          }
 
@@ -41,8 +40,7 @@ public final class FieldReflection
    }
 
    @Nullable
-   public static <T> T getFieldValue(@Nonnull Field field, @Nullable Object targetObject)
-   {
+   public static <T> T getFieldValue(@Nonnull Field field, @Nullable Object targetObject) {
       ensureThatMemberIsAccessible(field);
 
       if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
@@ -58,16 +56,14 @@ public final class FieldReflection
    }
 
    @Nullable
-   public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull Class<T> fieldType, @Nullable Object targetObject)
-   {
+   public static <T> T getField(@Nonnull Class<?> theClass, @Nonnull Class<T> fieldType, @Nullable Object targetObject) {
       Field field = getDeclaredField(theClass, fieldType, targetObject != null, false);
       return getFieldValue(field, targetObject);
    }
 
    public static void setField(
-      @Nonnull Class<?> theClass, @Nullable Object targetObject, @Nullable String fieldName,
-      @Nullable Object fieldValue)
-   {
+      @Nonnull Class<?> theClass, @Nullable Object targetObject, @Nullable String fieldName, @Nullable Object fieldValue
+   ) {
       boolean instanceField = targetObject != null;
       Field field;
 
@@ -86,14 +82,15 @@ public final class FieldReflection
 
    @Nonnull
    private static Field getDeclaredField(
-      @Nonnull Class<?> theClass, @Nonnull Type desiredType, boolean instanceField, boolean forAssignment)
-   {
+      @Nonnull Class<?> theClass, @Nonnull Type desiredType, boolean instanceField, boolean forAssignment
+   ) {
       Field found = getDeclaredFieldInSingleClass(theClass, desiredType, instanceField, forAssignment);
 
       if (found == null) {
          Class<?> superClass = theClass.getSuperclass();
 
          if (superClass != null && superClass != Object.class) {
+            //noinspection TailRecursion
             return getDeclaredField(superClass, desiredType, instanceField, forAssignment);
          }
 
@@ -108,8 +105,8 @@ public final class FieldReflection
 
    @Nullable
    private static Field getDeclaredFieldInSingleClass(
-      @Nonnull Class<?> theClass, @Nonnull Type desiredType, boolean instanceField, boolean forAssignment)
-   {
+      @Nonnull Class<?> theClass, @Nonnull Type desiredType, boolean instanceField, boolean forAssignment
+   ) {
       Field found = null;
 
       for (Field field : theClass.getDeclaredFields()) {
@@ -134,9 +131,7 @@ public final class FieldReflection
       return found;
    }
 
-   private static boolean isCompatibleFieldType(
-      @Nonnull Type fieldType, @Nonnull Type desiredType, boolean forAssignment)
-   {
+   private static boolean isCompatibleFieldType(@Nonnull Type fieldType, @Nonnull Type desiredType, boolean forAssignment) {
       Class<?> fieldClass = Utilities.getClassType(fieldType);
       Class<?> desiredClass = Utilities.getClassType(desiredType);
 
@@ -152,9 +147,8 @@ public final class FieldReflection
    }
 
    private static String errorMessageForMoreThanOneFieldFound(
-      @Nonnull Type desiredFieldType, boolean instanceField, boolean forAssignment,
-      @Nonnull Field firstField, @Nonnull Field secondField)
-   {
+      @Nonnull Type desiredFieldType, boolean instanceField, boolean forAssignment, @Nonnull Field firstField, @Nonnull Field secondField
+   ) {
       return
          "More than one " + (instanceField ? "instance" : "static") + " field " +
          (forAssignment ? "to" : "from") + " which a value of type " + getTypeName(desiredFieldType) +
@@ -163,8 +157,7 @@ public final class FieldReflection
    }
 
    @Nonnull
-   private static String getTypeName(@Nonnull Type type)
-   {
+   private static String getTypeName(@Nonnull Type type) {
       Class<?> classType = Utilities.getClassType(type);
       Class<?> primitiveType = AutoBoxing.getPrimitiveType(classType);
 
@@ -176,8 +169,7 @@ public final class FieldReflection
       return name.startsWith("java.lang.") ? name.substring(10) : name;
    }
 
-   public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value)
-   {
+   public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value) {
       ensureThatMemberIsAccessible(field);
 
       if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {

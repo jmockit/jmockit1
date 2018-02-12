@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.classGeneration;
@@ -24,8 +24,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    @Nullable private String[] initialSuperInterfaces;
    protected String methodOwner;
 
-   protected BaseImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName)
-   {
+   protected BaseImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull String implementationClassName) {
       super(classReader);
       implementedMethods = new ArrayList<String>();
       implementationClassDesc = implementationClassName.replace('.', '/');
@@ -33,9 +32,8 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces)
-   {
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
+   ) {
       methodOwner = name;
       initialSuperInterfaces = interfaces;
 
@@ -45,8 +43,7 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       generateNoArgsConstructor();
    }
 
-   private void generateNoArgsConstructor()
-   {
+   private void generateNoArgsConstructor() {
       mw = cw.visitMethod(Access.PUBLIC, "<init>", "()V", null, null);
       mw.visitVarInsn(ALOAD, 0);
       mw.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
@@ -67,20 +64,18 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
 
    @Nullable @Override
    public final FieldVisitor visitField(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value)
-   { return null; }
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value) { return null; }
 
    @Nullable @Override
    public final MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       generateMethodImplementation(access, name, desc, signature, exceptions);
       return null;
    }
 
    @Override
-   public final void visitEnd()
-   {
+   public final void visitEnd() {
       assert initialSuperInterfaces != null;
 
       for (String superInterface : initialSuperInterfaces) {
@@ -88,9 +83,9 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       }
    }
 
-   protected final void generateMethodImplementation(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+   private void generateMethodImplementation(
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if (!isStatic(access)) {
          String methodNameAndDesc = name + desc;
 
@@ -102,11 +97,9 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
    }
 
    protected abstract void generateMethodBody(
-      int access, @Nonnull String name, @Nonnull String desc,
-      @Nullable String signature, @Nullable String[] exceptions);
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions);
 
-   protected final boolean isOverrideOfMethodFromSuperInterface(@Nonnull String name, @Nonnull String desc)
-   {
+   protected final boolean isOverrideOfMethodFromSuperInterface(@Nonnull String name, @Nonnull String desc) {
       if (!implementedMethods.isEmpty()) {
          int p = desc.lastIndexOf(')');
          String descNoReturnType = desc.substring(0, p + 1);
@@ -121,15 +114,14 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       return false;
    }
 
-   private static boolean sameMethodName(@Nonnull String implementedMethod, @Nonnull String name)
-   {
+   private static boolean sameMethodName(@Nonnull String implementedMethod, @Nonnull String name) {
       return implementedMethod.startsWith(name) && implementedMethod.charAt(name.length()) == '(';
    }
 
    @Nullable
    protected final String getSubInterfaceOverride(
-      @Nonnull GenericTypeReflection genericTypeMap, @Nonnull String name, @Nonnull String genericSignature)
-   {
+      @Nonnull GenericTypeReflection genericTypeMap, @Nonnull String name, @Nonnull String genericSignature
+   ) {
       if (!implementedMethods.isEmpty()) {
          GenericSignature parsedSignature = genericTypeMap.parseSignature(genericSignature);
 
@@ -143,36 +135,32 @@ public abstract class BaseImplementationGenerator extends BaseClassModifier
       return null;
    }
 
-   private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor
-   {
+   private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor {
       private String[] superInterfaces;
 
-      MethodGeneratorForImplementedSuperInterface(@Nonnull String interfaceName)
-      {
+      MethodGeneratorForImplementedSuperInterface(@Nonnull String interfaceName) {
          ClassFile.visitClass(interfaceName, this);
       }
 
       @Override
       public void visit(
          int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces)
-      {
+         @Nullable String[] interfaces
+      ) {
          methodOwner = name;
          superInterfaces = interfaces;
       }
 
       @Nullable @Override
       public MethodVisitor visitMethod(
-         int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
-         @Nullable String[] exceptions)
-      {
+         int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+      ) {
          generateMethodImplementation(access, name, desc, signature, exceptions);
          return null;
       }
 
       @Override
-      public void visitEnd()
-      {
+      public void visitEnd() {
          for (String superInterface : superInterfaces) {
             new MethodGeneratorForImplementedSuperInterface(superInterface);
          }

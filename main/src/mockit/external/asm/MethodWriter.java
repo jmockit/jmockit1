@@ -1,32 +1,3 @@
-/*
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
 package mockit.external.asm;
 
 import javax.annotation.*;
@@ -170,29 +141,29 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitVarInsn(int opcode, @Nonnegative int var) {
-      cfgAnalysis.updateCurrentBlockForLocalVariableInstruction(opcode, var);
+   public void visitVarInsn(int opcode, @Nonnegative int varIndex) {
+      cfgAnalysis.updateCurrentBlockForLocalVariableInstruction(opcode, varIndex);
 
-      updateMaxLocals(opcode, var);
+      updateMaxLocals(opcode, varIndex);
 
       // Adds the instruction to the bytecode of the method.
-      if (var < 4) {
+      if (varIndex < 4) {
          int opt;
 
          if (opcode < ISTORE) { // ILOAD_0
-            opt = 26 + ((opcode - ILOAD) << 2) + var;
+            opt = 26 + ((opcode - ILOAD) << 2) + varIndex;
          }
          else { // ISTORE_0
-            opt = 59 + ((opcode - ISTORE) << 2) + var;
+            opt = 59 + ((opcode - ISTORE) << 2) + varIndex;
          }
 
          code.putByte(opt);
       }
-      else if (var >= 256) {
-         code.putByte(WIDE).put12(opcode, var);
+      else if (varIndex >= 256) {
+         code.putByte(WIDE).put12(opcode, varIndex);
       }
       else {
-         code.put11(opcode, var);
+         code.put11(opcode, varIndex);
       }
 
       if (opcode >= ISTORE && computeFrames && exceptionHandling.hasHandlers()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -18,14 +18,12 @@ public final class ParameterNameExtractor extends ClassVisitor
    @Nonnull private String memberName;
    @Nonnull private String memberDesc;
 
-   public ParameterNameExtractor()
-   {
+   public ParameterNameExtractor() {
       classDesc = memberName = memberDesc = "";
    }
 
    @Nonnull
-   public String extractNames(@Nonnull Class<?> classOfInterest)
-   {
+   public String extractNames(@Nonnull Class<?> classOfInterest) {
       String className = classOfInterest.getName();
       classDesc = className.replace('.', '/');
 
@@ -40,8 +38,8 @@ public final class ParameterNameExtractor extends ClassVisitor
 
    @Nullable @Override
    public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if ((access & Access.SYNTHETIC) == 0) {
          memberAccess = access;
          memberName = name;
@@ -52,13 +50,11 @@ public final class ParameterNameExtractor extends ClassVisitor
       return null;
    }
 
-   private final class MethodOrConstructorVisitor extends MethodVisitor
-   {
+   private final class MethodOrConstructorVisitor extends MethodVisitor {
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
-         @Nonnegative int index)
-      {
+         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
+      ) {
          ParameterNames.registerName(classDesc, memberAccess, memberName, memberDesc, desc, name, index);
       }
    }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.full;
@@ -22,8 +22,7 @@ final class TestDataSource
    TestDataSource(@Nonnull InjectionPoint injectionPoint) { dsName = injectionPoint.name; }
 
    @Nullable
-   CommonDataSource createIfDataSourceDefinitionAvailable(@Nonnull TestedClass testedClass)
-   {
+   CommonDataSource createIfDataSourceDefinitionAvailable(@Nonnull TestedClass testedClass) {
       if (dsName == null) {
          return null;
       }
@@ -46,8 +45,7 @@ final class TestDataSource
          " or on a super/parent class");
    }
 
-   private void createFromTestedClassOrASuperclass(@Nonnull TestedClass testedClass)
-   {
+   private void createFromTestedClassOrASuperclass(@Nonnull TestedClass testedClass) {
       Class<?> targetClass = testedClass.targetClass;
 
       do {
@@ -62,8 +60,7 @@ final class TestDataSource
       while (targetClass != null && targetClass != Object.class);
    }
 
-   private void createDataSource(@Nonnull Class<?> targetClass)
-   {
+   private void createDataSource(@Nonnull Class<?> targetClass) {
       for (Annotation annotation : targetClass.getDeclaredAnnotations()) {
          String annotationName = annotation.annotationType().getName();
 
@@ -80,8 +77,7 @@ final class TestDataSource
       }
    }
 
-   private void createDataSource(@Nonnull DataSourceDefinitions dsDefs)
-   {
+   private void createDataSource(@Nonnull DataSourceDefinitions dsDefs) {
       for (DataSourceDefinition dsDef : dsDefs.value()) {
          createDataSource(dsDef);
 
@@ -91,8 +87,7 @@ final class TestDataSource
       }
    }
 
-   private void createDataSource(@Nonnull DataSourceDefinition dsDef)
-   {
+   private void createDataSource(@Nonnull DataSourceDefinition dsDef) {
       String configuredDataSourceName = InjectionPoint.getNameFromJNDILookup(dsDef.name());
 
       if (configuredDataSourceName.equals(dsName)) {
@@ -101,13 +96,13 @@ final class TestDataSource
       }
    }
 
-   private void instantiateConfiguredDataSourceClass(@Nonnull DataSourceDefinition dsDef)
-   {
+   private void instantiateConfiguredDataSourceClass(@Nonnull DataSourceDefinition dsDef) {
       String className = dsDef.className();
 
       try {
          //noinspection unchecked
          dsClass = (Class<? extends CommonDataSource>) Class.forName(className);
+         //noinspection ClassNewInstance
          ds = dsClass.newInstance();
       }
       catch (ClassNotFoundException e) { throw new RuntimeException(e); }
@@ -115,8 +110,7 @@ final class TestDataSource
       catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 
-   private void setDataSourcePropertiesFromConfiguredValues(@Nonnull DataSourceDefinition dsDef)
-   {
+   private void setDataSourcePropertiesFromConfiguredValues(@Nonnull DataSourceDefinition dsDef) {
       try {
          BeanInfo beanInfo = Introspector.getBeanInfo(dsClass, Object.class);
          PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
@@ -130,9 +124,9 @@ final class TestDataSource
       catch (InvocationTargetException e) { throw new RuntimeException(e); }
    }
 
-   private void setProperty(@Nonnull PropertyDescriptor[] properties, @Nonnull String name, @Nonnull String value)
-      throws InvocationTargetException, IllegalAccessException
-   {
+   private void setProperty(
+      @Nonnull PropertyDescriptor[] properties, @Nonnull String name, @Nonnull String value
+   ) throws InvocationTargetException, IllegalAccessException {
       for (PropertyDescriptor property : properties) {
          if (property.getName().equals(name)) {
             Method writeMethod = property.getWriteMethod();

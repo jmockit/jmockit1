@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -50,9 +50,7 @@ final class FakedClassModifier extends BaseClassModifier
     * description of the parameters; once the real class modification is complete this set will be empty, unless no
     * corresponding real method was found for any of its method identifiers
     */
-   FakedClassModifier(
-      @Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nonnull FakeMethods fakeMethods)
-   {
+   FakedClassModifier(@Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nonnull FakeMethods fakeMethods) {
       super(cr);
       fakedClass = realClass;
       this.fakeMethods = fakeMethods;
@@ -62,8 +60,7 @@ final class FakedClassModifier extends BaseClassModifier
       inferUseOfClassLoadingBridge(classLoaderOfRealClass, fake);
    }
 
-   private void inferUseOfClassLoadingBridge(@Nullable ClassLoader classLoaderOfRealClass, @Nonnull Object fake)
-   {
+   private void inferUseOfClassLoadingBridge(@Nullable ClassLoader classLoaderOfRealClass, @Nonnull Object fake) {
       setUseClassLoadingBridge(classLoaderOfRealClass);
 
       if (!useClassLoadingBridge && !isPublic(fake.getClass().getModifiers())) {
@@ -85,8 +82,8 @@ final class FakedClassModifier extends BaseClassModifier
     */
    @Override
    public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if ((access & ABSTRACT_OR_SYNTHETIC) != 0) {
          if (isAbstract(access)) {
             // Marks a matching fake method (if any) as having the corresponding faked method.
@@ -119,16 +116,14 @@ final class FakedClassModifier extends BaseClassModifier
       return copyOriginalImplementationCode(isConstructor);
    }
 
-   private boolean hasFake(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
-   {
+   private boolean hasFake(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature) {
       String fakeName = getCorrespondingFakeName(name);
       fakeMethod = fakeMethods.findMethod(access, fakeName, desc, signature);
       return fakeMethod != null;
    }
 
    @Nonnull
-   private static String getCorrespondingFakeName(@Nonnull String name)
-   {
+   private static String getCorrespondingFakeName(@Nonnull String name) {
       if ("<init>".equals(name)) {
          return "$init";
       }
@@ -142,8 +137,7 @@ final class FakedClassModifier extends BaseClassModifier
 
    private boolean isFakedSuperclass() { return fakedClass != fakeMethods.getRealClass(); }
 
-   private void generateDynamicCallToFake()
-   {
+   private void generateDynamicCallToFake() {
       Label startOfRealImplementation = null;
 
       if (!isStatic(methodAccess) && !isConstructor && isFakedSuperclass()) {
@@ -167,8 +161,7 @@ final class FakedClassModifier extends BaseClassModifier
       }
    }
 
-   private void generateCallToUpdateFakeState()
-   {
+   private void generateCallToUpdateFakeState() {
       if (useClassLoadingBridgeForUpdatingFakeState) {
          generateCallToControlMethodThroughClassLoadingBridge();
          mw.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
@@ -177,13 +170,11 @@ final class FakedClassModifier extends BaseClassModifier
       else {
          mw.visitLdcInsn(fakeMethods.getFakeClassInternalName());
          mw.visitIntInsn(SIPUSH, fakeMethod.getIndexForFakeState());
-         mw.visitMethodInsn(
-            INVOKESTATIC, "mockit/internal/state/TestRun", "updateFakeState", "(Ljava/lang/String;I)Z", false);
+         mw.visitMethodInsn(INVOKESTATIC, "mockit/internal/state/TestRun", "updateFakeState", "(Ljava/lang/String;I)Z", false);
       }
    }
 
-   private void generateCallToControlMethodThroughClassLoadingBridge()
-   {
+   private void generateCallToControlMethodThroughClassLoadingBridge() {
       generateCodeToObtainInstanceOfClassLoadingBridge(FakeBridge.MB);
 
       // First and second "invoke" arguments:
@@ -200,8 +191,7 @@ final class FakedClassModifier extends BaseClassModifier
       generateCallToInvocationHandler();
    }
 
-   private void generateConditionalCallForFakedMethod(@Nullable Label startOfRealImplementation)
-   {
+   private void generateConditionalCallForFakedMethod(@Nullable Label startOfRealImplementation) {
       if (startOfRealImplementation == null) {
          //noinspection AssignmentToMethodParameter
          startOfRealImplementation = new Label();
@@ -213,8 +203,7 @@ final class FakedClassModifier extends BaseClassModifier
       mw.visitLabel(startOfRealImplementation);
    }
 
-   private void generateConditionalCallForFakedConstructor()
-   {
+   private void generateConditionalCallForFakedConstructor() {
       generateCallToFakeMethod();
 
       int jumpInsnOpcode;
@@ -233,8 +222,7 @@ final class FakedClassModifier extends BaseClassModifier
       mw.visitLabel(startOfRealImplementation);
    }
 
-   private void generateCallToFakeMethod()
-   {
+   private void generateCallToFakeMethod() {
       if (shouldUseClassLoadingBridge()) {
          generateCallToFakeMethodThroughClassLoadingBridge();
       }
@@ -245,8 +233,7 @@ final class FakedClassModifier extends BaseClassModifier
 
    private boolean shouldUseClassLoadingBridge() { return useClassLoadingBridge || !fakeMethod.isPublic(); }
 
-   private void generateCallToFakeMethodThroughClassLoadingBridge()
-   {
+   private void generateCallToFakeMethodThroughClassLoadingBridge() {
       generateCodeToObtainInstanceOfClassLoadingBridge(FakeMethodBridge.MB);
 
       // First and second "invoke" arguments:
@@ -277,8 +264,7 @@ final class FakedClassModifier extends BaseClassModifier
       generateCallToInvocationHandler();
    }
 
-   private void generateDirectCallToFakeMethod()
-   {
+   private void generateDirectCallToFakeMethod() {
       String fakeClassDesc = fakeMethods.getFakeClassInternalName();
       int invokeOpcode;
 
@@ -294,21 +280,17 @@ final class FakedClassModifier extends BaseClassModifier
       mw.visitMethodInsn(invokeOpcode, fakeClassDesc, fakeMethod.name, fakeMethod.desc, false);
 
       if (canProceedIntoConstructor) {
-         mw.visitMethodInsn(
-            INVOKEVIRTUAL, "mockit/internal/faking/FakeInvocation", "shouldProceedIntoConstructor", "()Z", false);
+         mw.visitMethodInsn(INVOKEVIRTUAL, "mockit/internal/faking/FakeInvocation", "shouldProceedIntoConstructor", "()Z", false);
       }
    }
 
-   private void generateCodeToObtainFakeInstance(@Nonnull String fakeClassDesc)
-   {
+   private void generateCodeToObtainFakeInstance(@Nonnull String fakeClassDesc) {
       mw.visitLdcInsn(fakeClassDesc);
-      mw.visitMethodInsn(
-         INVOKESTATIC, "mockit/internal/state/TestRun", "getFake", "(Ljava/lang/String;)Ljava/lang/Object;", false);
+      mw.visitMethodInsn(INVOKESTATIC, "mockit/internal/state/TestRun", "getFake", "(Ljava/lang/String;)Ljava/lang/Object;", false);
       mw.visitTypeInsn(CHECKCAST, fakeClassDesc);
    }
 
-   private boolean generateArgumentsForFakeMethodInvocation()
-   {
+   private boolean generateArgumentsForFakeMethodInvocation() {
       String fakedDesc = fakeMethod.isAdvice ? methodDesc : fakeMethod.fakeDescWithoutInvocationParameter;
       JavaType[] argTypes = JavaType.getArgumentTypes(fakedDesc);
       int varIndex = isStatic(methodAccess) ? 0 : 1;
@@ -343,8 +325,7 @@ final class FakedClassModifier extends BaseClassModifier
       return canProceedIntoConstructor;
    }
 
-   private void generateCallToCreateNewFakeInvocation(@Nonnull JavaType[] argTypes, int initialParameterIndex)
-   {
+   private void generateCallToCreateNewFakeInvocation(@Nonnull JavaType[] argTypes, int initialParameterIndex) {
       generateCodeToPassThisOrNullIfStaticMethod();
 
       int argCount = argTypes.length;
@@ -369,8 +350,7 @@ final class FakedClassModifier extends BaseClassModifier
          "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/faking/FakeInvocation;", false);
    }
 
-   private void generateMethodReturn()
-   {
+   private void generateMethodReturn() {
       if (shouldUseClassLoadingBridge() || fakeMethod.isAdvice) {
          generateReturnWithObjectAtTopOfTheStack(methodDesc);
       }

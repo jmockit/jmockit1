@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -13,21 +13,19 @@ import mockit.internal.util.*;
 
 public final class ParameterNames
 {
-   private static final Map<String, Map<String, String[]>> classesToMethodsToParameters =
-      new HashMap<String, Map<String, String[]>>();
+   private static final Map<String, Map<String, String[]>> classesToMethodsToParameters = new HashMap<String, Map<String, String[]>>();
    private static final String[] NO_PARAMETERS = new String[0];
 
    private ParameterNames() {}
 
-   public static boolean hasNamesForClass(@Nonnull String classDesc)
-   {
+   public static boolean hasNamesForClass(@Nonnull String classDesc) {
       return classesToMethodsToParameters.containsKey(classDesc);
    }
 
    public static void registerName(
       @Nonnull String classDesc, @Nonnegative int memberAccess, @Nonnull String memberName, @Nonnull String memberDesc,
-      @Nonnull String desc, @Nonnull String name, @Nonnegative int index)
-   {
+      @Nonnull String desc, @Nonnull String name, @Nonnegative int index
+   ) {
       if ("this".equals(name)) {
          return;
       }
@@ -60,8 +58,7 @@ public final class ParameterNames
    }
 
    @SuppressWarnings("MethodWithMultipleLoops")
-   private static int getSumOfArgumentSizes(@Nonnull String memberDesc)
-   {
+   private static int getSumOfArgumentSizes(@Nonnull String memberDesc) {
       int sum = 0;
       int i = 1;
 
@@ -98,15 +95,13 @@ public final class ParameterNames
    private static boolean isDoubleSizeType(char typeCode) { return typeCode == 'D' || typeCode == 'J'; }
 
    @Nonnull
-   public static String getName(@Nonnull TestMethod method, @Nonnegative int index)
-   {
+   public static String getName(@Nonnull TestMethod method, @Nonnegative int index) {
       String name = getName(method.testClassDesc, method.testMethodDesc, index);
       return name == null ? "param" + index : name;
    }
 
    @Nullable
-   public static String getName(@Nonnull String classDesc, @Nonnull String methodDesc, @Nonnegative int index)
-   {
+   public static String getName(@Nonnull String classDesc, @Nonnull String methodDesc, @Nonnegative int index) {
       Map<String, String[]> methodsToParameters = classesToMethodsToParameters.get(classDesc);
 
       if (methodsToParameters == null) {

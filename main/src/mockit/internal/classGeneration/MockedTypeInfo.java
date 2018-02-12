@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.classGeneration;
@@ -15,8 +15,7 @@ public final class MockedTypeInfo
    @Nonnull public final GenericTypeReflection genericTypeMap;
    @Nonnull public final String implementationSignature;
 
-   public MockedTypeInfo(@Nonnull Type mockedType)
-   {
+   public MockedTypeInfo(@Nonnull Type mockedType) {
       Class<?> mockedClass = Utilities.getClassType(mockedType);
       genericTypeMap = new GenericTypeReflection(mockedClass, mockedType);
 
@@ -26,8 +25,7 @@ public final class MockedTypeInfo
    }
 
    @Nonnull
-   private static String getGenericClassSignature(@Nonnull Type mockedType)
-   {
+   private static String getGenericClassSignature(@Nonnull Type mockedType) {
       StringBuilder signature = new StringBuilder(100);
 
       if (mockedType instanceof ParameterizedType) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -17,11 +17,9 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    private int indexIncrement;
 
    OrderedVerificationPhase(
-      @Nonnull RecordAndReplayExecution recordAndReplay,
-      @Nonnull List<Expectation> expectationsInReplayOrder,
-      @Nonnull List<Object> invocationInstancesInReplayOrder,
-      @Nonnull List<Object[]> invocationArgumentsInReplayOrder)
-   {
+      @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
+      @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
+   ) {
       super(
          recordAndReplay, new ArrayList<Expectation>(expectationsInReplayOrder),
          invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
@@ -30,8 +28,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       indexIncrement = 1;
    }
 
-   private void discardExpectationsAndArgumentsAlreadyVerified()
-   {
+   private void discardExpectationsAndArgumentsAlreadyVerified() {
       for (VerifiedExpectation verified : recordAndReplay.executionState.verifiedExpectations) {
          int i = expectationsInReplayOrder.indexOf(verified.expectation);
 
@@ -43,8 +40,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
 
    @Nonnull @Override
    protected List<ExpectedInvocation> findExpectation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
-   {
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
+   ) {
       Expectation expectation = expectationBeingVerified();
       int i = replayIndex;
 
@@ -81,10 +78,8 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return emptyList();
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
-   @Override
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
-   {
+   @Override @SuppressWarnings("OverlyComplexMethod")
+   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       Error errorThrown = pendingError;
       pendingError = null;
 
@@ -135,9 +130,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       verifyMaxInvocations(verifying, maxInvocations);
    }
 
-   private boolean matchesCurrentVerification(
-      @Nonnull ExpectedInvocation invocation, @Nonnull Expectation replayExpectation)
-   {
+   private boolean matchesCurrentVerification(@Nonnull ExpectedInvocation invocation, @Nonnull Expectation replayExpectation) {
       Object mock = invocation.instance;
       String mockClassDesc = invocation.getClassDesc();
       String mockNameAndDesc = invocation.getMethodNameAndDescription();
@@ -154,8 +147,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs);
    }
 
-   private void verifyMaxInvocations(@Nonnull Expectation verifying, int maxInvocations)
-   {
+   private void verifyMaxInvocations(@Nonnull Expectation verifying, int maxInvocations) {
       if (maxInvocations >= 0) {
          int n = verifying.constraints.invocationCount - maxInvocations;
 
@@ -167,8 +159,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nullable @Override
-   protected Error endVerification()
-   {
+   protected Error endVerification() {
       if (pendingError != null) {
          return pendingError;
       }

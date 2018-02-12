@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -19,8 +19,7 @@ public final class TestMethod
    @Nonnull private final Annotation[][] parameterAnnotations;
    @Nonnull private final Object[] parameterValues;
 
-   public TestMethod(@Nonnull Method testMethod, @Nonnull Object[] parameterValues)
-   {
+   public TestMethod(@Nonnull Method testMethod, @Nonnull Object[] parameterValues) {
       testClassDesc = JavaType.getInternalName(testMethod.getDeclaringClass());
       testMethodDesc = testMethod.getName() + JavaType.getMethodDescriptor(testMethod);
       parameterTypes = testMethod.getGenericParameterTypes();
@@ -35,8 +34,7 @@ public final class TestMethod
    @Nonnull public Annotation[] getParameterAnnotations(@Nonnegative int index) { return parameterAnnotations[index]; }
    @Nullable public Object getParameterValue(@Nonnegative int index) { return parameterValues[index]; }
 
-   public void setParameterValue(@Nonnegative int index, @Nullable Object value)
-   {
+   public void setParameterValue(@Nonnegative int index, @Nullable Object value) {
       if (value != null) {
          parameterValues[index] = value;
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -24,8 +24,7 @@ public final class MockingFilters
    @Nullable
    public static String filtersForClass(@Nonnull String classDesc) { return FILTERS.get(classDesc); }
 
-   public static boolean isUnmockable(@Nonnull String classDesc)
-   {
+   public static boolean isUnmockable(@Nonnull String classDesc) {
       return
          ("java/lang/String java/lang/AbstractStringBuilder java/util/AbstractCollection java/util/AbstractMap " +
           "java/util/Hashtable java/lang/Throwable " +
@@ -33,8 +32,7 @@ public final class MockingFilters
          "java/lang/ThreadLocal".equals(classDesc) || "java/nio/file/Paths".equals(classDesc);
    }
 
-   public static boolean isFullMockingDisallowed(@Nonnull String classDesc)
-   {
+   public static boolean isFullMockingDisallowed(@Nonnull String classDesc) {
       return classDesc.startsWith("java/io/") && (
          "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) ||
          "java/io/FileWriter".equals(classDesc) ||
@@ -42,8 +40,7 @@ public final class MockingFilters
       );
    }
 
-   public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @Nonnull String name)
-   {
+   public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @Nonnull String name) {
       if (mockingFilters == null) {
          return false;
       }
@@ -56,8 +53,7 @@ public final class MockingFilters
       return i > -1 && mockingFilters.charAt(i + name.length()) == ' ';
    }
 
-   public static boolean isSubclassOfUnmockable(@Nonnull Class<?> aClass)
-   {
+   public static boolean isSubclassOfUnmockable(@Nonnull Class<?> aClass) {
       return
          AbstractCollection.class.isAssignableFrom(aClass) ||
          AbstractMap.class.isAssignableFrom(aClass) ||

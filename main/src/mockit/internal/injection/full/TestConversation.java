@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.full;
@@ -16,24 +16,21 @@ final class TestConversation implements Conversation
    TestConversation() { currentlyTransient = true; }
 
    @Override
-   public void begin()
-   {
+   public void begin() {
       counter++;
       currentId = String.valueOf(counter);
       currentlyTransient = false;
    }
 
    @Override
-   public void begin(String id)
-   {
+   public void begin(String id) {
       counter++;
       currentId = id;
       currentlyTransient = false;
    }
 
    @Override
-   public void end()
-   {
+   public void end() {
       currentlyTransient = true;
       currentId = null;
    }

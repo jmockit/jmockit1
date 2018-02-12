@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -19,8 +19,7 @@ public final class SamenessMatcher implements ArgumentMatcher<SamenessMatcher>
    public boolean matches(@Nullable Object argValue) { return argValue == object; }
 
    @Override
-   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
-   {
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch) {
       argumentMismatch.append("same instance as ").appendFormatted(object);
    }
 }

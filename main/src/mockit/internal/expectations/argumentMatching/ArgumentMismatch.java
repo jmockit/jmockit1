@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -29,9 +29,7 @@ public final class ArgumentMismatch
    @Nonnull public ArgumentMismatch append(double d) { out.append(d); return this; }
    @Nonnull public ArgumentMismatch append(@Nullable CharSequence str) { out.append(str); return this; }
 
-   public void appendFormatted(
-      @Nullable String parameterTypeName, @Nullable Object argumentValue, @Nullable ArgumentMatcher<?> matcher)
-   {
+   public void appendFormatted(@Nullable String parameterTypeName, @Nullable Object argumentValue, @Nullable ArgumentMatcher<?> matcher) {
       if (matcher == null) {
          appendFormatted(argumentValue);
       }
@@ -42,8 +40,7 @@ public final class ArgumentMismatch
    }
 
    @SuppressWarnings("OverlyComplexMethod")
-   public void appendFormatted(@Nullable Object value)
-   {
+   public void appendFormatted(@Nullable Object value) {
       if (value == null) {
          out.append("null");
       }
@@ -81,8 +78,7 @@ public final class ArgumentMismatch
       }
    }
 
-   private void appendArray(@Nonnull Object array)
-   {
+   private void appendArray(@Nonnull Object array) {
       out.append('[');
       String separator = "";
 
@@ -96,8 +92,7 @@ public final class ArgumentMismatch
       out.append(']');
    }
 
-   private void appendCharacters(@Nonnull CharSequence characters)
-   {
+   private void appendCharacters(@Nonnull CharSequence characters) {
       out.append('"');
 
       for (int i = 0, n = characters.length(); i < n; i++) {
@@ -108,8 +103,7 @@ public final class ArgumentMismatch
       out.append('"');
    }
 
-   private void appendEscapedOrPlainCharacter(char c)
-   {
+   private void appendEscapedOrPlainCharacter(char c) {
       switch (c) {
          case '"':
             out.append("\\\"");
@@ -128,8 +122,7 @@ public final class ArgumentMismatch
       }
    }
 
-   private void appendArbitraryArgument(@Nonnull Object value)
-   {
+   private void appendArbitraryArgument(@Nonnull Object value) {
       Class<?> valueClass = value.getClass();
 
       Method toStringMethod;
@@ -151,8 +144,7 @@ public final class ArgumentMismatch
       }
    }
 
-   public void appendFormatted(@Nonnull Object[] values)
-   {
+   public void appendFormatted(@Nonnull Object[] values) {
       String separator = "";
 
       for (Object value : values) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.argumentMatching;
@@ -22,8 +22,7 @@ public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatche
    public boolean same(@Nonnull ReflectiveMatcher other) { return delegate == other.delegate; }
 
    @Override
-   public boolean matches(@Nullable Object argValue)
-   {
+   public boolean matches(@Nullable Object argValue) {
       if (handlerMethod == null) {
          handlerMethod = MethodReflection.findNonPrivateHandlerMethod(delegate);
       }
@@ -35,8 +34,7 @@ public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatche
    }
 
    @Override
-   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch)
-   {
+   public void writeMismatchPhrase(@Nonnull ArgumentMismatch argumentMismatch) {
       if (handlerMethod != null) {
          argumentMismatch.append(handlerMethod.getName()).append('(');
          argumentMismatch.appendFormatted(matchedValue);

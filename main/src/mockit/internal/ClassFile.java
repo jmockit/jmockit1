@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -19,34 +19,26 @@ public final class ClassFile
 
    private ClassFile() {}
 
-   public static final class NotFoundException extends RuntimeException
-   {
-      private NotFoundException(@Nonnull String classNameOrDesc)
-      {
+   public static final class NotFoundException extends RuntimeException {
+      private NotFoundException(@Nonnull String classNameOrDesc) {
          super("Unable to find class file for " + classNameOrDesc.replace('/', '.'));
       }
    }
 
-   private static void verifyClassFileFound(@Nullable InputStream classFile, @Nonnull String classNameOrDesc)
-   {
+   private static void verifyClassFileFound(@Nullable InputStream classFile, @Nonnull String classNameOrDesc) {
       if (classFile == null) {
          throw new NotFoundException(classNameOrDesc);
       }
    }
 
-   public static long t;
-
    @Nullable
-   public static ClassReader createClassReader(@Nonnull ClassLoader cl, @Nonnull String internalClassName)
-   {
+   public static ClassReader createClassReader(@Nonnull ClassLoader cl, @Nonnull String internalClassName) {
       String classFileName = internalClassName + ".class";
-      long t0 = System.nanoTime();
       InputStream classFile = cl.getResourceAsStream(classFileName);
 
       if (classFile != null) { // ignore the class if the ".class" file wasn't located
          try {
             byte[] bytecode = readClass(classFile);
-            t += System.nanoTime() - t0;
             return new ClassReader(bytecode);
          }
          catch (IOException ignore) {}
@@ -96,8 +88,7 @@ public final class ClassFile
    }
 
    @Nonnull
-   public static ClassReader createReaderOrGetFromCache(@Nonnull Class<?> aClass)
-   {
+   public static ClassReader createReaderOrGetFromCache(@Nonnull Class<?> aClass) {
       byte[] cachedClassfile = CachedClassfiles.getClassfile(aClass);
 
       if (cachedClassfile != null) {
@@ -116,8 +107,7 @@ public final class ClassFile
    }
 
    @Nonnull
-   public static ClassReader createReaderFromLastRedefinitionIfAny(@Nonnull Class<?> aClass)
-   {
+   public static ClassReader createReaderFromLastRedefinitionIfAny(@Nonnull Class<?> aClass) {
       byte[] classfile = TestRun.mockFixture().getRedefinedClassfile(aClass);
 
       if (classfile == null) {
@@ -136,8 +126,7 @@ public final class ClassFile
    }
 
    @Nonnull
-   public static ClassReader createClassFileReader(@Nullable ClassLoader loader, @Nonnull String internalClassName)
-   {
+   public static ClassReader createClassFileReader(@Nullable ClassLoader loader, @Nonnull String internalClassName) {
       byte[] cachedClassfile = CachedClassfiles.getClassfile(loader, internalClassName);
 
       if (cachedClassfile != null) {
@@ -148,15 +137,13 @@ public final class ClassFile
    }
 
    @Nonnull
-   public static ClassReader readFromFile(@Nonnull Class<?> aClass)
-   {
+   public static ClassReader readFromFile(@Nonnull Class<?> aClass) {
       String classDesc = aClass.getName().replace('.', '/');
       return readFromFile(classDesc);
    }
 
    @Nonnull
-   public static ClassReader readFromFile(@Nonnull String classDesc)
-   {
+   public static ClassReader readFromFile(@Nonnull String classDesc) {
       if (classDesc.startsWith("java/") || classDesc.startsWith("javax/")) {
          byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 
@@ -176,9 +163,8 @@ public final class ClassFile
       }
    }
 
-   @Nonnull
-   private static InputStream readClassFromClasspath(@Nonnull String classDesc)
-   {
+   @Nonnull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
+   private static InputStream readClassFromClasspath(@Nonnull String classDesc) {
       String classFileName = classDesc + ".class";
       ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
       InputStream inputStream = null;
@@ -208,8 +194,7 @@ public final class ClassFile
       return inputStream;
    }
 
-   public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor)
-   {
+   public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor) {
       byte[] classfile = CachedClassfiles.getClassfile(classDesc);
       ClassReader cr = classfile != null ? new ClassReader(classfile) : readFromFile(classDesc);
       cr.accept(visitor, Flags.SKIP_DEBUG);

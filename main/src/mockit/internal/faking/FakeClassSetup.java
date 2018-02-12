@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -23,9 +23,7 @@ public final class FakeClassSetup
    @Nonnull private final MockUp<?> fake;
    private final boolean forStartupFake;
 
-   public FakeClassSetup(
-      @Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nullable Type fakedType, @Nonnull MockUp<?> fake)
-   {
+   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nullable Type fakedType, @Nonnull MockUp<?> fake) {
       this.realClass = classToFake;
       fakeMethods = new FakeMethods(realClass, fakedType);
       this.fake = fake;
@@ -46,8 +44,7 @@ public final class FakeClassSetup
       }
    }
 
-   public void redefineMethods()
-   {
+   public void redefineMethods() {
       @Nullable Class<?> classToModify = realClass;
 
       while (classToModify != null && fakeMethods.hasUnusedFakes()) {
@@ -64,8 +61,7 @@ public final class FakeClassSetup
    }
 
    @Nullable
-   private byte[] modifyRealClass(@Nonnull Class<?> classToModify)
-   {
+   private byte[] modifyRealClass(@Nonnull Class<?> classToModify) {
       if (rcReader == null) {
          rcReader = ClassFile.createReaderFromLastRedefinitionIfAny(classToModify);
       }
@@ -77,13 +73,11 @@ public final class FakeClassSetup
    }
 
    @Nonnull
-   BaseClassModifier createClassModifier(@Nonnull ClassReader cr)
-   {
+   BaseClassModifier createClassModifier(@Nonnull ClassReader cr) {
       return new FakedClassModifier(cr, realClass, fake, fakeMethods);
    }
 
-   void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile)
-   {
+   void applyClassModifications(@Nonnull Class<?> classToModify, @Nonnull byte[] modifiedClassFile) {
       ClassDefinition classDef = new ClassDefinition(classToModify, modifiedClassFile);
       Startup.redefineMethods(classDef);
 

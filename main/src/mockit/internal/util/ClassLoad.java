@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -20,20 +20,17 @@ public final class ClassLoad
 
    private ClassLoad() {}
 
-   public static void registerLoadedClass(@Nonnull Class<?> aClass)
-   {
+   public static void registerLoadedClass(@Nonnull Class<?> aClass) {
       LOADED_CLASSES.put(aClass.getName(), aClass);
    }
 
    @Nonnull
-   public static <T> Class<T> loadByInternalName(@Nonnull String internalClassName)
-   {
+   public static <T> Class<T> loadByInternalName(@Nonnull String internalClassName) {
       return loadClass(internalClassName.replace('/', '.'));
    }
 
    @Nonnull
-   public static <T> Class<T> loadClass(@Nonnull String className)
-   {
+   public static <T> Class<T> loadClass(@Nonnull String className) {
       @Nullable Class<?> loadedClass = LOADED_CLASSES.get(className);
 
       if (loadedClass == null) {
@@ -51,8 +48,7 @@ public final class ClassLoad
    }
 
    @Nonnull
-   private static Class<?> loadClassFromAClassLoader(@Nonnull String className)
-   {
+   private static Class<?> loadClassFromAClassLoader(@Nonnull String className) {
       Class<?> loadedClass = loadClass(null, className);
 
       if (loadedClass == null) {
@@ -79,8 +75,7 @@ public final class ClassLoad
    }
 
    @Nonnull
-   public static <T> Class<T> loadClassAtStartup(@Nonnull String className)
-   {
+   public static <T> Class<T> loadClassAtStartup(@Nonnull String className) {
       ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
       Class<?> loadedClass;
 
@@ -105,14 +100,12 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static Class<?> loadClass(@Nullable ClassLoader loader, @Nonnull String className)
-   {
+   public static Class<?> loadClass(@Nullable ClassLoader loader, @Nonnull String className) {
       try { return Class.forName(className, false, loader); } catch (ClassNotFoundException ignore) { return null; }
    }
 
    @Nonnull
-   public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @Nonnull String className)
-   {
+   public static <T> Class<T> loadFromLoader(@Nullable ClassLoader loader, @Nonnull String className) {
       try {
          //noinspection unchecked
          return (Class<T>) Class.forName(className, false, loader);
@@ -123,14 +116,12 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName)
-   {
+   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName) {
        return searchTypeInClasspath(typeName, false);
    }
 
    @Nullable
-   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName, boolean initializeType)
-   {
+   public static <T> Class<? extends T> searchTypeInClasspath(@Nonnull String typeName, boolean initializeType) {
       //noinspection OverlyBroadCatchBlock
       try {
          //noinspection unchecked
@@ -139,14 +130,12 @@ public final class ClassLoad
       catch (Throwable ignore) { return null; }
    }
 
-   public static void addSuperClass(@Nonnull String classInternalName, @Nonnull String superClassInternalName)
-   {
+   public static void addSuperClass(@Nonnull String classInternalName, @Nonnull String superClassInternalName) {
       SUPER_CLASSES.put(classInternalName.intern(), superClassInternalName.intern());
    }
 
    @Nonnull
-   public static String getSuperClass(@Nonnull String classInternalName)
-   {
+   public static String getSuperClass(@Nonnull String classInternalName) {
       String classDesc = classInternalName.intern();
       String superName = SUPER_CLASSES.get(classDesc);
 
@@ -164,8 +153,7 @@ public final class ClassLoad
    }
 
    @Nullable
-   public static String whichIsSuperClass(@Nonnull String internalClassName1, @Nonnull String internalClassName2)
-   {
+   public static String whichIsSuperClass(@Nonnull String internalClassName1, @Nonnull String internalClassName2) {
       String class1 = actualSuperClass(internalClassName1, internalClassName2);
 
       if (class1 != null) {
@@ -177,8 +165,7 @@ public final class ClassLoad
    }
 
    @Nullable
-   private static String actualSuperClass(@Nonnull String candidateSuperClass, @Nonnull String candidateSubclass)
-   {
+   private static String actualSuperClass(@Nonnull String candidateSuperClass, @Nonnull String candidateSubclass) {
       String subclass = candidateSubclass;
 
       while (true) {
@@ -196,13 +183,11 @@ public final class ClassLoad
       }
    }
 
-   public static boolean isClassLoaderWithNoDirectAccess(@Nullable ClassLoader classLoader)
-   {
+   public static boolean isClassLoaderWithNoDirectAccess(@Nullable ClassLoader classLoader) {
       return classLoader == null || classLoader != THIS_CL && classLoader.getParent() != THIS_CL;
    }
 
-   public static ClassLoader getClassLoaderWithAccess(@Nonnull Class<?> classToBeAccessed)
-   {
+   public static ClassLoader getClassLoaderWithAccess(@Nonnull Class<?> classToBeAccessed) {
       ClassLoader cl = classToBeAccessed.getClassLoader();
       return isClassLoaderWithNoDirectAccess(cl) ? THIS_CL : cl;
    }

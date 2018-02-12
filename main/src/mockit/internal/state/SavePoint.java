@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -19,8 +19,7 @@ public final class SavePoint
    @Nonnull private final List<Class<?>> previousMockedClasses;
    @Nonnull private final FakeClasses.SavePoint previousFakeClasses;
 
-   public SavePoint()
-   {
+   public SavePoint() {
       MockFixture mockFixture = TestRun.mockFixture();
       previousTransformedClasses = mockFixture.getTransformedClasses();
       previousRedefinedClasses = mockFixture.getRedefinedClasses();
@@ -29,8 +28,7 @@ public final class SavePoint
       previousFakeClasses = TestRun.getFakeClasses().new SavePoint();
    }
 
-   public synchronized void rollback()
-   {
+   public synchronized void rollback() {
       RECORD_OR_REPLAY_LOCK.lock();
 
       try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -31,8 +31,7 @@ final class FakeMethods
    @Nonnull private String fakeClassInternalName;
    @Nullable private List<FakeState> fakeStates;
 
-   final class FakeMethod
-   {
+   final class FakeMethod {
       private final int access;
       @Nonnull final String name;
       @Nonnull final String desc;
@@ -44,8 +43,7 @@ final class FakeMethods
       private int indexForFakeState;
       private boolean nativeRealMethod;
 
-      private FakeMethod(int access, @Nonnull String name, @Nonnull String desc)
-      {
+      private FakeMethod(int access, @Nonnull String name, @Nonnull String desc) {
          this.access = access;
          this.name = name;
          this.desc = desc;
@@ -65,8 +63,7 @@ final class FakeMethods
          indexForFakeState = -1;
       }
 
-      boolean isMatch(int realAccess, @Nonnull String realName, @Nonnull String realDesc, @Nullable String signature)
-      {
+      boolean isMatch(int realAccess, @Nonnull String realName, @Nonnull String realDesc, @Nullable String signature) {
          if (name.equals(realName) && hasMatchingParameters(realDesc, signature)) {
             hasMatchingRealMethod = true;
             nativeRealMethod = isNative(realAccess);
@@ -76,8 +73,7 @@ final class FakeMethods
          return false;
       }
 
-      private boolean hasMatchingParameters(@Nonnull String methodDesc, @Nullable String signature)
-      {
+      private boolean hasMatchingParameters(@Nonnull String methodDesc, @Nullable String signature) {
          boolean sameParametersIgnoringGenerics = fakeDescWithoutInvocationParameter.equals(methodDesc);
 
          if (sameParametersIgnoringGenerics || signature == null) {
@@ -103,21 +99,18 @@ final class FakeMethods
       boolean canBeReentered() { return targetTypeIsAClass && !nativeRealMethod; }
 
       @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-      public boolean equals(Object obj)
-      {
+      public boolean equals(Object obj) {
          FakeMethod other = (FakeMethod) obj;
          return realClass == other.getRealClass() && name.equals(other.name) && desc.equals(other.desc);
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          return 31 * (31 * realClass.hashCode() + name.hashCode()) + desc.hashCode();
       }
    }
 
-   FakeMethods(@Nonnull Class<?> realClass, @Nullable Type targetType)
-   {
+   FakeMethods(@Nonnull Class<?> realClass, @Nullable Type targetType) {
       this.realClass = realClass;
 
       if (targetType == null || realClass == targetType) {
@@ -137,8 +130,7 @@ final class FakeMethods
    @Nonnull Class<?> getRealClass() { return realClass; }
 
    @Nullable
-   FakeMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc)
-   {
+   FakeMethod addMethod(boolean fromSuperClass, int access, @Nonnull String name, @Nonnull String desc) {
       if (fromSuperClass && isMethodAlreadyAdded(name, desc)) {
          return null;
       }
@@ -155,8 +147,7 @@ final class FakeMethods
       return fakeMethod;
    }
 
-   private boolean isMethodAlreadyAdded(@Nonnull String name, @Nonnull String desc)
-   {
+   private boolean isMethodAlreadyAdded(@Nonnull String name, @Nonnull String desc) {
       int p = desc.lastIndexOf(')');
       String params = desc.substring(0, p + 1);
 
@@ -169,8 +160,7 @@ final class FakeMethods
       return false;
    }
 
-   void addFakeState(@Nonnull FakeState fakeState)
-   {
+   void addFakeState(@Nonnull FakeState fakeState) {
       if (fakeStates == null) {
          fakeStates = new ArrayList<FakeState>(4);
       }
@@ -185,8 +175,7 @@ final class FakeMethods
     * method is processed there should be no fake methods left unused in the container.
     */
    @Nullable
-   FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature)
-   {
+   FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature) {
       for (FakeMethod fakeMethod : methods) {
          if (fakeMethod.isMatch(access, name, desc, signature)) {
             return fakeMethod;
@@ -205,13 +194,11 @@ final class FakeMethods
 
    @Nonnull String getFakeClassInternalName() { return fakeClassInternalName; }
 
-   void setFakeClassInternalName(@Nonnull String fakeClassInternalName)
-   {
+   void setFakeClassInternalName(@Nonnull String fakeClassInternalName) {
       this.fakeClassInternalName = fakeClassInternalName.intern();
    }
 
-   boolean hasUnusedFakes()
-   {
+   boolean hasUnusedFakes() {
       if (adviceMethod != null) {
          return true;
       }
@@ -225,8 +212,7 @@ final class FakeMethods
       return false;
    }
 
-   void registerFakeStates(@Nonnull Object fake, boolean forStartupFake)
-   {
+   void registerFakeStates(@Nonnull Object fake, boolean forStartupFake) {
       if (fakeStates != null) {
          FakeStates allFakeStates = TestRun.getFakeStates();
 

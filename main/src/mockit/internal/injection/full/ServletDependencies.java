@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.full;
@@ -21,8 +21,7 @@ import mockit.internal.injection.*;
  */
 final class ServletDependencies
 {
-   static boolean isApplicable(@Nonnull Class<?> dependencyType)
-   {
+   static boolean isApplicable(@Nonnull Class<?> dependencyType) {
       return dependencyType == HttpSession.class || dependencyType == ServletContext.class;
    }
 
@@ -31,8 +30,7 @@ final class ServletDependencies
    ServletDependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nonnull
-   Object createAndRegisterDependency(@Nonnull Class<?> dependencyType)
-   {
+   Object createAndRegisterDependency(@Nonnull Class<?> dependencyType) {
       if (dependencyType == ServletContext.class) {
          return createAndRegisterServletContext();
       }
@@ -41,8 +39,7 @@ final class ServletDependencies
    }
 
    @Nonnull
-   private ServletContext createAndRegisterServletContext()
-   {
+   private ServletContext createAndRegisterServletContext() {
       ServletContext context = new ServletContext() {
          private final Map<String, String> init = new HashMap<String, String>();
          private final Map<String, Object> attrs = new HashMap<String, Object>();
@@ -115,8 +112,7 @@ final class ServletDependencies
    }
 
    @Nonnull
-   private HttpSession createAndRegisterHttpSession()
-   {
+   private HttpSession createAndRegisterHttpSession() {
       HttpSession session = new HttpSession() {
          private final String id = String.valueOf(Math.abs(new Random().nextInt()));
          private final long creationTime = System.currentTimeMillis();
@@ -139,23 +135,20 @@ final class ServletDependencies
          @Override public void removeAttribute(String name) { checkValid(); attrs.remove(name); }
 
          @Override
-         public void invalidate()
-         {
+         public void invalidate() {
             checkValid();
             attrs.clear();
             invalidated = true;
          }
 
-         private void checkValid()
-         {
+         private void checkValid() {
             if (invalidated) {
                throw new IllegalStateException("Session is invalid");
             }
          }
 
          @Override
-         public ServletContext getServletContext()
-         {
+         public ServletContext getServletContext() {
             ServletContext context = InjectionState.getGlobalDependency(new InjectionPoint(ServletContext.class));
 
             if (context == null) {

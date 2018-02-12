@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -31,16 +31,14 @@ public abstract class ClassLoadingBridge implements InvocationHandler
     */
    protected ClassLoadingBridge(@Nonnull String id) { this.id = id; }
 
-   protected static boolean notToBeMocked(@Nullable Object instance, @Nonnull String classDesc)
-   {
+   protected static boolean notToBeMocked(@Nullable Object instance, @Nonnull String classDesc) {
       return
          (instance == null && "java/lang/System".equals(classDesc) ||
           instance != null && instanceOfClassThatParticipatesInClassLoading(instance.getClass())
          ) && wasCalledDuringClassLoading();
    }
 
-   public static boolean instanceOfClassThatParticipatesInClassLoading(@Nonnull Class<?> aClass)
-   {
+   public static boolean instanceOfClassThatParticipatesInClassLoading(@Nonnull Class<?> aClass) {
       return
          aClass == System.class || aClass == File.class || aClass == URL.class ||
          aClass == FileInputStream.class || aClass == Manifest.class ||
@@ -48,8 +46,7 @@ public abstract class ClassLoadingBridge implements InvocationHandler
          Vector.class.isAssignableFrom(aClass) || Hashtable.class.isAssignableFrom(aClass);
    }
 
-   private static boolean wasCalledDuringClassLoading()
-   {
+   private static boolean wasCalledDuringClassLoading() {
       if (LOCK.isHeldByCurrentThread()) {
          return true;
       }
@@ -79,8 +76,7 @@ public abstract class ClassLoadingBridge implements InvocationHandler
    }
 
    @Nonnull
-   protected static Object[] extractArguments(@Nonnegative int startingIndex, @Nonnull Object[] args)
-   {
+   protected static Object[] extractArguments(@Nonnegative int startingIndex, @Nonnull Object[] args) {
       if (args.length > startingIndex) {
          Object[] targetMemberArgs = new Object[args.length - startingIndex];
          System.arraycopy(args, startingIndex, targetMemberArgs, 0, targetMemberArgs.length);
@@ -91,8 +87,7 @@ public abstract class ClassLoadingBridge implements InvocationHandler
    }
 
    @Nonnull
-   static String getHostClassName()
-   {
+   static String getHostClassName() {
       if (!fieldsSet) {
          setBridgeFields();
          fieldsSet = true;
@@ -101,16 +96,14 @@ public abstract class ClassLoadingBridge implements InvocationHandler
       return hostJREClassName;
    }
 
-   private static void setBridgeFields()
-   {
+   private static void setBridgeFields() {
       Class<?> hostClass = ClassLoad.loadByInternalName(hostJREClassName);
       setBridgeField(hostClass, MockedBridge.MB);
       setBridgeField(hostClass, FakeBridge.MB);
       setBridgeField(hostClass, FakeMethodBridge.MB);
    }
 
-   private static void setBridgeField(@Nonnull Class<?> hostClass, @Nonnull ClassLoadingBridge bridge)
-   {
+   private static void setBridgeField(@Nonnull Class<?> hostClass, @Nonnull ClassLoadingBridge bridge) {
       try {
          hostClass.getDeclaredField(bridge.id).set(null, bridge);
       }

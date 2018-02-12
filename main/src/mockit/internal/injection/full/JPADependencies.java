@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.full;
@@ -21,8 +21,7 @@ import org.xml.sax.helpers.*;
  */
 final class JPADependencies
 {
-   static boolean isApplicable(@Nonnull Class<?> dependencyType)
-   {
+   static boolean isApplicable(@Nonnull Class<?> dependencyType) {
       return dependencyType == EntityManager.class || dependencyType == EntityManagerFactory.class;
    }
 
@@ -32,8 +31,7 @@ final class JPADependencies
    JPADependencies(@Nonnull InjectionState injectionState) { this.injectionState = injectionState; }
 
    @Nullable
-   InjectionPoint getInjectionPointIfAvailable(@Nonnull Annotation jpaAnnotation)
-   {
+   InjectionPoint getInjectionPointIfAvailable(@Nonnull Annotation jpaAnnotation) {
       Class<? extends Annotation> annotationType = jpaAnnotation.annotationType();
       Class<?> jpaClass;
       String unitName;
@@ -58,8 +56,7 @@ final class JPADependencies
    }
 
    @Nonnull
-   private String discoverNameOfDefaultPersistenceUnit()
-   {
+   private String discoverNameOfDefaultPersistenceUnit() {
       if (defaultPersistenceUnitName != null) {
          return defaultPersistenceUnitName;
       }
@@ -72,8 +69,7 @@ final class JPADependencies
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(xmlFile, new DefaultHandler() {
                @Override
-               public void startElement(String uri, String localName, String qName, Attributes attributes)
-               {
+               public void startElement(String uri, String localName, String qName, Attributes attributes) {
                   if ("persistence-unit".equals(qName)) {
                      defaultPersistenceUnitName = attributes.getValue("name");
                   }
@@ -90,8 +86,7 @@ final class JPADependencies
    }
 
    @Nonnull
-   Object createAndRegisterDependency(@Nonnull Class<?> dependencyType, @Nonnull InjectionPoint dependencyKey)
-   {
+   Object createAndRegisterDependency(@Nonnull Class<?> dependencyType, @Nonnull InjectionPoint dependencyKey) {
       if (dependencyType == EntityManagerFactory.class) {
          InjectionPoint injectionPoint = createFactoryInjectionPoint(dependencyKey);
          EntityManagerFactory emFactory = createAndRegisterEntityManagerFactory(injectionPoint);
@@ -102,22 +97,18 @@ final class JPADependencies
    }
 
    @Nonnull
-   private InjectionPoint createFactoryInjectionPoint(@Nonnull InjectionPoint injectionPoint)
-   {
+   private InjectionPoint createFactoryInjectionPoint(@Nonnull InjectionPoint injectionPoint) {
       String persistenceUnitName = getNameOfPersistentUnit(injectionPoint.name);
       return new InjectionPoint(EntityManagerFactory.class, persistenceUnitName, injectionPoint.qualified);
    }
 
    @Nonnull
-   private String getNameOfPersistentUnit(@Nullable String injectionPointName)
-   {
-      return injectionPointName != null && !injectionPointName.isEmpty() ?
-         injectionPointName : discoverNameOfDefaultPersistenceUnit();
+   private String getNameOfPersistentUnit(@Nullable String injectionPointName) {
+      return injectionPointName != null && !injectionPointName.isEmpty() ? injectionPointName : discoverNameOfDefaultPersistenceUnit();
    }
 
    @Nonnull
-   private EntityManagerFactory createAndRegisterEntityManagerFactory(@Nonnull InjectionPoint injectionPoint)
-   {
+   private static EntityManagerFactory createAndRegisterEntityManagerFactory(@Nonnull InjectionPoint injectionPoint) {
       String persistenceUnitName = injectionPoint.name;
       EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
       InjectionState.saveGlobalDependency(injectionPoint, emFactory);
@@ -125,8 +116,7 @@ final class JPADependencies
    }
 
    @Nonnull
-   private EntityManager createAndRegisterEntityManager(@Nonnull InjectionPoint injectionPoint)
-   {
+   private EntityManager createAndRegisterEntityManager(@Nonnull InjectionPoint injectionPoint) {
       InjectionPoint emFactoryKey = createFactoryInjectionPoint(injectionPoint);
       EntityManagerFactory emFactory = InjectionState.getGlobalDependency(emFactoryKey);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -15,15 +15,13 @@ public final class ClassIdentification
    @Nullable public final ClassLoader loader;
    @Nonnull public final String name;
 
-   public ClassIdentification(@Nullable ClassLoader loader, @Nonnull String name)
-   {
+   public ClassIdentification(@Nullable ClassLoader loader, @Nonnull String name) {
       this.loader = loader;
       this.name = name;
    }
 
    @Nonnull
-   public Class<?> getLoadedClass()
-   {
+   public Class<?> getLoadedClass() {
       try {
          return Class.forName(name, false, loader);
       }
@@ -33,8 +31,7 @@ public final class ClassIdentification
    }
 
    @Override
-   public boolean equals(Object o)
-   {
+   public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
 
@@ -43,8 +40,7 @@ public final class ClassIdentification
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return loader == null ? name.hashCode() : 31 * loader.hashCode() + name.hashCode();
    }
 }

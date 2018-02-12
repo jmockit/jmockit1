@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.classGeneration;
@@ -31,10 +31,9 @@ public class BaseSubclassGenerator extends BaseClassModifier
    private Set<String> superInterfaces;
 
    protected BaseSubclassGenerator(
-      @Nonnull Class<?> baseClass, @Nonnull ClassReader classReader,
-      @Nullable Type genericMockedType, @Nonnull String subclassName,
-      boolean copyConstructors)
-   {
+      @Nonnull Class<?> baseClass, @Nonnull ClassReader classReader, @Nullable Type genericMockedType, @Nonnull String subclassName,
+      boolean copyConstructors
+   ) {
       super(classReader);
       this.baseClass = baseClass;
       this.subclassName = subclassName.replace('.', '/');
@@ -45,9 +44,8 @@ public class BaseSubclassGenerator extends BaseClassModifier
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces)
-   {
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
+   ) {
       int subclassAccess = access & CLASS_ACCESS_MASK | Access.FINAL;
       String subclassSignature = mockedTypeInfo == null ? signature : mockedTypeInfo.implementationSignature;
 
@@ -62,8 +60,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
    }
 
    @Override
-   public final void visitInnerClass(
-      @Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {}
+   public final void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {}
 
    @Override
    public final void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
@@ -73,13 +70,13 @@ public class BaseSubclassGenerator extends BaseClassModifier
 
    @Override @Nullable
    public final FieldVisitor visitField(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value)
-   { return null; }
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
+   ) { return null; }
 
    @Override @Nullable
    public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if (copyConstructors && "<init>".equals(name)) {
          if ((access & CONSTRUCTOR_ACCESS_MASK) != 0) {
             generateConstructorDelegatingToSuper(desc, signature, exceptions);
@@ -93,9 +90,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
       return null;
    }
 
-   private void generateConstructorDelegatingToSuper(
-      @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+   private void generateConstructorDelegatingToSuper(@Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions) {
       mw = cw.visitMethod(Access.PUBLIC, "<init>", desc, signature, exceptions);
       mw.visitVarInsn(ALOAD, 0);
       int varIndex = 1;
@@ -111,9 +106,8 @@ public class BaseSubclassGenerator extends BaseClassModifier
    }
 
    private void generateImplementationIfAbstractMethod(
-      String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
-      @Nullable String[] exceptions)
-   {
+      String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if (!"<init>".equals(name)) {
          String methodNameAndDesc = name + desc;
 
@@ -128,14 +122,11 @@ public class BaseSubclassGenerator extends BaseClassModifier
    }
 
    protected void generateMethodImplementation(
-      String className, int access, @Nonnull String name, @Nonnull String desc,
-      @Nullable String signature, @Nullable String[] exceptions)
-   {
-   }
+      String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {}
 
    @Override
-   public void visitEnd()
-   {
+   public void visitEnd() {
       generateImplementationsForInheritedAbstractMethods(superClassOfSuperClass);
 
       while (!superInterfaces.isEmpty()) {
@@ -145,26 +136,22 @@ public class BaseSubclassGenerator extends BaseClassModifier
       }
    }
 
-   private void generateImplementationsForInheritedAbstractMethods(@Nullable String superName)
-   {
+   private void generateImplementationsForInheritedAbstractMethods(@Nullable String superName) {
       if (superName != null && !"java/lang/Object".equals(superName)) {
          new MethodModifierForSuperclass(superName);
       }
    }
 
-   private void generateImplementationsForInterfaceMethods(String superName)
-   {
+   private void generateImplementationsForInterfaceMethods(String superName) {
       if (!"java/lang/Object".equals(superName)) {
          new MethodModifierForImplementedInterface(superName);
       }
    }
 
-   private static class BaseMethodModifier extends ClassVisitor
-   {
+   private static class BaseMethodModifier extends ClassVisitor {
       @Nonnull final String typeName;
 
-      BaseMethodModifier(@Nonnull String typeName)
-      {
+      BaseMethodModifier(@Nonnull String typeName) {
          this.typeName = typeName;
          ClassFile.visitClass(typeName, this);
       }
@@ -174,8 +161,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
          int access, @Nonnull String name, @Nonnull String desc, String signature, Object value) { return null; }
    }
 
-   private final class MethodModifierForSuperclass extends BaseMethodModifier
-   {
+   private final class MethodModifierForSuperclass extends BaseMethodModifier {
       String superClassName;
 
       MethodModifierForSuperclass(@Nonnull String className) { super(className); }
@@ -183,8 +169,8 @@ public class BaseSubclassGenerator extends BaseClassModifier
       @Override
       public void visit(
          int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces)
-      {
+         @Nullable String[] interfaces
+      ) {
          superClassName = superName;
 
          if (interfaces != null) {
@@ -193,44 +179,38 @@ public class BaseSubclassGenerator extends BaseClassModifier
       }
 
       @Nullable @Override
-      public MethodVisitor visitMethod(
-         int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions)
-      {
+      public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
          generateImplementationIfAbstractMethod(typeName, access, name, desc, signature, exceptions);
          return null;
       }
 
       @Override
-      public void visitEnd()
-      {
+      public void visitEnd() {
          generateImplementationsForInheritedAbstractMethods(superClassName);
       }
    }
 
-   private final class MethodModifierForImplementedInterface extends BaseMethodModifier
-   {
+   private final class MethodModifierForImplementedInterface extends BaseMethodModifier {
       MethodModifierForImplementedInterface(String interfaceName) { super(interfaceName); }
 
       @Override
       public void visit(
          int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces)
-      {
+         @Nullable String[] interfaces
+      ) {
          assert interfaces != null;
          superInterfaces.addAll(asList(interfaces));
       }
 
       @Nullable @Override
-      public MethodVisitor visitMethod(
-         int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions)
-      {
+      public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
          generateImplementationForInterfaceMethodIfMissing(access, name, desc, signature, exceptions);
          return null;
       }
 
       private void generateImplementationForInterfaceMethodIfMissing(
-         int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions)
-      {
+         int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions
+      ) {
          String methodNameAndDesc = name + desc;
 
          if (!implementedMethods.contains(methodNameAndDesc)) {
@@ -242,8 +222,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
          }
       }
 
-      private boolean hasMethodImplementation(@Nonnull String name, @Nonnull String desc)
-      {
+      private boolean hasMethodImplementation(@Nonnull String name, @Nonnull String desc) {
          Class<?>[] paramTypes = TypeDescriptor.getParameterTypes(desc);
 
          try {

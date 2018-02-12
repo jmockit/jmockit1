@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -13,15 +13,13 @@ public final class RecordPhase extends TestOnlyPhase
 {
    RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
 
-   public void addResult(@Nullable Object result)
-   {
+   public void addResult(@Nullable Object result) {
       if (currentExpectation != null) {
          currentExpectation.addResult(result);
       }
    }
 
-   public void addSequenceOfReturnValues(@Nonnull Object[] values)
-   {
+   public void addSequenceOfReturnValues(@Nonnull Object[] values) {
       if (currentExpectation != null) {
          currentExpectation.addSequenceOfReturnValues(values);
       }
@@ -30,9 +28,8 @@ public final class RecordPhase extends TestOnlyPhase
    @Nullable @Override
    Object handleInvocation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
-      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
-      throws Throwable
-   {
+      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
+   ) {
       //noinspection AssignmentToMethodParameter
       mock = configureMatchingOnMockInstanceIfSpecified(mock);
 
@@ -62,8 +59,7 @@ public final class RecordPhase extends TestOnlyPhase
    }
 
    @Nullable
-   private Object configureMatchingOnMockInstanceIfSpecified(@Nullable Object mock)
-   {
+   private Object configureMatchingOnMockInstanceIfSpecified(@Nullable Object mock) {
       matchInstance = false;
 
       if (mock == null) {
@@ -76,8 +72,7 @@ public final class RecordPhase extends TestOnlyPhase
    }
 
    @Override
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
-   {
+   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       if (currentExpectation != null) {
          currentExpectation.constraints.setLimits(minInvocations, maxInvocations);
       }

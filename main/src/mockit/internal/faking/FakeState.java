@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -9,9 +9,12 @@ import javax.annotation.*;
 
 import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.reflection.*;
+import mockit.internal.util.*;
 
 final class FakeState
 {
+   private static final ClassLoader THIS_CL = FakeState.class.getClassLoader();
+
    @Nonnull final FakeMethod fakeMethod;
    @Nullable private Method actualFakeMethod;
    @Nullable private Member realMethodOrConstructor;
@@ -24,8 +27,7 @@ final class FakeState
    // Helper field just for synchronization:
    @Nonnull private final Object invocationCountLock;
 
-   FakeState(@Nonnull FakeMethod fakeMethod)
-   {
+   FakeState(@Nonnull FakeMethod fakeMethod) {
       this.fakeMethod = fakeMethod;
       invocationCountLock = new Object();
 
@@ -34,24 +36,11 @@ final class FakeState
       }
    }
 
-   FakeState(@Nonnull FakeState fakeState)
-   {
-      fakeMethod = fakeState.fakeMethod;
-      actualFakeMethod = fakeState.actualFakeMethod;
-      realMethodOrConstructor = fakeState.realMethodOrConstructor;
-      invocationCountLock = new Object();
-
-      if (fakeState.proceedingInvocation != null) {
-         makeReentrant();
-      }
-   }
-
    @Nonnull Class<?> getRealClass() { return fakeMethod.getRealClass(); }
 
    private void makeReentrant() { proceedingInvocation = new ThreadLocal<FakeInvocation>(); }
 
-   boolean update()
-   {
+   boolean update() {
       if (proceedingInvocation != null) {
          FakeInvocation invocation = proceedingInvocation.get();
 
@@ -68,66 +57,45 @@ final class FakeState
       return true;
    }
 
-   int getTimesInvoked()
-   {
+   int getTimesInvoked() {
       synchronized (invocationCountLock) {
          return invocationCount;
       }
    }
 
    @Nonnull
-   Member getRealMethodOrConstructor(
-      @Nonnull String fakedClassDesc, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc)
-   {
-      if (realMethodOrConstructor == null || !fakedClassDesc.equals(realClass)) {
-         String memberName = "$init".equals(fakedMethodName) ? "<init>" : fakedMethodName;
-
-         RealMethodOrConstructor realMember;
-         try { realMember = new RealMethodOrConstructor(fakedClassDesc, memberName, fakedMethodDesc); }
-         catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-
-         Member member = realMember.getMember();
-
-         if (fakeMethod.isAdvice) {
-            return member;
-         }
-
-         realMethodOrConstructor = member;
-         realClass = fakedClassDesc;
-      }
-
-      return realMethodOrConstructor;
+   Member getRealMethodOrConstructor(@Nonnull String fakedClassDesc, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc) {
+      Class<?> fakedClass = ClassLoad.loadFromLoader(THIS_CL, fakedClassDesc.replace('/', '.'));
+      return getRealMethodOrConstructor(fakedClass, fakedMethodName, fakedMethodDesc);
    }
 
    @Nonnull
-   Member getRealMethodOrConstructor(
-      @Nonnull Class<?> fakedClass, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc)
-   {
-      if (realMethodOrConstructor == null || !fakedClass.equals(realClass)) {
+   Member getRealMethodOrConstructor(@Nonnull Class<?> fakedClass, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc) {
+      Member member = realMethodOrConstructor;
+
+      if (member == null || !fakedClass.equals(realClass)) {
          String memberName = "$init".equals(fakedMethodName) ? "<init>" : fakedMethodName;
 
          RealMethodOrConstructor realMember;
          try { realMember = new RealMethodOrConstructor(fakedClass, memberName, fakedMethodDesc); }
          catch (NoSuchMethodException e) { throw new RuntimeException(e); }
 
-         Member member = realMember.getMember();
+         member = realMember.getMember();
 
-         if (fakeMethod.isAdvice) {
-            return member;
+         if (!fakeMethod.isAdvice) {
+            realMethodOrConstructor = member;
+            realClass = fakedClass;
          }
-
-         realMethodOrConstructor = member;
-         realClass = fakedClass;
       }
 
-      return realMethodOrConstructor;
+      return member;
    }
 
-   boolean shouldProceedIntoRealImplementation(@Nullable Object fake, @Nonnull String classDesc)
-   {
+   boolean shouldProceedIntoRealImplementation(@Nullable Object fake, @Nonnull String classDesc) {
       if (proceedingInvocation != null) {
          FakeInvocation pendingInvocation = proceedingInvocation.get();
 
+         //noinspection RedundantIfStatement
          if (pendingInvocation != null && pendingInvocation.isMethodInSuperclass(fake, classDesc)) {
             return true;
          }
@@ -136,8 +104,7 @@ final class FakeState
       return false;
    }
 
-   void prepareToProceed(@Nonnull FakeInvocation invocation)
-   {
+   void prepareToProceed(@Nonnull FakeInvocation invocation) {
       if (proceedingInvocation == null) {
          throw new UnsupportedOperationException("Cannot proceed into abstract/interface method");
       }
@@ -155,14 +122,12 @@ final class FakeState
       proceedingInvocation.set(invocation);
    }
 
-   void prepareToProceedFromNonRecursiveFake(@Nonnull FakeInvocation invocation)
-   {
+   void prepareToProceedFromNonRecursiveFake(@Nonnull FakeInvocation invocation) {
       assert proceedingInvocation != null;
       proceedingInvocation.set(invocation);
    }
 
-   void clearProceedIndicator()
-   {
+   void clearProceedIndicator() {
       assert proceedingInvocation != null;
       FakeInvocation currentInvocation = proceedingInvocation.get();
       FakeInvocation previousInvocation = (FakeInvocation) currentInvocation.getPrevious();
@@ -170,8 +135,7 @@ final class FakeState
    }
 
    @Nonnull
-   Method getFakeMethod(@Nonnull Class<?> fakeClass, @Nonnull Class<?>[] parameterTypes)
-   {
+   Method getFakeMethod(@Nonnull Class<?> fakeClass, @Nonnull Class<?>[] parameterTypes) {
       if (actualFakeMethod == null) {
          actualFakeMethod = MethodReflection.findCompatibleMethod(fakeClass, fakeMethod.name, parameterTypes);
       }

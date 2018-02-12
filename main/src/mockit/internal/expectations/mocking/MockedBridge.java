@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -21,8 +21,7 @@ public final class MockedBridge extends ClassLoadingBridge
    private MockedBridge() { super("$MB"); }
 
    @Nullable @Override
-   public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable
-   {
+   public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable {
       String mockedClassDesc = (String) args[1];
 
       if (calledFromSpecialThread() || notToBeMocked(mocked, mockedClassDesc)) {
@@ -60,8 +59,7 @@ public final class MockedBridge extends ClassLoadingBridge
       try {
          int mockAccess = (Integer) args[0];
          String genericSignature = (String) args[4];
-         rv = recordOrReplay(
-            mocked, mockAccess, mockedClassDesc, mockNameAndDesc, genericSignature, executionMode, mockArgs);
+         rv = recordOrReplay(mocked, mockAccess, mockedClassDesc, mockNameAndDesc, genericSignature, executionMode, mockArgs);
       }
       finally {
          TestRun.exitNoMockingZone();

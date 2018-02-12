@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal;
@@ -25,8 +25,7 @@ final class SuperConstructorCollector extends ClassVisitor
    private SuperConstructorCollector() {}
 
    @Nonnull
-   synchronized String findConstructor(@Nonnull String classDesc, @Nonnull String superClassDesc)
-   {
+   synchronized String findConstructor(@Nonnull String classDesc, @Nonnull String superClassDesc) {
       constructorDesc = cache.get(superClassDesc);
 
       if (constructorDesc != null) {
@@ -43,8 +42,7 @@ final class SuperConstructorCollector extends ClassVisitor
       return constructorDesc;
    }
 
-   private void findIfBothClassesAreInSamePackage(@Nonnull String classDesc, @Nonnull String superClassDesc)
-   {
+   private void findIfBothClassesAreInSamePackage(@Nonnull String classDesc, @Nonnull String superClassDesc) {
       int p1 = classDesc.lastIndexOf('/');
       int p2 = superClassDesc.lastIndexOf('/');
       samePackage = p1 == p2 && (p1 < 0 || classDesc.substring(0, p1).equals(superClassDesc.substring(0, p2)));
@@ -52,8 +50,8 @@ final class SuperConstructorCollector extends ClassVisitor
 
    @Override @Nullable
    public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions)
-   {
+      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+   ) {
       if (isAccessible(access) && "<init>".equals(name)) {
          constructorDesc = desc;
          throw VisitInterruptedException.INSTANCE;

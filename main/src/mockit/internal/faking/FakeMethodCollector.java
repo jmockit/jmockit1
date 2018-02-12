@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -20,8 +20,7 @@ import static mockit.external.asm.ClassReader.*;
  */
 final class FakeMethodCollector extends ClassVisitor
 {
-   private static final int INVALID_METHOD_ACCESSES =
-      Access.BRIDGE + Access.SYNTHETIC + Access.ABSTRACT + Access.NATIVE;
+   private static final int INVALID_METHOD_ACCESSES = Access.BRIDGE + Access.SYNTHETIC + Access.ABSTRACT + Access.NATIVE;
 
    @Nonnull private final FakeMethods fakeMethods;
 
@@ -30,8 +29,7 @@ final class FakeMethodCollector extends ClassVisitor
 
    FakeMethodCollector(@Nonnull FakeMethods fakeMethods) { this.fakeMethods = fakeMethods; }
 
-   void collectFakeMethods(@Nonnull Class<?> fakeClass)
-   {
+   void collectFakeMethods(@Nonnull Class<?> fakeClass) {
       ClassLoad.registerLoadedClass(fakeClass);
 
       Class<?> classToCollectFakesFrom = fakeClass;
@@ -47,9 +45,8 @@ final class FakeMethodCollector extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces)
-   {
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
+   ) {
       if (!collectingFromSuperClass) {
          fakeMethods.setFakeClassInternalName(name);
 
@@ -68,11 +65,10 @@ final class FakeMethodCollector extends ClassVisitor
     *                        consider the "erased" signature
     * @param exceptions zero or more thrown exceptions in the method "throws" clause, also ignored
     */
-   @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
-   @Nullable @Override
+   @Nullable @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
    public MethodVisitor visitMethod(
-      int access, @Nonnull String methodName, @Nonnull String methodDesc, String methodSignature, String[] exceptions)
-   {
+      int access, @Nonnull String methodName, @Nonnull String methodDesc, String methodSignature, String[] exceptions
+   ) {
       if ((access & INVALID_METHOD_ACCESSES) != 0) {
          return null;
       }
@@ -88,22 +84,19 @@ final class FakeMethodCollector extends ClassVisitor
       return new FakeMethodVisitor(access, methodName, methodDesc);
    }
 
-   private final class FakeMethodVisitor extends MethodVisitor
-   {
+   private final class FakeMethodVisitor extends MethodVisitor {
       private final int access;
       @Nonnull private final String methodName;
       @Nonnull private final String methodDesc;
 
-      FakeMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc)
-      {
+      FakeMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc) {
          this.access = access;
          this.methodName = methodName;
          this.methodDesc = methodDesc;
       }
 
       @Nullable @Override
-      public AnnotationVisitor visitAnnotation(@Nullable String desc)
-      {
+      public AnnotationVisitor visitAnnotation(@Nullable String desc) {
          if ("Lmockit/Mock;".equals(desc)) {
             FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
 
@@ -118,9 +111,8 @@ final class FakeMethodCollector extends ClassVisitor
 
       @Override
       public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
-         @Nonnegative int index)
-      {
+         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
+      ) {
          String classDesc = fakeMethods.getFakeClassInternalName();
          ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
       }

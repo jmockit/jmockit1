@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -28,8 +28,7 @@ public final class ActiveInvocations
    public static void anyDouble()  { addArgMatcher(ANY_DOUBLE); }
    public static void any()        { addArgMatcher(ANY_VALUE); }
 
-   private static void addArgMatcher(@Nonnull ArgumentMatcher<?> argumentMatcher)
-   {
+   private static void addArgMatcher(@Nonnull ArgumentMatcher<?> argumentMatcher) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -41,8 +40,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void moveArgMatcher(@Nonnegative int originalMatcherIndex, @Nonnegative int toIndex)
-   {
+   public static void moveArgMatcher(@Nonnegative int originalMatcherIndex, @Nonnegative int toIndex) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -54,8 +52,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, @Nonnull String typeDesc)
-   {
+   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, @Nonnull String typeDesc) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -68,8 +65,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, int varIndex)
-   {
+   public static void setExpectedArgumentType(@Nonnegative int parameterIndex, int varIndex) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -87,8 +83,7 @@ public final class ActiveInvocations
    }
 
    @Nullable
-   public static Object matchedArgument(@Nonnegative int parameterIndex, @Nullable String argTypeDesc)
-   {
+   public static Object matchedArgument(@Nonnegative int parameterIndex, @Nullable String argTypeDesc) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -108,8 +103,7 @@ public final class ActiveInvocations
       return null;
    }
 
-   public static void addResult(@Nullable Object result)
-   {
+   public static void addResult(@Nullable Object result) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -121,8 +115,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void times(int n)
-   {
+   public static void times(int n) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -134,8 +127,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void minTimes(int n)
-   {
+   public static void minTimes(int n) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -147,8 +139,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void maxTimes(int n)
-   {
+   public static void maxTimes(int n) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
 
       if (instance != null) {
@@ -160,8 +151,7 @@ public final class ActiveInvocations
       }
    }
 
-   public static void endInvocations()
-   {
+   public static void endInvocations() {
       TestRun.enterNoMockingZone();
 
       try {

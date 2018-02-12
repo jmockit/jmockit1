@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -17,27 +17,24 @@ public final class CaptureOfFakedImplementations extends CaptureOfImplementation
 {
    private final FakeClassSetup fakeClassSetup;
 
-   public CaptureOfFakedImplementations(@Nonnull MockUp<?> fake, @Nonnull Type baseType)
-   {
+   public CaptureOfFakedImplementations(@Nonnull MockUp<?> fake, @Nonnull Type baseType) {
       Class<?> baseClassType = getClassType(baseType);
       fakeClassSetup = new FakeClassSetup(baseClassType, baseClassType, baseType, fake);
    }
 
    @Nonnull @Override
    protected BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata)
-   {
+      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata
+   ) {
       return fakeClassSetup.createClassModifier(cr);
    }
 
    @Override
-   protected void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass)
-   {
+   protected void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass) {
       fakeClassSetup.applyClassModifications(realClass, modifiedClass);
    }
 
-   public void apply()
-   {
+   public void apply() {
       Class<?> baseType = fakeClassSetup.realClass;
 
       if (baseType != Object.class) {

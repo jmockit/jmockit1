@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -28,8 +28,7 @@ public final class Utilities
    public static final boolean JAVA9;
    public static final boolean HOTSPOT_VM;
 
-   static
-   {
+   static {
       JAVA_VERSION = Float.parseFloat(System.getProperty("java.specification.version"));
       JAVA8 = JAVA_VERSION >= 1.8F;
       JAVA9 = JAVA_VERSION >= 9.0F;
@@ -39,16 +38,14 @@ public final class Utilities
 
    private Utilities() {}
 
-   public static void ensureThatMemberIsAccessible(@Nonnull AccessibleObject classMember)
-   {
+   public static void ensureThatMemberIsAccessible(@Nonnull AccessibleObject classMember) {
       if (!classMember.isAccessible()) {
          classMember.setAccessible(true);
       }
    }
 
    @Nonnull
-   public static Class<?> getClassType(@Nonnull Type declaredType)
-   {
+   public static Class<?> getClassType(@Nonnull Type declaredType) {
       while (true) {
          if (declaredType instanceof Class<?>) {
             return (Class<?>) declaredType;
@@ -77,24 +74,17 @@ public final class Utilities
       }
    }
 
-   public static boolean containsReference(@Nonnull List<?> references, @Nullable Object toBeFound)
-   {
-      return indexOfReference(references, toBeFound) >= 0;
-   }
-
-   public static int indexOfReference(@Nonnull List<?> references, @Nullable Object toBeFound)
-   {
+   public static boolean containsReference(@Nonnull List<?> references, @Nullable Object toBeFound) {
       for (int i = 0, n = references.size(); i < n; i++) {
          if (references.get(i) == toBeFound) {
-            return i;
+            return true;
          }
       }
 
-      return -1;
+      return false;
    }
 
-   public static int indexOfReference(@Nonnull Object[] references, @Nullable Object toBeFound)
-   {
+   public static int indexOfReference(@Nonnull Object[] references, @Nullable Object toBeFound) {
       for (int i = 0, n = references.length; i < n; i++) {
          if (references[i] == toBeFound) {
             return i;
@@ -104,8 +94,7 @@ public final class Utilities
       return -1;
    }
 
-   public static boolean isClassAssignableTo(@Nonnull List<Class<?>> fromClasses, @Nonnull Class<?> toClass)
-   {
+   public static boolean isClassAssignableTo(@Nonnull List<Class<?>> fromClasses, @Nonnull Class<?> toClass) {
       int n = fromClasses.size();
 
       for (int i = 0; i < n; i++) {
@@ -120,8 +109,7 @@ public final class Utilities
    }
 
    @Nullable
-   public static Class<?> findClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass)
-   {
+   public static Class<?> findClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass) {
       for (int i = 0; i < toClasses.size(); i++) {
          Class<?> toClass = toClasses.get(i);
 
@@ -133,10 +121,8 @@ public final class Utilities
       return null;
    }
 
-   @SuppressWarnings({"OverlyComplexMethod", "rawtypes", "unchecked"})
-   @Nullable
-   public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value)
-   {
+   @Nullable @SuppressWarnings({"OverlyComplexMethod", "rawtypes", "unchecked"})
+   public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value) {
       if (value != null) {
          if (targetType == String.class) {
             return value;
@@ -175,23 +161,22 @@ public final class Utilities
    }
 
    @Nonnull
-   private static Object newWrapperInstance(@Nonnull Class<?> wrapperClass, @Nonnull String value)
-   {
+   private static Object newWrapperInstance(@Nonnull Class<?> wrapperClass, @Nonnull String value) {
       for (Constructor<?> constructor : wrapperClass.getDeclaredConstructors()) {
          if (isPublic(constructor.getModifiers())) {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
 
             if (parameterTypes.length == 1 && parameterTypes[0] == String.class) {
+               //noinspection OverlyBroadCatchBlock
                try { return constructor.newInstance(value.trim()); } catch (Exception ignore) {}
             }
          }
       }
 
-      throw new RuntimeException("Unable to instantiate " + wrapperClass + " with value \"" + value + "\"");
+      throw new RuntimeException("Unable to instantiate " + wrapperClass + " with value \"" + value + '"');
    }
 
-   public static boolean calledFromSpecialThread()
-   {
+   public static boolean calledFromSpecialThread() {
       Thread currentThread = Thread.currentThread();
       return
          "java.awt.EventDispatchThread".equals(currentThread.getClass().getName()) ||
@@ -199,15 +184,13 @@ public final class Utilities
    }
 
    @Nonnull
-   public static String getClassFileLocationPath(@Nonnull Class<?> aClass)
-   {
+   public static String getClassFileLocationPath(@Nonnull Class<?> aClass) {
       CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
       return getClassFileLocationPath(codeSource);
    }
 
    @Nonnull
-   public static String getClassFileLocationPath(@Nonnull CodeSource codeSource)
-   {
+   public static String getClassFileLocationPath(@Nonnull CodeSource codeSource) {
       String locationPath = codeSource.getLocation().getPath();
       try { locationPath = URLDecoder.decode(locationPath, "UTF-8"); } catch (UnsupportedEncodingException ignore) {}
       return locationPath;

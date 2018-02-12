@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -78,8 +78,7 @@ public final class DefaultValues
    }
 
    @SuppressWarnings({"Since15", "LambdaUnfriendlyMethodOverload"})
-   private static void addJava8TypeMapEntries()
-   {
+   private static void addJava8TypeMapEntries() {
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Optional;", Optional.empty());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalInt;", OptionalInt.empty());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalLong;", OptionalLong.empty());
@@ -111,30 +110,27 @@ public final class DefaultValues
       // These are static interface methods, which can't be compiled on "-source 1.6".
       //noinspection OverlyBroadCatchBlock
       try {
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", Stream.class.getMethod("empty").invoke(null));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", IntStream.class.getMethod("empty").invoke(null));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", LongStream.class.getMethod("empty").invoke(null));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", DoubleStream.class.getMethod("empty").invoke(null));
+         TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", Stream.class.getMethod("empty").invoke(null));
+         TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/IntStream;", IntStream.class.getMethod("empty").invoke(null));
+         TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/LongStream;", LongStream.class.getMethod("empty").invoke(null));
+         TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/DoubleStream;", DoubleStream.class.getMethod("empty").invoke(null));
       } catch (Exception ignore) {}
    }
 
    @Nonnull
-   public static String getReturnTypeDesc(@Nonnull String methodNameAndDesc)
-   {
+   public static String getReturnTypeDesc(@Nonnull String methodNameAndDesc) {
       int rightParen = methodNameAndDesc.indexOf(')') + 1;
       return methodNameAndDesc.substring(rightParen);
    }
 
    @Nullable
-   public static Object computeForReturnType(@Nonnull String methodNameAndDesc)
-   {
+   public static Object computeForReturnType(@Nonnull String methodNameAndDesc) {
       String typeDesc = getReturnTypeDesc(methodNameAndDesc);
       return computeForType(typeDesc);
    }
 
    @Nullable
-   public static Object computeForType(@Nonnull String typeDesc)
-   {
+   public static Object computeForType(@Nonnull String typeDesc) {
       char typeDescChar = typeDesc.charAt(0);
 
       if (typeDescChar == 'V') {
@@ -156,8 +152,7 @@ public final class DefaultValues
    }
 
    @Nonnull
-   public static Object computeForArrayType(@Nonnull String typeDesc)
-   {
+   public static Object computeForArrayType(@Nonnull String typeDesc) {
       Object emptyArray = ELEM_TYPE_TO_ONE_D_ARRAY.get(typeDesc);
 
       if (emptyArray == null) {
@@ -168,8 +163,7 @@ public final class DefaultValues
    }
 
    @Nonnull
-   private static Object newEmptyArray(@Nonnull String typeDesc)
-   {
+   private static Object newEmptyArray(@Nonnull String typeDesc) {
       ArrayType type = ArrayType.create(typeDesc);
       Class<?> elementType = TypeDescriptor.getClassForType(type.getElementType());
 
@@ -177,8 +171,7 @@ public final class DefaultValues
    }
 
    @Nullable
-   public static Object computeForType(@Nonnull Class<?> type)
-   {
+   public static Object computeForType(@Nonnull Class<?> type) {
       if (type.isArray()) {
          return Array.newInstance(type.getComponentType(), 0);
       }
@@ -191,8 +184,7 @@ public final class DefaultValues
    }
 
    @Nonnull
-   public static Object defaultValueForPrimitiveType(@Nonnull Class<?> type)
-   {
+   public static Object defaultValueForPrimitiveType(@Nonnull Class<?> type) {
       if (type == int.class) {
          return ZERO_INT;
       }
@@ -219,10 +211,8 @@ public final class DefaultValues
       }
    }
 
-   @SuppressWarnings("unchecked")
-   @Nullable
-   public static <T> T computeForWrapperType(@Nonnull Type type)
-   {
+   @Nullable @SuppressWarnings("unchecked")
+   public static <T> T computeForWrapperType(@Nonnull Type type) {
       if (type == Integer.class) {
          return (T) ZERO_INT;
       }
@@ -258,10 +248,8 @@ public final class DefaultValues
       return null;
    }
 
-   @SuppressWarnings("unchecked")
-   @Nullable
-   public static <T> T computeForWrapperType(@Nonnull String typeDesc)
-   {
+   @Nullable @SuppressWarnings("unchecked")
+   public static <T> T computeForWrapperType(@Nonnull String typeDesc) {
       if ("java/lang/Integer".equals(typeDesc)) {
          return (T) ZERO_INT;
       }

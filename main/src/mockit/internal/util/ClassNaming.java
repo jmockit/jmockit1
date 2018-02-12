@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.util;
@@ -17,19 +17,13 @@ public final class ClassNaming
     * <p/>
     * This method checks only the given class name, never causing any other classes to be loaded.
     */
-   public static boolean isAnonymousClass(@Nonnull Class<?> aClass)
-   {
+   public static boolean isAnonymousClass(@Nonnull Class<?> aClass) {
       return isAnonymousClass(aClass.getName());
    }
 
-   public static boolean isAnonymousClass(@Nonnull String className)
-   {
-      int p = className.lastIndexOf('$');
-      return isAllNumeric(className, p);
-   }
+   public static boolean isAnonymousClass(@Nonnull String className) {
+      int positionJustBefore = className.lastIndexOf('$');
 
-   public static boolean isAllNumeric(@Nonnull String className, int positionJustBefore)
-   {
       if (positionJustBefore <= 0) {
          return false;
       }

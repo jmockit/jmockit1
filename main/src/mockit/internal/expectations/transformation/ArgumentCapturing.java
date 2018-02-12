@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -21,8 +21,7 @@ public final class ArgumentCapturing
 
    ArgumentCapturing(@Nonnull InvocationBlockModifier modifier) { this.modifier = modifier; }
 
-   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc, @Nonnegative int lastLoadedVarIndex)
-   {
+   boolean registerMatcher(boolean withCaptureMethod, @Nonnull String methodDesc, @Nonnegative int lastLoadedVarIndex) {
       if (withCaptureMethod && "(Ljava/lang/Object;)Ljava/util/List;".equals(methodDesc)) {
          return false;
       }
@@ -48,15 +47,13 @@ public final class ArgumentCapturing
       return true;
    }
 
-   void registerTypeToCaptureIfApplicable(@Nonnegative int opcode, @Nonnull String typeDesc)
-   {
+   void registerTypeToCaptureIfApplicable(@Nonnegative int opcode, @Nonnull String typeDesc) {
       if (opcode == CHECKCAST && parameterForCapture) {
          capturedTypeDesc = typeDesc;
       }
    }
 
-   static void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature)
-   {
+   static void registerTypeToCaptureIntoListIfApplicable(@Nonnegative int varIndex, @Nonnull String signature) {
       if (signature.startsWith("Ljava/util/List<")) {
          String typeDesc = signature.substring(16, signature.length() - 2);
          int p = typeDesc.indexOf('<');
@@ -70,8 +67,7 @@ public final class ArgumentCapturing
       }
    }
 
-   void registerAssignmentToCaptureVariableIfApplicable(@Nonnegative int opcode, @Nonnegative int varIndex)
-   {
+   void registerAssignmentToCaptureVariableIfApplicable(@Nonnegative int opcode, @Nonnegative int varIndex) {
       if (opcode >= ISTORE && opcode <= ASTORE && parameterForCapture) {
          int parameterIndex = modifier.argumentMatching.getMatcherCount() - 1;
          Capture capture = new Capture(modifier, opcode, varIndex, capturedTypeDesc, parameterIndex);
@@ -81,8 +77,7 @@ public final class ArgumentCapturing
       }
    }
 
-   private void addCapture(@Nonnull Capture capture)
-   {
+   private void addCapture(@Nonnull Capture capture) {
       if (captures == null) {
          captures = new ArrayList<Capture>();
       }
@@ -90,8 +85,7 @@ public final class ArgumentCapturing
       captures.add(capture);
    }
 
-   void updateCaptureIfAny(@Nonnegative int originalIndex, @Nonnegative int newIndex)
-   {
+   void updateCaptureIfAny(@Nonnegative int originalIndex, @Nonnegative int newIndex) {
       if (captures != null) {
          for (int i = captures.size() - 1; i >= 0; i--) {
             Capture capture = captures.get(i);
@@ -103,8 +97,7 @@ public final class ArgumentCapturing
       }
    }
 
-   void generateCallsToSetArgumentTypesToCaptureIfAny()
-   {
+   void generateCallsToSetArgumentTypesToCaptureIfAny() {
       if (captures != null) {
          for (Capture capture : captures) {
             capture.generateCallToSetArgumentTypeIfNeeded();
@@ -112,8 +105,7 @@ public final class ArgumentCapturing
       }
    }
 
-   void generateCallsToCaptureMatchedArgumentsIfPending()
-   {
+   void generateCallsToCaptureMatchedArgumentsIfPending() {
       if (captures != null) {
          for (Capture capture : captures) {
             capture.generateCodeToStoreCapturedValue();
@@ -124,8 +116,7 @@ public final class ArgumentCapturing
    }
 
    @Nullable
-   public static String extractArgumentType(@Nonnegative int varIndex)
-   {
+   public static String extractArgumentType(@Nonnegative int varIndex) {
       return varIndexToTypeDesc.remove(varIndex);
    }
 }

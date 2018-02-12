@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -20,8 +20,7 @@ public final class FakeMethodBridge extends ClassLoadingBridge
    private FakeMethodBridge() { super("$FMB"); }
 
    @Nullable @Override
-   public Object invoke(@Nullable Object fakedInstance, Method method, @Nonnull Object[] args) throws Throwable
-   {
+   public Object invoke(@Nullable Object fakedInstance, Method method, @Nonnull Object[] args) throws Throwable {
       String fakeClassDesc = (String) args[0];
       String fakedClassDesc = (String) args[1];
       String fakeDesc = (String) args[4];
@@ -41,10 +40,9 @@ public final class FakeMethodBridge extends ClassLoadingBridge
 
    @Nullable
    private static Object callFake(
-      @Nullable Object fakedInstance, @Nonnull Object fake, @Nonnull String fakedClassDesc,
-      @Nonnull String fakeOrFakedName, @Nonnull String fakeOrFakedDesc, int fakeStateIndex, @Nonnull Object[] fakeArgs)
-      throws Throwable
-   {
+      @Nullable Object fakedInstance, @Nonnull Object fake, @Nonnull String fakedClassDesc, @Nonnull String fakeOrFakedName,
+      @Nonnull String fakeOrFakedDesc, int fakeStateIndex, @Nonnull Object[] fakeArgs
+   ) throws Throwable {
       Class<?> fakeClass = fake.getClass();
 
       if (fakeStateIndex < 0) {
@@ -67,22 +65,19 @@ public final class FakeMethodBridge extends ClassLoadingBridge
 
    @Nullable
    private static Object executeSimpleFakeMethod(
-      @Nonnull Class<?> fakeClass, @Nullable Object fake,
-      @Nonnull String fakeOrFakedName, @Nonnull String fakeOrFakedDesc, @Nonnull Object[] fakeArgs)
-      throws Throwable
-   {
+      @Nonnull Class<?> fakeClass, @Nullable Object fake, @Nonnull String fakeOrFakedName, @Nonnull String fakeOrFakedDesc,
+      @Nonnull Object[] fakeArgs
+   ) throws Throwable {
       Class<?>[] paramClasses = TypeDescriptor.getParameterTypes(fakeOrFakedDesc);
-      Object result =
-         MethodReflection.invokeWithCheckedThrows(fakeClass, fake, fakeOrFakedName, paramClasses, fakeArgs);
+      Object result = MethodReflection.invokeWithCheckedThrows(fakeClass, fake, fakeOrFakedName, paramClasses, fakeArgs);
       return result;
    }
 
    @Nullable
    private static Object executeFakeMethodWithoutInvocationArgument(
-      @Nonnull FakeState fakeState, @Nonnull Class<?> fakeClass, @Nullable Object fake,
-      @Nonnull String fakeOrFakedDesc, @Nonnull Object[] fakeArgs)
-      throws Throwable
-   {
+      @Nonnull FakeState fakeState, @Nonnull Class<?> fakeClass, @Nullable Object fake, @Nonnull String fakeOrFakedDesc,
+      @Nonnull Object[] fakeArgs
+   ) throws Throwable {
       Class<?>[] paramClasses = TypeDescriptor.getParameterTypes(fakeOrFakedDesc);
       Method fakeMethod = fakeState.getFakeMethod(fakeClass, paramClasses);
       Object result = MethodReflection.invokeWithCheckedThrows(fake, fakeMethod, fakeArgs);
@@ -91,11 +86,9 @@ public final class FakeMethodBridge extends ClassLoadingBridge
 
    @Nullable
    private static Object executeFakeMethodWithInvocationArgument(
-      @Nonnull FakeState fakeState, @Nonnull Class<?> fakeClass, @Nullable Object fake,
-      @Nullable Object fakedInstance, @Nonnull String fakedClassDesc, @Nonnull String fakedName,
-      @Nonnull String fakedDesc, @Nonnull Object[] fakeArgs)
-      throws Throwable
-   {
+      @Nonnull FakeState fakeState, @Nonnull Class<?> fakeClass, @Nullable Object fake, @Nullable Object fakedInstance,
+      @Nonnull String fakedClassDesc, @Nonnull String fakedName, @Nonnull String fakedDesc, @Nonnull Object[] fakeArgs
+   ) throws Throwable {
       Class<?>[] paramClasses;
       Method fakeMethod;
       FakeInvocation invocation;

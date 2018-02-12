@@ -40,8 +40,8 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitVarInsn(int opcode, int var) {
-      mw.visitVarInsn(opcode, var);
+   public void visitVarInsn(int opcode, @Nonnegative int varIndex) {
+      mw.visitVarInsn(opcode, varIndex);
    }
 
    @Override
@@ -55,9 +55,7 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitMethodInsn(
-      int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf
-   ) {
+   public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
       mw.visitMethodInsn(opcode, owner, name, desc, itf);
    }
 
@@ -104,16 +102,13 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitTryCatchBlock(
-      @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type
-   ) {
+   public void visitTryCatchBlock(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
       mw.visitTryCatchBlock(start, end, handler, type);
    }
 
    @Override
    public void visitLocalVariable(
-      @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end,
-      @Nonnegative int index
+      @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
    ) {
       mw.visitLocalVariable(name, desc, signature, start, end, index);
    }

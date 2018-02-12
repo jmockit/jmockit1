@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection.full;
@@ -34,9 +34,7 @@ public final class FullInjection
    @Nullable private Class<?> dependencyClass;
    @Nullable private InjectionProvider injectionProvider;
 
-   public FullInjection(
-      @Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, @Nonnull String testedName)
-   {
+   public FullInjection(@Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, @Nonnull String testedName) {
       this.injectionState = injectionState;
       this.testedClass = testedClass;
       this.testedName = testedName;
@@ -47,8 +45,8 @@ public final class FullInjection
    @Nullable
    public Object createOrReuseInstance(
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nullable InjectionProvider injectionProvider,
-      @Nullable String qualifiedName)
-   {
+      @Nullable String qualifiedName
+   ) {
       setInjectionProvider(injectionProvider);
 
       InjectionPoint injectionPoint = getInjectionPoint(testedClass, injectionProvider, qualifiedName);
@@ -72,8 +70,7 @@ public final class FullInjection
       return testedInstance;
    }
 
-   private void setInjectionProvider(@Nullable InjectionProvider injectionProvider)
-   {
+   private void setInjectionProvider(@Nullable InjectionProvider injectionProvider) {
       if (injectionProvider != null) {
          injectionProvider.parent = this.injectionProvider;
       }
@@ -83,8 +80,8 @@ public final class FullInjection
 
    @Nonnull
    private InjectionPoint getInjectionPoint(
-      @Nonnull TestedClass testedClass, @Nullable InjectionProvider injectionProvider, @Nullable String qualifiedName)
-   {
+      @Nonnull TestedClass testedClass, @Nullable InjectionProvider injectionProvider, @Nullable String qualifiedName
+   ) {
       if (injectionProvider == null) {
          dependencyClass = testedClass.targetClass;
          return new InjectionPoint(dependencyClass, qualifiedName, true);
@@ -118,15 +115,13 @@ public final class FullInjection
    }
 
    @Nonnull
-   private Object createLogger(@Nonnull TestedClass testedClass)
-   {
+   private Object createLogger(@Nonnull TestedClass testedClass) {
       TestedClass testedClassWithLogger = testedClass.parent;
       assert testedClassWithLogger != null;
       return Logger.getLogger(testedClassWithLogger.nameOfTestedClass);
    }
 
-   private static boolean isInstantiableType(@Nonnull Class<?> type)
-   {
+   private static boolean isInstantiableType(@Nonnull Class<?> type) {
       if (type.isPrimitive() || type.isArray() || type.isAnnotation()) {
          return false;
       }
@@ -149,8 +144,8 @@ public final class FullInjection
    @Nullable
    private Object createInstance(
       @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nullable InjectionProvider injectionProvider,
-      @Nonnull InjectionPoint injectionPoint)
-   {
+      @Nonnull InjectionPoint injectionPoint
+   ) {
       @SuppressWarnings("ConstantConditions") @Nonnull Class<?> typeToInject = dependencyClass;
       Object dependency = null;
 
@@ -178,9 +173,9 @@ public final class FullInjection
 
    @Nullable
    private Object createInstanceOfSupportedInterfaceIfApplicable(
-      @Nonnull TestedClass testedClass, @Nonnull Class<?> typeToInject,
-      @Nonnull InjectionPoint injectionPoint, @Nullable InjectionProvider injectionProvider)
-   {
+      @Nonnull TestedClass testedClass, @Nonnull Class<?> typeToInject, @Nonnull InjectionPoint injectionPoint,
+      @Nullable InjectionProvider injectionProvider
+   ) {
       Object dependency = null;
 
       if (CommonDataSource.class.isAssignableFrom(typeToInject)) {
@@ -204,8 +199,7 @@ public final class FullInjection
    }
 
    @Nullable
-   private Object createAndRegisterDataSource(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
-   {
+   private Object createAndRegisterDataSource(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint) {
       TestDataSource dsCreation = new TestDataSource(injectionPoint);
       CommonDataSource dataSource = dsCreation.createIfDataSourceDefinitionAvailable(testedClass);
 
@@ -217,8 +211,7 @@ public final class FullInjection
    }
 
    @Nonnull
-   private Object createProviderInstance(@Nonnull InjectionProvider injectionProvider)
-   {
+   private Object createProviderInstance(@Nonnull InjectionProvider injectionProvider) {
       ParameterizedType genericType = (ParameterizedType) injectionProvider.getDeclaredType();
       final Class<?> providedClass = (Class<?>) genericType.getActualTypeArguments()[0];
 
@@ -227,8 +220,7 @@ public final class FullInjection
             private Object dependency;
 
             @Override
-            public synchronized Object get()
-            {
+            public synchronized Object get() {
                if (dependency == null) {
                   dependency = createNewInstance(providedClass);
                }
@@ -240,8 +232,7 @@ public final class FullInjection
 
       return new Provider<Object>() {
          @Override
-         public Object get()
-         {
+         public Object get() {
             Object dependency = createNewInstance(providedClass);
             return dependency;
          }
@@ -249,8 +240,7 @@ public final class FullInjection
    }
 
    @Nullable
-   private Object createNewInstance(@Nonnull Class<?> dependencyClass)
-   {
+   private Object createNewInstance(@Nonnull Class<?> dependencyClass) {
       if (dependencyClass.isInterface()) {
          return null;
       }
@@ -263,8 +253,7 @@ public final class FullInjection
    }
 
    @Nonnull
-   private Object createAndRegisterConversationInstance()
-   {
+   private Object createAndRegisterConversationInstance() {
       Conversation conversation = new TestConversation();
 
       InjectionPoint injectionPoint = new InjectionPoint(Conversation.class);
@@ -275,8 +264,8 @@ public final class FullInjection
    @Nullable
    private Object createAndRegisterNewInstance(
       @Nonnull Class<?> typeToInstantiate, @Nonnull TestedClass testedClass, @Nonnull Injector injector,
-      @Nonnull InjectionPoint injectionPoint, @Nullable InjectionProvider injectionProvider)
-   {
+      @Nonnull InjectionPoint injectionPoint, @Nullable InjectionProvider injectionProvider
+   ) {
       Object dependency = createNewInstance(typeToInstantiate);
 
       if (dependency != null) {
@@ -292,9 +281,8 @@ public final class FullInjection
    }
 
    private void registerNewInstance(
-      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint,
-      @Nonnull Object dependency)
-   {
+      @Nonnull TestedClass testedClass, @Nonnull Injector injector, @Nonnull InjectionPoint injectionPoint, @Nonnull Object dependency
+   ) {
       injectionState.saveInstantiatedDependency(injectionPoint, dependency);
 
       Class<?> instantiatedClass = dependency.getClass();
@@ -307,8 +295,7 @@ public final class FullInjection
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       String description = "@Tested object \"" + testedClass.getSimpleName() + ' ' + testedName + '"';
 
       if (injectionProvider != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.transformation;
@@ -22,8 +22,8 @@ final class Capture
 
    Capture(
       @Nonnull InvocationBlockModifier invocationBlockModifier, @Nonnegative int opcode, @Nonnegative int varIndex,
-      @Nullable String typeToCapture, @Nonnegative int parameterIndex)
-   {
+      @Nullable String typeToCapture, @Nonnegative int parameterIndex
+   ) {
       this.invocationBlockModifier = invocationBlockModifier;
       mw = invocationBlockModifier.getMethodWriter();
       this.opcode = opcode;
@@ -32,10 +32,7 @@ final class Capture
       this.parameterIndex = parameterIndex;
    }
 
-   Capture(
-      @Nonnull InvocationBlockModifier invocationBlockModifier, @Nonnegative int varIndex,
-      @Nonnegative int parameterIndex)
-   {
+   Capture(@Nonnull InvocationBlockModifier invocationBlockModifier, @Nonnegative int varIndex, @Nonnegative int parameterIndex) {
       this.invocationBlockModifier = invocationBlockModifier;
       mw = invocationBlockModifier.getMethodWriter();
       opcode = ALOAD;
@@ -49,8 +46,7 @@ final class Capture
     * 2. Cast to a reference type or unbox to a primitive type, as needed.
     * 3. Store the converted value in its local variable.
     */
-   void generateCodeToStoreCapturedValue()
-   {
+   void generateCodeToStoreCapturedValue() {
       if (opcode != ALOAD) {
          mw.visitIntInsn(SIPUSH, parameterIndex);
 
@@ -61,8 +57,7 @@ final class Capture
             mw.visitLdcInsn(typeToCapture);
          }
 
-         invocationBlockModifier.generateCallToActiveInvocationsMethod(
-            "matchedArgument", "(ILjava/lang/String;)Ljava/lang/Object;");
+         invocationBlockModifier.generateCallToActiveInvocationsMethod("matchedArgument", "(ILjava/lang/String;)Ljava/lang/Object;");
 
          JavaType argType = getArgumentType();
          generateCastOrUnboxing(mw, argType, opcode);
@@ -72,8 +67,7 @@ final class Capture
    }
 
    @Nonnull
-   private JavaType getArgumentType()
-   {
+   private JavaType getArgumentType() {
       if (typeToCapture == null) {
          return invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
       }
@@ -85,8 +79,7 @@ final class Capture
       return ObjectType.create(typeToCapture);
    }
 
-   boolean fixParameterIndex(@Nonnegative int originalIndex, @Nonnegative int newIndex)
-   {
+   boolean fixParameterIndex(@Nonnegative int originalIndex, @Nonnegative int newIndex) {
       if (!parameterIndexFixed && parameterIndex == originalIndex) {
          parameterIndex = newIndex;
          parameterIndexFixed = true;
@@ -96,8 +89,7 @@ final class Capture
       return false;
    }
 
-   void generateCallToSetArgumentTypeIfNeeded()
-   {
+   void generateCallToSetArgumentTypeIfNeeded() {
       if (opcode == ALOAD) {
          mw.visitIntInsn(SIPUSH, parameterIndex);
          mw.visitLdcInsn(varIndex);
@@ -106,13 +98,11 @@ final class Capture
       else if (typeToCapture != null && !isTypeToCaptureSameAsParameterType(typeToCapture)) {
          mw.visitIntInsn(SIPUSH, parameterIndex);
          mw.visitLdcInsn(typeToCapture);
-         invocationBlockModifier.generateCallToActiveInvocationsMethod(
-            "setExpectedArgumentType", "(ILjava/lang/String;)V");
+         invocationBlockModifier.generateCallToActiveInvocationsMethod("setExpectedArgumentType", "(ILjava/lang/String;)V");
       }
    }
 
-   private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc)
-   {
+   private boolean isTypeToCaptureSameAsParameterType(@Nonnull String typeDesc) {
       JavaType parameterType = invocationBlockModifier.argumentMatching.getParameterType(parameterIndex);
 
       if (parameterType instanceof ReferenceType) {

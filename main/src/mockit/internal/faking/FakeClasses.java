@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.faking;
@@ -15,8 +15,7 @@ import mockit.internal.util.*;
 public final class FakeClasses
 {
    private static final Method ON_TEAR_DOWN_METHOD;
-   static
-   {
+   static {
       try {
          ON_TEAR_DOWN_METHOD = MockUp.class.getDeclaredMethod("onTearDown");
          ON_TEAR_DOWN_METHOD.setAccessible(true);
@@ -24,8 +23,7 @@ public final class FakeClasses
       catch (NoSuchMethodException e) { throw new RuntimeException(e); }
    }
 
-   private static void notifyOfTearDown(@Nonnull MockUp<?> fake)
-   {
+   private static void notifyOfTearDown(@Nonnull MockUp<?> fake) {
       try { ON_TEAR_DOWN_METHOD.invoke(fake); }
       catch (IllegalAccessException ignore) {}
       catch (InvocationTargetException e) { e.getCause().printStackTrace(); }
@@ -35,27 +33,23 @@ public final class FakeClasses
    @Nonnull private final Map<Class<?>, MockUp<?>> fakeClassesToFakeInstances;
    @Nonnull public final FakeStates fakeStates;
 
-   public FakeClasses()
-   {
+   public FakeClasses() {
       startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
       fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUp<?>>();
       fakeStates = new FakeStates();
    }
 
-   void addFake(@Nonnull String fakeClassDesc, @Nonnull MockUp<?> fake)
-   {
+   void addFake(@Nonnull String fakeClassDesc, @Nonnull MockUp<?> fake) {
       startupFakes.put(fakeClassDesc, fake);
    }
 
-   void addFake(@Nonnull MockUp<?> fake)
-   {
+   void addFake(@Nonnull MockUp<?> fake) {
       Class<?> fakeClass = fake.getClass();
       fakeClassesToFakeInstances.put(fakeClass, fake);
    }
 
    @Nonnull
-   public MockUp<?> getFake(@Nonnull String fakeClassDesc)
-   {
+   public MockUp<?> getFake(@Nonnull String fakeClassDesc) {
       MockUp<?> startupFake = startupFakes.get(fakeClassDesc);
 
       if (startupFake != null) {
@@ -68,15 +62,13 @@ public final class FakeClasses
    }
 
    @Nullable
-   public MockUp<?> findPreviouslyAppliedFake(@Nonnull MockUp<?> newFake)
-   {
+   public MockUp<?> findPreviouslyAppliedFake(@Nonnull MockUp<?> newFake) {
       Class<?> fakeClass = newFake.getClass();
       MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
       return fakeInstance;
    }
 
-   private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses)
-   {
+   private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses) {
       for (Entry<Class<?>, MockUp<?>> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
          Class<?> fakeClass = fakeClassAndInstances.getKey();
 
@@ -89,8 +81,7 @@ public final class FakeClasses
       fakeClassesToFakeInstances.keySet().retainAll(previousFakeClasses.keySet());
    }
 
-   private void discardAllFakeInstances()
-   {
+   private void discardAllFakeInstances() {
       if (!fakeClassesToFakeInstances.isEmpty()) {
          for (MockUp<?> fakeInstance : fakeClassesToFakeInstances.values()) {
             notifyOfTearDown(fakeInstance);
@@ -100,19 +91,16 @@ public final class FakeClasses
       }
    }
 
-   public void discardStartupFakes()
-   {
+   public void discardStartupFakes() {
       for (MockUp<?> startupFake : startupFakes.values()) {
          notifyOfTearDown(startupFake);
       }
    }
 
-   public final class SavePoint
-   {
+   public final class SavePoint {
       @Nonnull private final Map<Class<?>, Boolean> previousFakeClasses;
 
-      public SavePoint()
-      {
+      public SavePoint() {
          previousFakeClasses = new IdentityHashMap<Class<?>, Boolean>();
 
          for (Entry<Class<?>, MockUp<?>> fakeClassAndInstance : fakeClassesToFakeInstances.entrySet()) {
@@ -121,13 +109,12 @@ public final class FakeClasses
          }
       }
 
-      public void rollback()
-      {
-         if (!previousFakeClasses.isEmpty()) {
-            discardFakeInstancesExceptPreviousOnes(previousFakeClasses);
+      public void rollback() {
+         if (previousFakeClasses.isEmpty()) {
+            discardAllFakeInstances();
          }
          else {
-            discardAllFakeInstances();
+            discardFakeInstancesExceptPreviousOnes(previousFakeClasses);
          }
       }
    }

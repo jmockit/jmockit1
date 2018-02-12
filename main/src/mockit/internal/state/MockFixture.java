@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.state;
@@ -107,8 +107,7 @@ public final class MockFixture
     */
    @Nonnull private final List<CaptureTransformer<?>> captureTransformers;
 
-   public MockFixture()
-   {
+   MockFixture() {
       transformedClasses = new HashMap<ClassIdentification, byte[]>(2);
       redefinedClasses = new ConcurrentHashMap<Class<?>, byte[]>(8);
       redefinedClassesWithNativeMethods = new HashSet<String>();
@@ -120,20 +119,17 @@ public final class MockFixture
 
    // Methods to add/remove transformed/redefined classes /////////////////////////////////////////////////////////////
 
-   public void addTransformedClass(@Nonnull ClassIdentification classId, @Nonnull byte[] pretransformClassfile)
-   {
+   public void addTransformedClass(@Nonnull ClassIdentification classId, @Nonnull byte[] pretransformClassfile) {
       transformedClasses.put(classId, pretransformClassfile);
    }
 
    // Methods used by both the Mocking and Faking APIs.
 
-   public void addRedefinedClass(@Nonnull ClassDefinition newClassDefinition)
-   {
+   public void addRedefinedClass(@Nonnull ClassDefinition newClassDefinition) {
       redefinedClasses.put(newClassDefinition.getDefinitionClass(), newClassDefinition.getDefinitionClassFile());
    }
 
-   public void registerMockedClass(@Nonnull Class<?> mockedType)
-   {
+   public void registerMockedClass(@Nonnull Class<?> mockedType) {
       if (!isMockedClass(mockedType)) {
          if (Proxy.isProxyClass(mockedType)) {
             mockedType = mockedType.getInterfaces()[0];
@@ -143,8 +139,7 @@ public final class MockFixture
       }
    }
 
-   private boolean isMockedClass(@Nonnull Class<?> targetClass)
-   {
+   private boolean isMockedClass(@Nonnull Class<?> targetClass) {
       int n = mockedClasses.size();
 
       for (int i = 0; i < n; i++) {
@@ -160,8 +155,7 @@ public final class MockFixture
 
    // Methods used by the Mocking API.
 
-   public void redefineClasses(@Nonnull ClassDefinition... definitions)
-   {
+   public void redefineClasses(@Nonnull ClassDefinition... definitions) {
       Startup.redefineMethods(definitions);
 
       for (ClassDefinition def : definitions) {
@@ -169,8 +163,7 @@ public final class MockFixture
       }
    }
 
-   public void redefineMethods(@Nonnull Map<Class<?>, byte[]> modifiedClassfiles)
-   {
+   public void redefineMethods(@Nonnull Map<Class<?>, byte[]> modifiedClassfiles) {
       ClassDefinition[] classDefs = new ClassDefinition[modifiedClassfiles.size()];
       int i = 0;
 
@@ -187,8 +180,7 @@ public final class MockFixture
       Startup.redefineMethods(classDefs);
    }
 
-   public boolean isStillMocked(@Nullable Object instance, @Nonnull String classDesc)
-   {
+   public boolean isStillMocked(@Nullable Object instance, @Nonnull String classDesc) {
       Class<?> targetClass;
 
       if (instance == null) {
@@ -200,22 +192,18 @@ public final class MockFixture
       return mockedTypesAndInstances.containsKey(targetClass) || isInstanceOfMockedClass(instance);
    }
 
-   public boolean isInstanceOfMockedClass(@Nonnull Object mockedInstance)
-   {
+   public boolean isInstanceOfMockedClass(@Nonnull Object mockedInstance) {
       Class<?> mockedClass = mockedInstance.getClass();
       return findClassAssignableFrom(mockedClasses, mockedClass) != null;
    }
 
-   public void registerInstanceFactoryForMockedType(
-      @Nonnull Class<?> mockedType, @Nonnull InstanceFactory mockedInstanceFactory)
-   {
+   public void registerInstanceFactoryForMockedType(@Nonnull Class<?> mockedType, @Nonnull InstanceFactory mockedInstanceFactory) {
       registerMockedClass(mockedType);
       mockedTypesAndInstances.put(mockedType, mockedInstanceFactory);
    }
 
    @Nullable
-   public InstanceFactory findInstanceFactory(@Nonnull Type mockedType)
-   {
+   public InstanceFactory findInstanceFactory(@Nonnull Type mockedType) {
       InstanceFactory instanceFactory = mockedTypesAndInstances.get(mockedType);
 
       if (instanceFactory != null) {
@@ -251,8 +239,7 @@ public final class MockFixture
 
    // Methods used by the Faking API.
 
-   public void addRedefinedClass(@Nonnull String fakeClassInternalName, @Nonnull ClassDefinition classDef)
-   {
+   public void addRedefinedClass(@Nonnull String fakeClassInternalName, @Nonnull ClassDefinition classDef) {
       @Nonnull Class<?> redefinedClass = classDef.getDefinitionClass();
       String previousNames = realClassesToFakeClasses.put(redefinedClass, fakeClassInternalName);
 
@@ -265,8 +252,7 @@ public final class MockFixture
 
    // Methods used by test save-points ////////////////////////////////////////////////////////////////////////////////
 
-   void restoreTransformedClasses(@Nonnull Set<ClassIdentification> previousTransformedClasses)
-   {
+   void restoreTransformedClasses(@Nonnull Set<ClassIdentification> previousTransformedClasses) {
       if (!transformedClasses.isEmpty()) {
          Set<ClassIdentification> classesToRestore;
 
@@ -285,23 +271,17 @@ public final class MockFixture
    }
 
    @Nonnull
-   Set<ClassIdentification> getTransformedClasses()
-   {
+   Set<ClassIdentification> getTransformedClasses() {
       return transformedClasses.isEmpty() ?
-         Collections.<ClassIdentification>emptySet() :
-         new HashSet<ClassIdentification>(transformedClasses.keySet());
+         Collections.<ClassIdentification>emptySet() : new HashSet<ClassIdentification>(transformedClasses.keySet());
    }
 
    @Nonnull
-   Map<Class<?>, byte[]> getRedefinedClasses()
-   {
-      return redefinedClasses.isEmpty() ?
-         Collections.<Class<?>, byte[]>emptyMap() :
-         new HashMap<Class<?>, byte[]>(redefinedClasses);
+   Map<Class<?>, byte[]> getRedefinedClasses() {
+      return redefinedClasses.isEmpty() ? Collections.<Class<?>, byte[]>emptyMap() : new HashMap<Class<?>, byte[]>(redefinedClasses);
    }
 
-   private void restoreAndRemoveTransformedClasses(@Nonnull Set<ClassIdentification> classesToRestore)
-   {
+   private void restoreAndRemoveTransformedClasses(@Nonnull Set<ClassIdentification> classesToRestore) {
       for (ClassIdentification transformedClassId : classesToRestore) {
          byte[] definitionToRestore = transformedClasses.get(transformedClassId);
          Startup.redefineMethods(transformedClassId, definitionToRestore);
@@ -310,8 +290,7 @@ public final class MockFixture
       transformedClasses.keySet().removeAll(classesToRestore);
    }
 
-   void restoreRedefinedClasses(@Nonnull Map<?, byte[]> previousDefinitions)
-   {
+   void restoreRedefinedClasses(@Nonnull Map<?, byte[]> previousDefinitions) {
       if (redefinedClasses.isEmpty()) {
          return;
       }
@@ -335,8 +314,7 @@ public final class MockFixture
       }
    }
 
-   private void restoreDefinition(@Nonnull Class<?> redefinedClass)
-   {
+   private void restoreDefinition(@Nonnull Class<?> redefinedClass) {
       if (!isGeneratedImplementationClass(redefinedClass)) {
          byte[] previousDefinition = ClassFile.createReaderOrGetFromCache(redefinedClass).getBytecode();
          Startup.redefineMethods(redefinedClass, previousDefinition);
@@ -350,20 +328,17 @@ public final class MockFixture
       discardStateForCorrespondingFakeClassIfAny(redefinedClass);
    }
 
-   private void removeMockedClass(@Nonnull Class<?> mockedClass)
-   {
+   private void removeMockedClass(@Nonnull Class<?> mockedClass) {
       mockedTypesAndInstances.remove(mockedClass);
       mockedClasses.remove(mockedClass);
    }
 
-   private void discardStateForCorrespondingFakeClassIfAny(@Nonnull Class<?> redefinedClass)
-   {
+   private void discardStateForCorrespondingFakeClassIfAny(@Nonnull Class<?> redefinedClass) {
       String mockClassesInternalNames = realClassesToFakeClasses.remove(redefinedClass);
       TestRun.getFakeStates().removeClassState(redefinedClass, mockClassesInternalNames);
    }
 
-   void removeMockedClasses(@Nonnull List<Class<?>> previousMockedClasses)
-   {
+   void removeMockedClasses(@Nonnull List<Class<?>> previousMockedClasses) {
       int currentMockedClassCount = mockedClasses.size();
 
       if (currentMockedClassCount > 0) {
@@ -382,13 +357,11 @@ public final class MockFixture
 
    // Methods that deal with redefined native methods /////////////////////////////////////////////////////////////////
 
-   public void addRedefinedClassWithNativeMethods(@Nonnull String redefinedClassInternalName)
-   {
+   public void addRedefinedClassWithNativeMethods(@Nonnull String redefinedClassInternalName) {
       redefinedClassesWithNativeMethods.add(redefinedClassInternalName.replace('/', '.'));
    }
 
-   private static void reregisterNativeMethodsForRestoredClass(@Nonnull Class<?> realClass)
-   {
+   private static void reregisterNativeMethodsForRestoredClass(@Nonnull Class<?> realClass) {
       Method registerNatives = null;
 
       try {
@@ -415,26 +388,22 @@ public final class MockFixture
    // Getter methods for the maps and collections of transformed/redefined/mocked classes /////////////////////////////
 
    @Nullable
-   public byte[] getRedefinedClassfile(@Nonnull Class<?> redefinedClass)
-   {
+   public byte[] getRedefinedClassfile(@Nonnull Class<?> redefinedClass) {
       return redefinedClasses.get(redefinedClass);
    }
 
-   public boolean containsRedefinedClass(@Nonnull Class<?> redefinedClass)
-   {
+   public boolean containsRedefinedClass(@Nonnull Class<?> redefinedClass) {
       return redefinedClasses.containsKey(redefinedClass);
    }
 
    @Nonnull
-   public List<Class<?>> getMockedClasses()
-   {
+   public List<Class<?>> getMockedClasses() {
       return mockedClasses.isEmpty() ? Collections.<Class<?>>emptyList() : new ArrayList<Class<?>>(mockedClasses);
    }
 
    // Methods dealing with capture transformers ///////////////////////////////////////////////////////////////////////
 
-   public void addCaptureTransformer(@Nonnull CaptureTransformer<?> transformer)
-   {
+   public void addCaptureTransformer(@Nonnull CaptureTransformer<?> transformer) {
       captureTransformers.add(transformer);
    }
 
@@ -442,8 +411,7 @@ public final class MockFixture
 
    public int getCaptureTransformerCount() { return captureTransformers.size(); }
 
-   public void removeCaptureTransformers(int previousTransformerCount)
-   {
+   public void removeCaptureTransformers(int previousTransformerCount) {
       int currentTransformerCount = captureTransformers.size();
 
       for (int i = currentTransformerCount - 1; i >= previousTransformerCount; i--) {
@@ -457,8 +425,7 @@ public final class MockFixture
    // The following methods are only used by the Mocking API.
 
    @Nullable
-   public CaptureOfNewInstances findCaptureOfImplementations(@Nonnull Class<?> capturedType)
-   {
+   public CaptureOfNewInstances findCaptureOfImplementations(@Nonnull Class<?> capturedType) {
       for (CaptureTransformer<?> captureTransformer : captureTransformers) {
          CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(capturedType);
 
@@ -470,15 +437,13 @@ public final class MockFixture
       return null;
    }
 
-   public boolean isCaptured(@Nonnull Object mockedInstance)
-   {
+   public boolean isCaptured(@Nonnull Object mockedInstance) {
       Class<?> mockedClass = getMockedClass(mockedInstance);
       CaptureOfNewInstances capture = findCaptureOfImplementations(mockedClass);
       return capture != null;
    }
 
-   public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2)
-   {
+   public boolean areCapturedClasses(@Nonnull Class<?> mockedClass1, @Nonnull Class<?> mockedClass2) {
       for (CaptureTransformer<?> captureTransformer : captureTransformers) {
          if (captureTransformer.areCapturedClasses(mockedClass1, mockedClass2)) {
             return true;
