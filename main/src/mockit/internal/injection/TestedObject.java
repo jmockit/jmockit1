@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -27,8 +27,7 @@ abstract class TestedObject
    boolean createAutomatically;
 
    @Nullable
-   static Tested getTestedAnnotationIfPresent(@Nonnull Annotation annotation)
-   {
+   static Tested getTestedAnnotationIfPresent(@Nonnull Annotation annotation) {
       if (annotation instanceof Tested) {
          return (Tested) annotation;
       }
@@ -37,9 +36,9 @@ abstract class TestedObject
    }
 
    TestedObject(
-      @Nonnull InjectionState injectionState, @Nonnull Tested metadata,
-      @Nonnull String testedName, @Nonnull Type testedType, @Nonnull Class<?> testedClass)
-   {
+      @Nonnull InjectionState injectionState, @Nonnull Tested metadata, @Nonnull String testedName, @Nonnull Type testedType,
+      @Nonnull Class<?> testedClass
+   ) {
       this.injectionState = injectionState;
       this.testedName = testedName;
       this.metadata = metadata;
@@ -58,8 +57,7 @@ abstract class TestedObject
 
    boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
 
-   void instantiateWithInjectableValues(@Nonnull Object testClassInstance)
-   {
+   void instantiateWithInjectableValues(@Nonnull Object testClassInstance) {
       if (alreadyInstantiated(testClassInstance)) {
          return;
       }
@@ -95,8 +93,7 @@ abstract class TestedObject
    @Nullable
    abstract Object getExistingTestedInstanceIfApplicable(@Nonnull Object testClassInstance);
 
-   static boolean isNonInstantiableType(@Nonnull Class<?> targetClass, @Nullable Object currentValue)
-   {
+   static boolean isNonInstantiableType(@Nonnull Class<?> targetClass, @Nullable Object currentValue) {
       return
          targetClass.isPrimitive() && defaultValueForPrimitiveType(targetClass).equals(currentValue) ||
          currentValue == null && (
@@ -105,8 +102,7 @@ abstract class TestedObject
          );
    }
 
-   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance)
-   {
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance) {
       Object previousInstance = injectionState.getTestedInstance(testedClass.declaredType, testedName);
 
       if (previousInstance != null) {
@@ -117,11 +113,10 @@ abstract class TestedObject
       return false;
    }
 
-   void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance) {}
+   abstract void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance);
 
    @Nullable
-   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance)
-   {
+   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance) {
       Object testedInstance = null;
 
       if (testedObjectCreation != null) {
@@ -133,14 +128,12 @@ abstract class TestedObject
       return testedInstance;
    }
 
-   private void registerTestedObject(@Nonnull Object testedObject)
-   {
+   private void registerTestedObject(@Nonnull Object testedObject) {
       InjectionPoint injectionPoint = new InjectionPoint(testedClass.declaredType, testedName);
       injectionState.saveTestedObject(injectionPoint, testedObject);
    }
 
-   private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject)
-   {
+   private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject) {
       FieldInjection fieldInjection = new FieldInjection(injectionState, fullInjection);
 
       if (targetFields == null) {
@@ -150,15 +143,13 @@ abstract class TestedObject
       fieldInjection.injectIntoEligibleFields(targetFields, testedObject, testedClass);
    }
 
-   private void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject)
-   {
+   private void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject) {
       if (createAutomatically) {
          injectionState.lifecycleMethods.executeInitializationMethodsIfAny(testedClass, testedObject);
       }
    }
 
-   void clearIfAutomaticCreation(@Nonnull Object testClassInstance, boolean duringTearDown)
-   {
+   void clearIfAutomaticCreation(@Nonnull Object testClassInstance, boolean duringTearDown) {
       if (createAutomatically && (duringTearDown || !isAvailableDuringSetup())) {
          setInstance(testClassInstance, null);
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -15,17 +15,14 @@ final class SequenceOfReturnValues
    @Nullable private final Object firstValue;
    @Nonnull private final Object[] remainingValues;
 
-   SequenceOfReturnValues(
-      @Nonnull Expectation expectation, @Nullable Object firstValue, @Nonnull Object[] remainingValues)
-   {
+   SequenceOfReturnValues(@Nonnull Expectation expectation, @Nullable Object firstValue, @Nonnull Object[] remainingValues) {
       this.expectation = expectation;
       returnType = expectation.getReturnType();
       this.firstValue = firstValue;
       this.remainingValues = remainingValues;
    }
 
-   boolean addResultWithSequenceOfValues()
-   {
+   boolean addResultWithSequenceOfValues() {
       boolean added = false;
 
       if (returnType != void.class) {
@@ -43,8 +40,7 @@ final class SequenceOfReturnValues
       return added;
    }
 
-   private boolean addValuesInArrayIfApplicable()
-   {
+   private boolean addValuesInArrayIfApplicable() {
       if (firstValue == null || !firstValue.getClass().isArray()) {
          addArrayAsReturnValue();
          return true;
@@ -53,8 +49,7 @@ final class SequenceOfReturnValues
       return false;
    }
 
-   private void addArrayAsReturnValue()
-   {
+   private void addArrayAsReturnValue() {
       Class<?> elementType = returnType.getComponentType();
       int n = 1 + remainingValues.length;
       Object values = Array.newInstance(elementType, n);
@@ -67,8 +62,7 @@ final class SequenceOfReturnValues
       expectation.getResults().addReturnValue(values);
    }
 
-   private static void setArrayElement(Class<?> elementType, Object array, int index, @Nullable Object value)
-   {
+   private static void setArrayElement(Class<?> elementType, Object array, int index, @Nullable Object value) {
       Object arrayValue = value;
 
       if (value != null) {
@@ -83,8 +77,7 @@ final class SequenceOfReturnValues
       Array.set(array, index, arrayValue);
    }
 
-   private boolean addValuesInIteratorIfApplicable()
-   {
+   private boolean addValuesInIteratorIfApplicable() {
       if (firstValue == null || !Iterator.class.isAssignableFrom(firstValue.getClass())) {
          List<Object> values = new ArrayList<Object>(1 + remainingValues.length);
          addAllValues(values);
@@ -95,36 +88,36 @@ final class SequenceOfReturnValues
       return false;
    }
 
-   private void addAllValues(@Nonnull Collection<Object> values)
-   {
+   private void addAllValues(@Nonnull Collection<Object> values) {
       values.add(firstValue);
       Collections.addAll(values, remainingValues);
    }
 
-   private boolean addValuesInIterableIfApplicable()
-   {
+   private boolean addValuesInIterableIfApplicable() {
       if (firstValue == null || !Iterable.class.isAssignableFrom(firstValue.getClass())) {
+         Collection<Object> values;
+
          if (returnType.isAssignableFrom(List.class)) {
-            List<Object> values = new ArrayList<Object>(1 + remainingValues.length);
-            addReturnValues(values);
-            return true;
+            values = new ArrayList<Object>(1 + remainingValues.length);
          }
          else if (returnType.isAssignableFrom(Set.class)) {
-            Set<Object> values = new LinkedHashSet<Object>(1 + remainingValues.length);
-            addReturnValues(values);
-            return true;
+            values = new LinkedHashSet<Object>(1 + remainingValues.length);
          }
          else if (returnType.isAssignableFrom(SortedSet.class)) {
-            addReturnValues(new TreeSet<Object>());
-            return true;
+            values = new TreeSet<Object>();
          }
+         else {
+            return false;
+         }
+
+         addReturnValues(values);
+         return true;
       }
 
       return false;
    }
 
-   private void addReturnValues(@Nonnull Collection<Object> values)
-   {
+   private void addReturnValues(@Nonnull Collection<Object> values) {
       addAllValues(values);
       expectation.getResults().addReturnValue(values);
    }

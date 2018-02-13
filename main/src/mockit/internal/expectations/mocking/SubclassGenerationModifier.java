@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -15,18 +15,17 @@ import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
    public SubclassGenerationModifier(
-      @Nonnull Class<?> baseClass, @Nonnull Type mockedType,
-      @Nonnull ClassReader classReader, @Nonnull String subclassName, boolean copyConstructors)
-   {
+      @Nonnull Class<?> baseClass, @Nonnull Type mockedType, @Nonnull ClassReader classReader, @Nonnull String subclassName,
+      boolean copyConstructors
+   ) {
       super(baseClass, classReader, mockedType, subclassName, copyConstructors);
    }
 
-   @Override
-   @SuppressWarnings("AssignmentToMethodParameter")
+   @Override @SuppressWarnings("AssignmentToMethodParameter")
    protected void generateMethodImplementation(
-      @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc,
-      @Nullable String signature, @Nullable String[] exceptions)
-   {
+      @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
+      @Nullable String[] exceptions
+   ) {
       if (signature != null && mockedTypeInfo != null) {
          signature = mockedTypeInfo.genericTypeMap.resolveSignature(className, signature);
       }

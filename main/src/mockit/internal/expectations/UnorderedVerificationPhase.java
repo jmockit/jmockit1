@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -14,21 +14,17 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    @Nonnull final List<VerifiedExpectation> verifiedExpectations;
 
    UnorderedVerificationPhase(
-      @Nonnull RecordAndReplayExecution recordAndReplay,
-      @Nonnull List<Expectation> expectationsInReplayOrder,
-      @Nonnull List<Object> invocationInstancesInReplayOrder,
-      @Nonnull List<Object[]> invocationArgumentsInReplayOrder)
-   {
-      super(
-         recordAndReplay, expectationsInReplayOrder,
-         invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
+      @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
+      @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
+   ) {
+      super(recordAndReplay, expectationsInReplayOrder, invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
       verifiedExpectations = new ArrayList<VerifiedExpectation>();
    }
 
    @Nonnull @Override
    protected List<ExpectedInvocation> findExpectation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args)
-   {
+      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
+   ) {
       if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
          matchInstance = true;
       }
@@ -65,23 +61,20 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nullable
-   private Error verifyConstraints(@Nonnull Expectation verification)
-   {
+   private Error verifyConstraints(@Nonnull Expectation verification) {
       ExpectedInvocation lastInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
       Object[] lastArgs = invocationArgumentsInReplayOrder.get(replayIndex);
       return verification.verifyConstraints(lastInvocation, lastArgs, 1, -1);
    }
 
    @Override
-   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation)
-   {
+   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation) {
       super.addVerifiedExpectation(verifiedExpectation);
       verifiedExpectations.add(verifiedExpectation);
    }
 
    @Override
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations)
-   {
+   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       pendingError = null;
 
       Expectation verifying = expectationBeingVerified();

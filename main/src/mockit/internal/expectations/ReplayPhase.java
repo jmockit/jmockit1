@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -15,30 +15,25 @@ final class ReplayPhase extends Phase
    @Nonnull final List<Object> invocationInstances;
    @Nonnull final List<Object[]> invocationArguments;
 
-   ReplayPhase(@Nonnull RecordAndReplayExecution recordAndReplay)
-   {
+   ReplayPhase(@Nonnull RecordAndReplayExecution recordAndReplay) {
       super(recordAndReplay);
       invocations = new ArrayList<Expectation>();
       invocationInstances = new ArrayList<Object>();
       invocationArguments = new ArrayList<Object[]>();
    }
 
-   @Override
-   @Nullable
+   @Override @Nullable
    Object handleInvocation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
-      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args)
-      throws Throwable
-   {
-      Expectation expectation =
-         recordAndReplay.executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+      @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
+   ) throws Throwable {
+      Expectation expectation = recordAndReplay.executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance = mock == null ?
          null : recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
       if (expectation == null) {
          expectation = createExpectation(
-            replacementInstance == null ? mock : replacementInstance,
-            mockAccess, mockClassDesc, mockNameAndDesc, genericSignature, args);
+            replacementInstance == null ? mock : replacementInstance, mockAccess, mockClassDesc, mockNameAndDesc, genericSignature, args);
       }
       else if (expectation.recordPhase != null) {
          registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(mock, expectation.invocation);
@@ -60,8 +55,8 @@ final class ReplayPhase extends Phase
    @Nonnull
    private Expectation createExpectation(
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
-      @Nullable String genericSignature, @Nonnull Object[] args)
-   {
+      @Nullable String genericSignature, @Nonnull Object[] args
+   ) {
       ExpectedInvocation invocation =
          new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
       Expectation expectation = new Expectation(invocation);
@@ -70,8 +65,8 @@ final class ReplayPhase extends Phase
    }
 
    private void registerNewInstanceAsEquivalentToOneFromRecordedConstructorInvocation(
-      @Nullable Object mock, @Nonnull ExpectedInvocation invocation)
-   {
+      @Nullable Object mock, @Nonnull ExpectedInvocation invocation
+   ) {
       if (mock != null && invocation.isConstructor()) {
          Map<Object, Object> instanceMap = getInstanceMap();
          Object recordedInstance = invocation.getRecordedInstance();
@@ -81,9 +76,8 @@ final class ReplayPhase extends Phase
 
    @Nullable
    private Object produceResult(
-      @Nonnull Expectation expectation, @Nonnull Object replacementInstance, @Nonnull Object[] args)
-      throws Throwable
-   {
+      @Nonnull Expectation expectation, @Nonnull Object replacementInstance, @Nonnull Object[] args
+   ) throws Throwable {
       if (expectation.recordPhase == null) {
          expectation.executedRealImplementation = true;
       }
@@ -97,9 +91,8 @@ final class ReplayPhase extends Phase
 
    @Nullable
    private Object produceResult(
-      @Nonnull Expectation expectation, @Nullable Object mock, boolean withRealImpl, @Nonnull Object[] args)
-      throws Throwable
-   {
+      @Nonnull Expectation expectation, @Nullable Object mock, boolean withRealImpl, @Nonnull Object[] args
+   ) throws Throwable {
       boolean executeRealImpl = withRealImpl && expectation.recordPhase == null;
 
       if (executeRealImpl) {
@@ -118,8 +111,8 @@ final class ReplayPhase extends Phase
    @Nullable
    private Object handleUnexpectedInvocation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, boolean withRealImpl,
-      @Nonnull Object[] replayArgs)
-   {
+      @Nonnull Object[] replayArgs
+   ) {
       if (withRealImpl) {
          return Void.class;
       }
@@ -131,15 +124,13 @@ final class ReplayPhase extends Phase
    }
 
    @Nullable
-   Error endExecution()
-   {
+   Error endExecution() {
       Error missingInvocation = getErrorForFirstExpectationThatIsMissing();
       return missingInvocation;
    }
 
    @Nullable
-   private Error getErrorForFirstExpectationThatIsMissing()
-   {
+   private Error getErrorForFirstExpectationThatIsMissing() {
       List<Expectation> notStrictExpectations = recordAndReplay.executionState.expectations;
 
       // New expectations might get added to the list, so a regular loop would cause a CME.
@@ -157,8 +148,7 @@ final class ReplayPhase extends Phase
    }
 
    @Nonnull
-   private List<ExpectedInvocation> getNonMatchingInvocations(@Nonnull Expectation unsatisfiedExpectation)
-   {
+   private List<ExpectedInvocation> getNonMatchingInvocations(@Nonnull Expectation unsatisfiedExpectation) {
       ExpectedInvocation unsatisfiedInvocation = unsatisfiedExpectation.invocation;
       List<ExpectedInvocation> nonMatchingInvocations = new ArrayList<ExpectedInvocation>();
 

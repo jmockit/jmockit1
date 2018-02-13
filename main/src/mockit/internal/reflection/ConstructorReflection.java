@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.reflection;
@@ -14,8 +14,7 @@ import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
 public final class ConstructorReflection
 {
    private static final Constructor<?> OBJECT_CONSTRUCTOR;
-   static
-   {
+   static {
       try { OBJECT_CONSTRUCTOR = Object.class.getConstructor(); }
       catch (NoSuchMethodException e) { throw new RuntimeException(e); }
    }
@@ -23,16 +22,12 @@ public final class ConstructorReflection
    private ConstructorReflection() {}
 
    @Nonnull
-   static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes)
-   {
+   static <T> Constructor<T> findSpecifiedConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] paramTypes) {
       for (Constructor<?> declaredConstructor : theClass.getDeclaredConstructors()) {
          Class<?>[] declaredParameterTypes = declaredConstructor.getParameterTypes();
          int firstRealParameter = indexOfFirstRealParameter(declaredParameterTypes, paramTypes);
 
-         if (
-            firstRealParameter >= 0 &&
-            matchesParameterTypes(declaredParameterTypes, paramTypes, firstRealParameter)
-         ) {
+         if (firstRealParameter >= 0 && matchesParameterTypes(declaredParameterTypes, paramTypes, firstRealParameter)) {
             //noinspection unchecked
             return (Constructor<T>) declaredConstructor;
          }
@@ -40,13 +35,11 @@ public final class ConstructorReflection
 
       String paramTypesDesc = getParameterTypesDescription(paramTypes);
 
-      throw new IllegalArgumentException(
-         "Specified constructor not found: " + theClass.getSimpleName() + paramTypesDesc);
+      throw new IllegalArgumentException("Specified constructor not found: " + theClass.getSimpleName() + paramTypesDesc);
    }
 
    @Nonnull
-   public static <T> T invoke(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs)
-   {
+   public static <T> T invoke(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs) {
       ensureThatMemberIsAccessible(constructor);
 
       try {
@@ -75,8 +68,7 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs)
-   {
+   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs) {
       if (nonNullArgs == null) {
          throw invalidArguments();
       }
@@ -87,8 +79,7 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   private static <T> Constructor<T> findCompatibleConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] argTypes)
-   {
+   private static <T> Constructor<T> findCompatibleConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] argTypes) {
       Constructor<T> found = null;
       Class<?>[] foundParameters = null;
       Constructor<?>[] declaredConstructors = theClass.getDeclaredConstructors();
@@ -125,8 +116,7 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> T newInstanceUsingDefaultConstructor(@Nonnull Class<T> aClass)
-   {
+   public static <T> T newInstanceUsingDefaultConstructor(@Nonnull Class<T> aClass) {
       try {
          //noinspection ClassNewInstance
          return aClass.newInstance();
@@ -140,8 +130,7 @@ public final class ConstructorReflection
    }
 
    @Nullable
-   public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@Nonnull Class<T> aClass)
-   {
+   public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@Nonnull Class<T> aClass) {
       try {
          //noinspection ClassNewInstance
          return aClass.newInstance();
@@ -152,8 +141,8 @@ public final class ConstructorReflection
 
    @Nullable
    public static <T> T newInstanceUsingPublicConstructorIfAvailable(
-      @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nonnull Object... initArgs)
-   {
+      @Nonnull Class<T> aClass, @Nonnull Class<?>[] parameterTypes, @Nonnull Object... initArgs
+   ) {
       Constructor<T> publicConstructor;
       try { publicConstructor = aClass.getConstructor(parameterTypes); }
       catch (NoSuchMethodException ignore) { return null; }
@@ -166,8 +155,7 @@ public final class ConstructorReflection
       sun.reflect.ReflectionFactory.getReflectionFactory();
 
    @Nonnull
-   public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass)
-   {
+   public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass) {
       try {
          Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
 

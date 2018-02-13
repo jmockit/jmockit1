@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -21,10 +21,10 @@ import static mockit.internal.util.Utilities.getClassType;
 /**
  * Holds state used throughout the injection process while it's in progress for a given set of tested objects.
  */
+@SuppressWarnings("ParameterHidesMemberVariable")
 public final class InjectionState
 {
-   @Nonnull private static final Map<InjectionPoint, Object> globalDependencies =
-      new ConcurrentHashMap<InjectionPoint, Object>(2);
+   @Nonnull private static final Map<InjectionPoint, Object> globalDependencies = new ConcurrentHashMap<InjectionPoint, Object>(2);
 
    @Nonnull private final Map<InjectionPoint, Object> testedObjects;
    @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
@@ -36,8 +36,7 @@ public final class InjectionState
    private Object currentTestClassInstance;
    private Type typeOfInjectionPoint;
 
-   InjectionState()
-   {
+   InjectionState() {
       testedObjects = new LinkedHashMap<InjectionPoint, Object>();
       instantiatedDependencies = new LinkedHashMap<InjectionPoint, Object>();
       injectables = Collections.emptyList();
@@ -46,8 +45,7 @@ public final class InjectionState
       interfaceResolution = new InterfaceResolution();
    }
 
-   boolean setInjectables(@Nonnull List<MockedType> injectables)
-   {
+   boolean setInjectables(@Nonnull List<MockedType> injectables) {
       if (injectables.isEmpty()) {
          this.injectables = Collections.emptyList();
          return false;
@@ -57,15 +55,13 @@ public final class InjectionState
       return true;
    }
 
-   void buildListOfInjectableFields(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables)
-   {
+   void buildListOfInjectableFields(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables) {
       currentTestClassInstance = testClassInstance;
       setInjectables(injectables);
       getServletConfigForInitMethodsIfAny(testClassInstance);
    }
 
-   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables)
-   {
+   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<MockedType> injectables) {
       currentTestClassInstance = testClassInstance;
       setInjectables(injectables);
 
@@ -78,8 +74,7 @@ public final class InjectionState
       getServletConfigForInitMethodsIfAny(testClassInstance);
    }
 
-   private void addInjectables(@Nonnull ParameterTypeRedefinitions paramTypeRedefs)
-   {
+   private void addInjectables(@Nonnull ParameterTypeRedefinitions paramTypeRedefs) {
       List<MockedType> injectableParameters = paramTypeRedefs.getInjectableParameters();
 
       if (!injectableParameters.isEmpty()) {
@@ -92,8 +87,7 @@ public final class InjectionState
       }
    }
 
-   private void getServletConfigForInitMethodsIfAny(@Nonnull Object testClassInstance)
-   {
+   private void getServletConfigForInitMethodsIfAny(@Nonnull Object testClassInstance) {
       if (SERVLET_CLASS != null) {
          for (InjectionProvider injectable : injectables) {
             if (injectable.getDeclaredType() == ServletConfig.class) {
@@ -104,8 +98,7 @@ public final class InjectionState
       }
    }
 
-   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs)
-   {
+   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs) {
       currentTestClassInstance = testClassInstance;
       addInjectables(paramTypeRedefs);
       getServletConfigForInitMethodsIfAny(testClassInstance);
@@ -113,13 +106,9 @@ public final class InjectionState
 
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }
 
-   public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint)
-   {
-      this.typeOfInjectionPoint = typeOfInjectionPoint;
-   }
+   public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint) { this.typeOfInjectionPoint = typeOfInjectionPoint; }
 
-   public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType, @Nonnull TestedClass testedClass)
-   {
+   public boolean isAssignableToInjectionPoint(@Nonnull Type injectableType, @Nonnull TestedClass testedClass) {
       if (testedClass.reflection.areMatchingTypes(typeOfInjectionPoint, injectableType)) {
          return true;
       }
@@ -149,13 +138,9 @@ public final class InjectionState
    }
 
    @Nullable
-   public MockedType findNextInjectableForInjectionPoint(@Nonnull TestedClass testedClass)
-   {
+   public MockedType findNextInjectableForInjectionPoint(@Nonnull TestedClass testedClass) {
       for (MockedType injectable : injectables) {
-         if (
-            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
-            !consumedInjectionProviders.contains(injectable)
-         ) {
+         if (hasTypeAssignableToInjectionPoint(injectable, testedClass) && !consumedInjectionProviders.contains(injectable)) {
             return injectable;
          }
       }
@@ -163,23 +148,17 @@ public final class InjectionState
       return null;
    }
 
-   private boolean hasTypeAssignableToInjectionPoint(
-      @Nonnull InjectionProvider injectable, @Nonnull TestedClass testedClass)
-   {
+   private boolean hasTypeAssignableToInjectionPoint(@Nonnull InjectionProvider injectable, @Nonnull TestedClass testedClass) {
       Type declaredType = injectable.getDeclaredType();
       return isAssignableToInjectionPoint(declaredType, testedClass);
    }
 
    @Nonnull
-   List<MockedType> findInjectablesByType(@Nonnull TestedClass testedClass)
-   {
+   List<MockedType> findInjectablesByType(@Nonnull TestedClass testedClass) {
       List<MockedType> found = new ArrayList<MockedType>();
 
       for (MockedType injectable : injectables) {
-         if (
-            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
-            !consumedInjectionProviders.contains(injectable)
-         ) {
+         if (hasTypeAssignableToInjectionPoint(injectable, testedClass) && !consumedInjectionProviders.contains(injectable)) {
             found.add(injectable);
          }
       }
@@ -188,9 +167,7 @@ public final class InjectionState
    }
 
    @Nullable
-   public InjectionProvider getProviderByTypeAndOptionallyName(
-      @Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
-   {
+   public InjectionProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass) {
       Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
 
       if (elementTypeOfIterable != null) {
@@ -201,8 +178,7 @@ public final class InjectionState
    }
 
    @Nullable
-   private static Type getElementTypeIfIterable(@Nonnull Type injectableType)
-   {
+   private static Type getElementTypeIfIterable(@Nonnull Type injectableType) {
       if (injectableType instanceof ParameterizedType) {
          ParameterizedType parameterizedType = (ParameterizedType) injectableType;
          Class<?> classOfInjectionPoint = (Class<?>) parameterizedType.getRawType();
@@ -216,8 +192,7 @@ public final class InjectionState
    }
 
    @Nullable
-   private InjectionProvider findInjectablesByTypeOnly(@Nonnull Type elementType, @Nonnull TestedClass testedClass)
-   {
+   private InjectionProvider findInjectablesByTypeOnly(@Nonnull Type elementType, @Nonnull TestedClass testedClass) {
       GenericTypeReflection typeReflection = testedClass.reflection;
       MultiValuedProvider found = null;
 
@@ -242,9 +217,7 @@ public final class InjectionState
    }
 
    @Nullable
-   private InjectionProvider findInjectableByTypeAndOptionallyName(
-      @Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
-   {
+   private InjectionProvider findInjectableByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass) {
       MockedType foundInjectable = null;
 
       for (MockedType injectable : injectables) {
@@ -263,13 +236,9 @@ public final class InjectionState
    }
 
    @Nullable
-   public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass)
-   {
+   public MockedType findInjectableByTypeAndName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass) {
       for (MockedType injectable : injectables) {
-         if (
-            hasTypeAssignableToInjectionPoint(injectable, testedClass) &&
-            nameOfInjectionPoint.equals(injectable.getName())
-         ) {
+         if (hasTypeAssignableToInjectionPoint(injectable, testedClass) && nameOfInjectionPoint.equals(injectable.getName())) {
             return injectable;
          }
       }
@@ -278,8 +247,7 @@ public final class InjectionState
    }
 
    @Nullable
-   public Object getValueToInject(@Nonnull InjectionProvider injectionProvider)
-   {
+   public Object getValueToInject(@Nonnull InjectionProvider injectionProvider) {
       if (consumedInjectionProviders.contains(injectionProvider)) {
          return null;
       }
@@ -296,44 +264,39 @@ public final class InjectionState
    void resetConsumedInjectionProviders() { consumedInjectionProviders.clear(); }
 
    @Nonnull
-   public List<InjectionProvider> saveConsumedInjectionProviders()
-   {
+   public List<InjectionProvider> saveConsumedInjectionProviders() {
       List<InjectionProvider> previouslyConsumed = consumedInjectionProviders;
       consumedInjectionProviders = new ArrayList<InjectionProvider>();
       return previouslyConsumed;
    }
 
-   public void restoreConsumedInjectionProviders(@Nonnull List<InjectionProvider> previouslyConsumed)
-   {
+   public void restoreConsumedInjectionProviders(@Nonnull List<InjectionProvider> previouslyConsumed) {
       consumedInjectionProviders = previouslyConsumed;
    }
 
-   void saveTestedObject(@Nonnull InjectionPoint key, @Nonnull Object testedObject)
-   {
+   void saveTestedObject(@Nonnull InjectionPoint key, @Nonnull Object testedObject) {
       testedObjects.put(key, testedObject);
    }
 
    @Nullable
-   Object getTestedInstance(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
-   {
+   Object getTestedInstance(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint) {
       Object testedInstance = instantiatedDependencies.isEmpty() ?
          null : findPreviouslyInstantiatedDependency(testedType, nameOfInjectionPoint);
 
       if (testedInstance == null) {
-         testedInstance = testedObjects.isEmpty() ?
-            null : getValueFromExistingTestedObject(testedType, nameOfInjectionPoint);
+         testedInstance = testedObjects.isEmpty() ? null : getValueFromExistingTestedObject(testedType, nameOfInjectionPoint);
       }
 
       return testedInstance;
    }
 
    @Nullable
-   private Object findPreviouslyInstantiatedDependency(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
-   {
+   private Object findPreviouslyInstantiatedDependency(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint) {
       InjectionPoint injectionPoint = new InjectionPoint(testedType, nameOfInjectionPoint);
       Object dependency = instantiatedDependencies.get(injectionPoint);
 
       if (dependency == null) {
+         //noinspection ReuseOfLocalVariable
          injectionPoint = new InjectionPoint(testedType);
          dependency = instantiatedDependencies.get(injectionPoint);
 
@@ -346,8 +309,7 @@ public final class InjectionState
    }
 
    @Nullable
-   private Object getValueFromExistingTestedObject(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint)
-   {
+   private Object getValueFromExistingTestedObject(@Nonnull Type testedType, @Nonnull String nameOfInjectionPoint) {
       InjectionPoint injectionPoint = new InjectionPoint(testedType, nameOfInjectionPoint);
 
       for (Object testedObject : testedObjects.values()) {
@@ -362,9 +324,7 @@ public final class InjectionState
    }
 
    @Nullable
-   private static Object getValueFromFieldOfEquivalentTypeAndName(
-      @Nonnull InjectionPoint injectionPoint, @Nonnull Object testedObject)
-   {
+   private static Object getValueFromFieldOfEquivalentTypeAndName(@Nonnull InjectionPoint injectionPoint, @Nonnull Object testedObject) {
       for (Field internalField : testedObject.getClass().getDeclaredFields()) {
          Type fieldType = internalField.getGenericType();
          String qualifiedName = getQualifiedName(internalField.getDeclaredAnnotations());
@@ -385,8 +345,7 @@ public final class InjectionState
    public static <D> D getGlobalDependency(@Nonnull InjectionPoint key) { return (D) globalDependencies.get(key); }
 
    @Nullable
-   public Object getTestedValue(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint)
-   {
+   public Object getTestedValue(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint) {
       Object testedValue = testedObjects.get(injectionPoint);
 
       if (testedValue == null) {
@@ -397,8 +356,7 @@ public final class InjectionState
    }
 
    @Nullable
-   public Object getInstantiatedDependency(@Nullable TestedClass testedClass, @Nonnull InjectionPoint dependencyKey)
-   {
+   public Object getInstantiatedDependency(@Nullable TestedClass testedClass, @Nonnull InjectionPoint dependencyKey) {
       Object dependency = testedObjects.get(dependencyKey);
 
       if (dependency == null) {
@@ -422,9 +380,8 @@ public final class InjectionState
 
    @Nullable
    private static Object findMatchingObject(
-      @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable TestedClass testedClass,
-      @Nonnull InjectionPoint injectionPoint)
-   {
+      @Nonnull Map<InjectionPoint, Object> availableObjects, @Nullable TestedClass testedClass, @Nonnull InjectionPoint injectionPoint
+   ) {
       if (availableObjects.isEmpty()) {
          return null;
       }
@@ -458,25 +415,21 @@ public final class InjectionState
       return injectionPoint.qualified ? null : found;
    }
 
-   public void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
-   {
+   public void saveInstantiatedDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency) {
       instantiatedDependencies.put(dependencyKey, dependency);
    }
 
-   public static void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency)
-   {
+   public static void saveGlobalDependency(@Nonnull InjectionPoint dependencyKey, @Nonnull Object dependency) {
       globalDependencies.put(dependencyKey, dependency);
    }
 
-   void clearTestedObjectsAndInstantiatedDependencies()
-   {
+   void clearTestedObjectsAndInstantiatedDependencies() {
       testedObjects.clear();
       instantiatedDependencies.clear();
    }
 
    @Nonnull
-   BeanExporter getBeanExporter()
-   {
+   BeanExporter getBeanExporter() {
       if (beanExporter == null) {
          beanExporter = new BeanExporter(this);
       }
@@ -485,8 +438,7 @@ public final class InjectionState
    }
 
    @Nullable
-   public Class<?> resolveInterface(@Nonnull Class<?> anInterface)
-   {
+   public Class<?> resolveInterface(@Nonnull Class<?> anInterface) {
       return interfaceResolution.resolveInterface(anInterface, currentTestClassInstance);
    }
 }

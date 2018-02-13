@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.mocking;
@@ -17,8 +17,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    @Nonnull private final MockedType[] mockParameters;
    @Nonnull private final List<MockedType> injectableParameters;
 
-   public ParameterTypeRedefinitions(@Nonnull TestMethod testMethod, @Nonnull Object[] parameterValues)
-   {
+   public ParameterTypeRedefinitions(@Nonnull TestMethod testMethod, @Nonnull Object[] parameterValues) {
       this.testMethod = testMethod;
       int n = testMethod.getParameterCount();
       mockParameters = new MockedType[n];
@@ -33,8 +32,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       instantiateMockedTypes(instanceFactories);
    }
 
-   private void createMockedTypeFromMockParameterDeclaration(@Nonnegative int parameterIndex, @Nullable Object mock)
-   {
+   private void createMockedTypeFromMockParameterDeclaration(@Nonnegative int parameterIndex, @Nullable Object mock) {
       Type parameterType = testMethod.getParameterType(parameterIndex);
       Annotation[] annotationsOnParameter = testMethod.getParameterAnnotations(parameterIndex);
       Class<?> parameterImplementationClass = mock == null ? null : mock.getClass();
@@ -52,8 +50,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nonnull
-   private InstanceFactory[] redefineMockedTypes()
-   {
+   private InstanceFactory[] redefineMockedTypes() {
       int n = mockParameters.length;
       InstanceFactory[] instanceFactories = new InstanceFactory[n];
 
@@ -69,8 +66,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nullable
-   private InstanceFactory redefineMockedType(@Nonnull MockedType mockedType)
-   {
+   private InstanceFactory redefineMockedType(@Nonnull MockedType mockedType) {
       TypeRedefinition typeRedefinition = new TypeRedefinition(mockedType);
       InstanceFactory instanceFactory = typeRedefinition.redefineType();
 
@@ -81,8 +77,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       return instanceFactory;
    }
 
-   private void registerCaptureOfNewInstances(@Nonnull MockedType mockedType, @Nonnull Object originalInstance)
-   {
+   private void registerCaptureOfNewInstances(@Nonnull MockedType mockedType, @Nonnull Object originalInstance) {
       if (captureOfNewInstances == null) {
          captureOfNewInstances = new CaptureOfNewInstances();
       }
@@ -91,8 +86,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       captureOfNewInstances.makeSureAllSubtypesAreModified(mockedType);
    }
 
-   private void instantiateMockedTypes(@Nonnull InstanceFactory[] instanceFactories)
-   {
+   private void instantiateMockedTypes(@Nonnull InstanceFactory[] instanceFactories) {
       for (int paramIndex = 0; paramIndex < instanceFactories.length; paramIndex++) {
          InstanceFactory instanceFactory = instanceFactories[paramIndex];
 
@@ -107,8 +101,8 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
 
    @Nonnull
    private Object instantiateMockedType(
-      @Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory, @Nonnegative int paramIndex)
-   {
+      @Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory, @Nonnegative int paramIndex
+   ) {
       Object mock = testMethod.getParameterValue(paramIndex);
 
       if (mock == null) {

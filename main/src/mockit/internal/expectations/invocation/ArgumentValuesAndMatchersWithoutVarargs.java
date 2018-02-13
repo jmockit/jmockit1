@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -11,14 +11,12 @@ import mockit.internal.expectations.argumentMatching.*;
 
 final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMatchers
 {
-   ArgumentValuesAndMatchersWithoutVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values)
-   {
+   ArgumentValuesAndMatchersWithoutVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values) {
       super(signature, values);
    }
 
    @Override
-   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       if (matchers == null) {
          return areEqual(values, replayArgs, replayArgs.length, instanceMap);
       }
@@ -42,8 +40,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
    }
 
    @Nullable @Override
-   Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       if (matchers == null) {
          return assertEquals(values, replayArgs, replayArgs.length, instanceMap);
       }
@@ -67,8 +64,7 @@ final class ArgumentValuesAndMatchersWithoutVarargs extends ArgumentValuesAndMat
    }
 
    @Override
-   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
-   {
+   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other) {
       @SuppressWarnings("unchecked") int i = indexOfFirstValueAfterEquivalentMatchers(other);
 
       if (i < 0) {

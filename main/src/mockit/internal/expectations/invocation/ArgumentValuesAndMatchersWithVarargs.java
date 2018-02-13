@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -12,14 +12,12 @@ import mockit.internal.expectations.argumentMatching.*;
 
 final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatchers
 {
-   ArgumentValuesAndMatchersWithVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values)
-   {
+   ArgumentValuesAndMatchersWithVarargs(@Nonnull InvocationArguments signature, @Nonnull Object[] values) {
       super(signature, values);
    }
 
    @Override
-   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   boolean isMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       if (matchers == null) {
          return areEqual(replayArgs, instanceMap);
       }
@@ -54,8 +52,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       return true;
    }
 
-   private boolean areEqual(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   private boolean areEqual(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       int argCount = replayArgs.length;
 
       if (!areEqual(values, replayArgs, argCount - 1, instanceMap)) {
@@ -66,15 +63,11 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       Object[] expectedValues = varargsComparison.getThisVarArgs();
       Object[] actualValues = varargsComparison.getOtherVarArgs();
 
-      return
-         varargsComparison.sameVarargArrayLength() &&
-         areEqual(expectedValues, actualValues, expectedValues.length, instanceMap);
+      return varargsComparison.sameVarargArrayLength() && areEqual(expectedValues, actualValues, expectedValues.length, instanceMap);
    }
 
    @Nullable @Override
-   Error assertMatch(
-      @Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       if (matchers == null) {
          return assertEquality(replayArgs, instanceMap);
       }
@@ -106,8 +99,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    }
 
    @Nullable
-   private Error assertEquality(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap)
-   {
+   private Error assertEquality(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
       int argCount = replayArgs.length;
       Error nonVarargsError = assertEquals(values, replayArgs, argCount - 1, instanceMap);
 
@@ -133,8 +125,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    }
 
    @Override
-   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other)
-   {
+   boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other) {
       @SuppressWarnings("unchecked") int i = indexOfFirstValueAfterEquivalentMatchers(other);
 
       if (i < 0) {
@@ -164,15 +155,13 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
    
    private static final Object[] NULL_VARARGS = new Object[0];
 
-   private final class VarargsComparison
-   {
+   private final class VarargsComparison {
       @Nonnull private final Object[] otherValues;
       @Nullable private final Object[] thisVarArgs;
       @Nullable private final Object[] otherVarArgs;
       final int regularArgCount;
 
-      VarargsComparison(@Nonnull Object[] otherValues)
-      {
+      VarargsComparison(@Nonnull Object[] otherValues) {
          this.otherValues = otherValues;
          thisVarArgs = getVarArgs(values);
          otherVarArgs = getVarArgs(otherValues);
@@ -183,8 +172,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       @Nonnull Object[] getOtherVarArgs() { return otherVarArgs == null ? NULL_VARARGS : otherVarArgs; }
 
       @Nullable
-      private Object[] getVarArgs(@Nonnull Object[] args)
-      {
+      private Object[] getVarArgs(@Nonnull Object[] args) {
          Object lastArg = args[args.length - 1];
 
          if (lastArg == null) {
@@ -205,8 +193,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
          return results;
       }
 
-      int getTotalArgumentCountWhenDifferent()
-      {
+      int getTotalArgumentCountWhenDifferent() {
          if (thisVarArgs == null) {
             return regularArgCount + 1;
          }
@@ -221,8 +208,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       boolean sameVarargArrayLength() { return getThisVarArgs().length == getOtherVarArgs().length; }
 
       @Nullable
-      Object getThisArgument(int parameter)
-      {
+      Object getThisArgument(int parameter) {
          if (parameter < regularArgCount) return values[parameter];
          int p = parameter - regularArgCount;
          if (thisVarArgs == null || p >= thisVarArgs.length) return null;
@@ -230,8 +216,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       }
 
       @Nullable
-      Object getOtherArgument(int parameter)
-      {
+      Object getOtherArgument(int parameter) {
          if (parameter < regularArgCount) return otherValues[parameter];
          int p = parameter - regularArgCount;
          if (otherVarArgs == null || p >= otherVarArgs.length) return null;
@@ -239,8 +224,7 @@ final class ArgumentValuesAndMatchersWithVarargs extends ArgumentValuesAndMatche
       }
 
       @Nonnull
-      Error errorForVarargsArraysOfDifferentLengths()
-      {
+      Error errorForVarargsArraysOfDifferentLengths() {
          int n = getThisVarArgs().length;
          int m = getOtherVarArgs().length;
          return new UnexpectedInvocation("Expected " + n + " values for varargs parameter, got " + m);

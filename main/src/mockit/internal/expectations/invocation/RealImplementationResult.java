@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations.invocation;
@@ -12,18 +12,14 @@ import mockit.internal.state.*;
 
 final class RealImplementationResult extends DynamicInvocationResult
 {
-   RealImplementationResult(@Nonnull ExpectedInvocation invocation, @Nonnull Object instanceToInvoke)
-      throws NoSuchMethodException
-   {
+   RealImplementationResult(@Nonnull ExpectedInvocation invocation, @Nonnull Object instanceToInvoke) throws NoSuchMethodException {
       super(
          invocation, instanceToInvoke,
-         new RealMethodOrConstructor(instanceToInvoke.getClass(), invocation.getMethodNameAndDescription())
-            .<Method>getMember());
+         new RealMethodOrConstructor(instanceToInvoke.getClass(), invocation.getMethodNameAndDescription()).<Method>getMember());
    }
 
    @Nullable @Override
-   Object produceResult(@Nonnull Object[] args)
-   {
+   Object produceResult(@Nonnull Object[] args) {
       TestRun.getExecutingTest().markAsProceedingIntoRealImplementation();
       return executeMethodToInvoke(args);
    }

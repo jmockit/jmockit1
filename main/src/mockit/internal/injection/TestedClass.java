@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -23,13 +23,11 @@ public final class TestedClass
    @Nonnull public final String nameOfTestedClass;
    @Nullable public final TestedClass parent;
 
-   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass)
-   {
+   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass) {
       this(declaredType, targetClass, null);
    }
 
-   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass, @Nullable TestedClass parent)
-   {
+   public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass, @Nullable TestedClass parent) {
       this.declaredType = declaredType;
       declaredClass = Utilities.getClassType(declaredType);
       this.targetClass = targetClass;
@@ -45,8 +43,7 @@ public final class TestedClass
    @Nonnull
    public Class<?> getDeclaredClass() { return declaredClass; }
 
-   public boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass)
-   {
+   public boolean isClassFromSameModuleOrSystemAsTestedClass(@Nonnull Class<?> anotherClass) {
       if (anotherClass.getClassLoader() == null) {
          return false;
       }
@@ -79,8 +76,7 @@ public final class TestedClass
       return isInSameSubpackageAsTestedClass(anotherClass);
    }
 
-   boolean isInSameSubpackageAsTestedClass(@Nonnull Class<?> anotherClass)
-   {
+   private boolean isInSameSubpackageAsTestedClass(@Nonnull Class<?> anotherClass) {
       String nameOfAnotherClass = anotherClass.getName();
       int p1 = nameOfAnotherClass.indexOf('.');
       int p2 = nameOfTestedClass.indexOf('.');

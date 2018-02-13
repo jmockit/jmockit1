@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.reflection;
@@ -27,8 +27,7 @@ public final class MockInvocationHandler implements InvocationHandler
    public static final InvocationHandler INSTANCE = new MockInvocationHandler();
 
    @Nullable @Override
-   public Object invoke(@Nonnull Object proxy, @Nonnull Method method, @Nullable Object[] args)
-   {
+   public Object invoke(@Nonnull Object proxy, @Nonnull Method method, @Nullable Object[] args) {
       Class<?> declaringClass = method.getDeclaringClass();
       String methodName = method.getName();
 

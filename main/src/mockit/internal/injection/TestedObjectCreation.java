@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.injection;
@@ -22,23 +22,20 @@ public final class TestedObjectCreation
    @Nonnull final TestedClass testedClass;
 
    TestedObjectCreation(
-      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
-      @Nonnull Type declaredType, @Nonnull Class<?> declaredClass)
-   {
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Type declaredType,
+      @Nonnull Class<?> declaredClass
+   ) {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
-      Class<?> actualTestedClass = isAbstract(declaredClass.getModifiers()) ?
-         generateSubclass(declaredType, declaredClass) : declaredClass;
+      Class<?> actualTestedClass = isAbstract(declaredClass.getModifiers()) ? generateSubclass(declaredType, declaredClass) : declaredClass;
       testedClass = new TestedClass(declaredType, actualTestedClass);
    }
 
    @Nonnull
-   private static Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass)
-   {
+   private static Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass) {
       Class<?> generatedSubclass = new ImplementationClass<Object>(abstractClass) {
          @Nonnull @Override
-         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader)
-         {
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader) {
             return new SubclassGenerationModifier(abstractClass, testedType, typeReader, generatedClassName, true);
          }
       }.generateClass();
@@ -48,17 +45,15 @@ public final class TestedObjectCreation
    }
 
    public TestedObjectCreation(
-      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection,
-      @Nonnull Class<?> implementationClass)
-   {
+      @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Class<?> implementationClass
+   ) {
       this.injectionState = injectionState;
       this.fullInjection = fullInjection;
       testedClass = new TestedClass(implementationClass, implementationClass);
    }
 
    @Nonnull
-   public Object create()
-   {
+   public Object create() {
       ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, testedClass, fullInjection != null);
       Constructor<?> constructor = constructorSearch.findConstructorToUse();
 
