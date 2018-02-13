@@ -21,8 +21,7 @@ public class WrappingClassVisitor extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
    ) {
       cw.visit(version, access, name, signature, superName, interfaces);
    }
@@ -43,9 +42,7 @@ public class WrappingClassVisitor extends ClassVisitor
    }
 
    @Override
-   public void visitInnerClass(
-      @Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access
-   ) {
+   public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       cw.visitInnerClass(name, outerName, innerName, access);
    }
 

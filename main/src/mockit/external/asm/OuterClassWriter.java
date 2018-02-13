@@ -14,9 +14,7 @@ final class OuterClassWriter extends AttributeWriter
     */
    @Nonnegative private final int enclosingMethod;
 
-   OuterClassWriter(
-      @Nonnull ConstantPoolGeneration cp, @Nonnull String owner, @Nullable String name, @Nullable String desc
-   ) {
+   OuterClassWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String owner, @Nullable String name, @Nullable String desc) {
       super(cp, "EnclosingMethod");
       enclosingMethodOwner = cp.newClass(owner);
       enclosingMethod = name != null && desc != null ? cp.newNameType(name, desc) : 0;

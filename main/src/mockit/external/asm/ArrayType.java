@@ -9,6 +9,12 @@ public final class ArrayType extends ReferenceType
       return new ArrayType(typeDesc.toCharArray());
    }
 
+   /**
+    * Constructs an array type.
+    *
+    * @param buf a buffer containing the descriptor of the array type.
+    * @param off the offset of the descriptor in the buffer.
+    */
    @Nonnull
    static ArrayType create(@Nonnull char[] buf, @Nonnegative int off) {
       int len = findNumberOfDimensions(buf, off);
@@ -31,16 +37,9 @@ public final class ArrayType extends ReferenceType
       return dimensions;
    }
 
-   ArrayType(@Nonnull char[] buf) { super(buf); }
+   private ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
 
-   /**
-    * Constructs an array type.
-    *
-    * @param buf a buffer containing the descriptor of the array type.
-    * @param off the offset of the descriptor in the buffer.
-    * @param len the length of the descriptor.
-    */
-   ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
+   ArrayType(@Nonnull char[] buf) { super(buf); }
 
    /**
     * Returns the number of dimensions of this array type.

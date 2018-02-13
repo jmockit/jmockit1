@@ -15,8 +15,7 @@ final class MethodReader extends AnnotatedReader
     * short), on whether it takes a local variable index, a jump target label, etc. Some types contain a single
     * instruction, such as LDC and IINC.
     */
-   interface InstructionType
-   {
+   interface InstructionType {
       int NOARG       = 0; // instructions without any argument
       int SBYTE       = 1; // instructions with a signed byte argument
       int SHORT       = 2; // instructions with a signed short argument

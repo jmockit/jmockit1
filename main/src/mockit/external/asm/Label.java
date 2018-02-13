@@ -1,32 +1,3 @@
-/*
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
 package mockit.external.asm;
 
 import javax.annotation.*;
@@ -42,8 +13,7 @@ public final class Label
    /**
     * Constants for the current status of a label.
     */
-   interface Status
-   {
+   interface Status {
       /**
        * Indicates if this label is only used for debug attributes. Such a label is not the start of a basic block, the
        * target of a jump instruction, or an exception handler. It can be safely ignored in control flow graph analysis
@@ -85,7 +55,7 @@ public final class Label
    /**
     * Flags that indicate the {@link Status} of this label.
     */
-   int status;
+   private int status;
 
    /**
     * The line number corresponding to this label, if known.
@@ -193,10 +163,6 @@ public final class Label
 
    void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
 
-   // ------------------------------------------------------------------------
-   // Methods to compute offsets and to manage forward references
-   // ------------------------------------------------------------------------
-
    /**
     * Puts a reference to this label in the bytecode of a method. If the position of the label is known, the offset is
     * computed and written directly. Otherwise, a null offset is written and a new forward reference is declared for
@@ -209,17 +175,7 @@ public final class Label
     * @throws IllegalArgumentException if this label has not been created by the given code writer.
     */
    void put(@Nonnull ByteVector out, @Nonnegative int source, boolean wideOffset) {
-      if (!isResolved()) {
-         if (wideOffset) {
-            addReference(-1 - source, out.length);
-            out.putInt(-1);
-         }
-         else {
-            addReference(source, out.length);
-            out.putShort(-1);
-         }
-      }
-      else {
+      if (isResolved()) {
          int reference = position - source;
 
          if (wideOffset) {
@@ -227,6 +183,16 @@ public final class Label
          }
          else {
             out.putShort(reference);
+         }
+      }
+      else {
+         if (wideOffset) {
+            addReference(-1 - source, out.length);
+            out.putInt(-1);
+         }
+         else {
+            addReference(source, out.length);
+            out.putShort(-1);
          }
       }
    }
@@ -300,10 +266,6 @@ public final class Label
    Label getFirst() {
       return frame == null ? this : frame.owner;
    }
-
-   // ------------------------------------------------------------------------
-   // Overridden Object methods
-   // ------------------------------------------------------------------------
 
    @Override
    public String toString() {

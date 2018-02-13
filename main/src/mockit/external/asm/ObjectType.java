@@ -9,22 +9,21 @@ public final class ObjectType extends ReferenceType
       return new ObjectType(internalName.toCharArray());
    }
 
+   /**
+    * Constructs an object reference type.
+    *
+    * @param buf a buffer containing the descriptor of the type.
+    * @param off the offset of the descriptor in the buffer.
+    */
    @Nonnull
    static ObjectType create(@Nonnull char[] buf, @Nonnegative int off) {
       int len = findTypeNameLength(buf, off, 0);
       return new ObjectType(buf, off + 1, len - 1);
    }
 
-   ObjectType(@Nonnull char[] buf) { super(buf); }
+   private ObjectType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
 
-   /**
-    * Constructs an object reference type.
-    *
-    * @param buf a buffer containing the descriptor of the type.
-    * @param off the offset of the descriptor in the buffer.
-    * @param len the length of the descriptor.
-    */
-   ObjectType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
+   ObjectType(@Nonnull char[] buf) { super(buf); }
 
    @Override
    void getDescriptor(@Nonnull StringBuilder buf) {

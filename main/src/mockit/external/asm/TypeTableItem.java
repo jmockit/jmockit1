@@ -10,8 +10,7 @@ abstract class TypeTableItem extends Item
     * constant pool, in order to avoid clashes with normal constant pool items in the
     * {@linkplain ConstantPoolGeneration#items constant pool's hash table}.
     */
-   interface SpecialType
-   {
+   interface SpecialType {
       int NORMAL = 30;
       int UNINIT = 31;
       int MERGED = 32;

@@ -6,6 +6,7 @@ import javax.annotation.*;
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and method descriptors.
  */
+@SuppressWarnings("ClassReferencesSubclass")
 public abstract class JavaType
 {
    /**

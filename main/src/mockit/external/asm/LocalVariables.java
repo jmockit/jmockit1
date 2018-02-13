@@ -48,8 +48,8 @@ final class LocalVariables
 
    @Nonnull
    private ByteVector addAttribute(
-      @Nullable ByteVector attribute, @Nonnull String name, @Nonnull String desc,
-      @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
+      @Nullable ByteVector attribute, @Nonnull String name, @Nonnull String desc, @Nonnull Label start, @Nonnull Label end,
+      @Nonnegative int index
    ) {
       if (attribute == null) {
          attribute = new ByteVector();
@@ -93,10 +93,7 @@ final class LocalVariables
       put(out, "LocalVariableTypeTable", localVarTypeTable, localVarTypeCount);
    }
 
-   private void put(
-      @Nonnull ByteVector out, @Nonnull String attributeName, @Nullable ByteVector attribute,
-      @Nonnegative int numEntries
-   ) {
+   private void put(@Nonnull ByteVector out, @Nonnull String attributeName, @Nullable ByteVector attribute, @Nonnegative int numEntries) {
       if (attribute != null) {
          out.putShort(cp.newUTF8(attributeName));
          out.putInt(attribute.length + 2).putShort(numEntries);

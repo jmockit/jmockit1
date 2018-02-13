@@ -253,9 +253,7 @@ final class FrameAndStackComputation
       }
    }
 
-   private void writeFrameForOldVersionOfJava(
-      @Nonnegative int currentFrameLocalsSize, @Nonnegative int currentFrameStackSize
-   ) {
+   private void writeFrameForOldVersionOfJava(@Nonnegative int currentFrameLocalsSize, @Nonnegative int currentFrameStackSize) {
       stackMap.putShort(getInstructionOffset()).putShort(currentFrameLocalsSize);
       writeFrameTypes(3, 3 + currentFrameLocalsSize);
 
