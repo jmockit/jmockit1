@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006 Rogério Liesenfeld
+ * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
 package mockit.internal.expectations;
@@ -21,6 +21,7 @@ import mockit.internal.util.*;
 import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
+@SuppressWarnings("OverlyCoupledClass")
 public final class RecordAndReplayExecution
 {
    public static final ReentrantLock RECORD_OR_REPLAY_LOCK = new ReentrantLock();
@@ -33,8 +34,7 @@ public final class RecordAndReplayExecution
    @Nullable private ReplayPhase replayPhase;
    @Nullable private BaseVerificationPhase verificationPhase;
 
-   public RecordAndReplayExecution()
-   {
+   public RecordAndReplayExecution() {
       executionState = new PhasedExecutionState();
       dynamicPartialMocking = null;
       discoverMockedTypesAndInstancesForMatchingOnInstance();
@@ -42,9 +42,7 @@ public final class RecordAndReplayExecution
       replayPhase = new ReplayPhase(this);
    }
 
-   public RecordAndReplayExecution(
-      @Nonnull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked)
-   {
+   public RecordAndReplayExecution(@Nonnull Expectations targetObject, @Nullable Object... classesOrInstancesToBePartiallyMocked) {
       TestRun.enterNoMockingZone();
       ExecutingTest executingTest = TestRun.getExecutingTest();
       executingTest.setShouldIgnoreMockingCallbacks(true);
@@ -79,8 +77,7 @@ public final class RecordAndReplayExecution
       }
    }
 
-   private void discoverMockedTypesAndInstancesForMatchingOnInstance()
-   {
+   private void discoverMockedTypesAndInstancesForMatchingOnInstance() {
       TypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions != null) {
@@ -102,8 +99,7 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   private static DynamicPartialMocking applyDynamicPartialMocking(@Nullable Object... classesOrInstances)
-   {
+   private static DynamicPartialMocking applyDynamicPartialMocking(@Nullable Object... classesOrInstances) {
       if (classesOrInstances == null || classesOrInstances.length == 0) {
          return null;
       }
@@ -124,10 +120,9 @@ public final class RecordAndReplayExecution
     */
    @Nullable @SuppressWarnings("OverlyComplexMethod")
    public static Object recordOrReplay(
-      @Nullable Object mock, int mockAccess, @Nonnull String classDesc, @Nonnull String mockDesc,
-      @Nullable String genericSignature, int executionModeOrdinal, @Nullable Object[] args)
-      throws Throwable
-   {
+      @Nullable Object mock, int mockAccess, @Nonnull String classDesc, @Nonnull String mockDesc, @Nullable String genericSignature,
+      int executionModeOrdinal, @Nullable Object[] args
+   ) throws Throwable {
       if (calledFromSpecialThread()) {
          return proceedIntoRealImplementationOrGetDefaultReturnType(mock, mockAccess, mockDesc, genericSignature);
       }
@@ -182,8 +177,7 @@ public final class RecordAndReplayExecution
          instance.failureState.clearErrorThrown();
 
          boolean withRealImpl = executionMode.isWithRealImplementation(mock);
-         Object result =
-            currentPhase.handleInvocation(mock, mockAccess, classDesc, mockDesc, genericSignature, withRealImpl, args);
+         Object result = currentPhase.handleInvocation(mock, mockAccess, classDesc, mockDesc, genericSignature, withRealImpl, args);
 
          instance.failureState.reportErrorThrownIfAny();
 
@@ -196,8 +190,8 @@ public final class RecordAndReplayExecution
 
    @Nullable
    private static Object proceedIntoRealImplementationOrGetDefaultReturnType(
-      @Nullable Object mock, int mockAccess, @Nonnull String mockDesc, @Nullable String genericSignature)
-   {
+      @Nullable Object mock, int mockAccess, @Nonnull String mockDesc, @Nullable String genericSignature
+   ) {
       if (mock != null) {
          Class<?> mockedClass = mock.getClass();
          String mockedClassName = mockedClass.getName();
@@ -221,9 +215,9 @@ public final class RecordAndReplayExecution
 
    @Nonnull
    private static Object defaultReturnValue(
-      @Nullable Object mock, @Nonnull String classDesc, @Nonnull String nameAndDesc,
-      @Nullable String genericSignature, @Nonnull ExecutionMode executionMode, @Nonnull Object[] args)
-   {
+      @Nullable Object mock, @Nonnull String classDesc, @Nonnull String nameAndDesc, @Nullable String genericSignature,
+      @Nonnull ExecutionMode executionMode, @Nonnull Object[] args
+   ) {
       if (executionMode.isToExecuteRealImplementation(mock)) {
          return Void.class;
       }
@@ -252,15 +246,13 @@ public final class RecordAndReplayExecution
 
    @Nullable
    private static Object defaultReturnValue(
-      @Nonnull ExecutingTest executingTest, @Nullable Object mock,
-      @Nonnull String classDesc, @Nonnull String nameAndDesc, @Nullable String genericSignature,
-      @Nonnull ExecutionMode executionMode, @Nonnull Object[] args) throws Throwable
-   {
+      @Nonnull ExecutingTest executingTest, @Nullable Object mock, @Nonnull String classDesc, @Nonnull String nameAndDesc,
+      @Nullable String genericSignature, @Nonnull ExecutionMode executionMode, @Nonnull Object[] args
+   ) throws Throwable {
       RecordAndReplayExecution execution = executingTest.getCurrentRecordAndReplay();
 
       if (execution != null) {
-         Expectation recordedExpectation =
-            execution.executionState.findExpectation(mock, classDesc, nameAndDesc, args);
+         Expectation recordedExpectation = execution.executionState.findExpectation(mock, classDesc, nameAndDesc, args);
 
          if (recordedExpectation != null) {
             return recordedExpectation.produceResult(mock, args);
@@ -271,8 +263,8 @@ public final class RecordAndReplayExecution
    }
 
    private static boolean handleCallToConstructor(
-      @Nonnull RecordAndReplayExecution instance, @Nonnull Object mock, @Nonnull String classDesc)
-   {
+      @Nonnull RecordAndReplayExecution instance, @Nonnull Object mock, @Nonnull String classDesc
+   ) {
       if (instance.replayPhase != null) {
          TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
@@ -295,8 +287,7 @@ public final class RecordAndReplayExecution
       return isCallToSuperClassConstructor(mock, classDesc);
    }
 
-   private static boolean isCallToSuperClassConstructor(@Nonnull Object mock, @Nonnull String calledClassDesc)
-   {
+   private static boolean isCallToSuperClassConstructor(@Nonnull Object mock, @Nonnull String calledClassDesc) {
       Class<?> mockedClass = mock.getClass();
 
       if (ClassNaming.isAnonymousClass(mockedClass)) {
@@ -315,8 +306,7 @@ public final class RecordAndReplayExecution
    }
 
    @Nonnull
-   private Phase getCurrentPhase()
-   {
+   private Phase getCurrentPhase() {
       ReplayPhase replay = replayPhase;
 
       if (replay == null) {
@@ -335,8 +325,7 @@ public final class RecordAndReplayExecution
    }
 
    @Nonnull
-   public BaseVerificationPhase startVerifications(boolean inOrder)
-   {
+   public BaseVerificationPhase startVerifications(boolean inOrder) {
       assert replayPhase != null;
       List<Expectation> expectations = replayPhase.invocations;
       List<Object> invocationInstances = replayPhase.invocationInstances;
@@ -351,16 +340,14 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   public static Error endCurrentReplayIfAny()
-   {
+   public static Error endCurrentReplayIfAny() {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
       //noinspection ThrowableResultOfMethodCallIgnored
       return instance == null ? null : instance.endExecution();
    }
 
    @Nullable
-   private Error endExecution()
-   {
+   private Error endExecution() {
       if (TEST_ONLY_PHASE_LOCK.isLocked()) {
          TEST_ONLY_PHASE_LOCK.unlock();
       }
@@ -381,8 +368,7 @@ public final class RecordAndReplayExecution
    }
 
    @Nonnull
-   private ReplayPhase switchFromRecordToReplayIfNotYet()
-   {
+   private ReplayPhase switchFromRecordToReplayIfNotYet() {
       if (replayPhase == null) {
          recordPhase = null;
          replayPhase = new ReplayPhase(this);
@@ -392,8 +378,7 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   public TestOnlyPhase getCurrentTestOnlyPhase()
-   {
+   public TestOnlyPhase getCurrentTestOnlyPhase() {
       if (recordPhase != null) {
          return recordPhase;
       }
@@ -401,8 +386,7 @@ public final class RecordAndReplayExecution
       return verificationPhase;
    }
 
-   public void endInvocations()
-   {
+   public void endInvocations() {
       TEST_ONLY_PHASE_LOCK.unlock();
 
       if (verificationPhase == null) {
