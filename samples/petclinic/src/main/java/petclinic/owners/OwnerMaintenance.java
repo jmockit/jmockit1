@@ -16,8 +16,7 @@ public class OwnerMaintenance
    @Inject private Database db;
 
    @Nullable
-   public Owner findById(int ownerId)
-   {
+   public Owner findById(int ownerId) {
       return db.findById(Owner.class, ownerId);
    }
 
@@ -29,13 +28,11 @@ public class OwnerMaintenance
     * @return list of matching owners (empty if none found)
     */
    @Nonnull
-   public List<Owner> findByLastName(@Nonnull String lastName)
-   {
+   public List<Owner> findByLastName(@Nonnull String lastName) {
       return db.find("select o from Owner o where o.lastName like ?1", lastName + '%');
    }
 
-   public void createOrUpdate(@Nonnull Owner newData)
-   {
+   public void createOrUpdate(@Nonnull Owner newData) {
       db.save(newData);
    }
 }

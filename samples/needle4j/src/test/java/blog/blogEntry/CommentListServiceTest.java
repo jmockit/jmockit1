@@ -15,8 +15,7 @@ public final class CommentListServiceTest
    @ObjectUnderTest BlogEntryService blogEntryService;
 
    @Test
-   public void getResultListForBlogEntryWithComments()
-   {
+   public void getResultListForBlogEntryWithComments() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       Comment comment = commentData.withBlogEntry(blogEntry).buildAndSave();
       blogEntryService.setId(blogEntry.getId());
@@ -28,8 +27,7 @@ public final class CommentListServiceTest
    }
 
    @Test
-   public void getResultListForBlogEntryHavingNoComments()
-   {
+   public void getResultListForBlogEntryHavingNoComments() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       blogEntryService.setId(blogEntry.getId());
 

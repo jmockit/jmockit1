@@ -16,8 +16,7 @@ public class VetMaintenance
    @Inject private Database db;
 
    @Nonnull
-   public List<Vet> findAll()
-   {
+   public List<Vet> findAll() {
       return db.find("select v from Vet v order by v.lastName, v.firstName");
    }
 }

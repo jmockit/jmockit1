@@ -40,8 +40,7 @@ public class BlogEntry extends BaseEntity
    public String getContent() { return content; }
    public void setContent(String content) { this.content = content; }
 
-   public String getShortContent()
-   {
+   public String getShortContent() {
       if (content != null && content.length() > 200) {
          return content.substring(0, 200) + "...";
       }

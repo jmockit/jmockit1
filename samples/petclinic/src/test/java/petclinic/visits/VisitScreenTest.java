@@ -20,8 +20,7 @@ public final class VisitScreenTest
    @SUT VisitScreen visitScreen;
 
    @Test
-   public void showVisitsForSelectedPet()
-   {
+   public void showVisitsForSelectedPet() {
       Visit v1 = visitData.create("Visit 1 for pet");
       Visit v2 = visitData.create("Visit 2 for pet");
       visitScreen.selectPet(v1.getPet().getId());
@@ -33,16 +32,14 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void attemptToShowVisitsWithoutFirstSelectingAPet()
-   {
+   public void attemptToShowVisitsWithoutFirstSelectingAPet() {
       visitScreen.showVisits();
 
       assertNull(visitScreen.getVisits());
    }
 
    @Test
-   public void attemptToSelectVisitWithNonExistingId()
-   {
+   public void attemptToSelectVisitWithNonExistingId() {
       Visit visit = visitData.create("Visit 1 for pet");
       visitScreen.selectVisit(visit.getId());
 
@@ -53,8 +50,7 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void addNewVisitForPet()
-   {
+   public void addNewVisitForPet() {
       Pet pet = petData.create("Samantha", null, "hamster");
 
       visitScreen.requestNewVisit();
@@ -74,8 +70,7 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void updateExistingVisit()
-   {
+   public void updateExistingVisit() {
       Visit visit = visitData.create();
       visitScreen.selectVisit(visit.getId());
 
@@ -91,16 +86,14 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void attemptToCreateOrUpdateVisitWithoutFirstSelectingAPet()
-   {
+   public void attemptToCreateOrUpdateVisitWithoutFirstSelectingAPet() {
       visitScreen.createOrUpdateVisit();
 
       assertNull(visitScreen.getVisit());
    }
 
    @Test
-   public void attemptToUpdateVisitWithoutFirstSelectingAVisit()
-   {
+   public void attemptToUpdateVisitWithoutFirstSelectingAVisit() {
       Pet pet = petData.create("Samantha", null, "hamster");
       visitScreen.selectPet(pet.getId());
 

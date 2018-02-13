@@ -10,8 +10,7 @@ import petclinic.util.*;
 public final class OwnerData extends TestDatabase
 {
    @Nonnull
-   public Owner create(@Nonnull String fullName)
-   {
+   public Owner create(@Nonnull String fullName) {
       String[] names = fullName.split(" ");
 
       Owner owner = new Owner();

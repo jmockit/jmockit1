@@ -15,8 +15,7 @@ public final class VisitData extends TestDatabase
    @Inject private PetData petData;
 
    @Nonnull
-   public Visit create(@Nonnull String description)
-   {
+   public Visit create(@Nonnull String description) {
       Pet pet = petData.findOrCreate("Test", null, "mouse");
 
       Visit visit = new Visit();
@@ -28,8 +27,7 @@ public final class VisitData extends TestDatabase
    }
 
    @Nonnull
-   public Visit create()
-   {
+   public Visit create() {
       return create("Testing");
    }
 }

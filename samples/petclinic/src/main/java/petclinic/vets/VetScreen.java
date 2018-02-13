@@ -18,8 +18,7 @@ public class VetScreen
    @Nullable
    public List<Vet> getVets() { return vets; }
 
-   public void showVetList()
-   {
+   public void showVetList() {
       vets = vetMaintenance.findAll();
    }
 }

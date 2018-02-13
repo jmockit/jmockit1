@@ -16,9 +16,7 @@ public class Owner extends Person
 {
    private String address;
    private String city;
-
-   @NotNull
-   private String telephone;
+   @NotNull private String telephone;
 
    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
    @OrderBy("name")
@@ -35,8 +33,7 @@ public class Owner extends Person
 
    public List<Pet> getPets() { return pets; }
 
-   public void addPet(@Nonnull Pet pet)
-   {
+   public void addPet(@Nonnull Pet pet) {
       pets.add(pet);
       pet.setOwner(this);
    }
@@ -45,8 +42,7 @@ public class Owner extends Person
     * Return the Pet with the given name, or null if none found for this Owner.
     */
    @Nullable
-   public Pet getPet(@Nonnull String name)
-   {
+   public Pet getPet(@Nonnull String name) {
       return pets.stream().filter(pet -> pet.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
    }
 }

@@ -24,8 +24,7 @@ public class Authenticator implements Serializable
    public String getPassword() { return password; }
    public void setPassword(String password) { this.password = password; }
 
-   public boolean login()
-   {
+   public boolean login() {
       User user = userService.findByUsername(username);
 
       if (user != null && user.verifyPassword(password)) {
@@ -37,8 +36,7 @@ public class Authenticator implements Serializable
       return false;
    }
 
-   public void logout()
-   {
+   public void logout() {
       session.invalidate();
    }
 }

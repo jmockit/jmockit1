@@ -11,15 +11,13 @@ public final class CommentTestData extends BaseTestData<Comment>
    @Inject private BlogEntryTestData blogEntryData;
    private BlogEntry withBlogEntry;
 
-   public CommentTestData withBlogEntry(BlogEntry blogEntry)
-   {
+   public CommentTestData withBlogEntry(BlogEntry blogEntry) {
       withBlogEntry = blogEntry;
       return this;
    }
 
    @Override
-   public Comment build()
-   {
+   public Comment build() {
       User author = userData.buildAndSave();
       BlogEntry blogEntry = withBlogEntry != null ? withBlogEntry : blogEntryData.buildAndSave();
 

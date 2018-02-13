@@ -14,15 +14,13 @@ public final class BlogEntryTestData extends BaseTestData<BlogEntry>
    @Inject private BlogEntry currentBlogEntry;
    private String withTitle;
 
-   public BlogEntryTestData withTitle(String title)
-   {
+   public BlogEntryTestData withTitle(String title) {
       withTitle = title;
       return this;
    }
 
    @Override
-   public BlogEntry build()
-   {
+   public BlogEntry build() {
       User author = userData.buildAndSave();
       String title = withTitle != null ? withTitle : "Lorem ipsum dolor sit amet";
 

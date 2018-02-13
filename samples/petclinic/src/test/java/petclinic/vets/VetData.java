@@ -10,8 +10,7 @@ import petclinic.util.*;
 public final class VetData extends TestDatabase
 {
    @Nonnull
-   public Vet create(@Nonnull String fullName, @Nonnull String... specialtyNames)
-   {
+   public Vet create(@Nonnull String fullName, @Nonnull String... specialtyNames) {
       String[] names = fullName.split(" ");
 
       Vet vet = new Vet();

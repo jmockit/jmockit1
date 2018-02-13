@@ -15,8 +15,7 @@ public class CommentListService implements Serializable
    @Inject private BlogEntryService blogEntryService;
    @Inject private Database db;
 
-   public List<Comment> getResultList()
-   {
+   public List<Comment> getResultList() {
       BlogEntry blogEntry = blogEntryService.getInstance();
       return db.find("select c from Comment c where c.blogEntry = ?1 order by c.created", blogEntry);
    }

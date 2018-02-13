@@ -18,8 +18,7 @@ public final class VetScreenTest
    @SUT VetScreen vetScreen;
 
    @Test
-   public void findVets()
-   {
+   public void findVets() {
       Vet vet2 = vetData.create("Helen Leary", "radiology");
       Vet vet0 = vetData.create("James Carter");
       Vet vet1 = vetData.create("Linda Douglas", "surgery", "dentistry");

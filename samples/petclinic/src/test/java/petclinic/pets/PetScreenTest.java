@@ -24,8 +24,7 @@ public final class PetScreenTest
    @SUT PetScreen petScreen;
 
    @Test
-   public void findAllPetTypes()
-   {
+   public void findAllPetTypes() {
       PetType type1 = petData.createType("type1");
       PetType type2 = petData.createType("Another type");
 
@@ -39,8 +38,7 @@ public final class PetScreenTest
    }
 
    @Test
-   public void createPetWithGeneratedId()
-   {
+   public void createPetWithGeneratedId() {
       String petName = "bowser";
       Owner owner = ownerData.create("The Owner");
       assumeTrue(owner.getPet(petName) == null);
@@ -63,8 +61,7 @@ public final class PetScreenTest
    }
 
    @Test
-   public void attemptToCreatePetWithDuplicateNameForSameOwner()
-   {
+   public void attemptToCreatePetWithDuplicateNameForSameOwner() {
       Owner owner = ownerData.create("The Owner");
       petScreen.selectOwner(owner.getId());
       Date birthDate = new GregorianCalendar(2005, Calendar.AUGUST, 6).getTime();
@@ -81,16 +78,14 @@ public final class PetScreenTest
    }
 
    @Test
-   public void attemptToCreatePetWithoutAnOwnerHavingBeenSelected()
-   {
+   public void attemptToCreatePetWithoutAnOwnerHavingBeenSelected() {
       petScreen.createOrUpdatePet();
 
       assertNull(petScreen.getPet());
    }
 
    @Test
-   public void updatePetName()
-   {
+   public void updatePetName() {
       Date birthDate = new GregorianCalendar(2005, Calendar.AUGUST, 6).getTime();
       Pet pet = petData.create("Pet", birthDate, "cat");
       petScreen.selectPet(pet.getId());

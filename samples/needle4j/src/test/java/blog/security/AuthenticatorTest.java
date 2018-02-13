@@ -19,8 +19,7 @@ public final class AuthenticatorTest
    @Dependency Identity identity;
 
    @Test
-   public void loginWithNoUsername()
-   {
+   public void loginWithNoUsername() {
       boolean login = authenticator.login();
 
       assertFalse(login);
@@ -28,8 +27,7 @@ public final class AuthenticatorTest
    }
 
    @Test
-   public void loginWithWrongPassword()
-   {
+   public void loginWithWrongPassword() {
       String username = "username";
       User user = userData.withUsername(username).buildAndSave();
       authenticator.setUsername(username);
@@ -43,8 +41,7 @@ public final class AuthenticatorTest
    }
 
    @Test
-   public void loginSuccess()
-   {
+   public void loginSuccess() {
       String username = "username";
       User user = userData.withUsername(username).buildAndSave();
       authenticator.setUsername(username);
@@ -61,8 +58,7 @@ public final class AuthenticatorTest
    }
 
    @Test
-   public void logout()
-   {
+   public void logout() {
       authenticator.logout();
 
       try {

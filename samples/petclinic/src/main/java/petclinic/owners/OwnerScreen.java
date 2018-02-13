@@ -23,8 +23,7 @@ public class OwnerScreen
    @Nullable public Owner getOwner() { return owner; }
    @Nullable public List<Owner> getOwners() { return owners; }
 
-   public void findOwners()
-   {
+   public void findOwners() {
       if (lastName == null) {
          lastName = "";
       }
@@ -32,18 +31,15 @@ public class OwnerScreen
       owners = ownerMaintenance.findByLastName(lastName);
    }
 
-   public void requestNewOwner()
-   {
+   public void requestNewOwner() {
       owner = new Owner();
    }
 
-   public void selectOwner(int ownerId)
-   {
+   public void selectOwner(int ownerId) {
       owner = ownerMaintenance.findById(ownerId);
    }
 
-   public void createOrUpdateOwner()
-   {
+   public void createOrUpdateOwner() {
       assert owner != null;
       ownerMaintenance.createOrUpdate(owner);
    }

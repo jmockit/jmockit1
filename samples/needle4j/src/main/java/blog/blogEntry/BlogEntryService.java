@@ -25,8 +25,7 @@ public class BlogEntryService implements Serializable
 
    public Long getId() { return id; }
 
-   public void setId(Long id)
-   {
+   public void setId(Long id) {
       beginConversation();
 
       log.info("set blog entry id " + id);
@@ -34,8 +33,7 @@ public class BlogEntryService implements Serializable
    }
 
    @Produces
-   public BlogEntry getInstance()
-   {
+   public BlogEntry getInstance() {
       if (instance == null || id != null && !id.equals(instance.getId())) {
          instance = db.find(BlogEntry.class, id);
       }
@@ -44,8 +42,7 @@ public class BlogEntryService implements Serializable
       return instance;
    }
 
-   public void newInstance()
-   {
+   public void newInstance() {
       beginConversation();
 
       BlogEntry blogEntry = new BlogEntry();
@@ -54,28 +51,24 @@ public class BlogEntryService implements Serializable
       id = null;
    }
 
-   private void beginConversation()
-   {
+   private void beginConversation() {
       if (conversation.isTransient()) {
          conversation.begin();
          log.info("beginConversation conversation with id " + conversation.getId());
       }
    }
 
-   private void endConversation()
-   {
+   private void endConversation() {
       if (!conversation.isTransient()) {
          conversation.end();
       }
    }
 
-   public void save()
-   {
+   public void save() {
       id = db.save(instance);
    }
 
-   public void delete()
-   {
+   public void delete() {
       log.info("delete blog entry " + instance);
       db.remove(instance);
       endConversation();

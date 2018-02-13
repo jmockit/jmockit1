@@ -15,8 +15,7 @@ public class CommentService
    @Inject private Database db;
    private Comment instance;
 
-   public Comment getInstance()
-   {
+   public Comment getInstance() {
       if (instance == null) {
          instance = new Comment();
          instance.setAuthor(user);
@@ -26,8 +25,7 @@ public class CommentService
       return instance;
    }
 
-   public void save()
-   {
+   public void save() {
       db.save(instance);
       instance = null;
    }

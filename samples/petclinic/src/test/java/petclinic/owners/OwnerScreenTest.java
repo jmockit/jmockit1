@@ -17,8 +17,7 @@ public final class OwnerScreenTest
    @SUT OwnerScreen ownerScreen;
 
    @Test
-   public void findOwnersByFullLastName()
-   {
+   public void findOwnersByFullLastName() {
       Owner davis = ownerData.create("Tom Davis");
 
       ownerScreen.setLastName(davis.getLastName());
@@ -30,8 +29,7 @@ public final class OwnerScreenTest
    }
 
    @Test
-   public void findOwnersByLastNamePrefix()
-   {
+   public void findOwnersByLastNamePrefix() {
       Owner esteban = ownerData.create("Jaime Esteban");
 
       ownerScreen.setLastName("Es");
@@ -42,8 +40,7 @@ public final class OwnerScreenTest
    }
 
    @Test
-   public void findOwnersByLastNameWithNoSuchOwners()
-   {
+   public void findOwnersByLastNameWithNoSuchOwners() {
       ownerScreen.setLastName("Daviss");
       ownerScreen.findOwners();
       List<Owner> ownersWithNonExistingLastName = ownerScreen.getOwners();
@@ -52,8 +49,7 @@ public final class OwnerScreenTest
    }
 
    @Test
-   public void findOwnersWithAnyLastName()
-   {
+   public void findOwnersWithAnyLastName() {
       Owner davis = ownerData.create("Tom Davis");
       Owner esteban = ownerData.create("Jaime Esteban");
 
@@ -65,8 +61,7 @@ public final class OwnerScreenTest
    }
 
    @Test
-   public void createNewOwner()
-   {
+   public void createNewOwner() {
       ownerScreen.requestNewOwner();
       Owner owner = ownerScreen.getOwner();
       owner.setFirstName("Sam");
@@ -81,8 +76,7 @@ public final class OwnerScreenTest
    }
 
    @Test
-   public void updateExistingOwner()
-   {
+   public void updateExistingOwner() {
       Owner owner = ownerData.create("An owner");
       ownerScreen.selectOwner(owner.getId());
 

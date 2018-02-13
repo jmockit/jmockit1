@@ -13,14 +13,12 @@ public abstract class BaseTestData<E extends BaseEntity>
    private int id;
 
    @SuppressWarnings("unchecked")
-   protected BaseTestData()
-   {
+   protected BaseTestData() {
       entityClass = (Class<E>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
    }
 
    @PostConstruct
-   private void beginTransaction()
-   {
+   private void beginTransaction() {
       EntityTransaction transaction = em.getTransaction();
 
       if (!transaction.isActive()) {
@@ -29,8 +27,7 @@ public abstract class BaseTestData<E extends BaseEntity>
    }
 
    @PreDestroy
-   private void endTransaction()
-   {
+   private void endTransaction() {
       EntityTransaction transaction = em.getTransaction();
 
       if (transaction.isActive()) {
@@ -40,8 +37,7 @@ public abstract class BaseTestData<E extends BaseEntity>
 
    protected final int getId() { return id++; }
 
-   public final void save(BaseEntity entity)
-   {
+   public final void save(BaseEntity entity) {
       if (entity.getId() == null) {
          em.persist(entity);
       }
@@ -49,18 +45,15 @@ public abstract class BaseTestData<E extends BaseEntity>
       em.flush();
    }
 
-   public final E find(Long entityId)
-   {
+   public final E find(Long entityId) {
       return em.find(entityClass, entityId);
    }
 
-   public final void detachFromPersistenceContext(BaseEntity entity)
-   {
+   public final void detachFromPersistenceContext(BaseEntity entity) {
       em.detach(entity);
    }
 
-   public final E assertSavedToDB(E entity)
-   {
+   public final E assertSavedToDB(E entity) {
       if (em.contains(entity)) {
          em.detach(entity);
       }
@@ -72,14 +65,12 @@ public abstract class BaseTestData<E extends BaseEntity>
       return fromDb;
    }
 
-   public final void assertDeletedFromDB(BaseEntity entity)
-   {
+   public final void assertDeletedFromDB(BaseEntity entity) {
       BaseEntity deletedEntity = find(entity.getId());
       assertNull(deletedEntity);
    }
 
-   public final E buildAndSave()
-   {
+   public final E buildAndSave() {
       E entity = build();
       save(entity);
       return entity;

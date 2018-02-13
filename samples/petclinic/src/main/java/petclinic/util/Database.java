@@ -20,8 +20,7 @@ public class Database
     * @return the persistent entity if found, or <tt>null</tt> if not found
     */
    @Nullable
-   public <E extends BaseEntity> E findById(@Nonnull Class<E> entityClass, int id)
-   {
+   public <E extends BaseEntity> E findById(@Nonnull Class<E> entityClass, int id) {
       E entity = em.find(entityClass, id);
       return entity;
    }
@@ -39,8 +38,7 @@ public class Database
     * @see #find(int, String, Object...)
     */
    @Nonnull
-   public <E extends BaseEntity> List<E> find(@Nonnull String qlStatement, @Nonnull Object... qlArgs)
-   {
+   public <E extends BaseEntity> List<E> find(@Nonnull String qlStatement, @Nonnull Object... qlArgs) {
       return find(0, qlStatement, qlArgs);
    }
 
@@ -57,9 +55,7 @@ public class Database
     * clause (if any)
     */
    @Nonnull
-   public <E extends BaseEntity> List<E> find(
-      @Nonnegative int maxResults, @Nonnull String qlStatement, @Nonnull Object... qlArgs)
-   {
+   public <E extends BaseEntity> List<E> find(@Nonnegative int maxResults, @Nonnull String qlStatement, @Nonnull Object... qlArgs) {
       Query query = em.createQuery(qlStatement);
       query.setMaxResults(maxResults);
 
@@ -78,8 +74,7 @@ public class Database
     * In either case, the persistence context is synchronized to the application database, so that any pending
     * "inserts", "updates" or "deletes" get executed at this time.
     */
-   public void save(@Nonnull BaseEntity entity)
-   {
+   public void save(@Nonnull BaseEntity entity) {
       if (entity.isNew()) {
          em.persist(entity);
       }
@@ -93,8 +88,7 @@ public class Database
    /**
     * Removes a given persistent entity from the application database.
     */
-   public void remove(@Nonnull BaseEntity entity)
-   {
+   public void remove(@Nonnull BaseEntity entity) {
       em.remove(entity);
    }
 }

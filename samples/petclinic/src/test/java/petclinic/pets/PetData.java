@@ -16,8 +16,7 @@ public final class PetData extends TestDatabase
    @Inject private OwnerData ownerData;
 
    @Nonnull
-   public Pet findOrCreate(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
-   {
+   public Pet findOrCreate(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType) {
       Pet pet = findOne("select p from Pet p where p.name = ?1", name);
 
       if (pet == null) {
@@ -28,15 +27,13 @@ public final class PetData extends TestDatabase
    }
 
    @Nonnull
-   public Pet create(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
-   {
+   public Pet create(@Nonnull String name, @Nullable Date birthDate, @Nonnull String petType) {
       Owner owner = ownerData.create("Pet Owner");
       return create(owner, name, birthDate, petType);
    }
 
    @Nonnull
-   public Pet create(@Nonnull Owner owner, @Nonnull String name, @Nullable Date birthDate, @Nonnull String petType)
-   {
+   public Pet create(@Nonnull Owner owner, @Nonnull String name, @Nullable Date birthDate, @Nonnull String petType) {
       PetType type = findOrCreatePetType(petType);
 
       Pet pet = new Pet();
@@ -50,8 +47,7 @@ public final class PetData extends TestDatabase
    }
 
    @Nonnull
-   PetType findOrCreatePetType(@Nonnull String petType)
-   {
+   PetType findOrCreatePetType(@Nonnull String petType) {
       PetType type = findOne("select t from PetType t where t.name = ?1", petType);
 
       if (type == null) {
@@ -62,8 +58,7 @@ public final class PetData extends TestDatabase
    }
 
    @Nonnull
-   PetType createType(@Nonnull String name)
-   {
+   PetType createType(@Nonnull String name) {
       PetType type = new PetType();
       type.setName(name);
       db.save(type);

@@ -21,8 +21,7 @@ public class PetScreen
    @Nullable private Pet pet;
 
    @Nonnull
-   public List<PetType> getTypes()
-   {
+   public List<PetType> getTypes() {
       if (types == null) {
          types = petMaintenance.findPetTypes();
       }
@@ -33,24 +32,20 @@ public class PetScreen
    @Nullable
    public Pet getPet() { return pet; }
 
-   public void requestNewPet()
-   {
+   public void requestNewPet() {
       pet = new Pet();
    }
 
-   public void selectOwner(int ownerId)
-   {
+   public void selectOwner(int ownerId) {
       owner = ownerMaintenance.findById(ownerId);
       pet = new Pet();
    }
 
-   public void selectPet(int petId)
-   {
+   public void selectPet(int petId) {
       pet = petMaintenance.findById(petId);
    }
 
-   public void createOrUpdatePet()
-   {
+   public void createOrUpdatePet() {
       if (pet != null) {
          if (pet.isNew()) {
             //noinspection ConstantConditions

@@ -12,15 +12,13 @@ public final class UserTest
    @TestData UserTestData userData;
 
    @Test(expected = PersistenceException.class)
-   public void attemptToSaveWithDuplicateUsername()
-   {
+   public void attemptToSaveWithDuplicateUsername() {
       userData.withUsername("username").buildAndSave();
       userData.withUsername("username").buildAndSave();
    }
 
    @Test
-   public void verifyPassword()
-   {
+   public void verifyPassword() {
       User user = userData.buildAndSave();
 
       assertFalse(user.getFirstName().isEmpty());

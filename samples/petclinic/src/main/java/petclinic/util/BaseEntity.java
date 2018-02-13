@@ -22,8 +22,7 @@ public class BaseEntity implements Serializable
 
    @SuppressWarnings("NonFinalFieldReferenceInEquals")
    @Override
-   public final boolean equals(Object other)
-   {
+   public final boolean equals(Object other) {
       if (this == other) return true;
       if (!(other instanceof BaseEntity)) return false;
 
@@ -34,8 +33,7 @@ public class BaseEntity implements Serializable
 
    @SuppressWarnings("NonFinalFieldReferencedInHashCode")
    @Override
-   public final int hashCode()
-   {
+   public final int hashCode() {
       return id == null ? -1 : id;
    }
 }

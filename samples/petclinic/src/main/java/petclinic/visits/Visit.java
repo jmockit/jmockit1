@@ -25,8 +25,7 @@ public class Visit extends BaseEntity
    /**
     * Creates a new instance of Visit for the current date.
     */
-   public Visit()
-   {
+   public Visit() {
       date = new Date();
    }
 

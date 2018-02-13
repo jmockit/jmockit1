@@ -19,8 +19,7 @@ public class TestDatabase
    @Inject protected Database db;
 
    @PostConstruct
-   private void beginTransactionIfNotYet()
-   {
+   private void beginTransactionIfNotYet() {
       EntityTransaction transaction = em.getTransaction();
 
       if (!transaction.isActive()) {
@@ -29,8 +28,7 @@ public class TestDatabase
    }
 
    @PreDestroy
-   private void endTransactionWithRollbackIfStillActive()
-   {
+   private void endTransactionWithRollbackIfStillActive() {
       EntityTransaction transaction = em.getTransaction();
 
       if (transaction.isActive()) {
@@ -42,8 +40,7 @@ public class TestDatabase
     * Refreshes the persistent state of a given entity from the database, so that a test can verify
     * that persistent state was modified as expected.
     */
-   public final void refresh(BaseEntity entity)
-   {
+   public final void refresh(BaseEntity entity) {
       em.refresh(entity);
    }
 
@@ -57,8 +54,7 @@ public class TestDatabase
     * @return the first entity found, if any, or <tt>null</tt> if none
     */
    @SuppressWarnings("unchecked")
-   public final <E extends BaseEntity> E findOne(String qlStatement, Object... qlArgs)
-   {
+   public final <E extends BaseEntity> E findOne(String qlStatement, Object... qlArgs) {
       List<BaseEntity> entities = db.find(1, qlStatement, qlArgs);
       return entities.isEmpty() ? null : (E) entities.get(0);
    }
@@ -74,8 +70,7 @@ public class TestDatabase
     * @throws AssertionError if the new entity has a null or negative id, or if it is not among the entities found
     * by executing the given JPQL statement
     */
-   public final void assertCreated(BaseEntity newEntity, String qlStatement, Object... qlArgs)
-   {
+   public final void assertCreated(BaseEntity newEntity, String qlStatement, Object... qlArgs) {
       Integer newId = newEntity.getId();
       assertNotNull("id is still null", newId);
       assertTrue(newId >= 0);

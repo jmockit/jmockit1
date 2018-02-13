@@ -36,13 +36,11 @@ public class User extends BaseEntity
    public String getUsername() { return username; }
    public void setUsername(String username) { this.username = username; }
 
-   public void setPassword(String password)
-   {
+   public void setPassword(String password) {
       this.password = new BasicPasswordEncryptor().encryptPassword(password);
    }
 
-   public boolean verifyPassword(String passwordToVerify)
-   {
+   public boolean verifyPassword(String passwordToVerify) {
       return new BasicPasswordEncryptor().checkPassword(passwordToVerify, password);
    }
 }

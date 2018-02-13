@@ -11,8 +11,7 @@ public final class UserTestData extends BaseTestData<User>
    private String withUsername;
 
    @PostConstruct
-   private void defineCurrentUser()
-   {
+   private void defineCurrentUser() {
       currentUser.setFirstName("Test");
       currentUser.setSurname("User");
       currentUser.setUsername("tester");
@@ -20,15 +19,13 @@ public final class UserTestData extends BaseTestData<User>
       save(currentUser);
    }
 
-   public UserTestData withUsername(String username)
-   {
+   public UserTestData withUsername(String username) {
       withUsername = username;
       return this;
    }
 
    @Override
-   public User build()
-   {
+   public User build() {
       String username = withUsername != null ? withUsername : "mmuster" + getId();
 
       User user = new User();

@@ -24,31 +24,26 @@ public class VisitScreen
    @Nullable public Visit getVisit() { return visit; }
    @Nullable public List<Visit> getVisits() { return visits; }
 
-   public void selectPet(int petId)
-   {
+   public void selectPet(int petId) {
       pet = petMaintenance.findById(petId);
    }
 
-   public void selectVisit(int visitId)
-   {
+   public void selectVisit(int visitId) {
       visit = visitMaintenance.findById(visitId);
       pet = visit == null ? null : visit.getPet();
    }
 
-   public void requestNewVisit()
-   {
+   public void requestNewVisit() {
       visit = new Visit();
    }
 
-   public void createOrUpdateVisit()
-   {
+   public void createOrUpdateVisit() {
       if (pet != null && visit != null) {
          visitMaintenance.create(pet, visit);
       }
    }
 
-   public void showVisits()
-   {
+   public void showVisits() {
       if (pet != null) {
          visits = visitMaintenance.findByPetId(pet.getId());
       }

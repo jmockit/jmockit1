@@ -11,8 +11,7 @@ public final class UserServiceTest
    @ObjectUnderTest UserService userService;
 
    @Test
-   public void findExistingByUsername()
-   {
+   public void findExistingByUsername() {
       User user = userData.buildAndSave();
 
       User foundByUsername = userService.findByUsername(user.getUsername());
@@ -21,8 +20,7 @@ public final class UserServiceTest
    }
 
    @Test
-   public void findNonExistingByUsername()
-   {
+   public void findNonExistingByUsername() {
       User user = userService.findByUsername("name");
 
       assertNull(user);

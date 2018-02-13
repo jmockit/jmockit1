@@ -15,8 +15,7 @@ public final class BlogEntryServiceTest
    @Dependency Conversation conversation;
 
    @Test
-   public void beginNewBlogEntry()
-   {
+   public void beginNewBlogEntry() {
       assertTrue(conversation.isTransient());
 
       blogEntryService.newInstance();
@@ -29,8 +28,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void persistNewBlogEntry()
-   {
+   public void persistNewBlogEntry() {
       blogEntryService.newInstance();
       BlogEntry instance = blogEntryService.getInstance();
       String title = "title";
@@ -50,8 +48,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test(expected = ConstraintViolationException.class)
-   public void attemptToSaveWithoutAuthor()
-   {
+   public void attemptToSaveWithoutAuthor() {
       blogEntryService.newInstance();
       BlogEntry instance = blogEntryService.getInstance();
       instance.setAuthor(null);
@@ -60,8 +57,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void selectBlogEntryById()
-   {
+   public void selectBlogEntryById() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       assertTrue(conversation.isTransient());
 
@@ -76,8 +72,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void selectADifferentBlogEntry()
-   {
+   public void selectADifferentBlogEntry() {
       BlogEntry blogEntry1 = blogEntryData.withTitle("Blog entry 1").buildAndSave();
       BlogEntry blogEntry2 = blogEntryData.withTitle("Blog entry 2").buildAndSave();
 
@@ -92,8 +87,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void modifyABlogEntry()
-   {
+   public void modifyABlogEntry() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       blogEntryService.setId(blogEntry.getId());
       BlogEntry instance = blogEntryService.getInstance();
@@ -108,8 +102,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void deleteSelectedBlogEntry()
-   {
+   public void deleteSelectedBlogEntry() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       blogEntryService.setId(blogEntry.getId());
       blogEntryService.getInstance();
@@ -121,8 +114,7 @@ public final class BlogEntryServiceTest
    }
 
    @Test
-   public void deleteSelectedBlogEntry_withDetachedInstance()
-   {
+   public void deleteSelectedBlogEntry_withDetachedInstance() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
       blogEntryService.setId(blogEntry.getId());
       BlogEntry instance = blogEntryService.getInstance();

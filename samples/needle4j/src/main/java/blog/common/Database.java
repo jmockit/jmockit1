@@ -9,8 +9,7 @@ public class Database
 {
    @PersistenceContext private EntityManager em;
 
-   public Long save(BaseEntity instance)
-   {
+   public Long save(BaseEntity instance) {
       if (instance.getId() == null) {
          em.persist(instance);
       }
@@ -22,8 +21,7 @@ public class Database
       return instance.getId();
    }
 
-   public void remove(BaseEntity instance)
-   {
+   public void remove(BaseEntity instance) {
       if (em.contains(instance)) {
          em.remove(instance);
       }
@@ -36,13 +34,11 @@ public class Database
       }
    }
 
-   public <E extends BaseEntity> E find(Class<E> entityClass, long id)
-   {
+   public <E extends BaseEntity> E find(Class<E> entityClass, long id) {
       return em.find(entityClass, id);
    }
 
-   public <S> S findSingle(String ql, Object... args)
-   {
+   public <S> S findSingle(String ql, Object... args) {
       Query query = createQuery(ql, args);
 
       try {
@@ -54,8 +50,7 @@ public class Database
       }
    }
 
-   private Query createQuery(String ql, Object... args)
-   {
+   private Query createQuery(String ql, Object... args) {
       Query query = em.createQuery(ql);
 
       for (int i = 0; i < args.length; i++) {
@@ -66,16 +61,14 @@ public class Database
       return query;
    }
 
-   public <E extends BaseEntity> List<E> find(String ql, Object... args)
-   {
+   public <E extends BaseEntity> List<E> find(String ql, Object... args) {
       Query query = createQuery(ql, args);
 
       @SuppressWarnings("unchecked") List<E> resultList = query.getResultList();
       return resultList;
    }
 
-   public <E extends BaseEntity> List<E> findWithPaging(String ql, int maxResults, int firstResult, Object... args)
-   {
+   public <E extends BaseEntity> List<E> findWithPaging(String ql, int maxResults, int firstResult, Object... args) {
       Query query = createQuery(ql, args);
       query.setMaxResults(maxResults).setFirstResult(firstResult);
 

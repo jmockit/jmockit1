@@ -14,8 +14,7 @@ public final class BlogEntryListServiceTest
    @ObjectUnderTest BlogEntryListService blogEntryListService;
 
    @Test
-   public void getResultList()
-   {
+   public void getResultList() {
       BlogEntry blogEntry = blogEntryData.buildAndSave();
 
       List<BlogEntry> resultList = blogEntryListService.getResultList();
@@ -24,8 +23,7 @@ public final class BlogEntryListServiceTest
    }
 
    @Test
-   public void pagination()
-   {
+   public void pagination() {
       createBlogEntries(MAX_RESULTS + 1);
 
       assertEquals(0, blogEntryListService.getFirstResult());
@@ -43,16 +41,14 @@ public final class BlogEntryListServiceTest
       assertTrue(blogEntryListService.isPreviousExists());
    }
 
-   void createBlogEntries(int quantity)
-   {
+   void createBlogEntries(int quantity) {
       for (int i = 0; i < quantity; i++) {
          blogEntryData.buildAndSave();
       }
    }
 
    @Test
-   public void findEntriesUpToMaximumQuantity()
-   {
+   public void findEntriesUpToMaximumQuantity() {
       createBlogEntries(MAX_RESULTS + 1);
 
       List<BlogEntry> found = blogEntryListService.getResultList();
@@ -61,8 +57,7 @@ public final class BlogEntryListServiceTest
    }
 
    @Test
-   public void previousFirstResult()
-   {
+   public void previousFirstResult() {
       blogEntryListService.setFirstResult(10);
 
       assertEquals(15, blogEntryListService.getNextFirstResult());

@@ -18,8 +18,7 @@ public class PetMaintenance
    @Inject private Database db;
 
    @Nullable
-   public Pet findById(int id)
-   {
+   public Pet findById(int id) {
       return db.findById(Pet.class, id);
    }
 
@@ -29,14 +28,12 @@ public class PetMaintenance
     * @return the types found, in order of name
     */
    @Nonnull
-   public List<PetType> findPetTypes()
-   {
+   public List<PetType> findPetTypes() {
       List<PetType> petTypes = db.find("select t from PetType t order by t.name");
       return petTypes;
    }
 
-   public void createPet(@Nonnull Owner owner, @Nonnull Pet data)
-   {
+   public void createPet(@Nonnull Owner owner, @Nonnull Pet data) {
       validate(owner, data);
 
       data.setOwner(owner);
@@ -44,8 +41,7 @@ public class PetMaintenance
       db.save(data);
    }
 
-   private void validate(@Nonnull Owner owner, @Nonnull Pet pet)
-   {
+   private void validate(@Nonnull Owner owner, @Nonnull Pet pet) {
       Pet existingPetOfSameName = owner.getPet(pet.getName());
 
       if (existingPetOfSameName != null) {
@@ -53,8 +49,7 @@ public class PetMaintenance
       }
    }
 
-   public void updatePet(@Nonnull Pet data)
-   {
+   public void updatePet(@Nonnull Pet data) {
       db.save(data);
    }
 }

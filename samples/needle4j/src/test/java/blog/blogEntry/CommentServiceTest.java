@@ -13,14 +13,12 @@ public final class CommentServiceTest
    @ObjectUnderTest CommentService commentService;
 
    @Before
-   public void createBlogEntry()
-   {
+   public void createBlogEntry() {
       blogEntry = blogEntryData.buildAndSave();
    }
 
    @Test
-   public void createNewPartiallyInitializedComment()
-   {
+   public void createNewPartiallyInitializedComment() {
       Comment instance = commentService.getInstance();
 
       assertNull(instance.getId());
@@ -31,8 +29,7 @@ public final class CommentServiceTest
    }
 
    @Test
-   public void saveNewComment()
-   {
+   public void saveNewComment() {
       Comment instance = commentService.getInstance();
       instance.setContent("comment");
 

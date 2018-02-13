@@ -14,8 +14,7 @@ public class BlogEntryListService
    private List<BlogEntry> resultList;
    private int firstResult;
 
-   public List<BlogEntry> getResultList()
-   {
+   public List<BlogEntry> getResultList() {
       if (resultList == null) {
          resultList = blogEntryDao.find(MAX_RESULTS, firstResult);
       }
@@ -27,8 +26,8 @@ public class BlogEntryListService
    public int getPreviousFirstResult() { return firstResult <= MAX_RESULTS ? 0 : firstResult - MAX_RESULTS; }
 
    public int getFirstResult() { return firstResult; }
-   public void setFirstResult(int firstResult)
-   {
+
+   public void setFirstResult(int firstResult) {
       this.firstResult = firstResult;
       resultList = null;
    }
