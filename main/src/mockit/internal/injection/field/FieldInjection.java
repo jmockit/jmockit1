@@ -112,8 +112,7 @@ public final class FieldInjection extends Injector
       @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField
    ) {
       @Nullable String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
-      InjectionProvider injectable =
-         findAvailableInjectableIfAny(targetFields, qualifiedFieldName, testedClass, targetField);
+      InjectionProvider injectable = findAvailableInjectableIfAny(targetFields, qualifiedFieldName, testedClass, targetField);
 
       if (injectable != null) {
          return injectionState.getValueToInject(injectable);
@@ -131,8 +130,7 @@ public final class FieldInjection extends Injector
       }
 
       if (fullInjection != null) {
-         Object newInstance =
-            fullInjection.createOrReuseInstance(nextTestedClass, this, fieldToInject, qualifiedFieldName);
+         Object newInstance = fullInjection.createOrReuseInstance(nextTestedClass, this, fieldToInject, qualifiedFieldName);
 
          if (newInstance != null) {
             return newInstance;
