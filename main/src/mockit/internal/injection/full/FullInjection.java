@@ -27,16 +27,16 @@ public final class FullInjection
    private static final int INVALID_TYPES = Access.ABSTRACT + Access.ANNOTATION + Access.ENUM;
 
    @Nonnull private final InjectionState injectionState;
-   @Nonnull private final Class<?> testedClass;
+   @Nonnull private final String testedClassName;
    @Nonnull private final String testedName;
    @Nullable private final ServletDependencies servletDependencies;
    @Nullable private final JPADependencies jpaDependencies;
    @Nullable private Class<?> dependencyClass;
-   @Nullable private InjectionProvider injectionProvider;
+   @Nullable private InjectionProvider parentInjectionProvider;
 
    public FullInjection(@Nonnull InjectionState injectionState, @Nonnull Class<?> testedClass, @Nonnull String testedName) {
       this.injectionState = injectionState;
-      this.testedClass = testedClass;
+      testedClassName = testedClass.getSimpleName();
       this.testedName = testedName;
       servletDependencies = SERVLET_CLASS == null ? null : new ServletDependencies(injectionState);
       jpaDependencies = PERSISTENCE_UNIT_CLASS == null ? null : new JPADependencies(injectionState);
@@ -72,10 +72,10 @@ public final class FullInjection
 
    private void setInjectionProvider(@Nullable InjectionProvider injectionProvider) {
       if (injectionProvider != null) {
-         injectionProvider.parent = this.injectionProvider;
+         injectionProvider.parent = parentInjectionProvider;
       }
 
-      this.injectionProvider = injectionProvider;
+      parentInjectionProvider = injectionProvider;
    }
 
    @Nonnull
@@ -115,7 +115,7 @@ public final class FullInjection
    }
 
    @Nonnull
-   private Object createLogger(@Nonnull TestedClass testedClass) {
+   private static Object createLogger(@Nonnull TestedClass testedClass) {
       TestedClass testedClassWithLogger = testedClass.parent;
       assert testedClassWithLogger != null;
       return Logger.getLogger(testedClassWithLogger.nameOfTestedClass);
@@ -126,19 +126,17 @@ public final class FullInjection
          return false;
       }
 
-      if (!type.isInterface()) {
-         int typeModifiers = type.getModifiers();
-
-         if ((typeModifiers & INVALID_TYPES) != 0 || !isStatic(typeModifiers) && type.isMemberClass()) {
-            return false;
-         }
-
-         if (type.getClassLoader() == null) {
-            return false;
-         }
+      if (type.isInterface()) {
+         return true;
       }
 
-      return true;
+      int typeModifiers = type.getModifiers();
+
+      if ((typeModifiers & INVALID_TYPES) != 0 || !isStatic(typeModifiers) && type.isMemberClass()) {
+         return false;
+      }
+
+      return type.getClassLoader() != null;
    }
 
    @Nullable
@@ -157,6 +155,7 @@ public final class FullInjection
             Class<?> resolvedType = injectionState.resolveInterface(typeToInject);
 
             if (resolvedType != null && !resolvedType.isInterface()) {
+               //noinspection AssignmentToMethodParameter
                testedClass = new TestedClass(resolvedType, resolvedType);
                typeToInject = resolvedType;
             }
@@ -240,16 +239,16 @@ public final class FullInjection
    }
 
    @Nullable
-   private Object createNewInstance(@Nonnull Class<?> dependencyClass) {
-      if (dependencyClass.isInterface()) {
+   private Object createNewInstance(@Nonnull Class<?> classToInstantiate) {
+      if (classToInstantiate.isInterface()) {
          return null;
       }
 
-      if (dependencyClass.getClassLoader() == null) {
-         return newInstanceUsingDefaultConstructorIfAvailable(dependencyClass);
+      if (classToInstantiate.getClassLoader() == null) {
+         return newInstanceUsingDefaultConstructorIfAvailable(classToInstantiate);
       }
 
-      return new TestedObjectCreation(injectionState, this, dependencyClass).create();
+      return new TestedObjectCreation(injectionState, this, classToInstantiate).create();
    }
 
    @Nonnull
@@ -296,14 +295,10 @@ public final class FullInjection
 
    @Override
    public String toString() {
-      String description = "@Tested object \"" + testedClass.getSimpleName() + ' ' + testedName + '"';
+      String description = "@Tested object \"" + testedClassName + ' ' + testedName + '"';
 
-      if (injectionProvider != null) {
-         InjectionProvider parentInjectionProvider = injectionProvider.parent;
-
-         if (parentInjectionProvider != null) {
-            description = parentInjectionProvider + "\r\n  of " + description;
-         }
+      if (parentInjectionProvider != null) {
+         description = parentInjectionProvider + "\r\n  of " + description;
       }
 
       return description;
