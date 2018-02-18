@@ -5,13 +5,15 @@ import java.sql.*;
 import java.util.Date;
 import javax.persistence.*;
 
+import static javax.persistence.GenerationType.*;
+
 @MappedSuperclass
 public class BaseEntity implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
    @Id
-   @GeneratedValue
+   @GeneratedValue(strategy = IDENTITY)
    private Long id;
 
    @Version

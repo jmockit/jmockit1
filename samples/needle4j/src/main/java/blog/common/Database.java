@@ -3,11 +3,13 @@ package blog.common;
 import java.sql.*;
 import java.util.*;
 import javax.annotation.*;
+import javax.annotation.sql.*;
 import javax.ejb.*;
 import javax.persistence.*;
 import javax.sql.*;
 
 @Stateless
+@DataSourceDefinition(name = "ds", className = "org.hsqldb.jdbc.JDBCDataSource", url = "jdbc:hsqldb:.", user = "sa")
 public class Database
 {
    @Resource private DataSource ds;
