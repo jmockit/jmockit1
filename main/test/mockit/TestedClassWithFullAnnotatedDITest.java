@@ -15,6 +15,7 @@ import static org.junit.Assert.*;
 
 import org.springframework.beans.factory.annotation.*;
 
+@SuppressWarnings("ParameterHidesMemberVariable")
 public final class TestedClassWithFullAnnotatedDITest
 {
    public static class DummyDataSource implements DataSource {
