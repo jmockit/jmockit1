@@ -23,11 +23,13 @@ final class TestDataSource
 
    @Nullable
    CommonDataSource createIfDataSourceDefinitionAvailable(@Nonnull TestedClass testedClass) {
-      if (dsName == null) {
+      TestedClass testedClassWithDataSource = testedClass.parent;
+
+      if (testedClassWithDataSource == null || dsName == null) {
          return null;
       }
 
-      TestedClass testedClassToBeSearched = testedClass;
+      TestedClass testedClassToBeSearched = testedClassWithDataSource;
 
       do {
          createFromTestedClassOrASuperclass(testedClassToBeSearched);
@@ -41,7 +43,7 @@ final class TestDataSource
       while (testedClassToBeSearched != null);
 
       throw new IllegalStateException(
-         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClass.nameOfTestedClass +
+         "Missing @DataSourceDefinition of name \"" + dsName + "\" on " + testedClassWithDataSource.nameOfTestedClass +
          " or on a super/parent class");
    }
 
