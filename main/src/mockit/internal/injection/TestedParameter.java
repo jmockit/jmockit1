@@ -19,7 +19,7 @@ final class TestedParameter extends TestedObject
       @Nonnull InjectionState injectionState, @Nonnull TestMethod testMethod, @Nonnegative int parameterIndex, @Nonnull Tested metadata
    ) {
       super(
-         injectionState, metadata, ParameterNames.getName(testMethod, parameterIndex),
+         injectionState, metadata,  testMethod.testClass, ParameterNames.getName(testMethod, parameterIndex),
          testMethod.getParameterType(parameterIndex), testMethod.getParameterClass(parameterIndex));
       this.testMethod = testMethod;
       this.parameterIndex = parameterIndex;

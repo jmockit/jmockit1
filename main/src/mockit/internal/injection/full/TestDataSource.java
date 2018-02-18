@@ -29,10 +29,20 @@ final class TestDataSource
          return null;
       }
 
+      Class<?> testClass = testedClassWithDataSource.testClass;
+
+      if (testClass != null) {
+         createFromTestedClassOrASuperclass(testClass);
+      }
+
+      if (ds != null) {
+         return ds;
+      }
+
       TestedClass testedClassToBeSearched = testedClassWithDataSource;
 
       do {
-         createFromTestedClassOrASuperclass(testedClassToBeSearched);
+         createFromTestedClassOrASuperclass(testedClassToBeSearched.targetClass);
 
          if (ds != null) {
             return ds;
@@ -47,9 +57,7 @@ final class TestDataSource
          " or on a super/parent class");
    }
 
-   private void createFromTestedClassOrASuperclass(@Nonnull TestedClass testedClass) {
-      Class<?> targetClass = testedClass.targetClass;
-
+   private void createFromTestedClassOrASuperclass(@Nonnull Class<?> targetClass) {
       do {
          createDataSource(targetClass);
 

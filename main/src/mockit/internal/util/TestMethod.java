@@ -12,6 +12,7 @@ import mockit.external.asm.*;
 
 public final class TestMethod
 {
+   @Nonnull public final Class<?> testClass;
    @Nonnull public final String testClassDesc;
    @Nonnull public final String testMethodDesc;
    @Nonnull private final Type[] parameterTypes;
@@ -20,7 +21,8 @@ public final class TestMethod
    @Nonnull private final Object[] parameterValues;
 
    public TestMethod(@Nonnull Method testMethod, @Nonnull Object[] parameterValues) {
-      testClassDesc = JavaType.getInternalName(testMethod.getDeclaringClass());
+      testClass = testMethod.getDeclaringClass();
+      testClassDesc = JavaType.getInternalName(testClass);
       testMethodDesc = testMethod.getName() + JavaType.getMethodDescriptor(testMethod);
       parameterTypes = testMethod.getGenericParameterTypes();
       parameterClasses = testMethod.getParameterTypes();

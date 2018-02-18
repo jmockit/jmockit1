@@ -36,8 +36,8 @@ abstract class TestedObject
    }
 
    TestedObject(
-      @Nonnull InjectionState injectionState, @Nonnull Tested metadata, @Nonnull String testedName, @Nonnull Type testedType,
-      @Nonnull Class<?> testedClass
+      @Nonnull InjectionState injectionState, @Nonnull Tested metadata, @Nonnull Class<?> testClass,
+      @Nonnull String testedName, @Nonnull Type testedType, @Nonnull Class<?> testedClass
    ) {
       this.injectionState = injectionState;
       this.testedName = testedName;
@@ -53,6 +53,8 @@ abstract class TestedObject
          this.testedClass = testedObjectCreation.testedClass;
          injectionState.lifecycleMethods.findLifecycleMethods(testedClass);
       }
+
+      this.testedClass.testClass = testClass;
    }
 
    boolean isAvailableDuringSetup() { return metadata.availableDuringSetup(); }
@@ -84,7 +86,10 @@ abstract class TestedObject
 
       if (testedObject != null && testedObjectClass.getClassLoader() != null) {
          performFieldInjection(testedObjectClass, testedObject);
-         executeInitializationMethodsIfAny(testedObjectClass, testedObject);
+
+         if (createAutomatically) {
+            injectionState.lifecycleMethods.executeInitializationMethodsIfAny(testedObjectClass, testedObject);
+         }
       }
    }
 
@@ -97,8 +102,7 @@ abstract class TestedObject
       return
          targetClass.isPrimitive() && defaultValueForPrimitiveType(targetClass).equals(currentValue) ||
          currentValue == null && (
-            targetClass.isArray() || targetClass.isEnum() || targetClass.isAnnotation() ||
-            isWrapperOfPrimitiveType(targetClass)
+            targetClass.isArray() || targetClass.isEnum() || targetClass.isAnnotation() || isWrapperOfPrimitiveType(targetClass)
          );
    }
 
@@ -141,12 +145,6 @@ abstract class TestedObject
       }
 
       fieldInjection.injectIntoEligibleFields(targetFields, testedObject, testedClass);
-   }
-
-   private void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject) {
-      if (createAutomatically) {
-         injectionState.lifecycleMethods.executeInitializationMethodsIfAny(testedClass, testedObject);
-      }
    }
 
    void clearIfAutomaticCreation(@Nonnull Object testClassInstance, boolean duringTearDown) {

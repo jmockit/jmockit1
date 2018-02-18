@@ -1,12 +1,16 @@
 package blog.common;
 
+import java.sql.*;
 import java.util.*;
+import javax.annotation.*;
 import javax.ejb.*;
 import javax.persistence.*;
+import javax.sql.*;
 
 @Stateless
 public class Database
 {
+   @Resource private DataSource ds;
    @PersistenceContext private EntityManager em;
 
    public Long save(BaseEntity instance) {
@@ -74,5 +78,43 @@ public class Database
 
       @SuppressWarnings("unchecked") List<E> resultList = query.getResultList();
       return resultList;
+   }
+
+   public List<Object[]> findWithSQL(String sql, Object... args) {
+      try (Connection con = ds.getConnection()) {
+         return executeSQLQuery(con, sql, args);
+      }
+      catch (SQLException e) {
+         throw new RuntimeException(e);
+      }
+   }
+
+   private static List<Object[]> executeSQLQuery(Connection con, String sql, Object... args) throws SQLException {
+      try (PreparedStatement stmt = con.prepareStatement(sql)) {
+         for (int i = 0; i < args.length; i++) {
+            stmt.setObject(i + 1, args[i]);
+         }
+
+         return executeSQLQuery(stmt);
+      }
+   }
+
+   private static List<Object[]> executeSQLQuery(PreparedStatement stmt) throws SQLException {
+      try (ResultSet rs = stmt.executeQuery()) {
+         int columns = rs.getMetaData().getColumnCount();
+         List<Object[]> result = new ArrayList<>();
+
+         while (rs.next()) {
+            Object[] values = new Object[columns];
+
+            for (int i = 0; i < columns; i++) {
+               values[i] = rs.getObject(i + 1);
+            }
+
+            result.add(values);
+         }
+
+         return result;
+      }
    }
 }

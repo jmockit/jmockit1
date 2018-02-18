@@ -18,7 +18,7 @@ final class TestedField extends TestedObject
    @Nonnull private final Field testedField;
 
    TestedField(@Nonnull InjectionState injectionState, @Nonnull Field field, @Nonnull Tested metadata) {
-      super(injectionState, metadata, field.getName(), field.getGenericType(), field.getType());
+      super(injectionState, metadata, field.getDeclaringClass(), field.getName(), field.getGenericType(), field.getType());
       testedField = field;
    }
 

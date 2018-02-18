@@ -22,6 +22,7 @@ public final class TestedClass
    @Nullable final String codeLocationParentPath;
    @Nonnull public final String nameOfTestedClass;
    @Nullable public final TestedClass parent;
+   @Nullable public Class<?> testClass;
 
    public TestedClass(@Nonnull Type declaredType, @Nonnull Class<?> targetClass) {
       this(declaredType, targetClass, null);
