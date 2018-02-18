@@ -11,19 +11,14 @@ public final class TestedFieldWithFailedFullDITest
    public void configureExpectedException() {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Missing @Tested or @Injectable");
-      thrown.expectMessage("parameter \"value\"");
-      thrown.expectMessage("ClassWithParameterizedConstructor(int value)");
+      thrown.expectMessage("for parameter \"value\" in constructor ClassWithParameterizedConstructor(int value)");
       thrown.expectMessage("when initializing field ");
       thrown.expectMessage("dependency");
-      thrown.expectMessage(ClassWithFieldOfClassHavingParameterizedConstructor.class.getSimpleName());
-      thrown.expectMessage("tested");
+      thrown.expectMessage("of @Tested object \"" + ClassWithFieldOfClassHavingParameterizedConstructor.class.getSimpleName() + " tested");
    }
 
    static class ClassWithFieldOfClassHavingParameterizedConstructor { ClassWithParameterizedConstructor dependency; }
-
-   static class ClassWithParameterizedConstructor {
-      ClassWithParameterizedConstructor(@SuppressWarnings("unused") int value) {}
-   }
+   static class ClassWithParameterizedConstructor { ClassWithParameterizedConstructor(@SuppressWarnings("unused") int value) {} }
 
    @Tested(fullyInitialized = true) ClassWithFieldOfClassHavingParameterizedConstructor tested;
 

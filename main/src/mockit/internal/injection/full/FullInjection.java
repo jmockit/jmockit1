@@ -298,7 +298,11 @@ public final class FullInjection
       String description = "@Tested object \"" + testedClassName + ' ' + testedName + '"';
 
       if (parentInjectionProvider != null) {
-         description = parentInjectionProvider + "\r\n  of " + description;
+         InjectionProvider injectionProvider = parentInjectionProvider.parent;
+
+         if (injectionProvider != null) {
+            description = injectionProvider + "\r\n  of " + description;
+         }
       }
 
       return description;
