@@ -27,7 +27,10 @@
       <testResources>
          <testResource>
             <directory>test</directory>
-            <includes><include>**/*.xml</include></includes>
+            <includes>
+               <include>**/*.properties</include>
+               <include>**/*.xml</include>
+            </includes>
          </testResource>
       </testResources>
       <plugins>
