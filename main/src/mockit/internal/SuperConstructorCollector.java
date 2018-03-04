@@ -9,9 +9,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
+import static mockit.asm.ClassReader.*;
 
 @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 final class SuperConstructorCollector extends ClassVisitor

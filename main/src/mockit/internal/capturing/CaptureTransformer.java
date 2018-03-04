@@ -11,12 +11,12 @@ import javax.annotation.*;
 
 import static java.lang.Boolean.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
+import static mockit.asm.ClassReader.Flags.*;
 
 public final class CaptureTransformer<M> implements ClassFileTransformer
 {
@@ -29,8 +29,8 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
    private boolean inactive;
 
    CaptureTransformer(
-      @Nonnull CapturedType capturedType, @Nonnull CaptureOfImplementations<M> captureOfImplementations,
-      boolean registerTransformedClasses, @Nullable M typeMetadata
+      @Nonnull CapturedType capturedType, @Nonnull CaptureOfImplementations<M> captureOfImplementations, boolean registerTransformedClasses,
+      @Nullable M typeMetadata
    ) {
       this.capturedType = capturedType;
       capturedTypeDesc = JavaType.getInternalName(capturedType.baseType);
@@ -61,10 +61,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String classDesc, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
    ) {
-      if (
-         classBeingRedefined != null || inactive ||
-         capturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)
-      ) {
+      if (classBeingRedefined != null || inactive || capturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)) {
          return null;
       }
 
@@ -72,7 +69,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
 
       try {
-         cr.accept(superTypeCollector, Flags.SKIP_CODE_DEBUG);
+         cr.accept(superTypeCollector, SKIP_CODE_DEBUG);
       }
       catch (VisitInterruptedException ignore) {
          if (superTypeCollector.classExtendsCapturedType) {
@@ -170,7 +167,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          ClassReader cr = ClassFile.createClassFileReader(loader, superName);
 
          try {
-            cr.accept(this, Flags.SKIP_CODE_DEBUG);
+            cr.accept(this, SKIP_CODE_DEBUG);
          }
          catch (VisitInterruptedException e) {
             superTypesSearched.put(superName, classExtendsCapturedType);

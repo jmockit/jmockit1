@@ -10,7 +10,7 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;

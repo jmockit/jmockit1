@@ -6,7 +6,7 @@ package mockit.internal.classGeneration;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 
 /**
  * Generates a concrete subclass for an <tt>abstract</tt> base class.

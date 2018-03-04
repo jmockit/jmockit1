@@ -9,9 +9,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.state.*;
-import static mockit.external.asm.ClassReader.*;
+import static mockit.asm.ClassReader.*;
 
 public final class ClassFile
 {

@@ -9,7 +9,7 @@ import java.security.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.faking.*;

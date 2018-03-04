@@ -9,8 +9,8 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.external.asm.*;
-import mockit.external.asm.ClassReader.*;
+import mockit.asm.*;
+import mockit.asm.ClassReader.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;

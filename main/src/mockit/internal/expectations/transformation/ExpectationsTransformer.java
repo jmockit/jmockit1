@@ -8,7 +8,7 @@ import java.lang.instrument.*;
 import java.security.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.util.*;
 
 public final class ExpectationsTransformer implements ClassFileTransformer

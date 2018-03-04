@@ -10,7 +10,7 @@ import java.util.Map.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;

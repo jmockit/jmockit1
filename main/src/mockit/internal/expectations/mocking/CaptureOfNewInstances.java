@@ -8,7 +8,7 @@ import java.lang.instrument.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.startup.*;

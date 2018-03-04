@@ -7,10 +7,10 @@ package mockit.internal;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 
 public class BaseClassModifier extends WrappingClassVisitor
 {

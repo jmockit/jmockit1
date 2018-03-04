@@ -6,9 +6,9 @@ package mockit.internal.expectations.mocking;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.expectations.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 import static mockit.internal.BaseClassModifier.*;
 
 final class MockedTypeModifier

@@ -8,7 +8,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.injection.*;
 import mockit.internal.injection.full.*;

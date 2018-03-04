@@ -8,12 +8,12 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 
 /**
  * Responsible for generating all necessary bytecode in the redefined (real) class.

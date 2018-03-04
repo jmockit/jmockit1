@@ -9,7 +9,7 @@ import java.util.concurrent.locks.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.external.asm.JavaType;
+import mockit.asm.JavaType;
 import mockit.internal.expectations.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;

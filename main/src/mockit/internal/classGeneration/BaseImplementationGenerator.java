@@ -8,11 +8,11 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.reflection.*;
 import mockit.internal.reflection.GenericTypeReflection.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 
 @SuppressWarnings("AbstractClassExtendsConcreteClass")
 public abstract class BaseImplementationGenerator extends BaseClassModifier

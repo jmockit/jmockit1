@@ -6,8 +6,8 @@ package mockit.internal.util;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
-import mockit.external.asm.ClassReader.*;
+import mockit.asm.*;
+import mockit.asm.ClassReader.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
 

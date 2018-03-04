@@ -7,7 +7,7 @@ package mockit.internal.expectations.mocking;
 import java.lang.reflect.Type;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.classGeneration.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 

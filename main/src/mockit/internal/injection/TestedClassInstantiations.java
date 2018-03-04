@@ -10,7 +10,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.expectations.mocking.*;
 import static mockit.internal.injection.TestedObject.*;
 

@@ -6,8 +6,8 @@ package mockit.internal.expectations.transformation;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
-import static mockit.external.asm.Opcodes.*;
+import mockit.asm.*;
+import static mockit.asm.Opcodes.*;
 import static mockit.internal.util.TypeConversion.*;
 
 public final class InvocationBlockModifier extends WrappingMethodVisitor

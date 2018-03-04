@@ -9,7 +9,7 @@ import java.security.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.startup.*;
 
 public final class ClassModification

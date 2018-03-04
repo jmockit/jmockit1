@@ -8,7 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.coverage.paths.Node.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 
 public final class NodeBuilder
 {

@@ -6,8 +6,8 @@ package mockit.internal.util;
 
 import javax.annotation.*;
 
-import mockit.external.asm.*;
-import static mockit.external.asm.Opcodes.*;
+import mockit.asm.*;
+import static mockit.asm.Opcodes.*;
 
 public final class TypeConversion
 {

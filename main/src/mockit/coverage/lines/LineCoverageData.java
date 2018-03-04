@@ -8,7 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 
 /**
  * Coverage data gathered for a single executable line of code in a source file.

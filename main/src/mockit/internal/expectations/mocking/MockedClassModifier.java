@@ -8,11 +8,11 @@ import java.util.*;
 import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 import static mockit.internal.MockingFilters.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 import static mockit.internal.util.ObjectMethods.isMethodFromObject;

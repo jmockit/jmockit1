@@ -7,12 +7,12 @@ package mockit.internal.faking;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.ClassReader.*;
+import static mockit.asm.ClassReader.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated

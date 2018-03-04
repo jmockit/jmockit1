@@ -7,7 +7,7 @@ package mockit.coverage.lines;
 import java.io.*;
 import javax.annotation.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 
 /**
  * Coverage data gathered for a branch inside a line of source code.

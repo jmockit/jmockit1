@@ -10,10 +10,10 @@ import javax.annotation.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import static mockit.coverage.Metrics.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
 {

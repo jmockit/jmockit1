@@ -13,7 +13,7 @@ import javax.inject.*;
 import javax.sql.*;
 import static java.lang.reflect.Modifier.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.injection.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.reflection.ConstructorReflection.*;

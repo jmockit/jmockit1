@@ -9,10 +9,10 @@ import java.util.*;
 import javax.annotation.*;
 import static java.util.Arrays.*;
 
-import mockit.external.asm.*;
+import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
-import static mockit.external.asm.Opcodes.*;
+import static mockit.asm.Opcodes.*;
 
 public class BaseSubclassGenerator extends BaseClassModifier
 {
