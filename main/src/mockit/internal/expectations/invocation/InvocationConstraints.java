@@ -54,8 +54,7 @@ public final class InvocationConstraints
          int unexpectedInvocations = invocationCount - upperLimit;
 
          if (unexpectedInvocations > 0) {
-            UnexpectedInvocation error = invocation.errorForUnexpectedInvocations(replayArgs, unexpectedInvocations);
-            return error;
+            return invocation.errorForUnexpectedInvocations(replayArgs, unexpectedInvocations);
          }
       }
 

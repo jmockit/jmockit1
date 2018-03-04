@@ -50,13 +50,7 @@ public final class RecordAndReplayExecution
       try {
          RecordAndReplayExecution previous = executingTest.getPreviousRecordAndReplay();
 
-         if (previous == null) {
-            executionState = new PhasedExecutionState();
-         }
-         else {
-            executionState = previous.executionState;
-         }
-
+         executionState = previous == null ? new PhasedExecutionState() : previous.executionState;
          failureState = new FailureState();
          recordPhase = new RecordPhase(this);
 
@@ -139,9 +133,8 @@ public final class RecordAndReplayExecution
          TEST_ONLY_PHASE_LOCK.isLocked() && !TEST_ONLY_PHASE_LOCK.isHeldByCurrentThread() ||
          !TestRun.mockFixture().isStillMocked(mock, classDesc)
       ) {
-         // This occurs if called from a custom argument matching method, in a call to an overridden Object method
-         // (equals, hashCode, toString), from a different thread during recording/verification, or during replay but
-         // between tests.
+         // This occurs if called from a custom argument matching method, in a call to an overridden Object method (equals, hashCode,
+         // toString), from a different thread during recording/verification, or during replay but between tests.
          return defaultReturnValue(mock, classDesc, mockDesc, genericSignature, executionMode, args);
       }
 
@@ -152,10 +145,7 @@ public final class RecordAndReplayExecution
          return defaultReturnValue(executingTest, mock, classDesc, mockDesc, genericSignature, executionMode, args);
       }
 
-      if (
-         executingTest.shouldProceedIntoRealImplementation(mock, classDesc) ||
-         executionMode.isToExecuteRealImplementation(mock)
-      ) {
+      if (executingTest.shouldProceedIntoRealImplementation(mock, classDesc) || executionMode.isToExecuteRealImplementation(mock)) {
          return Void.class;
       }
 
@@ -196,10 +186,7 @@ public final class RecordAndReplayExecution
          Class<?> mockedClass = mock.getClass();
          String mockedClassName = mockedClass.getName();
 
-         if (
-            isGeneratedImplementationClass(mockedClassName) ||
-            isAbstract(mockAccess) && isGeneratedSubclass(mockedClassName)
-         ) {
+         if (isGeneratedImplementationClass(mockedClassName) || isAbstract(mockAccess) && isGeneratedSubclass(mockedClassName)) {
             if (genericSignature != null) {
                GenericTypeReflection typeReflection = new GenericTypeReflection(mockedClass, null);
                String typeDesc = typeReflection.resolveReturnType(genericSignature);
@@ -331,10 +318,9 @@ public final class RecordAndReplayExecution
       List<Object> invocationInstances = replayPhase.invocationInstances;
       List<Object[]> invocationArguments = replayPhase.invocationArguments;
 
-      verificationPhase =
-         inOrder ?
-            new OrderedVerificationPhase(this, expectations, invocationInstances, invocationArguments) :
-            new UnorderedVerificationPhase(this, expectations, invocationInstances, invocationArguments);
+      verificationPhase = inOrder ?
+         new OrderedVerificationPhase(this, expectations, invocationInstances, invocationArguments) :
+         new UnorderedVerificationPhase(this, expectations, invocationInstances, invocationArguments);
 
       return verificationPhase;
    }

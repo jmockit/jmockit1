@@ -29,10 +29,8 @@ public final class InvocationArguments
       this.classDesc = classDesc;
       this.methodNameAndDesc = methodNameAndDesc;
       this.genericSignature = genericSignature;
-      valuesAndMatchers =
-         (access & Access.VARARGS) == 0 ?
-            new ArgumentValuesAndMatchersWithoutVarargs(this, args) :
-            new ArgumentValuesAndMatchersWithVarargs(this, args);
+      valuesAndMatchers = (access & Access.VARARGS) == 0 ?
+         new ArgumentValuesAndMatchersWithoutVarargs(this, args) : new ArgumentValuesAndMatchersWithVarargs(this, args);
    }
 
    @Nonnull String getClassName() { return classDesc.replace('/', '.'); }
@@ -108,16 +106,12 @@ public final class InvocationArguments
    private static void appendWarningMessageAboutLackOfEqualsMethod(@Nonnull ArgumentMismatch message, @Nonnull Object value) {
       Class<?> argClass = value.getClass();
 
-      if (
-         argClass == String.class || argClass == Boolean.class || argClass == Character.class ||
-         Number.class.isAssignableFrom(argClass)
-      ) {
+      if (argClass == String.class || argClass == Boolean.class || argClass == Character.class || Number.class.isAssignableFrom(argClass)) {
          return;
       }
 
       Method equalsMethod;
-      try { equalsMethod = argClass.getMethod("equals", Object.class); }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+      try { equalsMethod = argClass.getMethod("equals", Object.class); } catch (NoSuchMethodException e) { throw new RuntimeException(e); }
 
       if (equalsMethod.getDeclaringClass() == Object.class) {
          message.append("\n   Warning: argument class ").append(argClass.getName()).append(" has no \"equals\" method");

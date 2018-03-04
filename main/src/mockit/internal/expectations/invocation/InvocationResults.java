@@ -16,8 +16,8 @@ public final class InvocationResults
    @Nonnull private final ExpectedInvocation invocation;
    @Nonnull private final InvocationConstraints constraints;
    @Nullable private InvocationResult currentResult;
-   private InvocationResult lastResult;
-   private int resultCount;
+   @Nullable private InvocationResult lastResult;
+   @Nonnegative private int resultCount;
 
    public InvocationResults(@Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints) {
       this.invocation = invocation;
@@ -101,6 +101,7 @@ public final class InvocationResults
          lastResult = result;
       }
       else {
+         assert lastResult != null;
          lastResult.next = result;
          lastResult = result;
       }
