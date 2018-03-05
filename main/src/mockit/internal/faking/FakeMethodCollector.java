@@ -30,6 +30,7 @@ final class FakeMethodCollector extends ClassVisitor
 
    void collectFakeMethods(@Nonnull Class<?> fakeClass) {
       ClassLoad.registerLoadedClass(fakeClass);
+      fakeMethods.setFakeClassInternalName(JavaType.getInternalName(fakeClass));
 
       Class<?> classToCollectFakesFrom = fakeClass;
 
@@ -41,15 +42,6 @@ final class FakeMethodCollector extends ClassVisitor
          collectingFromSuperClass = true;
       }
       while (classToCollectFakesFrom != MockUp.class);
-   }
-
-   @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
-      if (!collectingFromSuperClass) {
-         fakeMethods.setFakeClassInternalName(name);
-      }
    }
 
    /**
