@@ -12,7 +12,8 @@ import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.asm.ClassReader.*;
+import static mockit.asm.Access.*;
+import static mockit.asm.ClassReader.Flags.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated
@@ -20,12 +21,10 @@ import static mockit.asm.ClassReader.*;
  */
 final class FakeMethodCollector extends ClassVisitor
 {
-   private static final int INVALID_METHOD_ACCESSES = Access.BRIDGE + Access.SYNTHETIC + Access.ABSTRACT + Access.NATIVE;
+   private static final int INVALID_METHOD_ACCESSES = BRIDGE + SYNTHETIC + ABSTRACT + NATIVE;
 
    @Nonnull private final FakeMethods fakeMethods;
-
    private boolean collectingFromSuperClass;
-   @Nullable private String enclosingClassDescriptor;
 
    FakeMethodCollector(@Nonnull FakeMethods fakeMethods) { this.fakeMethods = fakeMethods; }
 
@@ -35,12 +34,13 @@ final class FakeMethodCollector extends ClassVisitor
       Class<?> classToCollectFakesFrom = fakeClass;
 
       do {
-         ClassReader mcReader = ClassFile.readFromFile(classToCollectFakesFrom);
-         mcReader.accept(this, Flags.SKIP_CODE);
+         ClassReader cr = ClassFile.readFromFile(classToCollectFakesFrom);
+         cr.accept(this, SKIP_CODE);
+
          classToCollectFakesFrom = classToCollectFakesFrom.getSuperclass();
          collectingFromSuperClass = true;
       }
-      while (classToCollectFakesFrom != Object.class && classToCollectFakesFrom != MockUp.class);
+      while (classToCollectFakesFrom != MockUp.class);
    }
 
    @Override
@@ -49,39 +49,22 @@ final class FakeMethodCollector extends ClassVisitor
    ) {
       if (!collectingFromSuperClass) {
          fakeMethods.setFakeClassInternalName(name);
-
-         int p = name.lastIndexOf('$');
-
-         if (p > 0) {
-            enclosingClassDescriptor = "(L" + name.substring(0, p) + ";)V";
-         }
       }
    }
 
    /**
     * Adds the method specified to the set of fake methods, as long as it's annotated with <tt>@Mock</tt>.
     *
-    * @param methodSignature generic signature for a Java 5 generic method, ignored since redefinition only needs to
-    *                        consider the "erased" signature
+    * @param signature generic signature for a generic method, ignored since redefinition only needs to consider the "erased" signature
     * @param exceptions zero or more thrown exceptions in the method "throws" clause, also ignored
     */
-   @Nullable @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
-   public MethodVisitor visitMethod(
-      int access, @Nonnull String methodName, @Nonnull String methodDesc, String methodSignature, String[] exceptions
-   ) {
-      if ((access & INVALID_METHOD_ACCESSES) != 0) {
+   @Nullable @Override
+   public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
+      if ((access & INVALID_METHOD_ACCESSES) != 0 || "<init>".equals(name)) {
          return null;
       }
 
-      if ("<init>".equals(methodName)) {
-         if (!collectingFromSuperClass && methodDesc.equals(enclosingClassDescriptor)) {
-            enclosingClassDescriptor = null;
-         }
-
-         return null;
-      }
-
-      return new FakeMethodVisitor(access, methodName, methodDesc);
+      return new FakeMethodVisitor(access, name, desc);
    }
 
    private final class FakeMethodVisitor extends MethodVisitor {
