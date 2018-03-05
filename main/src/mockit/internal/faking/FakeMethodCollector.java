@@ -10,7 +10,6 @@ import mockit.*;
 import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
-import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.asm.Access.*;
 import static mockit.asm.ClassReader.Flags.*;
@@ -82,14 +81,6 @@ final class FakeMethodCollector extends ClassVisitor
          }
 
          return null;
-      }
-
-      @Override
-      public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
-      ) {
-         String classDesc = fakeMethods.getFakeClassInternalName();
-         ParameterNames.registerName(classDesc, access, methodName, methodDesc, desc, name, index);
       }
    }
 }
