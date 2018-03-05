@@ -138,7 +138,7 @@ public final class ClassFile
    }
 
    @Nonnull
-   private static byte[] readBytesFromClassFile(@Nonnull String classDesc) {
+   public static byte[] readBytesFromClassFile(@Nonnull String classDesc) {
       if (classDesc.startsWith("java/") || classDesc.startsWith("javax/")) {
          byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 

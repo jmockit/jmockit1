@@ -102,7 +102,7 @@ public final class CapturingImplementationsTest
    static final Class<? extends Service2> customLoadedClass = new ClassLoader() {
       @Override
       protected Class<? extends Service2> findClass(String name) {
-         byte[] bytecode = ClassFile.readFromFile(name.replace('.', '/')).getBytecode();
+         byte[] bytecode = ClassFile.readBytesFromClassFile(name.replace('.', '/'));
          //noinspection unchecked
          return (Class<? extends Service2>) defineClass(name, bytecode, 0, bytecode.length);
       }
