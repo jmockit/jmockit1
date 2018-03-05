@@ -45,20 +45,19 @@ public final class DirectClassReader
    }
 
    @Nonnull private final byte[] code;
-   @Nonnegative private final int cpItemCount;
+   @Nonnull private final int[] cpItemCodeIndexes;
 
    /**
     * The constant pool starts at index 10 in the code array; this is the end index, which must be computed as it's not stored anywhere.
     */
    @Nonnegative private final int cpEndIndex;
 
-   @Nonnull private final int[] cpItemCodeIndexes;
-
    public DirectClassReader(@Nonnull byte[] code) {
       this.code = code;
-      cpItemCount = readUnsignedShort(8);
-      cpItemCodeIndexes = new int[cpItemCount];
-      cpEndIndex = findEndIndexOfConstantPoolTable();
+      int cpItemCount = readUnsignedShort(8);
+      int[] cpTable = new int[cpItemCount];
+      this.cpItemCodeIndexes = cpTable;
+      cpEndIndex = findEndIndexOfConstantPoolTable(cpTable);
    }
 
    @Nonnegative
@@ -71,14 +70,15 @@ public final class DirectClassReader
    }
 
    @Nonnegative
-   private int findEndIndexOfConstantPoolTable() {
+   private int findEndIndexOfConstantPoolTable(@Nonnull int[] cpTable) {
+      byte[] b = code;
       int codeIndex = 10;
 
-      for (int cpItemIndex = 1; cpItemIndex < cpItemCount; cpItemIndex++) {
-         int tagValue = code[codeIndex++];
+      for (int cpItemIndex = 1, n = cpTable.length; cpItemIndex < n; cpItemIndex++) {
+         int tagValue = b[codeIndex++];
          ConstantPoolTag tag = CONSTANT_POOL_TAGS[tagValue];
 
-         cpItemCodeIndexes[cpItemIndex] = codeIndex;
+         cpTable[cpItemIndex] = codeIndex;
 
          int cpItemSize = tag.itemSize;
 
