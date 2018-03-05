@@ -64,7 +64,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          return null;
       }
 
-      SuperTypeCollector1 superTypeCollector = new SuperTypeCollector1(loader);
+      SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
       DirectClassReader dcr = new DirectClassReader(classfileBuffer);
 
       try {
@@ -81,11 +81,11 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       return null;
    }
 
-   private final class SuperTypeCollector1 {
+   private final class SuperTypeCollector {
       @Nullable private final ClassLoader loader;
       boolean classExtendsCapturedType;
 
-      SuperTypeCollector1(@Nullable ClassLoader loader) { this.loader = loader; }
+      SuperTypeCollector(@Nullable ClassLoader loader) { this.loader = loader; }
 
       void visit(@Nonnull DirectClassReader dcr) {
          classExtendsCapturedType = false;
