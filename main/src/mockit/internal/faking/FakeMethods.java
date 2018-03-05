@@ -17,8 +17,7 @@ import mockit.internal.reflection.GenericTypeReflection.*;
 import static mockit.internal.util.ObjectMethods.*;
 
 /**
- * A container for the fake methods "collected" from a fake class, separated in two sets: one with all the fake methods,
- * and another with just the subset of static methods.
+ * A container for the fake methods "collected" from a fake class.
  */
 final class FakeMethods
 {
@@ -193,10 +192,7 @@ final class FakeMethods
    }
 
    @Nonnull String getFakeClassInternalName() { return fakeClassInternalName; }
-
-   void setFakeClassInternalName(@Nonnull String fakeClassInternalName) {
-      this.fakeClassInternalName = fakeClassInternalName.intern();
-   }
+   void setFakeClassInternalName(@Nonnull String fakeClassInternalName) { this.fakeClassInternalName = fakeClassInternalName.intern(); }
 
    boolean hasUnusedFakes() {
       if (adviceMethod != null) {
