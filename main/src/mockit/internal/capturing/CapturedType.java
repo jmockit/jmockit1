@@ -15,14 +15,8 @@ final class CapturedType
    private static final ProtectionDomain JMOCKIT_DOMAIN = CapturedType.class.getProtectionDomain();
 
    @Nonnull final Class<?> baseType;
-   @Nullable private final ProtectionDomain baseTypePD;
-   private final boolean baseTypePDWithCodeSource;
 
-   CapturedType(@Nonnull Class<?> baseType) {
-      this.baseType = baseType;
-      baseTypePD = baseType.getProtectionDomain();
-      baseTypePDWithCodeSource = baseTypePD != null && baseTypePD.getCodeSource() != null;
-   }
+   CapturedType(@Nonnull Class<?> baseType) { this.baseType = baseType; }
 
    boolean isToBeCaptured(@Nonnull Class<?> aClass) {
       //noinspection SimplifiableIfStatement
@@ -47,13 +41,11 @@ final class CapturedType
    }
 
    @SuppressWarnings("OverlyComplexMethod")
-   boolean isNotToBeCaptured(@Nullable ClassLoader loader, @Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc) {
+   static boolean isNotToBeCaptured(@Nullable ClassLoader loader, @Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc) {
       //noinspection SimplifiableIfStatement
       if (
          loader == null && (classNameOrDesc.startsWith("java") || classNameOrDesc.startsWith("jdk/")) ||
-         pd == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc) ||
-         pd != baseTypePD && pd != null && pd.getCodeSource() != null && pd.getCodeSource().getLocation() != null &&
-         baseTypePDWithCodeSource && pd.getCodeSource().getLocation().getPath().endsWith(".jar")
+         pd == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc)
       ) {
          return true;
       }

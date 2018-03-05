@@ -4,6 +4,7 @@ import java.lang.management.*;
 import java.lang.reflect.*;
 
 import javax.faces.event.*;
+import javax.servlet.*;
 import javax.xml.parsers.*;
 
 import org.junit.*;
@@ -87,9 +88,7 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureGeneratedMockSubclass(
-      @Capturing final AbstractService mock1, @Mocked final AbstractService mock2
-   ) {
+   public void captureGeneratedMockSubclass(@Capturing final AbstractService mock1, @Mocked final AbstractService mock2) {
       new Expectations() {{
          mock1.doSomething(); result = true;
          mock2.doSomething(); result = false;
@@ -209,9 +208,7 @@ public final class CapturingImplementationsTest
    public interface SubItf extends BaseItf {}
 
    @Test
-   public void verifyInvocationToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(
-      @Capturing final SubItf sub
-   ) {
+   public void verifyInvocationToBaseInterfaceMethodOnCapturedImplementationOfSubInterface(@Capturing final SubItf sub) {
       SubItf impl = new SubItf() { @Override public void base() {} };
       impl.base();
 
@@ -229,8 +226,14 @@ public final class CapturingImplementationsTest
    public void captureUserDefinedClassImplementingExternalAPI(@Capturing ActionListener actionListener) {
       boolean notCaptured = new MyActionListener().doSomething();
       assertFalse(notCaptured);
+   }
 
+   @Test
+   public void captureLibraryClassImplementingInterfaceFromAnotherLibrary(@Capturing final ServletContextListener mock) {
       //noinspection UnnecessaryFullyQualifiedName
-      new org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator();
+      ServletContextListener contextListener = new org.apache.commons.logging.impl.ServletContextCleaner();
+      contextListener.contextInitialized(null);
+
+      new Verifications() {{ mock.contextInitialized(null); }};
    }
 }

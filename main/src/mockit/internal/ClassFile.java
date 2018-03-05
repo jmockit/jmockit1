@@ -77,6 +77,7 @@ public final class ClassFile
 
                byte[] lengthenedCopy = new byte[bytecode.length + 1000];
                System.arraycopy(bytecode, 0, lengthenedCopy, 0, len);
+               //noinspection NumericCastThatLosesPrecision
                lengthenedCopy[len++] = (byte) last;
                bytecode = lengthenedCopy;
             }
@@ -126,29 +127,23 @@ public final class ClassFile
    }
 
    @Nonnull
-   public static ClassReader createClassFileReader(@Nullable ClassLoader loader, @Nonnull String internalClassName) {
-      byte[] cachedClassfile = CachedClassfiles.getClassfile(loader, internalClassName);
+   public static byte[] getClassFile(@Nullable ClassLoader loader, @Nonnull String internalClassName) {
+      byte[] classfileBytes = CachedClassfiles.getClassfile(loader, internalClassName);
 
-      if (cachedClassfile != null) {
-         return new ClassReader(cachedClassfile);
+      if (classfileBytes == null) {
+         classfileBytes = readBytesFromClassFile(internalClassName);
       }
 
-      return readFromFile(internalClassName);
+      return classfileBytes;
    }
 
    @Nonnull
-   public static ClassReader readFromFile(@Nonnull Class<?> aClass) {
-      String classDesc = aClass.getName().replace('.', '/');
-      return readFromFile(classDesc);
-   }
-
-   @Nonnull
-   public static ClassReader readFromFile(@Nonnull String classDesc) {
+   private static byte[] readBytesFromClassFile(@Nonnull String classDesc) {
       if (classDesc.startsWith("java/") || classDesc.startsWith("javax/")) {
          byte[] classfile = CachedClassfiles.getClassfile(classDesc);
 
          if (classfile != null) {
-            return new ClassReader(classfile);
+            return classfile;
          }
       }
 
@@ -156,7 +151,7 @@ public final class ClassFile
 
       try {
          byte[] bytecode = readClass(classFile);
-         return new ClassReader(bytecode);
+         return bytecode;
       }
       catch (IOException e) {
          throw new RuntimeException("Failed to read class file for " + classDesc.replace('/', '.'), e);
@@ -194,9 +189,26 @@ public final class ClassFile
       return inputStream;
    }
 
+   @Nonnull
+   public static ClassReader readFromFile(@Nonnull Class<?> aClass) {
+      String classDesc = aClass.getName().replace('.', '/');
+      return readFromFile(classDesc);
+   }
+
+   @Nonnull
+   public static ClassReader readFromFile(@Nonnull String classDesc) {
+      byte[] classfileBytes = readBytesFromClassFile(classDesc);
+      return new ClassReader(classfileBytes);
+   }
+
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor) {
-      byte[] classfile = CachedClassfiles.getClassfile(classDesc);
-      ClassReader cr = classfile != null ? new ClassReader(classfile) : readFromFile(classDesc);
+      byte[] classfileBytes = CachedClassfiles.getClassfile(classDesc);
+
+      if (classfileBytes == null) {
+         classfileBytes = readBytesFromClassFile(classDesc);
+      }
+
+      ClassReader cr = new ClassReader(classfileBytes);
       cr.accept(visitor, Flags.SKIP_DEBUG);
    }
 }
