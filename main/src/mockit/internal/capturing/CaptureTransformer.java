@@ -65,10 +65,10 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       }
 
       SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
-      DirectClassReader dcr = new DirectClassReader(classfileBuffer);
+      ClassMetadataReader cmr = new ClassMetadataReader(classfileBuffer);
 
       try {
-         superTypeCollector.visit(dcr);
+         superTypeCollector.visit(cmr);
       }
       catch (VisitInterruptedException ignore) {
          if (superTypeCollector.classExtendsCapturedType) {
@@ -87,17 +87,17 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
       SuperTypeCollector(@Nullable ClassLoader loader) { this.loader = loader; }
 
-      void visit(@Nonnull DirectClassReader dcr) {
+      void visit(@Nonnull ClassMetadataReader cmr) {
          classExtendsCapturedType = false;
 
-         String superName = dcr.getSuperClass();
+         String superName = cmr.getSuperClass();
 
          if (capturedTypeDesc.equals(superName)) {
             classExtendsCapturedType = true;
             throw VisitInterruptedException.INSTANCE;
          }
 
-         String[] interfaces = dcr.getInterfaces();
+         String[] interfaces = cmr.getInterfaces();
 
          if (interfaces != null) {
             interruptVisitIfClassImplementsAnInterface(interfaces);
@@ -146,10 +146,10 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          }
 
          byte[] classfileBytes = ClassFile.getClassFile(loader, superName);
-         DirectClassReader dcr = new DirectClassReader(classfileBytes);
+         ClassMetadataReader cmr = new ClassMetadataReader(classfileBytes);
 
          try {
-            visit(dcr);
+            visit(cmr);
          }
          catch (VisitInterruptedException e) {
             superTypesSearched.put(superName, classExtendsCapturedType);
