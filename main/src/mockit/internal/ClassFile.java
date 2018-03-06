@@ -158,6 +158,12 @@ public final class ClassFile
       }
    }
 
+   @Nonnull
+   public static byte[] readBytesFromClassFile(@Nonnull Class<?> aClass) {
+      String classDesc = aClass.getName().replace('.', '/');
+      return readBytesFromClassFile(classDesc);
+   }
+
    @Nonnull @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
    private static InputStream readClassFromClasspath(@Nonnull String classDesc) {
       String classFileName = classDesc + ".class";
@@ -187,12 +193,6 @@ public final class ClassFile
       verifyClassFileFound(inputStream, classDesc);
       //noinspection ConstantConditions
       return inputStream;
-   }
-
-   @Nonnull
-   public static ClassReader readFromFile(@Nonnull Class<?> aClass) {
-      String classDesc = aClass.getName().replace('.', '/');
-      return readFromFile(classDesc);
    }
 
    @Nonnull
