@@ -8,7 +8,7 @@ import java.nio.charset.*;
 import java.util.*;
 import javax.annotation.*;
 
-public final class ClassMetadataReader
+public final class ClassMetadataReader extends ObjectWithAttributes
 {
    private static final Charset UTF8 = Charset.forName("UTF-8");
    private static final ConstantPoolTag[] CONSTANT_POOL_TAGS = ConstantPoolTag.values();
@@ -174,22 +174,46 @@ public final class ClassMetadataReader
    }
 
    public static final class AttributeInfo {
-      public final String name;
+      @Nonnull public final String name;
+      @Nullable public final List<AnnotationInfo> annotations;
 
-      AttributeInfo(@Nonnull String name) { this.name = name; }
+      AttributeInfo(@Nonnull String name, @Nullable List<AnnotationInfo> annotations) {
+         this.name = name;
+         this.annotations = annotations;
+      }
+
+      boolean hasAnnotation(@Nonnull String annotationName) {
+         for (AnnotationInfo annotation : annotations) {
+            if (annotationName.equals(annotation.name)) {
+               return true;
+            }
+         }
+
+         return false;
+      }
    }
 
-   private static class MemberInfo {
-      public final int accessFlags;
-      public final String name;
-      public final String desc;
-      public final List<AttributeInfo> attributes;
+   private static class MemberInfo extends ObjectWithAttributes {
+      @Nonnegative public final int accessFlags;
+      @Nonnull public final String name;
+      @Nonnull public final String desc;
 
-      MemberInfo(int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
+      MemberInfo(@Nonnegative int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
          this.accessFlags = accessFlags;
          this.name = name;
          this.desc = desc;
-         attributes = attributeCount == 0 ? Collections.<AttributeInfo>emptyList() : new ArrayList<AttributeInfo>(attributeCount);
+      }
+
+      public boolean hasAnnotation(@Nonnull String annotationName) {
+         if (annotations != null) {
+            for (AnnotationInfo annotation : annotations) {
+               if (annotationName.equals(annotation.name)) {
+                  return true;
+               }
+            }
+         }
+
+         return false;
       }
    }
 
@@ -232,7 +256,7 @@ public final class ClassMetadataReader
             codeIndex += 2;
 
             FieldInfo fieldInfo = new FieldInfo(accessFlags, fieldName, fieldDesc, attributeCount);
-            codeIndex = readAttributes(attributeCount, fieldInfo.attributes, codeIndex);
+            codeIndex = readAttributes(attributeCount, fieldInfo, codeIndex);
             fields.add(fieldInfo);
          }
       }
@@ -242,7 +266,7 @@ public final class ClassMetadataReader
    }
 
    @Nonnegative
-   private int readAttributes(@Nonnegative int attributeCount, @Nullable List<AttributeInfo> attributes, @Nonnegative int codeIndex) {
+   private int readAttributes(@Nonnegative int attributeCount, @Nullable ObjectWithAttributes attributeOwner, @Nonnegative int codeIndex) {
       for (int i = 0; i < attributeCount; i++) {
          int cpNameIndex = readUnsignedShort(codeIndex);
          codeIndex += 2;
@@ -251,12 +275,56 @@ public final class ClassMetadataReader
          int attributeLength = readInt(codeIndex);
          codeIndex += 4;
 
-         if (attributes != null) {
-            attributes.add(new AttributeInfo(attributeName));
+         if (attributeOwner != null && "RuntimeVisibleAnnotations".equals(attributeName)) {
+            attributeOwner.annotations = readAnnotations(codeIndex);
          }
 
          codeIndex += attributeLength;
       }
+
+      return codeIndex;
+   }
+
+   public static final class AnnotationInfo {
+      @Nonnull public final String name;
+
+      AnnotationInfo(@Nonnull String name) { this.name = name; }
+   }
+
+   @Nonnull
+   private List<AnnotationInfo> readAnnotations(@Nonnegative int codeIndex) {
+      int numAnnotations = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+      List<AnnotationInfo> annotations = new ArrayList<AnnotationInfo>(numAnnotations);
+
+      for (int i = 0; i < numAnnotations; i++) {
+         codeIndex = readAnnotation(annotations, codeIndex);
+      }
+
+      return annotations;
+   }
+
+   @Nonnegative
+   private int readAnnotation(@Nonnull List<AnnotationInfo> currentAnnotations, @Nonnegative int codeIndex) {
+      int cpTypeIndex = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+      String annotationTypeDesc = getString(cpTypeIndex);
+
+      int numElementValuePairs = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+//      for (int i = 0; i < numElementValuePairs; i++) {
+//         int cpElementNameIndex = readUnsignedShort(codeIndex);
+//         codeIndex += 2;
+//
+//         int tag = code[codeIndex++];
+//         // TODO: continue implementing
+//      }
+
+      AnnotationInfo annotation = new AnnotationInfo(annotationTypeDesc);
+      currentAnnotations.add(annotation);
 
       return codeIndex;
    }
@@ -318,7 +386,7 @@ public final class ClassMetadataReader
          codeIndex += 2;
 
          MethodInfo methodInfo = new MethodInfo(accessFlags, methodName, methodDesc, attributeCount);
-         codeIndex = readAttributes(attributeCount, methodInfo.attributes, codeIndex);
+         codeIndex = readAttributes(attributeCount, methodInfo, codeIndex);
          methods.add(methodInfo);
       }
 
@@ -352,14 +420,13 @@ public final class ClassMetadataReader
    }
 
    @Nonnull
-   public List<AttributeInfo> getAttributes() {
+   public List<AnnotationInfo> getAnnotations() {
       int codeIndex = getMethodsEndIndex();
       int attributeCount = readUnsignedShort(codeIndex);
       codeIndex += 2;
 
-      List<AttributeInfo> attributes = new ArrayList<AttributeInfo>(attributeCount);
-      readAttributes(attributeCount, attributes, codeIndex);
+      readAttributes(attributeCount, this, codeIndex);
 
-      return attributes;
+      return annotations;
    }
 }

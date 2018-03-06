@@ -4,21 +4,22 @@
  */
 package mockit.internal.faking;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
 import mockit.asm.*;
+import mockit.asm.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.util.*;
 import static mockit.asm.Access.*;
-import static mockit.asm.ClassReader.Flags.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated
  * as {@link Mock fakes}.
  */
-final class FakeMethodCollector extends ClassVisitor
+final class FakeMethodCollector
 {
    private static final int INVALID_METHOD_ACCESSES = BRIDGE + SYNTHETIC + ABSTRACT + NATIVE;
 
@@ -34,8 +35,10 @@ final class FakeMethodCollector extends ClassVisitor
       Class<?> classToCollectFakesFrom = fakeClass;
 
       do {
-         ClassReader cr = ClassFile.readFromFile(classToCollectFakesFrom);
-         cr.accept(this, SKIP_CODE);
+         byte[] classfileBytes = ClassFile.readBytesFromClassFile(classToCollectFakesFrom);
+         ClassMetadataReader cmr = new ClassMetadataReader(classfileBytes);
+         List<MethodInfo> methods = cmr.getMethods();
+         addFakeMethods(methods);
 
          classToCollectFakesFrom = classToCollectFakesFrom.getSuperclass();
          collectingFromSuperClass = true;
@@ -43,35 +46,13 @@ final class FakeMethodCollector extends ClassVisitor
       while (classToCollectFakesFrom != MockUp.class);
    }
 
-   /**
-    * Adds the method specified to the set of fake methods, as long as it's annotated with <tt>@Mock</tt>.
-    *
-    * @param signature generic signature for a generic method, ignored since redefinition only needs to consider the "erased" signature
-    * @param exceptions zero or more thrown exceptions in the method "throws" clause, also ignored
-    */
-   @Nullable @Override
-   public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
-      if ((access & INVALID_METHOD_ACCESSES) != 0 || "<init>".equals(name)) {
-         return null;
-      }
+   private void addFakeMethods(@Nonnull List<MethodInfo> methods) {
+      for (MethodInfo method : methods) {
+         int access = method.accessFlags;
+         String methodName = method.name;
+         String methodDesc = method.desc;
 
-      return new FakeMethodVisitor(access, name, desc);
-   }
-
-   private final class FakeMethodVisitor extends MethodVisitor {
-      private final int access;
-      @Nonnull private final String methodName;
-      @Nonnull private final String methodDesc;
-
-      FakeMethodVisitor(int access, @Nonnull String methodName, @Nonnull String methodDesc) {
-         this.access = access;
-         this.methodName = methodName;
-         this.methodDesc = methodDesc;
-      }
-
-      @Nullable @Override
-      public AnnotationVisitor visitAnnotation(@Nullable String desc) {
-         if ("Lmockit/Mock;".equals(desc)) {
+         if ((access & INVALID_METHOD_ACCESSES) == 0 && !"<init>".equals(methodName) && method.hasAnnotation("Lmockit/Mock;")) {
             FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
 
             if (fakeMethod != null && fakeMethod.requiresFakeState()) {
@@ -79,8 +60,6 @@ final class FakeMethodCollector extends ClassVisitor
                fakeMethods.addFakeState(fakeState);
             }
          }
-
-         return null;
       }
    }
 }
