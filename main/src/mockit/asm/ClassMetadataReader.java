@@ -45,6 +45,10 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       ConstantPoolTag(@Nonnegative int itemSize) { this.itemSize = itemSize; }
    }
 
+   enum RecognizedAttribute {
+      RuntimeVisibleAnnotations
+   }
+
    @Nonnull private final byte[] code;
    @Nonnull private final int[] cpItemCodeIndexes;
 
@@ -173,26 +177,6 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       return interfaces;
    }
 
-   public static final class AttributeInfo {
-      @Nonnull public final String name;
-      @Nullable public final List<AnnotationInfo> annotations;
-
-      AttributeInfo(@Nonnull String name, @Nullable List<AnnotationInfo> annotations) {
-         this.name = name;
-         this.annotations = annotations;
-      }
-
-      boolean hasAnnotation(@Nonnull String annotationName) {
-         for (AnnotationInfo annotation : annotations) {
-            if (annotationName.equals(annotation.name)) {
-               return true;
-            }
-         }
-
-         return false;
-      }
-   }
-
    private static class MemberInfo extends ObjectWithAttributes {
       @Nonnegative public final int accessFlags;
       @Nonnull public final String name;
@@ -202,18 +186,6 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          this.accessFlags = accessFlags;
          this.name = name;
          this.desc = desc;
-      }
-
-      public boolean hasAnnotation(@Nonnull String annotationName) {
-         if (annotations != null) {
-            for (AnnotationInfo annotation : annotations) {
-               if (annotationName.equals(annotation.name)) {
-                  return true;
-               }
-            }
-         }
-
-         return false;
       }
    }
 
@@ -267,6 +239,8 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
    @Nonnegative
    private int readAttributes(@Nonnegative int attributeCount, @Nullable ObjectWithAttributes attributeOwner, @Nonnegative int codeIndex) {
+      MethodInfo method = attributeOwner instanceof MethodInfo ? (MethodInfo) attributeOwner : null;
+
       for (int i = 0; i < attributeCount; i++) {
          int cpNameIndex = readUnsignedShort(codeIndex);
          codeIndex += 2;
@@ -275,8 +249,13 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          int attributeLength = readInt(codeIndex);
          codeIndex += 4;
 
-         if (attributeOwner != null && "RuntimeVisibleAnnotations".equals(attributeName)) {
-            attributeOwner.annotations = readAnnotations(codeIndex);
+         if (attributeOwner != null) {
+            if ("Code".equals(attributeName)) {
+               method.parameters = readParameters(codeIndex);
+            }
+            else if ("RuntimeVisibleAnnotations".equals(attributeName)) {
+               attributeOwner.annotations = readAnnotations(codeIndex);
+            }
          }
 
          codeIndex += attributeLength;
@@ -356,7 +335,21 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       return codeIndex;
    }
 
+   public static final class ParameterInfo {
+      @Nonnull public final String name;
+      @Nonnull public final String desc;
+      @Nonnegative public final int index;
+
+      ParameterInfo(@Nonnull String name, @Nonnull String desc, int index) {
+         this.name = name;
+         this.desc = desc;
+         this.index = index;
+      }
+   }
+
    public static final class MethodInfo extends MemberInfo {
+      @Nullable public List<ParameterInfo> parameters;
+
       MethodInfo(int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
          super(accessFlags, name, desc, attributeCount);
       }
@@ -420,12 +413,94 @@ public final class ClassMetadataReader extends ObjectWithAttributes
    }
 
    @Nonnull
-   public List<AnnotationInfo> getAnnotations() {
-      int codeIndex = getMethodsEndIndex();
+   private List<ParameterInfo> readParameters(@Nonnegative int codeIndex) {
+      codeIndex += 4;
+
+      int codeLength = readInt(codeIndex);
+      codeIndex += 4 + codeLength;
+
+      int exceptionTableLength = readUnsignedShort(codeIndex);
+      codeIndex += 2 + 8 * exceptionTableLength;
+
       int attributeCount = readUnsignedShort(codeIndex);
       codeIndex += 2;
 
-      readAttributes(attributeCount, this, codeIndex);
+      return readParameters(attributeCount, codeIndex);
+   }
+
+   @Nullable
+   private List<ParameterInfo> readParameters(@Nonnegative int attributeCount, @Nonnegative int codeIndex) {
+      List<ParameterInfo> parameters = null;
+
+      for (int i = 0; i < attributeCount; i++) {
+         int cpNameIndex = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+         String attributeName = getString(cpNameIndex);
+
+         int attributeLength = readInt(codeIndex);
+         codeIndex += 4;
+
+         if ("LocalVariableTable".equals(attributeName)) {
+            parameters = readParametersFromLocalVariableTable(codeIndex);
+            break;
+         }
+
+         codeIndex += attributeLength;
+      }
+
+      return parameters;
+   }
+
+   private List<ParameterInfo> readParametersFromLocalVariableTable(@Nonnegative int codeIndex) {
+      int localVariableTableLength = readUnsignedShort(codeIndex);
+      codeIndex += 2;
+
+      List<ParameterInfo> parameters = new ArrayList<ParameterInfo>(localVariableTableLength);
+
+      for (int localVarPosition = 0; localVarPosition < localVariableTableLength; localVarPosition++) {
+         codeIndex += 4;
+
+         int cpLocalVarNameIndex = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+         String localVarName = getString(cpLocalVarNameIndex);
+
+         if ("this".equals(localVarName)) {
+            codeIndex += 4;
+            continue;
+         }
+
+         int cpLocalVarDescIndex = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+         String localVarDesc = getString(cpLocalVarDescIndex);
+
+         int localVarIndex = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+
+         ParameterInfo parameter = new ParameterInfo(localVarName, localVarDesc, localVarIndex);
+
+         for (int i = parameters.size(); i < localVarIndex; i++) {
+            parameters.add(null);
+         }
+
+         parameters.add(localVarIndex, parameter);
+      }
+
+      return parameters;
+   }
+
+   @Nonnull
+   public List<AnnotationInfo> getAnnotations() {
+      if (annotations == null) {
+         int codeIndex = getMethodsEndIndex();
+         int attributeCount = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+
+         readAttributes(attributeCount, this, codeIndex);
+
+         if (annotations == null) {
+            annotations = Collections.emptyList();
+         }
+      }
 
       return annotations;
    }

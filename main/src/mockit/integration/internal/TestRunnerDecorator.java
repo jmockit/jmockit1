@@ -15,8 +15,7 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 /**
- * Base class for "test runner decorators", which provide integration between JMockit and specific
- * test runners from JUnit and TestNG.
+ * Base class for "test runner decorators", which provide integration between JMockit and specific test runners from JUnit and TestNG.
  */
 public class TestRunnerDecorator
 {
@@ -24,14 +23,13 @@ public class TestRunnerDecorator
    @Nullable private static SavePoint savePointForTest;
 
    /**
-    * A "volatile boolean" is as good as a java.util.concurrent.atomic.AtomicBoolean here,
-    * since we only need the basic get/set operations.
+    * A "volatile boolean" is as good as a java.util.concurrent.atomic.AtomicBoolean here, since we only need the basic get/set operations.
     */
    protected volatile boolean shouldPrepareForNextTest;
 
    protected TestRunnerDecorator() { shouldPrepareForNextTest = true; }
 
-   protected final void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass) {
+   protected static void updateTestClassState(@Nullable Object target, @Nonnull Class<?> testClass) {
       testClass = getActualTestClass(testClass);
 
       try {
@@ -133,12 +131,12 @@ public class TestRunnerDecorator
       }
    }
 
-   protected final void handleMockFieldsForWholeTestClass(@Nonnull Object target) {
+   protected static void handleMockFieldsForWholeTestClass(@Nonnull Object target) {
       Class<?> testClass = getActualTestClass(target.getClass());
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
       if (fieldTypeRedefinitions == null) {
-         new ParameterNameExtractor().extractNames(testClass);
+         ParameterNameExtractor.extractNames(testClass);
 
          fieldTypeRedefinitions = new FieldTypeRedefinitions(testClass);
          TestRun.setFieldTypeRedefinitions(fieldTypeRedefinitions);
@@ -199,6 +197,7 @@ public class TestRunnerDecorator
       }
 
       if (parameterValues == null || parameterValues.length != numParameters) {
+         //noinspection AssignmentToMethodParameter
          parameterValues = new Object[numParameters];
       }
 

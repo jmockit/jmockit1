@@ -32,7 +32,7 @@ public final class ConstructorSearch
       this.injectionState = injectionState;
       this.testedClass = testedClass;
       Class<?> declaredClass = testedClass.getDeclaredClass();
-      testedClassDesc = new ParameterNameExtractor().extractNames(declaredClass);
+      testedClassDesc = ParameterNameExtractor.extractNames(declaredClass);
       parameterProviders = new ArrayList<InjectionProvider>();
       this.withFullInjection = withFullInjection;
    }
@@ -245,6 +245,7 @@ public final class ConstructorSearch
       return contents;
    }
 
+   @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
    private void printCandidateConstructorNameIfRequested(@Nonnull Constructor<?> candidate) {
       if (searchResults != null) {
          String constructorDesc = candidate.toGenericString().replace("java.lang.", "").replace(",", ", ");

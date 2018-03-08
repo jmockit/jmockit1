@@ -4,58 +4,47 @@
  */
 package mockit.internal.util;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.*;
-import mockit.asm.ClassReader.*;
+import mockit.asm.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
+import static mockit.internal.util.Utilities.JAVA_VERSION;
 
-public final class ParameterNameExtractor extends ClassVisitor
+public final class ParameterNameExtractor
 {
-   @Nonnull private String classDesc;
-   @Nonnegative private int memberAccess;
-   @Nonnull private String memberName;
-   @Nonnull private String memberDesc;
-
-   public ParameterNameExtractor() {
-      classDesc = memberName = memberDesc = "";
-   }
+   private ParameterNameExtractor() {}
 
    @Nonnull
-   public String extractNames(@Nonnull Class<?> classOfInterest) {
+   public static String extractNames(@Nonnull Class<?> classOfInterest) {
       String className = classOfInterest.getName();
-      classDesc = className.replace('.', '/');
+      String classDesc = className.replace('.', '/');
 
       if (!ParameterNames.hasNamesForClass(classDesc)) {
-         // Reads class from file, since JRE 1.6 (but not 1.7) discards parameter names on retransformation.
-         ClassReader cr = ClassFile.readFromFile(classDesc);
-         cr.accept(this, Flags.SKIP_INNER_CLASSES);
+         // JRE 1.6 (but not 1.7+) discards parameter names on retransformation.
+         byte[] classfile = JAVA_VERSION < 1.7F ? ClassFile.readBytesFromClassFile(classDesc) : ClassFile.getClassFile(classOfInterest);
+         ClassMetadataReader cmr = new ClassMetadataReader(classfile);
+         List<MethodInfo> methods = cmr.getMethods();
+
+         for (MethodInfo method : methods) {
+            int methodAccess = method.accessFlags;
+
+            if ((methodAccess & Access.SYNTHETIC) == 0 && method.parameters != null) {
+               String methodName = method.name;
+               String methodDesc = method.desc;
+
+               for (ParameterInfo parameter : method.parameters) {
+                  if (parameter != null) {
+                     ParameterNames.registerName(
+                        classDesc, methodAccess, methodName, methodDesc, parameter.desc, parameter.name, parameter.index);
+                  }
+               }
+            }
+         }
       }
 
       return classDesc;
-   }
-
-   @Nullable @Override
-   public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
-   ) {
-      if ((access & Access.SYNTHETIC) == 0) {
-         memberAccess = access;
-         memberName = name;
-         memberDesc = desc;
-         return new MethodOrConstructorVisitor();
-      }
-
-      return null;
-   }
-
-   private final class MethodOrConstructorVisitor extends MethodVisitor {
-      @Override
-      public void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, String signature, @Nonnull Label start, @Nonnull Label end, @Nonnegative int index
-      ) {
-         ParameterNames.registerName(classDesc, memberAccess, memberName, memberDesc, desc, name, index);
-      }
    }
 }
