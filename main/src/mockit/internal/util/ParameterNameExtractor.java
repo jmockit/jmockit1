@@ -29,17 +29,11 @@ public final class ParameterNameExtractor
          List<MethodInfo> methods = cmr.getMethods();
 
          for (MethodInfo method : methods) {
-            int methodAccess = method.accessFlags;
+            if (!method.isSynthetic()) {
+               String[] parameters = method.parameters;
 
-            if ((methodAccess & Access.SYNTHETIC) == 0 && method.parameters != null) {
-               String methodName = method.name;
-               String methodDesc = method.desc;
-
-               for (ParameterInfo parameter : method.parameters) {
-                  if (parameter != null) {
-                     ParameterNames.registerName(
-                        classDesc, methodAccess, methodName, methodDesc, parameter.desc, parameter.name, parameter.index);
-                  }
+               if (parameters != null) {
+                  ParameterNames.register(classDesc, method.name, method.desc, parameters);
                }
             }
          }

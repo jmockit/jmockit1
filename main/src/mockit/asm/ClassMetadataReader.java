@@ -187,6 +187,14 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          this.name = name;
          this.desc = desc;
       }
+
+      public final boolean isStatic() {
+         return (accessFlags & Access.STATIC) != 0;
+      }
+
+      public final boolean isSynthetic() {
+         return (accessFlags & Access.SYNTHETIC) != 0;
+      }
    }
 
    public static final class FieldInfo extends MemberInfo {
@@ -251,7 +259,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
          if (attributeOwner != null) {
             if ("Code".equals(attributeName)) {
-               method.parameters = readParameters(codeIndex);
+               method.readParameters(codeIndex);
             }
             else if ("RuntimeVisibleAnnotations".equals(attributeName)) {
                attributeOwner.annotations = readAnnotations(codeIndex);
@@ -347,11 +355,141 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       }
    }
 
-   public static final class MethodInfo extends MemberInfo {
-      @Nullable public List<ParameterInfo> parameters;
+   public final class MethodInfo extends MemberInfo {
+      @Nullable public String[] parameters;
 
       MethodInfo(int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
          super(accessFlags, name, desc, attributeCount);
+      }
+
+      private void readParameters(@Nonnegative int codeIndex) {
+         codeIndex += 4;
+
+         int codeLength = readInt(codeIndex);
+         codeIndex += 4 + codeLength;
+
+         int exceptionTableLength = readUnsignedShort(codeIndex);
+         codeIndex += 2 + 8 * exceptionTableLength;
+
+         int attributeCount = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+
+         readParameters(attributeCount, codeIndex);
+      }
+
+      private void readParameters(@Nonnegative int attributeCount, @Nonnegative int codeIndex) {
+         for (int i = 0; i < attributeCount; i++) {
+            int cpNameIndex = readUnsignedShort(codeIndex);
+            codeIndex += 2;
+            String attributeName = getString(cpNameIndex);
+
+            int attributeLength = readInt(codeIndex);
+            codeIndex += 4;
+
+            if ("LocalVariableTable".equals(attributeName)) {
+               parameters = readParametersFromLocalVariableTable(codeIndex);
+               break;
+            }
+
+            codeIndex += attributeLength;
+         }
+      }
+
+      @Nullable
+      private String[] readParametersFromLocalVariableTable(@Nonnegative int codeIndex) {
+         int localVariableTableLength = readUnsignedShort(codeIndex);
+         codeIndex += 2;
+
+         int arraySize = getSumOfArgumentSizes(desc);
+
+         if (arraySize == 0) {
+            return null;
+         }
+
+         if (!isStatic()) {
+            arraySize++;
+         }
+
+         String[] parameters = new String[arraySize];
+
+         for (int i = 0; i < localVariableTableLength; i++) {
+            codeIndex += 4;
+
+            int cpLocalVarNameIndex = readUnsignedShort(codeIndex);
+            codeIndex += 2;
+            String localVarName = getString(cpLocalVarNameIndex);
+
+            if ("this".equals(localVarName)) {
+               codeIndex += 4;
+               continue;
+            }
+
+            codeIndex += 2;
+
+            int localVarIndex = readUnsignedShort(codeIndex);
+            codeIndex += 2;
+
+            if (localVarIndex < arraySize) {
+               parameters[localVarIndex] = localVarName;
+            }
+         }
+
+         return compactArray(parameters);
+      }
+
+      @Nonnegative
+      private int getSumOfArgumentSizes(@Nonnull String memberDesc) {
+         int sum = 0;
+         int i = 1;
+
+         while (true) {
+            char c = memberDesc.charAt(i);
+            i++;
+
+            if (c == ')') {
+               return sum;
+            }
+
+            if (c == 'L') {
+               while (memberDesc.charAt(i) != ';') i++;
+               i++;
+               sum++;
+            }
+            else if (c == '[') {
+               while ((c = memberDesc.charAt(i)) == '[') i++;
+
+               if (isDoubleSizeType(c)) { // if the array element type is double size...
+                  i++;
+                  sum++; // ...then count it here, otherwise let the outer loop count it
+               }
+            }
+            else if (isDoubleSizeType(c)) {
+               sum += 2;
+            }
+            else {
+               sum++;
+            }
+         }
+      }
+
+      private boolean isDoubleSizeType(char typeCode) { return typeCode == 'D' || typeCode == 'J'; }
+
+      @Nullable
+      private String[] compactArray(@Nonnull String[] arrayPossiblyWithNulls) {
+         int n = arrayPossiblyWithNulls.length;
+
+         for (int i = 0, j = n - 1; i < j; ) {
+            if (arrayPossiblyWithNulls[i] == null) {
+               System.arraycopy(arrayPossiblyWithNulls, i + 1, arrayPossiblyWithNulls, i, j - i);
+               arrayPossiblyWithNulls[j] = null;
+               j--;
+            }
+            else {
+               i++;
+            }
+         }
+
+         return n == 1 && arrayPossiblyWithNulls[0] == null ? null : arrayPossiblyWithNulls;
       }
    }
 
@@ -410,82 +548,6 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       }
 
       return codeIndex;
-   }
-
-   @Nonnull
-   private List<ParameterInfo> readParameters(@Nonnegative int codeIndex) {
-      codeIndex += 4;
-
-      int codeLength = readInt(codeIndex);
-      codeIndex += 4 + codeLength;
-
-      int exceptionTableLength = readUnsignedShort(codeIndex);
-      codeIndex += 2 + 8 * exceptionTableLength;
-
-      int attributeCount = readUnsignedShort(codeIndex);
-      codeIndex += 2;
-
-      return readParameters(attributeCount, codeIndex);
-   }
-
-   @Nullable
-   private List<ParameterInfo> readParameters(@Nonnegative int attributeCount, @Nonnegative int codeIndex) {
-      List<ParameterInfo> parameters = null;
-
-      for (int i = 0; i < attributeCount; i++) {
-         int cpNameIndex = readUnsignedShort(codeIndex);
-         codeIndex += 2;
-         String attributeName = getString(cpNameIndex);
-
-         int attributeLength = readInt(codeIndex);
-         codeIndex += 4;
-
-         if ("LocalVariableTable".equals(attributeName)) {
-            parameters = readParametersFromLocalVariableTable(codeIndex);
-            break;
-         }
-
-         codeIndex += attributeLength;
-      }
-
-      return parameters;
-   }
-
-   private List<ParameterInfo> readParametersFromLocalVariableTable(@Nonnegative int codeIndex) {
-      int localVariableTableLength = readUnsignedShort(codeIndex);
-      codeIndex += 2;
-
-      List<ParameterInfo> parameters = new ArrayList<ParameterInfo>(localVariableTableLength);
-
-      for (int localVarPosition = 0; localVarPosition < localVariableTableLength; localVarPosition++) {
-         codeIndex += 4;
-
-         int cpLocalVarNameIndex = readUnsignedShort(codeIndex);
-         codeIndex += 2;
-         String localVarName = getString(cpLocalVarNameIndex);
-
-         if ("this".equals(localVarName)) {
-            codeIndex += 4;
-            continue;
-         }
-
-         int cpLocalVarDescIndex = readUnsignedShort(codeIndex);
-         codeIndex += 2;
-         String localVarDesc = getString(cpLocalVarDescIndex);
-
-         int localVarIndex = readUnsignedShort(codeIndex);
-         codeIndex += 2;
-
-         ParameterInfo parameter = new ParameterInfo(localVarName, localVarDesc, localVarIndex);
-
-         for (int i = parameters.size(); i < localVarIndex; i++) {
-            parameters.add(null);
-         }
-
-         parameters.add(localVarIndex, parameter);
-      }
-
-      return parameters;
    }
 
    @Nonnull
