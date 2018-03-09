@@ -45,12 +45,14 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       ConstantPoolTag(@Nonnegative int itemSize) { this.itemSize = itemSize; }
    }
 
-   enum RecognizedAttribute {
-      RuntimeVisibleAnnotations
+   public enum Attribute {
+      Annotations,
+      Parameters
    }
 
    @Nonnull private final byte[] code;
    @Nonnull private final int[] cpItemCodeIndexes;
+   @Nullable private final EnumSet<Attribute> attributesToRead;
 
    /**
     * The constant pool starts at index 10 in the code array; this is the end index, which must be computed as it's not stored anywhere.
@@ -60,11 +62,14 @@ public final class ClassMetadataReader extends ObjectWithAttributes
    @Nonnegative private int fieldsEndIndex;
    @Nonnegative private int methodsEndIndex;
 
-   public ClassMetadataReader(@Nonnull byte[] code) {
+   public ClassMetadataReader(@Nonnull byte[] code) { this(code, null); }
+
+   public ClassMetadataReader(@Nonnull byte[] code, @Nullable EnumSet<Attribute> attributesToRead) {
       this.code = code;
       int cpItemCount = readUnsignedShort(8);
       int[] cpTable = new int[cpItemCount];
       this.cpItemCodeIndexes = cpTable;
+      this.attributesToRead = attributesToRead;
       cpEndIndex = findEndIndexOfConstantPoolTable(cpTable);
    }
 
@@ -247,6 +252,16 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
    @Nonnegative
    private int readAttributes(@Nonnegative int attributeCount, @Nullable ObjectWithAttributes attributeOwner, @Nonnegative int codeIndex) {
+      EnumSet<Attribute> attributes = attributesToRead;
+      boolean readAnnotations = false;
+
+      if (attributes == null) {
+         attributeOwner = null;
+      }
+      else {
+         readAnnotations = attributes.contains(Attribute.Annotations);
+      }
+
       MethodInfo method = attributeOwner instanceof MethodInfo ? (MethodInfo) attributeOwner : null;
 
       for (int i = 0; i < attributeCount; i++) {
@@ -258,10 +273,11 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          codeIndex += 4;
 
          if (attributeOwner != null) {
-            if ("Code".equals(attributeName)) {
-               method.readParameters(codeIndex);
+            if (method != null) {
+               method.readAttributes(attributeName, codeIndex);
             }
-            else if ("RuntimeVisibleAnnotations".equals(attributeName)) {
+
+            if (readAnnotations && "RuntimeVisibleAnnotations".equals(attributeName)) {
                attributeOwner.annotations = readAnnotations(codeIndex);
             }
          }
@@ -360,6 +376,14 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
       MethodInfo(int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
          super(accessFlags, name, desc, attributeCount);
+      }
+
+      void readAttributes(@Nonnull String attributeName, @Nonnegative int codeIndex) {
+         if ("Code".equals(attributeName)) {
+            if (attributesToRead.contains(Attribute.Parameters)) {
+               readParameters(codeIndex);
+            }
+         }
       }
 
       private void readParameters(@Nonnegative int codeIndex) {

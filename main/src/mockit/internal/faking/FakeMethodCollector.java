@@ -22,6 +22,7 @@ import static mockit.asm.Access.*;
 final class FakeMethodCollector
 {
    private static final int INVALID_METHOD_ACCESSES = BRIDGE + SYNTHETIC + ABSTRACT + NATIVE;
+   private static final EnumSet<Attribute> ANNOTATIONS = EnumSet.of(Attribute.Annotations);
 
    @Nonnull private final FakeMethods fakeMethods;
    private boolean collectingFromSuperClass;
@@ -36,7 +37,7 @@ final class FakeMethodCollector
 
       do {
          byte[] classfileBytes = ClassFile.readBytesFromClassFile(classToCollectFakesFrom);
-         ClassMetadataReader cmr = new ClassMetadataReader(classfileBytes);
+         ClassMetadataReader cmr = new ClassMetadataReader(classfileBytes, ANNOTATIONS);
          List<MethodInfo> methods = cmr.getMethods();
          addFakeMethods(methods);
 

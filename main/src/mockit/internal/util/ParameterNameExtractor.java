@@ -15,6 +15,8 @@ import static mockit.internal.util.Utilities.JAVA_VERSION;
 
 public final class ParameterNameExtractor
 {
+   private static final EnumSet<Attribute> PARAMETERS = EnumSet.of(Attribute.Parameters);
+
    private ParameterNameExtractor() {}
 
    @Nonnull
@@ -25,7 +27,7 @@ public final class ParameterNameExtractor
       if (!ParameterNames.hasNamesForClass(classDesc)) {
          // JRE 1.6 (but not 1.7+) discards parameter names on retransformation.
          byte[] classfile = JAVA_VERSION < 1.7F ? ClassFile.readBytesFromClassFile(classDesc) : ClassFile.getClassFile(classOfInterest);
-         ClassMetadataReader cmr = new ClassMetadataReader(classfile);
+         ClassMetadataReader cmr = new ClassMetadataReader(classfile, PARAMETERS);
          List<MethodInfo> methods = cmr.getMethods();
 
          for (MethodInfo method : methods) {
