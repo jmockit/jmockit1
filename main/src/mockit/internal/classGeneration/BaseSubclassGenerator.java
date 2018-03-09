@@ -31,10 +31,10 @@ public class BaseSubclassGenerator extends BaseClassModifier
    private Set<String> superInterfaces;
 
    protected BaseSubclassGenerator(
-      @Nonnull Class<?> baseClass, @Nonnull ClassReader classReader, @Nullable Type genericMockedType, @Nonnull String subclassName,
+      @Nonnull Class<?> baseClass, @Nonnull byte[] classfile, @Nullable Type genericMockedType, @Nonnull String subclassName,
       boolean copyConstructors
    ) {
-      super(classReader);
+      super(classfile);
       this.baseClass = baseClass;
       this.subclassName = subclassName.replace('.', '/');
       mockedTypeInfo = genericMockedType == null ? null : new MockedTypeInfo(genericMockedType);

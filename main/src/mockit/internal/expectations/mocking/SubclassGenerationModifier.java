@@ -15,10 +15,10 @@ import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
    public SubclassGenerationModifier(
-      @Nonnull Class<?> baseClass, @Nonnull Type mockedType, @Nonnull ClassReader classReader, @Nonnull String subclassName,
+      @Nonnull Class<?> baseClass, @Nonnull Type mockedType, @Nonnull byte[] classfile, @Nonnull String subclassName,
       boolean copyConstructors
    ) {
-      super(baseClass, classReader, mockedType, subclassName, copyConstructors);
+      super(baseClass, classfile, mockedType, subclassName, copyConstructors);
    }
 
    @Override @SuppressWarnings("AssignmentToMethodParameter")

@@ -16,8 +16,8 @@ public final class ConcreteSubclass<T> extends ImplementationClass<T>
    public ConcreteSubclass(@Nonnull Class<?> baseClass) { super(baseClass); }
 
    @Nonnull @Override
-   protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader) {
-      return new BaseSubclassGenerator(sourceClass, typeReader, null, generatedClassName, false) {
+   protected ClassVisitor createMethodBodyGenerator(@Nonnull byte[] classfile) {
+      return new BaseSubclassGenerator(sourceClass, classfile, null, generatedClassName, false) {
          @Override
          protected void generateMethodImplementation(
             String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,

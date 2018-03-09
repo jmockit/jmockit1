@@ -40,7 +40,7 @@ class BaseTypeRedefinition
    @Nonnull private static final Map<Integer, MockedClass> mockedClasses = new HashMap<Integer, MockedClass>();
    @Nonnull private static final Map<Type, Class<?>> mockImplementations = new HashMap<Type, Class<?>>();
 
-   @Nonnull Class<?> targetClass;
+   Class<?> targetClass;
    @Nullable MockedType typeMetadata;
    @Nullable private InstanceFactory instanceFactory;
    @Nullable private List<ClassDefinition> mockedClassDefinitions;
@@ -155,8 +155,8 @@ class BaseTypeRedefinition
    private void generateNewMockImplementationClassForInterface(@Nonnull final Type interfaceToMock) {
       ImplementationClass<?> implementationGenerator = new ImplementationClass(interfaceToMock) {
          @Nonnull @Override
-         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader) {
-            return new InterfaceImplementationGenerator(typeReader, interfaceToMock, generatedClassName);
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull byte[] classfile) {
+            return new InterfaceImplementationGenerator(classfile, interfaceToMock, generatedClassName);
          }
       };
 
@@ -295,8 +295,8 @@ class BaseTypeRedefinition
 
       Class<?> subclass = new ImplementationClass<Object>(targetClass, subclassName) {
          @Nonnull @Override
-         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader typeReader) {
-            return new SubclassGenerationModifier(targetClass, typeToMock, typeReader, subclassName, false);
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull byte[] classfile) {
+            return new SubclassGenerationModifier(targetClass, typeToMock, classfile, subclassName, false);
          }
       }.generateClass();
 
