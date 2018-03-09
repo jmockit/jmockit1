@@ -223,12 +223,7 @@ public final class ClassFile
    }
 
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor) {
-      byte[] classfileBytes = CachedClassfiles.getClassfile(classDesc);
-
-      if (classfileBytes == null) {
-         classfileBytes = readBytesFromClassFile(classDesc);
-      }
-
+      byte[] classfileBytes = getClassFile(classDesc);
       ClassReader cr = new ClassReader(classfileBytes);
       cr.accept(visitor, Flags.SKIP_DEBUG);
    }
