@@ -7,10 +7,9 @@ import javax.annotation.*;
 import mockit.internal.util.*;
 
 /**
- * A {@link ClassVisitor} that generates classes in bytecode form. More precisely this visitor generates a byte array
- * conforming to the Java class file format. It can be used alone, to generate a Java class "from scratch", or with one
- * or more {@link ClassReader} and adapter class visitor to generate a modified class from one or more existing Java
- * classes.
+ * A {@link ClassVisitor} that generates classes in bytecode form. More precisely this visitor generates a byte array conforming to the Java
+ * class file format. It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter
+ * class visitor to generate a modified class from one or more existing Java classes.
  */
 @SuppressWarnings("ParameterHidesMemberVariable")
 public final class ClassWriter extends ClassVisitor
@@ -71,17 +70,15 @@ public final class ClassWriter extends ClassVisitor
     * These optimizations are the following:
     * <ul>
     * <li>The constant pool from the original class is copied as is in the new class, which saves time.
-    * New constant pool entries will be added at the end if necessary, but unused constant pool entries <i>won't be
-    * removed</i>.</li>
-    * <li>Methods that are not transformed are copied as is in the new class, directly from the original class bytecode
-    * (i.e. without emitting visit events for all the method instructions), which saves a <i>lot</i> of time.
-    * Untransformed methods are detected by the fact that the {@link ClassReader} receives {@link MethodVisitor}
-    * objects that come from a ClassWriter (and not from any other {@link ClassVisitor} instance).</li>
+    * New constant pool entries will be added at the end if necessary, but unused constant pool entries <i>won't be removed</i>.</li>
+    * <li>Methods that are not transformed are copied as is in the new class, directly from the original class bytecode (i.e. without
+    * emitting visit events for all the method instructions), which saves a <i>lot</i> of time. Untransformed methods are detected by the
+    * fact that the {@link ClassReader} receives {@link MethodVisitor} objects that come from a ClassWriter (and not from any other
+    * {@link ClassVisitor} instance).</li>
     * </ul>
     *
-    * @param classReader the {@link ClassReader} used to read the original class. It will be used to copy the entire
-    *                    constant pool from the original class and also to copy other fragments of original bytecode
-    *                    where applicable.
+    * @param classReader the {@link ClassReader} used to read the original class. It will be used to copy the entire constant pool from the
+    *                    original class and also to copy other fragments of original bytecode where applicable.
     */
    public ClassWriter(@Nonnull ClassReader classReader) {
       code = classReader.code;
@@ -176,8 +173,7 @@ public final class ClassWriter extends ClassVisitor
 
       int size = getBytecodeSize(); // the real size of the bytecode of this class
 
-      // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the
-      // ByteVector.enlarge() method.
+      // Allocates a byte vector of this size, in order to avoid unnecessary arraycopy operations in the ByteVector.enlarge() method.
       ByteVector out = new ByteVector(size);
 
       putClassAttributes(out);
@@ -187,9 +183,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Nonnegative
    private int getBytecodeSize() {
-      int size =
-         24 +
-         getMarkerAttributesSize() + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
+      int size = 24 + getMarkerAttributesSize() + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
 
       if (bootstrapMethods != null) {
          size += bootstrapMethods.getSize();
