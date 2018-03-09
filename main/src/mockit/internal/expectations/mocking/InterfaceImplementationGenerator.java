@@ -11,6 +11,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.isStatic;
 
 import mockit.asm.*;
+import mockit.asm.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.reflection.*;
@@ -22,6 +23,7 @@ import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 final class InterfaceImplementationGenerator extends BaseClassModifier
 {
    private static final int CLASS_ACCESS = PUBLIC + FINAL;
+   private static final EnumSet<Attribute> SIGNATURE = EnumSet.of(Attribute.Signature);
 
    @Nonnull private final MockedTypeInfo mockedTypeInfo;
    @Nonnull private final String implementationClassDesc;
@@ -158,38 +160,24 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
       assert initialSuperInterfaces != null;
 
       for (String superInterface : initialSuperInterfaces) {
-         new MethodGeneratorForImplementedSuperInterface(superInterface);
+         generateImplementationsForInterfaceMethodsRecurringToSuperInterfaces(superInterface);
       }
    }
 
-   private final class MethodGeneratorForImplementedSuperInterface extends ClassVisitor {
-      private String[] superInterfaces;
+   private void generateImplementationsForInterfaceMethodsRecurringToSuperInterfaces(@Nonnull String anInterface) {
+      methodOwner = anInterface;
 
-      MethodGeneratorForImplementedSuperInterface(@Nonnull String interfaceName) {
-         ClassFile.visitClass(interfaceName, this);
+      byte[] interfaceBytecode = ClassFile.getClassFile(anInterface);
+      ClassMetadataReader cmr = new ClassMetadataReader(interfaceBytecode, SIGNATURE);
+      String[] superInterfaces = cmr.getInterfaces();
+
+      for (MethodInfo method : cmr.getMethods()) {
+         generateMethodImplementation(method.accessFlags, method.name, method.desc, method.signature, null);
       }
 
-      @Override
-      public void visit(
-         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces
-      ) {
-         methodOwner = name;
-         superInterfaces = interfaces;
-      }
-
-      @Nullable @Override
-      public MethodVisitor visitMethod(
-         int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
-      ) {
-         generateMethodImplementation(access, name, desc, signature, exceptions);
-         return null;
-      }
-
-      @Override
-      public void visitEnd() {
+      if (superInterfaces != null) {
          for (String superInterface : superInterfaces) {
-            new MethodGeneratorForImplementedSuperInterface(superInterface);
+            generateImplementationsForInterfaceMethodsRecurringToSuperInterfaces(superInterface);
          }
       }
    }

@@ -47,7 +47,8 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
    public enum Attribute {
       Annotations,
-      Parameters
+      Parameters,
+      Signature
    }
 
    @Nonnull private final byte[] code;
@@ -195,6 +196,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       @Nonnegative public final int accessFlags;
       @Nonnull public final String name;
       @Nonnull public final String desc;
+      @Nullable public String signature;
 
       MemberInfo(@Nonnegative int accessFlags, @Nonnull String name, @Nonnull String desc, @Nonnegative int attributeCount) {
          this.accessFlags = accessFlags;
@@ -395,6 +397,11 @@ public final class ClassMetadataReader extends ObjectWithAttributes
                readParameters(codeIndex);
             }
          }
+         else if ("Signature".equals(attributeName)) {
+            if (attributesToRead.contains(Attribute.Signature)) {
+               readSignature(codeIndex);
+            }
+         }
       }
 
       private void readParameters(@Nonnegative int codeIndex) {
@@ -525,6 +532,11 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          }
 
          return n == 1 && arrayPossiblyWithNulls[0] == null ? null : arrayPossiblyWithNulls;
+      }
+
+      private void readSignature(@Nonnegative int codeIndex) {
+         int cpSignatureIndex = readUnsignedShort(codeIndex);
+         signature = getString(cpSignatureIndex);
       }
    }
 
