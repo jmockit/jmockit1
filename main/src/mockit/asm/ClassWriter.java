@@ -96,6 +96,25 @@ public final class ClassWriter extends ClassVisitor
       methods = new ArrayList<MethodWriter>();
    }
 
+   /**
+    * Constructs a new ClassWriter object meant for the generation of new bytecode only.
+    *
+    * @param code the bytecode of an existing class/interface whose methods will have brand new implementations in the new class created
+    *             from this writer
+    */
+   public ClassWriter(@Nonnull byte[] code) {
+      this.code = code;
+      this.version = ClassMetadataReader.readVersion(code);
+      computeFrames = version >= ClassVersion.V1_7;
+
+      cp = new ConstantPoolGeneration();
+      sourceInfo = new SourceInfoWriter(cp);
+
+      bootstrapMethods = null;
+      fields = new ArrayList<FieldWriter>();
+      methods = new ArrayList<MethodWriter>();
+   }
+
    @Override
    public void visit(
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces

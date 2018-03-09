@@ -62,6 +62,15 @@ public final class ClassMetadataReader extends ObjectWithAttributes
    @Nonnegative private int fieldsEndIndex;
    @Nonnegative private int methodsEndIndex;
 
+   @Nonnegative
+   public static int readVersion(@Nonnull byte[] code) {
+      int byte0 = (code[4] & 0xFF) << 24;
+      int byte1 = (code[5] & 0xFF) << 16;
+      int byte2 = (code[6] & 0xFF) << 8;
+      int byte3 =  code[7] & 0xFF;
+      return byte0 | byte1 | byte2 | byte3;
+   }
+
    public ClassMetadataReader(@Nonnull byte[] code) { this(code, null); }
 
    public ClassMetadataReader(@Nonnull byte[] code, @Nullable EnumSet<Attribute> attributesToRead) {
@@ -121,7 +130,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
 
    @Nonnegative
    public int getVersion() {
-      return readInt(4);
+      return readVersion(code);
    }
 
    @Nonnegative

@@ -31,7 +31,7 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
    @Nullable private String[] initialSuperInterfaces;
 
    InterfaceImplementationGenerator(@Nonnull ClassReader classReader, @Nonnull Type mockedType, @Nonnull String implementationClassName) {
-      super(classReader);
+      super(classReader.getBytecode());
       mockedTypeInfo = new MockedTypeInfo(mockedType);
       implementationClassDesc = implementationClassName.replace('.', '/');
       implementedMethods = new ArrayList<String>();
