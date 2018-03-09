@@ -12,12 +12,13 @@ import mockit.internal.util.*;
  * or more {@link ClassReader} and adapter class visitor to generate a modified class from one or more existing Java
  * classes.
  */
+@SuppressWarnings("ParameterHidesMemberVariable")
 public final class ClassWriter extends ClassVisitor
 {
    /**
-    * The class reader from which this class writer was constructed.
+    * The class bytecode from which this class writer will generate a new/modified class.
     */
-   @Nonnull final ClassReader cr;
+   @Nonnull final byte[] code;
 
    /**
     * <tt>true</tt> if the stack map frames must be recomputed from scratch.
@@ -83,14 +84,14 @@ public final class ClassWriter extends ClassVisitor
     *                    where applicable.
     */
    public ClassWriter(@Nonnull ClassReader classReader) {
-      cr = classReader;
+      code = classReader.code;
       version = classReader.getVersion();
       computeFrames = version >= ClassVersion.V1_7;
 
       cp = new ConstantPoolGeneration();
       sourceInfo = new SourceInfoWriter(cp);
 
-      bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, cr) : null;
+      bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, classReader) : null;
 
       new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
 
@@ -100,8 +101,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-      @Nullable String[] interfaces
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
    ) {
       this.version = version;
       this.access = access;
@@ -141,9 +141,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visitInnerClass(
-      @Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access
-   ) {
+   public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       if (innerClassesWriter == null) {
          innerClassesWriter = new InnerClassesWriter(cp);
       }

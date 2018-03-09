@@ -8,6 +8,7 @@ import static mockit.asm.Opcodes.*;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
  */
+@SuppressWarnings("ParameterHidesMemberVariable")
 public final class MethodWriter extends MethodVisitor
 {
    /**
@@ -33,15 +34,14 @@ public final class MethodWriter extends MethodVisitor
    @Nullable private final SignatureWriter signatureWriter;
 
    /**
-    * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
-    * in <code>cw.cr</code>. More precisely, this field gives the index of the first byte to copied from
-    * <code>cw.cr.code</code>.
+    * If not zero, indicates that the code of this method must be copied from <code>cw.code</code>. More precisely, this field gives the
+    * index of the first byte to be copied from <code>cw.code</code>.
     */
    @Nonnegative int classReaderOffset;
 
    /**
-    * If not zero, indicates that the code of this method must be copied from the ClassReader associated to this writer
-    * in <code>cw.cr</code>. More precisely, this field gives the number of bytes to copied from <code>cw.cr.code</code>.
+    * If not zero, indicates that the code of this method must be copied from <code>cw.cr</code>. More precisely, this field gives the
+    * number of bytes to be copied from <code>cw.code</code>.
     */
    @Nonnegative int classReaderLength;
 
@@ -195,9 +195,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitMethodInsn(
-      int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf
-   ) {
+   public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
       ClassMemberItem invokeItem = cp.newMethodItem(owner, name, desc, itf);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, opcode, desc);
 
@@ -211,9 +209,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitInvokeDynamicInsn(
-      @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
-   ) {
+   public void visitInvokeDynamicInsn(@Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs) {
       //noinspection ConstantConditions
       InvokeDynamicItem invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
@@ -229,15 +225,14 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if (label.isResolved() && label.position - code.length < Short.MIN_VALUE) {
-         // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W and
-         // IFxxx <l> with IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx
-         // (i.e., IFNE for IFEQ) and where <l'> designates the instruction just after the GOTO_W.
+         // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W and IFxxx <l> with
+         // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'> designates the
+         // instruction just after the GOTO_W.
          if (opcode == GOTO) {
             code.putByte(GOTO_W);
          }
          else {
-            // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the
-            // IFNOT instruction.
+            // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the IFNOT instruction.
             if (nextInsn != null) {
                nextInsn.markAsTarget();
             }
@@ -343,9 +338,7 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitTryCatchBlock(
-      @Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type
-   ) {
+   public void visitTryCatchBlock(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
       exceptionHandling.addHandler(start, end, handler, type);
    }
 
@@ -500,7 +493,7 @@ public final class MethodWriter extends MethodVisitor
       out.putShort(desc);
 
       if (classReaderOffset > 0) {
-         out.putByteArray(cw.cr.code, classReaderOffset, classReaderLength);
+         out.putByteArray(cw.code, classReaderOffset, classReaderLength);
          return;
       }
 
@@ -572,8 +565,7 @@ public final class MethodWriter extends MethodVisitor
 
    private void putCodeSize(@Nonnull ByteVector out) {
       int size =
-         12 + code.length +
-         exceptionHandling.getSize() + localVariables.getSize() + lineNumbers.getSize() + frameAndStack.getSize();
+         12 + code.length + exceptionHandling.getSize() + localVariables.getSize() + lineNumbers.getSize() + frameAndStack.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);
    }
