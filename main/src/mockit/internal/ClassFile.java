@@ -100,11 +100,18 @@ public final class ClassFile
       ClassReader reader = CLASS_FILES.get(classDesc);
 
       if (reader == null) {
-         reader = readFromFile(classDesc);
-         CLASS_FILES.put(classDesc, reader);
+         reader = readFromFileSavingInCache(classDesc);
       }
 
       return reader;
+   }
+
+   @Nonnull
+   private static ClassReader readFromFileSavingInCache(@Nonnull String classDesc) {
+      byte[] classfileBytes = readBytesFromClassFile(classDesc);
+      ClassReader cr = new ClassReader(classfileBytes);
+      CLASS_FILES.put(classDesc, cr);
+      return cr;
    }
 
    @Nonnull
@@ -120,10 +127,19 @@ public final class ClassFile
       }
 
       String classDesc = aClass.getName().replace('.', '/');
-      ClassReader reader = readFromFile(classDesc);
-
-      CLASS_FILES.put(classDesc, reader);
+      ClassReader reader = readFromFileSavingInCache(classDesc);
       return reader;
+   }
+
+   @Nonnull
+   public static byte[] getClassFile(@Nonnull String internalClassName) {
+      byte[] classfileBytes = CachedClassfiles.getClassfile(internalClassName);
+
+      if (classfileBytes == null) {
+         classfileBytes = readBytesFromClassFile(internalClassName);
+      }
+
+      return classfileBytes;
    }
 
    @Nonnull
@@ -204,12 +220,6 @@ public final class ClassFile
       verifyClassFileFound(inputStream, classDesc);
       //noinspection ConstantConditions
       return inputStream;
-   }
-
-   @Nonnull
-   public static ClassReader readFromFile(@Nonnull String classDesc) {
-      byte[] classfileBytes = readBytesFromClassFile(classDesc);
-      return new ClassReader(classfileBytes);
    }
 
    public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor) {

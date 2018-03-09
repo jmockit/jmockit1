@@ -378,6 +378,8 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          super(accessFlags, name, desc, attributeCount);
       }
 
+      public boolean isConstructor() { return "<init>".equals(name); }
+
       void readAttributes(@Nonnull String attributeName, @Nonnegative int codeIndex) {
          if ("Code".equals(attributeName)) {
             if (attributesToRead.contains(Attribute.Parameters)) {
