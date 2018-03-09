@@ -10,10 +10,10 @@ final class CFGAnalysis
    @Nonnull private final ConstantPoolGeneration cp;
    @Nonnull private final ByteVector code;
 
-   // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow
-   // graph contains one node per "basic block", and one edge per "jump" from one basic block to another. Each node
-   // (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this
-   // basic block. Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
+   // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow graph contains one node
+   // per "basic block", and one edge per "jump" from one basic block to another. Each node (i.e., each basic block) is represented by the
+   // Label object that corresponds to the first instruction of this basic block. Each node also stores the list of its successors in the
+   // graph, as a linked list of Edge objects.
    //
 
    /**
@@ -22,9 +22,9 @@ final class CFGAnalysis
    private final boolean computeFrames;
 
    /**
-    * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to each
-    * other by their {@link Label#successor} field, in the order they are visited by {@link MethodVisitor#visitLabel},
-    * and starting with the first basic block.
+    * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to each other by their
+    * {@link Label#successor} field, in the order they are visited by {@link MethodVisitor#visitLabel}, and starting with the first basic
+    * block.
     */
    @Nonnull private final Label labels;
 
@@ -39,16 +39,16 @@ final class CFGAnalysis
    @Nullable private Label currentBlock;
 
    /**
-    * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the
-    * current basic block, i.e., the true stack size after the last visited instruction is equal to the
-    * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
+    * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the current basic block, i.e.,
+    * the true stack size after the last visited instruction is equal to the {@link Label#inputStackTop beginStackSize} of the current basic
+    * block plus <tt>stackSize</tt>.
     */
    @Nonnegative private int stackSize;
 
    /**
-    * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of
-    * the current basic block, i.e., the true maximum stack size after the last visited instruction is equal to the
-    * {@link Label#inputStackTop beginStackSize} of the current basic block plus <tt>stackSize</tt>.
+    * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of the current basic
+    * block, i.e., the true maximum stack size after the last visited instruction is equal to the {@link Label#inputStackTop beginStackSize}
+    * of the current basic block plus <tt>stackSize</tt>.
     */
    @Nonnegative private int maxStackSize;
 
@@ -96,8 +96,7 @@ final class CFGAnalysis
    }
 
    /**
-    * Ends the current basic block. This method must be used in the case where the current basic block does not have any
-    * successor.
+    * Ends the current basic block. This method must be used in the case where the current basic block does not have any successor.
     */
    private void noSuccessor() {
       if (computeFrames) {
@@ -243,8 +242,7 @@ final class CFGAnalysis
       if (currentBlock != null) {
          if (nextInsn != null) {
             // If the jump instruction is not a GOTO, the next instruction is also a successor of this instruction.
-            // Calling visitLabel adds the label of this next instruction as a successor of the current block, and
-            // starts a new basic block.
+            // Calling visitLabel adds the label of this next instruction as a successor of the current block, and starts a new basic block.
             updateCurrentBlockForLabelBeforeNextInstruction(nextInsn);
          }
 
@@ -337,7 +335,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForSwitchInstruction(@Nonnull Label dflt, @Nonnull Label[] labels) {
+   void updateCurrentBlockForSwitchInstruction(@Nonnull Label dflt, @Nonnull Label[] caseLabels) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.executeSWITCH();
@@ -346,7 +344,7 @@ final class CFGAnalysis
             addSuccessor(Edge.NORMAL, dflt);
             dflt.getFirst().markAsTarget();
 
-            for (Label label : labels) {
+            for (Label label : caseLabels) {
                addSuccessor(Edge.NORMAL, label);
                label.getFirst().markAsTarget();
             }
@@ -357,7 +355,7 @@ final class CFGAnalysis
 
             // Adds current block successors.
             addSuccessor(stackSize, dflt);
-            addSuccessorForEachCase(labels);
+            addSuccessorForEachCase(caseLabels);
          }
 
          // Ends current block.
@@ -365,8 +363,8 @@ final class CFGAnalysis
       }
    }
 
-   private void addSuccessorForEachCase(@Nonnull Label[] labels) {
-      for (Label label : labels) {
+   private void addSuccessorForEachCase(@Nonnull Label[] caseLabels) {
+      for (Label label : caseLabels) {
          addSuccessor(stackSize, label);
       }
    }
@@ -384,9 +382,8 @@ final class CFGAnalysis
    }
 
    /**
-    * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while there
-    * are changed basic blocks, choose one, mark it as unchanged, and update its successors (which can be changed in the
-    * process).
+    * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while there are changed basic
+    * blocks, choose one, mark it as unchanged, and update its successors (which can be changed in the process).
     */
    int computeMaxStackSizeFromComputedFrames() {
       int max = 0;
@@ -422,9 +419,7 @@ final class CFGAnalysis
    }
 
    @Nullable
-   private Label updateSuccessorsOfCurrentBasicBlock(
-      @Nullable Label changed, @Nonnull Frame frame, @Nonnull Label label
-   ) {
+   private Label updateSuccessorsOfCurrentBasicBlock(@Nullable Label changed, @Nonnull Frame frame, @Nonnull Label label) {
       Edge e = label.successors;
 
       while (e != null) {
@@ -444,11 +439,10 @@ final class CFGAnalysis
    }
 
    /**
-    * Control flow analysis algorithm: while the block stack is not empty, pop a block from this stack, update the max
-    * stack size, compute the true (non relative) begin stack size of the successors of this block, and push these
-    * successors onto the stack (unless they have already been pushed onto the stack).
-    * Note: by hypothesis, the {@link Label#inputStackTop} of the blocks in the block stack are the true (non relative)
-    * beginning stack sizes of these blocks.
+    * Control flow analysis algorithm: while the block stack is not empty, pop a block from this stack, update the max stack size, compute
+    * the true (non relative) begin stack size of the successors of this block, and push these successors onto the stack (unless they have
+    * already been pushed onto the stack). Note: by hypothesis, the {@link Label#inputStackTop} of the blocks in the block stack are the
+    * true (non relative) beginning stack sizes of these blocks.
     */
    int computeMaxStackSize() {
       int max = 0;
