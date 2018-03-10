@@ -10,6 +10,7 @@ import javax.annotation.*;
 import static java.util.Arrays.*;
 
 import mockit.asm.*;
+import mockit.asm.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.asm.Opcodes.*;
@@ -131,107 +132,66 @@ public class BaseSubclassGenerator extends BaseClassModifier
 
       while (!superInterfaces.isEmpty()) {
          String superInterface = superInterfaces.iterator().next();
-         generateImplementationsForInterfaceMethods(superInterface);
+         generateImplementationsForAbstractMethods(superInterface, false);
          superInterfaces.remove(superInterface);
       }
    }
 
    private void generateImplementationsForInheritedAbstractMethods(@Nullable String superName) {
-      if (superName != null && !"java/lang/Object".equals(superName)) {
-         new MethodModifierForSuperclass(superName);
+      if (superName != null) {
+         generateImplementationsForAbstractMethods(superName, true);
       }
    }
 
-   private void generateImplementationsForInterfaceMethods(String superName) {
-      if (!"java/lang/Object".equals(superName)) {
-         new MethodModifierForImplementedInterface(superName);
-      }
-   }
-
-   private static class BaseMethodModifier extends ClassVisitor {
-      @Nonnull final String typeName;
-
-      BaseMethodModifier(@Nonnull String typeName) {
-         this.typeName = typeName;
-         ClassFile.visitClass(typeName, this);
-      }
-
-      @Nullable @Override
-      public final FieldVisitor visitField(
-         int access, @Nonnull String name, @Nonnull String desc, String signature, Object value) { return null; }
-   }
-
-   private final class MethodModifierForSuperclass extends BaseMethodModifier {
-      String superClassName;
-
-      MethodModifierForSuperclass(@Nonnull String className) { super(className); }
-
-      @Override
-      public void visit(
-         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces
-      ) {
-         superClassName = superName;
+   private void generateImplementationsForAbstractMethods(@Nonnull String typeName, boolean abstractClass) {
+      if (!"java/lang/Object".equals(typeName)) {
+         byte[] typeBytecode = ClassFile.getClassFile(typeName);
+         ClassMetadataReader cmr = new ClassMetadataReader(typeBytecode);
+         String[] interfaces = cmr.getInterfaces();
 
          if (interfaces != null) {
             superInterfaces.addAll(asList(interfaces));
          }
-      }
 
-      @Nullable @Override
-      public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
-         generateImplementationIfAbstractMethod(typeName, access, name, desc, signature, exceptions);
-         return null;
-      }
+         for (MethodInfo method : cmr.getMethods()) {
+            if (abstractClass) {
+               generateImplementationIfAbstractMethod(typeName, method.accessFlags, method.name, method.desc, null, null);
+            }
+            else {
+               generateImplementationForInterfaceMethodIfMissing(typeName, method);
+            }
+         }
 
-      @Override
-      public void visitEnd() {
-         generateImplementationsForInheritedAbstractMethods(superClassName);
+         if (abstractClass) {
+            String superClass = cmr.getSuperClass();
+            generateImplementationsForInheritedAbstractMethods(superClass);
+         }
       }
    }
 
-   private final class MethodModifierForImplementedInterface extends BaseMethodModifier {
-      MethodModifierForImplementedInterface(String interfaceName) { super(interfaceName); }
+   private void generateImplementationForInterfaceMethodIfMissing(@Nonnull String typeName, @Nonnull MethodInfo method) {
+      String name = method.name;
+      String desc = method.desc;
+      String methodNameAndDesc = name + desc;
 
-      @Override
-      public void visit(
-         int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName,
-         @Nullable String[] interfaces
-      ) {
-         assert interfaces != null;
-         superInterfaces.addAll(asList(interfaces));
-      }
-
-      @Nullable @Override
-      public MethodVisitor visitMethod(int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions) {
-         generateImplementationForInterfaceMethodIfMissing(access, name, desc, signature, exceptions);
-         return null;
-      }
-
-      private void generateImplementationForInterfaceMethodIfMissing(
-         int access, @Nonnull String name, @Nonnull String desc, String signature, String[] exceptions
-      ) {
-         String methodNameAndDesc = name + desc;
-
-         if (!implementedMethods.contains(methodNameAndDesc)) {
-            if (!hasMethodImplementation(name, desc)) {
-               generateMethodImplementation(typeName, access, name, desc, signature, exceptions);
-            }
-
-            implementedMethods.add(methodNameAndDesc);
+      if (!implementedMethods.contains(methodNameAndDesc)) {
+         if (!hasMethodImplementation(name, desc)) {
+            generateMethodImplementation(typeName, method.accessFlags, name, desc, null, null);
          }
+
+         implementedMethods.add(methodNameAndDesc);
       }
+   }
 
-      private boolean hasMethodImplementation(@Nonnull String name, @Nonnull String desc) {
-         Class<?>[] paramTypes = TypeDescriptor.getParameterTypes(desc);
+   private boolean hasMethodImplementation(@Nonnull String name, @Nonnull String desc) {
+      Class<?>[] paramTypes = TypeDescriptor.getParameterTypes(desc);
 
-         try {
-            Method method = baseClass.getMethod(name, paramTypes);
-            return !method.getDeclaringClass().isInterface();
-         }
-         catch (NoSuchMethodException ignore) {
-            return false;
-         }
+      try {
+         Method method = baseClass.getMethod(name, paramTypes);
+         return !method.getDeclaringClass().isInterface();
+      }
+      catch (NoSuchMethodException ignore) {
+         return false;
       }
    }
 }

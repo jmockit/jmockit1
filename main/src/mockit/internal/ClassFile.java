@@ -11,7 +11,6 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.internal.state.*;
-import static mockit.asm.ClassReader.*;
 
 public final class ClassFile
 {
@@ -220,11 +219,5 @@ public final class ClassFile
       verifyClassFileFound(inputStream, classDesc);
       //noinspection ConstantConditions
       return inputStream;
-   }
-
-   public static void visitClass(@Nonnull String classDesc, @Nonnull ClassVisitor visitor) {
-      byte[] classfileBytes = getClassFile(classDesc);
-      ClassReader cr = new ClassReader(classfileBytes);
-      cr.accept(visitor, Flags.SKIP_DEBUG);
    }
 }
