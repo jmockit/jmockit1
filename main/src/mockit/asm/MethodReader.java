@@ -11,9 +11,8 @@ final class MethodReader extends AnnotatedReader
 {
    /**
     * Constants that subdivide the 220 {@linkplain Opcodes instruction opcodes} in 18 types of instructions.
-    * Such types vary in the number and size of arguments the instruction takes (no argument, a signed byte, a signed
-    * short), on whether it takes a local variable index, a jump target label, etc. Some types contain a single
-    * instruction, such as LDC and IINC.
+    * Such types vary in the number and size of arguments the instruction takes (no argument, a signed byte, a signed short), on whether it
+    * takes a local variable index, a jump target label, etc. Some types contain a single instruction, such as LDC and IINC.
     */
    interface InstructionType {
       int NOARG       = 0; // instructions without any argument
@@ -75,10 +74,10 @@ final class MethodReader extends AnnotatedReader
    @Nonnegative private int parameterAnnotationsCodeIndex;
 
    /**
-    * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for
-    * which a label is needed have a non null associated <tt>Label</tt> object).
+    * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for which a label is needed
+    * have a non null associated <tt>Label</tt> object).
     */
-   @Nonnull private Label[] labels;
+   private Label[] labels;
 
    /**
     * The visitor to visit the method being read.
@@ -184,11 +183,10 @@ final class MethodReader extends AnnotatedReader
    }
 
    /**
-    * If the returned <tt>MethodVisitor</tt> is in fact a <tt>MethodWriter</tt>, it means there is no method adapter
-    * between the reader and the writer.
-    * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and
-    * the signature of the method has not been changed; then, we skip all visit events and just copy the original code
-    * of the method to the writer.
+    * If the returned <tt>MethodVisitor</tt> is in fact a <tt>MethodWriter</tt>, it means there is no method adapter between the reader and
+    * the writer.
+    * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and the signature of the
+    * method has not been changed; then, we skip all visit events and just copy the original code of the method to the writer.
     */
    private void copyMethodBody() {
       // We do not copy directly the code into MethodWriter to save a byte array copy operation.
@@ -431,9 +429,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   private void readBytecodeInstructionsInCodeBlock(
-      boolean readDebugInfo, @Nonnegative int codeStartIndex, @Nonnegative int codeEndIndex
-   ) {
+   private void readBytecodeInstructionsInCodeBlock(boolean readDebugInfo, @Nonnegative int codeStartIndex, @Nonnegative int codeEndIndex) {
       codeIndex = codeStartIndex;
 
       while (codeIndex < codeEndIndex) {
