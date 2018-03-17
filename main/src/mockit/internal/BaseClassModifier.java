@@ -126,13 +126,14 @@ public class BaseClassModifier extends WrappingClassVisitor
       return isStatic;
    }
 
-   public static void generateCodeToCreateArrayOfObject(@Nonnull MethodWriter mw, int arrayLength) {
+   public static void generateCodeToCreateArrayOfObject(@Nonnull MethodWriter mw, @Nonnegative int arrayLength) {
       mw.visitIntInsn(SIPUSH, arrayLength);
       mw.visitTypeInsn(ANEWARRAY, "java/lang/Object");
    }
 
    public static void generateCodeToFillArrayWithParameterValues(
-      @Nonnull MethodWriter mw, @Nonnull JavaType[] parameterTypes, int initialArrayIndex, int initialParameterIndex
+      @Nonnull MethodWriter mw, @Nonnull JavaType[] parameterTypes,
+      @Nonnegative int initialArrayIndex, @Nonnegative int initialParameterIndex
    ) {
       int i = initialArrayIndex;
       int j = initialParameterIndex;
@@ -247,7 +248,8 @@ public class BaseClassModifier extends WrappingClassVisitor
 
       @Override
       public final void visitLocalVariable(
-         @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end, int index
+         @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
+         @Nonnegative int index
       ) {
          // For some reason, the start position for "this" gets displaced by bytecode inserted at the beginning,
          // in a method modified by the EMMA tool. If not treated, this causes a ClassFormatError.
@@ -267,12 +269,12 @@ public class BaseClassModifier extends WrappingClassVisitor
       private boolean callToAnotherConstructorAlreadyDisregarded;
 
       @Override
-      public void visitTypeInsn(int opcode, @Nonnull String type) {
-         if (!callToAnotherConstructorAlreadyDisregarded && opcode == NEW && type.equals(classDesc)) {
+      public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
+         if (!callToAnotherConstructorAlreadyDisregarded && opcode == NEW && typeDesc.equals(classDesc)) {
             pendingCallToConstructorOfSameClass = true;
          }
 
-         mw.visitTypeInsn(opcode, type);
+         mw.visitTypeInsn(opcode, typeDesc);
       }
 
       @Override
