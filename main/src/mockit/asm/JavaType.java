@@ -9,6 +9,8 @@ import javax.annotation.*;
 @SuppressWarnings("ClassReferencesSubclass")
 public abstract class JavaType
 {
+   private static final JavaType[] NO_ARGS = {};
+
    /**
     * The length of the internal name of this Java type.
     */
@@ -66,6 +68,10 @@ public abstract class JavaType
 
    @Nonnull
    private static JavaType[] getArgumentTypes(@Nonnull char[] buf, @Nonnegative int argCount) {
+      if (argCount == 0) {
+         return NO_ARGS;
+      }
+
       JavaType[] argTypes = new JavaType[argCount];
       int off = 1;
 
