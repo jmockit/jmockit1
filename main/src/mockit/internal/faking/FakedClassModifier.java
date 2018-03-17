@@ -182,7 +182,7 @@ final class FakedClassModifier extends BaseClassModifier
       mw.visitInsn(ACONST_NULL);
 
       // Create array for call arguments (third "invoke" argument):
-      generateCodeToCreateArrayOfObject(mw, 2);
+      generateCodeToCreateArrayOfObject(2);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, fakeMethods.getFakeClassInternalName());
@@ -242,7 +242,7 @@ final class FakedClassModifier extends BaseClassModifier
 
       // Create array for call arguments (third "invoke" argument):
       JavaType[] argTypes = JavaType.getArgumentTypes(methodDesc);
-      generateCodeToCreateArrayOfObject(mw, 6 + argTypes.length);
+      generateCodeToCreateArrayOfObject(6 + argTypes.length);
 
       int i = 0;
       generateCodeToFillArrayElement(i++, fakeMethods.getFakeClassInternalName());
@@ -260,7 +260,7 @@ final class FakedClassModifier extends BaseClassModifier
 
       generateCodeToFillArrayElement(i++, fakeMethod.getIndexForFakeState());
 
-      generateCodeToFillArrayWithParameterValues(mw, argTypes, i, isStatic ? 0 : 1);
+      generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
    }
 
@@ -325,7 +325,7 @@ final class FakedClassModifier extends BaseClassModifier
       return canProceedIntoConstructor;
    }
 
-   private void generateCallToCreateNewFakeInvocation(@Nonnull JavaType[] argTypes, int initialParameterIndex) {
+   private void generateCallToCreateNewFakeInvocation(@Nonnull JavaType[] argTypes, @Nonnegative int initialParameterIndex) {
       generateCodeToPassThisOrNullIfStaticMethod();
 
       int argCount = argTypes.length;
@@ -334,8 +334,8 @@ final class FakedClassModifier extends BaseClassModifier
          mw.visitInsn(ACONST_NULL);
       }
       else {
-         generateCodeToCreateArrayOfObject(mw, argCount);
-         generateCodeToFillArrayWithParameterValues(mw, argTypes, 0, initialParameterIndex);
+         generateCodeToCreateArrayOfObject(argCount);
+         generateCodeToFillArrayWithParameterValues(argTypes, 0, initialParameterIndex);
       }
 
       mw.visitLdcInsn(fakeMethods.getFakeClassInternalName());
@@ -346,8 +346,8 @@ final class FakedClassModifier extends BaseClassModifier
 
       mw.visitMethodInsn(
          INVOKESTATIC, "mockit/internal/faking/FakeInvocation", "create",
-         "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;I" +
-         "Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lmockit/internal/faking/FakeInvocation;", false);
+         "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)" +
+         "Lmockit/internal/faking/FakeInvocation;", false);
    }
 
    private void generateMethodReturn() {

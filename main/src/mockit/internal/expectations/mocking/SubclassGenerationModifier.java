@@ -10,7 +10,6 @@ import javax.annotation.*;
 import mockit.asm.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
-import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
@@ -36,7 +35,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
          generateEmptyImplementation(desc);
       }
       else {
-         generateDirectCallToHandler(mw, className, access, name, desc, signature);
+         generateDirectCallToHandler(className, access, name, desc, signature);
          generateReturnWithObjectAtTopOfTheStack(desc);
          mw.visitMaxStack(1);
       }

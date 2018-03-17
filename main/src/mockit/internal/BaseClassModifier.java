@@ -8,6 +8,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.asm.*;
+import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.asm.Opcodes.*;
@@ -103,6 +104,60 @@ public class BaseClassModifier extends WrappingClassVisitor
       }
    }
 
+   protected final void generateDirectCallToHandler(
+      @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String genericSignature
+   ) {
+      generateDirectCallToHandler(className, access, name, desc, genericSignature, ExecutionMode.Regular);
+   }
+
+   protected final void generateDirectCallToHandler(
+      @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String genericSignature,
+      @Nonnull ExecutionMode executionMode
+   ) {
+      // First argument: the mock instance, if any.
+      boolean isStatic = generateCodeToPassThisOrNullIfStaticMethod(access);
+
+      // Second argument: method access flags.
+      mw.visitLdcInsn(access);
+
+      // Third argument: class name.
+      mw.visitLdcInsn(className);
+
+      // Fourth argument: method signature.
+      mw.visitLdcInsn(name + desc);
+
+      // Fifth argument: generic signature, or null if none.
+      generateInstructionToLoadNullableString(genericSignature);
+
+      // Sixth argument: indicate regular or special modes of execution.
+      mw.visitLdcInsn(executionMode.ordinal());
+
+      // Seventh argument: array with invocation arguments.
+      JavaType[] argTypes = JavaType.getArgumentTypes(desc);
+      int argCount = argTypes.length;
+
+      if (argCount == 0) {
+         mw.visitInsn(ACONST_NULL);
+      }
+      else {
+         generateCodeToCreateArrayOfObject(argCount);
+         generateCodeToFillArrayWithParameterValues(argTypes, 0, isStatic ? 0 : 1);
+      }
+
+      mw.visitMethodInsn(
+         INVOKESTATIC, "mockit/internal/expectations/RecordAndReplayExecution", "recordOrReplay",
+         "(Ljava/lang/Object;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/Object;)Ljava/lang/Object;", false);
+   }
+
+   private void generateInstructionToLoadNullableString(@Nullable String text) {
+      if (text == null) {
+         mw.visitInsn(ACONST_NULL);
+      }
+      else {
+         mw.visitLdcInsn(text);
+      }
+   }
+
    protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc) {
       JavaType returnType = JavaType.getReturnType(mockedMethodDesc);
       TypeConversion.generateCastFromObject(mw, returnType);
@@ -110,10 +165,10 @@ public class BaseClassModifier extends WrappingClassVisitor
    }
 
    protected final boolean generateCodeToPassThisOrNullIfStaticMethod() {
-      return generateCodeToPassThisOrNullIfStaticMethod(mw, methodAccess);
+      return generateCodeToPassThisOrNullIfStaticMethod(methodAccess);
    }
 
-   public static boolean generateCodeToPassThisOrNullIfStaticMethod(@Nonnull MethodWriter mw, int access) {
+   private boolean generateCodeToPassThisOrNullIfStaticMethod(int access) {
       boolean isStatic = isStatic(access);
 
       if (isStatic) {
@@ -126,14 +181,13 @@ public class BaseClassModifier extends WrappingClassVisitor
       return isStatic;
    }
 
-   public static void generateCodeToCreateArrayOfObject(@Nonnull MethodWriter mw, @Nonnegative int arrayLength) {
+   protected final void generateCodeToCreateArrayOfObject(@Nonnegative int arrayLength) {
       mw.visitIntInsn(SIPUSH, arrayLength);
       mw.visitTypeInsn(ANEWARRAY, "java/lang/Object");
    }
 
-   public static void generateCodeToFillArrayWithParameterValues(
-      @Nonnull MethodWriter mw, @Nonnull JavaType[] parameterTypes,
-      @Nonnegative int initialArrayIndex, @Nonnegative int initialParameterIndex
+   protected final void generateCodeToFillArrayWithParameterValues(
+      @Nonnull JavaType[] parameterTypes, @Nonnegative int initialArrayIndex, @Nonnegative int initialParameterIndex
    ) {
       int i = initialArrayIndex;
       int j = initialParameterIndex;

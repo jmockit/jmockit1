@@ -18,7 +18,6 @@ import mockit.internal.reflection.*;
 import mockit.internal.reflection.GenericTypeReflection.*;
 import static mockit.asm.Access.*;
 import static mockit.asm.Opcodes.*;
-import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
 
 final class InterfaceImplementationGenerator extends BaseClassModifier
 {
@@ -114,7 +113,7 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
          className = isOverrideOfMethodFromSuperInterface(name, desc) ? interfaceName : methodOwner;
       }
 
-      generateDirectCallToHandler(mw, className, access, name, desc, signature);
+      generateDirectCallToHandler(className, access, name, desc, signature);
       generateReturnWithObjectAtTopOfTheStack(desc);
       mw.visitMaxStack(1);
    }
