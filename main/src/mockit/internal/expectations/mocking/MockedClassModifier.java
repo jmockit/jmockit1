@@ -12,6 +12,8 @@ import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
+import static mockit.asm.Access.SYNTHETIC;
+import static mockit.asm.Access.ENUM;
 import static mockit.asm.Opcodes.*;
 import static mockit.internal.MockingFilters.*;
 import static mockit.internal.expectations.mocking.MockedTypeModifier.*;
@@ -21,8 +23,8 @@ import static mockit.internal.util.Utilities.*;
 final class MockedClassModifier extends BaseClassModifier
 {
    private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
-   private static final int METHOD_ACCESS_MASK = Access.PRIVATE + Access.SYNTHETIC + Access.ABSTRACT;
-   private static final int PUBLIC_OR_PROTECTED = Access.PUBLIC + Access.PROTECTED;
+   private static final int METHOD_ACCESS_MASK = PRIVATE + SYNTHETIC + ABSTRACT;
+   private static final int PUBLIC_OR_PROTECTED = PUBLIC + PROTECTED;
 
    @Nullable private final MockedType mockedType;
    private final boolean classFromNonBootstrapClassLoader;
@@ -104,7 +106,7 @@ final class MockedClassModifier extends BaseClassModifier
    public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       cw.visitInnerClass(name, outerName, innerName, access);
 
-      if (access == Access.ENUM + Access.STATIC) {
+      if (access == ENUM + STATIC) {
          if (enumSubclasses == null) {
             enumSubclasses = new ArrayList<String>();
          }
@@ -213,7 +215,7 @@ final class MockedClassModifier extends BaseClassModifier
 
    private boolean isMethodNotAllowedByMockingFilters(int access, @Nonnull String name) {
       return
-         baseClassNameForCapturedInstanceMethods != null && (access & Access.STATIC) != 0 ||
+         baseClassNameForCapturedInstanceMethods != null && (access & STATIC) != 0 ||
          executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
    }
 
