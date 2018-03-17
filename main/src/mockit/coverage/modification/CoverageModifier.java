@@ -12,13 +12,14 @@ import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.asm.*;
 import mockit.internal.*;
+import static mockit.asm.Access.*;
 import static mockit.coverage.Metrics.*;
 import static mockit.asm.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
-   private static final int FIELD_MODIFIERS_TO_IGNORE = Access.FINAL + Access.SYNTHETIC;
+   private static final int FIELD_MODIFIERS_TO_IGNORE = FINAL + SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
    private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
@@ -61,19 +62,20 @@ final class CoverageModifier extends WrappingClassVisitor
 
    @Override
    public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, String superName, @Nullable String[] interfaces
+      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
    ) {
-      if ((access & Access.SYNTHETIC) != 0) {
+      if ((access & SYNTHETIC) != 0) {
          throw new VisitInterruptedException();
       }
 
       boolean nestedType = name.indexOf('$') > 0;
 
       if (!nestedType && kindOfTopLevelType == null) {
+         //noinspection ConstantConditions
          kindOfTopLevelType = getKindOfJavaType(access, superName);
       }
 
-      forEnumClass = (access & Access.ENUM) != 0;
+      forEnumClass = (access & ENUM) != 0;
 
       if (!forInnerClass) {
          internalClassName = name;
@@ -88,9 +90,9 @@ final class CoverageModifier extends WrappingClassVisitor
             sourceFileName = name.substring(0, p + 1);
          }
 
-         cannotModify = (access & Access.ANNOTATION) != 0;
+         cannotModify = (access & ANNOTATION) != 0;
 
-         if (!forEnumClass && (access & Access.SUPER) != 0 && nestedType) {
+         if (!forEnumClass && (access & SUPER) != 0 && nestedType) {
             INNER_CLASS_MODIFIERS.put(name.replace('/', '.'), this);
          }
       }
@@ -100,10 +102,10 @@ final class CoverageModifier extends WrappingClassVisitor
 
    @Nonnull
    private static String getKindOfJavaType(int typeModifiers, @Nonnull String superName) {
-      if ((typeModifiers & Access.ANNOTATION) != 0) return "annotation";
-      if ((typeModifiers & Access.INTERFACE) != 0) return "interface";
-      if ((typeModifiers & Access.ENUM) != 0) return "enum";
-      if ((typeModifiers & Access.ABSTRACT) != 0) return "abstractClass";
+      if ((typeModifiers & ANNOTATION) != 0) return "annotation";
+      if ((typeModifiers & INTERFACE) != 0) return "interface";
+      if ((typeModifiers & ENUM) != 0) return "enum";
+      if ((typeModifiers & ABSTRACT) != 0) return "abstractClass";
       if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exception";
       return "class";
    }
@@ -127,24 +129,20 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    @Override
-   public void visitInnerClass(@Nonnull String internalName, @Nullable String outerName, @Nullable String innerName, int access) {
-      cw.visitInnerClass(internalName, outerName, innerName, access);
+   public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
+      cw.visitInnerClass(name, outerName, innerName, access);
 
-      if (
-         forInnerClass ||
-         isSyntheticOrEnumClass(access) ||
-         !isNestedInsideClassBeingModified(internalName, outerName)
-      ) {
+      if (forInnerClass || isSyntheticOrEnumClass(access) || !isNestedInsideClassBeingModified(name, outerName)) {
          return;
       }
 
-      String innerClassName = internalName.replace('/', '.');
+      String innerClassName = name.replace('/', '.');
 
       if (INNER_CLASS_MODIFIERS.containsKey(innerClassName)) {
          return;
       }
 
-      ClassReader innerCR = ClassFile.createClassReader(CoverageModifier.class.getClassLoader(), internalName);
+      ClassReader innerCR = ClassFile.createClassReader(CoverageModifier.class.getClassLoader(), name);
 
       if (innerCR != null) {
          CoverageModifier innerClassModifier = new CoverageModifier(innerCR, this, innerName);
@@ -154,7 +152,7 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    private static boolean isSyntheticOrEnumClass(int access) {
-      return (access & Access.SYNTHETIC) != 0 || access == Access.STATIC + Access.ENUM;
+      return (access & SYNTHETIC) != 0 || access == STATIC + ENUM;
    }
 
    private boolean isNestedInsideClassBeingModified(@Nonnull String internalName, @Nullable String outerName) {
@@ -169,11 +167,8 @@ final class CoverageModifier extends WrappingClassVisitor
    public FieldVisitor visitField(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {
-      if (
-         fileData != null && simpleClassName != null &&
-         (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && DataCoverage.active
-      ) {
-         fileData.dataCoverageInfo.addField(simpleClassName, name, (access & Access.STATIC) != 0);
+      if (fileData != null && simpleClassName != null && (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && DataCoverage.active) {
+         fileData.dataCoverageInfo.addField(simpleClassName, name, (access & STATIC) != 0);
       }
 
       return cw.visitField(access, name, desc, signature, value);
@@ -185,7 +180,7 @@ final class CoverageModifier extends WrappingClassVisitor
    ) {
       MethodWriter mw = cw.visitMethod(access, name, desc, signature, exceptions);
 
-      if (fileData == null || (access & Access.SYNTHETIC) != 0) {
+      if (fileData == null || (access & SYNTHETIC) != 0) {
          return mw;
       }
 
@@ -404,10 +399,7 @@ final class CoverageModifier extends WrappingClassVisitor
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMethodInsn(opcode, owner, name, desc, itf);
 
-         if (
-            opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) &&
-            ignoreUntilNextSwitch == 0
-         ) {
+         if (opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) && ignoreUntilNextSwitch == 0) {
             ignoreUntilNextSwitch = 1;
          }
       }

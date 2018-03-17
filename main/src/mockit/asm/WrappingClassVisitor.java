@@ -5,6 +5,7 @@ import javax.annotation.*;
 /**
  * Same as {@link ClassVisitor}, except it always wraps a {@link ClassWriter}.
  */
+@SuppressWarnings("ParameterHidesMemberVariable")
 public class WrappingClassVisitor extends ClassVisitor
 {
    /**

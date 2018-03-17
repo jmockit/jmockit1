@@ -8,7 +8,7 @@ import static mockit.asm.Opcodes.*;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
  */
-@SuppressWarnings("ParameterHidesMemberVariable")
+@SuppressWarnings({"ParameterHidesMemberVariable", "OverlyCoupledClass"})
 public final class MethodWriter extends MethodVisitor
 {
    /**
@@ -177,8 +177,8 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitTypeInsn(int opcode, @Nonnull String type) {
-      StringItem typeItem = cp.newClassItem(type);
+   public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
+      StringItem typeItem = cp.newClassItem(typeDesc);
       cfgAnalysis.updateCurrentBlockForTypeInstruction(opcode, typeItem);
 
       // Adds the instruction to the bytecode of the method.
@@ -279,19 +279,19 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Override
-   public void visitIincInsn(int var, int increment) {
-      cfgAnalysis.updateCurrentBlockForIINCInstruction(var);
+   public void visitIincInsn(@Nonnegative int varIndex, int increment) {
+      cfgAnalysis.updateCurrentBlockForIINCInstruction(varIndex);
 
       // Updates max locals.
-      int n = var + 1;
+      int n = varIndex + 1;
       frameAndStack.updateMaxLocals(n);
 
       // Adds the instruction to the bytecode of the method.
-      if (var > 255 || increment > 127 || increment < -128) {
-         code.putByte(WIDE).put12(IINC, var).putShort(increment);
+      if (varIndex > 255 || increment > 127 || increment < -128) {
+         code.putByte(WIDE).put12(IINC, varIndex).putShort(increment);
       }
       else {
-         code.putByte(IINC).put11(var, increment);
+         code.putByte(IINC).put11(varIndex, increment);
       }
    }
 

@@ -86,9 +86,9 @@ public class MethodVisitor extends BaseWriter
     * @param opcode the opcode of the instruction to be visited: {@link Opcodes#NEW NEW},
     * {@link Opcodes#ANEWARRAY ANEWARRAY}, {@link Opcodes#CHECKCAST CHECKCAST}, or
     * {@link Opcodes#INSTANCEOF INSTANCEOF}.
-    * @param type the operand of the instruction, which is the internal name of an object or array class.
+    * @param typeDesc the operand of the instruction, which is the internal name of an object or array class.
     */
-   public void visitTypeInsn(int opcode, @Nonnull String type) {}
+   public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {}
 
    /**
     * Visits a field access instruction, which loads or stores the value of a field of an object or a class.
@@ -150,10 +150,10 @@ public class MethodVisitor extends BaseWriter
    /**
     * Visits an {@link Opcodes#IINC IINC} instruction.
     *
-    * @param var       index of the local variable to be incremented.
+    * @param varIndex  index of the local variable to be incremented.
     * @param increment amount to increment the local variable by.
     */
-   public void visitIincInsn(@Nonnegative int var, @Nonnegative int increment) {}
+   public void visitIincInsn(@Nonnegative int varIndex, int increment) {}
 
    /**
     * Visits a {@link Opcodes#TABLESWITCH TABLESWITCH} instruction.

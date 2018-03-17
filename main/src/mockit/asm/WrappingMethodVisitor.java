@@ -45,8 +45,8 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitTypeInsn(int opcode, @Nonnull String type) {
-      mw.visitTypeInsn(opcode, type);
+   public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
+      mw.visitTypeInsn(opcode, typeDesc);
    }
 
    @Override
@@ -82,8 +82,8 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public void visitIincInsn(int var, int increment) {
-      mw.visitIincInsn(var, increment);
+   public void visitIincInsn(@Nonnegative int varIndex, int increment) {
+      mw.visitIincInsn(varIndex, increment);
    }
 
    @Override
