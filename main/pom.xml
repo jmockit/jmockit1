@@ -150,7 +150,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.20</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.20.1</version>
             <configuration>
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
@@ -169,7 +169,6 @@
                         <exclude>**/Base*Test.class</exclude>
                         <exclude>**/JUnit4DecoratorTest.class</exclude>
                         <exclude>**/testng/*Test.class</exclude>
-                        <exclude>**/mockit/integration/TestedClass.class</exclude>
                      </excludes>
                   </configuration>
                </execution>
