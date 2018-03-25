@@ -232,21 +232,9 @@ public final class JREMockingTest
    }
 
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
-   // These would interfere with the test runner if regular mocking was applied.
 
    @Injectable FileOutputStream stream;
    @Injectable Writer writer;
-   @Injectable FileWriter fw;
-   @Injectable PrintWriter pw;
-   @Injectable DataInputStream dis;
-   @Injectable FileInputStream fis;
-
-   // These apparently don't interfere with the test runner.
-   @Mocked OutputStream os;
-   @Mocked FileReader fr;
-   @Mocked InputStream is;
-   @Mocked Reader reader;
-   @Mocked InputStreamReader isr;
 
    @Test
    public void dynamicMockingOfFileOutputStreamThroughMockField() throws Exception {
