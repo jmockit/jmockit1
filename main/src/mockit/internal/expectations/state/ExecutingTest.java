@@ -141,8 +141,8 @@ public final class ExecutingTest
 
    public boolean isInjectableMock(@Nonnull Object instance) { return containsReference(injectableMocks, instance); }
 
-   public boolean isMockedInstance(@Nonnull Object instance) {
-      return containsReference(regularMocks, instance) || isInjectableMock(instance);
+   public boolean isUnmockedInstance(@Nonnull Object instance) {
+      return !containsReference(regularMocks, instance) && !isInjectableMock(instance);
    }
 
    public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc) {

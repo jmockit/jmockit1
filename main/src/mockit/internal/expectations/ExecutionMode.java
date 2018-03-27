@@ -42,12 +42,12 @@ public enum ExecutionMode
 
       @Override
       boolean isToExecuteRealImplementation(@Nullable Object instance) {
-         return instance == null || !TestRun.getExecutingTest().isMockedInstance(instance);
+         return instance == null || TestRun.getExecutingTest().isUnmockedInstance(instance);
       }
 
       @Override
       boolean isToExecuteRealObjectOverride(@Nonnull Object instance) {
-         return !TestRun.getExecutingTest().isMockedInstance(instance);
+         return TestRun.getExecutingTest().isUnmockedInstance(instance);
       }
    };
 
