@@ -14,8 +14,7 @@ import mockit.internal.util.*;
 public final class ExpectationsTransformer implements ClassFileTransformer
 {
    private static final String BASE_CLASSES =
-      "mockit/Expectations mockit/Verifications " +
-      "mockit/VerificationsInOrder mockit/FullVerifications mockit/FullVerificationsInOrder";
+      "mockit/Expectations mockit/Verifications mockit/VerificationsInOrder mockit/FullVerifications";
 
    @Nullable @Override
    public byte[] transform(
