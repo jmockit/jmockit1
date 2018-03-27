@@ -211,10 +211,7 @@ public final class ExpectedInvocation
    private boolean isEquivalentInstance(@Nullable Object mockedInstance, @Nullable Map<Object, Object> replacementMap) {
       return
          mockedInstance == instance ||
-         mockedInstance != null && instance != null && (
-            replacementMap != null && replacementMap.get(mockedInstance) == instance ||
-            TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(instance, mockedInstance)
-         );
+         mockedInstance != null && instance != null && replacementMap != null && replacementMap.get(mockedInstance) == instance;
    }
 
    // Creation of Error instances for invocation mismatch reporting ///////////////////////////////////////////////////

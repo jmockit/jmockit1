@@ -258,15 +258,14 @@ public final class RecordAndReplayExecution
          if (paramTypeRedefinitions != null) {
             CaptureOfNewInstances paramTypeCaptures = paramTypeRedefinitions.getCaptureOfNewInstances();
 
-            if (paramTypeCaptures != null && paramTypeCaptures.captureNewInstance(null, mock)) {
+            if (paramTypeCaptures != null && paramTypeCaptures.captureNewInstance(mock)) {
                return true;
             }
          }
 
          FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
-         assert fieldTypeRedefinitions != null;
 
-         if (fieldTypeRedefinitions.captureNewInstanceForApplicableMockField(mock)) {
+         if (fieldTypeRedefinitions != null && fieldTypeRedefinitions.captureNewInstanceForApplicableMockField(mock)) {
             return true;
          }
       }

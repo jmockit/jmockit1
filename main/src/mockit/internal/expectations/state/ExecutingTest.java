@@ -26,7 +26,6 @@ public final class ExecutingTest
 
    @Nonnull private final List<Object> regularMocks;
    @Nonnull private final List<Object> injectableMocks;
-   @Nonnull private final Map<Object, Object> originalToCapturedInstance;
    @Nonnull private final CascadingTypes cascadingTypes;
 
    public ExecutingTest() {
@@ -34,7 +33,6 @@ public final class ExecutingTest
       proceedingInvocation = new ThreadLocal<BaseInvocation>();
       regularMocks = new ArrayList<Object>();
       injectableMocks = new ArrayList<Object>();
-      originalToCapturedInstance = new IdentityHashMap<Object, Object>(4);
       cascadingTypes = new CascadingTypes();
    }
 
@@ -112,8 +110,8 @@ public final class ExecutingTest
             currentRecordAndReplay = recordAndReplayForLastTestMethod;
          }
          else {
-            // This should only happen if no expectations at all were created by the whole test, but
-            // there is one (probably empty) verification block.
+            // This should only happen if no expectations at all were created by the whole test, but there is one (probably empty)
+            // verification block.
             currentRecordAndReplay = new RecordAndReplayExecution();
          }
       }
@@ -133,7 +131,6 @@ public final class ExecutingTest
    public void clearInjectableAndNonStrictMocks() {
       regularMocks.clear();
       injectableMocks.clear();
-      originalToCapturedInstance.clear();
    }
 
    void addInjectableMock(@Nonnull Object mock) {
@@ -146,21 +143,6 @@ public final class ExecutingTest
 
    public boolean isMockedInstance(@Nonnull Object instance) {
       return containsReference(regularMocks, instance) || isInjectableMock(instance);
-   }
-
-   public void addCapturedInstanceForInjectableMock(@Nullable Object originalInstance, @Nonnull Object capturedInstance) {
-      injectableMocks.add(capturedInstance);
-      addCapturedInstance(originalInstance, capturedInstance);
-   }
-
-   public void addCapturedInstance(@Nullable Object originalInstance, @Nonnull Object capturedInstance) {
-      originalToCapturedInstance.put(capturedInstance, originalInstance);
-   }
-
-   public boolean isInvokedInstanceEquivalentToCapturedInstance(@Nonnull Object invokedInstance, @Nonnull Object capturedInstance) {
-      return
-         invokedInstance == originalToCapturedInstance.get(capturedInstance) ||
-         capturedInstance == originalToCapturedInstance.get(invokedInstance);
    }
 
    public static boolean isInstanceMethodWithStandardBehavior(@Nullable Object mock, @Nonnull String nameAndDesc) {

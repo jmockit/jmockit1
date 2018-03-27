@@ -46,7 +46,7 @@ final class MockedClassModifier extends BaseClassModifier
 
    private void useInstanceBasedMockingIfApplicable() {
       if (mockedType != null && mockedType.injectable) {
-         ignoreConstructors = mockedType.getMaxInstancesToCapture() <= 0;
+         ignoreConstructors = !mockedType.withInstancesToCapture();
          executionMode = ExecutionMode.PerInstance;
       }
    }

@@ -66,10 +66,7 @@ final class PhasedExecutionState
    }
 
    private void forceMatchingOnMockInstanceIfRequired(@Nonnull ExpectedInvocation invocation) {
-      if (
-         !invocation.matchInstance &&
-         isToBeMatchedOnInstance(invocation.instance, invocation.getMethodNameAndDescription())
-      ) {
+      if (!invocation.matchInstance && isToBeMatchedOnInstance(invocation.instance, invocation.getMethodNameAndDescription())) {
          invocation.matchInstance = true;
       }
    }
@@ -151,11 +148,7 @@ final class PhasedExecutionState
       if (mock1 != null && mock2 != null) {
          Class<?> mockedClass1 = mock1.getClass();
          Class<?> mockedClass2 = GeneratedClasses.getMockedClass(mock2);
-
-         return
-            mockedClass2.isAssignableFrom(mockedClass1) ||
-            TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(mock1, mock2) ||
-            TestRun.mockFixture().areCapturedClasses(mockedClass1, mockedClass2);
+         return mockedClass2.isAssignableFrom(mockedClass1) || TestRun.mockFixture().areCapturedClasses(mockedClass1, mockedClass2);
       }
 
       return false;
@@ -243,8 +236,7 @@ final class PhasedExecutionState
          invocationInstance == invokedInstance ||
          invocationInstance == replacementMap.get(invokedInstance) ||
          invocationInstance == instanceMap.get(invokedInstance) ||
-         invokedInstance == instanceMap.get(invocationInstance) ||
-         TestRun.getExecutingTest().isInvokedInstanceEquivalentToCapturedInstance(invocationInstance, invokedInstance);
+         invokedInstance == instanceMap.get(invocationInstance);
    }
 
    private boolean isDynamicMockInstanceOrClass(@Nonnull Object invokedInstance, @Nonnull Object invocationInstance) {
@@ -330,8 +322,7 @@ final class PhasedExecutionState
    boolean isReplacementInstance(@Nonnull Object invokedInstance, @Nonnull String methodNameAndDesc) {
       return
          methodNameAndDesc.charAt(0) != '<' && (
-            replacementMap.containsKey(invokedInstance) ||
-            replacementMap.containsValue(invokedInstance)
+            replacementMap.containsKey(invokedInstance) || replacementMap.containsValue(invokedInstance)
          );
    }
 }

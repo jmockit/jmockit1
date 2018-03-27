@@ -101,12 +101,12 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    }
 
    private void registerCaptureOfNewInstances(@Nonnull MockedType mockedType) {
-      if (mockedType.getMaxInstancesToCapture() > 0) {
+      if (mockedType.withInstancesToCapture()) {
          if (captureOfNewInstances == null) {
-            captureOfNewInstances = new CaptureOfNewInstancesForFields();
+            captureOfNewInstances = new CaptureOfNewInstances();
          }
 
-         captureOfNewInstances.registerCaptureOfNewInstances(mockedType, null);
+         captureOfNewInstances.registerCaptureOfNewInstances(mockedType);
       }
    }
 
@@ -127,7 +127,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nonnull
-   private Object assignNewInstanceToMockField(
+   private static Object assignNewInstanceToMockField(
       @Nonnull Object target, @Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory
    ) {
       Field mockField = mockedType.field;
@@ -150,12 +150,6 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
          }
 
          FieldReflection.setFieldValue(mockField, target, mock);
-
-         if (mockedType.getMaxInstancesToCapture() > 0) {
-            assert captureOfNewInstances != null;
-            CaptureOfNewInstancesForFields capture = (CaptureOfNewInstancesForFields) captureOfNewInstances;
-            capture.resetCaptureCount(mockField);
-         }
       }
 
       return mock;
@@ -173,16 +167,11 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    }
 
    /**
-    * Returns true iff the mock instance concrete class is not mocked in some test, ie it's a class
-    * which only appears in the code under test.
+    * Returns true iff the mock instance concrete class is not mocked in some test, i.e. it's a class which only appears in the code under
+    * test.
     */
    public boolean captureNewInstanceForApplicableMockField(@Nonnull Object mock) {
-      if (captureOfNewInstances == null) {
-         return false;
-      }
-
-      Object fieldOwner = TestRun.getCurrentTestInstance();
-      return captureOfNewInstances.captureNewInstance(fieldOwner, mock);
+      return captureOfNewInstances != null && captureOfNewInstances.captureNewInstance(mock);
    }
 
    @Override

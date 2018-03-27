@@ -185,9 +185,7 @@ public final class MockedType extends InjectionProvider
       }
 
       if (injectable) {
-         if (isJREValueType(classType) || classType.isEnum()) {
-            return false;
-         }
+         return !isJREValueType(classType) && !classType.isEnum();
       }
 
       return true;
@@ -203,9 +201,7 @@ public final class MockedType extends InjectionProvider
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
    boolean isClassInitializationToBeStubbedOut() { return mocked != null && mocked.stubOutClassInitialization(); }
-
-   boolean withInstancesToCapture() { return getMaxInstancesToCapture() > 0; }
-   int getMaxInstancesToCapture() { return capturing == null ? 0 : capturing.maxInstances(); }
+   boolean withInstancesToCapture() { return capturing != null; }
 
    @Nullable @Override
    public Object getValue(@Nullable Object owner) {

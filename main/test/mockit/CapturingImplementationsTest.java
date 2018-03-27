@@ -87,18 +87,6 @@ public final class CapturingImplementationsTest
       }.doSomething());
    }
 
-   @Test
-   public void captureGeneratedMockSubclass(@Capturing final AbstractService mock1, @Mocked final AbstractService mock2) {
-      new Expectations() {{
-         mock1.doSomething(); result = true;
-         mock2.doSomething(); result = false;
-      }};
-
-      assertFalse(mock2.doSomething());
-      assertTrue(mock1.doSomething());
-      assertTrue(new DefaultServiceImpl().doSomething());
-   }
-
    static final Class<? extends Service2> customLoadedClass = new ClassLoader() {
       @Override
       protected Class<? extends Service2> findClass(String name) {

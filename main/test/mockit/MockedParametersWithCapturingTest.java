@@ -20,35 +20,7 @@ public final class MockedParametersWithCapturingTest
       @Override public int doSomething() { return 1; }
       @Override public void doSomethingElse(int i) { throw new IllegalMonitorStateException(); }
 
-      private boolean privateMethod() { return true; }
       static boolean staticMethod() { return true; }
-   }
-
-   public static final class TestedUnit {
-      final Service service1 = new ServiceImpl("test");
-
-      final Service service2 = new Service() {
-         @Override public int doSomething() { return 2; }
-         @Override public void doSomethingElse(int i) {}
-      };
-
-      public int businessOperation() {
-         return service1.doSomething() + service2.doSomething();
-      }
-   }
-
-   @Test
-   public void captureInstancesUpToAMaximumQuantity(@Capturing(maxInstances = 2) Service service) {
-      assertEquals(0, service.doSomething());
-
-      TestedUnit unit = new TestedUnit();
-      assertEquals(0, unit.businessOperation());
-
-      assertTrue(ServiceImpl.staticMethod());
-
-      ServiceImpl service1 = (ServiceImpl) unit.service1;
-      assertTrue(service1.privateMethod());
-      assertNull(service1.str);
    }
 
    static class BaseClass {

@@ -22,17 +22,6 @@ public class TypeRedefinitions
 
       if (targetClass != TypeVariable.class) {
          targetClasses.add(targetClass);
-         addDuplicateTargetClassRepresentingMultipleCapturedSetsOfClasses(mockedType, targetClass);
-      }
-   }
-
-   private void addDuplicateTargetClassRepresentingMultipleCapturedSetsOfClasses(
-      @Nonnull MockedType mockedType, @Nonnull Class<?> targetClass
-   ) {
-      int maxInstancesToCapture = mockedType.getMaxInstancesToCapture();
-
-      if (maxInstancesToCapture > 0 && maxInstancesToCapture < Integer.MAX_VALUE) {
-         targetClasses.add(targetClass);
       }
    }
 
