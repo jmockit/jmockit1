@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="jmockit" basedir=".">
-   <path id="common.classpath">
-      <fileset dir="lib" includes="*.jar"/>
-   </path>
+   <path id="common.classpath"/>
 
    <target name="createJavadocs">
       <property name="api" value="../jmockit.github.io/api1x"/>
