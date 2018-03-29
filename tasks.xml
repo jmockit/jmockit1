@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="jmockit" basedir=".">
-   <taskdef resource="testngtasks" classpath="lib/testng-6.8.jar"/>
-
    <path id="common.classpath">
       <fileset dir="lib" includes="*.jar"/>
    </path>
@@ -87,108 +85,5 @@
          <service type="org.junit.platform.engine.TestEngine" provider="mockit.integration.junit5.JMockitTestEngine"/>
          <service type="org.testng.ITestNGListener" provider="mockit.integration.testng.TestNGRunnerDecorator"/>
       </jar>
-   </target>
-
-   <macrodef name="testReport">
-      <attribute name="name"/>
-      <sequential>
-         <junitreport>
-           <fileset dir="." includes="TEST-*.xml"/>
-           <report format="noframes" styledir="${ant.home}/etc"/>
-         </junitreport>
-         <delete dir="." includes="TEST*-*.xml" quiet="true"/>
-         <move file="junit-noframes.html" tofile="@{name}.html"/>
-      </sequential>
-   </macrodef>
-
-   <target name="tests">
-      <junit fork="yes" forkmode="once" dir="main" showoutput="true" printsummary="true">
-         <assertions><enable/></assertions>
-         <jvmarg value="-javaagent:../jmockit.jar"/>
-         <classpath refid="common.classpath"/>
-         <classpath location="main/target/test-classes"/>
-         <classpath location="main/target/classes"/>
-         <batchtest>
-            <fileset dir="main/target/test-classes">
-               <include name="**/*Test.class"/>
-               <exclude name="**/*CodeUnderTest.class"/>
-               <exclude name="**/Base*Test.class"/>
-               <exclude name="otherTests/testng/*Test.class"/>
-               <exclude name="**/ExecutingTest.class"/>
-            </fileset>
-         </batchtest>
-         <formatter type="xml"/>
-      </junit>
-      <testReport name="main/JMockitTests"/>
-
-      <testng workingdir="main">
-         <classpath path="jmockit.jar"/>
-         <classpath refid="common.classpath"/>
-         <classpath>
-            <pathelement location="main/target/test-classes"/>
-         </classpath>
-         <classfileset
-            dir="main/target/test-classes"
-            includes="otherTests/testng/*Test.class"
-            excludes="otherTests/testng/BaseTestNGDecoratorTest.class
-                      otherTests/testng/TestNGViolatedExpectationsTest.class"/>
-      </testng>
-   </target>
-
-   <target name="coverageTests">
-      <junit fork="yes" forkmode="once" dir="coverageTests" showoutput="true" printsummary="true">
-         <classpath path="jmockit.jar"/>
-         <classpath refid="common.classpath"/>
-         <classpath location="coverageTests/target/test-classes"/>
-         <classpath location="coverageTests/target/classes"/>
-         <sysproperty key="coverage-metrics" value="all"/>
-         <batchtest>
-            <fileset
-               dir="coverageTests/target/test-classes" includes="**/*Test.class" excludes="**/CoverageTest.class"/>
-         </batchtest>
-         <formatter type="xml"/>
-      </junit>
-      <testReport name="coverageTests/CoverageTests"/>
-   </target>
-
-   <target name="sampleTests">
-      <junit fork="yes" forkmode="once" dir="samples" showoutput="true" printsummary="true">
-         <assertions><enable/></assertions>
-         <classpath path="jmockit.jar"/>
-         <sysproperty key="coverage-output" value="serial"/>
-         <classpath refid="common.classpath"/>
-         <classpath>
-            <fileset dir="samples" includes="**/lib/*.jar"/>
-            <dirset dir="samples">
-               <include name="*/target/classes"/>
-               <include name="*/target/test-classes"/>
-            </dirset>
-         </classpath>
-         <batchtest>
-            <fileset dir="samples/tutorial/target/test-classes" includes="**/*Test.class"/>
-         </batchtest>
-         <formatter type="xml"/>
-      </junit>
-      <testReport name="samples/JMockitSampleTests"/>
-
-      <property name="sampleDir" value="samples/LoginService"/>
-      <testng workingdir="${sampleDir}">
-         <classpath refid="common.classpath"/>
-         <classpath path="jmockit.jar"/>
-         <sysproperty key="coverage-output" value="serial"/>
-         <classpath>
-            <fileset dir="samples" includes="lib/*.jar"/>
-            <pathelement location="${sampleDir}/target/classes"/>
-            <pathelement location="${sampleDir}/target/test-classes"/>
-         </classpath>
-         <classfileset dir="${sampleDir}/target/test-classes" includes="**/*Test.class"/>
-      </testng>
-
-      <java fork="yes" dir="samples" jar="jmockit.jar">
-         <jvmarg line="-Dcoverage-output=html"/>
-         <arg line=". LoginService"/>
-      </java>
-      <delete file="samples/coverage.ser"/>
-      <delete file="samples/LoginService/coverage.ser"/>
    </target>
 </project>
