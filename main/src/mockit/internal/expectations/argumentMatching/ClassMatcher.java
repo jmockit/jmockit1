@@ -11,7 +11,7 @@ public final class ClassMatcher implements ArgumentMatcher<ClassMatcher>
 {
    private static final Map<Class<?>, ClassMatcher> PRIMITIVE_MATCHERS;
    static {
-      PRIMITIVE_MATCHERS = new IdentityHashMap<Class<?>, ClassMatcher>(16);
+      PRIMITIVE_MATCHERS = new IdentityHashMap<>(16);
 
       PRIMITIVE_MATCHERS.put(Boolean.class, new ClassMatcher(Boolean.class));
       PRIMITIVE_MATCHERS.put(Character.class, new ClassMatcher(Character.class));

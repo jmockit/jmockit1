@@ -27,7 +27,7 @@ public final class LineCoverageData extends LineSegmentData
       int initialIndex = branches.size();
 
       if (initialIndex == 0) {
-         branches = new ArrayList<BranchCoverageData>(4);
+         branches = new ArrayList<>(4);
       }
 
       branches.add(new BranchCoverageData(jumpSource));
@@ -58,7 +58,7 @@ public final class LineCoverageData extends LineSegmentData
 
    @Nonnull public List<BranchCoverageData> getBranches() { return branches; }
 
-   public boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
+   boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
 
    public int getNumberOfSegments() {
       int previouslyCounted = segments;

@@ -48,14 +48,9 @@ public final class Message
       }
 
       private void communicateWithClient() throws IOException {
-         Socket connection = new Socket(client.getAddress(), CLIENT_PORT);
-
-         try {
+         try (Socket connection = new Socket(client.getAddress(), CLIENT_PORT)) {
             sendMessage(connection.getOutputStream());
             readRequiredReceipts(connection.getInputStream());
-         }
-         finally {
-            connection.close();
          }
       }
 

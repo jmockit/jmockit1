@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public final class FakingEverythingTest
 {
-   final List<String> traces = new ArrayList<String>();
+   final List<String> traces = new ArrayList<>();
 
    void traceEntry(Invocation inv) { traces.add("Entered " + getDescription(inv)); }
    void traceExit(Invocation inv) { traces.add("Exited " + getDescription(inv)); }
@@ -138,7 +138,7 @@ public final class FakingEverythingTest
    }
 
    static final class XMLSourceTimingAspect<S extends Source> extends MockUp<S> {
-      final Map<String, List<Long>> executionTimesMillis = new HashMap<String, List<Long>>();
+      final Map<String, List<Long>> executionTimesMillis = new HashMap<>();
 
       @Mock
       Object $advice(Invocation invocation) {
@@ -160,7 +160,7 @@ public final class FakingEverythingTest
          List<Long> methodTimesMillis = executionTimesMillis.get(methodId);
 
          if (methodTimesMillis == null) {
-            methodTimesMillis = new ArrayList<Long>();
+            methodTimesMillis = new ArrayList<>();
             executionTimesMillis.put(methodId, methodTimesMillis);
          }
 
@@ -198,7 +198,7 @@ public final class FakingEverythingTest
 
    @Test
    public void fakeEveryMethodInAllClassesImplementingAnInterface() {
-      XMLSourceTimingAspect<?> timingAspect = new XMLSourceTimingAspect<Source>();
+      XMLSourceTimingAspect<?> timingAspect = new XMLSourceTimingAspect<>();
 
       Source src1 = new TestSource();
       src1.setSystemId("Abc");

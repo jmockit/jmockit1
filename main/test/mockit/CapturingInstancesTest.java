@@ -72,7 +72,6 @@ public final class CapturingInstancesTest
 
       // Classes mocked only because they implement/extend a capturing base type do not cascade from methods
       // that exist only in them.
-      //noinspection ConstantConditions
       assertNull(service2);
    }
 }

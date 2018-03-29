@@ -9,7 +9,7 @@ import javax.annotation.*;
 
 public final class MockingFilters
 {
-   private static final Map<String, String> FILTERS = new HashMap<String, String>();
+   private static final Map<String, String> FILTERS = new HashMap<>();
    static {
       FILTERS.put("java/lang/Object", "<init> clone getClass hashCode wait notify notifyAll ");
       FILTERS.put("java/lang/System", "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName ");

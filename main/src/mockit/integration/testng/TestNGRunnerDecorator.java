@@ -40,7 +40,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
          @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method, ITestContext context, ITestResult testResult
       ) {
          ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
-         //noinspection deprecation
          Object value = Parameters.getInjectedParameter(c, method, context, testResult);
 
          if (value != null) {
@@ -89,7 +88,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
       }
    }
 
-   static Object[] injectParameters(Object[] parameterValues, Method method) {
+   private static Object[] injectParameters(Object[] parameterValues, Method method) {
       if (method == null) {
          return parameterValues;
       }
@@ -118,7 +117,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
    @Nonnull private final ThreadLocal<SavePoint> savePoint;
 
    public TestNGRunnerDecorator() {
-      savePoint = new ThreadLocal<SavePoint>();
+      savePoint = new ThreadLocal<>();
    }
 
    @Override

@@ -12,7 +12,7 @@ import static mockit.asm.Opcodes.*;
 
 public final class ArgumentCapturing
 {
-   private static final Map<Integer, String> varIndexToTypeDesc = new HashMap<Integer, String>();
+   private static final Map<Integer, String> varIndexToTypeDesc = new HashMap<>();
 
    @Nonnull private final InvocationBlockModifier modifier;
    @Nullable private List<Capture> captures;
@@ -79,7 +79,7 @@ public final class ArgumentCapturing
 
    private void addCapture(@Nonnull Capture capture) {
       if (captures == null) {
-         captures = new ArrayList<Capture>();
+         captures = new ArrayList<>();
       }
 
       captures.add(capture);

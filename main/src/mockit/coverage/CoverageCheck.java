@@ -100,7 +100,7 @@ final class CoverageCheck
 
       String[] configurationParameters = configuration.split(";");
       int n = configurationParameters.length;
-      thresholds = new ArrayList<Threshold>(n);
+      thresholds = new ArrayList<>(n);
 
       for (String configurationParameter : configurationParameters) {
          thresholds.add(new Threshold(configurationParameter));

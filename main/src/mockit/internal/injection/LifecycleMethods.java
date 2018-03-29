@@ -25,10 +25,10 @@ public final class LifecycleMethods
    @Nullable Object servletConfig;
 
    LifecycleMethods() {
-      classesSearched = new ArrayList<Class<?>>();
-      initializationMethods = new IdentityHashMap<Class<?>, Method>();
-      terminationMethods = new IdentityHashMap<Class<?>, Method>();
-      objectsWithTerminationMethodsToExecute = new IdentityHashMap<Class<?>, Object>();
+      classesSearched = new ArrayList<>();
+      initializationMethods = new IdentityHashMap<>();
+      terminationMethods = new IdentityHashMap<>();
+      objectsWithTerminationMethodsToExecute = new IdentityHashMap<>();
    }
 
    public void findLifecycleMethods(@Nonnull Class<?> testedClass) {
@@ -162,8 +162,7 @@ public final class LifecycleMethods
       try {
          MethodReflection.invoke(testedObject, terminationMethod);
       }
-      catch (RuntimeException ignore) {}
-      catch (AssertionError ignore) {}
+      catch (RuntimeException | AssertionError ignore) {}
       finally {
          TestRun.enterNoMockingZone();
       }

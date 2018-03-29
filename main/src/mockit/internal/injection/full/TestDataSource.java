@@ -115,9 +115,8 @@ final class TestDataSource
          //noinspection ClassNewInstance
          ds = dsClass.newInstance();
       }
-      catch (ClassNotFoundException e) { throw new RuntimeException(e); }
+      catch (ClassNotFoundException | IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InstantiationException e) { throw new RuntimeException(e.getCause()); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 
    private void setDataSourcePropertiesFromConfiguredValues(@Nonnull DataSourceDefinition dsDef) {
@@ -129,9 +128,7 @@ final class TestDataSource
          setProperty(properties, "user", dsDef.user());
          setProperty(properties, "password", dsDef.password());
       }
-      catch (IntrospectionException e) { throw new RuntimeException(e); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e); }
+      catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) { throw new RuntimeException(e); }
    }
 
    private void setProperty(

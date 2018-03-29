@@ -36,7 +36,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       this.captureOfImplementations = captureOfImplementations;
       transformedClasses = registerTransformedClasses ?
          new HashMap<ClassIdentification, byte[]>(2) : Collections.<ClassIdentification, byte[]>emptyMap();
-      superTypesSearched = new HashMap<String, Boolean>();
+      superTypesSearched = new HashMap<>();
       this.typeMetadata = typeMetadata;
    }
 

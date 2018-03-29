@@ -18,7 +18,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
    ) {
       super(recordAndReplay, expectationsInReplayOrder, invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
-      verifiedExpectations = new ArrayList<VerifiedExpectation>();
+      verifiedExpectations = new ArrayList<>();
    }
 
    @Nonnull @Override
@@ -31,7 +31,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
 
       replayIndex = -1;
       Expectation verification = expectationBeingVerified();
-      List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<ExpectedInvocation>();
+      List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);

@@ -306,7 +306,7 @@ public class LinuxVirtualMachine extends HotSpotVirtualMachine {
             try {
                 b = s.getBytes("UTF-8");
             } catch (java.io.UnsupportedEncodingException x) {
-                throw new InternalError(x);
+                throw new InternalError(x.getMessage());
             }
             LinuxVirtualMachine.write(fd, b, 0, b.length);
         }

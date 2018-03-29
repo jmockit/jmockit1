@@ -15,7 +15,7 @@ public class TypeRedefinitions
    @Nonnull private final List<Class<?>> targetClasses;
    @Nullable protected CaptureOfNewInstances captureOfNewInstances;
 
-   TypeRedefinitions() { targetClasses = new ArrayList<Class<?>>(2); }
+   TypeRedefinitions() { targetClasses = new ArrayList<>(2); }
 
    final void addTargetClass(@Nonnull MockedType mockedType) {
       Class<?> targetClass = mockedType.getClassType();

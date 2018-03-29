@@ -31,7 +31,7 @@ public final class FieldInjection extends Injector
    public static List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
       @Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass
    ) {
-      List<Field> targetFields = new ArrayList<Field>();
+      List<Field> targetFields = new ArrayList<>();
       Class<?> classWithFields = actualTestedClass;
 
       do {

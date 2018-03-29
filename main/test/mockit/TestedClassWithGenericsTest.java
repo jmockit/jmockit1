@@ -177,7 +177,7 @@ public final class TestedClassWithGenericsTest
 
    static class GenericClassWithDependencyUsingTypeParameter<T> { GenericClass<T> dependency; }
 
-   @Tested final GenericClass<String> dependency = new GenericClass<String>();
+   @Tested final GenericClass<String> dependency = new GenericClass<>();
    @Tested(fullyInitialized = true) GenericClassWithDependencyUsingTypeParameter<String> tested7;
 
    @Test

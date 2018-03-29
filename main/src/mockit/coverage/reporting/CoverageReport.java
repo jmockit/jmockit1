@@ -32,7 +32,7 @@ class CoverageReport
       this.outputDirCreated = outputDirCreated;
       sourceDirs = srcDirs == null ? null : new SourceFiles().buildListOfSourceDirectories(srcDirs);
       fileToFileData = coverageData.getFileToFileDataMap();
-      packageToFiles = new HashMap<String, List<String>>();
+      packageToFiles = new HashMap<>();
       this.withCallPoints = withCallPoints;
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
    }
@@ -115,7 +115,7 @@ class CoverageReport
       List<String> filesInPackage = packageToFiles.get(filePackage);
 
       if (filesInPackage == null) {
-         filesInPackage = new ArrayList<String>();
+         filesInPackage = new ArrayList<>();
          packageToFiles.put(filePackage, filesInPackage);
       }
 

@@ -18,7 +18,7 @@ public final class InstanceDITest
 
       @Inject
       TestedClassWithInstanceInjectionPoints(Instance<String> names) {
-         this.names = new HashSet<String>();
+         this.names = new HashSet<>();
 
          for (String name : names) {
             this.names.add(name);
@@ -33,7 +33,7 @@ public final class InstanceDITest
 
    @Test
    public void allowMultipleInjectablesOfSameTypeToBeObtainedFromInstanceInjectionPoint() {
-      assertEquals(new HashSet<String>(asList("Abc", "Test", "123")), tested.names);
+      assertEquals(new HashSet<>(asList("Abc", "Test", "123")), tested.names);
 
       Instance<Collaborator> collaborators = tested.collaborators;
       assertFalse(collaborators.isAmbiguous());
@@ -44,7 +44,7 @@ public final class InstanceDITest
    }
 
    static <T> List<T> toList(Iterable<T> instances) {
-      List<T> list = new ArrayList<T>();
+      List<T> list = new ArrayList<>();
 
       for (T instance : instances) {
          list.add(instance);

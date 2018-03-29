@@ -49,7 +49,7 @@ public final class FileCoverageData implements Serializable
       loadedAfterTestCompletion = TestRun.isTerminated();
    }
 
-   public boolean wasLoadedAfterTestCompletion() { return loadedAfterTestCompletion; }
+   boolean wasLoadedAfterTestCompletion() { return loadedAfterTestCompletion; }
 
    @Nonnull
    public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }
@@ -58,7 +58,7 @@ public final class FileCoverageData implements Serializable
 
    @Nonnull
    public Collection<MethodCoverageData> getMethods() {
-      List<MethodCoverageData> methods = new ArrayList<MethodCoverageData>(pathCoverageInfo.firstLineToMethodData.values());
+      List<MethodCoverageData> methods = new ArrayList<>(pathCoverageInfo.firstLineToMethodData.values());
 
       Collections.sort(methods, new Comparator<MethodCoverageData>() {
          @Override
@@ -86,7 +86,7 @@ public final class FileCoverageData implements Serializable
       }
    }
 
-   public int getTotalItemsForAllMetrics() {
+   int getTotalItemsForAllMetrics() {
       int totalItems = 0;
 
       if (lineCoverageInfo != NO_LINE_INFO) {

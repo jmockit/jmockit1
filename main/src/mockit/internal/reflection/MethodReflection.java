@@ -138,8 +138,7 @@ public final class MethodReflection
          String result = (String) publicMethod.invoke(annotationInstance);
          return result;
       }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (NoSuchMethodException | IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
    }
 

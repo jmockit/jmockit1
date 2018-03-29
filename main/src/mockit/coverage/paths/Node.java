@@ -13,9 +13,9 @@ public class Node implements Serializable
 {
    private static final long serialVersionUID = 7521062699264845946L;
 
-   @Nonnull private final transient ThreadLocal<Boolean> reached = new ThreadLocal<Boolean>();
+   @Nonnull private final transient ThreadLocal<Boolean> reached = new ThreadLocal<>();
    public final int line;
-   protected int segment;
+   int segment;
 
    private Node(int line) { this.line = line; }
 
@@ -44,7 +44,7 @@ public class Node implements Serializable
 
    static final class Exit extends Node implements ConditionalSuccessor {
       private static final long serialVersionUID = -4801498566218642509L;
-      @Nonnull final List<Path> paths = new ArrayList<Path>(4);
+      @Nonnull final List<Path> paths = new ArrayList<>(4);
 
       Exit(int exitLine) { super(exitLine); }
 
@@ -62,7 +62,7 @@ public class Node implements Serializable
 
       BasicBlock(int startingLine) { super(startingLine); }
 
-      @Override @SuppressWarnings("NullableProblems")
+      @Override
       public void setNextNodeAfterGoto(@Nonnull Join newJoin) { nextNodeAfterGoto = newJoin; }
 
       @Override
@@ -118,7 +118,7 @@ public class Node implements Serializable
 
    static final class MultiFork extends Fork {
       private static final long serialVersionUID = 1220318686622690670L;
-      @Nonnull private final List<Join> caseNodes = new ArrayList<Join>();
+      @Nonnull private final List<Join> caseNodes = new ArrayList<>();
 
       MultiFork(int line) { super(line); }
 

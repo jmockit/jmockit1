@@ -37,8 +37,8 @@ public final class MockedTypeCascade
       this.fromMockField = fromMockField;
       this.mockedType = mockedType;
       this.mockedTypeDesc = mockedTypeDesc;
-      cascadedTypesAndMocks = new ConcurrentHashMap<String, Type>(4);
-      cascadingInstances = synchronizedList(new ArrayList<Object>());
+      cascadedTypesAndMocks = new ConcurrentHashMap<>(4);
+      cascadingInstances = synchronizedList(new ArrayList<>());
    }
 
    @Nullable

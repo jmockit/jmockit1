@@ -30,9 +30,9 @@ public final class ExecutingTest
 
    public ExecutingTest() {
       shouldIgnoreMockingCallbacks = new ThreadLocal<Boolean>() { @Override protected Boolean initialValue() { return false; } };
-      proceedingInvocation = new ThreadLocal<BaseInvocation>();
-      regularMocks = new ArrayList<Object>();
-      injectableMocks = new ArrayList<Object>();
+      proceedingInvocation = new ThreadLocal<>();
+      regularMocks = new ArrayList<>();
+      injectableMocks = new ArrayList<>();
       cascadingTypes = new CascadingTypes();
    }
 

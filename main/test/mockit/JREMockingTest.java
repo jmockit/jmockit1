@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 import static mockit.internal.util.Utilities.JAVA8;
 
-@SuppressWarnings({"WaitNotInLoop", "deprecation"})
+@SuppressWarnings("deprecation")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class JREMockingTest
 {
@@ -144,7 +144,8 @@ public final class JREMockingTest
    static class ExampleInterruptibleThread extends InterruptibleThread {
       boolean terminatedCleanly;
 
-      @Override @SuppressWarnings("MethodWithMultipleLoops")
+      @Override
+      @SuppressWarnings({"MethodWithMultipleLoops", "ConditionalBreakInInfiniteLoop"})
       public void run() {
          while (true) {
             for (int i = 0; i < 10; i++) {
@@ -204,6 +205,7 @@ public final class JREMockingTest
          String getName() { return "test"; }
       };
 
+      //noinspection InstantiatingAThreadWithDefaultRunMethod
       Thread t = new Thread();
       String threadName = t.getName();
 

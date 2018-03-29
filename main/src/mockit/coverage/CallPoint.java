@@ -16,7 +16,7 @@ import mockit.internal.util.*;
 public final class CallPoint implements Serializable
 {
    private static final long serialVersionUID = 362727169057343840L;
-   private static final Map<StackTraceElement, Boolean> steCache = new HashMap<StackTraceElement, Boolean>();
+   private static final Map<StackTraceElement, Boolean> steCache = new HashMap<>();
    private static final Class<? extends Annotation> testAnnotation;
    private static final boolean checkTestAnnotationOnClass;
    private static final boolean checkIfTestCaseSubclass;
@@ -134,8 +134,7 @@ public final class CallPoint implements Serializable
       try {
          return Class.forName(className);
       }
-      catch (ClassNotFoundException ignore) { return null; }
-      catch (LinkageError ignore) { return null; }
+      catch (ClassNotFoundException | LinkageError ignore) { return null; }
    }
 
    private static boolean isTestMethod(@Nonnull Class<?> testClass, @Nonnull String methodName) {

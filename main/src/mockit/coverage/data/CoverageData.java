@@ -25,8 +25,8 @@ public final class CoverageData implements Serializable
 
    private boolean withCallPoints;
 
-   @Nonnull private final Map<String, FileCoverageData> fileToFileData = new LinkedHashMap<String, FileCoverageData>();
-   @Nonnull private final List<FileCoverageData> indexedFileData = new ArrayList<FileCoverageData>(100);
+   @Nonnull private final Map<String, FileCoverageData> fileToFileData = new LinkedHashMap<>();
+   @Nonnull private final List<FileCoverageData> indexedFileData = new ArrayList<>(100);
 
    public boolean isWithCallPoints() { return withCallPoints; }
    public void setWithCallPoints(boolean withCallPoints) { this.withCallPoints = withCallPoints; }
@@ -39,7 +39,7 @@ public final class CoverageData implements Serializable
     */
    @Nonnull
    public Map<String, FileCoverageData> getFileToFileDataMap() {
-      Map<String, FileCoverageData> copy = new LinkedHashMap<String, FileCoverageData>(fileToFileData);
+      Map<String, FileCoverageData> copy = new LinkedHashMap<>(fileToFileData);
 
       for (Iterator<Entry<String, FileCoverageData>> itr = copy.entrySet().iterator(); itr.hasNext(); ) {
          Entry<String, FileCoverageData> fileAndFileData = itr.next();
@@ -167,14 +167,10 @@ public final class CoverageData implements Serializable
    private static long getLastModifiedTimeFromJarEntry(
       @Nonnull String sourceFilePathNoExt, @Nonnull String locationPath
    ) throws IOException {
-      JarFile jarFile = new JarFile(locationPath);
 
-      try {
+      try (JarFile jarFile = new JarFile(locationPath)) {
          JarEntry classEntry = jarFile.getJarEntry(sourceFilePathNoExt + ".class");
          return classEntry.getTime();
-      }
-      finally {
-         jarFile.close();
       }
    }
 
@@ -207,8 +203,7 @@ public final class CoverageData implements Serializable
       try {
          return Class.forName(className, false, loader);
       }
-      catch (ClassNotFoundException ignore) { return null; }
-      catch (NoClassDefFoundError ignored) { return null; }
+      catch (ClassNotFoundException | NoClassDefFoundError ignore) { return null; }
    }
 
    /**
@@ -221,28 +216,17 @@ public final class CoverageData implements Serializable
     */
    @Nonnull
    public static CoverageData readDataFromFile(@Nonnull File dataFile) throws IOException {
-      ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(dataFile)));
-
-      try {
+      try (ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(dataFile)))) {
          return (CoverageData) input.readObject();
       }
       catch (ClassNotFoundException e) {
-         throw new RuntimeException(
-            "Serialized class in coverage data file \"" + dataFile + "\" not found in classpath", e);
-      }
-      finally {
-         input.close();
+         throw new RuntimeException("Serialized class in coverage data file \"" + dataFile + "\" not found in classpath", e);
       }
    }
 
    public void writeDataToFile(@Nonnull File dataFile) throws IOException {
-      ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)));
-
-      try {
+      try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)))) {
          output.writeObject(this);
-      }
-      finally {
-         output.close();
       }
    }
 

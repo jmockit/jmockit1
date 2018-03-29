@@ -164,7 +164,7 @@ public final class InstanceSpecificMockingTest
       private InputStream currentInput;
 
       public ConcatenatingInputStream(InputStream... sequentialInputs) {
-         this.sequentialInputs = new LinkedList<InputStream>(Arrays.asList(sequentialInputs));
+         this.sequentialInputs = new LinkedList<>(Arrays.asList(sequentialInputs));
          currentInput = this.sequentialInputs.poll();
       }
 

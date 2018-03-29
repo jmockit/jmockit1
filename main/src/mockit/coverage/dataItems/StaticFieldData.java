@@ -13,7 +13,7 @@ public final class StaticFieldData extends FieldData
 {
    private static final long serialVersionUID = -6596622341651601060L;
 
-   @Nonnull private final transient Map<Integer, Boolean> testIdsToAssignments = new HashMap<Integer, Boolean>();
+   @Nonnull private final transient Map<Integer, Boolean> testIdsToAssignments = new HashMap<>();
 
    void registerAssignment() {
       int testId = TestRun.getTestId();

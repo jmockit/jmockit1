@@ -92,8 +92,8 @@ public final class ClassWriter extends ClassVisitor
 
       new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
 
-      fields = new ArrayList<FieldWriter>();
-      methods = new ArrayList<MethodWriter>();
+      fields = new ArrayList<>();
+      methods = new ArrayList<>();
    }
 
    /**
@@ -111,8 +111,8 @@ public final class ClassWriter extends ClassVisitor
       sourceInfo = new SourceInfoWriter(cp);
 
       bootstrapMethods = null;
-      fields = new ArrayList<FieldWriter>();
-      methods = new ArrayList<MethodWriter>();
+      fields = new ArrayList<>();
+      methods = new ArrayList<>();
    }
 
    @Override

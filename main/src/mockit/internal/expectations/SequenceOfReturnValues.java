@@ -79,7 +79,7 @@ final class SequenceOfReturnValues
 
    private boolean addValuesInIteratorIfApplicable() {
       if (firstValue == null || !Iterator.class.isAssignableFrom(firstValue.getClass())) {
-         List<Object> values = new ArrayList<Object>(1 + remainingValues.length);
+         List<Object> values = new ArrayList<>(1 + remainingValues.length);
          addAllValues(values);
          expectation.getResults().addReturnValue(values.iterator());
          return true;
@@ -98,13 +98,13 @@ final class SequenceOfReturnValues
          Collection<Object> values;
 
          if (returnType.isAssignableFrom(List.class)) {
-            values = new ArrayList<Object>(1 + remainingValues.length);
+            values = new ArrayList<>(1 + remainingValues.length);
          }
          else if (returnType.isAssignableFrom(Set.class)) {
-            values = new LinkedHashSet<Object>(1 + remainingValues.length);
+            values = new LinkedHashSet<>(1 + remainingValues.length);
          }
          else if (returnType.isAssignableFrom(SortedSet.class)) {
-            values = new TreeSet<Object>();
+            values = new TreeSet<>();
          }
          else {
             return false;

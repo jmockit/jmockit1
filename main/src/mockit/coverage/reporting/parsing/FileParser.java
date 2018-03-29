@@ -16,7 +16,7 @@ public final class FileParser
    }
 
    @Nonnull public final LineParser lineParser = new LineParser();
-   @Nonnull public final List<PendingClass> currentClasses = new ArrayList<PendingClass>(2);
+   @Nonnull public final List<PendingClass> currentClasses = new ArrayList<>(2);
 
    @Nullable private PendingClass currentClass;
    private boolean openingBraceForClassFound;

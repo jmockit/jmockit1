@@ -24,8 +24,8 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    @Nonnull private final List<MockedType> mockFieldsNotSet;
 
    public FieldTypeRedefinitions(@Nonnull Class<?> testClass) {
-      mockInstanceFactories = new HashMap<MockedType, InstanceFactory>();
-      mockFieldsNotSet = new ArrayList<MockedType>();
+      mockInstanceFactories = new HashMap<>();
+      mockFieldsNotSet = new ArrayList<>();
 
       TestRun.enterNoMockingZone();
 
@@ -138,12 +138,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
          try {
             mock = instanceFactory.create();
          }
-         catch (NoClassDefFoundError e) {
-            StackTrace.filterStackTrace(e);
-            e.printStackTrace();
-            throw e;
-         }
-         catch (ExceptionInInitializerError e) {
+         catch (NoClassDefFoundError | ExceptionInInitializerError e) {
             StackTrace.filterStackTrace(e);
             e.printStackTrace();
             throw e;

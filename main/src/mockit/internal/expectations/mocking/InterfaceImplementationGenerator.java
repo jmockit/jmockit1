@@ -35,7 +35,7 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
       super(classfile);
       mockedTypeInfo = new MockedTypeInfo(mockedType);
       implementationClassDesc = implementationClassName.replace('.', '/');
-      implementedMethods = new ArrayList<String>();
+      implementedMethods = new ArrayList<>();
    }
 
    @Override

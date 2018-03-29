@@ -9,8 +9,8 @@ import javax.annotation.*;
 
 public final class AutoBoxing
 {
-   private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER = new HashMap<Class<?>, Class<?>>();
-   private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE = new HashMap<Class<?>, Class<?>>();
+   private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER = new HashMap<>();
+   private static final Map<Class<?>, Class<?>> WRAPPER_TO_PRIMITIVE = new HashMap<>();
 
    static {
       WRAPPER_TO_PRIMITIVE.put(Boolean.class, boolean.class);

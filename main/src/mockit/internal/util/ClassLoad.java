@@ -15,8 +15,8 @@ public final class ClassLoad
    public static final String OBJECT = "java/lang/Object";
 
    private static final ClassLoader THIS_CL = ClassLoad.class.getClassLoader();
-   private static final Map<String, Class<?>> LOADED_CLASSES = new ConcurrentHashMap<String, Class<?>>();
-   private static final Map<String, String> SUPER_CLASSES = new ConcurrentHashMap<String, String>();
+   private static final Map<String, Class<?>> LOADED_CLASSES = new ConcurrentHashMap<>();
+   private static final Map<String, String> SUPER_CLASSES = new ConcurrentHashMap<>();
 
    private ClassLoad() {}
 

@@ -222,7 +222,7 @@ public final class DelegateTest
          };
       }};
 
-      List<String> elements = new ArrayList<String>();
+      List<String> elements = new ArrayList<>();
       new Collaborator().addElements(elements);
 
       assertTrue(elements.contains("test"));

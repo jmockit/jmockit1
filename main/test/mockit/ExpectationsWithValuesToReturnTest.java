@@ -33,7 +33,6 @@ public final class ExpectationsWithValuesToReturnTest
 
       Collection<?> getItems() { return null; }
       List<?> getListItems() { return null; }
-      @SuppressWarnings("CollectionDeclaredAsConcreteClass")
       List<?> getAList() { return null; }
       Set<?> getSetItems() { return null; }
       SortedSet<?> getSortedSetItems() { return null; }
@@ -300,9 +299,9 @@ public final class ExpectationsWithValuesToReturnTest
 
    @Test
    public void recordMultipleIteratorsToBeReturnedFromMethodThatReturnsIterator(@Mocked final Collaborator mock) {
-      final Iterator<?> firstResult = new ArrayList<Object>().listIterator();
-      final ListIterator<?> secondResult = new LinkedList<Object>().listIterator();
-      final Iterator<?> thirdResult = new ArrayList<Object>().iterator();
+      final Iterator<?> firstResult = new ArrayList<>().listIterator();
+      final ListIterator<?> secondResult = new LinkedList<>().listIterator();
+      final Iterator<?> thirdResult = new ArrayList<>().iterator();
 
       new Expectations() {{
          mock.getListIterator();

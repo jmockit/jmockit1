@@ -10,10 +10,9 @@ public final class VerificationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedParameters")
    public static class Dependency {
-      public void setSomething(int value) {}
-      public void setSomethingElse(String value) {}
+      public void setSomething(@SuppressWarnings("unused") int value) {}
+      public void setSomethingElse(@SuppressWarnings("unused") String value) {}
       public void editABunchMoreStuff() {}
       public void notifyBeforeSave() {}
       public void prepare() {}

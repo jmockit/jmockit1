@@ -43,7 +43,6 @@ public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
       assertEquals(new Reference("REAL2").getClassName(), "REAL2");
    }
 
-   @SuppressWarnings("ClassMayBeInterface")
    public static class Temp {}
    private static final Temp temp = new Temp();
 
@@ -52,11 +51,13 @@ public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
 
    @Test(dataProvider = "data")
    public void checkNoMockingOfParametersWhenUsingDataProvider(Temp t) {
+      //noinspection MisorderedAssertEqualsArgumentsTestNG
       assertSame(temp, t);
    }
 
    @Test
    public void checkMockingOfParameterWhenNotUsingDataProvider(@Mocked Temp mock) {
+      //noinspection MisorderedAssertEqualsArgumentsTestNG
       assertNotSame(temp, mock);
    }
 }

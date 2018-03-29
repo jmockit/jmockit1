@@ -28,7 +28,7 @@ public final class MessageTest
       private List<Thread> getActiveTasks() {
          Thread[] tasks = new Thread[2 * Thread.activeCount()];
          Thread.enumerate(tasks);
-         return new ArrayList<Thread>(asList(tasks));
+         return new ArrayList<>(asList(tasks));
       }
 
       private void waitForCompletionOfNewTasks(List<Thread> tasksBefore) {

@@ -22,7 +22,7 @@ public final class GenericTypeReflection
    }
 
    public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType, boolean withSignatures) {
-      typeParametersToTypeArguments = new HashMap<String, Type>(4);
+      typeParametersToTypeArguments = new HashMap<>(4);
       typeParametersToTypeArgumentNames = withSignatures ? new HashMap<String, String>(4) : Collections.<String, String>emptyMap();
       ownerType = ownerClass;
       this.withSignatures = withSignatures;
@@ -232,7 +232,7 @@ public final class GenericTypeReflection
    }
 
    public final class GenericSignature {
-      private final List<String> parameters;
+      private final List<String> parameters = new ArrayList<>();
       private final String parameterTypeDescs;
       private final int lengthOfParameterTypeDescs;
       private int currentPos;
@@ -242,7 +242,6 @@ public final class GenericTypeReflection
          int q = signature.lastIndexOf(')');
          parameterTypeDescs = signature.substring(p + 1, q);
          lengthOfParameterTypeDescs = parameterTypeDescs.length();
-         parameters = new ArrayList<String>();
          addTypeDescsToList();
       }
 

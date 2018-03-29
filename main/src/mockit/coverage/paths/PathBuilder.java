@@ -35,7 +35,7 @@ final class PathBuilder
 
    @Nonnull
    private static List<Path> getAllPathsFromExitNodes(@Nonnull List<Node> nodes) {
-      List<Path> paths = new ArrayList<Path>();
+      List<Path> paths = new ArrayList<>();
 
       for (Node node : nodes) {
          if (node instanceof Exit) {

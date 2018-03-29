@@ -15,8 +15,7 @@ import mockit.asm.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
- * Provides default values for each type, typically used for returning default values according to
- * method return types.
+ * Provides default values for each type, typically used for returning default values according to method return types.
  */
 @SuppressWarnings("ZeroLengthArrayAllocation")
 public final class DefaultValues
@@ -31,8 +30,8 @@ public final class DefaultValues
    private static final Short ZERO_SHORT = 0;
    private static final Character ZERO_CHAR = '\0';
 
-   private static final Map<String, Object> TYPE_DESC_TO_VALUE_MAP = new HashMap<String, Object>();
-   private static final Map<String, Object> ELEM_TYPE_TO_ONE_D_ARRAY = new HashMap<String, Object>();
+   private static final Map<String, Object> TYPE_DESC_TO_VALUE_MAP = new HashMap<>();
+   private static final Map<String, Object> ELEM_TYPE_TO_ONE_D_ARRAY = new HashMap<>();
    static {
       TYPE_DESC_TO_VALUE_MAP.put("Z", Boolean.FALSE);
       TYPE_DESC_TO_VALUE_MAP.put("C", ZERO_CHAR);
@@ -55,9 +54,9 @@ public final class DefaultValues
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Collection;", emptyList());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/List;", emptyList());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Set;", emptySet());
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedSet;", unmodifiableSortedSet(new TreeSet<Object>()));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedSet;", unmodifiableSortedSet(new TreeSet<>()));
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Map;", emptyMap());
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedMap;", unmodifiableSortedMap(new TreeMap<Object, Object>()));
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedMap;", unmodifiableSortedMap(new TreeMap<>()));
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Iterator;", emptyList().iterator());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/ListIterator;", emptyList().listIterator());
 
@@ -77,7 +76,7 @@ public final class DefaultValues
       }
    }
 
-   @SuppressWarnings({"Since15", "LambdaUnfriendlyMethodOverload"})
+   @SuppressWarnings("Since15")
    private static void addJava8TypeMapEntries() {
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Optional;", Optional.empty());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/OptionalInt;", OptionalInt.empty());
@@ -107,7 +106,7 @@ public final class DefaultValues
          @Override public void forEachRemaining(DoubleConsumer action) {}
       });
 
-      // These are static interface methods, which can't be compiled on "-source 1.6".
+      // These are static interface methods, which can't be compiled on "-source 1.7".
       //noinspection OverlyBroadCatchBlock
       try {
          TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/stream/Stream;", Stream.class.getMethod("empty").invoke(null));

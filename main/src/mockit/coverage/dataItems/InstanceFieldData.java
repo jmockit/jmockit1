@@ -14,7 +14,7 @@ public final class InstanceFieldData extends FieldData
    private static final long serialVersionUID = 6991762113575259754L;
 
    @Nonnull
-   private final transient Map<Integer, List<Integer>> testIdsToAssignments = new HashMap<Integer, List<Integer>>();
+   private final transient Map<Integer, List<Integer>> testIdsToAssignments = new HashMap<>();
 
    void registerAssignment(@Nonnull Object instance) {
       List<Integer> dataForRunningTest = getDataForRunningTest();
@@ -41,7 +41,7 @@ public final class InstanceFieldData extends FieldData
       List<Integer> fieldData = testIdsToAssignments.get(testId);
 
       if (fieldData == null) {
-         fieldData = new LinkedList<Integer>();
+         fieldData = new LinkedList<>();
          testIdsToAssignments.put(testId, fieldData);
       }
 

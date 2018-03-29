@@ -37,11 +37,6 @@ public final class MockedParametersWithCapturingTest
       @Override String getStr() { return super.getStr().toUpperCase(); }
    }
 
-   @SuppressWarnings("UnusedDeclaration")
-   Object[] valueForSuper(String s) {
-      return new Object[] {"mock"};
-   }
-
    @Test
    public void captureDerivedClass(@Capturing BaseClass service) {
       assertNull(new DerivedClass("test").str);

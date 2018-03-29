@@ -73,10 +73,10 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.6.2</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.7.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.6</source><target>1.6</target>
+               <source>1.7</source><target>1.7</target>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
@@ -115,7 +115,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>2.10.4</version>
+            <artifactId>maven-javadoc-plugin</artifactId><version>3.0.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -153,7 +153,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.20.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.21.0</version>
             <configuration>
                <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
@@ -203,8 +203,7 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
+            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId><version>1.6.8</version>
             <extensions>true</extensions>
             <configuration>
                <serverId>sonatype-nexus-staging</serverId>

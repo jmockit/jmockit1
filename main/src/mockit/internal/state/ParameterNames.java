@@ -11,7 +11,7 @@ import mockit.internal.util.*;
 
 public final class ParameterNames
 {
-   private static final Map<String, Map<String, String[]>> classesToMethodsToParameters = new HashMap<String, Map<String, String[]>>();
+   private static final Map<String, Map<String, String[]>> classesToMethodsToParameters = new HashMap<>();
 
    private ParameterNames() {}
 
@@ -23,7 +23,7 @@ public final class ParameterNames
       Map<String, String[]> methodsToParameters = classesToMethodsToParameters.get(classDesc);
 
       if (methodsToParameters == null) {
-         methodsToParameters = new HashMap<String, String[]>();
+         methodsToParameters = new HashMap<>();
          classesToMethodsToParameters.put(classDesc, methodsToParameters);
       }
 

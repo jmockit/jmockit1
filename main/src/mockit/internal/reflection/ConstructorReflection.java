@@ -45,10 +45,7 @@ public final class ConstructorReflection
       try {
          return constructor.newInstance(initArgs);
       }
-      catch (InstantiationException e) {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalAccessException e) {
+      catch (InstantiationException | IllegalAccessException e) {
          throw new RuntimeException(e);
       }
       catch (InvocationTargetException e) {
@@ -135,8 +132,7 @@ public final class ConstructorReflection
          //noinspection ClassNewInstance
          return aClass.newInstance();
       }
-      catch (InstantiationException ignore) { return null; }
-      catch (IllegalAccessException ignore) { return null; }
+      catch (InstantiationException | IllegalAccessException ignore) { return null; }
    }
 
    @Nullable
@@ -167,18 +163,12 @@ public final class ConstructorReflection
          @SuppressWarnings("unchecked") T newInstance = (T) fakeConstructor.newInstance();
          return newInstance;
       }
-      catch (NoClassDefFoundError e) {
+      catch (NoClassDefFoundError | ExceptionInInitializerError e) {
          StackTrace.filterStackTrace(e);
          e.printStackTrace();
          throw e;
       }
-      catch (ExceptionInInitializerError e) {
-         StackTrace.filterStackTrace(e);
-         e.printStackTrace();
-         throw e;
-      }
-      catch (InstantiationException e) { throw new RuntimeException(e); }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
    }
 }

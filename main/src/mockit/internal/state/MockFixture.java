@@ -108,13 +108,13 @@ public final class MockFixture
    @Nonnull private final List<CaptureTransformer<?>> captureTransformers;
 
    MockFixture() {
-      transformedClasses = new HashMap<ClassIdentification, byte[]>(2);
-      redefinedClasses = new ConcurrentHashMap<Class<?>, byte[]>(8);
-      redefinedClassesWithNativeMethods = new HashSet<String>();
-      realClassesToFakeClasses = new IdentityHashMap<Class<?>, String>(8);
-      mockedClasses = new ArrayList<Class<?>>();
-      mockedTypesAndInstances = new IdentityHashMap<Type, InstanceFactory>();
-      captureTransformers = new ArrayList<CaptureTransformer<?>>();
+      transformedClasses = new HashMap<>(2);
+      redefinedClasses = new ConcurrentHashMap<>(8);
+      redefinedClassesWithNativeMethods = new HashSet<>();
+      realClassesToFakeClasses = new IdentityHashMap<>(8);
+      mockedClasses = new ArrayList<>();
+      mockedTypesAndInstances = new IdentityHashMap<>();
+      captureTransformers = new ArrayList<>();
    }
 
    // Methods to add/remove transformed/redefined classes /////////////////////////////////////////////////////////////
@@ -272,13 +272,12 @@ public final class MockFixture
 
    @Nonnull
    Set<ClassIdentification> getTransformedClasses() {
-      return transformedClasses.isEmpty() ?
-         Collections.<ClassIdentification>emptySet() : new HashSet<ClassIdentification>(transformedClasses.keySet());
+      return transformedClasses.isEmpty() ? Collections.<ClassIdentification>emptySet() : new HashSet<>(transformedClasses.keySet());
    }
 
    @Nonnull
    Map<Class<?>, byte[]> getRedefinedClasses() {
-      return redefinedClasses.isEmpty() ? Collections.<Class<?>, byte[]>emptyMap() : new HashMap<Class<?>, byte[]>(redefinedClasses);
+      return redefinedClasses.isEmpty() ? Collections.<Class<?>, byte[]>emptyMap() : new HashMap<>(redefinedClasses);
    }
 
    private void restoreAndRemoveTransformedClasses(@Nonnull Set<ClassIdentification> classesToRestore) {
@@ -377,8 +376,7 @@ public final class MockFixture
             registerNatives.setAccessible(true);
             registerNatives.invoke(null);
          }
-         catch (IllegalAccessException ignore)    {} // won't happen
-         catch (InvocationTargetException ignore) {} // shouldn't happen either
+         catch (IllegalAccessException | InvocationTargetException ignore) {} // won't happen
       }
 
       // OK, although another solution will be required for this particular class if it requires
@@ -398,7 +396,7 @@ public final class MockFixture
 
    @Nonnull
    public List<Class<?>> getMockedClasses() {
-      return mockedClasses.isEmpty() ? Collections.<Class<?>>emptyList() : new ArrayList<Class<?>>(mockedClasses);
+      return mockedClasses.isEmpty() ? Collections.<Class<?>>emptyList() : new ArrayList<>(mockedClasses);
    }
 
    // Methods dealing with capture transformers ///////////////////////////////////////////////////////////////////////
@@ -409,9 +407,9 @@ public final class MockFixture
 
    // The following methods are used by test save-points to discard currently active capture transformers.
 
-   public int getCaptureTransformerCount() { return captureTransformers.size(); }
+   int getCaptureTransformerCount() { return captureTransformers.size(); }
 
-   public void removeCaptureTransformers(int previousTransformerCount) {
+   void removeCaptureTransformers(int previousTransformerCount) {
       int currentTransformerCount = captureTransformers.size();
 
       for (int i = currentTransformerCount - 1; i >= previousTransformerCount; i--) {

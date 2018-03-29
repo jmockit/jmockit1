@@ -32,7 +32,7 @@ public final class CachedClassfiles implements ClassFileTransformer
    @Nullable private Class<?> classBeingCached;
 
    private CachedClassfiles() {
-      classLoadersAndClassfiles = new WeakHashMap<ClassLoader, Map<String, byte[]>>(2);
+      classLoadersAndClassfiles = new WeakHashMap<>(2);
    }
 
    @Nullable @Override
@@ -60,7 +60,7 @@ public final class CachedClassfiles implements ClassFileTransformer
       Map<String, byte[]> classfiles = classLoadersAndClassfiles.get(loader);
 
       if (classfiles == null) {
-         classfiles = new HashMap<String, byte[]>(100);
+         classfiles = new HashMap<>(100);
          classLoadersAndClassfiles.put(loader, classfiles);
       }
 

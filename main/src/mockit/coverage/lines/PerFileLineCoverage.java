@@ -16,9 +16,8 @@ public final class PerFileLineCoverage implements PerFileCoverage
    private static final long serialVersionUID = 6318915843739466316L;
    private static final int[] NO_EXECUTIONS_YET = new int[0];
 
-   @Nonnull private final Map<Integer, LineCoverageData> lineToLineData = new HashMap<Integer, LineCoverageData>(128);
+   @Nonnull private final Map<Integer, LineCoverageData> lineToLineData = new HashMap<>(128);
 
-   @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
    @Nonnull private int[] executionCounts = NO_EXECUTIONS_YET;
 
    @Nonnull private transient LineCoverageData sharedLineData;

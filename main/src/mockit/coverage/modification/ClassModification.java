@@ -21,8 +21,8 @@ public final class ClassModification
    @Nonnull private final ClassSelection classSelection;
 
    public ClassModification() {
-      modifiedClasses = new HashSet<String>();
-      protectionDomainsWithUniqueLocations = new ArrayList<ProtectionDomain>();
+      modifiedClasses = new HashSet<>();
+      protectionDomainsWithUniqueLocations = new ArrayList<>();
       classSelection = new ClassSelection();
       redefineClassesAlreadyLoadedForCoverage();
    }
@@ -99,10 +99,7 @@ public final class ClassModification
       catch (VisitInterruptedException ignore) {
          // Ignore the class if the modification was refused for some reason.
       }
-      catch (RuntimeException e) {
-         e.printStackTrace();
-      }
-      catch (AssertionError e) {
+      catch (RuntimeException | AssertionError e) {
          e.printStackTrace();
       }
 
@@ -136,10 +133,7 @@ public final class ClassModification
       try {
          Startup.instrumentation().redefineClasses(classDefs);
       }
-      catch (ClassNotFoundException e) {
-         throw new RuntimeException(e);
-      }
-      catch (UnmodifiableClassException e) {
+      catch (ClassNotFoundException | UnmodifiableClassException e) {
          throw new RuntimeException(e);
       }
    }
@@ -163,9 +157,7 @@ public final class ClassModification
          catch (VisitInterruptedException ignore) {
             // Ignore the class if the modification was refused for some reason.
          }
-         catch (RuntimeException e) { e.printStackTrace(); }
-         catch (AssertionError e) { e.printStackTrace(); }
-         catch (ClassCircularityError e) { e.printStackTrace(); }
+         catch (RuntimeException | AssertionError | ClassCircularityError e) { e.printStackTrace(); }
       }
 
       return null;

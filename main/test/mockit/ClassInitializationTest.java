@@ -7,7 +7,7 @@ public final class ClassInitializationTest
 {
    static final class ClassWhichFailsAtInitialization {
       static {
-         //noinspection ConstantIfStatement,ConstantConditions
+         // noinspection ConstantConditions
          if (true) {
             throw new AssertionError();
          }

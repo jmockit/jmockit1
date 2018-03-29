@@ -119,7 +119,7 @@ public final class DeencapsulationTest
 
    @Test @SuppressWarnings("unchecked")
    public void getInheritedInstanceFieldByType() {
-      Set<Boolean> fieldValueOnInstance = new HashSet<Boolean>();
+      Set<Boolean> fieldValueOnInstance = new HashSet<>();
       anInstance.baseSet = fieldValueOnInstance;
 
       Set<Boolean> setValue = Deencapsulation.getField(anInstance, fieldValueOnInstance.getClass());

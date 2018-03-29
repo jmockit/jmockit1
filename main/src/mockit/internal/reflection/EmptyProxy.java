@@ -24,7 +24,7 @@ public interface EmptyProxy
 
       @Nonnull
       public static <E> E newEmptyProxy(@Nullable ClassLoader loader, @Nonnull Type... interfacesToBeProxied) {
-         List<Class<?>> interfaces = new ArrayList<Class<?>>();
+         List<Class<?>> interfaces = new ArrayList<>();
 
          for (Type type : interfacesToBeProxied) {
             addInterface(interfaces, type);

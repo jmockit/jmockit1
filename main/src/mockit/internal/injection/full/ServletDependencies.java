@@ -41,8 +41,8 @@ final class ServletDependencies
    @Nonnull
    private ServletContext createAndRegisterServletContext() {
       ServletContext context = new ServletContext() {
-         private final Map<String, String> init = new HashMap<String, String>();
-         private final Map<String, Object> attrs = new HashMap<String, Object>();
+         private final Map<String, String> init = new HashMap<>();
+         private final Map<String, Object> attrs = new HashMap<>();
 
          @Override public String getContextPath() { return ""; }
          @Override public ServletContext getContext(String uriPath) { return null; }
@@ -116,7 +116,7 @@ final class ServletDependencies
       HttpSession session = new HttpSession() {
          private final String id = String.valueOf(Math.abs(new Random().nextInt()));
          private final long creationTime = System.currentTimeMillis();
-         private final Map<String, Object> attrs = new HashMap<String, Object>();
+         private final Map<String, Object> attrs = new HashMap<>();
          private int maxInactiveInterval;
          private boolean invalidated;
 

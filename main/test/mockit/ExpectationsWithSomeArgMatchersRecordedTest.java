@@ -26,7 +26,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       public int hashCode() { return value; }
    }
 
-   @SuppressWarnings({"UnusedParameters", "SameParameterValue"})
+   @SuppressWarnings({"SameParameterValue", "unused"})
    static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}
@@ -295,7 +295,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    public void recordExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep
    ) {
-      final List<Dependency> dependencies = new ArrayList<Dependency>();
+      final List<Dependency> dependencies = new ArrayList<>();
 
       new Expectations() {{
          Dependency src = new Dependency();
@@ -318,7 +318,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    public void recordVarargsExpectationWithMatcherAndRegularArgumentMatchingMockedObjectInstantiatedInsideSUT(
       @Mocked Dependency dep
    ) {
-      final List<Dependency> dependencies = new ArrayList<Dependency>();
+      final List<Dependency> dependencies = new ArrayList<>();
 
       new Expectations() {{
          Dependency src = new Dependency();

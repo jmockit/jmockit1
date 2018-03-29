@@ -20,9 +20,7 @@ public final class ExpectationsWithInvocationCountsTest
 
    static class Collaborator {
       Collaborator() {}
-
-      @SuppressWarnings("UnusedDeclaration")
-      Collaborator(int value) {}
+      Collaborator(@SuppressWarnings("unused") int value) {}
 
       void provideSomeService() {}
 

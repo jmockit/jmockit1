@@ -19,7 +19,7 @@ public final class WithCaptureTest
    public static class Person {
       private String name;
       private int age;
-      @SuppressWarnings("UnusedDeclaration") public Person() {}
+      public Person() {}
       public Person(String name, int age) { this.name = name; this.age = age; }
       public String getName() { return name; }
       public int getAge() { return age; }
@@ -368,9 +368,9 @@ public final class WithCaptureTest
 
    @Test
    public void captureArgumentsIntoListInExpectationBlock() {
-      final List<Person> personsCreated = new ArrayList<Person>();
-      final List<String> personNames = new LinkedList<String>();
-      final List<Integer> personAges = new LinkedList<Integer>();
+      final List<Person> personsCreated = new ArrayList<>();
+      final List<String> personNames = new LinkedList<>();
+      final List<Integer> personAges = new LinkedList<>();
 
       new Expectations() {{
          dao.create(withCapture(personsCreated));
@@ -405,8 +405,8 @@ public final class WithCaptureTest
       dao.create("Daisy Jones", 6);
 
       new Verifications() {
-         final List<Person> created = new ArrayList<Person>();
-         final List<Integer> ages = new ArrayList<Integer>();
+         final List<Person> created = new ArrayList<>();
+         final List<Integer> ages = new ArrayList<>();
 
          {
             dao.create("", withCapture(ages));
@@ -454,7 +454,7 @@ public final class WithCaptureTest
       new Verifications() {{
          List<Person> personsInstantiated = withCapture(new Person(anyString, anyInt));
 
-         List<Person> personsCreated = new ArrayList<Person>();
+         List<Person> personsCreated = new ArrayList<>();
          dao.create(withCapture(personsCreated));
 
          //noinspection MisorderedAssertEqualsArguments
@@ -548,8 +548,8 @@ public final class WithCaptureTest
       mock.varargsMethod("Second", expectedValues2);
 
       new Verifications() {{
-         List<String> capturedNames = new ArrayList<String>();
-         List<String[]> capturedValues = new ArrayList<String[]>();
+         List<String> capturedNames = new ArrayList<>();
+         List<String[]> capturedValues = new ArrayList<>();
 
          mock.varargsMethod(withCapture(capturedNames), withCapture(capturedValues));
 
@@ -568,7 +568,7 @@ public final class WithCaptureTest
       final List<Integer> expectedValues = asList(1, 3);
 
       new Verifications() {{
-         List<Integer> onlyIntegers = new ArrayList<Integer>();
+         List<Integer> onlyIntegers = new ArrayList<>();
          dao.doSomethingElse(withCapture(onlyIntegers));
          //noinspection MisorderedAssertEqualsArguments
          assertEquals(expectedValues, onlyIntegers);
@@ -584,7 +584,7 @@ public final class WithCaptureTest
       dao.doSomething(integers2);
 
       new Verifications() {{
-         List<List<Integer>> captures = new ArrayList<List<Integer>>();
+         List<List<Integer>> captures = new ArrayList<>();
          dao.doSomething(withCapture(captures));
          assertEquals(integers1, captures.get(0));
          assertEquals(integers2, captures.get(1));

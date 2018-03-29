@@ -158,12 +158,8 @@ public final class Startup
          //noinspection ConstantConditions
          instrumentation.redefineClasses(classDefs);
       }
-      catch (ClassNotFoundException e) {
-         // should never happen
-         throw new RuntimeException(e);
-      }
-      catch (UnmodifiableClassException e) {
-         throw new RuntimeException(e);
+      catch (ClassNotFoundException | UnmodifiableClassException e) {
+         throw new RuntimeException(e); // should never happen
       }
       catch (InternalError ignore) {
          // If a class to be redefined hasn't been loaded yet, the JVM may get a NoClassDefFoundError during

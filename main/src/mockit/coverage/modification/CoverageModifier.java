@@ -18,7 +18,7 @@ import static mockit.asm.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
 {
-   private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<String, CoverageModifier>();
+   private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = FINAL + SYNTHETIC;
    private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
    private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
@@ -213,9 +213,9 @@ final class CoverageModifier extends WrappingClassVisitor
 
       BaseMethodModifier(@Nonnull MethodWriter mw) {
          super(mw);
-         visitedLabels = new ArrayList<Label>();
-         jumpTargetsForCurrentLine = new ArrayList<Label>(4);
-         pendingBranches = new ArrayList<Integer>(6);
+         visitedLabels = new ArrayList<>();
+         jumpTargetsForCurrentLine = new ArrayList<>(4);
+         pendingBranches = new ArrayList<>(6);
 
          assert fileData != null;
          lineCoverageInfo = fileData.getLineCoverageData();

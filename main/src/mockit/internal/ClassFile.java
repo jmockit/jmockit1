@@ -14,7 +14,7 @@ import mockit.internal.state.*;
 
 public final class ClassFile
 {
-   private static final Map<String, ClassReader> CLASS_FILES = new ConcurrentHashMap<String, ClassReader>();
+   private static final Map<String, ClassReader> CLASS_FILES = new ConcurrentHashMap<>();
 
    private ClassFile() {}
 
@@ -217,7 +217,6 @@ public final class ClassFile
       }
 
       verifyClassFileFound(inputStream, classDesc);
-      //noinspection ConstantConditions
       return inputStream;
    }
 }

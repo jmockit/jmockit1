@@ -44,7 +44,7 @@ public class Invocation
     * invocation.
     */
    public final <T> T getInvokedInstance() {
-      //noinspection unchecked,ConstantConditions
+      // noinspection unchecked
       return (T) invokedInstance;
    }
 

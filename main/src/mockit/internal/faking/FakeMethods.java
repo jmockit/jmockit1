@@ -121,7 +121,7 @@ final class FakeMethods
       }
 
       reentrantRealClass = targetTypeIsAClass && ClassLoadingBridge.instanceOfClassThatParticipatesInClassLoading(realClass);
-      methods = new ArrayList<FakeMethod>();
+      methods = new ArrayList<>();
       typeParametersToTypeArguments = new GenericTypeReflection(realClass, targetType);
       fakeClassInternalName = "";
    }
@@ -161,7 +161,7 @@ final class FakeMethods
 
    void addFakeState(@Nonnull FakeState fakeState) {
       if (fakeStates == null) {
-         fakeStates = new ArrayList<FakeState>(4);
+         fakeStates = new ArrayList<>(4);
       }
 
       fakeState.fakeMethod.indexForFakeState = fakeStates.size();

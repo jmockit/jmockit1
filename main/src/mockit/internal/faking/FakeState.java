@@ -38,7 +38,7 @@ final class FakeState
 
    @Nonnull Class<?> getRealClass() { return fakeMethod.getRealClass(); }
 
-   private void makeReentrant() { proceedingInvocation = new ThreadLocal<FakeInvocation>(); }
+   private void makeReentrant() { proceedingInvocation = new ThreadLocal<>(); }
 
    boolean update() {
       if (proceedingInvocation != null) {

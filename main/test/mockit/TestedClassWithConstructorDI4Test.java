@@ -24,6 +24,7 @@ public final class TestedClassWithConstructorDI4Test
       private Callable<Number> action3;
       private DataSource database;
 
+      @SuppressWarnings("unchecked")
       public TestedClass(GenericClass<String> go, List<Integer> values, Callable<Number>... actions) {
          this.go = go;
          this.values = values;
@@ -43,7 +44,7 @@ public final class TestedClassWithConstructorDI4Test
 
    @Tested TestedClass tested;
    @Injectable Callable<Number> action1;
-   @Injectable final GenericClass<String> mockGO = new GenericClass<String>(); // still mocked
+   @Injectable final GenericClass<String> mockGO = new GenericClass<>(); // still mocked
    @Injectable final List<Integer> numbers = asList(1, 2, 3); // not mocked when interface
    @Mocked InitialContext jndiContext;
    @Mocked DataSource testDB;

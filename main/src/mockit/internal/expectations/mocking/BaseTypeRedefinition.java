@@ -37,8 +37,8 @@ class BaseTypeRedefinition
       }
    }
 
-   @Nonnull private static final Map<Integer, MockedClass> mockedClasses = new HashMap<Integer, MockedClass>();
-   @Nonnull private static final Map<Type, Class<?>> mockImplementations = new HashMap<Type, Class<?>>();
+   @Nonnull private static final Map<Integer, MockedClass> mockedClasses = new HashMap<>();
+   @Nonnull private static final Map<Type, Class<?>> mockImplementations = new HashMap<>();
 
    Class<?> targetClass;
    @Nullable MockedType typeMetadata;
@@ -277,7 +277,7 @@ class BaseTypeRedefinition
          return null;
       }
 
-      mockedClassDefinitions = new ArrayList<ClassDefinition>();
+      mockedClassDefinitions = new ArrayList<>();
       return mockedClassId;
    }
 

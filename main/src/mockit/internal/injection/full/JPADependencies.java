@@ -77,9 +77,7 @@ final class JPADependencies
             });
             xmlFile.close();
          }
-         catch (ParserConfigurationException ignore) {}
-         catch (SAXException ignore) {}
-         catch (IOException ignore) {}
+         catch (ParserConfigurationException | SAXException | IOException ignore) {}
       }
 
       return defaultPersistenceUnitName;

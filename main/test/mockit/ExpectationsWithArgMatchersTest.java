@@ -19,7 +19,7 @@ public final class ExpectationsWithArgMatchersTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedParameters")
+   @SuppressWarnings("unused")
    static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}
@@ -48,7 +48,7 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    static final class Delegates {
-      static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<T>(item); }
+      static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<>(item); }
    }
 
    @Test
@@ -157,7 +157,7 @@ public final class ExpectationsWithArgMatchersTest
 
    @Test
    public void declareMethodInExpectationBlockWithNameHavingSamePrefixAsArgumentMatchingMethod() {
-      final List<Integer> values = new ArrayList<Integer>();
+      final List<Integer> values = new ArrayList<>();
 
       new Expectations() {
          {

@@ -28,7 +28,7 @@ public final class MethodFormatter
 
    public MethodFormatter(@Nonnull String classDesc, @Nonnull String methodNameAndDesc, boolean withParametersAppended) {
       out = new StringBuilder();
-      parameterTypes = new ArrayList<String>(5);
+      parameterTypes = new ArrayList<>(5);
       this.classDesc = classDesc;
       methodDesc = "";
       methodDesc = methodNameAndDesc;
@@ -51,7 +51,7 @@ public final class MethodFormatter
       int rightParenPos = friendlyDesc.indexOf(')');
 
       if (leftParenNextPos < rightParenPos) {
-         out.append(friendlyDesc.substring(0, leftParenNextPos));
+         out.append(friendlyDesc, 0, leftParenNextPos);
 
          String concatenatedParameterTypes = friendlyDesc.substring(leftParenNextPos, rightParenPos);
 
@@ -65,7 +65,7 @@ public final class MethodFormatter
          }
       }
       else {
-         out.append(friendlyDesc.substring(0, rightParenPos + 1));
+         out.append(friendlyDesc, 0, rightParenPos + 1);
       }
    }
 

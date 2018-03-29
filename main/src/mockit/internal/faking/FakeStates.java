@@ -26,8 +26,8 @@ public final class FakeStates
    @Nonnull private final Map<Object, List<FakeState>> startupFakesToFakeStates;
 
    FakeStates() {
-      startupFakesToFakeStates = new IdentityHashMap<Object, List<FakeState>>(2);
-      fakesToFakeStates = new IdentityHashMap<Object, List<FakeState>>(8);
+      startupFakesToFakeStates = new IdentityHashMap<>(2);
+      fakesToFakeStates = new IdentityHashMap<>(8);
    }
 
    void addStartupFakeAndItsFakeStates(@Nonnull Object fake, @Nonnull List<FakeState> fakeStates) {

@@ -19,7 +19,7 @@ public final class TestCoverage
       INSTANCE = "true".equals(Configuration.getProperty("redundancy", "true")) ? new TestCoverage() : null;
    }
 
-   @Nonnull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<Method, Integer>();
+   @Nonnull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<>();
    @Nullable private Method currentTestMethod;
 
    private TestCoverage() {}
@@ -41,7 +41,7 @@ public final class TestCoverage
 
    @Nonnull
    public List<Method> getRedundantTests() {
-      List<Method> redundantTests = new ArrayList<Method>();
+      List<Method> redundantTests = new ArrayList<>();
 
       for (Entry<Method, Integer> testAndItemsCovered : testsToItemsCovered.entrySet()) {
          Method testMethod = testAndItemsCovered.getKey();

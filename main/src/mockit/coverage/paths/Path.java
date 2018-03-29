@@ -13,7 +13,7 @@ public final class Path implements Serializable
 {
    private static final long serialVersionUID = 8895491272907955543L;
 
-   @Nonnull final List<Node> nodes = new ArrayList<Node>(4);
+   @Nonnull final List<Node> nodes = new ArrayList<>(4);
    @Nonnull private final AtomicInteger executionCount = new AtomicInteger();
    private final boolean shadowed;
    @Nullable private Path shadowPath;

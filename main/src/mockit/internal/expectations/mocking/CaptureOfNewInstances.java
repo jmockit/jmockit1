@@ -20,8 +20,8 @@ public final class CaptureOfNewInstances extends CaptureOfImplementations<Mocked
    @Nonnull private final List<Class<?>> partiallyMockedBaseTypes;
 
    CaptureOfNewInstances() {
-      baseTypes = new ArrayList<Class<?>>();
-      partiallyMockedBaseTypes = new ArrayList<Class<?>>();
+      baseTypes = new ArrayList<>();
+      partiallyMockedBaseTypes = new ArrayList<>();
    }
 
    void useDynamicMocking(@Nonnull Class<?> baseType) {
@@ -117,7 +117,7 @@ public final class CaptureOfNewInstances extends CaptureOfImplementations<Mocked
       return superclass != Object.class && (baseTypes.contains(superclass) || isWithCapturing(superclass));
    }
 
-   public void cleanUp() {
+   void cleanUp() {
       baseTypes.clear();
       partiallyMockedBaseTypes.clear();
    }

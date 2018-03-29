@@ -16,7 +16,7 @@ public final class CascadingTypes
 {
    @Nonnull private final Map<Type, MockedTypeCascade> mockedTypesToCascades;
 
-   CascadingTypes() { mockedTypesToCascades = new ConcurrentHashMap<Type, MockedTypeCascade>(4); }
+   CascadingTypes() { mockedTypesToCascades = new ConcurrentHashMap<>(4); }
 
    public void add(boolean fromMockField, @Nonnull Type mockedType) {
       Class<?> mockedClass = getClassType(mockedType);

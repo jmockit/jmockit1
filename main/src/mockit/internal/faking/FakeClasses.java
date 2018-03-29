@@ -34,8 +34,8 @@ public final class FakeClasses
    @Nonnull public final FakeStates fakeStates;
 
    public FakeClasses() {
-      startupFakes = new IdentityHashMap<String, MockUp<?>>(8);
-      fakeClassesToFakeInstances = new IdentityHashMap<Class<?>, MockUp<?>>();
+      startupFakes = new IdentityHashMap<>(8);
+      fakeClassesToFakeInstances = new IdentityHashMap<>();
       fakeStates = new FakeStates();
    }
 
@@ -101,7 +101,7 @@ public final class FakeClasses
       @Nonnull private final Map<Class<?>, Boolean> previousFakeClasses;
 
       public SavePoint() {
-         previousFakeClasses = new IdentityHashMap<Class<?>, Boolean>();
+         previousFakeClasses = new IdentityHashMap<>();
 
          for (Entry<Class<?>, MockUp<?>> fakeClassAndInstance : fakeClassesToFakeInstances.entrySet()) {
             Class<?> fakeClass = fakeClassAndInstance.getKey();

@@ -29,7 +29,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       super(new OutputFile(outputFile), "    ");
       this.sourceDirs = sourceDirs;
       this.packageToFiles = packageToFiles;
-      packageToPackagePercentages = new HashMap<String, int[]>();
+      packageToPackagePercentages = new HashMap<>();
       packageReport = new PackageCoverageReport(output, sourceFilesNotFound, fileToFileData, packageToFiles.values());
       totalFileCount = totalNumberOfSourceFilesWithCoverageData(fileToFileData.values());
    }
@@ -42,7 +42,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       try {
          writeHeader();
 
-         List<String> packages = new ArrayList<String>(packageToFiles.keySet());
+         List<String> packages = new ArrayList<>(packageToFiles.keySet());
          writeMetricsForEachFile(null, packages);
          writeLineWithCoverageTotals();
          output.println("  </table>");

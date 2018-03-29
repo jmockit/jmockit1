@@ -39,7 +39,7 @@ public final class TestedClassWithFullAnnotatedDITest
       @Override public void setLogWriter(PrintWriter out) {}
       @Override public void setLoginTimeout(int seconds) {}
       @Override public int getLoginTimeout() { return 0; }
-      @SuppressWarnings("Since15") @Override public Logger getParentLogger() { return null; }
+      @Override public Logger getParentLogger() { return null; }
    }
 
    @DataSourceDefinition(

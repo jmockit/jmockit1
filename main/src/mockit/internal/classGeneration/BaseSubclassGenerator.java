@@ -40,7 +40,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
       this.subclassName = subclassName.replace('.', '/');
       mockedTypeInfo = genericMockedType == null ? null : new MockedTypeInfo(genericMockedType);
       this.copyConstructors = copyConstructors;
-      implementedMethods = new ArrayList<String>();
+      implementedMethods = new ArrayList<>();
    }
 
    @Override
@@ -53,7 +53,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
       super.visit(version, subclassAccess, subclassName, subclassSignature, name, null);
 
       superClassOfSuperClass = superName;
-      superInterfaces = new HashSet<String>();
+      superInterfaces = new HashSet<>();
 
       if (interfaces != null && interfaces.length > 0) {
          superInterfaces.addAll(asList(interfaces));

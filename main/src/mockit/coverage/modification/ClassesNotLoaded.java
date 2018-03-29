@@ -20,7 +20,7 @@ public final class ClassesNotLoaded
    public ClassesNotLoaded(@Nonnull ClassModification classModification) { this.classModification = classModification; }
 
    public void gatherCoverageData() {
-      Set<ProtectionDomain> protectionDomainsSoFar = new HashSet<ProtectionDomain>(classModification.protectionDomainsWithUniqueLocations);
+      Set<ProtectionDomain> protectionDomainsSoFar = new HashSet<>(classModification.protectionDomainsWithUniqueLocations);
 
       for (ProtectionDomain pd : protectionDomainsSoFar) {
          File classPathEntry = new File(pd.getCodeSource().getLocation().getPath());
@@ -64,7 +64,6 @@ public final class ClassesNotLoaded
       try {
          Class.forName(className, false, protectionDomain.getClassLoader());
       }
-      catch (ClassNotFoundException ignore) {}
-      catch (NoClassDefFoundError ignored) {}
+      catch (ClassNotFoundException | NoClassDefFoundError ignore) {}
    }
 }

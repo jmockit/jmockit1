@@ -24,8 +24,8 @@ public final class TestedClassInstantiations
    @Nonnull final InjectionState injectionState;
 
    public TestedClassInstantiations() {
-      testedFields = new LinkedList<TestedField>();
-      injectableFields = new ArrayList<MockedType>();
+      testedFields = new LinkedList<>();
+      injectableFields = new ArrayList<>();
       injectionState = new InjectionState();
    }
 

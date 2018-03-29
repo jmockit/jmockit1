@@ -15,11 +15,10 @@ public final class CascadingWithGenericsTest
       Callable<?> returnTypeWithWildcard() { return null; }
       <RT extends Baz> RT returnTypeWithBoundedTypeVariable() { return null; }
 
-      @SuppressWarnings("UnusedParameters")
-      <N extends Number> N genericMethodWithNonMockableBoundedTypeVariableAndClassParameter(Class<N> c) { return null; }
+      <N extends Number> N genericMethodWithNonMockableBoundedTypeVariableAndClassParameter(@SuppressWarnings("unused") Class<N> c)
+      { return null; }
 
-      @SuppressWarnings("UnusedParameters")
-      <RT extends Bar> RT genericMethodWithBoundedTypeVariableAndClassParameter(Class<RT> cl) { return null; }
+      <RT extends Bar> RT genericMethodWithBoundedTypeVariableAndClassParameter(@SuppressWarnings("unused") Class<RT> cl) { return null; }
 
       <T1 extends Baz, T2 extends List<? extends Number>> Pair<T1, T2> returnTypeWithMultipleTypeVariables()
       { return null; }

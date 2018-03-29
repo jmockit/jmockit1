@@ -132,7 +132,7 @@ public final class ConstructorInjection extends Injector
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
-      List<Object> varargValues = new ArrayList<Object>();
+      List<Object> varargValues = new ArrayList<>();
       MockedType injectable;
 
       while ((injectable = injectionState.findNextInjectableForInjectionPoint(testedClass)) != null) {

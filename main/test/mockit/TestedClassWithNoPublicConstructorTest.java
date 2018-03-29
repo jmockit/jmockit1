@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 public final class TestedClassWithNoPublicConstructorTest
 {
-   @SuppressWarnings("UnusedDeclaration")
+   @SuppressWarnings("unused")
    public static final class TestedClassWithPackagePrivateConstructor {
       private TestedClassWithPackagePrivateConstructor(int... values) { throw new RuntimeException("Must not occur"); }
 

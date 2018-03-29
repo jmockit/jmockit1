@@ -21,7 +21,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       this.testMethod = testMethod;
       int n = testMethod.getParameterCount();
       mockParameters = new MockedType[n];
-      injectableParameters = new ArrayList<MockedType>(n);
+      injectableParameters = new ArrayList<>(n);
 
       for (int i = 0; i < n; i++) {
          Object mock = parameterValues[i];

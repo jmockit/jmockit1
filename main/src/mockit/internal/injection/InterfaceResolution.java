@@ -17,7 +17,7 @@ final class InterfaceResolution
    @Nonnull private final NavigableMap<ParameterizedType, Method> interfaceResolutionMethods;
 
    InterfaceResolution() {
-      interfaceResolutionMethods = new TreeMap<ParameterizedType, Method>(new Comparator<ParameterizedType>() {
+      interfaceResolutionMethods = new TreeMap<>(new Comparator<ParameterizedType>() {
          @Override
          public int compare(ParameterizedType t1, ParameterizedType t2) {
             if (t1 == t2) {

@@ -103,7 +103,6 @@ public abstract class Verifications extends Invocations
     */
    protected final <T> T withCapture() {
       verificationPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
-      //noinspection ConstantConditions
       return null;
    }
 

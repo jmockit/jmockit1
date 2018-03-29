@@ -63,7 +63,7 @@ public final class FakeForGenericsTest
       };
 
       StringBuilder s = new StringBuilder("test");
-      GenericClass<StringBuilder, List<String>> g = new GenericClass<StringBuilder, List<String>>();
+      GenericClass<StringBuilder, List<String>> g = new GenericClass<>();
 
       g.aMethod(s);
       int r1 = g.anotherMethod(new StringBuilder("test"), 58, Collections.<String>emptyList());
@@ -81,7 +81,7 @@ public final class FakeForGenericsTest
          @Mock int anotherMethod(String t, int i, Boolean p) { return 1; }
       };
 
-      GenericClass<String, Boolean> o = new GenericClass<String, Boolean>();
+      GenericClass<String, Boolean> o = new GenericClass<>();
       assertEquals(1, o.anotherMethod("generic", 1, true));
       assertEquals(2, o.anotherMethod(123, 2, "non generic"));
    }

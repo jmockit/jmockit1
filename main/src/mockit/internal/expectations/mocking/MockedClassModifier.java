@@ -51,11 +51,11 @@ final class MockedClassModifier extends BaseClassModifier
       }
    }
 
-   public void setClassNameForCapturedInstanceMethods(@Nonnull String internalClassName) {
+   void setClassNameForCapturedInstanceMethods(@Nonnull String internalClassName) {
       baseClassNameForCapturedInstanceMethods = internalClassName;
    }
 
-   public void useDynamicMocking(boolean methodsOnly) {
+   void useDynamicMocking(boolean methodsOnly) {
       ignoreConstructors = methodsOnly;
       executionMode = ExecutionMode.Partial;
    }
@@ -107,7 +107,7 @@ final class MockedClassModifier extends BaseClassModifier
 
       if (access == ENUM + STATIC) {
          if (enumSubclasses == null) {
-            enumSubclasses = new ArrayList<String>();
+            enumSubclasses = new ArrayList<>();
          }
 
          enumSubclasses.add(name);

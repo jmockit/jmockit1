@@ -33,7 +33,7 @@ public final class ConstructorSearch
       this.testedClass = testedClass;
       Class<?> declaredClass = testedClass.getDeclaredClass();
       testedClassDesc = ParameterNameExtractor.extractNames(declaredClass);
-      parameterProviders = new ArrayList<InjectionProvider>();
+      parameterProviders = new ArrayList<>();
       this.withFullInjection = withFullInjection;
    }
 
@@ -148,7 +148,7 @@ public final class ConstructorSearch
       Type[] parameterTypes = candidate.getGenericParameterTypes();
       Annotation[][] parameterAnnotations = candidate.getParameterAnnotations();
       int n = parameterTypes.length;
-      List<InjectionProvider> providersFound = new ArrayList<InjectionProvider>(n);
+      List<InjectionProvider> providersFound = new ArrayList<>(n);
       boolean varArgs = candidate.isVarArgs();
 
       if (varArgs) {

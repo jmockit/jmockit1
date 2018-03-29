@@ -15,7 +15,7 @@ final class DataFileMerging
    @Nonnull private final List<File> inputFiles;
 
    DataFileMerging(@Nonnull String[] inputPaths) {
-      inputFiles = new ArrayList<File>(inputPaths.length);
+      inputFiles = new ArrayList<>(inputPaths.length);
 
       for (String path : inputPaths) {
          addInputFileToList(path.trim());

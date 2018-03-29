@@ -41,23 +41,14 @@ final class StaticFiles
          return;
       }
 
-      //noinspection IOResourceOpenedButNotSafelyClosed
-      OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
-      InputStream input = new BufferedInputStream(StaticFiles.class.getResourceAsStream(fileName));
-
-      try {
+      try (
+         OutputStream output = new BufferedOutputStream(new FileOutputStream(outputFile));
+         InputStream input = new BufferedInputStream(StaticFiles.class.getResourceAsStream(fileName))
+      ) {
          int b;
 
          while ((b = input.read()) != -1) {
             output.write(b);
-         }
-      }
-      finally {
-         try {
-            input.close();
-         }
-         finally {
-            output.close();
          }
       }
    }

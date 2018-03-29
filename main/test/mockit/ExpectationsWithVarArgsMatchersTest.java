@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 
 import mockit.internal.expectations.invocation.*;
 
-@SuppressWarnings("UnusedParameters")
 public final class ExpectationsWithVarArgsMatchersTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -19,7 +18,8 @@ public final class ExpectationsWithVarArgsMatchersTest
          return input1 == null ? Collections.emptyList() : asList(otherInputs);
       }
 
-      int anotherOperation( int i, boolean b, String s, String... otherStrings) { return -1; }
+      @SuppressWarnings("unused")
+      int anotherOperation(int i, boolean b, String s, String... otherStrings) { return -1; }
       static boolean doSomething(int i, Object... values) { return i + values.length > 0; }
    }
 
@@ -184,6 +184,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       assertEquals(0, mock.anotherOperation(0, false, "Abc", "", "Abc", "test", ""));
    }
 
+   @SuppressWarnings("unused")
    static class VarArgs {
       public void varsOnly(int... ints) {}
       public void mixed(String arg0, int... ints) {}
@@ -204,6 +205,7 @@ public final class ExpectationsWithVarArgsMatchersTest
    }
 
    static class ReferenceVarArgs {
+      @SuppressWarnings("unused")
       public void mixed(String[] strings, Integer... ints) {}
    }
 
@@ -229,6 +231,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       varargs.mixed(strings2);
    }
 
+   @SuppressWarnings("unused")
    static class PrimitiveVarArgs {
       public void varsOnly(int... ints) {}
       public void mixed(String arg0, String[] strings, int... ints) {}
@@ -265,7 +268,7 @@ public final class ExpectationsWithVarArgsMatchersTest
       varargs.mixed(null, null, null);
    }
 
-   static class MixedVarArgs { public void mixed(String[] strings, int... ints) {} }
+   static class MixedVarArgs { @SuppressWarnings("unused") public void mixed(String[] strings, int... ints) {} }
 
    @Test
    public void expectInvocationWithPrimitiveVarArgsUsingMatchers(@Mocked final MixedVarArgs varargs) {

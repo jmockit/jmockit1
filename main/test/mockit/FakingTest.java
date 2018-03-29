@@ -112,7 +112,7 @@ public final class FakingTest
 
    // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
 
-   @Test @SuppressWarnings("TypeParameterExtendsFinalClass")
+   @Test
    public <M extends Applet & Runnable> void attemptToFakeClassAndInterfaceAtOnce() {
       thrown.expect(UnsupportedOperationException.class);
       thrown.expectMessage("Unable to capture");

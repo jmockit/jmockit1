@@ -234,7 +234,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          fields = Collections.emptyList();
       }
       else {
-         fields = new ArrayList<FieldInfo>(fieldCount);
+         fields = new ArrayList<>(fieldCount);
 
          for (int i = 0; i < fieldCount; i++) {
             int accessFlags = readUnsignedShort(codeIndex);
@@ -310,7 +310,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       int numAnnotations = readUnsignedShort(codeIndex);
       codeIndex += 2;
 
-      List<AnnotationInfo> annotations = new ArrayList<AnnotationInfo>(numAnnotations);
+      List<AnnotationInfo> annotations = new ArrayList<>(numAnnotations);
 
       for (int i = 0; i < numAnnotations; i++) {
          codeIndex = readAnnotation(annotations, codeIndex);
@@ -546,7 +546,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       int methodCount = readUnsignedShort(codeIndex);
       codeIndex += 2;
 
-      List<MethodInfo> methods = new ArrayList<MethodInfo>(methodCount);
+      List<MethodInfo> methods = new ArrayList<>(methodCount);
 
       for (int i = 0; i < methodCount; i++) {
          int accessFlags = readUnsignedShort(codeIndex);

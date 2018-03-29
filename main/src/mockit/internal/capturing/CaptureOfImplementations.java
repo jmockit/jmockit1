@@ -63,7 +63,7 @@ public abstract class CaptureOfImplementations<M>
    protected abstract void redefineClass(@Nonnull Class<?> realClass, @Nonnull byte[] modifiedClass);
 
    private void createCaptureTransformer(@Nonnull CapturedType captureMetadata, boolean registerCapturedClasses, @Nullable M typeMetadata) {
-      CaptureTransformer<M> transformer = new CaptureTransformer<M>(captureMetadata, this, registerCapturedClasses, typeMetadata);
+      CaptureTransformer<M> transformer = new CaptureTransformer<>(captureMetadata, this, registerCapturedClasses, typeMetadata);
       Startup.instrumentation().addTransformer(transformer, true);
       TestRun.mockFixture().addCaptureTransformer(transformer);
    }

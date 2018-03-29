@@ -21,8 +21,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
    ) {
       super(
-         recordAndReplay, new ArrayList<Expectation>(expectationsInReplayOrder),
-         invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
+         recordAndReplay, new ArrayList<>(expectationsInReplayOrder), invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
       discardExpectationsAndArgumentsAlreadyVerified();
       expectationCount = expectationsInReplayOrder.size();
       indexIncrement = 1;

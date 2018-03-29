@@ -29,8 +29,8 @@ public final class MethodCoverageData implements Serializable
       nodes = Collections.emptyList();
       paths = Collections.emptyList();
       nonShadowedPaths = Collections.emptyList();
-      nodesReached = new ThreadLocal<List<Node>>();
-      previousNodeIndex = new ThreadLocal<Integer>();
+      nodesReached = new ThreadLocal<>();
+      previousNodeIndex = new ThreadLocal<>();
       clearNodes();
    }
 
@@ -44,7 +44,7 @@ public final class MethodCoverageData implements Serializable
    }
 
    private void buildListOfNonShadowedPaths() {
-      nonShadowedPaths = new ArrayList<Path>(paths.size());
+      nonShadowedPaths = new ArrayList<>(paths.size());
 
       for (Path path : paths) {
          if (!path.isShadowed()) {
@@ -56,7 +56,7 @@ public final class MethodCoverageData implements Serializable
    @Nonnegative public int getFirstLineInBody() { return firstLine; }
    @Nonnegative public int getLastLineInBody() { return lastLine; }
 
-   public int markNodeAsReached(@Nonnegative int nodeIndex) {
+   int markNodeAsReached(@Nonnegative int nodeIndex) {
       if (nodeIndex == 0) {
          clearNodes();
       }
@@ -125,7 +125,7 @@ public final class MethodCoverageData implements Serializable
       return coveredCount;
    }
 
-   public void addCountsFromPreviousTestRun(@Nonnull MethodCoverageData previousData) {
+   void addCountsFromPreviousTestRun(@Nonnull MethodCoverageData previousData) {
       for (int i = 0; i < paths.size(); i++) {
          Path path = paths.get(i);
          Path previousPath = previousData.paths.get(i);

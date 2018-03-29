@@ -91,7 +91,7 @@ public final class FakeInvocationProceedTest
       assertNull(mocked.anotherMethodToBeFaked(null, false, null));
 
       // Do proceed:
-      List<Integer> values = new ArrayList<Integer>();
+      List<Integer> values = new ArrayList<>();
       assertEquals("TEST[45]", mocked.anotherMethodToBeFaked("test", true, values));
 
       // Do not proceed again:

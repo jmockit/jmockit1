@@ -115,7 +115,7 @@ public final class DelegateInvocationProceedTest
       assertNull(mocked.anotherMethodToBeMocked(null, false, null));
 
       // Do proceed:
-      List<Integer> values = new ArrayList<Integer>();
+      List<Integer> values = new ArrayList<>();
       assertEquals("TEST[45]", mocked.anotherMethodToBeMocked("test", true, values));
 
       // Do not proceed again:

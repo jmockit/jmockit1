@@ -13,11 +13,10 @@ import static java.lang.reflect.Modifier.*;
 import mockit.asm.*;
 import mockit.asm.ClassMetadataReader.*;
 
-@SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
 final class SuperConstructorCollector
 {
    @Nonnull static final SuperConstructorCollector INSTANCE = new SuperConstructorCollector();
-   @Nonnull private final Map<String, String> cache = new HashMap<String, String>();
+   @Nonnull private final Map<String, String> cache = new HashMap<>();
 
    private SuperConstructorCollector() {}
 

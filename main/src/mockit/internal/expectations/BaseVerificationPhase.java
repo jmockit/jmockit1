@@ -32,7 +32,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       this.expectationsInReplayOrder = expectationsInReplayOrder;
       this.invocationInstancesInReplayOrder = invocationInstancesInReplayOrder;
       this.invocationArgumentsInReplayOrder = invocationArgumentsInReplayOrder;
-      currentVerifiedExpectations = new ArrayList<VerifiedExpectation>();
+      currentVerifiedExpectations = new ArrayList<>();
    }
 
    public final void setAllInvocationsMustBeVerified() { allMockedInvocationsDuringReplayMustBeVerified = true; }
@@ -177,7 +177,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    @Nullable
    private Error validateThatAllInvocationsWereVerified() {
-      List<Expectation> notVerified = new ArrayList<Expectation>();
+      List<Expectation> notVerified = new ArrayList<>();
 
       for (int i = 0; i < expectationsInReplayOrder.size(); i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);
@@ -297,7 +297,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    @Nonnull
    public final <T> List<T> getNewInstancesMatchingVerifiedConstructorInvocation() {
-      List<T> newInstances = new ArrayList<T>();
+      List<T> newInstances = new ArrayList<>();
 
       for (VerifiedExpectation verifiedExpectation : currentVerifiedExpectations) {
          //noinspection unchecked

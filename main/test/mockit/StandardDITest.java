@@ -26,7 +26,7 @@ public final class StandardDITest
       @Inject
       public TestedClass(Collaborator collaborator) { this.collaborator = collaborator; }
 
-      @SuppressWarnings("UnusedParameters")
+      @SuppressWarnings("unused")
       public TestedClass(Collaborator collaborator, int anotherValue) { throw new RuntimeException("Must not occur"); }
    }
 
@@ -127,9 +127,10 @@ public final class StandardDITest
    static final class TestedClassWithVarargsParameterForProviders {
       final Collaborator collaborator1;
       final Collaborator collaborator2;
-      final List<Collaborator> optionalCollaborators = new ArrayList<Collaborator>();
+      final List<Collaborator> optionalCollaborators = new ArrayList<>();
       @Inject Provider<String> nameProvider;
 
+      @SuppressWarnings({"unchecked", "VariableArgumentMethod"})
       @Inject
       TestedClassWithVarargsParameterForProviders(Provider<Collaborator>... collaborators) {
          int n = collaborators.length;

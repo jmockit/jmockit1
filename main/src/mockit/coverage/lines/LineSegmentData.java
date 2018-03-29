@@ -45,7 +45,7 @@ public class LineSegmentData implements Serializable
 
    private void addCallPoint(@Nonnull CallPoint callPoint) {
       if (callPoints == null) {
-         callPoints = new ArrayList<CallPoint>(MAX_CALL_POINTS);
+         callPoints = new ArrayList<>(MAX_CALL_POINTS);
       }
 
       for (int i = callPoints.size() - 1; i >= 0; i--) {

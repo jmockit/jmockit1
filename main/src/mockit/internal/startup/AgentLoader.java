@@ -74,21 +74,17 @@ public final class AgentLoader
    @Nonnull
    private VirtualMachine getVirtualMachineImplementationFromEmbeddedOnes() {
       Class<? extends VirtualMachine> vmClass = findVirtualMachineClassAccordingToOS();
-      Class<?>[] parameterTypes = {AttachProvider.class, String.class};
       String pid = getProcessIdForTargetVM();
 
       try {
          // This is only done with Reflection to avoid the JVM pre-loading all the XyzVirtualMachine classes.
+         Class<?>[] parameterTypes = {AttachProvider.class, String.class};
          Constructor<? extends VirtualMachine> vmConstructor = vmClass.getConstructor(parameterTypes);
          VirtualMachine newVM = vmConstructor.newInstance(ATTACH_PROVIDER, pid);
          return newVM;
       }
-      catch (NoSuchMethodException e)     { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e); }
-      catch (InstantiationException e)    { throw new RuntimeException(e); }
-      catch (IllegalAccessException e)    { throw new RuntimeException(e); }
-      catch (NoClassDefFoundError e) {
-         throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
+      catch (NoSuchMethodException | InvocationTargetException | InstantiationException | NoClassDefFoundError | IllegalAccessException e) {
+         throw new RuntimeException(e);
       }
       catch (UnsatisfiedLinkError e) {
          throw new IllegalStateException("Native library for Attach API not available in this JRE", e);
@@ -169,8 +165,7 @@ public final class AgentLoader
          vm.loadAgent(jarFilePath, options);
          vm.detach();
       }
-      catch (AgentLoadException e) { throw new IllegalStateException(e); }
-      catch (AgentInitializationException e) { throw new IllegalStateException(e); }
+      catch (AgentLoadException | AgentInitializationException e) { throw new IllegalStateException(e); }
       catch (IOException e) { throw new RuntimeException(e); }
    }
 }

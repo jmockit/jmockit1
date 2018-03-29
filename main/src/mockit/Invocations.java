@@ -516,7 +516,7 @@ abstract class Invocations
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
    protected final <T> T withCapture(List<T> valueHolderForMultipleInvocations) {
-      addMatcher(new CaptureMatcher<T>(valueHolderForMultipleInvocations));
+      addMatcher(new CaptureMatcher<>(valueHolderForMultipleInvocations));
       return null;
    }
 

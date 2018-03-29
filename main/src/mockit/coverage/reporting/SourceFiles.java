@@ -10,7 +10,7 @@ import javax.annotation.*;
 
 final class SourceFiles
 {
-   @Nonnull private final List<File> srcDirs = new ArrayList<File>();
+   @Nonnull private final List<File> srcDirs = new ArrayList<>();
 
    @Nonnull
    List<File> buildListOfSourceDirectories(@Nonnull String[] sourceDirs) {

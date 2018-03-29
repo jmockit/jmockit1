@@ -133,7 +133,6 @@ public final class ParameterReflection
       int extraParameters = mockParameterTypes.length - realParameterTypes.length;
 
       if (extraParameters == 1) {
-         //noinspection UnnecessaryFullyQualifiedName
          return mockParameterTypes[0] == Invocation.class ? 1 : -1;
       }
 

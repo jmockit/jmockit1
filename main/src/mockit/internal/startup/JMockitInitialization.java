@@ -31,10 +31,8 @@ final class JMockitInitialization
       applyUserSpecifiedStartupFakesIfAny();
    }
 
-   @SuppressWarnings("ResultOfMethodCallIgnored")
    private static void preventEventualClassLoadingConflicts() {
-      // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class,
-      // which may get @Mocked.
+      // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class, which may get @Mocked.
       TimeZone.getDefault();
       Locale.getDefault();
       Currency.getInstance(Locale.CANADA);
@@ -67,7 +65,7 @@ final class JMockitInitialization
       }
 
       String[] fakeClassNames = commaOrSpaceSeparatedValues.split("\\s*,\\s*|\\s+");
-      Set<String> uniqueClassNames = new HashSet<String>(asList(fakeClassNames));
+      Set<String> uniqueClassNames = new HashSet<>(asList(fakeClassNames));
       uniqueClassNames.remove("");
       return uniqueClassNames;
    }

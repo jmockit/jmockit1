@@ -13,7 +13,7 @@ public final class RecordPhase extends TestOnlyPhase
 {
    RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
 
-   public void addResult(@Nullable Object result) {
+   void addResult(@Nullable Object result) {
       if (currentExpectation != null) {
          currentExpectation.addResult(result);
       }
@@ -30,7 +30,6 @@ public final class RecordPhase extends TestOnlyPhase
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
       @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
    ) {
-      //noinspection AssignmentToMethodParameter
       mock = configureMatchingOnMockInstanceIfSpecified(mock);
 
       ExpectedInvocation invocation = new ExpectedInvocation(

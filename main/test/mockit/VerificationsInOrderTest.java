@@ -9,7 +9,7 @@ public final class VerificationsInOrderTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedDeclaration")
+   @SuppressWarnings("unused")
    public static class Dependency {
       public void setSomething(int value) {}
       public void setSomethingElse(String value) {}

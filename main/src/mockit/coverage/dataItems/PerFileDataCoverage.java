@@ -16,9 +16,9 @@ public final class PerFileDataCoverage implements PerFileCoverage
 {
    private static final long serialVersionUID = -4561686103982673490L;
 
-   @Nonnull public final List<String> allFields = new ArrayList<String>(2);
-   @Nonnull public final Map<String, StaticFieldData> staticFieldsData = new LinkedHashMap<String, StaticFieldData>();
-   @Nonnull public final Map<String, InstanceFieldData> instanceFieldsData = new LinkedHashMap<String, InstanceFieldData>();
+   @Nonnull public final List<String> allFields = new ArrayList<>(2);
+   @Nonnull public final Map<String, StaticFieldData> staticFieldsData = new LinkedHashMap<>();
+   @Nonnull public final Map<String, InstanceFieldData> instanceFieldsData = new LinkedHashMap<>();
 
    private transient int coveredDataItems = -1;
 

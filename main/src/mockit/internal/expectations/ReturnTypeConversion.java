@@ -135,24 +135,24 @@ public final class ReturnTypeConversion
       Object values = null;
 
       if (returnType.isAssignableFrom(ListIterator.class)) {
-         List<Object> list = new ArrayList<Object>(n);
+         List<Object> list = new ArrayList<>(n);
          addArrayElements(list, n);
          values = list.listIterator();
       }
       else if (returnType.isAssignableFrom(List.class)) {
-         values = addArrayElements(new ArrayList<Object>(n), n);
+         values = addArrayElements(new ArrayList<>(n), n);
       }
       else if (returnType.isAssignableFrom(Set.class)) {
-         values = addArrayElements(new LinkedHashSet<Object>(n), n);
+         values = addArrayElements(new LinkedHashSet<>(n), n);
       }
       else if (returnType.isAssignableFrom(SortedSet.class)) {
-         values = addArrayElements(new TreeSet<Object>(), n);
+         values = addArrayElements(new TreeSet<>(), n);
       }
       else if (returnType.isAssignableFrom(Map.class)) {
-         values = addArrayElements(new LinkedHashMap<Object, Object>(n), n);
+         values = addArrayElements(new LinkedHashMap<>(n), n);
       }
       else if (returnType.isAssignableFrom(SortedMap.class)) {
-         values = addArrayElements(new TreeMap<Object, Object>(), n);
+         values = addArrayElements(new TreeMap<>(), n);
       }
 
       if (values != null) {
@@ -217,16 +217,16 @@ public final class ReturnTypeConversion
          addArray();
       }
       else if (returnType.isAssignableFrom(ArrayList.class)) {
-         addCollectionWithSingleElement(new ArrayList<Object>(1));
+         addCollectionWithSingleElement(new ArrayList<>(1));
       }
       else if (returnType.isAssignableFrom(LinkedList.class)) {
-         addCollectionWithSingleElement(new LinkedList<Object>());
+         addCollectionWithSingleElement(new LinkedList<>());
       }
       else if (returnType.isAssignableFrom(HashSet.class)) {
-         addCollectionWithSingleElement(new HashSet<Object>(1));
+         addCollectionWithSingleElement(new HashSet<>(1));
       }
       else if (returnType.isAssignableFrom(TreeSet.class)) {
-         addCollectionWithSingleElement(new TreeSet<Object>());
+         addCollectionWithSingleElement(new TreeSet<>());
       }
       else if (returnType.isAssignableFrom(ListIterator.class)) {
          addListIterator();
@@ -262,7 +262,7 @@ public final class ReturnTypeConversion
    }
 
    private void addListIterator() {
-      List<Object> l = new ArrayList<Object>(1);
+      List<Object> l = new ArrayList<>(1);
       l.add(valueToReturn);
       ListIterator<Object> iterator = l.listIterator();
       addReturnValue(iterator);
@@ -273,9 +273,11 @@ public final class ReturnTypeConversion
       @Nonnull Object convertedValue = textualValue;
 
       if (returnType.isAssignableFrom(ByteArrayInputStream.class)) {
+         //noinspection resource
          convertedValue = new ByteArrayInputStream(textualValue.toString().getBytes());
       }
       else if (returnType.isAssignableFrom(StringReader.class)) {
+         //noinspection resource
          convertedValue = new StringReader(textualValue.toString());
       }
       else if (!(textualValue instanceof StringBuilder) && returnType.isAssignableFrom(StringBuilder.class)) {

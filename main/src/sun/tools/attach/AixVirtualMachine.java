@@ -291,7 +291,7 @@ public class AixVirtualMachine extends HotSpotVirtualMachine {
             try {
                 b = s.getBytes("UTF-8");
             } catch (java.io.UnsupportedEncodingException x) {
-                throw new InternalError(x);
+                throw new InternalError(x.getMessage());
             }
             AixVirtualMachine.write(fd, b, 0, b.length);
         }

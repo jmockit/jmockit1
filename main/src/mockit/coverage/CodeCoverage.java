@@ -26,7 +26,6 @@ public final class CodeCoverage implements ClassFileTransformer
          String pid = args[0];
 
          try {
-            //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(pid);
             new AgentLoader(pid).loadAgent("coverage");
             return;

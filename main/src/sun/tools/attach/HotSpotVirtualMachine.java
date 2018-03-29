@@ -102,7 +102,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         try {
             loadAgentLibrary("instrument", args);
         } catch (AgentLoadException x) {
-            throw new InternalError("instrument library is missing in target VM", x);
+            throw new InternalError("instrument library is missing in target VM");
         } catch (AgentInitializationException x) {
             /*
              * Translate interesting errors into the right exception and
@@ -264,7 +264,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         try {
             return execute(cmd, args);
         } catch (AgentLoadException x) {
-            throw new InternalError("Should not get here", x);
+            throw new InternalError("Should not get here");
         }
     }
 
@@ -311,7 +311,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
     String readErrorMessage(InputStream sis) throws IOException {
         byte b[] = new byte[1024];
         int n;
-        StringBuffer message = new StringBuffer();
+        StringBuilder message = new StringBuilder();
         while ((n = sis.read(b)) != -1) {
             message.append(new String(b, 0, n, "UTF-8"));
         }
@@ -337,8 +337,7 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
                         String s =
                             System.getProperty("sun.tools.attach.attachTimeout");
                         attachTimeout = Long.parseLong(s);
-                    } catch (SecurityException se) {
-                    } catch (NumberFormatException ne) {
+                    } catch (SecurityException | NumberFormatException se) {
                     }
                     if (attachTimeout <= 0) {
                        attachTimeout = defaultAttachTimeout;

@@ -16,7 +16,7 @@ final class MultiValuedProvider extends InjectionProvider
 
    MultiValuedProvider(@Nonnull Type elementType) {
       super(elementType, "");
-      individualProviders = new ArrayList<InjectionProvider>();
+      individualProviders = new ArrayList<>();
    }
 
    void addInjectable(@Nonnull InjectionProvider provider) {
@@ -28,7 +28,7 @@ final class MultiValuedProvider extends InjectionProvider
 
    @Nonnull @Override
    public Object getValue(@Nullable Object owner) {
-      List<Object> values = new ArrayList<Object>(individualProviders.size());
+      List<Object> values = new ArrayList<>(individualProviders.size());
 
       for (InjectionProvider provider : individualProviders) {
          Object value = provider.getValue(owner);

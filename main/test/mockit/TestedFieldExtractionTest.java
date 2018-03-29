@@ -47,8 +47,8 @@ public final class TestedFieldExtractionTest
    static class TestedClassWithInitializedFieldsOfVariousTypes {
       final String name = "test";
       int number = 123;
-      @Inject @Named("test") final List<String> names = new ArrayList<String>();
-      Map<Integer, String> numbersAndNames = new HashMap<Integer, String>();
+      @Inject @Named("test") final List<String> names = new ArrayList<>();
+      Map<Integer, String> numbersAndNames = new HashMap<>();
    }
 
    @Tested TestedClassWithInitializedFieldsOfVariousTypes tested3;

@@ -16,7 +16,7 @@ public final class PerFilePathCoverage implements PerFileCoverage
    private static final long serialVersionUID = 6075064821486644269L;
 
    @Nonnull
-   public final Map<Integer, MethodCoverageData> firstLineToMethodData = new HashMap<Integer, MethodCoverageData>();
+   public final Map<Integer, MethodCoverageData> firstLineToMethodData = new HashMap<>();
 
    // Computed on demand:
    private transient int totalPaths;

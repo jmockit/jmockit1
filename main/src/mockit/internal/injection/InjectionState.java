@@ -24,7 +24,7 @@ import static mockit.internal.util.Utilities.getClassType;
 @SuppressWarnings("ParameterHidesMemberVariable")
 public final class InjectionState
 {
-   @Nonnull private static final Map<InjectionPoint, Object> globalDependencies = new ConcurrentHashMap<InjectionPoint, Object>(2);
+   @Nonnull private static final Map<InjectionPoint, Object> globalDependencies = new ConcurrentHashMap<>(2);
 
    @Nonnull private final Map<InjectionPoint, Object> testedObjects;
    @Nonnull private final Map<InjectionPoint, Object> instantiatedDependencies;
@@ -37,10 +37,10 @@ public final class InjectionState
    private Type typeOfInjectionPoint;
 
    InjectionState() {
-      testedObjects = new LinkedHashMap<InjectionPoint, Object>();
-      instantiatedDependencies = new LinkedHashMap<InjectionPoint, Object>();
+      testedObjects = new LinkedHashMap<>();
+      instantiatedDependencies = new LinkedHashMap<>();
       injectables = Collections.emptyList();
-      consumedInjectionProviders = new ArrayList<InjectionProvider>();
+      consumedInjectionProviders = new ArrayList<>();
       lifecycleMethods = new LifecycleMethods();
       interfaceResolution = new InterfaceResolution();
    }
@@ -51,7 +51,7 @@ public final class InjectionState
          return false;
       }
 
-      this.injectables = new ArrayList<MockedType>(injectables);
+      this.injectables = new ArrayList<>(injectables);
       return true;
    }
 
@@ -79,7 +79,7 @@ public final class InjectionState
 
       if (!injectableParameters.isEmpty()) {
          if (injectables.isEmpty()) {
-            injectables = new ArrayList<MockedType>(injectableParameters);
+            injectables = new ArrayList<>(injectableParameters);
          }
          else {
             injectables.addAll(injectableParameters);
@@ -155,7 +155,7 @@ public final class InjectionState
 
    @Nonnull
    List<MockedType> findInjectablesByType(@Nonnull TestedClass testedClass) {
-      List<MockedType> found = new ArrayList<MockedType>();
+      List<MockedType> found = new ArrayList<>();
 
       for (MockedType injectable : injectables) {
          if (hasTypeAssignableToInjectionPoint(injectable, testedClass) && !consumedInjectionProviders.contains(injectable)) {
@@ -266,7 +266,7 @@ public final class InjectionState
    @Nonnull
    public List<InjectionProvider> saveConsumedInjectionProviders() {
       List<InjectionProvider> previouslyConsumed = consumedInjectionProviders;
-      consumedInjectionProviders = new ArrayList<InjectionProvider>();
+      consumedInjectionProviders = new ArrayList<>();
       return previouslyConsumed;
    }
 

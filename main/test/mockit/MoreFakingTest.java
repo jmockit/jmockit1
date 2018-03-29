@@ -223,7 +223,7 @@ public final class MoreFakingTest
          @Mock String doSomething(Invocation inv) { return "faked"; }
       };
 
-      GenericClass<String> faked = new GenericClass<String>();
+      GenericClass<String> faked = new GenericClass<>();
       assertEquals("faked", faked.doSomething());
    }
 

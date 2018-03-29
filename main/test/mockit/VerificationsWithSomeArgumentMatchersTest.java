@@ -11,7 +11,7 @@ public final class VerificationsWithSomeArgumentMatchersTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("UnusedParameters")
+   @SuppressWarnings("unused")
    static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}

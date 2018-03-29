@@ -20,7 +20,7 @@ public final class SubclassGenerationModifier extends BaseSubclassGenerator
       super(baseClass, classfile, mockedType, subclassName, copyConstructors);
    }
 
-   @Override @SuppressWarnings("AssignmentToMethodParameter")
+   @Override
    protected void generateMethodImplementation(
       @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
       @Nullable String[] exceptions

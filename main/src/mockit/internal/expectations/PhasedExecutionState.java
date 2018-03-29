@@ -24,10 +24,10 @@ final class PhasedExecutionState
    @Nullable private List<Class<?>> mockedTypesToMatchOnInstances;
 
    PhasedExecutionState() {
-      expectations = new ArrayList<Expectation>();
-      verifiedExpectations = new ArrayList<VerifiedExpectation>();
-      instanceMap = new IdentityHashMap<Object, Object>();
-      replacementMap = new IdentityHashMap<Object, Object>();
+      expectations = new ArrayList<>();
+      verifiedExpectations = new ArrayList<>();
+      instanceMap = new IdentityHashMap<>();
+      replacementMap = new IdentityHashMap<>();
    }
 
    void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch) {
@@ -50,7 +50,7 @@ final class PhasedExecutionState
 
    private void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType) {
       if (mockedTypesToMatchOnInstances == null) {
-         mockedTypesToMatchOnInstances = new LinkedList<Class<?>>();
+         mockedTypesToMatchOnInstances = new LinkedList<>();
       }
 
       if (!containsReference(mockedTypesToMatchOnInstances, mockedType)) {

@@ -76,7 +76,7 @@ public final class RecordAndReplayExecution
 
       if (fieldTypeRedefinitions != null) {
          List<Class<?>> fields = fieldTypeRedefinitions.getTargetClasses();
-         List<Class<?>> targetClasses = new ArrayList<Class<?>>(fields);
+         List<Class<?>> targetClasses = new ArrayList<>(fields);
 
          TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
@@ -327,7 +327,6 @@ public final class RecordAndReplayExecution
    @Nullable
    public static Error endCurrentReplayIfAny() {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForRunningTest();
-      //noinspection ThrowableResultOfMethodCallIgnored
       return instance == null ? null : instance.endExecution();
    }
 
@@ -371,7 +370,7 @@ public final class RecordAndReplayExecution
       return verificationPhase;
    }
 
-   public void endInvocations() {
+   void endInvocations() {
       TEST_ONLY_PHASE_LOCK.unlock();
 
       if (verificationPhase == null) {

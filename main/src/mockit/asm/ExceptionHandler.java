@@ -78,7 +78,6 @@ final class ExceptionHandler
             }
             else {
                // [hStart,hEnd[ minus [s,e[ = [e,hEnd[
-               //noinspection ConstantConditions
                h.start = end;
             }
          }

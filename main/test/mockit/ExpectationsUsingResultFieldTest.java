@@ -191,7 +191,7 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void returnsMultipleValuesInSequenceUsingCollection() {
       final Collaborator collaborator = new Collaborator();
-      final Set<Boolean> booleanSet = new LinkedHashSet<Boolean>(asList(true, false));
+      final Set<Boolean> booleanSet = new LinkedHashSet<>(asList(true, false));
       final Collection<Integer> intCol = asList(1, 2, 3);
       final List<Character> charList = asList('a', 'b', 'c');
 
@@ -283,7 +283,6 @@ public final class ExpectationsUsingResultFieldTest
 
       assertArrayEquals(new int[] {1, 2}, (int[]) collaborator.getObject());
       assertArrayEquals(new Object[] {"test", 'X'}, (Object[]) collaborator.getObject());
-      //noinspection AssertEqualsBetweenInconvertibleTypes
       assertEquals(asList(5L, 67L), collaborator.getObject());
       assertNull(collaborator.getObject());
       assertNull(collaborator.getObject());
@@ -319,8 +318,8 @@ public final class ExpectationsUsingResultFieldTest
       final Collaborator collaborator = new Collaborator();
       final Collection<String> strCol = asList("ab", "cde");
       final List<Byte> byteList = asList((byte) 5, (byte) 68);
-      final Set<Character> charSet = new HashSet<Character>(asList('g', 't', 'x'));
-      final SortedSet<String> sortedSet = new TreeSet<String>(asList("hpq", "Abc"));
+      final Set<Character> charSet = new HashSet<>(asList('g', 't', 'x'));
+      final SortedSet<String> sortedSet = new TreeSet<>(asList("hpq", "Abc"));
 
       new Expectations(collaborator) {{
          collaborator.getItems(); result = strCol;
@@ -417,7 +416,7 @@ public final class ExpectationsUsingResultFieldTest
    }
 
    private List<?> fromIterator(Iterator<?> itr) {
-      List<Object> values = new ArrayList<Object>();
+      List<Object> values = new ArrayList<>();
 
       while (itr.hasNext()) {
          values.add(itr.next());

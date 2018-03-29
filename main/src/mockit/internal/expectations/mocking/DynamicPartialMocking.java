@@ -19,8 +19,8 @@ public final class DynamicPartialMocking extends BaseTypeRedefinition
    private boolean methodsOnly;
 
    public DynamicPartialMocking() {
-      targetInstances = new ArrayList<Object>(2);
-      modifiedClassfiles = new HashMap<Class<?>, byte[]>();
+      targetInstances = new ArrayList<>(2);
+      modifiedClassfiles = new HashMap<>();
    }
 
    public void redefineTypes(@Nonnull Object[] classesOrInstancesToBePartiallyMocked) {

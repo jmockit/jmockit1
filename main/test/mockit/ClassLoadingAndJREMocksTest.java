@@ -250,7 +250,7 @@ public final class ClassLoadingAndJREMocksTest
          mockEntry.getName(); returns("test/Main$Inner.class", "test/Main.class");
       }};
 
-      List<String> fileNames = new ArrayList<String>();
+      List<String> fileNames = new ArrayList<>();
       String mainClassFromJar = readMainClassAndFileNamesFromJar(testFile, fileNames);
 
       assertEquals(mainClassName, mainClassFromJar);

@@ -22,7 +22,7 @@ public final class ExpectationsForConstructorsTest
       Collaborator(int value) { super(value); }
    }
 
-   @SuppressWarnings("UnusedDeclaration")
+   @SuppressWarnings("unused")
    public abstract static class AbstractCollaborator extends BaseCollaborator {
       protected AbstractCollaborator(int value) { super(value); }
       protected AbstractCollaborator(boolean b, int value) { super(value); }

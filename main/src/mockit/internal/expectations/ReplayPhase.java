@@ -17,9 +17,9 @@ final class ReplayPhase extends Phase
 
    ReplayPhase(@Nonnull RecordAndReplayExecution recordAndReplay) {
       super(recordAndReplay);
-      invocations = new ArrayList<Expectation>();
-      invocationInstances = new ArrayList<Object>();
-      invocationArguments = new ArrayList<Object[]>();
+      invocations = new ArrayList<>();
+      invocationInstances = new ArrayList<>();
+      invocationArguments = new ArrayList<>();
    }
 
    @Override @Nullable
@@ -150,7 +150,7 @@ final class ReplayPhase extends Phase
    @Nonnull
    private List<ExpectedInvocation> getNonMatchingInvocations(@Nonnull Expectation unsatisfiedExpectation) {
       ExpectedInvocation unsatisfiedInvocation = unsatisfiedExpectation.invocation;
-      List<ExpectedInvocation> nonMatchingInvocations = new ArrayList<ExpectedInvocation>();
+      List<ExpectedInvocation> nonMatchingInvocations = new ArrayList<>();
 
       for (Expectation replayedExpectation : invocations) {
          ExpectedInvocation replayedInvocation = replayedExpectation.invocation;

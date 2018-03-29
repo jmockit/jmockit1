@@ -13,14 +13,14 @@ import mockit.asm.*;
 public final class NodeBuilder
 {
    public int firstLine;
-   @Nonnull final List<Node> nodes = new ArrayList<Node>();
+   @Nonnull final List<Node> nodes = new ArrayList<>();
 
    @Nullable private Entry entryNode;
    @Nullable private SimpleFork currentSimpleFork;
    @Nullable private BasicBlock currentBasicBlock;
    @Nullable private Join currentJoin;
-   @Nonnull private final Map<Label, List<Fork>> jumpTargetToForks = new LinkedHashMap<Label, List<Fork>>();
-   @Nonnull private final Map<Label, List<GotoSuccessor>> gotoTargetToSuccessors = new LinkedHashMap<Label, List<GotoSuccessor>>();
+   @Nonnull private final Map<Label, List<Fork>> jumpTargetToForks = new LinkedHashMap<>();
+   @Nonnull private final Map<Label, List<GotoSuccessor>> gotoTargetToSuccessors = new LinkedHashMap<>();
 
    private int potentiallyTrivialJump;
 
@@ -144,7 +144,7 @@ public final class NodeBuilder
       List<Fork> forksWithSameTarget = jumpTargetToForks.get(targetBlock);
 
       if (forksWithSameTarget == null) {
-         forksWithSameTarget = new LinkedList<Fork>();
+         forksWithSameTarget = new LinkedList<>();
          jumpTargetToForks.put(targetBlock, forksWithSameTarget);
       }
 
@@ -155,7 +155,7 @@ public final class NodeBuilder
       List<GotoSuccessor> successors = gotoTargetToSuccessors.get(targetBlock);
 
       if (successors == null) {
-         successors = new LinkedList<GotoSuccessor>();
+         successors = new LinkedList<>();
          gotoTargetToSuccessors.put(targetBlock, successors);
       }
 
