@@ -41,7 +41,7 @@ public final class AgentLoader
       else {
          int p = currentPath.lastIndexOf("/main/target/classes");
          currentPath = currentPath.substring(0, p);
-         currentPath = new File(currentPath, "jmockit.jar").getPath();
+         currentPath = new File(currentPath, "agent.jar").getPath();
       }
 
       jarFilePath = currentPath;
