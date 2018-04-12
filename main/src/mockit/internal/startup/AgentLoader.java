@@ -29,8 +29,8 @@ public final class AgentLoader
    @Nullable private String pidForTargetVM;
 
    AgentLoader() {
-      if (JAVA_VERSION < 1.6F) {
-         throw new IllegalStateException("JMockit requires a Java 6+ VM");
+      if (JAVA_VERSION < 1.7F) {
+         throw new IllegalStateException("JMockit requires a Java 7+ VM");
       }
 
       String currentPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
