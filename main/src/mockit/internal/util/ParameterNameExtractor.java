@@ -11,7 +11,6 @@ import mockit.asm.*;
 import mockit.asm.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.state.*;
-import static mockit.internal.util.Utilities.JAVA_VERSION;
 
 public final class ParameterNameExtractor
 {
@@ -25,8 +24,7 @@ public final class ParameterNameExtractor
       String classDesc = className.replace('.', '/');
 
       if (!ParameterNames.hasNamesForClass(classDesc)) {
-         // JRE 1.6 (but not 1.7+) discards parameter names on retransformation.
-         byte[] classfile = JAVA_VERSION < 1.7F ? ClassFile.readBytesFromClassFile(classDesc) : ClassFile.getClassFile(classOfInterest);
+         byte[] classfile = ClassFile.readBytesFromClassFile(classDesc);
          ClassMetadataReader cmr = new ClassMetadataReader(classfile, PARAMETERS);
          List<MethodInfo> methods = cmr.getMethods();
 
