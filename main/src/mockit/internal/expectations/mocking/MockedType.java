@@ -36,7 +36,7 @@ public final class MockedType extends InjectionProvider
    }
 
    @Nullable public final Field field;
-   public final boolean fieldFromTestClass;
+   final boolean fieldFromTestClass;
    private final int accessModifiers;
    @Nullable private final Mocked mocked;
    @Nullable private final Capturing capturing;
@@ -143,7 +143,7 @@ public final class MockedType extends InjectionProvider
 
    /**
     * @return the class object corresponding to the type to be mocked, or <tt>TypeVariable.class</tt> in case the
-    * mocked type is a type variable (which usually occurs when the mocked implements/extends multiple types)
+    * mocked type is a type variable (which usually occurs when the mocked type implements/extends multiple types)
     */
    @Nonnull
    public Class<?> getClassType() {
