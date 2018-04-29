@@ -322,6 +322,8 @@ public final class JREMockingTest
       attemptToMockUnmockableJREClass(Class.class);
       attemptToMockUnmockableJREClass(Math.class);
       attemptToMockUnmockableJREClass(StrictMath.class);
+      attemptToMockUnmockableJREClass(Object.class);
+      attemptToMockUnmockableJREClass(Enum.class);
 
       if (JAVA8) {
          //noinspection Since15

@@ -27,7 +27,7 @@ public final class MockingFilters
    public static boolean isUnmockable(@Nonnull String classDesc) {
       return
          ("java/lang/String java/lang/AbstractStringBuilder java/util/AbstractCollection java/util/AbstractMap " +
-          "java/util/Hashtable java/lang/Throwable " +
+          "java/util/Hashtable java/lang/Throwable java/lang/Object java/lang/Enum " +
           "java/lang/ClassLoader java/lang/Math java/lang/StrictMath java/time/Duration").contains(classDesc) ||
          "java/lang/ThreadLocal".equals(classDesc) || "java/nio/file/Paths".equals(classDesc);
    }

@@ -23,6 +23,8 @@ import static mockit.internal.util.Utilities.*;
 
 class BaseTypeRedefinition
 {
+   private static final ClassDefinition[] CLASS_DEFINITIONS = new ClassDefinition[0];
+
    private static final class MockedClass {
       @Nullable final InstanceFactory instanceFactory;
       @Nonnull final ClassDefinition[] mockedClassDefinitions;
@@ -174,7 +176,7 @@ class BaseTypeRedefinition
    }
 
    private boolean redefineClassAndItsSuperClasses(@Nonnull Class<?> realClass) {
-      if (!HOTSPOT_VM && (realClass == System.class || realClass == Object.class)) {
+      if (!HOTSPOT_VM && realClass == System.class) {
          return false;
       }
 
@@ -283,7 +285,7 @@ class BaseTypeRedefinition
 
    private void storeRedefinedClassesInCache(@Nonnull Integer mockedClassId) {
       assert mockedClassDefinitions != null;
-      ClassDefinition[] classDefs = mockedClassDefinitions.toArray(new ClassDefinition[mockedClassDefinitions.size()]);
+      ClassDefinition[] classDefs = mockedClassDefinitions.toArray(CLASS_DEFINITIONS);
       MockedClass mockedClass = new MockedClass(instanceFactory, classDefs);
 
       mockedClasses.put(mockedClassId, mockedClass);

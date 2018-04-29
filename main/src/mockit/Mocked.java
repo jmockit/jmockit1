@@ -26,15 +26,11 @@ import static java.lang.annotation.RetentionPolicy.*;
  * The effect of declaring a <tt>@Mocked</tt> type, <em>by default</em>, is that all new instances of that type, as well
  * as those previously created, will also be mocked instances; this will last for the duration of each test where the
  * associated mock field/parameter is in scope.
- * Also, all non-<tt>private</tt> methods of the mocked type will be mocked.
+ * All non-<tt>private</tt> methods of the mocked type will be mocked.
  * <p/>
  * When the mocked type is a class, all super-classes up to but not including <tt>java.lang.Object</tt> are also mocked.
  * Additionally, <em>static methods</em> and <em>constructors</em> are mocked as well, just like instance methods;
  * <em>native</em> methods are also mocked, provided they are <tt>public</tt> or <tt>protected</tt>.
- * <p/>
- * When mocking an <tt>enum</tt> type, the <tt>java.lang.Enum</tt> base class is <em>not</em> mocked by default.
- * If needed, however, base types like <tt>Object</tt> and <tt>Enum</tt> can be mocked by explicitly declaring a mock
- * field or mock parameter of the specific base type.
  * <p/>
  * While a method or constructor is mocked, an invocation does not result in the execution of the original code, but in
  * a (generated) call into JMockit, which then responds with either a default or a <em>recorded</em>
