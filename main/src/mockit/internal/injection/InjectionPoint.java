@@ -269,8 +269,13 @@ public final class InjectionPoint
             String name = readAnnotationAttribute(annotation, "name");
 
             if (name.isEmpty()) {
-               name = readAnnotationAttribute(annotation, "lookup");
-               name = getNameFromJNDILookup(name);
+               name = readAnnotationAttributeIfAvailable(annotation, "lookup"); // EJB 3.0 has no "lookup" attribute
+
+               if (name == null || name.isEmpty()) {
+                  name = readAnnotationAttribute(annotation, "mappedName");
+               }
+
+               name = name.isEmpty() ? null : getNameFromJNDILookup(name);
             }
 
             return name;
