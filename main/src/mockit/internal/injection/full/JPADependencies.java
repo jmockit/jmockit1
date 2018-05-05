@@ -83,15 +83,23 @@ final class JPADependencies
       return defaultPersistenceUnitName;
    }
 
-   @Nonnull
-   Object createAndRegisterDependency(@Nonnull Class<?> dependencyType, @Nonnull InjectionPoint dependencyKey) {
-      if (dependencyType == EntityManagerFactory.class) {
-         InjectionPoint injectionPoint = createFactoryInjectionPoint(dependencyKey);
-         EntityManagerFactory emFactory = createAndRegisterEntityManagerFactory(injectionPoint);
-         return emFactory;
+   @Nullable
+   Object createAndRegisterDependency(
+      @Nonnull Class<?> dependencyType, @Nonnull InjectionPoint dependencyKey, @Nullable InjectionProvider injectionProvider
+   ) {
+      if (injectionProvider != null) {
+         if (dependencyType == EntityManagerFactory.class && injectionProvider.hasAnnotation(PersistenceUnit.class)) {
+            InjectionPoint injectionPoint = createFactoryInjectionPoint(dependencyKey);
+            EntityManagerFactory emFactory = createAndRegisterEntityManagerFactory(injectionPoint);
+            return emFactory;
+         }
+
+         if (dependencyType == EntityManager.class && injectionProvider.hasAnnotation(PersistenceContext.class)) {
+            return createAndRegisterEntityManager(dependencyKey);
+         }
       }
 
-      return createAndRegisterEntityManager(dependencyKey);
+      return null;
    }
 
    @Nonnull

@@ -9,8 +9,8 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 /**
- * Provides type, name, and value(s) for an injection point, which is either a field to be injected or a parameter in
- * the chosen constructor of a tested class.
+ * Provides type, name, and value(s) for an injection point, which is either a field to be injected or a parameter in the chosen constructor
+ * of a tested class.
  */
 public abstract class InjectionProvider
 {
@@ -30,6 +30,16 @@ public abstract class InjectionProvider
    @Nonnull public final String getName() { return name; }
    @Nonnull public Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
    @Nullable public Object getValue(@Nullable Object owner) { return null; }
+
+   public boolean hasAnnotation(@Nonnull Class<? extends Annotation> annotationOfInterest) {
+      for (Annotation annotation : getAnnotations()) {
+         if (annotationOfInterest.isInstance(annotation)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
 
    @Override
    public String toString() {

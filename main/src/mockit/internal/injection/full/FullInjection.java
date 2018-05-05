@@ -148,8 +148,7 @@ public final class FullInjection
       Object dependency = null;
 
       if (typeToInject.isInterface()) {
-         dependency = createInstanceOfSupportedInterfaceIfApplicable(
-            testedClass, typeToInject, injectionPoint, injectionProvider);
+         dependency = createInstanceOfSupportedInterfaceIfApplicable(testedClass, typeToInject, injectionPoint, injectionProvider);
 
          if (dependency == null && typeToInject.getClassLoader() != null) {
             Class<?> resolvedType = injectionState.resolveInterface(typeToInject);
@@ -163,8 +162,7 @@ public final class FullInjection
       }
 
       if (dependency == null) {
-         dependency =
-            createAndRegisterNewInstance(typeToInject, testedClass, injector, injectionPoint, injectionProvider);
+         dependency = createAndRegisterNewInstance(typeToInject, testedClass, injector, injectionPoint, injectionProvider);
       }
 
       return dependency;
@@ -178,7 +176,7 @@ public final class FullInjection
       Object dependency = null;
 
       if (CommonDataSource.class.isAssignableFrom(typeToInject)) {
-         dependency = createAndRegisterDataSource(testedClass, injectionPoint);
+         dependency = createAndRegisterDataSource(testedClass, injectionPoint, injectionProvider);
       }
       else if (INJECT_CLASS != null && typeToInject == Provider.class) {
          assert injectionProvider != null;
@@ -191,14 +189,20 @@ public final class FullInjection
          dependency = servletDependencies.createAndRegisterDependency(typeToInject);
       }
       else if (jpaDependencies != null && JPADependencies.isApplicable(typeToInject)) {
-         dependency = jpaDependencies.createAndRegisterDependency(typeToInject, injectionPoint);
+         dependency = jpaDependencies.createAndRegisterDependency(typeToInject, injectionPoint, injectionProvider);
       }
 
       return dependency;
    }
 
    @Nullable
-   private Object createAndRegisterDataSource(@Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint) {
+   private Object createAndRegisterDataSource(
+      @Nonnull TestedClass testedClass, @Nonnull InjectionPoint injectionPoint, @Nullable InjectionProvider injectionProvider
+   ) {
+      if (injectionProvider == null || !injectionProvider.hasAnnotation(Resource.class)) {
+         return null;
+      }
+
       TestDataSource dsCreation = new TestDataSource(injectionPoint);
       CommonDataSource dataSource = dsCreation.createIfDataSourceDefinitionAvailable(testedClass);
 

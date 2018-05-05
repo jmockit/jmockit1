@@ -3,6 +3,7 @@ package mockit;
 import java.lang.annotation.*;
 
 import javax.persistence.*;
+import javax.sql.*;
 
 import org.junit.*;
 import org.junit.runners.*;
@@ -115,7 +116,22 @@ public final class TestedClassWithFullDITest
    static class ClassWithJPAEntityField { Person person; }
 
    @Test
-   public void instantiateClassWithJPAEntityField(@Tested(fullyInitialized = true) ClassWithJPAEntityField tested) {
-      assertNull(tested.person);
+   public void instantiateClassWithJPAEntityField(@Tested(fullyInitialized = true) ClassWithJPAEntityField tested5) {
+      assertNull(tested5.person);
+   }
+
+   static class ClassWithDataSourceField { DataSource ds; }
+
+   @Test
+   public void instantiateClassWithNonAnnotatedDataSourceField(@Tested(fullyInitialized = true) ClassWithDataSourceField tested5) {
+      assertNull(tested5.ds);
+   }
+
+   static class ClassWithJPAFields { EntityManagerFactory emFactory; EntityManager em; }
+
+   @Test
+   public void instantiateClassWithNonAnnotatedJPAFields(@Tested(fullyInitialized = true) ClassWithJPAFields tested6) {
+      assertNull(tested6.emFactory);
+      assertNull(tested6.em);
    }
 }
