@@ -68,8 +68,9 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Override
-   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation) {
-      super.addVerifiedExpectation(verifiedExpectation);
+   void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args) {
+      VerifiedExpectation verifiedExpectation = new VerifiedExpectation(expectation, args, argMatchers, -1);
+      addVerifiedExpectation(verifiedExpectation);
       verifiedExpectations.add(verifiedExpectation);
    }
 

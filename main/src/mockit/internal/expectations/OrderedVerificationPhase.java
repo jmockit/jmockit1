@@ -77,6 +77,12 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
       return emptyList();
    }
 
+   @Override
+   void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args) {
+      VerifiedExpectation verifiedExpectation = new VerifiedExpectation(expectation, args, argMatchers, replayIndex);
+      addVerifiedExpectation(verifiedExpectation);
+   }
+
    @Override @SuppressWarnings("OverlyComplexMethod")
    public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       Error errorThrown = pendingError;

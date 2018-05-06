@@ -120,7 +120,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
                   instanceMap.put(replayInstance, mock);
                }
 
-               addVerifiedExpectation(replayExpectation, replayArgs, argMatchers);
+               addVerifiedExpectation(replayExpectation, replayArgs);
                return true;
             }
          }
@@ -129,13 +129,9 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return false;
    }
 
-   private void addVerifiedExpectation(
-      @Nonnull Expectation expectation, @Nonnull Object[] args, @Nullable List<ArgumentMatcher<?>> matchers
-   ) {
-      addVerifiedExpectation(new VerifiedExpectation(expectation, args, matchers));
-   }
+   abstract void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args);
 
-   void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation) {
+   final void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation) {
       recordAndReplay.executionState.verifiedExpectations.add(verifiedExpectation);
       currentVerifiedExpectations.add(verifiedExpectation);
    }
@@ -179,13 +175,13 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    private Error validateThatAllInvocationsWereVerified() {
       List<Expectation> notVerified = new ArrayList<>();
 
-      for (int i = 0; i < expectationsInReplayOrder.size(); i++) {
+      for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);
 
          if (replayExpectation != null && isEligibleForFullVerification(replayExpectation)) {
             Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
 
-            if (!wasVerified(replayExpectation, replayArgs)) {
+            if (!wasVerified(replayExpectation, replayArgs, i)) {
                notVerified.add(replayExpectation);
             }
          }
@@ -207,21 +203,21 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       return !replayExpectation.executedRealImplementation && replayExpectation.constraints.minInvocations <= 0;
    }
 
-   private boolean wasVerified(@Nonnull Expectation replayExpectation, @Nonnull Object[] replayArgs) {
+   private boolean wasVerified(@Nonnull Expectation replayExpectation, @Nonnull Object[] replayArgs, @Nonnegative int expectationIndex) {
       InvocationArguments invokedArgs = replayExpectation.invocation.arguments;
-      List<VerifiedExpectation> expectationsVerified = recordAndReplay.executionState.verifiedExpectations;
+      List<VerifiedExpectation> verifiedExpectations = recordAndReplay.executionState.verifiedExpectations;
 
-      for (int j = 0; j < expectationsVerified.size(); j++) {
-         VerifiedExpectation verified = expectationsVerified.get(j);
+      for (int j = 0, n = verifiedExpectations.size(); j < n; j++) {
+         VerifiedExpectation verified = verifiedExpectations.get(j);
 
          if (verified.expectation == replayExpectation) {
             Object[] storedArgs = invokedArgs.prepareForVerification(verified.arguments, verified.argMatchers);
             boolean argumentsMatch = invokedArgs.isMatch(replayArgs, getInstanceMap());
             invokedArgs.setValuesWithNoMatchers(storedArgs);
 
-            if (argumentsMatch) {
+            if (argumentsMatch && verified.matchesReplayIndex(expectationIndex)) {
                if (shouldDiscardInformationAboutVerifiedInvocationOnceUsed()) {
-                  expectationsVerified.remove(j);
+                  verifiedExpectations.remove(j);
                }
 
                return true;

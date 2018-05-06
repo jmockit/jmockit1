@@ -291,4 +291,40 @@ public final class FullVerificationsTest
 
       new FullVerifications() {};
    }
+
+   @Test
+   public void verifyNoUnverifiedInvocationsWhenFirstInvocationOfMethodIsButSecondOneIsNot() {
+      mock.prepare();
+      mock.save();
+      mock.prepare();
+      mock.save(); // doesn't get verified
+
+      new VerificationsInOrder() {{
+         mock.prepare(); times = 1;
+         mock.save(); times = 1;
+         mock.prepare(); times = 1;
+      }};
+
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("save()");
+
+      new FullVerifications() {};
+   }
+
+   @Test
+   public void verifyNoUnverifiedInvocationsWhenSecondInvocationOfMethodIsButFirstOneIsNot() {
+      mock.save(); // doesn't get verified
+      mock.prepare();
+      mock.save();
+
+      new VerificationsInOrder() {{
+         mock.prepare();
+         mock.save();
+      }};
+
+      thrown.expect(UnexpectedInvocation.class);
+      thrown.expectMessage("save()");
+
+      new FullVerifications() {};
+   }
 }
