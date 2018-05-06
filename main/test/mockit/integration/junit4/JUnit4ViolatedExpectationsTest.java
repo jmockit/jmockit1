@@ -18,22 +18,11 @@ public final class JUnit4ViolatedExpectationsTest
       }};
    }
 
-   @Test // fails with the exception thrown by tested code
+   @Test // fails with a "missing invocation" error
    public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_2(@Mocked final Collaborator mock) {
       new Expectations() {{ mock.doSomething(); result = new IllegalFormatCodePointException('x'); }};
 
       mock.doSomething();
-   }
-
-   @Test // fails with an "unexpected invocation" error
-   public void expectInvocationWhichDoesNotOccurInTestedCodeThatThrowsAnException_3(@Mocked Collaborator mock) {
-      new Expectations() {{
-         new Collaborator();
-         maxTimes = 1;
-      }};
-
-      new Collaborator();
-      new Collaborator();
    }
 
    // fails with a "missing invocation" error after the exception thrown by tested code
