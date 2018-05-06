@@ -106,8 +106,8 @@ public abstract class HotSpotVirtualMachine extends VirtualMachine {
         } catch (AgentInitializationException x) {
             /*
              * Translate interesting errors into the right exception and
-             * message (FIXME: create a better interface to the instrument
-             * implementation so this isn't necessary)
+             * message.
+             *
              */
             int rc = x.returnValue();
             switch (rc) {
