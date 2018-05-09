@@ -7,6 +7,7 @@ package mockit.internal.startup;
 import java.io.*;
 import java.lang.management.*;
 import java.lang.reflect.*;
+import java.net.*;
 import java.util.*;
 import javax.annotation.*;
 
@@ -33,7 +34,9 @@ public final class AgentLoader
          throw new IllegalStateException("JMockit requires a Java 7+ VM");
       }
 
-      String currentPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+      String currentPath = "";
+      try { currentPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath(); }
+      catch (URISyntaxException ignore) {}
 
       if (currentPath.endsWith(".jar")) {
          currentPath = new File(currentPath).getAbsolutePath();
