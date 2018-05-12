@@ -5,10 +5,8 @@
 package mockit;
 
 /**
- * Same as {@link Verifications}, but checking that invocations from code under test occurred in the same order as the
- * verified expectations.
+ * Same as {@link Verifications}, but checking that invocations from code under test occur in the same order as the verified expectations.
  * <pre>
- *
  * // Exercise tested code.
  * codeUnderTest.doSomething();
  *
@@ -26,8 +24,7 @@ package mockit;
 public abstract class VerificationsInOrder extends Verifications
 {
    /**
-    * Begins <em>in-order</em> verification on the mocked types/instances that were invoked while executing code under
-    * test.
+    * Begins <em>in-order</em> verification on the mocked types/instances that were invoked while executing code under test.
     */
    protected VerificationsInOrder() { super(true); }
 }
