@@ -122,23 +122,20 @@
                <noindex>true</noindex>
                <notree>true</notree>
                <nohelp>true</nohelp>
+               <notimestamp>true</notimestamp>
                <breakiterator>true</breakiterator>
                <use>false</use>
                <source>1.8</source>
                <windowtitle>JMockit Toolkit API</windowtitle>
                <doctitle>JMockit Toolkit API Documentation</doctitle>
-               <stylesheetfile>${project.basedir}/../../jmockit.github.io/api1x/stylesheet.css</stylesheetfile>
-               <overview>${project.basedir}/../../jmockit.github.io/api1x/overview.html</overview>
-               <header>
-                  <![CDATA[<a href="http://jmockit.github.io" target="_top"><img src="resources/logo.png">JMockit Home</a>]]>
-               </header>
-               <footer>
-                  <![CDATA[<a href="http://jmockit.github.io" target="_top"><img src="resources/logo.png">JMockit Home</a>]]>
-               </footer>
-               <notimestamp>true</notimestamp>
                <quiet>true</quiet>
-               <sourcepath>${basedir}/src</sourcepath>
-               <subpackages>none</subpackages>
+               <subpackages>mockit</subpackages>
+               <excludePackageNames>
+                  com.*:org.*:sun.*:mockit.asm.*:mockit.coverage.*:mockit.internal.*:mockit.integration.*
+               </excludePackageNames>
+               <additionalOptions>
+                  <additionalOption>-Xdoclint:none</additionalOption>
+               </additionalOptions>
                <links>
                   <link>http://docs.oracle.com/javase/8/docs/api/</link>
                   <link>http://docs.oracle.com/javaee/7/api/</link>
