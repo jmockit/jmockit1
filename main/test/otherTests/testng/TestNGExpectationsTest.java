@@ -1,5 +1,6 @@
 package otherTests.testng;
 
+import static org.junit.Assert.assertEquals;
 import static org.testng.Assert.*;
 import org.testng.annotations.*;
 
@@ -38,7 +39,7 @@ public final class TestNGExpectationsTest
       new Expectations() {{ dependency.doSomething(anyInt); result = true; times = 2; }};
 
       assertTrue(dependency.doSomething(5));
-      assertEquals(dependency.getValue(), "mocked");
+      assertEquals("mocked", dependency.getValue());
       assertTrue(tested.doSomething(-5));
       assertTrue(mock2.doSomethingElse(6));
 
@@ -47,7 +48,7 @@ public final class TestNGExpectationsTest
 
    @Test
    public void testSomethingElse() {
-      assertEquals(dependency.getValue(), "mocked");
+      assertEquals("mocked", dependency.getValue());
       assertFalse(tested.doSomething(41));
       assertTrue(mock2.doSomethingElse(6));
 
@@ -55,5 +56,16 @@ public final class TestNGExpectationsTest
          dependency.getValue();
          dependency.doSomething(anyInt);
       }};
+   }
+
+   public interface AnInterface { String someMethod(); }
+   static class AnImpl implements AnInterface { @Override public String someMethod() { return null; } }
+
+   @Test(enabled = false) // for issue #515
+   public void captureImplementationFromMockParameter(@Capturing final AnInterface mock) {
+      AnInterface impl = new AnImpl();
+      new Expectations() {{ mock.someMethod(); result = "test"; }};
+
+      assertEquals("test", impl.someMethod());
    }
 }
