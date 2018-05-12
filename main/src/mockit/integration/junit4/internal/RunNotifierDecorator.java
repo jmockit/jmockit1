@@ -46,7 +46,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       if (currentTestClass != null) {
          Class<?> newTestClass = description.getTestClass();
 
-         if (!currentTestClass.isAssignableFrom(newTestClass)) {
+         if (newTestClass == null || !currentTestClass.isAssignableFrom(newTestClass)) {
             TestRunnerDecorator.cleanUpMocksFromPreviousTestClass();
          }
       }
