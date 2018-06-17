@@ -59,7 +59,7 @@
             <configuration><source>1.8</source><target>1.8</target></configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.20.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.21.0</version>
             <configuration>
                <systemPropertyVariables>
                   <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
@@ -88,7 +88,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-war-plugin</artifactId><version>3.2.0</version>
+            <artifactId>maven-war-plugin</artifactId><version>3.2.2</version>
             <configuration>
                <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
             </configuration>
