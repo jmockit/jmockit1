@@ -43,7 +43,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.20</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.21.0</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
             </configuration>
