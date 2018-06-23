@@ -33,6 +33,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       CharBuffer getCharBuffer() { return null; }
       InputStream getInputStream() { return null; }
       ByteArrayInputStream getByteArrayInputStream() { return null; }
+      byte[] getByteArray() { return null; }
       Reader getReader() { return null; }
       StringReader getStringReader() { return null; }
 
@@ -191,6 +192,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
          mock.getCharBuffer(); result = text;
          mock.getInputStream(); result = text;
          mock.getByteArrayInputStream(); result = text;
+         mock.getByteArray(); result = text;
          mock.getReader(); result = text;
          mock.getStringReader(); result = text;
       }};
@@ -204,6 +206,9 @@ public final class ExpectationsUsingReturnTypeConversionTest
 
       mock.getByteArrayInputStream().read(buf);
       assertArrayEquals(text.getBytes(), buf);
+
+      byte[] bytes = mock.getByteArray();
+      assertArrayEquals(text.getBytes(), bytes);
 
       char[] cbuf = new char[text.length()];
       mock.getReader().read(cbuf);

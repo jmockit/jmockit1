@@ -16,6 +16,7 @@ import mockit.internal.util.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
 
+@SuppressWarnings("OverlyComplexClass")
 public final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
@@ -42,7 +43,7 @@ public final class ReturnTypeConversion
 
    @Nonnull
    public Object getConvertedValue() {
-      Class<?> wrapperType = AutoBoxing.isWrapperOfPrimitiveType(returnType) ? returnType : AutoBoxing.getWrapperType(returnType);
+      Class<?> wrapperType = getWrapperType();
       Class<?> valueType = valueToReturn.getClass();
 
       if (valueType == wrapperType) {
@@ -56,8 +57,13 @@ public final class ReturnTypeConversion
       throw newIncompatibleTypesException();
    }
 
+   @Nullable
+   private Class<?> getWrapperType() {
+      return AutoBoxing.isWrapperOfPrimitiveType(returnType) ? returnType : AutoBoxing.getWrapperType(returnType);
+   }
+
    void addConvertedValue() {
-      Class<?> wrapperType = AutoBoxing.isWrapperOfPrimitiveType(returnType) ? returnType : AutoBoxing.getWrapperType(returnType);
+      Class<?> wrapperType = getWrapperType();
       Class<?> valueType = valueToReturn.getClass();
 
       if (valueType == wrapperType) {
@@ -206,12 +212,16 @@ public final class ReturnTypeConversion
       }
    }
 
+   @SuppressWarnings("OverlyComplexMethod")
    private void addResultFromSingleValue() {
       if (returnType == Object.class) {
          addReturnValue(valueToReturn);
       }
       else if (returnType == void.class) {
          throw newIncompatibleTypesException();
+      }
+      else if (returnType == byte[].class && valueToReturn instanceof CharSequence) {
+         addReturnValue(valueToReturn.toString().getBytes());
       }
       else if (returnType.isArray()) {
          addArray();
