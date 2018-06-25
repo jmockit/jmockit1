@@ -4,7 +4,6 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 import blog.common.*;
-import org.jasypt.util.password.*;
 
 @Entity
 public class User extends BaseEntity
@@ -37,10 +36,10 @@ public class User extends BaseEntity
    public void setUsername(String username) { this.username = username; }
 
    public void setPassword(String password) {
-      this.password = new BasicPasswordEncryptor().encryptPassword(password);
+      this.password = password;
    }
 
    public boolean verifyPassword(String passwordToVerify) {
-      return new BasicPasswordEncryptor().checkPassword(passwordToVerify, password);
+      return passwordToVerify.equals(password);
    }
 }
