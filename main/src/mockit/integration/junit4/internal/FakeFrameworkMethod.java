@@ -15,8 +15,7 @@ import mockit.internal.faking.*;
 import mockit.internal.util.*;
 
 /**
- * Startup fake that modifies the JUnit 4.5+ test runner so that it calls back to JMockit immediately after every test
- * executes.
+ * Startup fake that modifies the JUnit 4.5+ test runner so that it calls back to JMockit immediately after every test executes.
  * When that happens, JMockit will assert any expectations recorded during the test in {@link Expectations} subclasses.
  * <p/>
  * This class is not supposed to be accessed from user code. JMockit will automatically load it at startup.
@@ -75,13 +74,17 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
       }
 
       for (Annotation parameterAnnotation : parameterAnnotations) {
-         String annotationTypeName = parameterAnnotation.annotationType().getName();
+         Class<? extends Annotation> annotationType = parameterAnnotation.annotationType();
+         String annotationTypeName = annotationType.getName();
 
-         if (!"mockit.Tested mockit.Mocked mockit.Injectable mockit.Capturing".contains(annotationTypeName)) {
-            return false;
+         if (
+            "mockit.Tested mockit.Mocked mockit.Injectable mockit.Capturing".contains(annotationTypeName) ||
+            annotationType.isAnnotationPresent(Tested.class)
+         ) {
+            return true;
          }
       }
 
-      return true;
+      return false;
    }
 }

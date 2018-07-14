@@ -1,6 +1,10 @@
 package mockit;
 
+import java.lang.annotation.*;
 import javax.inject.*;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -96,5 +100,12 @@ public final class TestedParametersTest
    @Test
    public void injectInjectableFieldIntoTestedParameter(@Tested TestedClassWithDIAnnotatedField tested) {
       assertSame(anotherDep, tested.dep);
+   }
+
+   @Target(PARAMETER) @Retention(RUNTIME) @Tested public @interface InjectedDependency {}
+
+   @Test
+   public void injectParameterUsingTestedAsMetaAnnotation(@InjectedDependency Collaborator col) {
+      assertNotNull(col);
    }
 }
