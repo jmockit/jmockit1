@@ -27,7 +27,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
    @Nullable private SavePoint savePointForTest;
    @Nullable private SavePoint savePointForTestMethod;
    @Nullable private Throwable thrownByTest;
-   private Object[] mockParameters;
+   private Object[] parameterValues;
 
    @Override
    public void beforeAll(@Nonnull ExtensionContext context) {
@@ -93,7 +93,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
       try {
          savePointForTestMethod = new SavePoint();
          createInstancesForTestedFieldsFromBaseClasses(testInstance);
-         mockParameters = createInstancesForAnnotatedParameters(testInstance, testMethod, null);
+         parameterValues = createInstancesForAnnotatedParameters(testInstance, testMethod, null);
          createInstancesForTestedFields(testInstance, false);
       }
       finally {
@@ -105,21 +105,17 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
    @Override
    public boolean supportsParameter(@Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext) {
-      @Nonnull Parameter parameter = parameterContext.getParameter();
-
       return
-         parameter.isAnnotationPresent(Tested.class) ||
-         parameter.isAnnotationPresent(Mocked.class) ||
-         parameter.isAnnotationPresent(Injectable.class) ||
-         parameter.isAnnotationPresent(Capturing.class);
+         parameterContext.isAnnotated(Tested.class) ||
+         parameterContext.isAnnotated(Mocked.class) ||
+         parameterContext.isAnnotated(Injectable.class) ||
+         parameterContext.isAnnotated(Capturing.class);
    }
 
    @Override
    public Object resolveParameter(@Nonnull ParameterContext parameterContext, @Nonnull ExtensionContext extensionContext) {
-      @Nonnull Parameter parameter = parameterContext.getParameter();
       int parameterIndex = parameterContext.getIndex();
-      Object mockParameter = mockParameters[parameterIndex];
-      return mockParameter;
+      return parameterValues[parameterIndex];
    }
 
    @Override

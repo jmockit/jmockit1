@@ -1,5 +1,10 @@
 package java8testing;
 
+import java.lang.annotation.*;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,6 +41,13 @@ final class JUnit5Test
       assertEquals("test", text);
       assertNotNull(collaborator);
       assertSame(collaborator, cut.getCollaborator());
+   }
+
+   @Target(PARAMETER) @Retention(RUNTIME) @Tested public @interface InjectedDependency {}
+
+   @Test
+   public void injectParameterUsingTestedAsMetaAnnotation(@InjectedDependency BusinessService col) {
+      assertNotNull(col);
    }
 
    @Nested
