@@ -4,6 +4,7 @@
  */
 package mockit;
 
+import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.internal.classGeneration.*;
@@ -33,14 +34,14 @@ public final class Deencapsulation
     * @see #getField(Class, String)
     * @see #setField(Object, String, Object)
     */
-   public static <T> T getField(Object objectWithField, String fieldName) {
+   @Nullable
+   public static <T> T getField(@Nonnull Object objectWithField, @Nonnull String fieldName) {
       return FieldReflection.getField(objectWithField.getClass(), fieldName, objectWithField);
    }
 
    /**
-    * Gets the value of a non-accessible (eg <tt>private</tt>) field from a given object, <em>assuming</em> there is
-    * only one field declared in the class of the given object whose type can receive values of the specified field
-    * type.
+    * Gets the value of a non-accessible (eg <tt>private</tt>) field from a given object, <em>assuming</em> there is only one field declared in the
+    * class of the given object whose type can receive values of the specified field type.
     *
     * @param objectWithField the instance from which to get the field value
     * @param fieldType the declared type of the field, or a sub-type of the declared field type
@@ -51,7 +52,8 @@ public final class Deencapsulation
     * @see #getField(Class, String)
     * @see #setField(Object, Object)
     */
-   public static <T> T getField(Object objectWithField, Class<T> fieldType) {
+   @Nullable
+   public static <T> T getField(@Nonnull Object objectWithField, @Nonnull Class<T> fieldType) {
       return FieldReflection.getField(objectWithField.getClass(), fieldType, objectWithField);
    }
 
@@ -68,13 +70,14 @@ public final class Deencapsulation
     * @see #getField(Object, String)
     * @see #setField(Class, String, Object)
     */
-   public static <T> T getField(Class<?> classWithStaticField, String fieldName) {
+   @Nullable
+   public static <T> T getField(@Nonnull Class<?> classWithStaticField, @Nonnull String fieldName) {
       return FieldReflection.getField(classWithStaticField, fieldName, null);
    }
 
    /**
-    * Gets the value of a non-accessible static field defined in a given class, <em>assuming</em> there is only one
-    * field declared in the given class whose type can receive values of the specified field type.
+    * Gets the value of a non-accessible static field defined in a given class, <em>assuming</em> there is only one field declared in the given class
+    * whose type can receive values of the specified field type.
     *
     * @param classWithStaticField the class from which to get the field value
     * @param fieldType the declared type of the field, or a sub-type of the declared field type
@@ -86,7 +89,8 @@ public final class Deencapsulation
     * @see #getField(Object, Class)
     * @see #setField(Class, Object)
     */
-   public static <T> T getField(Class<?> classWithStaticField, Class<T> fieldType) {
+   @Nullable
+   public static <T> T getField(@Nonnull Class<?> classWithStaticField, @Nonnull Class<T> fieldType) {
       return FieldReflection.getField(classWithStaticField, fieldType, null);
    }
 
@@ -103,7 +107,7 @@ public final class Deencapsulation
     * @see #setField(Object, Object)
     * @see #getField(Object, String)
     */
-   public static void setField(Object objectWithField, String fieldName, Object fieldValue) {
+   public static void setField(@Nonnull Object objectWithField, @Nonnull String fieldName, @Nullable Object fieldValue) {
       FieldReflection.setField(objectWithField.getClass(), objectWithField, fieldName, fieldValue);
    }
 
@@ -117,7 +121,7 @@ public final class Deencapsulation
     * @see #setField(Class, String, Object)
     * @see #getField(Object, String)
     */
-   public static void setField(Object objectWithField, Object fieldValue) {
+   public static void setField(@Nonnull Object objectWithField, @Nonnull Object fieldValue) {
       FieldReflection.setField(objectWithField.getClass(), objectWithField, null, fieldValue);
    }
 
@@ -134,7 +138,7 @@ public final class Deencapsulation
     * @see #setField(Object, String, Object)
     * @see #getField(Class, String)
     */
-   public static void setField(Class<?> classWithStaticField, String fieldName, Object fieldValue) {
+   public static void setField(@Nonnull Class<?> classWithStaticField, @Nonnull String fieldName, @Nullable Object fieldValue) {
       FieldReflection.setField(classWithStaticField, null, fieldName, fieldValue);
    }
 
@@ -151,21 +155,22 @@ public final class Deencapsulation
     * @see #setField(Object, Object)
     * @see #getField(Class, Class)
     */
-   public static void setField(Class<?> classWithStaticField, Object fieldValue) {
+   public static void setField(@Nonnull Class<?> classWithStaticField, @Nonnull Object fieldValue) {
       FieldReflection.setField(classWithStaticField, null, null, fieldValue);
    }
 
    /**
     * Creates a new instance of a given class, without invoking any constructor.
-    * If the given class is <tt>abstract</tt> or an <tt>interface</tt>, then a concrete class is created, with empty
-    * implementations for the <tt>abstract</tt>/<tt>interface</tt> methods.
+    * If the given class is <tt>abstract</tt> or an <tt>interface</tt>, then a concrete class is created, with empty implementations for the
+    * <tt>abstract</tt>/<tt>interface</tt> methods.
     *
     * @param classToInstantiate the class to be instantiated
     * @param <T> type to which the returned instance should be assignable
     *
     * @return a newly created instance of the specified class, with any instance fields left uninitialized
     */
-   public static <T> T newUninitializedInstance(Class<? extends T> classToInstantiate) {
+   @Nonnull
+   public static <T> T newUninitializedInstance(@Nonnull Class<? extends T> classToInstantiate) {
       if (classToInstantiate.isInterface()) {
          T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
          return instance;
