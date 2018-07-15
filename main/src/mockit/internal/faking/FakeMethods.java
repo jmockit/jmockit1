@@ -39,7 +39,7 @@ final class FakeMethods
       @Nonnull final String fakeDescWithoutInvocationParameter;
       private boolean hasMatchingRealMethod;
       @Nullable private GenericSignature fakeSignature;
-      private int indexForFakeState;
+      int indexForFakeState;
       private boolean nativeRealMethod;
 
       private FakeMethod(int access, @Nonnull String name, @Nonnull String desc) {
@@ -170,8 +170,8 @@ final class FakeMethods
 
    /**
     * Finds a fake method with the same signature of a given real method, if previously collected from the fake class.
-    * This operation can be performed only once for any given fake method in this container, so that after the last real
-    * method is processed there should be no fake methods left unused in the container.
+    * This operation can be performed only once for any given fake method in this container, so that after the last real method is processed there
+    * should be no fake methods left unused in the container.
     */
    @Nullable
    FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature) {
@@ -181,10 +181,7 @@ final class FakeMethods
          }
       }
 
-      if (
-         adviceMethod != null && !isNative(access) && !"$init".equals(name) && !"$clinit".equals(name) &&
-         !isMethodFromObject(name, desc)
-      ) {
+      if (adviceMethod != null && !isNative(access) && !"$init".equals(name) && !"$clinit".equals(name) && !isMethodFromObject(name, desc)) {
          return adviceMethod;
       }
 
