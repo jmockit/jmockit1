@@ -4,7 +4,6 @@
  */
 package mockit.internal.capturing;
 
-import java.lang.reflect.*;
 import java.security.*;
 import javax.annotation.*;
 
@@ -20,16 +19,11 @@ final class CapturedType
 
    boolean isToBeCaptured(@Nonnull Class<?> aClass) {
       //noinspection SimplifiableIfStatement
-      if (
-         aClass == baseType || aClass.isArray() || !baseType.isAssignableFrom(aClass) ||
-         Proxy.isProxyClass(aClass) || extendsJMockitBaseType(aClass)
-      ) {
+      if (aClass == baseType || aClass.isArray() || !baseType.isAssignableFrom(aClass) || extendsJMockitBaseType(aClass)) {
          return false;
       }
 
-      return
-         !aClass.isInterface() &&
-         !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
+      return !aClass.isInterface() && !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
    }
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")

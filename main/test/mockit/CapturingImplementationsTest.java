@@ -113,6 +113,31 @@ public final class CapturingImplementationsTest
       assertEquals(15, service2.doSomething());
    }
 
+   public interface Service3 { int doSomething(); }
+   static Service3 proxyInstance;
+
+   @BeforeClass
+   public static void generateDynamicProxyClass() {
+      ClassLoader loader = Service3.class.getClassLoader();
+      Class<?>[] interfaces = {Service3.class};
+      InvocationHandler invocationHandler = new InvocationHandler() {
+         @Override
+         public Object invoke(Object proxy, Method method, Object[] args) {
+            fail("Should be mocked out");
+            return null;
+         }
+      };
+
+      proxyInstance = (Service3) Proxy.newProxyInstance(loader, interfaces, invocationHandler);
+   }
+
+   @Test
+   public void captureDynamicallyGeneratedProxyClass(@Capturing final Service3 mock) {
+      new Expectations() {{ mock.doSomething(); result = 123; }};
+
+      assertEquals(123, proxyInstance.doSomething());
+   }
+
    interface Interface { void op(); }
    interface SubInterface extends Interface {}
    static class Implementation implements SubInterface { @Override public void op() { throw new RuntimeException(); } }
