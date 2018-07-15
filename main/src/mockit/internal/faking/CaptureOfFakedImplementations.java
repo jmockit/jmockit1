@@ -11,21 +11,17 @@ import mockit.*;
 import mockit.asm.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
-import static mockit.internal.util.Utilities.getClassType;
 
 public final class CaptureOfFakedImplementations extends CaptureOfImplementations<Void>
 {
    private final FakeClassSetup fakeClassSetup;
 
    public CaptureOfFakedImplementations(@Nonnull MockUp<?> fake, @Nonnull Type baseType) {
-      Class<?> baseClassType = getClassType(baseType);
-      fakeClassSetup = new FakeClassSetup(baseClassType, baseClassType, baseType, fake);
+      fakeClassSetup = new FakeClassSetup(baseType, fake);
    }
 
    @Nonnull @Override
-   protected BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata
-   ) {
+   protected BaseClassModifier createModifier(@Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, Void typeMetadata) {
       return fakeClassSetup.createClassModifier(cr);
    }
 

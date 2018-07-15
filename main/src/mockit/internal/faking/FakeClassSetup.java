@@ -14,6 +14,7 @@ import mockit.asm.ClassReader.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
+import static mockit.internal.util.Utilities.getClassType;
 
 public final class FakeClassSetup
 {
@@ -23,15 +24,37 @@ public final class FakeClassSetup
    @Nonnull private final MockUp<?> fake;
    private final boolean forStartupFake;
 
-   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nullable Type fakedType, @Nonnull MockUp<?> fake) {
+   FakeClassSetup(@Nonnull Type fakedType, @Nonnull MockUp<?> fake) {
+      this(getClassType(fakedType), fake, fakedType);
+   }
+
+   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull MockUp<?> fake) {
+      this(realClass, realClass, fake, null);
+   }
+
+   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nonnull Type fakedType, @Nonnull MockUp<?> fake) {
+      this(realClass, classToFake, fake, fakedType);
+   }
+
+   private FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nullable Type fakedType) {
+      this(realClass, realClass, fake, fakedType);
+   }
+
+   private FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nonnull MockUp<?> fake, @Nullable Type fakedType) {
       this.realClass = classToFake;
-      fakeMethods = new FakeMethods(realClass, fakedType);
       this.fake = fake;
       forStartupFake = Startup.initializing;
+      fakeMethods = new FakeMethods(realClass, fakedType);
+      collectFakeMethods();
+      registerFakeClassAndItsStates();
+   }
 
+   private void collectFakeMethods() {
       Class<?> fakeClass = fake.getClass();
       new FakeMethodCollector(fakeMethods).collectFakeMethods(fakeClass);
+   }
 
+   private void registerFakeClassAndItsStates() {
       fakeMethods.registerFakeStates(fake, forStartupFake);
 
       FakeClasses fakeClasses = TestRun.getFakeClasses();

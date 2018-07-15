@@ -135,13 +135,8 @@ public abstract class MockUp<T>
             classToFake = new ConcreteSubclass<T>(classToFake).generateClass();
          }
 
-         redefineMethods(realClass, classToFake, targetType);
+         new FakeClassSetup(realClass, classToFake, targetType, this).redefineMethods();
       }
-   }
-
-   private void redefineMethods(@Nonnull Class<T> realClass, @Nonnull Class<T> classToFake, @Nullable Type genericFakedType) {
-      FakeClassSetup fakeSetup = new FakeClassSetup(realClass, classToFake, genericFakedType, this);
-      fakeSetup.redefineMethods();
    }
 
    /**
@@ -161,9 +156,7 @@ public abstract class MockUp<T>
       }
 
       if (!targetClass.isInterface()) {
-         //noinspection unchecked
-         Class<T> realClass = (Class<T>) targetClass;
-         redefineMethods(realClass, realClass, null);
+         new FakeClassSetup(targetClass, this).redefineMethods();
       }
    }
 
