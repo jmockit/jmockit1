@@ -4,6 +4,8 @@
  */
 package mockit;
 
+import javax.annotation.*;
+
 /**
  * Same as {@link Verifications}, but checking that <em>all</em> invocations from code under test are explicitly verified, except for those
  * already verified through other means.
@@ -40,7 +42,7 @@ public abstract class FullVerifications extends Verifications
     * in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not including) <tt>java.lang.Object</tt> are
     * considered
     */
-   protected FullVerifications(Object... mockedTypesAndInstancesToVerify) {
+   protected FullVerifications(@Nonnull Object... mockedTypesAndInstancesToVerify) {
       this();
       verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }

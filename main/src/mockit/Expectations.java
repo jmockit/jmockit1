@@ -12,15 +12,14 @@ import mockit.internal.expectations.*;
 /**
  * Used to <em>record</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
- * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will occur during the
- * execution of code under test.
+ * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will occur during the execution of
+ * code under test.
  * When a match is detected, the recorded {@linkplain #result result} is returned to the caller.
  * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain Delegate delegate} method is executed.
  * <p/>
- * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during the initialization of
- * an <tt>Expectations</tt> object.
- * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an <em>expectation
- * block</em>:
+ * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during the initialization of an
+ * <tt>Expectations</tt> object.
+ * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an <em>expectation block</em>:
  * <pre>
  * // <em>Record</em> one or more expectations on available mocked types/instances.
  * new Expectations() {{
@@ -43,19 +42,17 @@ import mockit.internal.expectations.*;
  * a) {@link #returns(Object, Object, Object...)}, a convenience method for returning a <em>sequence</em> of values;
  * b) argument matchers such as {@link #anyInt}, {@link #anyString}, {@link #withNotNull()}, etc., which relax or constrain the matching of
  * argument values;
- * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or allowed number of
- * matching invocations.
+ * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or allowed number of matching
+ * invocations.
  * <p/>
- * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified to be the same as
- * the instance used when recording the expectation.
- * That said, instance-specific matching can be obtained by declaring the mocked type as {@linkplain Injectable @Injectable}, or by
- * declaring multiple mock fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each
- * mock instance).
+ * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified to be the same as the
+ * instance used when recording the expectation.
+ * That said, instance-specific matching can be obtained by declaring the mocked type as {@linkplain Injectable @Injectable}, or by declaring
+ * multiple mock fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each mock instance).
  * <p/>
- * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified <em>after</em>
- * exercising the code under test.
- * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder}, and
- * {@link FullVerifications}.
+ * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified <em>after</em> exercising the
+ * code under test.
+ * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder}, and {@link FullVerifications}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
  *
  * @see #Expectations()
@@ -117,6 +114,7 @@ public abstract class Expectations extends Invocations
     * @see #returns(Object, Object, Object...)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
+   @Nullable
    protected Object result;
 
    /**
@@ -131,28 +129,28 @@ public abstract class Expectations extends Invocations
    }
 
    /**
-    * Same as {@link #Expectations()}, except that one or more classes will be partially mocked according to the expectations recorded in
-    * the expectation block.
+    * Same as {@link #Expectations()}, except that one or more classes will be partially mocked according to the expectations recorded in the
+    * expectation block.
     * <p/>
-    * The classes to be partially mocked are those directly specified through their <tt>Class</tt> objects as well as those to which any
-    * given objects belong.
-    * During replay, any invocations to one of these classes or objects will execute real production code, unless a matching expectation
-    * was recorded.
+    * The classes to be partially mocked are those directly specified through their <tt>Class</tt> objects as well as those to which any given
+    * objects belong.
+    * During replay, any invocations to one of these classes or objects will execute real production code, unless a matching expectation was
+    * recorded.
     * This mechanism, however, does not apply to <tt>native</tt> methods, which are not supported for partial mocking.
     * <p/>
     * For a given <tt>Class</tt> object, all constructors and methods can be mocked, from the specified class up to but not including
     * <tt>java.lang.Object</tt>.
-    * For a given <em>object</em>, only methods can be mocked, not constructors; also, during replay, invocations to instance methods will
-    * only match expectations recorded on the given instance (or instances, if more than one was given).
+    * For a given <em>object</em>, only methods can be mocked, not constructors; also, during replay, invocations to instance methods will only
+    * match expectations recorded on the given instance (or instances, if more than one was given).
     *
     * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
     *
-    * @throws IllegalArgumentException if given a <tt>Class</tt> object for an interface, an annotation, an array, a primitive/wrapper type,
-    * a synthetic class, a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class}, or if given a value/instance of such a type
+    * @throws IllegalArgumentException if given a <tt>Class</tt> object for an interface, an annotation, an array, a primitive/wrapper type, a
+    * synthetic class, a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class}, or if given a value/instance of such a type
     * 
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
-   protected Expectations(Object... classesOrObjectsToBePartiallyMocked) {
+   protected Expectations(@Nonnull Object... classesOrObjectsToBePartiallyMocked) {
       execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
    }
 
@@ -186,7 +184,7 @@ public abstract class Expectations extends Invocations
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
-   protected final void returns(Object firstValue, Object secondValue, Object... remainingValues) {
+   protected final void returns(@Nullable Object firstValue, @Nullable Object secondValue, @Nonnull Object... remainingValues) {
       RecordPhase currentPhase = getCurrentPhase();
 
       if (currentPhase != null) {

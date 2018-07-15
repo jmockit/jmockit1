@@ -12,19 +12,18 @@ import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.state.*;
 
 /**
- * Used to <em>verify</em> a set of expectations on available {@linkplain Mocked mocked} types and/or instances, against the invocations
- * which actually occurred during the test.
+ * Used to <em>verify</em> a set of expectations on available {@linkplain Mocked mocked} types and/or instances, against the invocations which
+ * actually occurred during the test.
  * As such, these verifications can only appear <em>after</em> having exercised the code under test.
  * <p/>
- * An expectation verification attempts to match a number of method or constructor invocations, that we expect have occurred during the
- * execution of code under test.
- * By default, <em>at least one</em> matching invocation must be found for the verification to be successful; if no matching invocations are
- * found, an assertion error is thrown.
+ * An expectation verification attempts to match a number of method or constructor invocations, that we expect have occurred during the execution of
+ * code under test.
+ * By default, <em>at least one</em> matching invocation must be found for the verification to be successful; if no matching invocations are found,
+ * an assertion error is thrown.
  * <p/>
  * Expectations are verified simply by invoking the desired method or constructor on a mocked type/instance, during the initialization of a
  * <tt>Verifications</tt> object.
- * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, a <em>verification
- * block</em>:
+ * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, a <em>verification block</em>:
  * <pre>
  * // Exercise tested code.
  * codeUnderTest.doSomething();
@@ -35,8 +34,8 @@ import mockit.internal.state.*;
  *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); times = 2;
  * }};
  * </pre>
- * The relative order between the invocations that match two or more verifications is not taken into consideration; when that is desired,
- * the {@link VerificationsInOrder} class should be used instead.
+ * The relative order between the invocations that match two or more verifications is not taken into consideration; when that is desired, the
+ * {@link VerificationsInOrder} class should be used instead.
  * <p/>
  * Not all invocations that occurred during the execution of code under test need to be explicitly verified in a verification block.
  * If that is desired, we can make sure that <em>all</em> such invocations are verified, by using the {@link FullVerifications} class.
@@ -96,6 +95,7 @@ public abstract class Verifications extends Invocations
     * @see #withCapture(Object)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
+   @Nullable
    protected final <T> T withCapture() {
       verificationPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
       return null;
@@ -129,7 +129,8 @@ public abstract class Verifications extends Invocations
     * @see #withCapture(List)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withCapture" target="tutorial">Tutorial</a>
     */
-   protected final <T> List<T> withCapture(@SuppressWarnings("unused") T constructorVerification) {
+   @Nonnull
+   protected final <T> List<T> withCapture(@Nonnull T constructorVerification) {
       return verificationPhase.getNewInstancesMatchingVerifiedConstructorInvocation();
    }
 }
