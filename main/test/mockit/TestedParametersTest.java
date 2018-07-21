@@ -90,8 +90,6 @@ public final class TestedParametersTest
       assertEquals(1.23, tested.number);
    }
 
-   // TODO: verify API docs about constructor parameters needing to be matched to tested/injectables by type and name
-
    static class AnotherDependency {}
    static class TestedClassWithDIAnnotatedField { @Inject AnotherDependency dep; }
 
