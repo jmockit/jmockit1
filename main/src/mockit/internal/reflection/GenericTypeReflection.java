@@ -630,7 +630,6 @@ public final class GenericTypeReflection
       Type realizationSuperclass = realizationType.getGenericSuperclass();
       ParameterizedType parameterizedRealizationType = null;
 
-      // TODO: should recurse up to java.lang.Object, and to multiple super-interfaces?
       if (realizationSuperclass instanceof ParameterizedType) {
          parameterizedRealizationType = (ParameterizedType) realizationSuperclass;
       }
