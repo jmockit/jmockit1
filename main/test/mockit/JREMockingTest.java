@@ -31,6 +31,20 @@ public final class JREMockingTest
    }
 
    @Test
+   public void mockingFileAndRecordingExpectationToMatchOnSpecificConstructorCall(@Mocked File anyFile) {
+      new Expectations() {{
+         new File("a.txt").exists(); result = true;
+      }};
+
+      boolean aExists = new File("a.txt").exists();
+      //noinspection TooBroadScope
+      boolean bExists = new File("b.txt").exists();
+
+      assertTrue(aExists);
+      assertFalse(bExists);
+   }
+
+   @Test
    public void mockingOfCalendar() {
       final Calendar calCST = new GregorianCalendar(2010, 4, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
