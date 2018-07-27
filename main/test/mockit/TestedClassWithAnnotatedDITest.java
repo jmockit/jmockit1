@@ -16,6 +16,7 @@ public final class TestedClassWithAnnotatedDITest
       @Resource(name = "secondAction") Runnable action2;
       @Autowired int someValue;
       @Resource(name = "firstAction") Runnable action1;
+      @Resource(name = "thirdAction") Runnable action3;
       @Inject int anotherValue;
       @Value("textValue") String stringFieldWithValue;
       @Value("123.45") double numericFieldWithValue;
@@ -45,6 +46,7 @@ public final class TestedClassWithAnnotatedDITest
    @Injectable Runnable action;
    @Injectable String textValue = "test";
    @Injectable String anotherText = "name2";
+   @Injectable Runnable action3; // matches @Resource(name = "thirdAction") by field name, after failing to match on "thirdAction"
 
    @Test
    public void injectAllAnnotatedInjectionPoints(
@@ -53,6 +55,7 @@ public final class TestedClassWithAnnotatedDITest
    ) {
       assertSame(firstAction, tested1.action1);
       assertSame(secondAction, tested1.action2);
+      assertSame(action3, tested1.action3);
       assertEquals(1, tested1.someValue);
       assertEquals(2, tested1.anotherValue);
       assertEquals("textValue", tested1.stringFieldWithValue);
