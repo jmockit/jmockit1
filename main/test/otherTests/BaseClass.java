@@ -1,4 +1,4 @@
-package mockit;
+package otherTests;
 
 import java.util.*;
 

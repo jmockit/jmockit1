@@ -1,4 +1,4 @@
-package mockit;
+package otherTests;
 
 import java.io.*;
 import java.util.*;
@@ -8,13 +8,16 @@ import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
 
+import mockit.*;
+
 import static org.hamcrest.CoreMatchers.*;
 
 public final class DeencapsulationTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   static final class Subclass extends BaseClass {
+   static final class Subclass extends BaseClass
+   {
       final int INITIAL_VALUE = new Random().nextInt();
       final int initialValue = -1;
 
@@ -150,7 +153,7 @@ public final class DeencapsulationTest
    @Test
    public void attemptToGetStaticFieldByNameFromWrongClass() {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("No static field of name \"buffer\" found in class mockit.BaseClass");
+      thrown.expectMessage("No static field of name \"buffer\" found in class otherTests.BaseClass");
 
       Deencapsulation.getField(BaseClass.class, "buffer");
    }
