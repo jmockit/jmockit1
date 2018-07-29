@@ -17,6 +17,7 @@ import mockit.*;
 import mockit.coverage.testRedundancy.*;
 import mockit.integration.internal.*;
 import mockit.internal.faking.*;
+import mockit.internal.reflection.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
@@ -32,8 +33,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
 {
    public static final class FakeParameters extends MockUp<Parameters> {
       @Mock
-      public static void checkParameterTypes(
-         String methodName, Class<?>[] parameterTypes, String methodAnnotation, String[] parameterNames) {}
+      public static void checkParameterTypes(String methodName, Class<?>[] parameterTypes, String methodAnnotation, String[] parameterNames) {}
 
       @Mock @Nullable
       public static Object getInjectedParameter(
@@ -62,7 +62,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
          }
 
          // It's a mock parameter in a test method, to be provided by JMockit.
-         return Deencapsulation.newUninitializedInstance(c);
+         return ConstructorReflection.newUninitializedInstance(c);
       }
 
       @Mock
@@ -108,7 +108,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
 
       for (int i = 0; i < numParameters; i++) {
          Class<?> parameterType = parameterTypes[i];
-         mockValues[i] = Deencapsulation.newUninitializedInstance(parameterType);
+         mockValues[i] = ConstructorReflection.newUninitializedInstance(parameterType);
       }
 
       return mockValues;
@@ -138,8 +138,8 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
       Object testInstance = testResult.getInstance();
 
       if (testInstance == null || testInstance.getClass() != testClass) {
-         // Happens when TestNG is running a JUnit test class, for which "TestResult#getInstance()" erroneously returns
-         // a org.junit.runner.Description object.
+         // Happens when TestNG is running a JUnit test class, for which "TestResult#getInstance()" erroneously returns a
+         // org.junit.runner.Description object.
          return;
       }
 

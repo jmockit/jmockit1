@@ -35,7 +35,7 @@ public abstract class InstanceFactory
       @Nonnull @Override
       public Object create() {
          if (emptyProxy == null) {
-            emptyProxy = ConstructorReflection.newUninitializedInstance(concreteClass);
+            emptyProxy = ConstructorReflection.newUninitializedConcreteClassInstance(concreteClass);
          }
 
          lastInstance = emptyProxy;
@@ -54,7 +54,7 @@ public abstract class InstanceFactory
 
       @Override @Nonnull
       public Object create() {
-         lastInstance = ConstructorReflection.newUninitializedInstance(concreteClass);
+         lastInstance = ConstructorReflection.newUninitializedConcreteClassInstance(concreteClass);
          return lastInstance;
       }
 

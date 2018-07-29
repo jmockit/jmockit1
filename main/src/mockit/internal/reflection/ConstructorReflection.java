@@ -7,6 +7,10 @@ package mockit.internal.reflection;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import static java.lang.reflect.Modifier.isAbstract;
+
+import mockit.internal.classGeneration.*;
+import mockit.internal.reflection.EmptyProxy.*;
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
@@ -86,11 +90,13 @@ public final class ConstructorReflection
          int firstRealParameter = indexOfFirstRealParameter(declaredParamTypes, argTypes);
 
          if (
-            firstRealParameter >= 0 &&
-               (matchesParameterTypes(declaredParamTypes, argTypes, firstRealParameter) ||
-                  acceptsArgumentTypes(declaredParamTypes, argTypes, firstRealParameter)) &&
-               (found == null || hasMoreSpecificTypes(declaredParamTypes, foundParameters))
-            ) {
+            firstRealParameter >= 0 && (
+               matchesParameterTypes(declaredParamTypes, argTypes, firstRealParameter) ||
+               acceptsArgumentTypes(declaredParamTypes, argTypes, firstRealParameter)
+            ) && (
+               found == null || hasMoreSpecificTypes(declaredParamTypes, foundParameters)
+            )
+         ) {
             //noinspection unchecked
             found = (Constructor<T>) declaredConstructor;
             foundParameters = declaredParamTypes;
@@ -147,11 +153,10 @@ public final class ConstructorReflection
    }
 
    @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UseOfSunClasses"})
-   private static final sun.reflect.ReflectionFactory REFLECTION_FACTORY =
-      sun.reflect.ReflectionFactory.getReflectionFactory();
+   private static final sun.reflect.ReflectionFactory REFLECTION_FACTORY = sun.reflect.ReflectionFactory.getReflectionFactory();
 
    @Nonnull
-   public static <T> T newUninitializedInstance(@Nonnull Class<T> aClass) {
+   public static <T> T newUninitializedConcreteClassInstance(@Nonnull Class<T> aClass) {
       try {
          Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
 
@@ -170,5 +175,19 @@ public final class ConstructorReflection
       }
       catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+   }
+
+   @Nonnull
+   public static <T> T newUninitializedInstance(@Nonnull Class<? extends T> classToInstantiate) {
+      if (classToInstantiate.isInterface()) {
+         T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
+         return instance;
+      }
+
+      if (isAbstract(classToInstantiate.getModifiers())) {
+         classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
+      }
+
+      return newUninitializedConcreteClassInstance(classToInstantiate);
    }
 }

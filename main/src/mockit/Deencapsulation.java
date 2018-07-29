@@ -5,11 +5,8 @@
 package mockit;
 
 import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.classGeneration.*;
 import mockit.internal.reflection.*;
-import mockit.internal.reflection.EmptyProxy.*;
 
 /**
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields.
@@ -171,15 +168,6 @@ public final class Deencapsulation
     */
    @Nonnull
    public static <T> T newUninitializedInstance(@Nonnull Class<? extends T> classToInstantiate) {
-      if (classToInstantiate.isInterface()) {
-         T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
-         return instance;
-      }
-
-      if (isAbstract(classToInstantiate.getModifiers())) {
-         classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
-      }
-
       return ConstructorReflection.newUninitializedInstance(classToInstantiate);
    }
 }
