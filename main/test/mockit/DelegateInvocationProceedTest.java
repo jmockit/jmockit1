@@ -78,8 +78,7 @@ public final class DelegateInvocationProceedTest
          mocked.methodToBeMocked(anyInt, (Object[]) any); maxTimes = 1;
          result = new Delegate() {
             @Mock
-            Integer delegate(Invocation inv, int i, Object... args)
-            {
+            Integer delegate(Invocation inv, int i, Object... args) {
                args[2] = "mock";
                return inv.proceed();
             }
@@ -99,8 +98,7 @@ public final class DelegateInvocationProceedTest
          mocked.anotherMethodToBeMocked(anyString, anyBoolean, null);
          result = new Delegate() {
             @Mock
-            String delegate(Invocation inv, String s, boolean b, List<Number> ints)
-            {
+            String delegate(Invocation inv, String s, boolean b, List<Number> ints) {
                if (!b) {
                   return s;
                }
@@ -148,8 +146,7 @@ public final class DelegateInvocationProceedTest
          new ClassToBeMocked();
          result = new Delegate() {
             @Mock
-            void init(Invocation inv)
-            {
+            void init(Invocation inv) {
                assertNotNull(inv.getInvokedInstance());
                inv.proceed();
             }
@@ -166,8 +163,7 @@ public final class DelegateInvocationProceedTest
          new ClassToBeMocked(anyString);
          result = new Delegate() {
             @Mock
-            void init(Invocation inv, String name)
-            {
+            void init(Invocation inv, String name) {
                assertNotNull(inv.getInvokedInstance());
 
                if ("proceed".equals(name)) {
@@ -187,8 +183,7 @@ public final class DelegateInvocationProceedTest
          new ProcessBuilder(anyString);
          result = new Delegate() {
             @Mock
-            void init(Invocation inv, String... command)
-            {
+            void init(Invocation inv, String... command) {
                if ("proceed".equals(command[0])) {
                   inv.proceed();
                }
@@ -218,9 +213,7 @@ public final class DelegateInvocationProceedTest
    }
 
    @Test
-   public void proceedFromDelegateMethodIntoOverridingMethodWhichCallsSuper(
-      @Mocked final ClassToBeMocked mocked
-   ) throws Exception {
+   public void proceedFromDelegateMethodIntoOverridingMethodWhichCallsSuper(@Mocked final ClassToBeMocked mocked) throws Exception {
       new Expectations() {{
          mocked.methodToBeMocked(1);
          result = new Delegate() {
@@ -250,17 +243,6 @@ public final class DelegateInvocationProceedTest
 
       assertEquals(2, mockedBase.methodToBeMocked(1));
       assertEquals(1, mocked.methodToBeMocked(1));
-   }
-
-   @Test
-   public void replaceMockedInstanceWithRealOne() {
-      final ClassToBeMocked notMocked = new ClassToBeMocked("not mocked");
-
-      new Expectations(ClassToBeMocked.class) {{
-         new ClassToBeMocked(anyString); result = notMocked;
-      }};
-
-      assertEquals("not mocked", new ClassToBeMocked("test").getName());
    }
 
    @Test
