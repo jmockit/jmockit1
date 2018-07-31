@@ -120,40 +120,6 @@ public final class PartialMockingTest
    }
 
    @Test
-   public void verifyFutureMockedAndNonMockedObjectsInOrder() {
-      new Expectations(Collaborator.class) {{
-         Collaborator anyFutureInstanceWithValue1 = new Collaborator(1);
-         anyFutureInstanceWithValue1.getValue(); result = 15;
-      }};
-
-      Collaborator f1 = new Collaborator(1);
-      assertEquals(15, f1.getValue());
-
-      Collaborator f2 = new Collaborator(2);
-      assertEquals(2, f2.getValue());
-      assertEquals("base", f2.overridableMethod());
-
-      assertEquals("base", f1.overridableMethod());
-
-      Collaborator f3 = new Collaborator(1);
-      assertEquals(15, f3.getValue());
-
-      new VerificationsInOrder() {{
-         Collaborator anyInstanceWithValue1 = new Collaborator(1);
-         anyInstanceWithValue1.getValue();
-
-         Collaborator anyOtherInstance = new Collaborator(withNotEqual(1));
-         anyOtherInstance.getValue();
-         anyOtherInstance.overridableMethod();
-
-         anyInstanceWithValue1.overridableMethod();
-
-         new Collaborator(1);
-         anyInstanceWithValue1.getValue();
-      }};
-   }
-
-   @Test
    public void dynamicMockFullyVerified_verifyAllRecordedExpectationsButNotAllOfTheReplayedOnes() {
       final Collaborator collaborator = new Collaborator(0);
 
