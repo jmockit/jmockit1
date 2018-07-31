@@ -136,21 +136,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       currentVerifiedExpectations.add(verifiedExpectation);
    }
 
-   final void mapNewInstanceToReplacementIfApplicable(@Nullable Object mock) {
-      if (mock != null && !matchInstance) {
-         assert currentExpectation != null;
-         ExpectedInvocation invocation = currentExpectation.invocation;
-
-         if (invocation.isConstructor()) {
-            Object replacementInstance = invocation.replacementInstance;
-
-            if (replacementInstance != null) {
-               getReplacementMap().put(mock, replacementInstance);
-            }
-         }
-      }
-   }
-
    @Override
    public final void setMaxInvocationCount(int maxInvocations) {
       if (maxInvocations == 0 || pendingError == null) {

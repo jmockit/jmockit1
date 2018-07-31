@@ -46,7 +46,6 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
             }
 
             currentExpectation = replayExpectation;
-            mapNewInstanceToReplacementIfApplicable(mock);
          }
          else if (matchingInvocationWithDifferentArgs != null) {
             matchingInvocationsWithDifferentArgs.add(matchingInvocationWithDifferentArgs);

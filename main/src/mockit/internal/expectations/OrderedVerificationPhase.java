@@ -69,7 +69,6 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
                expectation.constraints.invocationCount++;
             }
 
-            mapNewInstanceToReplacementIfApplicable(mock);
             break;
          }
       }
