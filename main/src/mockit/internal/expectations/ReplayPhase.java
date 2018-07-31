@@ -69,8 +69,7 @@ final class ReplayPhase extends Phase
    ) {
       if (mock != null && invocation.isConstructor()) {
          Map<Object, Object> instanceMap = getInstanceMap();
-         Object recordedInstance = invocation.getRecordedInstance();
-         instanceMap.put(mock, recordedInstance);
+         instanceMap.put(mock, invocation.instance);
       }
    }
 

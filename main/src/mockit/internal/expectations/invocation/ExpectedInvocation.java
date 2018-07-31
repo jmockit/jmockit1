@@ -74,9 +74,6 @@ public final class ExpectedInvocation
    @Nonnull public Object[] getArgumentValues() { return arguments.getValues(); }
    public boolean isConstructor() { return arguments.isForConstructor(); }
 
-   @Nullable
-   public Object getRecordedInstance() { return instance; }
-
    @Nonnull
    public String getSignatureWithResolvedReturnType() {
       String signature = arguments.genericSignature;
