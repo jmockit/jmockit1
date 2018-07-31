@@ -66,7 +66,8 @@ public final class RecordPhase extends TestOnlyPhase
          return null;
       }
 
-      Object replacementInstance = getReplacementMap().get(mock);
+      Map<Object, Object> replacementMap = getReplacementMap();
+      Object replacementInstance = replacementMap.get(mock);
       matchInstance = mock == replacementInstance || isEnumElement(mock);
       return mock;
    }
