@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.*;
 import java.util.jar.*;
 import java.util.jar.Attributes.Name;
-import java.util.zip.*;
 import static java.util.Arrays.*;
 
 import org.junit.*;
@@ -181,33 +180,6 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockNonExistentZipFileSoItAppearsToExistWithTheContentsOfAnExistingFile() throws Exception {
-      String existentZipFileName = getClass().getResource("test.zip").getPath();
-      final ZipFile testZip = new ZipFile(existentZipFileName);
-
-      new Expectations(ZipFile.class) {{
-         new ZipFile("non-existent"); result = testZip;
-      }};
-
-      assertEquals("test", readFromZipFile("non-existent"));
-
-      try {
-         new ZipFile("another-non-existent");
-         fail();
-      }
-      catch (IOException ignore) {}
-
-      assertEquals("test", readFromZipFile(existentZipFileName));
-   }
-
-   private String readFromZipFile(String fileName) throws IOException {
-      ZipFile zf = new ZipFile(fileName);
-      ZipEntry firstEntry = zf.entries().nextElement();
-      InputStream content = zf.getInputStream(firstEntry);
-      return new BufferedReader(new InputStreamReader(content)).readLine();
-   }
-
-   @Test
    public void mockJarEntry(@Mocked final JarEntry mockEntry) {
       new Expectations() {{ mockEntry.getName(); result = "Test"; }};
 
@@ -236,7 +208,7 @@ public final class ClassLoadingAndJREMocksTest
       @Mocked final JarFile mockFile, @Mocked final Manifest mockManifest, @Mocked final Attributes mockAttributes,
       @Mocked final Enumeration<JarEntry> mockEntries, @Mocked final JarEntry mockEntry
    ) throws Exception {
-      File testFile = new File("test.jar");
+      @SuppressWarnings("TooBroadScope") File testFile = new File("test.jar");
       final String mainClassName = "test.Main";
 
       new Expectations() {{
