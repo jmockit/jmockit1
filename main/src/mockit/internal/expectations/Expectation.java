@@ -24,7 +24,7 @@ final class Expectation
       constraints = new InvocationConstraints(true);
    }
 
-   Expectation(@Nullable RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean nonStrict) {
+   Expectation(@Nonnull RecordPhase recordPhase, @Nonnull ExpectedInvocation invocation, boolean nonStrict) {
       this.recordPhase = recordPhase;
       this.invocation = invocation;
       constraints = new InvocationConstraints(nonStrict);
@@ -74,11 +74,9 @@ final class Expectation
          getResults().addReturnValueResult(null);
       }
       else if (isReplacementInstance(value)) {
-         if (recordPhase != null) {
-            Map<Object, Object> replacementMap = recordPhase.getReplacementMap();
-            replacementMap.put(invocation.instance, value);
-         }
-
+         assert recordPhase != null;
+         Map<Object, Object> replacementMap = recordPhase.getReplacementMap();
+         replacementMap.put(invocation.instance, value);
          invocation.replacementInstance = value;
       }
       else if (value instanceof Throwable) {
@@ -104,9 +102,7 @@ final class Expectation
    }
 
    @Nullable
-   Error verifyConstraints(
-      @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs, int minInvocations, int maxInvocations
-   ) {
+   Error verifyConstraints(@Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs, int minInvocations, int maxInvocations) {
       Error error = verifyConstraints(minInvocations);
 
       if (error != null) {
