@@ -204,7 +204,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          this.desc = desc;
       }
 
-      public final boolean isStatic() {
+      final boolean isStatic() {
          return (accessFlags & Access.STATIC) != 0;
       }
 
@@ -368,18 +368,6 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       }
 
       return codeIndex;
-   }
-
-   public static final class ParameterInfo {
-      @Nonnull public final String name;
-      @Nonnull public final String desc;
-      @Nonnegative public final int index;
-
-      ParameterInfo(@Nonnull String name, @Nonnull String desc, int index) {
-         this.name = name;
-         this.desc = desc;
-         this.index = index;
-      }
    }
 
    public final class MethodInfo extends MemberInfo {

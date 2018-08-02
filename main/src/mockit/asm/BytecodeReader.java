@@ -438,21 +438,6 @@ class BytecodeReader
    }
 
    /**
-    * Reads a class name constant pool item in {@link #code}.
-    *
-    * @param u2CodeIndex the index of an unsigned short value in {@link #code}, whose value is the index of a class constant pool item.
-    * @return the String corresponding to the specified class item.
-    */
-   @Nullable
-   final String readClass(@Nonnegative int u2CodeIndex) {
-      // Computes the start index of the CONSTANT_Class item in code and reads the CONSTANT_Utf8 item designated by the first two bytes of
-      // this CONSTANT_Class item.
-      int itemCodeIndex = readItem(u2CodeIndex);
-      String classDesc = readUTF8(itemCodeIndex);
-      return classDesc;
-   }
-
-   /**
     * Reads a class descriptor in {@link #code}, incrementing {@link #codeIndex} by 2.
     */
    @Nonnull

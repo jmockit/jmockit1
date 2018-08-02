@@ -575,7 +575,7 @@ final class ConstantPoolGeneration
     *
     * @param item the item to be added to the constant pool's hash table.
     */
-   void put(@Nonnull Item item) {
+   private void put(@Nonnull Item item) {
       resizeItemArrayIfNeeded();
       item.setNext(items);
    }
@@ -628,11 +628,11 @@ final class ConstantPoolGeneration
       out.putShort(index).putByteVector(pool);
    }
 
-   void copy(@Nonnull byte[] code, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] items) {
+   void copy(@Nonnull byte[] code, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] cpItems) {
       pool.putByteArray(code, off, header - off);
-      this.items = items;
+      items = cpItems;
 
-      int ll = items.length;
+      int ll = cpItems.length;
       threshold = (int) (0.75d * ll);
       index = ll;
    }

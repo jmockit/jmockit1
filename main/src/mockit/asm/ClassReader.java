@@ -23,8 +23,6 @@ public final class ClassReader extends AnnotatedReader
        */
       int SKIP_DEBUG = 2;
 
-      int SKIP_CODE_DEBUG = SKIP_CODE + SKIP_DEBUG;
-
       int SKIP_INNER_CLASSES = 4;
    }
 
@@ -90,19 +88,19 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Makes the given visitor visit the Java class of this Class Reader, all attributes included.
     */
-   public void accept(ClassVisitor cv) {
-      accept(cv, 0);
+   public void accept(ClassVisitor visitor) {
+      accept(visitor, 0);
    }
 
    /**
     * Makes the given visitor visit the Java class of this Class Reader.
     *
-    * @param cv    the visitor that must visit this class.
-    * @param flags option flags that can be used to modify the default behavior of this class. See {@link Flags}.
+    * @param visitor the visitor that must visit this class.
+    * @param optionFlags option flags that can be used to modify the default behavior of this class. See {@link Flags}.
     */
-   public void accept(@Nonnull ClassVisitor cv, @Nonnegative int flags) {
-      this.cv = cv;
-      this.flags = flags;
+   public void accept(@Nonnull ClassVisitor visitor, @Nonnegative int optionFlags) {
+      this.cv = visitor;
+      this.flags = optionFlags;
 
       int version = getVersion();
 
@@ -113,14 +111,14 @@ public final class ClassReader extends AnnotatedReader
 
       readInterfaces();
       readClassAttributes();
-      cv.visit(version, access, classDesc, signature, superClassDesc, interfaces);
+      visitor.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
       visitOuterClass();
-      readAnnotations(cv);
+      readAnnotations(visitor);
       readInnerClasses();
       readFieldsAndMethods();
 
-      cv.visitEnd();
+      visitor.visitEnd();
    }
 
    private void readInterfaces() {
