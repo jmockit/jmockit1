@@ -21,41 +21,18 @@ final class PhasedExecutionState
    @Nonnull final Map<Object, Object> instanceMap;
    @Nonnull final Map<Object, Object> replacementMap;
    @Nullable private List<?> dynamicMockInstancesToMatch;
-   @Nullable private List<Class<?>> mockedTypesToMatchOnInstances;
+   @Nonnull final InstanceBasedMatching instanceBasedMatching;
 
    PhasedExecutionState() {
       expectations = new ArrayList<>();
       verifiedExpectations = new ArrayList<>();
       instanceMap = new IdentityHashMap<>();
       replacementMap = new IdentityHashMap<>();
+      instanceBasedMatching = new InstanceBasedMatching();
    }
 
    void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch) {
       this.dynamicMockInstancesToMatch = dynamicMockInstancesToMatch;
-   }
-
-   void discoverMockedTypesToMatchOnInstances(@Nonnull List<Class<?>> targetClasses) {
-      int numClasses = targetClasses.size();
-
-      if (numClasses > 1) {
-         for (int i = 0; i < numClasses; i++) {
-            Class<?> targetClass = targetClasses.get(i);
-
-            if (targetClasses.lastIndexOf(targetClass) > i) {
-               addMockedTypeToMatchOnInstance(targetClass);
-            }
-         }
-      }
-   }
-
-   private void addMockedTypeToMatchOnInstance(@Nonnull Class<?> mockedType) {
-      if (mockedTypesToMatchOnInstances == null) {
-         mockedTypesToMatchOnInstances = new LinkedList<>();
-      }
-
-      if (!containsReference(mockedTypesToMatchOnInstances, mockedType)) {
-         mockedTypesToMatchOnInstances.add(mockedType);
-      }
    }
 
    void addExpectation(@Nonnull Expectation expectation) {
@@ -80,12 +57,8 @@ final class PhasedExecutionState
          return true;
       }
 
-      if (mockedTypesToMatchOnInstances != null) {
-         Class<?> mockedClass = GeneratedClasses.getMockedClass(mock);
-
-         if (containsReference(mockedTypesToMatchOnInstances, mockedClass)) {
-            return true;
-         }
+      if (instanceBasedMatching.isToBeMatchedOnInstance(mock)) {
+         return true;
       }
 
       return TestRun.getExecutingTest().isInjectableMock(mock);
