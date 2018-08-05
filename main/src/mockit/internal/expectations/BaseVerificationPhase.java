@@ -55,7 +55,9 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
          return null;
       }
 
-      matchInstance = mock != null && (recordAndReplay.executionState.isReplacementInstance(mock, mockNameAndDesc) || isEnumElement(mock));
+      matchInstance =
+         mock != null &&
+         (recordAndReplay.executionState.equivalentInstances.isReplacementInstance(mock, mockNameAndDesc) || isEnumElement(mock));
 
       ExpectedInvocation currentInvocation =
          new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
@@ -99,10 +101,11 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
             matching = true;
          }
          else if (matchInstance) {
-            matching = recordAndReplay.executionState.isEquivalentInstance(invocation.instance, mock);
+            matching = recordAndReplay.executionState.equivalentInstances.isEquivalentInstance(invocation.instance, mock);
          }
          else {
-            matching = constructor || !recordAndReplay.executionState.areInDifferentEquivalenceSets(invocation.instance, mock);
+            matching =
+               constructor || !recordAndReplay.executionState.equivalentInstances.areInDifferentEquivalenceSets(invocation.instance, mock);
          }
 
          if (matching) {

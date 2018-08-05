@@ -29,7 +29,7 @@ final class ReplayPhase extends Phase
    ) throws Throwable {
       Expectation expectation = recordAndReplay.executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance = mock == null ?
-         null : recordAndReplay.executionState.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
+         null : recordAndReplay.executionState.equivalentInstances.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
       if (expectation == null) {
          expectation = createExpectation(
