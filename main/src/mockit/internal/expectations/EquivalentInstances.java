@@ -48,7 +48,15 @@ final class EquivalentInstances
          replacementMap.containsKey(instance) || replacementMap.containsValue(instance);
    }
 
-   boolean areInDifferentEquivalenceSets(@Nonnull Object mock1, @Nonnull Object mock2) {
+   boolean areMatchingInstances(boolean matchInstance, @Nonnull Object mock1, @Nonnull Object mock2) {
+      if (matchInstance) {
+         return isEquivalentInstance(mock1, mock2);
+      }
+
+      return !areInDifferentEquivalenceSets(mock1, mock2);
+   }
+
+   private boolean areInDifferentEquivalenceSets(@Nonnull Object mock1, @Nonnull Object mock2) {
       if (mock1 == mock2 || instanceMap.isEmpty()) {
          return false;
       }

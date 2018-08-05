@@ -97,15 +97,11 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       if (invocation.isMatch(mock, mockClassDesc, mockNameAndDesc, replacementMap)) {
          boolean matching;
 
-         if (mock == null || invocation.instance == null) {
+         if (mock == null || invocation.instance == null || constructor && !matchInstance) {
             matching = true;
          }
-         else if (matchInstance) {
-            matching = recordAndReplay.executionState.equivalentInstances.isEquivalentInstance(invocation.instance, mock);
-         }
          else {
-            matching =
-               constructor || !recordAndReplay.executionState.equivalentInstances.areInDifferentEquivalenceSets(invocation.instance, mock);
+            matching = recordAndReplay.executionState.equivalentInstances.areMatchingInstances(matchInstance, invocation.instance, mock);
          }
 
          if (matching) {
