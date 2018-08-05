@@ -8,8 +8,6 @@ import java.util.*;
 import java.util.Map.*;
 import javax.annotation.*;
 
-import static mockit.internal.util.Utilities.containsReference;
-
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
@@ -20,8 +18,8 @@ final class PhasedExecutionState
    @Nonnull final List<VerifiedExpectation> verifiedExpectations;
    @Nonnull final Map<Object, Object> instanceMap;
    @Nonnull final Map<Object, Object> replacementMap;
-   @Nullable private List<?> dynamicMockInstancesToMatch;
    @Nonnull final InstanceBasedMatching instanceBasedMatching;
+   @Nullable PartiallyMockedInstances partiallyMockedInstances;
 
    PhasedExecutionState() {
       expectations = new ArrayList<>();
@@ -29,10 +27,6 @@ final class PhasedExecutionState
       instanceMap = new IdentityHashMap<>();
       replacementMap = new IdentityHashMap<>();
       instanceBasedMatching = new InstanceBasedMatching();
-   }
-
-   void setDynamicMockInstancesToMatch(@Nonnull List<?> dynamicMockInstancesToMatch) {
-      this.dynamicMockInstancesToMatch = dynamicMockInstancesToMatch;
    }
 
    void addExpectation(@Nonnull Expectation expectation) {
@@ -53,11 +47,10 @@ final class PhasedExecutionState
          return false;
       }
 
-      if (dynamicMockInstancesToMatch != null && containsReference(dynamicMockInstancesToMatch, mock)) {
-         return true;
-      }
-
-      if (instanceBasedMatching.isToBeMatchedOnInstance(mock)) {
+      if (
+         instanceBasedMatching.isToBeMatchedOnInstance(mock) ||
+         partiallyMockedInstances != null && partiallyMockedInstances.isToBeMatchedOnInstance(mock)
+      ) {
          return true;
       }
 
@@ -190,10 +183,9 @@ final class PhasedExecutionState
          return true;
       }
 
-      //noinspection SimplifiableIfStatement
       if (
          TestRun.getExecutingTest().isInjectableMock(invokedInstance) ||
-         isDynamicMockInstanceOrClass(invokedInstance, invocationInstance) ||
+         partiallyMockedInstances != null && partiallyMockedInstances.isDynamicMockInstanceOrClass(invokedInstance, invocationInstance) ||
          areNonEquivalentInstances(invocationInstance, invokedInstance)
       ) {
          return false;
@@ -210,24 +202,6 @@ final class PhasedExecutionState
          invocationInstance == replacementMap.get(invokedInstance) ||
          invocationInstance == instanceMap.get(invokedInstance) ||
          invokedInstance == instanceMap.get(invocationInstance);
-   }
-
-   private boolean isDynamicMockInstanceOrClass(@Nonnull Object invokedInstance, @Nonnull Object invocationInstance) {
-      if (dynamicMockInstancesToMatch != null) {
-         if (containsReference(dynamicMockInstancesToMatch, invokedInstance)) {
-            return true;
-         }
-
-         Class<?> invokedClass = invocationInstance.getClass();
-
-         for (Object dynamicMock : dynamicMockInstancesToMatch) {
-            if (dynamicMock.getClass() == invokedClass) {
-               return true;
-            }
-         }
-      }
-
-      return false;
    }
 
    private boolean areNonEquivalentInstances(@Nonnull Object invocationInstance, @Nonnull Object invokedInstance) {
