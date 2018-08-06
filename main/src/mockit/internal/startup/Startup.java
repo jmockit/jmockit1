@@ -6,6 +6,8 @@ package mockit.internal.startup;
 
 import java.io.*;
 import java.lang.instrument.*;
+import java.lang.reflect.*;
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
@@ -30,7 +32,8 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
 public final class Startup
 {
    public static boolean initializing;
-   @Nullable private static Instrumentation instrumentation;
+   @Nullable private static volatile Instrumentation instrumentation;
+   private static final String instrumentationFieldName = "instrumentation";
 
    private Startup() {}
 
@@ -83,9 +86,22 @@ public final class Startup
          throw new UnsupportedOperationException("This JRE must be started in debug mode, or with -javaagent:<proper path>/jmockit.jar");
       }
 
-      createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-      instrumentation = inst;
       activateCodeCoverageIfRequested(agentArgs, inst);
+
+      final Set<Thread> currentThreads = Thread.getAllStackTraces().keySet();
+
+      for (final Thread thread : currentThreads) {
+         try {
+            final ClassLoader clsLoader = thread.getContextClassLoader();
+            final Class<?> cls = (clsLoader == null) ? null : clsLoader.loadClass(Startup.class.getName());
+            final Field instField = cls.getDeclaredField(instrumentationFieldName);
+            if (instField != null) {
+               instField.setAccessible(true);
+               instField.set(null, inst);
+               instField.setAccessible(false);
+            }
+         } catch (Throwable ignore) {}
+      }
    }
 
    private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
