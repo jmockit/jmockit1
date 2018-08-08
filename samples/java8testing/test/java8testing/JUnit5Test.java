@@ -50,6 +50,15 @@ final class JUnit5Test
       assertNotNull(col);
    }
 
+   @Test
+   void recordExpectationOnCollaborator() {
+      new Expectations() {{ collaborator.doSomething(anyInt); result = "Test"; }};
+
+      String result = cut.performBusinessOperation(123);
+
+      assertEquals("Test", result);
+   }
+
    @Nested
    final class InnerTest {
       @BeforeEach
