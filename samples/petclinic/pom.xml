@@ -14,6 +14,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <jmockit.version>1.42</jmockit.version>
    </properties>
 
    <dependencies>
@@ -48,11 +49,11 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.42</version>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>${jmockit.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -71,6 +72,9 @@
          <plugin>
             <artifactId>maven-surefire-plugin</artifactId><version>2.21.0</version>
             <configuration>
+               <argLine>
+                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+               </argLine>
                <systemPropertyVariables>
                   <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
                   <coverage-outputDir>target/coverage</coverage-outputDir>

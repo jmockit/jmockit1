@@ -9,6 +9,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <jmockit.version>1.42</jmockit.version>
    </properties>
 
    <build>
@@ -27,7 +28,10 @@
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
-               <argLine>-Dcoverage-metrics=all</argLine>
+               <argLine>
+                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+                  -Dcoverage-metrics=all
+               </argLine>
             </configuration>
             <executions>
                <execution>
@@ -50,7 +54,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.42</version>
+         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>${jmockit.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
