@@ -6,11 +6,3 @@ Other libraries used, and their respective licenses, are:
 1. Parts of ASM 5.0, rewritten:
       BSD license
       http://asm.ow2.org/license.html
-
-2. Parts of JUnit 4, with modifications:
-      Eclipse Public License, v1.0
-      https://github.com/junit-team/junit/blob/master/LICENSE.txt
-
-3. Parts of OpenJDK, without modifications:
-      GNU General Public license, version 2, with the Classpath Exception
-      http://openjdk.java.net/legal/gplv2+ce.html
