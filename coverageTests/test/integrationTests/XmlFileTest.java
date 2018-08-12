@@ -14,6 +14,7 @@ import static javax.xml.stream.XMLStreamConstants.*;
 
 public final class XmlFileTest
 {
+   final File xmlFile = new File(Configuration.getOrChooseOutputDirectory(""), "coverage.xml");
    XMLStreamReader xmlReader;
 
    @Test
@@ -25,40 +26,40 @@ public final class XmlFileTest
       new ClassInRegularPackage().doSomething(NestedEnum.Second);
       CodeCoverage.generateOutput();
 
-      String parentDir = Configuration.getOrChooseOutputDirectory("");
-      InputStream xmlFile = new FileInputStream(new File(parentDir, "coverage.xml"));
-      xmlReader = XMLInputFactory.newFactory().createXMLStreamReader(xmlFile);
+      try (InputStream xmlFileContents = new FileInputStream(xmlFile)) {
+         xmlReader = XMLInputFactory.newFactory().createXMLStreamReader(xmlFileContents);
 
-      assertEquals("UTF-8", xmlReader.getCharacterEncodingScheme());
+         assertEquals("UTF-8", xmlReader.getCharacterEncodingScheme());
 
-      // <coverage version="1">
-      assertEquals(START_ELEMENT, xmlReader.nextTag());
-      assertEquals("coverage", xmlReader.getLocalName());
-      assertEquals("1", xmlReader.getAttributeValue(0));
+         // <coverage version="1">
+         assertEquals(START_ELEMENT, xmlReader.nextTag());
+         assertEquals("coverage", xmlReader.getLocalName());
+         assertEquals("1", xmlReader.getAttributeValue(0));
 
-      // <file path="...">
-      assertEquals(START_ELEMENT, xmlReader.nextTag());
-      assertEquals("file", xmlReader.getLocalName());
-      assertEquals(1, xmlReader.getAttributeCount());
-      assertEquals("path", xmlReader.getAttributeLocalName(0));
-      assertEquals("src/integrationTests/ClassInRegularPackage.java", xmlReader.getAttributeValue(0));
+         // <file path="...">
+         assertEquals(START_ELEMENT, xmlReader.nextTag());
+         assertEquals("file", xmlReader.getLocalName());
+         assertEquals(1, xmlReader.getAttributeCount());
+         assertEquals("path", xmlReader.getAttributeLocalName(0));
+         assertEquals("src/integrationTests/ClassInRegularPackage.java", xmlReader.getAttributeValue(0));
 
-      assertLineToCover(3, true);
-      assertLineToCover(7, true);
-      assertLineToCover(10, true);
-      assertLineToCover(13, true);
-      assertLineToCover(24, true);
-      assertLineToCover(26, false);
-      assertLineToCover(29, true);
-      assertLineToCover(33, true, 2, 1);
+         assertLineToCover(3, true);
+         assertLineToCover(7, true);
+         assertLineToCover(10, true);
+         assertLineToCover(13, true);
+         assertLineToCover(24, true);
+         assertLineToCover(26, false);
+         assertLineToCover(29, true);
+         assertLineToCover(33, true, 2, 1);
 
-      // </file>
-      assertEquals(END_ELEMENT, xmlReader.nextTag());
-      assertEquals("file", xmlReader.getLocalName());
+         // </file>
+         assertEquals(END_ELEMENT, xmlReader.nextTag());
+         assertEquals("file", xmlReader.getLocalName());
 
-      // </coverage>
-      assertEquals(END_ELEMENT, xmlReader.nextTag());
-      assertEquals("coverage", xmlReader.getLocalName());
+         // </coverage>
+         assertEquals(END_ELEMENT, xmlReader.nextTag());
+         assertEquals("coverage", xmlReader.getLocalName());
+      }
    }
 
    // <lineToCover lineNumber="n" covered="true|false"/>
@@ -91,5 +92,10 @@ public final class XmlFileTest
       }
 
       assertEquals(END_ELEMENT, xmlReader.nextTag());
+   }
+
+   @After
+   public void deleteGeneratedXmlFile() {
+      xmlFile.delete();
    }
 }
