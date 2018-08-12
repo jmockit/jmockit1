@@ -83,7 +83,6 @@
                   <manifestEntries>
                      <Main-Class>mockit.coverage.CodeCoverage</Main-Class>
                      <Premain-Class>mockit.internal.startup.Startup</Premain-Class>
-                     <Agent-Class>mockit.internal.startup.Startup</Agent-Class>
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
                      <Implementation-Version>${project.version}</Implementation-Version>
@@ -216,7 +215,6 @@
          <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.2.0</version>
          <optional>true</optional>
          <exclusions>
-            <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
             <exclusion><groupId>org.opentest4j</groupId><artifactId>opentest4j</artifactId></exclusion>
          </exclusions>
       </dependency>
