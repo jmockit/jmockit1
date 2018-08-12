@@ -8,8 +8,7 @@ import javax.annotation.*;
 
 public final class Configuration
 {
-   private static final String COVERAGE_PREFIX1 = "jmockit-coverage-";
-   private static final String COVERAGE_PREFIX2 = "coverage-";
+   private static final String COVERAGE_PREFIX = "coverage-";
 
    private Configuration() {}
 
@@ -19,13 +18,7 @@ public final class Configuration
    }
 
    public static String getProperty(@Nonnull String nameSuffix, @Nullable String defaultValue) {
-      String property = System.getProperty(COVERAGE_PREFIX1 + nameSuffix);
-
-      if (property != null) {
-         return property;
-      }
-
-      return System.getProperty(COVERAGE_PREFIX2 + nameSuffix, defaultValue);
+      return System.getProperty(COVERAGE_PREFIX + nameSuffix, defaultValue);
    }
 
    @Nullable

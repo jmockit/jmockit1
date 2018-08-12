@@ -20,7 +20,7 @@ final class CoverageModifier extends WrappingClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = FINAL + SYNTHETIC;
-   private static final int MAX_CONDITIONS = Integer.getInteger("jmockit-coverage-maxConditions", 10);
+   private static final int MAX_CONDITIONS = Integer.getInteger("coverage-maxConditions", 10);
    private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
    @Nullable
@@ -629,8 +629,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
          String methodToCall = getField ? "fieldRead" : "fieldAssigned";
          String methodDesc =
-            isStatic ?
-               "(Ljava/lang/String;Ljava/lang/String;)V" : "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
+            isStatic ? "(Ljava/lang/String;Ljava/lang/String;)V" : "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V";
 
          mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, methodToCall, methodDesc, false);
       }
@@ -711,9 +710,9 @@ final class CoverageModifier extends WrappingClassVisitor
 
       @Override
       public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
-         // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by
-         // the Java compiler when the class contains at least one "assert" statement. Otherwise, that line of code
-         // would always appear as partially covered when running with assertions enabled.
+         // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by the Java
+         // compiler when the class contains at least one "assert" statement.
+         // Otherwise, that line of code would always appear as partially covered when running with assertions enabled.
          if (opcode == INVOKEVIRTUAL && "java/lang/Class".equals(owner) && "desiredAssertionStatus".equals(name)) {
             assertFoundInCurrentLine = true;
             ignoreUntilNextLabel = true;
