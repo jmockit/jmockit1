@@ -4,7 +4,7 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.41</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.42</version>
    <packaging>jar</packaging>
 
    <name>JMockit</name>
@@ -123,9 +123,7 @@
                <doctitle>JMockit Toolkit API Documentation</doctitle>
                <quiet>true</quiet>
                <subpackages>mockit</subpackages>
-               <excludePackageNames>
-                  com.*:org.*:sun.*:mockit.asm.*:mockit.coverage.*:mockit.internal.*:mockit.integration.*
-               </excludePackageNames>
+               <excludePackageNames>mockit.asm.*:mockit.coverage.*:mockit.internal.*:mockit.integration.*</excludePackageNames>
                <additionalOptions>
                   <additionalOption>-Xdoclint:none</additionalOption>
                </additionalOptions>
