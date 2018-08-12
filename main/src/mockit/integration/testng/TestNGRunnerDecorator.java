@@ -372,10 +372,9 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
 
    @Override
    public void onExecutionStart() {
-      if (Startup.initializeIfPossible()) {
-         new FakeParameters();
-         new FakeInvoker();
-      }
+      Startup.verifyInitialization();
+      new FakeParameters();
+      new FakeInvoker();
    }
 
    @Override

@@ -23,19 +23,20 @@ public final class JMockitTestEngine implements TestEngine
 
       descriptor = new EngineDescriptor(UniqueId.forEngine("jmockit"), "JMockit integration");
 
-      if (Startup.initializeIfPossible()) {
-         new MockUp<ExtensionRegistry>() {
-            @Mock
-            ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams) {
-               ExtensionRegistry registry = inv.proceed();
+      Startup.verifyInitialization();
 
-               Extension extension = new JMockitExtension();
-               registry.registerExtension(extension, extension);
+      new MockUp<ExtensionRegistry>() {
+         @Mock
+         ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams) {
+            ExtensionRegistry registry = inv.proceed();
+            assert registry != null;
 
-               return registry;
-            }
-         };
-      }
+            Extension extension = new JMockitExtension();
+            registry.registerExtension(extension, extension);
+
+            return registry;
+         }
+      };
    }
 
    @Override
