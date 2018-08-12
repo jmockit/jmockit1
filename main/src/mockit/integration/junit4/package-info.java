@@ -5,10 +5,6 @@
 
 /**
  * Provides integration with <em>JUnit 4.x</em> test runners, for version 4.5 or newer.
- * Contains the {@link mockit.integration.junit4.JMockit} custom test runner (which is not an actual test runner, but
- * just a way to ensure that JMockit gets properly initialized - a better way is to simply put <tt>jmockit-1.x.jar</tt>
- * <em>before</em> <tt>junit-4.x.jar</tt> in the test runtime classpath).
- * <p/>
  * This integration provides the following benefits to test code:
  * <ol>
  *    <li>
