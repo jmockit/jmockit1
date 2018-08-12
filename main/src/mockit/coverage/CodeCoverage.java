@@ -22,17 +22,6 @@ public final class CodeCoverage implements ClassFileTransformer
    private boolean inactive;
 
    public static void main(@Nonnull String[] args) {
-      if (args.length == 1) {
-         String pid = args[0];
-
-         try {
-            Integer.parseInt(pid);
-            new AgentLoader(pid).loadAgent("coverage");
-            return;
-         }
-         catch (NumberFormatException ignore) {}
-      }
-
       OutputFileGenerator generator = createOutputFileGenerator(null);
       generator.generateAggregateReportFromInputFiles(args);
    }
