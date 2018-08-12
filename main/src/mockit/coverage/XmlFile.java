@@ -13,7 +13,7 @@ import mockit.coverage.lines.*;
 
 /**
  * Generates a XML file containing the coverage data gathered by the test run.
- * The XML schema used is the one <a href="http://docs.sonarqube.org/display/PLUG/Generic+Test+Coverage">defined</a> by
+ * The XML schema used is the one <a href="http://docs.sonarqube.org/display/SONAR/Generic+Test+Data">defined</a> by
  * the SonarQube project:
  * <pre>
  * &lt;coverage version="1">
@@ -29,9 +29,10 @@ final class XmlFile
    @Nonnull private final String srcDir;
    @Nonnull private final File outputFile;
    @Nonnull private final CoverageData coverageData;
-   @Nonnull private Writer output;
+   private Writer output;
 
    XmlFile(@Nonnull String outputDir, @Nonnull CoverageData coverageData) {
+      //noinspection DynamicRegexReplaceableByCompiledPattern
       String firstSrcDir = Configuration.getProperty("srcDirs", "").split("\\s*,\\s*")[0];
       srcDir = firstSrcDir.isEmpty() ? "" : firstSrcDir + '/';
 
