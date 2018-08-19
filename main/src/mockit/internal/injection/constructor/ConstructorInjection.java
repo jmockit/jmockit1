@@ -73,10 +73,10 @@ public final class ConstructorInjection extends Injector
 
    @Nonnull
    private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter) {
-      Object value = constructorParameter.getValue(null);
+      Object givenValue = constructorParameter.getValue(null);
 
-      if (value != null) {
-         return value;
+      if (givenValue != null) {
+         return givenValue;
       }
 
       Type parameterType = constructorParameter.getDeclaredType();
@@ -87,9 +87,9 @@ public final class ConstructorInjection extends Injector
       TestedClass nextTestedClass = new TestedClass(parameterType, parameterClass);
 
       assert fullInjection != null;
-      value = fullInjection.createOrReuseInstance(nextTestedClass, this, constructorParameter, qualifiedName);
+      Object newOrReusedValue = fullInjection.createOrReuseInstance(nextTestedClass, this, constructorParameter, qualifiedName);
 
-      if (value == null) {
+      if (newOrReusedValue == null) {
          String parameterName = constructorParameter.getName();
          String message =
             "Missing @Tested or @Injectable" + missingValueDescription(parameterName) +
@@ -97,7 +97,7 @@ public final class ConstructorInjection extends Injector
          throw new IllegalStateException(message);
       }
 
-      return value;
+      return newOrReusedValue;
    }
 
    @Nullable
@@ -167,6 +167,7 @@ public final class ConstructorInjection extends Injector
       String constructorDesc = getConstructorDesc();
       String constructorDescription = new MethodFormatter(classDesc, constructorDesc).toString();
       int p = constructorDescription.indexOf('#');
+      //noinspection DynamicRegexReplaceableByCompiledPattern
       String friendlyConstructorDesc = constructorDescription.substring(p + 1).replace("java.lang.", "");
 
       return " for parameter \"" + name + "\" in constructor " + friendlyConstructorDesc;
