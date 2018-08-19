@@ -155,19 +155,4 @@ public final class Deencapsulation
    public static void setField(@Nonnull Class<?> classWithStaticField, @Nonnull Object fieldValue) {
       FieldReflection.setField(classWithStaticField, null, null, fieldValue);
    }
-
-   /**
-    * Creates a new instance of a given class, without invoking any constructor.
-    * If the given class is <tt>abstract</tt> or an <tt>interface</tt>, then a concrete class is created, with empty implementations for the
-    * <tt>abstract</tt>/<tt>interface</tt> methods.
-    *
-    * @param classToInstantiate the class to be instantiated
-    * @param <T> type to which the returned instance should be assignable
-    *
-    * @return a newly created instance of the specified class, with any instance fields left uninitialized
-    */
-   @Nonnull
-   public static <T> T newUninitializedInstance(@Nonnull Class<? extends T> classToInstantiate) {
-      return ConstructorReflection.newUninitializedInstance(classToInstantiate);
-   }
 }

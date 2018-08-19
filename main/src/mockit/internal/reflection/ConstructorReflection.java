@@ -7,10 +7,6 @@ package mockit.internal.reflection;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import static java.lang.reflect.Modifier.isAbstract;
-
-import mockit.internal.classGeneration.*;
-import mockit.internal.reflection.EmptyProxy.*;
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
@@ -175,19 +171,5 @@ public final class ConstructorReflection
       }
       catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
       catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
-   }
-
-   @Nonnull
-   public static <T> T newUninitializedInstance(@Nonnull Class<? extends T> classToInstantiate) {
-      if (classToInstantiate.isInterface()) {
-         T instance = Impl.newEmptyProxy(classToInstantiate.getClassLoader(), classToInstantiate);
-         return instance;
-      }
-
-      if (isAbstract(classToInstantiate.getModifiers())) {
-         classToInstantiate = new ConcreteSubclass<T>(classToInstantiate).generateClass();
-      }
-
-      return newUninitializedConcreteClassInstance(classToInstantiate);
    }
 }

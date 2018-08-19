@@ -1,8 +1,6 @@
 package otherTests;
 
-import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -276,56 +274,5 @@ public final class DeencapsulationTest
       thrown.expectCause(isA(IllegalAccessException.class));
 
       Deencapsulation.setField(Subclass.class, "constantField", 54);
-   }
-
-   @Test
-   public void newUninitializedInstanceOfConcreteClass() {
-      Subclass instance = Deencapsulation.newUninitializedInstance(Subclass.class);
-
-      assertEquals(0, instance.intField);
-      assertEquals(0, instance.INITIAL_VALUE);
-      assertEquals(-1, instance.initialValue);
-
-      // This field value is a compile-time constant, so we need Reflection to read its current value:
-      int initialValue = Deencapsulation.getField(instance, "initialValue");
-      assertEquals(0, initialValue);
-   }
-
-   public abstract static class AbstractClass implements Runnable { protected abstract int doSomething(); }
-
-   @Test
-   public void newUninitializedInstanceOfAbstractClass() {
-      AbstractClass instance = Deencapsulation.newUninitializedInstance(AbstractClass.class);
-
-      assertNotNull(instance);
-      assertEquals(0, instance.doSomething());
-      instance.run();
-   }
-
-   @Test
-   public void newUninitializedInstanceOfAbstractJREClass() throws Exception {
-      Writer instance = Deencapsulation.newUninitializedInstance(Writer.class);
-
-      assertNotNull(instance);
-
-      // Abstract methods.
-      instance.write(new char[0], 0, 0);
-      instance.flush();
-      instance.close();
-
-      // Regular methods.
-      try {
-         instance.write(123);
-         fail();
-      }
-      catch (NullPointerException ignore) {}
-   }
-
-   @Test
-   public void newUninitializedInstanceOfInterface() throws Exception {
-      Callable<?> callable = Deencapsulation.newUninitializedInstance(Callable.class);
-
-      assertNotNull(callable);
-      assertNull(callable.call());
    }
 }
