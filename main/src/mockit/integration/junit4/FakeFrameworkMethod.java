@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.junit4.internal;
+package mockit.integration.junit4;
 
 import java.lang.annotation.*;
 import java.util.*;
@@ -36,6 +36,8 @@ public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
    @Mock
    public static void validatePublicVoidNoArg(@Nonnull Invocation invocation, boolean isStatic, List<Throwable> errors) {
       FrameworkMethod it = invocation.getInvokedInstance();
+      assert it != null;
+
       int previousErrorCount = errors.size();
 
       if (!isStatic && eachParameterContainsAKnownAnnotation(it.getMethod().getParameterAnnotations())) {

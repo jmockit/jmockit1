@@ -12,7 +12,7 @@ import static java.util.Arrays.asList;
 
 import mockit.*;
 import mockit.coverage.*;
-import mockit.integration.junit4.internal.*;
+import mockit.integration.junit4.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 
@@ -64,6 +64,7 @@ final class JMockitInitialization
          return Collections.emptyList();
       }
 
+      //noinspection DynamicRegexReplaceableByCompiledPattern
       String[] fakeClassNames = commaOrSpaceSeparatedValues.split("\\s*,\\s*|\\s+");
       Set<String> uniqueClassNames = new HashSet<>(asList(fakeClassNames));
       uniqueClassNames.remove("");

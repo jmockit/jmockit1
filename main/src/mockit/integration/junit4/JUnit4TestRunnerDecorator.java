@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.junit4.internal;
+package mockit.integration.junit4;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
@@ -21,6 +21,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    @Nullable
    Object invokeExplosively(@Nonnull FakeInvocation invocation, @Nullable Object target, Object... params) throws Throwable {
       FrameworkMethod it = invocation.getInvokedInstance();
+      assert it != null;
 
       // A @BeforeClass/@AfterClass method:
       if (target == null) {
@@ -82,6 +83,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
    @Nullable
    private static Object executeClassMethod(@Nonnull FakeInvocation inv, @Nonnull Object[] params) throws Throwable {
       FrameworkMethod method = inv.getInvokedInstance();
+      assert method != null;
       handleMockingOutsideTests(method);
 
       TestRun.clearCurrentTestInstance();
@@ -139,6 +141,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       TestRun.setRunningIndividualTest(testInstance);
 
       FrameworkMethod it = invocation.getInvokedInstance();
+      assert it != null;
       Method testMethod = it.getMethod();
       Throwable testFailure = null;
       boolean testFailureExpected = false;

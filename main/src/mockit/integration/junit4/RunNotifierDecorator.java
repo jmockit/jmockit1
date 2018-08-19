@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.junit4.internal;
+package mockit.integration.junit4;
 
 import javax.annotation.*;
 
@@ -26,8 +26,9 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
    @Mock
    public static void fireTestRunStarted(Invocation invocation, Description description) {
       RunNotifier it = invocation.getInvokedInstance();
+      assert it != null;
 
-      if (CodeCoverage.active() && TestCoverage.INSTANCE != null) {
+      if (TestCoverage.INSTANCE != null && CodeCoverage.active()) {
          it.addListener(new JUnitListener());
       }
 
@@ -54,6 +55,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
       prepareToProceed(invocation);
 
       RunNotifier it = invocation.getInvokedInstance();
+      assert it != null;
       it.fireTestStarted(description);
    }
 
@@ -67,6 +69,7 @@ public final class RunNotifierDecorator extends MockUp<RunNotifier>
          prepareToProceed(invocation);
 
          RunNotifier it = invocation.getInvokedInstance();
+         assert it != null;
          it.fireTestRunFinished(result);
       }
       finally {
