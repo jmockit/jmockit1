@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.integration.internal;
+package mockit.integration;
 
 import java.lang.reflect.*;
 import javax.annotation.*;

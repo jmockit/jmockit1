@@ -12,7 +12,7 @@ import org.testng.annotations.*;
 
 import mockit.*;
 import mockit.coverage.testRedundancy.*;
-import mockit.integration.internal.*;
+import mockit.integration.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 

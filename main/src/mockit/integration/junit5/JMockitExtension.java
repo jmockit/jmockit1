@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 
 import mockit.*;
-import mockit.integration.internal.*;
+import mockit.integration.*;
 import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;

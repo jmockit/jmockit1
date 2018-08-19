@@ -10,7 +10,7 @@ import javax.annotation.*;
 import org.junit.*;
 import org.junit.runners.model.*;
 
-import mockit.integration.internal.*;
+import mockit.integration.*;
 import mockit.internal.expectations.*;
 import mockit.internal.faking.*;
 import mockit.internal.state.*;

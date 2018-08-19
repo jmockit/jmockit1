@@ -12,7 +12,7 @@ import org.junit.runner.notification.*;
 import mockit.*;
 import mockit.coverage.*;
 import mockit.coverage.testRedundancy.*;
-import mockit.integration.internal.*;
+import mockit.integration.*;
 import mockit.internal.faking.*;
 import mockit.internal.state.TestRun;
 
