@@ -5,6 +5,8 @@ import static org.testng.Assert.*;
 
 import mockit.*;
 
+import org.testng.*;
+
 public final class TestNGCascadingTest
 {
    static class Foo { Bar getBar() { return null; } }
@@ -13,7 +15,7 @@ public final class TestNGCascadingTest
    @Mocked Foo foo;
 
    @Test
-   public void useExpectationResultRecordedOnCascadedInstance() {
+   public void useExpectationResultRecordedOnCascadedInstance(ITestContext ctx) {
       new Expectations() {{ foo.getBar().getValue(); result = "test"; }};
 
       String value = foo.getBar().getValue();
@@ -26,10 +28,5 @@ public final class TestNGCascadingTest
       String value = foo.getBar().getValue();
 
       assertNull(value);
-   }
-
-   @Test
-   public void mockParameter(@Injectable Runnable mock) {
-      assertNotNull(mock);
    }
 }

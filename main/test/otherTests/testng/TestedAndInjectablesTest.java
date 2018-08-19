@@ -9,8 +9,7 @@ import mockit.*;
 
 public final class TestedAndInjectablesTest
 {
-   static final class UtilityClass
-   {
+   static final class UtilityClass {
       String name;
       Collaborator collaborator1;
       Collaborator collaborator2;
@@ -18,15 +17,13 @@ public final class TestedAndInjectablesTest
 
    static class Collaborator { void doSomething() {} }
 
-   static class SUT
-   {
+   static class SUT {
       final Collaborator collaborator1;
       Collaborator collaborator2;
 
       SUT(Collaborator collaborator1) { this.collaborator1 = collaborator1; }
 
-      void useCollaborators()
-      {
+      void useCollaborators() {
          collaborator1.doSomething();
          collaborator2.doSomething();
       }
@@ -45,7 +42,6 @@ public final class TestedAndInjectablesTest
 
    SUT firstTestedObject;
    Collaborator firstMockedObject;
-   Collaborator secondMockedObject;
 
    @BeforeMethod
    public void setUp() {
@@ -64,10 +60,12 @@ public final class TestedAndInjectablesTest
       assertUtilObjectIsAvailable();
    }
 
+   @Injectable Collaborator collaborator2;
+
    @Test
-   public void firstTest(@Injectable final Collaborator collaborator2) {
+   public void firstTest() {
       assertSame(collaborator1, util.collaborator1);
-      assertNull(util.collaborator2);
+      assertSame(collaborator2, util.collaborator2);
 
       assertNotNull(tested1);
       firstTestedObject = tested1;
@@ -76,7 +74,6 @@ public final class TestedAndInjectablesTest
       firstMockedObject = collaborator1;
 
       assertNotNull(collaborator2);
-      secondMockedObject = collaborator2;
 
       assertStatesOfTestedObjects(collaborator2);
 
@@ -90,12 +87,12 @@ public final class TestedAndInjectablesTest
       previousUtilityClassInstance = util;
    }
 
-   void assertStatesOfTestedObjects(Collaborator collaborator2) {
+   void assertStatesOfTestedObjects(Collaborator col2) {
       assertSame(tested1.collaborator1, collaborator1);
-      assertSame(tested1.collaborator2, collaborator2);
+      assertSame(tested1.collaborator2, col2);
 
       assertNotSame(tested2.collaborator1, collaborator1);
-      assertSame(tested2.collaborator2, collaborator2);
+      assertSame(tested2.collaborator2, col2);
 
       assertNotSame(tested3.collaborator1, collaborator1);
       assertNotNull(tested3.collaborator2);
@@ -104,11 +101,9 @@ public final class TestedAndInjectablesTest
    }
 
    @Test(dependsOnMethods = "firstTest")
-   public void secondTest(@Injectable Collaborator collaborator2) {
+   public void secondTest() {
       assertSame(collaborator1, util.collaborator1);
-      assertNull(util.collaborator2);
 
-      assertNotSame(collaborator2, secondMockedObject);
       assertSame(collaborator1, firstMockedObject);
       assertNotSame(tested1, firstTestedObject);
 
@@ -117,8 +112,10 @@ public final class TestedAndInjectablesTest
       assertNotSame(util, previousUtilityClassInstance);
    }
 
+   @Injectable Callable<String> mock;
+
    @Test
-   public void recordAndVerifyExpectationsOnMockedInterface(@Injectable final Callable<String> mock) throws Exception {
+   public void recordAndVerifyExpectationsOnMockedInterface() throws Exception {
       new Expectations() {{ mock.call(); result = "test"; minTimes = 0; }};
 
       String value = mock.call();

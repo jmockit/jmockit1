@@ -54,10 +54,4 @@ public final class TestNGDecoratorTest extends BaseTestNGDecoratorTest
       //noinspection MisorderedAssertEqualsArgumentsTestNG
       assertSame(temp, t);
    }
-
-   @Test
-   public void checkMockingOfParameterWhenNotUsingDataProvider(@Mocked Temp mock) {
-      //noinspection MisorderedAssertEqualsArgumentsTestNG
-      assertNotSame(temp, mock);
-   }
 }

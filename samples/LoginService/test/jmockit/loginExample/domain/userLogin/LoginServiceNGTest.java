@@ -59,17 +59,14 @@ public final class LoginServiceNGTest
    }
 
    @Test
-   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked UserAccount secondAccount) throws Exception {
-      new Expectations() {{
-         UserAccount.find("roger"); result = secondAccount;
-         secondAccount.passwordMatches(anyString); result = false;
-      }};
+   public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount() throws Exception {
+      new Expectations() {{ account.passwordMatches(anyString); result = false; }};
 
       service.login("john", "password");
       service.login("john", "password");
       service.login("roger", "password");
 
-      new Verifications() {{ secondAccount.setRevoked(true); times = 0; }};
+      new Verifications() {{ account.setRevoked(true); times = 0; }};
    }
 
    @Test(expectedExceptions = AccountLoginLimitReachedException.class)

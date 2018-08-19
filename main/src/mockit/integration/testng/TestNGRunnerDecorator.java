@@ -10,18 +10,11 @@ import javax.annotation.*;
 import org.testng.*;
 import org.testng.annotations.*;
 
-import org.testng.internal.Invoker;
-import org.testng.internal.Parameters;
-
 import mockit.*;
 import mockit.coverage.testRedundancy.*;
 import mockit.integration.internal.*;
-import mockit.internal.faking.*;
-import mockit.internal.reflection.*;
-import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
-import static mockit.internal.util.Utilities.*;
 
 /**
  * Provides callbacks to be called by the TestNG 6.2+ test runner for each test execution.
@@ -31,94 +24,7 @@ import static mockit.internal.util.Utilities.*;
  */
 public final class TestNGRunnerDecorator extends TestRunnerDecorator implements IInvokedMethodListener, IExecutionListener
 {
-   public static final class FakeParameters extends MockUp<Parameters> {
-      @Mock
-      public static void checkParameterTypes(String methodName, Class<?>[] parameterTypes, String methodAnnotation, String[] parameterNames) {}
-
-      @Mock @Nullable
-      public static Object getInjectedParameter(
-         @Nonnull Invocation invocation, @Nonnull Class<?> c, @Nullable Method method, ITestContext context, ITestResult testResult
-      ) {
-         ((FakeInvocation) invocation).prepareToProceedFromNonRecursiveMock();
-         Object value = Parameters.getInjectedParameter(c, method, context, testResult);
-
-         if (value != null) {
-            return value;
-         }
-
-         if (method == null) {
-            // Test execution didn't reach a test method yet.
-            return null;
-         }
-
-         if (method.getParameterTypes().length == 0) {
-            // A test method was reached, but it has no parameters.
-            return null;
-         }
-
-         if (isMethodWithParametersProvidedByTestNG(method)) {
-            // The test method has parameters, but they are to be provided by TestNG, not JMockit.
-            return null;
-         }
-
-         // It's a mock parameter in a test method, to be provided by JMockit.
-         return ConstructorReflection.newUninitializedInstance(c);
-      }
-
-      @Mock
-      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context) {
-         return TestNGRunnerDecorator.injectParameters(parameterValues, method);
-      }
-   }
-
-   private static boolean isMethodWithParametersProvidedByTestNG(@Nonnull Method method) {
-      if (method.isAnnotationPresent(org.testng.annotations.Parameters.class)) {
-         return true;
-      }
-
-      Test testMetadata = method.getAnnotation(Test.class);
-
-      return testMetadata != null && !testMetadata.dataProvider().isEmpty();
-   }
-
-   public static final class FakeInvoker extends MockUp<Invoker> {
-      @Mock
-      public static Object[] injectParameters(Object[] parameterValues, Method method, ITestContext context, ITestResult testResult) {
-         return TestNGRunnerDecorator.injectParameters(parameterValues, method);
-      }
-   }
-
-   private static Object[] injectParameters(Object[] parameterValues, Method method) {
-      if (method == null) {
-         return parameterValues;
-      }
-
-      Class<?>[] parameterTypes = method.getParameterTypes();
-      int numParameters = parameterTypes.length;
-
-      if (numParameters == 0) {
-         return parameterValues;
-      }
-
-      if (isMethodWithParametersProvidedByTestNG(method)) {
-         return parameterValues;
-      }
-
-      Object[] mockValues = new Object[numParameters];
-
-      for (int i = 0; i < numParameters; i++) {
-         Class<?> parameterType = parameterTypes[i];
-         mockValues[i] = ConstructorReflection.newUninitializedInstance(parameterType);
-      }
-
-      return mockValues;
-   }
-
-   @Nonnull private final ThreadLocal<SavePoint> savePoint;
-
-   public TestNGRunnerDecorator() {
-      savePoint = new ThreadLocal<>();
-   }
+   @Nonnull private final ThreadLocal<SavePoint> savePoint = new ThreadLocal<>();
 
    @Override
    public void beforeInvocation(@Nonnull IInvokedMethod invokedMethod, @Nonnull ITestResult testResult) {
@@ -159,16 +65,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
          }
 
          createInstancesForTestedFieldsFromBaseClasses(testInstance);
-
-         if (!isMethodWithParametersProvidedByTestNG(method)) {
-            Object[] parameters = testResult.getParameters();
-            Object[] mockParameters = createInstancesForAnnotatedParameters(testInstance, method, parameters);
-
-            if (mockParameters != null) {
-               System.arraycopy(mockParameters, 0, parameters, 0, parameters.length);
-            }
-         }
-
          createInstancesForTestedFields(testInstance, false);
       }
       finally {
@@ -285,8 +181,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
    }
 
    private static void concludeTestExecutionWithNothingThrown(@Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult) {
-      clearTestMethodArguments(testResult);
-
       try {
          concludeTestMethodExecution(testMethodSavePoint, null, false);
       }
@@ -297,19 +191,9 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
       }
    }
 
-   private static void clearTestMethodArguments(@Nonnull ITestResult testResult) {
-      Method method = testResult.getMethod().getConstructorOrMethod().getMethod();
-
-      if (!isMethodWithParametersProvidedByTestNG(method)) {
-         testResult.setParameters(NO_ARGS);
-      }
-   }
-
    private static void concludeTestExecutionWithExpectedExceptionNotThrown(
       @Nonnull IInvokedMethod invokedMethod, @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult
    ) {
-      clearTestMethodArguments(testResult);
-
       try {
          concludeTestMethodExecution(testMethodSavePoint, null, false);
       }
@@ -329,7 +213,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
    private static void concludeTestExecutionWithExpectedExceptionThrown(
       @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest
    ) {
-      clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
       try {
@@ -347,7 +230,6 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
    private static void concludeTestExecutionWithUnexpectedExceptionThrown(
       @Nonnull SavePoint testMethodSavePoint, @Nonnull ITestResult testResult, @Nonnull Throwable thrownByTest
    ) {
-      clearTestMethodArguments(testResult);
       filterStackTrace(thrownByTest);
 
       try {
@@ -371,11 +253,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
    }
 
    @Override
-   public void onExecutionStart() {
-      Startup.verifyInitialization();
-      new FakeParameters();
-      new FakeInvoker();
-   }
+   public void onExecutionStart() {}
 
    @Override
    public void onExecutionFinish() {

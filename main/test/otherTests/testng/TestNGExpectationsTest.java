@@ -57,15 +57,4 @@ public final class TestNGExpectationsTest
          dependency.doSomething(anyInt);
       }};
    }
-
-   public interface AnInterface { String someMethod(); }
-   static class AnImpl implements AnInterface { @Override public String someMethod() { return null; } }
-
-   @Test(enabled = false) // for issue #515
-   public void captureImplementationFromMockParameter(@Capturing final AnInterface mock) {
-      AnInterface impl = new AnImpl();
-      new Expectations() {{ mock.someMethod(); result = "test"; }};
-
-      assertEquals("test", impl.someMethod());
-   }
 }
