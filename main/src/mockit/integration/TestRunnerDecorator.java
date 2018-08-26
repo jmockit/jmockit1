@@ -5,6 +5,7 @@
 package mockit.integration;
 
 import java.lang.reflect.*;
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.*;
@@ -210,7 +211,8 @@ public class TestRunnerDecorator
          TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
          TestedParameters testedParameters = new TestedParameters(methodInfo);
-         testedParameters.createTestedParameters(testClassInstance, redefinitions);
+         List<MockedType> injectableParameters = redefinitions.getInjectableParameters();
+         testedParameters.createTestedParameters(testClassInstance, injectableParameters);
       }
       finally {
          TestRun.exitNoMockingZone();

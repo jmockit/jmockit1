@@ -5,10 +5,10 @@
 package mockit.internal.injection;
 
 import java.lang.annotation.*;
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
@@ -24,8 +24,8 @@ public final class TestedParameters
       injectionState = testedClasses == null ? new InjectionState() : testedClasses.injectionState;
    }
 
-   public void createTestedParameters(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs) {
-      injectionState.buildListsOfInjectables(testClassInstance, paramTypeRedefs);
+   public void createTestedParameters(@Nonnull Object testClassInstance, @Nonnull List<? extends InjectionProvider> injectables) {
+      injectionState.addInjectables(testClassInstance, injectables);
 
       for (int n = testMethod.getParameterCount(), i = 0; i < n; i++) {
          TestedParameter testedParameter = createTestedParameterIfApplicable(i);

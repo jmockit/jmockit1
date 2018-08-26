@@ -11,9 +11,7 @@ import java.util.concurrent.*;
 import javax.annotation.*;
 import javax.inject.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
-import mockit.internal.state.*;
 import static mockit.internal.injection.InjectionPoint.*;
 import static mockit.internal.util.Utilities.getClassType;
 
@@ -54,42 +52,27 @@ public final class InjectionState
       return true;
    }
 
-   void buildListOfInjectableFields(@Nonnull Object testClassInstance, @Nonnull List<? extends InjectionProvider> injectables) {
+   void setInjectables(@Nonnull Object testClassInstance, @Nonnull List<? extends InjectionProvider> injectables) {
       currentTestClassInstance = testClassInstance;
       setInjectables(injectables);
       lifecycleMethods.getServletConfigForInitMethodsIfAny(injectables, testClassInstance);
    }
 
-   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull List<? extends InjectionProvider> injectables) {
+   void addInjectables(@Nonnull Object testClassInstance, @Nonnull List<? extends InjectionProvider> injectablesToAdd) {
       currentTestClassInstance = testClassInstance;
-      setInjectables(injectables);
-
-      ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
-
-      if (paramTypeRedefs != null) {
-         addInjectables(paramTypeRedefs);
-      }
-
-      lifecycleMethods.getServletConfigForInitMethodsIfAny(this.injectables, testClassInstance);
+      addInjectables(injectablesToAdd);
+      lifecycleMethods.getServletConfigForInitMethodsIfAny(injectables, testClassInstance);
    }
 
-   private void addInjectables(@Nonnull ParameterTypeRedefinitions paramTypeRedefs) {
-      List<? extends InjectionProvider> injectableParameters = paramTypeRedefs.getInjectableParameters();
-
-      if (!injectableParameters.isEmpty()) {
+   private void addInjectables(@Nonnull List<? extends InjectionProvider> injectablesToAdd) {
+      if (!injectablesToAdd.isEmpty()) {
          if (injectables.isEmpty()) {
-            injectables = new ArrayList<>(injectableParameters);
+            injectables = new ArrayList<>(injectablesToAdd);
          }
          else {
-            injectables.addAll(injectableParameters);
+            injectables.addAll(injectablesToAdd);
          }
       }
-   }
-
-   void buildListsOfInjectables(@Nonnull Object testClassInstance, @Nonnull ParameterTypeRedefinitions paramTypeRedefs) {
-      currentTestClassInstance = testClassInstance;
-      addInjectables(paramTypeRedefs);
-      lifecycleMethods.getServletConfigForInitMethodsIfAny(injectables, testClassInstance);
    }
 
    Object getCurrentTestClassInstance() { return currentTestClassInstance; }

@@ -12,6 +12,7 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.asm.*;
 import mockit.internal.expectations.mocking.*;
+import mockit.internal.state.*;
 import static mockit.internal.injection.TestedObject.*;
 
 public final class TestedClassInstantiations
@@ -115,7 +116,7 @@ public final class TestedClassInstantiations
    }
 
    public void assignNewInstancesToTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance) {
-      injectionState.buildListOfInjectableFields(testClassInstance, injectableFields);
+      injectionState.setInjectables(testClassInstance, injectableFields);
 
       Class<?> testClass = testClassInstance.getClass();
 
@@ -127,7 +128,19 @@ public final class TestedClassInstantiations
    }
 
    public void assignNewInstancesToTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup) {
-      injectionState.buildListsOfInjectables(testClassInstance, injectableFields);
+      List<MockedType> injectables = injectableFields;
+      ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
+
+      if (paramTypeRedefs != null) {
+         List<MockedType> injectableParameters = paramTypeRedefs.getInjectableParameters();
+
+         if (!injectableParameters.isEmpty()) {
+            injectables = new ArrayList<>(injectables);
+            injectables.addAll(injectableParameters);
+         }
+      }
+
+      injectionState.setInjectables(testClassInstance, injectables);
 
       for (TestedField testedField : testedFields) {
          if (!beforeSetup || testedField.isAvailableDuringSetup()) {
