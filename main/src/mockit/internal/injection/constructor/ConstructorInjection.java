@@ -9,7 +9,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.*;
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.injection.*;
 import mockit.internal.injection.full.*;
 import mockit.internal.state.*;
@@ -134,7 +133,7 @@ public final class ConstructorInjection extends Injector
       injectionState.setTypeOfInjectionPoint(varargsElementType);
 
       List<Object> varargValues = new ArrayList<>();
-      MockedType injectable;
+      InjectionProvider injectable;
 
       while ((injectable = injectionState.findNextInjectableForInjectionPoint(testedClass)) != null) {
          Object value = injectionState.getValueToInject(injectable);

@@ -12,7 +12,6 @@ import javax.persistence.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.regex.Pattern.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.injection.*;
 import mockit.internal.injection.full.*;
 import mockit.internal.reflection.*;
@@ -157,7 +156,7 @@ public final class FieldInjection extends Injector
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
          String injectableName = convertToLegalJavaIdentifierIfNeeded(qualifiedTargetFieldName);
-         MockedType matchingInjectable = injectionState.findInjectableByTypeAndName(injectableName, testedClass);
+         InjectionProvider matchingInjectable = injectionState.findInjectableByTypeAndName(injectableName, testedClass);
 
          if (matchingInjectable != null) {
             return matchingInjectable;

@@ -6,7 +6,6 @@ package mockit.internal.injection;
 
 import javax.annotation.*;
 
-import mockit.internal.expectations.mocking.*;
 import mockit.internal.injection.field.*;
 import mockit.internal.injection.full.*;
 
@@ -29,7 +28,7 @@ public final class BeanExporter
       String beanName = getBeanNameFromType(beanType);
 
       injectionState.setTypeOfInjectionPoint(beanType);
-      MockedType injectable = injectionState.findInjectableByTypeAndName(beanName, testedClass);
+      InjectionProvider injectable = injectionState.findInjectableByTypeAndName(beanName, testedClass);
 
       if (injectable != null) {
          @SuppressWarnings("unchecked") T bean = (T) injectionState.getValueToInject(injectable);

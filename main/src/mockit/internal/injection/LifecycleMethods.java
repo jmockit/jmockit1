@@ -167,4 +167,15 @@ public final class LifecycleMethods
          TestRun.enterNoMockingZone();
       }
    }
+
+   void getServletConfigForInitMethodsIfAny(@Nonnull List<? extends InjectionProvider> injectables, @Nonnull Object testClassInstance) {
+      if (SERVLET_CLASS != null) {
+         for (InjectionProvider injectable : injectables) {
+            if (injectable.getDeclaredType() == ServletConfig.class) {
+               servletConfig = injectable.getValue(testClassInstance);
+               break;
+            }
+         }
+      }
+   }
 }
