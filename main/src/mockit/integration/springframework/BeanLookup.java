@@ -12,6 +12,8 @@ import org.springframework.beans.factory.*;
 
 final class BeanLookup
 {
+   private BeanLookup() {}
+
    @Nonnull
    static Object getBean(@Nonnull BeanExporter beanExporter, @Nonnull String name) {
       Object bean = beanExporter.getBean(name);

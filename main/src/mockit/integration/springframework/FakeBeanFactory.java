@@ -26,7 +26,7 @@ import org.springframework.beans.factory.support.*;
 public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
 {
    @Mock
-   public Object getBean(@Nonnull Invocation invocation, @Nonnull String name) {
+   public static Object getBean(@Nonnull Invocation invocation, @Nonnull String name) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
@@ -39,7 +39,7 @@ public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
    }
 
    @Mock
-   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull String name, @Nullable Class<T> requiredType) {
+   public static <T> T getBean(@Nonnull Invocation invocation, @Nonnull String name, @Nullable Class<T> requiredType) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
@@ -52,7 +52,7 @@ public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
    }
 
    @Mock
-   public <T> T getBean(@Nonnull Invocation invocation, @Nonnull Class<T> requiredType) {
+   public static <T> T getBean(@Nonnull Invocation invocation, @Nonnull Class<T> requiredType) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses == null) {
