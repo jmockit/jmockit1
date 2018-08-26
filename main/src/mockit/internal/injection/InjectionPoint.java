@@ -18,6 +18,7 @@ import javax.servlet.*;
 import static java.lang.Character.toUpperCase;
 
 import static mockit.internal.util.ClassLoad.*;
+import static mockit.internal.reflection.AnnotationReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
 import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.*;

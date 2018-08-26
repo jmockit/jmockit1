@@ -132,27 +132,6 @@ public final class MethodReflection
    }
 
    @Nonnull
-   public static String readAnnotationAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName) {
-      try { return readAttribute(annotationInstance, attributeName); } catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-   }
-
-   @Nullable
-   public static String readAnnotationAttributeIfAvailable(@Nonnull Object annotationInstance, @Nonnull String attributeName) {
-      try { return readAttribute(annotationInstance, attributeName); } catch (NoSuchMethodException e) { return null; }
-   }
-
-   @Nonnull
-   private static String readAttribute(@Nonnull Object annotationInstance, @Nonnull String attributeName) throws NoSuchMethodException {
-      try {
-         Method publicMethod = annotationInstance.getClass().getMethod(attributeName, NO_PARAMETERS);
-         String result = (String) publicMethod.invoke(annotationInstance);
-         return result;
-      }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
-   }
-
-   @Nonnull
    public static Method findCompatibleMethod(@Nonnull Class<?> theClass, @Nonnull String methodName, @Nonnull Class<?>[] argTypes) {
       Method methodFound = findCompatibleMethodIfAvailable(theClass, methodName, argTypes);
 
