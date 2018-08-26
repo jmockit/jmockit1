@@ -7,18 +7,11 @@ package mockit.internal.reflection;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.util.*;
 import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.ensureThatMemberIsAccessible;
 
 public final class ConstructorReflection
 {
-   private static final Constructor<?> OBJECT_CONSTRUCTOR;
-   static {
-      try { OBJECT_CONSTRUCTOR = Object.class.getConstructor(); }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-   }
-
    private ConstructorReflection() {}
 
    @Nonnull
@@ -39,9 +32,7 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> T invoke(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs) {
-      ensureThatMemberIsAccessible(constructor);
-
+   public static <T> T invokeAccessible(@Nonnull Constructor<T> constructor, @Nonnull Object... initArgs) {
       try {
          return constructor.newInstance(initArgs);
       }
@@ -65,14 +56,11 @@ public final class ConstructorReflection
    }
 
    @Nonnull
-   public static <T> T newInstance(@Nonnull Class<? extends T> aClass, @Nullable Object... nonNullArgs) {
-      if (nonNullArgs == null) {
-         throw invalidArguments();
-      }
-
+   public static <T> T newInstanceUsingCompatibleConstructor(@Nonnull Class<? extends T> aClass, @Nonnull Object... nonNullArgs) {
       Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
       Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
-      return invoke(constructor, nonNullArgs);
+      ensureThatMemberIsAccessible(constructor);
+      return invokeAccessible(constructor, nonNullArgs);
    }
 
    @Nonnull
@@ -124,7 +112,9 @@ public final class ConstructorReflection
          throw new RuntimeException(ie);
       }
       catch (IllegalAccessException ignore) {
-         return newInstance(aClass, (Object[]) NO_PARAMETERS);
+         Constructor<T> constructor = findCompatibleConstructor(aClass, NO_PARAMETERS);
+         constructor.setAccessible(true);
+         return invokeAccessible(constructor);
       }
    }
 
@@ -145,31 +135,6 @@ public final class ConstructorReflection
       try { publicConstructor = aClass.getConstructor(parameterTypes); }
       catch (NoSuchMethodException ignore) { return null; }
 
-      return invoke(publicConstructor, initArgs);
-   }
-
-   @SuppressWarnings({"UnnecessaryFullyQualifiedName", "UseOfSunClasses"})
-   private static final sun.reflect.ReflectionFactory REFLECTION_FACTORY = sun.reflect.ReflectionFactory.getReflectionFactory();
-
-   @Nonnull
-   public static <T> T newUninitializedConcreteClassInstance(@Nonnull Class<T> aClass) {
-      try {
-         Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(aClass, OBJECT_CONSTRUCTOR);
-
-         if (fakeConstructor == null) { // can happen on Java 9
-            //noinspection ConstantConditions
-            return null;
-         }
-
-         @SuppressWarnings("unchecked") T newInstance = (T) fakeConstructor.newInstance();
-         return newInstance;
-      }
-      catch (NoClassDefFoundError | ExceptionInInitializerError e) {
-         StackTrace.filterStackTrace(e);
-         e.printStackTrace();
-         throw e;
-      }
-      catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+      return invokeAccessible(publicConstructor, initArgs);
    }
 }

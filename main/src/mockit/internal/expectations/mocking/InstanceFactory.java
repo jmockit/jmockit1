@@ -4,9 +4,12 @@
  */
 package mockit.internal.expectations.mocking;
 
+import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.reflection.*;
+import mockit.internal.util.*;
+
+import sun.reflect.ReflectionFactory;
 
 /**
  * Factory for the creation of new mocked instances, and for obtaining/clearing the last instance created.
@@ -14,10 +17,40 @@ import mockit.internal.reflection.*;
  */
 public abstract class InstanceFactory
 {
+   @SuppressWarnings("UseOfSunClasses")
+   private static final ReflectionFactory REFLECTION_FACTORY = ReflectionFactory.getReflectionFactory();
+   private static final Constructor<?> OBJECT_CONSTRUCTOR;
+   static {
+      try { OBJECT_CONSTRUCTOR = Object.class.getConstructor(); }
+      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+   }
+
    @Nonnull final Class<?> concreteClass;
    @Nullable Object lastInstance;
 
    InstanceFactory(@Nonnull Class<?> concreteClass) { this.concreteClass = concreteClass; }
+
+   @Nonnull
+   final <T> T newUninitializedConcreteClassInstance() {
+      try {
+         Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(concreteClass, OBJECT_CONSTRUCTOR);
+
+         if (fakeConstructor == null) { // can happen on Java 9
+            //noinspection ConstantConditions
+            return null;
+         }
+
+         @SuppressWarnings("unchecked") T newInstance = (T) fakeConstructor.newInstance();
+         return newInstance;
+      }
+      catch (NoClassDefFoundError | ExceptionInInitializerError e) {
+         StackTrace.filterStackTrace(e);
+         e.printStackTrace();
+         throw e;
+      }
+      catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
+   }
 
    @Nonnull public abstract Object create();
 
@@ -35,7 +68,7 @@ public abstract class InstanceFactory
       @Nonnull @Override
       public Object create() {
          if (emptyProxy == null) {
-            emptyProxy = ConstructorReflection.newUninitializedConcreteClassInstance(concreteClass);
+            emptyProxy = newUninitializedConcreteClassInstance();
          }
 
          lastInstance = emptyProxy;
@@ -54,7 +87,7 @@ public abstract class InstanceFactory
 
       @Override @Nonnull
       public Object create() {
-         lastInstance = ConstructorReflection.newUninitializedConcreteClassInstance(concreteClass);
+         lastInstance = newUninitializedConcreteClassInstance();
          return lastInstance;
       }
 

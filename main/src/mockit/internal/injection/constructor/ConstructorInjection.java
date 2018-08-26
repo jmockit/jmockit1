@@ -27,6 +27,7 @@ public final class ConstructorInjection extends Injector
       @Nonnull InjectionState injectionState, @Nullable FullInjection fullInjection, @Nonnull Constructor<?> constructor
    ) {
       super(injectionState, fullInjection);
+      ensureThatMemberIsAccessible(constructor);
       this.constructor = constructor;
    }
 
@@ -178,7 +179,7 @@ public final class ConstructorInjection extends Injector
       TestRun.exitNoMockingZone();
 
       try {
-         return invoke(constructor, arguments);
+         return invokeAccessible(constructor, arguments);
       }
       finally {
          TestRun.enterNoMockingZone();

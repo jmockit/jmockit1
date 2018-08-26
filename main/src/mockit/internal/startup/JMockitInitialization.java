@@ -88,7 +88,7 @@ final class JMockitInitialization
                ConstructorReflection.newInstanceUsingDefaultConstructor(fakeClass);
             }
             else {
-               ConstructorReflection.newInstance(fakeClass, argument);
+               ConstructorReflection.newInstanceUsingCompatibleConstructor(fakeClass, argument);
             }
          }
       }
