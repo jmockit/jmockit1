@@ -98,6 +98,7 @@ public final class SpringIntegrationTest
 
       Collaborator collaboratorBean = (Collaborator) beanFactory.getBean("collaborator");
       assertSame(exampleSUT.collaborator, collaboratorBean);
+      assertSame(action, exampleSUT.collaborator.action);
 
       ExampleSUT sut = (ExampleSUT) beanFactory.getBean("exampleSUT");
       assertSame(exampleSUT, sut);
@@ -147,5 +148,14 @@ public final class SpringIntegrationTest
       thrown.expect(BeanNotOfRequiredTypeException.class);
       thrown.expectMessage("Collaborator");
       beanFactory.getBean("dependency", Collaborator.class);
+   }
+
+   @Test
+   public void lookUpBeanByTypeHavingInjectableInstance(@Injectable Collaborator collaborator) {
+      BeanFactory beanFactory = new DefaultListableBeanFactory();
+
+      Collaborator collaboratorBean = beanFactory.getBean(Collaborator.class);
+
+      assertSame(collaborator, collaboratorBean);
    }
 }
