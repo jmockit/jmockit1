@@ -65,7 +65,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
          }
 
          createInstancesForTestedFieldsFromBaseClasses(testInstance);
-         createInstancesForTestedFields(testInstance, false);
+         createInstancesForTestedFields(testInstance);
       }
       finally {
          TestRun.exitNoMockingZone();
@@ -98,7 +98,7 @@ public final class TestNGRunnerDecorator extends TestRunnerDecorator implements 
             if (shouldPrepareForNextTest) {
                prepareForNextTest();
                shouldPrepareForNextTest = false;
-               createInstancesForTestedFields(testInstance, true);
+               createInstancesForTestedFieldsBeforeSetup(testInstance);
             }
 
             TestRun.setRunningIndividualTest(testInstance);

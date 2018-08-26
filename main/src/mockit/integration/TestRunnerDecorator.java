@@ -172,14 +172,36 @@ public class TestRunnerDecorator
       }
    }
 
-   protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup) {
+   protected static void createInstancesForTestedFieldsBeforeSetup(@Nonnull Object testClassInstance) {
       TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
 
       if (testedClasses != null) {
          TestRun.enterNoMockingZone();
 
          try {
-            testedClasses.assignNewInstancesToTestedFields(testClassInstance, beforeSetup);
+            testedClasses.assignNewInstancesToTestedFields(testClassInstance, true, Collections.<InjectionProvider>emptyList());
+         }
+         finally {
+            TestRun.exitNoMockingZone();
+         }
+      }
+   }
+
+   protected static void createInstancesForTestedFields(@Nonnull Object testClassInstance) {
+      TestedClassInstantiations testedClasses = TestRun.getTestedClassInstantiations();
+
+      if (testedClasses != null) {
+         List<? extends InjectionProvider> injectableParameters = Collections.emptyList();
+         ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
+
+         if (paramTypeRedefs != null) {
+            injectableParameters = paramTypeRedefs.getInjectableParameters();
+         }
+
+         TestRun.enterNoMockingZone();
+
+         try {
+            testedClasses.assignNewInstancesToTestedFields(testClassInstance, false, injectableParameters);
          }
          finally {
             TestRun.exitNoMockingZone();

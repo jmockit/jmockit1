@@ -96,7 +96,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       discardTestLevelMockedTypes();
       prepareForNextTest();
       shouldPrepareForNextTest = false;
-      createInstancesForTestedFields(target, true);
+      createInstancesForTestedFieldsBeforeSetup(target);
    }
 
    private static void handleMockingOutsideTests(@Nonnull FrameworkMethod it) {
@@ -149,7 +149,7 @@ final class JUnit4TestRunnerDecorator extends TestRunnerDecorator
       try {
          createInstancesForTestedFieldsFromBaseClasses(testInstance);
          Object[] annotatedParameters = createInstancesForAnnotatedParameters(testInstance, testMethod, parameters);
-         createInstancesForTestedFields(testInstance, false);
+         createInstancesForTestedFields(testInstance);
 
          invocation.prepareToProceedFromNonRecursiveMock();
 

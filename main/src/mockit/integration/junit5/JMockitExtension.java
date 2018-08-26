@@ -72,7 +72,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
 
       try {
          savePointForTest = new SavePoint();
-         createInstancesForTestedFields(testInstance, true);
+         createInstancesForTestedFieldsBeforeSetup(testInstance);
       }
       finally {
          TestRun.exitNoMockingZone();
@@ -94,7 +94,7 @@ final class JMockitExtension extends TestRunnerDecorator implements
          savePointForTestMethod = new SavePoint();
          createInstancesForTestedFieldsFromBaseClasses(testInstance);
          parameterValues = createInstancesForAnnotatedParameters(testInstance, testMethod, null);
-         createInstancesForTestedFields(testInstance, false);
+         createInstancesForTestedFields(testInstance);
       }
       finally {
          TestRun.exitNoMockingZone();
