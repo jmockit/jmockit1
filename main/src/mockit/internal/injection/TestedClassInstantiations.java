@@ -21,7 +21,7 @@ public final class TestedClassInstantiations
    private static final int METHOD_ACCESS_MASK = Access.BRIDGE + Access.VARARGS + Access.NATIVE + Access.ABSTRACT + Access.SYNTHETIC;
 
    @Nonnull private final List<TestedField> testedFields;
-   @Nonnull private final List<MockedType> injectableFields;
+   @Nonnull private final List<InjectionProvider> injectableFields;
    @Nonnull final InjectionState injectionState;
 
    public TestedClassInstantiations() {
@@ -69,7 +69,7 @@ public final class TestedClassInstantiations
    private void addAsTestedOrInjectableFieldIfApplicable(@Nonnull Field fieldFromTestClass) {
       for (Annotation fieldAnnotation : fieldFromTestClass.getDeclaredAnnotations()) {
          if (fieldAnnotation instanceof Injectable) {
-            MockedType mockedType = new MockedType(fieldFromTestClass);
+            InjectionProvider mockedType = new MockedType(fieldFromTestClass);
             injectableFields.add(mockedType);
             break;
          }
@@ -128,11 +128,11 @@ public final class TestedClassInstantiations
    }
 
    public void assignNewInstancesToTestedFields(@Nonnull Object testClassInstance, boolean beforeSetup) {
-      List<MockedType> injectables = injectableFields;
+      List<InjectionProvider> injectables = injectableFields;
       ParameterTypeRedefinitions paramTypeRedefs = TestRun.getExecutingTest().getParameterRedefinitions();
 
       if (paramTypeRedefs != null) {
-         List<MockedType> injectableParameters = paramTypeRedefs.getInjectableParameters();
+         List<? extends InjectionProvider> injectableParameters = paramTypeRedefs.getInjectableParameters();
 
          if (!injectableParameters.isEmpty()) {
             injectables = new ArrayList<>(injectables);

@@ -211,7 +211,7 @@ public class TestRunnerDecorator
          TestRun.getExecutingTest().setParameterRedefinitions(redefinitions);
 
          TestedParameters testedParameters = new TestedParameters(methodInfo);
-         List<MockedType> injectableParameters = redefinitions.getInjectableParameters();
+         List<? extends InjectionProvider> injectableParameters = redefinitions.getInjectableParameters();
          testedParameters.createTestedParameters(testClassInstance, injectableParameters);
       }
       finally {
