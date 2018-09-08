@@ -3,15 +3,16 @@ package java8testing;
 import java.util.*;
 import java.util.stream.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-public final class Java8EmptyReturnsTest
+final class Java8EmptyReturnsTest
 {
    @Test
-   public void mockMethodsReturningJava8ObjectsWhichCanBeEmpty(
+   void mockMethodsReturningJava8ObjectsWhichCanBeEmpty(
       @Injectable Stream<?> stream, @Injectable Stream<Integer> streamOfIntegers,
       @Injectable Stream<Long> streamOfLongs, @Injectable Stream<Double> streamOfDoubles
    ) {
@@ -38,13 +39,14 @@ public final class Java8EmptyReturnsTest
    }
 
    @Test
-   public void mockMethodsReturningJava8PrimitiveSpecializationsWhichCanBeEmpty(
+   void mockMethodsReturningJava8PrimitiveSpecializationsWhichCanBeEmpty(
       @Injectable IntStream intStream, @Injectable LongStream longStream, @Injectable DoubleStream doubleStream
    ) {
       assertSame(OptionalInt.empty(), intStream.max());
       assertSame(OptionalLong.empty(), longStream.min());
       assertSame(OptionalDouble.empty(), doubleStream.findFirst());
 
+      //noinspection RedundantStreamOptionalCall
       assertEquals(0, intStream.sorted().count());
       assertEquals(0, longStream.sequential().count());
       assertEquals(0, doubleStream.distinct().count());
