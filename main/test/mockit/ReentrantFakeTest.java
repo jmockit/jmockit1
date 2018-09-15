@@ -5,8 +5,6 @@ import java.io.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import static mockit.internal.util.Utilities.*;
-
 public final class ReentrantFakeTest
 {
    public static class RealClass {
@@ -114,12 +112,13 @@ public final class ReentrantFakeTest
    }
 
    @Test
-   public void setUpReentrantFakeForNativeJREMethod() {
+   public void applyReentrantFakeForNativeJREMethod() {
       new ReentrantFakeForNativeMethod();
 
       assertEquals(5, Runtime.getRuntime().availableProcessors());
    }
 
+   @SuppressWarnings("SynchronizeOnThis")
    static class MultiThreadedFake extends MockUp<RealClass> {
       private static boolean nobodyEntered = true;
 
@@ -182,8 +181,7 @@ public final class ReentrantFakeTest
          int firstMethod(Invocation inv) { return inv.proceed(); }
 
          @Mock
-         int secondMethod(Invocation inv) throws InterruptedException
-         {
+         int secondMethod(Invocation inv) throws InterruptedException {
             final RealClass2 it = inv.getInvokedInstance();
 
             Thread t = new Thread() {
@@ -206,26 +204,23 @@ public final class ReentrantFakeTest
       System.setProperty("a", "1");
       System.setProperty("b", "2");
 
-      if (HOTSPOT_VM) { // causes main thread to hang up on IBM JRE
-         new MockUp<System>() {
-            String property;
+      new MockUp<System>() {
+         String property;
 
-            @Mock
-            String getProperty(Invocation inv, String key) { return inv.proceed(); }
+         @Mock
+         String getProperty(Invocation inv, String key) { return inv.proceed(); }
 
-            @Mock
-            String clearProperty(final String key) throws InterruptedException {
-               Thread t = new Thread()
-               {
-                  @Override
-                  public void run() { property = System.getProperty(key); }
-               };
-               t.start();
-               t.join();
-               return property;
-            }
-         };
-      }
+         @Mock
+         String clearProperty(final String key) throws InterruptedException {
+            Thread t = new Thread() {
+               @Override
+               public void run() { property = System.getProperty(key); }
+            };
+            t.start();
+            t.join();
+            return property;
+         }
+      };
 
       assertEquals("1", System.getProperty("a"));
       assertEquals("2", System.clearProperty("b"));
