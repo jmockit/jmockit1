@@ -9,7 +9,6 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.asm.*;
 import mockit.internal.expectations.*;
-import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.asm.Opcodes.*;
 
@@ -75,10 +74,6 @@ public class BaseClassModifier extends WrappingClassVisitor
       methodAccess = access;
       methodName = name;
       methodDesc = desc;
-
-      if (isNative(access)) {
-         TestRun.mockFixture().addRedefinedClassWithNativeMethods(classDesc);
-      }
    }
 
    public final boolean wasModified() { return methodName != null; }

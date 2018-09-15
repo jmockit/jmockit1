@@ -1,11 +1,8 @@
 package mockit;
 
-import java.io.*;
 import java.lang.reflect.*;
 import javax.accessibility.*;
 import javax.faces.application.*;
-
-import static mockit.internal.util.Utilities.*;
 
 import static org.junit.Assert.*;
 import org.junit.*;
@@ -109,26 +106,21 @@ public final class MoreFakingTest
    public void applyFakeForClassHierarchy() {
       new MockUp<SubCollaborator>() {
          @Mock
-         void $init(Invocation inv, int i)
-         {
+         void $init(Invocation inv, int i) {
             assertNotNull(inv.getInvokedInstance());
             assertTrue(i > 0);
          }
 
          @Mock
-         void provideSomeService(Invocation inv)
-         {
+         void provideSomeService(Invocation inv) {
             SubCollaborator it = inv.getInvokedInstance();
             it.value = 45;
          }
 
          @Mock
-         int getValue(Invocation inv)
-         {
-            assertNotNull(inv.getInvokedInstance());
-            // The value of "it" is undefined here; it will be null if this is the first mock invocation reaching this
-            // fake class instance, or the last instance of the faked subclass if a previous invocation of a fake
-            // method whose faked method is defined in the subclass occurred on this fake class instance.
+         int getValue(Invocation inv) {
+            SubCollaborator it = inv.getInvokedInstance();
+            assertNotNull(it);
             return 123;
          }
       };
@@ -137,38 +129,6 @@ public final class MoreFakingTest
       collaborator.provideSomeService();
       assertEquals(45, collaborator.value);
       assertEquals(123, collaborator.getValue());
-   }
-
-   @Test
-   public void fakeNativeMethodInClassWithRegisterNatives() {
-      new FakeSystem();
-
-      assertEquals(0, System.nanoTime());
-   }
-
-   public static final class FakeSystem extends MockUp<System> {
-      @Mock public static long nanoTime() { return 0; }
-   }
-
-   @Test
-   public void fakeNativeMethodInClassWithoutRegisterNatives() {
-      // For some reason, the native method doesn't get mocked when running on Java 9.
-      if (!JAVA9) {
-         new FakeFloat();
-
-         assertEquals(0.0, Float.intBitsToFloat(2243019), 0.0);
-      }
-   }
-
-   static class FakeFloat extends MockUp<Float> {
-      @Mock
-      public static float intBitsToFloat(int bits) { return 0; }
-   }
-
-   @After
-   public void checkThatLocalFakesHaveBeenTornDown() {
-      assertTrue(System.nanoTime() > 0);
-      assertTrue(Float.intBitsToFloat(2243019) > 0);
    }
 
    @Test
@@ -227,20 +187,6 @@ public final class MoreFakingTest
       assertEquals("faked", faked.doSomething());
    }
 
-   @Test
-   public void fakeFileConstructor() {
-      new MockUp<File>() {
-         @Mock
-         void $init(Invocation inv, String pathName) {
-            File it = inv.getInvokedInstance();
-            assertNotNull(it);
-         }
-      };
-
-      File f = new File("test");
-      assertNull(f.getPath());
-   }
-
    @Test @SuppressWarnings("MethodWithMultipleLoops")
    public void concurrentFake() throws Exception {
       new MockUp<Collaborator>() {
@@ -273,7 +219,7 @@ public final class MoreFakingTest
 
       // And to static methods from any class in the hierarchy:
       //noinspection deprecation
-      assertEquals("mocked", Collaborator.doInternal());
+      assertEquals("faked", Collaborator.doInternal());
 
       // But not to instance methods executed on instances of the base class:
       assertEquals(62, new Collaborator(62).getValue());
@@ -281,7 +227,7 @@ public final class MoreFakingTest
 
    static class FakeForSubclass extends MockUp<SubCollaborator> {
       @Mock void $init(int i) {}
-      @Mock String doInternal() { return "mocked"; }
+      @Mock String doInternal() { return "faked"; }
       @Mock int getValue() { return 123; }
    }
 }

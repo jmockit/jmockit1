@@ -53,17 +53,6 @@ public final class MockFixture
    @Nonnull private final Map<Class<?>, byte[]> redefinedClasses;
 
    /**
-    * Subset of all currently redefined classes which contain one or more native methods.
-    * <p/>
-    * This is needed because in order to restore such methods it is necessary (for some classes) to re-register them
-    * with the JVM.
-    *
-    * @see #addRedefinedClassWithNativeMethods(String)
-    * @see #reregisterNativeMethodsForRestoredClass(Class)
-    */
-   @Nonnull private final Set<String> redefinedClassesWithNativeMethods;
-
-   /**
     * Maps redefined real classes to the internal name of the corresponding fake classes, when it's the case.
     * <p/>
     * This allows any global state associated to a fake class to be discarded when the corresponding real class is later
@@ -110,7 +99,6 @@ public final class MockFixture
    MockFixture() {
       transformedClasses = new HashMap<>(2);
       redefinedClasses = new ConcurrentHashMap<>(8);
-      redefinedClassesWithNativeMethods = new HashSet<>();
       realClassesToFakeClasses = new IdentityHashMap<>(8);
       mockedClasses = new ArrayList<>();
       mockedTypesAndInstances = new IdentityHashMap<>();
@@ -319,10 +307,6 @@ public final class MockFixture
          Startup.redefineMethods(redefinedClass, previousDefinition);
       }
 
-      if (redefinedClassesWithNativeMethods.contains(redefinedClass.getName())) {
-         reregisterNativeMethodsForRestoredClass(redefinedClass);
-      }
-
       removeMockedClass(redefinedClass);
       discardStateForCorrespondingFakeClassIfAny(redefinedClass);
    }
@@ -352,35 +336,6 @@ public final class MockFixture
             mockedTypesAndInstances.keySet().retainAll(previousMockedClasses);
          }
       }
-   }
-
-   // Methods that deal with redefined native methods /////////////////////////////////////////////////////////////////
-
-   public void addRedefinedClassWithNativeMethods(@Nonnull String redefinedClassInternalName) {
-      redefinedClassesWithNativeMethods.add(redefinedClassInternalName.replace('/', '.'));
-   }
-
-   private static void reregisterNativeMethodsForRestoredClass(@Nonnull Class<?> realClass) {
-      Method registerNatives = null;
-
-      try {
-         registerNatives = realClass.getDeclaredMethod("registerNatives");
-      }
-      catch (NoSuchMethodException ignore) {
-         try { registerNatives = realClass.getDeclaredMethod("initIDs"); }
-         catch (NoSuchMethodException ignored) {} // OK
-      }
-
-      if (registerNatives != null) {
-         try {
-            registerNatives.setAccessible(true);
-            registerNatives.invoke(null);
-         }
-         catch (IllegalAccessException | InvocationTargetException ignore) {} // won't happen
-      }
-
-      // OK, although another solution will be required for this particular class if it requires
-      // natives to be explicitly registered again (not all do, such as java.lang.Float).
    }
 
    // Getter methods for the maps and collections of transformed/redefined/mocked classes /////////////////////////////
