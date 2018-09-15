@@ -2,7 +2,6 @@ package mockit;
 
 import java.io.*;
 import java.math.*;
-import java.nio.*;
 import java.util.concurrent.atomic.*;
 
 import org.junit.*;
@@ -30,7 +29,6 @@ public final class ExpectationsUsingReturnTypeConversionTest
       Boolean getBooleanWrapper() { return Boolean.TRUE; }
 
       StringBuilder getStringBuilder() { return null; }
-      CharBuffer getCharBuffer() { return null; }
       InputStream getInputStream() { return null; }
       ByteArrayInputStream getByteArrayInputStream() { return null; }
       byte[] getByteArray() { return null; }
@@ -153,8 +151,7 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals('0', mock.getCharacter().charValue());
    }
 
-   @SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
-   @Test
+   @Test @SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
    public void convertNumberValueToNarrowerNumericalReturnTypeWhenTheActualValueDoesNotFitTheReturnType() {
       new Expectations() {{
          mock.getByte(); result = 230;
@@ -189,7 +186,6 @@ public final class ExpectationsUsingReturnTypeConversionTest
 
       new Expectations() {{
          mock.getStringBuilder(); result = text;
-         mock.getCharBuffer(); result = text;
          mock.getInputStream(); result = text;
          mock.getByteArrayInputStream(); result = text;
          mock.getByteArray(); result = text;
@@ -198,7 +194,6 @@ public final class ExpectationsUsingReturnTypeConversionTest
       }};
 
       assertEquals(text, mock.getStringBuilder().toString());
-      assertEquals(text, mock.getCharBuffer().toString());
 
       byte[] buf = new byte[text.getBytes().length];
       mock.getInputStream().read(buf);
