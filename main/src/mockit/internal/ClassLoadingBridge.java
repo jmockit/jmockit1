@@ -40,8 +40,7 @@ public abstract class ClassLoadingBridge implements InvocationHandler
 
    public static boolean instanceOfClassThatParticipatesInClassLoading(@Nonnull Class<?> aClass) {
       return
-         aClass == System.class || aClass == File.class || aClass == URL.class ||
-         aClass == FileInputStream.class || aClass == Manifest.class ||
+         aClass == File.class || aClass == URL.class || aClass == FileInputStream.class || aClass == Manifest.class ||
          JarFile.class.isAssignableFrom(aClass) || JarEntry.class.isAssignableFrom(aClass) ||
          Vector.class.isAssignableFrom(aClass) || Hashtable.class.isAssignableFrom(aClass);
    }

@@ -1,25 +1,17 @@
 package mockit;
 
 import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
 import java.time.*;
 import java.util.*;
 import java.util.logging.*;
 
 import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runners.*;
 import static org.junit.Assert.*;
 
 import static mockit.internal.util.Utilities.JAVA8;
 
-@SuppressWarnings("deprecation")
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public final class JREMockingTest
 {
-   @Rule public final ExpectedException thrown = ExpectedException.none();
-
    @Test
    public void mockingOfFile(@Mocked final File file) {
       new Expectations() {{
@@ -64,7 +56,7 @@ public final class JREMockingTest
       assertTrue(d.getClass().getDeclaredMethod("parse", String.class).isAnnotationPresent(Deprecated.class));
    }
 
-   @Test
+   @Test @SuppressWarnings("deprecation")
    public void dynamicMockingOfAnnotatedJREMethod() throws Exception {
       final Date d = new Date();
 
@@ -74,177 +66,6 @@ public final class JREMockingTest
 
       assertEquals(5, d.getMinutes());
       assertTrue(Date.class.getDeclaredMethod("getMinutes").isAnnotationPresent(Deprecated.class));
-   }
-
-   @Test
-   public void fullMockingOfSystem(@Mocked System mockSystem) {
-      new Expectations() {{
-         System.currentTimeMillis();
-         result = 123L;
-      }};
-
-      assertEquals(123L, System.currentTimeMillis());
-   }
-
-   @Test
-   public void partialMockingOfSystem() throws Exception {
-      long t0 = System.currentTimeMillis();
-
-      new MockUp<System>() {
-         @Mock long nanoTime() { return 123L; }
-      };
-
-      // Repeat enough times to pass the JVM inflation threshold, causing a bytecode accessor to be generated.
-      for (int i = 0; i < 50; i++) {
-         assertEquals(123L, System.nanoTime());
-      }
-
-      long delay = 40;
-      Thread.sleep(delay);
-      long t1 = System.currentTimeMillis();
-      assertTrue(t1 - t0 >= delay);
-   }
-
-   // Mocking of java.lang.Thread and native methods //////////////////////////////////////////////////////////////////
-
-   // First mocking: puts mocked class in cache, knowing it has native methods to re-register.
-   @Test
-   public void firstMockingOfNativeMethods(@Mocked Thread unused) throws Exception {
-      Thread.sleep(5000);
-   }
-
-   // Second mocking: retrieves from cache, no longer knowing it has native methods to re-register.
-   @Test
-   public void secondMockingOfNativeMethods(@Mocked final Thread mock) {
-      new Expectations() {{
-         mock.isAlive(); result = true;
-      }};
-
-      assertTrue(mock.isAlive());
-   }
-
-   @Test
-   public void unmockedNativeMethods() throws Exception {
-      Thread.sleep(10);
-      assertTrue(System.currentTimeMillis() > 0);
-   }
-
-   // See http://www.javaspecialists.eu/archive/Issue056.html
-   public static class InterruptibleThread extends Thread {
-      protected final boolean wasInterruptRequested() {
-         try {
-            Thread.sleep(10);
-            return false;
-         }
-         catch (InterruptedException ignore) {
-            interrupt();
-            return true;
-         }
-      }
-   }
-
-   @Test
-   public void interruptibleThreadShouldResetItsInterruptStatusWhenInterrupted(@Mocked Thread unused) throws Exception {
-      final InterruptibleThread t = new InterruptibleThread();
-
-      new Expectations() {{
-         Thread.sleep(anyLong); result = new InterruptedException();
-         t.interrupt();
-      }};
-
-      assertTrue(t.wasInterruptRequested());
-   }
-
-   static class ExampleInterruptibleThread extends InterruptibleThread {
-      boolean terminatedCleanly;
-
-      @Override
-      @SuppressWarnings({"MethodWithMultipleLoops", "ConditionalBreakInInfiniteLoop"})
-      public void run() {
-         while (true) {
-            for (int i = 0; i < 10; i++) {
-               if (wasInterruptRequested()) break;
-            }
-
-            if (wasInterruptRequested()) break;
-         }
-
-         terminatedCleanly = true;
-      }
-   }
-
-   @Test
-   public void interruptionOfThreadRunningNestedLoops() throws Exception {
-      ExampleInterruptibleThread t = new ExampleInterruptibleThread();
-      t.start();
-      Thread.sleep(30);
-      t.interrupt();
-      t.join();
-      assertTrue(t.terminatedCleanly);
-   }
-
-   @Test
-   public void fullMockingOfThread(@Mocked Thread t) {
-      new Expectations() {{
-         Thread.activeCount();
-         result = 123;
-      }};
-
-      assertEquals(123, Thread.activeCount());
-
-      new Verifications() {{
-         new Thread((Runnable) any); times = 0;
-      }};
-   }
-
-   @Test
-   public void dynamicMockingOfThread() {
-      final Thread d = new Thread((Runnable) null);
-
-      new Expectations(d) {};
-
-      d.start();
-      d.interrupt();
-
-      new Verifications() {{
-         d.start(); times = 1;
-         d.interrupt();
-      }};
-   }
-
-   @Test
-   public void threadMockUp() {
-      new MockUp<Thread>() {
-         @Mock
-         String getName() { return "test"; }
-      };
-
-      //noinspection InstantiatingAThreadWithDefaultRunMethod
-      Thread t = new Thread();
-      String threadName = t.getName();
-
-      assertEquals("test", threadName);
-   }
-
-   @Test
-   public void mockingOfAnnotatedNativeMethod(@Mocked Thread mock) throws Exception {
-      Method countStackFrames = Thread.class.getDeclaredMethod("countStackFrames");
-      assertTrue(countStackFrames.isAnnotationPresent(Deprecated.class));
-   }
-
-   static final class SomeTask extends Thread { boolean doSomething() { return false; } }
-
-   @Test
-   public void recordDelegatedResultForMethodInMockedThreadSubclass(@Mocked final SomeTask task) {
-      new Expectations() {{
-         task.doSomething();
-         result = new Delegate() {
-            @SuppressWarnings("unused")
-            boolean doIt() { return true; }
-         };
-      }};
-
-      assertTrue(task.doSomething());
    }
 
    // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
@@ -265,56 +86,6 @@ public final class JREMockingTest
       new Verifications() {{ writer.append('x'); }};
    }
 
-   // Mocking the Reflection API //////////////////////////////////////////////////////////////////////////////////////
-
-   @Retention(RetentionPolicy.RUNTIME) @interface AnAnnotation { String value(); }
-   @Retention(RetentionPolicy.RUNTIME) @interface AnotherAnnotation {}
-   enum AnEnum { @AnAnnotation("one") First, @AnAnnotation("two") Second, @AnotherAnnotation Third }
-
-   @Test
-   public void mockingOfGetAnnotation() throws Exception {
-      //noinspection ClassExtendsConcreteCollection
-      new MockUp<Field>() {
-         final Map<Object, Annotation> annotationsApplied = new HashMap<Object, Annotation>() {{
-            put(AnEnum.First, anAnnotation("1"));
-            put(AnEnum.Second, anAnnotation("2"));
-         }};
-
-         AnAnnotation anAnnotation(final String value) {
-            return new AnAnnotation() {
-               @Override public Class<? extends Annotation> annotationType() { return AnAnnotation.class; }
-               @Override public String value() { return value; }
-            };
-         }
-
-         @Mock
-         <T extends Annotation> T getAnnotation(Invocation inv, Class<T> annotation) throws IllegalAccessException {
-            Field it = inv.getInvokedInstance();
-            Object fieldValue = it.get(null);
-            Annotation value = annotationsApplied.get(fieldValue);
-
-            if (value != null) {
-               //noinspection unchecked
-               return (T) value;
-            }
-
-            return inv.proceed();
-         }
-      };
-
-      Field firstField = AnEnum.class.getField(AnEnum.First.name());
-      AnAnnotation annotation1 = firstField.getAnnotation(AnAnnotation.class);
-      assertEquals("1", annotation1.value());
-
-      Field secondField = AnEnum.class.getField(AnEnum.Second.name());
-      AnAnnotation annotation2 = secondField.getAnnotation(AnAnnotation.class);
-      assertEquals("2", annotation2.value());
-
-      Field thirdField = AnEnum.class.getField(AnEnum.Third.name());
-      assertNull(thirdField.getAnnotation(AnAnnotation.class));
-      assertNotNull(thirdField.getAnnotation(AnotherAnnotation.class));
-   }
-
    // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
@@ -331,6 +102,7 @@ public final class JREMockingTest
       attemptToMockUnmockableJREClass(AbstractSet.class);
       attemptToMockUnmockableJREClass(Exception.class);
       attemptToMockUnmockableJREClass(Throwable.class);
+      attemptToMockUnmockableJREClass(Thread.class);
       attemptToMockUnmockableJREClass(ThreadLocal.class);
       attemptToMockUnmockableJREClass(ClassLoader.class);
       attemptToMockUnmockableJREClass(Class.class);
@@ -338,6 +110,7 @@ public final class JREMockingTest
       attemptToMockUnmockableJREClass(StrictMath.class);
       attemptToMockUnmockableJREClass(Object.class);
       attemptToMockUnmockableJREClass(Enum.class);
+      attemptToMockUnmockableJREClass(System.class);
 
       if (JAVA8) {
          //noinspection Since15

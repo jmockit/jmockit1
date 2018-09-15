@@ -12,8 +12,6 @@ public final class MockingFilters
    private static final Map<String, String> FILTERS = new HashMap<>();
    static {
       FILTERS.put("java/lang/Object", "<init> clone getClass hashCode wait notify notifyAll ");
-      FILTERS.put("java/lang/System", "arraycopy getProperties getSecurityManager identityHashCode mapLibraryName ");
-      FILTERS.put("java/lang/Thread", "currentThread getName getThreadGroup interrupted isInterrupted ");
       FILTERS.put("java/io/File", "compareTo equals getName getPath hashCode toString ");
       FILTERS.put("java/util/logging/Logger", "<init> getName ");
       FILTERS.put("java/util/jar/JarEntry", "<init> ");
@@ -27,15 +25,15 @@ public final class MockingFilters
    public static boolean isUnmockable(@Nonnull String classDesc) {
       return
          ("java/lang/String java/lang/AbstractStringBuilder java/util/AbstractCollection java/util/AbstractMap " +
-          "java/util/Hashtable java/lang/Throwable java/lang/Object java/lang/Enum " +
+          "java/util/Hashtable java/lang/Throwable java/lang/Object java/lang/Enum java/lang/System java/lang/ThreadLocal " +
           "java/lang/ClassLoader java/lang/Math java/lang/StrictMath java/time/Duration").contains(classDesc) ||
-         "java/lang/ThreadLocal".equals(classDesc) || "java/nio/file/Paths".equals(classDesc);
+         "java/nio/file/Paths".equals(classDesc);
    }
 
    public static boolean isFullMockingDisallowed(@Nonnull String classDesc) {
       return classDesc.startsWith("java/io/") && (
-         "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) || "java/io/FileWriter".equals(classDesc) ||
-         "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(classDesc)
+         "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) ||
+         "java/io/FileWriter".equals(classDesc) || "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(classDesc)
       );
    }
 

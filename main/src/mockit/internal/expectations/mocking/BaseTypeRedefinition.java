@@ -176,10 +176,6 @@ class BaseTypeRedefinition
    }
 
    private boolean redefineClassAndItsSuperClasses(@Nonnull Class<?> realClass) {
-      if (!HOTSPOT_VM && realClass == System.class) {
-         return false;
-      }
-
       ClassLoader loader = realClass.getClassLoader();
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
       MockedClassModifier modifier = createClassModifier(loader, classReader);
