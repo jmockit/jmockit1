@@ -59,7 +59,7 @@ import mockit.internal.expectations.*;
  * @see #Expectations(Object...)
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
  */
-public abstract class Expectations extends Invocations
+public class Expectations extends Invocations
 {
    @Nonnull private final RecordAndReplayExecution execution;
 

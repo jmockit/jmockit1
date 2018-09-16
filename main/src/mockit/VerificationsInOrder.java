@@ -21,7 +21,7 @@ package mockit;
  * @see #VerificationsInOrder()
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#verificationInOrder" target="tutorial">Tutorial</a>
  */
-public abstract class VerificationsInOrder extends Verifications
+public class VerificationsInOrder extends Verifications
 {
    /**
     * Begins <em>in-order</em> verification on the mocked types/instances that were invoked while executing code under test.

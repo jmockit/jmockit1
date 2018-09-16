@@ -26,7 +26,7 @@ import javax.annotation.*;
  * @see #FullVerifications(Object...)
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#fullVerification" target="tutorial">Tutorial</a>
  */
-public abstract class FullVerifications extends Verifications
+public class FullVerifications extends Verifications
 {
    /**
     * Begins <em>full</em> verification on the mocked types/instances that can potentially be invoked from code under test.

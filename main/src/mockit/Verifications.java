@@ -45,7 +45,7 @@ import mockit.internal.state.*;
  * @see Expectations
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#verification" target="tutorial">Tutorial</a>
  */
-public abstract class Verifications extends Invocations
+public class Verifications extends Invocations
 {
    @Nonnull final BaseVerificationPhase verificationPhase;
 
