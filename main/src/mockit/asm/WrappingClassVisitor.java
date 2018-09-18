@@ -37,6 +37,16 @@ public class WrappingClassVisitor extends ClassVisitor
       cw.visitOuterClass(owner, name, desc);
    }
 
+   @Override
+   public void visitNestHost(String nestHost) {
+      cw.visitNestHost(nestHost);
+   }
+
+   @Override
+   public void visitNestMember(String nestMember) {
+      cw.visitNestMember(nestMember);
+   }
+
    @Nullable @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return cw.visitAnnotation(desc);

@@ -38,6 +38,8 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String sourceFileName;
    @Nullable private EnclosingMethod enclosingMethod;
+   @Nullable private String nestHost;
+   @Nullable private String[] nestMembers;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -114,6 +116,8 @@ public final class ClassReader extends AnnotatedReader
       visitor.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
       visitOuterClass();
+      visitNestHost();
+      visitNestMembers();
       readAnnotations(visitor);
       readInnerClasses();
       readFieldsAndMethods();
@@ -159,6 +163,19 @@ public final class ClassReader extends AnnotatedReader
          return true;
       }
 
+      if ("NestHost".equals(attributeName)) {
+         nestHost = readNonnullClass();
+         return true;
+      }
+
+      if ("NestMembers".equals(attributeName)) {
+         nestMembers = new String[readShort()];
+         for (int i = 0; i < nestMembers.length; i++) {
+            nestMembers[i] = readNonnullClass();
+         }
+         return true;
+      }
+
       if ("InnerClasses".equals(attributeName)) {
          if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
             innerClassesCodeIndex = codeIndex;
@@ -191,6 +208,20 @@ public final class ClassReader extends AnnotatedReader
    private void visitOuterClass() {
       if (enclosingMethod != null) {
          cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
+      }
+   }
+
+   private void visitNestHost() {
+      if (nestHost != null) {
+         cv.visitNestHost(nestHost);
+      }
+   }
+
+   private void visitNestMembers() {
+      if (nestMembers != null) {
+         for (String nestMember : nestMembers) {
+            cv.visitNestMember(nestMember);
+         }
       }
    }
 
