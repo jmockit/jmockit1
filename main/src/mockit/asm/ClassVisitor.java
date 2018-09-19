@@ -51,6 +51,20 @@ public class ClassVisitor extends BaseWriter
    public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    /**
+    * Visits the nest host of the class. This method must be called only if the class has a nest host.
+    *
+    * @param nestHost name of the nest host class
+    */
+   public void visitNestHost(String nestHost) {}
+
+   /**
+    * Visits the a nest member of the class. This method must be called only if the class has nest members.
+    *
+    * @param nestMember name of a nest member class
+    */
+   public void visitNestMember(String nestMember) {}
+
+   /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
     *
     * @param name      the internal name of an inner class.

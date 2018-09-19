@@ -52,6 +52,8 @@ public final class ClassWriter extends ClassVisitor
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private OuterClassWriter outerClassWriter;
+   @Nullable private NestHostWriter nestHostWriter;
+   @Nullable private NestMembersWriter nestMembersWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
    @Nullable final BootstrapMethods bootstrapMethods;
 
@@ -151,6 +153,19 @@ public final class ClassWriter extends ClassVisitor
       outerClassWriter = new OuterClassWriter(cp, owner, name, desc);
    }
 
+   @Override
+   public void visitNestHost(String nestHost) {
+      nestHostWriter = new NestHostWriter(cp, nestHost);
+   }
+
+   @Override
+   public void visitNestMember(String nestMember) {
+      if (nestMembersWriter == null) {
+         nestMembersWriter = new NestMembersWriter(cp);
+      }
+      nestMembersWriter.add(nestMember);
+   }
+
    @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
@@ -214,6 +229,14 @@ public final class ClassWriter extends ClassVisitor
 
       if (outerClassWriter != null) {
          size += outerClassWriter.getSize();
+      }
+
+      if (nestHostWriter != null) {
+         size += nestHostWriter.getSize();
+      }
+
+      if (nestMembersWriter != null) {
+         size += nestMembersWriter.getSize();
       }
 
       if (innerClassesWriter != null) {
@@ -287,6 +310,14 @@ public final class ClassWriter extends ClassVisitor
 
       putMarkerAttributes(out);
 
+      if (nestHostWriter != null) {
+         nestHostWriter.put(out);
+      }
+
+      if (nestMembersWriter != null) {
+         nestMembersWriter.put(out);
+      }
+
       if (innerClassesWriter != null) {
          innerClassesWriter.put(out);
       }
@@ -305,6 +336,14 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (outerClassWriter != null) {
+         attributeCount++;
+      }
+
+      if (nestHostWriter != null) {
+         attributeCount++;
+      }
+
+      if (nestMembersWriter != null) {
          attributeCount++;
       }
 
