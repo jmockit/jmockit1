@@ -11,7 +11,6 @@ import mockit.internal.util.*;
  * class file format. It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter
  * class visitor to generate a modified class from one or more existing Java classes.
  */
-@SuppressWarnings("ParameterHidesMemberVariable")
 public final class ClassWriter extends ClassVisitor
 {
    /**
@@ -31,12 +30,12 @@ public final class ClassWriter extends ClassVisitor
    /**
     * Minor and major version numbers of the class to be generated.
     */
-   int version;
+   int classVersion;
 
    /**
     * The constant pool item that contains the internal name of this class.
     */
-   private int name;
+   private int nameItemIndex;
 
    /**
     * The internal name of this class.
@@ -46,9 +45,9 @@ public final class ClassWriter extends ClassVisitor
    /**
     * The constant pool item that contains the internal name of the super class of this class.
     */
-   private int superName;
+   private int superNameItemIndex;
 
-   @Nullable private Interfaces interfaces;
+   @Nullable private Interfaces interfaceItems;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private OuterClassWriter outerClassWriter;
@@ -82,8 +81,8 @@ public final class ClassWriter extends ClassVisitor
     */
    public ClassWriter(@Nonnull ClassReader classReader) {
       code = classReader.code;
-      version = classReader.getVersion();
-      computeFrames = version >= ClassVersion.V1_7;
+      classVersion = classReader.getVersion();
+      computeFrames = classVersion >= ClassVersion.V1_7;
 
       cp = new ConstantPoolGeneration();
       sourceInfo = new SourceInfoWriter(cp);
@@ -104,8 +103,8 @@ public final class ClassWriter extends ClassVisitor
     */
    public ClassWriter(@Nonnull byte[] code) {
       this.code = code;
-      this.version = ClassMetadataReader.readVersion(code);
-      computeFrames = version >= ClassVersion.V1_7;
+      classVersion = ClassMetadataReader.readVersion(code);
+      computeFrames = classVersion >= ClassVersion.V1_7;
 
       cp = new ConstantPoolGeneration();
       sourceInfo = new SourceInfoWriter(cp);
@@ -119,9 +118,9 @@ public final class ClassWriter extends ClassVisitor
    public void visit(
       int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
    ) {
-      this.version = version;
-      this.access = access;
-      this.name = cp.newClass(name);
+      classVersion = version;
+      classOrMemberAccess = access;
+      nameItemIndex = cp.newClass(name);
       thisName = name;
 
       createMarkerAttributes(version);
@@ -130,10 +129,10 @@ public final class ClassWriter extends ClassVisitor
          signatureWriter = new SignatureWriter(cp, signature);
       }
 
-      this.superName = superName == null ? 0 : cp.newClass(superName);
+      superNameItemIndex = superName == null ? 0 : cp.newClass(superName);
 
       if (interfaces != null && interfaces.length > 0) {
-         this.interfaces = new Interfaces(cp, interfaces);
+         interfaceItems = new Interfaces(cp, interfaces);
       }
 
       if (superName != null) {
@@ -225,7 +224,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Nonnegative
    private int getInterfacesSize() {
-      return interfaces == null ? 0 : 2 * interfaces.getCount();
+      return interfaceItems == null ? 0 : 2 * interfaceItems.getCount();
    }
 
    @Nonnegative
@@ -251,18 +250,18 @@ public final class ClassWriter extends ClassVisitor
    }
 
    private void putClassAttributes(@Nonnull ByteVector out) {
-      out.putInt(0xCAFEBABE).putInt(version);
+      out.putInt(0xCAFEBABE).putInt(classVersion);
       cp.put(out);
 
       putAccess(out, 0);
-      out.putShort(name);
-      out.putShort(superName);
+      out.putShort(nameItemIndex);
+      out.putShort(superNameItemIndex);
 
-      int interfaceCount = interfaces == null ? 0 : interfaces.getCount();
+      int interfaceCount = interfaceItems == null ? 0 : interfaceItems.getCount();
       out.putShort(interfaceCount);
 
       if (interfaceCount > 0) {
-         interfaces.put(out);
+         interfaceItems.put(out);
       }
 
       BaseWriter.put(out, fields);
@@ -319,5 +318,5 @@ public final class ClassWriter extends ClassVisitor
       return attributeCount;
    }
 
-   boolean isJava6OrNewer() { return version >= ClassVersion.V1_6; }
+   boolean isJava6OrNewer() { return classVersion >= ClassVersion.V1_6; }
 }

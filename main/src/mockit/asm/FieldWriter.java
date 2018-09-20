@@ -10,19 +10,19 @@ final class FieldWriter extends FieldVisitor
    /**
     * The index of the constant pool item that contains the name of this field.
     */
-   @Nonnegative private final int name;
+   @Nonnegative private final int nameItemIndex;
 
    /**
     * The index of the constant pool item that contains the descriptor of this field.
     */
-   @Nonnegative private final int desc;
+   @Nonnegative private final int descItemIndex;
 
    @Nullable private final SignatureWriter signatureWriter;
 
    /**
     * The index of the constant pool item that contains the constant value of this field.
     */
-   @Nonnegative private final int value;
+   @Nonnegative private final int valueItemIndex;
 
    /**
     * Initializes a new Field Writer.
@@ -38,13 +38,13 @@ final class FieldWriter extends FieldVisitor
       @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {
       cp = cw.cp;
-      this.access = access;
-      this.name = cp.newUTF8(name);
-      this.desc = cp.newUTF8(desc);
+      classOrMemberAccess = access;
+      nameItemIndex = cp.newUTF8(name);
+      descItemIndex = cp.newUTF8(desc);
       signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
-      this.value = value == null ? 0 : cp.newConstItem(value).index;
+      valueItemIndex = value == null ? 0 : cp.newConstItem(value).index;
 
-      createMarkerAttributes(cw.version);
+      createMarkerAttributes(cw.classVersion);
    }
 
    @Nonnull @Override
@@ -59,7 +59,7 @@ final class FieldWriter extends FieldVisitor
    int getSize() {
       int size = 8 + getMarkerAttributesSize() + getAnnotationsSize();
 
-      if (value != 0) {
+      if (valueItemIndex != 0) {
          cp.newUTF8("ConstantValue");
          size += 8;
       }
@@ -77,15 +77,15 @@ final class FieldWriter extends FieldVisitor
    @Override
    void put(@Nonnull ByteVector out) {
       putAccess(out, 0);
-      out.putShort(name);
-      out.putShort(desc);
+      out.putShort(nameItemIndex);
+      out.putShort(descItemIndex);
 
       int attributeCount = getAttributeCount();
       out.putShort(attributeCount);
 
-      if (value != 0) {
+      if (valueItemIndex != 0) {
          out.putShort(cp.newUTF8("ConstantValue"));
-         out.putInt(2).putShort(value);
+         out.putInt(2).putShort(valueItemIndex);
       }
 
       putMarkerAttributes(out);
@@ -101,7 +101,7 @@ final class FieldWriter extends FieldVisitor
    private int getAttributeCount() {
       int attributeCount = getMarkerAttributeCount();
 
-      if (value != 0) {
+      if (valueItemIndex != 0) {
          attributeCount++;
       }
 

@@ -13,7 +13,7 @@ class BaseWriter
    /**
     * The access flags of this class, field, or method.
     */
-   int access;
+   int classOrMemberAccess;
 
    @Nonnegative private int deprecatedAttributeIndex;
    @Nonnegative private int syntheticAttributeIndex;
@@ -40,11 +40,11 @@ class BaseWriter
    public void visitEnd() {}
 
    final void createMarkerAttributes(int classVersion) {
-      if (Access.isDeprecated(access)) {
+      if (Access.isDeprecated(classOrMemberAccess)) {
          deprecatedAttributeIndex = cp.newUTF8("Deprecated");
       }
 
-      if (Access.isSynthetic(access, classVersion)) {
+      if (Access.isSynthetic(classOrMemberAccess, classVersion)) {
          syntheticAttributeIndex = cp.newUTF8("Synthetic");
       }
    }
@@ -84,7 +84,7 @@ class BaseWriter
    }
 
    final void putAccess(@Nonnull ByteVector out, int baseMask) {
-      int accessFlag = Access.computeFlag(access, baseMask);
+      int accessFlag = Access.computeFlag(classOrMemberAccess, baseMask);
       out.putShort(accessFlag);
    }
 

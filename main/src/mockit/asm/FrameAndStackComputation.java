@@ -368,7 +368,7 @@ final class FrameAndStackComputation
     */
    void createAndVisitFirstFrame(@Nonnull Frame frame) {
       JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cw.thisName, mw.access, args, maxLocals);
+      frame.initInputFrame(cw.thisName, mw.classOrMemberAccess, args, maxLocals);
       visitFrame(frame);
    }
 

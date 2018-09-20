@@ -8,7 +8,7 @@ import static mockit.asm.Opcodes.*;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
  */
-@SuppressWarnings({"ParameterHidesMemberVariable", "OverlyCoupledClass"})
+@SuppressWarnings("OverlyCoupledClass")
 public final class MethodWriter extends MethodVisitor
 {
    /**
@@ -19,12 +19,12 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The index of the constant pool item that contains the name of this method.
     */
-   private final int name;
+   private final int nameItemIndex;
 
    /**
     * The index of the constant pool item that contains the descriptor of this method.
     */
-   private final int desc;
+   private final int descItemIndex;
 
    /**
     * The descriptor of this method.
@@ -82,9 +82,9 @@ public final class MethodWriter extends MethodVisitor
    ) {
       this.cw = cw;
       cp = cw.cp;
-      this.access = "<init>".equals(name) ? (access | Access.CONSTRUCTOR) : access;
-      this.name = cp.newUTF8(name);
-      this.desc = cp.newUTF8(desc);
+      classOrMemberAccess = "<init>".equals(name) ? (access | Access.CONSTRUCTOR) : access;
+      nameItemIndex = cp.newUTF8(name);
+      descItemIndex = cp.newUTF8(desc);
       descriptor = desc;
       signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
       throwsClause = exceptions == null ? null : new ThrowsClause(cp, exceptions);
@@ -96,7 +96,7 @@ public final class MethodWriter extends MethodVisitor
       lineNumbers = new LineNumberWriter(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
 
-      createMarkerAttributes(cw.version);
+      createMarkerAttributes(cw.classVersion);
    }
 
    @Nonnull @Override
@@ -228,10 +228,7 @@ public final class MethodWriter extends MethodVisitor
          // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W and IFxxx <l> with
          // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'> designates the
          // instruction just after the GOTO_W.
-         if (opcode == GOTO) {
-            code.putByte(GOTO_W);
-         }
-         else {
+         if (opcode != GOTO) {
             // If the IF instruction is transformed into IFNOT GOTO_W the next instruction becomes the target of the IFNOT instruction.
             if (nextInsn != null) {
                nextInsn.markAsTarget();
@@ -239,9 +236,9 @@ public final class MethodWriter extends MethodVisitor
 
             code.putByte(opcode <= 166 ? ((opcode + 1) ^ 1) - 1 : opcode ^ 1);
             code.putShort(8); // jump offset
-            code.putByte(GOTO_W);
          }
 
+         code.putByte(GOTO_W);
          label.put(code, code.length - 1, true);
       }
       else {
@@ -489,8 +486,8 @@ public final class MethodWriter extends MethodVisitor
    @Override
    void put(@Nonnull ByteVector out) {
       putAccess(out, Access.CONSTRUCTOR);
-      out.putShort(name);
-      out.putShort(desc);
+      out.putShort(nameItemIndex);
+      out.putShort(descItemIndex);
 
       if (classReaderOffset > 0) {
          out.putByteArray(cw.code, classReaderOffset, classReaderLength);
