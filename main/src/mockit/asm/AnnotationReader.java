@@ -10,14 +10,14 @@ final class AnnotationReader extends BytecodeReader
    /**
     * Reads the values of a named annotation and makes the given visitor visit them.
     *
-    * @param codeIndex the start offset in {@link #code} of the values to be read (including the unsigned short that
-    *                  gives the number of values).
+    * @param startingCodeIndex the start offset in {@link #code} of the values to be read (including the unsigned short that gives the
+    *                          number of values).
     * @param av the visitor that must visit the values.
     * @return the end offset of the annotation values.
     */
    @Nonnegative
-   int readNamedAnnotationValues(@Nonnegative int codeIndex, @Nullable AnnotationVisitor av) {
-      this.codeIndex = codeIndex;
+   int readNamedAnnotationValues(@Nonnegative int startingCodeIndex, @Nullable AnnotationVisitor av) {
+      codeIndex = startingCodeIndex;
       readAnnotationValues(true, av);
       return this.codeIndex;
    }
