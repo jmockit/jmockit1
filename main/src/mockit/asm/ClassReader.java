@@ -37,7 +37,6 @@ public final class ClassReader extends AnnotatedReader
    @Nonnegative int flags;
    @Nonnull private String[] interfaces = NO_INTERFACES;
    @Nullable private String sourceFileName;
-   @Nullable private EnclosingMethod enclosingMethod;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -113,7 +112,6 @@ public final class ClassReader extends AnnotatedReader
       readClassAttributes();
       visitor.visit(version, access, classDesc, signature, superClassDesc, interfaces);
       visitSourceFileName();
-      visitOuterClass();
       readAnnotations(visitor);
       readInnerClasses();
       readFieldsAndMethods();
@@ -135,10 +133,8 @@ public final class ClassReader extends AnnotatedReader
 
    private void readClassAttributes() {
       sourceFileName = null;
-      enclosingMethod = null;
       innerClassesCodeIndex = 0;
       codeIndex = getAttributesStartIndex();
-
       readAttributes();
    }
 
@@ -150,8 +146,7 @@ public final class ClassReader extends AnnotatedReader
       }
 
       if ("EnclosingMethod".equals(attributeName)) {
-         enclosingMethod = new EnclosingMethod(this);
-         return true;
+         return false;
       }
 
       if ("BootstrapMethods".equals(attributeName)) {
@@ -185,12 +180,6 @@ public final class ClassReader extends AnnotatedReader
    private void visitSourceFileName() {
       if ((flags & Flags.SKIP_DEBUG) == 0) {
          cv.visitSource(sourceFileName);
-      }
-   }
-
-   private void visitOuterClass() {
-      if (enclosingMethod != null) {
-         cv.visitOuterClass(enclosingMethod.owner, enclosingMethod.name, enclosingMethod.desc);
       }
    }
 

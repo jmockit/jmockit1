@@ -32,11 +32,6 @@ public class WrappingClassVisitor extends ClassVisitor
       cw.visitSource(source);
    }
 
-   @Override
-   public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {
-      cw.visitOuterClass(owner, name, desc);
-   }
-
    @Nullable @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return cw.visitAnnotation(desc);

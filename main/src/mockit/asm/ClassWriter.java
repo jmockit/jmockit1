@@ -50,7 +50,6 @@ public final class ClassWriter extends ClassVisitor
    @Nullable private Interfaces interfaceItems;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
-   @Nullable private OuterClassWriter outerClassWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
    @Nullable final BootstrapMethods bootstrapMethods;
 
@@ -145,11 +144,6 @@ public final class ClassWriter extends ClassVisitor
       sourceInfo.setSourceFileName(file);
    }
 
-   @Override
-   public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {
-      outerClassWriter = new OuterClassWriter(cp, owner, name, desc);
-   }
-
    @Nonnull @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return addAnnotation(desc);
@@ -209,10 +203,6 @@ public final class ClassWriter extends ClassVisitor
 
       if (signatureWriter != null) {
          size += signatureWriter.getSize();
-      }
-
-      if (outerClassWriter != null) {
-         size += outerClassWriter.getSize();
       }
 
       if (innerClassesWriter != null) {
@@ -280,10 +270,6 @@ public final class ClassWriter extends ClassVisitor
 
       sourceInfo.put(out);
 
-      if (outerClassWriter != null) {
-         outerClassWriter.put(out);
-      }
-
       putMarkerAttributes(out);
 
       if (innerClassesWriter != null) {
@@ -300,10 +286,6 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (signatureWriter != null) {
-         attributeCount++;
-      }
-
-      if (outerClassWriter != null) {
          attributeCount++;
       }
 

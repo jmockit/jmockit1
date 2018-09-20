@@ -64,9 +64,6 @@ public class BaseSubclassGenerator extends BaseClassModifier
    public final void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {}
 
    @Override
-   public final void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
-
-   @Override
    public final void visitSource(@Nullable String source) {}
 
    @Override @Nullable

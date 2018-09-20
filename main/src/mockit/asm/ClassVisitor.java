@@ -3,8 +3,8 @@ package mockit.asm;
 import javax.annotation.*;
 
 /**
- * A visitor to visit a Java class. The methods of this class must be called in the following order:
- * <tt>visit</tt> [<tt>visitSource</tt>] [<tt>visitOuterClass</tt>] (<tt>visitAnnotation</tt>)*
+ * A visitor to visit a Java class. The methods of this class are called in the following order:
+ * <tt>visit</tt> [<tt>visitSource</tt>] (<tt>visitAnnotation</tt>)*
  * (<tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt>)* <tt>visitEnd</tt>.
  */
 public class ClassVisitor extends BaseWriter
@@ -33,17 +33,6 @@ public class ClassVisitor extends BaseWriter
     * @param source the name of the source file from which the class was compiled. May be <tt>null</tt>.
     */
    public void visitSource(@Nullable String source) {}
-
-   /**
-    * Visits the enclosing class of the class. This method must be called only if the class has an enclosing class.
-    *
-    * @param owner internal name of the enclosing class of the class.
-    * @param name  the name of the method that contains the class, or <tt>null</tt> if the class is not enclosed in a method of its
-    *              enclosing class.
-    * @param desc  the descriptor of the method that contains the class, or <tt>null</tt> if the class is not enclosed in a method of its
-    *              enclosing class.
-    */
-   public void visitOuterClass(@Nonnull String owner, @Nullable String name, @Nullable String desc) {}
 
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.
