@@ -45,11 +45,11 @@ final class ConstantPoolGeneration
 
    /**
     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
-    * This type table is used by the control flow and data flow analysis algorithm to compute stack map frames from
-    * scratch. This array associates to each index <tt>i</tt> the <tt>TypeTableItem</tt> whose index is <tt>i</tt>. All
-    * <tt>TypeTableItem</tt> objects stored in this array are also stored in the {@link #items} hash table. These two
-    * arrays allow to retrieve an <tt>Item</tt> from its index or, conversely, to get the index of an <tt>Item</tt> from
-    * its value. Each <tt>TypeTableItem</tt> stores an internal name in its {@link TypeTableItem#typeDesc} field.
+    * This type table is used by the control flow and data flow analysis algorithm to compute stack map frames from scratch.
+    * This array associates to each index <tt>i</tt> the <tt>TypeTableItem</tt> whose index is <tt>i</tt>.
+    * All <tt>TypeTableItem</tt> objects stored in this array are also stored in the {@link #items} hash table.
+    * These two arrays allow to retrieve an <tt>Item</tt> from its index or, conversely, to get the index of an <tt>Item</tt> from its
+    * value. Each <tt>TypeTableItem</tt> stores an internal name in its {@link TypeTableItem#typeDesc} field.
     */
    private TypeTableItem[] typeTable;
 
@@ -84,8 +84,7 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Adds an UTF8 string to the constant pool of the class being built.
-    * Does nothing if the constant pool already contains a similar item.
+    * Adds an UTF8 string to the constant pool of the class being built. Does nothing if the constant pool already contains a similar item.
     *
     * @param value the String value.
     * @return the index of a new or already existing UTF8 item.
@@ -182,9 +181,7 @@ final class ConstantPoolGeneration
    }
 
    @Nonnull
-   private ClassMemberItem newClassMemberItem(
-      int type, @Nonnull String owner, @Nonnull String name, @Nonnull String desc
-   ) {
+   private ClassMemberItem newClassMemberItem(int type, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       reusableClassMemberItem.set(type, owner, name, desc);
 
       ClassMemberItem result = get(reusableClassMemberItem);
@@ -325,14 +322,14 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Adds a name and type to the constant pool of the class being built.
-    * Does nothing if the constant pool already contains a similar item.
+    * Adds a name and type to the constant pool of the class being built. Does nothing if the constant pool already contains a similar item.
     *
     * @param name a name.
     * @param desc a type descriptor.
     * @return the index of a new or already existing name and type item.
     */
-   int newNameType(@Nonnull String name, @Nonnull String desc) {
+   @Nonnegative
+   private int newNameType(@Nonnull String name, @Nonnull String desc) {
       reusableNameTypeItem.set(name, desc);
 
       NameAndTypeItem result = get(reusableNameTypeItem);
@@ -394,7 +391,7 @@ final class ConstantPoolGeneration
    }
 
    @Nonnull
-   private Item newNumberItem(Number cst) {
+   private Item newNumberItem(@Nonnull Number cst) {
       if (cst instanceof Float) {
          return newFloat(cst.floatValue());
       }
@@ -417,6 +414,7 @@ final class ConstantPoolGeneration
     * @param type the internal name to be added to the type table.
     * @return the index of this internal name in the type table.
     */
+   @Nonnegative
    int addNormalType(@Nonnull String type) {
       reusableNormalItem.set(type);
 
@@ -438,6 +436,7 @@ final class ConstantPoolGeneration
     * @param offset the bytecode offset of the NEW instruction that created this UNINITIALIZED type value.
     * @return the index of this internal name in the type table.
     */
+   @Nonnegative
    int addUninitializedType(@Nonnull String type, @Nonnegative int offset) {
       reusableUninitializedItem.set(type, offset);
 
@@ -474,13 +473,14 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Returns the index of the common super type of the two given types. This method calls {@link #getCommonSuperClass}
-    * and caches the result in the {@link #items} hash table to speedup future calls with the same parameters.
+    * Returns the index of the common super type of the two given types. This method calls {@link #getCommonSuperClass} and caches the
+    * result in the {@link #items} hash table to speedup future calls with the same parameters.
     *
     * @param type1 index of an internal name in {@link #typeTable}.
     * @param type2 index of an internal name in {@link #typeTable}.
     * @return the index of the common super type of the two given types.
     */
+   @Nonnegative
    int getMergedType(@Nonnegative int type1, @Nonnegative int type2) {
       reusableMergedItem.set(type1, type2);
 
@@ -500,11 +500,10 @@ final class ConstantPoolGeneration
    }
 
    /**
-    * Returns the common super type of the two given types. The default implementation of this method <i>loads</i> the
-    * two given classes and uses the java.lang.Class methods to find the common super class. It can be overridden to
-    * compute this common super type in other ways, in particular without actually loading any class, or to take into
-    * account the class that is currently being generated by this ClassWriter, which can of course not be loaded since
-    * it is under construction.
+    * Returns the common super type of the two given types. The default implementation of this method <i>loads</i> the two given classes and
+    * uses the java.lang.Class methods to find the common super class. It can be overridden to compute this common super type in other ways,
+    * in particular without actually loading any class, or to take into account the class that is currently being generated by this
+    * ClassWriter, which can of course not be loaded since it is under construction.
     *
     * @param type1 the internal name of a class.
     * @param type2 the internal name of another class.
