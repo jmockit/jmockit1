@@ -99,8 +99,8 @@ public final class ClassReader extends AnnotatedReader
     * @param optionFlags option flags that can be used to modify the default behavior of this class. See {@link Flags}.
     */
    public void accept(@Nonnull ClassVisitor visitor, @Nonnegative int optionFlags) {
-      this.cv = visitor;
-      this.flags = optionFlags;
+      cv = visitor;
+      flags = optionFlags;
 
       int version = getVersion();
 
