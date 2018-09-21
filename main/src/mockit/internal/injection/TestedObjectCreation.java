@@ -35,8 +35,8 @@ public final class TestedObjectCreation
    private static Class<?> generateSubclass(@Nonnull final Type testedType, @Nonnull final Class<?> abstractClass) {
       Class<?> generatedSubclass = new ImplementationClass<Object>(abstractClass) {
          @Nonnull @Override
-         protected ClassVisitor createMethodBodyGenerator(@Nonnull byte[] classfile) {
-            return new SubclassGenerationModifier(abstractClass, testedType, classfile, generatedClassName, true);
+         protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader cr) {
+            return new SubclassGenerationModifier(abstractClass, testedType, cr, generatedClassName, true);
          }
       }.generateClass();
 

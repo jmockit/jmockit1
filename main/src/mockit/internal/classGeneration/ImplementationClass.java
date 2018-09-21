@@ -34,14 +34,14 @@ public abstract class ImplementationClass<T>
    public final Class<T> generateClass() {
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(sourceClass);
 
-      ClassVisitor modifier = createMethodBodyGenerator(classReader.getBytecode());
+      ClassVisitor modifier = createMethodBodyGenerator(classReader);
       classReader.accept(modifier);
 
       return defineNewClass(modifier);
    }
 
    @Nonnull
-   protected abstract ClassVisitor createMethodBodyGenerator(@Nonnull byte[] classfile);
+   protected abstract ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader cr);
 
    @Nonnull
    private Class<T> defineNewClass(@Nonnull ClassVisitor modifier) {

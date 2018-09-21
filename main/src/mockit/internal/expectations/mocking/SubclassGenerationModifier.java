@@ -14,10 +14,9 @@ import mockit.internal.util.*;
 public final class SubclassGenerationModifier extends BaseSubclassGenerator
 {
    public SubclassGenerationModifier(
-      @Nonnull Class<?> baseClass, @Nonnull Type mockedType, @Nonnull byte[] classfile, @Nonnull String subclassName,
-      boolean copyConstructors
+      @Nonnull Class<?> baseClass, @Nonnull Type mockedType, @Nonnull ClassReader cr, @Nonnull String subclassName, boolean copyConstructors
    ) {
-      super(baseClass, classfile, mockedType, subclassName, copyConstructors);
+      super(baseClass, cr, mockedType, subclassName, copyConstructors);
    }
 
    @Override

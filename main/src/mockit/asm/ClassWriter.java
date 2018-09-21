@@ -67,8 +67,7 @@ public final class ClassWriter extends ClassVisitor
    @Nonnull private final List<MethodWriter> methods;
 
    /**
-    * Constructs a new ClassWriter object and enables optimizations for "mostly add" bytecode transformations.
-    * These optimizations are the following:
+    * Initializes a new class writer, applying the following two optimizations that are useful for "mostly add" bytecode transformations:
     * <ul>
     * <li>The constant pool from the original class is copied as is in the new class, which saves time.
     * New constant pool entries will be added at the end if necessary, but unused constant pool entries <i>won't be removed</i>.</li>
@@ -93,25 +92,6 @@ public final class ClassWriter extends ClassVisitor
 
       new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
 
-      fields = new ArrayList<>();
-      methods = new ArrayList<>();
-   }
-
-   /**
-    * Constructs a new ClassWriter object meant for the generation of new bytecode only.
-    *
-    * @param code the bytecode of an existing class/interface whose methods will have brand new implementations in the new class created
-    *             from this writer
-    */
-   public ClassWriter(@Nonnull byte[] code) {
-      this.code = code;
-      classVersion = ClassMetadataReader.readVersion(code);
-      computeFrames = classVersion >= ClassVersion.V1_7;
-
-      cp = new ConstantPoolGeneration();
-      sourceInfo = new SourceInfoWriter(cp);
-
-      bootstrapMethods = null;
       fields = new ArrayList<>();
       methods = new ArrayList<>();
    }

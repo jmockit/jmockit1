@@ -31,10 +31,6 @@ public class BaseClassModifier extends WrappingClassVisitor
    protected String methodName;
    protected String methodDesc;
 
-   protected BaseClassModifier(@Nonnull byte[] code) {
-      super(new ClassWriter(code));
-   }
-
    protected BaseClassModifier(@Nonnull ClassReader classReader) {
       super(new ClassWriter(classReader));
    }
