@@ -5,7 +5,6 @@ import javax.annotation.*;
 /**
  * Same as {@link ClassVisitor}, except it always wraps a {@link ClassWriter}.
  */
-@SuppressWarnings("ParameterHidesMemberVariable")
 public class WrappingClassVisitor extends ClassVisitor
 {
    /**
@@ -21,15 +20,13 @@ public class WrappingClassVisitor extends ClassVisitor
    protected WrappingClassVisitor(@Nonnull ClassWriter cw) { this.cw = cw; }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
-      cw.visit(version, access, name, signature, superName, interfaces);
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
+      cw.visit(version, access, name, additionalInfo);
    }
 
    @Override
-   public void visitSource(@Nullable String source) {
-      cw.visitSource(source);
+   public void visitSource(@Nullable String fileName) {
+      cw.visitSource(fileName);
    }
 
    @Nullable @Override

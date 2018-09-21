@@ -7,9 +7,11 @@ import javax.annotation.*;
 import mockit.internal.util.*;
 
 /**
- * A {@link ClassVisitor} that generates classes in bytecode form. More precisely this visitor generates a byte array conforming to the Java
- * class file format. It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter
- * class visitor to generate a modified class from one or more existing Java classes.
+ * A {@link ClassVisitor} that generates classes in bytecode form, that is, a byte array conforming to the
+ * <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html">Java class file format</a>.
+ * <p/>
+ * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
+ * generate a modified class from one or more existing Java classes.
  */
 public final class ClassWriter extends ClassVisitor
 {
@@ -48,6 +50,7 @@ public final class ClassWriter extends ClassVisitor
    private int superNameItemIndex;
 
    @Nullable private Interfaces interfaceItems;
+   @Nullable private HostClassWriter hostClassWriter;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private InnerClassesWriter innerClassesWriter;
@@ -114,9 +117,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
       classVersion = version;
       classOrMemberAccess = access;
       nameItemIndex = cp.newClass(name);
@@ -124,14 +125,19 @@ public final class ClassWriter extends ClassVisitor
 
       createMarkerAttributes(version);
 
-      if (signature != null) {
-         signatureWriter = new SignatureWriter(cp, signature);
+      if (additionalInfo.signature != null) {
+         signatureWriter = new SignatureWriter(cp, additionalInfo.signature);
       }
 
+      if (additionalInfo.hostClassName != null) {
+         hostClassWriter = new HostClassWriter(cp, additionalInfo.hostClassName);
+      }
+
+      String superName = additionalInfo.superName;
       superNameItemIndex = superName == null ? 0 : cp.newClass(superName);
 
-      if (interfaces != null && interfaces.length > 0) {
-         interfaceItems = new Interfaces(cp, interfaces);
+      if (additionalInfo.interfaces.length > 0) {
+         interfaceItems = new Interfaces(cp, additionalInfo.interfaces);
       }
 
       if (superName != null) {
@@ -140,8 +146,8 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Override
-   public void visitSource(@Nullable String file) {
-      sourceInfo.setSourceFileName(file);
+   public void visitSource(@Nullable String fileName) {
+      sourceInfo.setSourceFileName(fileName);
    }
 
    @Nonnull @Override
@@ -201,13 +207,9 @@ public final class ClassWriter extends ClassVisitor
          size += bootstrapMethods.getSize();
       }
 
-      if (signatureWriter != null) {
-         size += signatureWriter.getSize();
-      }
-
-      if (innerClassesWriter != null) {
-         size += innerClassesWriter.getSize();
-      }
+      size += getAttributeSize(signatureWriter);
+      size += getAttributeSize(hostClassWriter);
+      size += getAttributeSize(innerClassesWriter);
 
       return size + getAnnotationsSize() + cp.getSize();
    }
@@ -239,6 +241,11 @@ public final class ClassWriter extends ClassVisitor
       return size;
    }
 
+   @Nonnegative
+   private static int getAttributeSize(@Nullable AttributeWriter attributeWriter) {
+      return attributeWriter == null ? 0 : attributeWriter.getSize();
+   }
+
    private void putClassAttributes(@Nonnull ByteVector out) {
       out.putInt(0xCAFEBABE).putInt(classVersion);
       cp.put(out);
@@ -268,6 +275,10 @@ public final class ClassWriter extends ClassVisitor
          signatureWriter.put(out);
       }
 
+      if (hostClassWriter != null) {
+         hostClassWriter.put(out);
+      }
+
       sourceInfo.put(out);
 
       putMarkerAttributes(out);
@@ -286,6 +297,10 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (signatureWriter != null) {
+         attributeCount++;
+      }
+
+      if (hostClassWriter != null) {
          attributeCount++;
       }
 

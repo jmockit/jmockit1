@@ -61,17 +61,14 @@ final class MockedClassModifier extends BaseClassModifier
    }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
       validateMockingOfJREClass(name);
 
-      super.visit(version, access, name, signature, superName, interfaces);
-      isProxy = "java/lang/reflect/Proxy".equals(superName);
+      super.visit(version, access, name, additionalInfo);
+      isProxy = "java/lang/reflect/Proxy".equals(additionalInfo.superName);
 
       if (isProxy) {
-         assert interfaces != null;
-         className = interfaces[0];
+         className = additionalInfo.interfaces[0];
          defaultFilters = null;
       }
       else {

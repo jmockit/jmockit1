@@ -4,8 +4,10 @@ import javax.annotation.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
- * This class parses a byte array conforming to the Java class file format and calls the appropriate visit methods of a
- * given class visitor for each field, method and bytecode instruction encountered.
+ * <p/>
+ * The Java type to be parsed is given in the form of a byte array conforming to the
+ * <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html">Java class file format</a>.
+ * For each field and method encountered, the appropriate visit method of a given class visitor is called.
  */
 public final class ClassReader extends AnnotatedReader
 {
@@ -26,8 +28,6 @@ public final class ClassReader extends AnnotatedReader
       int SKIP_INNER_CLASSES = 4;
    }
 
-   private static final String[] NO_INTERFACES = {};
-
    /**
     * Start index of the class header information (access, name...) in {@link #code}.
     */
@@ -35,7 +35,7 @@ public final class ClassReader extends AnnotatedReader
 
    ClassVisitor cv;
    @Nonnegative int flags;
-   @Nonnull private String[] interfaces = NO_INTERFACES;
+   @Nonnull private final ClassInfo classInfo;
    @Nullable private String sourceFileName;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
@@ -51,6 +51,7 @@ public final class ClassReader extends AnnotatedReader
    public ClassReader(@Nonnull byte[] code) {
       super(code);
       header = codeIndex; // the class header information starts just after the constant pool
+      classInfo = new ClassInfo();
    }
 
    /**
@@ -106,11 +107,11 @@ public final class ClassReader extends AnnotatedReader
       codeIndex = header;
       access = readUnsignedShort();
       String classDesc = readNonnullClass();
-      String superClassDesc = readClass();
+      classInfo.superName = readClass();
 
       readInterfaces();
       readClassAttributes();
-      visitor.visit(version, access, classDesc, signature, superClassDesc, interfaces);
+      visitor.visit(version, access, classDesc, classInfo);
       visitSourceFileName();
       readAnnotations(visitor);
       readInnerClasses();
@@ -123,11 +124,13 @@ public final class ClassReader extends AnnotatedReader
       int interfaceCount = readUnsignedShort();
 
       if (interfaceCount > 0) {
-         interfaces = new String[interfaceCount];
+         String[] interfaces = new String[interfaceCount];
 
          for (int i = 0; i < interfaceCount; i++) {
             interfaces[i] = readNonnullClass();
          }
+
+         classInfo.interfaces = interfaces;
       }
    }
 
@@ -136,6 +139,7 @@ public final class ClassReader extends AnnotatedReader
       innerClassesCodeIndex = 0;
       codeIndex = getAttributesStartIndex();
       readAttributes();
+      classInfo.signature = signature;
    }
 
    @Nullable @Override
@@ -147,6 +151,11 @@ public final class ClassReader extends AnnotatedReader
 
       if ("EnclosingMethod".equals(attributeName)) {
          return false;
+      }
+
+      if ("NestHost".equals(attributeName)) {
+         classInfo.hostClassName = readNonnullClass();
+         return true;
       }
 
       if ("BootstrapMethods".equals(attributeName)) {
@@ -190,18 +199,18 @@ public final class ClassReader extends AnnotatedReader
          codeIndex = startIndex;
 
          for (int innerClassCount = readUnsignedShort(); innerClassCount > 0; innerClassCount--) {
-            String name = readNonnullClass();
+            String innerName = readNonnullClass();
             String outerName = readClass();
-            String innerName = readUTF8();
-            int access = readUnsignedShort();
+            String simpleInnerName = readUTF8();
+            int innerAccess = readUnsignedShort();
 
-            cv.visitInnerClass(name, outerName, innerName, access);
+            cv.visitInnerClass(innerName, outerName, simpleInnerName, innerAccess);
          }
       }
    }
 
    private void readFieldsAndMethods() {
-      codeIndex = getCodeIndexAfterInterfaces(interfaces.length);
+      codeIndex = getCodeIndexAfterInterfaces(classInfo.interfaces.length);
 
       FieldReader fieldReader = new FieldReader(this);
       codeIndex = fieldReader.readFields();

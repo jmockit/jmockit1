@@ -44,18 +44,20 @@ public class BaseSubclassGenerator extends BaseClassModifier
    }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
+      ClassInfo subClassInfo = new ClassInfo();
+      subClassInfo.superName = name;
+      subClassInfo.signature = mockedTypeInfo == null ? additionalInfo.signature : mockedTypeInfo.implementationSignature;
       int subclassAccess = access & CLASS_ACCESS_MASK | Access.FINAL;
-      String subclassSignature = mockedTypeInfo == null ? signature : mockedTypeInfo.implementationSignature;
 
-      super.visit(version, subclassAccess, subclassName, subclassSignature, name, null);
+      super.visit(version, subclassAccess, subclassName, subClassInfo);
 
-      superClassOfSuperClass = superName;
+      superClassOfSuperClass = additionalInfo.superName;
       superInterfaces = new HashSet<>();
 
-      if (interfaces != null && interfaces.length > 0) {
+      String[] interfaces = additionalInfo.interfaces;
+
+      if (interfaces.length > 0) {
          superInterfaces.addAll(asList(interfaces));
       }
    }
@@ -64,7 +66,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
    public final void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {}
 
    @Override
-   public final void visitSource(@Nullable String source) {}
+   public final void visitSource(@Nullable String fileName) {}
 
    @Override @Nullable
    public final FieldVisitor visitField(

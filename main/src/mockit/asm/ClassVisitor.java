@@ -14,25 +14,19 @@ public class ClassVisitor extends BaseWriter
    /**
     * Visits the header of the class.
     *
-    * @param version    the class version.
-    * @param access     the class's access flags (see {@link Access}).
-    * @param name       the internal name of the class.
-    * @param signature  the signature of this class. May be <tt>null</tt> if the class is not a generic one, and does not extend or
-    *                   implement generic classes or interfaces.
-    * @param superName  the internal name of the super class. For interfaces, the super class is {@link Object}. May be <tt>null</tt>, but
-    *                   only for the {@link Object} class.
-    * @param interfaces the internal names of the class's interfaces.
+    * @param version the class version.
+    * @param access the class's access flags (see {@link Access}).
+    * @param name the internal name of the class.
+    * @param additionalInfo additional class information.
     */
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {}
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {}
 
    /**
     * Visits the source of the class.
     *
-    * @param source the name of the source file from which the class was compiled. May be <tt>null</tt>.
+    * @param fileName the name of the source file from which the class was compiled. May be <tt>null</tt>.
     */
-   public void visitSource(@Nullable String source) {}
+   public void visitSource(@Nullable String fileName) {}
 
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.

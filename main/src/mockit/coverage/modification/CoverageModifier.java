@@ -61,9 +61,7 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
       if ((access & SYNTHETIC) != 0) {
          throw new VisitInterruptedException();
       }
@@ -72,7 +70,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
       if (!nestedType && kindOfTopLevelType == null) {
          //noinspection ConstantConditions
-         kindOfTopLevelType = getKindOfJavaType(access, superName);
+         kindOfTopLevelType = getKindOfJavaType(access, additionalInfo.superName);
       }
 
       forEnumClass = (access & ENUM) != 0;
@@ -97,7 +95,7 @@ final class CoverageModifier extends WrappingClassVisitor
          }
       }
 
-      cw.visit(version, access, name, signature, superName, interfaces);
+      cw.visit(version, access, name, additionalInfo);
    }
 
    @Nonnull
@@ -111,8 +109,8 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    @Override
-   public void visitSource(@Nullable String source) {
-      if (source == null || !source.endsWith(".java")) {
+   public void visitSource(@Nullable String fileName) {
+      if (fileName == null || !fileName.endsWith(".java")) {
          throw VisitInterruptedException.INSTANCE;
       }
 
@@ -121,11 +119,11 @@ final class CoverageModifier extends WrappingClassVisitor
             throw VisitInterruptedException.INSTANCE;
          }
 
-         sourceFileName += source;
+         sourceFileName += fileName;
          fileData = CoverageData.instance().getOrAddFile(sourceFileName, kindOfTopLevelType);
       }
 
-      cw.visitSource(source);
+      cw.visitSource(fileName);
    }
 
    @Override

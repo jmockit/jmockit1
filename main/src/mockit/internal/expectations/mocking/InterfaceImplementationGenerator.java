@@ -39,16 +39,18 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
    }
 
    @Override
-   public void visit(
-      int version, int access, @Nonnull String name, @Nullable String signature, @Nullable String superName, @Nullable String[] interfaces
-   ) {
+   public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
       interfaceName = name;
       methodOwner = name;
-      initialSuperInterfaces = interfaces;
+      initialSuperInterfaces = additionalInfo.interfaces;
 
-      String classSignature = signature == null ? null : signature + mockedTypeInfo.implementationSignature;
-      String[] implementedInterfaces = {name};
-      super.visit(version, CLASS_ACCESS, implementationClassDesc, classSignature, superName, implementedInterfaces);
+      ClassInfo implementationClassInfo = new ClassInfo();
+      String signature = additionalInfo.signature;
+      implementationClassInfo.signature = signature == null ? null : signature + mockedTypeInfo.implementationSignature;
+      implementationClassInfo.interfaces = new String[] {name};
+      implementationClassInfo.superName = additionalInfo.superName;
+
+      super.visit(version, CLASS_ACCESS, implementationClassDesc, implementationClassInfo);
 
       generateNoArgsConstructor();
    }
@@ -62,7 +64,7 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
 
    @Override public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
    @Override public void visitInnerClass(@Nonnull String name, String outerName, String innerName, int access) {}
-   @Override public void visitSource(@Nullable String source) {}
+   @Override public void visitSource(@Nullable String fileName) {}
 
    @Nullable @Override
    public FieldVisitor visitField(
