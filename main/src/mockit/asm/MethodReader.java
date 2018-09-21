@@ -7,6 +7,7 @@ import mockit.asm.Item.*;
 import static mockit.asm.MethodReader.InstructionType.*;
 import static mockit.asm.Opcodes.*;
 
+@SuppressWarnings("OverlyComplexClass")
 final class MethodReader extends AnnotatedReader
 {
    /**
@@ -49,6 +50,7 @@ final class MethodReader extends AnnotatedReader
       byte[] types = new byte[n];
 
       for (int i = 0; i < n; i++) {
+         //noinspection NumericCastThatLosesPrecision,CharUsedInArithmeticContext
          types[i] = (byte) (s.charAt(i) - 'A');
       }
 
@@ -109,9 +111,9 @@ final class MethodReader extends AnnotatedReader
 
       readAttributes();
 
-      int codeIndex = this.codeIndex;
+      int currentCodeIndex = codeIndex;
       readMethodBody();
-      this.codeIndex = codeIndex;
+      codeIndex = currentCodeIndex;
    }
 
    private void readMethodDeclaration() {
@@ -331,6 +333,7 @@ final class MethodReader extends AnnotatedReader
    private void readLabelsForNonSwitchInstruction(@Nonnegative int offset, byte instructionType) {
       int codeIndexSize = 0;
 
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (instructionType) {
          case NOARG: case IMPLVAR:
             return;
@@ -438,6 +441,7 @@ final class MethodReader extends AnnotatedReader
 
          int opcode = readUnsignedByte();
 
+         //noinspection SwitchStatementWithoutDefaultBranch
          switch (INSTRUCTION_TYPE[opcode]) {
             case NOARG:       mv.visitInsn(opcode); break;
             case VAR:         readVariableAccessInstruction(opcode); break;
@@ -478,8 +482,8 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readVariableAccessInstruction(int opcode) {
-      int var = readUnsignedByte();
-      mv.visitVarInsn(opcode, var);
+      int varIndex = readUnsignedByte();
+      mv.visitVarInsn(opcode, varIndex);
    }
 
    private void readInstructionWithImplicitVariable(int opcode) {
@@ -529,9 +533,9 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readIInc() {
-      int var = readUnsignedByte();
+      int varIndex = readUnsignedByte();
       int increment = readSignedByte();
-      mv.visitIincInsn(var, increment);
+      mv.visitIincInsn(varIndex, increment);
    }
 
    private void readInstructionTakingASignedByte(int opcode) {
@@ -597,14 +601,14 @@ final class MethodReader extends AnnotatedReader
 
    private void readWideInstruction() {
       int opcode = readUnsignedByte();
-      int var = readUnsignedShort();
+      int varIndex = readUnsignedShort();
 
       if (opcode == IINC) {
          int increment = readShort();
-         mv.visitIincInsn(var, increment);
+         mv.visitIincInsn(varIndex, increment);
       }
       else {
-         mv.visitVarInsn(opcode, var);
+         mv.visitVarInsn(opcode, varIndex);
          codeIndex += 2;
       }
    }
@@ -613,15 +617,15 @@ final class MethodReader extends AnnotatedReader
       int ownerCodeIndex = readItem();
       String owner = readNonnullClass(ownerCodeIndex);
       int nameCodeIndex = readItem(ownerCodeIndex + 2);
-      String name = readNonnullUTF8(nameCodeIndex);
-      String desc = readNonnullUTF8(nameCodeIndex + 2);
+      String memberName = readNonnullUTF8(nameCodeIndex);
+      String memberDesc = readNonnullUTF8(nameCodeIndex + 2);
 
       if (opcode < INVOKEVIRTUAL) {
-         mv.visitFieldInsn(opcode, owner, name, desc);
+         mv.visitFieldInsn(opcode, owner, memberName, memberDesc);
       }
       else {
          boolean itf = code[ownerCodeIndex - 1] == Type.IMETH;
-         mv.visitMethodInsn(opcode, owner, name, desc, itf);
+         mv.visitMethodInsn(opcode, owner, memberName, memberDesc, itf);
 
          if (opcode == INVOKEINTERFACE) {
             codeIndex += 2;
@@ -667,12 +671,12 @@ final class MethodReader extends AnnotatedReader
          for (int localVarCount = readUnsignedShort(); localVarCount > 0; localVarCount--) {
             int start  = readUnsignedShort();
             int length = readUnsignedShort();
-            String name = readNonnullUTF8();
-            String desc = readNonnullUTF8();
+            String varName = readNonnullUTF8();
+            String varDesc = readNonnullUTF8();
             int index  = readUnsignedShort();
-            String signature = typeTable == null ? null : getLocalVariableSignature(typeTable, start, index);
+            String varSignature = typeTable == null ? null : getLocalVariableSignature(typeTable, start, index);
 
-            mv.visitLocalVariable(name, desc, signature, labels[start], labels[start + length], index);
+            mv.visitLocalVariable(varName, varDesc, varSignature, labels[start], labels[start + length], index);
          }
       }
    }
@@ -681,8 +685,8 @@ final class MethodReader extends AnnotatedReader
    private String getLocalVariableSignature(@Nonnull int[] typeTable, @Nonnegative int start, @Nonnegative int index) {
       for (int i = 0, n = typeTable.length; i < n; i += 3) {
          if (typeTable[i] == start && typeTable[i + 1] == index) {
-            String signature = readNonnullUTF8(typeTable[i + 2]);
-            return signature;
+            String varSignature = readNonnullUTF8(typeTable[i + 2]);
+            return varSignature;
          }
       }
 
