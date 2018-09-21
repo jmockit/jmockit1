@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import static mockit.asm.Opcodes.*;
 
+@SuppressWarnings("OverlyComplexClass")
 final class CFGAnalysis
 {
    @Nonnull private final ClassWriter cw;
@@ -142,10 +143,10 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForLocalVariableInstruction(int opcode, @Nonnegative int var) {
+   void updateCurrentBlockForLocalVariableInstruction(int opcode, @Nonnegative int varIndex) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.frame.executeVAR(opcode, var);
+            currentBlock.frame.executeVAR(opcode, varIndex);
          }
          else { // xLOAD or xSTORE
             int sizeVariation = Frame.SIZE[opcode];
@@ -165,9 +166,7 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForFieldInstruction(
-      int opcode, @Nonnull TypeOrMemberItem fieldItem, @Nonnull String fieldTypeDesc
-   ) {
+   void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull TypeOrMemberItem fieldItem, @Nonnull String fieldTypeDesc) {
       if (currentBlock != null) {
          if (computeFrames) {
             currentBlock.frame.execute(opcode, fieldItem);
@@ -291,8 +290,6 @@ final class CFGAnalysis
 
             previousBlock.successor = label;
          }
-
-         previousBlock = label;
       }
       else {
          if (currentBlock != null) {
@@ -312,9 +309,9 @@ final class CFGAnalysis
          if (previousBlock != null) {
             previousBlock.successor = label;
          }
-
-         previousBlock = label;
       }
+
+      previousBlock = label;
    }
 
    void updateCurrentBlockForLDCInstruction(@Nonnull Item constItem) {
@@ -329,9 +326,9 @@ final class CFGAnalysis
       }
    }
 
-   void updateCurrentBlockForIINCInstruction(int var) {
+   void updateCurrentBlockForIINCInstruction(@Nonnegative int varIndex) {
       if (currentBlock != null && computeFrames) {
-         currentBlock.frame.executeIINC(var);
+         currentBlock.frame.executeIINC(varIndex);
       }
    }
 
@@ -385,17 +382,17 @@ final class CFGAnalysis
     * Fix point algorithm: mark the first basic block as 'changed' (i.e. put it in the 'changed' list) and, while there are changed basic
     * blocks, choose one, mark it as unchanged, and update its successors (which can be changed in the process).
     */
+   @Nonnegative
    int computeMaxStackSizeFromComputedFrames() {
       int max = 0;
       Label changed = labels;
-      Frame frame;
 
       while (changed != null) {
          // Removes a basic block from the list of changed basic blocks.
          Label l = changed;
          changed = changed.next;
          l.next = null;
-         frame = l.frame;
+         Frame frame = l.frame;
 
          // A reachable jump target must be stored in the stack map.
          if (l.isTarget()) {
@@ -420,19 +417,21 @@ final class CFGAnalysis
 
    @Nullable
    private Label updateSuccessorsOfCurrentBasicBlock(@Nullable Label changed, @Nonnull Frame frame, @Nonnull Label label) {
-      Edge e = label.successors;
+      Edge edge = label.successors;
 
-      while (e != null) {
-         Label n = e.successor.getFirst();
-         boolean change = frame.merge(cw.thisName, n.frame, e.info);
+      while (edge != null) {
+         Label n = edge.successor.getFirst();
+         boolean change = frame.merge(cw.thisName, n.frame, edge.info);
 
          if (change && n.next == null) {
             // If n has changed and is not already in the 'changed' list, adds it to this list.
             n.next = changed;
+
+            //noinspection AssignmentToMethodParameter
             changed = n;
          }
 
-         e = e.next;
+         edge = edge.next;
       }
 
       return changed;
@@ -444,6 +443,7 @@ final class CFGAnalysis
     * already been pushed onto the stack). Note: by hypothesis, the {@link Label#inputStackTop} of the blocks in the block stack are the
     * true (non relative) beginning stack sizes of these blocks.
     */
+   @Nonnegative
    int computeMaxStackSize() {
       int max = 0;
       Label stack = labels;
@@ -473,17 +473,19 @@ final class CFGAnalysis
       Edge block = label.successors;
 
       while (block != null) {
-         label = block.successor;
+         Label successor = block.successor;
 
          // If this successor has not already been pushed...
-         if (!label.isPushed()) {
+         if (!successor.isPushed()) {
             // computes its true beginning stack size...
-            label.inputStackTop = block.info == Edge.EXCEPTION ? 1 : start + block.info;
+            successor.inputStackTop = block.info == Edge.EXCEPTION ? 1 : start + block.info;
 
             // ...and pushes it onto the stack.
-            label.markAsPushed();
-            label.next = stack;
-            stack = label;
+            successor.markAsPushed();
+            successor.next = stack;
+
+            //noinspection AssignmentToMethodParameter
+            stack = successor;
          }
 
          block = block.next;

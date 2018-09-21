@@ -8,7 +8,7 @@ import static mockit.asm.Opcodes.*;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
  * corresponding to the visited instruction to a byte vector, in the order these methods are called.
  */
-@SuppressWarnings("OverlyCoupledClass")
+@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyFields", "OverlyComplexClass"})
 public final class MethodWriter extends MethodVisitor
 {
    /**
@@ -82,7 +82,7 @@ public final class MethodWriter extends MethodVisitor
    ) {
       this.cw = cw;
       cp = cw.cp;
-      classOrMemberAccess = "<init>".equals(name) ? (access | Access.CONSTRUCTOR) : access;
+      classOrMemberAccess = "<init>".equals(name) ? access | Access.CONSTRUCTOR : access;
       nameItemIndex = cp.newUTF8(name);
       descItemIndex = cp.newUTF8(desc);
       descriptor = desc;
@@ -133,7 +133,7 @@ public final class MethodWriter extends MethodVisitor
 
       // Adds the instruction to the bytecode of the method.
       if (opcode == SIPUSH) {
-         code.put12(opcode, operand);
+         code.put12(SIPUSH, operand);
       }
       else { // BIPUSH or NEWARRAY
          code.put11(opcode, operand);
@@ -171,8 +171,8 @@ public final class MethodWriter extends MethodVisitor
       }
    }
 
-   private void updateMaxLocals(int opcode, @Nonnegative int var) {
-      int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? var + 2 : var + 1;
+   private void updateMaxLocals(int opcode, @Nonnegative int varIndex) {
+      int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? varIndex + 2 : varIndex + 1;
       frameAndStack.updateMaxLocals(n);
    }
 
@@ -382,10 +382,9 @@ public final class MethodWriter extends MethodVisitor
    @Nonnegative
    private int visitAllFramesToBeStoredInStackMap(@Nonnegative int max) {
       Label label = cfgAnalysis.getLabelForFirstBasicBlock();
-      Frame frame;
 
       while (label != null) {
-         frame = label.frame;
+         Frame frame = label.frame;
 
          if (label.isStoringFrame()) {
             frameAndStack.visitFrame(frame);
@@ -422,6 +421,7 @@ public final class MethodWriter extends MethodVisitor
          data[i] = NOP;
       }
 
+      //noinspection NumericCastThatLosesPrecision
       data[end] = (byte) ATHROW;
    }
 

@@ -76,9 +76,9 @@ public class MethodVisitor extends BaseWriter
     * {@link Opcodes#DLOAD DLOAD}, {@link Opcodes#ALOAD ALOAD}, {@link Opcodes#ISTORE ISTORE},
     * {@link Opcodes#LSTORE LSTORE}, {@link Opcodes#FSTORE FSTORE}, {@link Opcodes#DSTORE DSTORE},
     * {@link Opcodes#ASTORE ASTORE} or {@link Opcodes#RET RET}.
-    * @param var the operand of the instruction to be visited, which is the index of a local variable.
+    * @param varIndex the operand of the instruction to be visited, which is the index of a local variable.
     */
-   public void visitVarInsn(int opcode, @Nonnegative int var) {}
+   public void visitVarInsn(int opcode, @Nonnegative int varIndex) {}
 
    /**
     * Visits a type instruction, which takes the internal name of a class as parameter.
