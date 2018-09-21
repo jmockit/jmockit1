@@ -2,11 +2,11 @@ package mockit.asm;
 
 import javax.annotation.*;
 
-final class HostClassWriter extends AttributeWriter
+final class NestHostWriter extends AttributeWriter
 {
    @Nonnegative private final int hostClassNameIndex;
 
-   HostClassWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String hostClassName) {
+   NestHostWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String hostClassName) {
       super(cp, "NestHost");
       hostClassNameIndex = cp.newClass(hostClassName);
    }

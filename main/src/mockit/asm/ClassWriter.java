@@ -50,7 +50,7 @@ public final class ClassWriter extends ClassVisitor
    private int superNameItemIndex;
 
    @Nullable private Interfaces interfaceItems;
-   @Nullable private HostClassWriter hostClassWriter;
+   @Nullable private NestHostWriter nestHostWriter;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private InnerClassesWriter innerClassesWriter;
@@ -130,7 +130,7 @@ public final class ClassWriter extends ClassVisitor
       }
 
       if (additionalInfo.hostClassName != null) {
-         hostClassWriter = new HostClassWriter(cp, additionalInfo.hostClassName);
+         nestHostWriter = new NestHostWriter(cp, additionalInfo.hostClassName);
       }
 
       String superName = additionalInfo.superName;
@@ -208,7 +208,7 @@ public final class ClassWriter extends ClassVisitor
       }
 
       size += getAttributeSize(signatureWriter);
-      size += getAttributeSize(hostClassWriter);
+      size += getAttributeSize(nestHostWriter);
       size += getAttributeSize(innerClassesWriter);
 
       return size + getAnnotationsSize() + cp.getSize();
@@ -275,8 +275,8 @@ public final class ClassWriter extends ClassVisitor
          signatureWriter.put(out);
       }
 
-      if (hostClassWriter != null) {
-         hostClassWriter.put(out);
+      if (nestHostWriter != null) {
+         nestHostWriter.put(out);
       }
 
       sourceInfo.put(out);
@@ -300,7 +300,7 @@ public final class ClassWriter extends ClassVisitor
          attributeCount++;
       }
 
-      if (hostClassWriter != null) {
+      if (nestHostWriter != null) {
          attributeCount++;
       }
 
