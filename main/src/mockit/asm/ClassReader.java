@@ -33,9 +33,11 @@ public final class ClassReader extends AnnotatedReader
     */
    @Nonnegative final int header;
 
+   @Nonnegative private final int version;
+   @Nonnull private final ClassInfo classInfo;
+
    ClassVisitor cv;
    @Nonnegative int flags;
-   @Nonnull private final ClassInfo classInfo;
    @Nullable private String sourceFileName;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
@@ -51,32 +53,30 @@ public final class ClassReader extends AnnotatedReader
    public ClassReader(@Nonnull byte[] code) {
       super(code);
       header = codeIndex; // the class header information starts just after the constant pool
+      version = readShort(6);
+      access = readUnsignedShort();
       classInfo = new ClassInfo();
+      codeIndex += 2;
+      classInfo.superName = readClass();
    }
 
    /**
     * Returns the classfile version of the class being read (see {@link ClassVersion}).
     */
-   public int getVersion() {
-      codeIndex = 6;
-      return readShort();
-   }
+   public int getVersion() { return version; }
 
    /**
     * Returns the class's access flags (see {@link Access}).
     */
-   public int getAccess() {
-      codeIndex = header;
-      return readUnsignedShort();
-   }
+   public int getAccess() { return access; }
 
    /**
     * Returns the internal of name of the super class. For interfaces, the super class is {@link Object}.
     */
    @Nonnull
    public String getSuperName() {
-      codeIndex = header + 4;
-      return readNonnullClass();
+      assert classInfo.superName != null;
+      return classInfo.superName;
    }
 
    /**
@@ -102,12 +102,9 @@ public final class ClassReader extends AnnotatedReader
       cv = visitor;
       flags = optionFlags;
 
-      int version = getVersion();
-
-      codeIndex = header;
-      access = readUnsignedShort();
+      codeIndex = header + 2;
       String classDesc = readNonnullClass();
-      classInfo.superName = readClass();
+      codeIndex += 2;
 
       readInterfaces();
       readClassAttributes();
