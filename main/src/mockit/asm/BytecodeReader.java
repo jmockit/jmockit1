@@ -148,6 +148,7 @@ class BytecodeReader
     * Reads a signed <tt>short</tt> value in {@link #code}, incrementing {@link #codeIndex} by 2.
     */
    final short readShort() {
+      //noinspection NumericCastThatLosesPrecision
       return (short) readUnsignedShort();
    }
 
@@ -158,6 +159,7 @@ class BytecodeReader
     * @return the read value.
     */
    final short readShort(@Nonnegative int u2CodeIndex) {
+      //noinspection NumericCastThatLosesPrecision
       return (short) readUnsignedShort(u2CodeIndex);
    }
 
@@ -235,7 +237,7 @@ class BytecodeReader
     * @param itemIndex index in {@link #items} for the UTF8 string to be read.
     * @return the String corresponding to the specified UTF8 string.
     */
-   @Nonnull
+   @Nonnull @SuppressWarnings("CharUsedInArithmeticContext")
    private String readUTF(@Nonnegative int itemIndex) {
       int startIndex = items[itemIndex];
       int utfLen = readUnsignedShort(startIndex);
@@ -243,13 +245,13 @@ class BytecodeReader
       int endIndex = startIndex + utfLen;
       int strLen = 0;
       int st = 0;
-      char cc = 0;
+      @SuppressWarnings("QuestionableName") char cc = 0;
 
       while (startIndex < endIndex) {
          int c = code[startIndex++];
 
          if (st == 0) {
-            c = c & 0xFF;
+            c &= 0xFF;
 
             if (c < 0x80) { // 0xxxxxxx
                buf[strLen++] = (char) c;
@@ -340,15 +342,15 @@ class BytecodeReader
     */
    @Nonnull
    final String readString(@Nonnegative int itemIndex) {
-      String string = strings[itemIndex];
+      String cachedString = strings[itemIndex];
 
-      if (string != null) {
-         return string;
+      if (cachedString != null) {
+         return cachedString;
       }
 
-      string = readUTF(itemIndex);
-      strings[itemIndex] = string;
-      return string;
+      String newString = readUTF(itemIndex);
+      strings[itemIndex] = newString;
+      return newString;
    }
 
    /**
@@ -378,39 +380,37 @@ class BytecodeReader
     */
    @Nonnull
    final Object readConst(@Nonnegative int itemIndex) {
-      int codeIndex = items[itemIndex];
-      byte itemType = code[codeIndex - 1];
+      int constCodeIndex = items[itemIndex];
+      byte itemType = code[constCodeIndex - 1];
 
       switch (itemType) {
-         case INT:    return readInt(codeIndex);
-         case FLOAT:  return readFloat(codeIndex);
-         case LONG:   return readLong(codeIndex);
-         case DOUBLE: return readDouble(codeIndex);
-         case STR:    return readNonnullUTF8(codeIndex);
+         case INT:    return readInt(constCodeIndex);
+         case FLOAT:  return readFloat(constCodeIndex);
+         case LONG:   return readLong(constCodeIndex);
+         case DOUBLE: return readDouble(constCodeIndex);
+         case STR:    return readNonnullUTF8(constCodeIndex);
          case CLASS:
-            String typeDesc = readNonnullUTF8(codeIndex);
+            String typeDesc = readNonnullUTF8(constCodeIndex);
             return ReferenceType.createFromInternalName(typeDesc);
          case MTYPE:
-            String methodDesc = readNonnullUTF8(codeIndex);
+            String methodDesc = readNonnullUTF8(constCodeIndex);
             return MethodType.create(methodDesc);
       // case HANDLE_BASE + [1..9]:
          default:
-            return readMethodHandle(codeIndex);
+            return readMethodHandle(constCodeIndex);
       }
    }
 
    @Nonnull
    final MethodHandle readMethodHandle() {
       int itemIndex = readUnsignedShort();
-      int codeIndex = items[itemIndex];
-      return readMethodHandle(codeIndex);
+      return readMethodHandle(items[itemIndex]);
    }
 
    @Nonnull
    final MethodHandle readMethodHandleItem(@Nonnegative int bsmCodeIndex) {
       int itemIndex = readUnsignedShort(bsmCodeIndex);
-      bsmCodeIndex = items[itemIndex];
-      return readMethodHandle(bsmCodeIndex);
+      return readMethodHandle(items[itemIndex]);
    }
 
    @Nonnull

@@ -19,7 +19,7 @@ final class AnnotationReader extends BytecodeReader
    int readNamedAnnotationValues(@Nonnegative int startingCodeIndex, @Nullable AnnotationVisitor av) {
       codeIndex = startingCodeIndex;
       readAnnotationValues(true, av);
-      return this.codeIndex;
+      return codeIndex;
    }
 
    private void readAnnotationValues(boolean named, @Nullable AnnotationVisitor av) {
@@ -52,6 +52,7 @@ final class AnnotationReader extends BytecodeReader
             av.visit(name, value);
          }
          else {
+            //noinspection SwitchStatementWithoutDefaultBranch
             switch (typeCode) {
                case 'e': readEnumConstValue(name, av);   break; // enum_const_value
                case 'c': readClassInfo(name, av);        break; // class_info
@@ -71,7 +72,7 @@ final class AnnotationReader extends BytecodeReader
       }
    }
 
-   @Nullable
+   @Nullable @SuppressWarnings({"NumericCastThatLosesPrecision", "SwitchStatementWithoutDefaultBranch"})
    private Object readAnnotationValueIfPrimitiveOrString(int typeCode) {
       switch (typeCode) {
          case 'I': case 'J': case 'F': case 'D': return readConstItem(); // CONSTANT_Integer/Long/Float/Double
