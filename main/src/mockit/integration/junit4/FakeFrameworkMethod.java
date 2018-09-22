@@ -22,10 +22,6 @@ import mockit.internal.util.*;
  */
 public final class FakeFrameworkMethod extends MockUp<FrameworkMethod>
 {
-   public static boolean hasDependenciesInClasspath() {
-      return ClassLoad.searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null;
-   }
-
    @Nonnull private final JUnit4TestRunnerDecorator decorator = new JUnit4TestRunnerDecorator();
 
    @Nullable @Mock

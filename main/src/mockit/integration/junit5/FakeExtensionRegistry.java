@@ -9,14 +9,9 @@ import org.junit.jupiter.engine.extension.*;
 import org.junit.platform.engine.*;
 
 import mockit.*;
-import mockit.internal.util.*;
 
 public final class FakeExtensionRegistry extends MockUp<ExtensionRegistry>
 {
-   public static boolean hasDependenciesInClasspath() {
-      return ClassLoad.searchTypeInClasspath("org.junit.jupiter.engine.extension.ExtensionRegistry", true) != null;
-   }
-
    @Mock
    public static ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams) {
       ExtensionRegistry registry = inv.proceed();

@@ -16,6 +16,7 @@ import mockit.integration.junit4.*;
 import mockit.integration.junit5.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
+import static mockit.internal.util.ClassLoad.*;
 
 final class JMockitInitialization
 {
@@ -43,12 +44,12 @@ final class JMockitInitialization
    }
 
    private static void applyInternalStartupFakesAsNeeded() {
-      if (FakeFrameworkMethod.hasDependenciesInClasspath()) {
-         new RunNotifierDecorator();
+      if (searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null) {
+         new FakeRunNotifier();
          new FakeFrameworkMethod();
       }
 
-      if (FakeExtensionRegistry.hasDependenciesInClasspath()) {
+      if (searchTypeInClasspath("org.junit.jupiter.engine.extension.ExtensionRegistry", true) != null) {
          new FakeExtensionRegistry();
       }
    }
@@ -86,7 +87,7 @@ final class JMockitInitialization
       }
 
       try {
-         Class<?> fakeClass = ClassLoad.loadClassAtStartup(fakeClassName);
+         Class<?> fakeClass = loadClassAtStartup(fakeClassName);
 
          if (MockUp.class.isAssignableFrom(fakeClass)) {
             if (argument == null) {
