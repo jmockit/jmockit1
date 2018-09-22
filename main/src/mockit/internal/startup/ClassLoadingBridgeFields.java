@@ -19,10 +19,6 @@ final class ClassLoadingBridgeFields
    private ClassLoadingBridgeFields() {}
 
    static void createSyntheticFieldsInJREClassToHoldClassLoadingBridges(@Nonnull Instrumentation instrumentation) {
-      if (ClassLoadingBridge.hostJREClassName != null) {
-         return;
-      }
-
       FieldAdditionTransformer fieldAdditionTransformer = new FieldAdditionTransformer(instrumentation);
       instrumentation.addTransformer(fieldAdditionTransformer);
 
