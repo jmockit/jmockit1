@@ -196,7 +196,7 @@ public class BaseClassModifier extends WrappingClassVisitor
       mw.visitFieldInsn(GETSTATIC, hostClassName, classLoadingBridge.id, "Ljava/lang/reflect/InvocationHandler;");
    }
 
-   protected final void generateCodeToFillArrayElement(int arrayIndex, @Nullable Object value) {
+   protected final void generateCodeToFillArrayElement(@Nonnegative int arrayIndex, @Nullable Object value) {
       mw.visitInsn(DUP);
       mw.visitIntInsn(SIPUSH, arrayIndex);
 
