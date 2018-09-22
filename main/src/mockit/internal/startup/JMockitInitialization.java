@@ -23,7 +23,6 @@ final class JMockitInitialization
    private JMockitInitialization() {}
 
    static void initialize(@Nonnull Instrumentation inst) {
-      preventEventualClassLoadingConflicts();
       applyInternalStartupFakesAsNeeded();
 
       if (CodeCoverage.active()) {
@@ -31,16 +30,6 @@ final class JMockitInitialization
       }
 
       applyUserSpecifiedStartupFakesIfAny();
-   }
-
-   private static void preventEventualClassLoadingConflicts() {
-      // Ensure the proper loading of data files by the JRE, whose names depend on calls to the System class, which may get @Mocked.
-      TimeZone.getDefault();
-      Locale.getDefault();
-      Currency.getInstance(Locale.CANADA);
-
-      DefaultValues.computeForReturnType("()J");
-      Utilities.calledFromSpecialThread();
    }
 
    private static void applyInternalStartupFakesAsNeeded() {
