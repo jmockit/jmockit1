@@ -17,11 +17,11 @@ import mockit.internal.faking.*;
 import mockit.internal.state.TestRun;
 
 /**
- * Startup mock which works in conjunction with {@link JUnit4TestRunnerDecorator} to provide JUnit 4.5+ integration.
+ * Startup fake which works in conjunction with {@link JUnit4TestRunnerDecorator} to provide JUnit 4.5+ integration.
  * <p/>
  * This class is not supposed to be accessed from user code. JMockit will automatically load it at startup.
  */
-public final class RunNotifierDecorator extends MockUp<RunNotifier>
+public final class FakeRunNotifier extends MockUp<RunNotifier>
 {
    @Mock
    public static void fireTestRunStarted(Invocation invocation, Description description) {
