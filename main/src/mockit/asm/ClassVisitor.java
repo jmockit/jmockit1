@@ -3,9 +3,8 @@ package mockit.asm;
 import javax.annotation.*;
 
 /**
- * A visitor to visit a Java class. The methods of this class are called in the following order:
- * <tt>visit</tt> [<tt>visitSource</tt>] (<tt>visitAnnotation</tt>)*
- * (<tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt>)* <tt>visitEnd</tt>.
+ * A visitor to visit a Java class. The methods of this class are called in the following order:<br>
+ * <tt>visit</tt> (<tt>visitAnnotation</tt>)* (<tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt>)* <tt>visitEnd</tt>.
  */
 public class ClassVisitor extends BaseWriter
 {
@@ -20,13 +19,6 @@ public class ClassVisitor extends BaseWriter
     * @param additionalInfo additional class information.
     */
    public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {}
-
-   /**
-    * Visits the source of the class.
-    *
-    * @param fileName the name of the source file from which the class was compiled. May be <tt>null</tt>.
-    */
-   public void visitSource(@Nullable String fileName) {}
 
    /**
     * Visits information about an inner class. This inner class is not necessarily a member of the class being visited.

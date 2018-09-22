@@ -47,7 +47,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * The constant pool item that contains the internal name of the super class of this class.
     */
-   private int superNameItemIndex;
+   @Nonnegative private int superNameItemIndex;
 
    @Nullable private Interfaces interfaceItems;
    @Nullable private NestHostWriter nestHostWriter;
@@ -105,14 +105,6 @@ public final class ClassWriter extends ClassVisitor
 
       createMarkerAttributes(version);
 
-      if (additionalInfo.signature != null) {
-         signatureWriter = new SignatureWriter(cp, additionalInfo.signature);
-      }
-
-      if (additionalInfo.hostClassName != null) {
-         nestHostWriter = new NestHostWriter(cp, additionalInfo.hostClassName);
-      }
-
       String superName = additionalInfo.superName;
       superNameItemIndex = superName == null ? 0 : cp.newClass(superName);
 
@@ -120,14 +112,19 @@ public final class ClassWriter extends ClassVisitor
          interfaceItems = new Interfaces(cp, additionalInfo.interfaces);
       }
 
+      if (additionalInfo.signature != null) {
+         signatureWriter = new SignatureWriter(cp, additionalInfo.signature);
+      }
+
+      sourceInfo.setSourceFileName(additionalInfo.sourceFileName);
+
+      if (additionalInfo.hostClassName != null) {
+         nestHostWriter = new NestHostWriter(cp, additionalInfo.hostClassName);
+      }
+
       if (superName != null) {
          ClassLoad.addSuperClass(name, superName);
       }
-   }
-
-   @Override
-   public void visitSource(@Nullable String fileName) {
-      sourceInfo.setSourceFileName(fileName);
    }
 
    @Nonnull @Override

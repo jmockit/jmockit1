@@ -38,7 +38,6 @@ public final class ClassReader extends AnnotatedReader
 
    ClassVisitor cv;
    @Nonnegative int flags;
-   @Nullable private String sourceFileName;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -109,7 +108,6 @@ public final class ClassReader extends AnnotatedReader
       readInterfaces();
       readClassAttributes();
       visitor.visit(version, access, classDesc, classInfo);
-      visitSourceFileName();
       readAnnotations(visitor);
       readInnerClasses();
       readFieldsAndMethods();
@@ -132,7 +130,6 @@ public final class ClassReader extends AnnotatedReader
    }
 
    private void readClassAttributes() {
-      sourceFileName = null;
       innerClassesCodeIndex = 0;
       codeIndex = getAttributesStartIndex();
       readAttributes();
@@ -142,7 +139,7 @@ public final class ClassReader extends AnnotatedReader
    @Nullable @Override
    Boolean readAttribute(@Nonnull String attributeName) {
       if ("SourceFile".equals(attributeName)) {
-         sourceFileName = readNonnullUTF8();
+         classInfo.sourceFileName = readNonnullUTF8();
          return true;
       }
 
@@ -180,12 +177,6 @@ public final class ClassReader extends AnnotatedReader
          codeIndex += 2;
          int codeOffset = readUnsignedShort();
          codeIndex += codeOffset << 1;
-      }
-   }
-
-   private void visitSourceFileName() {
-      if ((flags & Flags.SKIP_DEBUG) == 0) {
-         cv.visitSource(sourceFileName);
       }
    }
 

@@ -24,11 +24,6 @@ public class WrappingClassVisitor extends ClassVisitor
       cw.visit(version, access, name, additionalInfo);
    }
 
-   @Override
-   public void visitSource(@Nullable String fileName) {
-      cw.visitSource(fileName);
-   }
-
    @Nullable @Override
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
       return cw.visitAnnotation(desc);

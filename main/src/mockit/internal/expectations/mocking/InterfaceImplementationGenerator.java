@@ -64,7 +64,6 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
 
    @Override public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
    @Override public void visitInnerClass(@Nonnull String name, String outerName, String innerName, int access) {}
-   @Override public void visitSource(@Nullable String fileName) {}
 
    @Nullable @Override
    public FieldVisitor visitField(

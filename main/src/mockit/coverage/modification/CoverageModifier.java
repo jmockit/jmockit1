@@ -38,7 +38,6 @@ final class CoverageModifier extends WrappingClassVisitor
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
    @Nullable private FileCoverageData fileData;
-   private boolean cannotModify;
    private final boolean forInnerClass;
    private boolean forEnumClass;
    @Nullable private String kindOfTopLevelType;
@@ -75,24 +74,19 @@ final class CoverageModifier extends WrappingClassVisitor
 
       forEnumClass = (access & ENUM) != 0;
 
+      String sourceFileDebugName = getSourceFileDebugName(additionalInfo);
+
       if (!forInnerClass) {
-         internalClassName = name;
-         int p = name.lastIndexOf('/');
+         extractClassAndSourceFileName(name);
 
-         if (p < 0) {
-            simpleClassName = name;
-            sourceFileName = "";
-         }
-         else {
-            simpleClassName = name.substring(p + 1);
-            sourceFileName = name.substring(0, p + 1);
+         boolean cannotModify = (access & ANNOTATION) != 0;
+
+         if (cannotModify) {
+            throw VisitInterruptedException.INSTANCE;
          }
 
-         cannotModify = (access & ANNOTATION) != 0;
-
-         if (!forEnumClass && (access & SUPER) != 0 && nestedType) {
-            INNER_CLASS_MODIFIERS.put(name.replace('/', '.'), this);
-         }
+         registerAsInnerClassModifierIfApplicable(access, name, nestedType);
+         createFileData(sourceFileDebugName);
       }
 
       cw.visit(version, access, name, additionalInfo);
@@ -108,22 +102,40 @@ final class CoverageModifier extends WrappingClassVisitor
       return "class";
    }
 
-   @Override
-   public void visitSource(@Nullable String fileName) {
-      if (fileName == null || !fileName.endsWith(".java")) {
+   @Nonnull
+   private static String getSourceFileDebugName(@Nonnull ClassInfo additionalInfo) {
+      String sourceFileDebugName = additionalInfo.sourceFileName;
+
+      if (sourceFileDebugName == null || !sourceFileDebugName.endsWith(".java")) {
          throw VisitInterruptedException.INSTANCE;
       }
 
-      if (!forInnerClass) {
-         if (cannotModify) {
-            throw VisitInterruptedException.INSTANCE;
-         }
+      return sourceFileDebugName;
+   }
 
-         sourceFileName += fileName;
-         fileData = CoverageData.instance().getOrAddFile(sourceFileName, kindOfTopLevelType);
+   private void extractClassAndSourceFileName(@Nonnull String className) {
+      internalClassName = className;
+      int p = className.lastIndexOf('/');
+
+      if (p < 0) {
+         simpleClassName = className;
+         sourceFileName = "";
       }
+      else {
+         simpleClassName = className.substring(p + 1);
+         sourceFileName = className.substring(0, p + 1);
+      }
+   }
 
-      cw.visitSource(fileName);
+   private void registerAsInnerClassModifierIfApplicable(int access, @Nonnull String name, boolean nestedType) {
+      if (!forEnumClass && (access & SUPER) != 0 && nestedType) {
+         INNER_CLASS_MODIFIERS.put(name.replace('/', '.'), this);
+      }
+   }
+
+   private void createFileData(@Nonnull String sourceFileDebugName) {
+      sourceFileName += sourceFileDebugName;
+      fileData = CoverageData.instance().getOrAddFile(sourceFileName, kindOfTopLevelType);
    }
 
    @Override
