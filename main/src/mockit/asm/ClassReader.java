@@ -152,6 +152,11 @@ public final class ClassReader extends AnnotatedReader
          return true;
       }
 
+      if ("NestMembers".equals(attributeName)) {
+         readNestMembers();
+         return true;
+      }
+
       if ("BootstrapMethods".equals(attributeName)) {
          readBootstrapMethods();
          return true;
@@ -166,6 +171,17 @@ public final class ClassReader extends AnnotatedReader
       }
 
       return null;
+   }
+
+   private void readNestMembers() {
+      int numberOfClasses = readUnsignedShort();
+      String[] nestMembers = new String[numberOfClasses];
+
+      for (int i = 0; i < numberOfClasses; i++) {
+         nestMembers[i] = readNonnullClass();
+      }
+
+      classInfo.nestMembers = nestMembers;
    }
 
    private void readBootstrapMethods() {

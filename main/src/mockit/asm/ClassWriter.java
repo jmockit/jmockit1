@@ -13,6 +13,7 @@ import mockit.internal.util.*;
  * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
  * generate a modified class from one or more existing Java classes.
  */
+@SuppressWarnings({"ClassWithTooManyFields", "OverlyCoupledClass"})
 public final class ClassWriter extends ClassVisitor
 {
    /**
@@ -42,6 +43,7 @@ public final class ClassWriter extends ClassVisitor
 
    @Nullable private Interfaces interfaceItems;
    @Nullable private NestHostWriter nestHostWriter;
+   @Nullable private NestMembersWriter nestMembersWriter;
    @Nullable private SignatureWriter signatureWriter;
    @Nonnull private final SourceInfoWriter sourceInfo;
    @Nullable private InnerClassesWriter innerClassesWriter;
@@ -98,22 +100,34 @@ public final class ClassWriter extends ClassVisitor
       String superName = additionalInfo.superName;
       superNameItemIndex = superName == null ? 0 : cp.newClass(superName);
 
-      if (additionalInfo.interfaces.length > 0) {
-         interfaceItems = new Interfaces(cp, additionalInfo.interfaces);
-      }
-
-      if (additionalInfo.signature != null) {
-         signatureWriter = new SignatureWriter(cp, additionalInfo.signature);
-      }
-
+      createInterfaceWriterIfApplicable(additionalInfo.interfaces);
+      createSignatureWriterIfApplicable(additionalInfo.signature);
       sourceInfo.setSourceFileName(additionalInfo.sourceFileName);
-
-      if (additionalInfo.hostClassName != null) {
-         nestHostWriter = new NestHostWriter(cp, additionalInfo.hostClassName);
-      }
+      createNestWritersIfApplicable(additionalInfo.hostClassName, additionalInfo.nestMembers);
 
       if (superName != null) {
          ClassLoad.addSuperClass(name, superName);
+      }
+   }
+
+   private void createInterfaceWriterIfApplicable(@Nonnull String[] interfaces) {
+      if (interfaces.length > 0) {
+         interfaceItems = new Interfaces(cp, interfaces);
+      }
+   }
+
+   private void createSignatureWriterIfApplicable(@Nullable String signature) {
+      if (signature != null) {
+         signatureWriter = new SignatureWriter(cp, signature);
+      }
+   }
+
+   private void createNestWritersIfApplicable(@Nullable String hostClassName, @Nullable String[] memberClassNames) {
+      if (hostClassName != null) {
+         nestHostWriter = new NestHostWriter(cp, hostClassName);
+      }
+      else if (memberClassNames != null) {
+         nestMembersWriter = new NestMembersWriter(cp, memberClassNames);
       }
    }
 
@@ -151,7 +165,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    /**
-    * Returns the bytecode of the class that was build with this class writer.
+    * Returns the bytecode of the class that was built with this class writer.
     */
    @Nonnull @Override
    public byte[] toByteArray() {
@@ -177,6 +191,7 @@ public final class ClassWriter extends ClassVisitor
 
       size += getAttributeSize(signatureWriter);
       size += getAttributeSize(nestHostWriter);
+      size += getAttributeSize(nestMembersWriter);
       size += getAttributeSize(innerClassesWriter);
 
       return size + getAnnotationsSize() + cp.getSize();
@@ -243,16 +258,22 @@ public final class ClassWriter extends ClassVisitor
          signatureWriter.put(out);
       }
 
-      if (nestHostWriter != null) {
-         nestHostWriter.put(out);
-      }
-
       sourceInfo.put(out);
 
+      putNestAttributes(out);
       putMarkerAttributes(out);
 
       if (innerClassesWriter != null) {
          innerClassesWriter.put(out);
+      }
+   }
+
+   private void putNestAttributes(@Nonnull ByteVector out) {
+      if (nestHostWriter != null) {
+         nestHostWriter.put(out);
+      }
+      else if (nestMembersWriter != null) {
+         nestMembersWriter.put(out);
       }
    }
 
@@ -268,7 +289,7 @@ public final class ClassWriter extends ClassVisitor
          attributeCount++;
       }
 
-      if (nestHostWriter != null) {
+      if (nestHostWriter != null || nestMembersWriter != null) {
          attributeCount++;
       }
 

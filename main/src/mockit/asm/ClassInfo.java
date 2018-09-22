@@ -35,4 +35,9 @@ public final class ClassInfo
     * The internal name of the host class, if the class is part of a nest (Java 11+ only).
     */
    @Nullable String hostClassName;
+
+   /**
+    * The names of the classes that are members of the nest defined by the nest host class, if any (Java 11+ only).
+    */
+   @Nullable String[] nestMembers;
 }
