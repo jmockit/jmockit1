@@ -21,15 +21,6 @@ public final class ClassWriter extends ClassVisitor
    @Nonnull final byte[] code;
 
    /**
-    * <tt>true</tt> if the stack map frames must be recomputed from scratch.
-    * <p/>
-    * If this flag is set, then the stack map frames are recomputed from the methods bytecode. The arguments of the
-    * {@link MethodVisitor#visitMaxStack} method are also ignored and recomputed from the bytecode. In other words,
-    * computeFrames implies computeMaxs.
-    */
-   private final boolean computeFrames;
-
-   /**
     * Minor and major version numbers of the class to be generated.
     */
    int classVersion;
@@ -37,7 +28,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * The constant pool item that contains the internal name of this class.
     */
-   private int nameItemIndex;
+   @Nonnegative private int nameItemIndex;
 
    /**
     * The internal name of this class.
@@ -83,7 +74,6 @@ public final class ClassWriter extends ClassVisitor
    public ClassWriter(@Nonnull ClassReader classReader) {
       code = classReader.code;
       classVersion = classReader.getVersion();
-      computeFrames = classVersion >= ClassVersion.V1_7;
 
       cp = new ConstantPoolGeneration();
       sourceInfo = new SourceInfoWriter(cp);
@@ -154,6 +144,7 @@ public final class ClassWriter extends ClassVisitor
    public MethodWriter visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
    ) {
+      boolean computeFrames = classVersion >= ClassVersion.V1_7;
       MethodWriter method = new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
       methods.add(method);
       return method;
