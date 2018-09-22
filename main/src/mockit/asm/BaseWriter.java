@@ -26,16 +26,15 @@ class BaseWriter
    /**
     * Visits an annotation of the class/field/method being visited.
     *
-    * @param desc the descriptor of the annotation type.
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting
-    * the annotation.
+    * @param desc the descriptor of the annotation type
+    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting the annotation
     */
    @Nullable
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
 
    /**
-    * Visits the end of the class/field/method being visited. This method, which is the last one to be called, is used
-    * to inform the visitor that all the annotations and attributes of the class/field/method have been visited.
+    * Visits the end of the class/field/method being visited. This method, which is the last one to be called, is used to inform the visitor
+    * that all the annotations and attributes of the class/field/method have been visited.
     */
    public void visitEnd() {}
 
