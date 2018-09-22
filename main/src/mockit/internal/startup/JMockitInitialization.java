@@ -13,6 +13,7 @@ import static java.util.Arrays.asList;
 import mockit.*;
 import mockit.coverage.*;
 import mockit.integration.junit4.*;
+import mockit.integration.junit5.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 
@@ -45,6 +46,10 @@ final class JMockitInitialization
       if (FakeFrameworkMethod.hasDependenciesInClasspath()) {
          new RunNotifierDecorator();
          new FakeFrameworkMethod();
+      }
+
+      if (FakeExtensionRegistry.hasDependenciesInClasspath()) {
+         new FakeExtensionRegistry();
       }
    }
 

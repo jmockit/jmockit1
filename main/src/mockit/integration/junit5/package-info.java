@@ -4,10 +4,7 @@
  */
 
 /**
- * Provides integration with <em>JUnit 5.x</em> test runners.
- * Contains the {@link mockit.integration.junit5.JMockitTestEngine} custom test engine.
- * <p/>
- * This integration provides the following benefits to test code:
+ * Provides integration with <em>JUnit 5.x</em> test runners, which provides the following benefits to test code:
  * <ol>
  * <li>
  * Expected invocations specified through the Mocking API are automatically verified before the execution of a test is completed.
