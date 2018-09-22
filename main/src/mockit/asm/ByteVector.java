@@ -6,6 +6,7 @@ import javax.annotation.*;
  * A dynamically extensible vector of bytes.
  * This class is roughly equivalent to a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
  */
+@SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
 final class ByteVector
 {
    /**
@@ -39,21 +40,21 @@ final class ByteVector
     */
    @Nonnull
    ByteVector putByte(int b) {
-      int length = getLengthEnlargingIfNeeded(1);
-      data[length++] = (byte) b;
-      this.length = length;
+      int len = getLengthEnlargingIfNeeded(1);
+      data[len++] = (byte) b;
+      length = len;
       return this;
    }
 
    @Nonnegative
    private int getLengthEnlargingIfNeeded(@Nonnegative int bytesToAdd) {
-      int length = this.length;
+      int len = length;
 
-      if (length + bytesToAdd > data.length) {
+      if (len + bytesToAdd > data.length) {
          enlarge(bytesToAdd);
       }
 
-      return length;
+      return len;
    }
 
    /**
@@ -76,11 +77,11 @@ final class ByteVector
     */
    @Nonnull
    ByteVector put11(int b1, int b2) {
-      int length = getLengthEnlargingIfNeeded(2);
-      byte[] data = this.data;
-      data[length++] = (byte) b1;
-      data[length++] = (byte) b2;
-      this.length = length;
+      int len = getLengthEnlargingIfNeeded(2);
+      byte[] bytes = data;
+      bytes[len++] = (byte) b1;
+      bytes[len++] = (byte) b2;
+      length = len;
       return this;
    }
 
@@ -101,12 +102,12 @@ final class ByteVector
     */
    @Nonnull
    ByteVector put12(int b, int s) {
-      int length = getLengthEnlargingIfNeeded(3);
-      byte[] data = this.data;
-      data[length++] = (byte) b;
-      data[length++] = (byte) (s >>> 8);
-      data[length++] = (byte) s;
-      this.length = length;
+      int len = getLengthEnlargingIfNeeded(3);
+      byte[] bytes = data;
+      bytes[len++] = (byte) b;
+      bytes[len++] = (byte) (s >>> 8);
+      bytes[len++] = (byte) s;
+      length = len;
       return this;
    }
 
@@ -117,13 +118,13 @@ final class ByteVector
     */
    @Nonnull
    ByteVector putInt(int i) {
-      int length = getLengthEnlargingIfNeeded(4);
-      byte[] data = this.data;
-      data[length++] = (byte) (i >>> 24);
-      data[length++] = (byte) (i >>> 16);
-      data[length++] = (byte) (i >>> 8);
-      data[length++] = (byte) i;
-      this.length = length;
+      int len = getLengthEnlargingIfNeeded(4);
+      byte[] bytes = data;
+      bytes[len++] = (byte) (i >>> 24);
+      bytes[len++] = (byte) (i >>> 16);
+      bytes[len++] = (byte) (i >>> 8);
+      bytes[len++] = (byte) i;
+      length = len;
       return this;
    }
 
@@ -140,34 +141,34 @@ final class ByteVector
    /**
     * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @param string a String whose UTF8 encoded length must be less than 65536.
+    * @param utf8String a String whose UTF8 encoded length must be less than 65536
     */
-   void putUTF8(@Nonnull String string) {
-      int charLength = string.length();
+   void putUTF8(@Nonnull String utf8String) {
+      int charLength = utf8String.length();
 
       if (charLength > 65535) {
          throw new IllegalArgumentException("String too long: " + charLength);
       }
 
       int len = getLengthEnlargingIfNeeded(2 + charLength);
-      byte[] data = this.data;
+      byte[] characters = data;
 
       // Optimistic algorithm: instead of computing the byte length and then serializing the string (which requires
       // two loops), we assume the byte length is equal to char length (which is the most frequent case), and we start
       // serializing the string right away.
       // During the serialization, if we find that this assumption is wrong, we continue with the general method.
-      data[len++] = (byte) (charLength >>> 8);
-      data[len++] = (byte) charLength;
+      characters[len++] = (byte) (charLength >>> 8);
+      characters[len++] = (byte) charLength;
 
       for (int i = 0; i < charLength; i++) {
-         char c = string.charAt(i);
+         char c = utf8String.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
-            data[len++] = (byte) c;
+            characters[len++] = (byte) c;
          }
          else {
             length = len;
-            encodeUTF8(string, i);
+            encodeUTF8(utf8String, i);
          }
       }
 
@@ -175,16 +176,15 @@ final class ByteVector
    }
 
    /**
-    * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if necessary.
-    * The string length is encoded in two bytes before the encoded characters, if there is space for that (i.e. if
-    * this.length - i - 2 >= 0).
+    * Puts an UTF8 string into this byte vector. The byte vector is automatically enlarged if necessary. The string length is encoded in two
+    * bytes before the encoded characters, if there is space for that (i.e. if this.length - i - 2 >= 0).
     *
-    * @param string the String to encode.
+    * @param utf8String the String to encode
     * @param startIndex the index of the first character to encode. The previous characters are supposed to have already
     *                   been encoded, using only one byte per character.
     */
-   private void encodeUTF8(@Nonnull String string, @Nonnegative int startIndex) {
-      int byteLength = computeByteLength(string, startIndex);
+   private void encodeUTF8(@Nonnull String utf8String, @Nonnegative int startIndex) {
+      int byteLength = computeByteLength(utf8String, startIndex);
 
       if (byteLength > 65535) {
          throw new IllegalArgumentException("String too long for UTF8 encoding: " + byteLength);
@@ -201,15 +201,15 @@ final class ByteVector
          enlarge(byteLength - startIndex);
       }
 
-      putEncodedCharacters(string, startIndex);
+      putEncodedCharacters(utf8String, startIndex);
    }
 
    @Nonnegative
-   private static int computeByteLength(@Nonnull String string, @Nonnegative int startIndex) {
+   private static int computeByteLength(@Nonnull String utf8String, @Nonnegative int startIndex) {
       int byteLength = startIndex;
 
-      for (int i = startIndex, n = string.length(); i < n; i++) {
-         char c = string.charAt(i);
+      for (int i = startIndex, n = utf8String.length(); i < n; i++) {
+         char c = utf8String.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
             byteLength++;
@@ -225,24 +225,26 @@ final class ByteVector
       return byteLength;
    }
 
-   private void putEncodedCharacters(@Nonnull String string, @Nonnegative int startIndex) {
-      byte[] data = this.data;
+   private void putEncodedCharacters(@Nonnull String utf8String, @Nonnegative int startIndex) {
+      byte[] characters = data;
       int len = length;
 
-      for (int i = startIndex, n = string.length(); i < n; i++) {
-         char c = string.charAt(i);
+      for (int i = startIndex, n = utf8String.length(); i < n; i++) {
+         char c = utf8String.charAt(i);
 
          if (c >= '\001' && c <= '\177') {
-            data[len++] = (byte) c;
-         }
-         else if (c > '\u07FF') {
-            data[len++] = (byte) (0xE0 | c >> 12 & 0xF);
-            data[len++] = (byte) (0x80 | c >> 6 & 0x3F);
-            data[len++] = (byte) (0x80 | c & 0x3F);
+            characters[len++] = (byte) c;
          }
          else {
-            data[len++] = (byte) (0xC0 | c >> 6 & 0x1F);
-            data[len++] = (byte) (0x80 | c & 0x3F);
+            if (c > '\u07FF') {
+               characters[len++] = (byte) (0xE0 | c >> 12 & 0xF);
+               characters[len++] = (byte) (0x80 | c >> 6 & 0x3F);
+            }
+            else {
+               characters[len++] = (byte) (0xC0 | c >> 6 & 0x1F);
+            }
+
+            characters[len++] = (byte) (0x80 | c & 0x3F);
          }
       }
 
@@ -253,13 +255,13 @@ final class ByteVector
     * Puts an array of bytes into this byte vector. The byte vector is automatically enlarged if necessary.
     *
     * @param bytes an array of bytes.
-    * @param off index of the first byte of code that must be copied.
-    * @param len number of bytes of code that must be copied.
+    * @param offset index of the first byte of code that must be copied.
+    * @param numBytes number of bytes of code that must be copied.
     */
-   void putByteArray(@Nonnull byte[] bytes, @Nonnegative int off, @Nonnegative int len) {
-      int length = getLengthEnlargingIfNeeded(len);
-      System.arraycopy(bytes, off, data, length, len);
-      this.length += len;
+   void putByteArray(@Nonnull byte[] bytes, @Nonnegative int offset, @Nonnegative int numBytes) {
+      int len = getLengthEnlargingIfNeeded(numBytes);
+      System.arraycopy(bytes, offset, data, len, numBytes);
+      length += numBytes;
    }
 
    void putByteVector(@Nonnull ByteVector another) {

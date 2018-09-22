@@ -10,6 +10,7 @@ import static mockit.internal.util.ClassLoad.OBJECT;
  * Allows the constant pool for a classfile to be created from scratch, when that classfile itself is being generated or
  * modified from an existing class file.
  */
+@SuppressWarnings({"ClassWithTooManyFields", "OverlyCoupledClass"})
 final class ConstantPoolGeneration
 {
    /**
@@ -66,6 +67,7 @@ final class ConstantPoolGeneration
    ConstantPoolGeneration() {
       pool = new ByteVector();
       items = new Item[256];
+      //noinspection NumericCastThatLosesPrecision
       threshold = (int) (0.75d * items.length);
       index = 1;
       reusableUTF8Item = new StringItem();
@@ -591,15 +593,17 @@ final class ConstantPoolGeneration
          }
 
          items = newItems;
+         //noinspection NumericCastThatLosesPrecision
          threshold = (int) (nl * 0.75);
       }
    }
 
    private static void put(@Nonnull Item[] newItems, @Nullable Item item) {
       while (item != null) {
-         Item k = item.next;
+         Item next = item.next;
          item.setNext(newItems);
-         item = k;
+         //noinspection AssignmentToMethodParameter
+         item = next;
       }
    }
 
@@ -632,6 +636,7 @@ final class ConstantPoolGeneration
       items = cpItems;
 
       int ll = cpItems.length;
+      //noinspection NumericCastThatLosesPrecision
       threshold = (int) (0.75d * ll);
       index = ll;
    }
