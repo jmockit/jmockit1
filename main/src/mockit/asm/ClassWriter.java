@@ -13,7 +13,7 @@ import mockit.internal.util.*;
  * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
  * generate a modified class from one or more existing Java classes.
  */
-@SuppressWarnings({"ClassWithTooManyFields", "OverlyCoupledClass"})
+@SuppressWarnings("OverlyCoupledClass")
 public final class ClassWriter extends ClassVisitor
 {
    /**
@@ -41,11 +41,8 @@ public final class ClassWriter extends ClassVisitor
     */
    @Nonnegative private int superNameItemIndex;
 
-   @Nullable private Interfaces interfaceItems;
-   @Nullable private NestHostWriter nestHostWriter;
-   @Nullable private NestMembersWriter nestMembersWriter;
-   @Nullable private SignatureWriter signatureWriter;
-   @Nonnull private final SourceInfoWriter sourceInfo;
+   @Nonnull private final List<AttributeWriter> attributeWriters;
+   @Nullable private InterfaceWriter interfaceWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
    @Nullable final BootstrapMethods bootstrapMethods;
 
@@ -78,12 +75,10 @@ public final class ClassWriter extends ClassVisitor
       classVersion = classReader.getVersion();
 
       cp = new ConstantPoolGeneration();
-      sourceInfo = new SourceInfoWriter(cp);
-
       bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, classReader) : null;
-
       new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
 
+      attributeWriters = new ArrayList<>(6);
       fields = new ArrayList<>();
       methods = new ArrayList<>();
    }
@@ -102,7 +97,7 @@ public final class ClassWriter extends ClassVisitor
 
       createInterfaceWriterIfApplicable(additionalInfo.interfaces);
       createSignatureWriterIfApplicable(additionalInfo.signature);
-      sourceInfo.setSourceFileName(additionalInfo.sourceFileName);
+      createSourceFileWriterIfApplicable(additionalInfo.sourceFileName);
       createNestWritersIfApplicable(additionalInfo.hostClassName, additionalInfo.nestMembers);
 
       if (superName != null) {
@@ -112,22 +107,28 @@ public final class ClassWriter extends ClassVisitor
 
    private void createInterfaceWriterIfApplicable(@Nonnull String[] interfaces) {
       if (interfaces.length > 0) {
-         interfaceItems = new Interfaces(cp, interfaces);
+         interfaceWriter = new InterfaceWriter(cp, interfaces);
       }
    }
 
    private void createSignatureWriterIfApplicable(@Nullable String signature) {
       if (signature != null) {
-         signatureWriter = new SignatureWriter(cp, signature);
+         attributeWriters.add(new SignatureWriter(cp, signature));
+      }
+   }
+
+   private void createSourceFileWriterIfApplicable(@Nullable String sourceFileName) {
+      if (sourceFileName != null) {
+         attributeWriters.add(new SourceFileWriter(cp, sourceFileName));
       }
    }
 
    private void createNestWritersIfApplicable(@Nullable String hostClassName, @Nullable String[] memberClassNames) {
       if (hostClassName != null) {
-         nestHostWriter = new NestHostWriter(cp, hostClassName);
+         attributeWriters.add(new NestHostWriter(cp, hostClassName));
       }
       else if (memberClassNames != null) {
-         nestMembersWriter = new NestMembersWriter(cp, memberClassNames);
+         attributeWriters.add(new NestMembersWriter(cp, memberClassNames));
       }
    }
 
@@ -140,6 +141,7 @@ public final class ClassWriter extends ClassVisitor
    public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       if (innerClassesWriter == null) {
          innerClassesWriter = new InnerClassesWriter(cp);
+         attributeWriters.add(innerClassesWriter);
       }
 
       innerClassesWriter.add(name, outerName, innerName, access);
@@ -183,23 +185,21 @@ public final class ClassWriter extends ClassVisitor
 
    @Nonnegative
    private int getBytecodeSize() {
-      int size = 24 + getMarkerAttributesSize() + getInterfacesSize() + getFieldsSize() + getMethodsSize() + sourceInfo.getSize();
+      int size = 24 + getMarkerAttributesSize() + getFieldsSize() + getMethodsSize();
+
+      if (interfaceWriter != null) {
+         size += interfaceWriter.getSize();
+      }
 
       if (bootstrapMethods != null) {
          size += bootstrapMethods.getSize();
       }
 
-      size += getAttributeSize(signatureWriter);
-      size += getAttributeSize(nestHostWriter);
-      size += getAttributeSize(nestMembersWriter);
-      size += getAttributeSize(innerClassesWriter);
+      for (AttributeWriter attributeWriter : attributeWriters) {
+         size += attributeWriter.getSize();
+      }
 
       return size + getAnnotationsSize() + cp.getSize();
-   }
-
-   @Nonnegative
-   private int getInterfacesSize() {
-      return interfaceItems == null ? 0 : 2 * interfaceItems.getCount();
    }
 
    @Nonnegative
@@ -237,11 +237,11 @@ public final class ClassWriter extends ClassVisitor
       out.putShort(nameItemIndex);
       out.putShort(superNameItemIndex);
 
-      int interfaceCount = interfaceItems == null ? 0 : interfaceItems.getCount();
-      out.putShort(interfaceCount);
-
-      if (interfaceCount > 0) {
-         interfaceItems.put(out);
+      if (interfaceWriter == null) {
+         out.putShort(0);
+      }
+      else {
+         interfaceWriter.put(out);
       }
 
       BaseWriter.put(out, fields);
@@ -254,46 +254,18 @@ public final class ClassWriter extends ClassVisitor
          bootstrapMethods.put(out);
       }
 
-      if (signatureWriter != null) {
-         signatureWriter.put(out);
+      for (AttributeWriter attributeWriter : attributeWriters) {
+         attributeWriter.put(out);
       }
 
-      sourceInfo.put(out);
-
-      putNestAttributes(out);
       putMarkerAttributes(out);
-
-      if (innerClassesWriter != null) {
-         innerClassesWriter.put(out);
-      }
-   }
-
-   private void putNestAttributes(@Nonnull ByteVector out) {
-      if (nestHostWriter != null) {
-         nestHostWriter.put(out);
-      }
-      else if (nestMembersWriter != null) {
-         nestMembersWriter.put(out);
-      }
    }
 
    @Nonnegative
    private int getAttributeCount() {
-      int attributeCount = getMarkerAttributeCount() + sourceInfo.getAttributeCount();
+      int attributeCount = getMarkerAttributeCount() + attributeWriters.size();
 
       if (bootstrapMethods != null) {
-         attributeCount++;
-      }
-
-      if (signatureWriter != null) {
-         attributeCount++;
-      }
-
-      if (nestHostWriter != null || nestMembersWriter != null) {
-         attributeCount++;
-      }
-
-      if (innerClassesWriter != null) {
          attributeCount++;
       }
 

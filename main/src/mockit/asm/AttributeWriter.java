@@ -23,9 +23,6 @@ abstract class AttributeWriter
    }
 
    @Nonnegative
-   int getAttributeCount() { return attributeIndex == 0 ? 0 : 1; }
-
-   @Nonnegative
    abstract int getSize();
 
    void put(@Nonnull ByteVector out) {

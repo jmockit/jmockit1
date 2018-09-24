@@ -4,14 +4,7 @@ import javax.annotation.*;
 
 final class InnerClassesWriter extends AttributeWriter
 {
-   /**
-    * The <tt>InnerClasses</tt> attribute.
-    */
    @Nonnull private final ByteVector innerClasses;
-
-   /**
-    * The number of entries in the <tt>InnerClasses</tt> attribute.
-    */
    @Nonnegative private int innerClassesCount;
 
    InnerClassesWriter(@Nonnull ConstantPoolGeneration cp) {
