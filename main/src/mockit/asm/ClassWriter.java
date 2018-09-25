@@ -42,9 +42,9 @@ public final class ClassWriter extends ClassVisitor
    @Nonnegative private int superNameItemIndex;
 
    @Nonnull private final List<AttributeWriter> attributeWriters;
+   @Nullable final BootstrapMethodsWriter bootstrapMethodsWriter;
    @Nullable private InterfaceWriter interfaceWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
-   @Nullable final BootstrapMethodsWriter bootstrapMethodsWriter;
 
    /**
     * The fields of this class.
@@ -75,10 +75,16 @@ public final class ClassWriter extends ClassVisitor
       classVersion = classReader.getVersion();
 
       cp = new ConstantPoolGeneration();
+
       bootstrapMethodsWriter = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethodsWriter(cp, classReader) : null;
       new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethodsWriter);
 
-      attributeWriters = new ArrayList<>(6);
+      attributeWriters = new ArrayList<>(5);
+
+      if (bootstrapMethodsWriter != null) {
+         attributeWriters.add(bootstrapMethodsWriter);
+      }
+
       fields = new ArrayList<>();
       methods = new ArrayList<>();
    }
@@ -191,10 +197,6 @@ public final class ClassWriter extends ClassVisitor
          size += interfaceWriter.getSize();
       }
 
-      if (bootstrapMethodsWriter != null) {
-         size += bootstrapMethodsWriter.getSize();
-      }
-
       for (AttributeWriter attributeWriter : attributeWriters) {
          size += attributeWriter.getSize();
       }
@@ -224,18 +226,12 @@ public final class ClassWriter extends ClassVisitor
       return size;
    }
 
-   @Nonnegative
-   private static int getAttributeSize(@Nullable AttributeWriter attributeWriter) {
-      return attributeWriter == null ? 0 : attributeWriter.getSize();
-   }
-
    private void putClassAttributes(@Nonnull ByteVector out) {
       out.putInt(0xCAFEBABE).putInt(classVersion);
       cp.put(out);
 
       putAccess(out, 0);
-      out.putShort(nameItemIndex);
-      out.putShort(superNameItemIndex);
+      out.putShort(nameItemIndex).putShort(superNameItemIndex);
 
       if (interfaceWriter == null) {
          out.putShort(0);
@@ -250,10 +246,6 @@ public final class ClassWriter extends ClassVisitor
       int attributeCount = getAttributeCount();
       out.putShort(attributeCount);
 
-      if (bootstrapMethodsWriter != null) {
-         bootstrapMethodsWriter.put(out);
-      }
-
       for (AttributeWriter attributeWriter : attributeWriters) {
          attributeWriter.put(out);
       }
@@ -264,10 +256,6 @@ public final class ClassWriter extends ClassVisitor
    @Nonnegative
    private int getAttributeCount() {
       int attributeCount = getMarkerAttributeCount() + attributeWriters.size();
-
-      if (bootstrapMethodsWriter != null) {
-         attributeCount++;
-      }
 
       if (annotations != null) {
          attributeCount++;
