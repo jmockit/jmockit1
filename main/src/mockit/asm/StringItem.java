@@ -4,10 +4,12 @@ import javax.annotation.*;
 
 final class StringItem extends Item
 {
-   @Nonnull String strVal;
-   @Nonnegative int innerClassIndex;
+   @Nonnull @SuppressWarnings("NullableProblems") String strVal;
 
-   StringItem() { super(0); }
+   StringItem() {
+      super(0);
+      strVal = "";
+   }
 
    StringItem(@Nonnegative int index, int type, @Nonnull String strVal) {
       super(index);
