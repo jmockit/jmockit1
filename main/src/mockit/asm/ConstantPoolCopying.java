@@ -20,7 +20,7 @@ final class ConstantPoolCopying
       newItems = new Item[source.items.length];
    }
 
-   void copyPool(@Nullable BootstrapMethods bootstrapMethods) {
+   void copyPool(@Nullable BootstrapMethodsWriter bootstrapMethods) {
       if (bootstrapMethods != null) {
          bootstrapMethods.copyBootstrapMethods(source, newItems);
       }
@@ -93,14 +93,14 @@ final class ConstantPoolCopying
 
    @Nonnull
    private Item copyUTF8Item() {
-      String string = source.readString(itemIndex);
-      return new StringItem(itemIndex, UTF8, string);
+      String strVal = source.readString(itemIndex);
+      return new StringItem(itemIndex, UTF8, strVal);
    }
 
    @Nonnull
    private Item copyNameReferenceItem(int type) {
-      String string = source.readNonnullUTF8();
-      return new StringItem(itemIndex, type, string);
+      String strVal = source.readNonnullUTF8();
+      return new StringItem(itemIndex, type, strVal);
    }
 
    @Nonnull

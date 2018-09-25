@@ -44,7 +44,7 @@ public final class ClassWriter extends ClassVisitor
    @Nonnull private final List<AttributeWriter> attributeWriters;
    @Nullable private InterfaceWriter interfaceWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
-   @Nullable final BootstrapMethods bootstrapMethods;
+   @Nullable final BootstrapMethodsWriter bootstrapMethodsWriter;
 
    /**
     * The fields of this class.
@@ -75,8 +75,8 @@ public final class ClassWriter extends ClassVisitor
       classVersion = classReader.getVersion();
 
       cp = new ConstantPoolGeneration();
-      bootstrapMethods = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethods(cp, classReader) : null;
-      new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethods);
+      bootstrapMethodsWriter = classReader.positionAtBootstrapMethodsAttribute() ? new BootstrapMethodsWriter(cp, classReader) : null;
+      new ConstantPoolCopying(classReader, this).copyPool(bootstrapMethodsWriter);
 
       attributeWriters = new ArrayList<>(6);
       fields = new ArrayList<>();
@@ -191,8 +191,8 @@ public final class ClassWriter extends ClassVisitor
          size += interfaceWriter.getSize();
       }
 
-      if (bootstrapMethods != null) {
-         size += bootstrapMethods.getSize();
+      if (bootstrapMethodsWriter != null) {
+         size += bootstrapMethodsWriter.getSize();
       }
 
       for (AttributeWriter attributeWriter : attributeWriters) {
@@ -250,8 +250,8 @@ public final class ClassWriter extends ClassVisitor
       int attributeCount = getAttributeCount();
       out.putShort(attributeCount);
 
-      if (bootstrapMethods != null) {
-         bootstrapMethods.put(out);
+      if (bootstrapMethodsWriter != null) {
+         bootstrapMethodsWriter.put(out);
       }
 
       for (AttributeWriter attributeWriter : attributeWriters) {
@@ -265,7 +265,7 @@ public final class ClassWriter extends ClassVisitor
    private int getAttributeCount() {
       int attributeCount = getMarkerAttributeCount() + attributeWriters.size();
 
-      if (bootstrapMethods != null) {
+      if (bootstrapMethodsWriter != null) {
          attributeCount++;
       }
 

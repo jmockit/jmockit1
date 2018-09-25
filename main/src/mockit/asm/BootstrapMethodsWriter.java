@@ -5,24 +5,14 @@ import javax.annotation.*;
 /**
  * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
  */
-final class BootstrapMethods
+final class BootstrapMethodsWriter extends AttributeWriter
 {
-   @Nonnull private final ConstantPoolGeneration cp;
-
-   /**
-    * The number of entries in the BootstrapMethods attribute.
-    */
-   @Nonnegative private final int bootstrapMethodsCount;
-
-   /**
-    * The BootstrapMethods attribute.
-    */
    @Nonnull private final ByteVector bootstrapMethods;
-
+   @Nonnegative private final int bootstrapMethodsCount;
    @Nonnegative private final int bsmStartCodeIndex;
 
-   BootstrapMethods(@Nonnull ConstantPoolGeneration cp, @Nonnull ClassReader cr) {
-      this.cp = cp;
+   BootstrapMethodsWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull ClassReader cr) {
+      super(cp);
 
       int attrSize = cr.readInt();
       bootstrapMethods = new ByteVector(attrSize + 62);
@@ -39,7 +29,7 @@ final class BootstrapMethods
       int previousCodeIndex = cr.codeIndex;
       cr.codeIndex = bsmStartCodeIndex;
 
-      for (int bsmIndex = 0; bsmIndex < bootstrapMethodsCount; bsmIndex++) {
+      for (int bsmIndex = 0, bsmCount = bootstrapMethodsCount; bsmIndex < bsmCount; bsmIndex++) {
          copyBootstrapMethod(cr, items, bsmIndex);
       }
 
@@ -120,15 +110,14 @@ final class BootstrapMethods
       throw new IllegalStateException("BootstrapMethodItem not found for hash code " + hashCode);
    }
 
-   @Nonnegative
-   int getSize() {
-      cp.newUTF8("BootstrapMethods");
-      return 8 + bootstrapMethods.length;
-   }
+   @Nonnegative @Override
+   int getSize() { return 8 + bootstrapMethods.length; }
 
+   @Override
    void put(@Nonnull ByteVector out) {
-      out.putShort(cp.newUTF8("BootstrapMethods"));
-      out.putInt(bootstrapMethods.length + 2).putShort(bootstrapMethodsCount);
+      setAttribute("BootstrapMethods");
+      put(out, 2 + bootstrapMethods.length);
+      out.putShort(bootstrapMethodsCount);
       out.putByteVector(bootstrapMethods);
    }
 }

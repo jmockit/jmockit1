@@ -211,7 +211,7 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitInvokeDynamicInsn(@Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs) {
       //noinspection ConstantConditions
-      InvokeDynamicItem invokeItem = cw.bootstrapMethods.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
+      InvokeDynamicItem invokeItem = cw.bootstrapMethodsWriter.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 
       // Adds the instruction to the bytecode of the method.
