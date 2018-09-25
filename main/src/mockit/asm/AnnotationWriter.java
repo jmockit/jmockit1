@@ -14,9 +14,9 @@ final class AnnotationWriter extends AnnotationVisitor
    @Nonnull private final ConstantPoolGeneration cp;
 
    /**
-    * The number of values in this annotation.
+    * The number of attribute values in this annotation.
     */
-   @Nonnegative private int size;
+   @Nonnegative private int attributeCount;
 
    /**
     * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
@@ -25,8 +25,8 @@ final class AnnotationWriter extends AnnotationVisitor
    private final boolean named;
 
    /**
-    * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of
-    * values must be stored as an unsigned short just before these bytes.
+    * The annotation values in bytecode form. This byte vector only contains the values themselves, i.e. the number of values must be
+    * stored as an unsigned short just before these bytes.
     */
    @Nonnull private final ByteVector bv;
 
@@ -73,7 +73,7 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    private void putName(@Nullable String name) {
-      size++;
+      attributeCount++;
 
       if (named) {
          //noinspection ConstantConditions
@@ -243,11 +243,11 @@ final class AnnotationWriter extends AnnotationVisitor
       return new AnnotationWriter(this, false);
    }
 
-   @Override
+   @Override @SuppressWarnings("NumericCastThatLosesPrecision")
    public void visitEnd() {
       byte[] data = bv.data;
-      data[offset] = (byte) (size >>> 8);
-      data[offset + 1] = (byte) size;
+      data[offset] = (byte) (attributeCount >>> 8);
+      data[offset + 1] = (byte) attributeCount;
    }
 
    // ------------------------------------------------------------------------
@@ -256,8 +256,6 @@ final class AnnotationWriter extends AnnotationVisitor
 
    /**
     * Puts the annotations of this annotation writer list into the given byte vector.
-    *
-    * @param out where the annotations must be put.
     */
    void put(@Nonnull ByteVector out) {
       AnnotationWriter aw = this;
@@ -287,9 +285,6 @@ final class AnnotationWriter extends AnnotationVisitor
 
    /**
     * Puts the given annotation lists into the given byte vector.
-    *
-    * @param out  where the annotations must be put.
-    * @param anns an array of annotation writer lists.
     */
    static void put(@Nonnull ByteVector out, @Nonnull AnnotationWriter[] anns) {
       putNumberAndSizeOfAnnotations(out, anns);
