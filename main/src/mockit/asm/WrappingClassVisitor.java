@@ -49,10 +49,5 @@ public class WrappingClassVisitor extends ClassVisitor
    }
 
    @Override
-   public void visitEnd() {
-      cw.visitEnd();
-   }
-
-   @Override
    public final byte[] toByteArray() { return cw.toByteArray(); }
 }
