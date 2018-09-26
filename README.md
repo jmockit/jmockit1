@@ -5,4 +5,5 @@ How to build the project:
 * use Maven 3.5.0 or newer; the following are the top-level modules:
     1. main/pom.xml: builds jmockit-1.n.jar, running JUnit and TestNG test suites
     2. coverageTests/pom.xml: runs JUnit tests for the coverage tool
-    3. samples: various sample test suites
+    3. samples/pom.xml: various sample test suites (tutorial, LoginService, java8testing)
+    4. samples/petclinic/pom.xml: integration testing example using Java EE 8
