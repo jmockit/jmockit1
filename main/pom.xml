@@ -51,9 +51,9 @@
          <resource>
             <directory>src</directory>
             <includes>
-               <include>**/*.css</include>
-               <include>**/*.js</include>
-               <include>**/*.png</include>
+               <include>mockit/coverage/reporting/coverage.css</include>
+               <include>mockit/coverage/reporting/*.js</include>
+               <include>mockit/coverage/reporting/*.png</include>
             </includes>
          </resource>
          <resource>
@@ -66,7 +66,7 @@
       </resources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.7.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.7</source><target>1.7</target>
@@ -93,10 +93,15 @@
          <plugin>
             <artifactId>maven-source-plugin</artifactId><version>3.0.1</version>
             <configuration>
+               <archive>
+                  <addMavenDescriptor>false</addMavenDescriptor>
+               </archive>
                <excludes>
                   <exclude>*</exclude>
                   <exclude>**/*.css</exclude>
                   <exclude>**/*.js</exclude>
+                  <exclude>**/*.png</exclude>
+                  <exclude>META-INF/services/*</exclude>
                </excludes>
             </configuration>
             <executions>
