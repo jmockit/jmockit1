@@ -144,45 +144,23 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.21.0</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.22.0</version>
             <configuration>
-               <skipTests>true</skipTests>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
                <argLine>-javaagent:../agent.jar</argLine>
+               <properties><property><name>junit</name><value>false</value></property></properties>
+               <excludes><exclude>**/TestNGViolatedExpectationsTest.class</exclude></excludes>
+               <threadCount>1</threadCount>
             </configuration>
-            <executions>
-               <execution>
-                  <id>JUnit-tests</id>
-                  <phase>test</phase>
-                  <goals><goal>test</goal></goals>
-                  <configuration>
-                     <skipTests>${skipTests}</skipTests>
-                     <testNGArtifactName>none:none</testNGArtifactName>
-                     <excludes>
-                        <exclude>**/*$*</exclude>
-                        <exclude>**/Base*Test.class</exclude>
-                        <exclude>**/JUnit4DecoratorTest.class</exclude>
-                        <exclude>**/testng/*Test.class</exclude>
-                     </excludes>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>TestNG-tests</id>
-                  <phase>test</phase>
-                  <goals><goal>test</goal></goals>
-                  <configuration>
-                     <skipTests>${skipTests}</skipTests>
-                     <junitArtifactName>none:none</junitArtifactName>
-                     <includes>
-                        <include>**/testng/*Test.class</include>
-                     </includes>
-                     <excludes>
-                        <exclude>**/TestNGViolatedExpectationsTest.class</exclude>
-                     </excludes>
-                  </configuration>
-               </execution>
-            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>2.22.0</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.0</version>
+               </dependency>
+            </dependencies>
          </plugin>
          <plugin>
             <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
