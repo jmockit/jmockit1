@@ -349,8 +349,9 @@ abstract class Invocations
     * @return the value recorded inside the given Hamcrest matcher, or <tt>null</tt> if there is no such value to be found
     *
     * @see #with(Delegate)
+    * @deprecated Use {@linkplain #withCapture(List) argument capturing} or {@link #with(Delegate)} instead.
     */
-   @Nullable
+   @Nullable @Deprecated
    protected final <T> T withArgThat(@Nonnull Matcher<? super T> argumentMatcher) {
       HamcrestAdapter matcher = new HamcrestAdapter(argumentMatcher);
       addMatcher(matcher);
@@ -383,7 +384,6 @@ abstract class Invocations
     *
     * @return the default primitive value corresponding to <tt>T</tt> if it's a primitive wrapper type, or <tt>null</tt> otherwise
     *
-    * @see #withArgThat(org.hamcrest.Matcher)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
    @Nullable
