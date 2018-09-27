@@ -1,17 +1,17 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
 /**
  * A constant pool item of a given {@linkplain Type type}.
  */
-abstract class Item
+public abstract class Item
 {
    /**
     * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.4-150">types of items</a> in the
     * constant pool of a class.
     */
-   interface Type {
+   public interface Type {
       int CLASS     =  7; // CONSTANT_Class
       int FIELD     =  9; // CONSTANT_Fieldref
       int METH      = 10; // CONSTANT_Methodref
@@ -43,7 +43,7 @@ abstract class Item
    /**
     * Index of this item in the constant pool.
     */
-   @Nonnegative final int index;
+   @Nonnegative public final int index;
 
    /**
     * {@link Type Type} of this constant pool item.
@@ -87,22 +87,16 @@ abstract class Item
    }
 
    /**
-    * Returns the {@link #index} of this item.
-    */
-   @Nonnegative
-   int getIndex() { return index; }
-
-   /**
     * Returns the {@link #type} of this item.
     */
    @Nonnegative
-   int getType() { return type; }
+   public int getType() { return type; }
 
    /**
     * Returns the {@link #hashCode} value.
     */
    @Nonnegative
-   final int getHashCode() { return hashCode; }
+   public final int getHashCode() { return hashCode; }
 
    final void setHashCode(int valuesHashCode) {
       hashCode = 0x7FFFFFFF & (type + valuesHashCode);
@@ -112,9 +106,9 @@ abstract class Item
     * Returns the {@link #next} item, if any.
     */
    @Nullable
-   Item getNext() { return next; }
+   public Item getNext() { return next; }
 
-   final void setNext(@Nonnull Item[] items) {
+   public final void setNext(@Nonnull Item[] items) {
       int indexOfNextItem = hashCode % items.length;
       next = items[indexOfNextItem];
       items[indexOfNextItem] = this;

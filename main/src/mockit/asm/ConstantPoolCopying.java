@@ -2,7 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
-import static mockit.asm.Item.Type.*;
+import mockit.asm.constantPool.*;
+import static mockit.asm.constantPool.Item.Type.*;
 
 /**
  * Copies the constant pool data from a {@link ClassReader} into a {@link ClassWriter}.

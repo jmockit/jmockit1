@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
+
 /**
  * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
  */
@@ -68,7 +70,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       int position = methods.length; // record current position
 
       MethodHandleItem methodHandleItem = cp.newMethodHandleItem(bsm);
-      methods.putShort(methodHandleItem.getIndex());
+      methods.putShort(methodHandleItem.index);
 
       int argsLength = bsmArgs.length;
       methods.putShort(argsLength);
@@ -80,7 +82,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       methods.length = position; // revert to old position
 
       BootstrapMethodItem bsmItem = getBSMItem(hashCode);
-      InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.getIndex());
+      InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.index);
       return result;
    }
 
@@ -89,7 +91,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
          hashCode ^= bsmArg.hashCode();
 
          Item constItem = cp.newConstItem(bsmArg);
-         bootstrapMethods.putShort(constItem.getIndex());
+         bootstrapMethods.putShort(constItem.index);
       }
 
       return hashCode;

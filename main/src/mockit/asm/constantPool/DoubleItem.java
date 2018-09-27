@@ -1,12 +1,12 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.Item.Type.*;
+import static mockit.asm.constantPool.Item.Type.*;
 
-final class DoubleItem extends LongValueItem
+public final class DoubleItem extends LongValueItem
 {
-   DoubleItem(@Nonnegative int index) {
+   public DoubleItem(@Nonnegative int index) {
       super(index);
       type = DOUBLE;
    }
@@ -16,7 +16,7 @@ final class DoubleItem extends LongValueItem
    /**
     * Sets the value of this item.
     */
-   void set(double value) {
+   public void set(double value) {
       long longValue = Double.doubleToRawLongBits(value);
       setValue(longValue);
    }

@@ -5,10 +5,9 @@ import javax.annotation.*;
 /**
  * A reference to a method.
  */
-final class MethodHandle
+public final class MethodHandle
 {
-   interface Tag
-   {
+   public interface Tag {
 //    int INVOKEVIRTUAL    = 5;
 //    int INVOKESTATIC     = 6;
 //    int INVOKESPECIAL    = 7;
@@ -17,24 +16,24 @@ final class MethodHandle
    }
 
    /**
-    * The kind of method designated by this handle. Should be one of the {@link Tag} constants.
+    * The kind of method designated by this handle. Should be one of the {@link Tag Tag} constants.
     */
-   @Nonnegative final int tag;
+   @Nonnegative public final int tag;
 
    /**
     * The internal name of the class that owns the method designated by this handle.
     */
-   @Nonnull final String owner;
+   @Nonnull public final String owner;
 
    /**
     * The name of the method designated by this handle.
     */
-   @Nonnull final String name;
+   @Nonnull public final String name;
 
    /**
     * The descriptor of the method designated by this handle.
     */
-   @Nonnull final String desc;
+   @Nonnull public final String desc;
 
    /**
     * Initializes a new method handle.

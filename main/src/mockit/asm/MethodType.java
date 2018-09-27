@@ -2,7 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
-final class MethodType extends ReferenceType
+public final class MethodType extends ReferenceType
 {
    /**
     * Returns the Java type corresponding to the given method descriptor.

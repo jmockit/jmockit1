@@ -1,8 +1,8 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-final class StringItem extends Item
+public final class StringItem extends Item
 {
    @Nonnull @SuppressWarnings("NullableProblems") String strVal;
 
@@ -11,7 +11,7 @@ final class StringItem extends Item
       strVal = "";
    }
 
-   StringItem(@Nonnegative int index, int type, @Nonnull String strVal) {
+   public StringItem(@Nonnegative int index, int type, @Nonnull String strVal) {
       super(index);
       set(type, strVal);
    }
@@ -20,6 +20,9 @@ final class StringItem extends Item
       super(index, item);
       strVal = item.strVal;
    }
+
+   @Nonnull
+   public String getValue() { return strVal; }
 
    /**
     * Sets this string item value.

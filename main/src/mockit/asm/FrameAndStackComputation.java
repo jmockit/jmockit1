@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.Frame.*;
+import mockit.asm.constantPool.*;
 
 final class FrameAndStackComputation
 {
@@ -316,7 +317,7 @@ final class FrameAndStackComputation
             break;
          case TypeMask.UNINITIALIZED:
             UninitializedTypeTableItem uninitializedItemValue = cp.getUninitializedItemValue(typeTableIndex);
-            int typeDesc = uninitializedItemValue.offset;
+            int typeDesc = uninitializedItemValue.getOffset();
             stackMap.putByte(8).putShort(typeDesc);
             break;
          default:

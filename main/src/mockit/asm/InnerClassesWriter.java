@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
+
 final class InnerClassesWriter extends AttributeWriter
 {
    @Nonnull private final ByteVector innerClasses;

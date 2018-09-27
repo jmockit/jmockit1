@@ -1,8 +1,8 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.TypeTableItem.SpecialType.NORMAL;
+import static mockit.asm.constantPool.TypeTableItem.SpecialType.NORMAL;
 
 final class NormalTypeTableItem extends TypeTableItem
 {

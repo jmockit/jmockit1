@@ -1,8 +1,10 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-class TypeOrMemberItem extends Item
+import mockit.asm.*;
+
+public class TypeOrMemberItem extends Item
 {
    @Nonnull String name;
    @Nonnull String desc;
@@ -18,6 +20,12 @@ class TypeOrMemberItem extends Item
       name = item.name;
       desc = item.desc;
    }
+
+   @Nonnull
+   public String getName() { return name; }
+
+   @Nonnull
+   public String getDesc() { return desc; }
 
    /**
     * Sets the name and type descriptor of this item, and computes its hashcode.
@@ -38,18 +46,18 @@ class TypeOrMemberItem extends Item
    }
 
    /**
-    * Recovers the stack size variation from this constant pool item, computing and storing it if needed. The
-    * {@link #argSize} field stores the sizes of the arguments and of the return value corresponding to <tt>desc</tt>.
+    * Recovers the stack size variation from this constant pool item, computing and storing it if needed.
+    * The {@link #argSize} field stores the sizes of the arguments and of the return value corresponding to <tt>desc</tt>.
     */
    @Nonnegative
-   final int getArgSizeComputingIfNeeded(@Nonnull String desc) {
-      int argSize = this.argSize;
+   public final int getArgSizeComputingIfNeeded(@Nonnull String methodDesc) {
+      int thisArgSize = argSize;
 
-      if (argSize == 0) {
-         argSize = JavaType.getArgumentsAndReturnSizes(desc);
-         this.argSize = argSize;
+      if (thisArgSize == 0) {
+         thisArgSize = JavaType.getArgumentsAndReturnSizes(methodDesc);
+         argSize = thisArgSize;
       }
 
-      return argSize;
+      return thisArgSize;
    }
 }

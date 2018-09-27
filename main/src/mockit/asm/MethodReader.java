@@ -3,7 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.ClassReader.*;
-import mockit.asm.Item.*;
+import mockit.asm.constantPool.Item.*;
 import static mockit.asm.MethodReader.InstructionType.*;
 import static mockit.asm.Opcodes.*;
 

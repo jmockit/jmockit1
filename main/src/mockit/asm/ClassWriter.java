@@ -4,6 +4,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
 import mockit.internal.util.*;
 
 /**

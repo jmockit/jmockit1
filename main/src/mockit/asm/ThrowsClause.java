@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
+
 /**
  * Stores the exceptions that can be thrown by a method/constructor. For each thrown exception, stores the index of the
  * constant pool item containing the internal name of the thrown exception class. Provides the bytecode

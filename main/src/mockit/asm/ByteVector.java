@@ -7,7 +7,7 @@ import javax.annotation.*;
  * This class is roughly equivalent to a DataOutputStream on top of a ByteArrayOutputStream, but is more efficient.
  */
 @SuppressWarnings({"NumericCastThatLosesPrecision", "CharUsedInArithmeticContext"})
-final class ByteVector
+public final class ByteVector
 {
    /**
     * The content of this vector.
@@ -22,7 +22,7 @@ final class ByteVector
    /**
     * Constructs a new ByteVector with a default initial size.
     */
-   ByteVector() {
+   public ByteVector() {
       data = new byte[64];
    }
 
@@ -34,12 +34,18 @@ final class ByteVector
    }
 
    /**
+    * Returns the {@link #length} of this vector, in bytes.
+    */
+   @Nonnegative
+   public int getLength() { return length; }
+
+   /**
     * Puts a byte into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @return this byte vector.
+    * @return this byte vector
     */
    @Nonnull
-   ByteVector putByte(int b) {
+   public ByteVector putByte(int b) {
       int len = getLengthEnlargingIfNeeded(1);
       data[len++] = (byte) b;
       length = len;
@@ -60,7 +66,7 @@ final class ByteVector
    /**
     * Enlarge this byte vector so that it can receive n more bytes.
     *
-    * @param size number of additional bytes that this byte vector should be able to receive.
+    * @param size number of additional bytes that this byte vector should be able to receive
     */
    private void enlarge(@Nonnegative int size) {
       int length1 = 2 * data.length;
@@ -73,10 +79,10 @@ final class ByteVector
    /**
     * Puts two bytes into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @return this byte vector.
+    * @return this byte vector
     */
    @Nonnull
-   ByteVector put11(int b1, int b2) {
+   public ByteVector put11(int b1, int b2) {
       int len = getLengthEnlargingIfNeeded(2);
       byte[] bytes = data;
       bytes[len++] = (byte) b1;
@@ -88,20 +94,20 @@ final class ByteVector
    /**
     * Puts a short into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @return this byte vector.
+    * @return this byte vector
     */
    @Nonnull
-   ByteVector putShort(int s) {
+   public ByteVector putShort(int s) {
       return put11(s >>> 8, s);
    }
 
    /**
     * Puts a byte and a short into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @return this byte vector.
+    * @return this byte vector
     */
    @Nonnull
-   ByteVector put12(int b, int s) {
+   public ByteVector put12(int b, int s) {
       int len = getLengthEnlargingIfNeeded(3);
       byte[] bytes = data;
       bytes[len++] = (byte) b;
@@ -114,10 +120,10 @@ final class ByteVector
    /**
     * Puts an int into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @return this byte vector.
+    * @return this byte vector
     */
    @Nonnull
-   ByteVector putInt(int i) {
+   public ByteVector putInt(int i) {
       int len = getLengthEnlargingIfNeeded(4);
       byte[] bytes = data;
       bytes[len++] = (byte) (i >>> 24);
@@ -131,7 +137,7 @@ final class ByteVector
    /**
     * Puts a long into this byte vector. The byte vector is automatically enlarged if necessary.
     */
-   void putLong(long l) {
+   public void putLong(long l) {
       int i1 = (int) (l >>> 32);
       int i2 = (int) l;
       putInt(i1);
@@ -143,7 +149,7 @@ final class ByteVector
     *
     * @param utf8String a String whose UTF8 encoded length must be less than 65536
     */
-   void putUTF8(@Nonnull String utf8String) {
+   public void putUTF8(@Nonnull String utf8String) {
       int charLength = utf8String.length();
 
       if (charLength > 65535) {
@@ -254,17 +260,17 @@ final class ByteVector
    /**
     * Puts an array of bytes into this byte vector. The byte vector is automatically enlarged if necessary.
     *
-    * @param bytes an array of bytes.
-    * @param offset index of the first byte of code that must be copied.
-    * @param numBytes number of bytes of code that must be copied.
+    * @param bytes an array of bytes
+    * @param offset index of the first byte of code that must be copied
+    * @param numBytes number of bytes of code that must be copied
     */
-   void putByteArray(@Nonnull byte[] bytes, @Nonnegative int offset, @Nonnegative int numBytes) {
+   public void putByteArray(@Nonnull byte[] bytes, @Nonnegative int offset, @Nonnegative int numBytes) {
       int len = getLengthEnlargingIfNeeded(numBytes);
       System.arraycopy(bytes, offset, data, len, numBytes);
       length += numBytes;
    }
 
-   void putByteVector(@Nonnull ByteVector another) {
+   public void putByteVector(@Nonnull ByteVector another) {
       putByteArray(another.data, 0, another.length);
    }
 

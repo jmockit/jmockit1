@@ -1,8 +1,8 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-class LongValueItem extends Item
+public class LongValueItem extends Item
 {
    /**
     * Value of this item, for a long item.
@@ -16,7 +16,7 @@ class LongValueItem extends Item
       longVal = item.longVal;
    }
 
-   final void setValue(long value) {
+   public final void setValue(long value) {
       longVal = value;
       setHashCode((int) value);
    }

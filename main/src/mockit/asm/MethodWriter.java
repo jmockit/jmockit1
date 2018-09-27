@@ -2,6 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
 import static mockit.asm.Opcodes.*;
 
 /**

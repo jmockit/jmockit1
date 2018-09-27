@@ -1,14 +1,14 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.Item.Type.*;
+import static mockit.asm.constantPool.Item.Type.*;
 
-final class InvokeDynamicItem extends TypeOrMemberItem
+public final class InvokeDynamicItem extends TypeOrMemberItem
 {
    @Nonnegative private int bsmIndex;
 
-   InvokeDynamicItem(@Nonnegative int index) {
+   public InvokeDynamicItem(@Nonnegative int index) {
       super(index);
       type = INDY;
    }
@@ -25,7 +25,7 @@ final class InvokeDynamicItem extends TypeOrMemberItem
     * @param desc  invokeDynamic's desc.
     * @param index zero based index into the class attribute "BootstrapMethods".
     */
-   void set(@Nonnull String name, @Nonnull String desc, @Nonnegative int index) {
+   public void set(@Nonnull String name, @Nonnull String desc, @Nonnegative int index) {
       bsmIndex = index;
       setValuesAndHashcode(name, desc, index);
    }

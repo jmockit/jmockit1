@@ -1,14 +1,15 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.Item.Type.*;
+import mockit.asm.*;
+import static mockit.asm.constantPool.Item.Type.*;
 
-final class MethodHandleItem extends Item
+public final class MethodHandleItem extends Item
 {
    private MethodHandle methodHandle;
 
-   MethodHandleItem(@Nonnegative int index) {
+   public MethodHandleItem(@Nonnegative int index) {
       super(index);
       type = HANDLE_BASE;
    }
@@ -21,7 +22,7 @@ final class MethodHandleItem extends Item
    /**
     * Sets the type and hash code of this method handle item.
     */
-   void set(@Nonnull MethodHandle methodHandle) {
+   public void set(@Nonnull MethodHandle methodHandle) {
       this.methodHandle = methodHandle;
       type = HANDLE_BASE;
       setHashCode(methodHandle.hashCode());

@@ -1,12 +1,12 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.Item.Type.*;
+import static mockit.asm.constantPool.Item.Type.*;
 
-final class NameAndTypeItem extends TypeOrMemberItem
+public final class NameAndTypeItem extends TypeOrMemberItem
 {
-   NameAndTypeItem(@Nonnegative int index) {
+   public NameAndTypeItem(@Nonnegative int index) {
       super(index);
       type = NAME_TYPE;
    }
@@ -16,7 +16,7 @@ final class NameAndTypeItem extends TypeOrMemberItem
    /**
     * Sets the name and type descriptor of this item.
     */
-   void set(@Nonnull String name, @Nonnull String desc) {
+   public void set(@Nonnull String name, @Nonnull String desc) {
       setValuesAndHashcode(name, desc, 1);
    }
 }

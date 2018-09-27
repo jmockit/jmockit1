@@ -3,6 +3,8 @@ package mockit.asm;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
+
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
  */

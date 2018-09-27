@@ -2,6 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.*;
 import static mockit.asm.Frame.TypeMask.*;
 import static mockit.asm.Opcodes.*;
 
@@ -116,7 +117,7 @@ public final class Frame
       int LOCAL = 0x2000000;
 
       /**
-       * Kind of the the types that are relative to the stack of an input stack map frame. The value of such types is a
+       * Kind of the types that are relative to the stack of an input stack map frame. The value of such types is a
        * position relatively to the top of this stack.
        */
       int STACK = 0x3000000;
@@ -870,7 +871,7 @@ public final class Frame
     * @param item the operand of the instructions.
     */
    void executeLDC(@Nonnull Item item) {
-      switch (item.type) {
+      switch (item.getType()) {
          case Item.Type.INT:
             push(INTEGER);
             break;
@@ -910,7 +911,7 @@ public final class Frame
    void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
       switch (opcode) {
          case NEW:
-            push(UNINITIALIZED | cp.addUninitializedType(item.strVal, codeLength));
+            push(UNINITIALIZED | cp.addUninitializedType(item.getValue(), codeLength));
             break;
          case ANEWARRAY:
             executeANewArray(item);
@@ -925,7 +926,7 @@ public final class Frame
    }
 
    private void executeANewArray(@Nonnull StringItem item) {
-      String s = item.strVal;
+      String s = item.getValue();
       pop();
 
       if (s.charAt(0) == '[') {
@@ -955,7 +956,7 @@ public final class Frame
    }
 
    private void executeCheckCast(@Nonnull StringItem item) {
-      String s = item.strVal;
+      String s = item.getValue();
       pop();
 
       if (s.charAt(0) == '[') {
@@ -974,7 +975,7 @@ public final class Frame
     */
    void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
       pop(dims);
-      push(arrayType.strVal);
+      push(arrayType.getValue());
    }
 
    /**
@@ -990,17 +991,17 @@ public final class Frame
       else {
          switch (opcode) {
             case GETSTATIC:
-               push(item.desc);
+               push(item.getDesc());
                break;
             case PUTSTATIC:
-               pop(item.desc);
+               pop(item.getDesc());
                break;
             case GETFIELD:
                pop(1);
-               push(item.desc);
+               push(item.getDesc());
                break;
             case PUTFIELD:
-               pop(item.desc);
+               pop(item.getDesc());
                pop();
                break;
             case INVOKEVIRTUAL:
@@ -1013,13 +1014,13 @@ public final class Frame
    }
 
    private void executeInvoke(int opcode, @Nonnull TypeOrMemberItem item) {
-      String methodDesc = item.desc;
+      String methodDesc = item.getDesc();
       pop(methodDesc);
 
       if (opcode != INVOKESTATIC) {
          int var = pop();
 
-         if (opcode == INVOKESPECIAL && item.name.charAt(0) == '<') {
+         if (opcode == INVOKESPECIAL && item.getName().charAt(0) == '<') {
             init(var);
          }
       }
@@ -1028,7 +1029,7 @@ public final class Frame
    }
 
    private void executeInvokeDynamic(@Nonnull TypeOrMemberItem item) {
-      String desc = item.desc;
+      String desc = item.getDesc();
       pop(desc);
       push(desc);
    }

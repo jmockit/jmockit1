@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
@@ -16,7 +16,7 @@ class IntValueItem extends Item
       intVal = item.intVal;
    }
 
-   final void setValue(int value) {
+   public final void setValue(int value) {
       intVal = value;
       setHashCode(value);
    }

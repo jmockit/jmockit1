@@ -1,9 +1,10 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.internal.util.*;
-import static mockit.asm.Item.Type.*;
+import static mockit.asm.constantPool.Item.Type.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
 
 /**
@@ -11,7 +12,7 @@ import static mockit.internal.util.ClassLoad.OBJECT;
  * modified from an existing class file.
  */
 @SuppressWarnings({"ClassWithTooManyFields", "OverlyCoupledClass"})
-final class ConstantPoolGeneration
+public final class ConstantPoolGeneration
 {
    /**
     * The constant pool of the class file being generated/modified.
@@ -64,7 +65,7 @@ final class ConstantPoolGeneration
    @Nonnull private final MergedTypeTableItem reusableMergedItem;
 
    @SuppressWarnings("OverlyCoupledMethod")
-   ConstantPoolGeneration() {
+   public ConstantPoolGeneration() {
       pool = new ByteVector();
       items = new Item[256];
       //noinspection NumericCastThatLosesPrecision
@@ -92,7 +93,7 @@ final class ConstantPoolGeneration
     * @return the index of a new or already existing UTF8 item.
     */
    @Nonnegative
-   int newUTF8(@Nonnull String value) {
+   public int newUTF8(@Nonnull String value) {
       reusableUTF8Item.set(UTF8, value);
 
       StringItem result = get(reusableUTF8Item);
@@ -104,7 +105,7 @@ final class ConstantPoolGeneration
          put(result);
       }
 
-      return result.getIndex();
+      return result.index;
    }
 
    /**
@@ -115,8 +116,8 @@ final class ConstantPoolGeneration
     * @return the index of a new or already existing class reference item.
     */
    @Nonnegative
-   int newClass(@Nonnull String internalName) {
-      return newClassItem(internalName).getIndex();
+   public int newClass(@Nonnull String internalName) {
+      return newClassItem(internalName).index;
    }
 
    /**
@@ -127,7 +128,7 @@ final class ConstantPoolGeneration
     * @return a new or already existing class reference item.
     */
    @Nonnull
-   StringItem newClassItem(@Nonnull String internalName) {
+   public StringItem newClassItem(@Nonnull String internalName) {
       return newStringItem(CLASS, internalName);
    }
 
@@ -163,7 +164,7 @@ final class ConstantPoolGeneration
     * @return a new or an already existing method type reference item.
     */
    @Nonnull
-   MethodHandleItem newMethodHandleItem(@Nonnull MethodHandle methodHandle) {
+   public MethodHandleItem newMethodHandleItem(@Nonnull MethodHandle methodHandle) {
       reusableMethodHandleItem.set(methodHandle);
 
       MethodHandleItem result = get(reusableMethodHandleItem);
@@ -172,7 +173,7 @@ final class ConstantPoolGeneration
          int tag = methodHandle.tag;
          int memberType = tag == MethodHandle.Tag.INVOKEINTERFACE ? IMETH : METH;
          ClassMemberItem memberItem = newClassMemberItem(memberType, methodHandle.owner, methodHandle.name, methodHandle.desc);
-         pool.put11(HANDLE, tag).putShort(memberItem.getIndex());
+         pool.put11(HANDLE, tag).putShort(memberItem.index);
 
          result = new MethodHandleItem(index++, reusableMethodHandleItem);
          put(result);
@@ -203,13 +204,13 @@ final class ConstantPoolGeneration
     * Adds a field reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param owner the internal name of the field's owner class.
-    * @param name  the field's name.
-    * @param desc  the field's descriptor.
-    * @return a new or already existing field reference item.
+    * @param owner the internal name of the field's owner class
+    * @param name  the field's name
+    * @param desc  the field's descriptor
+    * @return a new or already existing field reference item
     */
    @Nonnull
-   ClassMemberItem newFieldItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+   public ClassMemberItem newFieldItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       return newClassMemberItem(FIELD, owner, name, desc);
    }
 
@@ -217,14 +218,14 @@ final class ConstantPoolGeneration
     * Adds a method reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param owner the internal name of the method's owner class.
-    * @param name  the method's name.
-    * @param desc  the method's descriptor.
-    * @param itf   <tt>true</tt> if <tt>owner</tt> is an interface.
-    * @return a new or already existing method reference item.
+    * @param owner the internal name of the method's owner class
+    * @param name  the method's name
+    * @param desc  the method's descriptor
+    * @param itf   <tt>true</tt> if <tt>owner</tt> is an interface
+    * @return a new or already existing method reference item
     */
    @Nonnull
-   ClassMemberItem newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+   public ClassMemberItem newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
       return newClassMemberItem(itf ? IMETH : METH, owner, name, desc);
    }
 
@@ -232,11 +233,11 @@ final class ConstantPoolGeneration
     * Adds an integer to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param value the int value.
-    * @return a new or already existing int item.
+    * @param value the int value
+    * @return a new or already existing int item
     */
    @Nonnull
-   IntItem newInteger(int value) {
+   public IntItem newInteger(int value) {
       reusableIntItem.setValue(value);
 
       IntItem result = get(reusableIntItem);
@@ -255,11 +256,11 @@ final class ConstantPoolGeneration
     * Adds a float to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param value the float value.
-    * @return a new or already existing float item.
+    * @param value the float value
+    * @return a new or already existing float item
     */
    @Nonnull
-   FloatItem newFloat(float value) {
+   public FloatItem newFloat(float value) {
       reusableFloatItem.set(value);
 
       FloatItem result = get(reusableFloatItem);
@@ -278,11 +279,11 @@ final class ConstantPoolGeneration
     * Adds a long to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param value the long value.
-    * @return a new or already existing long item.
+    * @param value the long value
+    * @return a new or already existing long item
     */
    @Nonnull
-   LongItem newLong(long value) {
+   public LongItem newLong(long value) {
       reusableLongItem.setValue(value);
 
       LongItem result = get(reusableLongItem);
@@ -302,11 +303,11 @@ final class ConstantPoolGeneration
     * Adds a double to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param value the double value.
-    * @return a new or already existing double item.
+    * @param value the double value
+    * @return a new or already existing double item
     */
    @Nonnull
-   DoubleItem newDouble(double value) {
+   public DoubleItem newDouble(double value) {
       reusableDoubleItem.set(value);
 
       DoubleItem result = get(reusableDoubleItem);
@@ -325,9 +326,9 @@ final class ConstantPoolGeneration
    /**
     * Adds a name and type to the constant pool of the class being built. Does nothing if the constant pool already contains a similar item.
     *
-    * @param name a name.
-    * @param desc a type descriptor.
-    * @return the index of a new or already existing name and type item.
+    * @param name a name
+    * @param desc a type descriptor
+    * @return the index of a new or already existing name and type item
     */
    @Nonnegative
    private int newNameType(@Nonnull String name, @Nonnull String desc) {
@@ -344,19 +345,19 @@ final class ConstantPoolGeneration
          put(result);
       }
 
-      return result.getIndex();
+      return result.index;
    }
 
    /**
     * Adds a number or string constant to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
-    *            a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link JavaType}.
-    * @return a new or already existing constant item with the given value.
+    * @param cst the value of the constant to be added to the constant pool, which must be an {@link Integer}, a {@link Float}, a
+    * {@link Long}, a {@link Double}, a {@link String}, or a {@link JavaType}
+    * @return a new or already existing constant item with the given value
     */
    @Nonnull
-   Item newConstItem(@Nonnull Object cst) {
+   public Item newConstItem(@Nonnull Object cst) {
       if (cst instanceof String) {
          return newStringItem(STR, (String) cst);
       }
@@ -412,11 +413,11 @@ final class ConstantPoolGeneration
     * Adds the given internal name to {@link #typeTable} and returns its index.
     * Does nothing if the type table already contains this internal name.
     *
-    * @param type the internal name to be added to the type table.
-    * @return the index of this internal name in the type table.
+    * @param type the internal name to be added to the type table
+    * @return the index of this internal name in the type table
     */
    @Nonnegative
-   int addNormalType(@Nonnull String type) {
+   public int addNormalType(@Nonnull String type) {
       reusableNormalItem.set(type);
 
       TypeTableItem result = get(reusableNormalItem);
@@ -426,19 +427,19 @@ final class ConstantPoolGeneration
          addToTypeTable(result);
       }
 
-      return result.getIndex();
+      return result.index;
    }
 
    /**
     * Adds the given "uninitialized" type to {@link #typeTable} and returns its index.
     * This method is used for UNINITIALIZED types, made of an internal name and a bytecode offset.
     *
-    * @param type   the internal name to be added to the type table.
-    * @param offset the bytecode offset of the NEW instruction that created this UNINITIALIZED type value.
-    * @return the index of this internal name in the type table.
+    * @param type the internal name to be added to the type table
+    * @param offset the bytecode offset of the NEW instruction that created this UNINITIALIZED type value
+    * @return the index of this internal name in the type table
     */
    @Nonnegative
-   int addUninitializedType(@Nonnull String type, @Nonnegative int offset) {
+   public int addUninitializedType(@Nonnull String type, @Nonnegative int offset) {
       reusableUninitializedItem.set(type, offset);
 
       TypeTableItem result = get(reusableUninitializedItem);
@@ -448,7 +449,7 @@ final class ConstantPoolGeneration
          addToTypeTable(result);
       }
 
-      return result.getIndex();
+      return result.index;
    }
 
    private void addToTypeTable(@Nonnull TypeTableItem newItem) {
@@ -477,12 +478,12 @@ final class ConstantPoolGeneration
     * Returns the index of the common super type of the two given types. This method calls {@link #getCommonSuperClass} and caches the
     * result in the {@link #items} hash table to speedup future calls with the same parameters.
     *
-    * @param type1 index of an internal name in {@link #typeTable}.
-    * @param type2 index of an internal name in {@link #typeTable}.
-    * @return the index of the common super type of the two given types.
+    * @param type1 index of an internal name in {@link #typeTable}
+    * @param type2 index of an internal name in {@link #typeTable}
+    * @return the index of the common super type of the two given types
     */
    @Nonnegative
-   int getMergedType(@Nonnegative int type1, @Nonnegative int type2) {
+   public int getMergedType(@Nonnegative int type1, @Nonnegative int type2) {
       reusableMergedItem.set(type1, type2);
 
       MergedTypeTableItem result = get(reusableMergedItem);
@@ -506,9 +507,9 @@ final class ConstantPoolGeneration
     * in particular without actually loading any class, or to take into account the class that is currently being generated by this
     * ClassWriter, which can of course not be loaded since it is under construction.
     *
-    * @param type1 the internal name of a class.
-    * @param type2 the internal name of another class.
-    * @return the internal name of the common super class of the two given classes.
+    * @param type1 the internal name of a class
+    * @param type2 the internal name of another class
+    * @return the internal name of the common super class of the two given classes
     */
    @Nonnull
    private static String getCommonSuperClass(@Nonnull String type1, @Nonnull String type2) {
@@ -537,25 +538,24 @@ final class ConstantPoolGeneration
    }
 
    @Nonnull
-   String getInternalName(@Nonnegative int typeTableIndex) {
+   public String getInternalName(@Nonnegative int typeTableIndex) {
       TypeTableItem typeTableItem = typeTable[typeTableIndex]; // Normal or Uninitialized
       return typeTableItem.typeDesc;
    }
 
    @Nonnull
-   UninitializedTypeTableItem getUninitializedItemValue(@Nonnegative int typeTableIndex) {
+   public UninitializedTypeTableItem getUninitializedItemValue(@Nonnegative int typeTableIndex) {
       return (UninitializedTypeTableItem) typeTable[typeTableIndex];
    }
 
    @Nullable
-   Item getItem(@Nonnegative int itemHashCode) { return items[itemHashCode % items.length]; }
+   public Item getItem(@Nonnegative int itemHashCode) { return items[itemHashCode % items.length]; }
 
    /**
     * Returns the constant pool's hash table item which is equal to the given item.
     *
-    * @param key a constant pool item.
-    * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no
-    * such item.
+    * @param key a constant pool item
+    * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no such item
     */
    @Nullable
    private <I extends Item> I get(@Nonnull I key) {
@@ -573,7 +573,7 @@ final class ConstantPoolGeneration
    /**
     * Puts the given item in the constant pool's hash table. The hash table <i>must</i> not already contains this item.
     *
-    * @param item the item to be added to the constant pool's hash table.
+    * @param item the item to be added to the constant pool's hash table
     */
    private void put(@Nonnull Item item) {
       resizeItemArrayIfNeeded();
@@ -608,29 +608,25 @@ final class ConstantPoolGeneration
 
    /**
     * Puts one byte and two shorts into the constant pool.
-    *
-    * @param b  a byte.
-    * @param s1 a short.
-    * @param s2 another short.
     */
    private void put122(int b, int s1, int s2) {
       pool.put12(b, s1).putShort(s2);
    }
 
    @Nonnegative
-   int getSize() { return pool.length; }
+   public int getSize() { return pool.getLength(); }
 
-   void checkConstantPoolMaxSize() {
+   public void checkConstantPoolMaxSize() {
       if (index > 0xFFFF) {
          throw new RuntimeException("Class file too large!");
       }
    }
 
-   void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       out.putShort(index).putByteVector(pool);
    }
 
-   void copy(@Nonnull byte[] code, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] cpItems) {
+   public void copy(@Nonnull byte[] code, @Nonnegative int off, @Nonnegative int header, @Nonnull Item[] cpItems) {
       pool.putByteArray(code, off, header - off);
       items = cpItems;
 
@@ -641,7 +637,7 @@ final class ConstantPoolGeneration
    }
 
    @Nonnull
-   InvokeDynamicItem createInvokeDynamicItem(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
+   public InvokeDynamicItem createInvokeDynamicItem(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
       reusableInvokeDynamicItem.set(name, desc, bsmIndex);
 
       InvokeDynamicItem result = get(reusableInvokeDynamicItem);

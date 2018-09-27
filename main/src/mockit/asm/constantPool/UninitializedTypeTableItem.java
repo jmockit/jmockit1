@@ -1,10 +1,10 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.TypeTableItem.SpecialType.UNINIT;
+import static mockit.asm.constantPool.TypeTableItem.SpecialType.UNINIT;
 
-final class UninitializedTypeTableItem extends TypeTableItem
+public final class UninitializedTypeTableItem extends TypeTableItem
 {
    @Nonnegative int offset;
 
@@ -14,6 +14,9 @@ final class UninitializedTypeTableItem extends TypeTableItem
       super(index, item);
       offset = item.offset;
    }
+
+   @Nonnegative
+   public int getOffset() { return offset; }
 
    /**
     * Sets the type and bytecode offset of this uninitialized type table item.
