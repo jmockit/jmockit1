@@ -54,11 +54,11 @@ final class BootstrapMethodsWriter extends AttributeWriter
     * Adds an invokedynamic reference to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param name    name of the invoked method.
-    * @param desc    descriptor of the invoke method.
-    * @param bsm     the bootstrap method.
-    * @param bsmArgs the bootstrap method constant arguments.
-    * @return a new or an already existing invokedynamic type reference item.
+    * @param name    name of the invoked method
+    * @param desc    descriptor of the invoke method
+    * @param bsm     the bootstrap method
+    * @param bsmArgs the bootstrap method constant arguments
+    * @return a new or an already existing invokedynamic type reference item
     */
    @Nonnull
    InvokeDynamicItem addInvokeDynamicReference(
@@ -68,7 +68,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       int position = methods.length; // record current position
 
       MethodHandleItem methodHandleItem = cp.newMethodHandleItem(bsm);
-      methods.putShort(methodHandleItem.index);
+      methods.putShort(methodHandleItem.getIndex());
 
       int argsLength = bsmArgs.length;
       methods.putShort(argsLength);
@@ -80,7 +80,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       methods.length = position; // revert to old position
 
       BootstrapMethodItem bsmItem = getBSMItem(hashCode);
-      InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.index);
+      InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.getIndex());
       return result;
    }
 
@@ -89,22 +89,22 @@ final class BootstrapMethodsWriter extends AttributeWriter
          hashCode ^= bsmArg.hashCode();
 
          Item constItem = cp.newConstItem(bsmArg);
-         bootstrapMethods.putShort(constItem.index);
+         bootstrapMethods.putShort(constItem.getIndex());
       }
 
       return hashCode;
    }
 
    @Nonnull
-   private BootstrapMethodItem getBSMItem(int hashCode) {
+   private BootstrapMethodItem getBSMItem(@Nonnegative int hashCode) {
       Item item = cp.getItem(hashCode);
 
       while (item != null) {
-         if ((item instanceof BootstrapMethodItem) && item.hashCode == hashCode) {
+         if ((item instanceof BootstrapMethodItem) && item.getHashCode() == hashCode) {
             return (BootstrapMethodItem) item;
          }
 
-         item = item.next;
+         item = item.getNext();
       }
 
       throw new IllegalStateException("BootstrapMethodItem not found for hash code " + hashCode);

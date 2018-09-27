@@ -104,7 +104,7 @@ final class ConstantPoolGeneration
          put(result);
       }
 
-      return result.index;
+      return result.getIndex();
    }
 
    /**
@@ -116,7 +116,7 @@ final class ConstantPoolGeneration
     */
    @Nonnegative
    int newClass(@Nonnull String internalName) {
-      return newClassItem(internalName).index;
+      return newClassItem(internalName).getIndex();
    }
 
    /**
@@ -171,9 +171,8 @@ final class ConstantPoolGeneration
       if (result == null) {
          int tag = methodHandle.tag;
          int memberType = tag == MethodHandle.Tag.INVOKEINTERFACE ? IMETH : METH;
-         ClassMemberItem memberItem =
-            newClassMemberItem(memberType, methodHandle.owner, methodHandle.name, methodHandle.desc);
-         pool.put11(HANDLE, tag).putShort(memberItem.index);
+         ClassMemberItem memberItem = newClassMemberItem(memberType, methodHandle.owner, methodHandle.name, methodHandle.desc);
+         pool.put11(HANDLE, tag).putShort(memberItem.getIndex());
 
          result = new MethodHandleItem(index++, reusableMethodHandleItem);
          put(result);
@@ -345,7 +344,7 @@ final class ConstantPoolGeneration
          put(result);
       }
 
-      return result.index;
+      return result.getIndex();
    }
 
    /**
@@ -427,7 +426,7 @@ final class ConstantPoolGeneration
          addToTypeTable(result);
       }
 
-      return result.index;
+      return result.getIndex();
    }
 
    /**
@@ -449,7 +448,7 @@ final class ConstantPoolGeneration
          addToTypeTable(result);
       }
 
-      return result.index;
+      return result.getIndex();
    }
 
    private void addToTypeTable(@Nonnull TypeTableItem newItem) {
@@ -549,7 +548,7 @@ final class ConstantPoolGeneration
    }
 
    @Nullable
-   Item getItem(int itemHashCode) { return items[itemHashCode % items.length]; }
+   Item getItem(@Nonnegative int itemHashCode) { return items[itemHashCode % items.length]; }
 
    /**
     * Returns the constant pool's hash table item which is equal to the given item.
@@ -560,11 +559,11 @@ final class ConstantPoolGeneration
     */
    @Nullable
    private <I extends Item> I get(@Nonnull I key) {
-      Item item = getItem(key.hashCode);
-      int keyType = key.type;
+      Item item = getItem(key.getHashCode());
+      int keyType = key.getType();
 
-      while (item != null && (item.type != keyType || !key.isEqualTo(item))) {
-         item = item.next;
+      while (item != null && (item.getType() != keyType || !key.isEqualTo(item))) {
+         item = item.getNext();
       }
 
       //noinspection unchecked
@@ -600,7 +599,7 @@ final class ConstantPoolGeneration
 
    private static void put(@Nonnull Item[] newItems, @Nullable Item item) {
       while (item != null) {
-         Item next = item.next;
+         Item next = item.getNext();
          item.setNext(newItems);
          //noinspection AssignmentToMethodParameter
          item = next;
