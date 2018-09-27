@@ -230,7 +230,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       }
 
       argumentCapturing.registerAssignmentToCaptureVariableIfApplicable(opcode, varIndex);
-      stackSize += Frame.SIZE[opcode];
+      stackSize += JVMInstruction.SIZE[opcode];
       mw.visitVarInsn(opcode, varIndex);
    }
 
@@ -247,7 +247,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
 
    @Override
    public void visitJumpInsn(@Nonnegative int opcode, @Nonnull Label label) {
-      stackSize += Frame.SIZE[opcode];
+      stackSize += JVMInstruction.SIZE[opcode];
       mw.visitJumpInsn(opcode, label);
    }
 
@@ -275,7 +275,7 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
          generateCallToActiveInvocationsMethod("endInvocations");
       }
       else {
-         stackSize += Frame.SIZE[opcode];
+         stackSize += JVMInstruction.SIZE[opcode];
 
          if (opcode >= ICONST_0 && opcode <= ICONST_5) {
             lastLoadedArrayIndex = opcode - ICONST_0;

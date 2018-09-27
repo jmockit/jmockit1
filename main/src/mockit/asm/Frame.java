@@ -176,28 +176,6 @@ public final class Frame
       int UNINITIALIZED_THIS = BASE | 6;
    }
 
-   /**
-    * The stack size variation corresponding to each JVM instruction. This stack variation is equal to the size of the
-    * values produced by an instruction, minus the size of the values consumed by this instruction.
-    */
-   public static final int[] SIZE;
-   static {
-      String s =
-         "EFFFFFFFFGGFFFGGFFFEEFGFGFEEEEEEEEEEEEEEEEEEEEDEDEDDDDD" +
-         "CDCDEEEEEEEEEEEEEEEEEEEEBABABBBBDCFFFGGGEDCDCDCDCDCDCDCDCD" +
-         "CDCEEEEDDDDDDDCDCDCEFEFDDEEFFDEDEEEBDDBBDDDDDDCCCCCCCCEFED" +
-         "DDCDCDEEEEEEEEEEFEEEEEEDDEEDDEE";
-      int n = s.length();
-      int[] b = new int[n];
-
-      for (int i = 0; i < n; i++) {
-         //noinspection CharUsedInArithmeticContext
-         b[i] = s.charAt(i) - 'E';
-      }
-
-      SIZE = b;
-   }
-
    @Nonnull private final ConstantPoolGeneration cp;
 
    /**

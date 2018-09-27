@@ -75,7 +75,7 @@ final class CFGAnalysis
             currentBlock.frame.execute(opcode);
          }
          else {
-            int sizeVariation = Frame.SIZE[opcode];
+            int sizeVariation = JVMInstruction.SIZE[opcode];
             updateStackSize(sizeVariation);
          }
 
@@ -150,7 +150,7 @@ final class CFGAnalysis
             currentBlock.frame.executeVAR(opcode, varIndex);
          }
          else { // xLOAD or xSTORE
-            int sizeVariation = Frame.SIZE[opcode];
+            int sizeVariation = JVMInstruction.SIZE[opcode];
             updateStackSize(sizeVariation);
          }
       }
@@ -230,7 +230,7 @@ final class CFGAnalysis
          }
          else {
             // Updates current stack size (max size unchanged because size variation always negative in this case).
-            stackSize += Frame.SIZE[opcode];
+            stackSize += JVMInstruction.SIZE[opcode];
             addSuccessor(stackSize, label);
          }
       }
