@@ -11,43 +11,41 @@ import static mockit.asm.Opcodes.*;
  */
 public final class Frame
 {
-   // Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the
-   // end of current basic block is updated by simulating the action of the instruction on the previous state of this so
-   // called "output frame". In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic
-   // block, i.e. the stack map frame at the beginning of the basic block, starting from the input frame of the first
-   // basic block (which is computed from the method descriptor), and by using the previously computed output frames to
-   // compute the input state of the other blocks.
-   //
-   // All output and input frames are stored as arrays of integers. Reference and array types are represented by an
-   // index into a type table (which is not the same as the constant pool of the class, in order to avoid adding
-   // unnecessary constants in the pool - not all computed frames will end up being stored in the stack map table).
-   // This allows very fast type comparisons.
-   //
-   // Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when
-   // output frames are computed. It is therefore necessary to be able to represent abstract types such as "the type at
-   // position x in the input frame locals" or "the type at position x from the top of the input frame stack" or even
-   // "the type at position x in the input frame, with y more (or less) array dimensions".
-   // This explains the rather complicated type format used in output frames.
-   //
-   // This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from
-   // -8 to 7). KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame.
-   // LOCAL is used for types that are relative to the input local variable types. STACK is used for types that are
-   // relative to the input stack types. VALUE depends on KIND. For LOCAL types, it is an index in the input local
-   // variable types. For STACK types, it is a position relatively to the top of input frame stack. For BASE types, it
-   // is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an index in the
-   // type table.
-   //
-   // Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types,
-   // represented by 0 - which does not correspond to any valid type value). Input frames can only contain BASE types of
-   // positive or null dimension. In all cases the type table contains only internal type names (array type descriptors
-   // are forbidden - dimensions must be represented through the DIM field).
-   //
-   // The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local
-   // variable types as well as in the operand stack. This is necessary to be able to simulate DUPx_y instructions,
-   // whose effect would be dependent on the actual type values if types were always represented by a single slot in the
-   // stack (and this is not possible, since actual type values are not always known - cf LOCAL and STACK type kinds).
+   private static final int[] EMPTY_INPUT_STACK = new int[0];
 
-   interface TypeMask {
+   // Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the end of current basic
+   // block is updated by simulating the action of the instruction on the previous state of this so called "output frame".
+   // In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic block, i.e. the stack map frame at the
+   // beginning of the basic block, starting from the input frame of the first basic block (which is computed from the method descriptor),
+   // and by using the previously computed output frames to compute the input state of the other blocks.
+   //
+   // All output and input frames are stored as arrays of integers. Reference and array types are represented by an index into a type table
+   // (which is not the same as the constant pool of the class, in order to avoid adding unnecessary constants in the pool - not all
+   // computed frames will end up being stored in the stack map table). This allows very fast type comparisons.
+   //
+   // Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when output frames are
+   // computed. It is therefore necessary to be able to represent abstract types such as "the type at position x in the input frame locals"
+   // or "the type at position x from the top of the input frame stack" or even "the type at position x in the input frame, with y more (or
+   // less) array dimensions". This explains the rather complicated type format used in output frames.
+   //
+   // This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from -8 to 7).
+   // KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame. LOCAL is used for types that are
+   // relative to the input local variable types. STACK is used for types that are relative to the input stack types. VALUE depends on KIND.
+   // For LOCAL types, it is an index in the input local variable types. For STACK types, it is a position relatively to the top of input
+   // frame stack. For BASE types, it is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an
+   // index in the type table.
+   //
+   // Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types, represented by 0 -
+   // which does not correspond to any valid type value). Input frames can only contain BASE types of positive or null dimension.
+   // In all cases the type table contains only internal type names (array type descriptors are forbidden - dimensions must be represented
+   // through the DIM field).
+   //
+   // The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local variable types as well as
+   // in the operand stack. This is necessary to be able to simulate DUPx_y instructions, whose effect would be dependent on the actual type
+   // values if types were always represented by a single slot in the stack (and this is not possible, since actual type values are not
+   // always known - cf LOCAL and STACK type kinds).
+
+   public interface TypeMask {
       /**
        * Mask to get the dimension of a frame type. This dimension is a signed integer between -8 and 7.
        */
@@ -125,7 +123,7 @@ public final class Frame
       /**
        * The TOP type. This is a BASE type.
        */
-      int TOP = BASE | 0;
+      int TOP = BASE;
 
       /**
        * The BOOLEAN type. This is a BASE type mainly used for array types.
@@ -193,6 +191,7 @@ public final class Frame
       int[] b = new int[n];
 
       for (int i = 0; i < n; i++) {
+         //noinspection CharUsedInArithmeticContext
          b[i] = s.charAt(i) - 'E';
       }
 
@@ -269,7 +268,7 @@ public final class Frame
     */
    void initInputFrame(@Nonnull String classDesc, int access, @Nonnull JavaType[] args, @Nonnegative int maxLocals) {
       inputLocals = new int[maxLocals];
-      inputStack = new int[0];
+      inputStack = EMPTY_INPUT_STACK;
 
       int localIndex = initializeThisParameterIfApplicable(classDesc, access);
       localIndex = initializeFormalParameterTypes(localIndex, args);
@@ -412,6 +411,7 @@ public final class Frame
    private void executeNewArray(int arg) {
       pop();
 
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (arg) {
          case ArrayElementType.BOOLEAN: push(ARRAY_OF | BOOLEAN); break;
          case ArrayElementType.CHAR:    push(ARRAY_OF | CHAR);    break;
@@ -457,7 +457,7 @@ public final class Frame
    /**
     * Pops a type from the output frame stack and returns its value.
     *
-    * @return the type that has been popped from the output frame stack.
+    * @return the type that has been popped from the output frame stack
     */
    private int pop() {
       if (outputStackTop > 0) {
@@ -517,7 +517,7 @@ public final class Frame
    /**
     * Adds a new type to the list of types on which a constructor is invoked in the basic block.
     *
-    * @param var a type on a which a constructor is invoked.
+    * @param var a type on a which a constructor is invoked
     */
    private void init(int var) {
       // Creates and/or resizes the initializations array if necessary.
@@ -582,38 +582,39 @@ public final class Frame
    /**
     * Simulates the action of an xLOAD or xSTORE instruction on the output stack frame.
     *
-    * @param opcode the opcode of the instruction.
-    * @param var    the local variable index.
+    * @param opcode the opcode of the instruction
+    * @param varIndex the local variable index
     */
-   void executeVAR(int opcode, @Nonnegative int var) {
+   void executeVAR(int opcode, @Nonnegative int varIndex) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case ILOAD: push(INTEGER);           break;
          case LLOAD: push(LONG); push(TOP);   break;
          case FLOAD: push(FLOAT);             break;
          case DLOAD: push(DOUBLE); push(TOP); break;
-         case ALOAD: push(get(var));          break;
-         case ISTORE: case FSTORE: case ASTORE: executeSingleWordStore(var); break;
-         case LSTORE: case DSTORE:              executeDoubleWordStore(var);
+         case ALOAD: push(get(varIndex));     break;
+         case ISTORE: case FSTORE: case ASTORE: executeSingleWordStore(varIndex); break;
+         case LSTORE: case DSTORE:              executeDoubleWordStore(varIndex);
       }
    }
 
    /**
     * Returns the output frame local variable type at the given index.
     *
-    * @param local the index of the local that must be returned.
+    * @param localIndex the index of the local that must be returned
     */
    @Nonnegative
-   private int get(@Nonnegative int local) {
-      if (outputLocals == null || local >= outputLocals.length) {
+   private int get(@Nonnegative int localIndex) {
+      if (outputLocals == null || localIndex >= outputLocals.length) {
          // This local has never been assigned in this basic block, so it's still equal to its value in the input frame.
-         return LOCAL | local;
+         return LOCAL | localIndex;
       }
 
-      int type = outputLocals[local];
+      int type = outputLocals[localIndex];
 
       if (type == 0) {
          // This local has never been assigned in this basic block, so it's still equal to its value in the input frame.
-         type = outputLocals[local] = LOCAL | local;
+         type = outputLocals[localIndex] = LOCAL | localIndex;
       }
 
       return type;
@@ -655,6 +656,7 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     */
    void executeJUMP(int opcode) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case IFEQ: case IFNE: case IFLT: case IFGE: case IFGT: case IFLE: case IFNULL: case IFNONNULL:
             pop(1);
@@ -672,6 +674,7 @@ public final class Frame
     */
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
    void execute(int opcode) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NOP: case INEG: case LNEG: case FNEG: case DNEG: case I2B: case I2C: case I2S: case GOTO: case RETURN:
             break;
@@ -909,6 +912,7 @@ public final class Frame
     * @param item   the operand of the instruction.
     */
    void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
+      //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NEW:
             push(UNINITIALIZED | cp.addUninitializedType(item.getValue(), codeLength));
@@ -989,6 +993,7 @@ public final class Frame
          executeInvokeDynamic(item);
       }
       else {
+         //noinspection SwitchStatementWithoutDefaultBranch
          switch (opcode) {
             case GETSTATIC:
                push(item.getDesc());

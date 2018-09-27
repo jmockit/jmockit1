@@ -1,6 +1,8 @@
-package mockit.asm;
+package mockit.asm.exceptionHandling;
 
 import javax.annotation.*;
+
+import mockit.asm.*;
 
 /**
  * Information about an exception handler block.

@@ -1,10 +1,11 @@
-package mockit.asm;
+package mockit.asm.exceptionHandling;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.constantPool.*;
 
-final class ExceptionHandling
+public final class ExceptionHandling
 {
    @Nonnull private final ConstantPoolGeneration cp;
 
@@ -23,9 +24,9 @@ final class ExceptionHandling
     */
    @Nullable private ExceptionHandler lastExceptionHandler;
 
-   ExceptionHandling(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
+   public ExceptionHandling(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
-   void addHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
+   public void addHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
       handlerCount++;
 
       int handlerType = type != null ? cp.newClass(type) : 0;
@@ -41,7 +42,7 @@ final class ExceptionHandling
       lastExceptionHandler = h;
    }
 
-   void countNumberOfHandlers() {
+   public void countNumberOfHandlers() {
       ExceptionHandler exceptionHandler = firstExceptionHandler;
       handlerCount = 0;
 
@@ -51,7 +52,7 @@ final class ExceptionHandling
       }
    }
 
-   void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
+   public void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
@@ -71,40 +72,34 @@ final class ExceptionHandling
       }
    }
 
-   void completeControlFlowGraphWithExceptionHandlerBlocks() {
+   public void completeControlFlowGraphWithExceptionHandlerBlocks() {
       ExceptionHandler exceptionHandler = firstExceptionHandler;
 
       while (exceptionHandler != null) {
-         addHandlerLabelAsSuccessor(
-            Edge.EXCEPTION, exceptionHandler.handler, exceptionHandler.start, exceptionHandler.end);
+         addHandlerLabelAsSuccessor(Edge.EXCEPTION, exceptionHandler.handler, exceptionHandler.start, exceptionHandler.end);
          exceptionHandler = exceptionHandler.next;
       }
    }
 
    // Adds 'handler' as a successor of labels between 'start' and 'end'.
-   private static void addHandlerLabelAsSuccessor(
-      int kindOfEdge, @Nonnull Label handler, @Nonnull Label start, @Nonnull Label end
-   ) {
+   private static void addHandlerLabelAsSuccessor(int kindOfEdge, @Nonnull Label handler, @Nonnull Label start, @Nonnull Label end) {
       while (start != end) {
          Edge edge = new Edge(kindOfEdge, handler);
-         //noinspection ConstantConditions
-         edge.next = start.successors;
-         start.successors = edge;
-         start = start.successor;
+         start = start.setSuccessors(edge);
       }
    }
 
    // Removes the start-end range from the exception handlers.
-   void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
+   public void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
       firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, start, end);
    }
 
-   boolean hasHandlers() { return handlerCount > 0; }
+   public boolean hasHandlers() { return handlerCount > 0; }
 
    @Nonnegative
-   int getSize() { return 8 * handlerCount; }
+   public int getSize() { return 8 * handlerCount; }
 
-   void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       out.putShort(handlerCount);
 
       if (handlerCount > 0) {

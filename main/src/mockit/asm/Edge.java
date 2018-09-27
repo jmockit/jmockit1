@@ -5,7 +5,7 @@ import javax.annotation.*;
 /**
  * An edge in the control flow graph of a method body. See {@link Label}.
  */
-final class Edge
+public final class Edge
 {
    /**
     * Denotes a normal control flow graph edge.
@@ -17,14 +17,14 @@ final class Edge
     * {@link #info} is strictly positive corresponds to an exception handler. The actual value of {@link #info} is the
     * index, in the {@link ClassWriter} type table, of the exception that is caught.
     */
-   static final int EXCEPTION = 0x7FFFFFFF;
+   public static final int EXCEPTION = 0x7FFFFFFF;
 
    /**
-    * Information about this control flow graph edge. If <tt>ClassWriter#computeFrames</tt> is not used this field is
-    * the (relative) stack size in the basic block from which this edge originates. This size is equal to the stack size
-    * at the "jump" instruction to which this edge corresponds, relatively to the stack size at the beginning of the
-    * originating basic block. If {@link ClassWriter#computeFrames} is used, this field is the kind of this control flow
-    * graph edge (i.e. NORMAL or EXCEPTION).
+    * Information about this control flow graph edge.
+    * For classfiles older than 1.7, this field is the (relative) stack size in the basic block from which this edge originates.
+    * This size is equal to the stack size at the "jump" instruction to which this edge corresponds, relatively to the stack size at the
+    * beginning of the originating basic block.
+    * For 1.7+ classfiles, this field is the kind of this control flow graph edge (i.e. NORMAL or EXCEPTION).
     */
    final int info;
 
@@ -38,7 +38,7 @@ final class Edge
     */
    Edge next;
 
-   Edge(int info, @Nonnull Label successor) {
+   public Edge(int info, @Nonnull Label successor) {
       this.info = info;
       this.successor = successor;
    }
