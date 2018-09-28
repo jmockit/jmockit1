@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.ClassReader.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 

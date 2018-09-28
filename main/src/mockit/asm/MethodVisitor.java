@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 
 /**
  * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:

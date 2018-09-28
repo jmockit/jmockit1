@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.util;
 
 import javax.annotation.*;
 
@@ -43,7 +43,7 @@ public final class MethodHandle
     * @param name  the name of the method designated by this handle.
     * @param desc  the descriptor of the method designated by this handle.
     */
-   MethodHandle(@Nonnegative int tag, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+   public MethodHandle(@Nonnegative int tag, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
       this.tag = tag;
       this.owner = owner;
       this.name = name;

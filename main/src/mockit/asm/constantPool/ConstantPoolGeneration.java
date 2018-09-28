@@ -2,7 +2,6 @@ package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;

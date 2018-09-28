@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 
 final class AnnotationReader extends BytecodeReader
 {

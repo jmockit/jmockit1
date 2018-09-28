@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.util.*;
+
 /**
  * Same as {@link MethodVisitor}, except it always wraps a {@link MethodWriter}.
  */
