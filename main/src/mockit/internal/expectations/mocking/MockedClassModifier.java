@@ -9,6 +9,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.asm.*;
+import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;

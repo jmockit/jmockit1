@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.types.*;
 
 /**
  * An {@link AnnotationVisitor} that generates annotations in bytecode form.
@@ -57,7 +58,7 @@ final class AnnotationWriter extends AnnotationVisitor
    protected int getByteLength() { return bv.length; }
 
    @Override
-   public void visit(@Nullable String name, @Nonnull Object value) {
+   void visit(@Nullable String name, @Nonnull Object value) {
       putName(name);
 
       if (value instanceof String) {
@@ -218,14 +219,14 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Override
-   public void visitEnum(@Nullable String name, @Nonnull String desc, @Nonnull String value) {
+   void visitEnum(@Nullable String name, @Nonnull String desc, @Nonnull String value) {
       putName(name);
       putString('e', desc);
       putString(value);
    }
 
    @Nonnull @Override
-   public AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) {
+   AnnotationVisitor visitAnnotation(@Nullable String name, @Nonnull String desc) {
       putName(name);
 
       // Write tag and type, and reserve space for value count.
@@ -236,7 +237,7 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Nonnull @Override
-   public AnnotationVisitor visitArray(@Nullable String name) {
+   AnnotationVisitor visitArray(@Nullable String name) {
       putName(name);
 
       // Write tag, and reserve space for array size.
@@ -246,15 +247,11 @@ final class AnnotationWriter extends AnnotationVisitor
    }
 
    @Override @SuppressWarnings("NumericCastThatLosesPrecision")
-   public void visitEnd() {
+   void visitEnd() {
       byte[] data = bv.data;
       data[offset] = (byte) (attributeCount >>> 8);
       data[offset + 1] = (byte) attributeCount;
    }
-
-   // ------------------------------------------------------------------------
-   // Utility methods
-   // ------------------------------------------------------------------------
 
    /**
     * Puts the annotations of this annotation writer list into the given byte vector.

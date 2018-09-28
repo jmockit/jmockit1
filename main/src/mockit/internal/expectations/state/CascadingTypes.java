@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 import static mockit.internal.util.Utilities.*;
 
 public final class CascadingTypes

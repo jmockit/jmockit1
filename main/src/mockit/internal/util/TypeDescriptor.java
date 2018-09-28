@@ -6,7 +6,7 @@ package mockit.internal.util;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 
 public final class TypeDescriptor
 {

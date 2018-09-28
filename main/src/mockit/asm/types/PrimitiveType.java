@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.types;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import static mockit.asm.Opcodes.*;
 
 public final class PrimitiveType extends JavaType
@@ -90,7 +91,7 @@ public final class PrimitiveType extends JavaType
    }
 
    @Nullable
-   static PrimitiveType getPrimitiveType(int typeCode) {
+   public static PrimitiveType getPrimitiveType(int typeCode) {
       int i = TYPE_CODES_STR.indexOf(typeCode);
       return i < 0 ? null : JAVA_TYPES[i];
    }
@@ -124,8 +125,8 @@ public final class PrimitiveType extends JavaType
    @Nonnull public String getWrapperTypeDesc() { return wrapperTypeDesc; }
 
    @Override
-   void getDescriptor(@Nonnull StringBuilder buf) {
-      buf.append(getTypeCode());
+   void getDescriptor(@Nonnull StringBuilder typeDesc) {
+      typeDesc.append(getTypeCode());
    }
 
    @Nonnull @Override

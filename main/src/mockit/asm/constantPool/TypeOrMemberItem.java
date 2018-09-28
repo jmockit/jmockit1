@@ -2,7 +2,7 @@ package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 
 public class TypeOrMemberItem extends Item
 {

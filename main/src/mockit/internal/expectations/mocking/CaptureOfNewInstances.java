@@ -9,6 +9,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.capturing.*;
 import mockit.internal.startup.*;

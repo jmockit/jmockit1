@@ -17,7 +17,7 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.asm.JavaType.*;
+import static mockit.asm.types.JavaType.*;
 import static mockit.internal.util.Utilities.*;
 
 public final class MockedTypeCascade

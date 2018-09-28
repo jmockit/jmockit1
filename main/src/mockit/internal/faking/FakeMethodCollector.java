@@ -10,6 +10,7 @@ import javax.annotation.*;
 import mockit.*;
 import mockit.asm.*;
 import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.util.*;

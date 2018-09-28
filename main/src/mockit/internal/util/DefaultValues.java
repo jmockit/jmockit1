@@ -11,7 +11,7 @@ import java.util.stream.*;
 import javax.annotation.*;
 import static java.util.Collections.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 import static mockit.internal.util.Utilities.*;
 
 /**

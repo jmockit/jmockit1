@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.types.*;
+
 /**
  * A visitor to visit a Java method. The methods of this class are called by {@link ClassReader} in the following order:
  * <p/>

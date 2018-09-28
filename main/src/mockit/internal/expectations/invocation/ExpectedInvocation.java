@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.expectations.state.*;
 import mockit.internal.reflection.*;

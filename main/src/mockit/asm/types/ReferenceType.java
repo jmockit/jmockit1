@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.types;
 
 import javax.annotation.*;
 
@@ -7,24 +7,24 @@ import static mockit.asm.Opcodes.*;
 public abstract class ReferenceType extends JavaType
 {
    /**
-    * A buffer containing the internal name of this Java reference type.
+    * The internal name of this Java reference type.
     */
-   @Nonnull final char[] buf;
+   @Nonnull final char[] typeDescChars;
 
    /**
-    * The offset of the internal name of this Java type in {@link #buf}.
+    * The offset of the internal name of this Java type in {@link #typeDescChars}.
     */
    @Nonnegative final int off;
 
-   ReferenceType(@Nonnull char[] buf) {
-      super(buf.length);
-      this.buf = buf;
+   ReferenceType(@Nonnull char[] typeDesc) {
+      super(typeDesc.length);
+      typeDescChars = typeDesc;
       off = 0;
    }
 
-   ReferenceType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) {
+   ReferenceType(@Nonnull char[] typeDesc, @Nonnegative int off, @Nonnegative int len) {
       super(len);
-      this.buf = buf;
+      typeDescChars = typeDesc;
       this.off = off;
    }
 
@@ -89,8 +89,8 @@ public abstract class ReferenceType extends JavaType
    }
 
    @Override
-   void getDescriptor(@Nonnull StringBuilder buf) {
-      buf.append(this.buf, off, len);
+   void getDescriptor(@Nonnull StringBuilder typeDesc) {
+      typeDesc.append(typeDescChars, off, len);
    }
 
    /**
@@ -102,7 +102,7 @@ public abstract class ReferenceType extends JavaType
     */
    @Nonnull
    public final String getInternalName() {
-      return new String(buf, off, len);
+      return new String(typeDescChars, off, len);
    }
 
    @Override public int getSize() { return 1; }
@@ -132,7 +132,7 @@ public abstract class ReferenceType extends JavaType
       }
 
       for (int i = off, j = t.off, end = i + len; i < end; i++, j++) {
-         if (buf[i] != t.buf[j]) {
+         if (typeDescChars[i] != t.typeDescChars[j]) {
             return false;
          }
       }
@@ -145,7 +145,8 @@ public abstract class ReferenceType extends JavaType
       int hc = 13;
 
       for (int i = off, end = i + len; i < end; i++) {
-         hc = 17 * (hc + buf[i]);
+         //noinspection CharUsedInArithmeticContext
+         hc = 17 * (hc + typeDescChars[i]);
       }
 
       return hc;

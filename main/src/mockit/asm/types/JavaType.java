@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.types;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
@@ -107,25 +107,25 @@ public abstract class JavaType
       int i = 1;
 
       while (true) {
-         char c = desc.charAt(i++);
+         char currentChar = desc.charAt(i++);
 
-         if (c == ')') {
-            c = desc.charAt(i);
-            return argSize << 2 | (c == 'V' ? 0 : isDoubleSizePrimitiveType(c) ? 2 : 1);
+         if (currentChar == ')') {
+            char nextChar = desc.charAt(i);
+            return argSize << 2 | (nextChar == 'V' ? 0 : isDoubleSizePrimitiveType(nextChar) ? 2 : 1);
          }
-         else if (c == 'L') {
+         else if (currentChar == 'L') {
             i = findNextTypeTerminatorCharacter(desc, i);
             argSize++;
          }
-         else if (c == '[') {
+         else if (currentChar == '[') {
             i = findStartOfArrayElementType(desc, i);
-            c = desc.charAt(i);
+            char arrayElementType = desc.charAt(i);
 
-            if (isDoubleSizePrimitiveType(c)) {
+            if (isDoubleSizePrimitiveType(arrayElementType)) {
                argSize--;
             }
          }
-         else if (isDoubleSizePrimitiveType(c)) {
+         else if (isDoubleSizePrimitiveType(currentChar)) {
             argSize += 2;
          }
          else {
@@ -189,9 +189,9 @@ public abstract class JavaType
    /**
     * Appends the descriptor corresponding to this Java type to the given string buffer.
     *
-    * @param buf the string builder to which the descriptor must be appended.
+    * @param typeDesc the string builder to which the descriptor must be appended
     */
-   abstract void getDescriptor(@Nonnull StringBuilder buf);
+   abstract void getDescriptor(@Nonnull StringBuilder typeDesc);
 
    // -------------------------------------------------------------------------------------------------------
    // Direct conversion from classes to type descriptors, and vice-versa, without intermediate JavaType objects
@@ -201,7 +201,7 @@ public abstract class JavaType
     * Returns the internal name of the given class. The internal name of a class is its fully qualified name, as
     * returned by Class.getName(), where '.' are replaced by '/'.
     *
-    * @param aClass an object or array class.
+    * @param aClass an object or array class
     */
    @Nonnull
    public static String getInternalName(@Nonnull Class<?> aClass) {
@@ -211,7 +211,7 @@ public abstract class JavaType
    /**
     * Returns the descriptor corresponding to the given Java type.
     *
-    * @param aClass an object class, a primitive class or an array class.
+    * @param aClass an object class, a primitive class or an array class
     */
    @Nonnull
    public static String getDescriptor(@Nonnull Class<?> aClass) {

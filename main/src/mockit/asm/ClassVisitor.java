@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.types.*;
+
 /**
  * A visitor to visit a Java class. The methods of this class are called in the following order:<br>
  * <tt>visit</tt> (<tt>visitAnnotation</tt>)* (<tt>visitInnerClass</tt> | <tt>visitField</tt> | <tt>visitMethod</tt>)* <tt>visitEnd</tt>.

@@ -11,6 +11,7 @@ import static java.util.Arrays.*;
 
 import mockit.asm.*;
 import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 import static mockit.asm.Opcodes.*;

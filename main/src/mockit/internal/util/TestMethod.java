@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.types.*;
 
 public final class TestMethod
 {

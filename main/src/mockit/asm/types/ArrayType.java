@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.types;
 
 import javax.annotation.*;
 
@@ -10,43 +10,43 @@ public final class ArrayType extends ReferenceType
    }
 
    /**
-    * Constructs an array type.
+    * Initializes an array type.
     *
-    * @param buf a buffer containing the descriptor of the array type.
-    * @param off the offset of the descriptor in the buffer.
+    * @param typeDesc a buffer containing the descriptor of the array type
+    * @param off the offset of the descriptor in the buffer
     */
    @Nonnull
-   static ArrayType create(@Nonnull char[] buf, @Nonnegative int off) {
-      int len = findNumberOfDimensions(buf, off);
+   static ArrayType create(@Nonnull char[] typeDesc, @Nonnegative int off) {
+      int len = findNumberOfDimensions(typeDesc, off);
 
-      if (buf[off + len] == 'L') {
-         len = findTypeNameLength(buf, off, len);
+      if (typeDesc[off + len] == 'L') {
+         len = findTypeNameLength(typeDesc, off, len);
       }
 
-      return new ArrayType(buf, off, len + 1);
+      return new ArrayType(typeDesc, off, len + 1);
    }
 
    @Nonnegative
-   private static int findNumberOfDimensions(@Nonnull char[] buf, @Nonnegative int off) {
+   private static int findNumberOfDimensions(@Nonnull char[] typeDesc, @Nonnegative int off) {
       int dimensions = 1;
 
-      while (buf[off + dimensions] == '[') {
+      while (typeDesc[off + dimensions] == '[') {
          dimensions++;
       }
 
       return dimensions;
    }
 
-   private ArrayType(@Nonnull char[] buf, @Nonnegative int off, @Nonnegative int len) { super(buf, off, len); }
+   private ArrayType(@Nonnull char[] typeDesc, @Nonnegative int off, @Nonnegative int len) { super(typeDesc, off, len); }
 
-   ArrayType(@Nonnull char[] buf) { super(buf); }
+   ArrayType(@Nonnull char[] typeDesc) { super(typeDesc); }
 
    /**
     * Returns the number of dimensions of this array type.
     */
    @Nonnegative
    public int getDimensions() {
-      return findNumberOfDimensions(buf, off);
+      return findNumberOfDimensions(typeDescChars, off);
    }
 
    /**
@@ -55,7 +55,7 @@ public final class ArrayType extends ReferenceType
    @Nonnull
    public JavaType getElementType() {
       int dimensions = getDimensions();
-      return getType(buf, off + dimensions);
+      return getType(typeDescChars, off + dimensions);
    }
 
    @Nonnull @Override

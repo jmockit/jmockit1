@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.types.*;
+
 /**
  * A {@link FieldVisitor} that generates Java fields in bytecode form.
  */
