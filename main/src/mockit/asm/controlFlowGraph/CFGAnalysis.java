@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.asm.constantPool.*;
+import mockit.asm.frames.*;
 import static mockit.asm.Opcodes.*;
 
 @SuppressWarnings("OverlyComplexClass")

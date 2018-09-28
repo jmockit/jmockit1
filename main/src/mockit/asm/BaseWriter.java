@@ -32,6 +32,11 @@ class BaseWriter
    public ConstantPoolGeneration getConstantPoolGeneration() { return cp; }
 
    /**
+    * Returns the {@link #classOrMemberAccess}.
+    */
+   public int getClassOrMemberAccess() { return classOrMemberAccess; }
+
+   /**
     * Visits an annotation of the class/field/method being visited.
     *
     * @param desc the descriptor of the annotation type

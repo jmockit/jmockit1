@@ -1,11 +1,12 @@
-package mockit.asm;
+package mockit.asm.frames;
 
 import javax.annotation.*;
 
-import mockit.asm.Frame.*;
+import mockit.asm.*;
+import mockit.asm.frames.Frame.*;
 import mockit.asm.constantPool.*;
 
-final class FrameAndStackComputation extends AttributeWriter
+public final class FrameAndStackComputation extends AttributeWriter
 {
    /**
     * Constants that identify how many locals and stack items a frame has, with respect to its previous frame.
@@ -98,8 +99,8 @@ final class FrameAndStackComputation extends AttributeWriter
     */
    @Nonnegative private int frameIndex;
 
-   FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
-      super(mw.cw.cp);
+   public FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
+      super(mw.cw.getConstantPoolGeneration());
       this.mw = mw;
       cw = mw.cw;
 
@@ -112,15 +113,15 @@ final class FrameAndStackComputation extends AttributeWriter
       maxLocals = size;
    }
 
-   void setMaxStack(@Nonnegative int maxStack) { this.maxStack = maxStack; }
+   public void setMaxStack(@Nonnegative int maxStack) { this.maxStack = maxStack; }
 
-   void updateMaxLocals(@Nonnegative int n) {
+   public void updateMaxLocals(@Nonnegative int n) {
       if (n > maxLocals) {
          maxLocals = n;
       }
    }
 
-   void putMaxStackAndLocals(@Nonnull ByteVector out) {
+   public void putMaxStackAndLocals(@Nonnull ByteVector out) {
       out.putShort(maxStack).putShort(maxLocals);
    }
 
@@ -135,7 +136,7 @@ final class FrameAndStackComputation extends AttributeWriter
 
    private void writeFrameDefinition(int value) { frameDefinition[frameIndex++] = value; }
 
-   boolean hasStackMap() { return stackMap != null; }
+   public boolean hasStackMap() { return stackMap != null; }
 
    /**
     * Starts the visit of a stack map frame.
@@ -363,16 +364,16 @@ final class FrameAndStackComputation extends AttributeWriter
    /**
     * Creates and visits the first (implicit) frame.
     */
-   void createAndVisitFirstFrame(@Nonnull Frame frame) {
+   public void createAndVisitFirstFrame(@Nonnull Frame frame) {
       JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cw.thisName, mw.classOrMemberAccess, args, maxLocals);
+      frame.initInputFrame(cw.getInternalClassName(), mw.getClassOrMemberAccess(), args, maxLocals);
       visitFrame(frame);
    }
 
    /**
     * Visits a frame that has been computed from scratch.
     */
-   void visitFrame(@Nonnull Frame frame) {
+   public void visitFrame(@Nonnull Frame frame) {
       int[] locals = frame.inputLocals;
       int nLocal = computeNumberOfLocals(locals);
 
@@ -441,7 +442,7 @@ final class FrameAndStackComputation extends AttributeWriter
       }
    }
 
-   void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
+   public void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
       startFrame(startOffset, 0, 1);
       int frameValue = TypeMask.OBJECT | cp.addNormalType("java/lang/Throwable");
       writeFrameDefinition(frameValue);
@@ -449,7 +450,7 @@ final class FrameAndStackComputation extends AttributeWriter
    }
 
    @Nonnegative
-   int getSizeWhileAddingConstantPoolItem() {
+   public int getSizeWhileAddingConstantPoolItem() {
       int size = getSize();
 
       if (size > 0) {
@@ -461,14 +462,14 @@ final class FrameAndStackComputation extends AttributeWriter
    }
 
    @Nonnegative @Override
-   int getSize() { return stackMap == null ? 0 : 8 + stackMap.length; }
+   public int getSize() { return stackMap == null ? 0 : 8 + stackMap.getLength(); }
 
    @Override
-   void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       if (stackMap != null) {
          boolean zip = cw.isJava6OrNewer();
          setAttribute(zip ? "StackMapTable" : "StackMap");
-         put(out, stackMap.length + 2);
+         put(out, stackMap.getLength() + 2);
          out.putShort(frameCount);
          out.putByteVector(stackMap);
       }

@@ -35,7 +35,7 @@ public final class ClassWriter extends ClassVisitor
    /**
     * The internal name of this class.
     */
-   String thisName;
+   private String thisName;
 
    /**
     * The constant pool item that contains the internal name of the super class of this class.
@@ -267,5 +267,5 @@ public final class ClassWriter extends ClassVisitor
       return attributeCount;
    }
 
-   boolean isJava6OrNewer() { return classVersion >= ClassVersion.V1_6; }
+   public boolean isJava6OrNewer() { return classVersion >= ClassVersion.V1_6; }
 }

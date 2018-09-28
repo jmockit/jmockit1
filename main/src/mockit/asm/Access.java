@@ -50,7 +50,7 @@ public final class Access
       return (access & SYNTHETIC) != 0 && ((access & SYNTHETIC_ATTRIBUTE) != 0 || classVersion < V1_5);
    }
 
-   static boolean isConstructor(int access) { return (access & CONSTRUCTOR) != 0; }
+   public static boolean isConstructor(int access) { return (access & CONSTRUCTOR) != 0; }
 
    static int computeFlag(int access, int baseMask) {
       int mask = baseMask | DEPRECATED | SYNTHETIC_ATTRIBUTE | ((access & SYNTHETIC_ATTRIBUTE) / TO_SYNTHETIC);

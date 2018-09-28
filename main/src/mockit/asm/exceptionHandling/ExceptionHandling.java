@@ -5,6 +5,7 @@ import javax.annotation.*;
 import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
+import mockit.asm.frames.*;
 
 public final class ExceptionHandling
 {

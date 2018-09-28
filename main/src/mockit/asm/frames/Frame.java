@@ -1,10 +1,11 @@
-package mockit.asm;
+package mockit.asm.frames;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
-import static mockit.asm.Frame.TypeMask.*;
+import static mockit.asm.frames.Frame.TypeMask.*;
 import static mockit.asm.Opcodes.*;
 
 /**
@@ -182,7 +183,7 @@ public final class Frame
    /**
     * The label (i.e. basic block) to which these input and output stack map frames correspond.
     */
-   @Nonnull final Label owner;
+   @Nonnull public final Label owner;
 
    /**
     * The input stack map frame locals.
@@ -431,10 +432,10 @@ public final class Frame
       outputStack[outputStackTop++] = type;
 
       // Updates the maximum height reached by the output stack, if needed.
-      int top = owner.inputStackTop + outputStackTop;
+      int top = owner.getInputStackTop() + outputStackTop;
 
-      if (top > owner.outputStackMax) {
-         owner.outputStackMax = top;
+      if (top > owner.getOutputStackMaxSize()) {
+         owner.setOutputStackMaxSize(top);
       }
    }
 
@@ -449,8 +450,7 @@ public final class Frame
       }
 
       // If the output frame stack is empty, pops from the input stack.
-      //noinspection UnnecessaryParentheses
-      return STACK | -(--owner.inputStackTop);
+      return STACK | -owner.decrementInputStackTop();
    }
 
    /**
@@ -470,9 +470,9 @@ public final class Frame
          outputStackTop -= elements;
       }
       else {
-         // If the number of elements to be popped is greater than the number of elements in the output stack, clear
-         // it, and pops the remaining elements from the input stack.
-         owner.inputStackTop -= elements - outputStackTop;
+         // If the number of elements to be popped is greater than the number of elements in the output stack, clear it,
+         // and pops the remaining elements from the input stack.
+         owner.decrementInputStackTop(elements - outputStackTop);
          outputStackTop = 0;
       }
    }
@@ -1101,7 +1101,7 @@ public final class Frame
          return changed;
       }
 
-      int nInputStack = inputStack.length + owner.inputStackTop;
+      int nInputStack = inputStack.length + owner.getInputStackTop();
 
       if (frame.inputStack == null) {
          frame.inputStack = new int[nInputStack + outputStackTop];

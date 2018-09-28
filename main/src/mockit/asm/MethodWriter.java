@@ -5,6 +5,7 @@ import javax.annotation.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
 import mockit.asm.exceptionHandling.*;
+import mockit.asm.frames.*;
 import static mockit.asm.Opcodes.*;
 
 /**
@@ -17,7 +18,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The class writer to which this method must be added.
     */
-   @Nonnull final ClassWriter cw;
+   @Nonnull public final ClassWriter cw;
 
    /**
     * The index of the constant pool item that contains the name of this method.
@@ -32,7 +33,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The descriptor of this method.
     */
-   @Nonnull final String descriptor;
+   @Nonnull public final String descriptor;
 
    @Nullable private final SignatureWriter signatureWriter;
 

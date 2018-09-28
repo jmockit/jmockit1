@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.controlFlowGraph.*;
+import mockit.asm.frames.*;
 
 /**
  * A label represents a position in the bytecode of a method.
@@ -285,6 +286,12 @@ public final class Label
     * Sets the {@link #inputStackTop}.
     */
    public void setInputStackTop(int inputStackTop) { this.inputStackTop = inputStackTop; }
+
+   @Nonnegative
+   public int decrementInputStackTop() { return --inputStackTop; }
+
+   @Nonnegative
+   public void decrementInputStackTop(@Nonnegative int amount) { inputStackTop -= amount; }
 
    /**
     * Returns the {@link #outputStackMax}.
