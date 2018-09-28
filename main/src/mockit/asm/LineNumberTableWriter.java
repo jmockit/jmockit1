@@ -4,7 +4,10 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 
-final class LineNumberWriter extends AttributeWriter
+/**
+ * Writes the bytecode for the "LineNumberTable" method code attribute.
+ */
+final class LineNumberTableWriter extends AttributeWriter
 {
    /**
     * Number of entries in the <tt>LineNumberTable</tt> attribute.
@@ -16,7 +19,7 @@ final class LineNumberWriter extends AttributeWriter
     */
    @Nullable private ByteVector lineNumbers;
 
-   LineNumberWriter(@Nonnull ConstantPoolGeneration cp) { super(cp); }
+   LineNumberTableWriter(@Nonnull ConstantPoolGeneration cp) { super(cp); }
 
    void addLineNumber(@Nonnegative int line, @Nonnull Label start) {
       if (lineNumbers == null) {
@@ -37,7 +40,7 @@ final class LineNumberWriter extends AttributeWriter
    @Override
    protected void put(@Nonnull ByteVector out) {
       if (lineNumbers != null) {
-         put(out, lineNumbers.length + 2);
+         put(out, 2 + lineNumbers.length);
          out.putShort(lineNumberCount);
          out.putByteVector(lineNumbers);
       }

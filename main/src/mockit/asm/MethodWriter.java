@@ -64,8 +64,8 @@ public final class MethodWriter extends MethodVisitor
 
    @Nonnull private final FrameAndStackComputation frameAndStack;
    @Nonnull private final ExceptionHandling exceptionHandling;
-   @Nonnull private final LocalVariables localVariables;
-   @Nonnull private final LineNumberWriter lineNumbers;
+   @Nonnull private final LocalVariableTableWriter localVariableTableWriter;
+   @Nonnull private final LineNumberTableWriter lineNumberTableWriter;
    @Nonnull private final CFGAnalysis cfgAnalysis;
 
    private final boolean computeFrames;
@@ -97,8 +97,8 @@ public final class MethodWriter extends MethodVisitor
       this.computeFrames = computeFrames;
       frameAndStack = new FrameAndStackComputation(this, access, desc);
       exceptionHandling = new ExceptionHandling(cp);
-      localVariables = new LocalVariables(cp);
-      lineNumbers = new LineNumberWriter(cp);
+      localVariableTableWriter = new LocalVariableTableWriter(cp);
+      lineNumberTableWriter = new LineNumberTableWriter(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
 
       createMarkerAttributes(cw.classVersion);
@@ -344,13 +344,13 @@ public final class MethodWriter extends MethodVisitor
       @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nonnull Label start, @Nonnull Label end,
       @Nonnegative int index
    ) {
-      int localsCount = localVariables.addLocalVariable(name, desc, signature, start, end, index);
+      int localsCount = localVariableTableWriter.addLocalVariable(name, desc, signature, start, end, index);
       frameAndStack.updateMaxLocals(localsCount);
    }
 
    @Override
    public void visitLineNumber(@Nonnegative int line, @Nonnull Label start) {
-      lineNumbers.addLineNumber(line, start);
+      lineNumberTableWriter.addLineNumber(line, start);
    }
 
    @Override
@@ -445,8 +445,8 @@ public final class MethodWriter extends MethodVisitor
          cp.newUTF8("Code");
 
          size += 18 + codeLength + exceptionHandling.getSize();
-         size += localVariables.getSizeWhileAddingConstantPoolItems();
-         size += lineNumbers.getSize();
+         size += localVariableTableWriter.getSize();
+         size += lineNumberTableWriter.getSize();
          size += frameAndStack.getSizeWhileAddingConstantPoolItem();
       }
 
@@ -543,9 +543,9 @@ public final class MethodWriter extends MethodVisitor
          out.putInt(code.length).putByteVector(code);
          exceptionHandling.put(out);
 
-         int codeAttributeCount = localVariables.getAttributeCount();
+         int codeAttributeCount = localVariableTableWriter.getAttributeCount();
 
-         if (lineNumbers.hasLineNumbers()) {
+         if (lineNumberTableWriter.hasLineNumbers()) {
             codeAttributeCount++;
          }
 
@@ -554,15 +554,16 @@ public final class MethodWriter extends MethodVisitor
          }
 
          out.putShort(codeAttributeCount);
-         localVariables.put(out);
-         lineNumbers.put(out);
+         localVariableTableWriter.put(out);
+         lineNumberTableWriter.put(out);
          frameAndStack.put(out);
       }
    }
 
    private void putCodeSize(@Nonnull ByteVector out) {
       int size =
-         12 + code.length + exceptionHandling.getSize() + localVariables.getSize() + lineNumbers.getSize() + frameAndStack.getSize();
+         12 + code.length +
+         exceptionHandling.getSize() + localVariableTableWriter.getSize() + lineNumberTableWriter.getSize() + frameAndStack.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);
    }

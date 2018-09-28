@@ -4,10 +4,11 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 
-final class LocalVariables
+/**
+ * Writes the bytecode for the "LocalVariableTable" and "LocalVariableTypeTable" method code attributes.
+ */
+final class LocalVariableTableWriter extends AttributeWriter
 {
-   @Nonnull private final ConstantPoolGeneration cp;
-
    /**
     * Number of entries in the LocalVariableTable attribute.
     */
@@ -17,6 +18,8 @@ final class LocalVariables
     * The LocalVariableTable attribute.
     */
    @Nullable private ByteVector localVarTable;
+
+   @Nonnegative private int localVarTypeAttributeIndex;
 
    /**
     * Number of entries in the LocalVariableTypeTable attribute.
@@ -28,7 +31,7 @@ final class LocalVariables
     */
    @Nullable private ByteVector localVarTypeTable;
 
-   LocalVariables(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
+   LocalVariableTableWriter(@Nonnull ConstantPoolGeneration cp) { super(cp); }
 
    @Nonnegative
    int addLocalVariable(
@@ -36,11 +39,21 @@ final class LocalVariables
       @Nonnegative int index
    ) {
       if (signature != null) {
-         localVarTypeTable = addAttribute(localVarTypeTable, name, signature, start, end, index);
+         if (localVarTypeTable == null) {
+            localVarTypeAttributeIndex = cp.newUTF8("LocalVariableTypeTable");
+            localVarTypeTable = new ByteVector();
+         }
+
+         addAttribute(localVarTypeTable, name, signature, start, end, index);
          localVarTypeCount++;
       }
 
-      localVarTable = addAttribute(localVarTable, name, desc, start, end, index);
+      if (localVarTable == null) {
+         setAttribute("LocalVariableTable");
+         localVarTable = new ByteVector();
+      }
+
+      addAttribute(localVarTable, name, desc, start, end, index);
       localVarCount++;
 
       char c = desc.charAt(0);
@@ -48,39 +61,19 @@ final class LocalVariables
       return n;
    }
 
-   @Nonnull
-   private ByteVector addAttribute(
-      @Nullable ByteVector attribute, @Nonnull String name, @Nonnull String desc, @Nonnull Label start, @Nonnull Label end,
+   private void addAttribute(
+      @Nonnull ByteVector attribute, @Nonnull String name, @Nonnull String desc, @Nonnull Label start, @Nonnull Label end,
       @Nonnegative int index
    ) {
-      if (attribute == null) {
-         attribute = new ByteVector();
-      }
-
       attribute
          .putShort(start.position)
          .putShort(end.position - start.position)
          .putShort(cp.newUTF8(name)).putShort(cp.newUTF8(desc))
          .putShort(index);
-
-      return attribute;
    }
 
-   @Nonnegative
-   int getSizeWhileAddingConstantPoolItems() {
-      addItemToConstantPool("LocalVariableTable", localVarTable);
-      addItemToConstantPool("LocalVariableTypeTable", localVarTypeTable);
-      return getSize();
-   }
-
-   private void addItemToConstantPool(@Nonnull String attributeName, @Nullable ByteVector attribute) {
-      if (attribute != null) {
-         cp.newUTF8(attributeName);
-      }
-   }
-
-   @Nonnegative
-   int getSize() {
+   @Nonnegative @Override
+   protected int getSize() {
       return getSize(localVarTable) + getSize(localVarTypeTable);
    }
 
@@ -90,15 +83,17 @@ final class LocalVariables
    @Nonnegative
    int getAttributeCount() { return (localVarTable == null ? 0 : 1) + (localVarTypeTable == null ? 0 : 1); }
 
-   void put(@Nonnull ByteVector out) {
-      put(out, "LocalVariableTable", localVarTable, localVarCount);
-      put(out, "LocalVariableTypeTable", localVarTypeTable, localVarTypeCount);
+   @Override
+   protected void put(@Nonnull ByteVector out) {
+      put(out, localVarTable, localVarCount);
+      attributeIndex = localVarTypeAttributeIndex;
+      put(out, localVarTypeTable, localVarTypeCount);
    }
 
-   private void put(@Nonnull ByteVector out, @Nonnull String attributeName, @Nullable ByteVector attribute, @Nonnegative int numEntries) {
+   private void put(@Nonnull ByteVector out, @Nullable ByteVector attribute, @Nonnegative int numEntries) {
       if (attribute != null) {
-         out.putShort(cp.newUTF8(attributeName));
-         out.putInt(attribute.length + 2).putShort(numEntries);
+         put(out, 2 + attribute.length);
+         out.putShort(numEntries);
          out.putByteVector(attribute);
       }
    }

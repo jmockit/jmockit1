@@ -11,7 +11,7 @@ public abstract class AttributeWriter
    /**
     * The index of the constant pool item that contains the name of the associated attribute.
     */
-   @Nonnegative private int attributeIndex;
+   @Nonnegative protected int attributeIndex;
 
    protected AttributeWriter(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
