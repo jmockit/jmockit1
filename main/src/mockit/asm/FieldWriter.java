@@ -49,11 +49,6 @@ final class FieldWriter extends FieldVisitor
       createMarkerAttributes(cw.classVersion);
    }
 
-   @Nonnull @Override
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
-      return addAnnotation(desc);
-   }
-
    /**
     * Returns the size of this field.
     */

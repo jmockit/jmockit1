@@ -117,11 +117,7 @@ final class AnnotationReader extends BytecodeReader
 
       if (valueCount == 0) {
          AnnotationVisitor arrayVisitor = av.visitArray(name);
-
-         if (arrayVisitor != null) {
-            arrayVisitor.visitEnd();
-         }
-
+         arrayVisitor.visitEnd();
          return;
       }
 

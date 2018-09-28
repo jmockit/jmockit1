@@ -105,11 +105,6 @@ public final class MethodWriter extends MethodVisitor
    }
 
    @Nonnull @Override
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
-      return addAnnotation(desc);
-   }
-
-   @Nonnull @Override
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
       AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
 

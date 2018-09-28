@@ -141,11 +141,6 @@ public final class ClassWriter extends ClassVisitor
       }
    }
 
-   @Nonnull @Override
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
-      return addAnnotation(desc);
-   }
-
    @Override
    public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       if (innerClassesWriter == null) {

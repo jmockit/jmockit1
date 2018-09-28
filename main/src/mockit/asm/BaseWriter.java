@@ -29,12 +29,12 @@ class BaseWriter
     * Returns the {@link #cp constant pool generation helper object} used by this writer.
     */
    @Nonnull
-   public ConstantPoolGeneration getConstantPoolGeneration() { return cp; }
+   public final ConstantPoolGeneration getConstantPoolGeneration() { return cp; }
 
    /**
     * Returns the {@link #classOrMemberAccess}.
     */
-   public int getClassOrMemberAccess() { return classOrMemberAccess; }
+   public final int getClassOrMemberAccess() { return classOrMemberAccess; }
 
    /**
     * Visits an annotation of the class/field/method being visited.
@@ -43,7 +43,9 @@ class BaseWriter
     * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting the annotation
     */
    @Nullable
-   public AnnotationVisitor visitAnnotation(@Nonnull String desc) { return null; }
+   public AnnotationVisitor visitAnnotation(@Nonnull String desc) {
+      return addAnnotation(desc);
+   }
 
    /**
     * Visits the end of the class/field/method being visited. This method, which is the last one to be called, is used to inform the visitor
