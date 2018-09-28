@@ -8,6 +8,8 @@ import java.nio.charset.*;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.asm.jvmConstants.*;
+
 public final class ClassMetadataReader extends ObjectWithAttributes
 {
    private static final Charset UTF8 = Charset.forName("UTF-8");

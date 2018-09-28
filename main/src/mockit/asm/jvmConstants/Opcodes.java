@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.jvmConstants;
 
 /**
  * Defines the JVM opcodes. This interface does not define all the JVM opcodes because some opcodes are automatically

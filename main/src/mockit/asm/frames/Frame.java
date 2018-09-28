@@ -5,9 +5,10 @@ import javax.annotation.*;
 import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
+import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import static mockit.asm.frames.Frame.TypeMask.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
  * Information about the input and output stack map frames of a basic block.

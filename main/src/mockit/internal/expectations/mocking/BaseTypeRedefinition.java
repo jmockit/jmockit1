@@ -11,6 +11,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.asm.*;
+import mockit.asm.jvmConstants.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.expectations.mocking.InstanceFactory.*;

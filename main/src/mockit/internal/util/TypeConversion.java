@@ -8,7 +8,7 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.asm.types.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 public final class TypeConversion
 {

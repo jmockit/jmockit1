@@ -1,7 +1,7 @@
-package mockit.asm;
+package mockit.asm.jvmConstants;
 
 /**
- * Data about all JVM bytecode instructions: {@link #SIZE}, {@link #TYPE}.
+ * Constant data about all JVM bytecode instructions: {@link #SIZE}, {@link #TYPE}.
  */
 public final class JVMInstruction
 {
@@ -32,7 +32,7 @@ public final class JVMInstruction
     * Such types vary in the number and size of arguments the instruction takes (no argument, a signed byte, a signed short), on whether it
     * takes a local variable index, a jump target label, etc. Some types contain a single instruction, such as LDC and IINC.
     */
-   interface InstructionType {
+   public interface InstructionType {
       int NOARG       = 0; // instructions without any argument
       int SBYTE       = 1; // instructions with a signed byte argument
       int SHORT       = 2; // instructions with a signed short argument
@@ -56,7 +56,7 @@ public final class JVMInstruction
    /**
     * The {@linkplain InstructionType instruction types} of all JVM opcodes, one value for each instruction opcode.
     */
-   static final byte[] TYPE;
+   public static final byte[] TYPE;
    static {
       String s =
          "AAAAAAAAAAAAAAAABCLMMDDDDDEEEEEEEEEEEEEEEEEEEEAAAAAAAADD" +

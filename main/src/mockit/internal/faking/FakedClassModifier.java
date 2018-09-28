@@ -9,12 +9,13 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.asm.*;
+import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
  * Responsible for generating all necessary bytecode in the redefined (real) class.

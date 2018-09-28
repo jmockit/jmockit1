@@ -12,9 +12,9 @@ import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
 import mockit.asm.*;
 import mockit.internal.*;
-import static mockit.asm.Access.*;
+import static mockit.asm.jvmConstants.Access.*;
 import static mockit.coverage.Metrics.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
 {

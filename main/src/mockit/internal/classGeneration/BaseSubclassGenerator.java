@@ -11,10 +11,11 @@ import static java.util.Arrays.*;
 
 import mockit.asm.*;
 import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 public class BaseSubclassGenerator extends BaseClassModifier
 {

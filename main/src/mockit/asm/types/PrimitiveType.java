@@ -2,8 +2,8 @@ package mockit.asm.types;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
-import static mockit.asm.Opcodes.*;
+import mockit.asm.jvmConstants.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 public final class PrimitiveType extends JavaType
 {

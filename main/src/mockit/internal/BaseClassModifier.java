@@ -8,10 +8,11 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.asm.*;
+import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.internal.expectations.*;
 import mockit.internal.util.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 public class BaseClassModifier extends WrappingClassVisitor
 {

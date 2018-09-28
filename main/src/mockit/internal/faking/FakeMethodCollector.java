@@ -14,7 +14,7 @@ import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;
 import mockit.internal.util.*;
-import static mockit.asm.Access.*;
+import static mockit.asm.jvmConstants.Access.*;
 
 /**
  * Responsible for collecting the signatures of all methods defined in a given fake class which are explicitly annotated

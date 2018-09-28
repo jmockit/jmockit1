@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.jvmConstants;
 
 /**
  * Types for the argument of a NEWARRAY instruction.

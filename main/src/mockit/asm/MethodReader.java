@@ -4,8 +4,9 @@ import javax.annotation.*;
 
 import mockit.asm.ClassReader.*;
 import mockit.asm.constantPool.Item.*;
-import static mockit.asm.JVMInstruction.InstructionType.*;
-import static mockit.asm.Opcodes.*;
+import mockit.asm.jvmConstants.*;
+import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 @SuppressWarnings("OverlyComplexClass")
 final class MethodReader extends AnnotatedReader

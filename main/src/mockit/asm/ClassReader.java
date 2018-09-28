@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.jvmConstants.*;
+
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
  * <p/>

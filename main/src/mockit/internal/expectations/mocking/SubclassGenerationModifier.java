@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.jvmConstants.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.util.*;
 

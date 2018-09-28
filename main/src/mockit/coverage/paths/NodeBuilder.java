@@ -7,6 +7,7 @@ package mockit.coverage.paths;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.asm.jvmConstants.*;
 import mockit.coverage.paths.Node.*;
 import mockit.asm.*;
 

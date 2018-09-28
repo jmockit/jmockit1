@@ -5,7 +5,8 @@ import javax.annotation.*;
 import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.frames.*;
-import static mockit.asm.Opcodes.*;
+import mockit.asm.jvmConstants.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 @SuppressWarnings("OverlyComplexClass")
 public final class CFGAnalysis

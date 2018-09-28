@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.jvmConstants.*;
+
 /**
  * A bytecode reader for reading common elements (signature, annotations) of a class, field, or method.
  */

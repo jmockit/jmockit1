@@ -16,8 +16,8 @@ import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.reflection.*;
 import mockit.internal.reflection.GenericTypeReflection.*;
-import static mockit.asm.Access.*;
-import static mockit.asm.Opcodes.*;
+import static mockit.asm.jvmConstants.Access.*;
+import static mockit.asm.jvmConstants.Opcodes.*;
 
 final class InterfaceImplementationGenerator extends BaseClassModifier
 {
