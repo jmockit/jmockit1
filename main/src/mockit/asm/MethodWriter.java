@@ -53,9 +53,9 @@ public final class MethodWriter extends MethodVisitor
    @Nullable private final ExceptionsWriter exceptionsWriter;
 
    /**
-    * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
+    * The runtime visible parameter annotations of this method, if any.
     */
-   @Nullable private AnnotationWriter[] parameterAnnotations;
+   @Nullable private AnnotationVisitor[] parameterAnnotations;
 
    /**
     * The bytecode of this method.
@@ -111,11 +111,11 @@ public final class MethodWriter extends MethodVisitor
 
    @Nonnull @Override
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) {
-      AnnotationWriter aw = new AnnotationWriter(cp, desc);
+      AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
 
       if (parameterAnnotations == null) {
          int numParameters = JavaType.getArgumentTypes(descriptor).length;
-         parameterAnnotations = new AnnotationWriter[numParameters];
+         parameterAnnotations = new AnnotationVisitor[numParameters];
       }
 
       aw.next = parameterAnnotations[parameter];
@@ -477,7 +477,7 @@ public final class MethodWriter extends MethodVisitor
          size += 7 + 2 * n;
 
          for (int i = n - 1; i >= 0; i--) {
-            AnnotationWriter parameterAnnotation = parameterAnnotations[i];
+            AnnotationVisitor parameterAnnotation = parameterAnnotations[i];
             size += parameterAnnotation == null ? 0 : parameterAnnotation.getSize();
          }
       }
@@ -577,7 +577,7 @@ public final class MethodWriter extends MethodVisitor
 
       if (parameterAnnotations != null) {
          out.putShort(cp.newUTF8("RuntimeVisibleParameterAnnotations"));
-         AnnotationWriter.put(out, parameterAnnotations);
+         AnnotationVisitor.put(out, parameterAnnotations);
       }
    }
 

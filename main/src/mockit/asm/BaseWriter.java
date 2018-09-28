@@ -23,7 +23,7 @@ class BaseWriter
    /**
     * The runtime visible annotations of this class/field/method.
     */
-   @Nullable AnnotationWriter annotations;
+   @Nullable AnnotationVisitor annotations;
 
    /**
     * Returns the {@link #cp constant pool generation helper object} used by this writer.
@@ -63,7 +63,7 @@ class BaseWriter
 
    @Nonnull
    final AnnotationVisitor addAnnotation(@Nonnull String desc) {
-      AnnotationWriter aw = new AnnotationWriter(cp, desc);
+      AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
       aw.next = annotations;
       annotations = aw;
       return aw;
