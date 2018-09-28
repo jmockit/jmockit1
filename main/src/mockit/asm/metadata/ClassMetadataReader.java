@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.asm;
+package mockit.asm.metadata;
 
 import java.nio.charset.*;
 import java.util.*;
@@ -80,7 +80,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       this.code = code;
       int cpItemCount = readUnsignedShort(8);
       int[] cpTable = new int[cpItemCount];
-      this.cpItemCodeIndexes = cpTable;
+      cpItemCodeIndexes = cpTable;
       this.attributesToRead = attributesToRead;
       cpEndIndex = findEndIndexOfConstantPoolTable(cpTable);
    }
@@ -100,7 +100,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       int byte0 = (b[i++] & 0xFF) << 24;
       int byte1 = (b[i++] & 0xFF) << 16;
       int byte2 = (b[i++] & 0xFF) << 8;
-      int byte3 =  b[i++] & 0xFF;
+      int byte3 =  b[i] & 0xFF;
       return byte0 | byte1 | byte2 | byte3;
    }
 
@@ -269,6 +269,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       boolean readAnnotations = false;
 
       if (attributes == null) {
+         //noinspection AssignmentToMethodParameter
          attributeOwner = null;
       }
       else {
@@ -312,13 +313,13 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       int numAnnotations = readUnsignedShort(codeIndex);
       codeIndex += 2;
 
-      List<AnnotationInfo> annotations = new ArrayList<>(numAnnotations);
+      List<AnnotationInfo> annotationInfos = new ArrayList<>(numAnnotations);
 
       for (int i = 0; i < numAnnotations; i++) {
-         codeIndex = readAnnotation(annotations, codeIndex);
+         codeIndex = readAnnotation(annotationInfos, codeIndex);
       }
 
-      return annotations;
+      return annotationInfos;
    }
 
    @Nonnegative
@@ -442,7 +443,7 @@ public final class ClassMetadataReader extends ObjectWithAttributes
             arraySize++;
          }
 
-         String[] parameters = new String[arraySize];
+         String[] parameterNames = new String[arraySize];
 
          for (int i = 0; i < localVariableTableLength; i++) {
             codeIndex += 4;
@@ -462,11 +463,11 @@ public final class ClassMetadataReader extends ObjectWithAttributes
             codeIndex += 2;
 
             if (localVarIndex < arraySize) {
-               parameters[localVarIndex] = localVarName;
+               parameterNames[localVarIndex] = localVarName;
             }
          }
 
-         return compactArray(parameters);
+         return compactArray(parameterNames);
       }
 
       @Nonnegative

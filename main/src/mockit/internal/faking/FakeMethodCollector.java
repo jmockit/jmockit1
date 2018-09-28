@@ -8,8 +8,8 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.*;
-import mockit.asm.*;
-import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.metadata.*;
+import mockit.asm.metadata.ClassMetadataReader.*;
 import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.faking.FakeMethods.FakeMethod;

@@ -11,7 +11,8 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.isStatic;
 
 import mockit.asm.*;
-import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.metadata.*;
+import mockit.asm.metadata.ClassMetadataReader.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.reflection.*;

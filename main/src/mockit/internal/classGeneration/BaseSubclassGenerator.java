@@ -10,7 +10,8 @@ import javax.annotation.*;
 import static java.util.Arrays.*;
 
 import mockit.asm.*;
-import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.metadata.*;
+import mockit.asm.metadata.ClassMetadataReader.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.internal.*;

@@ -10,8 +10,8 @@ import javax.annotation.*;
 
 import static java.lang.reflect.Modifier.*;
 
-import mockit.asm.*;
-import mockit.asm.ClassMetadataReader.*;
+import mockit.asm.metadata.*;
+import mockit.asm.metadata.ClassMetadataReader.*;
 
 final class SuperConstructorCollector
 {
