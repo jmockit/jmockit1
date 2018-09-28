@@ -36,10 +36,10 @@ final class LineNumberTableWriter extends AttributeWriter
    boolean hasLineNumbers() { return lineNumbers != null; }
 
    @Nonnegative @Override
-   protected int getSize() { return lineNumbers == null ? 0 : 8 + lineNumbers.getLength(); }
+   public int getSize() { return lineNumbers == null ? 0 : 8 + lineNumbers.getLength(); }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       if (lineNumbers != null) {
          put(out, 2 + lineNumbers.getLength());
          out.putShort(lineNumberCount);

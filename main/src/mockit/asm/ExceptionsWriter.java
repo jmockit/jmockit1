@@ -24,10 +24,10 @@ final class ExceptionsWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() { return 8 + 2 * exceptionIndices.length; }
+   public int getSize() { return 8 + 2 * exceptionIndices.length; }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       int n = exceptionIndices.length;
       put(out, 2 + 2 * n);
       out.putShort(n);

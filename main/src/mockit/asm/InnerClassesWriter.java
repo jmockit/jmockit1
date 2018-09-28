@@ -24,10 +24,10 @@ final class InnerClassesWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() { return 8 + innerClasses.getLength(); }
+   public int getSize() { return 8 + innerClasses.getLength(); }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       put(out, 2 + innerClasses.getLength());
       out.putShort(innerClassesCount);
       out.putByteVector(innerClasses);

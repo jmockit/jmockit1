@@ -74,7 +74,7 @@ final class LocalVariableTableWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() {
+   public int getSize() {
       return getSize(localVarTable) + getSize(localVarTypeTable);
    }
 
@@ -85,7 +85,7 @@ final class LocalVariableTableWriter extends AttributeWriter
    int getAttributeCount() { return (localVarTable == null ? 0 : 1) + (localVarTypeTable == null ? 0 : 1); }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       put(out, localVarTable, localVarCount);
       attributeIndex = localVarTypeAttributeIndex;
       put(out, localVarTypeTable, localVarTypeCount);

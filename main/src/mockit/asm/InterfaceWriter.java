@@ -26,10 +26,10 @@ final class InterfaceWriter extends AttributeWriter
    }
 
    @Override
-   protected int getSize() { return 2 * interfaceItemIndices.length; }
+   public int getSize() { return 2 * interfaceItemIndices.length; }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       out.putShort(interfaceItemIndices.length);
 
       for (int interfaceItemIndex : interfaceItemIndices) {

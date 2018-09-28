@@ -1,8 +1,7 @@
-package mockit.asm;
+package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import mockit.asm.constantPool.*;
 import mockit.asm.util.*;
 
 public abstract class AttributeWriter
@@ -16,7 +15,7 @@ public abstract class AttributeWriter
 
    protected AttributeWriter(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
 
-   AttributeWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String attributeName) {
+   protected AttributeWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String attributeName) {
       this.cp = cp;
       setAttribute(attributeName);
    }
@@ -26,9 +25,9 @@ public abstract class AttributeWriter
    }
 
    @Nonnegative
-   protected abstract int getSize();
+   public abstract int getSize();
 
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       put(out, 2);
    }
 

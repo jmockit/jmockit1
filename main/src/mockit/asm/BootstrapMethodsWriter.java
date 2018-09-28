@@ -114,10 +114,10 @@ final class BootstrapMethodsWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() { return 8 + bootstrapMethods.getLength(); }
+   public int getSize() { return 8 + bootstrapMethods.getLength(); }
 
    @Override
-   protected void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       setAttribute("BootstrapMethods");
       put(out, 2 + bootstrapMethods.getLength());
       out.putShort(bootstrapMethodsCount);
