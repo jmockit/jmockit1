@@ -19,10 +19,10 @@ final class NestMembersWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   int getSize() { return 8 + 2 * memberClassNameIndices.length; }
+   protected int getSize() { return 8 + 2 * memberClassNameIndices.length; }
 
    @Override
-   void put(@Nonnull ByteVector out) {
+   protected void put(@Nonnull ByteVector out) {
       int numberOfMembers = memberClassNameIndices.length;
       put(out, 2 + 2 * numberOfMembers);
       out.putShort(numberOfMembers);

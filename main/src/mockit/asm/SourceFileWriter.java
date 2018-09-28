@@ -17,10 +17,10 @@ final class SourceFileWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   int getSize() { return 8; }
+   protected int getSize() { return 8; }
 
    @Override
-   void put(@Nonnull ByteVector out) {
+   protected void put(@Nonnull ByteVector out) {
       super.put(out);
       out.putShort(sourceFileIndex);
    }
