@@ -3,10 +3,11 @@ package mockit.asm.constantPool;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
 import mockit.internal.util.*;
-import static mockit.asm.constantPool.Item.Type.*;
+import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 import static mockit.internal.util.ClassLoad.OBJECT;
 
 /**
@@ -138,7 +139,7 @@ public final class ConstantPoolGeneration
     * Adds a string to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param type one of {@link Item.Type#STR}, {@link Item.Type#CLASS} or {@link Item.Type#MTYPE}
+    * @param type one of {@link ConstantPoolTypes#STR}, {@link ConstantPoolTypes#CLASS} or {@link ConstantPoolTypes#MTYPE}
     * @param value the String value.
     * @return a new or already existing string item.
     */

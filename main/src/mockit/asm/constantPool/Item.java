@@ -2,54 +2,23 @@ package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
+import mockit.asm.jvmConstants.*;
+
 /**
- * A constant pool item of a given {@linkplain Type type}.
+ * A constant pool item of a given {@linkplain ConstantPoolTypes type}.
  */
 public abstract class Item
 {
-   /**
-    * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.4-150">types of items</a> in the
-    * constant pool of a class.
-    */
-   public interface Type {
-      int CLASS     =  7; // CONSTANT_Class
-      int FIELD     =  9; // CONSTANT_Fieldref
-      int METH      = 10; // CONSTANT_Methodref
-      int IMETH     = 11; // CONSTANT_InterfaceMethodref
-      int STR       =  8; // CONSTANT_String
-      int INT       =  3; // CONSTANT_Integer
-      int FLOAT     =  4; // CONSTANT_Float
-      int LONG      =  5; // CONSTANT_Long
-      int DOUBLE    =  6; // CONSTANT_Double
-      int NAME_TYPE = 12; // CONSTANT_NameAndType
-      int UTF8      =  1; // CONSTANT_Utf8
-      int HANDLE    = 15; // CONSTANT_MethodHandle
-      int MTYPE     = 16; // CONSTANT_MethodType
-      int INDY      = 18; // CONSTANT_InvokeDynamic
-
-      /**
-       * The base value for all CONSTANT_MethodHandle constant pool items.
-       * Internally, there are 9 variations of CONSTANT_MethodHandle items, which are stored into 9 different items, of types 21 to 29.
-       */
-      int HANDLE_BASE = 20;
-
-      /**
-       * The type of BootstrapMethod items.
-       * These items are stored in a special class attribute named "BootstrapMethods" and not in the constant pool.
-       */
-      int BSM = 33;
-   }
-
    /**
     * Index of this item in the constant pool.
     */
    @Nonnegative public final int index;
 
    /**
-    * {@link Type Type} of this constant pool item.
+    * {@link ConstantPoolTypes Type} of this constant pool item.
     * <p/>
-    * MethodHandle variations are stored using a range of 9 values from {@link Type#HANDLE_BASE HANDLE_BASE} + 1 to
-    * {@link Type#HANDLE_BASE HANDLE_BASE} + 9.
+    * MethodHandle variations are stored using a range of 9 values from {@link ConstantPoolTypes#HANDLE_BASE HANDLE_BASE} + 1 to
+    * {@link ConstantPoolTypes#HANDLE_BASE HANDLE_BASE} + 9.
     * <p/>
     * Special Item types are used for items that are stored in the {@link ConstantPoolGeneration#typeTable}, instead of the constant pool,
     * in order to avoid clashes with normal constant pool items in the constant pool's hash table.

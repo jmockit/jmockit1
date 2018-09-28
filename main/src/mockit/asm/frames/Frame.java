@@ -861,27 +861,27 @@ public final class Frame
     */
    public void executeLDC(@Nonnull Item item) {
       switch (item.getType()) {
-         case Item.Type.INT:
+         case ConstantPoolTypes.INT:
             push(INTEGER);
             break;
-         case Item.Type.LONG:
+         case ConstantPoolTypes.LONG:
             push(LONG);
             push(TOP);
             break;
-         case Item.Type.FLOAT:
+         case ConstantPoolTypes.FLOAT:
             push(FLOAT);
             break;
-         case Item.Type.DOUBLE:
+         case ConstantPoolTypes.DOUBLE:
             push(DOUBLE);
             push(TOP);
             break;
-         case Item.Type.CLASS:
+         case ConstantPoolTypes.CLASS:
             push(OBJECT | cp.addNormalType("java/lang/Class"));
             break;
-         case Item.Type.STR:
+         case ConstantPoolTypes.STR:
             push(OBJECT | cp.addNormalType("java/lang/String"));
             break;
-         case Item.Type.MTYPE:
+         case ConstantPoolTypes.MTYPE:
             push(OBJECT | cp.addNormalType("java/lang/invoke/MethodType"));
             break;
       // case Item.Type.HANDLE_BASE + [1..9]:

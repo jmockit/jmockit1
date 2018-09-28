@@ -3,7 +3,7 @@ package mockit.asm.constantPool;
 import javax.annotation.*;
 
 import mockit.asm.*;
-import static mockit.asm.constantPool.Item.Type.*;
+import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
 public final class MethodHandleItem extends Item
 {

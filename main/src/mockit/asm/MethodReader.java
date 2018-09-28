@@ -3,7 +3,6 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.ClassReader.*;
-import mockit.asm.constantPool.Item.*;
 import mockit.asm.jvmConstants.*;
 import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
@@ -578,7 +577,7 @@ final class MethodReader extends AnnotatedReader
          mv.visitFieldInsn(opcode, owner, memberName, memberDesc);
       }
       else {
-         boolean itf = code[ownerCodeIndex - 1] == Type.IMETH;
+         boolean itf = code[ownerCodeIndex - 1] == ConstantPoolTypes.IMETH;
          mv.visitMethodInsn(opcode, owner, memberName, memberDesc, itf);
 
          if (opcode == INVOKEINTERFACE) {

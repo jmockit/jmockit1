@@ -2,7 +2,7 @@ package mockit.asm.constantPool;
 
 import javax.annotation.*;
 
-import static mockit.asm.constantPool.Item.Type.*;
+import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
 public final class InvokeDynamicItem extends TypeOrMemberItem
 {

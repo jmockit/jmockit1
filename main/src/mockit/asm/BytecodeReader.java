@@ -3,7 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.types.*;
-import static mockit.asm.constantPool.Item.Type.*;
+import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
 class BytecodeReader
 {
