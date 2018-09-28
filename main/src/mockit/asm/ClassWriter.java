@@ -6,6 +6,7 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.util.*;
 import mockit.internal.util.*;
 
 /**
@@ -185,7 +186,7 @@ public final class ClassWriter extends ClassVisitor
 
       putClassAttributes(out);
       putAnnotations(out);
-      return out.data;
+      return out.getData();
    }
 
    @Nonnegative

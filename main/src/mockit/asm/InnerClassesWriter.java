@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 final class InnerClassesWriter extends AttributeWriter
 {
@@ -23,11 +24,11 @@ final class InnerClassesWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() { return 8 + innerClasses.length; }
+   protected int getSize() { return 8 + innerClasses.getLength(); }
 
    @Override
    protected void put(@Nonnull ByteVector out) {
-      put(out, 2 + innerClasses.length);
+      put(out, 2 + innerClasses.getLength());
       out.putShort(innerClassesCount);
       out.putByteVector(innerClasses);
    }

@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Writes out the interfaces implemented or extended by the class or interface being written.

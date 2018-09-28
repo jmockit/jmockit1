@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Writes out into the constant pool the item index containing the name of the source file from which the class was compiled.

@@ -6,6 +6,7 @@ import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.frames.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 @SuppressWarnings("OverlyComplexClass")

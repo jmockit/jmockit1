@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.controlFlowGraph.*;
 import mockit.asm.frames.*;
+import mockit.asm.util.*;
 
 /**
  * A label represents a position in the bytecode of a method.
@@ -197,11 +198,11 @@ public final class Label
       }
       else {
          if (wideOffset) {
-            addReference(-1 - source, out.length);
+            addReference(-1 - source, out.getLength());
             out.putInt(-1);
          }
          else {
-            addReference(source, out.length);
+            addReference(source, out.getLength());
             out.putShort(-1);
          }
       }
@@ -241,8 +242,8 @@ public final class Label
    public void resolve(@Nonnull ByteVector methodBytecode) {
       markAsResolved();
 
-      byte[] data = methodBytecode.data;
-      int pos = methodBytecode.length;
+      byte[] data = methodBytecode.getData();
+      int pos = methodBytecode.getLength();
       position = pos;
       int[] srcAndRefPos = srcAndRefPositions;
 

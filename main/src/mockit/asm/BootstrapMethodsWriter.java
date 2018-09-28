@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
@@ -67,7 +68,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
    ) {
       ByteVector methods = bootstrapMethods;
-      int position = methods.length; // record current position
+      int position = methods.getLength(); // record current position
 
       MethodHandleItem methodHandleItem = cp.newMethodHandleItem(bsm);
       methods.putShort(methodHandleItem.index);
@@ -79,7 +80,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       hashCode = putBSMArgs(hashCode, bsmArgs);
       hashCode &= 0x7FFFFFFF;
 
-      methods.length = position; // revert to old position
+      methods.setLength(position); // revert to old position
 
       BootstrapMethodItem bsmItem = getBSMItem(hashCode);
       InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.index);
@@ -113,12 +114,12 @@ final class BootstrapMethodsWriter extends AttributeWriter
    }
 
    @Nonnegative @Override
-   protected int getSize() { return 8 + bootstrapMethods.length; }
+   protected int getSize() { return 8 + bootstrapMethods.getLength(); }
 
    @Override
    protected void put(@Nonnull ByteVector out) {
       setAttribute("BootstrapMethods");
-      put(out, 2 + bootstrapMethods.length);
+      put(out, 2 + bootstrapMethods.getLength());
       out.putShort(bootstrapMethodsCount);
       out.putByteVector(bootstrapMethods);
    }

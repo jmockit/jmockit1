@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Writes the bytecode for the "LineNumberTable" method code attribute.
@@ -35,12 +36,12 @@ final class LineNumberTableWriter extends AttributeWriter
    boolean hasLineNumbers() { return lineNumbers != null; }
 
    @Nonnegative @Override
-   protected int getSize() { return lineNumbers == null ? 0 : 8 + lineNumbers.length; }
+   protected int getSize() { return lineNumbers == null ? 0 : 8 + lineNumbers.getLength(); }
 
    @Override
    protected void put(@Nonnull ByteVector out) {
       if (lineNumbers != null) {
-         put(out, 2 + lineNumbers.length);
+         put(out, 2 + lineNumbers.getLength());
          out.putShort(lineNumberCount);
          out.putByteVector(lineNumbers);
       }

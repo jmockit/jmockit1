@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 
 /**
  * A {@link FieldVisitor} that generates Java fields in bytecode form.

@@ -5,6 +5,7 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 
 /**
  * A visitor to visit a Java annotation, in the following order:
@@ -62,11 +63,11 @@ public final class AnnotationVisitor
       cp = parent.cp;
       this.named = named;
       bv = parent.bv;
-      offset = bv.length - 2;
+      offset = getByteLength() - 2;
    }
 
    @Nonnegative
-   private int getByteLength() { return bv.length; }
+   private int getByteLength() { return bv.getLength(); }
 
    /**
     * Visits a primitive, String, Class, or array value of the annotation.
@@ -290,7 +291,7 @@ public final class AnnotationVisitor
     */
    @SuppressWarnings("NumericCastThatLosesPrecision")
    void visitEnd() {
-      byte[] data = bv.data;
+      byte[] data = bv.getData();
       data[offset] = (byte) (attributeCount >>> 8);
       data[offset + 1] = (byte) attributeCount;
    }

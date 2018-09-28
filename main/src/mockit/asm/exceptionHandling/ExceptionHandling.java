@@ -6,6 +6,7 @@ import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
 import mockit.asm.frames.*;
+import mockit.asm.util.*;
 
 public final class ExceptionHandling
 {

@@ -5,6 +5,7 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.util.*;
 
 class BaseWriter
 {

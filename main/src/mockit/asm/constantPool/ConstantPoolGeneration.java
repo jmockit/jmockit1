@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 import mockit.internal.util.*;
 import static mockit.asm.constantPool.Item.Type.*;
 import static mockit.internal.util.ClassLoad.OBJECT;

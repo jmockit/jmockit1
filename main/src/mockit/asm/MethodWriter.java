@@ -8,6 +8,7 @@ import mockit.asm.exceptionHandling.*;
 import mockit.asm.frames.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
@@ -225,7 +226,7 @@ public final class MethodWriter extends MethodVisitor
       Label nextInsn = cfgAnalysis.updateCurrentBlockForJumpInstruction(opcode, label);
 
       // Adds the instruction to the bytecode of the method.
-      if (label.isResolved() && label.position - code.length < Short.MIN_VALUE) {
+      if (label.isResolved() && label.position - code.getLength() < Short.MIN_VALUE) {
          // Case of a backward jump with an offset < -32768. In this case we automatically replace GOTO with GOTO_W and IFxxx <l> with
          // IFNOTxxx <l'> GOTO_W <l>, where IFNOTxxx is the "opposite" opcode of IFxxx (i.e., IFNE for IFEQ) and where <l'> designates the
          // instruction just after the GOTO_W.
@@ -240,13 +241,13 @@ public final class MethodWriter extends MethodVisitor
          }
 
          code.putByte(GOTO_W);
-         label.put(code, code.length - 1, true);
+         label.put(code, code.getLength() - 1, true);
       }
       else {
          // Case of a backward jump with an offset >= -32768, or of a forward jump with, of course, an unknown offset.
          // In these cases we store the offset in 2 bytes (which will be increased in resizeInstructions, if needed).
          code.putByte(opcode);
-         label.put(code, code.length - 1, false);
+         label.put(code, code.getLength() - 1, false);
       }
 
       cfgAnalysis.updateCurrentBlockForJumpTarget(opcode, nextInsn);
@@ -296,9 +297,9 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {
       // Adds the instruction to the bytecode of the method.
-      int source = code.length;
+      int source = code.getLength();
       code.putByte(TABLESWITCH);
-      code.increaseLengthBy((4 - code.length % 4) % 4);
+      code.roundUpLength();
       dflt.put(code, source, true);
       code.putInt(min).putInt(max);
 
@@ -312,9 +313,9 @@ public final class MethodWriter extends MethodVisitor
    @Override
    public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {
       // Adds the instruction to the bytecode of the method.
-      int source = code.length;
+      int source = code.getLength();
       code.putByte(LOOKUPSWITCH);
-      code.increaseLengthBy((4 - code.length % 4) % 4);
+      code.roundUpLength();
       dflt.put(code, source, true);
       code.putInt(labels.length);
 
@@ -395,7 +396,7 @@ public final class MethodWriter extends MethodVisitor
             // Finds start and end of dead basic block.
             Label k = label.successor;
             int start = label.position;
-            int end = (k == null ? code.length : k.position) - 1;
+            int end = (k == null ? code.getLength() : k.position) - 1;
 
             // If non empty basic block.
             if (end >= start) {
@@ -416,7 +417,7 @@ public final class MethodWriter extends MethodVisitor
 
    // Replaces instructions with NOP ... NOP ATHROW.
    private void replaceInstructionsWithNOPAndATHROW(@Nonnegative int start, @Nonnegative int end) {
-      byte[] data = code.data;
+      byte[] data = code.getData();
 
       for (int i = start; i < end; i++) {
          data[i] = NOP;
@@ -436,7 +437,7 @@ public final class MethodWriter extends MethodVisitor
       }
 
       int size = 8 + getMarkerAttributesSize() + getAnnotationsSize() + getParameterAnnotationsSize();
-      int codeLength = code.length;
+      int codeLength = code.getLength();
 
       if (codeLength > 0) {
          if (codeLength > 65536) {
@@ -514,7 +515,7 @@ public final class MethodWriter extends MethodVisitor
    private void putMethodAttributeCount(@Nonnull ByteVector out) {
       int attributeCount = getMarkerAttributeCount();
 
-      if (code.length > 0) {
+      if (code.getLength() > 0) {
          attributeCount++;
       }
 
@@ -538,10 +539,10 @@ public final class MethodWriter extends MethodVisitor
    }
 
    private void putMethodCode(@Nonnull ByteVector out) {
-      if (code.length > 0) {
+      if (code.getLength() > 0) {
          putCodeSize(out);
          frameAndStack.putMaxStackAndLocals(out);
-         out.putInt(code.length).putByteVector(code);
+         out.putInt(code.getLength()).putByteVector(code);
          exceptionHandling.put(out);
 
          int codeAttributeCount = localVariableTableWriter.getAttributeCount();
@@ -563,7 +564,7 @@ public final class MethodWriter extends MethodVisitor
 
    private void putCodeSize(@Nonnull ByteVector out) {
       int size =
-         12 + code.length +
+         12 + code.getLength() +
          exceptionHandling.getSize() + localVariableTableWriter.getSize() + lineNumberTableWriter.getSize() + frameAndStack.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);

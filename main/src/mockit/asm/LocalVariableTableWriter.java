@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Writes the bytecode for the "LocalVariableTable" and "LocalVariableTypeTable" method code attributes.
@@ -78,7 +79,7 @@ final class LocalVariableTableWriter extends AttributeWriter
    }
 
    @Nonnegative
-   private static int getSize(@Nullable ByteVector attribute) { return attribute == null ? 0 : 8 + attribute.length; }
+   private static int getSize(@Nullable ByteVector attribute) { return attribute == null ? 0 : 8 + attribute.getLength(); }
 
    @Nonnegative
    int getAttributeCount() { return (localVarTable == null ? 0 : 1) + (localVarTypeTable == null ? 0 : 1); }
@@ -92,7 +93,7 @@ final class LocalVariableTableWriter extends AttributeWriter
 
    private void put(@Nonnull ByteVector out, @Nullable ByteVector attribute, @Nonnegative int numEntries) {
       if (attribute != null) {
-         put(out, 2 + attribute.length);
+         put(out, 2 + attribute.getLength());
          out.putShort(numEntries);
          out.putByteVector(attribute);
       }

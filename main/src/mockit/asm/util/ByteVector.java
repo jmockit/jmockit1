@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.util;
 
 import javax.annotation.*;
 
@@ -12,12 +12,12 @@ public final class ByteVector
    /**
     * The content of this vector.
     */
-   @Nonnull byte[] data;
+   @Nonnull private byte[] data;
 
    /**
     * Actual number of bytes in this vector.
     */
-   @Nonnegative int length;
+   @Nonnegative private int length;
 
    /**
     * Constructs a new ByteVector with a default initial size.
@@ -29,15 +29,26 @@ public final class ByteVector
    /**
     * Constructs a new ByteVector with the given initial size.
     */
-   ByteVector(@Nonnegative int initialSize) {
+   public ByteVector(@Nonnegative int initialSize) {
       data = new byte[initialSize];
    }
+
+   /**
+    * Returns the byte {@link #data}.
+    */
+   @Nonnull
+   public byte[] getData() { return data; }
 
    /**
     * Returns the {@link #length} of this vector, in bytes.
     */
    @Nonnegative
    public int getLength() { return length; }
+
+   /**
+    * Sets the {@link #length} of this vector, in bytes.
+    */
+   public void setLength(@Nonnegative int length) { this.length = length; }
 
    /**
     * Puts a byte into this byte vector. The byte vector is automatically enlarged if necessary.
@@ -274,8 +285,9 @@ public final class ByteVector
       putByteArray(another.data, 0, another.length);
    }
 
-   void increaseLengthBy(@Nonnegative int len) {
-      getLengthEnlargingIfNeeded(len);
-      length += len;
+   public void roundUpLength() {
+      int newLength = (4 - length % 4) % 4;
+      getLengthEnlargingIfNeeded(newLength);
+      length += newLength;
    }
 }

@@ -7,6 +7,7 @@ import mockit.asm.frames.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
+import mockit.asm.util.*;
 
 public final class FrameAndStackComputation extends AttributeWriter
 {

@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.util.*;
 
 /**
  * Stores the exceptions that can be thrown by a method/constructor, and writes it to the "Exceptions" attribute.
