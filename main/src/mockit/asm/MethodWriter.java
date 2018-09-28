@@ -49,7 +49,7 @@ public final class MethodWriter extends MethodVisitor
     */
    @Nonnegative int classReaderLength;
 
-   @Nullable private final ThrowsClause throwsClause;
+   @Nullable private final ExceptionsWriter exceptionsWriter;
 
    /**
     * The runtime visible parameter annotations of this method. May be <tt>null</tt>.
@@ -91,7 +91,7 @@ public final class MethodWriter extends MethodVisitor
       descItemIndex = cp.newUTF8(desc);
       descriptor = desc;
       signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
-      throwsClause = exceptions == null ? null : new ThrowsClause(cp, exceptions);
+      exceptionsWriter = exceptions == null ? null : new ExceptionsWriter(cp, exceptions);
       code = new ByteVector();
       this.computeFrames = computeFrames;
       frameAndStack = new FrameAndStackComputation(this, access, desc);
@@ -454,8 +454,8 @@ public final class MethodWriter extends MethodVisitor
          size += frameAndStack.getSizeWhileAddingConstantPoolItem();
       }
 
-      if (throwsClause != null) {
-         size += throwsClause.getSize();
+      if (exceptionsWriter != null) {
+         size += exceptionsWriter.getSize();
       }
 
       if (signatureWriter != null) {
@@ -501,8 +501,8 @@ public final class MethodWriter extends MethodVisitor
       putMethodAttributeCount(out);
       putMethodCode(out);
 
-      if (throwsClause != null) {
-         throwsClause.put(out);
+      if (exceptionsWriter != null) {
+         exceptionsWriter.put(out);
       }
 
       putMarkerAttributes(out);
@@ -521,7 +521,7 @@ public final class MethodWriter extends MethodVisitor
          attributeCount++;
       }
 
-      if (throwsClause != null) {
+      if (exceptionsWriter != null) {
          attributeCount++;
       }
 
