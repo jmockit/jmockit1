@@ -5,13 +5,12 @@ import javax.annotation.*;
 import mockit.asm.Frame.*;
 import mockit.asm.constantPool.*;
 
-final class FrameAndStackComputation
+final class FrameAndStackComputation extends AttributeWriter
 {
    /**
     * Constants that identify how many locals and stack items a frame has, with respect to its previous frame.
     */
-   interface LocalsAndStackItemsDiff
-   {
+   interface LocalsAndStackItemsDiff {
       /**
        * Same locals as the previous frame, number of stack items is zero.
        */
@@ -52,7 +51,6 @@ final class FrameAndStackComputation
 
    @Nonnull private final MethodWriter mw;
    @Nonnull private final ClassWriter cw;
-   @Nonnull private final ConstantPoolGeneration cp;
 
    /**
     * Maximum stack size of this method.
@@ -101,9 +99,9 @@ final class FrameAndStackComputation
    @Nonnegative private int frameIndex;
 
    FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
+      super(mw.cw.cp);
       this.mw = mw;
       cw = mw.cw;
-      cp = cw.cp;
 
       int size = JavaType.getArgumentsAndReturnSizes(methodDesc) >> 2;
 
@@ -114,9 +112,7 @@ final class FrameAndStackComputation
       maxLocals = size;
    }
 
-   void setMaxStack(@Nonnegative int maxStack) {
-      this.maxStack = maxStack;
-   }
+   void setMaxStack(@Nonnegative int maxStack) { this.maxStack = maxStack; }
 
    void updateMaxLocals(@Nonnegative int n) {
       if (n > maxLocals) {
@@ -163,8 +159,7 @@ final class FrameAndStackComputation
    }
 
    /**
-    * Checks if the visit of the current {@link #frameDefinition frame} is finished, and if yes, write it in the
-    * StackMapTable attribute.
+    * Checks if the visit of the current {@link #frameDefinition frame} is finished, and if yes, write it in the StackMapTable attribute.
     */
    private void endFrame() {
       if (previousFrame != null) { // do not write the first frame
@@ -198,6 +193,7 @@ final class FrameAndStackComputation
       int delta = getDelta();
 
       if (currentFrameStackSize == 0) {
+         //noinspection SwitchStatementWithoutDefaultBranch
          switch (k) {
             case -3:
             case -2:
@@ -285,12 +281,12 @@ final class FrameAndStackComputation
    }
 
    /**
-    * Writes some types of the current {@link #frameDefinition frame} into the StackMapTableAttribute. This method
-    * converts types from the format used in {@link Label} to the format used in StackMapTable attributes. In
-    * particular, it converts type table indexes to constant pool indexes.
+    * Writes some types of the current {@link #frameDefinition frame} into the StackMapTableAttribute.
+    * This method converts types from the format used in {@link Label} to the format used in StackMapTable attributes.
+    * In particular, it converts type table indexes to constant pool indexes.
     *
-    * @param start index of the first type in {@link #frameDefinition} to write.
-    * @param end   index of last type in {@link #frameDefinition} to write (exclusive).
+    * @param start index of the first type in {@link #frameDefinition} to write
+    * @param end index of last type in {@link #frameDefinition} to write (exclusive)
     */
    private void writeFrameTypes(@Nonnegative int start, @Nonnegative int end) {
       for (int i = start; i < end; i++) {
@@ -389,8 +385,9 @@ final class FrameAndStackComputation
       endFrame();
    }
 
-   // Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP
-   // types).
+   /**
+    * Computes the number of locals (ignores TOP types that are just after a LONG or a DOUBLE, and all trailing TOP types).
+    */
    @Nonnegative
    private static int computeNumberOfLocals(@Nonnull int[] locals) {
       int nLocal = 0;
@@ -415,7 +412,9 @@ final class FrameAndStackComputation
       return nLocal;
    }
 
-   // Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
+   /**
+    * Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
+    */
    private static int computeStackSize(@Nonnull int[] stacks) {
       int nStack = 0;
 
@@ -450,11 +449,6 @@ final class FrameAndStackComputation
    }
 
    @Nonnegative
-   int getSize() {
-      return stackMap == null ? 0 : 8 + stackMap.length;
-   }
-
-   @Nonnegative
    int getSizeWhileAddingConstantPoolItem() {
       int size = getSize();
 
@@ -466,11 +460,16 @@ final class FrameAndStackComputation
       return size;
    }
 
+   @Nonnegative @Override
+   int getSize() { return stackMap == null ? 0 : 8 + stackMap.length; }
+
+   @Override
    void put(@Nonnull ByteVector out) {
       if (stackMap != null) {
          boolean zip = cw.isJava6OrNewer();
-         out.putShort(cp.newUTF8(zip ? "StackMapTable" : "StackMap"));
-         out.putInt(stackMap.length + 2).putShort(frameCount);
+         setAttribute(zip ? "StackMapTable" : "StackMap");
+         put(out, stackMap.length + 2);
+         out.putShort(frameCount);
          out.putByteVector(stackMap);
       }
    }
