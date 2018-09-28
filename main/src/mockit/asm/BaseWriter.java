@@ -26,6 +26,12 @@ class BaseWriter
    @Nullable AnnotationWriter annotations;
 
    /**
+    * Returns the {@link #cp constant pool generation helper object} used by this writer.
+    */
+   @Nonnull
+   public ConstantPoolGeneration getConstantPoolGeneration() { return cp; }
+
+   /**
     * Visits an annotation of the class/field/method being visited.
     *
     * @param desc the descriptor of the annotation type

@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.controlFlowGraph.*;
 import static mockit.asm.Frame.TypeMask.*;
 import static mockit.asm.Opcodes.*;
 
@@ -232,10 +233,15 @@ public final class Frame
     */
    private int[] initializations;
 
-   Frame(@Nonnull ConstantPoolGeneration cp, @Nonnull Label owner) {
+   public Frame(@Nonnull ConstantPoolGeneration cp, @Nonnull Label owner) {
       this.cp = cp;
       this.owner = owner;
    }
+
+   /**
+    * Returns the {@link #inputStack}, if any.
+    */
+   public int[] getInputStack() { return inputStack; }
 
    /**
     * Initializes the input frame of the first basic block from the method descriptor.
@@ -343,7 +349,7 @@ public final class Frame
    /**
     * Simulates the action of a IINC instruction on the output stack frame.
     */
-   void executeIINC(@Nonnegative int varIndex) {
+   public void executeIINC(@Nonnegative int varIndex) {
       set(varIndex, INTEGER);
    }
 
@@ -377,7 +383,7 @@ public final class Frame
     * @param opcode  the opcode of the instruction.
     * @param operand the operand of the instruction, if any.
     */
-   void executeINT(int opcode, int operand) {
+   public void executeINT(int opcode, int operand) {
       if (opcode == NEWARRAY) {
          executeNewArray(operand);
       }
@@ -450,7 +456,7 @@ public final class Frame
    /**
     * Simulates the action of a LOOKUPSWITCH or TABLESWITCH instruction on the output stack frame.
     */
-   void executeSWITCH() {
+   public void executeSWITCH() {
       pop(1);
    }
 
@@ -563,7 +569,7 @@ public final class Frame
     * @param opcode the opcode of the instruction
     * @param varIndex the local variable index
     */
-   void executeVAR(int opcode, @Nonnegative int varIndex) {
+   public void executeVAR(int opcode, @Nonnegative int varIndex) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case ILOAD: push(INTEGER);           break;
@@ -633,7 +639,7 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     */
-   void executeJUMP(int opcode) {
+   public void executeJUMP(int opcode) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case IFEQ: case IFNE: case IFLT: case IFGE: case IFGT: case IFLE: case IFNULL: case IFNONNULL:
@@ -651,7 +657,7 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     */
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   void execute(int opcode) {
+   public void execute(int opcode) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NOP: case INEG: case LNEG: case FNEG: case DNEG: case I2B: case I2C: case I2S: case GOTO: case RETURN:
@@ -851,7 +857,7 @@ public final class Frame
     *
     * @param item the operand of the instructions.
     */
-   void executeLDC(@Nonnull Item item) {
+   public void executeLDC(@Nonnull Item item) {
       switch (item.getType()) {
          case Item.Type.INT:
             push(INTEGER);
@@ -889,7 +895,7 @@ public final class Frame
     * @param codeLength the operand of the instruction, if any.
     * @param item   the operand of the instruction.
     */
-   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
+   public void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NEW:
@@ -955,7 +961,7 @@ public final class Frame
     * @param dims the number of dimensions of the array.
     * @param arrayType the type of the array elements.
     */
-   void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
+   public void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
       pop(dims);
       push(arrayType.getValue());
    }
@@ -966,7 +972,7 @@ public final class Frame
     * @param opcode the opcode of the instruction.
     * @param item   the operand of the instruction.
     */
-   void execute(int opcode, @Nonnull TypeOrMemberItem item) {
+   public void execute(int opcode, @Nonnull TypeOrMemberItem item) {
       if (opcode == INVOKEDYNAMIC) {
          executeInvokeDynamic(item);
       }
@@ -1025,7 +1031,7 @@ public final class Frame
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
+   public boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
       boolean changed = false;
       int i;
       int s;

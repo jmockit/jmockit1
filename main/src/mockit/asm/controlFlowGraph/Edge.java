@@ -1,6 +1,8 @@
-package mockit.asm;
+package mockit.asm.controlFlowGraph;
 
 import javax.annotation.*;
+
+import mockit.asm.*;
 
 /**
  * An edge in the control flow graph of a method body. See {@link Label}.
@@ -13,9 +15,9 @@ public final class Edge
    static final int NORMAL = 0;
 
    /**
-    * Denotes a control flow graph edge corresponding to an exception handler. More precisely any {@link Edge} whose
-    * {@link #info} is strictly positive corresponds to an exception handler. The actual value of {@link #info} is the
-    * index, in the {@link ClassWriter} type table, of the exception that is caught.
+    * Denotes a control flow graph edge corresponding to an exception handler. More precisely any {@link Edge} whose {@link #info} is
+    * strictly positive corresponds to an exception handler.
+    * The actual value of {@link #info} is the index, in the {@link ClassWriter} type table, of the exception that is caught.
     */
    public static final int EXCEPTION = 0x7FFFFFFF;
 
@@ -42,4 +44,9 @@ public final class Edge
       this.info = info;
       this.successor = successor;
    }
+
+   /**
+    * Sets the {@link #next} edge.
+    */
+   public void setNext(Edge next) { this.next = next; }
 }

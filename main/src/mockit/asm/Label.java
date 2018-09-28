@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.controlFlowGraph.*;
+
 /**
  * A label represents a position in the bytecode of a method.
  * Labels are used for jump, goto, and switch instructions, and for try catch blocks.
@@ -145,21 +147,31 @@ public final class Label
     */
    @Nullable Label next;
 
-   public boolean isDebug() { return (status & Status.DEBUG) != 0; }
-   boolean isResolved()     { return (status & Status.RESOLVED) != 0; }
-   boolean isPushed()       { return (status & Status.PUSHED) != 0; }
-   boolean isTarget()       { return (status & Status.TARGET) != 0; }
-   boolean isStoringFrame() { return (status & Status.STORE) != 0; }
-   boolean isReachable()    { return (status & Status.REACHABLE) != 0; }
+   /**
+    * Returns the {@link #frame} this basic block belongs to, if any.
+    */
+   public Frame getFrame() { return frame; }
 
-   void markAsDebug()            { status |= Status.DEBUG; }
-   private void markAsResolved() { status |= Status.RESOLVED; }
-   void markAsPushed()           { status |= Status.PUSHED; }
-   public void markAsTarget()    { status |= Status.TARGET; }
-   void markAsStoringFrame()     { status |= Status.STORE; }
-   void markAsReachable()        { status |= Status.REACHABLE; }
+   /**
+    * Sets the {@link #frame} this basic block belongs to, if any.
+    */
+   public void setFrame(Frame frame) { this.frame = frame; }
 
-   void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
+   public boolean isDebug()  { return (status & Status.DEBUG) != 0; }
+   boolean isResolved()      { return (status & Status.RESOLVED) != 0; }
+   public boolean isPushed() { return (status & Status.PUSHED) != 0; }
+   public boolean isTarget() { return (status & Status.TARGET) != 0; }
+   boolean isStoringFrame()  { return (status & Status.STORE) != 0; }
+   boolean isReachable()     { return (status & Status.REACHABLE) != 0; }
+
+   void markAsDebug()               { status |= Status.DEBUG; }
+   private void markAsResolved()    { status |= Status.RESOLVED; }
+   public void markAsPushed()       { status |= Status.PUSHED; }
+   public void markAsTarget()       { status |= Status.TARGET; }
+   public void markAsStoringFrame() { status |= Status.STORE; }
+   public void markAsReachable()    { status |= Status.REACHABLE; }
+
+   public void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
 
    /**
     * Puts a reference to this label in the bytecode of a method.
@@ -225,7 +237,7 @@ public final class Label
     * @param methodBytecode bytecode of the method containing this label
     */
    @SuppressWarnings("NumericCastThatLosesPrecision")
-   void resolve(@Nonnull ByteVector methodBytecode) {
+   public void resolve(@Nonnull ByteVector methodBytecode) {
       markAsResolved();
 
       byte[] data = methodBytecode.data;
@@ -264,12 +276,53 @@ public final class Label
       return frame == null ? this : frame.owner;
    }
 
+   /**
+    * Returns the {@link #inputStackTop}.
+    */
+   public int getInputStackTop() { return inputStackTop; }
+
+   /**
+    * Sets the {@link #inputStackTop}.
+    */
+   public void setInputStackTop(int inputStackTop) { this.inputStackTop = inputStackTop; }
+
+   /**
+    * Returns the {@link #outputStackMax}.
+    */
+   public int getOutputStackMaxSize() { return outputStackMax; }
+
+   /**
+    * Sets the {@link #outputStackMax}.
+    */
+   public void setOutputStackMaxSize(@Nonnegative int outputStackMax) { this.outputStackMax = outputStackMax; }
+
+   /**
+    * Sets this label's {@link #successor}.
+    */
+   public void setSuccessor(@Nullable Label successor) { this.successor = successor; }
+
+   /**
+    * Returns this node's {@link #successors}.
+    */
+   public Edge getSuccessors() { return successors; }
+
    @Nullable
    public Label setSuccessors(@Nonnull Edge edge) {
-      edge.next = successors;
+      edge.setNext(successors);
       successors = edge;
       return successor;
    }
+
+   /**
+    * Returns the label to the {@link #next} basic block, if any.
+    */
+   @Nullable
+   public Label getNext() { return next; }
+
+   /**
+    * Sets the label to the {@link #next} basic block, if any.
+    */
+   public void setNext(@Nullable Label next) { this.next = next; }
 
    @Override
    public String toString() {

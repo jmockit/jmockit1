@@ -90,6 +90,8 @@ public final class ClassWriter extends ClassVisitor
       methods = new ArrayList<>();
    }
 
+   public String getInternalClassName() { return thisName; }
+
    @Override
    public void visit(int version, int access, @Nonnull String name, @Nonnull ClassInfo additionalInfo) {
       classVersion = version;
