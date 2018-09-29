@@ -2,7 +2,6 @@ package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.controlFlow.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
@@ -87,14 +86,13 @@ public final class StackMapTableWriter extends AttributeWriter
    /**
     * The current stack map frame.
     * <p/>
-    * The first element contains the offset of the instruction to which the frame corresponds (frameDefinition[0] =
-    * offset), the second element is the number of locals (frameDefinition[1] = nLocal) and the third one is the number
-    * of stack elements (frameDefinition[2] = nStack).
-    * The local variables start at index 3 (frameDefinition[3 to 3+nLocal-1]) and are followed by the operand stack
-    * values (frameDefinition[3+nLocal...]).
+    * The first element contains the offset of the instruction to which the frame corresponds (frameDefinition[0] = offset), the second
+    * element is the number of locals (frameDefinition[1] = nLocal), and the third one is the number of stack elements (frameDefinition[2]
+    * = nStack).
+    * The local variables start at index 3 (frameDefinition[3 to 3+nLocal-1]) and are followed by the operand stack values
+    * (frameDefinition[3+nLocal...]).
     * <p/>
-    * All types are encoded as integers, with the same format as the one used in {@link Label}, but limited to BASE
-    * types.
+    * All types are encoded as integers, with the same format as the one used in {@link Label}, but limited to BASE types.
     */
    private int[] frameDefinition;
 
@@ -128,16 +126,16 @@ public final class StackMapTableWriter extends AttributeWriter
       out.putShort(maxStack).putShort(maxLocals);
    }
 
-   private int getInstructionOffset() { return frameDefinition[0]; }
+   @Nonnegative private int getInstructionOffset() { return frameDefinition[0]; }
    private void setInstructionOffset(@Nonnegative int offset) { frameDefinition[0] = offset; }
 
-   private int getNumLocals() { return frameDefinition[1]; }
+   @Nonnegative private int getNumLocals() { return frameDefinition[1]; }
    private void setNumLocals(@Nonnegative int numLocals) { frameDefinition[1] = numLocals; }
 
-   private int getStackSize() { return frameDefinition[2]; }
+   @Nonnegative private int getStackSize() { return frameDefinition[2]; }
    private void setStackSize(@Nonnegative int stackSize) { frameDefinition[2] = stackSize; }
 
-   private void writeFrameDefinition(int value) { frameDefinition[frameIndex++] = value; }
+   private void writeFrameDefinition(@Nonnegative int value) { frameDefinition[frameIndex++] = value; }
 
    public boolean hasStackMap() { return stackMap != null; }
 
@@ -184,91 +182,117 @@ public final class StackMapTableWriter extends AttributeWriter
     * Compress and writes the current {@link #frameDefinition frame} in the StackMapTable attribute.
     */
    private void writeFrame() {
-      int currentFrameLocalsSize = getNumLocals();
-      int currentFrameStackSize = getStackSize();
+      int currentLocalsSize = getNumLocals();
+      int currentStackSize = getStackSize();
 
-      if (!java6OrNewer) {
-         writeFrameForOldVersionOfJava(currentFrameLocalsSize, currentFrameStackSize);
-         return;
+      if (java6OrNewer) {
+         writeFrameForJava6OrNewer(currentLocalsSize, currentStackSize);
       }
+      else {
+         writeFrameForOldVersionOfJava(currentLocalsSize, currentStackSize);
+      }
+   }
 
+   private void writeFrameForOldVersionOfJava(@Nonnegative int localsSize, @Nonnegative int stackSize) {
+      int instructionOffset = getInstructionOffset();
+      writeFrame(instructionOffset, localsSize, stackSize);
+   }
+
+   private void writeFullFrame(@Nonnegative int instructionOffset, @Nonnegative int localsSize, @Nonnegative int stackSize) {
+      stackMap.putByte(LocalsAndStackItemsDiff.FULL_FRAME);
+      writeFrame(instructionOffset, localsSize, stackSize);
+   }
+
+   private void writeFrame(@Nonnegative int instructionOffset, @Nonnegative int localsSize, @Nonnegative int stackSize) {
+      stackMap.putShort(instructionOffset);
+
+      stackMap.putShort(localsSize);
+      int lastTypeIndex = 3 + localsSize;
+      writeFrameTypes(3, lastTypeIndex);
+
+      stackMap.putShort(stackSize);
+      writeFrameTypes(lastTypeIndex, lastTypeIndex + stackSize);
+   }
+
+   private void writeFrameForJava6OrNewer(@Nonnegative int currentLocalsSize, @Nonnegative int currentStackSize) {
+      @Nonnegative int previousLocalsSize = previousFrame[1];
+      int k = currentStackSize == 0 ? currentLocalsSize - previousLocalsSize : 0;
+      @Nonnegative int delta = getDelta();
       int type = LocalsAndStackItemsDiff.FULL_FRAME;
-      int localsSize = previousFrame[1];
-      int k = currentFrameStackSize == 0 ? currentFrameLocalsSize - localsSize : 0;
-      int delta = getDelta();
 
-      if (currentFrameStackSize == 0) {
+      if (currentStackSize == 0) {
          //noinspection SwitchStatementWithoutDefaultBranch
          switch (k) {
-            case -3:
-            case -2:
-            case -1:
+            case -3: case -2: case -1:
                type = LocalsAndStackItemsDiff.CHOP_FRAME;
-               localsSize = currentFrameLocalsSize;
+               previousLocalsSize = currentLocalsSize;
                break;
             case 0:
                type = delta < 64 ? LocalsAndStackItemsDiff.SAME_FRAME : LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED;
                break;
-            case 1:
-            case 2:
-            case 3:
+            case 1: case 2: case 3:
                type = LocalsAndStackItemsDiff.APPEND_FRAME;
-               break;
          }
       }
-      else if (currentFrameLocalsSize == localsSize && currentFrameStackSize == 1) {
+      else if (currentLocalsSize == previousLocalsSize && currentStackSize == 1) {
          type = delta < 63 ?
             LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME :
             LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
       }
 
-      type = chooseTypeAsFullFrameIfApplicable(localsSize, type);
+      type = chooseTypeAsFullFrameIfApplicable(previousLocalsSize, type);
 
       switch (type) {
          case LocalsAndStackItemsDiff.SAME_FRAME:
             stackMap.putByte(delta);
             break;
          case LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME:
-            stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
-            writeFrameTypes(3 + currentFrameLocalsSize, 4 + currentFrameLocalsSize);
+            writeFrameWithSameLocalsAndOneStackItem(currentLocalsSize, delta);
             break;
          case LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED:
-            stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED).putShort(delta);
-            writeFrameTypes(3 + currentFrameLocalsSize, 4 + currentFrameLocalsSize);
+            writeExtendedFrameWithSameLocalsAndOneStackItem(currentLocalsSize, delta);
             break;
          case LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED:
-            stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED).putShort(delta);
+            writeFrameWithSameLocalsAndZeroStackItems(0, delta);
             break;
          case LocalsAndStackItemsDiff.CHOP_FRAME:
-            stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + k).putShort(delta);
+            writeFrameWithSameLocalsAndZeroStackItems(k, delta);
             break;
          case LocalsAndStackItemsDiff.APPEND_FRAME:
-            stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + k).putShort(delta);
-            writeFrameTypes(3 + localsSize, 3 + currentFrameLocalsSize);
+            writeAppendedFrame(currentLocalsSize, previousLocalsSize, k, delta);
             break;
-      // case FULL_FRAME:
-         default:
-            stackMap.putByte(LocalsAndStackItemsDiff.FULL_FRAME).putShort(delta).putShort(currentFrameLocalsSize);
-            writeFrameTypes(3, 3 + currentFrameLocalsSize);
-            stackMap.putShort(currentFrameStackSize);
-            writeFrameTypes(3 + currentFrameLocalsSize, 3 + currentFrameLocalsSize + currentFrameStackSize);
+         default: // LocalsAndStackItemsDiff.FULL_FRAME
+            writeFullFrame(delta, currentLocalsSize, currentStackSize);
       }
    }
 
-   private void writeFrameForOldVersionOfJava(@Nonnegative int currentFrameLocalsSize, @Nonnegative int currentFrameStackSize) {
-      stackMap.putShort(getInstructionOffset()).putShort(currentFrameLocalsSize);
-      writeFrameTypes(3, 3 + currentFrameLocalsSize);
-
-      stackMap.putShort(currentFrameStackSize);
-      writeFrameTypes(3 + currentFrameLocalsSize, 3 + currentFrameLocalsSize + currentFrameStackSize);
+   private void writeFrameWithSameLocalsAndOneStackItem(@Nonnegative int localsSize, @Nonnegative int delta) {
+      stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME + delta);
+      writeFrameTypes(3 + localsSize, 4 + localsSize);
    }
 
+   private void writeFrameWithSameLocalsAndZeroStackItems(int k, @Nonnegative int delta) {
+      stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + k).putShort(delta);
+   }
+
+   private void writeExtendedFrameWithSameLocalsAndOneStackItem(@Nonnegative int localsSize, @Nonnegative int delta) {
+      stackMap.putByte(LocalsAndStackItemsDiff.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED).putShort(delta);
+      writeFrameTypes(3 + localsSize, 4 + localsSize);
+   }
+
+   private void writeAppendedFrame(@Nonnegative int currentLocalsSize, @Nonnegative int previousLocalsSize, int k, @Nonnegative int delta) {
+      stackMap.putByte(LocalsAndStackItemsDiff.SAME_FRAME_EXTENDED + k).putShort(delta);
+      writeFrameTypes(3 + previousLocalsSize, 3 + currentLocalsSize);
+   }
+
+   @Nonnegative
    private int getDelta() {
       int offset = getInstructionOffset();
       return frameCount == 0 ? offset : offset - previousFrame[0] - 1;
    }
 
-   private int chooseTypeAsFullFrameIfApplicable(@Nonnegative int localsSize, int type) {
+   @Nonnegative
+   private int chooseTypeAsFullFrameIfApplicable(@Nonnegative int localsSize, @Nonnegative int type) {
       if (type != LocalsAndStackItemsDiff.FULL_FRAME) {
          // Verify if locals are the same.
          int l = 3;
@@ -286,7 +310,7 @@ public final class StackMapTableWriter extends AttributeWriter
    }
 
    /**
-    * Writes some types of the current {@link #frameDefinition frame} into the StackMapTableAttribute.
+    * Writes some types of the current {@link #frameDefinition frame} into the StackMapTable attribute.
     * This method converts types from the format used in {@link Label} to the format used in StackMapTable attributes.
     * In particular, it converts type table indexes to constant pool indexes.
     *
@@ -296,7 +320,7 @@ public final class StackMapTableWriter extends AttributeWriter
    private void writeFrameTypes(@Nonnegative int start, @Nonnegative int end) {
       for (int i = start; i < end; i++) {
          int type = frameDefinition[i];
-         int dimensions = type & TypeMask.DIM;
+         int dimensions = type & FrameTypeMask.DIM;
 
          if (dimensions == 0) {
             writeFrameOfRegularType(type);
@@ -307,16 +331,16 @@ public final class StackMapTableWriter extends AttributeWriter
       }
    }
 
-   private void writeFrameOfRegularType(int type) {
-      int typeTableIndex = type & TypeMask.BASE_VALUE;
+   private void writeFrameOfRegularType(@Nonnegative int type) {
+      int typeTableIndex = type & FrameTypeMask.BASE_VALUE;
 
-      switch (type & TypeMask.BASE_KIND) {
-         case TypeMask.OBJECT:
+      switch (type & FrameTypeMask.BASE_KIND) {
+         case FrameTypeMask.OBJECT:
             String classDesc = cp.getInternalName(typeTableIndex);
             int classDescIndex = cp.newClass(classDesc);
             stackMap.putByte(7).putShort(classDescIndex);
             break;
-         case TypeMask.UNINITIALIZED:
+         case FrameTypeMask.UNINITIALIZED:
             UninitializedTypeTableItem uninitializedItemValue = cp.getUninitializedItemValue(typeTableIndex);
             int typeDesc = uninitializedItemValue.getOffset();
             stackMap.putByte(8).putShort(typeDesc);
@@ -326,12 +350,12 @@ public final class StackMapTableWriter extends AttributeWriter
       }
    }
 
-   private void writeFrameOfArrayType(@Nonnegative int arrayDimensions, int arrayElementType) {
+   private void writeFrameOfArrayType(@Nonnegative int arrayDimensions, @Nonnegative int arrayElementType) {
       StringBuilder sb = new StringBuilder();
       writeDimensionsIntoArrayDescriptor(sb, arrayDimensions);
 
-      if ((arrayElementType & TypeMask.BASE_KIND) == TypeMask.OBJECT) {
-         String arrayElementTypeDesc = cp.getInternalName(arrayElementType & TypeMask.BASE_VALUE);
+      if ((arrayElementType & FrameTypeMask.BASE_KIND) == FrameTypeMask.OBJECT) {
+         String arrayElementTypeDesc = cp.getInternalName(arrayElementType & FrameTypeMask.BASE_VALUE);
          sb.append('L').append(arrayElementTypeDesc).append(';');
       }
       else {
@@ -352,7 +376,7 @@ public final class StackMapTableWriter extends AttributeWriter
       }
    }
 
-   private static char getTypeCodeForArrayElements(int arrayElementType) {
+   private static char getTypeCodeForArrayElements(@Nonnegative int arrayElementType) {
       switch (arrayElementType & 0xF) {
          case  1: return 'I';
          case  2: return 'F';
@@ -401,7 +425,7 @@ public final class StackMapTableWriter extends AttributeWriter
       for (int i = 0; i < locals.length; i++) {
          int t = locals[i];
 
-         if (t == TypeMask.TOP) {
+         if (t == FrameTypeMask.TOP) {
             nTop++;
          }
          else {
@@ -409,7 +433,7 @@ public final class StackMapTableWriter extends AttributeWriter
             nTop = 0;
          }
 
-         if (t == TypeMask.LONG || t == TypeMask.DOUBLE) {
+         if (t == FrameTypeMask.LONG || t == FrameTypeMask.DOUBLE) {
             i++;
          }
       }
@@ -420,6 +444,7 @@ public final class StackMapTableWriter extends AttributeWriter
    /**
     * Computes the stack size (ignores TOP types that are just after a LONG or a DOUBLE).
     */
+   @Nonnegative
    private static int computeStackSize(@Nonnull int[] stacks) {
       int nStack = 0;
 
@@ -427,7 +452,7 @@ public final class StackMapTableWriter extends AttributeWriter
          int t = stacks[i];
          nStack++;
 
-         if (t == TypeMask.LONG || t == TypeMask.DOUBLE) {
+         if (t == FrameTypeMask.LONG || t == FrameTypeMask.DOUBLE) {
             i++;
          }
       }
@@ -440,7 +465,7 @@ public final class StackMapTableWriter extends AttributeWriter
          int itemType = itemIndices[i];
          writeFrameDefinition(itemType);
 
-         if (itemType == TypeMask.LONG || itemType == TypeMask.DOUBLE) {
+         if (itemType == FrameTypeMask.LONG || itemType == FrameTypeMask.DOUBLE) {
             i++;
          }
       }
@@ -448,7 +473,7 @@ public final class StackMapTableWriter extends AttributeWriter
 
    public void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
       startFrame(startOffset, 0, 1);
-      int frameValue = TypeMask.OBJECT | cp.addNormalType("java/lang/Throwable");
+      int frameValue = FrameTypeMask.OBJECT | cp.addNormalType("java/lang/Throwable");
       writeFrameDefinition(frameValue);
       endFrame();
    }

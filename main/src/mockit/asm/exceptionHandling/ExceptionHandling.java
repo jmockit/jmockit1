@@ -63,7 +63,7 @@ public final class ExceptionHandling
 
          // Computes the kind of the edges to 'handler'.
          String catchType = exceptionHandler.getCatchTypeDesc();
-         int kindOfEdge = Frame.TypeMask.OBJECT | cp.addNormalType(catchType);
+         int kindOfEdge = FrameTypeMask.OBJECT | cp.addNormalType(catchType);
 
          // 'handler' is an exception handler.
          handler.markAsTarget();
@@ -86,6 +86,7 @@ public final class ExceptionHandling
    private static void addHandlerLabelAsSuccessor(int kindOfEdge, @Nonnull Label handler, @Nonnull Label start, @Nonnull Label end) {
       while (start != end) {
          Edge edge = new Edge(kindOfEdge, handler);
+         //noinspection ConstantConditions
          start = start.setSuccessors(edge);
       }
    }
