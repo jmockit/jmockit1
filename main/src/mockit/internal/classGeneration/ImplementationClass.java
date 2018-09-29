@@ -7,7 +7,7 @@ package mockit.internal.classGeneration;
 import java.lang.reflect.Type;
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.internal.*;
 import mockit.internal.util.*;
 

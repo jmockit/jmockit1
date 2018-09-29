@@ -3,7 +3,8 @@ package mockit.asm.methods;
 import javax.annotation.*;
 
 import mockit.asm.*;
-import mockit.asm.ClassReader.*;
+import mockit.asm.classes.*;
+import mockit.asm.classes.ClassReader.*;
 import mockit.asm.annotations.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;

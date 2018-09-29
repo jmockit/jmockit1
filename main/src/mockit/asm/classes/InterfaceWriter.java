@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.classes;
 
 import javax.annotation.*;
 

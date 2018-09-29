@@ -6,7 +6,7 @@ package mockit.internal.capturing;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;

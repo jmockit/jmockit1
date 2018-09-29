@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.annotations.*;
+import mockit.asm.classes.*;
 import mockit.asm.fields.*;
 import mockit.asm.methods.*;
 import mockit.coverage.data.*;

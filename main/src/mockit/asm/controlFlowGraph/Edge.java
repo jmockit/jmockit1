@@ -17,7 +17,7 @@ public final class Edge
    /**
     * Denotes a control flow graph edge corresponding to an exception handler. More precisely any {@link Edge} whose {@link #info} is
     * strictly positive corresponds to an exception handler.
-    * The actual value of {@link #info} is the index, in the {@link ClassWriter} type table, of the exception that is caught.
+    * The actual value of {@link #info} is the index, in the type table of the classfile being written, of the exception that is caught.
     */
    public static final int EXCEPTION = 0x7FFFFFFF;
 

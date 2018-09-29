@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.asm.annotations.*;
+import mockit.asm.classes.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
 import mockit.asm.exceptionHandling.*;
@@ -102,7 +103,7 @@ public final class MethodWriter extends MethodVisitor
       exceptionHandling = new ExceptionHandling(cp);
       localVariableTableWriter = new LocalVariableTableWriter(cp);
       lineNumberTableWriter = new LineNumberTableWriter(cp);
-      cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
+      cfgAnalysis = new CFGAnalysis(cp, cw.getInternalClassName(), code, computeFrames);
 
       createMarkerAttributes(cw.getClassVersion());
    }

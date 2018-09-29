@@ -1,9 +1,10 @@
-package mockit.asm;
+package mockit.asm.classes;
 
 import java.util.*;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
@@ -64,8 +65,8 @@ public final class ClassWriter extends ClassVisitor
     * other {@link ClassVisitor} instance).</li>
     * </ul>
     *
-    * @param classReader the {@link ClassReader} used to read the original class. It will be used to copy the entire constant pool from the
-    *                    original class and also to copy other fragments of original bytecode where applicable.
+    * @param classReader the {@link ClassReader} used to read the original class; it will be used to copy the entire constant pool from the
+    *                    original class and also to copy other fragments of original bytecode where applicable
     */
    public ClassWriter(@Nonnull ClassReader classReader) {
       code = classReader.code;

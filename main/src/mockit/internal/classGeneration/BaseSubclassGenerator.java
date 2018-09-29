@@ -9,7 +9,7 @@ import java.util.*;
 import javax.annotation.*;
 import static java.util.Arrays.*;
 
-import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.fields.*;
 import mockit.asm.metadata.*;
 import mockit.asm.metadata.ClassMetadataReader.*;

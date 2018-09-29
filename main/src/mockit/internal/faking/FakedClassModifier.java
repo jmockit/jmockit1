@@ -9,6 +9,7 @@ import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
 import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.methods.*;
 import mockit.asm.types.*;

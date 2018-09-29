@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.classes;
 
 import javax.annotation.*;
 
@@ -39,7 +39,7 @@ final class ConstantPoolCopying
       }
 
       int off = items[1] - 1;
-      destination.cp.copy(source.code, off, source.header, newItems);
+      destination.getConstantPoolGeneration().copy(source.code, off, source.header, newItems);
    }
 
    @Nonnull @SuppressWarnings("OverlyComplexMethod")

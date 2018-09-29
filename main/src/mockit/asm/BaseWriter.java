@@ -18,7 +18,7 @@ public class BaseWriter
    /**
     * The access flags of this class, field, or method.
     */
-   int classOrMemberAccess;
+   protected int classOrMemberAccess;
 
    @Nonnegative private int deprecatedAttributeIndex;
    @Nonnegative private int syntheticAttributeIndex;
@@ -132,7 +132,7 @@ public class BaseWriter
 
    protected void put(@Nonnull ByteVector out) {}
 
-   static void put(@Nonnull ByteVector out, @Nonnull List<? extends BaseWriter> writers) {
+   protected static void put(@Nonnull ByteVector out, @Nonnull List<? extends BaseWriter> writers) {
       out.putShort(writers.size());
 
       for (BaseWriter writer : writers) {

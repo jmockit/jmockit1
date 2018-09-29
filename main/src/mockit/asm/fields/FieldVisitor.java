@@ -3,6 +3,7 @@ package mockit.asm.fields;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;

@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.classes;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.methods.*;

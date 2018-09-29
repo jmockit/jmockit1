@@ -24,7 +24,7 @@ public abstract class AnnotatedReader extends BytecodeReader
     */
    @Nullable protected String signature;
 
-   AnnotatedReader(@Nonnull byte[] code) { super(code); }
+   protected AnnotatedReader(@Nonnull byte[] code) { super(code); }
    protected AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
 
    protected final void readAttributes() {

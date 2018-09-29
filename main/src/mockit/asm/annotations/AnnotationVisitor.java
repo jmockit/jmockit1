@@ -3,7 +3,6 @@ package mockit.asm.annotations;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
@@ -277,7 +276,7 @@ public final class AnnotationVisitor
 
    /**
     * Visits an array value of the annotation.
-    * Note that arrays of primitive types can be passed as value to {@link #visit(String, Object)}. This is what {@link ClassReader} does.
+    * Note that arrays of primitive types can be passed as value to {@link #visit(String, Object)}.
     *
     * @param name the value name
     * @return a visitor to visit the actual array value elements; the 'name' parameters passed to the methods of this visitor are ignored

@@ -6,7 +6,7 @@ package mockit.internal.classGeneration;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.jvmConstants.*;
 
 /**

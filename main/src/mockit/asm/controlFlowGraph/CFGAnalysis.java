@@ -12,8 +12,8 @@ import static mockit.asm.jvmConstants.Opcodes.*;
 @SuppressWarnings("OverlyComplexClass")
 public final class CFGAnalysis
 {
-   @Nonnull private final ClassWriter cw;
    @Nonnull private final ConstantPoolGeneration cp;
+   @Nonnull private final String classDesc;
    @Nonnull private final ByteVector code;
 
    // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow graph contains one node
@@ -56,9 +56,9 @@ public final class CFGAnalysis
     */
    @Nonnegative private int maxStackSize;
 
-   public CFGAnalysis(@Nonnull ClassWriter cw, @Nonnull ByteVector code, boolean computeFrames) {
-      this.cw = cw;
-      cp = cw.getConstantPoolGeneration();
+   public CFGAnalysis(@Nonnull ConstantPoolGeneration cp, @Nonnull String classDesc, @Nonnull ByteVector code, boolean computeFrames) {
+      this.cp = cp;
+      this.classDesc = classDesc;
       this.code = code;
       this.computeFrames = computeFrames;
 
@@ -423,7 +423,7 @@ public final class CFGAnalysis
 
       while (edge != null) {
          Label n = edge.successor.getFirst();
-         boolean change = frame.merge(cw.getInternalClassName(), n.getFrame(), edge.info);
+         boolean change = frame.merge(classDesc, n.getFrame(), edge.info);
 
          if (change && n.getNext() == null) {
             // If n has changed and is not already in the 'changed' list, adds it to this list.

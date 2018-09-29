@@ -3,6 +3,7 @@ package mockit.asm.frames;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.frames.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;

@@ -11,7 +11,7 @@ import javax.annotation.*;
 
 import static java.lang.Boolean.*;
 
-import mockit.asm.*;
+import mockit.asm.classes.*;
 import mockit.asm.metadata.*;
 import mockit.asm.types.*;
 import mockit.internal.*;

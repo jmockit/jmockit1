@@ -3,6 +3,7 @@ package mockit.asm.fields;
 import javax.annotation.*;
 
 import mockit.asm.*;
+import mockit.asm.classes.*;
 
 public final class FieldReader extends AnnotatedReader
 {
