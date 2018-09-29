@@ -1,8 +1,9 @@
-package mockit.asm;
+package mockit.asm.annotations;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
@@ -50,7 +51,7 @@ public final class AnnotationVisitor
     */
    @Nullable private AnnotationVisitor prev;
 
-   AnnotationVisitor(@Nonnull ConstantPoolGeneration cp, @Nonnull String typeDesc) {
+   public AnnotationVisitor(@Nonnull ConstantPoolGeneration cp, @Nonnull String typeDesc) {
       this.cp = cp;
       named = true;
       bv = new ByteVector();
@@ -68,6 +69,11 @@ public final class AnnotationVisitor
 
    @Nonnegative
    private int getByteLength() { return bv.getLength(); }
+
+   /**
+    * Sets the visitor to the {@link #next} annotation.
+    */
+   public void setNext(@Nullable AnnotationVisitor next) { this.next = next; }
 
    /**
     * Visits a primitive, String, Class, or array value of the annotation.
@@ -300,7 +306,7 @@ public final class AnnotationVisitor
     * Returns the size of this annotation list.
     */
    @Nonnegative
-   int getSize() {
+   public int getSize() {
       int size = 0;
       AnnotationVisitor annotation = this;
 
@@ -315,7 +321,7 @@ public final class AnnotationVisitor
    /**
     * Puts the annotations of this annotation writer list into the given byte vector.
     */
-   void put(@Nonnull ByteVector out) {
+   public void put(@Nonnull ByteVector out) {
       AnnotationVisitor aw = this;
       AnnotationVisitor last = null;
       int n = 0;
@@ -344,7 +350,7 @@ public final class AnnotationVisitor
    /**
     * Puts the given annotation lists into the given byte vector.
     */
-   static void put(@Nonnull ByteVector out, @Nonnull AnnotationVisitor[] anns) {
+   public static void put(@Nonnull ByteVector out, @Nonnull AnnotationVisitor[] anns) {
       putNumberAndSizeOfAnnotations(out, anns);
 
       for (AnnotationVisitor ann : anns) {

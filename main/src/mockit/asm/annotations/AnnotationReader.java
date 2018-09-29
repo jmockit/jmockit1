@@ -1,4 +1,4 @@
-package mockit.asm;
+package mockit.asm.annotations;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
@@ -6,9 +6,9 @@ import javax.annotation.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
 
-final class AnnotationReader extends BytecodeReader
+public final class AnnotationReader extends BytecodeReader
 {
-   AnnotationReader(@Nonnull BytecodeReader br) { super(br); }
+   public AnnotationReader(@Nonnull BytecodeReader br) { super(br); }
 
    /**
     * Reads the values of a named annotation and makes the given visitor visit them.
@@ -19,7 +19,7 @@ final class AnnotationReader extends BytecodeReader
     * @return the end offset of the annotation values
     */
    @Nonnegative
-   int readNamedAnnotationValues(@Nonnegative int startingCodeIndex, @Nullable AnnotationVisitor av) {
+   public int readNamedAnnotationValues(@Nonnegative int startingCodeIndex, @Nullable AnnotationVisitor av) {
       codeIndex = startingCodeIndex;
       readAnnotationValues(true, av);
       return codeIndex;

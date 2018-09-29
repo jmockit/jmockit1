@@ -2,6 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.annotations.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
 import mockit.asm.exceptionHandling.*;
@@ -115,7 +116,7 @@ public final class MethodWriter extends MethodVisitor
          parameterAnnotations = new AnnotationVisitor[numParameters];
       }
 
-      aw.next = parameterAnnotations[parameter];
+      aw.setNext(parameterAnnotations[parameter]);
       parameterAnnotations[parameter] = aw;
 
       return aw;

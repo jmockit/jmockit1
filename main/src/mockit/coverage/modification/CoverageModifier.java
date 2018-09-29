@@ -7,6 +7,7 @@ package mockit.coverage.modification;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.asm.annotations.*;
 import mockit.asm.fields.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;

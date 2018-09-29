@@ -2,6 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.annotations.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 

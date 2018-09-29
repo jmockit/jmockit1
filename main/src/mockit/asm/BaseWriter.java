@@ -3,6 +3,7 @@ package mockit.asm;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.asm.annotations.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
@@ -75,7 +76,7 @@ public class BaseWriter
    @Nonnull
    final AnnotationVisitor addAnnotation(@Nonnull String desc) {
       AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
-      aw.next = annotations;
+      aw.setNext(annotations);
       annotations = aw;
       return aw;
    }

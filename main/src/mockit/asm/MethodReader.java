@@ -3,6 +3,7 @@ package mockit.asm;
 import javax.annotation.*;
 
 import mockit.asm.ClassReader.*;
+import mockit.asm.annotations.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
@@ -81,7 +82,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    @Nullable @Override
-   Boolean readAttribute(@Nonnull String attributeName) {
+   protected Boolean readAttribute(@Nonnull String attributeName) {
       if ("Code".equals(attributeName)) {
          bodyStartCodeIndex = codeIndex;
          return false;
