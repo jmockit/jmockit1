@@ -2,6 +2,7 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
 
 /**
@@ -139,7 +140,7 @@ public final class ClassReader extends AnnotatedReader
    }
 
    @Nullable @Override
-   Boolean readAttribute(@Nonnull String attributeName) {
+   protected Boolean readAttribute(@Nonnull String attributeName) {
       if ("SourceFile".equals(attributeName)) {
          classInfo.sourceFileName = readNonnullUTF8();
          return true;
@@ -218,7 +219,7 @@ public final class ClassReader extends AnnotatedReader
    private void readFieldsAndMethods() {
       codeIndex = getCodeIndexAfterInterfaces(classInfo.interfaces.length);
 
-      FieldReader fieldReader = new FieldReader(this);
+      FieldReader fieldReader = new FieldReader(this, cv);
       codeIndex = fieldReader.readFields();
 
       MethodReader methodReader = new MethodReader(this);

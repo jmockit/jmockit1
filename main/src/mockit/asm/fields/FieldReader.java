@@ -1,15 +1,17 @@
-package mockit.asm;
+package mockit.asm.fields;
 
 import javax.annotation.*;
 
-final class FieldReader extends AnnotatedReader
+import mockit.asm.*;
+
+public final class FieldReader extends AnnotatedReader
 {
    @Nonnull private final ClassVisitor cv;
    @Nullable private Object constantValue;
 
-   FieldReader(@Nonnull ClassReader cr) {
+   public FieldReader(@Nonnull ClassReader cr, @Nonnull ClassVisitor cv) {
       super(cr);
-      cv = cr.cv;
+      this.cv = cv;
    }
 
    /**
@@ -18,7 +20,7 @@ final class FieldReader extends AnnotatedReader
     * @return the offset of the first byte following the last field in the class.
     */
    @Nonnegative
-   int readFields() {
+   public int readFields() {
       for (int fieldCount = readUnsignedShort(); fieldCount > 0; fieldCount--) {
          readField();
       }
@@ -43,7 +45,7 @@ final class FieldReader extends AnnotatedReader
    }
 
    @Nullable @Override
-   Boolean readAttribute(@Nonnull String attributeName) {
+   protected Boolean readAttribute(@Nonnull String attributeName) {
       if ("ConstantValue".equals(attributeName)) {
          int constItemIndex = readUnsignedShort();
 

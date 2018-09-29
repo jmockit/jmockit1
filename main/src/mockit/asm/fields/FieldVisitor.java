@@ -1,15 +1,16 @@
-package mockit.asm;
+package mockit.asm.fields;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
 
 /**
- * A {@link FieldVisitor} that generates Java fields in bytecode form.
+ * A visitor to visit a Java field, in the following order: ({@link #visitAnnotation})* {@link #visitEnd}.
  */
-final class FieldWriter extends FieldVisitor
+public final class FieldVisitor extends BaseWriter
 {
    /**
     * The index of the constant pool item that contains the name of this field.
@@ -29,33 +30,33 @@ final class FieldWriter extends FieldVisitor
    @Nonnegative private final int valueItemIndex;
 
    /**
-    * Initializes a new Field Writer.
+    * Initializes a new field visitor.
     *
-    * @param cw        the class writer to which this field must be added.
-    * @param access    the field's access flags (see {@link Opcodes}).
-    * @param name      the field's name.
-    * @param desc      the field's descriptor (see {@link JavaType}).
-    * @param signature the field's signature.
-    * @param value     the field's constant value.
+    * @param cw        the class writer to which this field must be added
+    * @param access    the field's access flags (see {@link Opcodes})
+    * @param name      the field's name
+    * @param desc      the field's descriptor (see {@link JavaType})
+    * @param signature the field's signature
+    * @param value     the field's constant value
     */
-   FieldWriter(
+   public FieldVisitor(
       @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {
-      cp = cw.cp;
-      classOrMemberAccess = access;
+      super(cw.getConstantPoolGeneration(), access);
+
       nameItemIndex = cp.newUTF8(name);
       descItemIndex = cp.newUTF8(desc);
       signatureWriter = signature == null ? null : new SignatureWriter(cp, signature);
       valueItemIndex = value == null ? 0 : cp.newConstItem(value).index;
 
-      createMarkerAttributes(cw.classVersion);
+      createMarkerAttributes(cw.getClassVersion());
    }
 
    /**
     * Returns the size of this field.
     */
    @Nonnegative
-   int getSize() {
+   public int getSize() {
       int size = 8 + getMarkerAttributesSize() + getAnnotationsSize();
 
       if (valueItemIndex != 0) {
@@ -74,7 +75,7 @@ final class FieldWriter extends FieldVisitor
     * Puts the content of this field into the given byte vector.
     */
    @Override
-   void put(@Nonnull ByteVector out) {
+   protected void put(@Nonnull ByteVector out) {
       putAccess(out, 0);
       out.putShort(nameItemIndex);
       out.putShort(descItemIndex);

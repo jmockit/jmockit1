@@ -2,6 +2,8 @@ package mockit.asm;
 
 import javax.annotation.*;
 
+import mockit.asm.fields.*;
+
 /**
  * Same as {@link ClassVisitor}, except it always wraps a {@link ClassWriter}.
  */

@@ -486,7 +486,7 @@ public final class MethodWriter extends MethodVisitor
     * Puts the bytecode of this method in the given byte vector.
     */
    @Override
-   void put(@Nonnull ByteVector out) {
+   protected void put(@Nonnull ByteVector out) {
       putAccess(out, Access.CONSTRUCTOR);
       out.putShort(nameItemIndex);
       out.putShort(descItemIndex);

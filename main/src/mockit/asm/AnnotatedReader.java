@@ -8,7 +8,7 @@ import mockit.asm.util.*;
 /**
  * A bytecode reader for reading common elements (signature, annotations) of a class, field, or method.
  */
-abstract class AnnotatedReader extends BytecodeReader
+public abstract class AnnotatedReader extends BytecodeReader
 {
    @Nonnull private final AnnotationReader annotationReader = new AnnotationReader(this);
    @Nonnegative private int annotationsCodeIndex;
@@ -16,17 +16,17 @@ abstract class AnnotatedReader extends BytecodeReader
    /**
     * The access flags of the class, field, or method currently being parsed.
     */
-   int access;
+   protected int access;
 
    /**
     * The generic type signature of the class/field/method, if it has one.
     */
-   @Nullable String signature;
+   @Nullable protected String signature;
 
    AnnotatedReader(@Nonnull byte[] code) { super(code); }
-   AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
+   protected AnnotatedReader(@Nonnull AnnotatedReader another) { super(another); }
 
-   final void readAttributes() {
+   protected final void readAttributes() {
       signature = null;
       annotationsCodeIndex = 0;
 
@@ -62,9 +62,9 @@ abstract class AnnotatedReader extends BytecodeReader
    }
 
    @Nullable
-   abstract Boolean readAttribute(@Nonnull String attributeName);
+   protected abstract Boolean readAttribute(@Nonnull String attributeName);
 
-   final void readAnnotations(@Nonnull BaseWriter visitor) {
+   protected final void readAnnotations(@Nonnull BaseWriter visitor) {
       if (annotationsCodeIndex > 0) {
          int previousCodeIndex = codeIndex;
          codeIndex = annotationsCodeIndex;

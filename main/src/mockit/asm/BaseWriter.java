@@ -7,12 +7,12 @@ import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 
-class BaseWriter
+public class BaseWriter
 {
    /**
     * The dynamically generated constant pool of the class being built/modified.
     */
-   @Nonnull ConstantPoolGeneration cp;
+   @Nonnull protected ConstantPoolGeneration cp;
 
    /**
     * The access flags of this class, field, or method.
@@ -25,7 +25,14 @@ class BaseWriter
    /**
     * The runtime visible annotations of this class/field/method.
     */
-   @Nullable AnnotationVisitor annotations;
+   @Nullable protected AnnotationVisitor annotations;
+
+   BaseWriter() {}
+
+   protected BaseWriter(@Nonnull ConstantPoolGeneration cp, int classOrMemberAccess) {
+      this.cp = cp;
+      this.classOrMemberAccess = classOrMemberAccess;
+   }
 
    /**
     * Returns the {@link #cp constant pool generation helper object} used by this writer.
@@ -55,7 +62,7 @@ class BaseWriter
     */
    public void visitEnd() {}
 
-   final void createMarkerAttributes(int classVersion) {
+   protected final void createMarkerAttributes(int classVersion) {
       if (Access.isDeprecated(classOrMemberAccess)) {
          deprecatedAttributeIndex = cp.newUTF8("Deprecated");
       }
@@ -74,7 +81,7 @@ class BaseWriter
    }
 
    @Nonnegative
-   final int getAnnotationsSize() {
+   protected final int getAnnotationsSize() {
       if (annotations != null) {
          getConstantPoolItemForRuntimeVisibleAnnotationsAttribute();
          return 8 + annotations.getSize();
@@ -89,22 +96,22 @@ class BaseWriter
    }
 
    @Nonnegative
-   final int getMarkerAttributeCount() {
+   protected final int getMarkerAttributeCount() {
       return (deprecatedAttributeIndex == 0 ? 0 : 1) + (syntheticAttributeIndex == 0 ? 0 : 1);
    }
 
    @Nonnegative
-   final int getMarkerAttributesSize() {
+   protected final int getMarkerAttributesSize() {
       int attributeCount = getMarkerAttributeCount();
       return 6 * attributeCount;
    }
 
-   final void putAccess(@Nonnull ByteVector out, int baseMask) {
+   protected final void putAccess(@Nonnull ByteVector out, int baseMask) {
       int accessFlag = Access.computeFlag(classOrMemberAccess, baseMask);
       out.putShort(accessFlag);
    }
 
-   final void putMarkerAttributes(@Nonnull ByteVector out) {
+   protected final void putMarkerAttributes(@Nonnull ByteVector out) {
       if (deprecatedAttributeIndex > 0) {
          out.putShort(deprecatedAttributeIndex).putInt(0);
       }
@@ -114,7 +121,7 @@ class BaseWriter
       }
    }
 
-   final void putAnnotations(@Nonnull ByteVector out) {
+   protected final void putAnnotations(@Nonnull ByteVector out) {
       if (annotations != null) {
          int item = getConstantPoolItemForRuntimeVisibleAnnotationsAttribute();
          out.putShort(item);
@@ -122,7 +129,7 @@ class BaseWriter
       }
    }
 
-   void put(@Nonnull ByteVector out) {}
+   protected void put(@Nonnull ByteVector out) {}
 
    static void put(@Nonnull ByteVector out, @Nonnull List<? extends BaseWriter> writers) {
       out.putShort(writers.size());

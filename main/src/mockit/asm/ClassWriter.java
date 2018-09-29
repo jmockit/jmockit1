@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
+import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 import mockit.internal.util.*;
@@ -48,15 +49,7 @@ public final class ClassWriter extends ClassVisitor
    @Nullable final BootstrapMethodsWriter bootstrapMethodsWriter;
    @Nullable private InterfaceWriter interfaceWriter;
    @Nullable private InnerClassesWriter innerClassesWriter;
-
-   /**
-    * The fields of this class.
-    */
-   @Nonnull private final List<FieldWriter> fields;
-
-   /**
-    * The methods of this class.
-    */
+   @Nonnull private final List<FieldVisitor> fields;
    @Nonnull private final List<MethodWriter> methods;
 
    /**
@@ -92,6 +85,7 @@ public final class ClassWriter extends ClassVisitor
       methods = new ArrayList<>();
    }
 
+   public int getClassVersion() { return classVersion; }
    public String getInternalClassName() { return thisName; }
 
    @Override
@@ -157,7 +151,7 @@ public final class ClassWriter extends ClassVisitor
    public FieldVisitor visitField(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {
-      FieldWriter field = new FieldWriter(this, access, name, desc, signature, value);
+      FieldVisitor field = new FieldVisitor(this, access, name, desc, signature, value);
       fields.add(field);
       return field;
    }
@@ -208,8 +202,8 @@ public final class ClassWriter extends ClassVisitor
    private int getFieldsSize() {
       int size = 0;
 
-      for (FieldWriter fb : fields) {
-         size += fb.getSize();
+      for (FieldVisitor fv : fields) {
+         size += fv.getSize();
       }
 
       return size;

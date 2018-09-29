@@ -5,11 +5,11 @@ import javax.annotation.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.util.*;
 
-final class SignatureWriter extends AttributeWriter
+public final class SignatureWriter extends AttributeWriter
 {
    @Nonnegative private final int signatureIndex;
 
-   SignatureWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String signature) {
+   public SignatureWriter(@Nonnull ConstantPoolGeneration cp, @Nonnull String signature) {
       super(cp, "Signature");
       signatureIndex = cp.newUTF8(signature);
    }
