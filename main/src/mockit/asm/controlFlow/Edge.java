@@ -1,8 +1,6 @@
-package mockit.asm.controlFlowGraph;
+package mockit.asm.controlFlow;
 
 import javax.annotation.*;
-
-import mockit.asm.*;
 
 /**
  * An edge in the control flow graph of a method body. See {@link Label}.

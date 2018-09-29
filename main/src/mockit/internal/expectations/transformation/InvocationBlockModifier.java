@@ -6,7 +6,7 @@ package mockit.internal.expectations.transformation;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.methods.*;
 import mockit.asm.types.*;

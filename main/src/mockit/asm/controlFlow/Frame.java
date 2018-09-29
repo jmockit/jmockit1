@@ -1,53 +1,51 @@
-package mockit.asm.frames;
+package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.constantPool.*;
-import mockit.asm.controlFlowGraph.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
-import static mockit.asm.frames.Frame.TypeMask.*;
+import static mockit.asm.controlFlow.Frame.TypeMask.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
  * Information about the input and output stack map frames of a basic block.
+ * <p/>
+ * Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the end of current basic
+ * block is updated by simulating the action of the instruction on the previous state of this so called "output frame".
+ * In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic block, i.e. the stack map frame at the
+ * beginning of the basic block, starting from the input frame of the first basic block (which is computed from the method descriptor), and
+ * by using the previously computed output frames to compute the input state of the other blocks.
+ * <p/>
+ * All output and input frames are stored as arrays of integers. Reference and array types are represented by an index into a type table
+ * (which is not the same as the constant pool of the class, in order to avoid adding unnecessary constants in the pool - not all computed
+ * frames will end up being stored in the stack map table). This allows very fast type comparisons.
+ * <p/>
+ * Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when output frames are
+ * computed. It is therefore necessary to be able to represent abstract types such as "the type at position x in the input frame locals" or
+ * "the type at position x from the top of the input frame stack" or even "the type at position x in the input frame, with y more (or less)
+ * array dimensions". This explains the rather complicated type format used in output frames.
+ * <p/>
+ * This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from -8 to 7).
+ * KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame. LOCAL is used for types that are
+ * relative to the input local variable types. STACK is used for types that are relative to the input stack types. VALUE depends on KIND.
+ * For LOCAL types, it is an index in the input local variable types. For STACK types, it is a position relatively to the top of input frame
+ * stack. For BASE types, it is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an index in the
+ * type table.
+ * <p/>
+ * Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types, represented by 0 -
+ * which does not correspond to any valid type value). Input frames can only contain BASE types of positive or null dimension.
+ * In all cases the type table contains only internal type names (array type descriptors are forbidden - dimensions must be represented
+ * through the DIM field).
+ * <p/>
+ * The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local variable types as well as in
+ * the operand stack. This is necessary to be able to simulate DUPx_y instructions, whose effect would be dependent on the actual type
+ * values if types were always represented by a single slot in the stack (and this is not possible, since actual type values are not always
+ * known - cf LOCAL and STACK type kinds).
  */
 public final class Frame
 {
    private static final int[] EMPTY_INPUT_STACK = new int[0];
-
-   // Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the end of current basic
-   // block is updated by simulating the action of the instruction on the previous state of this so called "output frame".
-   // In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic block, i.e. the stack map frame at the
-   // beginning of the basic block, starting from the input frame of the first basic block (which is computed from the method descriptor),
-   // and by using the previously computed output frames to compute the input state of the other blocks.
-   //
-   // All output and input frames are stored as arrays of integers. Reference and array types are represented by an index into a type table
-   // (which is not the same as the constant pool of the class, in order to avoid adding unnecessary constants in the pool - not all
-   // computed frames will end up being stored in the stack map table). This allows very fast type comparisons.
-   //
-   // Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when output frames are
-   // computed. It is therefore necessary to be able to represent abstract types such as "the type at position x in the input frame locals"
-   // or "the type at position x from the top of the input frame stack" or even "the type at position x in the input frame, with y more (or
-   // less) array dimensions". This explains the rather complicated type format used in output frames.
-   //
-   // This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from -8 to 7).
-   // KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame. LOCAL is used for types that are
-   // relative to the input local variable types. STACK is used for types that are relative to the input stack types. VALUE depends on KIND.
-   // For LOCAL types, it is an index in the input local variable types. For STACK types, it is a position relatively to the top of input
-   // frame stack. For BASE types, it is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an
-   // index in the type table.
-   //
-   // Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types, represented by 0 -
-   // which does not correspond to any valid type value). Input frames can only contain BASE types of positive or null dimension.
-   // In all cases the type table contains only internal type names (array type descriptors are forbidden - dimensions must be represented
-   // through the DIM field).
-   //
-   // The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local variable types as well as
-   // in the operand stack. This is necessary to be able to simulate DUPx_y instructions, whose effect would be dependent on the actual type
-   // values if types were always represented by a single slot in the stack (and this is not possible, since actual type values are not
-   // always known - cf LOCAL and STACK type kinds).
 
    public interface TypeMask {
       /**
@@ -216,7 +214,7 @@ public final class Frame
     * When the stack map frames are completely computed, this field is the actual number of types in
     * {@link #outputStack}.
     */
-   private int outputStackTop;
+   @Nonnegative private int outputStackTop;
 
    /**
     * Number of types that are initialized in the basic block.
@@ -236,15 +234,10 @@ public final class Frame
     */
    private int[] initializations;
 
-   public Frame(@Nonnull ConstantPoolGeneration cp, @Nonnull Label owner) {
+   Frame(@Nonnull ConstantPoolGeneration cp, @Nonnull Label owner) {
       this.cp = cp;
       this.owner = owner;
    }
-
-   /**
-    * Returns the {@link #inputStack}, if any.
-    */
-   public int[] getInputStack() { return inputStack; }
 
    /**
     * Initializes the input frame of the first basic block from the method descriptor.
@@ -352,7 +345,7 @@ public final class Frame
    /**
     * Simulates the action of a IINC instruction on the output stack frame.
     */
-   public void executeIINC(@Nonnegative int varIndex) {
+   void executeIINC(@Nonnegative int varIndex) {
       set(varIndex, INTEGER);
    }
 
@@ -386,7 +379,7 @@ public final class Frame
     * @param opcode  the opcode of the instruction.
     * @param operand the operand of the instruction, if any.
     */
-   public void executeINT(int opcode, int operand) {
+   void executeINT(int opcode, int operand) {
       if (opcode == NEWARRAY) {
          executeNewArray(operand);
       }
@@ -433,12 +426,7 @@ public final class Frame
       // Pushes the type on the output stack.
       outputStack[outputStackTop++] = type;
 
-      // Updates the maximum height reached by the output stack, if needed.
-      int top = owner.getInputStackTop() + outputStackTop;
-
-      if (top > owner.getOutputStackMaxSize()) {
-         owner.setOutputStackMaxSize(top);
-      }
+      owner.updateOutputStackMaxHeight(outputStackTop);
    }
 
    /**
@@ -458,7 +446,7 @@ public final class Frame
    /**
     * Simulates the action of a LOOKUPSWITCH or TABLESWITCH instruction on the output stack frame.
     */
-   public void executeSWITCH() {
+   void executeSWITCH() {
       pop(1);
    }
 
@@ -571,7 +559,7 @@ public final class Frame
     * @param opcode the opcode of the instruction
     * @param varIndex the local variable index
     */
-   public void executeVAR(int opcode, @Nonnegative int varIndex) {
+   void executeVAR(int opcode, @Nonnegative int varIndex) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case ILOAD: push(INTEGER);           break;
@@ -641,7 +629,7 @@ public final class Frame
     *
     * @param opcode the opcode of the instruction.
     */
-   public void executeJUMP(int opcode) {
+   void executeJUMP(int opcode) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case IFEQ: case IFNE: case IFLT: case IFGE: case IFGT: case IFLE: case IFNULL: case IFNONNULL:
@@ -859,7 +847,7 @@ public final class Frame
     *
     * @param item the operand of the instructions.
     */
-   public void executeLDC(@Nonnull Item item) {
+   void executeLDC(@Nonnull Item item) {
       switch (item.getType()) {
          case ConstantPoolTypes.INT:
             push(INTEGER);
@@ -897,7 +885,7 @@ public final class Frame
     * @param codeLength the operand of the instruction, if any.
     * @param item   the operand of the instruction.
     */
-   public void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
+   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NEW:
@@ -963,7 +951,7 @@ public final class Frame
     * @param dims the number of dimensions of the array.
     * @param arrayType the type of the array elements.
     */
-   public void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
+   void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
       pop(dims);
       push(arrayType.getValue());
    }
@@ -1033,21 +1021,20 @@ public final class Frame
     * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
     * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
     */
-   public boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
-      boolean changed = false;
-      int i;
-      int s;
-      int dim;
-      int kind;
-      int t;
-
+   boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
       int nLocal = inputLocals.length;
       int nStack = inputStack.length;
+      boolean changed = false;
 
       if (frame.inputLocals == null) {
          frame.inputLocals = new int[nLocal];
          changed = true;
       }
+
+      int i;
+      int s;
+      int dim;
+      int t;
 
       for (i = 0; i < nLocal; i++) {
          if (outputLocals != null && i < outputLocals.length) {
@@ -1058,7 +1045,7 @@ public final class Frame
             }
             else {
                dim = s & DIM;
-               kind = s & KIND;
+               int kind = s & KIND;
 
                if (kind == BASE) {
                   t = s;
@@ -1103,7 +1090,7 @@ public final class Frame
          return changed;
       }
 
-      int nInputStack = inputStack.length + owner.getInputStackTop();
+      int nInputStack = inputStack.length + owner.inputStackTop;
 
       if (frame.inputStack == null) {
          frame.inputStack = new int[nInputStack + outputStackTop];
@@ -1123,7 +1110,7 @@ public final class Frame
       for (i = 0; i < outputStackTop; i++) {
          s = outputStack[i];
          dim = s & DIM;
-         kind = s & KIND;
+         int kind = s & KIND;
 
          if (kind == BASE) {
             t = s;
@@ -1173,6 +1160,7 @@ public final class Frame
             return false;
          }
 
+         //noinspection AssignmentToMethodParameter
          type1 = NULL;
       }
 

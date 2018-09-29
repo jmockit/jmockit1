@@ -1,10 +1,9 @@
-package mockit.asm.frames;
+package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.classes.*;
-import mockit.asm.frames.Frame.*;
+import mockit.asm.controlFlow.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.methods.*;

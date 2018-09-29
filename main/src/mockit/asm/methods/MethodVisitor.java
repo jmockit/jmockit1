@@ -5,6 +5,7 @@ import javax.annotation.*;
 import mockit.asm.*;
 import mockit.asm.annotations.*;
 import mockit.asm.constantPool.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;

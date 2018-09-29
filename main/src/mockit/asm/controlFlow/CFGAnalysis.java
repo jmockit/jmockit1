@@ -1,10 +1,8 @@
-package mockit.asm.controlFlowGraph;
+package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.constantPool.*;
-import mockit.asm.frames.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
@@ -68,13 +66,13 @@ public final class CFGAnalysis
    }
 
    @Nonnull public Label getLabelForFirstBasicBlock() { return labels; }
-   public Frame getFirstFrame() { return labels.getFrame(); }
+   public Frame getFirstFrame() { return labels.frame; }
    @Nullable public Label getLabelForCurrentBasicBlock() { return currentBlock; }
 
    public void updateCurrentBlockForZeroOperandInstruction(int opcode) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().execute(opcode);
+            currentBlock.frame.execute(opcode);
          }
          else {
             int sizeVariation = JVMInstruction.SIZE[opcode];
@@ -105,15 +103,15 @@ public final class CFGAnalysis
    private void noSuccessor() {
       if (computeFrames) {
          Label l = new Label();
-         l.setFrame(new Frame(cp, l));
+         l.frame = new Frame(cp, l);
          l.resolve(code);
          //noinspection ConstantConditions
-         previousBlock.setSuccessor(l);
+         previousBlock.successor = l;
          previousBlock = l;
       }
       else {
          //noinspection ConstantConditions
-         currentBlock.setOutputStackMaxSize(maxStackSize);
+         currentBlock.outputStackMax = maxStackSize;
       }
 
       currentBlock = null;
@@ -137,7 +135,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForSingleIntOperandInstruction(int opcode, int operand) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeINT(opcode, operand);
+            currentBlock.frame.executeINT(opcode, operand);
          }
          else if (opcode != NEWARRAY) { // updates stack size only for NEWARRAY (variation = 0 for BIPUSH or SIPUSH)
             updateStackSize(1);
@@ -148,7 +146,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForLocalVariableInstruction(int opcode, @Nonnegative int varIndex) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeVAR(opcode, varIndex);
+            currentBlock.frame.executeVAR(opcode, varIndex);
          }
          else { // xLOAD or xSTORE
             int sizeVariation = JVMInstruction.SIZE[opcode];
@@ -160,7 +158,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForTypeInstruction(int opcode, @Nonnull StringItem typeItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeTYPE(opcode, code.getLength(), typeItem);
+            currentBlock.frame.executeTYPE(opcode, code.getLength(), typeItem);
          }
          else if (opcode == NEW) { // updates stack size for NEW only; no change for ANEWARRAY, CHECKCAST, INSTANCEOF
             updateStackSize(1);
@@ -171,7 +169,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForFieldInstruction(int opcode, @Nonnull TypeOrMemberItem fieldItem, @Nonnull String fieldTypeDesc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().execute(opcode, fieldItem);
+            currentBlock.frame.execute(opcode, fieldItem);
          }
          else {
             char typeCode = fieldTypeDesc.charAt(0);
@@ -195,7 +193,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForInvokeInstruction(@Nonnull TypeOrMemberItem invokeItem, int opcode, @Nonnull String desc) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().execute(opcode, invokeItem);
+            currentBlock.frame.execute(opcode, invokeItem);
          }
          else {
             int argSize = invokeItem.getArgSizeComputingIfNeeded(desc);
@@ -216,7 +214,7 @@ public final class CFGAnalysis
 
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeJUMP(opcode);
+            currentBlock.frame.executeJUMP(opcode);
 
             // 'label' is the target of a jump instruction.
             label.getFirst().markAsTarget();
@@ -266,7 +264,7 @@ public final class CFGAnalysis
             if (label.position == currentBlock.position) {
                // Successive labels, do not start a new basic block.
                currentBlock.markAsTarget(label);
-               label.setFrame(currentBlock.getFrame());
+               label.frame = currentBlock.frame;
                return;
             }
 
@@ -277,26 +275,26 @@ public final class CFGAnalysis
          // Begins a new current block.
          currentBlock = label;
 
-         if (label.getFrame() == null) {
-            label.setFrame(new Frame(cp, label));
+         if (label.frame == null) {
+            label.frame = new Frame(cp, label);
          }
 
          // Updates the basic block list.
          if (previousBlock != null) {
             if (label.position == previousBlock.position) {
                previousBlock.markAsTarget(label);
-               label.setFrame(previousBlock.getFrame());
+               label.frame = previousBlock.frame;
                currentBlock = previousBlock;
                return;
             }
 
-            previousBlock.setSuccessor(label);
+            previousBlock.successor = label;
          }
       }
       else {
          if (currentBlock != null) {
             // Ends current block (with one new successor).
-            currentBlock.setOutputStackMaxSize(maxStackSize);
+            currentBlock.outputStackMax = maxStackSize;
             addSuccessor(stackSize, label);
          }
 
@@ -309,7 +307,7 @@ public final class CFGAnalysis
 
          // Updates the basic block list.
          if (previousBlock != null) {
-            previousBlock.setSuccessor(label);
+            previousBlock.successor = label;
          }
       }
 
@@ -319,7 +317,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForLDCInstruction(@Nonnull Item constItem) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeLDC(constItem);
+            currentBlock.frame.executeLDC(constItem);
          }
          else {
             int sizeVariation = constItem instanceof LongValueItem ? 2 : 1;
@@ -330,14 +328,14 @@ public final class CFGAnalysis
 
    public void updateCurrentBlockForIINCInstruction(@Nonnegative int varIndex) {
       if (currentBlock != null && computeFrames) {
-         currentBlock.getFrame().executeIINC(varIndex);
+         currentBlock.frame.executeIINC(varIndex);
       }
    }
 
    public void updateCurrentBlockForSwitchInstruction(@Nonnull Label dflt, @Nonnull Label[] caseLabels) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeSWITCH();
+            currentBlock.frame.executeSWITCH();
 
             // Adds current block successors.
             addSuccessor(Edge.NORMAL, dflt);
@@ -371,7 +369,7 @@ public final class CFGAnalysis
    public void updateCurrentBlockForMULTIANEWARRAYInstruction(@Nonnull StringItem arrayTypeItem, @Nonnegative int dims) {
       if (currentBlock != null) {
          if (computeFrames) {
-            currentBlock.getFrame().executeMULTIANEWARRAY(dims, arrayTypeItem);
+            currentBlock.frame.executeMULTIANEWARRAY(dims, arrayTypeItem);
          }
          else {
             // Updates current stack size (max stack size unchanged because stack size variation always negative or 0).
@@ -392,9 +390,9 @@ public final class CFGAnalysis
       while (changed != null) {
          // Removes a basic block from the list of changed basic blocks.
          Label l = changed;
-         changed = changed.getNext();
-         l.setNext(null);
-         Frame frame = l.getFrame();
+         changed = changed.next;
+         l.next = null;
+         Frame frame = l.frame;
 
          // A reachable jump target must be stored in the stack map.
          if (l.isTarget()) {
@@ -405,7 +403,7 @@ public final class CFGAnalysis
          l.markAsReachable();
 
          // Updates the (absolute) maximum stack size.
-         int blockMax = frame.getInputStack().length + l.getOutputStackMaxSize();
+         int blockMax = frame.inputStack.length + l.outputStackMax;
 
          if (blockMax > max) {
             max = blockMax;
@@ -419,15 +417,15 @@ public final class CFGAnalysis
 
    @Nullable
    private Label updateSuccessorsOfCurrentBasicBlock(@Nullable Label changed, @Nonnull Frame frame, @Nonnull Label label) {
-      Edge edge = label.getSuccessors();
+      Edge edge = label.successors;
 
       while (edge != null) {
          Label n = edge.successor.getFirst();
-         boolean change = frame.merge(classDesc, n.getFrame(), edge.info);
+         boolean change = frame.merge(classDesc, n.frame, edge.info);
 
-         if (change && n.getNext() == null) {
+         if (change && n.next == null) {
             // If n has changed and is not already in the 'changed' list, adds it to this list.
-            n.setNext(changed);
+            n.next = changed;
 
             //noinspection AssignmentToMethodParameter
             changed = n;
@@ -453,11 +451,11 @@ public final class CFGAnalysis
       while (stack != null) {
          // Pops a block from the stack.
          Label label = stack;
-         stack = stack.getNext();
+         stack = stack.next;
 
          // Computes the true (non relative) max stack size of this block.
-         int start = label.getInputStackTop();
-         int blockMax = start + label.getOutputStackMaxSize();
+         int start = label.inputStackTop;
+         int blockMax = start + label.outputStackMax;
 
          // Updates the global max stack size.
          if (blockMax > max) {
@@ -472,7 +470,7 @@ public final class CFGAnalysis
 
    @Nullable
    private static Label analyzeBlockSuccessors(@Nullable Label stack, @Nonnull Label label, @Nonnegative int start) {
-      Edge block = label.getSuccessors();
+      Edge block = label.successors;
 
       while (block != null) {
          Label successor = block.successor;
@@ -480,11 +478,11 @@ public final class CFGAnalysis
          // If this successor has not already been pushed...
          if (!successor.isPushed()) {
             // computes its true beginning stack size...
-            successor.setInputStackTop(block.info == Edge.EXCEPTION ? 1 : start + block.info);
+            successor.inputStackTop = block.info == Edge.EXCEPTION ? 1 : start + block.info;
 
             // ...and pushes it onto the stack.
             successor.markAsPushed();
-            successor.setNext(stack);
+            successor.next = stack;
 
             //noinspection AssignmentToMethodParameter
             stack = successor;

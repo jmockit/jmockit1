@@ -1,9 +1,7 @@
-package mockit.asm;
+package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.controlFlowGraph.*;
-import mockit.asm.frames.*;
 import mockit.asm.util.*;
 
 /**
@@ -124,7 +122,7 @@ public final class Label
    /**
     * Information about the input and output stack map frames of this basic block. This field is only used for classfiles of version 1.7+.
     */
-   private Frame frame;
+   Frame frame;
 
    /**
     * The successor of this label, in the order they are visited. This linked list does not include labels used for debug info only.
@@ -137,7 +135,7 @@ public final class Label
     * The successors of this node in the control flow graph.
     * These successors are stored in a linked list of {@link Edge Edge} objects, linked to each other by their {@link Edge#next} field.
     */
-   private Edge successors;
+   Edge successors;
 
    /**
     * The next basic block in the basic block stack.
@@ -150,26 +148,21 @@ public final class Label
     */
    public Frame getFrame() { return frame; }
 
-   /**
-    * Sets the {@link #frame} this basic block belongs to, if any.
-    */
-   public void setFrame(Frame frame) { this.frame = frame; }
-
    public boolean isDebug()        { return (status & Status.DEBUG) != 0; }
    public boolean isResolved()     { return (status & Status.RESOLVED) != 0; }
-   public boolean isPushed()       { return (status & Status.PUSHED) != 0; }
+          boolean isPushed()       { return (status & Status.PUSHED) != 0; }
    public boolean isTarget()       { return (status & Status.TARGET) != 0; }
    public boolean isStoringFrame() { return (status & Status.STORE) != 0; }
    public boolean isReachable()    { return (status & Status.REACHABLE) != 0; }
 
-   public void markAsDebug()        { status |= Status.DEBUG; }
-   private void markAsResolved()    { status |= Status.RESOLVED; }
-   public void markAsPushed()       { status |= Status.PUSHED; }
-   public void markAsTarget()       { status |= Status.TARGET; }
-   public void markAsStoringFrame() { status |= Status.STORE; }
-   public void markAsReachable()    { status |= Status.REACHABLE; }
+   public  void markAsDebug()        { status |= Status.DEBUG; }
+   private void markAsResolved()     { status |= Status.RESOLVED; }
+           void markAsPushed()       { status |= Status.PUSHED; }
+   public  void markAsTarget()       { status |= Status.TARGET; }
+           void markAsStoringFrame() { status |= Status.STORE; }
+           void markAsReachable()    { status |= Status.REACHABLE; }
 
-   public void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
+   void markAsTarget(@Nonnull Label target) { status |= target.status & Status.TARGET; }
 
    /**
     * Puts a reference to this label in the bytecode of a method.
@@ -235,7 +228,7 @@ public final class Label
     * @param methodBytecode bytecode of the method containing this label
     */
    @SuppressWarnings("NumericCastThatLosesPrecision")
-   public void resolve(@Nonnull ByteVector methodBytecode) {
+   void resolve(@Nonnull ByteVector methodBytecode) {
       markAsResolved();
 
       byte[] data = methodBytecode.getData();
@@ -274,47 +267,17 @@ public final class Label
       return frame == null ? this : frame.owner;
    }
 
-   /**
-    * Returns the {@link #inputStackTop}.
-    */
-   public int getInputStackTop() { return inputStackTop; }
-
-   /**
-    * Sets the {@link #inputStackTop}.
-    */
-   public void setInputStackTop(int inputStackTop) { this.inputStackTop = inputStackTop; }
+   @Nonnegative
+   int decrementInputStackTop() { return --inputStackTop; }
 
    @Nonnegative
-   public int decrementInputStackTop() { return --inputStackTop; }
-
-   @Nonnegative
-   public void decrementInputStackTop(@Nonnegative int amount) { inputStackTop -= amount; }
-
-   /**
-    * Returns the {@link #outputStackMax}.
-    */
-   public int getOutputStackMaxSize() { return outputStackMax; }
-
-   /**
-    * Sets the {@link #outputStackMax}.
-    */
-   public void setOutputStackMaxSize(@Nonnegative int outputStackMax) { this.outputStackMax = outputStackMax; }
+   void decrementInputStackTop(@Nonnegative int amount) { inputStackTop -= amount; }
 
    /**
     * Returns this label's {@link #successor}, if any.
     */
    @Nullable
    public Label getSuccessor() { return successor; }
-
-   /**
-    * Sets this label's {@link #successor}.
-    */
-   public void setSuccessor(@Nullable Label successor) { this.successor = successor; }
-
-   /**
-    * Returns this node's {@link #successors}.
-    */
-   public Edge getSuccessors() { return successors; }
 
    @Nullable
    public Label setSuccessors(@Nonnull Edge edge) {
@@ -324,15 +287,15 @@ public final class Label
    }
 
    /**
-    * Returns the label to the {@link #next} basic block, if any.
+    * Updates the maximum height reached by the output stack, if needed.
     */
-   @Nullable
-   public Label getNext() { return next; }
+   void updateOutputStackMaxHeight(@Nonnegative int outputStackTop) {
+      int top = inputStackTop + outputStackTop;
 
-   /**
-    * Sets the label to the {@link #next} basic block, if any.
-    */
-   public void setNext(@Nullable Label next) { this.next = next; }
+      if (top > outputStackMax) {
+         outputStackMax = top;
+      }
+   }
 
    @Override
    public String toString() {

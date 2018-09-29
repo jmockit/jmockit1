@@ -2,7 +2,7 @@ package mockit.asm.exceptionHandling;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.util.*;
 
 /**

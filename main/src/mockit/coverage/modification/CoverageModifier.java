@@ -9,12 +9,12 @@ import javax.annotation.*;
 
 import mockit.asm.annotations.*;
 import mockit.asm.classes.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.fields.*;
 import mockit.asm.methods.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;
-import mockit.asm.*;
 import mockit.internal.*;
 import static mockit.asm.jvmConstants.Access.*;
 import static mockit.coverage.Metrics.*;

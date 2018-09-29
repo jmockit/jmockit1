@@ -2,10 +2,8 @@ package mockit.asm.exceptionHandling;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.constantPool.*;
-import mockit.asm.controlFlowGraph.*;
-import mockit.asm.frames.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.util.*;
 
 public final class ExceptionHandling

@@ -2,8 +2,8 @@ package mockit.asm.methods;
 
 import javax.annotation.*;
 
-import mockit.asm.*;
 import mockit.asm.annotations.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.util.*;
 
 /**

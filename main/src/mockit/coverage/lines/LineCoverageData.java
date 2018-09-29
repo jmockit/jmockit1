@@ -7,8 +7,8 @@ package mockit.coverage.lines;
 import java.util.*;
 import javax.annotation.*;
 
+import mockit.asm.controlFlow.*;
 import mockit.coverage.*;
-import mockit.asm.*;
 
 /**
  * Coverage data gathered for a single executable line of code in a source file.

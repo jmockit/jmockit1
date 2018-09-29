@@ -6,6 +6,7 @@ import mockit.asm.*;
 import mockit.asm.classes.*;
 import mockit.asm.classes.ClassReader.*;
 import mockit.asm.annotations.*;
+import mockit.asm.controlFlow.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
