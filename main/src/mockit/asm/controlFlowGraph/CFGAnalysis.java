@@ -28,8 +28,7 @@ public final class CFGAnalysis
 
    /**
     * A list of labels. This list is the list of basic blocks in the method, i.e. a list of Label objects linked to each other by their
-    * {@link Label#successor} field, in the order they are visited by {@link MethodVisitor#visitLabel}, and starting with the first basic
-    * block.
+    * {@link Label#successor} field, in the order they are visited, and starting with the first basic block.
     */
    @Nonnull private final Label labels;
 

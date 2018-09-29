@@ -22,9 +22,8 @@ public final class ClassReader extends AnnotatedReader
       int SKIP_CODE = 1;
 
       /**
-       * Flag to skip the debug information in the class. If this flag is set the debug information of the class is not
-       * visited, i.e. the {@link MethodVisitor#visitLocalVariable} and {@link MethodVisitor#visitLineNumber} methods
-       * will not be called.
+       * Flag to skip the debug information in the class.
+       * If this flag is set the debug information of the class (local variables and line numbers) is not visited.
        */
       int SKIP_DEBUG = 2;
 

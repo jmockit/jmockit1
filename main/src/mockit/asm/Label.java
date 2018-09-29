@@ -32,7 +32,7 @@ public final class Label
       int RESOLVED = 2;
 
       /**
-       * Indicates if this basic block has been pushed in the basic block stack. See {@link MethodWriter#visitMaxStack}.
+       * Indicates if this basic block has been pushed in the basic block stack.
        */
       int PUSHED = 8;
 
@@ -85,8 +85,6 @@ public final class Label
     * In fact the sign of the first integer indicates if this reference uses 2 or 4 bytes, and its absolute value gives the position of the
     * bytecode instruction.
     * This array is also used as a bit set to store the subroutines to which a basic block belongs.
-    * This information is needed in {@link MethodWriter#visitMaxStack}, after all forward references have been resolved.
-    * Hence the same array can be used for both purposes without problems.
     */
    private int[] srcAndRefPositions;
 
@@ -139,13 +137,11 @@ public final class Label
     * The successors of this node in the control flow graph.
     * These successors are stored in a linked list of {@link Edge Edge} objects, linked to each other by their {@link Edge#next} field.
     */
-   Edge successors;
+   private Edge successors;
 
    /**
     * The next basic block in the basic block stack.
     * This stack is used in the main loop of the fix point algorithm used in the second step of the control flow analysis algorithms.
-    *
-    * @see MethodWriter#visitMaxStack
     */
    @Nullable Label next;
 
