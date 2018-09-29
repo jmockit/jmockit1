@@ -80,7 +80,7 @@ public abstract class AnnotatedReader extends BytecodeReader
       }
    }
 
-   final void readAnnotationValues(@Nullable AnnotationVisitor av) {
+   protected final void readAnnotationValues(@Nullable AnnotationVisitor av) {
       codeIndex = annotationReader.readNamedAnnotationValues(codeIndex, av);
    }
 }

@@ -6,6 +6,7 @@ import mockit.asm.*;
 import mockit.asm.frames.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
 

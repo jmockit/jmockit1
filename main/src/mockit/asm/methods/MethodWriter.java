@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.methods;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.annotations.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.controlFlowGraph.*;
@@ -13,8 +14,8 @@ import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
- * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode
- * corresponding to the visited instruction to a byte vector, in the order these methods are called.
+ * A {@link MethodVisitor} that generates methods in bytecode form. Each visit method of this class appends the bytecode corresponding to
+ * the visited instruction to a byte vector, in the order these methods are called.
  */
 @SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyFields", "OverlyComplexClass"})
 public final class MethodWriter extends MethodVisitor
@@ -74,23 +75,22 @@ public final class MethodWriter extends MethodVisitor
    private final boolean computeFrames;
 
    /**
-    * Initializes the MethodWriter.
+    * Initializes this MethodWriter.
     *
-    * @param cw            the class writer in which the method must be added.
-    * @param access        the method's access flags (see {@link Opcodes}).
-    * @param name          the method's name.
-    * @param desc          the method's descriptor (see {@link JavaType}).
-    * @param signature     the method's signature. May be <tt>null</tt>.
-    * @param exceptions    the internal names of the method's exceptions. May be <tt>null</tt>.
-    * @param computeFrames <tt>true</tt> if the stack map tables must be recomputed from scratch.
+    * @param cw            the class writer in which the method must be added
+    * @param access        the method's access flags (see {@link Opcodes})
+    * @param name          the method's name
+    * @param desc          the method's descriptor (see {@link JavaType})
+    * @param signature     the method's signature
+    * @param exceptions    the internal names of the method's exceptions
+    * @param computeFrames <tt>true</tt> if the stack map tables must be recomputed from scratch
     */
-   MethodWriter(
+   public MethodWriter(
       @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,
       @Nullable String[] exceptions, boolean computeFrames
    ) {
+      super(cw.getConstantPoolGeneration(), "<init>".equals(name) ? access | Access.CONSTRUCTOR : access);
       this.cw = cw;
-      cp = cw.cp;
-      classOrMemberAccess = "<init>".equals(name) ? access | Access.CONSTRUCTOR : access;
       nameItemIndex = cp.newUTF8(name);
       descItemIndex = cp.newUTF8(desc);
       descriptor = desc;
@@ -104,7 +104,7 @@ public final class MethodWriter extends MethodVisitor
       lineNumberTableWriter = new LineNumberTableWriter(cp);
       cfgAnalysis = new CFGAnalysis(cw, code, computeFrames);
 
-      createMarkerAttributes(cw.classVersion);
+      createMarkerAttributes(cw.getClassVersion());
    }
 
    @Nonnull @Override
@@ -213,8 +213,7 @@ public final class MethodWriter extends MethodVisitor
 
    @Override
    public void visitInvokeDynamicInsn(@Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs) {
-      //noinspection ConstantConditions
-      InvokeDynamicItem invokeItem = cw.bootstrapMethodsWriter.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
+      InvokeDynamicItem invokeItem = cw.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
       cfgAnalysis.updateCurrentBlockForInvokeInstruction(invokeItem, INVOKEDYNAMIC, desc);
 
       // Adds the instruction to the bytecode of the method.
@@ -387,7 +386,7 @@ public final class MethodWriter extends MethodVisitor
       Label label = cfgAnalysis.getLabelForFirstBasicBlock();
 
       while (label != null) {
-         Frame frame = label.frame;
+         Frame frame = label.getFrame();
 
          if (label.isStoringFrame()) {
             frameAndStack.visitFrame(frame);
@@ -395,7 +394,7 @@ public final class MethodWriter extends MethodVisitor
 
          if (!label.isReachable()) {
             // Finds start and end of dead basic block.
-            Label k = label.successor;
+            Label k = label.getSuccessor();
             int start = label.position;
             int end = (k == null ? code.getLength() : k.position) - 1;
 
@@ -410,7 +409,7 @@ public final class MethodWriter extends MethodVisitor
             }
          }
 
-         label = label.successor;
+         label = label.getSuccessor();
       }
 
       return max;
@@ -432,7 +431,7 @@ public final class MethodWriter extends MethodVisitor
     * Returns the size of the bytecode of this method.
     */
    @Nonnegative
-   int getSize() {
+   public int getSize() {
       if (classReaderOffset > 0) {
          return 6 + classReaderLength;
       }

@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.methods;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.util.*;
 

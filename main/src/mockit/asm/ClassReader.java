@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.methods.*;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
@@ -38,8 +39,8 @@ public final class ClassReader extends AnnotatedReader
    @Nonnegative private final int version;
    @Nonnull private final ClassInfo classInfo;
 
-   ClassVisitor cv;
-   @Nonnegative int flags;
+   private ClassVisitor cv;
+   @Nonnegative public int flags;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -221,7 +222,7 @@ public final class ClassReader extends AnnotatedReader
       FieldReader fieldReader = new FieldReader(this, cv);
       codeIndex = fieldReader.readFields();
 
-      MethodReader methodReader = new MethodReader(this);
+      MethodReader methodReader = new MethodReader(this, cv);
       codeIndex = methodReader.readMethods();
    }
 
@@ -278,5 +279,11 @@ public final class ClassReader extends AnnotatedReader
       }
 
       return false;
+   }
+
+   @Nonnegative
+   public int getBSMCodeIndex(@Nonnegative int bsmStartIndex) {
+      assert bootstrapMethods != null;
+      return bootstrapMethods[bsmStartIndex];
    }
 }

@@ -124,7 +124,7 @@ public final class Label
    /**
     * Information about the input and output stack map frames of this basic block. This field is only used for classfiles of version 1.7+.
     */
-   Frame frame;
+   private Frame frame;
 
    /**
     * The successor of this label, in the order they are visited. This linked list does not include labels used for debug info only.
@@ -155,14 +155,14 @@ public final class Label
     */
    public void setFrame(Frame frame) { this.frame = frame; }
 
-   public boolean isDebug()  { return (status & Status.DEBUG) != 0; }
-   boolean isResolved()      { return (status & Status.RESOLVED) != 0; }
-   public boolean isPushed() { return (status & Status.PUSHED) != 0; }
-   public boolean isTarget() { return (status & Status.TARGET) != 0; }
-   boolean isStoringFrame()  { return (status & Status.STORE) != 0; }
-   boolean isReachable()     { return (status & Status.REACHABLE) != 0; }
+   public boolean isDebug()        { return (status & Status.DEBUG) != 0; }
+   public boolean isResolved()     { return (status & Status.RESOLVED) != 0; }
+   public boolean isPushed()       { return (status & Status.PUSHED) != 0; }
+   public boolean isTarget()       { return (status & Status.TARGET) != 0; }
+   public boolean isStoringFrame() { return (status & Status.STORE) != 0; }
+   public boolean isReachable()    { return (status & Status.REACHABLE) != 0; }
 
-   void markAsDebug()               { status |= Status.DEBUG; }
+   public void markAsDebug()        { status |= Status.DEBUG; }
    private void markAsResolved()    { status |= Status.RESOLVED; }
    public void markAsPushed()       { status |= Status.PUSHED; }
    public void markAsTarget()       { status |= Status.TARGET; }
@@ -181,7 +181,7 @@ public final class Label
     * @param wideOffset <tt>true</tt> if the reference must be stored in 4 bytes, or <tt>false</tt> if it must be stored with 2 bytes
     * @throws IllegalArgumentException if this label has not been created by the given code writer
     */
-   void put(@Nonnull ByteVector out, @Nonnegative int source, boolean wideOffset) {
+   public void put(@Nonnull ByteVector out, @Nonnegative int source, boolean wideOffset) {
       if (isResolved()) {
          int reference = position - source;
 
@@ -299,6 +299,12 @@ public final class Label
     * Sets the {@link #outputStackMax}.
     */
    public void setOutputStackMaxSize(@Nonnegative int outputStackMax) { this.outputStackMax = outputStackMax; }
+
+   /**
+    * Returns this label's {@link #successor}, if any.
+    */
+   @Nullable
+   public Label getSuccessor() { return successor; }
 
    /**
     * Sets this label's {@link #successor}.

@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.methods;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.ClassReader.*;
 import mockit.asm.annotations.*;
 import mockit.asm.jvmConstants.*;
@@ -10,9 +11,10 @@ import static mockit.asm.jvmConstants.JVMInstruction.InstructionType.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 @SuppressWarnings("OverlyComplexClass")
-final class MethodReader extends AnnotatedReader
+public final class MethodReader extends AnnotatedReader
 {
    @Nonnull private final ClassReader cr;
+   @Nonnull private final ClassVisitor cv;
 
    @Nullable private String[] throwsClauseTypes;
 
@@ -41,18 +43,20 @@ final class MethodReader extends AnnotatedReader
     */
    private MethodVisitor mv;
 
-   MethodReader(@Nonnull ClassReader cr) {
+   public MethodReader(@Nonnull ClassReader cr, @Nonnull ClassVisitor cv) {
       super(cr);
       this.cr = cr;
+      this.cv = cv;
    }
 
    /**
-    * Reads each method and constructor in the class, making the {@linkplain #cr class reader}'s
-    * {@linkplain ClassReader#cv visitor} visit it.
+    * Reads each method and constructor in the class, making the {@linkplain #cr class reader}'s {@linkplain ClassReader#cv visitor} visit
+    * it.
     *
-    * @return the offset of the first byte following the last method in the class.
+    * @return the offset of the first byte following the last method in the class
     */
-   int readMethods() {
+   @Nonnegative
+   public int readMethods() {
       for (int methodCount = readUnsignedShort(); methodCount > 0; methodCount--) {
          readMethod();
       }
@@ -113,7 +117,7 @@ final class MethodReader extends AnnotatedReader
    }
 
    private void readMethodBody() {
-      mv = cr.cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
+      mv = cv.visitMethod(access, name, desc, signature, throwsClauseTypes);
 
       if (mv == null) {
          return;
@@ -596,7 +600,7 @@ final class MethodReader extends AnnotatedReader
       String bsmName = readNonnullUTF8(nameCodeIndex);
       String bsmDesc = readNonnullUTF8(nameCodeIndex + 2);
 
-      @SuppressWarnings("ConstantConditions") int bsmCodeIndex = cr.bootstrapMethods[bsmStartIndex];
+      int bsmCodeIndex = cr.getBSMCodeIndex(bsmStartIndex);
       MethodHandle bsmHandle = readMethodHandleItem(bsmCodeIndex);
       int bsmArgCount = readUnsignedShort(bsmCodeIndex + 2);
       bsmCodeIndex += 4;

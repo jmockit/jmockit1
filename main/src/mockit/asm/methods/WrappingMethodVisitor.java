@@ -1,7 +1,8 @@
-package mockit.asm;
+package mockit.asm.methods;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.annotations.*;
 import mockit.asm.util.*;
 
@@ -16,9 +17,9 @@ public class WrappingMethodVisitor extends MethodVisitor
    @Nonnull protected final MethodWriter mw;
 
    /**
-    * Constructs a new wrapping Method Visitor.
+    * Initializes a new wrapping Method Visitor.
     *
-    * @param mw the method visitor to which this visitor must delegate method calls.
+    * @param mw the method visitor to which this visitor must delegate method calls
     */
    protected WrappingMethodVisitor(@Nonnull MethodWriter mw) { this.mw = mw; }
 

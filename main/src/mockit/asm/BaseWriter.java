@@ -28,7 +28,7 @@ public class BaseWriter
     */
    @Nullable protected AnnotationVisitor annotations;
 
-   BaseWriter() {}
+   protected BaseWriter() {}
 
    protected BaseWriter(@Nonnull ConstantPoolGeneration cp, int classOrMemberAccess) {
       this.cp = cp;

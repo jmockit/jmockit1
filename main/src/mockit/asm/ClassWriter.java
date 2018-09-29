@@ -7,6 +7,7 @@ import javax.annotation.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.methods.*;
 import mockit.asm.util.*;
 import mockit.internal.util.*;
 
@@ -23,12 +24,12 @@ public final class ClassWriter extends ClassVisitor
    /**
     * The class bytecode from which this class writer will generate a new/modified class.
     */
-   @Nonnull final byte[] code;
+   @Nonnull public final byte[] code;
 
    /**
     * Minor and major version numbers of the class to be generated.
     */
-   int classVersion;
+   private int classVersion;
 
    /**
     * The constant pool item that contains the internal name of this class.
@@ -256,6 +257,14 @@ public final class ClassWriter extends ClassVisitor
       }
 
       return attributeCount;
+   }
+
+   @Nonnull
+   public InvokeDynamicItem addInvokeDynamicReference(
+      @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
+   ) {
+      assert bootstrapMethodsWriter != null;
+      return bootstrapMethodsWriter.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
    }
 
    public boolean isJava6OrNewer() { return classVersion >= ClassVersion.V1_6; }

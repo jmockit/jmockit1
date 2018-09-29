@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.fields.*;
 import mockit.asm.jvmConstants.*;
+import mockit.asm.methods.*;
 import mockit.asm.types.*;
 
 /**

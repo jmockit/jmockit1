@@ -1,8 +1,10 @@
-package mockit.asm;
+package mockit.asm.methods;
 
 import javax.annotation.*;
 
+import mockit.asm.*;
 import mockit.asm.annotations.*;
+import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
@@ -21,6 +23,7 @@ import mockit.asm.util.*;
 public class MethodVisitor extends BaseWriter
 {
    protected MethodVisitor() {}
+   protected MethodVisitor(@Nonnull ConstantPoolGeneration cp, int methodAccess) { super(cp, methodAccess); }
 
    /**
     * Visits an annotation on a parameter of the method being visited.

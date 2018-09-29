@@ -9,6 +9,7 @@ import javax.annotation.*;
 
 import mockit.asm.annotations.*;
 import mockit.asm.fields.*;
+import mockit.asm.methods.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
 import mockit.coverage.paths.*;

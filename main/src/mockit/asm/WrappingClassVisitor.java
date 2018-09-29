@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.annotations.*;
 import mockit.asm.fields.*;
+import mockit.asm.methods.*;
 
 /**
  * Same as {@link ClassVisitor}, except it always wraps a {@link ClassWriter}.

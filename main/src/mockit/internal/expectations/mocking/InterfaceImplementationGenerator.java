@@ -15,6 +15,7 @@ import mockit.asm.annotations.*;
 import mockit.asm.fields.*;
 import mockit.asm.metadata.*;
 import mockit.asm.metadata.ClassMetadataReader.*;
+import mockit.asm.methods.*;
 import mockit.internal.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.reflection.*;
