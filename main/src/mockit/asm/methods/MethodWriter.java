@@ -38,7 +38,7 @@ public final class MethodWriter extends MethodVisitor
    /**
     * The descriptor of this method.
     */
-   @Nonnull public final String descriptor;
+   @Nonnull private final String descriptor;
 
    @Nullable private final SignatureWriter signatureWriter;
 
@@ -66,8 +66,8 @@ public final class MethodWriter extends MethodVisitor
     */
    @Nonnull private final ByteVector code;
 
-   @Nonnull private final FrameAndStackComputation frameAndStack;
    @Nonnull private final ExceptionHandling exceptionHandling;
+   @Nonnull private final StackMapTableWriter stackMapTableWriter;
    @Nonnull private final LocalVariableTableWriter localVariableTableWriter;
    @Nonnull private final LineNumberTableWriter lineNumberTableWriter;
    @Nonnull private final CFGAnalysis cfgAnalysis;
@@ -98,8 +98,8 @@ public final class MethodWriter extends MethodVisitor
       exceptionsWriter = exceptions == null ? null : new ExceptionsWriter(cp, exceptions);
       code = new ByteVector();
       this.computeFrames = computeFrames;
-      frameAndStack = new FrameAndStackComputation(this, access, desc);
       exceptionHandling = new ExceptionHandling(cp);
+      stackMapTableWriter = new StackMapTableWriter(cp, cw.isJava6OrNewer(), access, desc);
       localVariableTableWriter = new LocalVariableTableWriter(cp);
       lineNumberTableWriter = new LineNumberTableWriter(cp);
       cfgAnalysis = new CFGAnalysis(cp, cw.getInternalClassName(), code, computeFrames);
@@ -176,7 +176,7 @@ public final class MethodWriter extends MethodVisitor
 
    private void updateMaxLocals(int opcode, @Nonnegative int varIndex) {
       int n = opcode == LLOAD || opcode == DLOAD || opcode == LSTORE || opcode == DSTORE ? varIndex + 2 : varIndex + 1;
-      frameAndStack.updateMaxLocals(n);
+      stackMapTableWriter.updateMaxLocals(n);
    }
 
    @Override
@@ -283,7 +283,7 @@ public final class MethodWriter extends MethodVisitor
 
       // Updates max locals.
       int n = varIndex + 1;
-      frameAndStack.updateMaxLocals(n);
+      stackMapTableWriter.updateMaxLocals(n);
 
       // Adds the instruction to the bytecode of the method.
       if (varIndex > 255 || increment > 127 || increment < -128) {
@@ -347,7 +347,7 @@ public final class MethodWriter extends MethodVisitor
       @Nonnegative int index
    ) {
       int localsCount = localVariableTableWriter.addLocalVariable(name, desc, signature, start, end, index);
-      frameAndStack.updateMaxLocals(localsCount);
+      stackMapTableWriter.updateMaxLocals(localsCount);
    }
 
    @Override
@@ -363,7 +363,7 @@ public final class MethodWriter extends MethodVisitor
          exceptionHandling.completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames();
 
          Frame firstFrame = cfgAnalysis.getFirstFrame();
-         frameAndStack.createAndVisitFirstFrame(firstFrame);
+         stackMapTableWriter.createAndVisitFirstFrame(firstFrame, cw.getInternalClassName(), descriptor, classOrMemberAccess);
 
          computedMaxStack = cfgAnalysis.computeMaxStackSizeFromComputedFrames();
          computedMaxStack = visitAllFramesToBeStoredInStackMap(computedMaxStack);
@@ -378,7 +378,7 @@ public final class MethodWriter extends MethodVisitor
          computedMaxStack = Math.max(maxStack, computedMaxStack);
       }
 
-      frameAndStack.setMaxStack(computedMaxStack);
+      stackMapTableWriter.setMaxStack(computedMaxStack);
    }
 
    @Nonnegative
@@ -389,7 +389,7 @@ public final class MethodWriter extends MethodVisitor
          Frame frame = label.getFrame();
 
          if (label.isStoringFrame()) {
-            frameAndStack.visitFrame(frame);
+            stackMapTableWriter.visitFrame(frame);
          }
 
          if (!label.isReachable()) {
@@ -404,7 +404,7 @@ public final class MethodWriter extends MethodVisitor
 
                replaceInstructionsWithNOPAndATHROW(start, end);
 
-               frameAndStack.emitFrameForUnreachableBlock(start);
+               stackMapTableWriter.emitFrameForUnreachableBlock(start);
                exceptionHandling.removeStartEndRange(label, k);
             }
          }
@@ -449,7 +449,7 @@ public final class MethodWriter extends MethodVisitor
          size += 18 + codeLength + exceptionHandling.getSize();
          size += localVariableTableWriter.getSize();
          size += lineNumberTableWriter.getSize();
-         size += frameAndStack.getSizeWhileAddingConstantPoolItem();
+         size += stackMapTableWriter.getSize();
       }
 
       if (exceptionsWriter != null) {
@@ -541,7 +541,7 @@ public final class MethodWriter extends MethodVisitor
    private void putMethodCode(@Nonnull ByteVector out) {
       if (code.getLength() > 0) {
          putCodeSize(out);
-         frameAndStack.putMaxStackAndLocals(out);
+         stackMapTableWriter.putMaxStackAndLocals(out);
          out.putInt(code.getLength()).putByteVector(code);
          exceptionHandling.put(out);
 
@@ -551,21 +551,21 @@ public final class MethodWriter extends MethodVisitor
             codeAttributeCount++;
          }
 
-         if (frameAndStack.hasStackMap()) {
+         if (stackMapTableWriter.hasStackMap()) {
             codeAttributeCount++;
          }
 
          out.putShort(codeAttributeCount);
          localVariableTableWriter.put(out);
          lineNumberTableWriter.put(out);
-         frameAndStack.put(out);
+         stackMapTableWriter.put(out);
       }
    }
 
    private void putCodeSize(@Nonnull ByteVector out) {
       int size =
          12 + code.getLength() +
-         exceptionHandling.getSize() + localVariableTableWriter.getSize() + lineNumberTableWriter.getSize() + frameAndStack.getSize();
+         exceptionHandling.getSize() + localVariableTableWriter.getSize() + lineNumberTableWriter.getSize() + stackMapTableWriter.getSize();
 
       out.putShort(cp.newUTF8("Code")).putInt(size);
    }

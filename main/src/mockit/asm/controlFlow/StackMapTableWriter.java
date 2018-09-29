@@ -2,15 +2,16 @@ package mockit.asm.controlFlow;
 
 import javax.annotation.*;
 
-import mockit.asm.classes.*;
 import mockit.asm.controlFlow.Frame.*;
 import mockit.asm.constantPool.*;
 import mockit.asm.jvmConstants.*;
-import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import mockit.asm.util.*;
 
-public final class FrameAndStackComputation extends AttributeWriter
+/**
+ * Writes the "StackMapTable" method attribute (or "StackMap" for classfiles older than Java 6).
+ */
+public final class StackMapTableWriter extends AttributeWriter
 {
    /**
     * Constants that identify how many locals and stack items a frame has, with respect to its previous frame.
@@ -54,8 +55,7 @@ public final class FrameAndStackComputation extends AttributeWriter
       int FULL_FRAME = 255; // ff
    }
 
-   @Nonnull private final MethodWriter mw;
-   @Nonnull private final ClassWriter cw;
+   private final boolean java6OrNewer;
 
    /**
     * Maximum stack size of this method.
@@ -103,10 +103,9 @@ public final class FrameAndStackComputation extends AttributeWriter
     */
    @Nonnegative private int frameIndex;
 
-   public FrameAndStackComputation(@Nonnull MethodWriter mw, int methodAccess, @Nonnull String methodDesc) {
-      super(mw.cw.getConstantPoolGeneration());
-      this.mw = mw;
-      cw = mw.cw;
+   public StackMapTableWriter(@Nonnull ConstantPoolGeneration cp, boolean java6OrNewer, int methodAccess, @Nonnull String methodDesc) {
+      super(cp);
+      this.java6OrNewer = java6OrNewer;
 
       int size = JavaType.getArgumentsAndReturnSizes(methodDesc) >> 2;
 
@@ -169,6 +168,7 @@ public final class FrameAndStackComputation extends AttributeWriter
    private void endFrame() {
       if (previousFrame != null) { // do not write the first frame
          if (stackMap == null) {
+            setAttribute(java6OrNewer ? "StackMapTable" : "StackMap");
             stackMap = new ByteVector();
          }
 
@@ -187,7 +187,7 @@ public final class FrameAndStackComputation extends AttributeWriter
       int currentFrameLocalsSize = getNumLocals();
       int currentFrameStackSize = getStackSize();
 
-      if (!cw.isJava6OrNewer()) {
+      if (!java6OrNewer) {
          writeFrameForOldVersionOfJava(currentFrameLocalsSize, currentFrameStackSize);
          return;
       }
@@ -368,9 +368,9 @@ public final class FrameAndStackComputation extends AttributeWriter
    /**
     * Creates and visits the first (implicit) frame.
     */
-   public void createAndVisitFirstFrame(@Nonnull Frame frame) {
-      JavaType[] args = JavaType.getArgumentTypes(mw.descriptor);
-      frame.initInputFrame(cw.getInternalClassName(), mw.getClassOrMemberAccess(), args, maxLocals);
+   public void createAndVisitFirstFrame(@Nonnull Frame frame, @Nonnull String classDesc, @Nonnull String methodDesc, int methodAccess) {
+      JavaType[] args = JavaType.getArgumentTypes(methodDesc);
+      frame.initInputFrame(classDesc, methodAccess, args, maxLocals);
       visitFrame(frame);
    }
 
@@ -453,27 +453,13 @@ public final class FrameAndStackComputation extends AttributeWriter
       endFrame();
    }
 
-   @Nonnegative
-   public int getSizeWhileAddingConstantPoolItem() {
-      int size = getSize();
-
-      if (size > 0) {
-         boolean zip = cw.isJava6OrNewer();
-         cp.newUTF8(zip ? "StackMapTable" : "StackMap");
-      }
-
-      return size;
-   }
-
    @Nonnegative @Override
    public int getSize() { return stackMap == null ? 0 : 8 + stackMap.getLength(); }
 
    @Override
    public void put(@Nonnull ByteVector out) {
       if (stackMap != null) {
-         boolean zip = cw.isJava6OrNewer();
-         setAttribute(zip ? "StackMapTable" : "StackMap");
-         put(out, stackMap.getLength() + 2);
+         put(out, 2 + stackMap.getLength());
          out.putShort(frameCount);
          out.putByteVector(stackMap);
       }

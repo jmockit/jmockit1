@@ -7,17 +7,19 @@ import mockit.asm.jvmConstants.*;
 import mockit.asm.util.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
+/**
+ * The control flow graph analysis algorithm, used to compute the maximum stack size for a method or constructor.
+ * <p/>
+ * A control flow graph contains one node per "basic block", and one edge per "jump" from one basic block to another.
+ * Each node (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this basic block.
+ * Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
+ */
 @SuppressWarnings("OverlyComplexClass")
 public final class CFGAnalysis
 {
    @Nonnull private final ConstantPoolGeneration cp;
    @Nonnull private final String classDesc;
    @Nonnull private final ByteVector code;
-
-   // Fields for the control flow graph analysis algorithm (used to compute the maximum stack size). A control flow graph contains one node
-   // per "basic block", and one edge per "jump" from one basic block to another. Each node (i.e., each basic block) is represented by the
-   // Label object that corresponds to the first instruction of this basic block. Each node also stores the list of its successors in the
-   // graph, as a linked list of Edge objects.
 
    /**
     * Indicates whether frames AND max stack/locals must be automatically computed, or if only max stack/locals must be.
