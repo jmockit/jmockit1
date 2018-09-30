@@ -93,13 +93,12 @@ public final class Frame
    private int initializationCount;
 
    /**
-    * The types that are initialized in the basic block. A constructor invocation on an UNINITIALIZED or
-    * UNINITIALIZED_THIS type must replace <i>every occurrence</i> of this type in the local variables and in the
-    * operand stack. This cannot be done during the first phase of the algorithm since, during this phase, the local
-    * variables and the operand stack are not completely computed. It is therefore necessary to store the types on
-    * which constructors are invoked in the basic block, in order to do this replacement during the second phase of the
-    * algorithm, where the frames are fully computed. Note that this array can contain types that are relative to input
-    * locals or to the input stack (see below for the description of the algorithm).
+    * The types that are initialized in the basic block. A constructor invocation on an UNINITIALIZED or UNINITIALIZED_THIS type must
+    * replace <em>every occurrence</em> of this type in the local variables and in the operand stack. This cannot be done during the first
+    * phase of the algorithm since, during this phase, the local variables and the operand stack are not completely computed.
+    * It is therefore necessary to store the types on which constructors are invoked in the basic block, in order to do this replacement
+    * during the second phase of the algorithm, where the frames are fully computed.
+    * Note that this array can contain types that are relative to input locals or to the input stack.
     */
    private int[] initializations;
 
@@ -157,6 +156,7 @@ public final class Frame
     * @param typeDesc a type descriptor
     * @return the int encoding of the given type
     */
+   @Nonnegative
    private int getTypeEncoding(@Nonnull String typeDesc) {
       int index = typeDesc.charAt(0) == '(' ? typeDesc.indexOf(')') + 1 : 0;
 
@@ -172,12 +172,14 @@ public final class Frame
       }
    }
 
+   @Nonnegative
    private int getObjectTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
       // Stores the internal name, not the descriptor!
       String t = typeDesc.substring(index + 1, typeDesc.length() - 1);
       return OBJECT | cp.addNormalType(t);
    }
 
+   @Nonnegative
    private int getArrayTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
       int dims = getNumberOfDimensions(typeDesc, index);
       int data = getArrayElementTypeEncoding(typeDesc, index + dims);
@@ -195,7 +197,7 @@ public final class Frame
       return dims;
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
+   @Nonnegative @SuppressWarnings("OverlyComplexMethod")
    private int getArrayElementTypeEncoding(@Nonnull String typeDesc, @Nonnegative int index) {
       switch (typeDesc.charAt(index)) {
          case 'Z': return BOOLEAN;
@@ -221,8 +223,8 @@ public final class Frame
    /**
     * Sets the output frame local variable type at the given index.
     *
-    * @param local the index of the local that must be set.
-    * @param type  the value of the local that must be set.
+    * @param local the index of the local that must be set
+    * @param type  the value of the local that must be set
     */
    private void set(@Nonnegative int local, int type) {
       // Creates and/or resizes the output local variables array if necessary.
@@ -245,10 +247,10 @@ public final class Frame
    /**
     * Simulates the action of a BIPUSH, SIPUSH, or NEWARRAY instruction on the output stack frame.
     *
-    * @param opcode  the opcode of the instruction.
-    * @param operand the operand of the instruction, if any.
+    * @param opcode  the opcode of the instruction
+    * @param operand the operand of the instruction, if any
     */
-   void executeINT(int opcode, int operand) {
+   void executeINT(@Nonnegative int opcode, int operand) {
       if (opcode == NEWARRAY) {
          executeNewArray(operand);
       }
@@ -257,11 +259,11 @@ public final class Frame
       }
    }
 
-   private void executeNewArray(int arg) {
+   private void executeNewArray(@Nonnegative int arrayElementType) {
       pop();
 
       //noinspection SwitchStatementWithoutDefaultBranch
-      switch (arg) {
+      switch (arrayElementType) {
          case ArrayElementType.BOOLEAN: push(ARRAY_OF | BOOLEAN); break;
          case ArrayElementType.CHAR:    push(ARRAY_OF | CHAR);    break;
          case ArrayElementType.BYTE:    push(ARRAY_OF | BYTE);    break;
@@ -275,8 +277,6 @@ public final class Frame
 
    /**
     * Pushes a new type onto the output frame stack.
-    *
-    * @param type the type that must be pushed.
     */
    private void push(int type) {
       // Creates and/or resizes the output stack array if necessary.
@@ -300,8 +300,6 @@ public final class Frame
 
    /**
     * Pops a type from the output frame stack and returns its value.
-    *
-    * @return the type that has been popped from the output frame stack
     */
    private int pop() {
       if (outputStackTop > 0) {
@@ -381,25 +379,24 @@ public final class Frame
    }
 
    /**
-    * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in
-    * the basic block.
+    * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in the basic block.
     *
-    * @param t a type
-    * @return t or, if t is one of the types on which a constructor is invoked in the basic block, the type
-    * corresponding to this constructor.
+    * @return the given type or, if <tt>type</tt> is one of the types on which a constructor is invoked in the basic block, the type
+    * corresponding to this constructor
     */
-   private int init(@Nonnull String classDesc, int t) {
+   @Nonnegative
+   private int init(@Nonnull String classDesc, @Nonnegative int type) {
       int s;
 
-      if (t == UNINITIALIZED_THIS) {
+      if (type == UNINITIALIZED_THIS) {
          s = OBJECT | cp.addNormalType(classDesc);
       }
-      else if ((t & (DIM | BASE_KIND)) == UNINITIALIZED) {
-         String type = cp.getInternalName(t & BASE_VALUE);
-         s = OBJECT | cp.addNormalType(type);
+      else if ((type & (DIM | BASE_KIND)) == UNINITIALIZED) {
+         String typeDesc = cp.getInternalName(type & BASE_VALUE);
+         s = OBJECT | cp.addNormalType(typeDesc);
       }
       else {
-         return t;
+         return type;
       }
 
       for (int j = 0; j < initializationCount; j++) {
@@ -414,12 +411,12 @@ public final class Frame
             u = dim + inputStack[inputStack.length - (u & VALUE)];
          }
 
-         if (t == u) {
+         if (type == u) {
             return s;
          }
       }
 
-      return t;
+      return type;
    }
 
    /**
@@ -443,8 +440,6 @@ public final class Frame
 
    /**
     * Returns the output frame local variable type at the given index.
-    *
-    * @param localIndex the index of the local that must be returned
     */
    @Nonnegative
    private int get(@Nonnegative int localIndex) {
@@ -495,10 +490,8 @@ public final class Frame
 
    /**
     * Simulates the action of a conditional/unconditional jump instruction on the output stack frame.
-    *
-    * @param opcode the opcode of the instruction.
     */
-   void executeJUMP(int opcode) {
+   void executeJUMP(@Nonnegative int opcode) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case IFEQ: case IFNE: case IFLT: case IFGE: case IFGT: case IFLE: case IFNULL: case IFNONNULL:
@@ -512,11 +505,9 @@ public final class Frame
 
    /**
     * Simulates the action of the given zero-operand instruction on the output stack frame.
-    *
-    * @param opcode the opcode of the instruction.
     */
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   public void execute(int opcode) {
+   public void execute(@Nonnegative int opcode) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NOP: case INEG: case LNEG: case FNEG: case DNEG: case I2B: case I2C: case I2S: case GOTO: case RETURN:
@@ -714,7 +705,7 @@ public final class Frame
    /**
     * Simulates the action of an LCD instruction on the output stack frame.
     *
-    * @param item the operand of the instructions.
+    * @param item the operand of the instructions
     */
    void executeLDC(@Nonnull Item item) {
       switch (item.getType()) {
@@ -750,11 +741,11 @@ public final class Frame
    /**
     * Simulates the action of a NEW, ANEWARRAY, CHECKCAST or INSTANCEOF instruction on the output stack frame.
     *
-    * @param opcode the opcode of the instruction.
-    * @param codeLength the operand of the instruction, if any.
-    * @param item   the operand of the instruction.
+    * @param opcode the opcode of the instruction
+    * @param codeLength the operand of the instruction, if any
+    * @param item the operand of the instruction
     */
-   void executeTYPE(int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
+   void executeTYPE(@Nonnegative int opcode, @Nonnegative int codeLength, @Nonnull StringItem item) {
       //noinspection SwitchStatementWithoutDefaultBranch
       switch (opcode) {
          case NEW:
@@ -787,8 +778,8 @@ public final class Frame
    /**
     * Pushes a new type onto the output frame stack.
     *
-    * @param desc the descriptor of the type to be pushed. Can also be a method
-    *             descriptor (in this case this method pushes its return type onto the output frame stack).
+    * @param desc the descriptor of the type to be pushed; can also be a method descriptor (in this case this method pushes its return type
+    *             onto the output frame stack)
     */
    private void push(@Nonnull String desc) {
       int type = getTypeEncoding(desc);
@@ -817,10 +808,10 @@ public final class Frame
    /**
     * Simulates the action of a MULTIANEWARRAY instruction on the output stack frame.
     *
-    * @param dims the number of dimensions of the array.
-    * @param arrayType the type of the array elements.
+    * @param dims the number of dimensions of the array
+    * @param arrayType the type of the array elements
     */
-   void executeMULTIANEWARRAY(int dims, @Nonnull StringItem arrayType) {
+   void executeMULTIANEWARRAY(@Nonnegative int dims, @Nonnull StringItem arrayType) {
       pop(dims);
       push(arrayType.getValue());
    }
@@ -828,10 +819,10 @@ public final class Frame
    /**
     * Simulates the action of the given instruction on the output stack frame.
     *
-    * @param opcode the opcode of the instruction.
-    * @param item   the operand of the instruction.
+    * @param opcode the opcode of the instruction
+    * @param item   the operand of the instruction
     */
-   public void execute(int opcode, @Nonnull TypeOrMemberItem item) {
+   public void execute(@Nonnegative int opcode, @Nonnull TypeOrMemberItem item) {
       if (opcode == INVOKEDYNAMIC) {
          executeInvokeDynamic(item);
       }
@@ -861,7 +852,7 @@ public final class Frame
       }
    }
 
-   private void executeInvoke(int opcode, @Nonnull TypeOrMemberItem item) {
+   private void executeInvoke(@Nonnegative int opcode, @Nonnull TypeOrMemberItem item) {
       String methodDesc = item.getDesc();
       pop(methodDesc);
 
@@ -884,13 +875,13 @@ public final class Frame
 
    /**
     * Merges the input frame of the given basic block with the input and output frames of this basic block.
-    * Returns <tt>true</tt> if the input frame of the given label has been changed by this operation.
     *
-    * @param frame the basic block whose input frame must be updated.
-    * @param edge  the kind of the {@link Edge} between this label and 'label'. See {@link Edge#info}.
-    * @return <tt>true</tt> if the input frame of the given label has been changed by this operation.
+    * @param frame the basic block whose input frame must be updated
+    * @param edge  the kind of the {@link Edge} between this label and 'label'; see {@link Edge#info}
+    *
+    * @return <tt>true</tt> if the input frame of the given label has been changed by this operation
     */
-   boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, int edge) {
+   boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, @Nonnegative int edge) {
       int nLocal = inputLocals.length;
       int nStack = inputStack.length;
       boolean changed = false;
@@ -903,51 +894,51 @@ public final class Frame
       int i;
       int s;
       int dim;
-      int t;
+      int type;
 
       for (i = 0; i < nLocal; i++) {
          if (outputLocals != null && i < outputLocals.length) {
             s = outputLocals[i];
 
             if (s == 0) {
-               t = inputLocals[i];
+               type = inputLocals[i];
             }
             else {
                dim = s & DIM;
                int kind = s & KIND;
 
                if (kind == BASE) {
-                  t = s;
+                  type = s;
                }
                else {
                   if (kind == LOCAL) {
-                     t = dim + inputLocals[s & VALUE];
+                     type = dim + inputLocals[s & VALUE];
                   }
                   else {
-                     t = dim + inputStack[nStack - (s & VALUE)];
+                     type = dim + inputStack[nStack - (s & VALUE)];
                   }
 
-                  if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
-                     t = TOP;
+                  if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (type == LONG || type == DOUBLE)) {
+                     type = TOP;
                   }
                }
             }
          }
          else {
-            t = inputLocals[i];
+            type = inputLocals[i];
          }
 
          if (initializations != null) {
-            t = init(classDesc, t);
+            type = init(classDesc, type);
          }
 
-         changed |= merge(t, frame.inputLocals, i);
+         changed |= merge(type, frame.inputLocals, i);
       }
 
       if (edge > 0) {
          for (i = 0; i < nLocal; ++i) {
-            t = inputLocals[i];
-            changed |= merge(t, frame.inputLocals, i);
+            type = inputLocals[i];
+            changed |= merge(type, frame.inputLocals, i);
          }
 
          if (frame.inputStack == null) {
@@ -967,13 +958,13 @@ public final class Frame
       }
 
       for (i = 0; i < nInputStack; i++) {
-         t = inputStack[i];
+         type = inputStack[i];
 
          if (initializations != null) {
-            t = init(classDesc, t);
+            type = init(classDesc, type);
          }
 
-         changed |= merge(t, frame.inputStack, i);
+         changed |= merge(type, frame.inputStack, i);
       }
 
       for (i = 0; i < outputStackTop; i++) {
@@ -982,26 +973,26 @@ public final class Frame
          int kind = s & KIND;
 
          if (kind == BASE) {
-            t = s;
+            type = s;
          }
          else {
             if (kind == LOCAL) {
-               t = dim + inputLocals[s & VALUE];
+               type = dim + inputLocals[s & VALUE];
             }
             else {
-               t = dim + inputStack[nStack - (s & VALUE)];
+               type = dim + inputStack[nStack - (s & VALUE)];
             }
 
-            if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (t == LONG || t == DOUBLE)) {
-               t = TOP;
+            if ((s & TOP_IF_LONG_OR_DOUBLE) != 0 && (type == LONG || type == DOUBLE)) {
+               type = TOP;
             }
          }
 
          if (initializations != null) {
-            t = init(classDesc, t);
+            type = init(classDesc, type);
          }
 
-         changed |= merge(t, frame.inputStack, nInputStack + i);
+         changed |= merge(type, frame.inputStack, nInputStack + i);
       }
 
       return changed;
@@ -1009,14 +1000,13 @@ public final class Frame
 
    /**
     * Merges the type at the given index in the given type array with the given type.
-    * Returns <tt>true</tt> if the type array has been modified by this operation.
     *
-    * @param type1 the type with which the type array element must be merged.
-    * @param types an array of types.
-    * @param index the index of the type that must be merged in 'types'.
-    * @return <tt>true</tt> if the type array has been modified by this operation.
+    * @param type1 the type with which the type array element must be merged
+    * @param types an array of types
+    * @param index the index of the type that must be merged in 'types'
+    * @return <tt>true</tt> if the type array has been modified by this operation
     */
-   private boolean merge(int type1, @Nonnull int[] types, @Nonnegative int index) {
+   private boolean merge(@Nonnegative int type1, @Nonnull int[] types, @Nonnegative int index) {
       int type2 = types[index];
 
       if (type2 == type1) {
