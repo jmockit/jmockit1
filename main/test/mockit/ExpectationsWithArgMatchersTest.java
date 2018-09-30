@@ -13,7 +13,6 @@ import static org.junit.Assert.*;
 import mockit.internal.expectations.invocation.*;
 
 import static mockit.ExpectationsWithArgMatchersTest.Delegates.*;
-import static org.hamcrest.CoreMatchers.*;
 
 public final class ExpectationsWithArgMatchersTest
 {
@@ -59,23 +58,6 @@ public final class ExpectationsWithArgMatchersTest
 
       List<String> values = asList("a", "B", "c");
       mock.setTextualValues(values);
-   }
-
-   @Test
-   public void expectInvocationsWithHamcrestMatcher() {
-      new Expectations() {{
-         mock.setTextualValues(this.<Collection<String>>withArgThat(hasItem("B")));
-      }};
-
-      List<String> values = asList("a", "B", "c");
-      mock.setTextualValues(values);
-   }
-
-   @Test
-   public void expectInvocationWithMatcherContainingAnotherMatcher() {
-      new Expectations() {{ mock.setValue(withArgThat(equalTo(3))); }};
-
-      mock.setValue(3);
    }
 
    @Test

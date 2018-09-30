@@ -158,9 +158,8 @@ abstract class ArgumentValuesAndMatchers
       @Nonnull ArgumentValuesAndMatchers other, @Nonnull ArgumentMatcher<?> matcher1, @Nonnull ArgumentMatcher<?> matcher2,
       @Nonnegative int matcherIndex
    ) {
-      Class<?> matcherClass = matcher1.getClass();
       return
-         matcherClass == ReflectiveMatcher.class || matcherClass == HamcrestAdapter.class ||
+         matcher1.getClass() == ReflectiveMatcher.class ||
          !equivalentMatches(matcher1, values[matcherIndex], matcher2, other.values[matcherIndex]);
    }
 

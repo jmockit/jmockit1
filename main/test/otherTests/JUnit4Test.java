@@ -7,8 +7,6 @@ import static org.junit.Assert.*;
 
 import mockit.*;
 
-import static org.hamcrest.CoreMatchers.is;
-
 public final class JUnit4Test
 {
    @Mocked ClassWithObjectOverrides mock;
@@ -62,7 +60,6 @@ public final class JUnit4Test
          anotherMock.getModifiedValue(withPrefix("TX")); result = "abc";
          anotherMock.getModifiedValue(withSuffix("X")); result = "ABC";
          anotherMock.getModifiedValue(withMatch("\\d+")); result = "number";
-         anotherMock.getModifiedValue(withArgThat(is("test"))); result = "test";
 
          anotherMock.getModifiedValue("Delegate");
          result = new Delegate() {
@@ -83,13 +80,12 @@ public final class JUnit4Test
       assertEquals("abc", anotherMock.getModifiedValue("TX test"));
       assertEquals("ABC", anotherMock.getModifiedValue("test X"));
       assertEquals("number", anotherMock.getModifiedValue("123"));
-      assertEquals("test", anotherMock.getModifiedValue("test"));
       assertEquals("delegate", anotherMock.getModifiedValue("Delegate"));
 
       new Verifications() {{
          List<String> values = new ArrayList<>();
          anotherMock.getModifiedValue(withCapture(values));
-         assertEquals(6, values.size());
+         assertEquals(5, values.size());
       }};
    }
 }

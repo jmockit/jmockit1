@@ -15,7 +15,6 @@ final class ArgumentMatching
    private static final JavaType[] NO_PARAMETERS = new JavaType[0];
    private static final String ANY_FIELDS = "any anyString anyInt anyBoolean anyLong anyDouble anyFloat anyChar anyShort anyByte";
    private static final String WITH_METHODS =
-      "withArgThat(Lorg/hamcrest/Matcher;)Ljava/lang/Object; " +
       "with(Lmockit/Delegate;)Ljava/lang/Object; " +
       "withAny(Ljava/lang/Object;)Ljava/lang/Object; " +
       "withCapture()Ljava/lang/Object; withCapture(Ljava/util/List;)Ljava/lang/Object; " +
