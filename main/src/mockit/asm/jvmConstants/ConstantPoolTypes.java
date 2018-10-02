@@ -1,7 +1,7 @@
 package mockit.asm.jvmConstants;
 
 /**
- * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.4-150">types of items</a> in the constant
+ * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.4-140">types of items</a> in the constant
  * pool of a class.
  */
 public interface ConstantPoolTypes

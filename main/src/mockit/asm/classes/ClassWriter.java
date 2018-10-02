@@ -14,7 +14,7 @@ import mockit.internal.util.*;
 
 /**
  * A {@link ClassVisitor} that generates classes in bytecode form, that is, a byte array conforming to the
- * <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html">Java class file format</a>.
+ * <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html">Java class file format</a>.
  * <p/>
  * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
  * generate a modified class from one or more existing Java classes.

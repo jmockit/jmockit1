@@ -1,7 +1,8 @@
 package mockit.asm.jvmConstants;
 
 /**
- * Constant data about all JVM bytecode instructions: {@link #SIZE}, {@link #TYPE}.
+ * Constant data about all <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVM bytecode instructions</a>:
+ * {@link #SIZE}, {@link #TYPE}.
  */
 public final class JVMInstruction
 {

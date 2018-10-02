@@ -11,7 +11,7 @@ import mockit.asm.methods.*;
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.
  * <p/>
  * The Java type to be parsed is given in the form of a byte array conforming to the
- * <a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html">Java class file format</a>.
+ * <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html">Java class file format</a>.
  * For each field and method encountered, the appropriate visit method of a given class visitor is called.
  */
 public final class ClassReader extends AnnotatedReader
