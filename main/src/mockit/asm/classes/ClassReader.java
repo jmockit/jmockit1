@@ -18,7 +18,7 @@ public final class ClassReader extends AnnotatedReader
 {
    public interface Flags {
       /**
-       * Flag to skip method code. If this class is set <code>CODE</code> attribute won't be visited.
+       * Flag to skip method code. If this flag is set the <code>CODE</code> attribute won't be visited.
        * This can be used, for example, to retrieve annotations for methods and method parameters.
        */
       int SKIP_CODE = 1;
@@ -29,6 +29,9 @@ public final class ClassReader extends AnnotatedReader
        */
       int SKIP_DEBUG = 2;
 
+      /**
+       * Flag to skip the inner classes of the class being read.
+       */
       int SKIP_INNER_CLASSES = 4;
    }
 
@@ -64,12 +67,12 @@ public final class ClassReader extends AnnotatedReader
    }
 
    /**
-    * Returns the classfile version of the class being read (see {@link ClassVersion}).
+    * Returns the classfile {@linkplain ClassVersion version} of the class being read.
     */
    public int getVersion() { return version; }
 
    /**
-    * Returns the class's access flags (see {@link Access}).
+    * Returns the class's {@linkplain Access access} flags.
     */
    public int getAccess() { return access; }
 
@@ -98,8 +101,7 @@ public final class ClassReader extends AnnotatedReader
    /**
     * Makes the given visitor visit the Java class of this Class Reader.
     *
-    * @param visitor the visitor that must visit this class.
-    * @param optionFlags option flags that can be used to modify the default behavior of this class. See {@link Flags}.
+    * @param optionFlags option {@linkplain Flags flags} that can be used to modify the default behavior of this class
     */
    public void accept(@Nonnull ClassVisitor visitor, @Nonnegative int optionFlags) {
       cv = visitor;
