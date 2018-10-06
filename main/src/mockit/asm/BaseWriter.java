@@ -13,7 +13,7 @@ public class BaseWriter
    /**
     * The dynamically generated constant pool of the class being built/modified.
     */
-   @Nonnull protected ConstantPoolGeneration cp;
+   protected ConstantPoolGeneration cp;
 
    /**
     * The access flags of this class, field, or method.
@@ -40,11 +40,6 @@ public class BaseWriter
     */
    @Nonnull
    public final ConstantPoolGeneration getConstantPoolGeneration() { return cp; }
-
-   /**
-    * Returns the {@link #classOrMemberAccess}.
-    */
-   public final int getClassOrMemberAccess() { return classOrMemberAccess; }
 
    /**
     * Visits an annotation of the class/field/method being visited.
