@@ -8,6 +8,8 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.rules.*;
 
+import mockit.MoreFakingTest.ClassWithNested.*;
+
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 public final class MoreFakingTest
 {
@@ -229,5 +231,22 @@ public final class MoreFakingTest
       @Mock void $init(int i) {}
       @Mock String doInternal() { return "faked"; }
       @Mock int getValue() { return 123; }
+   }
+
+   public static final class ClassWithNested {
+      public static void doSomething() {}
+      public static final class Nested {}
+   }
+
+   @Test
+   public void fakeAClassHavingANestedClass() {
+      new MockUp<ClassWithNested>() {
+         @Mock
+         void doSomething() {}
+      };
+
+      Class<?> outerClass = Nested.class.getDeclaringClass();
+
+      assertSame(ClassWithNested.class, outerClass);
    }
 }

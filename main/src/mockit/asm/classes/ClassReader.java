@@ -28,11 +28,6 @@ public final class ClassReader extends AnnotatedReader
        * If this flag is set the debug information of the class (local variables and line numbers) is not visited.
        */
       int SKIP_DEBUG = 2;
-
-      /**
-       * Flag to skip the inner classes of the class being read.
-       */
-      int SKIP_INNER_CLASSES = 4;
    }
 
    /**
@@ -169,10 +164,7 @@ public final class ClassReader extends AnnotatedReader
       }
 
       if ("InnerClasses".equals(attributeName)) {
-         if ((flags & Flags.SKIP_INNER_CLASSES) == 0) {
-            innerClassesCodeIndex = codeIndex;
-         }
-
+         innerClassesCodeIndex = codeIndex;
          return false;
       }
 

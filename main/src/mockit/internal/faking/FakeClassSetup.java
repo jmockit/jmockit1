@@ -10,7 +10,6 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.asm.classes.*;
-import mockit.asm.classes.ClassReader.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
@@ -90,7 +89,7 @@ public final class FakeClassSetup
       }
 
       FakedClassModifier modifier = new FakedClassModifier(rcReader, classToModify, fake, fakeMethods);
-      rcReader.accept(modifier, Flags.SKIP_INNER_CLASSES);
+      rcReader.accept(modifier);
 
       return modifier.wasModified() ? modifier.toByteArray() : null;
    }
