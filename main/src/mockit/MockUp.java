@@ -11,11 +11,10 @@ import static java.lang.reflect.Modifier.*;
 import mockit.internal.classGeneration.*;
 import mockit.internal.faking.*;
 import mockit.internal.startup.*;
-import mockit.internal.state.*;
 
 /**
- * A base class used in the creation of a <em>fake</em> for an <em>external</em> type, which is usually a class from some library or component used
- * from the <em>internal</em> codebase of the system under test (SUT).
+ * A base class used in the creation of a <em>fake</em> for an <em>external</em> type, which is usually a class from some library or
+ * component used from the <em>internal</em> codebase of the system under test (SUT).
  * Such fake classes can be used as <em>fake implementations</em> for use in unit or integration tests.
  * For example:
  * <pre>
@@ -27,8 +26,8 @@ import mockit.internal.state.*;
  * Each <tt>@Mock</tt> method should have a matching method or constructor in the faked class.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding fake method.
  * <p/>
- * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, then that type is taken as a <em>base</em>
- * type whose concrete implementation classes should <em>also</em> get faked.
+ * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, then that type is taken as a
+ * <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
  * <pre>
  * &#64;Test
@@ -42,8 +41,8 @@ import mockit.internal.state.*;
  * }
  * </pre>
  *
- * @param <T> specifies the type to be faked; if a type variable is used, then all implementation classes extending or implementing that base type
- *            are also faked; if the type argument itself is a parameterized type, then only its raw type is considered
+ * @param <T> specifies the type to be faked; if a type variable is used, then all implementation classes extending or implementing that
+ *            base type are also faked; if the type argument itself is a parameterized type, then only its raw type is considered
  *
  * @see #MockUp()
  * @see #MockUp(Class)
@@ -51,7 +50,7 @@ import mockit.internal.state.*;
  * @see #targetType
  * @see <a href="http://jmockit.github.io/tutorial/Faking.html#setUp" target="tutorial">Tutorial</a>
  */
-public abstract class MockUp<T>
+public class MockUp<T>
 {
    static { Startup.verifyInitialization(); }
 
@@ -61,17 +60,9 @@ public abstract class MockUp<T>
    @Nonnull protected final Type targetType;
 
    /**
-    * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class specified through the
-    * type parameter.
+    * Applies the {@linkplain Mock fake methods} defined in the concrete subclass to the class specified through the type parameter.
     */
    protected MockUp() {
-      MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
-
-      if (previousFake != null) {
-         targetType = previousFake.targetType;
-         return;
-      }
-
       targetType = getTypeToFake();
       Class<T> classToFake = null;
 
@@ -98,13 +89,6 @@ public abstract class MockUp<T>
             throw new UnsupportedOperationException("Unable to capture more than one base type at once");
          }
       }
-   }
-
-   @Nullable
-   private MockUp<?> findPreviouslyFakedClassIfFakeAlreadyApplied() {
-      FakeClasses fakeClasses = TestRun.getFakeClasses();
-      MockUp<?> previousFake = fakeClasses.findPreviouslyAppliedFake(this);
-      return previousFake;
    }
 
    @Nonnull
@@ -143,17 +127,13 @@ public abstract class MockUp<T>
     * Applies the {@linkplain Mock fake methods} defined in the fake class to the given class.
     * <p/>
     * In most cases, the {@linkplain #MockUp() constructor with no parameters} can be used.
-    * This variation is useful when the type to be faked is not known at compile time. For example, it can be used with an {@linkplain Mock $advice}
-    * method and the <tt>fakes</tt> system property in order to have an aspect-like fake implementation applicable to any class; it can then be
-    * applied at the beginning of the test run with the desired target class being specified in the test run configuration.
+    * This variation is useful when the type to be faked is not known at compile time.
+    * For example, it can be used with an {@linkplain Mock $advice} method and the <tt>fakes</tt> system property in order to have an
+    * aspect-like fake implementation applicable to any class; it can then be applied at the beginning of the test run with the desired
+    * target class being specified in the test run configuration.
     */
    protected MockUp(@Nonnull Class<?> targetClass) {
       targetType = targetClass;
-      MockUp<?> previousFake = findPreviouslyFakedClassIfFakeAlreadyApplied();
-
-      if (previousFake != null) {
-         return;
-      }
 
       if (!targetClass.isInterface()) {
          new FakeClassSetup(targetClass, this).redefineMethods();
@@ -162,8 +142,8 @@ public abstract class MockUp<T>
 
    /**
     * An empty method that can be overridden in a fake class that wants to be notified whenever the fake is automatically torn down.
-    * Tear down happens when the fake goes out of scope: at the end of the test when applied inside a test, at the end of the test class when applied
-    * before the test class, or at the end of the test run when applied through the "<code>fakes</code>" system property.
+    * Tear down happens when the fake goes out of scope: at the end of the test when applied inside a test, at the end of the test class
+    * when applied before the test class, or at the end of the test run when applied through the "<code>fakes</code>" system property.
     * <p/>
     * By default, this method does nothing.
     */

@@ -61,36 +61,6 @@ public final class FakeClasses
       return fakeInstance;
    }
 
-   @Nullable
-   public MockUp<?> findPreviouslyAppliedFake(@Nonnull MockUp<?> newFake) {
-      Class<?> fakeClass = newFake.getClass();
-      MockUp<?> fakeInstance = fakeClassesToFakeInstances.get(fakeClass);
-      return fakeInstance;
-   }
-
-   private void discardFakeInstancesExceptPreviousOnes(@Nonnull Map<Class<?>, Boolean> previousFakeClasses) {
-      for (Entry<Class<?>, MockUp<?>> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
-         Class<?> fakeClass = fakeClassAndInstances.getKey();
-
-         if (!previousFakeClasses.containsKey(fakeClass)) {
-            MockUp<?> fakeInstance = fakeClassAndInstances.getValue();
-            notifyOfTearDown(fakeInstance);
-         }
-      }
-
-      fakeClassesToFakeInstances.keySet().retainAll(previousFakeClasses.keySet());
-   }
-
-   private void discardAllFakeInstances() {
-      if (!fakeClassesToFakeInstances.isEmpty()) {
-         for (MockUp<?> fakeInstance : fakeClassesToFakeInstances.values()) {
-            notifyOfTearDown(fakeInstance);
-         }
-
-         fakeClassesToFakeInstances.clear();
-      }
-   }
-
    public void discardStartupFakes() {
       for (MockUp<?> startupFake : startupFakes.values()) {
          notifyOfTearDown(startupFake);
@@ -114,8 +84,31 @@ public final class FakeClasses
             discardAllFakeInstances();
          }
          else {
-            discardFakeInstancesExceptPreviousOnes(previousFakeClasses);
+            discardFakeInstancesExceptPreviousOnes();
          }
+      }
+
+      private void discardAllFakeInstances() {
+         if (!fakeClassesToFakeInstances.isEmpty()) {
+            for (MockUp<?> fakeInstance : fakeClassesToFakeInstances.values()) {
+               notifyOfTearDown(fakeInstance);
+            }
+
+            fakeClassesToFakeInstances.clear();
+         }
+      }
+
+      private void discardFakeInstancesExceptPreviousOnes() {
+         for (Entry<Class<?>, MockUp<?>> fakeClassAndInstances : fakeClassesToFakeInstances.entrySet()) {
+            Class<?> fakeClass = fakeClassAndInstances.getKey();
+
+            if (!previousFakeClasses.containsKey(fakeClass)) {
+               MockUp<?> fakeInstance = fakeClassAndInstances.getValue();
+               notifyOfTearDown(fakeInstance);
+            }
+         }
+
+         fakeClassesToFakeInstances.keySet().retainAll(previousFakeClasses.keySet());
       }
    }
 }

@@ -45,8 +45,8 @@ public final class MisusedFakingAPITest
    @Test
    public void applyTheSameFakeForAClassTwice() {
       new AppletFake(1);
-      new AppletFake(2); // second application has no effect
+      new AppletFake(2); // second application overrides the previous one
 
-      assertEquals(1, new Applet().getComponentCount());
+      assertEquals(2, new Applet().getComponentCount());
    }
 }
