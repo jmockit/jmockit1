@@ -27,9 +27,6 @@
  * {@linkplain mockit.Mock @Mock} annotation.
  * Such methods can also (optionally) have an {@link mockit.Invocation} parameter.
  * <p/>
- * Finally, the {@link mockit.Deencapsulation} class provides a few Reflection-based utility methods, for the rare cases where a
- * <tt>private</tt> field needs to be accessed.
- * <p/>
  * For a description with examples of the <em>Mocking</em> API, see the
  * "<a href="http://jmockit.github.io/tutorial/Mocking.html" target="tutorial">Mocking</a>" chapter in the Tutorial.
  * For the <em>Faking</em> API, see the "<a href="http://jmockit.github.io/tutorial/Faking.html" target="tutorial">Faking</a>" chapter.
