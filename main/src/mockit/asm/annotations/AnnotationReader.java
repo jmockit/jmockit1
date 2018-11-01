@@ -66,7 +66,7 @@ public final class AnnotationReader extends BytecodeReader
       }
    }
 
-   private void readAnnotationValue(int typeCode) {
+   private void readAnnotationValue(@Nonnegative int typeCode) {
       switch (typeCode) {
          case 'e': codeIndex += 4; break; // enum_const_value
          case '@': codeIndex += 2; readAnnotationValues(true, null); break; // annotation_value
@@ -76,7 +76,7 @@ public final class AnnotationReader extends BytecodeReader
    }
 
    @Nullable @SuppressWarnings({"NumericCastThatLosesPrecision", "SwitchStatementWithoutDefaultBranch"})
-   private Object readAnnotationValueIfPrimitiveOrString(int typeCode) {
+   private Object readAnnotationValueIfPrimitiveOrString(@Nonnegative int typeCode) {
       switch (typeCode) {
          case 'I': case 'J': case 'F': case 'D': return readConstItem(); // CONSTANT_Integer/Long/Float/Double
          case 'B': return (byte) readValueOfOneOrTwoBytes();             // CONSTANT_Byte
@@ -103,7 +103,7 @@ public final class AnnotationReader extends BytecodeReader
 
    private void readClassInfo(@Nullable String name, @Nonnull AnnotationVisitor av) {
       String typeDesc = readNonnullUTF8();
-      ReferenceType value = ReferenceType.createFromTypeDescriptor(typeDesc);
+      JavaType value = JavaType.getType(typeDesc);
       av.visit(name, value);
    }
 
@@ -139,7 +139,7 @@ public final class AnnotationReader extends BytecodeReader
       codeIndex--;
    }
 
-   private void fillArrayElements(@Nonnegative int length, int typeCode, @Nonnull Object array) {
+   private void fillArrayElements(@Nonnegative int length, @Nonnegative int typeCode, @Nonnull Object array) {
       for (int i = 0; i < length; i++) {
          int itemIndex = readUnsignedShort();
          int index = items[itemIndex];
@@ -150,7 +150,7 @@ public final class AnnotationReader extends BytecodeReader
    }
 
    @Nonnull
-   private Object getArrayElementValue(int typeCode, @Nonnegative int valueCodeIndex) {
+   private Object getArrayElementValue(@Nonnegative int typeCode, @Nonnegative int valueCodeIndex) {
       switch (typeCode) {
          case 'Z': return readBoolean(valueCodeIndex);
          case 'C': return readChar(valueCodeIndex);

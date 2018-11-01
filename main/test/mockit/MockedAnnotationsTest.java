@@ -72,4 +72,11 @@ public final class MockedAnnotationsTest
 
       assertEquals("test", mock.doSomething(123, "test"));
    }
+
+   static final class ClassWithAnnotatedField { @Resource(type = int.class) Object aField; }
+
+   @Test
+   public void mockClassHavingFieldAnnotatedWithAttributeHavingAPrimitiveClassAsValue(@Mocked ClassWithAnnotatedField mock) {
+      assertNull(mock.aField);
+   }
 }
