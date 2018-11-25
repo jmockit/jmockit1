@@ -68,4 +68,18 @@ public final class TestedClassWithFullConstructorAndFieldDITest
    public void verifyInitializationOfClassWithMultipleConstructorsHavingTestedFieldForParameter() {
       assertSame(dep, tested4.dep);
    }
+
+   static class ClassWithFieldDI { Dependency dep; }
+   static class ClassWithConstructorDI {
+      ClassWithFieldDI dependency;
+      ClassWithConstructorDI(ClassWithFieldDI dependency) { this.dependency = dependency; }
+   }
+
+   @Tested(fullyInitialized = true) ClassWithConstructorDI tested5;
+
+   @Test
+   public void initializeClassWithConstructorInjectedDependencyHavingAnotherDependencyInjectedIntoField() {
+      assertNotNull(tested5.dependency);
+      assertNotNull(tested5.dependency.dep);
+   }
 }

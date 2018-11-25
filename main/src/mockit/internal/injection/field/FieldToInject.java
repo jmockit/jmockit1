@@ -10,11 +10,11 @@ import javax.annotation.*;
 
 import mockit.internal.injection.*;
 
-final class FieldToInject extends InjectionProvider
+public final class FieldToInject extends InjectionProvider
 {
    @Nonnull private final Field targetField;
 
-   FieldToInject(@Nonnull Field targetField) {
+   public FieldToInject(@Nonnull Field targetField) {
       super(targetField.getGenericType(), targetField.getName());
       this.targetField = targetField;
    }
