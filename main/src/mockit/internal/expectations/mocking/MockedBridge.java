@@ -12,7 +12,6 @@ import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.expectations.RecordAndReplayExecution.*;
-import static mockit.internal.util.Utilities.calledFromSpecialThread;
 
 public final class MockedBridge extends ClassLoadingBridge
 {
@@ -24,7 +23,7 @@ public final class MockedBridge extends ClassLoadingBridge
    public Object invoke(@Nullable Object mocked, Method method, @Nonnull Object[] args) throws Throwable {
       String mockedClassDesc = (String) args[1];
 
-      if (calledFromSpecialThread() || notToBeMocked(mocked, mockedClassDesc)) {
+      if (notToBeMocked(mocked, mockedClassDesc)) {
          return Void.class;
       }
 

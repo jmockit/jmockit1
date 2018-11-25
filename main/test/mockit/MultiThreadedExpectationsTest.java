@@ -108,7 +108,7 @@ public final class MultiThreadedExpectationsTest
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
-         public void run() { assertFalse(mock2.doSomething()); }
+         public void run() { assertTrue(mock2.doSomething()); }
       });
 
       assertTrue(mock2.doSomething());
@@ -122,7 +122,7 @@ public final class MultiThreadedExpectationsTest
 
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
-         public void run() { assertFalse(mock2.doSomething()); }
+         public void run() { assertTrue(mock2.doSomething()); }
       });
 
       assertTrue(mock2.doSomething());
@@ -135,7 +135,7 @@ public final class MultiThreadedExpectationsTest
       SwingUtilities.invokeAndWait(new Runnable() {
          @Override
          public void run() {
-            try { assertFalse(mock2.call()); } catch (Exception e) { throw new RuntimeException(e); }
+            try { assertTrue(mock2.call()); } catch (Exception e) { throw new RuntimeException(e); }
          }
       });
 

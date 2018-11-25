@@ -9,12 +9,11 @@ import java.util.*;
 import java.util.Map.*;
 import javax.annotation.*;
 
-@SuppressWarnings({"ParameterHidesMemberVariable", "OverlyComplexClass"})
+@SuppressWarnings("OverlyComplexClass")
 public final class GenericTypeReflection
 {
    @Nonnull private final Map<String, Type> typeParametersToTypeArguments;
    @Nonnull private final Map<String, String> typeParametersToTypeArgumentNames;
-   @Nonnull private final Class<?> ownerType;
    private final boolean withSignatures;
 
    public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType) {
@@ -24,7 +23,6 @@ public final class GenericTypeReflection
    public GenericTypeReflection(@Nonnull Class<?> ownerClass, @Nullable Type genericType, boolean withSignatures) {
       typeParametersToTypeArguments = new HashMap<>(4);
       typeParametersToTypeArgumentNames = withSignatures ? new HashMap<String, String>(4) : Collections.<String, String>emptyMap();
-      ownerType = ownerClass;
       this.withSignatures = withSignatures;
       discoverTypeMappings(ownerClass, genericType);
    }
@@ -40,7 +38,7 @@ public final class GenericTypeReflection
    private void addGenericTypeMappingsForSuperTypes(@Nonnull Class<?> rawType) {
       Type superType = rawType;
 
-      while (superType instanceof Class<?> && superType != Object.class) {
+      while (superType != null && superType != Object.class) {
          Class<?> superClass = (Class<?>) superType;
          superType = superClass.getGenericSuperclass();
 
@@ -504,80 +502,6 @@ public final class GenericTypeReflection
       GenericDeclaration owner = typeVariable.getGenericDeclaration();
       Class<?> ownerClass = owner instanceof Member ? ((Member) owner).getDeclaringClass() : (Class<?>) owner;
       return getOwnerClassDesc(ownerClass);
-   }
-
-   @Nonnull
-   public String resolveReturnType(@Nonnull String genericSignature) {
-      int p = genericSignature.lastIndexOf(')') + 1;
-
-      if (typeParametersToTypeArgumentNames.isEmpty() && genericSignature.charAt(0) != '<') {
-         return genericSignature.substring(p);
-      }
-
-      int q = genericSignature.length();
-      String returnType = genericSignature.substring(p, q);
-      String resolvedReturnType = resolveReturnType(ownerType, returnType);
-      String resolvedSignature;
-
-      if (resolvedReturnType == null) {
-         resolvedSignature = returnType;
-      }
-      else if (resolvedReturnType.charAt(0) == '[') {
-         return resolvedReturnType;
-      }
-      else {
-         StringBuilder finalSignature = new StringBuilder(genericSignature);
-         finalSignature.replace(p, q, resolvedReturnType);
-         resolvedSignature = finalSignature.toString();
-      }
-
-      int r = resolvedSignature.indexOf(')');
-      return resolvedSignature.substring(r + 1);
-   }
-
-   @Nullable
-   private String resolveReturnType(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType) {
-      do {
-         String ownerTypeDesc = getOwnerClassDesc(ownerType);
-         String resolvedReturnType = replaceTypeParametersWithActualTypes(ownerTypeDesc, genericReturnType);
-
-         if (!resolvedReturnType.equals(genericReturnType)) {
-            return resolvedReturnType;
-         }
-
-         //noinspection ReuseOfLocalVariable
-         resolvedReturnType = resolveReturnTypeForAbstractMethod(ownerType, genericReturnType);
-
-         if (resolvedReturnType != null) {
-            return resolvedReturnType;
-         }
-
-         ownerType = ownerType.getSuperclass();
-      }
-      while (ownerType != null && ownerType != Object.class);
-
-      return null;
-   }
-
-   @Nullable
-   private String resolveReturnTypeForAbstractMethod(@Nonnull Class<?> ownerType, @Nonnull String genericReturnType) {
-      String resolvedReturnType = null;
-
-      for (Class<?> superInterface: ownerType.getInterfaces()) {
-         resolvedReturnType = resolveReturnType(superInterface, genericReturnType);
-
-         if (resolvedReturnType != null) {
-            return resolvedReturnType;
-         }
-      }
-
-      Class<?> outerClass = ownerType.getEnclosingClass();
-
-      if (outerClass != null) {
-         resolvedReturnType = resolveReturnType(outerClass, genericReturnType);
-      }
-
-      return resolvedReturnType;
    }
 
    public boolean areMatchingTypes(@Nonnull Type declarationType, @Nonnull Type realizationType) {

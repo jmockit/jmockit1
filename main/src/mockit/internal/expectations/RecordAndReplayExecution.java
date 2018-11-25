@@ -9,16 +9,12 @@ import java.util.concurrent.locks.*;
 
 import javax.annotation.*;
 
-import static java.lang.reflect.Modifier.isAbstract;
-
 import mockit.*;
 import mockit.internal.expectations.invocation.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.expectations.state.*;
-import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
-import static mockit.internal.util.GeneratedClasses.*;
 import static mockit.internal.util.Utilities.*;
 
 @SuppressWarnings("OverlyCoupledClass")
@@ -117,10 +113,6 @@ public final class RecordAndReplayExecution
       @Nullable Object mock, int mockAccess, @Nonnull String classDesc, @Nonnull String mockDesc, @Nullable String genericSignature,
       int executionModeOrdinal, @Nullable Object[] args
    ) throws Throwable {
-      if (calledFromSpecialThread()) {
-         return proceedIntoRealImplementationOrGetDefaultReturnType(mock, mockAccess, mockDesc, genericSignature);
-      }
-
       if (args == null) {
          //noinspection AssignmentToMethodParameter
          args = NO_ARGS;
@@ -176,28 +168,6 @@ public final class RecordAndReplayExecution
       finally {
          RECORD_OR_REPLAY_LOCK.unlock();
       }
-   }
-
-   @Nullable
-   private static Object proceedIntoRealImplementationOrGetDefaultReturnType(
-      @Nullable Object mock, int mockAccess, @Nonnull String mockDesc, @Nullable String genericSignature
-   ) {
-      if (mock != null) {
-         Class<?> mockedClass = mock.getClass();
-         String mockedClassName = mockedClass.getName();
-
-         if (isGeneratedImplementationClass(mockedClassName) || isAbstract(mockAccess) && isGeneratedSubclass(mockedClassName)) {
-            if (genericSignature != null) {
-               GenericTypeReflection typeReflection = new GenericTypeReflection(mockedClass, null);
-               String typeDesc = typeReflection.resolveReturnType(genericSignature);
-               return DefaultValues.computeForType(typeDesc);
-            }
-
-            return DefaultValues.computeForReturnType(mockDesc);
-         }
-      }
-
-      return Void.class;
    }
 
    @Nonnull
