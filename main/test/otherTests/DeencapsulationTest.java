@@ -8,16 +8,13 @@ import static org.junit.Assert.*;
 
 import mockit.*;
 
-import static org.hamcrest.CoreMatchers.*;
-
 public final class DeencapsulationTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
    static final class Subclass extends BaseClass
    {
-      final int INITIAL_VALUE = new Random().nextInt();
-      final int initialValue = -1;
+      @SuppressWarnings("unused") final int initialValue = -1;
 
       @SuppressWarnings("unused") private static final Integer constantField = 123;
 
@@ -30,14 +27,10 @@ public final class DeencapsulationTest
 
       private String stringField;
       private int intField;
-      private int intField2;
       private List<String> listField;
 
       int getIntField() { return intField; }
       void setIntField(int intField) { this.intField = intField; }
-
-      int getIntField2() { return intField2; }
-      void setIntField2(int intField2) { this.intField2 = intField2; }
 
       String getStringField() { return stringField; }
       void setStringField(String stringField) { this.stringField = stringField; }
@@ -113,7 +106,7 @@ public final class DeencapsulationTest
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("More than one instance field");
       thrown.expectMessage("of type int ");
-      thrown.expectMessage("INITIAL_VALUE, initialValue");
+      thrown.expectMessage("initialValue");
 
       Deencapsulation.getField(anInstance, int.class);
    }
@@ -163,116 +156,5 @@ public final class DeencapsulationTest
       StringBuilder b = Deencapsulation.getField(Subclass.class, StringBuilder.class);
 
       assertSame(Subclass.getBuffer(), b);
-   }
-
-   @Test
-   public void setInstanceFieldByName() {
-      anInstance.setIntField2(1);
-
-      Deencapsulation.setField(anInstance, "intField2", 901);
-
-      assertEquals(901, anInstance.getIntField2());
-   }
-
-   @Test
-   public void attemptToSetInstanceFieldByNameWithWrongName() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("No instance field of name \"noField\" found");
-
-      Deencapsulation.setField(anInstance, "noField", 901);
-   }
-
-   @Test
-   public void setInstanceFieldByType() {
-      anInstance.setStringField("");
-
-      Deencapsulation.setField(anInstance, "Test");
-
-      assertEquals("Test", anInstance.getStringField());
-   }
-
-   @Test
-   public void attemptToSetInstanceFieldByTypeWithWrongType() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Instance field of type byte or Byte not found");
-
-      Deencapsulation.setField(anInstance, (byte) 123);
-   }
-
-   @Test
-   public void attemptToSetInstanceFieldByTypeForClassWithMultipleFieldsOfThatType() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("More than one instance field ");
-
-      Deencapsulation.setField(anInstance, 901);
-   }
-
-   @Test
-   public void setStaticFieldByName() {
-      Subclass.setBuffer(null);
-
-      Deencapsulation.setField(Subclass.class, "buffer", new StringBuilder());
-
-      assertNotNull(Subclass.getBuffer());
-   }
-
-   @Test
-   public void attemptToSetStaticFieldByNameWithWrongName() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("No static field of name \"noField\" found ");
-
-      Deencapsulation.setField(Subclass.class, "noField", null);
-   }
-
-   @Test
-   public void setStaticFieldByType() {
-      Subclass.setBuffer(null);
-
-      Deencapsulation.setField(Subclass.class, new StringBuilder());
-
-      assertNotNull(Subclass.getBuffer());
-   }
-
-   @Test
-   public void attemptToSetFieldByTypeWithoutAValue() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Missing field value");
-
-      Deencapsulation.setField(Subclass.class, null);
-   }
-
-   @Test
-   public void attemptToSetStaticFieldByTypeWithWrongType() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("Static field of type StringBuffer not found");
-
-      Deencapsulation.setField(Subclass.class, new StringBuffer());
-   }
-
-   @Test
-   public void attemptToSetStaticFieldByTypeForClassWithMultipleFieldsOfThatType() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("More than one static field ");
-
-      Deencapsulation.setField(Subclass.class, 'A');
-   }
-
-   @Test
-   public void setFinalInstanceFields() {
-      Subclass obj = new Subclass();
-
-      Deencapsulation.setField(obj, "INITIAL_VALUE", 123);
-      Deencapsulation.setField(obj, "initialValue", 123);
-
-      assertEquals(123, obj.INITIAL_VALUE);
-      assertEquals(123, Deencapsulation.getField(obj, "initialValue"));
-      assertEquals(-1, obj.initialValue); // in this case, the compile-time constant gets embedded in client code
-   }
-
-   @Test
-   public void attemptToSetAStaticFinalField() {
-      thrown.expectCause(isA(IllegalAccessException.class));
-
-      Deencapsulation.setField(Subclass.class, "constantField", 54);
    }
 }

@@ -61,25 +61,6 @@ public final class FieldReflection
       return getFieldValue(field, targetObject);
    }
 
-   public static void setField(
-      @Nonnull Class<?> theClass, @Nullable Object targetObject, @Nullable String fieldName, @Nullable Object fieldValue
-   ) {
-      boolean instanceField = targetObject != null;
-      Field field;
-
-      if (fieldName != null) {
-         field = getDeclaredField(theClass, fieldName, instanceField);
-      }
-      else if (fieldValue != null) {
-         field = getDeclaredField(theClass, fieldValue.getClass(), instanceField, true);
-      }
-      else {
-         throw new IllegalArgumentException("Missing field value when setting field by type");
-      }
-
-      setFieldValue(field, targetObject, fieldValue);
-   }
-
    @Nonnull
    private static Field getDeclaredField(
       @Nonnull Class<?> theClass, @Nonnull Type desiredType, boolean instanceField, boolean forAssignment
@@ -113,13 +94,9 @@ public final class FieldReflection
          if (!field.isSynthetic()) {
             Type fieldType = field.getGenericType();
 
-            if (
-               instanceField != isStatic(field.getModifiers()) &&
-               isCompatibleFieldType(fieldType, desiredType, forAssignment)
-            ) {
+            if (instanceField != isStatic(field.getModifiers()) && isCompatibleFieldType(fieldType, desiredType, forAssignment)) {
                if (found != null) {
-                  String message =
-                     errorMessageForMoreThanOneFieldFound(desiredType, instanceField, forAssignment, found, field);
+                  String message = errorMessageForMoreThanOneFieldFound(desiredType, instanceField, forAssignment, found, field);
                   throw new IllegalArgumentException(message);
                }
 
