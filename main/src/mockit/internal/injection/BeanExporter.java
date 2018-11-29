@@ -31,7 +31,8 @@ public final class BeanExporter
       InjectionProvider injectable = injectionState.findInjectableByTypeAndName(beanName, testedClass);
 
       if (injectable != null) {
-         @SuppressWarnings("unchecked") T bean = (T) injectionState.getValueToInject(injectable);
+         Object testInstance = injectionState.getCurrentTestClassInstance();
+         @SuppressWarnings("unchecked") T bean = (T) injectable.getValue(testInstance);
          return bean;
       }
 

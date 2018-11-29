@@ -158,4 +158,15 @@ public final class SpringIntegrationTest
 
       assertSame(collaborator, collaboratorBean);
    }
+
+   @Test
+   public void lookUpBeanByTypeTwiceHavingSingleInjectableInstance(@Injectable Collaborator collaborator) {
+      BeanFactory beanFactory = new /*TestWebApplicationContext();*/DefaultListableBeanFactory();
+
+      Collaborator collaboratorBean1 = beanFactory.getBean(Collaborator.class);
+      Collaborator collaboratorBean2 = beanFactory.getBean(Collaborator.class);
+
+      assertSame(collaborator, collaboratorBean1);
+      assertSame(collaborator, collaboratorBean2);
+   }
 }
