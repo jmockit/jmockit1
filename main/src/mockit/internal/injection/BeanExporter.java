@@ -27,8 +27,8 @@ public final class BeanExporter
       TestedClass testedClass = new TestedClass(beanType, beanType);
       String beanName = getBeanNameFromType(beanType);
 
-      injectionState.setTypeOfInjectionPoint(beanType);
-      InjectionProvider injectable = injectionState.findInjectableByTypeAndName(beanName, testedClass);
+      injectionState.injectionProviders.setTypeOfInjectionPoint(beanType);
+      InjectionProvider injectable = injectionState.injectionProviders.findInjectableByTypeAndName(beanName, testedClass);
 
       if (injectable != null) {
          Object testInstance = injectionState.getCurrentTestClassInstance();

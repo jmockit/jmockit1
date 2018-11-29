@@ -34,7 +34,7 @@ public final class ConstructorInjection extends Injector
    public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass) {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
-      List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.saveConsumedInjectionProviders();
+      List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.injectionProviders.saveConsumedInjectionProviders();
       Object[] arguments = n == 0 ? NO_ARGS : new Object[n];
       boolean varArgs = constructor.isVarArgs();
 
@@ -65,7 +65,7 @@ public final class ConstructorInjection extends Injector
       }
 
       if (consumedInjectables != null) {
-         injectionState.restoreConsumedInjectionProviders(consumedInjectables);
+         injectionState.injectionProviders.restoreConsumedInjectionProviders(consumedInjectables);
       }
 
       return invokeConstructor(arguments);
@@ -80,7 +80,7 @@ public final class ConstructorInjection extends Injector
       }
 
       Type parameterType = constructorParameter.getDeclaredType();
-      injectionState.setTypeOfInjectionPoint(parameterType);
+      injectionState.injectionProviders.setTypeOfInjectionPoint(parameterType);
       String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
 
       Class<?> parameterClass = constructorParameter.getClassOfDeclaredType();
@@ -130,12 +130,13 @@ public final class ConstructorInjection extends Injector
    @Nonnull
    private Object obtainInjectedVarargsArray(@Nonnull Type parameterType, @Nonnull TestedClass testedClass) {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
-      injectionState.setTypeOfInjectionPoint(varargsElementType);
+      InjectionProviders injectionProviders = injectionState.injectionProviders;
+      injectionProviders.setTypeOfInjectionPoint(varargsElementType);
 
       List<Object> varargValues = new ArrayList<>();
       InjectionProvider injectable;
 
-      while ((injectable = injectionState.findNextInjectableForInjectionPoint(testedClass)) != null) {
+      while ((injectable = injectionProviders.findNextInjectableForInjectionPoint(testedClass)) != null) {
          Object value = injectionState.getValueToInject(injectable);
 
          if (value != null) {

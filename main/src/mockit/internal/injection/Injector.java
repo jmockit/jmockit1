@@ -82,9 +82,9 @@ public class Injector
       List<Field> targetFields = findAllTargetInstanceFieldsInTestedClassHierarchy(dependencyClass, testedClass);
 
       if (!targetFields.isEmpty()) {
-         List<InjectionProvider> currentlyConsumedInjectables = injectionState.saveConsumedInjectionProviders();
+         List<InjectionProvider> currentlyConsumedInjectables = injectionState.injectionProviders.saveConsumedInjectionProviders();
          injectIntoEligibleFields(targetFields, dependency, testedClass);
-         injectionState.restoreConsumedInjectionProviders(currentlyConsumedInjectables);
+         injectionState.injectionProviders.restoreConsumedInjectionProviders(currentlyConsumedInjectables);
       }
    }
 
@@ -170,11 +170,12 @@ public class Injector
       @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName, @Nonnull TestedClass testedClass,
       @Nonnull Field targetField
    ) {
-      injectionState.setTypeOfInjectionPoint(targetField.getGenericType());
+      InjectionProviders injectionProviders = injectionState.injectionProviders;
+      injectionProviders.setTypeOfInjectionPoint(targetField.getGenericType());
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
          String injectableName = convertToLegalJavaIdentifierIfNeeded(qualifiedTargetFieldName);
-         InjectionProvider matchingInjectable = injectionState.findInjectableByTypeAndName(injectableName, testedClass);
+         InjectionProvider matchingInjectable = injectionProviders.findInjectableByTypeAndName(injectableName, testedClass);
 
          if (matchingInjectable != null) {
             return matchingInjectable;
@@ -183,18 +184,19 @@ public class Injector
 
       String targetFieldName = targetField.getName();
 
-      return withMultipleTargetFieldsOfSameType(targetFields, testedClass, targetField) ?
-         injectionState.findInjectableByTypeAndName(targetFieldName, testedClass) :
-         injectionState.getProviderByTypeAndOptionallyName(targetFieldName, testedClass);
+      return withMultipleTargetFieldsOfSameType(targetFields, testedClass, targetField, injectionProviders) ?
+         injectionProviders.findInjectableByTypeAndName(targetFieldName, testedClass) :
+         injectionProviders.getProviderByTypeAndOptionallyName(targetFieldName, testedClass);
    }
 
-   private boolean withMultipleTargetFieldsOfSameType(
-      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField
+   private static boolean withMultipleTargetFieldsOfSameType(
+      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField,
+      @Nonnull InjectionProviders injectionProviders
    ) {
       for (Field anotherTargetField : targetFields) {
          if (
             anotherTargetField != targetField &&
-            injectionState.isAssignableToInjectionPoint(anotherTargetField.getGenericType(), testedClass)
+            injectionProviders.isAssignableToInjectionPoint(anotherTargetField.getGenericType(), testedClass)
          ) {
             return true;
          }

@@ -33,7 +33,7 @@ public final class TestedClassInstantiations
       findAllTestedAndInjectableMembersInTestClassHierarchy(testClass);
 
       return
-         injectionState.setInjectables(injectableFields) ||
+         injectionState.injectionProviders.setInjectables(injectableFields) ||
          !testedFields.isEmpty() ||
          injectionState.interfaceResolution.canResolveInterfaces();
    }
@@ -150,7 +150,7 @@ public final class TestedClassInstantiations
          testedObject.instantiateWithInjectableValues(testClassInstance);
       }
       finally {
-         injectionState.resetConsumedInjectionProviders();
+         injectionState.injectionProviders.resetConsumedInjectionProviders();
       }
    }
 

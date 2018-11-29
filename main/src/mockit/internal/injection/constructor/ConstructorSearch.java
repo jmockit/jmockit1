@@ -158,10 +158,11 @@ public final class ConstructorSearch
       printCandidateConstructorNameIfRequested(candidate);
 
       String constructorDesc = "<init>" + JavaType.getConstructorDescriptor(candidate);
+      InjectionProviders injectionProviders = injectionState.injectionProviders;
 
       for (int i = 0; i < n; i++) {
          Type parameterType = parameterTypes[i];
-         injectionState.setTypeOfInjectionPoint(parameterType);
+         injectionProviders.setTypeOfInjectionPoint(parameterType);
 
          String parameterName = ParameterNames.getName(testedClassDesc, constructorDesc, i);
          Annotation[] appliedAnnotations = parameterAnnotations[i];
@@ -177,7 +178,7 @@ public final class ConstructorSearch
 
       if (varArgs) {
          Type parameterType = parameterTypes[n];
-         InjectionProvider injectable = hasInjectedValuesForVarargsParameter(parameterType);
+         InjectionProvider injectable = hasInjectedValuesForVarargsParameter(parameterType, injectionProviders);
 
          if (injectable != null) {
             providersFound.add(injectable);
@@ -199,7 +200,7 @@ public final class ConstructorSearch
 
       boolean qualified = qualifiedName != null;
       String targetName = qualified ? qualifiedName : parameterName;
-      InjectionProvider provider = injectionState.getProviderByTypeAndOptionallyName(targetName, testedClass);
+      InjectionProvider provider = injectionState.injectionProviders.getProviderByTypeAndOptionallyName(targetName, testedClass);
 
       if (provider != null) {
          return provider;
@@ -216,10 +217,12 @@ public final class ConstructorSearch
    }
 
    @Nullable
-   private InjectionProvider hasInjectedValuesForVarargsParameter(@Nonnull Type parameterType) {
+   private InjectionProvider hasInjectedValuesForVarargsParameter(
+      @Nonnull Type parameterType, @Nonnull InjectionProviders injectionProviders
+   ) {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
-      injectionState.setTypeOfInjectionPoint(varargsElementType);
-      return injectionState.findNextInjectableForInjectionPoint(testedClass);
+      injectionProviders.setTypeOfInjectionPoint(varargsElementType);
+      return injectionProviders.findNextInjectableForInjectionPoint(testedClass);
    }
 
    private void selectConstructorWithUnresolvedParameterIfMoreAccessible(
