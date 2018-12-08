@@ -67,10 +67,8 @@ public final class FakeLoginContextTest
 
    @Test
    public void accessFakedInstance() throws Exception {
-      final Subject testSubject = new Subject();
-
       new MockUp<LoginContext>() {
-         boolean loggedIn;
+         Subject testSubject;
 
          @Mock
          void $init(Invocation inv, String name, Subject subject) {
@@ -85,14 +83,14 @@ public final class FakeLoginContextTest
          void login(Invocation inv) {
             LoginContext it = inv.getInvokedInstance();
             assertNull(it.getSubject()); // returns null until the subject is authenticated
-            loggedIn = true;
+            testSubject = new Subject();
          }
 
          @Mock
-         void logout() { loggedIn = false; }
+         void logout() { testSubject = null; }
 
          @Mock
-         Subject getSubject() { return loggedIn ? testSubject : null; }
+         Subject getSubject() { return testSubject; }
       };
 
       LoginContext fakedInstance = new LoginContext("test", new Subject());
