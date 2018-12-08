@@ -70,31 +70,37 @@ public final class FakeLoginContextTest
       final Subject testSubject = new Subject();
 
       new MockUp<LoginContext>() {
+         boolean loggedIn;
+
          @Mock
          void $init(Invocation inv, String name, Subject subject) {
-            LoginContext it = inv.getInvokedInstance();
             assertNotNull(name);
-            assertSame(testSubject, subject);
+            assertNotSame(testSubject, subject);
+            LoginContext it = inv.getInvokedInstance();
             assertNotNull(it);
+            assertEquals(1, inv.getInvocationCount());
          }
 
          @Mock
          void login(Invocation inv) {
             LoginContext it = inv.getInvokedInstance();
-            assertNotNull(it);
             assertNull(it.getSubject()); // returns null until the subject is authenticated
+            loggedIn = true;
          }
 
          @Mock
-         void logout(Invocation inv) {
-            LoginContext it = inv.getInvokedInstance();
-            assertNotNull(it);
-         }
+         void logout() { loggedIn = false; }
+
+         @Mock
+         Subject getSubject() { return loggedIn ? testSubject : null; }
       };
 
-      LoginContext fakedInstance = new LoginContext("test", testSubject);
+      LoginContext fakedInstance = new LoginContext("test", new Subject());
+      assertNull(fakedInstance.getSubject());
       fakedInstance.login();
+      assertNotNull(fakedInstance.getSubject());
       fakedInstance.logout();
+      assertNull(fakedInstance.getSubject());
    }
 
    @Test
