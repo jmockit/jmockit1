@@ -73,7 +73,7 @@ public final class FakeLoginContextTest
          @Mock
          void $init(Invocation inv, String name, Subject subject) {
             assertNotNull(name);
-            assertNotSame(testSubject, subject);
+            assertNotNull(subject);
             LoginContext it = inv.getInvokedInstance();
             assertNotNull(it);
             assertEquals(1, inv.getInvocationCount());
