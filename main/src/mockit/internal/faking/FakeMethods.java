@@ -109,10 +109,10 @@ final class FakeMethods
       }
    }
 
-   FakeMethods(@Nonnull Class<?> realClass, @Nullable Type targetType) {
+   FakeMethods(@Nonnull Class<?> realClass, @Nonnull Type targetType) {
       this.realClass = realClass;
 
-      if (targetType == null || realClass == targetType) {
+      if (realClass == targetType) {
          targetTypeIsAClass = true;
       }
       else {

@@ -6,9 +6,7 @@ package mockit;
 
 import java.lang.reflect.*;
 import javax.annotation.*;
-import static java.lang.reflect.Modifier.*;
 
-import mockit.internal.classGeneration.*;
 import mockit.internal.faking.*;
 import mockit.internal.startup.*;
 
@@ -111,15 +109,9 @@ public class MockUp<T>
       while (true);
    }
 
-   private void redefineClass(@Nonnull Class<T> classToFake) {
+   private void redefineClass(@Nonnull Class<?> classToFake) {
       if (!classToFake.isInterface()) {
-         Class<T> realClass = classToFake;
-
-         if (isAbstract(classToFake.getModifiers())) {
-            classToFake = new ConcreteSubclass<T>(classToFake).generateClass();
-         }
-
-         new FakeClassSetup(realClass, classToFake, targetType, this).redefineMethods();
+         new FakeClassSetup(classToFake, this, targetType).redefineMethods();
       }
    }
 
@@ -134,10 +126,7 @@ public class MockUp<T>
     */
    protected MockUp(@Nonnull Class<?> targetClass) {
       targetType = targetClass;
-
-      if (!targetClass.isInterface()) {
-         new FakeClassSetup(targetClass, this).redefineMethods();
-      }
+      redefineClass(targetClass);
    }
 
    /**

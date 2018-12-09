@@ -27,23 +27,11 @@ public final class FakeClassSetup
       this(getClassType(fakedType), fake, fakedType);
    }
 
-   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull MockUp<?> fake) {
-      this(realClass, realClass, fake, null);
-   }
-
-   public FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nonnull Type fakedType, @Nonnull MockUp<?> fake) {
-      this(realClass, classToFake, fake, fakedType);
-   }
-
-   private FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nullable Type fakedType) {
-      this(realClass, realClass, fake, fakedType);
-   }
-
-   private FakeClassSetup(@Nonnull Class<?> realClass, @Nonnull Class<?> classToFake, @Nonnull MockUp<?> fake, @Nullable Type fakedType) {
-      this.realClass = classToFake;
+   public FakeClassSetup(@Nonnull Class<?> classToFake, @Nonnull MockUp<?> fake, @Nonnull Type fakedType) {
+      realClass = classToFake;
       this.fake = fake;
       forStartupFake = Startup.initializing;
-      fakeMethods = new FakeMethods(realClass, fakedType);
+      fakeMethods = new FakeMethods(classToFake, fakedType);
       collectFakeMethods();
       registerFakeClassAndItsStates();
    }
