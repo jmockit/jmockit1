@@ -1,6 +1,7 @@
 package mockit;
 
 import java.applet.*;
+import java.awt.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -48,5 +49,17 @@ public final class MisusedFakingAPITest
       new AppletFake(2); // second application overrides the previous one
 
       assertEquals(2, new Applet().getComponentCount());
+   }
+
+   @Test
+   public void fakeAPrivateMethodOrConstructor() {
+      // Still supported, but writes a warning to the console.
+      new MockUp<Component>() {
+         @Mock boolean checkCoalescing() { return false; }
+      };
+
+      new MockUp<System>() {
+         @Mock void $init() {}
+      };
    }
 }

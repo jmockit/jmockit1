@@ -43,16 +43,15 @@ final class FakedClassModifier extends BaseClassModifier
     * <p/>
     * The fake instance provided will receive calls for any instance methods defined in the fake class.
     * Therefore, it needs to be later recovered by the modified bytecode inside the real method.
-    * To enable this, the fake instance is added to a global data structure made available through the
-    * {@link TestRun#getFake(String)} method.
+    * To enable this, the fake instance is added to a global data structure made available through the {@link TestRun#getFake(String)}
+    * method.
     *
     * @param cr the class file reader for the real class
     * @param realClass the class to be faked, or a base type of an implementation class to be faked
     * @param fake an instance of the fake class
-    * @param fakeMethods contains the set of fake methods collected from the fake class; each fake method is identified
-    * by a pair composed of "name" and "desc", where "name" is the method name, and "desc" is the JVM internal
-    * description of the parameters; once the real class modification is complete this set will be empty, unless no
-    * corresponding real method was found for any of its method identifiers
+    * @param fakeMethods contains the set of fake methods collected from the fake class; each fake method is identified by a pair composed
+    * of "name" and "desc", where "name" is the method name, and "desc" is the JVM internal description of the parameters; once the real
+    * class modification is complete this set will be empty, unless no corresponding real method was found for any of its method identifiers
     */
    FakedClassModifier(@Nonnull ClassReader cr, @Nonnull Class<?> realClass, @Nonnull MockUp<?> fake, @Nonnull FakeMethods fakeMethods) {
       super(cr);
@@ -73,16 +72,16 @@ final class FakedClassModifier extends BaseClassModifier
    }
 
    /**
-    * If the specified method has a fake definition, then generates bytecode to redirect calls made to it to the fake
-    * method. If it has no fake, does nothing.
+    * If the specified method has a fake definition, then generates bytecode to redirect calls made to it to the fake method.
+    * If it has no fake, does nothing.
     *
     * @param access not relevant
     * @param name together with desc, used to identity the method in given set of fake methods
     * @param signature not relevant
     * @param exceptions not relevant
     *
-    * @return <tt>null</tt> if the method was redefined, otherwise a <tt>MethodWriter</tt> that writes out the visited
-    * method code without changes
+    * @return <tt>null</tt> if the method was redefined, otherwise a <tt>MethodWriter</tt> that writes out the visited method code without
+    * changes
     */
    @Override
    public MethodVisitor visitMethod(
@@ -101,6 +100,12 @@ final class FakedClassModifier extends BaseClassModifier
 
       if (isConstructor && isFakedSuperclass() || !hasFake(access, name, desc, signature)) {
          return cw.visitMethod(access, name, desc, signature, exceptions);
+      }
+
+      if (isPrivate(access)) {
+         System.out.println(
+            "WARNING: fake for private " + (isConstructor ? "constructor " : "method ") + fakedClass.getSimpleName() + '#' + name + desc +
+            " found; such fakes will no longer be supported");
       }
 
       startModifiedMethodVersion(access, name, desc, signature, exceptions);
