@@ -21,7 +21,7 @@ public final class CaptureMatcher<T> implements ArgumentMatcher<CaptureMatcher<T
 
    @Override
    public boolean matches(@Nullable Object argValue) {
-      if (expectedType == null || expectedType.isInstance(argValue)) {
+      if (expectedType == null || expectedType.isInstance(argValue) || argValue == null && !expectedType.isPrimitive()) {
          //noinspection unchecked
          valueHolder.add((T) argValue);
       }

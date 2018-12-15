@@ -81,6 +81,18 @@ public final class WithCaptureTest
    }
 
    @Test
+   public void captureNullIntoAListDuringVerification() {
+      dao.create(null);
+
+      new Verifications() {{
+         List<Person> persons = new ArrayList<>();
+         dao.create(withCapture(persons));
+         assertEquals(1, persons.size());
+         assertNull(persons.get(0));
+      }};
+   }
+
+   @Test
    public void captureArgumentToVariableOfSpecificSubtypeForSeparateInvocations() {
       dao.doSomething(new BigInteger("9999"));
       dao.doSomething((byte) -123);
@@ -208,7 +220,7 @@ public final class WithCaptureTest
       dao.doSomething(56);
 
       new Verifications() {
-         Integer i;
+         final Integer i;
 
          {
             dao.doSomething(i = withCapture());
