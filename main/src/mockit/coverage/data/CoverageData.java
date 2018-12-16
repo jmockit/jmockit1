@@ -34,8 +34,7 @@ public final class CoverageData implements Serializable
    @Nonnull public Map<String, FileCoverageData> getRawFileToFileData() { return fileToFileData; }
 
    /**
-    * Returns an immutable map containing all source files with the corresponding coverage data gathered for each
-    * file during a test run.
+    * Returns an immutable map containing all source files with the corresponding coverage data gathered for each file during a test run.
     */
    @Nonnull
    public Map<String, FileCoverageData> getFileToFileDataMap() {
@@ -45,7 +44,7 @@ public final class CoverageData implements Serializable
          Entry<String, FileCoverageData> fileAndFileData = itr.next();
          FileCoverageData fileData = fileAndFileData.getValue();
 
-         if (fileData.getTotalItemsForAllMetrics() == 0) {
+         if (fileData.getTotalItems() == 0) {
             itr.remove();
          }
       }
@@ -78,15 +77,14 @@ public final class CoverageData implements Serializable
    public void clear() { fileToFileData.clear(); }
 
    /**
-    * Computes the coverage percentage for a given metric, over a subset of the available source files.
+    * Computes the coverage percentage over a subset of the available source files.
     *
-    * @param fileNamePrefix a regular expression for matching the names of the source files to be considered, or
-    *                       <tt>null</tt> to consider <em>all</em> files
+    * @param fileNamePrefix a regular expression for matching the names of the source files to be considered, or <tt>null</tt> to consider
+    *                       <em>all</em> files
     *
-    * @return the computed percentage from <tt>0</tt> to <tt>100</tt> (inclusive), or <tt>-1</tt> if no
-    * meaningful value could be computed for the metric
+    * @return the computed percentage from <tt>0</tt> to <tt>100</tt> (inclusive), or <tt>-1</tt> if no meaningful value could be computed
     */
-   public int getPercentage(@Nonnull Metrics metric, @Nullable String fileNamePrefix) {
+   public int getPercentage(@Nullable String fileNamePrefix) {
       int coveredItems = 0;
       int totalItems = 0;
 
@@ -95,9 +93,8 @@ public final class CoverageData implements Serializable
 
          if (fileNamePrefix == null || sourceFile.startsWith(fileNamePrefix)) {
             FileCoverageData fileData = fileAndFileData.getValue();
-            PerFileCoverage coverageInfo = fileData.getPerFileCoverage(metric);
-            coveredItems += coverageInfo.getCoveredItems();
-            totalItems += coverageInfo.getTotalItems();
+            coveredItems += fileData.getCoveredItems();
+            totalItems += fileData.getTotalItems();
          }
       }
 
@@ -105,18 +102,17 @@ public final class CoverageData implements Serializable
    }
 
    /**
-    * Finds the source file with the smallest coverage percentage for a given metric.
+    * Finds the source file with the smallest coverage percentage.
     *
-    * @return the percentage value for the file found, or <tt>Integer.MAX_VALUE</tt> if no file is found with a
-    * meaningful coverage percentage
+    * @return the percentage value for the file found, or <tt>Integer.MAX_VALUE</tt> if no file is found with a meaningful percentage
     */
-   public int getSmallestPerFilePercentage(@Nonnull Metrics metric) {
+   @Nonnegative
+   public int getSmallestPerFilePercentage() {
       int minPercentage = Integer.MAX_VALUE;
 
       for (FileCoverageData fileData : fileToFileData.values()) {
          if (!fileData.wasLoadedAfterTestCompletion()) {
-            PerFileCoverage coverageInfo = fileData.getPerFileCoverage(metric);
-            int percentage = coverageInfo.getCoveragePercentage();
+            int percentage = fileData.getCoveragePercentage();
 
             if (percentage >= 0 && percentage < minPercentage) {
                minPercentage = percentage;
@@ -207,8 +203,8 @@ public final class CoverageData implements Serializable
    }
 
    /**
-    * Reads a serialized <tt>CoverageData</tt> object from the given file (normally, a "<tt>coverage.ser</tt>" file
-    * generated at the end of a previous test run).
+    * Reads a serialized <tt>CoverageData</tt> object from the given file (normally, a "<tt>coverage.ser</tt>" file generated at the end of
+    * a previous test run).
     *
     * @param dataFile the ".ser" file containing a serialized <tt>CoverageData</tt> instance
     *

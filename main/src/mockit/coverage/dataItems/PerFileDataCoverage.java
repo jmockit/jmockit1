@@ -102,10 +102,10 @@ public final class PerFileDataCoverage implements PerFileCoverage
       return staticData != null && staticData.isCovered();
    }
 
-   @Override
+   @Override @Nonnegative
    public int getTotalItems() { return staticFieldsData.size() + instanceFieldsData.size(); }
 
-   @Override
+   @Override @Nonnegative
    public int getCoveredItems() {
       if (coveredDataItems >= 0) {
          return coveredDataItems;

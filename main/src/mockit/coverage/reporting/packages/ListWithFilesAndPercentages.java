@@ -14,8 +14,8 @@ abstract class ListWithFilesAndPercentages
 {
    @Nonnull protected final PrintWriter output;
    @Nonnull private final String baseIndent;
-   @Nonnull final int[] totalItems = new int[Metrics.values().length];
-   @Nonnull final int[] coveredItems = new int[Metrics.values().length];
+   @Nonnegative int totalItems;
+   @Nonnegative int coveredItems;
 
    ListWithFilesAndPercentages(@Nonnull PrintWriter output, @Nonnull String baseIndent) {
       this.output = output;
@@ -28,8 +28,8 @@ abstract class ListWithFilesAndPercentages
       }
 
       Collections.sort(fileNames);
-      Arrays.fill(totalItems, 0);
-      Arrays.fill(coveredItems, 0);
+      totalItems = 0;
+      coveredItems = 0;
 
       for (String fileName : fileNames) {
          writeMetricsForFile(packageName, fileName);
@@ -50,12 +50,12 @@ abstract class ListWithFilesAndPercentages
 
    protected abstract void writeMetricsForFile(@Nullable String packageName, @Nonnull String fileName);
 
-   final void printCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage) {
+   final void printCoveragePercentage(@Nonnegative int covered, @Nonnegative int total, int percentage) {
       printIndent();
       output.write("  <td ");
 
       if (total > 0) {
-         writeRowCellWithCoveragePercentage(metric, covered, total, percentage);
+         writeRowCellWithCoveragePercentage(covered, total, percentage);
       }
       else {
          output.write("class='nocode'>N/A");
@@ -64,13 +64,11 @@ abstract class ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeRowCellWithCoveragePercentage(@Nonnull Metrics metric, int covered, int total, int percentage) {
+   private void writeRowCellWithCoveragePercentage(@Nonnegative int covered, @Nonnegative int total, @Nonnegative int percentage) {
       writeClassAttributeForCoveragePercentageCell();
       output.write("style='background-color:#");
       output.write(CoveragePercentage.percentageColor(covered, total));
-      output.write("' title='");
-      output.write(metric.itemName);
-      output.write(": ");
+      output.write("' title='Items: ");
       output.print(covered);
       output.write('/');
       output.print(total);
@@ -81,7 +79,7 @@ abstract class ListWithFilesAndPercentages
 
    protected abstract void writeClassAttributeForCoveragePercentageCell();
 
-   private void writePercentageValue(int covered, int total, int percentage) {
+   private void writePercentageValue(@Nonnegative int covered, @Nonnegative int total, @Nonnegative int percentage) {
       if (percentage < 100) {
          output.print(percentage);
       }

@@ -5,10 +5,11 @@
 package mockit.coverage.data;
 
 import java.io.*;
+import javax.annotation.*;
 
 public interface PerFileCoverage extends Serializable
 {
-   int getTotalItems();
-   int getCoveredItems();
+   @Nonnegative int getTotalItems();
+   @Nonnegative int getCoveredItems();
    int getCoveragePercentage();
 }

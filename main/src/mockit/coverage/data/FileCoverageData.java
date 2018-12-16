@@ -10,10 +10,9 @@ import javax.annotation.*;
 import mockit.coverage.*;
 import mockit.coverage.dataItems.*;
 import mockit.coverage.lines.*;
-import static mockit.coverage.Metrics.*;
 
 /**
- * Coverage data gathered for the lines and branches of a single source file.
+ * Coverage data gathered for the lines, branching points, and fields of a single source file.
  */
 public final class FileCoverageData implements Serializable
 {
@@ -26,7 +25,7 @@ public final class FileCoverageData implements Serializable
    @Nonnull public PerFileDataCoverage dataCoverageInfo;
 
    // Used for fast indexed access.
-   public final int index;
+   @Nonnegative public final int index;
 
    // Used for output styling in the HTML report.
    @Nullable public String kindOfTopLevelType;
@@ -36,7 +35,7 @@ public final class FileCoverageData implements Serializable
 
    private final boolean loadedAfterTestCompletion;
 
-   FileCoverageData(int index, @Nullable String kindOfTopLevelType) {
+   FileCoverageData(@Nonnegative int index, @Nullable String kindOfTopLevelType) {
       this.index = index;
       this.kindOfTopLevelType = kindOfTopLevelType;
       lineCoverageInfo = new PerFileLineCoverage();
@@ -49,23 +48,13 @@ public final class FileCoverageData implements Serializable
    @Nonnull
    public PerFileLineCoverage getLineCoverageData() { return lineCoverageInfo; }
 
-   @Nonnull
-   public PerFileCoverage getPerFileCoverage(@Nonnull Metrics metric) {
-      return metric == LineCoverage ? lineCoverageInfo : dataCoverageInfo;
-   }
+   @Nonnegative public int getTotalItems()   { return lineCoverageInfo.getTotalItems()   + dataCoverageInfo.getTotalItems(); }
+   @Nonnegative public int getCoveredItems() { return lineCoverageInfo.getCoveredItems() + dataCoverageInfo.getCoveredItems(); }
 
-   int getTotalItemsForAllMetrics() {
-      int totalItems = 0;
-
-      if (lineCoverageInfo != NO_LINE_INFO) {
-         totalItems += lineCoverageInfo.getTotalItems();
-      }
-
-      if (dataCoverageInfo != NO_DATA_INFO) {
-         totalItems += dataCoverageInfo.getTotalItems();
-      }
-
-      return totalItems;
+   public int getCoveragePercentage() {
+      int totalItems = getTotalItems();
+      int coveredItems = getCoveredItems();
+      return CoveragePercentage.calculate(coveredItems, totalItems);
    }
 
    void mergeWithDataFromPreviousTestRun(@Nonnull FileCoverageData previousInfo) {

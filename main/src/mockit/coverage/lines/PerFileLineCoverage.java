@@ -158,7 +158,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return coveredSegments;
    }
 
-   @Override @Nonnegative
+   @Override
    public int getCoveragePercentage() {
       computeValuesIfNeeded();
       return CoveragePercentage.calculate(coveredSegments, totalSegments);
@@ -166,7 +166,6 @@ public final class PerFileLineCoverage implements PerFileCoverage
 
    private void computeValuesIfNeeded() {
       if (totalSegments >= 0) return;
-
       totalSegments = coveredSegments = 0;
 
       for (int line = 1, n = lastLine; line <= n; line++) {

@@ -18,19 +18,19 @@ final class CoverageCheck
 
       @Nullable private final String sourceFilePrefix;
       @Nonnull private final String scopeDescription;
-      @Nonnull private final int[] minPercentages;
+      @Nonnegative private int minPercentage;
 
       Threshold(@Nonnull String configurationParameter) {
-         String[] sourceFilePrefixAndMinPercentages = PARAMETER_SEPARATORS.split(configurationParameter);
-         String csvPercentages;
+         String[] sourceFilePrefixAndMinPercentage = PARAMETER_SEPARATORS.split(configurationParameter);
+         String textualPercentage;
 
-         if (sourceFilePrefixAndMinPercentages.length == 1) {
+         if (sourceFilePrefixAndMinPercentage.length == 1) {
             sourceFilePrefix = null;
             scopeDescription = "";
-            csvPercentages = sourceFilePrefixAndMinPercentages[0];
+            textualPercentage = sourceFilePrefixAndMinPercentage[0];
          }
          else {
-            String scope = sourceFilePrefixAndMinPercentages[0].trim();
+            String scope = sourceFilePrefixAndMinPercentage[0].trim();
 
             if (isPerFile(scope)) {
                sourceFilePrefix = scope;
@@ -41,45 +41,31 @@ final class CoverageCheck
                scopeDescription = " for " + scope;
             }
 
-            csvPercentages = sourceFilePrefixAndMinPercentages[1];
+            textualPercentage = sourceFilePrefixAndMinPercentage[1];
          }
 
-         minPercentages = new int[Metrics.values().length];
-         parseMinimumPercentages(csvPercentages);
+         try { minPercentage = Integer.parseInt(textualPercentage.trim()); } catch (NumberFormatException ignore) {}
       }
 
       private static boolean isPerFile(@Nullable String scope) { return "perFile".equalsIgnoreCase(scope); }
 
-      private void parseMinimumPercentages(@Nonnull String csvPercentages) {
-         String[] textualPercentages = csvPercentages.split(",");
-         int n = Math.min(textualPercentages.length, minPercentages.length);
-
-         for (int i = 0; i < n; i++) {
-            String textualValue = textualPercentages[i].trim();
-            try { minPercentages[i] = Integer.parseInt(textualValue); } catch (NumberFormatException ignore) {}
-         }
-      }
-
-      boolean verifyMinimum(@Nonnull Metrics metric) {
+      boolean verifyMinimum() {
          CoverageData coverageData = CoverageData.instance();
          int percentage;
 
          if (isPerFile(sourceFilePrefix)) {
-            percentage = coverageData.getSmallestPerFilePercentage(metric);
+            percentage = coverageData.getSmallestPerFilePercentage();
          }
          else {
-            percentage = coverageData.getPercentage(metric, sourceFilePrefix);
+            percentage = coverageData.getPercentage(sourceFilePrefix);
          }
 
-         return percentage < 0 || verifyMinimum(metric, percentage);
+         return percentage < 0 || verifyMinimum(percentage);
       }
 
-      private boolean verifyMinimum(@Nonnull Metrics metric, int percentage) {
-         int minPercentage = minPercentages[metric.ordinal()];
-
+      private boolean verifyMinimum(int percentage) {
          if (percentage < minPercentage) {
-            System.out.println(
-               "JMockit: " + metric + " coverage too low" + scopeDescription + ": " + percentage + "% < " + minPercentage + '%');
+            System.out.println("JMockit: coverage too low" + scopeDescription + ": " + percentage + "% < " + minPercentage + '%');
             return false;
          }
 
@@ -111,13 +97,8 @@ final class CoverageCheck
       if (thresholds == null) return;
       allThresholdsSatisfied = true;
 
-      for (final Threshold threshold : thresholds) {
-         Metrics.performAction(new Metrics.Action() {
-            @Override
-            public void perform(@Nonnull Metrics metric) {
-               allThresholdsSatisfied &= threshold.verifyMinimum(metric);
-            }
-         });
+      for (Threshold threshold : thresholds) {
+         allThresholdsSatisfied &= threshold.verifyMinimum();
       }
 
       createOrDeleteIndicatorFile();

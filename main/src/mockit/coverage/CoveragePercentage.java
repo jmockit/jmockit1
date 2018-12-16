@@ -10,8 +10,8 @@ public final class CoveragePercentage
 {
    private CoveragePercentage() {}
 
-   public static int calculate(int coveredCount, int totalCount) {
-      if (totalCount <= 0) {
+   public static int calculate(@Nonnegative int coveredCount, @Nonnegative int totalCount) {
+      if (totalCount == 0) {
          return -1;
       }
 
@@ -20,7 +20,7 @@ public final class CoveragePercentage
    }
 
    @Nonnull
-   public static String percentageColor(int coveredCount, int totalCount) {
+   public static String percentageColor(@Nonnegative int coveredCount, @Nonnegative int totalCount) {
       if (coveredCount == 0) {
          return "ff0000";
       }

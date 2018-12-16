@@ -18,9 +18,9 @@ public final class IndexPage extends ListWithFilesAndPercentages
 {
    @Nullable private final List<File> sourceDirs;
    @Nonnull private final Map<String, List<String>> packageToFiles;
-   @Nonnull private final Map<String, int[]> packageToPackagePercentages;
+   @Nonnull private final Map<String, Integer> packageToPackagePercentages;
    @Nonnull private final PackageCoverageReport packageReport;
-   private final int totalFileCount;
+   @Nonnegative private final int totalFileCount;
 
    public IndexPage(
       @Nonnull File outputFile, @Nullable List<File> sourceDirs, @Nullable Collection<String> sourceFilesNotFound,
@@ -34,6 +34,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       totalFileCount = totalNumberOfSourceFilesWithCoverageData(fileToFileData.values());
    }
 
+   @Nonnegative
    private static int totalNumberOfSourceFilesWithCoverageData(@Nonnull Collection<FileCoverageData> fileData) {
       return fileData.size() - Collections.frequency(fileData, null);
    }
@@ -44,7 +45,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
          List<String> packages = new ArrayList<>(packageToFiles.keySet());
          writeMetricsForEachFile(null, packages);
-         writeLineWithCoverageTotals();
+         writeLineWithCoverageTotal();
          output.println("  </table>");
 
          writeListOfRedundantTestsIfAny();
@@ -123,64 +124,43 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("</th>");
       output.write(
          "      <th onclick='location.reload()' style='cursor: n-resize' title='" +
-         "Click on the title for each metric to sort by size (total number of line segments or fields).'>Files: ");
+         "Click on the column title to the right to sort by size (total number of items).'>Files: ");
       output.print(totalFileCount);
       output.println("</th>");
-
-      Metrics.performAction(new Metrics.Action() {
-         int tableColumn = 1;
-
-         @Override
-         public void perform(@Nonnull Metrics metric) {
-            writeHeaderCellWithMetricNameAndDescription(metric);
-            tableColumn++;
-         }
-
-         private void writeHeaderCellWithMetricNameAndDescription(@Nonnull Metrics metric) {
-            output.write("      <th onclick='sortTables(");
-            output.print(tableColumn);
-            output.write(")' style='cursor: n-resize' title='");
-            output.write(metric.htmlDescription);
-            output.write("'>");
-            output.write(metric.toString());
-            output.println("</th>");
-         }
-      });
-
+      writeHeaderCellWithMetricNameAndDescription();
       output.println("    </tr>");
    }
 
-   private void writeLineWithCoverageTotals() {
+   private void writeHeaderCellWithMetricNameAndDescription() {
+      output.write(
+         "      <th onclick='sortTables()' style='cursor: n-resize' title='" +
+         "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\r\n" +
+         "An executable line of code contains one or more executable segments, separated by branching points\r\n" +
+         "(if..else instructions, logical operators, etc.).\r\n" +
+         "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
+         "Percentages are calculated as 100*(NE + NFE)/(NS + NF), where NS is the number of segments, NF the number\r\n" +
+         "of non-final fields, NE the number of executed segments, and NFE the number of fully exercised fields." +
+         "'>Cvrg</th>");
+   }
+
+   private void writeLineWithCoverageTotal() {
       output.println("    <tr class='total'>");
       output.println("      <td>Total</td><td>&nbsp;</td>");
 
-      Metrics.performAction(new Metrics.Action() {
-         @Override
-         public void perform(@Nonnull Metrics metric) { writeLineWithCoverageTotals(metric); }
-      });
+      int covered = coveredItems;
+      int total = totalItems;
+      int percentage = CoveragePercentage.calculate(covered, total);
+      printCoveragePercentage(covered, total, percentage);
 
       output.println("    </tr>");
    }
 
-   private void writeLineWithCoverageTotals(@Nonnull Metrics metric) {
-      int covered = coveredItems[metric.ordinal()];
-      int total = totalItems[metric.ordinal()];
-      int percentage = CoveragePercentage.calculate(covered, total);
-
-      printCoveragePercentage(metric, covered, total, percentage);
-   }
-
    @Override @SuppressWarnings("ParameterNameDiffersFromOverriddenParameter")
-   protected void writeMetricsForFile(String unused, @Nonnull final String packageName) {
+   protected void writeMetricsForFile(String unused, @Nonnull String packageName) {
       writeRowStart();
       writeTableCellWithPackageName(packageName);
       writeInternalTableForSourceFiles(packageName);
-
-      Metrics.performAction(new Metrics.Action() {
-         @Override
-         public void perform(@Nonnull Metrics metric) { writeCoveragePercentageForPackage(packageName, metric); }
-      });
-
+      writeCoveragePercentageForPackage(packageName);
       writeRowClose();
    }
 
@@ -199,7 +179,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("</td>");
    }
 
-   private void writeInternalTableForSourceFiles(@Nonnull final String packageName) {
+   private void writeInternalTableForSourceFiles(@Nonnull String packageName) {
       printIndent();
       output.println("  <td>");
 
@@ -209,10 +189,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       List<String> fileNames = packageToFiles.get(packageName);
       packageReport.writeMetricsForEachFile(packageName, fileNames);
 
-      Metrics.performAction(new Metrics.Action() {
-         @Override
-         public void perform(@Nonnull Metrics metric) { recordCoverageInformationForPackage(packageName, metric); }
-      });
+      recordCoverageInformationForPackage(packageName);
 
       printIndent();
       output.println("    </table>");
@@ -222,40 +199,25 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("  </td>");
    }
 
-   private void recordCoverageInformationForPackage(@Nonnull String packageName, @Nonnull Metrics metric) {
-      int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
-      int totalInPackage = packageReport.totalItems[metric.ordinal()];
+   private void recordCoverageInformationForPackage(@Nonnull String packageName) {
+      int coveredInPackage = packageReport.coveredItems;
+      int totalInPackage = packageReport.totalItems;
       int packagePercentage = CoveragePercentage.calculate(coveredInPackage, totalInPackage);
 
-      setPackageCoveragePercentage(packageName, metric, packagePercentage);
-
-      totalItems[metric.ordinal()] += totalInPackage;
-      coveredItems[metric.ordinal()] += coveredInPackage;
+      totalItems += totalInPackage;
+      coveredItems += coveredInPackage;
+      packageToPackagePercentages.put(packageName, packagePercentage);
    }
 
-   private void setPackageCoveragePercentage(@Nonnull String packageName, @Nonnull Metrics metric, int percentage) {
-      int[] percentages = packageToPackagePercentages.get(packageName);
-
-      if (percentages == null) {
-         percentages = new int[Metrics.values().length];
-         packageToPackagePercentages.put(packageName, percentages);
-      }
-
-      percentages[metric.ordinal()] = percentage;
-   }
-
-   private void writeInitiallyHiddenSourceFileCount(int fileCount) {
+   private void writeInitiallyHiddenSourceFileCount(@Nonnegative int fileCount) {
       output.write("    <span>(");
       output.print(fileCount);
       output.println(" source files)</span>");
    }
 
-   private void writeCoveragePercentageForPackage(@Nonnull String packageName, @Nonnull Metrics metric) {
-      int coveredInPackage = packageReport.coveredItems[metric.ordinal()];
-      int totalInPackage = packageReport.totalItems[metric.ordinal()];
-      int filePercentage = packageToPackagePercentages.get(packageName)[metric.ordinal()];
-
-      printCoveragePercentage(metric, coveredInPackage, totalInPackage, filePercentage);
+   private void writeCoveragePercentageForPackage(@Nonnull String packageName) {
+      int filePercentage = packageToPackagePercentages.get(packageName);
+      printCoveragePercentage(packageReport.coveredItems, packageReport.totalItems, filePercentage);
    }
 
    @Override
@@ -276,7 +238,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
          output.println("  <br/>Redundant tests:");
          output.println(
             "  <ol title=\"Tests are regarded as redundant when they don't cover any additional line " +
-            "segments that haven't already been covered by a previous test.\n" +
+            "segments or fields that haven't already been covered by a previous test.\n" +
             "Note this means the list of redundant tests depends on the order of test execution.\n" +
             "Such a test can be removed without weakening the test suite, as long as another test " +
             "for the same scenario performs its assertions.\">");

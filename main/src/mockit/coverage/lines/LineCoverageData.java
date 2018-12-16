@@ -58,8 +58,9 @@ public final class LineCoverageData extends LineSegmentData
 
    @Nonnull public List<BranchCoverageData> getBranches() { return branches; }
 
-   boolean isValidBranch(int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
+   boolean isValidBranch(@Nonnegative int branchIndex) { return branches.get(branchIndex) != BranchCoverageData.INVALID; }
 
+   @Nonnegative
    public int getNumberOfSegments() {
       int previouslyCounted = segments;
 

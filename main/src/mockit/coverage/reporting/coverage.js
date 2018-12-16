@@ -71,17 +71,17 @@ function rowOrder(r1, r2) {
    return t1 ? 1 : -1;
 }
 
-function sortRows(tbl, metric) {
+function sortRows(tbl) {
    var startRow = 0;
    var endRow = tbl.rows.length;
 
    if (tbl.id == 'packages') {
-      metricCol = 1 + metric;
+      metricCol = 1;
       startRow = 1;
       endRow--;
    }
    else {
-      metricCol = metric;
+      metricCol = 0;
    }
 
    var rs = new Array();
@@ -101,10 +101,10 @@ function sortRows(tbl, metric) {
    }
 }
 
-function sortTables(metric) {
+function sortTables() {
    var tables = document.getElementsByTagName("table");
 
    for (var i = 0; i < tables.length; i++) {
-      sortRows(tables[i], metric);
+      sortRows(tables[i]);
    }
 }
