@@ -60,11 +60,10 @@ public final class CodeCoverage implements ClassFileTransformer
    public static boolean active() {
       String coverageOutput  = Configuration.getProperty("output");
       String coverageClasses = Configuration.getProperty("classes");
-      String coverageMetrics = Configuration.getProperty("metrics");
 
       return
-         (coverageOutput != null || coverageClasses != null || coverageMetrics != null) &&
-         !("none".equals(coverageOutput) || "none".equals(coverageClasses) || "none".equals(coverageMetrics));
+         (coverageOutput != null || coverageClasses != null) &&
+         !("none".equals(coverageOutput) || "none".equals(coverageClasses));
    }
 
    @Nonnull

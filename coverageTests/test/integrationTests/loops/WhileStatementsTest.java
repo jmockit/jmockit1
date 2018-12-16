@@ -17,12 +17,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(9, 1, 1, 6);
       assertLine(10, 1, 1, 5);
       assertLine(12, 1, 1, 1);
-
-      findMethodData(7);
-      assertMethodLines(7, 12);
-      assertPaths(2, 1, 1);
-      assertPath(4, 0);
-      assertPath(5, 1);
    }
 
    @Test
@@ -34,12 +28,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLines(15, 16, 2);
       assertLine(15, 2, 2, 6);
       assertLine(16, 1, 1, 3);
-
-      findMethodData(15);
-      assertMethodLines(15, 16);
-      assertPaths(2, 2, 3);
-      assertPath(4, 1);
-      assertPath(5, 2);
    }
 
    @Test
@@ -64,10 +52,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(23, 1, 1, 2);
       assertLine(26, 1, 1, 1);
       assertLine(29, 1, 1, 3);
-
-      findMethodData(20);
-      assertMethodLines(20, 29);
-      assertPaths(3, 2, 2); // one path is unfeasible
    }
 
    @Test
@@ -82,13 +66,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(36, 1, 1, 2);
       assertLine(39, 1, 1, 1);
       assertLine(42, 1, 1, 3);
-
-      findMethodData(34);
-      assertMethodLines(34, 42);
-      assertPaths(3, 3, 3);
-      assertPath(5, 1);
-      assertPath(9, 1);
-      assertPath(8, 1);
    }
 
    @Test
@@ -102,13 +79,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(49, 1, 0, 0);
       assertLine(52, 1, 1, 1);
       assertLine(54, 1, 1, 2);
-
-      findMethodData(47);
-      assertMethodLines(47, 54);
-      assertPaths(3, 2, 2);
-      assertPath(4, 1);
-      assertPath(8, 1);
-      assertPath(9, 0);
    }
 
    @Test
@@ -120,11 +90,6 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(61, 1, 1, 3);
       assertLine(62, 1, 1, 3);
       assertLine(63, 1, 1, 1);
-
-      findMethodData(58);
-      assertMethodLines(58, 63);
-      assertPaths(1, 1, 1);
-      assertPath(2, 1);
    }
 
    @Test
@@ -139,30 +104,20 @@ public final class WhileStatementsTest extends CoverageTest
       assertLine(73, 1, 1, 4);
       assertLine(75, 1, 1, 4);
       assertLine(76, 1, 1, 3);
-
-      findMethodData(69);
-      assertMethodLines(69, 76);
-      assertPaths(1, 1, 3); // there is only one effective path
-      assertPath(2, 3);
    }
 
    @Test
    public void whileTrueEndingWithAnIf() {
       tested.whileTrueEndingWithAnIf(0);
 
-      findMethodData(84);
-      assertPaths(1, 1, 1); // there is only one effective path
-      assertPath(2, 1);
+      // TODO: assertions
    }
 
    @Test
    public void whileTrueStartingWithAnIf() {
       tested.whileTrueStartingWithAnIf(0);
 
-      findMethodData(94);
-      // TODO: execution count ends up with zero instead of one
-//      assertPaths(1, 1, 1);
-//      assertPath(3, 1);
+      // TODO: assertions
    }
 
    @Test(expected = IllegalStateException.class)

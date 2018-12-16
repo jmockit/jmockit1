@@ -17,10 +17,5 @@ public final class MultiThreadedCodeTest extends CoverageTest
       assertLine(14, 1, 1, 1);
       assertLine(17, 1, 1, 1);
       assertLine(18, 1, 1, 1);
-
-      findMethodData(7);
-      assertPaths(1, 1, 1);
-      assertMethodLines(7, 18);
-      assertPath(2, 1);
    }
 }

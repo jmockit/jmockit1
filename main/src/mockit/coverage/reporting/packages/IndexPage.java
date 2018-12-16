@@ -123,7 +123,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("</th>");
       output.write(
          "      <th onclick='location.reload()' style='cursor: n-resize' title='" +
-         "Click on the title for each metric to sort by size (total number of line segments, paths, or fields).'>Files: ");
+         "Click on the title for each metric to sort by size (total number of line segments or fields).'>Files: ");
       output.print(totalFileCount);
       output.println("</th>");
 
@@ -276,7 +276,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
          output.println("  <br/>Redundant tests:");
          output.println(
             "  <ol title=\"Tests are regarded as redundant when they don't cover any additional line " +
-            "segments or paths that haven't already been covered by a previous test.\n" +
+            "segments that haven't already been covered by a previous test.\n" +
             "Note this means the list of redundant tests depends on the order of test execution.\n" +
             "Such a test can be removed without weakening the test suite, as long as another test " +
             "for the same scenario performs its assertions.\">");

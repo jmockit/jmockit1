@@ -12,6 +12,5 @@ public final class AnEnumTest extends CoverageTest
       tested = AnEnum.OneValue;
 
       assertEquals(100, fileData.lineCoverageInfo.getCoveragePercentage());
-      assertEquals(100, fileData.pathCoverageInfo.getCoveragePercentage());
    }
 }

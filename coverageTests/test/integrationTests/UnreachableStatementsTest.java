@@ -22,12 +22,6 @@ public final class UnreachableStatementsTest extends CoverageTest
       assertLine(8, 1, 1, 1);
       assertLine(9, 1, 0, 0);
       assertLine(10, 1, 0, 0);
-
-      findMethodData(7);
-      assertMethodLines(7, 10);
-      assertPaths(2, 1, 1); // one path for asserts on, another for asserts off
-      assertPath(4, 1);
-      assertPath(5, 0);
    }
 
    @Test
@@ -40,9 +34,6 @@ public final class UnreachableStatementsTest extends CoverageTest
       assertLine(16, 1, 0, 0);
       assertLine(19, 1, 1, 1);
       assertLine(20, 1, 1, 1);
-
-      findMethodData(14);
-      assertPaths(3, 1, 1);
    }
 
    @Test
@@ -54,8 +45,5 @@ public final class UnreachableStatementsTest extends CoverageTest
       assertLine(14, 1, 1, 2);
       assertLine(15, 1, 1, 1);
       assertLine(16, 1, 0, 0);
-
-      findMethodData(14);
-      assertPaths(3, 2, 2);
   }
 }

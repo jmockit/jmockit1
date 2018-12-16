@@ -15,10 +15,5 @@ public final class ClassWithReferenceToNestedClassTest extends CoverageTest
       assertEquals(50, fileData.lineCoverageInfo.getCoveragePercentage());
       assertEquals(2, fileData.lineCoverageInfo.getTotalItems());
       assertEquals(1, fileData.lineCoverageInfo.getCoveredItems());
-
-      assertEquals(2, fileData.pathCoverageInfo.firstLineToMethodData.size());
-      assertEquals(50, fileData.pathCoverageInfo.getCoveragePercentage());
-      assertEquals(2, fileData.pathCoverageInfo.getTotalItems());
-      assertEquals(1, fileData.pathCoverageInfo.getCoveredItems());
    }
 }

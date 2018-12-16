@@ -21,12 +21,6 @@ public final class ForStatementsTest extends CoverageTest
       assertLine(9, 1, 1, 6, 4); // TODO: should have 3 segments
       assertLine(10, 1, 1, 4);
       assertLine(12, 1, 1, 2);
-
-      findMethodData(9);
-      assertPaths(2, 1, 2);
-      assertMethodLines(9, 12);
-      assertPath(4, 0);
-      assertPath(5, 2);
    }
 
    @Test
@@ -37,12 +31,6 @@ public final class ForStatementsTest extends CoverageTest
       assertLines(15, 16, 2);
       assertLine(15, 2, 2, 3, 1); // TODO: should have 5 segments
       assertLine(16, 1, 1, 2);
-
-      findMethodData(15);
-      assertPaths(2, 2, 2);
-      assertMethodLines(15, 16);
-      assertPath(4, 1);
-      assertPath(5, 1);
    }
 
    @Test

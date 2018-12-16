@@ -23,10 +23,5 @@ public final class AnInterfaceTest extends CoverageTest
       assertEquals(-1, fileData.lineCoverageInfo.getCoveragePercentage());
       assertEquals(0, fileData.lineCoverageInfo.getTotalItems());
       assertEquals(0, fileData.lineCoverageInfo.getCoveredItems());
-
-      assertTrue(fileData.pathCoverageInfo.firstLineToMethodData.isEmpty());
-      assertEquals(-1, fileData.pathCoverageInfo.getCoveragePercentage());
-      assertEquals(0, fileData.pathCoverageInfo.getTotalItems());
-      assertEquals(0, fileData.pathCoverageInfo.getCoveredItems());
    }
 }

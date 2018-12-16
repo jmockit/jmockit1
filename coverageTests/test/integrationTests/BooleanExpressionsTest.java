@@ -17,9 +17,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertTrue(tested.eval1(true, false, 1));
 
 //      assertLine(7, 3, 3, 1, 1, 1);
-
-      findMethodData(7);
-      assertPaths(4, 1, 1);
    }
 
    @Test // includes executions from the previous test
@@ -29,9 +26,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertFalse(tested.eval1(true, false, 0));
 
 //      assertLine(7, 3, 3, 3, 3, 2);
-
-      findMethodData(7);
-      assertPaths(4, 3, 3);
    }
 
    @Test
@@ -43,9 +37,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertFalse(tested.eval2(false, true, 0));
 
 //      assertLine(12, 3, 3, 4, 3, 2);
-
-      findMethodData(12);
-      assertPaths(4, 4, 4);
    }
 
    @Test
@@ -57,9 +48,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertFalse(tested.eval3(true, false, false));
 
 //      assertLine(17, 3, 3, 4, 3, 2);
-
-      findMethodData(17);
-      assertPaths(4, 4, 4);
    }
 
    @Test
@@ -73,9 +61,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertTrue(tested.eval4(true, false, true));
 
 //      assertLine(22, 3, 2, 6, 2, 0);
-
-      findMethodData(22);
-      assertPaths(4, 2, 6);
    }
 
    @Test
@@ -85,14 +70,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertTrue(tested.eval5(false, false, false));
 
 //      assertLine(30, 1, 1, 1);
-
-      findMethodData(27);
-      assertPaths(4, 2, 2);
-      assertRegularPath(4, 0);
-      assertRegularPath(8, 1);
-      assertRegularPath(10, 0);
-      assertShadowedPath(14, 0);
-      assertRegularPath(13, 1);
    }
 
    @Test
@@ -100,11 +77,7 @@ public final class BooleanExpressionsTest extends CoverageTest
    {
       BooleanExpressions.isSameTypeIgnoringAutoBoxing(int.class, Integer.class);
 
-      findMethodData(35);
-      assertPaths(8, 1, 1);
-
-      findMethodData(43);
-      assertPaths(63, 1, 1);
+      // TODO: assertions
    }
 
    @Test
@@ -114,10 +87,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertFalse(tested.simplyReturnsInput(false));
 
       assertLine(53, 1, 1, 2);
-
-      findMethodData(53);
-      assertPaths(1, 1, 2);
-      assertPath(2, 2);
    }
 
    @Test
@@ -126,11 +95,6 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertTrue(tested.returnsNegatedInput(false));
 
 //      assertLine(58, 1, 1, 1);
-
-      findMethodData(58);
-      assertPaths(1, 1, 1);
-      assertShadowedPath(6, 0);
-      assertRegularPath(5, 1);
    }
 
    @Test
@@ -138,13 +102,6 @@ public final class BooleanExpressionsTest extends CoverageTest
    {
       assertTrue(tested.returnsTrivialResultFromInputAfterIfElse(false, 1));
       assertFalse(tested.returnsTrivialResultFromInputAfterIfElse(true, 0));
-
-      findMethodData(65);
-      assertPaths(2, 2, 2);
-      assertShadowedPath(11, 0);
-      assertRegularPath(10, 1);
-      assertShadowedPath(10, 1);
-      assertRegularPath(9, 1);
    }
 
    @Test
@@ -161,12 +118,5 @@ public final class BooleanExpressionsTest extends CoverageTest
       assertLine(82, 1, 1, 1);
       assertLine(83, 1, 1, 1);
       assertLine(86, 1, 1, 4);
-
-      findMethodData(77);
-      assertPaths(4, 3, 4);
-      assertPath(12, 1);
-      assertPath(11, 1);
-      assertPath(11, 0);
-      assertPath(10, 2);
    }
 }

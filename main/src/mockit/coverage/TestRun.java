@@ -63,18 +63,6 @@ public final class TestRun
       }
    }
 
-   public static void nodeReached(@Nonnull String file, int firstLineInMethodBody, int node) {
-      if (terminated) return;
-
-      synchronized (LOCK) {
-         CoverageData coverageData = CoverageData.instance();
-         FileCoverageData fileData = coverageData.getFileData(file);
-
-         int previousExecutionCount = fileData.pathCoverageInfo.registerExecution(firstLineInMethodBody, node);
-         recordNewLineOrSegmentAsCoveredIfApplicable(previousExecutionCount);
-      }
-   }
-
    public static void fieldAssigned(@Nonnull String file, @Nonnull String classAndFieldNames) {
       if (terminated) return;
 

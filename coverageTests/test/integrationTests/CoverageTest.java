@@ -12,14 +12,12 @@ import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.dataItems.*;
 import mockit.coverage.lines.*;
-import mockit.coverage.paths.*;
 
+@SuppressWarnings("JUnitTestCaseWithNoTests")
 public class CoverageTest
 {
    @Nullable protected static FileCoverageData fileData;
    @Nullable private static String testedClassSimpleName;
-   @Nullable protected MethodCoverageData methodData;
-   private int currentPathIndex = -1;
 
    @Before
    public final void findCoverageData() throws Exception {
@@ -131,54 +129,6 @@ public class CoverageTest
 
       int coveredSourcesAndTargets = lineData.getNumberOfCoveredBranchingSourcesAndTargets();
 //      assertEquals("Covered sources and targets:", expectedCoveredSourcesAndTargets, coveredSourcesAndTargets);
-   }
-
-   protected final void findMethodData(int firstLineOfMethodBody) {
-      methodData = fileData().pathCoverageInfo.firstLineToMethodData.get(firstLineOfMethodBody);
-      assertNotNull("Method not found with first line " + firstLineOfMethodBody, methodData);
-   }
-
-   protected final void assertPaths(int expectedPaths, int expectedCoveredPaths, int expectedExecutionCount) {
-      assertEquals("Number of paths:", expectedPaths, methodData.getTotalPaths());
-      assertEquals("Number of covered paths:", expectedCoveredPaths, methodData.getCoveredPaths());
-      assertEquals("Execution count for all paths:", expectedExecutionCount, methodData.getExecutionCount());
-   }
-
-   protected final void assertMethodLines(int startingLine, int endingLine) {
-      assertEquals(startingLine, methodData.getFirstLineInBody());
-      assertEquals(endingLine, methodData.getLastLineInBody());
-   }
-
-   @Nonnull
-   protected final Path assertPath(int expectedNodeCount, int expectedExecutionCount) {
-      int i = currentPathIndex + 1;
-      currentPathIndex = -1;
-
-      Path path = methodData.paths.get(i);
-      assertEquals("Path node count:", expectedNodeCount, path.getNodes().size());
-      assertEquals("Path execution count:", expectedExecutionCount, path.getExecutionCount());
-
-      currentPathIndex = i;
-      return path;
-   }
-
-   protected final void assertRegularPath(int expectedNodeCount, int expectedExecutionCount) {
-      Path path = assertPath(expectedNodeCount, expectedExecutionCount);
-      assertFalse("Path is shadowed", path.isShadowed());
-   }
-
-   protected final void assertShadowedPath(int expectedNodeCount, int expectedExecutionCount) {
-      Path path = assertPath(expectedNodeCount, expectedExecutionCount);
-      assertTrue("Path is not shadowed", path.isShadowed());
-   }
-
-   @After
-   public final void verifyThatAllPathsWereAccountedFor() {
-      int nextPathIndex = currentPathIndex + 1;
-
-      if (methodData != null && nextPathIndex > 0) {
-         assertEquals("Path " + nextPathIndex + " was not verified;", nextPathIndex, methodData.paths.size());
-      }
    }
 
    protected final void assertFieldIgnored(@Nonnull String fieldName) {

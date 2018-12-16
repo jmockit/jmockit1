@@ -88,10 +88,7 @@ class CoverageReport
    }
 
    private void generateFileCoverageReport(@Nonnull String sourceFile, @Nonnull FileCoverageData fileData) throws IOException {
-      if (sourceDirs == null) {
-         addFileToPackageFileList(sourceFile);
-      }
-      else {
+      if (sourceDirs != null) {
          InputFile inputFile = InputFile.createIfFileExists(sourceDirs, sourceFile);
 
          if (inputFile != null) {
@@ -104,9 +101,9 @@ class CoverageReport
                sourceFilesNotFound.add(sourceFile);
             }
          }
-
-         addFileToPackageFileList(sourceFile);
       }
+
+      addFileToPackageFileList(sourceFile);
    }
 
    private void addFileToPackageFileList(@Nonnull String file) {

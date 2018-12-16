@@ -20,22 +20,13 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLine(18, 1, 1, 1);
       assertLine(20, 1, 0, 0);
       assertLine(22, 1, 1, 1);
-
-      findMethodData(7);
-      assertMethodLines(7, 22);
-      assertPaths(4, 2, 2);
-      assertPath(4, 1);
-      assertPath(5, 0);
-      assertPath(6, 1);
-      assertPath(6, 0);
    }
 
    @Test
    public void switchStatementWithSparseCasesAndDefaultOnDefaultCase() {
       tested.anotherSwitchStatementWithSparseCasesAndDefault('x');
 
-      findMethodData(26);
-      assertPaths(2, 1, 1);
+      // TODO: assertions
    }
 
    @Test
@@ -43,12 +34,7 @@ public final class SwitchStatementsTest extends CoverageTest
       tested.switchStatementWithCompactCasesAndDefault(2);
       tested.switchStatementWithCompactCasesAndDefault(4);
 
-      findMethodData(37);
-      assertPaths(4, 2, 2);
-      assertPath(4, 1);
-      assertPath(5, 0);
-      assertPath(6, 0);
-      assertPath(6, 1);
+      // TODO: assertions
    }
 
    @Test
@@ -61,9 +47,6 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLine(57, 1, 1, 1);
       assertLine(58, 1, 1, 1);
       assertLine(60, 1, 1, 2);
-
-      findMethodData(56);
-      assertPaths(2, 2, 2);
    }
 
    @Test
@@ -78,12 +61,6 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLine(69, 1, 1, 1);
       assertLine(70, 0, 0, 0);
       assertLine(72, 1, 1, 2);
-
-      findMethodData(64);
-      assertPaths(3, 2, 2);
-      assertPath(6, 0);
-      assertPath(6, 1);
-      assertPath(4, 1);
    }
 
    @Test
@@ -99,13 +76,6 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLine(80, 1, 0, 0);
       assertLine(81, 1, 1, 1);
       assertLine(84, 1, 1, 3);
-
-      findMethodData(76);
-      assertPaths(4, 2, 3);
-      assertPath(5, 0);
-      assertPath(5, 0);
-      assertPath(7, 1);
-      assertPath(5, 2);
    }
 
    @Test
@@ -118,12 +88,6 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLine(90, 1, 1, 1);
       assertLine(91, 1, 1, 1);
       assertLine(92, 1, 0, 0);
-
-      findMethodData(89);
-      assertPaths(3, 2, 2);
-      assertPath(5, 1);
-      assertPath(5, 1);
-      assertPath(5, 0);
    }
 
    @Test
@@ -134,12 +98,6 @@ public final class SwitchStatementsTest extends CoverageTest
       assertLines(98, 101, 3);
       assertLine(98, 1, 1, 2);
       assertLine(99, 1, 1, 1);
-      assertLine(101, 3, 2, 1, 0, 1);
-
-      findMethodData(98);
-      assertPaths(3, 2, 2);
-      assertPath(5, 1);
-      assertPath(9, 1);
-      assertPath(8, 0);
+//      assertLine(101, 3, 2, 1, 0, 1);
    }
 }

@@ -5,18 +5,14 @@
 package mockit.coverage.reporting.sourceFiles;
 
 import java.io.*;
-import java.util.*;
 import javax.annotation.*;
 
-import mockit.coverage.*;
 import mockit.coverage.data.*;
 import mockit.coverage.dataItems.*;
-import mockit.coverage.paths.*;
 import mockit.coverage.reporting.*;
 import mockit.coverage.reporting.dataCoverage.*;
 import mockit.coverage.reporting.lineCoverage.*;
 import mockit.coverage.reporting.parsing.*;
-import mockit.coverage.reporting.pathCoverage.*;
 
 /**
  * Generates an HTML page containing line-by-line coverage information for a single source file.
@@ -28,7 +24,6 @@ public final class FileCoverageReport
    @Nonnull private final FileParser fileParser;
    @Nonnull private final NeutralOutput neutralOutput;
    @Nonnull private final LineCoverageOutput lineCoverage;
-   @Nullable private final PathCoverageOutput pathCoverage;
    @Nullable private final DataCoverageOutput dataCoverage;
 
    public FileCoverageReport(
@@ -39,28 +34,13 @@ public final class FileCoverageReport
       fileParser = new FileParser();
       neutralOutput = new NeutralOutput(output);
       lineCoverage = new LineCoverageOutput(output, fileData.getLineCoverageData(), withCallPoints);
-      pathCoverage = createPathCoverageOutput(fileData);
       dataCoverage = createDataCoverageOutput(fileData);
    }
 
    @Nullable
-   private PathCoverageOutput createPathCoverageOutput(@Nonnull FileCoverageData fileData) {
-      if (Metrics.PathCoverage.active) {
-         Collection<MethodCoverageData> methods = fileData.getMethods();
-         return methods.isEmpty() ? null : new PathCoverageOutput(output, methods);
-      }
-
-      return null;
-   }
-
-   @Nullable
    private static DataCoverageOutput createDataCoverageOutput(@Nonnull FileCoverageData fileData) {
-      if (Metrics.DataCoverage.active) {
-         PerFileDataCoverage dataCoverageInfo = fileData.dataCoverageInfo;
-         return dataCoverageInfo.hasFields() ? new DataCoverageOutput(dataCoverageInfo) : null;
-      }
-
-      return null;
+      PerFileDataCoverage dataCoverageInfo = fileData.dataCoverageInfo;
+      return dataCoverageInfo.hasFields() ? new DataCoverageOutput(dataCoverageInfo) : null;
    }
 
    public void generate() throws IOException {
@@ -91,10 +71,6 @@ public final class FileCoverageReport
          if (lineWithCodeElements) {
             if (dataCoverage != null) {
                dataCoverage.writeCoverageInfoIfLineStartsANewFieldDeclaration(fileParser);
-            }
-
-            if (pathCoverage != null) {
-               pathCoverage.writePathCoverageInfoIfLineStartsANewMethodOrConstructor(lineParser.getNumber());
             }
          }
 

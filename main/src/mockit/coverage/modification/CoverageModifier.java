@@ -14,18 +14,14 @@ import mockit.asm.fields.*;
 import mockit.asm.methods.*;
 import mockit.coverage.data.*;
 import mockit.coverage.lines.*;
-import mockit.coverage.paths.*;
 import mockit.internal.*;
 import static mockit.asm.jvmConstants.Access.*;
-import static mockit.coverage.Metrics.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
 final class CoverageModifier extends WrappingClassVisitor
 {
    private static final Map<String, CoverageModifier> INNER_CLASS_MODIFIERS = new HashMap<>();
    private static final int FIELD_MODIFIERS_TO_IGNORE = FINAL + SYNTHETIC;
-   private static final int MAX_CONDITIONS = Integer.getInteger("coverage-maxConditions", 10);
-   private static final boolean WITH_PATH_OR_DATA_COVERAGE = PathCoverage.active || DataCoverage.active;
 
    @Nullable
    static byte[] recoverModifiedByteCodeIfAvailable(@Nonnull String innerClassName) {
@@ -181,7 +177,7 @@ final class CoverageModifier extends WrappingClassVisitor
    public FieldVisitor visitField(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable Object value
    ) {
-      if (fileData != null && simpleClassName != null && (access & FIELD_MODIFIERS_TO_IGNORE) == 0 && DataCoverage.active) {
+      if (fileData != null && simpleClassName != null && (access & FIELD_MODIFIERS_TO_IGNORE) == 0) {
          fileData.dataCoverageInfo.addField(simpleClassName, name, (access & STATIC) != 0);
       }
 
@@ -203,12 +199,10 @@ final class CoverageModifier extends WrappingClassVisitor
             return forEnumClass ? mw : new StaticBlockModifier(mw);
          }
 
-         if (WITH_PATH_OR_DATA_COVERAGE) {
-            return new ConstructorModifier(mw);
-         }
+         return new ConstructorModifier(mw);
       }
 
-      return WITH_PATH_OR_DATA_COVERAGE ? new MethodModifier(mw) : new BaseMethodModifier(mw);
+      return new MethodModifier(mw);
    }
 
    private class BaseMethodModifier extends WrappingMethodVisitor {
@@ -456,127 +450,10 @@ final class CoverageModifier extends WrappingClassVisitor
    }
 
    private class MethodOrConstructorModifier extends BaseMethodModifier {
-      @Nullable private NodeBuilder nodeBuilder;
-      @Nullable private Label entryPoint;
-      private int jumpCount;
-
-      MethodOrConstructorModifier(@Nonnull MethodWriter mw) {
-         super(mw);
-         nodeBuilder = new NodeBuilder();
-      }
-
-      @Override
-      public final void visitLabel(@Nonnull Label label) {
-         if (nodeBuilder == null || ignoreUntilNextSwitch > 0) {
-            super.visitLabel(label);
-            return;
-         }
-
-         int line = label.line;
-
-         if (entryPoint == null) {
-            entryPoint = new Label();
-            mw.visitLabel(entryPoint);
-            mw.visitLineNumber(line, entryPoint);
-            nodeBuilder.handleEntry(line);
-            generateCallToRegisterNodeReached(0);
-         }
-
-         super.visitLabel(label);
-
-         int newNodeIndex = nodeBuilder.handleJumpTarget(label, line > 0 ? line : currentLine);
-         generateCallToRegisterNodeReached(newNodeIndex);
-      }
-
-      private void generateCallToRegisterNodeReached(int nodeIndex) {
-         if (nodeIndex >= 0) {
-            assert nodeBuilder != null;
-            mw.visitLdcInsn(sourceFileName);
-            mw.visitLdcInsn(nodeBuilder.firstLine);
-            mw.visitIntInsn(SIPUSH, nodeIndex);
-            mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "nodeReached", "(Ljava/lang/String;II)V", false);
-         }
-      }
-
-      @Override
-      public final void visitJumpInsn(int opcode, @Nonnull Label label) {
-         if (nodeBuilder == null || entryPoint == null || ignoreUntilNextSwitch > 0 || visitedLabels.contains(label)) {
-            super.visitJumpInsn(opcode, label);
-            return;
-         }
-
-         boolean conditional = isConditionalJump(opcode);
-
-         if (conditional && ++jumpCount > MAX_CONDITIONS) {
-            nodeBuilder = null;
-         }
-         else {
-            int nodeIndex = nodeBuilder.handleJump(label, currentLine, conditional);
-            generateCallToRegisterNodeReached(nodeIndex);
-         }
-
-         super.visitJumpInsn(opcode, label);
-      }
-
-      @Override
-      public final void visitInsn(int opcode) {
-         if (nodeBuilder != null) {
-            if (opcode >= IRETURN && opcode <= RETURN || opcode == ATHROW) {
-               int newNodeIndex = nodeBuilder.handleExit(currentLine);
-               generateCallToRegisterNodeReached(newNodeIndex);
-            }
-            else {
-               handleRegularInstruction(opcode);
-            }
-         }
-
-         super.visitInsn(opcode);
-      }
-
-      private void handleRegularInstruction(int opcode) {
-         if (nodeBuilder != null && ignoreUntilNextSwitch == 0) {
-            int nodeIndex = nodeBuilder.handleRegularInstruction(currentLine, opcode);
-            generateCallToRegisterNodeReached(nodeIndex);
-         }
-      }
-
-      @Override
-      public final void visitIntInsn(int opcode, int operand) {
-         super.visitIntInsn(opcode, operand);
-         handleRegularInstruction(opcode);
-      }
-
-      @Override
-      public final void visitIincInsn(@Nonnegative int varIndex, int increment) {
-         super.visitIincInsn(varIndex, increment);
-         handleRegularInstruction(IINC);
-      }
-
-      @Override
-      public final void visitLdcInsn(@Nonnull Object cst) {
-         super.visitLdcInsn(cst);
-         handleRegularInstruction(LDC);
-      }
-
-      @Override
-      public final void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
-         super.visitTypeInsn(opcode, typeDesc);
-         handleRegularInstruction(opcode);
-      }
-
-      @Override
-      public final void visitVarInsn(int opcode, int varIndex) {
-         super.visitVarInsn(opcode, varIndex);
-         handleRegularInstruction(opcode);
-      }
+      MethodOrConstructorModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
       public final void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
-         if (!DataCoverage.active) {
-            super.visitFieldInsn(opcode, owner, name, desc);
-            return;
-         }
-
          // TODO: need to also process field instructions inside accessor methods (STATIC + SYNTHETIC, "access$nnn")
          boolean getField = opcode == GETSTATIC || opcode == GETFIELD;
          boolean isStatic = opcode == PUTSTATIC || opcode == GETSTATIC;
@@ -600,8 +477,6 @@ final class CoverageModifier extends WrappingClassVisitor
          if (fieldHasData) {
             generateCallToRegisterFieldCoverage(getField, isStatic, size2, classAndFieldNames);
          }
-
-         handleRegularInstruction(opcode);
       }
 
       private void generateCodeToSaveInstanceReferenceOnTheStack(boolean getField, boolean size2) {
@@ -649,54 +524,12 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public final void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
-         super.visitMethodInsn(opcode, owner, name, desc, itf);
-         handleRegularInstruction(opcode);
-      }
-
-      @Override
-      public final void visitTryCatchBlock(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
-         super.visitTryCatchBlock(start, end, handler, type);
-         handleRegularInstruction(0);
-      }
-
-      @Override
       public final void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {
          if (ignoreUntilNextSwitch == 1) {
             ignoreUntilNextSwitch = 2;
          }
-         else if (nodeBuilder != null) {
-            int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
-            generateCallToRegisterNodeReached(nodeIndex);
-            ignoreUntilNextSwitch = 0;
-         }
 
          super.visitLookupSwitchInsn(dflt, keys, labels);
-      }
-
-      @Override
-      public final void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {
-         if (nodeBuilder != null && ignoreUntilNextSwitch == 0) {
-            int nodeIndex = nodeBuilder.handleForwardJumpsToNewTargets(dflt, labels, currentLine);
-            generateCallToRegisterNodeReached(nodeIndex);
-         }
-
-         super.visitTableSwitchInsn(min, max, dflt, labels);
-      }
-
-      @Override
-      public final void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {
-         super.visitMultiANewArrayInsn(desc, dims);
-         handleRegularInstruction(MULTIANEWARRAY);
-      }
-
-      @Override
-      public final void visitEnd() {
-         if (currentLine > 0 && nodeBuilder != null && nodeBuilder.hasNodes() && fileData != null) {
-            MethodCoverageData methodData = new MethodCoverageData();
-            methodData.buildPaths(currentLine, nodeBuilder);
-            fileData.addMethod(methodData);
-         }
       }
    }
 
