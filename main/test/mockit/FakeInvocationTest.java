@@ -123,13 +123,6 @@ public final class FakeInvocationTest
    public void useOfContextParametersForJREMethods() throws Exception {
       new MockUp<Runtime>() {
          @Mock
-         void runFinalizersOnExit(Invocation inv, boolean b) {
-            assertNull(inv.getInvokedInstance());
-            assertEquals(1, inv.getInvocationCount());
-            assertTrue(b);
-         }
-
-         @Mock
          Process exec(Invocation inv, String command, String[] envp) {
             assertSame(Runtime.getRuntime(), inv.getInvokedInstance());
             assertEquals(0, inv.getInvocationIndex());
@@ -139,8 +132,6 @@ public final class FakeInvocationTest
          }
       };
 
-      //noinspection deprecation
-      Runtime.runFinalizersOnExit(true);
       assertNull(Runtime.getRuntime().exec("test", null));
    }
 }

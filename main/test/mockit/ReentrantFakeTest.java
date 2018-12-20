@@ -81,11 +81,6 @@ public final class ReentrantFakeTest
 
          return inv.proceed(hook);
       }
-
-      @Mock
-      public void runFinalizersOnExit(boolean value) {
-         assertTrue(value);
-      }
    }
 
    @Test
@@ -98,9 +93,6 @@ public final class ReentrantFakeTest
       runtime.runFinalization();
 
       assertFalse(runtime.removeShutdownHook(null));
-
-      //noinspection deprecation
-      Runtime.runFinalizersOnExit(true);
    }
 
    public static class ReentrantFakeForNativeMethod extends MockUp<Runtime> {

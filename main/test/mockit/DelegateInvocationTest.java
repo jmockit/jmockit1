@@ -25,8 +25,7 @@ public final class DelegateInvocationTest
          Collaborator.staticMethod();
          result = new Delegate() {
             @Mock
-            boolean staticMethod(Invocation context)
-            {
+            boolean staticMethod(Invocation context) {
                assertNull(context.getInvokedInstance());
                assertEquals(0, context.getInvokedArguments().length);
                assertEquals(context.getInvocationCount() - 1, context.getInvocationIndex());
@@ -64,13 +63,11 @@ public final class DelegateInvocationTest
 
    @Test
    public void delegateReceivingNullArguments(@Mocked final Collaborator mock) {
-      new Expectations() {
-      {
+      new Expectations() {{
          mock.doSomething(true, null, null);
          result = new Delegate() {
             @Mock
-            void doSomething(Invocation invocation, Boolean b, int[] i, String s)
-            {
+            void doSomething(Invocation invocation, Boolean b, int[] i, String s) {
                Collaborator instance = invocation.getInvokedInstance();
                assertSame(mock, instance);
                assertEquals(1, invocation.getInvocationCount());
@@ -84,8 +81,7 @@ public final class DelegateInvocationTest
                assertNull(args[2]);
             }
          };
-      }
-      };
+      }};
 
       assertNull(mock.doSomething(true, null, null));
    }
@@ -96,14 +92,12 @@ public final class DelegateInvocationTest
          mock.getValue();
          result = new Delegate() {
             @Mock
-            int getValue(Invocation context)
-            {
+            int getValue(Invocation context) {
                return context.getInvocationCount();
             }
 
             @SuppressWarnings("unused")
-            private void otherMethod(Invocation context)
-            {
+            private void otherMethod(Invocation context) {
                fail();
             }
          };
@@ -119,14 +113,12 @@ public final class DelegateInvocationTest
          Collaborator.staticMethod(1);
          result = new Delegate() {
             @SuppressWarnings("unused")
-            private void otherMethod(int i)
-            {
+            private void otherMethod(int i) {
                fail();
             }
 
             @Mock
-            boolean staticMethod(Invocation invocation, Number i)
-            {
+            boolean staticMethod(Invocation invocation, Number i) {
                return i.intValue() > 0;
             }
          };
@@ -154,8 +146,7 @@ public final class DelegateInvocationTest
          mock.publicMethod(anyBoolean);
          result = new Delegate() {
             @Mock
-            long differentName(Invocation invocation, boolean b)
-            {
+            long differentName(Invocation invocation, boolean b) {
                assertEquals(1, invocation.getInvocationCount());
                assertTrue(b);
                assertSame(Boolean.TRUE, invocation.getInvokedArguments()[0]);
@@ -174,23 +165,20 @@ public final class DelegateInvocationTest
          returns(
             new Delegate() {
                @Mock
-               int delegate(Invocation invocation)
-               {
+               int delegate(Invocation invocation) {
                   assertSame(mock, invocation.getInvokedInstance());
                   return invocation.getInvocationCount();
                }
             },
             new Delegate() {
                @Mock
-               int delegate(Invocation invocation)
-               {
+               int delegate(Invocation invocation) {
                   return invocation.getInvocationCount();
                }
             },
             new Delegate() {
                @Mock
-               int delegate(Invocation invocation)
-               {
+               int delegate(Invocation invocation) {
                   assertEquals(3, invocation.getInvocationCount());
                   throw new SecurityException();
                }
@@ -228,23 +216,10 @@ public final class DelegateInvocationTest
       final Runtime rt = Runtime.getRuntime();
 
       new Expectations(Runtime.class) {{
-         //noinspection deprecation
-         Runtime.runFinalizersOnExit(anyBoolean);
-         result = new Delegate() {
-            @Mock
-            void delegate(Invocation inv, boolean b)
-            {
-               assertNull(inv.getInvokedInstance());
-               assertEquals(1, inv.getInvocationCount());
-               assertTrue(b);
-            }
-         };
-
          rt.exec(anyString, null); maxTimes = 1;
          result = new Delegate() {
             @Mock
-            void exec(Invocation inv, String command, String[] envp)
-            {
+            void exec(Invocation inv, String command, String[] envp) {
                assertSame(rt, inv.getInvokedInstance());
                assertEquals(0, inv.getInvocationIndex());
                assertNotNull(command);
@@ -253,8 +228,6 @@ public final class DelegateInvocationTest
          };
       }};
 
-      //noinspection deprecation
-      Runtime.runFinalizersOnExit(true);
       assertNull(rt.exec("test", null));
    }
 }
