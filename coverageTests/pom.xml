@@ -17,20 +17,20 @@
       <testSourceDirectory>test</testSourceDirectory>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.6.2</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.8</source><target>1.8</target>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.20.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>2.22.1</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
                <argLine>
                   -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
-                  -Dcoverage-metrics=all
+                  -Dcoverage-output=html
                </argLine>
             </configuration>
             <executions>
