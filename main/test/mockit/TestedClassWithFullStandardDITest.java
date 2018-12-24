@@ -75,14 +75,14 @@ public final class TestedClassWithFullStandardDITest
    @Tested(fullyInitialized = true) AnotherTestedClass tested2;
    @Injectable Runnable mockedDependency;
 
+   static File persistenceXmlFile;
    static EntityManagerFactory namedEMFactory;
    static EntityManager namedEM;
    static EntityManagerFactory defaultEMFactory;
    static EntityManager defaultEM;
 
    @BeforeClass @SuppressWarnings("rawtypes")
-   public static void setUpPersistence() throws Exception
-   {
+   public static void setUpPersistence() throws Exception {
       final class FakeEntityManager implements EntityManager {
          @Override public void persist(Object entity) {}
          @Override public <T> T merge(T entity) { return null; }
@@ -188,12 +188,17 @@ public final class TestedClassWithFullStandardDITest
       File tempFolder = new File(rootOfClasspath + "META-INF");
       if (tempFolder.mkdir()) tempFolder.deleteOnExit();
 
-      File xmlFile = new File(tempFolder, "persistence.xml");
-      xmlFile.deleteOnExit();
+      persistenceXmlFile = new File(tempFolder, "persistence.xml");
 
-      Writer xmlWriter = new FileWriter(xmlFile);
+      Writer xmlWriter = new FileWriter(persistenceXmlFile);
       xmlWriter.write("<persistence><persistence-unit name='default'/></persistence>");
       xmlWriter.close();
+   }
+
+   @AfterClass
+   public static void deleteDefaultPersistenceXmlFile() {
+      persistenceXmlFile.delete();
+      persistenceXmlFile.getParentFile().delete();
    }
 
    @Test

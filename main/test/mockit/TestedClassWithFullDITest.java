@@ -131,7 +131,9 @@ public final class TestedClassWithFullDITest
 
    @Test
    public void instantiateClassWithNonAnnotatedJPAFields(@Tested(fullyInitialized = true) ClassWithJPAFields tested6) {
-      assertNull(tested6.emFactory);
+      // If an EntityManagerFactory was created for a previous test, then it got stored in the global dependency cache, which lasts
+      // until the end of the test run; therefore, the assertion needs to allow for that.
+      assertTrue(tested6.emFactory == null || tested6.emFactory.getClass().getName().contains("FakeEntityManagerFactory"));
       assertNull(tested6.em);
    }
 }
