@@ -383,6 +383,8 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       public boolean isConstructor() { return "<init>".equals(name); }
 
       void readAttributes(@Nonnull String attributeName, @Nonnegative int codeIndex) {
+         assert attributesToRead != null;
+
          if ("Code".equals(attributeName)) {
             if (attributesToRead.contains(Attribute.Parameters)) {
                readParameters(codeIndex);
@@ -510,8 +512,10 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       @Nullable
       private String[] compactArray(@Nonnull String[] arrayPossiblyWithNulls) {
          int n = arrayPossiblyWithNulls.length;
+         int j = n - 1;
+         int i = 0;
 
-         for (int i = 0, j = n - 1; i < j; ) {
+         while (i < j) {
             if (arrayPossiblyWithNulls[i] == null) {
                System.arraycopy(arrayPossiblyWithNulls, i + 1, arrayPossiblyWithNulls, i, j - i);
                arrayPossiblyWithNulls[j] = null;
