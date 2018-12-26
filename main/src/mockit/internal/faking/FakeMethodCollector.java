@@ -51,11 +51,9 @@ final class FakeMethodCollector
    private void addFakeMethods(@Nonnull List<MethodInfo> methods) {
       for (MethodInfo method : methods) {
          int access = method.accessFlags;
-         String methodName = method.name;
-         String methodDesc = method.desc;
 
-         if ((access & INVALID_METHOD_ACCESSES) == 0 && !"<init>".equals(methodName) && method.hasAnnotation("Lmockit/Mock;")) {
-            FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, methodName, methodDesc);
+         if ((access & INVALID_METHOD_ACCESSES) == 0 && method.isMethod() && method.hasAnnotation("Lmockit/Mock;")) {
+            FakeMethod fakeMethod = fakeMethods.addMethod(collectingFromSuperClass, access, method.name, method.desc);
 
             if (fakeMethod != null && fakeMethod.requiresFakeState()) {
                FakeState fakeState = new FakeState(fakeMethod);
