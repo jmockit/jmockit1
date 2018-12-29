@@ -14,7 +14,6 @@ import mockit.internal.util.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
 
-@SuppressWarnings("OverlyComplexClass")
 public final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
@@ -76,7 +75,8 @@ public final class ReturnTypeConversion
          boolean valueIsArray = valueType.isArray();
 
          if (valueIsArray || valueToReturn instanceof Iterable<?> || valueToReturn instanceof Iterator<?>) {
-            addMultiValuedResultBasedOnTheReturnType(valueIsArray);
+            assert invocationResults != null;
+            new MultiValuedConversion(invocationResults, returnType, valueToReturn).addMultiValuedResultBasedOnTheReturnType(valueIsArray);
          }
          else if (wrapperType != null) {
             throw newIncompatibleTypesException();
@@ -90,107 +90,6 @@ public final class ReturnTypeConversion
    private void addReturnValue(@Nonnull Object returnValue) {
       assert invocationResults != null;
       invocationResults.addReturnValueResult(returnValue);
-   }
-
-   private void addMultiValuedResultBasedOnTheReturnType(boolean valueIsArray) {
-      if (returnType == void.class) {
-         addMultiValuedResult(valueIsArray);
-      }
-      else if (returnType == Object.class) {
-         addReturnValue(valueToReturn);
-      }
-      else if (valueIsArray && addCollectionOrMapWithElementsFromArray()) {
-         return;
-      }
-      else if (hasReturnOfDifferentType()) {
-         addMultiValuedResult(valueIsArray);
-      }
-      else {
-         addReturnValue(valueToReturn);
-      }
-   }
-
-   private boolean hasReturnOfDifferentType() {
-      return
-         !returnType.isArray() &&
-         !Iterable.class.isAssignableFrom(returnType) && !Iterator.class.isAssignableFrom(returnType) &&
-         !returnType.isAssignableFrom(valueToReturn.getClass());
-   }
-
-   private void addMultiValuedResult(boolean valueIsArray) {
-      InvocationResults results = invocationResults;
-      assert results != null;
-
-      if (valueIsArray) {
-         results.addResults(valueToReturn);
-      }
-      else if (valueToReturn instanceof Iterable<?>) {
-         results.addResults((Iterable<?>) valueToReturn);
-      }
-      else {
-         results.addDeferredResults((Iterator<?>) valueToReturn);
-      }
-   }
-
-   private boolean addCollectionOrMapWithElementsFromArray() {
-      int n = Array.getLength(valueToReturn);
-      Object values = null;
-
-      if (returnType.isAssignableFrom(ListIterator.class)) {
-         List<Object> list = new ArrayList<>(n);
-         addArrayElements(list, n);
-         values = list.listIterator();
-      }
-      else if (returnType.isAssignableFrom(List.class)) {
-         values = addArrayElements(new ArrayList<>(n), n);
-      }
-      else if (returnType.isAssignableFrom(Set.class)) {
-         values = addArrayElements(new LinkedHashSet<>(n), n);
-      }
-      else if (returnType.isAssignableFrom(SortedSet.class)) {
-         values = addArrayElements(new TreeSet<>(), n);
-      }
-      else if (returnType.isAssignableFrom(Map.class)) {
-         values = addArrayElements(new LinkedHashMap<>(n), n);
-      }
-      else if (returnType.isAssignableFrom(SortedMap.class)) {
-         values = addArrayElements(new TreeMap<>(), n);
-      }
-
-      if (values != null) {
-         assert invocationResults != null;
-         invocationResults.addReturnValue(values);
-         return true;
-      }
-
-      return false;
-   }
-
-   @Nonnull
-   private Object addArrayElements(@Nonnull Collection<Object> values, int elementCount) {
-      for (int i = 0; i < elementCount; i++) {
-         Object element = Array.get(valueToReturn, i);
-         values.add(element);
-      }
-
-      return values;
-   }
-
-   @Nullable
-   private Object addArrayElements(@Nonnull Map<Object, Object> values, int elementPairCount) {
-      for (int i = 0; i < elementPairCount; i++) {
-         Object keyAndValue = Array.get(valueToReturn, i);
-
-         if (keyAndValue == null || !keyAndValue.getClass().isArray()) {
-            return null;
-         }
-
-         Object key = Array.get(keyAndValue, 0);
-         Object element = Array.getLength(keyAndValue) > 1 ? Array.get(keyAndValue, 1) : null;
-         values.put(key, element);
-      }
-
-      return values;
    }
 
    @Nonnull
