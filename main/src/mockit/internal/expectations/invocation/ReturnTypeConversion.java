@@ -108,7 +108,6 @@ public final class ReturnTypeConversion
       }
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
    private void addResultFromSingleValue() {
       if (returnType == Object.class) {
          addReturnValue(valueToReturn);
@@ -122,17 +121,8 @@ public final class ReturnTypeConversion
       else if (returnType.isArray()) {
          addArray();
       }
-      else if (returnType.isAssignableFrom(ArrayList.class)) {
-         addCollectionWithSingleElement(new ArrayList<>(1));
-      }
-      else if (returnType.isAssignableFrom(LinkedList.class)) {
-         addCollectionWithSingleElement(new LinkedList<>());
-      }
-      else if (returnType.isAssignableFrom(HashSet.class)) {
-         addCollectionWithSingleElement(new HashSet<>(1));
-      }
-      else if (returnType.isAssignableFrom(TreeSet.class)) {
-         addCollectionWithSingleElement(new TreeSet<>());
+      else if (addCollectionWithSingleElement()) {
+         return;
       }
       else if (returnType.isAssignableFrom(ListIterator.class)) {
          addListIterator();
@@ -162,9 +152,29 @@ public final class ReturnTypeConversion
       addReturnValue(array);
    }
 
-   private void addCollectionWithSingleElement(@Nonnull Collection<Object> container) {
-      container.add(valueToReturn);
-      addReturnValue(container);
+   private boolean addCollectionWithSingleElement() {
+      Collection<Object> container = null;
+
+      if (returnType.isAssignableFrom(ArrayList.class)) {
+         container = new ArrayList<>(1);
+      }
+      else if (returnType.isAssignableFrom(LinkedList.class)) {
+         container = new LinkedList<>();
+      }
+      else if (returnType.isAssignableFrom(HashSet.class)) {
+         container = new HashSet<>(1);
+      }
+      else if (returnType.isAssignableFrom(TreeSet.class)) {
+         container = new TreeSet<>();
+      }
+
+      if (container != null) {
+         container.add(valueToReturn);
+         addReturnValue(container);
+         return true;
+      }
+
+      return false;
    }
 
    private void addListIterator() {
