@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal.expectations;
+package mockit.internal.expectations.invocation;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -10,7 +10,6 @@ import java.nio.*;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.expectations.invocation.*;
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
@@ -20,27 +19,30 @@ public final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
 
-   @Nullable private final Expectation expectation;
    @Nonnull ExpectedInvocation invocation;
+   @Nullable private final InvocationResults invocationResults;
    @Nonnull private final Class<?> returnType;
    @Nonnull private final Object valueToReturn;
 
-   ReturnTypeConversion(@Nonnull Expectation expectation, @Nonnull Class<?> returnType, @Nonnull Object value) {
-      this.expectation = expectation;
-      invocation = expectation.invocation;
+   public ReturnTypeConversion(
+      @Nonnull ExpectedInvocation invocation, @Nonnull InvocationResults invocationResults, @Nonnull Class<?> returnType,
+      @Nonnull Object value
+   ) {
+      this.invocation = invocation;
+      this.invocationResults = invocationResults;
       this.returnType = returnType;
       valueToReturn = value;
    }
 
-   public ReturnTypeConversion(@Nonnull ExpectedInvocation invocation, @Nonnull Class<?> returnType, @Nonnull Object value) {
-      expectation = null;
+   ReturnTypeConversion(@Nonnull ExpectedInvocation invocation, @Nonnull Class<?> returnType, @Nonnull Object value) {
       this.invocation = invocation;
+      invocationResults = null;
       this.returnType = returnType;
       valueToReturn = value;
    }
 
    @Nonnull
-   public Object getConvertedValue() {
+   Object getConvertedValue() {
       Class<?> wrapperType = getWrapperType();
       Class<?> valueType = valueToReturn.getClass();
 
@@ -60,7 +62,7 @@ public final class ReturnTypeConversion
       return AutoBoxing.isWrapperOfPrimitiveType(returnType) ? returnType : AutoBoxing.getWrapperType(returnType);
    }
 
-   void addConvertedValue() {
+   public void addConvertedValue() {
       Class<?> wrapperType = getWrapperType();
       Class<?> valueType = valueToReturn.getClass();
 
@@ -86,13 +88,8 @@ public final class ReturnTypeConversion
    }
 
    private void addReturnValue(@Nonnull Object returnValue) {
-      getInvocationResults().addReturnValueResult(returnValue);
-   }
-
-   @Nonnull
-   private InvocationResults getInvocationResults() {
-      assert expectation != null;
-      return expectation.getResults();
+      assert invocationResults != null;
+      invocationResults.addReturnValueResult(returnValue);
    }
 
    private void addMultiValuedResultBasedOnTheReturnType(boolean valueIsArray) {
@@ -121,7 +118,8 @@ public final class ReturnTypeConversion
    }
 
    private void addMultiValuedResult(boolean valueIsArray) {
-      InvocationResults results = getInvocationResults();
+      InvocationResults results = invocationResults;
+      assert results != null;
 
       if (valueIsArray) {
          results.addResults(valueToReturn);
@@ -160,7 +158,8 @@ public final class ReturnTypeConversion
       }
 
       if (values != null) {
-         getInvocationResults().addReturnValue(values);
+         assert invocationResults != null;
+         invocationResults.addReturnValue(values);
          return true;
       }
 

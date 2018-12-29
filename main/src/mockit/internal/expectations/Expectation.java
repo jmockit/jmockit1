@@ -70,8 +70,10 @@ final class Expectation
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
    void addResult(@Nullable Object value) {
+      InvocationResults invocationResults = getResults();
+
       if (value == null) {
-         getResults().addReturnValueResult(null);
+         invocationResults.addReturnValueResult(null);
       }
       else if (isReplacementInstance(value)) {
          assert recordPhase != null;
@@ -80,19 +82,19 @@ final class Expectation
          invocation.replacementInstance = value;
       }
       else if (value instanceof Throwable) {
-         getResults().addThrowable((Throwable) value);
+         invocationResults.addThrowable((Throwable) value);
       }
       else if (value instanceof mockit.Delegate) {
-         getResults().addDelegatedResult((mockit.Delegate<?>) value);
+         invocationResults.addDelegatedResult((mockit.Delegate<?>) value);
       }
       else {
          Class<?> rt = getReturnType();
 
          if (rt.isInstance(value)) {
-            getResults().addReturnValueResult(value);
+            invocationResults.addReturnValueResult(value);
          }
          else {
-            new ReturnTypeConversion(this, rt, value).addConvertedValue();
+            new ReturnTypeConversion(invocation, invocationResults, rt, value).addConvertedValue();
          }
       }
    }
@@ -102,7 +104,9 @@ final class Expectation
    }
 
    @Nullable
-   Error verifyConstraints(@Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs, int minInvocations, int maxInvocations) {
+   Error verifyConstraints(
+      @Nonnull ExpectedInvocation replayInvocation, @Nonnull Object[] replayArgs, int minInvocations, int maxInvocations
+   ) {
       Error error = verifyConstraints(minInvocations);
 
       if (error != null) {
