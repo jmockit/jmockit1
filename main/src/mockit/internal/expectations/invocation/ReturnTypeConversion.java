@@ -108,6 +108,7 @@ public final class ReturnTypeConversion
       }
    }
 
+   @SuppressWarnings("Since15")
    private void addResultFromSingleValue() {
       if (returnType == Object.class) {
          addReturnValue(valueToReturn);
@@ -126,6 +127,9 @@ public final class ReturnTypeConversion
       }
       else if (returnType.isAssignableFrom(ListIterator.class)) {
          addListIterator();
+      }
+      else if (returnType == Optional.class) {
+         addReturnValue(Optional.of(valueToReturn));
       }
       else if (valueToReturn instanceof CharSequence) {
          addCharSequence((CharSequence) valueToReturn);

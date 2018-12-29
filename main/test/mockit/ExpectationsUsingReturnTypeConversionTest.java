@@ -2,6 +2,7 @@ package mockit;
 
 import java.io.*;
 import java.math.*;
+import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import org.junit.*;
@@ -39,6 +40,9 @@ public final class ExpectationsUsingReturnTypeConversionTest
       BigInteger getBigInteger() { return null; }
       AtomicInteger getAtomicInteger() { return null; }
       AtomicLong getAtomicLong() { return null; }
+
+      @SuppressWarnings("Since15")
+      Optional<String> getOptionalValue() { return Optional.empty(); }
    }
 
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -235,5 +239,16 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals(BigInteger.valueOf(567L), mock.getBigInteger());
       assertEquals(1234, mock.getAtomicInteger().intValue());
       assertEquals(12345L, mock.getAtomicLong().longValue());
+   }
+
+   @SuppressWarnings("Since15")
+   @Test
+   public void convertValueToOptionalOfValue() {
+      new Expectations() {{ mock.getOptionalValue(); result = "Test"; }};
+
+      Optional<String> value = mock.getOptionalValue();
+
+      assertTrue(value.isPresent());
+      assertEquals("Test", value.get());
    }
 }
