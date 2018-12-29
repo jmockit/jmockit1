@@ -15,7 +15,7 @@ import static mockit.internal.reflection.ParameterReflection.*;
 
 public final class MethodReflection
 {
-   private static final Pattern JAVA_LANG = Pattern.compile("java.lang.", Pattern.LITERAL);
+   @Nonnull public static final Pattern JAVA_LANG = Pattern.compile("java.lang.", Pattern.LITERAL);
 
    private MethodReflection() {}
 

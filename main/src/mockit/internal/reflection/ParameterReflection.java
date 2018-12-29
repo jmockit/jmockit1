@@ -4,16 +4,15 @@
  */
 package mockit.internal.reflection;
 
-import java.util.regex.*;
 import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.util.*;
+import static mockit.internal.reflection.MethodReflection.*;
 
 public final class ParameterReflection
 {
    @Nonnull public static final Class<?>[] NO_PARAMETERS = new Class<?>[0];
-   @Nonnull private static final Pattern JAVA_LANG = Pattern.compile("java.lang.", Pattern.LITERAL);
 
    private ParameterReflection() {}
 

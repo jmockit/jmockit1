@@ -8,7 +8,6 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
-import java.util.regex.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
@@ -20,7 +19,6 @@ import static mockit.internal.reflection.MethodReflection.*;
 public final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
-   private static final Pattern JAVA_LANG = Pattern.compile("java.lang.", Pattern.LITERAL);
 
    @Nullable private final Expectation expectation;
    @Nonnull ExpectedInvocation invocation;
