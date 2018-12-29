@@ -14,8 +14,9 @@ import mockit.internal.expectations.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.reflection.MethodReflection.*;
 
-abstract class DynamicInvocationResult extends InvocationResult
+class DynamicInvocationResult extends InvocationResult
 {
    private static final Object[] NO_ARGS = {};
 
@@ -48,14 +49,14 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nullable
    public final Object invokeMethodOnTargetObject(
-      @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation invocation, @Nonnull InvocationConstraints constraints,
+      @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation expectedInvocation, @Nonnull InvocationConstraints constraints,
       @Nonnull Object[] args
    ) {
       Object[] delegateArgs = numberOfRegularParameters == 0 ? NO_ARGS : args;
       Object result;
 
       if (hasInvocationParameter) {
-         result = invokeMethodWithContext(mockOrRealObject, invocation, constraints, args, delegateArgs);
+         result = invokeMethodWithContext(mockOrRealObject, expectedInvocation, constraints, args, delegateArgs);
       }
       else {
          result = executeMethodToInvoke(delegateArgs);
@@ -69,8 +70,8 @@ abstract class DynamicInvocationResult extends InvocationResult
       @Nullable Object mockOrRealObject, @Nonnull ExpectedInvocation expectedInvocation, @Nonnull InvocationConstraints constraints,
       @Nonnull Object[] invokedArgs, @Nonnull Object[] delegateArgs
    ) {
-      Invocation invocation = new DelegateInvocation(mockOrRealObject, invokedArgs, expectedInvocation, constraints);
-      Object[] delegateArgsWithInvocation = ParameterReflection.argumentsWithExtraFirstValue(delegateArgs, invocation);
+      Invocation delegateInvocation = new DelegateInvocation(mockOrRealObject, invokedArgs, expectedInvocation, constraints);
+      Object[] delegateArgsWithInvocation = ParameterReflection.argumentsWithExtraFirstValue(delegateArgs, delegateInvocation);
 
       Object result = executeMethodToInvoke(delegateArgsWithInvocation);
 
@@ -100,12 +101,12 @@ abstract class DynamicInvocationResult extends InvocationResult
 
    @Nullable
    private Object executeTargetMethod(@Nonnull Object[] args) {
-      Object returnValue = MethodReflection.invoke(targetObject, methodToInvoke, args);
+      Object returnValue = invoke(targetObject, methodToInvoke, args);
       Class<?> fromReturnType = methodToInvoke.getReturnType();
 
       if (returnValue == null || targetReturnType.isAssignableFrom(fromReturnType)) {
          if (fromReturnType == void.class && fromReturnType != targetReturnType && targetReturnType.isPrimitive()) {
-            String returnTypeName = targetReturnType.getName().replace("java.lang.", "");
+            String returnTypeName = JAVA_LANG.matcher(targetReturnType.getName()).replaceAll("");
             MethodFormatter methodDesc =
                new MethodFormatter(invocation.getClassDesc(), invocation.getMethodNameAndDescription());
             String msg = "void return type incompatible with return type " + returnTypeName + " of " + methodDesc;
