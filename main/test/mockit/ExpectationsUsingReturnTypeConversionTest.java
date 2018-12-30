@@ -281,4 +281,15 @@ public final class ExpectationsUsingReturnTypeConversionTest
 
       assertEquals(2, values.count());
    }
+
+   @Test
+   public void convertArrayToStream(@Mocked final Java8Collaborator mock2) {
+      assumeTrue(JAVA8);
+      final String[] values = {"Test", " abc "};
+      new Expectations() {{ mock2.getStream(); result = values; }};
+
+      Object[] resultingValues = mock2.getStream().toArray();
+
+      assertArrayEquals(values, resultingValues);
+   }
 }

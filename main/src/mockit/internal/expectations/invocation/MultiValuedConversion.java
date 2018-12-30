@@ -66,6 +66,7 @@ final class MultiValuedConversion
          !returnType.isAssignableFrom(valueToReturn.getClass());
    }
 
+   @SuppressWarnings("Since15")
    private boolean addCollectionOrMapWithElementsFromArray() {
       @Nonnegative int n = Array.getLength(valueToReturn);
       Object values = null;
@@ -90,6 +91,9 @@ final class MultiValuedConversion
       else if (returnType.isAssignableFrom(SortedMap.class)) {
          values = addArrayElements(new TreeMap<>(), n);
       }
+      else if (JAVA8 && returnType.isAssignableFrom(Stream.class)) {
+         values = addArrayElements(new ArrayList<>(n), n).stream();
+      }
 
       if (values != null) {
          invocationResults.addReturnValue(values);
@@ -100,7 +104,7 @@ final class MultiValuedConversion
    }
 
    @Nonnull
-   private Object addArrayElements(@Nonnull Collection<Object> values, @Nonnegative int elementCount) {
+   private Collection<?> addArrayElements(@Nonnull Collection<Object> values, @Nonnegative int elementCount) {
       for (int i = 0; i < elementCount; i++) {
          Object element = Array.get(valueToReturn, i);
          values.add(element);
