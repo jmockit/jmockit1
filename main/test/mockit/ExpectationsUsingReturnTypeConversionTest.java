@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.*;
 import org.junit.*;
 import org.junit.rules.*;
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
+
+import static mockit.internal.util.Utilities.*;
 
 public final class ExpectationsUsingReturnTypeConversionTest
 {
@@ -40,9 +43,6 @@ public final class ExpectationsUsingReturnTypeConversionTest
       BigInteger getBigInteger() { return null; }
       AtomicInteger getAtomicInteger() { return null; }
       AtomicLong getAtomicLong() { return null; }
-
-      @SuppressWarnings("Since15")
-      Optional<String> getOptionalValue() { return Optional.empty(); }
    }
 
    @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -242,11 +242,17 @@ public final class ExpectationsUsingReturnTypeConversionTest
    }
 
    @SuppressWarnings("Since15")
-   @Test
-   public void convertValueToOptionalOfValue() {
-      new Expectations() {{ mock.getOptionalValue(); result = "Test"; }};
+   static class Java8Collaborator {
+      Optional<String> getOptionalValue() { return Optional.empty(); }
+   }
 
-      Optional<String> value = mock.getOptionalValue();
+   @SuppressWarnings("Since15")
+   @Test
+   public void convertValueToOptionalOfValue(@Mocked final Java8Collaborator mock2) {
+      assumeTrue(JAVA8);
+      new Expectations() {{ mock2.getOptionalValue(); result = "Test"; }};
+
+      Optional<String> value = mock2.getOptionalValue();
 
       assertTrue(value.isPresent());
       assertEquals("Test", value.get());

@@ -13,6 +13,7 @@ import javax.annotation.*;
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
+import static mockit.internal.util.Utilities.*;
 
 public final class ReturnTypeConversion
 {
@@ -108,7 +109,7 @@ public final class ReturnTypeConversion
       }
    }
 
-   @SuppressWarnings("Since15")
+   @SuppressWarnings({"Since15", "OverlyComplexMethod"})
    private void addResultFromSingleValue() {
       if (returnType == Object.class) {
          addReturnValue(valueToReturn);
@@ -128,7 +129,7 @@ public final class ReturnTypeConversion
       else if (returnType.isAssignableFrom(ListIterator.class)) {
          addListIterator();
       }
-      else if (returnType == Optional.class) {
+      else if (JAVA8 && returnType == Optional.class) {
          addReturnValue(Optional.of(valueToReturn));
       }
       else if (valueToReturn instanceof CharSequence) {
