@@ -6,7 +6,10 @@ package mockit.internal.expectations.invocation;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.*;
 import javax.annotation.*;
+
+import static mockit.internal.util.Utilities.*;
 
 final class MultiValuedConversion
 {
@@ -38,12 +41,18 @@ final class MultiValuedConversion
       }
    }
 
+   @SuppressWarnings("Since15")
    private void addMultiValuedResult(boolean valueIsArray) {
       if (valueIsArray) {
          invocationResults.addResults(valueToReturn);
       }
       else if (valueToReturn instanceof Iterable<?>) {
-         invocationResults.addResults((Iterable<?>) valueToReturn);
+         if (JAVA8 && valueToReturn instanceof Collection && returnType.isAssignableFrom(Stream.class)) {
+            invocationResults.addReturnValueResult(((Collection<?>) valueToReturn).stream());
+         }
+         else {
+            invocationResults.addResults((Iterable<?>) valueToReturn);
+         }
       }
       else {
          invocationResults.addDeferredResults((Iterator<?>) valueToReturn);

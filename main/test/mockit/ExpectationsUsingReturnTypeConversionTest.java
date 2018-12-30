@@ -4,6 +4,9 @@ import java.io.*;
 import java.math.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
+import java.util.stream.*;
+
+import static java.util.Arrays.*;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -12,6 +15,7 @@ import static org.junit.Assume.*;
 
 import static mockit.internal.util.Utilities.*;
 
+@SuppressWarnings("Since15")
 public final class ExpectationsUsingReturnTypeConversionTest
 {
    static class Collaborator {
@@ -241,12 +245,11 @@ public final class ExpectationsUsingReturnTypeConversionTest
       assertEquals(12345L, mock.getAtomicLong().longValue());
    }
 
-   @SuppressWarnings("Since15")
    static class Java8Collaborator {
       Optional<String> getOptionalValue() { return Optional.empty(); }
+      Stream<String> getStream() { return null; }
    }
 
-   @SuppressWarnings("Since15")
    @Test
    public void convertValueToOptionalOfValue(@Mocked final Java8Collaborator mock2) {
       assumeTrue(JAVA8);
@@ -256,5 +259,26 @@ public final class ExpectationsUsingReturnTypeConversionTest
 
       assertTrue(value.isPresent());
       assertEquals("Test", value.get());
+   }
+
+   @Test
+   public void convertSingleValueToStream(@Mocked final Java8Collaborator mock2) {
+      assumeTrue(JAVA8);
+      new Expectations() {{ mock2.getStream(); result = "Test"; }};
+
+      Iterator<String> values = mock2.getStream().iterator();
+
+      assertEquals("Test", values.next());
+      assertFalse(values.hasNext());
+   }
+
+   @Test
+   public void convertCollectionToStream(@Mocked final Java8Collaborator mock2) {
+      assumeTrue(JAVA8);
+      new Expectations() {{ mock2.getStream(); result = asList("Test", " abc "); }};
+
+      Stream<String> values = mock2.getStream();
+
+      assertEquals(2, values.count());
    }
 }

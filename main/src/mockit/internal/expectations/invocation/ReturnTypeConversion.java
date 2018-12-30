@@ -8,7 +8,10 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
+import java.util.stream.*;
 import javax.annotation.*;
+
+import static java.util.Collections.*;
 
 import mockit.internal.util.*;
 import static mockit.internal.reflection.ConstructorReflection.*;
@@ -109,7 +112,6 @@ public final class ReturnTypeConversion
       }
    }
 
-   @SuppressWarnings({"Since15", "OverlyComplexMethod"})
    private void addResultFromSingleValue() {
       if (returnType == Object.class) {
          addReturnValue(valueToReturn);
@@ -117,20 +119,20 @@ public final class ReturnTypeConversion
       else if (returnType == void.class) {
          throw newIncompatibleTypesException();
       }
-      else if (returnType == byte[].class && valueToReturn instanceof CharSequence) {
-         addReturnValue(valueToReturn.toString().getBytes());
+      else if (addByteArrayIfApplicable()) {
+         return;
       }
       else if (returnType.isArray()) {
          addArray();
       }
-      else if (addCollectionWithSingleElement()) {
-         return;
-      }
       else if (returnType.isAssignableFrom(ListIterator.class)) {
          addListIterator();
       }
-      else if (JAVA8 && returnType == Optional.class) {
-         addReturnValue(Optional.of(valueToReturn));
+      else if (addCollectionWithSingleElement()) {
+         return;
+      }
+      else if (JAVA8 && addJava8ObjectIfApplicable()) {
+         return;
       }
       else if (valueToReturn instanceof CharSequence) {
          addCharSequence((CharSequence) valueToReturn);
@@ -157,36 +159,16 @@ public final class ReturnTypeConversion
       addReturnValue(array);
    }
 
-   private boolean addCollectionWithSingleElement() {
-      Collection<Object> container = null;
-
-      if (returnType.isAssignableFrom(ArrayList.class)) {
-         container = new ArrayList<>(1);
-      }
-      else if (returnType.isAssignableFrom(LinkedList.class)) {
-         container = new LinkedList<>();
-      }
-      else if (returnType.isAssignableFrom(HashSet.class)) {
-         container = new HashSet<>(1);
-      }
-      else if (returnType.isAssignableFrom(TreeSet.class)) {
-         container = new TreeSet<>();
-      }
-
-      if (container != null) {
-         container.add(valueToReturn);
-         addReturnValue(container);
-         return true;
-      }
-
-      return false;
-   }
-
    private void addListIterator() {
       List<Object> l = new ArrayList<>(1);
       l.add(valueToReturn);
       ListIterator<Object> iterator = l.listIterator();
       addReturnValue(iterator);
+   }
+
+   private void addCharSequence(@Nonnull CharSequence textualValue) {
+      Object convertedValue = getCharSequence(textualValue);
+      addReturnValue(convertedValue);
    }
 
    @Nonnull
@@ -218,9 +200,52 @@ public final class ReturnTypeConversion
       return convertedValue;
    }
 
-   private void addCharSequence(@Nonnull CharSequence textualValue) {
-      Object convertedValue = getCharSequence(textualValue);
-      addReturnValue(convertedValue);
+   private boolean addByteArrayIfApplicable() {
+      if (returnType == byte[].class && valueToReturn instanceof CharSequence) {
+         addReturnValue(valueToReturn.toString().getBytes());
+         return true;
+      }
+
+      return false;
+   }
+
+   private boolean addCollectionWithSingleElement() {
+      Collection<Object> container = null;
+
+      if (returnType.isAssignableFrom(ArrayList.class)) {
+         container = new ArrayList<>(1);
+      }
+      else if (returnType.isAssignableFrom(LinkedList.class)) {
+         container = new LinkedList<>();
+      }
+      else if (returnType.isAssignableFrom(HashSet.class)) {
+         container = new HashSet<>(1);
+      }
+      else if (returnType.isAssignableFrom(TreeSet.class)) {
+         container = new TreeSet<>();
+      }
+
+      if (container != null) {
+         container.add(valueToReturn);
+         addReturnValue(container);
+         return true;
+      }
+
+      return false;
+   }
+
+   @SuppressWarnings("Since15")
+   private boolean addJava8ObjectIfApplicable() {
+      if (returnType == Optional.class) {
+         addReturnValue(Optional.of(valueToReturn));
+         return true;
+      }
+      else if (returnType.isAssignableFrom(Stream.class)) {
+         addReturnValue(singletonList(valueToReturn).stream());
+         return true;
+      }
+
+      return false;
    }
 
    @Nonnull
