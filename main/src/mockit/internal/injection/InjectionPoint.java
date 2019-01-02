@@ -7,6 +7,7 @@ package mockit.internal.injection;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.regex.*;
 import javax.annotation.*;
 import javax.ejb.*;
 import javax.enterprise.inject.*;
@@ -25,6 +26,8 @@ import static mockit.internal.util.Utilities.*;
 
 public final class InjectionPoint
 {
+   private static final Pattern SPRING_VALUE_EXPRESSION = Pattern.compile("[$#]\\{.+\\}");
+
    public enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
 
    @Nullable public static final Class<? extends Annotation> INJECT_CLASS;
@@ -117,7 +120,7 @@ public final class InjectionPoint
       return thisName != null && thisName.equals(otherIP.normalizedName);
    }
 
-   public static boolean isServlet(@Nonnull Class<?> aClass) {
+   static boolean isServlet(@Nonnull Class<?> aClass) {
       return SERVLET_CLASS != null && Servlet.class.isAssignableFrom(aClass);
    }
 
@@ -245,6 +248,10 @@ public final class InjectionPoint
             value = invokePublicIfAvailable(annotationType, declaredAnnotation, "value", NO_PARAMETERS);
             break;
          }
+      }
+
+      if (value == null || SPRING_VALUE_EXPRESSION.matcher(value).matches()) {
+         return null;
       }
 
       Object convertedValue = convertFromString(field.getType(), value);
