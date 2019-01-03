@@ -7,7 +7,6 @@ package mockit.internal.injection;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.regex.*;
 import javax.annotation.*;
 import javax.ejb.*;
 import javax.enterprise.inject.*;
@@ -22,13 +21,10 @@ import static mockit.internal.util.ClassLoad.*;
 import static mockit.internal.reflection.AnnotationReflection.*;
 import static mockit.internal.reflection.MethodReflection.*;
 import static mockit.internal.reflection.ParameterReflection.*;
-import static mockit.internal.util.Utilities.*;
 
 public final class InjectionPoint
 {
-   private static final Pattern SPRING_VALUE_EXPRESSION = Pattern.compile("[$#]\\{.+\\}");
-
-   public enum KindOfInjectionPoint { NotAnnotated, Required, Optional, WithValue }
+   public enum KindOfInjectionPoint { NotAnnotated, Required, Optional }
 
    @Nullable public static final Class<? extends Annotation> INJECT_CLASS;
    @Nullable private static final Class<? extends Annotation> INSTANCE_CLASS;
@@ -175,10 +171,6 @@ public final class InjectionPoint
          return kind;
       }
 
-      if (hasValue(annotations)) {
-         return KindOfInjectionPoint.WithValue;
-      }
-
       if (isRequired(annotations)) {
          return KindOfInjectionPoint.Required;
       }
@@ -216,18 +208,6 @@ public final class InjectionPoint
       return KindOfInjectionPoint.NotAnnotated;
    }
 
-   private static boolean hasValue(@Nonnull Annotation[] declaredAnnotations) {
-      for (Annotation declaredAnnotation : declaredAnnotations) {
-         Class<?> annotationType = declaredAnnotation.annotationType();
-
-         if (annotationType.getName().endsWith(".Value")) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
    private static boolean isRequired(@Nonnull Annotation[] annotations) {
       return
          isAnnotated(annotations, Resource.class) ||
@@ -235,27 +215,6 @@ public final class InjectionPoint
          PERSISTENCE_UNIT_CLASS != null && (
             isAnnotated(annotations, PersistenceContext.class) || isAnnotated(annotations, PersistenceUnit.class)
          );
-   }
-
-   @Nullable
-   public static Object getValueFromAnnotation(@Nonnull Field field) {
-      String value = null;
-
-      for (Annotation declaredAnnotation : field.getDeclaredAnnotations()) {
-         Class<?> annotationType = declaredAnnotation.annotationType();
-
-         if (annotationType.getName().endsWith(".Value")) {
-            value = invokePublicIfAvailable(annotationType, declaredAnnotation, "value", NO_PARAMETERS);
-            break;
-         }
-      }
-
-      if (value == null || SPRING_VALUE_EXPRESSION.matcher(value).matches()) {
-         return null;
-      }
-
-      Object convertedValue = convertFromString(field.getType(), value);
-      return convertedValue;
    }
 
    @Nonnull

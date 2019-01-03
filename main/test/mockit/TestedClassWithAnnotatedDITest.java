@@ -52,14 +52,15 @@ public final class TestedClassWithAnnotatedDITest
    @Test
    public void injectAllAnnotatedInjectionPoints(
       @Injectable("2") int anotherValue, @Injectable Runnable secondAction, @Injectable Runnable anotherAction,
-      @Injectable("true") boolean unused, @Injectable("propertyValue") String systemProperty, @Injectable("123") int anInt
+      @Injectable("true") boolean unused, @Injectable("test") String stringFieldWithValue,
+      @Injectable("123.45") double numericFieldWithValue, @Injectable("propertyValue") String systemProperty, @Injectable("123") int anInt
    ) {
       assertSame(firstAction, tested1.action1);
       assertSame(secondAction, tested1.action2);
       assertSame(action3, tested1.action3);
       assertEquals(1, tested1.someValue);
       assertEquals(2, tested1.anotherValue);
-      assertEquals("textValue", tested1.stringFieldWithValue);
+      assertEquals("test", tested1.stringFieldWithValue);
       assertEquals(123.45, tested1.numericFieldWithValue, 0);
       assertEquals("propertyValue", tested1.systemProperty);
       assertEquals(123, tested1.anInt);

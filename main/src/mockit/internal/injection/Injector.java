@@ -156,11 +156,6 @@ public class Injector
       }
 
       KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
-
-      if (kindOfInjectionPoint == KindOfInjectionPoint.WithValue) {
-         return getValueFromAnnotation(targetField);
-      }
-
       throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint, targetField);
       return null;
    }
