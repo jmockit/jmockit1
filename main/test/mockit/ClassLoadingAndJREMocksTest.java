@@ -2,10 +2,6 @@ package mockit;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.jar.*;
-import java.util.jar.Attributes.Name;
-import static java.util.Arrays.*;
 
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -177,56 +173,6 @@ public final class ClassLoadingAndJREMocksTest
       catch (IOException ignore) {
          // OK
       }
-   }
-
-   @Test
-   public void mockJarEntry(@Mocked final JarEntry mockEntry) {
-      new Expectations() {{ mockEntry.getName(); result = "Test"; }};
-
-      assertEquals("Test", mockEntry.getName());
-   }
-
-   String readMainClassAndFileNamesFromJar(File file, List<String> containedFileNames) throws IOException {
-      JarFile jarFile = new JarFile(file);
-
-      Manifest manifest = jarFile.getManifest();
-      Attributes mainAttributes = manifest.getMainAttributes();
-      String mainClassName = mainAttributes.getValue(Name.MAIN_CLASS);
-
-      Enumeration<JarEntry> jarEntries = jarFile.entries();
-
-      while (jarEntries.hasMoreElements()) {
-         JarEntry jarEntry = jarEntries.nextElement();
-         containedFileNames.add(jarEntry.getName());
-      }
-
-      return mainClassName;
-   }
-
-   @Test
-   public void mockJavaUtilJarClasses(
-      @Mocked final JarFile mockFile, @Mocked final Manifest mockManifest, @Mocked final Attributes mockAttributes,
-      @Mocked final Enumeration<JarEntry> mockEntries, @Mocked final JarEntry mockEntry
-   ) throws Exception {
-      @SuppressWarnings("TooBroadScope") File testFile = new File("test.jar");
-      final String mainClassName = "test.Main";
-
-      new Expectations() {{
-         mockFile.getManifest(); result = mockManifest;
-         mockManifest.getMainAttributes(); result = mockAttributes;
-         mockAttributes.getValue(Name.MAIN_CLASS); result = mainClassName;
-         mockFile.entries(); result = mockEntries;
-
-         mockEntries.hasMoreElements(); returns(true, true, false);
-         mockEntries.nextElement(); result = mockEntry;
-         mockEntry.getName(); returns("test/Main$Inner.class", "test/Main.class");
-      }};
-
-      List<String> fileNames = new ArrayList<>();
-      String mainClassFromJar = readMainClassAndFileNamesFromJar(testFile, fileNames);
-
-      assertEquals(mainClassName, mainClassFromJar);
-      assertEquals(asList("test/Main$Inner.class", "test/Main.class"), fileNames);
    }
 
    @Test(expected = IllegalArgumentException.class)

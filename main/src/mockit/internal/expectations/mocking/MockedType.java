@@ -10,6 +10,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
+import mockit.internal.*;
 import mockit.internal.expectations.state.*;
 import mockit.internal.injection.*;
 import mockit.internal.reflection.*;
@@ -173,16 +174,13 @@ public final class MockedType extends InjectionProvider
       }
 
       Type mockedType = declaredType;
-
-      if (!(mockedType instanceof Class<?>)) {
-         return true;
-      }
-
-      Class<?> classType = (Class<?>) mockedType;
+      Class<?> classType = Utilities.getClassType(mockedType);
 
       if (isUnmockableJREType(classType)) {
          return false;
       }
+
+      MockingFilters.validateAsMockable(classType);
 
       if (injectable) {
          return !isJREValueType(classType) && !classType.isEnum();
@@ -192,7 +190,7 @@ public final class MockedType extends InjectionProvider
    }
 
    private static boolean isUnmockableJREType(@Nonnull Class<?> type) {
-      return type.isPrimitive() || type.isArray() || type == Integer.class;
+      return type.isPrimitive() || type.isArray() || type == Integer.class || type == String.class;
    }
 
    private static boolean isJREValueType(@Nonnull Class<?> type) {

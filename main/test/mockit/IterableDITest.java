@@ -25,9 +25,9 @@ public final class IterableDITest
       TestedClassWithIterableInjectionPoints(List<String> names) { this.names = names; }
    }
 
+   @Tested final List<String> nameList = asList("One", "Two");
+   @Tested final Collection<Collaborator> colList = asList(new Collaborator(1), new Collaborator(2));
    @Tested TestedClassWithIterableInjectionPoints tested1;
-   @Injectable final List<String> nameList = asList("One", "Two");
-   @Injectable final Collection<Collaborator> colList = asList(new Collaborator(1), new Collaborator(2));
 
    @Test
    public void injectMultiValuedInjectablesIntoInjectionPointsOfTheSameCollectionTypes() {

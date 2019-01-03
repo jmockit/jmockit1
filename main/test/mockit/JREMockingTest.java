@@ -3,6 +3,7 @@ package mockit;
 import java.io.*;
 import java.time.*;
 import java.util.*;
+import java.util.jar.*;
 import java.util.logging.*;
 
 import org.junit.*;
@@ -38,7 +39,7 @@ public final class JREMockingTest
 
    @Test
    public void mockingOfCalendar() {
-      final Calendar calCST = new GregorianCalendar(2010, 4, 15);
+      final Calendar calCST = new GregorianCalendar(2010, Calendar.MAY, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
       new Expectations(Calendar.class) {{ Calendar.getInstance(tzCST); result = calCST; }};
 
@@ -68,7 +69,7 @@ public final class JREMockingTest
       assertTrue(Date.class.getDeclaredMethod("getMinutes").isAnnotationPresent(Deprecated.class));
    }
 
-   // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////
+   // Mocking of IO classes ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Injectable FileOutputStream stream;
    @Injectable Writer writer;
@@ -86,7 +87,7 @@ public final class JREMockingTest
       new Verifications() {{ writer.append('x'); }};
    }
 
-   // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////
+   // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void attemptToMockJREClassThatIsNeverMockable() {
@@ -111,6 +112,10 @@ public final class JREMockingTest
       attemptToMockUnmockableJREClass(Object.class);
       attemptToMockUnmockableJREClass(Enum.class);
       attemptToMockUnmockableJREClass(System.class);
+      attemptToMockUnmockableJREClass(JarFile.class);
+      attemptToMockUnmockableJREClass(JarEntry.class);
+      attemptToMockUnmockableJREClass(Manifest.class);
+      attemptToMockUnmockableJREClass(Attributes.class);
 
       if (JAVA8) {
          //noinspection Since15
@@ -129,7 +134,42 @@ public final class JREMockingTest
       }
    }
 
-   // Mocking java.time ///////////////////////////////////////////////////////////////////////////////////////////////
+   // Un-mockable JRE interfaces //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Collection<?> mockCol) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked List<?> mockList) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Set<?> mockSet) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Injectable SortedSet<?> mockSortedSet) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Map<?, ?> mockMap) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Capturing SortedMap<?, ?> mockSortedMap) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Comparator<?> mockComparator) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Queue<?> mockQueue) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Enumeration<?> mockEnumeration) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Iterator<?> mockIterator) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockJREInterface(@Mocked Map.Entry<?, ?> mockMapEntry) { fail("Should never get here"); }
+
+   // Mocking java.time ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    public interface DurationProvider { @SuppressWarnings("Since15") Duration getDuration(); }
 
@@ -140,7 +180,7 @@ public final class JREMockingTest
       assertNull(d);
    }
 
-   // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////
+   // Mocking java.util.logging ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void mockLogManager(@Mocked LogManager mock) {

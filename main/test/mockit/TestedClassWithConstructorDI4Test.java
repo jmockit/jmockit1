@@ -42,10 +42,10 @@ public final class TestedClassWithConstructorDI4Test
       }
    }
 
+   @Tested final List<Integer> numbers = asList(1, 2, 3);
    @Tested TestedClass tested;
    @Injectable Callable<Number> action1;
    @Injectable final GenericClass<String> mockGO = new GenericClass<>(); // still mocked
-   @Injectable final List<Integer> numbers = asList(1, 2, 3); // not mocked when interface
    @Mocked InitialContext jndiContext;
    @Mocked DataSource testDB;
 

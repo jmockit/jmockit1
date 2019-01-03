@@ -28,6 +28,7 @@ public final class TestedClassWithConstructorAndFieldDI2Test
 
    static final class TestedClass2 { boolean flag; }
 
+   @Tested final List<String> names = asList("Abc", "xyz");
    @Tested final TestedClass tested1 = new TestedClass(123, "test", null);
    @Tested TestedClass tested2;
    @Tested TestedClass2 tested3;
@@ -37,7 +38,6 @@ public final class TestedClassWithConstructorAndFieldDI2Test
    @Injectable String text = "text";
    @Injectable("8") int intValue2; // won't be used
    @Injectable final int intValue3 = 9; // won't be used
-   @Injectable final List<String> names = asList("Abc", "xyz");
 
    @Before
    public void setUp() {

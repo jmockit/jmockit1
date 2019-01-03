@@ -11,27 +11,20 @@ public final class TestedClassWithGenericsTest
 {
    public interface Collaborator<T> { T getValue(); }
 
-   @SuppressWarnings("unused")
    static class SUTWithUnboundedTypeParameter<T> {
       T value;
       final Collaborator<T> collaborator;
       final Iterable<Collaborator<T>> collaborators;
-      Map<T, ?> values;
       Callable<T> action1;
       Callable<?> action2;
 
+      @SuppressWarnings("unused")
       SUTWithUnboundedTypeParameter(Collaborator<T> c) { collaborator = c; collaborators = null; }
 
+      @SuppressWarnings("unused")
       SUTWithUnboundedTypeParameter(Iterable<Collaborator<T>> collaborators, Callable<String> action) {
          collaborator = null;
          this.collaborators = collaborators;
-         action2 = action;
-      }
-
-      <V extends CharSequence & Serializable> SUTWithUnboundedTypeParameter(Map<T, V> values, Callable<?> action) {
-         collaborator = null;
-         collaborators = null;
-         this.values = values;
          action2 = action;
       }
    }
@@ -47,7 +40,6 @@ public final class TestedClassWithGenericsTest
       assertSame(numberToInject, tested1.value);
       assertNull(tested1.action1);
       assertNull(tested1.action2);
-      assertNull(tested1.values);
    }
 
    @Test
@@ -59,7 +51,6 @@ public final class TestedClassWithGenericsTest
       assertSame(mockAction1, tested1.action2);
       assertSame(action1, tested1.action1);
       assertSame(numberToInject, tested1.value);
-      assertNull(tested1.values);
    }
 
    @Test
@@ -71,17 +62,21 @@ public final class TestedClassWithGenericsTest
       assertNull(tested1.action1);
       assertSame(mockAction, tested1.action2);
       assertSame(numberToInject, tested1.value);
-      assertNull(tested1.values);
    }
 
+   static class SUTWithGenericConstructor<T> {
+      final Map<T, ?> values;
+
+      @SuppressWarnings("unused")
+      <V extends CharSequence & Serializable> SUTWithGenericConstructor(Map<T, V> values) { this.values = values; }
+   }
+
+   @Tested final Map<Integer, String> mapValues = new HashMap<>();
+   @Tested SUTWithGenericConstructor<Integer> tested8;
+
    @Test
-   public void useSUTInstantiatedWithGenericConstructor(@Injectable Callable<?> mockAction, @Injectable Map<Integer, String> mockValues) {
-      assertNull(tested1.collaborator);
-      assertNull(tested1.collaborators);
-      assertSame(mockValues, tested1.values);
-      assertNull(tested1.action1);
-      assertSame(mockAction, tested1.action2);
-      assertSame(numberToInject, tested1.value);
+   public void useSUTInstantiatedWithGenericConstructor() {
+      assertSame(mapValues, tested8.values);
    }
 
    static class GenericClass<T> { T value; }

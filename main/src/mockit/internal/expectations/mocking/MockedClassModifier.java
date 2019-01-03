@@ -86,9 +86,7 @@ final class MockedClassModifier extends BaseClassModifier
 
    private void validateMockingOfJREClass(@Nonnull String internalName) {
       if (internalName.startsWith("java/")) {
-         if (isUnmockable(internalName)) {
-            throw new IllegalArgumentException("Class " + internalName.replace('/', '.') + " is not mockable");
-         }
+         validateAsMockable(internalName);
 
          if (executionMode == ExecutionMode.Regular && mockedType != null && isFullMockingDisallowed(internalName)) {
             String modifyingClassName = internalName.replace('/', '.');
