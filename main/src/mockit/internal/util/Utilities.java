@@ -118,43 +118,49 @@ public final class Utilities
       return null;
    }
 
-   @Nullable @SuppressWarnings({"OverlyComplexMethod", "rawtypes", "unchecked"})
-   public static Object convertFromString(@Nonnull Class<?> targetType, @Nullable String value) {
-      if (value != null) {
-         if (targetType == String.class) {
-            return value;
-         }
-         else if (targetType == char.class || targetType == Character.class) {
-            return value.charAt(0);
-         }
-         else if (targetType.isPrimitive()) {
-            Class<?> wrapperClass = getWrapperType(targetType);
-            assert wrapperClass != null;
-            return newWrapperInstance(wrapperClass, value);
-         }
-         else if (isWrapperOfPrimitiveType(targetType)) {
-            return newWrapperInstance(targetType, value);
-         }
-         else if (targetType == BigDecimal.class) {
-            return new BigDecimal(value.trim());
-         }
-         else if (targetType == BigInteger.class) {
-            return new BigInteger(value.trim());
-         }
-         else if (targetType == AtomicInteger.class) {
-            return new AtomicInteger(Integer.parseInt(value.trim()));
-         }
-         else if (targetType == AtomicLong.class) {
-            return new AtomicLong(Long.parseLong(value.trim()));
-         }
-         else if (targetType.isEnum()) {
-            Class<Enum> enumType = (Class<Enum>) targetType;
-            Object enumValue = Enum.valueOf(enumType, value);
-            return enumValue;
-         }
+   @Nullable
+   public static Object convertFromString(@Nonnull Class<?> targetType, @Nonnull String value) {
+      if (targetType == String.class) {
+         return value;
+      }
+      else if (isCharacter(targetType)) {
+         return value.charAt(0);
+      }
+      else if (targetType.isPrimitive()) {
+         return newWrapperInstanceForPrimitiveType(targetType, value);
+      }
+      else if (isWrapperOfPrimitiveType(targetType)) {
+         return newWrapperInstance(targetType, value);
+      }
+      else if (targetType == BigDecimal.class) {
+         return new BigDecimal(value.trim());
+      }
+      else if (targetType == BigInteger.class) {
+         return new BigInteger(value.trim());
+      }
+      else if (targetType == AtomicInteger.class) {
+         return new AtomicInteger(Integer.parseInt(value.trim()));
+      }
+      else if (targetType == AtomicLong.class) {
+         return new AtomicLong(Long.parseLong(value.trim()));
+      }
+      else if (targetType.isEnum()) {
+         //noinspection unchecked
+         return enumValue(targetType, value);
       }
 
       return null;
+   }
+
+   private static boolean isCharacter(@Nonnull Class<?> targetType) {
+      return targetType == char.class || targetType == Character.class;
+   }
+
+   @Nonnull
+   private static Object newWrapperInstanceForPrimitiveType(@Nonnull Class<?> targetType, @Nonnull String value) {
+      Class<?> wrapperClass = getWrapperType(targetType);
+      assert wrapperClass != null;
+      return newWrapperInstance(wrapperClass, value);
    }
 
    @Nonnull
@@ -171,6 +177,12 @@ public final class Utilities
       }
 
       throw new RuntimeException("Unable to instantiate " + wrapperClass + " with value \"" + value + '"');
+   }
+
+   @Nonnull
+   private static <E extends Enum<E>> Object enumValue(Class<?> targetType, @Nonnull String value) {
+      @SuppressWarnings("unchecked") Class<E> enumType = (Class<E>) targetType;
+      return Enum.valueOf(enumType, value);
    }
 
    @Nonnull
