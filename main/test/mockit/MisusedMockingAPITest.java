@@ -123,7 +123,7 @@ public final class MisusedMockingAPITest
    // @Tested/@Injectable usage ///////////////////////////////////////////////////////////////////////////////////////
 
    static class TestedClass { Runnable action; }
-   @Injectable static Runnable action = new Runnable() { @Override public void run() {} };
+   @Injectable static Runnable mockAction = new Runnable() { @Override public void run() {} };
    @Tested TestedClass tested;
 
    @Test
