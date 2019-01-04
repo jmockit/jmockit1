@@ -29,7 +29,7 @@ public final class InstanceDITest
    @Tested TestedClassWithInstanceInjectionPoints tested;
    @Injectable Collaborator col1;
    @Injectable Collaborator col2;
-   @Injectable final List<String> names = asList("Abc", "Test", "123");
+   @Injectable final Iterable<String> names = asList("Abc", "Test", "123");
 
    @Test
    public void allowMultipleInjectablesOfSameTypeToBeObtainedFromInstanceInjectionPoint() {
