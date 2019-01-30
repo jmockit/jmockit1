@@ -28,7 +28,7 @@ final class SuperConstructorCollector
          return constructorDesc;
       }
 
-      boolean samePackage = areBothClassesAreInSamePackage(classDesc, superClassDesc);
+      boolean samePackage = areBothClassesInSamePackage(classDesc, superClassDesc);
 
       byte[] classfile = ClassFile.getClassFile(superClassDesc);
       ClassMetadataReader cmr = new ClassMetadataReader(classfile);
@@ -47,7 +47,7 @@ final class SuperConstructorCollector
       return constructorDesc;
    }
 
-   private static boolean areBothClassesAreInSamePackage(@Nonnull String classDesc, @Nonnull String superClassDesc) {
+   private static boolean areBothClassesInSamePackage(@Nonnull String classDesc, @Nonnull String superClassDesc) {
       int p1 = classDesc.lastIndexOf('/');
       int p2 = superClassDesc.lastIndexOf('/');
       return p1 == p2 && (p1 < 0 || classDesc.substring(0, p1).equals(superClassDesc.substring(0, p2)));
