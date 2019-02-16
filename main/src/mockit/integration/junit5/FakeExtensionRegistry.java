@@ -5,15 +5,15 @@
 package mockit.integration.junit5;
 
 import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.engine.config.*;
 import org.junit.jupiter.engine.extension.*;
-import org.junit.platform.engine.*;
 
 import mockit.*;
 
 public final class FakeExtensionRegistry extends MockUp<ExtensionRegistry>
 {
    @Mock
-   public static ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, ConfigurationParameters configParams) {
+   public static ExtensionRegistry createRegistryWithDefaultExtensions(Invocation inv, JupiterConfiguration configuration) {
       ExtensionRegistry registry = inv.proceed();
       assert registry != null;
 
