@@ -10,10 +10,8 @@ import mockit.internal.reflection.*;
 
 /**
  * Provides utility methods that enable access to ("de-encapsulate") otherwise non-accessible fields.
- *
- * @see #getField(Object, String)
- * @see #getField(Object, Class)
  */
+@Deprecated
 public final class Deencapsulation
 {
    private Deencapsulation() {}
