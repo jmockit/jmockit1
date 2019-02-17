@@ -37,8 +37,9 @@ final class SuperConstructorCollector
          int access = methodOrConstructor.accessFlags;
 
          if (access != PRIVATE && (access != 0 || samePackage) && methodOrConstructor.isConstructor()) {
-            constructorDesc = methodOrConstructor.desc;
-            break;
+            if (constructorDesc == null || constructorDesc.length() > methodOrConstructor.desc.length()) {
+               constructorDesc = methodOrConstructor.desc;
+            }
          }
       }
 

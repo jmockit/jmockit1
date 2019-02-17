@@ -4,8 +4,6 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import javax.faces.component.*;
-import javax.faces.context.*;
 import javax.xml.bind.annotation.*;
 
 import org.junit.*;
@@ -562,32 +560,12 @@ public final class PartialMockingTest
       new A();
    }
 
-   public static final class TestResponseWriter extends ResponseWriter {
-      @Override public String getContentType() { return null; }
-      @Override public String getCharacterEncoding() { return null; }
-      @Override public void write(char[] cbuf, int off, int len) {}
-      @Override public void flush() {}
-      @Override public void close() {}
-      @Override public void startDocument() {}
-      @Override public void endDocument() {}
-      @Override public void startElement(String name, UIComponent component) {}
-      @Override public void endElement(String name) {}
-      @Override public void writeAttribute(String name, Object value, String property) {}
-      @Override public void writeURIAttribute(String name, Object value, String property) {}
-      @Override public void writeComment(Object comment) {}
-      @Override public void writeText(Object text, String property) {}
-      @Override public void writeText(char[] text, int off, int len) {}
-      @Override public ResponseWriter cloneWithWriter(Writer writer) { return null; }
-   }
-   public static final class AnotherClass {
-      private final ResponseWriter responseWriter;
-      public AnotherClass() { responseWriter = new TestResponseWriter(); }
-   }
-
-   @Mocked PartialResponseWriter mockWriter;
+   static class BaseClass { @SuppressWarnings("unused") BaseClass(Object o) { assert o != null; } BaseClass() {} }
+   static class SubClass extends BaseClass {}
+   static class SubSubClass extends SubClass {}
 
    @Test
-   public void issue582() {
-      new AnotherClass();
+   public void mockClassIndirectlyExtendingBaseWhoseFirstConstructorHasMoreParametersThanTheSecondOne(@Mocked SubSubClass mock) {
+      new SubClass();
    }
 }
