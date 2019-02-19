@@ -61,8 +61,6 @@ import mockit.internal.expectations.*;
  */
 public class Expectations extends Invocations
 {
-   @Nonnull private final RecordAndReplayExecution execution;
-
    /**
     * A value assigned to this field will be taken as the result for the expectation that is being recorded.
     * <p/>
@@ -125,7 +123,9 @@ public class Expectations extends Invocations
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#expectation" target="tutorial">Tutorial</a>
     */
    protected Expectations() {
-      execution = new RecordAndReplayExecution(this, (Object[]) null);
+      RecordAndReplayExecution execution = new RecordAndReplayExecution(this, (Object[]) null);
+      //noinspection ConstantConditions
+      currentPhase = execution.getRecordPhase();
    }
 
    /**
@@ -151,11 +151,10 @@ public class Expectations extends Invocations
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
    protected Expectations(@Nonnull Object... classesOrObjectsToBePartiallyMocked) {
-      execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
+      RecordAndReplayExecution execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
+      //noinspection ConstantConditions
+      currentPhase = execution.getRecordPhase();
    }
-
-   @Nullable @Override
-   final RecordPhase getCurrentPhase() { return execution.getRecordPhase(); }
 
    /**
     * Specifies that the previously recorded method invocation will return a given sequence of values during replay.
@@ -185,16 +184,12 @@ public class Expectations extends Invocations
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
    protected final void returns(@Nullable Object firstValue, @Nullable Object secondValue, @Nonnull Object... remainingValues) {
-      RecordPhase currentPhase = getCurrentPhase();
+      int n = remainingValues.length;
+      Object[] values = new Object[2 + n];
+      values[0] = firstValue;
+      values[1] = secondValue;
+      System.arraycopy(remainingValues, 0, values, 2, n);
 
-      if (currentPhase != null) {
-         int n = remainingValues.length;
-         Object[] values = new Object[2 + n];
-         values[0] = firstValue;
-         values[1] = secondValue;
-         System.arraycopy(remainingValues, 0, values, 2, n);
-
-         currentPhase.addSequenceOfReturnValues(values);
-      }
+      ((RecordPhase) currentPhase).addSequenceOfReturnValues(values);
    }
 }

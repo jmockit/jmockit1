@@ -18,7 +18,7 @@ import mockit.internal.util.*;
  * Provides common API for use inside {@linkplain Expectations expectation} and {@linkplain Verifications verification} blocks.
  */
 @SuppressWarnings("ClassWithTooManyFields")
-abstract class Invocations
+class Invocations
 {
    static { Startup.verifyInitialization(); }
 
@@ -330,7 +330,7 @@ abstract class Invocations
     */
    protected int maxTimes;
 
-   @Nullable abstract TestOnlyPhase getCurrentPhase();
+   @SuppressWarnings("NullableProblems") @Nonnull TestOnlyPhase currentPhase;
 
    /**
     * Applies a custom argument matcher for a parameter in the current expectation.
@@ -381,11 +381,7 @@ abstract class Invocations
    }
 
    private void addMatcher(@Nonnull ArgumentMatcher<?> matcher) {
-      TestOnlyPhase currentPhase = getCurrentPhase();
-
-      if (currentPhase != null) {
-         currentPhase.addArgMatcher(matcher);
-      }
+      currentPhase.addArgMatcher(matcher);
    }
 
    /**
@@ -480,13 +476,8 @@ abstract class Invocations
     */
    @Nonnull
    protected final <T> T withEqual(@Nonnull T arg) {
-      TestOnlyPhase currentPhase = getCurrentPhase();
-
-      if (currentPhase != null) {
-         Map<Object, Object> instanceMap = currentPhase.getInstanceMap();
-         addMatcher(new LenientEqualityMatcher(arg, instanceMap));
-      }
-
+      Map<Object, Object> instanceMap = currentPhase.getInstanceMap();
+      addMatcher(new LenientEqualityMatcher(arg, instanceMap));
       return arg;
    }
 

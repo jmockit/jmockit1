@@ -6,6 +6,8 @@ package mockit;
 
 import javax.annotation.*;
 
+import mockit.internal.expectations.*;
+
 /**
  * Same as {@link Verifications}, but checking that <em>all</em> invocations from code under test are explicitly verified, except for those
  * already verified through other means.
@@ -33,7 +35,7 @@ public class FullVerifications extends Verifications
     *
     * @see #FullVerifications(Object...)
     */
-   protected FullVerifications() { verificationPhase.setAllInvocationsMustBeVerified(); }
+   protected FullVerifications() { ((BaseVerificationPhase) currentPhase).setAllInvocationsMustBeVerified(); }
 
    /**
     * Same as {@link #FullVerifications()}, but restricting the verification to the specified mocked types and/or mocked instances.
@@ -44,6 +46,6 @@ public class FullVerifications extends Verifications
     */
    protected FullVerifications(@Nonnull Object... mockedTypesAndInstancesToVerify) {
       this();
-      verificationPhase.setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
+      ((BaseVerificationPhase) currentPhase).setMockedTypesToFullyVerify(mockedTypesAndInstancesToVerify);
    }
 }

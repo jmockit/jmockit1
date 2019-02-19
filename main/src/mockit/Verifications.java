@@ -47,8 +47,6 @@ import mockit.internal.state.*;
  */
 public class Verifications extends Invocations
 {
-   @Nonnull final BaseVerificationPhase verificationPhase;
-
    /**
     * Begins a set of unordered expectation verifications, on the available mocked types and/or mocked instances.
     * Such verifications are meant to be executed <em>after</em> the call to code under test has been made.
@@ -57,11 +55,8 @@ public class Verifications extends Invocations
 
    Verifications(boolean inOrder) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForVerifications();
-      verificationPhase = instance.startVerifications(inOrder);
+      currentPhase = instance.startVerifications(inOrder);
    }
-
-   @Nonnull @Override
-   final BaseVerificationPhase getCurrentPhase() { return verificationPhase; }
 
    /**
     * Captures the argument value passed into the associated expectation parameter, for a matching invocation that occurred when the tested
@@ -97,7 +92,7 @@ public class Verifications extends Invocations
     */
    @Nullable
    protected final <T> T withCapture() {
-      verificationPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
+      currentPhase.addArgMatcher(AlwaysTrueMatcher.ANY_VALUE);
       return null;
    }
 
@@ -131,6 +126,6 @@ public class Verifications extends Invocations
     */
    @Nonnull
    protected final <T> List<T> withCapture(@Nonnull T constructorVerification) {
-      return verificationPhase.getNewInstancesMatchingVerifiedConstructorInvocation();
+      return ((BaseVerificationPhase) currentPhase).getNewInstancesMatchingVerifiedConstructorInvocation();
    }
 }
