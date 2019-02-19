@@ -554,7 +554,12 @@ public final class PartialMockingTest
    static class B extends A {}
 
    @Test @Ignore("issue #492")
-   public void partiallyMockASubclassWhoseSuperClassConstructorThrowsIfExecuted() {
+   public void fullyMockASubclassWhoseSuperClassConstructorThrowsWhenExecuted(@Mocked B mock) {
+      new A();
+   }
+
+   @Test @Ignore("issue #492")
+   public void partiallyMockASubclassWhoseSuperClassConstructorThrowsWhenExecuted() {
       new Expectations(B.class) {{ new B(); }};
 
       new A();
