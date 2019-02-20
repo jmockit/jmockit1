@@ -594,4 +594,14 @@ public final class CascadingParametersTest
 
       assertNotNull(runnable);
    }
+
+   interface SubInterfaceOfSomeCollectionType<T> extends List<T> {}
+   static class AnotherClass { SubInterfaceOfSomeCollectionType<?> getList() { return null; } }
+
+   @Test
+   public void returnNullFromMockedMethodReturningSubtypeOfUnmockableType(@Mocked AnotherClass mock) {
+      List<?> l = mock.getList();
+
+      assertNull(l);
+   }
 }

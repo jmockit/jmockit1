@@ -65,11 +65,11 @@ public final class MockingFilters
 
    public static boolean isSubclassOfUnmockable(@Nonnull Class<?> aClass) {
       return
-         AbstractCollection.class.isAssignableFrom(aClass) ||
-         AbstractMap.class.isAssignableFrom(aClass) ||
-         Hashtable.class.isAssignableFrom(aClass) ||
+         Collection.class.isAssignableFrom(aClass) ||
+         Map.class.isAssignableFrom(aClass) ||
          Throwable.class.isAssignableFrom(aClass) ||
          ClassLoader.class.isAssignableFrom(aClass) ||
-         ThreadLocal.class.isAssignableFrom(aClass);
+         ThreadLocal.class.isAssignableFrom(aClass) ||
+         Number.class.isAssignableFrom(aClass);
    }
 }

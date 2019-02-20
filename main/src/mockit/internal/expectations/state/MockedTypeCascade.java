@@ -124,14 +124,8 @@ public final class MockedTypeCascade
       return reflection;
    }
 
-   @Nullable
-   private static String getReturnTypeIfCascadingSupportedForIt(@Nonnull Class<?> returnType) {
-      if (MockingFilters.isSubclassOfUnmockable(returnType)) {
-         return null;
-      }
-
-      String typeName = getInternalName(returnType);
-      return isTypeSupportedForCascading(typeName) ? typeName : null;
+   private static boolean isReturnTypeNotSupportedForCascading(@Nonnull Class<?> returnType) {
+      return MockingFilters.isSubclassOfUnmockable(returnType) || !isTypeSupportedForCascading(getInternalName(returnType));
    }
 
    @SuppressWarnings("OverlyComplexMethod")
@@ -176,7 +170,6 @@ public final class MockedTypeCascade
    ) {
       MockedTypeCascade nextLevel = this;
       Type returnType = cascadedTypesAndMocks.get(returnTypeInternalName);
-      Class<?> returnClass;
 
       if (returnType == null) {
          Class<?> cascadingClass = getClassWithCalledMethod();
@@ -194,9 +187,11 @@ public final class MockedTypeCascade
             }
 
             returnType = mockedType;
-            returnClass = cascadingClass;
          }
-         else if (nonPublicTypeReturnedFromPublicInterface(cascadingClass, resolvedReturnType)) {
+         else if (
+            nonPublicTypeReturnedFromPublicInterface(cascadingClass, resolvedReturnType) ||
+            isReturnTypeNotSupportedForCascading(resolvedReturnType)
+         ) {
             return null;
          }
          else {
@@ -209,16 +204,10 @@ public final class MockedTypeCascade
             cascadedTypesAndMocks.put(returnTypeInternalName, genericReturnType);
             nextLevel = CASCADING_TYPES.add(returnTypeInternalName, false, genericReturnType);
             returnType = genericReturnType;
-            returnClass = resolvedReturnType;
          }
       }
       else {
          nextLevel = CASCADING_TYPES.getCascade(returnType);
-         returnClass = getClassType(returnType);
-      }
-
-      if (getReturnTypeIfCascadingSupportedForIt(returnClass) == null) {
-         return null;
       }
 
       return nextLevel.createNewCascadedInstanceOrUseNonCascadedOneIfAvailable(methodNameAndDesc, returnType);

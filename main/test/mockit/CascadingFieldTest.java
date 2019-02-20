@@ -284,7 +284,7 @@ public final class CascadingFieldTest
    public void useSubclassMockedThroughCascading() {
       Derived1 d1 = factory1.get1(); // cascade-mocks Derived1 (per-instance)
       Long v1 = d1.value();
-      assertEquals(0, v1.longValue());
+      assertNull(v1);
 
       Long v2 = new Derived1().value(); // new instance, not mocked
       assertEquals(123, v2.longValue());
@@ -296,7 +296,7 @@ public final class CascadingFieldTest
       assertEquals(123, v1.longValue());
 
       Long v2 = d2.value();
-      assertEquals(0, v2.longValue());
+      assertNull(v2);
 
       Long v3 = new Derived2().value();
       assertEquals(123, v3.longValue());
