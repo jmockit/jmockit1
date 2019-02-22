@@ -134,4 +134,38 @@ public final class FakeInvocationTest
 
       assertNull(Runtime.getRuntime().exec("test", null));
    }
+
+   public static final class FakeByMethodNameOnly extends MockUp<Collaborator> {
+      @Mock
+      public static String doSomething(Invocation inv) {
+         Object[] args = inv.getInvokedArguments();
+         assertEquals(3, args.length);
+         return "fake";
+      }
+   }
+
+   @Test
+   public void fakeMethodByNameOnly_usingPublicFake() {
+      new FakeByMethodNameOnly();
+
+      String result = new Collaborator().doSomething(true, new int[] {1, 2}, "test");
+
+      assertEquals("fake", result);
+   }
+
+   @Test
+   public void fakeMethodByNameOnly_usingAnonymousFake() {
+      new MockUp<Collaborator>() {
+         @Mock
+         String doSomething(Invocation inv) {
+            Object[] args = inv.getInvokedArguments();
+            assertEquals(3, args.length);
+            return "fake";
+         }
+      };
+
+      String result = new Collaborator().doSomething(true, new int[] {1, 2}, "test");
+
+      assertEquals("fake", result);
+   }
 }

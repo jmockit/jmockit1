@@ -34,12 +34,12 @@ final class FakeMethods
       private final int access;
       @Nonnull final String name;
       @Nonnull final String desc;
+      private final boolean isByNameOnly;
       final boolean isAdvice;
-      final boolean hasInvocationParameter;
       @Nonnull final String fakeDescWithoutInvocationParameter;
       private boolean hasMatchingRealMethod;
       @Nullable private GenericSignature fakeSignature;
-      int indexForFakeState;
+      private int indexForFakeState;
       private boolean nativeRealMethod;
 
       private FakeMethod(int access, @Nonnull String name, @Nonnull String desc) {
@@ -48,19 +48,22 @@ final class FakeMethods
          this.desc = desc;
 
          if (desc.contains("Lmockit/Invocation;")) {
-            hasInvocationParameter = true;
             fakeDescWithoutInvocationParameter = '(' + desc.substring(20);
+            isByNameOnly = name.charAt(0) != '$' && fakeDescWithoutInvocationParameter.startsWith("()");
             isAdvice = "$advice".equals(name) && "()Ljava/lang/Object;".equals(fakeDescWithoutInvocationParameter);
          }
          else {
-            hasInvocationParameter = false;
             fakeDescWithoutInvocationParameter = desc;
+            isByNameOnly = false;
             isAdvice = false;
          }
 
          hasMatchingRealMethod = false;
          indexForFakeState = -1;
       }
+
+      @SuppressWarnings("StringEquality") boolean hasInvocationParameter() { return desc != fakeDescWithoutInvocationParameter; }
+      boolean hasInvocationParameterOnly() { return isByNameOnly || isAdvice; }
 
       boolean isMatch(int realAccess, @Nonnull String realName, @Nonnull String realDesc, @Nullable String signature) {
          if (name.equals(realName) && hasMatchingParameters(realDesc, signature)) {
@@ -86,6 +89,8 @@ final class FakeMethods
          return fakeSignature.satisfiesGenericSignature(signature);
       }
 
+      boolean isMatchByName(@Nonnull String realName) { return isByNameOnly && name.equals(realName); }
+
       @Nonnull Class<?> getRealClass() { return realClass; }
       @Nonnull String getFakeNameAndDesc() { return name + desc; }
       int getIndexForFakeState() { return indexForFakeState; }
@@ -94,7 +99,7 @@ final class FakeMethods
       boolean isPublic() { return Modifier.isPublic(access); }
       boolean isForGenericMethod() { return fakeSignature != null; }
       boolean isForNativeMethod() { return nativeRealMethod; }
-      boolean requiresFakeState() { return hasInvocationParameter || reentrantRealClass; }
+      boolean requiresFakeState() { return hasInvocationParameter() || reentrantRealClass; }
       boolean canBeReentered() { return targetTypeIsAClass && !nativeRealMethod; }
 
       @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
@@ -170,22 +175,38 @@ final class FakeMethods
 
    /**
     * Finds a fake method with the same signature of a given real method, if previously collected from the fake class.
-    * This operation can be performed only once for any given fake method in this container, so that after the last real method is processed there
-    * should be no fake methods left unused in the container.
+    * Also handles "match-by-name-only" fake methods with only the <tt>Invocation</tt> parameter, and the <tt>$advice</tt> fake method.
+    * <p/>
+    * This operation can be performed only once for any given fake method in this container, so that after the last real method is processed
+    * there should be no fake methods left unused in the container.
     */
    @Nullable
    FakeMethod findMethod(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature) {
+      FakeMethod fakeMethodMatchingByNameOnly = null;
+
       for (FakeMethod fakeMethod : methods) {
          if (fakeMethod.isMatch(access, name, desc, signature)) {
             return fakeMethod;
          }
+
+         if (fakeMethod.isMatchByName(name)) {
+            fakeMethodMatchingByNameOnly = fakeMethod;
+         }
       }
 
-      if (adviceMethod != null && !isNative(access) && !"$init".equals(name) && !"$clinit".equals(name) && !isMethodFromObject(name, desc)) {
+      if (fakeMethodMatchingByNameOnly != null) {
+         return fakeMethodMatchingByNameOnly;
+      }
+
+      if (adviceMethod != null && !isNative(access) && !isConstructorOrClassInitialization(name) && !isMethodFromObject(name, desc)) {
          return adviceMethod;
       }
 
       return null;
+   }
+
+   private static boolean isConstructorOrClassInitialization(@Nonnull String memberName) {
+      return "$init".equals(memberName) || "$clinit".equals(memberName);
    }
 
    @Nonnull String getFakeClassInternalName() { return fakeClassInternalName; }

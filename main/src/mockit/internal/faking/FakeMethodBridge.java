@@ -51,7 +51,7 @@ public final class FakeMethodBridge extends ClassLoadingBridge
 
       FakeState fakeState = TestRun.getFakeStates().getFakeState(fake, fakeStateIndex);
 
-      if (!fakeState.fakeMethod.hasInvocationParameter) {
+      if (!fakeState.fakeMethod.hasInvocationParameter()) {
          return executeFakeMethodWithoutInvocationArgument(fakeState, fakeClass, fake, fakeOrFakedDesc, fakeArgs);
       }
 
@@ -94,7 +94,7 @@ public final class FakeMethodBridge extends ClassLoadingBridge
       FakeInvocation invocation;
       Object[] executionArgs;
 
-      if (fakeState.fakeMethod.isAdvice) {
+      if (fakeState.fakeMethod.hasInvocationParameterOnly()) {
          paramClasses = new Class[] {Invocation.class};
          fakeMethod = fakeState.getFakeMethod(fakeClass, paramClasses);
          invocation = new FakeInvocation(fakedInstance, fakeArgs, fakeState, fakedClassDesc, fakedName, fakedDesc);

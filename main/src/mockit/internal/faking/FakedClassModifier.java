@@ -222,7 +222,7 @@ final class FakedClassModifier extends BaseClassModifier
          jumpInsnOpcode = IF_ACMPEQ;
       }
       else {
-         jumpInsnOpcode = fakeMethod.hasInvocationParameter ? IFNE : IFEQ;
+         jumpInsnOpcode = fakeMethod.hasInvocationParameter() ? IFNE : IFEQ;
       }
 
       Label startOfRealImplementation = new Label();
@@ -258,7 +258,7 @@ final class FakedClassModifier extends BaseClassModifier
       generateCodeToFillArrayElement(i++, classDesc);
       generateCodeToFillArrayElement(i++, methodAccess);
 
-      if (fakeMethod.isAdvice) {
+      if (fakeMethod.hasInvocationParameterOnly()) {
          generateCodeToFillArrayElement(i++, methodName);
          generateCodeToFillArrayElement(i++, methodDesc);
       }
@@ -300,12 +300,12 @@ final class FakedClassModifier extends BaseClassModifier
    }
 
    private boolean generateArgumentsForFakeMethodInvocation() {
-      String fakedDesc = fakeMethod.isAdvice ? methodDesc : fakeMethod.fakeDescWithoutInvocationParameter;
+      String fakedDesc = fakeMethod.hasInvocationParameterOnly() ? methodDesc : fakeMethod.fakeDescWithoutInvocationParameter;
       JavaType[] argTypes = JavaType.getArgumentTypes(fakedDesc);
       int varIndex = isStatic(methodAccess) ? 0 : 1;
       boolean canProceedIntoConstructor = false;
 
-      if (fakeMethod.hasInvocationParameter) {
+      if (fakeMethod.hasInvocationParameter()) {
          generateCallToCreateNewFakeInvocation(argTypes, varIndex);
 
          // When invoking a constructor, the invocation object will need to be consulted for proceeding:
@@ -315,20 +315,8 @@ final class FakedClassModifier extends BaseClassModifier
          }
       }
 
-      if (!fakeMethod.isAdvice) {
-         boolean forGenericMethod = fakeMethod.isForGenericMethod();
-
-         for (JavaType argType : argTypes) {
-            int opcode = argType.getOpcode(ILOAD);
-            mw.visitVarInsn(opcode, varIndex);
-
-            if (forGenericMethod && argType instanceof ReferenceType) {
-               String typeDesc = ((ReferenceType) argType).getInternalName();
-               mw.visitTypeInsn(CHECKCAST, typeDesc);
-            }
-
-            varIndex += argType.getSize();
-         }
+      if (!fakeMethod.hasInvocationParameterOnly()) {
+         passArgumentsForFakeMethodCall(argTypes, varIndex);
       }
 
       return canProceedIntoConstructor;
@@ -357,6 +345,22 @@ final class FakedClassModifier extends BaseClassModifier
          INVOKESTATIC, "mockit/internal/faking/FakeInvocation", "create",
          "(Ljava/lang/Object;[Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)" +
          "Lmockit/internal/faking/FakeInvocation;", false);
+   }
+
+   private void passArgumentsForFakeMethodCall(@Nonnull JavaType[] argTypes, @Nonnegative int varIndex) {
+      boolean forGenericMethod = fakeMethod.isForGenericMethod();
+
+      for (JavaType argType : argTypes) {
+         int opcode = argType.getOpcode(ILOAD);
+         mw.visitVarInsn(opcode, varIndex);
+
+         if (forGenericMethod && argType instanceof ReferenceType) {
+            String typeDesc = ((ReferenceType) argType).getInternalName();
+            mw.visitTypeInsn(CHECKCAST, typeDesc);
+         }
+
+         varIndex += argType.getSize();
+      }
    }
 
    private void generateMethodReturn() {
