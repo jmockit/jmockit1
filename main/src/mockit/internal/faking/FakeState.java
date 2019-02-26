@@ -65,7 +65,10 @@ final class FakeState
 
    @Nonnull
    Member getRealMethodOrConstructor(@Nonnull String fakedClassDesc, @Nonnull String fakedMethodName, @Nonnull String fakedMethodDesc) {
-      Class<?> fakedClass = ClassLoad.loadFromLoader(THIS_CL, fakedClassDesc.replace('/', '.'));
+//      Class<?> fakedClass = ClassLoad.loadFromLoader(THIS_CL, fakedClassDesc.replace('/', '.'));
+      //modify by laohuidi
+      Class<?> fakedClass = ClassLoad.loadClassFromAClassLoader(fakedClassDesc.replace('/', '.'));
+//      Class<?> fakedClass = ClassLoad.loadClassAtStartup(fakedClassDesc.replace('/', '.'));
       return getRealMethodOrConstructor(fakedClass, fakedMethodName, fakedMethodDesc);
    }
 
