@@ -44,6 +44,12 @@ public abstract class InjectionProvider
    @Override
    public String toString() {
       Class<?> type = getClassOfDeclaredType();
-      return '"' + type.getSimpleName() + ' ' + name + '"';
+      String description = '"' + type.getSimpleName() + ' ' + name + '"';
+
+      if (parent != null) {
+         description += "\r\n  when initializing " + parent;
+      }
+
+      return description;
    }
 }

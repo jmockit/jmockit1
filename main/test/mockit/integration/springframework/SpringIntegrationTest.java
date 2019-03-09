@@ -169,4 +169,24 @@ public final class SpringIntegrationTest
       assertSame(collaborator, collaboratorBean1);
       assertSame(collaborator, collaboratorBean2);
    }
+
+   static class Level1 { @Autowired Level2 level2; }
+   static class Level2 { @Autowired Level3 level3; }
+   static class Level3 { Level3(@SuppressWarnings("unused") String str) {} }
+
+   @Test
+   public void lookupBeanWithDependencyOnAnotherWhichAlsoDependsOnAnotherWhichHasAOneArgumentConstructor() {
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("for parameter \"str\" in constructor Level3(String str)");
+      thrown.expectMessage("when initializing field \"Level3 level3\"");
+      thrown.expectMessage("when initializing field \"Level2 level2\"");
+      thrown.expectMessage("of @Tested object \"Level1 level1\"");
+
+      BeanFactory beanFactory = new TestWebApplicationContext();
+      Level1 level1 = beanFactory.getBean(Level1.class);
+
+      assertNotNull(level1);
+      assertNotNull(level1.level2);
+      assertNotNull(level1.level2.level3);
+   }
 }
