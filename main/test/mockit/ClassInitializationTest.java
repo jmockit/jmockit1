@@ -26,7 +26,7 @@ public final class ClassInitializationTest
    }
 
    static class ClassWithStaticInitializer {
-      static final String CONSTANT = new String("not a compile-time constant");
+      static final Object CONSTANT = "not a compile-time constant";
       static String variable;
       static { variable = doSomething(); }
       static String doSomething() { return "real value"; }
@@ -34,13 +34,14 @@ public final class ClassInitializationTest
 
    @Test
    public void mockClassWithStaticInitializerNotStubbedOut(@Mocked ClassWithStaticInitializer mocked) {
+      //noinspection ConstantJUnitAssertArgument
       assertNotNull(ClassWithStaticInitializer.CONSTANT);
       assertNull(ClassWithStaticInitializer.doSomething());
       assertEquals("real value", ClassWithStaticInitializer.variable);
    }
 
    static class AnotherClassWithStaticInitializer {
-      static final String CONSTANT = new String("not a compile-time constant");
+      static final Object CONSTANT = "not a compile-time constant";
       static { doSomething(); }
       static void doSomething() { throw new UnsupportedOperationException("must not execute"); }
       int getValue() { return -1; }
@@ -50,6 +51,7 @@ public final class ClassInitializationTest
    public void mockClassWithStaticInitializerStubbedOut(
       @Mocked(stubOutClassInitialization = true) AnotherClassWithStaticInitializer mockAnother
    ) {
+      //noinspection ConstantJUnitAssertArgument
       assertNull(AnotherClassWithStaticInitializer.CONSTANT);
       AnotherClassWithStaticInitializer.doSomething();
       assertEquals(0, mockAnother.getValue());
@@ -151,7 +153,7 @@ public final class ClassInitializationTest
       assertNotNull(Dependent3.DEPENDENCY);
    }
 
-   public interface BaseInterface { String DO_NOT_REMOVE = new String("Testing"); }
+   public interface BaseInterface { Object DO_NOT_REMOVE = "Testing"; }
    public interface SubInterface extends BaseInterface {}
    @Mocked SubInterface mock;
 
@@ -172,5 +174,14 @@ public final class ClassInitializationTest
    ) {
       assertNotNull(ClassWhichCallsMethodOnItselfFromInitializer.value());
       assertNull(ClassWhichCallsMethodOnItselfFromInitializer.value);
+   }
+
+   interface InterfaceWithStaticInitializer { Object CONSTANT = "test"; }
+   @SuppressWarnings({"AbstractClassWithoutAbstractMethods", "StaticInheritance"})
+   public abstract static class AbstractImpl implements InterfaceWithStaticInitializer {}
+
+   @Test // failed on JDK 9+ only
+   public void mockAbstractClassImplementingInterfaceWithStaticInitializer(@Mocked AbstractImpl mock2) {
+      assertEquals("test", mock2.CONSTANT);
    }
 }

@@ -158,7 +158,7 @@ public class BaseSubclassGenerator extends BaseClassModifier
             if (abstractClass) {
                generateImplementationIfAbstractMethod(typeName, method.accessFlags, method.name, method.desc, null, null);
             }
-            else {
+            else if (method.isAbstract()) {
                generateImplementationForInterfaceMethodIfMissing(typeName, method);
             }
          }

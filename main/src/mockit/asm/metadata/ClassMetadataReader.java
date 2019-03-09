@@ -206,13 +206,9 @@ public final class ClassMetadataReader extends ObjectWithAttributes
          this.desc = desc;
       }
 
-      final boolean isStatic() {
-         return (accessFlags & Access.STATIC) != 0;
-      }
-
-      public final boolean isSynthetic() {
-         return (accessFlags & Access.SYNTHETIC) != 0;
-      }
+      public final boolean isStatic()    { return (accessFlags & Access.STATIC) != 0; }
+      public final boolean isAbstract()  { return (accessFlags & Access.ABSTRACT) != 0; }
+      public final boolean isSynthetic() { return (accessFlags & Access.SYNTHETIC) != 0; }
    }
 
    public static final class FieldInfo extends MemberInfo {
