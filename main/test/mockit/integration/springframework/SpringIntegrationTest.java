@@ -189,4 +189,18 @@ public final class SpringIntegrationTest
       assertNotNull(level1.level2);
       assertNotNull(level1.level2.level3);
    }
+
+   @Test
+   public void failToLookupBeanButCatchExceptionAndThrowAnother_stillShouldIncludedFilteredStackTrace() {
+      BeanFactory beanFactory = new TestWebApplicationContext();
+
+      try {
+         beanFactory.getBean(Level1.class);
+      }
+      catch (IllegalStateException e) {
+         for (StackTraceElement ste : e.getStackTrace()) {
+            assertFalse(ste.toString(), ste.getClassName().startsWith("mockit.internal."));
+         }
+      }
+   }
 }

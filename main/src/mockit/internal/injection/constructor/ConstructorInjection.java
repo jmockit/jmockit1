@@ -94,7 +94,9 @@ public final class ConstructorInjection extends Injector
          String message =
             "Missing @Tested or @Injectable" + missingValueDescription(parameterName) +
             "\r\n  when initializing " + fullInjection;
-         throw new IllegalStateException(message);
+         IllegalStateException injectionFailure = new IllegalStateException(message);
+         StackTrace.filterStackTrace(injectionFailure);
+         throw injectionFailure;
       }
 
       return newOrReusedValue;
