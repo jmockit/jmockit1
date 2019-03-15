@@ -5,26 +5,6 @@ import org.junit.*;
 
 public final class ClassInitializationTest
 {
-   static final class ClassWhichFailsAtInitialization {
-      static {
-         // noinspection ConstantConditions
-         if (true) {
-            throw new AssertionError();
-         }
-      }
-
-      static int value() { return 0; }
-   }
-
-   @Test
-   public void usingExpectations(@Mocked(stubOutClassInitialization = true) ClassWhichFailsAtInitialization unused) {
-      new Expectations() {{
-         ClassWhichFailsAtInitialization.value(); result = 1;
-      }};
-
-      assertEquals(1, ClassWhichFailsAtInitialization.value());
-   }
-
    static class ClassWithStaticInitializer {
       static final Object CONSTANT = "not a compile-time constant";
       static String variable;
@@ -33,28 +13,11 @@ public final class ClassInitializationTest
    }
 
    @Test
-   public void mockClassWithStaticInitializerNotStubbedOut(@Mocked ClassWithStaticInitializer mocked) {
+   public void mockClassWithStaticInitializer(@Mocked ClassWithStaticInitializer mocked) {
       //noinspection ConstantJUnitAssertArgument
       assertNotNull(ClassWithStaticInitializer.CONSTANT);
       assertNull(ClassWithStaticInitializer.doSomething());
       assertEquals("real value", ClassWithStaticInitializer.variable);
-   }
-
-   static class AnotherClassWithStaticInitializer {
-      static final Object CONSTANT = "not a compile-time constant";
-      static { doSomething(); }
-      static void doSomething() { throw new UnsupportedOperationException("must not execute"); }
-      int getValue() { return -1; }
-   }
-
-   @Test
-   public void mockClassWithStaticInitializerStubbedOut(
-      @Mocked(stubOutClassInitialization = true) AnotherClassWithStaticInitializer mockAnother
-   ) {
-      //noinspection ConstantJUnitAssertArgument
-      assertNull(AnotherClassWithStaticInitializer.CONSTANT);
-      AnotherClassWithStaticInitializer.doSomething();
-      assertEquals(0, mockAnother.getValue());
    }
 
    static class ClassWhichCallsStaticMethodFromInitializer {
@@ -169,9 +132,7 @@ public final class ClassInitializationTest
    }
 
    @Test
-   public void mockClassWhichCallsMethodOnItselfFromInitializerWithoutStubbingOutTheInitializer(
-      @Mocked ClassWhichCallsMethodOnItselfFromInitializer unused
-   ) {
+   public void mockClassWhichCallsMethodOnItselfFromInitializer(@Mocked ClassWhichCallsMethodOnItselfFromInitializer unused) {
       assertNotNull(ClassWhichCallsMethodOnItselfFromInitializer.value());
       assertNull(ClassWhichCallsMethodOnItselfFromInitializer.value);
    }
