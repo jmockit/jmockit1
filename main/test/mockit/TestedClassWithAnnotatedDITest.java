@@ -18,10 +18,13 @@ public final class TestedClassWithAnnotatedDITest
       @Resource(name = "firstAction") Runnable action1;
       @Resource(name = "thirdAction") Runnable action3;
       @Inject int anotherValue;
+
+      // @Value is supported implicitly (no specific handling for it).
       @Value("textValue") String stringFieldWithValue;
       @Value("123.45") double numericFieldWithValue;
       @Value("#{systemProperties.someProperty}") String systemProperty;
       @Value("${anotherSystemProperty}") int anInt;
+      @Value("${propertyWithDefault:12345}") long aLongValue; // default value is ignored, left as 0 if no @Injectable or @Tested is found
    }
 
    static class TestedClass2 {
@@ -53,7 +56,8 @@ public final class TestedClassWithAnnotatedDITest
    public void injectAllAnnotatedInjectionPoints(
       @Injectable("2") int anotherValue, @Injectable Runnable secondAction, @Injectable Runnable anotherAction,
       @Injectable("true") boolean unused, @Injectable("test") String stringFieldWithValue,
-      @Injectable("123.45") double numericFieldWithValue, @Injectable("propertyValue") String systemProperty, @Injectable("123") int anInt
+      @Injectable("123.45") double numericFieldWithValue, @Injectable("propertyValue") String systemProperty, @Injectable("123") int anInt,
+      @Injectable("987654") long aLong
    ) {
       assertSame(firstAction, tested1.action1);
       assertSame(secondAction, tested1.action2);
@@ -64,6 +68,7 @@ public final class TestedClassWithAnnotatedDITest
       assertEquals(123.45, tested1.numericFieldWithValue, 0);
       assertEquals("propertyValue", tested1.systemProperty);
       assertEquals(123, tested1.anInt);
+      assertEquals(987654, tested1.aLongValue);
 
       assertEquals(1, tested2.someValue);
       assertSame(action, tested2.action);
@@ -79,6 +84,7 @@ public final class TestedClassWithAnnotatedDITest
    ) {
       assertNull(tested1.systemProperty);
       assertEquals(0, tested1.anInt);
+      assertEquals(0, tested1.aLongValue);
    }
 
    @Test(expected = IllegalStateException.class)
