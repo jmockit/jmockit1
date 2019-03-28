@@ -28,6 +28,8 @@ public final class DelegateTest
 
    static final class Foo { int doSomething() { return 1; } }
 
+   static final class Bar { Map doSomething() { return Collections.emptyMap(); } }
+
    @Test
    public void resultFromDelegate(@Mocked final Collaborator collaborator) {
       final boolean bExpected = true;
@@ -501,6 +503,18 @@ public final class DelegateTest
       thrown.expectMessage("void return type incompatible with return type int");
 
       mock.getValue();
+   }
+
+   @Test
+   public void returnObjectInstanceOfTargetReturnTypeFromDelegateMethodForRecordedMethod(
+           @Mocked final Bar mock
+   ) {
+      new Expectations() {{
+         mock.doSomething();
+         result = new Delegate() { Object delegate() { return Collections.emptyMap();} };
+      }};
+
+      mock.doSomething();
    }
 
    @Test

@@ -104,7 +104,7 @@ class DynamicInvocationResult extends InvocationResult
       Object returnValue = invoke(targetObject, methodToInvoke, args);
       Class<?> fromReturnType = methodToInvoke.getReturnType();
 
-      if (returnValue == null || targetReturnType.isAssignableFrom(fromReturnType)) {
+      if (returnValue == null || targetReturnType.isInstance(returnValue)) {
          if (fromReturnType == void.class && fromReturnType != targetReturnType && targetReturnType.isPrimitive()) {
             String returnTypeName = JAVA_LANG.matcher(targetReturnType.getName()).replaceAll("");
             MethodFormatter methodDesc =
