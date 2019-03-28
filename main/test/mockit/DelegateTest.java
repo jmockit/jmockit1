@@ -510,4 +510,18 @@ public final class DelegateTest
 
       assertSame(bytes, mock.getArray());
    }
+
+   @Test
+   public void returnValueOfCorrectTypeFromDelegateMethodReturningASupertype(@Mocked final Collaborator mock) {
+      final Foo expected = new Foo();
+
+      new Expectations() {{
+         mock.getFoo();
+         result = new Delegate() { Object delegate() { return expected; } };
+      }};
+
+      Foo actual = mock.getFoo();
+
+      assertSame(expected, actual);
+   }
 }
