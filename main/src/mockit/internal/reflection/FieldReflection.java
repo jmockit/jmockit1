@@ -17,11 +17,6 @@ public final class FieldReflection
    public static <T> T getFieldValue(@Nonnull Field field, @Nullable Object targetObject) {
       ensureThatMemberIsAccessible(field);
 
-      if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
-         Field outerInstanceField = getDeclaredField(targetObject.getClass(), "this$0", true);
-         targetObject = getFieldValue(outerInstanceField, targetObject);
-      }
-
       try {
          //noinspection unchecked
          return (T) field.get(targetObject);
@@ -29,31 +24,8 @@ public final class FieldReflection
       catch (IllegalAccessException e) { throw new RuntimeException(e); }
    }
 
-   @Nonnull
-   private static Field getDeclaredField(@Nonnull Class<?> theClass, @Nonnull String fieldName, boolean instanceField) {
-      try {
-         return theClass.getDeclaredField(fieldName);
-      }
-      catch (NoSuchFieldException ignore) {
-         Class<?> superClass = theClass.getSuperclass();
-
-         if (superClass != null && superClass != Object.class) {
-            //noinspection TailRecursion
-            return getDeclaredField(superClass, fieldName, instanceField);
-         }
-
-         String kind = instanceField ? "instance" : "static";
-         throw new IllegalArgumentException("No " + kind + " field of name \"" + fieldName + "\" found in " + theClass);
-      }
-   }
-
    public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value) {
       ensureThatMemberIsAccessible(field);
-
-      if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
-         Field outerInstanceField = getDeclaredField(targetObject.getClass(), "this$0", true);
-         targetObject = getFieldValue(outerInstanceField, targetObject);
-      }
 
       try {
          field.set(targetObject, value);
