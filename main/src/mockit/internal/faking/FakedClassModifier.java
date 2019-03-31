@@ -103,9 +103,9 @@ final class FakedClassModifier extends BaseClassModifier
       }
 
       if (isPrivate(access)) {
-         System.out.println(
-            "WARNING: fake for private " + (isConstructor ? "constructor " : "method ") + fakedClass.getSimpleName() + '#' + name + desc +
-            " found; such fakes will no longer be supported");
+         String kindOfMember = isConstructor ? "constructor " : "method ";
+         String privateMemberDesc = fakedClass.getSimpleName() + '#' + name + desc;
+         throw new IllegalArgumentException("Unsupported fake for private " + kindOfMember + privateMemberDesc + " found");
       }
 
       startModifiedMethodVersion(access, name, desc, signature, exceptions);
