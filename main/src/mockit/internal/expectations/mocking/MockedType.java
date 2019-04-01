@@ -198,7 +198,6 @@ public final class MockedType extends InjectionProvider
    }
 
    boolean isFinalFieldOrParameter() { return field == null || isFinal(accessModifiers); }
-   boolean isClassInitializationToBeStubbedOut() { return mocked != null && mocked.stubOutClassInitialization(); }
    boolean withInstancesToCapture() { return capturing != null; }
 
    @Nullable @Override

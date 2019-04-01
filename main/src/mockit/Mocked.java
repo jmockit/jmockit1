@@ -47,23 +47,4 @@ import static java.lang.annotation.RetentionPolicy.*;
  */
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER})
-public @interface Mocked
-{
-   /**
-    * Indicates whether <em>static initialization code</em> in the mocked class should be stubbed out or not.
-    * Static initialization includes the execution of assignments to static fields of the class and the execution of static initialization
-    * blocks, if any.
-    * (Note that <tt>static final</tt> fields initialized with <em>compile-time</em> constants are not assigned at runtime, remaining
-    * unaffected whether the class is stubbed out or not.)
-    * <p/>
-    * By default, static initialization code in a mocked class is <em>not</em> stubbed out.
-    * The JVM will only perform static initialization of a class <em>once</em>, so stubbing out the initialization code can have unexpected
-    * consequences.
-    *
-    * @deprecated Stubbing out the static initialization of a class is an unsafe operation, which can cause other tests, executed later in
-    * the same test run, to unexpectedly fail; instead of resorting to stubbing out a class's static initializer, the root cause for wanting
-    * to stub it out should be eliminated. This attribute will be removed in a future version.
-    */
-   @Deprecated
-   boolean stubOutClassInitialization() default false;
-}
+public @interface Mocked {}

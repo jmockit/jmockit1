@@ -61,10 +61,7 @@ class BaseTypeRedefinition
          createMockedInterfaceImplementationAndInstanceFactory(typeToMock);
       }
       else {
-         if (typeMetadata == null || !typeMetadata.isClassInitializationToBeStubbedOut()) {
-            TestRun.ensureThatClassIsInitialized(targetClass);
-         }
-
+         TestRun.ensureThatClassIsInitialized(targetClass);
          redefineTargetClassAndCreateInstanceFactory(typeToMock);
       }
 

@@ -138,10 +138,6 @@ final class MockedClassModifier extends BaseClassModifier
             return unmodifiedBytecode(access, name, desc, signature, exceptions);
          }
 
-         if ("<clinit>".equals(name)) {
-            return stubOutClassInitializationIfApplicable(access);
-         }
-
          if (stubOutFinalizeMethod(access, name, desc)) {
             return null;
          }
@@ -197,22 +193,11 @@ final class MockedClassModifier extends BaseClassModifier
 
    private boolean isMethodNotToBeMocked(int access, @Nonnull String name, @Nonnull String desc) {
       return
+         "<clinit>".equals(name) ||
          isNative(access) && (NATIVE_UNSUPPORTED || (access & PUBLIC_OR_PROTECTED) == 0) ||
          (isProxy || executionMode == ExecutionMode.Partial) && (
             isMethodFromObject(name, desc) || "annotationType".equals(name) && "()Ljava/lang/Class;".equals(desc)
          );
-   }
-
-   @Nullable
-   private MethodVisitor stubOutClassInitializationIfApplicable(int access) {
-      startModifiedMethodVersion(access, "<clinit>", "()V", null, null);
-
-      if (mockedType != null && mockedType.isClassInitializationToBeStubbedOut()) {
-         generateEmptyImplementation();
-         return null;
-      }
-
-      return mw;
    }
 
    private boolean stubOutFinalizeMethod(int access, @Nonnull String name, @Nonnull String desc) {
