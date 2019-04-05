@@ -595,13 +595,29 @@ public final class CascadingParametersTest
       assertNotNull(runnable);
    }
 
-   interface SubInterfaceOfSomeCollectionType<T> extends List<T> {}
-   static class AnotherClass { SubInterfaceOfSomeCollectionType<?> getList() { return null; } }
+   public interface SubInterfaceOfSomeCollectionType<T> extends List<T> {}
+   public interface IteratorSubInterface extends Iterator<String> {}
+   public interface ComparatorSubInterface extends Comparator<Integer>, Serializable {}
+   public interface EnumerationSubInterface extends Enumeration<Object> {}
+
+   static class AnotherClass {
+      SubInterfaceOfSomeCollectionType<?> getList() { return null; }
+      IteratorSubInterface getIterator() { return null; }
+      ComparatorSubInterface getComparator() { return null; }
+      EnumerationSubInterface getEnumeration() { return null; }
+   }
 
    @Test
    public void returnNullFromMockedMethodReturningSubtypeOfUnmockableType(@Mocked AnotherClass mock) {
       List<?> l = mock.getList();
 
       assertNull(l);
+   }
+
+   @Test
+   public void mockMethodReturningUserDefinedSubtypesOfUnmockableJREInterfaces(@Mocked AnotherClass mock) {
+      assertNull(mock.getIterator());
+      assertNull(mock.getComparator());
+      assertNull(mock.getEnumeration());
    }
 }

@@ -67,6 +67,9 @@ public final class MockingFilters
       return
          Collection.class.isAssignableFrom(aClass) ||
          Map.class.isAssignableFrom(aClass) ||
+         Iterator.class.isAssignableFrom(aClass) ||
+         Comparator.class.isAssignableFrom(aClass) ||
+         Enumeration.class.isAssignableFrom(aClass) ||
          Throwable.class.isAssignableFrom(aClass) ||
          ClassLoader.class.isAssignableFrom(aClass) ||
          ThreadLocal.class.isAssignableFrom(aClass) ||
