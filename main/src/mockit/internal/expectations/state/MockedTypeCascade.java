@@ -215,6 +215,7 @@ public final class MockedTypeCascade
 
    private static boolean nonPublicTypeReturnedFromPublicInterface(@Nonnull Class<?> cascadingClass, @Nonnull Class<?> resolvedReturnType) {
       return
+         cascadingClass.isInterface() &&
          !isPublic(resolvedReturnType.getModifiers()) &&
          cascadingClass.getClassLoader() != null &&
          (cascadingClass.getModifiers() & PUBLIC_INTERFACE) != 0 &&
