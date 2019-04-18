@@ -18,18 +18,28 @@ public final class FieldReflection
       ensureThatMemberIsAccessible(field);
 
       try {
+         if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
+            Field outerInstanceField = targetObject.getClass().getDeclaredField("this$0");
+            targetObject = getFieldValue(outerInstanceField, targetObject);
+         }
+
          //noinspection unchecked
          return (T) field.get(targetObject);
       }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (IllegalAccessException | NoSuchFieldException e) { throw new RuntimeException(e); }
    }
 
    public static void setFieldValue(@Nonnull Field field, @Nullable Object targetObject, @Nullable Object value) {
       ensureThatMemberIsAccessible(field);
 
       try {
+         if (targetObject != null && !field.getDeclaringClass().isInstance(targetObject)) {
+            Field outerInstanceField = targetObject.getClass().getDeclaredField("this$0");
+            targetObject = getFieldValue(outerInstanceField, targetObject);
+         }
+
          field.set(targetObject, value);
       }
-      catch (IllegalAccessException e) { throw new RuntimeException(e); }
+      catch (IllegalAccessException | NoSuchFieldException e) { throw new RuntimeException(e); }
    }
 }
