@@ -168,4 +168,16 @@ public final class FakeInvocationTest
 
       assertEquals("fake", result);
    }
+
+   public static final class PublicFakeForConstructorUsingInvocation extends MockUp<Collaborator> {
+      @Mock
+      public void $init(Invocation inv) {}
+   }
+
+   @Test
+   public void fakeConstructorUsingPublicFakeClassWithPublicFakeMethodHavingInvocationParameter() {
+      new PublicFakeForConstructorUsingInvocation();
+
+      new Collaborator();
+   }
 }
