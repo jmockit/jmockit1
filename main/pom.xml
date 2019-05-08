@@ -144,7 +144,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.1</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M3</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
@@ -156,10 +156,16 @@
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>2.22.1</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.1</version>
                </dependency>
                <dependency>
+                  <groupId>org.junit.platform</groupId><artifactId>junit-platform-surefire-provider</artifactId><version>1.2.0</version>
+                </dependency>
+               <dependency>
                   <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.1</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.junit.vintage</groupId><artifactId>junit-vintage-engine</artifactId><version>5.2.0</version>
                </dependency>
             </dependencies>
          </plugin>
@@ -199,8 +205,6 @@
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
             <exclusion><groupId>org.opentest4j</groupId><artifactId>opentest4j</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-engine</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-commons</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
