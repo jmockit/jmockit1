@@ -43,9 +43,15 @@ final class JMockitExtension extends TestRunnerDecorator implements
       return testClass != null && !testClass.isAnnotationPresent(Nested.class);
    }
 
+   private static boolean isNestedTestClass(@Nonnull ExtensionContext context) {
+      Class<?> testClass = context.getTestClass().orElse(null);
+      return testClass != null && testClass.isAnnotationPresent(Nested.class);
+   }
+
+
    @Override
    public void postProcessTestInstance(@Nonnull Object testInstance, @Nonnull ExtensionContext context) {
-      if (isRegularTestClass(context)) {
+      if (isRegularTestClass(context) || isNestedTestClass(context)) {
          TestRun.enterNoMockingZone();
 
          try {
