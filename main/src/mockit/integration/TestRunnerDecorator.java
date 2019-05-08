@@ -136,7 +136,7 @@ public class TestRunnerDecorator
       Class<?> testClass = getActualTestClass(target.getClass());
       FieldTypeRedefinitions fieldTypeRedefinitions = TestRun.getFieldTypeRedefinitions();
 
-      if (fieldTypeRedefinitions == null) {
+      if (needsRedifinitions(testClass, fieldTypeRedefinitions)) {
          ParameterNameExtractor.extractNames(testClass);
 
          fieldTypeRedefinitions = new FieldTypeRedefinitions(testClass);
@@ -155,6 +155,17 @@ public class TestRunnerDecorator
       if (target != TestRun.getCurrentTestInstance()) {
          fieldTypeRedefinitions.assignNewInstancesToMockFields(target);
       }
+   }
+
+   private static boolean needsRedifinitions(Class<?> testClass, @Nullable FieldTypeRedefinitions fieldTypeRedefinitions) {
+      final Object current = TestRun.getCurrentTestInstance();
+      if (fieldTypeRedefinitions == null || current == null) {
+          return true;
+      }
+      if (!Objects.equals(current.getClass(), testClass)) {
+          return true;
+      }
+      return false;
    }
 
    protected static void createInstancesForTestedFieldsFromBaseClasses(@Nonnull Object testClassInstance) {
