@@ -9,7 +9,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.46</jmockit.version>
+      <jmockit.version>1.47</jmockit.version>
    </properties>
 
    <build>
