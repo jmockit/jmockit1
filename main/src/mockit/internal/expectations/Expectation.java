@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
+import mockit.internal.state.*;
 import mockit.internal.util.*;
 
 final class Expectation
@@ -75,11 +76,8 @@ final class Expectation
       if (value == null) {
          invocationResults.addReturnValueResult(null);
       }
-      else if (isReplacementInstance(value)) {
-         assert recordPhase != null;
-         Map<Object, Object> replacementMap = recordPhase.getReplacementMap();
-         replacementMap.put(invocation.instance, value);
-         invocation.replacementInstance = value;
+      else if (isEligibleAsReplacementInstance(value)) {
+         registerAsReplacementInstance(value);
       }
       else if (value instanceof Throwable) {
          invocationResults.addThrowable((Throwable) value);
@@ -99,8 +97,19 @@ final class Expectation
       }
    }
 
-   private boolean isReplacementInstance(@Nonnull Object value) {
+   private boolean isEligibleAsReplacementInstance(@Nonnull Object value) {
       return invocation.isConstructor() && value.getClass().isInstance(invocation.instance);
+   }
+
+   private void registerAsReplacementInstance(@Nonnull Object mock) {
+      if (TestRun.getExecutingTest().isSingleInstanceOfMockedClass(mock)) {
+         throw new IllegalArgumentException("Invalid assignment to result field for constructor expectation");
+      }
+
+      assert recordPhase != null;
+      Map<Object, Object> replacementMap = recordPhase.getReplacementMap();
+      replacementMap.put(invocation.instance, mock);
+      invocation.replacementInstance = mock;
    }
 
    @Nullable

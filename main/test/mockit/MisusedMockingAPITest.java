@@ -30,7 +30,7 @@ public final class MisusedMockingAPITest
 
    @Mocked Blah mock;
 
-   // Arrange-Act-Assert non-conformance //////////////////////////////////////////////////////////////////////////////
+   // Arrange-Act-Assert non-conformance //////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordExpectationAfterInvokingSameMethodInReplayPhase() {
@@ -41,7 +41,7 @@ public final class MisusedMockingAPITest
       assertEquals(1, mock.value());
    }
 
-   // Duplicate recordings ////////////////////////////////////////////////////////////////////////////////////////////
+   // Duplicate/pointless recordings //////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordDuplicateInvocationWithNoArguments() {
@@ -72,7 +72,19 @@ public final class MisusedMockingAPITest
       assertEquals(2, mock.value());
    }
 
-   // Order-related recordings ////////////////////////////////////////////////////////////////////////////////////////
+   @Test
+   public void recordSingleMockInstanceForConstructorExpectation() {
+      thrown.expect(IllegalArgumentException.class);
+      thrown.expectMessage("Invalid assignment");
+      thrown.expectMessage("result ");
+      thrown.expectMessage(" constructor");
+
+      new Expectations() {{ new Blah(); result = mock; }};
+
+      new Blah();
+   }
+
+   // Order-related recordings ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void recordUnorderedInstantiationOfClassMockedTwice(@Mocked final Blah mock2) {
@@ -111,7 +123,7 @@ public final class MisusedMockingAPITest
       }};
    }
 
-   // Cascading ///////////////////////////////////////////////////////////////////////////////////////////////////////
+   // Cascading ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void ambiguousCascadingWhenMultipleValidCandidatesAreAvailable(@Injectable Runnable r1, @Injectable Runnable r2) {
@@ -120,7 +132,7 @@ public final class MisusedMockingAPITest
       assertSame(r2, cascaded); // currently, last mock to be declared wins
    }
 
-   // @Tested/@Injectable usage ///////////////////////////////////////////////////////////////////////////////////////
+   // @Tested/@Injectable usage ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    static class TestedClass { Runnable action; }
    @Injectable static Runnable mockAction = new Runnable() { @Override public void run() {} };
@@ -131,7 +143,7 @@ public final class MisusedMockingAPITest
       assertNull(tested.action);
    }
 
-   // Other cases /////////////////////////////////////////////////////////////////////////////////////////////////////
+   // Other cases /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    static final class CustomException extends Exception {}
 

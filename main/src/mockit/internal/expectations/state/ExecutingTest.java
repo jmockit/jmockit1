@@ -139,6 +139,23 @@ public final class ExecutingTest
       }
    }
 
+   public boolean isSingleInstanceOfMockedClass(@Nonnull Object mockedInstance) {
+      Class<?> mockedClass = mockedInstance.getClass();
+      boolean found = false;
+
+      for (int i = 0, n = regularMocks.size(); i < n; i++) {
+         if (regularMocks.get(i).getClass() == mockedClass) {
+            if (found) {
+               return false;
+            }
+
+            found = true;
+         }
+      }
+
+      return found;
+   }
+
    public boolean isInjectableMock(@Nonnull Object instance) { return containsReference(injectableMocks, instance); }
 
    public boolean isUnmockedInstance(@Nonnull Object instance) {
