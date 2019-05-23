@@ -111,7 +111,7 @@ public final class FieldTypeRedefinitions extends TypeRedefinitions
    }
 
    public void assignNewInstancesToMockFields(@Nonnull Object target) {
-      TestRun.getExecutingTest().clearInjectableAndNonStrictMocks();
+      TestRun.getExecutingTest().clearRegularAndInjectableMocks();
       createAndAssignNewInstances(target);
       obtainAndRegisterInstancesOfFieldsNotSet(target);
    }

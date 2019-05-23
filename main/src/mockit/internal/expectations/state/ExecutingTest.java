@@ -128,7 +128,7 @@ public final class ExecutingTest
       parameterTypeRedefinitions = redefinitions;
    }
 
-   public void clearInjectableAndNonStrictMocks() {
+   public void clearRegularAndInjectableMocks() {
       regularMocks.clear();
       injectableMocks.clear();
    }
