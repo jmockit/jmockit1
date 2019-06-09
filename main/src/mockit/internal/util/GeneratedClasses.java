@@ -9,8 +9,8 @@ import javax.annotation.*;
 
 public final class GeneratedClasses
 {
-   private static final String SUBCLASS_PREFIX = "$Subclass_";
    private static final String IMPLCLASS_PREFIX = "$Impl_";
+   private static final String SUBCLASS_PREFIX  = "$Subclass_";
 
    private GeneratedClasses() {}
 
@@ -38,7 +38,8 @@ public final class GeneratedClasses
       return isGeneratedImplementationClass(mockedType.getName());
    }
 
-   public static boolean isGeneratedSubclass(@Nonnull String className) { return className.contains(SUBCLASS_PREFIX); }
+   private static boolean isGeneratedImplementationClass(@Nonnull String className) { return className.contains(IMPLCLASS_PREFIX); }
+   private static boolean isGeneratedSubclass           (@Nonnull String className) { return className.contains(SUBCLASS_PREFIX);  }
 
    public static boolean isExternallyGeneratedSubclass(@Nonnull String className) {
       int p = className.indexOf('$') + 1;
@@ -51,10 +52,6 @@ public final class GeneratedClasses
       return className.contains("_$$_javassist_") || className.contains("_$$_jvst") || className.contains("CGLIB$$");
    }
 
-   public static boolean isGeneratedImplementationClass(@Nonnull String className) {
-      return className.contains(IMPLCLASS_PREFIX);
-   }
-
    public static boolean isGeneratedClass(@Nonnull String className) {
       return isGeneratedSubclass(className) || isGeneratedImplementationClass(className);
    }
@@ -62,7 +59,8 @@ public final class GeneratedClasses
    @Nonnull
    public static Class<?> getMockedClassOrInterfaceType(@Nonnull Class<?> aClass) {
       if (Proxy.isProxyClass(aClass) || isGeneratedImplementationClass(aClass)) {
-         return getImplementedInterface(aClass);
+         // Assumes that a proxy class implements a single interface.
+         return aClass.getInterfaces()[0];
       }
 
       if (isGeneratedSubclass(aClass.getName())) {
@@ -70,12 +68,6 @@ public final class GeneratedClasses
       }
 
       return aClass;
-   }
-
-   @Nonnull
-   public static Class<?> getImplementedInterface(@Nonnull Class<?> implementationClass) {
-      // Assumes that a proxy class implements a single interface.
-      return implementationClass.getInterfaces()[0];
    }
 
    @Nonnull
