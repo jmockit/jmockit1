@@ -26,7 +26,7 @@ public final class GeneratedClasses
       if (aClass.getClassLoader() != null) {
          Package targetPackage = aClass.getPackage();
 
-         if (targetPackage != null && !targetPackage.isSealed()) {
+         if (targetPackage != null && !targetPackage.isSealed() && !targetPackage.getName().isEmpty()) {
             name.insert(0, '.').insert(0, targetPackage.getName());
          }
       }
