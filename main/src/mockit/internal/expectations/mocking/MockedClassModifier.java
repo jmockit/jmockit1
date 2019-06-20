@@ -103,7 +103,8 @@ final class MockedClassModifier extends BaseClassModifier
    public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       cw.visitInnerClass(name, outerName, innerName, access);
 
-      if (access == ENUM + STATIC) {
+      // The second condition is for classes compiled with Java 8 or older, which had a bug (as an anonymous class can never be static).
+      if (access == ENUM + FINAL || access == ENUM + STATIC) {
          if (enumSubclasses == null) {
             enumSubclasses = new ArrayList<>();
          }
