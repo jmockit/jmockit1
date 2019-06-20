@@ -159,31 +159,4 @@ public final class MisusedMockingAPITest
 
       new Expectations(CustomException.class) {};
    }
-
-   static class Unmocked {
-      Unmocked(@SuppressWarnings("unused") String s) {}
-      Unmocked(@SuppressWarnings("unused") boolean b) {}
-   }
-
-   @Test
-   public void verifyMethodUsingCaptureForObjectTypeParameterOfDifferentAndUnmockedInvocation() {
-      mock.doSomethingElse("test");
-
-      new Verifications() {{
-         String s;
-         mock.doSomethingElse(new Unmocked(s = withCapture()));
-         assertNull(s);
-      }};
-   }
-
-   @Test
-   public void verifyMethodUsingCaptureForPrimitiveTypeParameterOfDifferentAndUnmockedInvocation() {
-      mock.doSomethingElse(true);
-
-      new Verifications() {{
-         boolean b;
-         mock.doSomethingElse(new Unmocked(b = withCapture()));
-         assertFalse(b);
-      }};
-   }
 }

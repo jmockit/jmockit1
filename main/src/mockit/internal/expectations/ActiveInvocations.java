@@ -90,13 +90,7 @@ public final class ActiveInvocations
          BaseVerificationPhase verificationPhase = (BaseVerificationPhase) instance.getCurrentTestOnlyPhase();
 
          if (verificationPhase != null) {
-            Object value = verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
-
-            if (value == null && argTypeDesc != null) {
-               value = DefaultValues.computeForWrapperType(argTypeDesc);
-            }
-
-            return value;
+            return verificationPhase.getArgumentValueForCurrentVerification(parameterIndex);
          }
       }
 

@@ -70,6 +70,17 @@ public final class WithCaptureTest
    }
 
    @Test
+   public void captureNullArgumentOfWrapperTypeToLocalVariableOfSameWrapperType() {
+      dao.doSomething((Integer) null);
+
+      new Verifications() {{
+         Integer i;
+         dao.doSomething(i = withCapture());
+         assertNull(i);
+      }};
+   }
+
+   @Test
    public void captureArgumentOfReferenceTypeToLocalVariableOfPrimitiveType() {
       dao.doSomething(123.0F);
 
