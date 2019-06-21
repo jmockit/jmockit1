@@ -72,7 +72,7 @@ public class BytecodeReader
    @Nonnegative
    private int getItemSize(int itemType) {
       switch (itemType) {
-         case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case INDY: return 5;
+         case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case CONDY: case INDY: return 5;
          case LONG: case DOUBLE: return 9;
          case UTF8: return 3 + readUnsignedShort(codeIndex);
          case HANDLE: return 4;

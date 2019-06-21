@@ -31,16 +31,12 @@ public final class ClassMetadataReader extends ObjectWithAttributes
       NameAndType(4),        // 12
       No13,
       No14,
-
-      // Added in Java 7:
-      MethodHandle(3),       // 15
-      MethodType(2),         // 16
-      No17,
-      InvokeDynamic(4),      // 18
-
-      // Added in Java 9:
-      Module(2),             // 19
-      Package(2);            // 20
+      MethodHandle(3),       // 15, added in Java 7
+      MethodType(2),         // 16, added in Java 7
+      ConstantDynamic(4),    // 17, added in Java 11
+      InvokeDynamic(4),      // 18, added in Java 7
+      Module(2),             // 19, added in Java 9
+      Package(2);            // 20, added in Java 9
 
       @Nonnegative final int itemSize;
       ConstantPoolTag() { itemSize = 0; }

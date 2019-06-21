@@ -45,17 +45,20 @@ final class ConstantPoolCopying
    @Nonnull @SuppressWarnings("OverlyComplexMethod")
    private Item copyItem(int itemType) {
       switch (itemType) {
-         case FIELD: case METH: case IMETH: return copyFieldOrMethodReferenceItem(itemType);
+         case UTF8:      return copyUTF8Item();
          case INT:       return copyIntItem();
          case FLOAT:     return copyFloatItem();
-         case NAME_TYPE: return copyNameAndTypeItem();
          case LONG:      return copyLongItem();
          case DOUBLE:    return copyDoubleItem();
-         case UTF8:      return copyUTF8Item();
+         case FIELD:
+         case METH:
+         case IMETH:     return copyFieldOrMethodReferenceItem(itemType);
+         case NAME_TYPE: return copyNameAndTypeItem();
          case HANDLE:    return copyHandleItem();
-         case INDY:      return copyInvokeDynamicItem();
+         case CONDY:
+         case INDY:      return copyDynamicItem(itemType);
       // case STR|CLASS|MTYPE:
-         default: return copyNameReferenceItem(itemType);
+         default:        return copyNameReferenceItem(itemType);
       }
    }
 
@@ -145,14 +148,14 @@ final class ConstantPoolCopying
    }
 
    @Nonnull
-   private Item copyInvokeDynamicItem() {
+   private Item copyDynamicItem(int type) {
       int bsmIndex = source.readUnsignedShort();
       int nameCodeIndex = source.readItem();
       String name = source.readNonnullUTF8(nameCodeIndex);
       String desc = source.readNonnullUTF8(nameCodeIndex + 2);
 
-      InvokeDynamicItem item = new InvokeDynamicItem(itemIndex);
-      item.set(name, desc, bsmIndex);
+      DynamicItem item = new DynamicItem(itemIndex);
+      item.set(type, name, desc, bsmIndex);
       return item;
    }
 }

@@ -19,7 +19,7 @@ import mockit.internal.util.*;
  * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
  * generate a modified class from one or more existing Java classes.
  */
-@SuppressWarnings("OverlyCoupledClass")
+@SuppressWarnings({"OverlyCoupledClass", "ClassWithTooManyFields"})
 public final class ClassWriter extends ClassVisitor
 {
    /**
@@ -261,7 +261,7 @@ public final class ClassWriter extends ClassVisitor
    }
 
    @Nonnull
-   public InvokeDynamicItem addInvokeDynamicReference(
+   public DynamicItem addInvokeDynamicReference(
       @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
    ) {
       assert bootstrapMethodsWriter != null;

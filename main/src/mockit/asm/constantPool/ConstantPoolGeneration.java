@@ -45,7 +45,7 @@ public final class ConstantPoolGeneration
    @Nonnull private final FloatItem reusableFloatItem;
    @Nonnull private final DoubleItem reusableDoubleItem;
    @Nonnull private final MethodHandleItem reusableMethodHandleItem;
-   @Nonnull private final InvokeDynamicItem reusableInvokeDynamicItem;
+   @Nonnull private final DynamicItem reusableDynamicItem;
 
    /**
     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
@@ -82,7 +82,7 @@ public final class ConstantPoolGeneration
       reusableFloatItem = new FloatItem(0);
       reusableDoubleItem = new DoubleItem(0);
       reusableMethodHandleItem = new MethodHandleItem(0);
-      reusableInvokeDynamicItem = new InvokeDynamicItem(0);
+      reusableDynamicItem = new DynamicItem(0);
       reusableNormalItem = new NormalTypeTableItem();
       reusableUninitializedItem = new UninitializedTypeTableItem();
       reusableMergedItem = new MergedTypeTableItem();
@@ -639,16 +639,16 @@ public final class ConstantPoolGeneration
    }
 
    @Nonnull
-   public InvokeDynamicItem createInvokeDynamicItem(@Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
-      reusableInvokeDynamicItem.set(name, desc, bsmIndex);
+   public DynamicItem createDynamicItem(int type, @Nonnull String name, @Nonnull String desc, @Nonnegative int bsmIndex) {
+      reusableDynamicItem.set(type, name, desc, bsmIndex);
 
-      InvokeDynamicItem result = get(reusableInvokeDynamicItem);
+      DynamicItem result = get(reusableDynamicItem);
 
       if (result == null) {
          int nameAndTypeItemIndex = newNameType(name, desc);
-         put122(INDY, bsmIndex, nameAndTypeItemIndex);
+         put122(type, bsmIndex, nameAndTypeItemIndex);
 
-         result = new InvokeDynamicItem(index++, reusableInvokeDynamicItem);
+         result = new DynamicItem(index++, reusableDynamicItem);
          put(result);
       }
 

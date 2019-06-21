@@ -1,7 +1,7 @@
 package mockit.asm.jvmConstants;
 
 /**
- * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.4-140">types of items</a> in the constant
+ * Constants for <a href="https://docs.oracle.com/javase/specs/jvms/se12/html/jvms-4.html#jvms-4.4-140">types of items</a> in the constant
  * pool of a class.
  */
 public interface ConstantPoolTypes
@@ -19,6 +19,7 @@ public interface ConstantPoolTypes
    int UTF8      =  1; // CONSTANT_Utf8
    int HANDLE    = 15; // CONSTANT_MethodHandle
    int MTYPE     = 16; // CONSTANT_MethodType
+   int CONDY     = 17; // CONSTANT_Dynamic
    int INDY      = 18; // CONSTANT_InvokeDynamic
 
    /**

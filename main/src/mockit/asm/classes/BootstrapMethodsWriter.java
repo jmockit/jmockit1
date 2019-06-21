@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
 import mockit.asm.util.*;
+import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
 /**
  * Generates the "BootstrapMethods" attribute in a class file being written by a {@link ClassWriter}.
@@ -64,7 +65,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
     * @return a new or an already existing invokedynamic type reference item
     */
    @Nonnull
-   InvokeDynamicItem addInvokeDynamicReference(
+   DynamicItem addInvokeDynamicReference(
       @Nonnull String name, @Nonnull String desc, @Nonnull MethodHandle bsm, @Nonnull Object... bsmArgs
    ) {
       ByteVector methods = bootstrapMethods;
@@ -83,7 +84,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       methods.setLength(position); // revert to old position
 
       BootstrapMethodItem bsmItem = getBSMItem(hashCode);
-      InvokeDynamicItem result = cp.createInvokeDynamicItem(name, desc, bsmItem.index);
+      DynamicItem result = cp.createDynamicItem(INDY, name, desc, bsmItem.index);
       return result;
    }
 
