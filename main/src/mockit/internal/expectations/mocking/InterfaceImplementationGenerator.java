@@ -77,7 +77,10 @@ final class InterfaceImplementationGenerator extends BaseClassModifier
    public MethodVisitor visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
    ) {
-      generateMethodImplementation(access, name, desc, signature, exceptions);
+      if (!isSynthetic(access)) {
+         generateMethodImplementation(access, name, desc, signature, exceptions);
+      }
+
       return null;
    }
 

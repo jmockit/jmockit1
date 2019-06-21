@@ -45,9 +45,10 @@ public final class Access
    private Access() {}
 
    public static boolean isDeprecated(int access) { return (access & DEPRECATED) != 0; }
+   public static boolean isSynthetic(int access)  { return (access & SYNTHETIC) != 0; }
 
-   public static boolean isSynthetic(int access, int classVersion){
-      return (access & SYNTHETIC) != 0 && ((access & SYNTHETIC_ATTRIBUTE) != 0 || classVersion < V1_5);
+   public static boolean isSynthetic(int access, int classVersion) {
+      return isSynthetic(access) && ((access & SYNTHETIC_ATTRIBUTE) != 0 || classVersion < V1_5);
    }
 
    public static boolean isConstructor(int access) { return (access & CONSTRUCTOR) != 0; }
