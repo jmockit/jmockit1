@@ -57,7 +57,7 @@ public final class DefaultValues
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedSet;", unmodifiableSortedSet(new TreeSet<>()));
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Map;", emptyMap());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/SortedMap;", unmodifiableSortedMap(new TreeMap<>()));
-      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Iterator;", emptyList().iterator());
+      TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/Iterator;", emptyIterator());
       TYPE_DESC_TO_VALUE_MAP.put("Ljava/util/ListIterator;", emptyList().listIterator());
 
       ELEM_TYPE_TO_ONE_D_ARRAY.put("[Z", new boolean[0]);
