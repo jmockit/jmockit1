@@ -4,7 +4,6 @@ import javax.annotation.*;
 
 import mockit.asm.*;
 import mockit.asm.classes.*;
-import mockit.asm.classes.ClassReader.*;
 import mockit.asm.annotations.*;
 import mockit.asm.controlFlow.*;
 import mockit.asm.jvmConstants.*;
@@ -134,12 +133,8 @@ public final class MethodReader extends AnnotatedReader
       readAnnotationsOnAllParameters();
 
       if (bodyStartCodeIndex > 0) {
-         int flags = cr.flags;
-
-         if ((flags & Flags.SKIP_CODE) == 0) {
-            codeIndex = bodyStartCodeIndex;
-            readCode((flags & Flags.SKIP_DEBUG) == 0);
-         }
+         codeIndex = bodyStartCodeIndex;
+         readCode();
       }
 
       mv.visitEnd();
@@ -178,9 +173,9 @@ public final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void readCode(boolean readDebugInfo) {
+   private void readCode() {
       int maxStack = readUnsignedShort();
-      codeIndex += 2; // maxLocals
+      codeIndex += 2; // skip maxLocals
 
       int codeLength = readInt();
       labels = new Label[codeLength + 2];
@@ -200,24 +195,23 @@ public final class MethodReader extends AnnotatedReader
          String attrName = readNonnullUTF8();
          int codeOffset = readInt();
 
-         if (readDebugInfo) {
-            if ("LocalVariableTable".equals(attrName)) {
+         switch (attrName) {
+            case "LocalVariableTable":
                varTableCodeIndex = codeIndex;
                readLocalVariableTable();
-            }
-            else if ("LocalVariableTypeTable".equals(attrName)) {
+               break;
+            case "LocalVariableTypeTable":
                typeTable = readLocalVariableTypeTable();
-            }
-            else if ("LineNumberTable".equals(attrName)) {
+               break;
+            case "LineNumberTable":
                readLineNumberTable();
-            }
-            else {
+               break;
+            default:
                codeIndex += codeOffset;
-            }
          }
       }
 
-      readBytecodeInstructionsInCodeBlock(readDebugInfo, codeStartIndex, codeEndIndex);
+      readBytecodeInstructionsInCodeBlock(codeStartIndex, codeEndIndex);
       visitEndLabel(codeLength);
       readLocalVariableTables(varTableCodeIndex, typeTable);
       mv.visitMaxStack(maxStack);
@@ -393,12 +387,12 @@ public final class MethodReader extends AnnotatedReader
    }
 
    @SuppressWarnings({"OverlyComplexMethod", "OverlyLongMethod"})
-   private void readBytecodeInstructionsInCodeBlock(boolean readDebugInfo, @Nonnegative int codeStartIndex, @Nonnegative int codeEndIndex) {
+   private void readBytecodeInstructionsInCodeBlock(@Nonnegative int codeStartIndex, @Nonnegative int codeEndIndex) {
       codeIndex = codeStartIndex;
 
       while (codeIndex < codeEndIndex) {
          int offset = codeIndex - codeStartIndex;
-         visitLabelAndLineNumber(readDebugInfo, offset);
+         visitLabelAndLineNumber(offset);
 
          int opcode = readUnsignedByte();
 
@@ -426,18 +420,16 @@ public final class MethodReader extends AnnotatedReader
       }
    }
 
-   private void visitLabelAndLineNumber(boolean readDebugInfo, @Nonnegative int offset) {
+   private void visitLabelAndLineNumber(@Nonnegative int offset) {
       Label label = labels[offset];
 
       if (label != null) {
          mv.visitLabel(label);
 
-         if (readDebugInfo) {
-            int lineNumber = label.line;
+         int lineNumber = label.line;
 
-            if (lineNumber > 0) {
-               mv.visitLineNumber(lineNumber, label);
-            }
+         if (lineNumber > 0) {
+            mv.visitLineNumber(lineNumber, label);
          }
       }
    }

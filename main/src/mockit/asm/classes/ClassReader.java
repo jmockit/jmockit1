@@ -16,20 +16,6 @@ import mockit.asm.methods.*;
  */
 public final class ClassReader extends AnnotatedReader
 {
-   public interface Flags {
-      /**
-       * Flag to skip method code. If this flag is set the <code>CODE</code> attribute won't be visited.
-       * This can be used, for example, to retrieve annotations for methods and method parameters.
-       */
-      int SKIP_CODE = 1;
-
-      /**
-       * Flag to skip the debug information in the class.
-       * If this flag is set the debug information of the class (local variables and line numbers) is not visited.
-       */
-      int SKIP_DEBUG = 2;
-   }
-
    /**
     * Start index of the class header information (access, name...) in {@link #code}.
     */
@@ -39,7 +25,6 @@ public final class ClassReader extends AnnotatedReader
    @Nonnull private final ClassInfo classInfo;
 
    private ClassVisitor cv;
-   @Nonnegative public int flags;
    @Nonnegative private int innerClassesCodeIndex;
    @Nonnegative private int attributesCodeIndex;
 
@@ -87,20 +72,10 @@ public final class ClassReader extends AnnotatedReader
    public byte[] getBytecode() { return code; }
 
    /**
-    * Makes the given visitor visit the Java class of this Class Reader, all attributes included.
+    * Makes the given visitor visit the Java class of this Class Reader.
     */
    public void accept(ClassVisitor visitor) {
-      accept(visitor, 0);
-   }
-
-   /**
-    * Makes the given visitor visit the Java class of this Class Reader.
-    *
-    * @param optionFlags option {@linkplain Flags flags} that can be used to modify the default behavior of this class
-    */
-   public void accept(@Nonnull ClassVisitor visitor, @Nonnegative int optionFlags) {
       cv = visitor;
-      flags = optionFlags;
 
       codeIndex = header + 2;
       String classDesc = readNonnullClass();
