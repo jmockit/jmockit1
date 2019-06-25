@@ -88,22 +88,19 @@ public final class MethodReader extends AnnotatedReader
 
    @Nullable @Override
    protected Boolean readAttribute(@Nonnull String attributeName) {
-      if ("Code".equals(attributeName)) {
-         bodyStartCodeIndex = codeIndex;
-         return false;
+      switch (attributeName) {
+         case "Code":
+            bodyStartCodeIndex = codeIndex;
+            return false;
+         case "Exceptions":
+            readExceptionsInThrowsClause();
+            return true;
+         case "RuntimeVisibleParameterAnnotations":
+            parameterAnnotationsCodeIndex = codeIndex;
+            return false;
+         default:
+            return null;
       }
-
-      if ("Exceptions".equals(attributeName)) {
-         readExceptionsInThrowsClause();
-         return true;
-      }
-
-      if ("RuntimeVisibleParameterAnnotations".equals(attributeName)) {
-         parameterAnnotationsCodeIndex = codeIndex;
-         return false;
-      }
-
-      return null;
    }
 
    private void readExceptionsInThrowsClause() {
