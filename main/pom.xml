@@ -45,7 +45,7 @@
          <resource>
             <directory>.</directory>
             <includes>
-               <include>META-INF/services/org.testng.ITestNGListener</include>
+               <include>META-INF/services/*</include>
             </includes>
          </resource>
          <resource>
@@ -194,7 +194,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.4.2</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.5.0-RC2</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>

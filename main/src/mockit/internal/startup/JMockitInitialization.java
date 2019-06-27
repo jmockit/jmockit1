@@ -13,7 +13,6 @@ import static java.util.Arrays.asList;
 import mockit.*;
 import mockit.coverage.*;
 import mockit.integration.junit4.*;
-import mockit.integration.junit5.*;
 import mockit.internal.reflection.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.ClassLoad.*;
@@ -38,8 +37,8 @@ final class JMockitInitialization
          new FakeFrameworkMethod();
       }
 
-      if (searchTypeInClasspath("org.junit.jupiter.engine.extension.ExtensionRegistry", true) != null) {
-         new FakeExtensionRegistry();
+      if (searchTypeInClasspath("org.junit.jupiter.api.extension.Extension", true) != null) {
+         System.setProperty("junit.jupiter.extensions.autodetection.enabled", "true");
       }
    }
 

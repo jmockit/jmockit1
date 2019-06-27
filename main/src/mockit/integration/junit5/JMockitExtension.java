@@ -17,7 +17,7 @@ import mockit.internal.state.*;
 import static mockit.internal.util.StackTrace.*;
 
 @SuppressWarnings("Since15")
-final class JMockitExtension extends TestRunnerDecorator implements
+public final class JMockitExtension extends TestRunnerDecorator implements
    BeforeAllCallback, AfterAllCallback,
    TestInstancePostProcessor, BeforeEachCallback, AfterEachCallback,
    BeforeTestExecutionCallback, AfterTestExecutionCallback,
