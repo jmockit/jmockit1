@@ -14,11 +14,8 @@ import mockit.internal.startup.*;
 
 public final class CodeCoverage implements ClassFileTransformer
 {
-   private static CodeCoverage instance;
-
    @Nonnull private final ClassModification classModification;
    @Nonnull private final OutputFileGenerator outputGenerator;
-   private boolean outputPendingForShutdown;
    private boolean inactive;
 
    public static void main(@Nonnull String[] args) {
@@ -36,22 +33,17 @@ public final class CodeCoverage implements ClassFileTransformer
    public CodeCoverage() {
       classModification = new ClassModification();
       outputGenerator = createOutputFileGenerator(classModification);
-      outputPendingForShutdown = true;
-      instance = this;
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
          @Override
          public void run() {
             TestRun.terminate();
 
-            if (outputPendingForShutdown) {
-               if (outputGenerator.isOutputToBeGenerated()) {
-                  outputGenerator.generate(CodeCoverage.this);
-               }
-
-               new CoverageCheck().verifyThresholds();
+            if (outputGenerator.isOutputToBeGenerated()) {
+               outputGenerator.generate(CodeCoverage.this);
             }
 
+            new CoverageCheck().verifyThresholds();
             Startup.instrumentation().removeTransformer(CodeCoverage.this);
          }
       });
@@ -64,18 +56,6 @@ public final class CodeCoverage implements ClassFileTransformer
       return
          (coverageOutput != null || coverageClasses != null) &&
          !("none".equals(coverageOutput) || "none".equals(coverageClasses));
-   }
-
-   @Nonnull
-   public static CodeCoverage create(boolean generateOutputOnShutdown) {
-      instance = new CodeCoverage();
-      instance.outputPendingForShutdown = generateOutputOnShutdown;
-      return instance;
-   }
-
-   public static void generateOutput() {
-      instance.outputGenerator.generate(null);
-      instance.outputPendingForShutdown = false;
    }
 
    @Nullable @Override

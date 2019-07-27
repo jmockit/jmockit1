@@ -4,11 +4,9 @@
  */
 package mockit.internal.startup;
 
-import java.io.*;
 import java.lang.instrument.*;
 import javax.annotation.*;
 
-import mockit.coverage.*;
 import mockit.internal.*;
 import mockit.internal.expectations.transformation.*;
 import mockit.internal.state.*;
@@ -34,15 +32,13 @@ public final class Startup
     * <p/>
     * It is also possible to load user-specified fakes at this time, by having set the "fakes" system property.
     *
-    * @param agentArgs not used
+    * @param agentArgs coverage configuration parameters, if any
     * @param inst      the instrumentation service provided by the JVM
     */
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
-      if (!activateCodeCoverageIfRequested(agentArgs, inst)) {
-         createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
-         instrumentation = inst;
-         initialize(inst);
-      }
+      createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+      instrumentation = inst;
+      initialize(inst);
    }
 
    private static void initialize(@Nonnull Instrumentation inst) {
@@ -53,34 +49,7 @@ public final class Startup
 
    private static void applyStartupFakes(@Nonnull Instrumentation inst) {
       initializing = true;
-
-      try {
-         JMockitInitialization.initialize(inst);
-      }
-      finally {
-         initializing = false;
-      }
-   }
-
-   private static boolean activateCodeCoverageIfRequested(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
-      if ("coverage".equals(agentArgs)) {
-         try {
-            CodeCoverage coverage = CodeCoverage.create(true);
-            inst.addTransformer(coverage);
-
-            return true;
-         }
-         catch (Throwable t) {
-            try {
-               PrintWriter out = new PrintWriter("coverage-failure.txt");
-               t.printStackTrace(out);
-               out.close();
-            }
-            catch (FileNotFoundException ignore) {}
-         }
-      }
-
-      return false;
+      try { JMockitInitialization.initialize(inst); } finally { initializing = false; }
    }
 
    @Nonnull @SuppressWarnings("ConstantConditions")
