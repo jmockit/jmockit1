@@ -129,29 +129,21 @@ public class Expectations extends Invocations
    }
 
    /**
-    * Same as {@link #Expectations()}, except that one or more classes will be partially mocked according to the expectations recorded in the
-    * expectation block.
+    * Same as {@link #Expectations()}, except that one or more objects will be partially mocked according to the expectations recorded in
+    * the expectation block.
     * <p/>
-    * The classes to be partially mocked are those directly specified through their <tt>Class</tt> objects as well as those to which any given
-    * objects belong.
-    * During replay, any invocations to one of these classes or objects will execute real production code, unless a matching expectation was
-    * recorded.
-    * This mechanism, however, does not apply to <tt>native</tt> methods, which are not supported for partial mocking.
-    * <p/>
-    * For a given <tt>Class</tt> object, all constructors and methods can be mocked, from the specified class up to but not including
-    * <tt>java.lang.Object</tt>.
-    * For a given <em>object</em>, only methods can be mocked, not constructors; also, during replay, invocations to instance methods will only
-    * match expectations recorded on the given instance (or instances, if more than one was given).
+    * During replay, any invocations to instance methods on these objects will execute real production code, unless a matching expectation
+    * was recorded.
     *
-    * @param classesOrObjectsToBePartiallyMocked one or more classes or objects whose classes are to be partially mocked
+    * @param objectsToBePartiallyMocked one or more objects to be partially mocked
     *
-    * @throws IllegalArgumentException if given a <tt>Class</tt> object for an interface, an annotation, an array, a primitive/wrapper type, a
-    * synthetic class, a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class}, or if given a value/instance of such a type
-    * 
+    * @throws IllegalArgumentException if given a <tt>Class</tt> object, or if given a value/instance of an interface, an annotation, an
+    * array, a primitive/wrapper type, a synthetic class, or a {@linkplain java.lang.reflect.Proxy#isProxyClass(Class) proxy class}
+    *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#partial" target="tutorial">Tutorial</a>
     */
-   protected Expectations(@Nonnull Object... classesOrObjectsToBePartiallyMocked) {
-      RecordAndReplayExecution execution = new RecordAndReplayExecution(this, classesOrObjectsToBePartiallyMocked);
+   protected Expectations(@Nonnull Object... objectsToBePartiallyMocked) {
+      RecordAndReplayExecution execution = new RecordAndReplayExecution(this, objectsToBePartiallyMocked);
       //noinspection ConstantConditions
       currentPhase = execution.getRecordPhase();
    }
