@@ -88,10 +88,10 @@ final class InterfacesWithMethodBodiesTest
    }
 
    @Test
-   void partiallyMockClassInheritingDefaultMethodsFromMultipleInterfaces() {
+   void partiallyMockObjectInheritingDefaultMethodsFromMultipleInterfaces() {
       ClassInheritingMultipleDefaultMethods obj = new ClassInheritingMultipleDefaultMethods();
 
-      new Expectations(ClassInheritingMultipleDefaultMethods.class) {{
+      new Expectations(obj) {{
          obj.defaultMethod(); result = 123;
          obj.defaultMethod2(); result = 22;
          obj.anotherDefaultMethod(1); result = "one";

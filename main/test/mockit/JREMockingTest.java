@@ -9,10 +9,10 @@ import java.util.logging.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-import static mockit.internal.util.Utilities.JAVA8;
-
 public final class JREMockingTest
 {
+   // Mocking java.io.File ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    @Test
    public void mockingOfFile(@Mocked final File file) {
       new Expectations() {{
@@ -37,11 +37,15 @@ public final class JREMockingTest
       assertFalse(bExists);
    }
 
+   // Faking java.util.Calendar ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
    @Test
-   public void mockingOfCalendar() {
+   public void fakingOfCalendar() {
       final Calendar calCST = new GregorianCalendar(2010, Calendar.MAY, 15);
       final TimeZone tzCST = TimeZone.getTimeZone("CST");
-      new Expectations(Calendar.class) {{ Calendar.getInstance(tzCST); result = calCST; }};
+      new MockUp<Calendar>() {
+         @Mock Calendar getInstance(Invocation inv, TimeZone tz) { return tz == tzCST ? calCST : inv.<Calendar>proceed(); }
+      };
 
       Calendar cal1 = Calendar.getInstance(tzCST);
       assertSame(calCST, cal1);
@@ -51,6 +55,8 @@ public final class JREMockingTest
       Calendar cal2 = Calendar.getInstance(tzPST);
       assertNotSame(calCST, cal2);
    }
+
+   // Mocking java.util.Date //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void regularMockingOfAnnotatedJREMethod(@Mocked Date d) throws Exception {
@@ -89,85 +95,115 @@ public final class JREMockingTest
 
    // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   @Test
-   public void attemptToMockJREClassThatIsNeverMockable() {
-      attemptToMockUnmockableJREClass(String.class);
-      attemptToMockUnmockableJREClass(StringBuffer.class);
-      attemptToMockUnmockableJREClass(StringBuilder.class);
-      attemptToMockUnmockableJREClass(ArrayList.class);
-      attemptToMockUnmockableJREClass(LinkedList.class);
-      attemptToMockUnmockableJREClass(HashMap.class);
-      attemptToMockUnmockableJREClass(HashSet.class);
-      attemptToMockUnmockableJREClass(Hashtable.class);
-      attemptToMockUnmockableJREClass(Properties.class);
-      attemptToMockUnmockableJREClass(AbstractSet.class);
-      attemptToMockUnmockableJREClass(Exception.class);
-      attemptToMockUnmockableJREClass(Throwable.class);
-      attemptToMockUnmockableJREClass(Thread.class);
-      attemptToMockUnmockableJREClass(ThreadLocal.class);
-      attemptToMockUnmockableJREClass(ClassLoader.class);
-      attemptToMockUnmockableJREClass(Class.class);
-      attemptToMockUnmockableJREClass(Math.class);
-      attemptToMockUnmockableJREClass(StrictMath.class);
-      attemptToMockUnmockableJREClass(Object.class);
-      attemptToMockUnmockableJREClass(Enum.class);
-      attemptToMockUnmockableJREClass(System.class);
-      attemptToMockUnmockableJREClass(JarFile.class);
-      attemptToMockUnmockableJREClass(JarEntry.class);
-      attemptToMockUnmockableJREClass(Manifest.class);
-      attemptToMockUnmockableJREClass(Attributes.class);
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked StringBuffer unmockable) { fail("Should never get here"); }
 
-      if (JAVA8) {
-         //noinspection Since15
-         attemptToMockUnmockableJREClass(Duration.class);
-      }
-   }
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked StringBuilder unmockable) { fail("Should never get here"); }
 
-   void attemptToMockUnmockableJREClass(Class<?> jreClass) {
-      try {
-         new Expectations(jreClass) {};
-         fail("Allowed mocking of " + jreClass);
-      }
-      catch (IllegalArgumentException e) {
-         String msg = e.getMessage();
-         assertTrue(msg.contains(jreClass.getName()) || msg.endsWith("is not mockable"));
-      }
-   }
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked ArrayList<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked LinkedList<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked HashMap<?, ?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked HashSet<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked AbstractSet<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Hashtable<?, ?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Properties unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Exception unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Throwable unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Thread unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked ThreadLocal<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked ClassLoader unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Class<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Math unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked StrictMath unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Object unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Enum<?> unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked System unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked JarFile unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked JarEntry unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Manifest unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Attributes unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@SuppressWarnings("Since15") @Mocked Duration unmockable) { fail("Should never get here"); }
 
    // Un-mockable JRE interfaces //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Collection<?> mockCol) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Collection<?> mockCol) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked List<?> mockList) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked List<?> mockList) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Set<?> mockSet) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Set<?> mockSet) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Injectable SortedSet<?> mockSortedSet) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Injectable SortedSet<?> mockSortedSet) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Map<?, ?> mockMap) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Map<?, ?> mockMap) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Capturing SortedMap<?, ?> mockSortedMap) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Capturing SortedMap<?, ?> mockSortedMap) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Comparator<?> mockComparator) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Comparator<?> mockComparator) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Queue<?> mockQueue) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Queue<?> mockQueue) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Enumeration<?> mockEnumeration) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Enumeration<?> mockEnumeration) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Iterator<?> mockIterator) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Iterator<?> mockIterator) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
-   public void attemptToMockJREInterface(@Mocked Map.Entry<?, ?> mockMapEntry) { fail("Should never get here"); }
+   public void attemptToMockUnmockableJREInterface(@Mocked Map.Entry<?, ?> mockMapEntry) { fail("Should never get here"); }
 
    // Mocking java.time ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

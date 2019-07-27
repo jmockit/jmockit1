@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import mockit.*;
 
-final class TimeAPIMockingTest
+final class TimeAPIFakingTest
 {
    @Test
-   void mockClock() {
+   void injectClockObject() {
       // Create a test clock with a fixed instant.
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T10:15:30");
       ZoneId zoneId = ZoneId.systemDefault();
@@ -24,10 +24,9 @@ final class TimeAPIMockingTest
    }
 
    @Test
-   void mockLocalDateTime() {
+   void fakeLocalDateTime() {
       LocalDateTime testDateTime = LocalDateTime.parse("2014-05-10T09:35:12");
-
-      new Expectations(LocalDateTime.class) {{ LocalDateTime.now(); result = testDateTime; }};
+      new MockUp<LocalDateTime>() { @Mock LocalDateTime now() { return testDateTime; } };
 
       LocalDateTime now = LocalDateTime.now();
 
@@ -35,10 +34,9 @@ final class TimeAPIMockingTest
    }
 
    @Test
-   void mockInstant() {
+   void fakeInstant() {
       Instant testInstant = Instant.parse("2014-05-10T09:35:12Z");
-
-      new Expectations(Instant.class) {{ Instant.now(); result = testInstant; }};
+      new MockUp<Instant>() { @Mock Instant now() { return testInstant; } };
 
       Instant now = Instant.now();
 

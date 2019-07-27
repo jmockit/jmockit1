@@ -24,7 +24,7 @@ public final class LoginServiceIntegrationTest
       userPassword = "password";
       account = new UserAccount(userId, userPassword);
 
-      new Expectations(UserAccount.class) {{ UserAccount.find(userId); result = account; minTimes = 0; }};
+      new MockUp<UserAccount>() { @Mock UserAccount find(String accountId) { return account; } };
    }
 
    @Test
@@ -52,10 +52,11 @@ public final class LoginServiceIntegrationTest
    @Test
    public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount() throws Exception {
       UserAccount secondAccount = new UserAccount("roger", "password");
-      new Expectations() {{ UserAccount.find("roger"); result = secondAccount; }};
+      String accountId = account.getId();
+      account = secondAccount;
 
-      service.login(account.getId(), "wrong password");
-      service.login(account.getId(), "wrong password");
+      service.login(accountId, "wrong password");
+      service.login(accountId, "wrong password");
       service.login(secondAccount.getId(), "wrong password");
 
       assertFalse(secondAccount.isRevoked());
@@ -70,7 +71,7 @@ public final class LoginServiceIntegrationTest
 
    @Test(expectedExceptions = UserAccountNotFoundException.class)
    public void throwExceptionIfAccountNotFound() throws Exception {
-      new Expectations() {{ UserAccount.find("roger"); result = null; }};
+      account = null;
 
       service.login("roger", "password");
    }

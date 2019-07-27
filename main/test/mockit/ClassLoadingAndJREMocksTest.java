@@ -57,42 +57,6 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockFileSafelyUsingDynamicPartialMocking() {
-      final File aFile = new File("");
-
-      new Expectations(File.class) {{
-         aFile.exists();
-         result = new Delegate() {
-            @Mock boolean exists(Invocation inv)
-            {
-               File it = inv.getInvokedInstance();
-               return "testFile".equals(it.getName());
-            }
-         };
-      }};
-
-      checkForTheExistenceOfSeveralFiles();
-   }
-
-   @Test
-   public void mockFileOutputStreamInstantiation() throws Exception {
-      final String fileName = "test.txt";
-
-      new Expectations(FileOutputStream.class) {{
-         OutputStream os = new FileOutputStream(fileName);
-         //noinspection ConstantConditions
-         os.write((byte[]) any);
-         os.close();
-      }};
-
-      FileOutputStream output = new FileOutputStream(fileName);
-      output.write(new byte[] {123});
-      output.close();
-
-      assertFalse(new File(fileName).exists());
-   }
-
-   @Test
    public void attemptToMockNonMockableJREClass(@Mocked Integer mock) {
       assertNull(mock);
    }
@@ -113,9 +77,7 @@ public final class ClassLoadingAndJREMocksTest
    }
 
    @Test
-   public void mockURLAndHttpURLConnectionWithDynamicMock(
-      @Mocked final HttpURLConnection mockHttpConnection
-   ) throws Exception {
+   public void mockURLAndHttpURLConnectionWithDynamicMock(@Mocked final HttpURLConnection mockHttpConnection) throws Exception {
       final URL url = new URL("http://nowhere");
 
       new Expectations(url) {{
@@ -137,9 +99,7 @@ public final class ClassLoadingAndJREMocksTest
       }};
    }
 
-   String readResourceContents(
-      String hostName, int port, String resourceId, int connectionTimeoutMillis
-   ) throws IOException {
+   String readResourceContents(String hostName, int port, String resourceId, int connectionTimeoutMillis) throws IOException {
       URL url = new URL("http", hostName, port, resourceId);
       URLConnection connection = url.openConnection();
 
@@ -160,19 +120,6 @@ public final class ClassLoadingAndJREMocksTest
       String contents = readResourceContents("remoteHost", 80, "aResource", 1000);
 
       assertEquals(testContents, contents);
-   }
-
-   @Test
-   public void mockFileInputStream() throws Exception {
-      new Expectations(FileInputStream.class) {{ new FileInputStream("").close(); result = new IOException(); }};
-
-      try {
-         new FileInputStream("").close();
-         fail();
-      }
-      catch (IOException ignore) {
-         // OK
-      }
    }
 
    @Test(expected = IllegalArgumentException.class)

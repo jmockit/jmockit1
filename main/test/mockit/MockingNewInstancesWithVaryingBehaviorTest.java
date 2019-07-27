@@ -24,7 +24,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       assertEquals(FORMATTED_DATE, date);
    }
 
-   /// Tests using the Faking API /////////////////////////////////////////////////////////////////////////////////////
+   /// Tests using the Faking API /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    DateFormat dateFormat;
    DateFormat hourFormat;
@@ -54,27 +54,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       exerciseAndVerifyTestedCode();
    }
 
-   /// Tests using the Mocking API ////////////////////////////////////////////////////////////////////////////////////
-
-   @Test // not too complex, but inelegant
-   public void usingPartialMockingAndDelegate() {
-      final SimpleDateFormat sdf = new SimpleDateFormat();
-
-      new Expectations(SimpleDateFormat.class) {{
-         sdf.format((Date) any);
-         result = new Delegate() {
-            @Mock
-            String format(Invocation inv) {
-               String pattern = inv.<SimpleDateFormat>getInvokedInstance().toPattern();
-               if (DATE_FORMAT.equals(pattern)) return FORMATTED_DATE;
-               else if (TIME_FORMAT.equals(pattern)) return FORMATTED_TIME;
-               else return null;
-            }
-         };
-      }};
-
-      exerciseAndVerifyTestedCode();
-   }
+   /// Tests using the Mocking API ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test // nice
    public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt) {
@@ -106,11 +86,8 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       final int value;
       Collaborator() { value = -1; }
       Collaborator(int value) { this.value = value; }
-      Collaborator(String value) { this.value = Integer.parseInt(value); }
       int getValue() { return value; }
       boolean isPositive() { return value > 0; }
-      String doSomething(String s) { return s + ": " + value; }
-      int doSomething(int i) { return i; }
    }
 
    @Test
@@ -145,54 +122,6 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
          mock6.getValue(); times = 1;
          mock5.isPositive(); times = 1;
          mock6.isPositive(); times = 1;
-      }};
-   }
-
-   @Test
-   public void mockInstancesMatchingRecordedConstructorInvocationsToHaveSameBehaviorAsOtherUnmockedInstances() {
-      final Collaborator col1 = new Collaborator(1);
-      final Collaborator col2 = new Collaborator(-2);
-
-      new Expectations(Collaborator.class) {{
-         new Collaborator(3); result = col1;
-         new Collaborator(5); result = col2;
-         col1.doSomething("recorded"); result = "mocked";
-      }};
-
-      Collaborator newCol1 = new Collaborator(-10);
-      assertEquals(-10, newCol1.getValue());
-      assertEquals("not mocked: -10", newCol1.doSomething("not mocked"));
-      assertEquals("recorded: -10", newCol1.doSomething("recorded"));
-
-      Collaborator newCol2 = new Collaborator(3);
-      assertEquals(1, newCol2.getValue());
-      assertEquals("mocked", newCol2.doSomething("recorded"));
-      assertEquals("not recorded: 1", newCol2.doSomething("not recorded"));
-
-      Collaborator newCol3 = new Collaborator(5);
-      assertEquals(-2, newCol3.getValue());
-      assertFalse(newCol3.isPositive());
-      assertEquals("null: -2", newCol3.doSomething(null));
-
-      Collaborator newCol4 = new Collaborator(10);
-      assertEquals(10, newCol4.getValue());
-      assertTrue(newCol4.isPositive());
-
-      Collaborator newCol5 = new Collaborator(3);
-      assertEquals(1, newCol5.getValue());
-      assertTrue(newCol5.isPositive());
-      assertEquals("mocked", newCol5.doSomething("recorded"));
-      assertEquals("test: 1", newCol5.doSomething("test"));
-
-      new Verifications() {{
-         col1.getValue(); times = 2;
-         col1.isPositive(); times = 1;
-
-         col2.getValue(); times = 1;
-         col2.isPositive(); times = 1;
-
-         col1.doSomething(anyString); times = 4;
-         col2.doSomething(anyString); times = 1;
       }};
    }
 

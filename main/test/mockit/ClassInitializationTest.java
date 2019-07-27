@@ -34,20 +34,6 @@ public final class ClassInitializationTest
       assertNull(ClassWhichCallsStaticMethodFromInitializer.someValue());
    }
 
-   static class ClassWhichCallsStaticMethodFromInitializer2 {
-      static { someValue().length(); }
-      static String someValue() { return "some value"; }
-   }
-
-   @Test
-   public void partiallyMockUninitializedClass() {
-      new Expectations(ClassWhichCallsStaticMethodFromInitializer2.class) {{
-         ClassWhichCallsStaticMethodFromInitializer2.someValue();
-      }};
-
-      assertNull(ClassWhichCallsStaticMethodFromInitializer2.someValue());
-   }
-
    public interface BaseType { String someValue(); }
    static final class NestedImplementationClass implements BaseType {
       static { new NestedImplementationClass().someValue().length(); }
@@ -85,35 +71,6 @@ public final class ClassInitializationTest
    public void mockAnotherDependentClass(@Mocked AnotherDependent anotherDependent) {
       assertNotNull(Dependent.DEPENDENCY);
       assertNotNull(AnotherDependent.DEPENDENCY);
-   }
-
-   static class Dependency2 { static Dependency2 create() { return new Dependency2(); } }
-   static class Dependent2 {
-      static final Dependency2 DEPENDENCY = Dependency2.create();
-      static { DEPENDENCY.toString(); }
-   }
-
-   @Test
-   public void partiallyMockBothDependencyAndDependentClasses() {
-      new Expectations(Dependency2.class, Dependent2.class) {};
-
-      assertNotNull(Dependent2.DEPENDENCY);
-   }
-
-   static class Dependency3 { static Dependency3 create() { return null; } }
-   static class Dependent3 {
-      static final Dependency3 DEPENDENCY = Dependency3.create();
-      static { DEPENDENCY.toString(); }
-   }
-
-   @Test
-   public void partiallyMockDependencyClassThenDependentClass() {
-      final Dependency3 dep = new Dependency3();
-      new Expectations(Dependency3.class) {{ Dependency3.create(); result = dep; }};
-      new Expectations(Dependent3.class) {};
-
-      assertSame(dep, Dependency3.create());
-      assertNotNull(Dependent3.DEPENDENCY);
    }
 
    public interface BaseInterface { Object DO_NOT_REMOVE = "Testing"; }

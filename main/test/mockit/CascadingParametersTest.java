@@ -296,11 +296,6 @@ public final class CascadingParametersTest
    }
 
    @Test
-   public void mockDynamicallyAClassToBeLaterMockedThroughCascading() {
-      new Expectations(Socket.class) {};
-   }
-
-   @Test
    public void cascadeOneLevelWithArgumentMatchers(@Mocked final SocketFactory sf) throws Exception {
       new Expectations() {{
          sf.createSocket(anyString, 80); result = null;

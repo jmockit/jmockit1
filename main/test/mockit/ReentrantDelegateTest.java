@@ -11,8 +11,8 @@ public final class ReentrantDelegateTest
    }
 
    @Test
-   public void recursiveDelegateMethodWithoutInvocationParameter() {
-      new Expectations(RealClass.class) {{
+   public void recursiveDelegateMethodWithoutInvocationParameter(@Mocked RealClass mock) {
+      new Expectations() {{
          RealClass.nonRecursiveStaticMethod(anyInt);
          result = new Delegate() {
             @Mock

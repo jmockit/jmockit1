@@ -1,6 +1,5 @@
 package mockit;
 
-import java.net.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -59,17 +58,6 @@ public final class InjectableFieldTest
    }
 
    @Test
-   public void partiallyMockClassWithoutAffectingInjectableInstances() {
-      assertEquals("", Foo.doSomethingElse());
-
-      new Expectations(Foo.class) {{ Foo.doSomethingElse(); result = "test"; }};
-
-      assertEquals("test", Foo.doSomethingElse());
-      assertEquals(12, foo.getValue());
-      foo.doSomething("");
-   }
-
-   @Test
    public void partiallyMockInstanceWithoutAffectingInjectableInstances() {
       final Foo localFoo = new Foo();
 
@@ -83,28 +71,6 @@ public final class InjectableFieldTest
       assertEquals(2, new Foo().getAnotherValue());
       assertEquals("test", Foo.doSomethingElse());
       foo.doSomething("");
-   }
-
-   @Test
-   public void partiallyMockJREClassWhileHavingInjectableInstancesOfSameClassAsWell(
-      @Injectable final InetAddress localHost, @Injectable final InetAddress remoteHost
-   ) throws Exception {
-      new Expectations(InetAddress.class) {{
-         InetAddress.getLocalHost(); result = localHost;
-         InetAddress.getByName(anyString); result = remoteHost;
-
-         localHost.getCanonicalHostName(); result = "localhost";
-      }};
-
-      //noinspection MisorderedAssertEqualsArguments
-      assertSame(localHost, InetAddress.getLocalHost());
-      //noinspection MisorderedAssertEqualsArguments
-      assertSame(remoteHost, InetAddress.getByName("remote"));
-      assertEquals("localhost", localHost.getCanonicalHostName());
-      assertNull(remoteHost.getCanonicalHostName());
-      foo.doSomething(null);
-
-      new Verifications() {{ remoteHost.getCanonicalHostName(); }};
    }
 
    @Injectable int primitiveInt = 123;

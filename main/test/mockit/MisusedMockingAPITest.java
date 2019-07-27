@@ -9,23 +9,12 @@ public final class MisusedMockingAPITest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("unused")
    static class Blah {
-      Blah() {}
-      Blah(int i) {}
-
       @SuppressWarnings("RedundantStringConstructorCall") final String name = new String("Blah");
-
       int value() { return -1; }
-      void setValue(int value) {}
-      String doSomething(boolean b) { return ""; }
-      void doSomethingElse(Object value) {}
-      String getName() { return name.toUpperCase(); }
-      Blah same() { return this; }
+      void setValue(@SuppressWarnings("unused") int value) {}
+      String doSomething(@SuppressWarnings("unused") boolean b) { return ""; }
       Runnable getSomethingElse() { return null; }
-
-      static Object doSomething() { return null; }
-      static Object someValue() { return null; }
    }
 
    @Mocked Blah mock;
@@ -140,7 +129,7 @@ public final class MisusedMockingAPITest
 
    @Test
    public void checkStaticInjectableIsNotUsed() {
-      assertNull(tested.action);
+      assertNotSame(mockAction, tested.action);
    }
 
    // Other cases /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,13 +139,5 @@ public final class MisusedMockingAPITest
    @Test(expected = IllegalArgumentException.class)
    public void attemptingToMockAllInstancesOfExceptionSubclass(@Mocked CustomException anyCustomException) {
       fail("Shouldn't get here");
-   }
-
-   @Test
-   public void attemptingToPartiallyMockExceptionSubclass() {
-      thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("CustomException");
-
-      new Expectations(CustomException.class) {};
    }
 }

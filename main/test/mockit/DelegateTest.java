@@ -67,9 +67,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void consecutiveReturnValuesThroughDelegatesUsingSingleReturnsWithVarargs(
-      @Mocked final Collaborator collaborator
-   ) {
+   public void consecutiveReturnValuesThroughDelegatesUsingSingleReturnsWithVarargs(@Mocked final Collaborator collaborator) {
       final int[] array = {1, 2};
 
       new Expectations() {{
@@ -287,9 +285,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void delegateWithSingleMethodHavingNoParametersExceptForInvocationContext(
-      @Mocked final Collaborator collaborator
-   ) {
+   public void delegateWithSingleMethodHavingNoParametersExceptForInvocationContext(@Mocked final Collaborator collaborator) {
       new Expectations() {{
          collaborator.doSomething(anyBoolean, null, null);
          result = new Delegate() {
@@ -367,7 +363,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void delegateWhichCallsAnotherMockedMethod_fullMocking(@Mocked final Collaborator mock) {
+   public void delegateWhichCallsAnotherMockedMethod(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getValue();
          result = new Delegate() {
@@ -378,24 +374,6 @@ public final class DelegateTest
       }};
 
       assertEquals('A', mock.getValue());
-   }
-
-   @Test
-   public void delegateWhichCallsAnotherMockedMethod_partialMockingOfClass() {
-      final Collaborator collaborator = new Collaborator();
-
-      new Expectations(Collaborator.class) {{
-         Collaborator.staticMethod(); result = false;
-
-         collaborator.getValue();
-         result = new Delegate() {
-            int delegate() { return Collaborator.staticMethod() ? 1 : collaborator.finalMethod(); }
-         };
-
-         collaborator.finalMethod(); result = 'A';
-      }};
-
-      assertEquals('A', collaborator.getValue());
    }
 
    @Test
@@ -444,9 +422,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void delegateCallingMockedMethodLaterVerified(
-      @Mocked final Collaborator collaborator, @Mocked final Runnable action
-   ) {
+   public void delegateCallingMockedMethodLaterVerified(@Mocked final Collaborator collaborator, @Mocked final Runnable action) {
       new Expectations() {{
          collaborator.getFoo();
          result = new Delegate() {
@@ -489,9 +465,7 @@ public final class DelegateTest
    }
 
    @Test
-   public void returnVoidFromDelegateMethodForRecordedMethodHavingPrimitiveReturnType(
-      @Mocked final Collaborator mock
-   ) {
+   public void returnVoidFromDelegateMethodForRecordedMethodHavingPrimitiveReturnType(@Mocked final Collaborator mock) {
       new Expectations() {{
          mock.getValue();
          result = new Delegate() { void delegate() {} };

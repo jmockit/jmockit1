@@ -1,7 +1,5 @@
 package mockit;
 
-import java.io.*;
-import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import javax.xml.bind.annotation.*;
@@ -17,7 +15,6 @@ public final class PartialMockingTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
 
-   @SuppressWarnings("unused")
    @Deprecated
    static class Collaborator {
       @Deprecated protected int value;
@@ -28,8 +25,12 @@ public final class PartialMockingTest
       final int getValue() { return value; }
       void setValue(int value) { this.value = value; }
 
+      @SuppressWarnings("unused")
       final boolean simpleOperation(int a, @XmlElement(name = "test") String b, Date c) { return true; }
-      static void doSomething(boolean b, String s) { throw new IllegalStateException(); }
+
+      static void doSomething(@SuppressWarnings("unused") boolean b, @SuppressWarnings("unused") String s) {
+         throw new IllegalStateException();
+      }
 
       @Ignore("test")
       boolean methodWhichCallsAnotherInTheSameClass() {
@@ -37,86 +38,11 @@ public final class PartialMockingTest
       }
       
       String overridableMethod() { return "base"; }
-      @SuppressWarnings("DeprecatedIsStillUsed")
-      @Deprecated native void nativeMethod();
-
-      void readFile(File f) {}
-      private void initialize() {}
-   }
-
-   interface Dependency {
-      boolean doSomething();
-      List<?> doSomethingElse(int n);
    }
 
    @Test
-   public void dynamicallyMockJREClass() throws Exception {
-      new Expectations(ByteArrayOutputStream.class) {{
-         new ByteArrayOutputStream().size(); result = 123;
-      }};
-
-      // Mocked:
-      ByteArrayOutputStream collaborator = new ByteArrayOutputStream();
-      assertEquals(123, collaborator.size());
-
-      // Not mocked:
-      ByteArrayOutputStream buf = new ByteArrayOutputStream(200);
-      buf.write(65);
-      assertEquals("A", buf.toString("UTF-8"));
-   }
-
-   @Test
-   public void dynamicallyMockAClass() {
-      new Expectations(Collaborator.class) {{ new Collaborator().getValue(); result = 123; }};
-
-      // Mocked:
-      final Collaborator col1 = new Collaborator();
-      assertEquals(123, col1.getValue());
-
-      // Not mocked:
-      final Collaborator col2 = new Collaborator(200);
-      col2.setValue(45);
-      assertEquals(45, col2.value);
-      assertEquals(45, col2.getValue());
-
-      new Verifications() {{
-         col1.getValue(); times = 1;
-         col2.getValue(); times = 1;
-
-         Collaborator col2Equivalent = new Collaborator(200); times = 1;
-         col2Equivalent.getValue(); times = 1;
-      }};
-   }
-
-   @Test
-   public void mockOnlyTheFutureObjectsThatMatchASpecificConstructorInvocation() {
-      // Not mocked:
-      Collaborator f0 = new Collaborator(12);
-      assertEquals(12, f0.getValue());
-
-      // Applies partial mocking to all instances.
-      new Expectations(Collaborator.class) {{
-         Collaborator anyFutureInstanceWithValue1 = new Collaborator(1);
-         anyFutureInstanceWithValue1.overridableMethod(); result = "mock"; times = 2;
-      }};
-
-      // Mocked:
-      Collaborator f1 = new Collaborator(1);
-      assertEquals("mock", f1.overridableMethod());
-
-      // Not mocked:
-      Collaborator f2 = new Collaborator(2);
-      assertEquals("base", f2.overridableMethod());
-
-      // Also mocked:
-      Collaborator f3 = new Collaborator(1);
-      assertEquals("mock", f3.overridableMethod());
-
-      // Invocations to non-mocked instances can also be verified (excluding those existing before mocking was applied).
-      new Verifications() {{
-         Collaborator anyOtherInstance = new Collaborator(withNotEqual(1));
-         anyOtherInstance.overridableMethod(); times = 1;
-      }};
+   public void attemptToPartiallyMockAClass() {
+      new Expectations(Collaborator.class) {};
    }
 
    @Test
@@ -155,17 +81,6 @@ public final class PartialMockingTest
          collaborator.setValue(3);
       }};
       new FullVerifications() {};
-   }
-
-   @Test
-   public void dynamicallyMockedClassFullyVerified_verifyRecordedExpectationButNotReplayedOne() {
-      final Collaborator collaborator = new Collaborator();
-
-      new Expectations(Collaborator.class) {{ collaborator.simpleOperation(1, "internal", null); result = false; }};
-
-      assertFalse(collaborator.methodWhichCallsAnotherInTheSameClass());
-
-      new FullVerifications() {{ collaborator.simpleOperation(anyInt, anyString, null); }};
    }
 
    @Test
@@ -267,39 +182,9 @@ public final class PartialMockingTest
       catch (IllegalStateException ignore) {}
    }
 
-   @Test
-   public void dynamicallyMockClassHierarchyForSpecifiedSubclass() {
-      final SubCollaborator collaborator = new SubCollaborator();
-
-      new Expectations(SubCollaborator.class) {{
-         collaborator.getValue(); result = 123;
-         collaborator.format(); result = "test";
-      }};
-
-      // Mocked:
-      assertEquals("test", collaborator.format());
-      assertEquals(123, collaborator.getValue());
-
-      // Not mocked:
-      assertTrue(collaborator.simpleOperation(0, null, null));
-
-      // Mocked sub-constructor/not mocked base constructor:
-      assertEquals(-1, new SubCollaborator().value);
-
-      new VerificationsInOrder() {{
-         collaborator.format();
-         new SubCollaborator();
-      }};
-   }
-
-   @Test
-   public void mockTheBaseMethodWhileExercisingTheOverride() {
-      final Collaborator collaborator = new Collaborator();
-      
-      new Expectations(Collaborator.class) {{ collaborator.overridableMethod(); result = ""; result = "mocked"; }};
-
-      assertEquals("", collaborator.overridableMethod());
-      assertEquals("mocked overridden", new SubCollaborator().overridableMethod());
+   interface Dependency {
+      boolean doSomething();
+      List<?> doSomethingElse(int n);
    }
 
    @Test
@@ -337,22 +222,17 @@ public final class PartialMockingTest
    public void attemptToUseDynamicMockingForInvalidTypes(
       @Mocked AnotherInterface publicInterfaceMock, @Injectable NonPublicInterface nonPublicInterfaceMock
    ) {
-      assertInvalidTypeForDynamicPartialMocking(Dependency.class);
-      assertInvalidTypeForDynamicPartialMocking(Test.class);
-      assertInvalidTypeForDynamicPartialMocking(int[].class);
       assertInvalidTypeForDynamicPartialMocking(new String[1]);
-      assertInvalidTypeForDynamicPartialMocking(char.class);
       assertInvalidTypeForDynamicPartialMocking(123);
-      assertInvalidTypeForDynamicPartialMocking(Boolean.class);
       assertInvalidTypeForDynamicPartialMocking(true);
       assertInvalidTypeForDynamicPartialMocking(2.5);
       assertInvalidTypeForDynamicPartialMocking(publicInterfaceMock);
       assertInvalidTypeForDynamicPartialMocking(nonPublicInterfaceMock);
    }
 
-   void assertInvalidTypeForDynamicPartialMocking(Object classOrObject) {
+   void assertInvalidTypeForDynamicPartialMocking(Object object) {
       try {
-         new Expectations(classOrObject) {};
+         new Expectations(object) {};
          fail();
       }
       catch (IllegalArgumentException e) {
@@ -436,19 +316,6 @@ public final class PartialMockingTest
       new FullVerifications() {{ collaborator.getValue(); times = 2; }};
    }
 
-   static class ClassWithStaticInitializer {
-      static boolean initialized = true;
-      static int doSomething() { return initialized ? 1 : -1; }
-   }
-
-   @Test
-   public void doNotStubOutStaticInitializersWhenDynamicallyMockingAClass() {
-      new Expectations(ClassWithStaticInitializer.class) {{ ClassWithStaticInitializer.doSomething(); result = 2; }};
-
-      assertEquals(2, ClassWithStaticInitializer.doSomething());
-      assertTrue(ClassWithStaticInitializer.initialized);
-   }
-
    static final class ClassWithNative {
       int doSomething() { return nativeMethod(); }
       private native int nativeMethod();
@@ -468,29 +335,6 @@ public final class PartialMockingTest
    }
 
    @Test
-   public void mockedClassWithAnnotatedElements() throws Exception {
-      new Expectations(Collaborator.class) {};
-
-      Collaborator mock = new Collaborator(123);
-      Class<?> mockedClass = mock.getClass();
-
-      assertTrue(mockedClass.isAnnotationPresent(Deprecated.class));
-      assertTrue(mockedClass.getDeclaredField("value").isAnnotationPresent(Deprecated.class));
-
-      Method mockedMethod1 = mockedClass.getDeclaredMethod("simpleOperation", int.class, String.class, Date.class);
-      Annotation xmlElement = mockedMethod1.getParameterAnnotations()[1][0];
-      assertTrue(xmlElement instanceof XmlElement);
-      assertEquals("test", ((XmlElement) xmlElement).name());
-
-      Method mockedMethod2 = mockedClass.getDeclaredMethod("methodWhichCallsAnotherInTheSameClass");
-      Ignore ignore = mockedMethod2.getAnnotation(Ignore.class);
-      assertNotNull(ignore);
-      assertEquals("test", ignore.value());
-
-      assertTrue(mockedClass.getDeclaredMethod("nativeMethod").isAnnotationPresent(Deprecated.class));
-   }
-
-   @Test
    public void mockAnnotatedConstructor(@Mocked Collaborator mock) throws Exception {
       Constructor<?> mockedConstructor = Collaborator.class.getDeclaredConstructor(int.class);
 
@@ -498,71 +342,10 @@ public final class PartialMockingTest
       assertTrue(mockedConstructor.getParameterAnnotations()[0][0] instanceof Deprecated);
    }
 
-   @Test
-   public void regularMockedMethodCallingOverriddenEqualsInDynamicallyMockedClass(@Mocked final Collaborator mock) {
-      @SuppressWarnings("TooBroadScope") final File f = new File("test");
-
-      new Expectations(File.class) {};
-
-      mock.readFile(new File("test"));
-
-      new Verifications() {{ mock.readFile(f); }};
-   }
-
    static final class TestedClass {
-      private boolean value;
-
       TestedClass() { this(true); }
       TestedClass(boolean value) { initialize(value); }
-
-      private void initialize(boolean flag) { value = flag; }
-   }
-
-   @Test
-   public void mockClassWithConstructorWhichCallsPrivateMethod() {
-      new Expectations(TestedClass.class) {};
-
-      assertTrue(new TestedClass(true).value);
-      assertFalse(new TestedClass(false).value);
-
-      new Verifications() {{
-         TestedClass t = new TestedClass(anyBoolean); times = 2;
-         t.initialize(anyBoolean); times = 2;
-      }};
-   }
-
-   static class Action implements Runnable { @Override public void run() {} }
-
-   @Test
-   public void partiallyMockAClassImplementingAMockedInterface(@Mocked Runnable mock) {
-      new Expectations(Action.class) {};
-   }
-
-   static class Base { List<String> list() { return null; } }
-   static class Sub extends Base {}
-
-   @Test
-   public void callIterableReturningInstanceMethodOnPartiallyMockedSubclassWithNoRecordedExpectations() {
-      new Expectations(Sub.class) {};
-
-      Object result = new Base().list();
-
-      assertNull(result);
-   }
-
-   static class A { A() { fail("should not run"); } }
-   static class B extends A {}
-
-   @Test @Ignore("issue #492")
-   public void fullyMockASubclassWhoseSuperClassConstructorThrowsWhenExecuted(@Mocked B mock) {
-      new A();
-   }
-
-   @Test @Ignore("issue #492")
-   public void partiallyMockASubclassWhoseSuperClassConstructorThrowsWhenExecuted() {
-      new Expectations(B.class) {{ new B(); }};
-
-      new A();
+      private void initialize(@SuppressWarnings("unused") boolean flag) {}
    }
 
    static class BaseClass { @SuppressWarnings("unused") BaseClass(Object o) { assert o != null; } BaseClass() {} }

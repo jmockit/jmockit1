@@ -10,24 +10,13 @@ public final class ExpectationsForConstructorsTest
 {
    public static class BaseCollaborator {
       protected int value;
-
       protected BaseCollaborator() { value = -1; }
       protected BaseCollaborator(int value) { this.value = value; }
-
-      protected boolean add(Integer i) { return i != null; }
    }
 
    static class Collaborator extends BaseCollaborator {
       Collaborator() {}
       Collaborator(int value) { super(value); }
-   }
-
-   @SuppressWarnings("unused")
-   public abstract static class AbstractCollaborator extends BaseCollaborator {
-      protected AbstractCollaborator(int value) { super(value); }
-      protected AbstractCollaborator(boolean b, int value) { super(value); }
-
-      protected abstract void doSomething();
    }
 
    @Test
@@ -39,35 +28,6 @@ public final class ExpectationsForConstructorsTest
 
       assertEquals(0, new Collaborator().value);
       assertEquals(0, new Collaborator(123).value);
-   }
-
-   @Test
-   public void mockOnlyOneConstructor() {
-      new Expectations(Collaborator.class) {{
-         new Collaborator(123);
-      }};
-
-      assertEquals(-1, new Collaborator().value);
-      assertEquals(-1, new Collaborator(123).value);
-   }
-
-   @Test
-   public void partiallyMockAbstractClass(@Mocked final AbstractCollaborator mock) {
-      new Expectations() {{ mock.doSomething(); }};
-
-      mock.doSomething();
-   }
-
-   @Test
-   public void partiallyMockSubclass() {
-      final Collaborator mock = new Collaborator();
-
-      new Expectations(BaseCollaborator.class) {{
-         mock.add(5); result = false;
-      }};
-
-      assertEquals(12, new Collaborator(12).value);
-      assertFalse(new Collaborator().add(5));
    }
 
    static class A {
@@ -113,10 +73,9 @@ public final class ExpectationsForConstructorsTest
       new Verifications() {{ new Base(); }};
    }
 
-   @SuppressWarnings("unused")
    static class Collaborator2 {
-      Collaborator2(long l) {}
-      Collaborator2(Collaborator2 c) {}
+      Collaborator2(@SuppressWarnings("unused") long l) {}
+      Collaborator2(@SuppressWarnings("unused") Collaborator2 c) {}
       Collaborator2() { this(new Collaborator2(123L)); }
    }
 

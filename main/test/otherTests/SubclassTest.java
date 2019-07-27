@@ -59,14 +59,4 @@ public final class SubclassTest
       assertFalse(superClassConstructorCalled);
       assertFalse(subClassConstructorCalled);
    }
-
-   @Test
-   public void partiallyMockSubclassByMockingASingleConstructor() {
-      new Expectations(SubClass.class) {{ new SubClass("test"); }};
-
-      new SubClass("test");
-
-      assertTrue(superClassConstructorCalled);
-      assertFalse(subClassConstructorCalled);
-   }
 }

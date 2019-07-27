@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static java.util.Arrays.*;
+
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -124,7 +126,7 @@ public final class DelegateInvocationProceedTest
    public void proceedFromDelegateMethodIntoRealMethodWithModifiedArguments() throws Exception {
       final ClassToBeMocked mocked = new ClassToBeMocked();
 
-      new Expectations(ClassToBeMocked.class) {{
+      new Expectations(mocked) {{
          mocked.methodToBeMocked(anyInt);
          result = new Delegate() {
             @Mock Integer delegate1(Invocation invocation, int i) { return invocation.proceed(i + 2); }
@@ -141,8 +143,8 @@ public final class DelegateInvocationProceedTest
    }
 
    @Test
-   public void proceedFromDelegateMethodIntoConstructor() {
-      new Expectations(ClassToBeMocked.class) {{
+   public void proceedFromDelegateMethodIntoConstructor(@Mocked ClassToBeMocked mock) {
+      new Expectations() {{
          new ClassToBeMocked();
          result = new Delegate() {
             @Mock
@@ -158,8 +160,8 @@ public final class DelegateInvocationProceedTest
    }
 
    @Test
-   public void proceedConditionallyFromDelegateMethodIntoConstructor() {
-      new Expectations(ClassToBeMocked.class) {{
+   public void proceedConditionallyFromDelegateMethodIntoConstructor(@Mocked ClassToBeMocked mock) {
+      new Expectations() {{
          new ClassToBeMocked(anyString);
          result = new Delegate() {
             @Mock
@@ -178,24 +180,20 @@ public final class DelegateInvocationProceedTest
    }
 
    @Test
-   public void proceedConditionallyFromDelegateMethodIntoJREConstructor() {
-      new Expectations(ProcessBuilder.class) {{
-         new ProcessBuilder(anyString);
-         result = new Delegate() {
-            @Mock
-            void init(Invocation inv, String... command) {
-               if ("proceed".equals(command[0])) {
-                  inv.proceed();
-               }
-            }
-         };
+   public void proceedFromDelegateMethodIntoJREConstructor(@Mocked ProcessBuilder mock) {
+      new Expectations() {{
+         ProcessBuilder pb = new ProcessBuilder((String[]) any);
+         result = new Delegate() { @Mock void init(Invocation inv) { inv.proceed(); } };
+
+         pb.command();
+         result = new Delegate() { @Mock List<String> delegate(Invocation inv) { return inv.proceed(); } };
       }};
 
-      ProcessBuilder obj1 = new ProcessBuilder("proceed");
-      assertEquals("proceed", obj1.command().get(0));
+      ProcessBuilder pb1 = new ProcessBuilder("proceed");
+      assertEquals("proceed", pb1.command().get(0));
 
-      ProcessBuilder obj2 = new ProcessBuilder("do not proceed");
-      assertNull(obj2.command());
+      ProcessBuilder pb2 = new ProcessBuilder("proceed", "again");
+      assertEquals(asList("proceed", "again"), pb2.command());
    }
 
    @Test

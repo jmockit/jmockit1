@@ -19,8 +19,6 @@ public final class MockedParametersWithCapturingTest
 
       @Override public int doSomething() { return 1; }
       @Override public void doSomethingElse(int i) { throw new IllegalMonitorStateException(); }
-
-      static boolean staticMethod() { return true; }
    }
 
    static class BaseClass {
@@ -59,39 +57,25 @@ public final class MockedParametersWithCapturingTest
    }
 
    @Test
-   public void captureAndPartiallyMockImplementationsOfAnInterface(@Capturing final Service service) {
-      new Expectations(Service.class) {{ service.doSomethingElse(1); }};
-
+   public void captureImplementationsOfAnInterface(@Capturing final Service service) {
       Service impl1 = new ServiceImpl("test1");
-      assertEquals(1, impl1.doSomething());
       impl1.doSomethingElse(1);
 
       Service impl2 = new Service() {
          @Override public int doSomething() { return 2; }
          @Override public void doSomethingElse(int i) { throw new IllegalStateException("2"); }
       };
-      assertEquals(2, impl2.doSomething());
-      impl2.doSomethingElse(1);
-
-      try {
-         impl2.doSomethingElse(2);
-         fail();
-      }
-      catch (IllegalStateException ignore) {}
+      impl2.doSomethingElse(2);
    }
 
    @Test
-   public void captureAndPartiallyMockSubclassesOfABaseClass(@Capturing final BaseClass base) {
-      new Expectations(BaseClass.class) {{ base.doSomething(); }};
-
+   public void captureSubclassesOfABaseClass(@Capturing final BaseClass base) {
       BaseClass impl1 = new DerivedClass("test1");
-      assertEquals("TEST1", impl1.getStr());
       impl1.doSomething();
 
       BaseClass impl2 = new BaseClass("test2") {
          @Override void doSomething() { throw new IllegalStateException("2"); }
       };
-      assertEquals("test2", impl2.getStr());
       impl2.doSomething();
 
       final class DerivedClass2 extends DerivedClass {
@@ -100,7 +84,6 @@ public final class MockedParametersWithCapturingTest
       }
       DerivedClass2 impl3 = new DerivedClass2();
       impl3.doSomething();
-      assertEquals("derived", impl3.getStr());
    }
 
    public interface IBase { int doSomething(); }

@@ -19,10 +19,7 @@ public final class DynamicOnInstanceMockingTest
    }
 
    static class AnotherDependency {
-      private String name;
-
-      public String getName() { return name; }
-      public void setName(String name) { this.name = name; }
+      public String getName() { return ""; }
    }
 
    @Test
@@ -57,19 +54,6 @@ public final class DynamicOnInstanceMockingTest
    }
 
    @Test
-   public void mockingAClassAndMatchingInvocationsOnAnyInstance() {
-      final Collaborator collaborator = new Collaborator();
-
-      new Expectations(Collaborator.class) {{
-         collaborator.getValue(); result = 1;
-      }};
-
-      collaborator.setValue(2);
-      assertEquals(1, collaborator.getValue());
-      assertEquals(1, new Collaborator(2).getValue());
-   }
-
-   @Test
    public void mockingOneInstanceButRecordingOnAnother() {
       Collaborator collaborator1 = new Collaborator();
       final Collaborator collaborator2 = new Collaborator();
@@ -86,33 +70,6 @@ public final class DynamicOnInstanceMockingTest
       assertEquals(1, collaborator1.getValue());
       assertEquals(-2, collaborator2.getValue());
       assertEquals(3, collaborator3.getValue());
-   }
-
-   @Test
-   public void mockingOneInstanceAndOneClass() {
-      Collaborator collaborator1 = new Collaborator();
-      final Collaborator collaborator2 = new Collaborator();
-      Collaborator collaborator3 = new Collaborator();
-      final AnotherDependency dependency = new AnotherDependency();
-
-      new Expectations(collaborator2, AnotherDependency.class) {{
-         collaborator2.getValue(); result = -2;
-         dependency.getName(); result = "name1";
-      }};
-
-      collaborator1.setValue(1);
-      collaborator2.setValue(2);
-      collaborator3.setValue(3);
-      assertEquals(-2, collaborator2.getValue());
-      assertEquals(1, collaborator1.getValue());
-      assertEquals(3, collaborator3.getValue());
-
-      dependency.setName("modified");
-      assertEquals("name1", dependency.getName());
-
-      AnotherDependency dep2 = new AnotherDependency();
-      dep2.setName("another");
-      assertEquals("name1", dep2.getName());
    }
 
    public static class Foo {
@@ -138,26 +95,6 @@ public final class DynamicOnInstanceMockingTest
       assertFalse(f2.doIt());
       assertFalse(new Foo().doIt());
       assertFalse(new SubFoo().doIt());
-   }
-
-   @Test
-   public void passBothClassLiteralAndInstanceInExpectationsConstructor() {
-      final Foo foo1 = new Foo();
-      Foo foo2 = new Foo();
-
-      // Instance-specific mocking takes precedence over any-instance mocking, when both are
-      // (erroneously) used for the same class.
-      new Expectations(Foo.class, foo1) {{
-         foo1.doIt(); result = true;
-      }};
-
-      assertTrue(foo1.doIt());
-      assertFalse(foo2.doItAgain());
-      assertFalse(foo2.doIt());
-      assertFalse(foo1.doItAgain());
-      Foo foo3 = new Foo();
-      assertFalse(foo3.doIt());
-      assertFalse(foo3.doItAgain());
    }
 
    @Test
@@ -281,18 +218,5 @@ public final class DynamicOnInstanceMockingTest
          mock.setValue(1); times = 1;
          mock.setValue(2); times = 0;
       }};
-   }
-
-   static class Baz {}
-   static class Noop { void noop() {} }
-
-   @Test(expected = MissingInvocation.class)
-   public void partiallyMockClassWithInjectableMockWhileHavingTwoMockParametersOfAnotherType(
-      @Injectable final Noop mock, @Mocked Baz a, @Mocked Baz b
-   ) {
-      Noop foo = new Noop();
-      new Expectations(Noop.class) {{ mock.noop(); }};
-
-      foo.noop();
    }
 }

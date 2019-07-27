@@ -215,7 +215,7 @@ public final class DelegateInvocationTest
    public void useOfContextParametersForJREMethods() throws Exception {
       final Runtime rt = Runtime.getRuntime();
 
-      new Expectations(Runtime.class) {{
+      new Expectations(rt) {{
          rt.exec(anyString, null); maxTimes = 1;
          result = new Delegate() {
             @Mock

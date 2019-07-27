@@ -6,10 +6,10 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 import org.junit.*;
-import org.junit.runners.*;
 import static org.junit.Assert.*;
+import static org.junit.runners.MethodSorters.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(NAME_ASCENDING)
 public final class MultiThreadedExpectationsTest
 {
    static class Collaborator {
@@ -58,13 +58,7 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void executeInvalidExpectationBlockThenReplayRecordedExpectationFromAnotherThread() throws Exception {
-      try {
-         new Expectations(Runnable.class) {};
-         fail();
-      }
-      catch (IllegalArgumentException ignore) {}
-
+   public void replayRecordedExpectationFromAnotherThread() throws Exception {
       new Expectations() {{ mock.doSomething(); }};
 
       Thread task = new Thread() {
