@@ -18,37 +18,8 @@ import mockit.internal.state.*;
 public final class CaptureOfNewInstances extends CaptureOfImplementations<MockedType>
 {
    @Nonnull private final List<Class<?>> baseTypes;
-   @Nonnull private final List<Class<?>> partiallyMockedBaseTypes;
 
-   CaptureOfNewInstances() {
-      baseTypes = new ArrayList<>();
-      partiallyMockedBaseTypes = new ArrayList<>();
-   }
-
-   void useDynamicMocking(@Nonnull Class<?> baseType) {
-      partiallyMockedBaseTypes.add(baseType);
-
-      List<Class<?>> mockedClasses = TestRun.mockFixture().getMockedClasses();
-
-      for (Class<?> mockedClass : mockedClasses) {
-         if (baseType.isAssignableFrom(mockedClass)) {
-            if (mockedClass != baseType || !baseType.isInterface()) {
-               redefineClassForDynamicPartialMocking(baseType, mockedClass);
-            }
-         }
-      }
-   }
-
-   private static void redefineClassForDynamicPartialMocking(@Nonnull Class<?> baseType, @Nonnull Class<?> mockedClass) {
-      ClassReader classReader = ClassFile.createReaderOrGetFromCache(mockedClass);
-
-      MockedClassModifier modifier = newModifier(mockedClass.getClassLoader(), classReader, baseType, null);
-      modifier.useDynamicMocking(true);
-      classReader.accept(modifier);
-      byte[] modifiedClassfile = modifier.toByteArray();
-
-      Startup.redefineMethods(mockedClass, modifiedClassfile);
-   }
+   CaptureOfNewInstances() { baseTypes = new ArrayList<>(); }
 
    @Nonnull
    private static MockedClassModifier newModifier(
@@ -64,13 +35,7 @@ public final class CaptureOfNewInstances extends CaptureOfImplementations<Mocked
    protected BaseClassModifier createModifier(
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata
    ) {
-      MockedClassModifier modifier = newModifier(cl, cr, baseType, typeMetadata);
-
-      if (partiallyMockedBaseTypes.contains(baseType)) {
-         modifier.useDynamicMocking(true);
-      }
-
-      return modifier;
+      return newModifier(cl, cr, baseType, typeMetadata);
    }
 
    @Override
@@ -120,6 +85,5 @@ public final class CaptureOfNewInstances extends CaptureOfImplementations<Mocked
 
    void cleanUp() {
       baseTypes.clear();
-      partiallyMockedBaseTypes.clear();
    }
 }

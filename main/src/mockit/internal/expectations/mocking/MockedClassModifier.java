@@ -58,8 +58,8 @@ final class MockedClassModifier extends BaseClassModifier
       baseClassNameForCapturedInstanceMethods = internalClassName;
    }
 
-   void useDynamicMocking(boolean methodsOnly) {
-      ignoreConstructors = methodsOnly;
+   void useDynamicMocking() {
+      ignoreConstructors = true;
       executionMode = ExecutionMode.Partial;
    }
 
@@ -131,7 +131,6 @@ final class MockedClassModifier extends BaseClassModifier
          }
 
          startModifiedMethodVersion(access, name, desc, signature, exceptions);
-         generateCallToRegisterConstructorExecutionIfNeeded(actualExecutionMode);
          generateCallToSuperConstructor();
       }
       else {
@@ -215,10 +214,6 @@ final class MockedClassModifier extends BaseClassModifier
       return
          baseClassNameForCapturedInstanceMethods != null && (access & STATIC) != 0 ||
          executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
-   }
-
-   private void generateCallToRegisterConstructorExecutionIfNeeded(@Nonnull ExecutionMode constructorExecutionMode) {
-//      mw.visitMethodInsn(INVOKESTATIC, "", "", "", false);
    }
 
    @Nonnull
