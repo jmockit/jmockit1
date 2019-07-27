@@ -31,7 +31,8 @@ public final class MockingFilters
 
    public static void validateAsMockable(@Nonnull String typeDesc) {
       boolean unmockable =
-         ("java/lang/String java/lang/AbstractStringBuilder java/util/Iterator java/util/Comparator java/util/Spliterator " +
+         ("java/lang/String java/lang/StringBuffer java/lang/StringBuilder java/lang/AbstractStringBuilder " +
+          "java/util/Iterator java/util/Comparator java/util/Spliterator " +
           "java/util/Collection java/util/List java/util/Set java/util/SortedSet java/util/Queue java/util/Enumeration " +
           "java/util/Map java/util/SortedMap java/util/Map$Entry java/util/AbstractCollection java/util/AbstractMap " +
           "java/util/Hashtable java/lang/Throwable java/lang/Object java/lang/Enum java/lang/System java/lang/ThreadLocal " +
