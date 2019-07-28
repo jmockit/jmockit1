@@ -31,8 +31,6 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    // Stores the index of the local variable holding a list passed in a withCapture(List) call, if any:
    @Nonnegative private int lastLoadedVarIndex;
 
-   private int lastLoadedArrayIndex;
-
    InvocationBlockModifier(@Nonnull MethodWriter mw, @Nonnull String blockOwner) {
       super(mw);
       this.blockOwner = blockOwner;
@@ -207,14 +205,14 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
    }
 
    @Override
-   public void visitTypeInsn(@Nonnegative int opcode, @Nonnull String type) {
-      argumentCapturing.registerTypeToCaptureIfApplicable(opcode, type);
+   public void visitTypeInsn(@Nonnegative int opcode, @Nonnull String typeDesc) {
+      argumentCapturing.registerTypeToCaptureIfApplicable(opcode, typeDesc);
 
       if (opcode == NEW) {
          stackSize++;
       }
 
-      mw.visitTypeInsn(opcode, type);
+      mw.visitTypeInsn(opcode, typeDesc);
    }
 
    @Override
@@ -279,13 +277,6 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       }
       else {
          stackSize += JVMInstruction.SIZE[opcode];
-
-         if (opcode >= ICONST_0 && opcode <= ICONST_5) {
-            lastLoadedArrayIndex = opcode - ICONST_0;
-         }
-         else if (opcode == AASTORE) {
-            // TODO: in progress for issue #292
-         }
       }
 
       mw.visitInsn(opcode);
