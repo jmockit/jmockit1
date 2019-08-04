@@ -165,8 +165,9 @@ public class Injector
       @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName, @Nonnull TestedClass testedClass,
       @Nonnull Field targetField
    ) {
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
       InjectionProviders injectionProviders = injectionState.injectionProviders;
-      injectionProviders.setTypeOfInjectionPoint(targetField.getGenericType());
+      injectionProviders.setTypeOfInjectionPoint(targetField.getGenericType(), kindOfInjectionPoint);
 
       if (qualifiedTargetFieldName != null && !qualifiedTargetFieldName.isEmpty()) {
          String injectableName = convertToLegalJavaIdentifierIfNeeded(qualifiedTargetFieldName);
@@ -179,9 +180,11 @@ public class Injector
 
       String targetFieldName = targetField.getName();
 
-      return withMultipleTargetFieldsOfSameType(targetFields, testedClass, targetField, injectionProviders) ?
-         injectionProviders.findInjectableByTypeAndName(targetFieldName, testedClass) :
-         injectionProviders.getProviderByTypeAndOptionallyName(targetFieldName, testedClass);
+      if (withMultipleTargetFieldsOfSameType(targetFields, testedClass, targetField, injectionProviders)) {
+         return injectionProviders.findInjectableByTypeAndName(targetFieldName, testedClass);
+      }
+
+      return injectionProviders.getProviderByTypeAndOptionallyName(targetFieldName, testedClass);
    }
 
    private static boolean withMultipleTargetFieldsOfSameType(

@@ -44,10 +44,11 @@ public final class TestedClassWithGenericsTest
 
    @Test
    public void useSUTInstantiatedWithConstructorHavingMultipleGenericParameters(
+      @Injectable Iterable<Collaborator<Integer>> collaborators,
       @Injectable Callable<String> mockAction1, @Injectable Callable<Integer> action1
    ) {
       assertNull(tested1.collaborator);
-      assertSame(mockCollaborator, tested1.collaborators.iterator().next());
+      assertSame(collaborators, tested1.collaborators);
       assertSame(mockAction1, tested1.action2);
       assertSame(action1, tested1.action1);
       assertSame(numberToInject, tested1.value);

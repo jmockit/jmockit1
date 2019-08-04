@@ -80,7 +80,8 @@ public final class ConstructorInjection extends Injector
       }
 
       Type parameterType = constructorParameter.getDeclaredType();
-      injectionState.injectionProviders.setTypeOfInjectionPoint(parameterType);
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(constructor);
+      injectionState.injectionProviders.setTypeOfInjectionPoint(parameterType, kindOfInjectionPoint);
       String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
 
       Class<?> parameterClass = constructorParameter.getClassOfDeclaredType();
@@ -132,8 +133,9 @@ public final class ConstructorInjection extends Injector
    @Nonnull
    private Object obtainInjectedVarargsArray(@Nonnull Type parameterType, @Nonnull TestedClass testedClass) {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(constructor);
       InjectionProviders injectionProviders = injectionState.injectionProviders;
-      injectionProviders.setTypeOfInjectionPoint(varargsElementType);
+      injectionProviders.setTypeOfInjectionPoint(varargsElementType, kindOfInjectionPoint);
 
       List<Object> varargValues = new ArrayList<>();
       InjectionProvider injectable;

@@ -9,6 +9,7 @@ import java.util.*;
 import javax.annotation.*;
 import javax.inject.*;
 
+import mockit.internal.injection.InjectionPoint.*;
 import mockit.internal.reflection.*;
 import static mockit.internal.injection.InjectionPoint.INJECT_CLASS;
 import static mockit.internal.util.Utilities.getClassType;
@@ -18,6 +19,7 @@ public final class InjectionProviders
    @Nonnull private List<InjectionProvider> injectables;
    @Nonnull private List<InjectionProvider> consumedInjectionProviders;
    private Type typeOfInjectionPoint;
+   private KindOfInjectionPoint kindOfInjectionPoint;
 
    InjectionProviders(@Nonnull LifecycleMethods lifecycleMethods) {
       injectables = Collections.emptyList();
@@ -48,14 +50,19 @@ public final class InjectionProviders
       return injectables;
    }
 
-   public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint) { this.typeOfInjectionPoint = typeOfInjectionPoint; }
+   public void setTypeOfInjectionPoint(@Nonnull Type typeOfInjectionPoint, @Nonnull KindOfInjectionPoint kindOfInjectionPoint) {
+      this.typeOfInjectionPoint = typeOfInjectionPoint;
+      this.kindOfInjectionPoint = kindOfInjectionPoint;
+   }
 
    @Nullable
    public InjectionProvider getProviderByTypeAndOptionallyName(@Nonnull String nameOfInjectionPoint, @Nonnull TestedClass testedClass) {
-      Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
+      if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
+         Type elementTypeOfIterable = getElementTypeIfIterable(typeOfInjectionPoint);
 
-      if (elementTypeOfIterable != null) {
-         return findInjectablesByTypeOnly(elementTypeOfIterable, testedClass);
+         if (elementTypeOfIterable != null) {
+            return findInjectablesByTypeOnly(elementTypeOfIterable, testedClass);
+         }
       }
 
       return findInjectableByTypeAndOptionallyName(nameOfInjectionPoint, testedClass);
@@ -101,7 +108,7 @@ public final class InjectionProviders
          Class<?> classOfInjectionPoint = (Class<?>) parameterizedType.getRawType();
 
          if (
-            Iterable.class.isAssignableFrom(classOfInjectionPoint) ||
+            kindOfInjectionPoint == KindOfInjectionPoint.Required && Iterable.class.isAssignableFrom(classOfInjectionPoint) ||
             INJECT_CLASS != null && Provider.class.isAssignableFrom(classOfInjectionPoint)
          ) {
             Type providedType = parameterizedType.getActualTypeArguments()[0];

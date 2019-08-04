@@ -159,10 +159,11 @@ public final class ConstructorSearch
 
       String constructorDesc = "<init>" + JavaType.getConstructorDescriptor(candidate);
       InjectionProviders injectionProviders = injectionState.injectionProviders;
+      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(candidate);
 
       for (int i = 0; i < n; i++) {
          Type parameterType = parameterTypes[i];
-         injectionProviders.setTypeOfInjectionPoint(parameterType);
+         injectionProviders.setTypeOfInjectionPoint(parameterType, kindOfInjectionPoint);
 
          String parameterName = ParameterNames.getName(testedClassDesc, constructorDesc, i);
          Annotation[] appliedAnnotations = parameterAnnotations[i];
@@ -178,7 +179,7 @@ public final class ConstructorSearch
 
       if (varArgs) {
          Type parameterType = parameterTypes[n];
-         InjectionProvider injectable = hasInjectedValuesForVarargsParameter(parameterType, injectionProviders);
+         InjectionProvider injectable = hasInjectedValuesForVarargsParameter(parameterType, kindOfInjectionPoint, injectionProviders);
 
          if (injectable != null) {
             providersFound.add(injectable);
@@ -218,10 +219,10 @@ public final class ConstructorSearch
 
    @Nullable
    private InjectionProvider hasInjectedValuesForVarargsParameter(
-      @Nonnull Type parameterType, @Nonnull InjectionProviders injectionProviders
+      @Nonnull Type parameterType, @Nonnull KindOfInjectionPoint kindOfInjectionPoint, @Nonnull InjectionProviders injectionProviders
    ) {
       Type varargsElementType = getTypeOfInjectionPointFromVarargsParameter(parameterType);
-      injectionProviders.setTypeOfInjectionPoint(varargsElementType);
+      injectionProviders.setTypeOfInjectionPoint(varargsElementType, kindOfInjectionPoint);
       return injectionProviders.findNextInjectableForInjectionPoint(testedClass);
    }
 

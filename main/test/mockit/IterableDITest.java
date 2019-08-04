@@ -38,7 +38,11 @@ public final class IterableDITest
 
    static class Dependency {}
    static class SubDependency extends Dependency {}
-   static class TestedClassWithInjectedList { @Inject List<Dependency> dependencies; }
+
+   static class TestedClassWithInjectedList {
+      @Inject List<Dependency> dependencies;
+      Set<String> names;
+   }
 
    @Tested TestedClassWithInjectedList tested2;
    @Injectable Dependency dependency;
@@ -46,6 +50,11 @@ public final class IterableDITest
    @Test
    public void injectMockedInstanceIntoList() {
       assertTrue(tested2.dependencies.contains(dependency));
+   }
+
+   @Test
+   public void doNotInjectStringIntoUnannotatedSet(@Injectable("test") String name) {
+      assertNull(tested2.names);
    }
 
    @Test
