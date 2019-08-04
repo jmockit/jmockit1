@@ -24,4 +24,7 @@ public final class TestedFieldWithFailedFullDITest
 
    @Test
    public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithNullValue() {}
+
+   @Test
+   public void attemptToUseTestedObjectWhoseCreationFailedDueToInjectableWithNullValue2() {}
 }

@@ -311,4 +311,8 @@ public final class FullInjection
 
       return description;
    }
+
+   public void clear() {
+      parentInjectionProvider = null;
+   }
 }
