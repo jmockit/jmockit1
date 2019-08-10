@@ -8,7 +8,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
-import static mockit.internal.util.Utilities.*;
 
 public abstract class TestOnlyPhase extends Phase
 {
@@ -72,7 +71,16 @@ public abstract class TestOnlyPhase extends Phase
    public abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);
 
    static boolean isEnumElement(@Nonnull Object mock) {
-      Class<?> mockedClass = mock.getClass();
-      return mockedClass.isEnum() && indexOfReference(mockedClass.getEnumConstants(), mock) >= 0;
+      Object[] enumElements = mock.getClass().getEnumConstants();
+
+      if (enumElements != null) {
+         for (Object enumElement : enumElements) {
+            if (enumElement == mock) {
+               return true;
+            }
+         }
+      }
+
+      return false;
    }
 }
