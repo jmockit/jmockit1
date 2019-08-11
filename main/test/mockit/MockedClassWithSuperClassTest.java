@@ -120,16 +120,14 @@ public final class MockedClassWithSuperClassTest
       BaseClassWithTwoConstructors(int value) { this.value = value; }
    }
 
-   static class SubclassWithOneConstructor extends BaseClassWithTwoConstructors {
-      SubclassWithOneConstructor() { super(2); }
-      void doSomething() { assertEquals("Not 2", 2, value); }
-   }
-
+   static class SubclassWithOneConstructor extends BaseClassWithTwoConstructors { SubclassWithOneConstructor() { super(2); } }
    static final class Bar extends SubclassWithOneConstructor {}
    static final class Baz extends SubclassWithOneConstructor {}
 
    @Test @Ignore("issue #623")
    public void mockOneSubclassButInstantiateUnmockedSibling(@Mocked Bar mock) {
-      new Baz().doSomething();
+      int value = new Baz().value;
+
+      assertEquals(2, value);
    }
 }
