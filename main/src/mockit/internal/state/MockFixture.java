@@ -117,27 +117,10 @@ public final class MockFixture
    }
 
    public void registerMockedClass(@Nonnull Class<?> mockedType) {
-      if (!isMockedClass(mockedType)) {
-         if (Proxy.isProxyClass(mockedType)) {
-            mockedType = mockedType.getInterfaces()[0];
-         }
-
+      if (!mockedClasses.contains(mockedType)) {
+         mockedType = getMockedClassOrInterfaceType(mockedType);
          mockedClasses.add(mockedType);
       }
-   }
-
-   private boolean isMockedClass(@Nonnull Class<?> targetClass) {
-      int n = mockedClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> mockedClass = mockedClasses.get(i);
-
-         if (mockedClass == targetClass) {
-            return true;
-         }
-      }
-
-      return false;
    }
 
    // Methods used by the Mocking API.
@@ -172,16 +155,32 @@ public final class MockFixture
 
       if (instance == null) {
          targetClass = ClassLoad.loadByInternalName(classDesc);
-         return isClassAssignableTo(mockedClasses, targetClass);
+         return isClassAssignableTo(targetClass);
       }
 
       targetClass = instance.getClass();
       return mockedTypesAndInstances.containsKey(targetClass) || isInstanceOfMockedClass(instance);
    }
 
+   private boolean isClassAssignableTo(@Nonnull Class<?> toClass) {
+      for (Class<?> mockedClass : mockedClasses) {
+         if (toClass == mockedClass || toClass.isAssignableFrom(mockedClass)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
    public boolean isInstanceOfMockedClass(@Nonnull Object mockedInstance) {
-      Class<?> mockedClass = mockedInstance.getClass();
-      return findClassAssignableFrom(mockedClasses, mockedClass) != null;
+      Class<?> mockedClass = getMockedClassOrInterfaceType(mockedInstance.getClass());
+      Class<?> mockedSuperclass = mockedClass.getSuperclass();
+
+      if (mockedSuperclass != null && mockedSuperclass.isEnum()) {
+         return mockedClasses.contains(mockedSuperclass);
+      }
+
+      return mockedClasses.contains(mockedClass) || isCaptured(mockedClass);
    }
 
    public void registerInstanceFactoryForMockedType(@Nonnull Class<?> mockedType, @Nonnull InstanceFactory mockedInstanceFactory) {
@@ -379,13 +378,18 @@ public final class MockFixture
    public boolean isCaptured(@Nonnull Object mockedInstance) {
       if (!captureTransformers.isEmpty()) {
          Class<?> mockedClass = getMockedClass(mockedInstance);
+         return isCaptured(mockedClass);
+      }
 
-         for (CaptureTransformer<?> captureTransformer : captureTransformers) {
-            CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(mockedClass);
+      return false;
+   }
 
-            if (capture != null) {
-               return true;
-            }
+   private boolean isCaptured(@Nonnull Class<?> mockedClass) {
+      for (CaptureTransformer<?> captureTransformer : captureTransformers) {
+         CaptureOfNewInstances capture = captureTransformer.getCaptureOfImplementationsIfApplicable(mockedClass);
+
+         if (capture != null) {
+            return true;
          }
       }
 

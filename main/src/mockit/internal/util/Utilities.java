@@ -81,43 +81,6 @@ public final class Utilities
       return false;
    }
 
-   public static int indexOfReference(@Nonnull Object[] references, @Nullable Object toBeFound) {
-      for (int i = 0, n = references.length; i < n; i++) {
-         if (references[i] == toBeFound) {
-            return i;
-         }
-      }
-
-      return -1;
-   }
-
-   public static boolean isClassAssignableTo(@Nonnull List<Class<?>> fromClasses, @Nonnull Class<?> toClass) {
-      int n = fromClasses.size();
-
-      for (int i = 0; i < n; i++) {
-         Class<?> fromClass = fromClasses.get(i);
-
-         if (toClass == fromClass || toClass.isAssignableFrom(fromClass)) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   @Nullable
-   public static Class<?> findClassAssignableFrom(@Nonnull List<Class<?>> toClasses, @Nonnull Class<?> fromClass) {
-      for (int i = 0; i < toClasses.size(); i++) {
-         Class<?> toClass = toClasses.get(i);
-
-         if (toClass == fromClass || toClass.isAssignableFrom(fromClass)) {
-            return toClass;
-         }
-      }
-
-      return null;
-   }
-
    @Nullable
    public static Object convertFromString(@Nonnull Class<?> targetType, @Nonnull String value) {
       if (targetType == String.class) {

@@ -37,21 +37,20 @@ public final class MockedClassWithSuperClassTest
       assertSame(w, w.append("Test1"));
       assertSame(w, w.append('b'));
 
-      new SubclassOfJREClass() {}.close();
+      try { new SubclassOfJREClass() {}.close(); } catch (UnsupportedOperationException ignore) {}
    }
 
    @Test
    public void mockedClassExtendingNonJREClass(@Mocked final Subclass mock) {
-      new Expectations() {{ mock.doSomething(); result = 45; times = 3; }};
+      new Expectations() {{ mock.doSomething(); result = 45; times = 2; }};
 
       // Mocked:
       assertEquals(45, mock.doSomething());
       assertEquals(45, new Subclass().doSomething());
 
-      // Mocked and matching the recorded expectation:
-      assertEquals(45, new Subclass() {}.doSomething());
-
       // Not mocked:
+      assertEquals(123, new Subclass() {}.doSomething());
+
       BaseClass b1 = new BaseClass();
       BaseClass b2 = new BaseClass() { @Override protected int doSomething() { return super.doSomething() - 23; } };
       assertEquals(123, b1.doSomething());
@@ -111,7 +110,26 @@ public final class MockedClassWithSuperClassTest
       new Expectations() {{ baseMock.doSomething(); result = 45; }};
 
       Subclass derived = new Subclass();
-      assertEquals(45, derived.doSomething());
-      assertEquals(45, baseMock.doSomething());
+      assertEquals(123, derived.doSomething());
+      assertEquals( 45, baseMock.doSomething());
+   }
+
+   static class BaseClassWithTwoConstructors {
+      final int value;
+      @SuppressWarnings("unused") BaseClassWithTwoConstructors() { value = 1; }
+      BaseClassWithTwoConstructors(int value) { this.value = value; }
+   }
+
+   static class SubclassWithOneConstructor extends BaseClassWithTwoConstructors {
+      SubclassWithOneConstructor() { super(2); }
+      void doSomething() { assertEquals("Not 2", 2, value); }
+   }
+
+   static final class Bar extends SubclassWithOneConstructor {}
+   static final class Baz extends SubclassWithOneConstructor {}
+
+   @Test @Ignore("issue #623")
+   public void mockOneSubclassButInstantiateUnmockedSibling(@Mocked Bar mock) {
+      new Baz().doSomething();
    }
 }

@@ -83,9 +83,8 @@ public final class ExpectationsUsingMockedTest
    public void recordMethodFromAbstractBaseClassAndReplayOnSubclass() {
       new Expectations() {{ base.doSomething(); result = 1; }};
 
-      int i = new SubClass().doSomething();
-
-      assertEquals(1, i);
+      assertEquals( 1, base.doSomething());
+      assertEquals(-1, new SubClass().doSomething());
    }
 
    public interface BusinessInterface {}

@@ -75,17 +75,6 @@ public final class MultipleMockedTypesTest
    public static final class SubDependencyThatOverrides extends SecondDependency { @Override public int getValue() { return 1; } }
 
    @Test
-   public void invocationOnBaseTypeWithReplayOnSubtypeThatInheritsTheInvokedMethod(@Mocked final SecondDependency mock2) {
-      new Expectations() {{
-         mock1.getValue(); result = 15;
-         mock2.getValue(); result = -50;
-      }};
-
-      assertTrue(new TestedUnit().validate(mock1, new SubDependencyThatInherits()));
-      assertEquals(-50, mock2.getValue());
-   }
-
-   @Test
    public void invocationOnBaseTypeWithReplayOnSubtypeThatOverridesTheInvokedMethod(@Mocked final SecondDependency mock2) {
       new Expectations() {{ mock1.getValue(); result = 15; }};
 
