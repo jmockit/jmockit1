@@ -48,7 +48,7 @@ public final class ClassLoad
    }
 
    @Nonnull
-   private static Class<?> loadClassFromAClassLoader(@Nonnull String className) {
+   public static Class<?> loadClassFromAClassLoader(@Nonnull String className) {
       Class<?> loadedClass = loadClass(null, className);
 
       if (loadedClass == null) {
