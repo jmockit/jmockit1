@@ -49,7 +49,7 @@ final class MockedClassModifier extends BaseClassModifier
 
    private void useInstanceBasedMockingIfApplicable() {
       if (mockedType != null && mockedType.injectable) {
-         ignoreConstructors = !mockedType.withInstancesToCapture();
+         ignoreConstructors = true;
          executionMode = ExecutionMode.PerInstance;
       }
    }
@@ -122,7 +122,6 @@ final class MockedClassModifier extends BaseClassModifier
       }
 
       boolean visitingConstructor = "<init>".equals(name);
-      ExecutionMode actualExecutionMode = determineAppropriateExecutionMode(visitingConstructor);
       String internalClassName = className;
 
       if (visitingConstructor) {
@@ -154,10 +153,10 @@ final class MockedClassModifier extends BaseClassModifier
       }
 
       if (useClassLoadingBridge) {
-         return generateCallToHandlerThroughMockingBridge(signature, internalClassName, visitingConstructor, actualExecutionMode);
+         return generateCallToHandlerThroughMockingBridge(signature, internalClassName, visitingConstructor);
       }
 
-      generateDirectCallToHandler(internalClassName, access, name, desc, signature, actualExecutionMode);
+      generateDirectCallToHandler(internalClassName, access, name, desc, signature, executionMode);
       generateDecisionBetweenReturningOrContinuingToRealImplementation();
 
       // Constructors of non-JRE classes can't be modified (unless running with "-noverify") in a way that
@@ -170,21 +169,6 @@ final class MockedClassModifier extends BaseClassModifier
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
    ) {
       return cw.visitMethod(access, name, desc, signature, exceptions);
-   }
-
-   @Nonnull
-   private ExecutionMode determineAppropriateExecutionMode(boolean visitingConstructor) {
-      if (executionMode == ExecutionMode.PerInstance) {
-         if (visitingConstructor) {
-            return ignoreConstructors ? ExecutionMode.Regular : ExecutionMode.Partial;
-         }
-
-         if (isStatic(methodAccess)) {
-            return ExecutionMode.Partial;
-         }
-      }
-
-      return executionMode;
    }
 
    private boolean isConstructorNotAllowedByMockingFilters(@Nonnull String name) {
@@ -218,8 +202,7 @@ final class MockedClassModifier extends BaseClassModifier
 
    @Nonnull
    private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @Nonnull String internalClassName, boolean visitingConstructor,
-      @Nonnull ExecutionMode actualExecutionMode
+      @Nullable String genericSignature, @Nonnull String internalClassName, boolean visitingConstructor
    ) {
       generateCodeToObtainInstanceOfClassLoadingBridge(MockedBridge.MB);
 
@@ -237,7 +220,7 @@ final class MockedClassModifier extends BaseClassModifier
       generateCodeToFillArrayElement(i++, methodName);
       generateCodeToFillArrayElement(i++, methodDesc);
       generateCodeToFillArrayElement(i++, genericSignature);
-      generateCodeToFillArrayElement(i++, actualExecutionMode.ordinal());
+      generateCodeToFillArrayElement(i++, executionMode.ordinal());
 
       generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
