@@ -32,8 +32,7 @@ final class MockedClassModifier extends BaseClassModifier
    private final boolean classFromNonBootstrapClassLoader;
    private String className;
    @Nullable private String baseClassNameForCapturedInstanceMethods;
-   private boolean ignoreConstructors;
-   private ExecutionMode executionMode;
+   @Nonnull private ExecutionMode executionMode;
    private boolean isProxy;
    @Nullable private String defaultFilters;
    @Nullable List<String> enumSubclasses;
@@ -43,24 +42,15 @@ final class MockedClassModifier extends BaseClassModifier
       mockedType = typeMetadata;
       classFromNonBootstrapClassLoader = classLoader != null;
       setUseClassLoadingBridge(classLoader);
-      executionMode = ExecutionMode.Regular;
-      useInstanceBasedMockingIfApplicable();
+      executionMode = typeMetadata != null && typeMetadata.injectable ? ExecutionMode.PerInstance : ExecutionMode.Regular;
    }
 
-   private void useInstanceBasedMockingIfApplicable() {
-      if (mockedType != null && mockedType.injectable) {
-         ignoreConstructors = true;
-         executionMode = ExecutionMode.PerInstance;
-      }
+   void useDynamicMocking() {
+      executionMode = ExecutionMode.Partial;
    }
 
    void setClassNameForCapturedInstanceMethods(@Nonnull String internalClassName) {
       baseClassNameForCapturedInstanceMethods = internalClassName;
-   }
-
-   void useDynamicMocking() {
-      ignoreConstructors = true;
-      executionMode = ExecutionMode.Partial;
    }
 
    @Override
@@ -172,7 +162,7 @@ final class MockedClassModifier extends BaseClassModifier
    }
 
    private boolean isConstructorNotAllowedByMockingFilters(@Nonnull String name) {
-      return isProxy || ignoreConstructors || isUnmockableInvocation(defaultFilters, name);
+      return isProxy || executionMode != ExecutionMode.Regular || isUnmockableInvocation(defaultFilters, name);
    }
 
    private boolean isMethodNotToBeMocked(int access, @Nonnull String name, @Nonnull String desc) {
@@ -197,7 +187,8 @@ final class MockedClassModifier extends BaseClassModifier
    private boolean isMethodNotAllowedByMockingFilters(int access, @Nonnull String name) {
       return
          baseClassNameForCapturedInstanceMethods != null && (access & STATIC) != 0 ||
-         executionMode.isMethodToBeIgnored(access) || isUnmockableInvocation(defaultFilters, name);
+         executionMode.isMethodToBeIgnored(access) ||
+         isUnmockableInvocation(defaultFilters, name);
    }
 
    @Nonnull
