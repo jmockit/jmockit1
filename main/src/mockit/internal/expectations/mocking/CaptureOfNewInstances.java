@@ -21,21 +21,14 @@ public final class CaptureOfNewInstances extends CaptureOfImplementations<Mocked
 
    CaptureOfNewInstances() { baseTypes = new ArrayList<>(); }
 
-   @Nonnull
-   private static MockedClassModifier newModifier(
+   @Nonnull @Override
+   protected BaseClassModifier createModifier(
       @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata
    ) {
       MockedClassModifier modifier = new MockedClassModifier(cl, cr, typeMetadata);
       String baseTypeDesc = JavaType.getInternalName(baseType);
       modifier.setClassNameForCapturedInstanceMethods(baseTypeDesc);
       return modifier;
-   }
-
-   @Nonnull @Override
-   protected BaseClassModifier createModifier(
-      @Nullable ClassLoader cl, @Nonnull ClassReader cr, @Nonnull Class<?> baseType, @Nullable MockedType typeMetadata
-   ) {
-      return newModifier(cl, cr, baseType, typeMetadata);
    }
 
    @Override
