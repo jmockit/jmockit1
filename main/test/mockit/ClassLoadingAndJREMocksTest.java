@@ -99,15 +99,14 @@ public final class ClassLoadingAndJREMocksTest
       }};
    }
 
-   String readResourceContents(String hostName, int port, String resourceId, int connectionTimeoutMillis) throws IOException {
-      URL url = new URL("http", hostName, port, resourceId);
+   String readResourceContents() throws IOException {
+      URL url = new URL("http://remoteHost/aResource");
       URLConnection connection = url.openConnection();
 
-      connection.setConnectTimeout(connectionTimeoutMillis);
+      connection.setConnectTimeout(1000);
       connection.connect();
 
-      Object content = connection.getContent();
-      return content.toString();
+      return connection.getContent().toString();
    }
 
    @Test
@@ -117,7 +116,7 @@ public final class ClassLoadingAndJREMocksTest
       final String testContents = "testing";
       new Expectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
 
-      String contents = readResourceContents("remoteHost", 80, "aResource", 1000);
+      String contents = readResourceContents();
 
       assertEquals(testContents, contents);
    }
