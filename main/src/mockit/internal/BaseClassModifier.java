@@ -69,34 +69,12 @@ public class BaseClassModifier extends WrappingClassVisitor
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
    ) {
       mw = cw.visitMethod(access & METHOD_ACCESS_MASK, name, desc, signature, exceptions);
-
       methodAccess = access;
       methodName = name;
       methodDesc = desc;
    }
 
    public final boolean wasModified() { return methodName != null; }
-
-   protected final void generateCallToSuperConstructor() {
-      if (superClassName != null) {
-         mw.visitVarInsn(ALOAD, 0);
-
-         String constructorDesc;
-
-         if ("java/lang/Object".equals(superClassName)) {
-            constructorDesc = "()V";
-         }
-         else {
-            constructorDesc = SuperConstructorCollector.INSTANCE.findConstructor(classDesc, superClassName);
-
-            for (JavaType paramType : JavaType.getArgumentTypes(constructorDesc)) {
-               pushDefaultValueForType(paramType);
-            }
-         }
-
-         mw.visitMethodInsn(INVOKESPECIAL, superClassName, "<init>", constructorDesc, false);
-      }
-   }
 
    protected final void generateDirectCallToHandler(
       @Nonnull String className, int access, @Nonnull String name, @Nonnull String desc, @Nullable String genericSignature
@@ -278,18 +256,16 @@ public class BaseClassModifier extends WrappingClassVisitor
    }
 
    @Nonnull
-   protected final MethodVisitor copyOriginalImplementationCode(boolean disregardCallToSuper) {
-      if (disregardCallToSuper) {
+   protected final MethodVisitor copyOriginalImplementationWithInjectedInterceptionCode() {
+      if ("<init>".equals(methodName)) {
          return new DynamicConstructorModifier();
       }
 
-      if (isNative(methodAccess)) {
-         generateEmptyImplementation(methodDesc);
-         return methodAnnotationsVisitor;
-      }
-
+      generateInterceptionCode();
       return new DynamicModifier();
    }
+
+   protected void generateInterceptionCode() {}
 
    private class DynamicModifier extends WrappingMethodVisitor {
       DynamicModifier() { super(BaseClassModifier.this.mw); }
@@ -314,41 +290,32 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    private final class DynamicConstructorModifier extends DynamicModifier {
       private boolean pendingCallToConstructorOfSameClass;
-      private boolean callToAnotherConstructorAlreadyDisregarded;
+      private boolean callToAnotherConstructorAlreadyCopied;
 
       @Override
       public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
-         if (!callToAnotherConstructorAlreadyDisregarded && opcode == NEW && typeDesc.equals(classDesc)) {
+         mw.visitTypeInsn(opcode, typeDesc);
+
+         if (opcode == NEW && !callToAnotherConstructorAlreadyCopied && typeDesc.equals(classDesc)) {
             pendingCallToConstructorOfSameClass = true;
          }
-
-         mw.visitTypeInsn(opcode, typeDesc);
       }
 
       @Override
       public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+         mw.visitMethodInsn(opcode, owner, name, desc, itf);
+
          if (pendingCallToConstructorOfSameClass) {
             if (opcode == INVOKESPECIAL && "<init>".equals(name) && owner.equals(classDesc)) {
-               mw.visitMethodInsn(INVOKESPECIAL, owner, name, desc, itf);
                pendingCallToConstructorOfSameClass = false;
             }
          }
          else if (
-            callToAnotherConstructorAlreadyDisregarded ||
-            opcode != INVOKESPECIAL || !"<init>".equals(name) ||
-            !owner.equals(superClassName) && !owner.equals(classDesc)
+            opcode == INVOKESPECIAL && !callToAnotherConstructorAlreadyCopied && "<init>".equals(name) &&
+            (owner.equals(superClassName) || owner.equals(classDesc))
          ) {
-            mw.visitMethodInsn(opcode, owner, name, desc, itf);
-         }
-         else {
-            callToAnotherConstructorAlreadyDisregarded = true;
-         }
-      }
-
-      @Override
-      public void visitTryCatchBlock(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
-         if (callToAnotherConstructorAlreadyDisregarded) {
-            mw.visitTryCatchBlock(start, end, handler, type);
+            generateInterceptionCode();
+            callToAnotherConstructorAlreadyCopied = true;
          }
       }
    }
