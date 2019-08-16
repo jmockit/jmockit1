@@ -18,8 +18,8 @@ import static mockit.internal.util.DefaultValues.*;
 abstract class TestedObject
 {
    @Nonnull private final InjectionState injectionState;
-   @Nonnull private final String testedName;
    @Nonnull final Tested metadata;
+   @Nonnull private final String testedName;
    @Nullable private final FullInjection fullInjection;
    @Nonnull private final TestedClass testedClass;
    @Nullable private final TestedObjectCreation testedObjectCreation;
@@ -40,8 +40,8 @@ abstract class TestedObject
       @Nonnull String testedName, @Nonnull Type testedType, @Nonnull Class<?> testedClass
    ) {
       this.injectionState = injectionState;
-      this.testedName = testedName;
       this.metadata = metadata;
+      this.testedName = testedName;
       fullInjection = metadata.fullyInitialized() ? new FullInjection(injectionState, testedClass, testedName) : null;
 
       if (testedClass.isInterface() || testedClass.isEnum() || testedClass.isPrimitive() || testedClass.isArray()) {
@@ -124,9 +124,12 @@ abstract class TestedObject
       Object testedInstance = null;
 
       if (testedObjectCreation != null) {
-         testedInstance = testedObjectCreation.create();
-         setInstance(testClassInstance, testedInstance);
-         registerTestedObject(testedInstance);
+         testedInstance = testedObjectCreation.create(false);
+
+         if (testedInstance != null) {
+            setInstance(testClassInstance, testedInstance);
+            registerTestedObject(testedInstance);
+         }
       }
 
       return testedInstance;

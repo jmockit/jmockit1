@@ -30,6 +30,7 @@ public abstract class InjectionProvider
    @Nonnull public final String getName() { return name; }
    @Nonnull public Annotation[] getAnnotations() { throw new UnsupportedOperationException("No annotations"); }
    @Nullable public Object getValue(@Nullable Object owner) { return null; }
+   public boolean isRequired() { return false; }
 
    public boolean hasAnnotation(@Nonnull Class<? extends Annotation> annotationOfInterest) {
       for (Annotation annotation : getAnnotations()) {

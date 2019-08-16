@@ -70,7 +70,7 @@ public final class FullInjection
       return testedInstance;
    }
 
-   private void setInjectionProvider(@Nullable InjectionProvider injectionProvider) {
+   public void setInjectionProvider(@Nullable InjectionProvider injectionProvider) {
       if (injectionProvider != null) {
          injectionProvider.parent = parentInjectionProvider;
       }
@@ -121,7 +121,7 @@ public final class FullInjection
       return Logger.getLogger(testedClassWithLogger.nameOfTestedClass);
    }
 
-   private static boolean isInstantiableType(@Nonnull Class<?> type) {
+   public static boolean isInstantiableType(@Nonnull Class<?> type) {
       if (type.isPrimitive() || type.isArray() || type.isAnnotation()) {
          return false;
       }
@@ -225,7 +225,7 @@ public final class FullInjection
             @Override
             public synchronized Object get() {
                if (dependency == null) {
-                  dependency = createNewInstance(providedClass);
+                  dependency = createNewInstance(providedClass, true);
                }
 
                return dependency;
@@ -236,14 +236,14 @@ public final class FullInjection
       return new Provider<Object>() {
          @Override
          public Object get() {
-            Object dependency = createNewInstance(providedClass);
+            Object dependency = createNewInstance(providedClass, false);
             return dependency;
          }
       };
    }
 
    @Nullable
-   private Object createNewInstance(@Nonnull Class<?> classToInstantiate) {
+   private Object createNewInstance(@Nonnull Class<?> classToInstantiate, boolean required) {
       if (classToInstantiate.isInterface()) {
          return null;
       }
@@ -252,7 +252,7 @@ public final class FullInjection
          return newInstanceUsingDefaultConstructorIfAvailable(classToInstantiate);
       }
 
-      return new TestedObjectCreation(injectionState, this, classToInstantiate).create();
+      return new TestedObjectCreation(injectionState, this, classToInstantiate).create(required);
    }
 
    @Nonnull
@@ -269,7 +269,7 @@ public final class FullInjection
       @Nonnull Class<?> typeToInstantiate, @Nonnull TestedClass testedClass, @Nonnull Injector injector,
       @Nonnull InjectionPoint injectionPoint, @Nullable InjectionProvider injectionProvider
    ) {
-      Object dependency = createNewInstance(typeToInstantiate);
+      Object dependency = createNewInstance(typeToInstantiate, injectionProvider != null && injectionProvider.isRequired());
 
       if (dependency != null) {
          if (injectionPoint.name == null) {
