@@ -46,7 +46,7 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.12</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.5.1</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -55,7 +55,7 @@
       </dependency>
       <dependency>
          <!-- Test database: HSQLDB -->
-         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.4.0</version>
+         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.5.0</version>
          <scope>runtime</scope>
       </dependency>
    </dependencies>
