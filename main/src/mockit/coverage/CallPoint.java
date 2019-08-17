@@ -22,21 +22,30 @@ public final class CallPoint implements Serializable
    private static final boolean checkIfTestCaseSubclass;
 
    static {
-      boolean checkOnClassAlso = true;
-      Class<?> annotation;
+      Class<?> annotation = getJUnitAnnotationIfAvailable();
+      boolean checkOnClassAlso = false;
 
-      try {
-         annotation = Class.forName("org.junit.Test");
-         checkOnClassAlso = false;
-      }
-      catch (ClassNotFoundException ignore) {
+      if (annotation == null) {
          annotation = getTestNGAnnotationIfAvailable();
+         checkOnClassAlso = true;
       }
 
       //noinspection unchecked
       testAnnotation = (Class<? extends Annotation>) annotation;
       checkTestAnnotationOnClass = checkOnClassAlso;
       checkIfTestCaseSubclass = checkForJUnit3Availability();
+   }
+
+   @Nullable
+   private static Class<?> getJUnitAnnotationIfAvailable() {
+      try {
+         // JUnit 5:
+         return Class.forName("org.junit.jupiter.api.Test");
+      }
+      catch (ClassNotFoundException ignore) {
+         // JUnit 4:
+         try { return Class.forName("org.junit.Test"); } catch (ClassNotFoundException ignored) { return null; }
+      }
    }
 
    @Nullable
