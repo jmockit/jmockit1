@@ -110,10 +110,6 @@ public final class CallPoint implements Serializable
       String className = ste.getClassName();
       String methodName = ste.getMethodName();
 
-      if (className == null || methodName == null) {
-         return false;
-      }
-
       if (steCache.containsKey(ste)){
          return steCache.get(ste);
       }
