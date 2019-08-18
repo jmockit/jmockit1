@@ -96,7 +96,7 @@ final class ClassSelection
    private static boolean isIneligibleForSelection(@Nonnull String className) {
       return
          className.charAt(0) == '[' ||
-         className.startsWith("mockit.") || className.contains(".attach.") ||
+         className.startsWith("mockit.") ||
          className.startsWith("org.hamcrest.") ||
          className.startsWith("org.junit.") || className.startsWith("junit.") ||
          className.startsWith("org.testng.") ||
