@@ -15,7 +15,6 @@ import mockit.internal.startup.*;
 public final class CodeCoverage implements ClassFileTransformer
 {
    @Nonnull private final ClassModification classModification;
-   @Nonnull private final OutputFileGenerator outputGenerator;
 
    public static void main(@Nonnull String[] args) {
       OutputFileGenerator generator = createOutputFileGenerator();
@@ -37,7 +36,8 @@ public final class CodeCoverage implements ClassFileTransformer
 
    public CodeCoverage() {
       classModification = new ClassModification();
-      outputGenerator = createOutputFileGenerator();
+      final OutputFileGenerator outputGenerator = createOutputFileGenerator();
+      final CoverageCheck coverageCheck = CoverageCheck.createIfApplicable();
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
          @Override
@@ -52,8 +52,13 @@ public final class CodeCoverage implements ClassFileTransformer
                Startup.instrumentation().removeTransformer(CodeCoverage.this);
                outputGenerator.generate();
             }
+            else {
+               Startup.instrumentation().removeTransformer(CodeCoverage.this);
+            }
 
-            new CoverageCheck().verifyThresholds();
+            if (coverageCheck != null) {
+               coverageCheck.verifyThresholds();
+            }
          }
       });
    }
@@ -68,7 +73,6 @@ public final class CodeCoverage implements ClassFileTransformer
       }
 
       String className = internalClassName.replace('/', '.');
-
       byte[] modifiedClassfile = classModification.modifyClass(className, protectionDomain, originalClassfile);
       return modifiedClassfile;
    }
